@@ -1,5 +1,5 @@
 <header>
-    <h1><a href="/">{{ site.title }}</a></h1>
+    <h1><a href="{{ site.baseurl }}/index.html">{{ site.title }}</a></h1>
 
     <p>{{ site.tagline }}</p>
 
@@ -14,7 +14,7 @@
     <h3>Blog Posts</h3>
     <ul class="posts">
         {% for post in site.posts %}
-        <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+        <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
         {% endfor %}
     </ul>
 </header>
