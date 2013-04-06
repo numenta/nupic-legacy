@@ -1,5 +1,7 @@
 title: Numenta.org
 tagline: Home of the Cortical Learning Algorithm
 
+baseurl:  /opencla
+
 markdown: maruku
 pygments: true
