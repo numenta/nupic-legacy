@@ -1,0 +1,20 @@
+<header>
+    <h1><a href="/">{{ site.title }}</a></h1>
+
+    <p>{{ site.tagline }}</p>
+
+    <p class="view"><a href="https://github.com/numenta/opencla">View the Project on GitHub <small>numenta/opencla</small></a></p>
+
+    <ul class="buttons">
+        <li><a href="https://github.com/numenta/opencla/zipball/master">Download <strong>ZIP File</strong></a></li>
+        <li><a href="https://github.com/numenta/opencla/tarball/master">Download <strong>TAR Ball</strong></a></li>
+        <li><a href="https://github.com/numenta/opencla">View On <strong>GitHub</strong></a></li>
+    </ul>
+
+    <h3>Blog Posts</h3>
+    <ul class="posts">
+        {% for post in site.posts %}
+        <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+</header>
