@@ -1,7 +1,12 @@
 <header>
-    <h1><a href="{{ site.baseurl }}/index.html">{{ site.title }}</a></h1>
 
-    <p>{{ site.tagline }}</p>
+    <div align="center">
+        <a href="{{ site.baseurl }}/index.html">
+            <img src="{{ site.baseurl }}/images/250x250numentaicon.gif"/>
+            <h1>{{ site.title }}</h1>
+        </a>
+        <p class="tagline">{{ site.tagline }}</p>
+    </div>
 
     <p class="view"><a href="https://github.com/numenta/opencla">View the Project on GitHub <small>numenta/opencla</small></a></p>
 
@@ -11,10 +16,12 @@
         <li><a href="https://github.com/numenta/opencla">View On <strong>GitHub</strong></a></li>
     </ul>
 
-    <h3>Blog Posts</h3>
-    <ul class="posts">
-        {% for post in site.posts %}
-        <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
-        {% endfor %}
-    </ul>
+    <nav>
+        <ul>
+            <li><a href="{{ site.baseurl }}/index.html">Home</a></li>
+            <li><a href="{{ site.baseurl }}/blog.html">Blog</a></li>
+            <li><a href="{{ site.baseurl }}/index.html#frequently_asked_questions">FAQ</a></li>
+        </ul>
+    </nav>
+
 </header>

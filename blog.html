@@ -1,0 +1,14 @@
+---
+layout: default
+title: Numenta.org Blog
+---
+{% for post in site.posts limit:3 %}
+<section>
+    <h2><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h2>
+    {{ post.content | markdownify }}
+</section>
+{% endfor %}
+
+<section>
+    <h3><a href="{{ site.baseurl }}/archive.html">Older Blog Entries</a></h3>
+</section>
