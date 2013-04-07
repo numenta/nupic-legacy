@@ -2,26 +2,39 @@
 layout: default
 ---
 
-<section>
-  {% capture intro %}
-  {% include content/cla-intro.md %}
-  {% endcapture %}
+{% capture intro %}
+{% include content/cla-intro.md %}
+{% endcapture %}
 
+{% capture contribute %}
+{% include content/contribute.md %}
+{% endcapture %}
+
+{% capture faq %}
+{% include content/faq.md %}
+{% endcapture %}
+
+<section>
+  <nav>
+    <ul>
+      <li><a href="#introduction_to_the_cla">Introduction</a></li>
+      <li><a href="#contribute">Contribute</a></li>
+      <li><a href="#frequently_asked_questions">FAQ</a></li>
+    </ul>
+  </nav>
+</section>
+
+<section>
   {{ intro | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
 </section>
 
 <section>
-  {% capture contribute %}
-  {% include content/contribute.md %}
-  {% endcapture %}
-
   {{ contribute | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
 </section>
 
 <section>
-  {% capture faq %}
-  {% include content/faq.md %}
-  {% endcapture %}
-
   {{ faq | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
 </section>
