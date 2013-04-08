@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>{{ page.title }}</title>
+
+    <link rel="stylesheet" href="{{ site.baseurl }}/stylesheets/styles.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/stylesheets/pygment_trac.css">
+    <link rel="stylesheet" href="{{ site.baseurl }}/stylesheets/custom.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div name="top" class="wrapper">
+
+        <header>
+
+            <div align="center">
+                <a href="{{ site.baseurl }}/home.html">
+                    <img src="{{ site.baseurl }}/images/250x250numentaicon.gif"/>
+                    <h1>{{ site.title }}</h1>
+                </a>
+                <p class="tagline">{{ site.tagline }}</p>
+            </div>
+
+            <p class="view"><a href="https://github.com/numenta/opencla">View the Project on GitHub <small>numenta/opencla</small></a></p>
+
+            <ul class="buttons">
+                <li><a href="https://github.com/numenta/opencla/zipball/master">Download <strong>ZIP File</strong></a></li>
+                <li><a href="https://github.com/numenta/opencla/tarball/master">Download <strong>TAR Ball</strong></a></li>
+                <li><a href="https://github.com/numenta/opencla">View On <strong>GitHub</strong></a></li>
+            </ul>
+
+        </header>
+
+        {{ content }}
+
+        {% include footer.html %}
+
+
+    </div>
+
+    <script src="javascripts/scale.fix.js"></script>
+
+  </body>
+</html>

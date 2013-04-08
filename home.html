@@ -1,0 +1,40 @@
+---
+layout: default
+---
+
+{% capture intro %}
+{% include content/cla-intro.md %}
+{% endcapture %}
+
+{% capture contribute %}
+{% include content/contribute.md %}
+{% endcapture %}
+
+{% capture faq %}
+{% include content/faq.md %}
+{% endcapture %}
+
+<section>
+  <nav>
+    <ul>
+      <li><a href="#introduction_to_the_cla">Introduction</a></li>
+      <li><a href="#contribute">Contribute</a></li>
+      <li><a href="#frequently_asked_questions">FAQ</a></li>
+    </ul>
+  </nav>
+</section>
+
+<section>
+  {{ intro | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
+</section>
+
+<section>
+  {{ contribute | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
+</section>
+
+<section>
+  {{ faq | markdownify }}
+  <p class="toplink"><a href="#top">Top</a></p>
+</section>
