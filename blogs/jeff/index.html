@@ -1,8 +1,8 @@
 ---
 layout: default
-title: Numenta.org Blog
+title: Jeff's Blog
 ---
-{% for post in site.posts limit:3 %}
+{% for post in site.categories.jeff limit:3 %}
 <section>
     <h2><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h2>
     {{ post.content | markdownify }}
@@ -10,5 +10,5 @@ title: Numenta.org Blog
 {% endfor %}
 
 <section>
-    <h3><a href="{{ site.baseurl }}/archive.html">Older Blog Entries</a></h3>
+    <h3><a href="archive.html">Older Blog Entries</a></h3>
 </section>

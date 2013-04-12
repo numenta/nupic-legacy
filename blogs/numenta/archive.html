@@ -1,13 +1,13 @@
 ---
 layout: default
-title: Blog Archive
+title: Numenta Blog Archive
 ---
 
 <section>
     <h2>{{ page.title }}</h2>
 
     <ul>
-        {% for post in site.posts %}
+        {% for post in site.categories.numenta %}
             <li><span>{{ post.date | date_to_string }}</span> &raquo; <a href="{{ site.baseurl }}{{ post.url }}">{{ post.title }}</a></li>
         {% endfor %}
     </ul>

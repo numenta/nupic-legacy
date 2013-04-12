@@ -1,7 +1,7 @@
 <header>
 
     <div align="center">
-        <a href="{{ site.baseurl }}/home.html">
+        <a href="{{ site.baseurl }}/index.html">
             <img src="{{ site.baseurl }}/images/250x250numentaicon.gif"/>
             <h1>{{ site.title }}</h1>
         </a>
@@ -16,12 +16,7 @@
         <li><a href="https://github.com/numenta/opencla">View On <strong>GitHub</strong></a></li>
     </ul>
 
-    <nav>
-        <ul>
-            <li><a href="{{ site.baseurl }}/home.html">Home</a></li>
-            <li><a href="{{ site.baseurl }}/blog.html">Blog</a></li>
-            <li><a href="{{ site.baseurl }}/home.html#frequently_asked_questions">FAQ</a></li>
-        </ul>
-    </nav>
+    {% include nav.html %}
+
 
 </header>
