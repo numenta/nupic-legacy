@@ -1,7 +1,7 @@
 title: Numenta.org
 tagline: Open&nbsp;Source Cortical&nbsp;Learning&nbsp;Algorithm
 
-baseurl: /nupic
+baseurl: http://numenta.org
 
 markdown: maruku
 pygments: true
