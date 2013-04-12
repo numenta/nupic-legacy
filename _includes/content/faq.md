@@ -1,8 +1,0 @@
-Frequently Asked Questions
---------------------------
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac velit vitae urna tincidunt tempus sit amet eget quam. Suspendisse tellus quam, ultricies vitae pellentesque non, blandit non est. Fusce pretium congue augue feugiat vestibulum. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Maecenas pellentesque tincidunt justo a dictum. Suspendisse suscipit dignissim ligula. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum sit amet leo lacus, in posuere lacus.
-
-Fusce lobortis iaculis nisl, non sagittis turpis sagittis nec. Mauris vehicula felis ut lectus gravida eget consequat quam dapibus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam facilisis tellus vel elit consectetur congue. Etiam dolor turpis, rhoncus in tincidunt ac, elementum eget felis. In sed quam ante. Nam sed neque nunc, at viverra enim. Sed hendrerit laoreet dolor, at interdum neque interdum non.
-
-Nulla suscipit, odio in convallis convallis, odio diam convallis lectus, non facilisis risus sem at velit. Fusce dictum odio et mi dignissim varius. Vestibulum in orci urna. Sed adipiscing justo vitae quam euismod sollicitudin. Integer quis urna orci. Integer eu velit ut mi imperdiet dapibus sit amet ut nibh. Fusce in placerat dolor. Quisque elementum orci et turpis aliquam mattis. Ut convallis posuere enim, in placerat ligula auctor et.

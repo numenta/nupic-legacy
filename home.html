@@ -1,40 +1,23 @@
 ---
 layout: default
+title: Numenta | NuPIC
 ---
-
-{% capture intro %}
-{% include content/nupic-intro.md %}
-{% endcapture %}
-
-{% capture contribute %}
-{% include content/contribute.md %}
-{% endcapture %}
-
-{% capture faq %}
-{% include content/faq.md %}
-{% endcapture %}
-
 <section>
   <nav>
     <ul>
-      <li><a href="#introduction_to_nupic">Introduction</a></li>
-      <li><a href="#contribute">Contribute</a></li>
-      <li><a href="#frequently_asked_questions">FAQ</a></li>
+      <li><a href="#what_is_nupic">What is NuPIC?</a></li>
+      <li><a href="#mission_statement">Mission</a></li>
+      <li><a href="#nupic_is_open_source">Open Source</a></li>
+      <li><a href="#license">License</a></li>
+      <li><a href="#patents">Patents</a></li>
     </ul>
   </nav>
 </section>
 
 <section>
-  {{ intro | markdownify }}
-  <p class="toplink"><a href="#top">Top</a></p>
+  {% capture landing %}
+  {% include content/landing.md %}
+  {% endcapture %}
+  {{ landing | markdownify }}
 </section>
 
-<section>
-  {{ contribute | markdownify }}
-  <p class="toplink"><a href="#top">Top</a></p>
-</section>
-
-<section>
-  {{ faq | markdownify }}
-  <p class="toplink"><a href="#top">Top</a></p>
-</section>

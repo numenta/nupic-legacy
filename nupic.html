@@ -1,0 +1,22 @@
+---
+layout: default
+title: NuPIC Details
+---
+<section>
+  <nav>
+    <ul>
+      <li><a href="#features_of_nupic">Features</a></li>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#development_status">Status</a></li>
+      <li><a href="#source_code">Code</a></li>
+      <li><a href="#issue_tracking">Issues</a></li>
+    </ul>
+  </nav>
+</section>
+
+<section>
+  {% capture details %}
+  {% include content/project-details.md %}
+  {% endcapture %}
+  {{ details | markdownify }}
+</section>
