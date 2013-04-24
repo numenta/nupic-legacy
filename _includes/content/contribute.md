@@ -6,7 +6,7 @@ _Some motivational text to get people interested in using and contributing to Nu
 Communicate
 -----------
 
-### Mailing Lists
+### Awesome Mailing Lists
 
 _Info on our mailing lists._
 
