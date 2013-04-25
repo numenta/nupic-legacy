@@ -13,7 +13,7 @@ _Info on our mailing lists._
 ### Social Sites
 
 * [Twitter](http://twitter.com/numenta)
-* [Facebook](https://www.facebook.com/pages/Numenta/321559142118)
+* [Facebook](http://www.facebook.com/pages/Numenta/367522426629153)
 
 ### IRC
 
