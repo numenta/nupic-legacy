@@ -1,0 +1,19 @@
+---
+layout: default
+title: Numenta | NuPIC
+---
+<section>
+  <nav>
+    <ul>
+      <li><a href="#does_it_really_work">Does it really work?</a></li>
+    </ul>
+  </nav>
+</section>
+
+<section>
+  {% capture faq %}
+  {% include content/faq.md %}
+  {% endcapture %}
+  {{ faq | markdownify }}
+</section>
+
