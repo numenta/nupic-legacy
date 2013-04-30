@@ -6,9 +6,9 @@ _Some motivational text to get people interested in using and contributing to Nu
 Communicate
 -----------
 
-### Awesome Mailing Lists
+### Mailing Lists
 
-_Info on our mailing lists._
+We use [LibreList](http://librelist.com) as our mailing list service. To sign up, simply send an email to <nupic@librelist.com>. We're looking forward to hearing from you!
 
 ### Social Sites
 
