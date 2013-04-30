@@ -1,3 +1,4 @@
 section {
     float: none;
+    width: inherit;
 }
