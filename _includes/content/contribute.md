@@ -11,7 +11,9 @@
 
 ## Get Involved!
 
-_Some motivational text to get people interested in using and contributing to NuPIC._
+We at Numenta have made this project open source because we firmly believe it is a revolutionary step towards truly intelligent computing, and we want to share it with everyone. There are many directions the core algorithms within [NuPIC]({{ site.baseurl }}/nupic.html) could take, and we're encouraging *you* to get involved! Please read below to find out how you can interact with our development team to push this technology into the future.
+
+Before your [pull requests](https://help.github.com/articles/using-pull-requests) will be reviewed by our team of committers, you'll need to sign our [Contributor License]({{ site.baseurl }}/licenses/cl/).
 
 ## Mailing Lists
 
@@ -19,7 +21,7 @@ We use [LibreList](http://librelist.com) as our mailing list service. To sign up
 
 ## IRC
 
-_IRC details about channels and events._
+We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel on **irc.freenode.net**. This room is not password-protected.
 
 > Someday we'll also add details about office hours and scrums.
 
