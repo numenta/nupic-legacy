@@ -46,7 +46,7 @@ a small {
 }
 
 .wrapper {
-  width:860px;
+  width:900px;
   margin:0 auto;
 }
 
@@ -96,7 +96,7 @@ img {
 }
 
 header {
-  width:270px;
+  width:300px;
   float:left;
   position:fixed;
 }
@@ -160,7 +160,7 @@ header ul.buttons a strong {
 }
 
 section {
-  width:500px;
+  width:600px;
   float:right;
   padding-bottom:50px;
 }
@@ -177,7 +177,7 @@ hr {
 }
 
 footer {
-  width:270px;
+  width:300px;
   float:left;
   position:fixed;
   bottom:50px;

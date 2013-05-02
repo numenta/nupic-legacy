@@ -9,25 +9,23 @@
     </nav>
 </section>
 
-## Get Involved!
+## Get Involved
 
-We at Numenta have made this project open source because we firmly believe it is a revolutionary step towards truly intelligent computing, and we want to share it with everyone. There are many directions the core algorithms within [NuPIC]({{ site.baseurl }}/nupic.html) could take, and we're encouraging *you* to get involved! Please read below to find out how you can interact with our development team to push this technology into the future.
+We firmly believe the technology behind [NuPIC]({{ site.baseurl }}/nupic.html) is a revolutionary step towards truly intelligent computing, and we want to share it with everyone. There are many directions the core algorithms within NuPIC could take, and we encourage *you* to get involved. Please read below to find out how you can interact with our development team and existing community members to push this technology into the future.
 
 Before your [pull requests](https://help.github.com/articles/using-pull-requests) will be reviewed by our team of committers, you'll need to sign our [Contributor License]({{ site.baseurl }}/licenses/cl/).
 
 ## Mailing Lists
 
-We use [LibreList](http://librelist.com) as our mailing list service. To sign up, simply send an email to <nupic@librelist.com>. We're looking forward to hearing from you!
+We use [LibreList](http://librelist.com) as our mailing list service. To sign up, simply send an email to <nupic@librelist.com>. If you have any questions, please ask them on this list.
 
 ## IRC
 
-We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel on **irc.freenode.net**. This room is not password-protected.
-
-> Someday we'll also add details about office hours and scrums.
+We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel on **irc.freenode.net**. Drop in for a chat anytime.
 
 ## Social Media
 
-* [Facebook](http://www.facebook.com/pages/Numenta/367522426629153)
+* [Facebook](http://www.facebook.com/pages/Numenta/367522426629153) <span class="todo">todo</span>
 * [Twitter](http://twitter.com/numenta)
 
 <a class="twitter-timeline" href="https://twitter.com/numenta" data-widget-id="327503049604087809">Tweets by @numenta</a>

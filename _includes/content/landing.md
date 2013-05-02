@@ -1,27 +1,32 @@
-<section>
+<!-- <section>
   <nav class="toc">
     <ul>
-      <li><a href="#what_is_nupic">What is NuPIC?</a></li>
-      <li><a href="#mission_statement">Mission</a></li>
-      <li><a href="#nupic_is_open_source">Open Source</a></li>
+      <li><a href="#mission">Mission</a></li>
+      <li><a href="#what_is_nupic">What?</a></li>
+      <li><a href="#why_did_we_create_the_nupic_open_source_project">Why?</a></li>
     </ul>
   </nav>
-</section>
+</section> -->
+
+Mission
+-------
+The mission of this project is to build and support a [community]({{ site.baseurl }}/community.html) interested in machine learning and machine intelligence based on the biological principles implemented in NuPIC.
 
 What is NuPIC?
 --------------
-The Numenta Platform for Intelligent Computing.
+The *Numenta Platform for Intelligent Computing* is an **open source** project for machine learning and machine intelligence based on biological principles.
 
-Nulla suscipit, odio in convallis convallis, odio diam convallis lectus, non facilisis risus sem at velit. Fusce dictum odio et mi dignissim varius. Vestibulum in orci urna. Sed adipiscing justo vitae quam euismod sollicitudin. Integer quis urna orci. Integer eu velit ut mi imperdiet dapibus sit amet ut nibh. Fusce in placerat dolor. Quisque elementum orci et turpis aliquam mattis. Ut convallis posuere enim, in placerat ligula auctor et.
+Why did we create the NuPIC Open Source project?
+--------------
+NuPIC is based on a set of learning algorithms that were first described in a [white paper](https://www.numenta.com/technology.html#cla-whitepaper) published by Numenta in 2009.  The white paper has been translated into seven languages by volunteers and has generated considerable interest among developers and research scientists.  We created the NuPIC open source project because people read the white paper and want to work with these algorithms.  They asked us to make them available in an open source project.
 
-Mission Statement
------------------
-_Jeff, please write this._
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac velit vitae urna tincidunt tempus sit amet eget quam. Suspendisse tellus quam, ultricies vitae pellentesque non, blandit non est.
+### What is unique about the algorithms in NuPIC?
 
-NuPIC is Open Source
---------------------
-_Need to provide some verbiage about how this codebase is free and open source. Why we have done this, and what type of things it could be used for._
+At the heart of NuPIC is the Cortical Learning Algorithm or CLA.  The CLA has a deep biological mapping which will be interesting to neuroscientists.  From an algorithmic point of view there are three principle properties.
 
-Fusce lobortis iaculis nisl, non sagittis turpis sagittis nec. Mauris vehicula felis ut lectus gravida eget consequat quam dapibus. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam facilisis tellus vel elit consectetur congue. Etiam dolor turpis, rhoncus in tincidunt ac, elementum eget felis. In sed quam ante. Nam sed neque nunc, at viverra enim. Sed hendrerit laoreet dolor, at interdum neque interdum non.
+* Distributed Representations
+* Temporal inference
+* On-line learning
+
+We believe the CLA is an essential component of biological intelligence and will likely be a central component of machine intelligence.  We anticipate that over time the CLA will be embedded in hierarchical systems with distributed sensors, behavior, and attention.

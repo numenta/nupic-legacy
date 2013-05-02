@@ -1,11 +1,15 @@
-On Biological Computing
-=======================
+Biological and Machine Intelligence
+-------------
+
+<p class="tagline">A Guide for Developers</p>
 
 ## Introduction
 
-Nulla suscipit, odio in convallis convallis, odio diam convallis lectus, non facilisis risus sem at velit. Fusce dictum odio et mi dignissim varius. Vestibulum in orci urna. Sed adipiscing justo vitae quam euismod sollicitudin. Integer quis urna orci. Integer eu velit ut mi imperdiet dapibus sit amet ut nibh. Fusce in placerat dolor. Quisque elementum orci et turpis aliquam mattis. Ut convallis posuere enim, in placerat ligula auctor et.
+<p class="todo">Jeff should write this intro</p>
 
 ### Table of Contents
+
+<p class="todo">Matt should figure out how the TOC should look and feel.</p>
 
 1. [Ch 1](2013/04/08/chapter-one.html)
 1. [Ch 2](2013/04/09/chapter-two.html)

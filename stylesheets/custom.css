@@ -1,5 +1,9 @@
-header p.tagline{
+p.tagline {
     font-size: 16pt;
+}
+section p.tagline {
+    font-size: 16pt;
+    font-style: italic;
 }
 
 header nav ul {
@@ -35,4 +39,9 @@ p.toplink {
 
 span.nowrap {
     white-space: nowrap;
+}
+
+.todo {
+    color: red;
+    font-weight: bold;
 }
