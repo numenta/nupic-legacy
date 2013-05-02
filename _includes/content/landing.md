@@ -1,3 +1,15 @@
+<section>
+  <nav class="toc">
+    <ul>
+      <li><a href="#what_is_nupic">What is NuPIC?</a></li>
+      <li><a href="#mission_statement">Mission</a></li>
+      <li><a href="#nupic_is_open_source">Open Source</a></li>
+      <li><a href="#license">License</a></li>
+      <li><a href="#patents">Patents</a></li>
+    </ul>
+  </nav>
+</section>
+
 What is NuPIC?
 --------------
 The Numenta Platform for Intelligent Computing.
