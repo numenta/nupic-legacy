@@ -2,7 +2,7 @@
 layout: default
 title: Numenta News
 ---
-{% for post in site.categories.numenta limit:3 %}
+{% for post in site.categories.news limit:3 %}
 <section>
     <h2><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h2>
     {{ post.content }}
