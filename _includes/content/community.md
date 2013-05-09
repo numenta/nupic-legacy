@@ -17,7 +17,7 @@ Before your [pull requests](https://help.github.com/articles/using-pull-requests
 
 ## Mailing Lists
 
-We use [LibreList](http://librelist.com) as our mailing list service. To sign up, simply send an email to <nupic@librelist.com>. If you have any questions, please ask them on this list.
+We'd prefer to facilitate all public conversations about NuPIC and its associated technologies on our primary mailing list: __[nupic@lists.numenta.org](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org)__. You can find a complete list of all our mailing lists [here](http://lists.numenta.org/mailman/listinfo).
 
 ## IRC
 
