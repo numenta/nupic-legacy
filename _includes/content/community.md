@@ -28,6 +28,5 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
 * [Facebook](http://www.facebook.com/pages/Numenta/367522426629153) <span class="todo">todo</span>
 * [Twitter](http://twitter.com/numenta)
 
-<a class="twitter-timeline" href="https://twitter.com/numenta" data-widget-id="327503049604087809">Tweets by @numenta</a>
-
+<a class="twitter-timeline" href="https://twitter.com/numenta" data-widget-id="332947348261060608">Tweets by @numenta</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
