@@ -7,7 +7,7 @@ The 21st Century is a watershed time in human evolution.  This is the time when 
 
 The book is written for engineers and scientists who want to build intelligent machines in either software or hardware.
 
-The approach we take starts with the brain.  The way to build intelligent machines is to start with an understanding of what the human brain does and how it does it.  We need to understand the principles by with the brain works and only then should we attempt to build something in software or silicon.  We don’t have to emulate everything the brain does, but understanding the fundamental principles first is the way to go.
+The approach we take starts with the brain.  The way to build intelligent machines is to start with an understanding of what the human brain does and how it does it.  We need to understand the principles by which the brain works and only then should we attempt to build something in software or silicon.  We don’t have to emulate everything the brain does, but understanding the fundamental principles first is the way to go.
 
 Classic A.I. attempted to build intelligent machines by encoding rules and knowledge in software.  A.I. has had many successes but those successes are limited in what they can do and for the most part A.I. is silent or weak on how machines can learn.  Despite its successes, A.I. has not made much progress towards general machine intelligence.
 
