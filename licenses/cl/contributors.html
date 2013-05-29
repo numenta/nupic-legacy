@@ -1,0 +1,11 @@
+---
+layout: default
+title: NuPIC Contributors
+---
+
+<section>
+  {% capture contributors %}
+  {% include content/contributors.md %}
+  {% endcapture %}
+  {{ contributors | markdownify }}
+</section>
