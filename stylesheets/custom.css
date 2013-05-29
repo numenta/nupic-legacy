@@ -60,3 +60,8 @@ div.image-wrapper p {
     font-size: 10pt;
 }
 
+h3.date {
+    float: right;
+    font-size: 12pt;
+    font-style: italic;
+}
