@@ -1,10 +1,12 @@
 License
 -------
-<p class="todo">Matt: Details about our license here, along with links to the LICENSE files.</p>
+
+NuPIC is licensed as dual commercial and [GPL version 3]({{ site.baseurl }}/licenses/gpl.txt). If you choose to use the GPL license, you are bound under it. If you are building a product using NuPIC, you'll need to contact us at <help@numenta.org> to discuss commercial licensing options.
 
 Patents
 -------
-<p class="todo">Matt: Details about Numenta's strategy for patents.</p>
+
+See the ["Patent Peace"](http://www.gnu.org/licenses/gpl.html#section11) section of GPLv3.
 
 Contributor License
 ----------

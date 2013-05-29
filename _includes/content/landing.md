@@ -18,7 +18,7 @@ The *Numenta Platform for Intelligent Computing* is an **open source** project f
 
 Why did we create the NuPIC Open Source project?
 --------------
-NuPIC is based on a set of learning algorithms that were first described in a [white paper](https://www.numenta.com/technology.html#cla-whitepaper) published by Numenta in 2009.  The white paper has been translated into seven languages by volunteers and has generated considerable interest among developers and research scientists.  We created the NuPIC open source project because people read the white paper and want to work with these algorithms.  They asked us to make them available in an open source project.
+NuPIC is based on a set of learning algorithms that were first described in a [white paper]({{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms.pdf) published by Numenta in 2009.  The white paper has been translated into seven languages by volunteers and has generated considerable interest among developers and research scientists.  We created the NuPIC open source project because people read the white paper and want to work with these algorithms.  They asked us to make them available in an open source project.
 
 
 ### What is unique about the algorithms in NuPIC?

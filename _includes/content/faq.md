@@ -12,14 +12,12 @@ Frequently Asked Questions
 Does it really work?
 --------------------
 
-Yes! And now you can try it for yourself.
-
-<p class="todo">Anyone: Expand on this answer by citing some examples... which would be quite relevant if we had running examples in our OS codebase.</p>
+Apparently so.
 
 What's the difference between this and your old offering?
 --------------------
 
-<p class="todo">Anyone: Add history and answer here.</p>
+<p class="todo">Asked Subutai for this.</p>
 
 Is there a specific application for NuPIC?
 --------------------

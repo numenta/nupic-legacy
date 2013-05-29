@@ -51,3 +51,12 @@ span.nowrap {
     color: red;
     font-weight: bold;
 }
+
+div.image-wrapper {
+    text-align: center;
+}
+
+div.image-wrapper p {
+    font-size: 10pt;
+}
+
