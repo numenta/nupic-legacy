@@ -107,7 +107,7 @@ of the date such litigation is filed.
 4. Representations
 
 4.1    You represent that you are legally entitled to grant the above
-license into this CL, whether on behalf of Yourself (if you are an
+license under this CL, whether on behalf of Yourself (if you are an
 individual person) or on behalf of the entity that You represent (if
 You are an entity). If You are an individual and Your employer(s) has
 rights to intellectual property that You create that includes Your
