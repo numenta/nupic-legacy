@@ -7,6 +7,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 
 * Matthew Taylor ([rhyolight](http://github.com/rhyolight))
 * Rahul Agarwal ([rahul1](http://github.com/rahul1))
+* Scott Purdy ([scottpurdy](http://github.com/scottpurdy))
 
 ### Committers
 
@@ -14,6 +15,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 
 * Matthew Taylor
 * Rahul Agarwal
+* Scott Purdy
 
 ### Reviewers
 
@@ -21,3 +23,4 @@ The following people are Reviewers on the NuPIC project.
 
 * Matthew Taylor
 * Rahul Agarwal
+* Scott Purdy
