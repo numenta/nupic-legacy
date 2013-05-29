@@ -18,7 +18,7 @@ Apparently so.
 What's the difference between this and your old offering?
 --------------------
 
-<p class="todo">Asked Subutai for this.</p>
+It is important to emphasize that the old and new NuPIC algorithms are completely different.  This isn't an enhancement.  It might be a bit confusing that we are using the same name but we figured only a few people would be aware of the old NuPIC offering. The main differences are: a) Nupic today includes the CLA whereas the old NuPIC had our previous algorithms, b) old NuPIC was tuned for vision whereas new NuPIC is tuned for [Grok](http://groksolutions.com/product.html), and c) old NuPIC ran on Windows.
 
 Is there a specific application for NuPIC?
 --------------------
