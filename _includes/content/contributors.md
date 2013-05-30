@@ -3,7 +3,7 @@
 
 ### Contributors
 
-The following people have signed our [contributor license]({{ site.baseurl }}/licenses/cl).</p>
+The following people have signed our [contributor license]({{ site.baseurl }}/licenses/cl).
 
 * Matthew Taylor ([rhyolight](http://github.com/rhyolight))
 * Rahul Agarwal ([rahul1](http://github.com/rahul1))
