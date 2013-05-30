@@ -10,6 +10,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Scott Purdy ([scottpurdy](http://github.com/scottpurdy))
 * Subutai Ahmad ([subutai](http://github.com/subutai))
 * Arlo Breault ([arlolra](http://github.com/arlolra))
+* Austin Marshall ([oxtopus](http://github.com/oxtopus))
 
 ### Committers
 
@@ -19,6 +20,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Rahul Agarwal
 * Scott Purdy
 * Subutai Ahmad
+* Austin Marshall
 
 ### Reviewers
 
