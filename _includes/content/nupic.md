@@ -4,7 +4,7 @@
       <li><a href="#getting_started">Getting Started</a></li>
       <li><a href="#features_of_nupic">Features</a></li>
       <li><a href="#requirements">Requirements</a></li>
-      <li><a href="#development_status">Status</a></li>
+      <li><a href="#project_status">Status</a></li>
       <li><a href="#source_code">Code</a></li>
       <li><a href="#issue_tracking">Issues</a></li>
     </ul>
@@ -47,20 +47,21 @@ For more details about SDRs, watch [this excerpt](http://www.youtube.com/embed/t
 Requirements
 ------------
 
-We're working in providing virtual machines ready to run NuPIC so Windows developers can work on NuPIC within Virtual Box. Currently, the build requirements are:
+We're working in providing virtual machines ready to run NuPIC so Windows developers can work on NuPIC within [Virtual Box](https://www.virtualbox.org). Currently, the build requirements are:
 
-* Linux or Unix environment
+* Linux or Unix environment with gnu compilers
 * Python 2.6
 
-Development Status
+Project Status
 ------------------
-Being extracted from the current Grok codebase. Soon to be scrubbed and made available at the address below.
+The code is open source (see [below](#source_code)), as of 03 June, 2013. However, the project is currently in a transitional period before contributions will be seriously accepted. This month-long period will give the community a chance to review and understand the source code, as well as Numenta's internal engineers a chance to update their processes to include an open source build.
+
+Starting in July, we will seriously consider incoming Pull Requests on our codebase. In the meantime, minor contributions to our [website source code](https://github.com/numenta/nupic/tree/gh-pages), documentation, wikis, etc. are welcome, as long as they follow the [development workflow](https://github.com/numenta/nupic/wiki/Developer-workflow).
 
 Source Code
 -----------
-[Github](http://github.com/numenta/nupic).
+We're rocking [Github](http://github.com/numenta/nupic).
 
 Issue Tracking
 --------------
-
-We use JIRA for issue tracking at http://issues.numenta.org.
+We use JIRA for issue tracking at [issues.numenta.org](http://issues.numenta.org).
