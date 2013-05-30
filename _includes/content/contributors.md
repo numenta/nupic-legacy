@@ -11,6 +11,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Subutai Ahmad ([subutai](http://github.com/subutai))
 * Arlo Breault ([arlolra](http://github.com/arlolra))
 * Austin Marshall ([oxtopus](http://github.com/oxtopus))
+* Ron Marianetti ([rmarianetti](https://github.com/rmarianetti))
 
 ### Committers
 
@@ -21,6 +22,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Scott Purdy
 * Subutai Ahmad
 * Austin Marshall
+* Ron Marianetti
 
 ### Reviewers
 
@@ -30,3 +32,4 @@ The following people are Reviewers on the NuPIC project.
 * Rahul Agarwal
 * Scott Purdy
 * Subutai Ahmad
+* Ron Marianetti
