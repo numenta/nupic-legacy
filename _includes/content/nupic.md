@@ -13,7 +13,7 @@
 
 Getting Started
 ---------------
-There are two things to be aware of before diving into NuPIC.  The NuPIC source code is embedded in a commercial product called [Grok](https://www.groksolutions.com/product.html).  Because of this, it is no longer a "pure" implementation of the algorithms.  We have made optimizations, added tweaks, and taken some short cuts to improve performance.  For those interested in studying and characterizing the [CLA]({{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms.pdf) you may want to back out some of these changes.  If your interest is using NuPIC as a _product_, then you may be happy with the code as-is.  The second thing to consider is that the CLA is based on principles that most people are not familiar with, including [sparse distributed representations](#sparse_distributed_representations), [online learning](#online_learning), and distributed memory.  There is a steeper than normal learning curve.
+There are a few things to be aware of before diving into NuPIC. The NuPIC source code is embedded in a commercial product called [Grok](https://www.groksolutions.com/product.html). Because of this, it is no longer a “pure” implementation of the algorithms. We have made optimizations, added tweaks, and taken some short cuts to improve performance. For those interested in studying and characterizing a purer form of the [CLA]({{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms.pdf) you may want to back out some of these changes or at least be aware of them. If your interest is using NuPIC in a product, then you may be happy with the code as-is or you may want to make additional changes. Another thing to consider is that the CLA is based on principles that most people are not familiar with, including [sparse distributed representations](#sparse_distributed_representations), [online learning](#online_learning), and distributed memory. There is a steeper than normal learning curve.
 
 We will be releasing documentation over time and welcome both contributions and suggestions for areas to focus on.
 
@@ -22,24 +22,24 @@ Features of NuPIC
 
 ### Online Learning
 
-Conventional machine learning techniques are static: the best statistical fit is calculated from a training data set, verified on a testing data set, and applied to real-world data. Some are powerful enough to find a fit for nearly any set of training data, although this introduces the possibility of "over-fitting." This is similar to how a specific set of economic variables can be selected that correlates with all past Presidential elections, but fail to predict the next one. More importantly, real-world data changes over time. In these cases, previously accurate models must be retrained with new data, repeating the time and expense of the original manual process.
+Most machine learning techniques are relatively static.  A model is constructed from a training data set, verified on a testing data set, and then applied to real-world data. However the patterns and structure in the world changes over time. Therefore previously accurate models must be regularly retrained with new data, repeating the time and expense of the original process.
 
-NuPIC's automated learning, on the other hand, does not require conventional training and testing data sets. As described above, NuPIC returns a prediction for every data input value, and adjusts over time. NuPIC can automatically adjust predictions if the underlying field combinations and parameters remain valid.
+The CLA on the other hand is an online learning system.  It does not require conventional training and testing data sets. Instead, the CLA learns continuously with each new data point.  The CLA is constantly making predictions which are continually verified as more data arrives.  As the underlying patterns in the data change the CLA adjusts accordingly.  An online learning system such as the CLA forces you to think about many things differently than you do with algorithms that relay on static training data sets.
 
 ### Sparse Distributed Representations
 
-NuPIC converts disparate data types into a common format, to learn patterns and see relationships. This format must be flexible enough to generalize and recognize "similar" patterns, an ability that has eluded computers. Artificial intelligence experts call this the problem of "representation." How do you represent and store information about the world? The brain's model of the world generates concepts like what a car is, what it does, and what its attributes are. We translate sensory input into representations so effortlessly that it's difficult to understand why computers struggle with it.
+Computers store information in “dense” representations such as a 32 bit word where all combinations of 1s and 0s are possible.
 
-Computers store data in “dense” representations of 1s and 0s. For example, ASCII characters are stored in blocks of 8 bits. The letter "m" is represented by the string "01101101." Each 1 and 0 has no inherent meaning, and changing one bit will completely change the meaning of the entire string of bits (“vector”).
-
-By contrast, data stored in the brain is very sparse. The human brain has between 30 and 100 billion neurons, but at any given time only a few percent are active. You can translate this into a data storage system called “Sparse Distributed Representations” (SDRs), where active neurons are represented by 1s and inactive neurons are 0s. SDRs have thousands of bits, but typically only about 2% are 1s and 98% are 0s.
+By contrast, brains us sparse distributed representations. The human neocortex has roughly 100 billion neurons, but at any given time only a small percent are active. The activity of neurons are like bits in a computer, and therefore the representation is sparse.  The CLA also uses SDRs.  A typical implementation of the CLA might have 2048 columns and 64K artificial neurons where as few as 40 might be active at once.  There are many mathematical advantages of using SDRs.  The CLA and the brain could not work otherwise.
 
 <div class="image-wrapper">
   <img alt="Example of a sparse distributed representation in an array of cells" src="{{ site.baseurl }}/images/sdr.png" />
   <p>This diagram represents sparsity: two thousand circles with a small number of red circles active.</p>
 </div>
 
-In SDRs, unlike computer data, each bit has meaning. This means that if two vectors have 1s in the same position they are semantically similar. Vectors can therefore be expressed in degrees of similarity rather than simply being identical or different. These large vectors can be stored accurately even using a subsampled index of, say, 10 of 2,000 bits. This makes SDR memory fault tolerant to gaps in data. SDRs also exhibit properties that reliably allow the neocortex to determine if a new input is unexpected. After understanding the benefits of SDRs, it is difficult to imagine that an intelligent system could be built without them.
+This diagram represents a sparse distributed representation: two thousand circles with a small number of red circles active.
+
+In SDRs, unlike in a dense representations, each bit has meaning. This means that if two vectors have 1s in the same position they are semantically similar in that attrribute. SDRs are how brains solve the problem of knowledge representation that has plagued AI for decades.
 
 For more details about SDRs, watch [this excerpt](http://www.youtube.com/embed/t6NcTdXxVeo) from a talk given by Jeff Hawkins.
 
