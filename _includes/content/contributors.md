@@ -13,6 +13,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Austin Marshall ([oxtopus](http://github.com/oxtopus))
 * Ron Marianetti ([rmarianetti](https://github.com/rmarianetti))
 * Ian Danforth ([iandanforth](https://github.com/iandanforth))
+* Ziv Rosen ([zivrosen](https://github.com/zivrosen))
 
 ### Committers
 
@@ -24,6 +25,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Subutai Ahmad
 * Austin Marshall
 * Ron Marianetti
+* Ziv Rosen 
 
 ### Reviewers
 
@@ -34,3 +36,4 @@ The following people are Reviewers on the NuPIC project.
 * Scott Purdy
 * Subutai Ahmad
 * Ron Marianetti
+* Ziv Rosen 
