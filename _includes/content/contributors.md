@@ -12,6 +12,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Arlo Breault ([arlolra](http://github.com/arlolra))
 * Austin Marshall ([oxtopus](http://github.com/oxtopus))
 * Ron Marianetti ([rmarianetti](https://github.com/rmarianetti))
+* Ian Danforth ([iandanforth](https://github.com/iandanforth))
 
 ### Committers
 
