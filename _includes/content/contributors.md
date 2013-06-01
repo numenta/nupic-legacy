@@ -14,6 +14,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Ron Marianetti ([rmarianetti](https://github.com/rmarianetti))
 * Ian Danforth ([iandanforth](https://github.com/iandanforth))
 * Ziv Rosen ([zivrosen](https://github.com/zivrosen))
+* Vitaly Kruglikov ([vitaly-krugl](https://github.com/vitaly-krugl))
 
 ### Committers
 
@@ -26,6 +27,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Austin Marshall
 * Ron Marianetti
 * Ziv Rosen 
+* Vitaly Kruglikov
 
 ### Reviewers
 
@@ -37,3 +39,4 @@ The following people are Reviewers on the NuPIC project.
 * Subutai Ahmad
 * Ron Marianetti
 * Ziv Rosen 
+* Vitaly Kruglikov
