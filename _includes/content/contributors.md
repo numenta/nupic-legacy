@@ -19,6 +19,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Stewart Mackenzie ([sj_mackenzie](https://github.com/sj_mackenzie))
 * Matthew O'Connor ([mattroid](https://github.com/mattroid))
 * Thomas Yu ([tyu-grok](https://github.com/tyu-grok))
+* Il Memming Park ([memming](https://github.com/memming))
 
 ### Committers
 
