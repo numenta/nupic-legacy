@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put site-specific property overrides in this file. -->
+<configuration>
+  <property>
+    <name>database.host</name>
+    <value>localhost</value>
+    <description>Name of the machine running the MySQL database server</description>
+  </property>
+  <property>
+    <name>database.user</name>
+    <value>root</value>
+    <description>Username for the database server </description>
+  </property>
+  <property>
+    <name>var.environment.standalone.user</name>
+    <value>${env.USER}</value>
+    <description>Username</description>
+  </property>
+  <property>
+    <name>var.environment.user.in.the.middle</name>
+    <value>The user ${env.USER} rocks!</value>
+    <description>Username</description>
+  </property>
+  <property>
+    <name>var.environment.user.and.home.in.the.middle</name>
+    <value>User ${env.USER} and home ${env.HOME} in the middle</value>
+    <description>Username</description>
+  </property>
+</configuration>

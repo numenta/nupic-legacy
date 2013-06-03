@@ -1,0 +1,7 @@
+# Get hash for last commit
+TAG=`git rev-parse HEAD`
+ARCH=`uname`
+
+# Build
+cd $WORKSPACE
+result=`sh ../scripts/build.sh $TAG $WORKSPACE &> build.out`

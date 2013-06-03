@@ -1,0 +1,5 @@
+TAG=$1
+WORKSPACE=$2
+cd $WORKSPACE
+echo $TAG > $WORKSPACE/.buildinfo
+

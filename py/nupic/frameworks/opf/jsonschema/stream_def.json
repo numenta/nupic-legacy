@@ -1,0 +1,356 @@
+{
+  "description" : "Stream definition",
+  "type" : "object",
+  "properties" : {
+    
+    "version" : {
+      "type" : "integer",
+      "description" : "Version number to resolve hash collisions",
+      "required" : false
+    },
+    
+    "info" : {
+      "type" : "string",
+      "description" : "Any text information about the stream that might be needed",
+      "required" : false
+    },
+    
+    "streams" : {
+      "type" : "array",
+      "description" : "A list of input sources with their properties. ***Currently, we only support a list with 1 input***",
+      "required" : true,
+      "minItems" : 1,
+      "items" : {
+        "type" : "object",
+        "properties" : {
+          "source" : {
+            "type" : "string",
+            "description" : "Source URL",
+            "required" : true
+          },
+          "info" : {
+            "type" : "string",
+            "description" : "Any text information about the source that might be needed",
+            "required" : false
+          },
+          "columns" : {
+            "type" : "array",
+            "description" : "A list of columns to use from the source",
+            "required" : true,
+            "minItems" : 1,
+            "items" : {
+              "type" : "string",
+              "description" : "Column name, '*' means all columns",
+              "required" : true
+            }
+          },
+          "types" : {
+            "type" : "array",
+            "description" : "A list of types to use from the source. If column names are set in 'columns', then 'types' must have the same number of elements",
+            "required" : false,
+            "minItems" : 1,
+            "items" : {
+              "type" : "string",
+              "description" : "Column data type",
+              "required" : true
+            }
+          },
+          "first_record" : {
+            "type" : "integer",
+            "description" : "Index of the first record to use from the source - 0-based. Records before this one will be ignored. Omitting first_record is equivalent to beginning of stream.",
+            "required" : false
+          },
+          "last_record" : {
+            "type" : ["integer", "null"],
+            "description" : "Record index limit - 0-based. Records starting with this index will be ignored. If last_record is omitted or set to null, then the limit is the end of stream. E.g., first_record=0 together with last_record=1 addresses a single record at the beginning of the stream.",
+            "required" : false
+          }
+        }
+      }
+    },
+    "timeField": {
+      "required": false,
+      "type": "string"
+    },
+    "sequenceIdField" : {
+      "required": false,
+      "type": "string"
+    },
+    "resetField" : {
+      "required": false,
+      "type": "string"
+    },
+    "aggregation" : {
+      "type" : "object",
+      "description" : "Aggregation for the stream - global for all sources. NOTE: years/months are mutually-exclusive with the other units. If this parameter is omitted or all of the specified units are 0, then aggregation will be disabled in that permutation.",
+      "required" : false,
+      "properties" : {
+        "fields" : {
+          "type" : "array",
+          "description" : "A list of fields with aggregation functions",
+          "required" : false,
+          "minItems" : 0,
+          "items" : {
+            "type" : "array",
+            "description" : "pair field/function",
+            "required" : true,
+            "minItems" : 2,
+            "items" : {
+              "type" : "string",
+              "description" : "First element of the array - field name, second one - function to apply",
+              "required": true
+            }
+          }
+        },
+        "years": {
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "months":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "weeks":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "days":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "hours":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "minutes":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "seconds":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "milliseconds":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        },
+        "microseconds":{
+          "required": false,
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    
+    "filter":{
+      "description":"List of various filters to apply to the records",
+      "required":false,
+      "type":"array",
+      "minItems":1,
+      "items":{
+        "description":"A filter to apply to the records. Field/function pair",
+        "required":true,
+        "type":"object",
+        "properties":{
+          "fieldname":{
+            "required":true,
+            "type":"string"
+          },
+          "type":{
+            "required":true,
+            "type":"string"
+          },
+          "acceptValues":{
+            "required":false,
+            "type":"array",
+            "minItems":1,
+            "items":{
+              "description":"Accepted values for the category field",
+              "type":"string"
+            }
+          },
+          "min":{
+            "description":"Minimum accepted value",
+            "type":"number"
+          },
+          "max":{
+            "description":"Maximum accepted value",
+            "type":"number"
+          }
+        }
+      }
+    },
+    
+    "providers":{
+      "description":"Providers that will join their columns(s) to the base dataset(s)",
+      "required":false,
+      "type":"object",
+      "additionalProperties":true,
+      "properties":{
+        "order":{
+          "description": "The order in which providers must be applied",
+          "required": true,
+          "type": "array",
+          "minItems": 1,
+          "items":{
+            "type": "string"
+          }
+        },
+        "fileProvider":{
+          "description":"Describes if and how a user provided file is joined into a given stream",
+          "required":false,
+          "type":"object",
+          "additionalProperties":false,
+          "properties":{
+            "providerType": {
+              "required": true,
+              "type": "string",
+              "value": "FileProvider"
+            },
+            "S3URL":{
+              "required": true,
+              "type": "string"
+            },
+            "primaryKey":{
+              "required":true,
+              "type":"string"
+            },
+            "joinField":{
+              "required":true,
+              "type":"string"
+            },
+            "requestedFields":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{
+                "type":"array",
+                "minItems":2,
+                "maxItems":2,
+                "items":{
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "weather":{
+          "description":"Tells ScanOTron to join weather data to the given dataset(s). Adds in columns corresponding to the types of weather specified in the array",
+          "required":false,
+          "type":"object",
+          "additionalProperties":false,
+          "properties":{
+            "providerType": {
+              "required": true,
+              "type": "string",
+              "value": "NamedProvider"
+            },
+            "timestampField":{
+              "required":true,
+              "type":"string"
+            },
+            "locationField":{
+              "required":true,
+              "type":"string"
+            },
+            "weatherTypes":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{"type":"string", "minLength":3}
+            }
+          }
+        }, 
+        "twitter":{
+          "description":"Tells ScanOTron to join twitter data to the given dataset(s). Adds in counts for each keyword provided in a comma separated list.",
+          "required":false,
+          "type":"object",
+          "additionalProperties":false,
+          "properties":{
+            "providerType": {
+              "required": true,
+              "type": "string",
+              "value": "NamedProvider"
+            },
+            "timestampField":{
+              "required":true,
+              "type":"string"
+            },
+            "keywords":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{"type":"string", "minLength":1}
+            }
+          }
+        },
+        "events":{
+          "description":"Tells ScanOTron to join events data to the given dataset(s). Adds a column with an event name for each date that has one.",
+          "required":false,
+          "type":"object",
+          "additionalProperties":false,
+          "properties":{
+            "providerType": {
+              "required": true,
+              "type": "string",
+              "value": "NamedProvider"
+            },
+            "timestampField":{
+              "required":true,
+              "type":"string"
+            },
+            "eventTypes":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{"type":"string", "minLength":1}
+            }
+          }
+        },
+        "stocks":{
+          "description":"Join in stocks data to the given dataset(s). Adds a column for each requested stock data type.",
+          "required":false,
+          "type":"object",
+          "additionalProperties":false,
+          "properties":{
+            "providerType": {
+              "required": true,
+              "type": "string",
+              "value": "NamedProvider"
+            },
+            "timestampField":{
+              "required":true,
+              "type":"string"
+            },
+            "requestedStocks":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{"type":"string", "minLength":1}
+            },
+            "stockDataTypes":{
+              "required":true,
+              "type":"array",
+              "uniqueItems":true,
+              "minItems":1,
+              "items":{"type":"string", "minLength":1}
+            }
+          }
+        }
+      }
+    }
+  }
+}

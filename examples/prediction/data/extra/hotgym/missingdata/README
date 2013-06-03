@@ -1,0 +1,5 @@
+Each directory (1-9) contains the original dataset (nta/trunk/examples/prediction/data/extra/hotgym/joined_mosman_*.csv) with a percentage of the data removed. The percentage corresponds to the directory in which the new dataset resides - 1/ contains a dataset with 10% of data removed, 9/ contains a dataset with 90% of data removed. 
+
+Only the following fields were modified:
+consumption,TEMP,DEWP,SLP,STP,MAX,MIN,PRCP
+

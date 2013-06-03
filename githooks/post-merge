@@ -1,0 +1,10 @@
+#!/bin/bash
+# Checks for modified .template files and warns user if any were modified
+
+MODIFIED=`git diff --name-only HEAD@{1} | grep -E '\.(hpp|cpp|i|conf)$'`
+if [ ! "$MODIFIED" = "" ]; then
+    echo ""
+    echo "WARNING: The following modified files require a build."
+    echo -e "$MODIFIED"
+    echo ""
+fi

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put site-specific property overrides in this file. -->
+<configuration>
+  <property>
+    <name>database.host</name>
+    <value>TestHost</value>
+    <description>Name of the machine running the MySQL database server</description>
+  </property>
+  <property>
+    <name>database.password</name>
+    <value>pass</value>
+    <description>Password for the database server </description>
+  </property>
+  <property>
+    <name>database.emptypassword</name>
+    <value/>
+    <description>Password for the database server </description>
+  </property>
+</configuration>

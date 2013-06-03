@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Do not modify this file directly.  Instead, copy entries that you -->
+<!-- wish to modify from this file into nupic-site.xml and change them -->
+<!-- there.  If nupic-site.xml does not already exist, create it.      -->
+
+<configuration>
+
+<property>
+  <name>nupic.opf.claClassifier.implementation</name>
+  <value>cpp</value>
+  <description>The classifier implementation to use by default. The current
+  options are 'py', 'cpp', and 'diff'.
+  </description>
+</property>
+
+<property>
+  <name>nupic.opf.metricWindow</name>
+  <value>1000</value>
+  <description> The number of records over which average metrics
+  (eror, Grok Score, etc.) are computed. Must be greater than 1.
+  </description>
+</property>
+
+
+<!-- Anomaly Classification Properties -->
+<property>
+  <name>nupic.model.temporalAnomaly.wait_records</name>
+  <value>4000</value>
+  <description> The number of records to wait before classification begins.
+  Used to wait for anomaly scores to settle down before classifying anomalies. 
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.auto_detect_threshold</name>
+  <value>1.1</value>
+  <description>Threshold on the anomaly score used to identify anomalies.
+  Anomaly score ranges are between 0 and 1. If this value is set above 1, it
+  is the equivalent of turning auto classification off.
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.window_length</name>
+  <value>10000</value>
+  <description>The number of records back to store relevent information for
+  anomaly classification. These records will be recalculated when labels or
+  thresholds are updated.
+  </description>
+</property>
+
+<property>
+  <name>nupic.model.temporalAnomaly.anomaly_vector</name>
+  <value>tpc</value>
+  <description>Vector type used to classify anomalies. Types:
+    tpc - classify on active cells in the TP
+    sp_tpe - classify on the active SP columns concatenated with the predicted
+      TP columns that did not become active
+  </description>
+</property>
+
+
+</configuration>

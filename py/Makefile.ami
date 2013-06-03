@@ -1,0 +1,5 @@
+SUBDIRS = \
+cpp_region \
+bindings/math \
+bindings/algorithms \
+bindings/iorange

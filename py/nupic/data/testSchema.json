@@ -1,0 +1,12 @@
+{
+  "description":"JSON schema for jsonhelpers.py test code",
+  "type":"object",
+  "additionalProperties":false,
+  "properties":{
+    "myBool":{
+      "description":"Some boolean property",
+      "required":true,
+      "type":"boolean"
+    }
+  }
+}

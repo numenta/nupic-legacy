@@ -1,0 +1,184 @@
+ChangeLog for logilab.devtools
+==============================
+
+  --  
+    * added the missing dos2unix script to the distribution
+
+    * major debianize refactoring using class / inheritance instead of
+      functions composition
+
+    * import the version control library from oobrother extended with code
+      from devtools / apycot
+
+    * Singing in the rain:
+
+        - I'm
+        - singing in the rain
+
+    * Big change multiline
+      tata titi toto
+
+        - small change
+        - other change
+        - multiline change
+          really ?
+        - Eat your vegetable and brush after every meals
+
+
+
+2004-02-13  --  0.4.5
+    * fix debianize to handle dependencies to python standalone package
+      (ie no "python" prefix in the default package)
+
+    * fixed cvslog in rlog mode
+
+
+
+2004-02-11  --  0.4.4
+    * check web and ftp variables from __pkginfo__
+
+    * check for long and short descriptions in __pkginfo__
+
+    * outdated copyright is now a warning
+
+    * consider distuils automaticaly install .c files
+
+    * fix check_package exit status
+
+    * merged sgml, elisp and data packages in generated debian files
+
+
+
+2003-12-05  --  0.4.3
+    * fix bug in buildeb making it usable from buildpackage...
+
+
+
+2003-11-24  --  0.4.2
+    * fixed pb with check_info_module and catalog, when not launched from the
+      package directory
+
+    * ignore build directory in check_manifest
+
+    * fix to avoid pb with "non executed" docstring in pycoverage
+
+    * add support for --help and fix exit status to pycoverage
+
+
+
+2003-11-20  --  0.4.1
+    * added code coverage tool, starting from
+      http://www.garethrees.org/2001/12/04/python-coverage/
+
+    * added --help option to buildeb
+
+
+
+2003-11-14  --  0.4.0
+    * added a python script buildeb to build debian package (buildpackage call
+      this script now)
+
+    * debianize now puts tests in a separated package (-test) and generate
+      package for zope >= 2.6.2 (i.e. python 2.2)
+
+    * fix detection of examples directory in pkginfo
+
+    * fix debhelper dependency in build-depends
+
+    * remove minor bug in buildpackage (try to move archive.gz instead of
+      archive.tar.gz
+
+    * bug fix in debianize zope handler
+
+
+
+2003-10-06  --  0.3.4
+    * remove important bug in buildpackage (rm sourcetree when building a
+      source distrib)
+
+    * add version to dependency between main packages and sub-packages (-data,
+      -elisp and -sgml)
+
+    * change way of creating the .orig.tar.gz
+
+    * create source distribution when building debian package
+
+    * fix path in log message for MANIFEST.in, __pkginfo__ and bin directory
+
+    * make changelog more robust
+
+    * debianize bug fixes
+
+
+
+2003-09-22  --  0.3.3
+    * fix python.postinst script to avoid compiling of others packages :)
+
+
+
+2003-09-19  --  0.3.2
+    * add basic support for XSLT distribution
+
+    * fix DTD and catalog handling in debianize
+
+    * fix bug in check_pkginfo
+
+    * updated documentation
+
+
+
+2003-09-18  --  0.3.1
+    * add support for data files in debianize
+
+    * test python version in debianize
+
+    * minor fixes
+
+    * updated setup.py template
+
+
+
+2003-09-18  --  0.3.0
+    * updates for a new packaging standard
+
+    * removed jabbercli, cvs_filecheck
+
+    * added preparedistrib, tagpackage, pkginfo
+
+    * simpler debianize relying on a generic setup.py
+
+    * fix some debian templates
+
+    * checkpackage rewrite
+
+    * provides checkers for the tester package
+
+
+
+2003-08-29  --  0.2.4
+    * added cvs_filecheck
+
+
+
+2003-06-20  --  0.2.2
+    * buildpackages fixes
+
+
+
+2003-06-17  --  0.2.1
+    * fix setup.py
+
+    * make pkghandlers.export working with python <= 2.1
+
+    * add the mailinglist variable in __pkginfo__, used for announce
+      generation in makedistrib
+
+
+
+2003-06-16  --  0.2.0
+    * minor enhancements
+
+    * get package information for __pkginfo__.py
+
+
+

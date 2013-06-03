@@ -1,0 +1,4 @@
+This is the PyNode support implemented as a dynamic library. It is integrated
+with the build system and is copied into $NTA/install/lib
+
+

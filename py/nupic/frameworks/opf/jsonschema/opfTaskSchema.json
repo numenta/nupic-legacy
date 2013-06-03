@@ -1,0 +1,32 @@
+{
+  "description":"OPF Experiment Task schema",
+  "type":"object",
+  "additionalProperties":false,
+  "properties":{
+    
+    "taskLabel":{
+      "description":"Task label; this label string may be used for diagnostic logging and for constructing filenames or directory pathnames for task-specific files, etc.",
+      "required":true,
+      "type":"string",
+      "minLength":1
+    },
+
+    "dataset":{
+      "description":"Input dataset specification per py/nupic/frameworks/opf/jsonschema/stream_def.json",
+      "required":true,
+      "type":"object"
+    },
+
+    "iterationCount":{
+      "description":"Dataset iteration count; -1=iterate entire dataset.",
+      "required":true,
+      "type":"integer",
+      "minimum":-1
+    },
+    
+    "taskControl":{
+      "description":"Task Control parameters (per opfTaskControlSchema.json).",
+      "required":true
+    }
+  }
+}

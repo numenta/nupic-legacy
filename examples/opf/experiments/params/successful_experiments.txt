@@ -1,0 +1,27 @@
+multistep/basil/best_ms1_sp
+multistep/basil/best_reconstruction
+anomaly/spatial/novel_combination
+anomaly/spatial/simple
+multistep/hotgym_best_sp_5step_16K
+multistep/hotgym_best_sp
+anomaly/spatial/2field_few_balanced
+multistep/hotgym_best_tp_5step
+anomaly/spatial/10field_few2_skewed
+anomaly/spatial/10field_many_balanced
+multistep/hotgym_best_enc
+anomaly/spatial/2 fields_many_skewed
+multistep/hotgym_best_tp_16K
+multistep/basil/best_ms5_sp
+multistep/basil/reconstruction_base
+anomaly/spatial/2field_few_6040
+multistep/hotgym_best_sp_16K
+anomaly/spatial/2field_many_balanced
+multistep/hotgym_best_tp
+multistep/hotgym
+anomaly/spatial/2field_many_novelAtEnd
+multistep/hotgym_best_sp_5step
+anomaly/spatial/10field_few_skewed
+anomaly/spatial/2field_few_skewed
+multistep/hotgym_best_tp_5step_16K
+multistep/basil/multistep_base
+multistep/basil/best_ms5_sp_window500
