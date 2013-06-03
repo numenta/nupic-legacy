@@ -1,0 +1,37 @@
+{
+  "description":"Describes OPF logging preferences settings",
+  "type":"object",
+  "additionalProperties":false,
+  "properties":{
+    "outputDestination":{
+      "description":"Filename(s) to which logs should be written. If none are given, logging is suppressed. Filenames are relative to the current experiment directory. Special strings are 'stdout' to output to stdout and 'syslog' to use OS logging. Special string 'db' is supported, but not currently implemented.",
+      "required":false,
+      "type":"array"
+    },	    
+    "format":{
+      "description":"The format for log messages (see: http://docs.python.org/library/logging.html#logging.Formatter).",
+      "required":false,
+      "type":"string"
+    },
+    "level":{
+      "description":"The minimum level that will be output by this handler. Default is DEBUG.",
+      "required":false,
+      "type":"string"
+    },
+    "dbhost":{
+      "description":"The hostname where the database lives. Currently unsupported.",
+      "required":false,
+      "type":"string"
+    },	    
+    "dbusername":{
+      "description":"The username for database login. Currently unsupported.",
+      "required":false,
+      "type":"string"
+    },
+    "dbpassword":{
+      "description":"The password for database login. Currently unsupported.",
+      "required":false,
+      "type":"string"
+    }
+  }
+}

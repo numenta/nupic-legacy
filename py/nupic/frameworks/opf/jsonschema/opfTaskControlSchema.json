@@ -1,0 +1,61 @@
+{
+  "description":"OPF Experiment Task Control schema describes how to run the experiment.",
+  "type":"object",
+  "additionalProperties":false,
+  "properties":{
+    
+    "iterationCycle":{
+      "description":"Iteration cycle description consisting of a sequence of opftaskdriver.IterationPhaseSpecXXXXX elements that are performed in the specified order",
+      "required":true,
+      "type":"array",
+      "minItems":0
+    },
+    
+    
+    "metrics":{
+      "description": "Sequence of regular expressions specifying which metrics should be logged along with predictions",
+      "required":false,
+      "type":"array",
+      "uniqueItems":true,
+      "minItems":0
+    },
+    
+    "loggedMetrics":{
+      "description": "Sequence of regular expressions specifying which metrics should be logged along with predictions",
+      "required":false,
+      "type":"array",
+      "uniqueItems":true,
+      "minItems":0
+    },
+    
+    "callbacks":{
+      "description":"Callbacks for experimentation/research",
+      "required":false,
+      "type":"object",
+      "additionalProperties":false,
+      "properties":{
+        "setup":{
+          "description":"Callbacks to be called at the beginning of an experiment task, before model iteration. Signature: callback(<reference to OpfExperiment instance>); returns nothing.",
+          "required":false,
+          "type":"array",
+          "uniqueItems":true,
+          "minItems":0
+        },
+        "postIter":{
+          "description":"Callbacks to be called after every input record iteration. Signature: callback(<reference to OpfExperiment instance>); returns nothing.",
+          "required":false,
+          "type":"array",
+          "uniqueItems":true,
+          "minItems":0
+        },
+        "finish":{
+          "description":"Callbacks to be called when the experiment task is finished. Signature: callback(<reference to OpfExperiment instance>); returns nothing.",
+          "required":false,
+          "type":"array",
+          "uniqueItems":true,
+          "minItems":0
+        }
+      }
+    }
+  }
+}
