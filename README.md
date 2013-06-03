@@ -6,7 +6,7 @@ NuPIC is a library that provides the building blocks for online prediction syste
 OPF Basics
 ----------
 
-__Encoders__ turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar elements.
+__Encoders__ turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar values.
 
 __Models__ take sequences of SDRs and make predictions.  The CLA is implemented as an OPF model.
 
@@ -22,11 +22,12 @@ NuPIC requires Python 2.6, GCC, and Make.
 Add an environment variable that points to your installation directory and
 update PATH and PYTHONPATH to reference install locations:
 
-    export NTA=$HOME/nta/install
+    export NTA=$HOME/nta/eng
     export PATH=$NTA/bin:$PATH
     export NUPIC=/path/to/repo
+    export NTA_ROOTDIR=$NTA
     # Convenience variable for temporary build files.
-    export BUILDDIR=$HOME/build
+    export BUILDDIR=$HOME/ntabuild
 
 Build and install NuPIC:
 
