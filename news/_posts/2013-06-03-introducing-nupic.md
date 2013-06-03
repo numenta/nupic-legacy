@@ -29,3 +29,5 @@ Understanding the brain and building fantastically intelligent machines is a gra
 
 > Jeff Hawkins <br/>
 > Founder, Numenta Inc.
+
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1fl96e/introducing_the_numenta_platform_for_intelligent/)
