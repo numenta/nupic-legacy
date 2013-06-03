@@ -95,6 +95,10 @@ img {
   max-width:100%;
 }
 
+nav {
+    margin-bottom: 1em;
+}
+
 header {
   width:300px;
   float:left;
@@ -210,12 +214,6 @@ footer {
   header a small {
     display:inline;
   }
-
-  header ul {
-    position:absolute;
-    right:50px;
-    top:52px;
-  }
 }
 
 @media print, screen and (max-width: 720px) {
@@ -239,10 +237,6 @@ footer {
 @media print, screen and (max-width: 480px) {
   body {
     padding:15px;
-  }
-
-  header ul {
-    display:none;
   }
 }
 
