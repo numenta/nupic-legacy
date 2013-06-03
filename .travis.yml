@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+python:
+  - 2.6
+env: 
+  - NTA=$HOME/nta/eng PATH=$NTA/bin:$PATH PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH NUPIC=$TRAVIS_BUILD_DIR NTA_ROOTDIR=$NTA BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$NTA/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$NTA/lib:$LD_LIBRARY_PATH
+# Change this to your needs
+before_script: "mkdir $BUILDDIR; cd $NUPIC/build_system; python setup.py --autogen; cd $BUILDDIR"
+script: "$NUPIC/configure && make install"
