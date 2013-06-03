@@ -15,6 +15,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Ian Danforth ([iandanforth](https://github.com/iandanforth))
 * Ziv Rosen ([zivrosen](https://github.com/zivrosen))
 * Vitaly Kruglikov ([vitaly-krugl](https://github.com/vitaly-krugl))
+* Brev Patterson ([brev](https://github.com/brev))
 
 ### Committers
 
