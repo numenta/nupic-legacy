@@ -10,8 +10,8 @@ rm -rf $1
 mkdir -p $1
 
 python "$NUPIC/build_system/setup.py" --autogen
-pushd $1
-$NUPIC/configure --enable-optimization --enable-assertions=yes --prefix=$2
+pushd "$1"
+"$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix=$2
 make -j 3
 make install
 
