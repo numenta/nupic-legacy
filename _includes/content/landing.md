@@ -18,7 +18,7 @@ NuPIC, the *Numenta Platform for Intelligent Computing*, comprises a set of lear
 
 Why did we create the NuPIC Open Source project?
 --------------
-We created the NuPIC open source project because people read the white paper and want to work with these algorithms. They asked us to make them available in an open source project.
+We created the NuPIC open source project because people read the white paper and want to work with these algorithms. They asked us to make them available in an open source project. For a detail explanation of our motivations, hopes and fears around this project, see [Jeff's Introduction to NuPIC]({{ site.baseurl }}/news/2013/06/03/introducing-nupic.html).
 
 ### What is unique about the algorithms in NuPIC?
 
