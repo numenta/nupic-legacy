@@ -24,6 +24,7 @@ update PATH and PYTHONPATH to reference install locations:
 
     export NTA=$HOME/nta/eng
     export PATH=$NTA/bin:$PATH
+    export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
     export NUPIC=/path/to/repo
     export NTA_ROOTDIR=$NTA
     # Convenience variable for temporary build files.
