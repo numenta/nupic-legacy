@@ -30,6 +30,18 @@ update PATH and PYTHONPATH to reference install locations:
     # Convenience variable for temporary build files.
     export BUILDDIR=$HOME/ntabuild
 
+Setup the OS dynamic library path to point to $NTA/lib. There are two
+different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
+Linux.
+
+    LDIR="$NTA/lib"
+    if [[ ! "$DYLD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+      export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
+    fi
+    if [[ ! "$LD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+      export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH
+    fi
+
 Build and install NuPIC:
 
     pushd $NUPIC/build_system
