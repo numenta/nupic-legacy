@@ -2,7 +2,7 @@ License
 -------
 
 * NuPIC is licensed as dual commercial and [GPL version 3](http://www.gnu.org/licenses/gpl.html)
-* Commercial licenses are also available from Numenta.
+* Commercial licenses are also available from [Numenta](mailto:help@numenta.org).
 
 The goal of the license is to require that enhancements to NuPIC be released to the community.
 
