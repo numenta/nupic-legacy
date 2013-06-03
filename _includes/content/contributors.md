@@ -18,7 +18,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Brev Patterson ([brev](https://github.com/brev))
 * Stewart Mackenzie ([sj_mackenzie](https://github.com/sj_mackenzie))
 * Matthew O'Connor ([mattroid](https://github.com/mattroid))
-* Thomas Yu ([](https://github.com/))
+* Thomas Yu ([tyu-grok](https://github.com/tyu-grok))
 
 ### Committers
 
