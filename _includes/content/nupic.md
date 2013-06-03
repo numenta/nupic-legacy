@@ -6,7 +6,7 @@
       <li><a href="#requirements">Requirements</a></li>
       <li><a href="#project_status">Status</a></li>
       <li><a href="#source_code">Code</a></li>
-      <li><a href="#issue_tracking">Issues</a></li>
+      <!-- <li><a href="#issue_tracking">Issues</a></li> -->
     </ul>
   </nav>
 </section>
@@ -54,7 +54,7 @@ We're working in providing virtual machines ready to run NuPIC so Windows develo
 
 Project Status
 ------------------
-The code is open source (see [below](#source_code)), as of 03 June, 2013. However, the project is currently in a transitional period before contributions will be seriously accepted. This month-long period will give the community a chance to review and understand the source code, as well as Numenta's internal engineers a chance to update their processes to include an open source build.
+The code is open source (see [below](#source_code)), as of 03 June, 2013. However, the project is currently in a **one month transition period** before contributions will be seriously accepted. This will give the community a chance to review and understand the source code, as well as Numenta's internal engineers a chance to update their processes to include an open source build.
 
 Starting in July, we will seriously consider incoming Pull Requests on our codebase. In the meantime, minor contributions to our [website source code](https://github.com/numenta/nupic/tree/gh-pages), documentation, wikis, etc. are welcome, as long as they follow the [development workflow](https://github.com/numenta/nupic/wiki/Developer-workflow).
 
@@ -62,6 +62,10 @@ Source Code
 -----------
 We're rocking [Github](http://github.com/numenta/nupic).
 
+<!--
+
 Issue Tracking
 --------------
 We use JIRA for issue tracking at [issues.numenta.org](http://issues.numenta.org).
+
+-->

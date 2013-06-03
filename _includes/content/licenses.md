@@ -4,7 +4,7 @@ License
 * NuPIC is licensed as dual commercial and [GPL version 3](http://www.gnu.org/licenses/gpl.html)
 * Commercial licenses are also available from Numenta.
 
-The goal of the license is to require that enhancements to NuPIC be released to the community. Traditional GPL often does not achieve this anymore as a huge amount of software runs in the cloud. For example, Google has no obligation to release their improvements to the MySQL kernel – if they do they are being nice.
+The goal of the license is to require that enhancements to NuPIC be released to the community.
 
 Patents
 -------
