@@ -18,6 +18,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Brev Patterson ([brev](https://github.com/brev))
 * Stewart Mackenzie ([sj_mackenzie](https://github.com/sj_mackenzie))
 * Matthew O'Connor ([mattroid](https://github.com/mattroid))
+* Thomas Yu ([](https://github.com/))
 
 ### Committers
 
@@ -29,8 +30,9 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Subutai Ahmad
 * Austin Marshall
 * Ron Marianetti
-* Ziv Rosen 
+* Ziv Rosen
 * Vitaly Kruglikov
+* Thomas Yu
 
 ### Reviewers
 
@@ -41,5 +43,6 @@ The following people are Reviewers on the NuPIC project.
 * Scott Purdy
 * Subutai Ahmad
 * Ron Marianetti
-* Ziv Rosen 
+* Ziv Rosen
 * Vitaly Kruglikov
+* Thomas Yu
