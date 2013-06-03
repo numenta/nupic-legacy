@@ -20,6 +20,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Matthew O'Connor ([mattroid](https://github.com/mattroid))
 * Thomas Yu ([tyu-grok](https://github.com/tyu-grok))
 * Il Memming Park ([memming](https://github.com/memming))
+* Henry Pan ([hpan1984](https://github.com/hpan1984))
 
 ### Committers
 
