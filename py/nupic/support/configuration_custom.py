@@ -100,7 +100,7 @@ class Configuration(ConfigurationBase):
     """
     # Clear the in-memory settings cache, forcing reload upon subsequent "get"
     # request.
-    super(cls, cls).clear()
+    super(Configuration, cls).clear()
 
     # Reset in-memory custom configuration info.
     _CustomConfigurationFileWrapper.clear(persistent=False)
