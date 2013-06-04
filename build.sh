@@ -24,10 +24,10 @@
 # README.
 
 # Clean up first
-rm -rf "$NTA"
-rm -rf "$BUILDDIR"
+[[ -d $NTA ]] && rm -rf "$NTA"
+[[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
 
-mkdir "$BUILDDIR"
+mkdir -p "$BUILDDIR"
 pushd "$BUILDDIR"
 python "$NUPIC/build_system/setup.py" --autogen
 "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
