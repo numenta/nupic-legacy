@@ -1,0 +1,5 @@
+netLoad vectorstream.xml
+nodeExecute TestSensor loadFile VectorFileTest.txt 0
+nodeExecute TestSensor dump
+run 1
+nodeOPrint TestSensor

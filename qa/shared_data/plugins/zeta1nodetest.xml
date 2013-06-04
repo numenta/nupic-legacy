@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NumentaNet Version="1.0">
+  <!--htmtools::Network path="" numElements="2" numLinks="1" -->
+    <Node Name="sensor" >
+      <Class>VectorFileSensor</Class>
+      <State enc='base64'></State>
+      <Property Name="toolPath"><Value>sensor</Value></Property>
+      <Property Name="NPIndex"><Value>0</Value></Property>
+      <Property Name="Phase"><Value>0</Value></Property>
+      <Output Name="dataOut"><ElementCount>8</ElementCount></Output>
+    </Node>
+    <Node Name="testNode" >
+      <Class>Zeta1Node</Class>
+      <State enc='base64'>WmV0YTFOb2RlIDAgU3BhdGlhbFBvb2xlciAwIDAgMCAxIDggY3NyMDEgMCA4IDAgR3JvdXBlciAwIDEgNCA4IDAgMiAgMSAgMSAgMCAgMCA=</State>
+      <Property Name="toolPath"><Value>testNode</Value></Property>
+      <Property Name="NPIndex"><Value>0</Value></Property>
+      <Property Name="Phase"><Value>1</Value></Property>
+      <Output Name="output"><ElementCount>8</ElementCount></Output>
+    </Node>
+  <!-- htmtools::LinkPolicy path="auto-0-sensor-testNode" -->
+  <!--/htmtools::Network-->
+<!--htmtools::LinkSet-->
+  <Link>
+    <ElementCount>8</ElementCount>
+    <Source>
+      <Node>sensor</Node>
+      <Output>dataOut</Output>
+      <Offset>0</Offset>
+    </Source>
+    <Destination> 
+      <Node>testNode</Node>
+      <Input>inputs</Input>
+      <Offset>0</Offset>
+    </Destination>
+  </Link>
+<!--/htmtools::LinkSet-->
+</NumentaNet>
