@@ -20,18 +20,21 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Build NuPIC. This requires that the environment is set up as described in the
-# README.
+# This script is intended to be sourced from your .bashrc to ensure the
+# environment is set up correctly for NuPIC. It requires $NTA to be set prior
+# to invocation as described in the README.
 
-# Clean up first
-rm -rf "$NTA"
-rm -rf "$BUILDDIR"
+export PATH=$NTA/bin:$PATH
+export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
+export NTA_ROOTDIR=$NTA
 
-mkdir "$BUILDDIR"
-pushd "$BUILDDIR"
-python "$NUPIC/build_system/setup.py" --autogen
-"$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
-make -j 3
-make install
-popd
-rm -r "$BUILDDIR"
+# Setup the OS dynamic library path to point to $NTA/lib. There are two
+# different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
+# Linux.
+LDIR="$NTA/lib"
+if [[ ! "$DYLD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+  export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
+fi
+if [[ ! "$LD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+  export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH
+fi
