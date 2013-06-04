@@ -60,6 +60,7 @@ examples/prediction share/prediction
 examples/opf share/opf
 
 # Test data
+qa/shared_data      share/test/data
 tests tests
 run_tests.sh bin/run_tests.sh
 
