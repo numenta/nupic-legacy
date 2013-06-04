@@ -21,6 +21,9 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Thomas Yu ([tyu-grok](https://github.com/tyu-grok))
 * Il Memming Park ([memming](https://github.com/memming))
 * Henry Pan ([hpan1984](https://github.com/hpan1984))
+* Jordan Dea-Mattson ([jordandm](https://github.com/jordandm))
+* David Ragazzi ([]())
+* Peter Hunt ([petehunt](https://github.com/petehunt))
 
 ### Committers
 
@@ -35,6 +38,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Ziv Rosen
 * Vitaly Kruglikov
 * Thomas Yu
+* Jordan Dea-Mattson
 
 ### Reviewers
 
