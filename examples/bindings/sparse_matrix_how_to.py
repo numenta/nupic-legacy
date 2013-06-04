@@ -41,7 +41,6 @@ from nupic.bindings.math import *
 # 'dtype' parameter in the constructor:
 
 s = SparseMatrix(dtype='Float32')
-#s = SparseMatrix(dtype='Float32')
 
 
 # 2. Global Epsilon:
@@ -72,13 +71,7 @@ print '\nGlobal epsilon after:', getGlobalEpsilon()
 s = SparseMatrix([[1,2],[3,4]], dtype='Float32')
 print '\nFrom array 32\n', s
 
-s = SparseMatrix([[1,2],[3,4]], dtype='Float32')
-print '\nFrom array 32\n', s
-
 # ... or by passing it a numpy.array:
-
-s = SparseMatrix(numpy.array([[1,2],[3,4]]),dtype='Float32')
-print '\nFrom numpy array 32\n', s
 
 s = SparseMatrix(numpy.array([[1,2],[3,4]]),dtype='Float32')
 print '\nFrom numpy array 32\n', s
@@ -88,14 +81,11 @@ print '\nFrom numpy array 32\n', s
 s = SM32([[1,2],[3,4]])
 print '\nWith shortcut 32\n', s
 
-#s = SM32([[1,2],[3,4]])
-#print '\nWith shortcut 32\n', s
-
 # It is also possible to create an empty SparseMatrix, or a copy of another
 # SparseMatrix, or a SparseMatrix from a string in CSR format:
 
-#s_empty = SM32()
-#print '\nEmpty sparse matrix\n', s_empty
+s_empty = SM32()
+print '\nEmpty sparse matrix\n', s_empty
 
 s_string = SM32('sm_csr_1.5 26 2 2 4 2 0 1 1 2 2 0 3 1 4')
 print '\nSparse matrix from string\n', s_string
