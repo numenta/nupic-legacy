@@ -25,6 +25,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * David Ragazzi ([]())
 * Peter Hunt ([petehunt](https://github.com/petehunt))
 * Patrick Higgins ([pat-man](https://github.com/pat-man))
+* Erik Blas ([ravaa](https://github.com/ravaa))
 
 ### Committers
 
