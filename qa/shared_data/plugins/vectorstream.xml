@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NumentaNet Version="1.0">
+  <Node Name="TestSensor">
+    <Class>VectorStreamSensor</Class>
+    <State></State>
+    <Property Name="Phase">
+      <Value>2</Value>
+    </Property>
+    <Output Name="0">
+      <ElementCount>11</ElementCount>
+    </Output>
+  </Node>
+</NumentaNet>
