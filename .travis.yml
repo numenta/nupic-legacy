@@ -10,5 +10,5 @@ python:
 env:
   - NTA=$HOME/nta/eng NUPIC=$TRAVIS_BUILD_DIR BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$NTA/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$NTA/lib:$LD_LIBRARY_PATH
 # Change this to your needs
-before_script: "source $NUPIC/env.sh; export CPPFLAGS = \"-Wno-error\""
+before_script: "source $NUPIC/env.sh; export CPPFLAGS=\"-Wno-error\""
 script: "$NUPIC/build.sh"
