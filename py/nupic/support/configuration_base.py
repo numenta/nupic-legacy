@@ -389,8 +389,11 @@ class Configuration(object):
         configVar = os.environ['NTA_CONF_DIR']
         # Return as a list of paths
         configPaths = configVar.split(':')
-      else:
+      elif os.path.exists(os.path.join(
+          nupic.rootDir, 'conf', 'site', 'default')):
         configPaths = [os.path.join(nupic.rootDir, 'conf', 'site', 'default')]
+      else:
+        configPaths = [os.path.join(nupic.rootDir, 'conf', 'default')]
         
       return configPaths
 

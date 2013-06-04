@@ -65,6 +65,8 @@ run_tests.sh bin/run_tests.sh
 
 # miscellaneous files
 external/licenses               share/doc/licenses
+conf/default/nupic-default.xml  conf/default/nupic-default.xml
+conf/default/nupic-logging.conf conf/default/nupic-logging.conf
 
 # Python API and regions
 
