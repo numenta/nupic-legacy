@@ -19,38 +19,22 @@ Installation
 
 NuPIC requires Python 2.6, GCC, and Make.
 
-Add an environment variable that points to your installation directory and
-update PATH and PYTHONPATH to reference install locations:
+Add the following to your .bashrc file. Change the paths as needed.
 
+    # Installation path
     export NTA=$HOME/nta/eng
-    export PATH=$NTA/bin:$PATH
-    export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
+    # Source/repo path
     export NUPIC=/path/to/repo
-    export NTA_ROOTDIR=$NTA
-    # Convenience variable for temporary build files.
+    # Convenience variable for temporary build files
     export BUILDDIR=$HOME/ntabuild
 
-Setup the OS dynamic library path to point to $NTA/lib. There are two
-different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
-Linux.
-
-    LDIR="$NTA/lib"
-    if [[ ! "$DYLD_LIBRARY_PATH" =~ "$LDIR" ]]; then
-      export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
-    fi
-    if [[ ! "$LD_LIBRARY_PATH" =~ "$LDIR" ]]; then
-      export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH
-    fi
+    # Set up the rest of the necessary env variables. Must be done after
+    # setting $NTA.
+    source $NUPIC/env.sh
 
 Build and install NuPIC:
 
-    pushd $NUPIC/build_system
-    python setup.py --autogen
-    mkdir $BUILDDIR
-    cd $BUILDDIR
-    $NUPIC/configure
-    make install
-    popd
+    $NUPIC/build.sh
 
 NuPIC should now be installed in $NTA!
 
