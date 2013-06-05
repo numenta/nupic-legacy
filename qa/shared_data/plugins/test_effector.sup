@@ -1,3 +1,0 @@
-netLoad vectorfileeffector.xml
-nodeExecute TestFileSensor loadFile VectorFileTest.txt 0
-nodeExecute TestEffector writeFile temp.txt
