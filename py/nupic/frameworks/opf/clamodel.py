@@ -145,6 +145,7 @@ class CLAModel(Model):
           are passed to the temporal pooler.
       clParams: A dictionary specifying the classifier parameters. These are
           are passed to the classifier.
+      anomalyParams: Anomaly detection parameters
       minLikelihoodThreshold: The minimum likelihood value to include in
           inferences.  Currently only applies to multistep inferences.
       maxPredictionsPerStep: Maximum number of predictions to include for
@@ -179,44 +180,26 @@ class CLAModel(Model):
     # enable/disable//SP/TP//Learning methods)
     self.__spLearningEnabled = bool(spEnable)
     self.__tpLearningEnabled = bool(tpEnable)
+    
+    # Explicitly exclude the TP if this type of inference doesn't require it
+    if not InferenceType.isTemporal(self.getInferenceType()) \
+       or self.getInferenceType() == InferenceType.NontemporalMultiStep:
+      tpEnable = False
 
-    self.__encoderNetInfo = None
-    self.__temporalNetInfo = None
-    self.__nonTemporalNetInfo = None
-    self.__net = None
-    self.__predictedFieldEncoder = None
-    self.__predictedFieldIdx = None
-    self.__numFields = None
-
-    self.__needTP = (
-        InferenceType.isTemporal(self.getInferenceType()) and
-        self.getInferenceType() != InferenceType.NontemporalMultiStep)
+    self._netInfo = None
+    self._hasSP = spEnable
+    self._hasTP = tpEnable
+    
+    self._predictedFieldEncoder = None
+    self._predictedFieldIdx = None
+    self._predictedFieldName = None
+    self._numFields = None
 
     # -----------------------------------------------------------------------
-    # Set up state specific to InferenceType
-    if self.__needTP:
-      #--------------------------------------------------
-      # Create a temporal network;
-      self.__temporalNetInfo = self.__createCLANetwork(
-          sensorParams, spEnable, spParams, tpEnable, tpParams, clParams,
-          anomalyParams)
-      self.__net = self.__temporalNetInfo.net
-    elif spEnable:
-      #--------------------------------------------------
-      # Create a non-temporal-only network (spatial)
-      self.__nonTemporalNetInfo = self.__createCLANetwork(
-          sensorParams, spEnable, spParams, tpEnable, tpParams, clParams,
-          anomalyParams)
-      self.__net = self.__nonTemporalNetInfo.net
-      self.__logger.debug("Temporal network is disabled")
-    else:
-      #--------------------------------------------------
-      # Create a encoder -> classifier network
-      self.__encoderNetInfo = self.__createCLANetwork(
-          sensorParams, spEnable, spParams, tpEnable, tpParams, clParams,
-          anomalyParams)
-      self.__net = self.__encoderNetInfo.net
-      self.__logger.debug("Both SP and TP are disabled (encoder -> classifier")
+    # Create the network
+    self._netInfo = self.__createCLANetwork(
+        sensorParams, spEnable, spParams, tpEnable, tpParams, clParams,
+        anomalyParams)
 
 
     # Initialize Spatial Anomaly detection parameters
@@ -257,7 +240,7 @@ class CLAModel(Model):
     called to force the delineation of a sequence, such as between OPF tasks.
     """
 
-    if self.__temporalNetInfo:
+    if self._hasTP:
       # Reset TP's sequence states
       self._getTPRegion().executeCommand(['resetSequenceStates'])
 
@@ -279,22 +262,17 @@ class CLAModel(Model):
     """
     assert not self.__finishedLearning
 
-    if self.__nonTemporalNetInfo:
+    if self._hasSP:
       # Finish SP learning
       self._getSPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished nonTemporal network learning")
+        "CLAModel.finishLearning(): finished SP learning")
 
-    if self.__temporalNetInfo:
-      # Finish temporal network's SP learning
-      self._getSPRegion().executeCommand(['finishLearning'])
-      self.__logger.debug(
-        "CLAModel.finishLearning(): finished temporal network's SP learning")
-
+    if self._hasTP:
       # Finish temporal network's TP learning
       self._getTPRegion().executeCommand(['finishLearning'])
       self.__logger.debug(
-        "CLAModel.finishLearning(): finished temporal network's TP learning")
+        "CLAModel.finishLearning(): finished TP learning")
 
     self.__spLearningEnabled = self.__tpLearningEnabled = False
     self.__finishedLearning = True
@@ -415,7 +393,7 @@ class CLAModel(Model):
     self._spCompute()
     self._tpCompute()
 
-    results.sensorInput = self._getSensorInputRecord()
+    results.sensorInput = self._getSensorInputRecord(inputRecord)
 
     tpTopDownComputed = False
     inferences = {}
@@ -424,9 +402,7 @@ class CLAModel(Model):
       inferences = self._reconstructionCompute()
       tpTopDownComputed = True
     elif self._isMultiStepModel():
-      inferences = self._multiStepCompute(rawInput=inputRecord,
-                                          translatedInput=
-                                            results.sensorInput.dataRow)
+      inferences = self._multiStepCompute(rawInput=inputRecord)
     elif self._isClassificationModel():
       inferences = self._classifcationCompute()
 
@@ -436,8 +412,9 @@ class CLAModel(Model):
     results.inferences.update(inferences)
 
     # -----------------------------------------------------------------------
-    # Store the index of the predictedField
-    results.predictedFieldIdx = self.__predictedFieldIdx
+    # Store the index and name of the predictedField
+    results.predictedFieldIdx = self._predictedFieldIdx
+    results.predictedFieldName = self._predictedFieldName
 
     # =========================================================================
     # output
@@ -453,19 +430,22 @@ class CLAModel(Model):
     return results
 
 
-  def _getSensorInputRecord(self):
+  def _getSensorInputRecord(self, inputRecord):
     """
+    inputRecord - dict containing the input to the sensor
+    
     Return a 'SensorInput' object, which represents the 'parsed'
     representation of the input record
     """
     sensor = self._getSensorRegion()
-    inputRecordMapping = copy.deepcopy(
-                              sensor.getSelf().getOutputValues('sourceOut'))
+    dataRow = copy.deepcopy(sensor.getSelf().getOutputValues('sourceOut'))
+    dataDict = copy.deepcopy(inputRecord)
     inputRecordEncodings = sensor.getSelf().getOutputValues('sourceEncodings')
     inputRecordCategory = int(sensor.getOutputData('categoryOut')[0])
     resetOut = sensor.getOutputData('resetOut')[0]
 
-    return SensorInput(dataRow=inputRecordMapping,
+    return SensorInput(dataRow=dataRow,
+                       dataDict=dataDict,
                        dataEncodings=inputRecordEncodings,
                        sequenceReset=resetOut,
                        category=inputRecordCategory)
@@ -531,16 +511,16 @@ class CLAModel(Model):
 
   def _isMultiStepModel(self):
     return self.getInferenceType() in (InferenceType.NontemporalMultiStep,
+                                       InferenceType.NontemporalClassification,
                                        InferenceType.TemporalMultiStep,
                                        InferenceType.TemporalAnomaly)
 
 
   def _isClassificationModel(self):
-    return self.getInferenceType() in (InferenceType.NontemporalClassification,
-                                       InferenceType.TemporalClassification)
+    return self.getInferenceType() in (InferenceType.TemporalClassification)
 
 
-  def _multiStepCompute(self, rawInput, translatedInput):
+  def _multiStepCompute(self, rawInput):
     patternNZ = None
     if self._getTPRegion() is not None:
       tp = self._getTPRegion()
@@ -561,8 +541,8 @@ class CLAModel(Model):
     inputTSRecordIdx = rawInput.get('_timestampRecordIdx')
     return self._handleCLAClassifierMultiStep(
                                         patternNZ=patternNZ,
-                                        translatedInputRecord=translatedInput,
-                                        inputTSRecordIdx=inputTSRecordIdx)
+                                        inputTSRecordIdx=inputTSRecordIdx,
+                                        rawInput=rawInput)
 
 
   def _classifcationCompute(self):
@@ -685,8 +665,8 @@ class CLAModel(Model):
 
 
   def _handleCLAClassifierMultiStep(self, patternNZ,
-                                    translatedInputRecord,
-                                    inputTSRecordIdx):
+                                    inputTSRecordIdx,
+                                    rawInput):
     """ Handle the CLA Classifier compute logic when implementing multi-step
     prediction. This is where the patternNZ is associated with one of the
     other fields from the dataset 0 to N steps in the future. This method is
@@ -697,14 +677,12 @@ class CLAModel(Model):
     Parameters:
     -------------------------------------------------------------------
     patternNZ:  The input the CLA Classifier as a list of active input indices
-    translatedInputRecord: A list of the original inputs fed into the encoder(s),
-                  one per field. This is obtained from the sensor's 'sourceOut'
-                  output.
     inputTSRecordIdx: The index of the record as computed from the timestamp
                   and aggregation interval. This normally increments by 1
                   each time unless there are missing records. If there is no
                   aggregation interval or timestamp in the data, this will be
                   None.
+    rawInput:   The raw input to the sensor, as a dict. 
     """
 
     sensor = self._getSensorRegion()
@@ -714,30 +692,42 @@ class CLAModel(Model):
     inferenceArgs = self.getInferenceArgs()
     needLearning = self.isLearningEnabled()
     inferences = {}
+    predictedFieldName = inferenceArgs.get('predictedField', None)
 
 
     # Get the predicted field encoder, if we don't have it already
-    if self.__predictedFieldEncoder is None:
+    if self._predictedFieldEncoder is None:
+      self._predictedFieldName = predictedFieldName
       encoderList = sensor.getSelf().encoder.getEncoderList()
       fieldNames = sensor.getSelf().encoder.getScalarNames()
-      self.__numFields = len(fieldNames)
-      predictedFieldName = inferenceArgs.get('predictedField', None)
+      self._numFields = len(encoderList)
       if predictedFieldName is None:
         raise RuntimeError("This experiment description is missing "
               "the 'predictedField' in its config, which is required "
               "for multi-step prediction inference.")
-      self.__predictedFieldIdx = fieldNames.index(predictedFieldName)
-      self.__predictedFieldEncoder = encoderList[self.__predictedFieldIdx]
+      if predictedFieldName in fieldNames:
+        self._predictedFieldIdx = fieldNames.index(predictedFieldName)
+        self._predictedFieldEncoder = encoderList[self._predictedFieldIdx]
+      else:
+        # Predicted field was not fed into the network, only to the classifier
+        self._predictedFieldIdx = None
+        encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
+        fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
+        self._predictedFieldEncoder = encoderList[fieldNames.index(
+                                                        predictedFieldName)]
+        
 
-    # Get the actual value and the bucket index for this sample
-    absoluteValue = translatedInputRecord[self.__predictedFieldIdx]
-    bucketIdx = self.__predictedFieldEncoder.getBucketIndices(
-                                                      absoluteValue)[0]
-    #Convert the absolute values to deltas if necessary
-    #The bucket index should be handled correctly by the underlying delta encoder
-    if self.__predictedFieldEncoder.isDelta():
-      #Make the delta before any values have been seen 0 so that we do not mess up the
-      #range for the adaptive scalar encoder.
+    # Get the actual value and the bucket index for this sample. The
+    #  predicted field may not be enabled for input to the network, so we
+    #  explicitly encode it outside of the sensor
+    absoluteValue = rawInput[predictedFieldName]
+    bucketIdx = self._predictedFieldEncoder.getBucketIndices(absoluteValue)[0]
+    
+    # Convert the absolute values to deltas if necessary
+    # The bucket index should be handled correctly by the underlying delta encoder
+    if self._predictedFieldEncoder.isDelta():
+      # Make the delta before any values have been seen 0 so that we do not mess up the
+      # range for the adaptive scalar encoder.
       if not hasattr(self,"_ms_prevVal"):
         self._ms_prevVal = absoluteValue
       prevValue = self._ms_prevVal
@@ -823,14 +813,16 @@ class CLAModel(Model):
         #  place holders for the other fields
         bestBucketIdx = likelihoodsVec.argmax()
 
-        predictionRow = [None] * self.__numFields
-        predictionRow[self.__predictedFieldIdx] = bestActValue
+        predictionRow = [None] * self._numFields
+        if self._predictedFieldIdx is not None:
+          predictionRow[self._predictedFieldIdx] = bestActValue
         inferences[InferenceElement.prediction] = predictionRow
 
-        predictionFieldEncodings = [None] * self.__numFields
-        bucketInfo = self.__predictedFieldEncoder.getBucketInfo(
-                                                  [bestBucketIdx])[0]
-        predictionFieldEncodings[self.__predictedFieldIdx] = bucketInfo.encoding
+        predictionFieldEncodings = [None] * self._numFields
+        if self._predictedFieldIdx is not None:
+          bucketInfo = self._predictedFieldEncoder.getBucketInfo(
+                                                    [bestBucketIdx])[0]
+          predictionFieldEncodings[self._predictedFieldIdx] = bucketInfo.encoding
         inferences[InferenceElement.encodings] = predictionFieldEncodings
 
 
@@ -838,7 +830,7 @@ class CLAModel(Model):
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
       #  by the sum of the deltas
-      if self.__predictedFieldEncoder.isDelta():
+      if self._predictedFieldEncoder.isDelta():
         # Get the prediction history for this number of timesteps.
         # The prediction history is a store of the previous best predicted values.
         # This is used to get the final shift from the current absolute value.
@@ -930,21 +922,10 @@ class CLAModel(Model):
     ret = {"numRunCalls" : self.__numRunCalls}
 
     #--------------------------------------------------
-    # Query non-temporal network stats
-    nonTemporalStats = dict()
-    if self.__nonTemporalNetInfo:
-      for stat in self.__nonTemporalNetInfo.statsCollectors:
-        sdict = stat.getStats()
-        nonTemporalStats.update(sdict)
-
-    ret[InferenceType.getLabel(InferenceType.Nontemporal)] = nonTemporalStats
-
-
-    #--------------------------------------------------
     # Query temporal network stats
     temporalStats = dict()
-    if self.__temporalNetInfo:
-      for stat in self.__temporalNetInfo.statsCollectors:
+    if self._hasTP:
+      for stat in self._netInfo.statsCollectors:
         sdict = stat.getStats()
         temporalStats.update(sdict)
 
@@ -993,35 +974,35 @@ class CLAModel(Model):
     """
     Returns reference to the network's SP region
     """
-    return self.__net.regions.get('SP', None)
+    return self._netInfo.net.regions.get('SP', None)
 
 
   def _getTPRegion(self):
     """
     Returns reference to the network's TP region
     """
-    return self.__net.regions.get('TP', None)
+    return self._netInfo.net.regions.get('TP', None)
 
 
   def _getSensorRegion(self):
     """
     Returns reference to the network's Sensor region
     """
-    return self.__net.regions['sensor']
+    return self._netInfo.net.regions['sensor']
 
 
   def _getClassifierRegion(self):
     """
     Returns reference to the network's Classifier region
     """
-    if 'Classifier' in self.__net.regions:
-      return self.__net.regions['Classifier']
+    if 'Classifier' in self._netInfo.net.regions:
+      return self._netInfo.net.regions['Classifier']
     else:
       return None
 
 
   def _getAnomalyClassifier(self):
-    return self.__net.regions.get("AnomalyClassifier", None)
+    return self._netInfo.net.regions.get("AnomalyClassifier", None)
 
 
   def _getEncoder(self):
@@ -1047,7 +1028,7 @@ class CLAModel(Model):
     Returns:      NetworkInfo instance;
     """
 
-    isTemporal = self.__needTP
+    isTemporal = self._hasTP
 
     #--------------------------------------------------
     # Create the network
@@ -1059,9 +1040,26 @@ class CLAModel(Model):
     n.addRegion("sensor", "py.RecordSensor", json.dumps(dict(verbosity=sensorParams['verbosity'])))
     sensor = n.regions['sensor'].getSelf()
 
-    encoder = MultiEncoder(sensorParams['encoders'])
+    enabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    for name,params in enabledEncoders.items():
+      if params is not None:
+        classifierOnly = params.pop('classifierOnly', False)
+        if classifierOnly:
+          enabledEncoders.pop(name)
+        
+    disabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    for name,params in disabledEncoders.items():
+      if params is None:
+        disabledEncoders.pop(name)
+      else:
+        classifierOnly = params.pop('classifierOnly', False)
+        if not classifierOnly:
+          disabledEncoders.pop(name)
+        
+    encoder = MultiEncoder(enabledEncoders)
 
     sensor.encoder = encoder
+    sensor.disabledEncoder = MultiEncoder(disabledEncoders)
     sensor.dataSource = DataBuffer()
 
     if sensorParams['sensorAutoReset']:
@@ -1208,23 +1206,9 @@ class CLAModel(Model):
     # Remove ephemeral member variables from state
     state = self.__dict__.copy()
 
-    if self.__nonTemporalNetInfo:
-      state[self.__manglePrivateMemberName("__nonTemporalNetInfo")] = NetworkInfo(
-        net=None,
-        statsCollectors=self.__nonTemporalNetInfo.statsCollectors)
+    state["_netInfo"] = NetworkInfo(net=None,
+                        statsCollectors=self._netInfo.statsCollectors)
 
-    if self.__temporalNetInfo:
-      state[self.__manglePrivateMemberName("__temporalNetInfo")] = NetworkInfo(
-        net=None,
-        statsCollectors=self.__temporalNetInfo.statsCollectors)
-
-    if self.__encoderNetInfo:
-      state[self.__manglePrivateMemberName("__encoderNetInfo")] = NetworkInfo(
-        net=None,
-        statsCollectors=self.__encoderNetInfo.statsCollectors)
-
-    if self.__net:
-      state.pop(self.__manglePrivateMemberName('__net'))
 
     for ephemeral in [self.__manglePrivateMemberName("__restoringFromState"),
                       self.__manglePrivateMemberName("__logger")]:
@@ -1251,31 +1235,54 @@ class CLAModel(Model):
     # set up logging
     self.__logger = initLogger(self)
 
+
     # =========================================================================
     # TODO: Temporary migration solution
-    if not hasattr(self, '_Model__inferenceType'):
+    if not hasattr(self, "_Model__inferenceType"):
       self.__restoringFromV1 = True
+      self._hasSP = True
       if self.__temporalNetInfo is not None:
         self._Model__inferenceType = InferenceType.TemporalNextStep
-        self.__nonTemporalNetInfo = None
+        self._netInfo = self.__temporalNetInfo
+        self._hasTP = True
       else:
-        self._Model__inferenceType = InferenceType.Nontemporal
-        self.__temporalNetInfo = None
+        raise RuntimeError("The Nontemporal inference type is not supported")
 
       self._Model__inferenceArgs = {}
       self._Model__learningEnabled = True
       self._Model__inferenceEnabled = True
+      
+      # Remove obsolete members
+      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
+      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+      
 
+      
+    # -----------------------------------------------------------------------
+    # Migrate from v2 
+    if not hasattr(self, "_netInfo"):
+      self._hasSP = False
+      self._hasTP = False
+      if self.__encoderNetInfo is not None:
+        self._netInfo = self.__encoderNetInfo
+      elif self.__nonTemporalNetInfo is not None:
+        self._netInfo = self.__nonTemporalNetInfo
+        self._hasSP = True
+      else:
+        self._netInfo = self.__temporalNetInfo
+        self._hasSP = True
+        self._hasTP = True
+      
+      # Remove obsolete members
+      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
+      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
+      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
 
-    # New attributes introduced after some checkpoint files have already
-    #  been created
-    if not hasattr(self, self.__manglePrivateMemberName('__encoderNetInfo',
-                                                        skipCheck=True)):
-      self.__encoderNetInfo = None
 
     # This gets filled in during the first infer because it can only be
     #  determined at run-time
-    self.__predictedFieldEncoder = None
+    self._predictedFieldEncoder = None
 
     if not hasattr(self, '_minLikelihoodThreshold'):
       self._minLikelihoodThreshold = DEFAULT_LIKELIHOOD_THRESHOLD
@@ -1297,44 +1304,17 @@ class CLAModel(Model):
     makeDirectoryFromAbsolutePath(extraDataDir)
 
     #--------------------------------------------------
-    # Save the non-temporal network, if any
-    if self.__nonTemporalNetInfo:
-      outputDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
+    # Save the network
+    outputDir = self.__getNetworkStateDirectory(extraDataDir=extraDataDir)
 
-      self.__logger.debug(
-        "Serializing Non-Temporal network...")
+    self.__logger.debug("Serializing network...")
 
-      self.__nonTemporalNetInfo.net.save(outputDir)
+    self._netInfo.net.save(outputDir)
 
-      self.__logger.info("Finished serializing Non-Temporal network")
-
-
-    #--------------------------------------------------
-    # Save the temporal network, if any
-    if self.__temporalNetInfo:
-      outputDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
-
-      self.__logger.debug("Serializing Temporal network...")
-
-      self.__temporalNetInfo.net.save(outputDir)
-
-      self.__logger.info("Finished serializing Temporal network")
-
-    #--------------------------------------------------
-    # Save the encoder only network, if any
-    if self.__encoderNetInfo:
-      outputDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
-
-      self.__logger.debug("Serializing Encoder-only network...")
-
-      self.__encoderNetInfo.net.save(outputDir)
-
-      self.__logger.info("Finished serializing Encoder-only network")
-
+    self.__logger.info("Finished serializingnetwork")
+    
     return
+
 
   def _deSerializeExtraData(self, extraDataDir):
     """ [virtual method override] This method is called during deserialization
@@ -1349,70 +1329,25 @@ class CLAModel(Model):
     #--------------------------------------------------
     # Check to make sure that our Network member wasn't restored from
     # serialized data
-    assert (self.__nonTemporalNetInfo is None or
-            self.__nonTemporalNetInfo.net is None), \
-            "Non-temporal network was unpickled"
-    assert (self.__temporalNetInfo is None or
-            self.__temporalNetInfo.net is None), \
-            "Temporal network was unpickled"
+    assert (self._netInfo.net is None), "Network was already unpickled"
 
     #--------------------------------------------------
-    # Restore the non-temporal network, if any
-    if self.__nonTemporalNetInfo:
-      stateDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
+    # Restore the network
+    stateDir = self.__getNetworkStateDirectory(extraDataDir=extraDataDir)
 
-      self.__logger.debug(
-        "(%s) De-serializing Non-Temporal network...", self)
+    self.__logger.debug(
+      "(%s) De-serializing network...", self)
 
-      self.__nonTemporalNetInfo.net = Network(stateDir)
+    self._netInfo.net = Network(stateDir)
 
-      self.__logger.info(
-        "(%s) Finished de-serializing Non-Temporal network", self)
+    self.__logger.info(
+      "(%s) Finished de-serializing network", self)
 
 
-      # NuPIC doesn't initialize the network until you try to run it
-      # but users may want to access components in a setup callback
-      self.__nonTemporalNetInfo.net.initialize()
-      self.__net = self.__nonTemporalNetInfo.net
-
-    #--------------------------------------------------
-    # Restore the temporal network, if any
-    if self.__temporalNetInfo:
-      stateDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
-
-      self.__logger.debug(
-        "(%s) De-serializing Temporal network...", self)
-
-      self.__temporalNetInfo.net = Network(stateDir)
-
-      self.__logger.info(
-        "(%s) Finished de-serializing Temporal network", self)
-
-      # NuPIC doesn't initialize the network until you try to run it
-      # but users may want to access components in a setup callback
-      self.__temporalNetInfo.net.initialize()
-      self.__net = self.__temporalNetInfo.net
-
-    #--------------------------------------------------
-    # Restore the encoder-only network, if any
-    if self.__encoderNetInfo:
-      stateDir = self.__getNetworkStateDirectory(
-        extraDataDir=extraDataDir)
-
-      self.__logger.debug(
-        "(%s) De-serializing Encoder-only network...", self)
-
-      self.__encoderNetInfo.net = Network(stateDir)
-
-      self.__logger.info(
-        "(%s) Finished de-serializing Encoder network", self)
-
-      # NuPIC doesn't initialize the network until you try to run it
-      # but users may want to access components in a setup callback
-      self.__encoderNetInfo.net.initialize()
-      self.__net = self.__encoderNetInfo.net
+    # NuPIC doesn't initialize the network until you try to run it
+    # but users may want to access components in a setup callback
+    self._netInfo.net.initialize()
+    
 
     # Used for backwards compatibility for anomaly classification models.
     # Previous versions used the CLAModelClassifierHelper class for utilizing
@@ -1442,8 +1377,8 @@ class CLAModel(Model):
         knnRegion = self._getAnomalyClassifier().getSelf()
         
         # Add new KNNAnomalyClassifierRegion
-        self._addAnomalyClassifierRegion(self.__net, anomalyClParams, spEnable,
-            tpEnable)
+        self._addAnomalyClassifierRegion(self._netInfo.net, anomalyClParams, 
+                                         spEnable, tpEnable)
 
         # Restore state
         self._getAnomalyClassifier().getSelf()._iteration = self.__numRunCalls
@@ -1459,7 +1394,7 @@ class CLAModel(Model):
         # Remove old classifier_helper
         del self._classifier_helper
 
-        self.__net.initialize()
+        self._netInfo.net.initialize()
 
     #--------------------------------------------------
     # Mark end of restoration from state
@@ -1502,8 +1437,9 @@ class CLAModel(Model):
       allParams['cacheSize'] = DEFAULT_ANOMALY_CACHESIZE
 
     # Remove current instance if already created (used for deserializing)
-    if self.__net is not None and self._getAnomalyClassifier() is not None:
-      self.__temporalNetInfo.net.removeRegion('AnomalyClassifier')
+    if self._netInfo is not None and self._netInfo.net is not None \
+              and self._getAnomalyClassifier() is not None:
+      self._netInfo.net.removeRegion('AnomalyClassifier')
 
     network.addRegion("AnomalyClassifier",
                       "py.KNNAnomalyClassifierRegion",
