@@ -192,6 +192,7 @@ class RecordSensor(PyRegion):
     Create a node without an encoder or datasource
     """
     self.encoder = None
+    self.disabledEncoder = None
     self.dataSource = None
     self._outputValues = {}
 

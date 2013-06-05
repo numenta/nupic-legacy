@@ -190,7 +190,16 @@ class SDRCategoryEncoder(Encoder):
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
         return numpy.array([0])
 
-    return numpy.array([self.categoryToIndex.get(input, 0)])
+    index = self.categoryToIndex.get(input, None)
+    if index is None:
+      if self._learningEnabled:
+        self._addCategory(input)
+        index = self.ncategories - 1
+      else:
+        # if not found, we encode category 0
+        index = 0
+
+    return numpy.array([index])
 
   ############################################################################
   def getBucketIndices(self, input):
@@ -206,15 +215,7 @@ class SDRCategoryEncoder(Encoder):
       output[0:self.n] = 0
       index = 0
     else:
-      index = self.categoryToIndex.get(input, None)
-      if index is None:
-        if self._learningEnabled:
-          self._addCategory(input)
-          index = self.ncategories - 1
-        else:
-          # if not found, we encode category 0
-          index = 0
-
+      index = self.getBucketIndices(input)[0]
       output[0:self.n] = self.sdrs[index,:]
 
     if self.verbosity >= 2:
