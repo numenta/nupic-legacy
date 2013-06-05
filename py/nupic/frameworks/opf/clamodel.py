@@ -41,7 +41,7 @@ import logging
 import traceback
 from collections import defaultdict, namedtuple, deque
 from datetime import timedelta
-from ordereddict.OrderedDict import OrderedDict
+from ordereddict import OrderedDict
 from operator import itemgetter
 
 

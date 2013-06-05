@@ -503,6 +503,7 @@ class ConfigurationTest(unittest.TestCase):
     self.assertEqual(result, configPaths)
 
 
+  @unittest.skip('NUP-2081')
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)
   @patch.object(configuration.os, 'environ', spec=dict)
