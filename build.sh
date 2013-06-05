@@ -23,15 +23,51 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
-# Clean up first
-rm -rf "$NTA"
-rm -rf "$BUILDDIR"
+# A place to stash the exit status of build commands below
+status=0
 
-mkdir "$BUILDDIR"
-pushd "$BUILDDIR"
-python "$NUPIC/build_system/setup.py" --autogen
-"$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
-make -j 3
-make install
-popd
-rm -r "$BUILDDIR"
+function exitOnError {
+    echo "Checking exit status ${1}..."
+    if [[ !( "$1" == 0 ) ]] ; then
+        exit $1
+    fi
+}
+
+function prepDirectories {
+    rm -rf "$NTA"
+    rm -rf "$BUILDDIR"
+    mkdir "$BUILDDIR"
+    pushd "$BUILDDIR"
+}
+
+function pythonSetup {
+    python "$NUPIC/build_system/setup.py" --autogen
+    echo "Python setup exit status: ${?}"
+    exitOnError $?
+}
+
+function doConfigure {
+    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
+    echo "Configure exit status: ${?}"
+    exitOnError $?
+}
+
+function doMake {
+    make -j 3
+    make install
+    echo "make install exit status: ${?}"
+    exitOnError $?
+}
+
+function cleanUpDirectories {
+    popd
+    rm -r "$BUILDDIR"
+}
+
+prepDirectories
+
+pythonSetup
+doConfigure
+doMake
+
+cleanUpDirectories
