@@ -27,7 +27,6 @@
 status=0
 
 function exitOnError {
-    echo "Checking exit status ${1}..."
     if [[ !( "$1" == 0 ) ]] ; then
         exit $1
     fi
@@ -42,20 +41,17 @@ function prepDirectories {
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    echo "Python setup exit status: ${?}"
     exitOnError $?
 }
 
 function doConfigure {
     "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
-    echo "Configure exit status: ${?}"
     exitOnError $?
 }
 
 function doMake {
     make -j 3
     make install
-    echo "make install exit status: ${?}"
     exitOnError $?
 }
 
