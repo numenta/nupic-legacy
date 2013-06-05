@@ -23,10 +23,12 @@ Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
     export NTA=$HOME/nta/eng
-    # Source/repo path
+    # Target source/repo path. Defaults to $PWD
     export NUPIC_HOME=/path/to/repo
     # Convenience variable for temporary build files
     export BUILDDIR=$HOME/ntabuild
+    # Number of jobs to run in parallel (optional)
+    export MK_JOBS=3
 
     # Set up the rest of the necessary env variables. Must be done after
     # setting $NTA.

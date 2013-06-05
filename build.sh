@@ -23,15 +23,32 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
+# Set sane defaults
+[[ -z $NTA ]] && export NTA="${HOME}/nta/eng"
+[[ -z $BUILDDIR ]] && export BUILDDIR="${HOME}/ntabuild"
+[[ -z $MKE_JOBS ]] && export MKE_JOBS=3
+if [[ -z $NUPIC_HOME ]]
+then
+    echo "NUPIC_HOME not set, using ${PWD}"
+    export NUPIC_HOME="${PWD}"
+fi
+
 # Clean up first
+echo "Cleaning up previous build."
 [[ -d $NTA ]] && rm -rf "$NTA"
 [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
 
+# Build and install
+echo "Building NuPIC."
+echo "Using ${BUILDDIR} as build directory"
 mkdir -p "$BUILDDIR"
 pushd "$BUILDDIR"
 python "$NUPIC_HOME/build_system/setup.py" --autogen
 "$NUPIC_HOME/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
-make -j 3
+make -j $MKE_JOBS
+echo "Installing to ${NTA}" 
 make install
 popd
-rm -r "$BUILDDIR"
+
+# Cleanup
+rm -rf "$BUILDDIR"
