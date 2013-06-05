@@ -29,8 +29,8 @@
 
 mkdir -p "$BUILDDIR"
 pushd "$BUILDDIR"
-python "$NUPIC/build_system/setup.py" --autogen
-"$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
+python "$NUPIC_HOME/build_system/setup.py" --autogen
+"$NUPIC_HOME/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
 make -j 3
 make install
 popd
