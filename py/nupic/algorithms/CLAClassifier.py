@@ -469,7 +469,7 @@ class CLAClassifier(object):
           continue
         print "    %d steps: " % (nSteps), _pFormatArray(votes)
         bestBucketIdx = votes.argmax()
-        print "      most likely bucket idx: %d, value: %f" % (bestBucketIdx,
+        print "      most likely bucket idx: %d, value: %s" % (bestBucketIdx,
                             retval['actualValues'][bestBucketIdx]) 
       print
 
