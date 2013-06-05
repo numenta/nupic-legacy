@@ -5,3 +5,6 @@ baseurl: http://numenta.org
 
 markdown: maruku
 pygments: true
+
+name: NuPIC News
+description: Numenta Platform for Intelligent Computing News

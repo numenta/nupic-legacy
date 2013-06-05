@@ -6,7 +6,7 @@
       <li><a href="#requirements">Requirements</a></li>
       <li><a href="#project_status">Status</a></li>
       <li><a href="#source_code">Code</a></li>
-      <!-- <li><a href="#issue_tracking">Issues</a></li> -->
+      <li><a href="#issue_tracking">Issues</a></li>
     </ul>
   </nav>
 </section>
@@ -62,10 +62,7 @@ Source Code
 -----------
 We're rocking [Github](http://github.com/numenta/nupic).
 
-<!--
 
 Issue Tracking
 --------------
 We use JIRA for issue tracking at [issues.numenta.org](http://issues.numenta.org).
-
--->

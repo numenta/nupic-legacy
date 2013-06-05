@@ -65,3 +65,9 @@ h3.date {
     font-size: 12pt;
     font-style: italic;
 }
+
+#build-status {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
