@@ -22,10 +22,11 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Il Memming Park ([memming](https://github.com/memming))
 * Henry Pan ([hpan1984](https://github.com/hpan1984))
 * Jordan Dea-Mattson ([jordandm](https://github.com/jordandm))
-* David Ragazzi ([]())
+* David Ragazzi ([DavidRagazzi](https://github.com/DavidRagazzi))
 * Peter Hunt ([petehunt](https://github.com/petehunt))
 * Patrick Higgins ([pat-man](https://github.com/pat-man))
 * Erik Blas ([ravaa](https://github.com/ravaa))
+* Bertie Wheen ([Duta](https://github.com/Duta))
 
 ### Committers
 
