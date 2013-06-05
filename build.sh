@@ -51,4 +51,4 @@ make install
 popd
 
 # Cleanup
-rm -rf "$BUILDDIR"
+[[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
