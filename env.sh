@@ -32,9 +32,9 @@ export NTA_ROOTDIR=$NTA
 # different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
 # Linux.
 LDIR="$NTA/lib"
-if [[ ! "$DYLD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+if [[ ! "$DYLD_LIBRARY_PATH" == "$LDIR" ]]; then
   export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
 fi
-if [[ ! "$LD_LIBRARY_PATH" =~ "$LDIR" ]]; then
+if [[ ! "$LD_LIBRARY_PATH" == "$LDIR" ]]; then
   export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH
 fi
