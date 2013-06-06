@@ -24,7 +24,7 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Installation path
     export NTA=$HOME/nta/eng
     # Target source/repo path. Defaults to $PWD
-    export NUPIC_HOME=/path/to/repo
+    export NUPIC=/path/to/repo
     # Convenience variable for temporary build files
     export BUILDDIR=$HOME/ntabuild
     # Number of jobs to run in parallel (optional)
@@ -32,11 +32,11 @@ Add the following to your .bashrc file. Change the paths as needed.
 
     # Set up the rest of the necessary env variables. Must be done after
     # setting $NTA.
-    source $NUPIC_HOME/env.sh
+    source $NUPIC/env.sh
 
 Build and install NuPIC:
 
-    $NUPIC_HOME/build.sh
+    $NUPIC/build.sh
 
 NuPIC should now be installed in $NTA!
 
@@ -49,4 +49,4 @@ Run the C++ tests:
 
 You can run the examples using the OpfRunExperiment OPF client:
 
-    python $NUPIC_HOME/examples/opf/bin/OpfRunExperiment.py $NUPIC_HOME/examples/opf/experiments/multistep/hotgym/
+    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC_HOME/examples/opf/experiments/multistep/hotgym/
