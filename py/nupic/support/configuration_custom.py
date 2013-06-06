@@ -116,7 +116,7 @@ class Configuration(ConfigurationBase):
 
     # Clear the in-memory settings cache, forcing reload upon subsequent "get"
     # request.
-    super(cls, cls).clear()
+    super(Configuration, cls).clear()
 
     # Delete the persistent custom configuration store and reset in-memory
     # custom configuration info
@@ -140,7 +140,7 @@ class Configuration(ConfigurationBase):
     """ Intercept the _readStdConfigFiles call from our base config class to
     read in base and custom configuration settings.
     """
-    super(cls, cls)._readStdConfigFiles()
+    super(Configuration, cls)._readStdConfigFiles()
 
     cls.loadCustomConfig()
 
