@@ -26,6 +26,12 @@
 # A place to stash the exit status of build commands below
 status=0
 
+# Set sane defaults
+[[ -z $NUPIC ]] && export NUPIC=$PWD
+[[ -z $NTA ]] && export NTA=$HOME/nta/eng
+[[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
+[[ -z $MK_JOBS ]] && export MK_JOBS=3
+
 function exitOnError {
     if [[ !( "$1" == 0 ) ]] ; then
         exit $1
@@ -33,9 +39,10 @@ function exitOnError {
 }
 
 function prepDirectories {
-    rm -rf "$NTA"
-    rm -rf "$BUILDDIR"
-    mkdir "$BUILDDIR"
+    [[ -d $NTA ]] && rm -rf "$NTA"
+    [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
+    mkdir -p "$BUILDDIR"
+    mkdir -p "$NTA"
     pushd "$BUILDDIR"
 }
 
@@ -50,14 +57,14 @@ function doConfigure {
 }
 
 function doMake {
-    make -j 3
+    make -j $MK_JOBS
     make install
     exitOnError $?
 }
 
 function cleanUpDirectories {
     popd
-    rm -r "$BUILDDIR"
+    [[ -d $BUILDDIR ]] && rm -r "$BUILDDIR"
 }
 
 prepDirectories
@@ -67,3 +74,4 @@ doConfigure
 doMake
 
 cleanUpDirectories
+
