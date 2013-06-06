@@ -935,7 +935,7 @@ class CLAModel(Model):
     return ret
 
 
-  def getFieldInfo(self):
+  def getFieldInfo(self, includeClassifierOnlyField=False):
     """ [virtual method override]
         Returns the sequence of FieldMetaInfo objects specifying this
         Model's output; note that this may be different than the list of
@@ -951,6 +951,15 @@ class CLAModel(Model):
     fieldNames = encoder.getScalarNames()
     fieldTypes = encoder.getDecoderOutputFieldTypes()
     assert len(fieldNames) == len(fieldTypes)
+    
+    # Also include the classifierOnly field?
+    if includeClassifierOnlyField:
+      encoder = self._getClassifierOnlyEncoder()
+      addFieldNames = encoder.getScalarNames()
+      addFieldTypes = encoder.getDecoderOutputFieldTypes()
+      assert len(addFieldNames) == len(addFieldTypes)
+      fieldNames = list(fieldNames) + addFieldNames
+      fieldTypes = list(fieldTypes) + addFieldTypes
 
     fieldMetaList = map(FieldMetaInfo._make,
                         zip(fieldNames,
@@ -1010,6 +1019,13 @@ class CLAModel(Model):
     Returns:  sensor region's encoder for the given network
     """
     return  self._getSensorRegion().getSelf().encoder
+
+  def _getClassifierOnlyEncoder(self):
+    """
+    Returns:  sensor region's encoder that is sent only to the classifier,
+                not to the bottom of the network
+    """
+    return  self._getSensorRegion().getSelf().disabledEncoder
 
 
   def _getDataSource(self):
