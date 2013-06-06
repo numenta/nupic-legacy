@@ -14,7 +14,7 @@ before_install:
 install: "$NUPIC/build.sh"
 
 # dummy tests for now
-script: "banner FAKED"
+script: "ls"
 
 after_success:
   - "cd $NUPIC"
