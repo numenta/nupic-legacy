@@ -30,6 +30,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Joe Block ([unixorn](https://github.com/unixorn))
 * David Brody ([dbrody](https://github.com/dbrody))
 * Will Perkins ([willperkins](https://github.com/willperkins))
+* Marek Otahal ([breznak](https://github.com/breznak))
 
 ### Committers
 
