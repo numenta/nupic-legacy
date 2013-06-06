@@ -23,32 +23,47 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
-# Set sane defaults
-[[ -z $NTA ]] && export NTA="${HOME}/nta/eng"
-[[ -z $BUILDDIR ]] && export BUILDDIR="${HOME}/ntabuild"
-[[ -z $MKE_JOBS ]] && export MKE_JOBS=3
-if [[ -z $NUPIC_HOME ]]
-then
-    echo "NUPIC_HOME not set, using ${PWD}"
-    export NUPIC_HOME="${PWD}"
-fi
+# A place to stash the exit status of build commands below
+status=0
 
-# Clean up first
-echo "Cleaning up previous build."
-[[ -d $NTA ]] && rm -rf "$NTA"
-[[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
+function exitOnError {
+    if [[ !( "$1" == 0 ) ]] ; then
+        exit $1
+    fi
+}
 
-# Build and install
-echo "Building NuPIC."
-echo "Using ${BUILDDIR} as build directory"
-mkdir -p "$BUILDDIR"
-pushd "$BUILDDIR"
-python "$NUPIC_HOME/build_system/setup.py" --autogen
-"$NUPIC_HOME/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
-make -j $MKE_JOBS
-echo "Installing to ${NTA}" 
-make install
-popd
+function prepDirectories {
+    rm -rf "$NTA"
+    rm -rf "$BUILDDIR"
+    mkdir "$BUILDDIR"
+    pushd "$BUILDDIR"
+}
 
-# Cleanup
-[[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
+function pythonSetup {
+    python "$NUPIC/build_system/setup.py" --autogen
+    exitOnError $?
+}
+
+function doConfigure {
+    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
+    exitOnError $?
+}
+
+function doMake {
+    make -j 3
+    make install
+    exitOnError $?
+}
+
+function cleanUpDirectories {
+    popd
+    rm -r "$BUILDDIR"
+}
+
+prepDirectories
+
+pythonSetup
+doConfigure
+doMake
+
+cleanUpDirectories
