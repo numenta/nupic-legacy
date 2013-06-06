@@ -64,7 +64,7 @@ function doMake {
 
 function cleanUpDirectories {
     popd
-    [[ -d $BUILDDIR]] && rm -r "$BUILDDIR"
+    [[ -d $BUILDDIR ]] && rm -r "$BUILDDIR"
 }
 
 prepDirectories
