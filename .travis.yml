@@ -19,4 +19,4 @@ script: "ls"
 after_success:
   - "cd $NUPIC"
   - "git fetch origin"
-  - "git merge origin/master"
+  - "git push origin master"
