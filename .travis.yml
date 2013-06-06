@@ -8,7 +8,12 @@ python:
   - "2.6"
 env:
   - NUPIC=$TRAVIS_BUILD_DIR
-# Change this to your needs
-before_script:
+
+before_install:
   - "source $NUPIC/env.sh"
-script: "$NUPIC/build.sh"
+install: "$NUPIC/build.sh"
+
+after_success:
+  - "cd $NUPIC"
+  - "git fetch origin"
+  - "git merge origin/master"
