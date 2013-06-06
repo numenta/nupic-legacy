@@ -420,7 +420,6 @@ class Configuration(object):
 
     # Default one first
     cls.readConfigFile('nupic-default.xml')
-    cls.readConfigFile('grokengine-default.xml')
 
     # Site specific one can override properties defined in default
     cls.readConfigFile('nupic-site.xml')
