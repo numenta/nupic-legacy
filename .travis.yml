@@ -8,15 +8,15 @@ python:
   - "2.6"
 env:
   - NUPIC=$TRAVIS_BUILD_DIR
+notifications:
+  irc: "irc.freenode.net#nupic"
 
 before_install:
   - "source $NUPIC/env.sh"
 install: "$NUPIC/build.sh"
 
 # dummy tests for now
-script: "ls"
+script: "pwd"
 
 after_success:
-  - "cd $NUPIC"
-  - "git fetch origin"
-  - "git push origin master"
+  - "echo yay!"
