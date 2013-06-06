@@ -11,5 +11,4 @@ env:
 # Change this to your needs
 before_script:
   - "source $NUPIC/env.sh"
-  - "export CPPFLAGS=\"-Wno-error\""
-script: "exit -1"
+script: "$NUPIC/build.sh"
