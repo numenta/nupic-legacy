@@ -30,7 +30,7 @@ The CLA on the other hand is an online learning system.  It does not require con
 
 Computers store information in “dense” representations such as a 32 bit word where all combinations of 1s and 0s are possible.
 
-By contrast, brains us sparse distributed representations. The human neocortex has roughly 100 billion neurons, but at any given time only a small percent are active. The activity of neurons are like bits in a computer, and therefore the representation is sparse.  The CLA also uses SDRs.  A typical implementation of the CLA might have 2048 columns and 64K artificial neurons where as few as 40 might be active at once.  There are many mathematical advantages of using SDRs.  The CLA and the brain could not work otherwise.
+By contrast, brains use sparse distributed representations. The human neocortex has roughly 100 billion neurons, but at any given time only a small percent are active. The activity of neurons are like bits in a computer, and therefore the representation is sparse.  The CLA also uses SDRs.  A typical implementation of the CLA might have 2048 columns and 64K artificial neurons where as few as 40 might be active at once.  There are many mathematical advantages of using SDRs.  The CLA and the brain could not work otherwise.
 
 <div class="image-wrapper">
   <img alt="Example of a sparse distributed representation in an array of cells" src="{{ site.baseurl }}/images/sdr.png" />
@@ -39,7 +39,7 @@ By contrast, brains us sparse distributed representations. The human neocortex h
 
 This diagram represents a sparse distributed representation: two thousand circles with a small number of red circles active.
 
-In SDRs, unlike in a dense representations, each bit has meaning. This means that if two vectors have 1s in the same position they are semantically similar in that attrribute. SDRs are how brains solve the problem of knowledge representation that has plagued AI for decades.
+In SDRs, unlike in a dense representations, each bit has meaning. This means that if two vectors have 1s in the same position they are semantically similar in that attribute. SDRs are how brains solve the problem of knowledge representation that has plagued AI for decades.
 
 For more details about SDRs, watch [this excerpt](http://www.youtube.com/embed/t6NcTdXxVeo) from a talk given by Jeff Hawkins.
 
