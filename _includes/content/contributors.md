@@ -27,6 +27,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Patrick Higgins ([pat-man](https://github.com/pat-man))
 * Erik Blas ([ravaa](https://github.com/ravaa))
 * Bertie Wheen ([Duta](https://github.com/Duta))
+* Joe Block ([unixorn](https://github.com/unixorn))
 
 ### Committers
 
