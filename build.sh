@@ -40,7 +40,7 @@ function exitOnError {
 
 function prepDirectories {
     [[ -d $NTA ]] && rm -rf "$NTA"
-    [[ -d $NTA ]] && rm -rf "$BUILDDIR"
+    [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
     mkdir -p "$BUILDDIR"
     mkdir -p "$NTA"
     pushd "$BUILDDIR"
@@ -64,7 +64,7 @@ function doMake {
 
 function cleanUpDirectories {
     popd
-    [[ -d $NTA ]] && rm -r "$BUILDDIR"
+    [[ -d $BUILDDIR]] && rm -r "$BUILDDIR"
 }
 
 prepDirectories
