@@ -28,6 +28,7 @@ The following people have signed our [contributor license]({{ site.baseurl }}/li
 * Erik Blas ([ravaa](https://github.com/ravaa))
 * Bertie Wheen ([Duta](https://github.com/Duta))
 * Joe Block ([unixorn](https://github.com/unixorn))
+* David Brody ([dbrody](https://github.com/dbrody))
 
 ### Committers
 
@@ -43,6 +44,7 @@ The following people have commit access to [http://github.com/numenta/nupic](htt
 * Vitaly Kruglikov
 * Thomas Yu
 * Jordan Dea-Mattson
+* David Brody
 
 ### Reviewers
 
@@ -56,3 +58,5 @@ The following people are Reviewers on the NuPIC project.
 * Ziv Rosen
 * Vitaly Kruglikov
 * Thomas Yu
+* David Brody
+
