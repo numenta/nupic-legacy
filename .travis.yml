@@ -10,6 +10,9 @@ env:
   - NUPIC=$TRAVIS_BUILD_DIR
 notifications:
   irc: "irc.freenode.net#nupic"
+  webhooks:
+    urls:
+      - http://nomad.numenta.com:3031/travis
 
 before_install:
   - "source $NUPIC/env.sh"
