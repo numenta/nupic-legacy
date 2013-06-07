@@ -11,7 +11,7 @@ env:
 
 notifications:
   irc: "irc.freenode.net#nupic"
-  webhooks: http://nomad.numenta.com:3031/travis
+  webhooks: http://issues.numenta.org:3031/travis
 
 before_install:
   - "source $NUPIC/env.sh"
