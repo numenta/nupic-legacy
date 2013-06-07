@@ -13,7 +13,8 @@ notifications:
   irc: 
     channels: 
       - "irc.freenode.net#nupic"
-    on_start: true
+    use_notice: true
+    skip_join: true
   webhooks: 
     urls:
       - http://issues.numenta.org:8081/travis
