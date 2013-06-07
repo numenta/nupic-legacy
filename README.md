@@ -3,6 +3,8 @@ Numenta Platform for Intelligent Computing (NuPIC)
 
 NuPIC is a library that provides the building blocks for online prediction systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
 
+For more information, see [numenta.org](http://numenta.org).
+
 OPF Basics
 ----------
 
@@ -49,4 +51,4 @@ Run the C++ tests:
 
 You can run the examples using the OpfRunExperiment OPF client:
 
-    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC_HOME/examples/opf/experiments/multistep/hotgym/
+    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
