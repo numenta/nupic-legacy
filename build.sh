@@ -25,12 +25,11 @@
 
 # A place to stash the exit status of build commands below
 status=0
-_TMPDIR=/tmp
 
 # Set sane defaults
 [[ -z $NUPIC ]] && export NUPIC=$PWD
 [[ -z $NTA ]] && export NTA=$HOME/nta/eng
-[[ -z $BUILDDIR ]] && export BUILDDIR=$_TMPDIR/ntabuild
+[[ -z $BUILDDIR ]] && export BUILDDIR=/tmp/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
 
 function exitOnError {
