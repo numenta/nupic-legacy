@@ -654,8 +654,7 @@ class Network(engine.Network):
     @doc:place_holder(Network.setPhases)
     """
     phases = engine.UInt32Set(phases)
-    super(Network, self).setPhases
-    engine.Network.setPhases(self, name, phases)
+    super(Network, self).setPhases(name, phases)
 
   def run(self, n):
     """
