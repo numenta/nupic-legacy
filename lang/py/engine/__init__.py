@@ -147,7 +147,7 @@ class Dimensions(engine.Dimensions):
     of integers
     """
     # Init the base class
-    engine.Dimensions.__init__(self, *args)
+    super(Dimentions, self).__init__(*args)
     
   def __str__(self):
     return self.toString()
@@ -582,7 +582,7 @@ class Network(engine.Network):
     - Attach docstrings to selected methods
     """
     # Init engine.Network class
-    engine.Network.__init__(self, *args)
+    super(Network, self).__init__(*args)
     
     # Prepare documentation table.
     # Each item is pair of method/property, docstring
@@ -633,7 +633,7 @@ class Network(engine.Network):
     """
     @doc:place_holder(Network.addRegion)
     """
-    engine.Network.addRegion(self, name, nodeType, nodeParams)
+    super(Network, self).addRegion(name, nodeType, nodeParams)
     return self._getRegions()[name]
     
 
@@ -641,8 +641,7 @@ class Network(engine.Network):
     """
     @doc:place_holder(Network.addRegionFromBundle)
     """
-
-    engine.Network.addRegionFromBundle(self,
+    super(Network, self).addRegionFromBundle(
                                    name,
                                    nodeType,
                                    dimensions,
@@ -655,6 +654,7 @@ class Network(engine.Network):
     @doc:place_holder(Network.setPhases)
     """
     phases = engine.UInt32Set(phases)
+    super(Network, self).setPhases
     engine.Network.setPhases(self, name, phases)
 
   def run(self, n):
