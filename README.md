@@ -24,7 +24,7 @@ NuPIC requires Python 2.6, GCC, and Make.
 Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
-    export NTA=$HOME/nta/eng
+    export INSTALL_DIR=$HOME/nta/eng
     # Target source/repo path. Defaults to $PWD
     export NUPIC=/path/to/repo
     # Convenience variable for temporary build files

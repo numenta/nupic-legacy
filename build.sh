@@ -28,7 +28,7 @@ status=0
 
 # Set sane defaults
 [[ -z $NUPIC ]] && export NUPIC=$PWD
-[[ -z $INSTALL_DIR ]] && export NTA=$HOME/nta/eng
+[[ -z $INSTALL_DIR ]] && export INSTALL_DIR=$HOME/nta/eng
 [[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
 

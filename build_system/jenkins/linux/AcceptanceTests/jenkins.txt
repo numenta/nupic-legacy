@@ -58,7 +58,7 @@ fi
 rm -f $HOME/config.timestamp
 mkdir -p /tmp/$TAG
 export PYTHONPATH=$BUILD/lib/python2.6/site-packages:$WORKSPACE/build_system
-export NTA=$BUILD
+export INSTALL_DIR=$BUILD
 unset NTA_LOG_DIR
 unset NTA_CONF_DIR
 export NTA_WORK_DIR=/tmp/$TAG
