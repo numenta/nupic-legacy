@@ -61,7 +61,7 @@ class ExecutableChecker(BaseChecker):
       lineno += 1
       line = line.strip()
       if lineno == 1 and (line == '#!/usr/bin/env python2' or
-                          line == '#! /usr/bin/env python'):
+                          line == '#! /usr/bin/env python2'):
         hasShebang = True
       # Keep the checks on separate lines so this file doesn't appear as an
       # executable script.
