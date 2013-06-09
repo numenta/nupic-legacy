@@ -72,7 +72,7 @@ Spec* SpatialPoolerNode::createSpec()
     "the degree of match of the input pattern to all the stored patterns.\n"
     "The spatial pooler is controlled by the parameters below.\n"
     "Additional documentation is available in NodeAlgorithmsGuide.pdf, "
-    "located in $NTA/share/docs.";
+    "located in $INSTALL_DIR/share/docs.";
 
   ns->inputs.add(
     "bottomUpIn", 

@@ -81,7 +81,7 @@ Spec* TemporalPoolerNode::createSpec()
         "The temporal groups are computed when switching to inference.\n"
         "The temporal pooler is controlled by the parameters below.\n"
         "Additional documentation is available in NodeAlgorithmsGuide.pdf, "
-    "located in $NTA/share/docs.";
+    "located in $INSTALL_DIR/share/docs.";
 
 
   ns->inputs.add(

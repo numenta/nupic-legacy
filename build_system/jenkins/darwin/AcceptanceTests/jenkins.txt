@@ -55,8 +55,8 @@ fi
 
 # Set paths and environment
 export PYTHONPATH=$BUILD/lib/python2.6/site-packages:$WORKSPACE/build_system/
-export NTA=$BUILD
-#source $NTA/tools/nupic-env.sh autotest
+export INSTALL_DIR=$BUILD
+#source $INSTALL_DIR/tools/nupic-env.sh autotest
 
 # Run tests
 test1=`python $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/short.out' 'short'`

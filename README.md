@@ -24,31 +24,31 @@ NuPIC requires Python 2.6, GCC, and Make.
 Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
-    export NTA=$HOME/nta/eng
+    export INSTALL_DIR=$HOME/nta/eng
     # Target source/repo path. Defaults to $PWD
-    export NUPIC=/path/to/repo
+    export SOURCE_DIR=/path/to/repo
     # Convenience variable for temporary build files
-    export BUILDDIR=$HOME/ntabuild
+    export TMP_DIR=$HOME/ntabuild
     # Number of jobs to run in parallel (optional)
     export MK_JOBS=3
 
     # Set up the rest of the necessary env variables. Must be done after
-    # setting $NTA.
-    source $NUPIC/env.sh
+    # setting $INSTALL_DIR.
+    source $SOURCE_DIR/env.sh
 
 Build and install NuPIC:
 
-    $NUPIC/build.sh
+    $SOURCE_DIR/build.sh
 
-NuPIC should now be installed in $NTA!
+NuPIC should now be installed in $INSTALL_DIR!
 
 Try it out!
 -----------
 Run the C++ tests:
 
-    $NTA/bin/htmtest
-    $NTA/bin/testeverything
+    $INSTALL_DIR/bin/htmtest
+    $INSTALL_DIR/bin/testeverything
 
 You can run the examples using the OpfRunExperiment OPF client:
 
-    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
+    python $SOURCE_DIR/examples/opf/bin/OpfRunExperiment.py $SOURCE_DIR/examples/opf/experiments/multistep/hotgym/

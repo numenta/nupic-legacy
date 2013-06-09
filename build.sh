@@ -27,9 +27,9 @@
 status=0
 
 # Set sane defaults
-[[ -z $NUPIC ]] && export NUPIC=$PWD
-[[ -z $NTA ]] && export NTA=$HOME/nta/eng
-[[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
+[[ -z $SOURCE_DIR ]] && export SOURCE_DIR=$PWD
+[[ -z $INSTALL_DIR ]] && export INSTALL_DIR=$HOME/nta/eng
+[[ -z $TMP_DIR ]] && export TMP_DIR=$HOME/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
 
 function exitOnError {
@@ -39,20 +39,20 @@ function exitOnError {
 }
 
 function prepDirectories {
-    [[ -d $NTA ]] && rm -rf "$NTA"
-    [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
-    mkdir -p "$BUILDDIR"
-    mkdir -p "$NTA"
-    pushd "$BUILDDIR"
+    [[ -d $INSTALL_DIR ]] && rm -rf "$INSTALL_DIR"
+    [[ -d $TMP_DIR ]] && rm -rf "$TMP_DIR"
+    mkdir -p "$TMP_DIR"
+    mkdir -p "$INSTALL_DIR"
+    pushd "$TMP_DIR"
 }
 
 function pythonSetup {
-    python "$NUPIC/build_system/setup.py" --autogen
+    python "$SOURCE_DIR/build_system/setup.py" --autogen
     exitOnError $?
 }
 
 function doConfigure {
-    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
+    "$SOURCE_DIR/configure" --enable-optimization --enable-assertions=yes --prefix="$INSTALL_DIR"
     exitOnError $?
 }
 
@@ -64,7 +64,7 @@ function doMake {
 
 function cleanUpDirectories {
     popd
-    [[ -d $BUILDDIR ]] && rm -r "$BUILDDIR"
+    [[ -d $TMP_DIR ]] && rm -r "$TMP_DIR"
 }
 
 prepDirectories
