@@ -27,7 +27,7 @@
 status=0
 
 # Set sane defaults
-[[ -z $NUPIC ]] && export NUPIC=$PWD
+[[ -z $SOURCE_DIR ]] && export SOURCE_DIR=$PWD
 [[ -z $INSTALL_DIR ]] && export INSTALL_DIR=$HOME/nta/eng
 [[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
@@ -47,12 +47,12 @@ function prepDirectories {
 }
 
 function pythonSetup {
-    python "$NUPIC/build_system/setup.py" --autogen
+    python "$SOURCE_DIR/build_system/setup.py" --autogen
     exitOnError $?
 }
 
 function doConfigure {
-    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$INSTALL_DIR"
+    "$SOURCE_DIR/configure" --enable-optimization --enable-assertions=yes --prefix="$INSTALL_DIR"
     exitOnError $?
 }
 

@@ -7,8 +7,8 @@ compiler:
 python:
   - "2.6"
 env:
-  - INSTALL_DIR=$HOME/nta/eng NUPIC=$TRAVIS_BUILD_DIR BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$INSTALL_DIR/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$INSTALL_DIR/lib:$LD_LIBRARY_PATH
+  - INSTALL_DIR=$HOME/nta/eng SOURCE_DIR=$TRAVIS_BUILD_DIR BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$INSTALL_DIR/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$INSTALL_DIR/lib:$LD_LIBRARY_PATH
 # Change this to your needs
 before_script:
-  - "source $NUPIC/env.sh"
-script: "$NUPIC/build.sh"
+  - "source $SOURCE_DIR/env.sh"
+script: "$SOURCE_DIR/build.sh"
