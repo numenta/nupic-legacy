@@ -73,13 +73,13 @@ DIRS="nta plugins pynodes examples config apps qa release"
 echo find $DIRS $TODELETE
 find $DIRS $TODELETE | xargs $RM -rvf
 
-# python will create the pyc files from .py files when a module is loaded
-echo deleting compiled python code
-find qa external nta/python examples pynodes config -name '*.py[oc]' | xargs $RM -vf
+# python2 will create the pyc files from .py files when a module is loaded
+echo deleting compiled python2 code
+find qa external nta/python2 examples pynodes config -name '*.py[oc]' | xargs $RM -vf
 
 for ex in bitworm flu pictures sonar wallstreet waves
 do
-  (cd examples/$ex; echo cleaning up example $ex; python Cleanup.py)
+  (cd examples/$ex; echo cleaning up example $ex; python2 Cleanup.py)
 done
 
 echo done
