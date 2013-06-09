@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 """Doxygen XML to SWIG docstring converter.
 
 Converts Doxygen generated XML files into a file containing docstrings
