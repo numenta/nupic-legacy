@@ -28,7 +28,7 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Target source/repo path. Defaults to $PWD
     export SOURCE_DIR=/path/to/repo
     # Convenience variable for temporary build files
-    export BUILDDIR=$HOME/ntabuild
+    export TMP_DIR=$HOME/ntabuild
     # Number of jobs to run in parallel (optional)
     export MK_JOBS=3
 

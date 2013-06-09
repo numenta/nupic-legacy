@@ -29,7 +29,7 @@ status=0
 # Set sane defaults
 [[ -z $SOURCE_DIR ]] && export SOURCE_DIR=$PWD
 [[ -z $INSTALL_DIR ]] && export INSTALL_DIR=$HOME/nta/eng
-[[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
+[[ -z $TMP_DIR ]] && export TMP_DIR=$HOME/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
 
 function exitOnError {
@@ -40,10 +40,10 @@ function exitOnError {
 
 function prepDirectories {
     [[ -d $INSTALL_DIR ]] && rm -rf "$INSTALL_DIR"
-    [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
-    mkdir -p "$BUILDDIR"
+    [[ -d $TMP_DIR ]] && rm -rf "$TMP_DIR"
+    mkdir -p "$TMP_DIR"
     mkdir -p "$INSTALL_DIR"
-    pushd "$BUILDDIR"
+    pushd "$TMP_DIR"
 }
 
 function pythonSetup {
@@ -64,7 +64,7 @@ function doMake {
 
 function cleanUpDirectories {
     popd
-    [[ -d $BUILDDIR ]] && rm -r "$BUILDDIR"
+    [[ -d $TMP_DIR ]] && rm -r "$TMP_DIR"
 }
 
 prepDirectories
