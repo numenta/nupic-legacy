@@ -23,14 +23,14 @@ A key to Numenta's development strategy is continuous integration and testing. I
  
 In the following:
 * $TRUNK is the path to your source directory
-* $NTA is the path to your installation directory, e.g. ~/nta/eng
+* $INSTALL_DIR is the path to your installation directory, e.g. ~/nta/eng
 
 Testing syntax:
 
 1. To run the full set of tests. This is required before all checkins. Detailed output in the file "test.out"::
 
     cd $TRUNK/build_system/pybuild
-    python test_release.py --short $NTA $TRUNK
+    python test_release.py --short $INSTALL_DIR $TRUNK
 
    For example::
 
@@ -38,7 +38,7 @@ Testing syntax:
 
 2. To run a single test::
 
-    python test_release.py --short $NTA $TRUNK --test=
+    python test_release.py --short $INSTALL_DIR $TRUNK --test=
 
    For example::
 
@@ -46,11 +46,11 @@ Testing syntax:
 
 3. To run a single test without output to the terminal::
 
-    python test_release.py --short $NTA $TRUNK --test --log=stdout=
+    python test_release.py --short $INSTALL_DIR $TRUNK --test --log=stdout=
 
 4. To run two tests::
 
-    python test_release.py --short $NTA $TRUNK --test --test==
+    python test_release.py --short $INSTALL_DIR $TRUNK --test --test==
 
 5. To run all standard tests in parallel (4-way) [note: ^C does not work if you run tests in parallel]::
 

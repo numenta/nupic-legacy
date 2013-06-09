@@ -21,17 +21,17 @@
 # ----------------------------------------------------------------------
 
 # This script is intended to be sourced from your .bashrc to ensure the
-# environment is set up correctly for NuPIC. It requires $NTA to be set prior
+# environment is set up correctly for NuPIC. It requires $INSTALL_DIR to be set prior
 # to invocation as described in the README.
 
-export PATH=$NTA/bin:$PATH
-export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
-export NTA_ROOTDIR=$NTA
+export PATH=$INSTALL_DIR/bin:$PATH
+export PYTHONPATH=$INSTALL_DIR/lib/python2.6/site-packages:$PYTHONPATH
+export NTA_ROOTDIR=$INSTALL_DIR
 
-# Setup the OS dynamic library path to point to $NTA/lib. There are two
+# Setup the OS dynamic library path to point to $INSTALL_DIR/lib. There are two
 # different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
 # Linux.
-LDIR="$NTA/lib"
+LDIR="$INSTALL_DIR/lib"
 if [[ ! "$DYLD_LIBRARY_PATH" =~ "$LDIR" ]]; then
   export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
 fi

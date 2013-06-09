@@ -33,21 +33,21 @@ Add the following to your .bashrc file. Change the paths as needed.
     export MK_JOBS=3
 
     # Set up the rest of the necessary env variables. Must be done after
-    # setting $NTA.
+    # setting $INSTALL_DIR.
     source $NUPIC/env.sh
 
 Build and install NuPIC:
 
     $NUPIC/build.sh
 
-NuPIC should now be installed in $NTA!
+NuPIC should now be installed in $INSTALL_DIR!
 
 Try it out!
 -----------
 Run the C++ tests:
 
-    $NTA/bin/htmtest
-    $NTA/bin/testeverything
+    $INSTALL_DIR/bin/htmtest
+    $INSTALL_DIR/bin/testeverything
 
 You can run the examples using the OpfRunExperiment OPF client:
 
