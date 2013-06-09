@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Create a release based on a manifest file
 #
 # usage: python install_from_manifest.py manifest_file srcdir destdir

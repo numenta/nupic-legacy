@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
