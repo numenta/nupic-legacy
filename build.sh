@@ -50,7 +50,7 @@ function prepDirectories {
 }
 
 function pythonSetup {
-    python "$NUPIC/build_system/setup.py" --autogen
+    python2 "$NUPIC/build_system/setup.py" --autogen
     exitOnError $?
 }
 
