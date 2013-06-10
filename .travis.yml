@@ -13,12 +13,7 @@ notifications:
   irc: 
     channels: 
       - "irc.freenode.net#nupic"
-    use_notice: true
-    skip_join: true
-  webhooks: 
-    urls:
-      - http://issues.numenta.org:8081/travis
-    on_start: true
+  webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
   - "source $NUPIC/env.sh"
