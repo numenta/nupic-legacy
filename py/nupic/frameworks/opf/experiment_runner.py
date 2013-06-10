@@ -553,9 +553,9 @@ def _printAvailableCheckpoints(experimentDir):
 
   print
   print "To start from a checkpoint:"
-  print "  python OpfRunExperiment.py experiment --load <CHECKPOINT>"
+  print "  python2 OpfRunExperiment.py experiment --load <CHECKPOINT>"
   print "For example, to start from the checkpoint \"MyCheckpoint\":"
-  print "  python OpfRunExperiment.py experiment --load MyCheckpoint"
+  print "  python2 OpfRunExperiment.py experiment --load MyCheckpoint"
 
 
 

@@ -29,7 +29,7 @@ from nupic.data.file_record_stream import FileRecordStream
 
 USAGE = """
 Usage:
-  python anomalyzer.py input output action extraArgs
+  python2 anomalyzer.py input output action extraArgs
 Actions:
   add
     extraArgs: column start stop value

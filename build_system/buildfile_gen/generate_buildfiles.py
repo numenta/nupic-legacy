@@ -630,7 +630,7 @@ def usage():
 """
 
 Usage:
-python buildfile_gen.py --rootdir=<root dir>
+python2 buildfile_gen.py --rootdir=<root dir>
                            [--platform=<platform>]
                            [--save]
                            [--testlist=<regexp>]

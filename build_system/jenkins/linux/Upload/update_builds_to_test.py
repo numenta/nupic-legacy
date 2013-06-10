@@ -22,7 +22,7 @@
 """ Script to upload build to S3
  
 Usage:
-  python upload_build.py [--bucketname=bucketname] --filename=filename
+  python2 upload_build.py [--bucketname=bucketname] --filename=filename
 """
 
 

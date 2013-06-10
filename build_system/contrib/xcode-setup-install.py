@@ -11,7 +11,7 @@ rootDir = os.getcwd()
 buildSystemDir = os.path.join(rootDir, 'build_system')
 
 # Generate the configure input files.
-setupCmd = 'python ' + os.path.join(buildSystemDir, 'setup.py')  + ' --autogen' \
+setupCmd = 'python2 ' + os.path.join(buildSystemDir, 'setup.py')  + ' --autogen' \
                      + " --win32BuildDir '$(NTAX_BUILD_DIR)'"
 print 'Running command:', setupCmd
 sys.stdout.flush()
