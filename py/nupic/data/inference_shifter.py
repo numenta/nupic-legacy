@@ -79,5 +79,6 @@ class InferenceShifter(object):
                                 sensorInput=modelResult.sensorInput,
                                 inferences=inferencesToWrite,
                                 metrics=modelResult.metrics,
-                                predictedFieldIdx=modelResult.predictedFieldIdx)
+                                predictedFieldIdx=modelResult.predictedFieldIdx,
+                                predictedFieldName=modelResult.predictedFieldName)
     return shiftedResult
