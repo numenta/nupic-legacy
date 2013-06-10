@@ -91,8 +91,10 @@ class MultiEncoder(Encoder):
   ############################################################################
   def addMultipleEncoders(self, fieldEncodings):
     """
-    fieldEncodings is a dict of dicts, mapping field names to the field params
-    dict. Each field params dict has the following keys
+    fieldEncodings -- a dict of dicts, mapping field names to the field params
+                        dict. 
+
+    Each field params dict has the following keys
     1) data fieldname that matches the key ('fieldname')
     2) an encoder type ('type')
     3) and the encoder params (all other keys)
