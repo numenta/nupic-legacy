@@ -61,4 +61,5 @@ The following people are Reviewers on the NuPIC project.
 * Vitaly Kruglikov
 * Thomas Yu
 * David Brody
+* Jordan Dea-Mattson
 
