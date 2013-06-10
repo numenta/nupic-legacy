@@ -73,7 +73,7 @@ DIRS="nta plugins pynodes examples config apps qa release"
 echo find $DIRS $TODELETE
 find $DIRS $TODELETE | xargs $RM -rvf
 
-# python will create the pyc files from .py files when a module is loaded
+# python2 will create the pyc files from .py files when a module is loaded
 echo deleting compiled python code
 find qa external nta/python examples pynodes config -name '*.py[oc]' | xargs $RM -vf
 

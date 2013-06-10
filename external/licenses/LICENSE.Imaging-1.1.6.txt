@@ -132,7 +132,7 @@ For a list of changes in this release, see the CHANGES document.
         $ gunzip Imaging-1.1.6.tar.gz
         $ tar xvf Imaging-1.1.6.tar
         $ cd Imaging-1.1.6
-        $ python setup.py install
+        $ python2 setup.py install
 
    If you prefer to know what you're doing, read on.
 
@@ -201,7 +201,7 @@ For a list of changes in this release, see the CHANGES document.
    and run the self test before installing.
 
         $ cd Imaging-1.1.6
-        $ python setup.py build_ext -i
+        $ python2 setup.py build_ext -i
         $ python selftest.py
 
    When the build finishes, a summary report is shown.  Make sure
@@ -224,7 +224,7 @@ For a list of changes in this release, see the CHANGES document.
 6. If the setup.py and selftest.py commands finish without any
    errors, you're ready to install the library:
 
-        $ python setup.py install
+        $ python2 setup.py install
 
    (depending on how Python has been installed on your machine,
    you might have to log in as a superuser to run the 'install'

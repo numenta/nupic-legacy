@@ -63,17 +63,17 @@ export AWS_SECRET_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | head -2 | tail -1 |
 
 # Upload build
 cd $HOME/Jenkins/Builds/
-test=(`python $WORKSPACE/../scripts/upload_build.py --filename $TAG'_'$ARCH'.tgz'`)
+test=(`python2 $WORKSPACE/../scripts/upload_build.py --filename $TAG'_'$ARCH'.tgz'`)
 
 # Upload build number as latest
 cd $HOME/Jenkins/Builds/
 echo $TAG > 'latest'
-upload=(`python $WORKSPACE/../scripts/upload_build.py --filename 'latest'`)
+upload=(`python2 $WORKSPACE/../scripts/upload_build.py --filename 'latest'`)
 
 # Update builds to test file
 cd $HOME/Jenkins/Builds/
 touch builds_to_test
-update=(`python $WORKSPACE/../scripts/update_builds_to_test.py --tag $TAG`)
+update=(`python2 $WORKSPACE/../scripts/update_builds_to_test.py --tag $TAG`)
 
 # Mark upload as done
 echo "Marking upload as done"
