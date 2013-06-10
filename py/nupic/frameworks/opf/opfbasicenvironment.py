@@ -640,8 +640,8 @@ class _BasicPredictionWriter(PredictionWriterIface):
       elif isinstance(outputVal, dict):
         if inputVal is not None:
           # If we have a predicted field, include only that in the actuals
-          if modelResult.predictedFieldIdx is not None:
-            outputRow.append(str(inputVal[modelResult.predictedFieldIdx]))
+          if modelResult.predictedFieldName is not None:
+            outputRow.append(str(inputVal[modelResult.predictedFieldName]))
           else:
             outputRow.append(str(inputVal))
         for key in sorted(outputVal.keys()):
