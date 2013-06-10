@@ -997,7 +997,7 @@ namespace nta {
      */
     inline void add(const Index& idx, const Float& val)
     {
-      std::pair<iterator, bool> r = nz_.insert(make_pair(idx, val));
+      std::pair<iterator, bool> r = nz_.insert(std::make_pair(idx, val));
 
       if (!r.second) 
         r.first->second += val;
@@ -1414,7 +1414,7 @@ namespace nta {
     {
       const_iterator it, e;
       for (it = begin(), e = end(); it != e; ++it, ++iv)
-        *iv = make_pair(it->first, it->second);
+        *iv = std::make_pair(it->first, it->second);
     }
 
     /**
@@ -2925,14 +2925,14 @@ namespace nta {
     inline const std::pair<Index, Float> max() const
     {
       if (isZero())
-        return make_pair(getNewZeroIndex(), Float(0));
+        return std::make_pair(getNewZeroIndex(), Float(0));
 
       const_iterator min_it = 
         std::max_element(begin(), end(), 
 			 predicate_compose<std::less<Float>, 
 			 nta::select2nd<std::pair<Index, Float> > >());
       
-      return make_pair(min_it->first, min_it->second);
+      return std::make_pair(min_it->first, min_it->second);
     }
 
     /**
