@@ -19,8 +19,5 @@ before_install:
   - "source $NUPIC/env.sh"
 install: "$NUPIC/build.sh"
 
-# dummy tests for now
-script: "pwd"
-
-after_success:
-  - "echo yay!"
+# The only tests we have for now
+script: "$NTA/bin/testeverything"
