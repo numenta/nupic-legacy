@@ -1,14 +1,26 @@
 branches:
   only:
-    - master
+    - dev-master
 language: python
 compiler:
   - gcc
 python:
   - "2.6"
 env:
-  - NTA=$HOME/nta/eng NUPIC=$TRAVIS_BUILD_DIR BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$NTA/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$NTA/lib:$LD_LIBRARY_PATH
-# Change this to your needs
-before_script:
+  - NUPIC=$TRAVIS_BUILD_DIR
+
+notifications:
+  irc: 
+    channels: 
+      - "irc.freenode.net#nupic"
+  webhooks: http://issues.numenta.org:8081/travis
+
+before_install:
   - "source $NUPIC/env.sh"
-script: "$NUPIC/build.sh"
+install: "$NUPIC/build.sh"
+
+# dummy tests for now
+script: "pwd"
+
+after_success:
+  - "echo yay!"
