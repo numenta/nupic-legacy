@@ -1327,7 +1327,7 @@ class CLAModel(Model):
 
     self._netInfo.net.save(outputDir)
 
-    self.__logger.info("Finished serializingnetwork")
+    self.__logger.info("Finished serializing network")
     
     return
 
