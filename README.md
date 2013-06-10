@@ -30,7 +30,7 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Target source/repo path. Defaults to $PWD
     export NUPIC=/path/to/repo
     # Convenience variable for temporary build files
-    export BUILDDIR=$HOME/ntabuild
+    export BUILDDIR=/tmp/ntabuild
     # Number of jobs to run in parallel (optional)
     export MK_JOBS=3
 

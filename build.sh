@@ -29,7 +29,7 @@ status=0
 # Set sane defaults
 [[ -z $NUPIC ]] && export NUPIC=$PWD
 [[ -z $NTA ]] && export NTA=$HOME/nta/eng
-[[ -z $BUILDDIR ]] && export BUILDDIR=$HOME/ntabuild
+[[ -z $BUILDDIR ]] && export BUILDDIR=/tmp/ntabuild
 [[ -z $MK_JOBS ]] && export MK_JOBS=3
 
 function exitOnError {
@@ -39,8 +39,8 @@ function exitOnError {
 }
 
 function prepDirectories {
-    [[ -d $NTA ]] && rm -rf "$NTA"
-    [[ -d $BUILDDIR ]] && rm -rf "$BUILDDIR"
+    [[ -d $NTA ]] && echo "Warning: directory \"$NTA\" already exists and may contain (old) data. Consider removing it. "
+    [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
     mkdir -p "$BUILDDIR"
     mkdir -p "$NTA"
     pushd "$BUILDDIR"
