@@ -25,7 +25,7 @@
  * @file
  */
 
-
+#include <unistd.h>
 #include "OSTest.hpp"
 #include <nta/os/Env.hpp>
 #include <nta/os/Path.hpp>
