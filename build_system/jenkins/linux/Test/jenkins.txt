@@ -66,7 +66,7 @@ source $NTA/tools/nupic-env.sh autotest > source.out 2>&1
 # Run tests
 #sh test.sh $BUILD $WORKSPACE $ARCH $TAG
 cd $WORKSPACE
-test=(`python $WORKSPACE/../scripts/test.py $BUILD $WORKSPACE $WORKSPACE'/standard.out'`)
+test=(`python2 $WORKSPACE/../scripts/test.py $BUILD $WORKSPACE $WORKSPACE'/standard.out'`)
 result=$?
 
 

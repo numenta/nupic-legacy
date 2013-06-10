@@ -59,9 +59,9 @@ export NTA=$BUILD
 #source $NTA/tools/nupic-env.sh autotest
 
 # Run tests
-test1=`python $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/short.out' 'short'`
+test1=`python2 $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/short.out' 'short'`
 result1=$?
-test2=`python $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/acceptance.out' 'long'`
+test2=`python2 $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/acceptance.out' 'long'`
 result1=$?
 
 # Mark tests as done
