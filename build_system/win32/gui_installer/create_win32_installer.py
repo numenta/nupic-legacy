@@ -140,7 +140,7 @@ def createInstaller(nta_install_dir, nupic_archive_path, installer_path, nupic_v
 
 def usage():
   print """\
-python create_win32_installer.py <install_dir> <nupic_archive> <trunk> [--debug] [--force]
+python2 create_win32_installer.py <install_dir> <nupic_archive> <trunk> [--debug] [--force]
 
 install_dir (mandatory):
   Path to the NuPIc installation dir (NuPIC must be installed)

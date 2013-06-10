@@ -88,4 +88,4 @@ if __name__ == "__main__":
   
   main(trunkDir, buildDir, installDir)
 
-#python "z:\trunk\build_system\post_build\win32_post_build.py"  "z:\trunk" "c:/nta/build" "c:/nta/install" 
+#python2 "z:\trunk\build_system\post_build\win32_post_build.py"  "z:\trunk" "c:/nta/build" "c:/nta/install" 
