@@ -125,11 +125,16 @@ class MetricsManager(object):
       inference = self._getInference(inferenceElement)
       rawRecord = self._getRawGroundTruth()
       if field:
-        fieldIndex = self.__fieldNameIndexMap[field]
         if type(inference) in (list, tuple):
+          fieldIndex = self.__fieldNameIndexMap[field]
           inference = inference[fieldIndex]
         if groundTruth is not None:
-          groundTruth = groundTruth[fieldIndex]
+          if type(groundTruth) in (list, tuple):
+            fieldIndex = self.__fieldNameIndexMap[field]
+            groundTruth = groundTruth[fieldIndex]
+          else:
+            # groundTruth could be a dict based off of field names
+            groundTruth = groundTruth[field]
 
       metric.addInstance(groundTruth=groundTruth,
                          prediction=inference,
@@ -313,7 +318,7 @@ def _testMetricsMgr():
     MetricsManager(
     metricSpecs=onlineMetrics,
     fieldInfo=modelFieldMetaInfo,
-    inferenceType=InferenceType.Nontemporal)
+    inferenceType=InferenceType.TemporalNextStep)
   except ValueError:
     print "Caught bad inference element: PASS"
 
@@ -322,11 +327,6 @@ def _testMetricsMgr():
   onlineMetrics = (MetricSpec(metric="aae",
                               inferenceElement=InferenceElement.prediction,
                               field="consumption", params={}),)
-
-  nonTemporalMetrics = MetricsManager(
-    metricSpecs=onlineMetrics,
-    fieldInfo=modelFieldMetaInfo,
-    inferenceType=InferenceType.Nontemporal)
 
   temporalMetrics = MetricsManager(
     metricSpecs=onlineMetrics,
@@ -340,7 +340,6 @@ def _testMetricsMgr():
       'groundTruthRow' : [9, 7],
 
       'predictionsDict' : {
-        InferenceType.Nontemporal: [10, 8],
         InferenceType.TemporalNextStep: [12, 17]
       }
     },
@@ -349,7 +348,6 @@ def _testMetricsMgr():
       'groundTruthRow' : [12, 17],
 
       'predictionsDict' : {
-        InferenceType.Nontemporal: [12, 17],
         InferenceType.TemporalNextStep: [14, 19]
       }
     },
@@ -358,7 +356,6 @@ def _testMetricsMgr():
       'groundTruthRow' : [14, 20],
 
       'predictionsDict' : {
-        InferenceType.Nontemporal: None,
         InferenceType.TemporalNextStep: [16, 21]
       }
     },
@@ -367,7 +364,6 @@ def _testMetricsMgr():
       'groundTruthRow' : [9, 7],
 
       'predictionsDict' : {
-        InferenceType.Nontemporal: [10, 8],
         InferenceType.TemporalNextStep:None
       }
     },
@@ -376,21 +372,16 @@ def _testMetricsMgr():
 
   for element in inputs:
     groundTruthRow=element['groundTruthRow']
-    ntPredictionRow=element['predictionsDict'][InferenceType.Nontemporal]
     tPredictionRow=element['predictionsDict'][InferenceType.TemporalNextStep]
 
     result = ModelResult(sensorInput=SensorInput(dataRow=groundTruthRow,
                                                  dataEncodings=None,
                                                  sequenceReset=0,
                                                  category=None),
-                         inferences={'prediction':ntPredictionRow})
+                         inferences={'prediction':tPredictionRow})
 
-    nonTemporalMetrics.update(result)
-
-    result.inferences['prediction'] = tPredictionRow
     temporalMetrics.update(result)
 
-  assert nonTemporalMetrics.getMetrics().values()[0]  == 2.0/3.0
   assert temporalMetrics.getMetrics().values()[0] == 15.0 / 3.0, \
           "Expected %f, got %f" %(15.0/3.0,
                                   temporalMetrics.getMetrics().values()[0])
@@ -422,14 +413,14 @@ def _testTemporalShift():
                        fieldInfo=modelFieldMetaInfo,
                        inferenceType=InferenceType.TemporalMultiStep)
 
-  groundTruths = range(10)
+  groundTruths = [{'consumption':i} for i in range(10)]
   oneStepInfs = reversed(range(10))
   threeStepInfs = range(5, 15)
 
   for iterNum, gt, os, ts in zip(xrange(10), groundTruths,
                               oneStepInfs, threeStepInfs):
     inferences = {InferenceElement.multiStepPredictions:{1: os, 3: ts}}
-    sensorInput = SensorInput(dataRow = [gt])
+    sensorInput = SensorInput(dataDict = [gt])
     result = ModelResult(sensorInput=sensorInput, inferences=inferences)
     mgr.update(result)
 
