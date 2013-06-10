@@ -28,13 +28,29 @@ from nupic.frameworks.opf.expdescriptionhelpers import importBaseDescription
 config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
-                                         '../datasets/category_SP_0.csv'),
-  'modelParams': { 'clParams': { 'clVerbosity': 1},
-                   'inferenceType': 'NontemporalClassification',
-                   'sensorParams': { 'encoders': { }, 'verbosity': 1},
-                   'spParams': { 'spVerbosity': 1 },
-                   'tpEnable': False,
-                   'tpParams': { }}}
+                                         '../datasets/scalar_1.csv'),
+  'modelParams': { 
+    'sensorParams': { 
+      'verbosity': 1,
+      'encoders': { 
+        'field1': { 
+          'clipInput': True,
+          'fieldname': u'field1',
+          'maxval': 5.0,
+          'minval': 0.0,
+          'n': 200,
+          'name': u'field1',
+          'type': 'ScalarEncoder',
+          'w': 7
+          },
+       },
+    },
+    'clParams': { 
+      'clVerbosity': 0,
+      'implementation': 'py'
+    },
+  }
+}
 
-mod = importBaseDescription('../base_category/description.py', config)
+mod = importBaseDescription('../base/description.py', config)
 locals().update(mod.__dict__)

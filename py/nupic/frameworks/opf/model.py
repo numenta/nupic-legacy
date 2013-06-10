@@ -90,13 +90,18 @@ class Model(object):
     """
 
   @abstractmethod
-  def getFieldInfo(self):
+  def getFieldInfo(self, includeClassifierOnlyField=False):
     """
         Returns the sequence of nupic.data.FieldMetaInfo objects specifying the
         format of Model's output; note that this may be different than the list
         of FieldMetaInfo objects supplied at initialization (e.g., due to the
         transcoding of some input fields into meta-fields, such as datetime
         -> dayOfWeek, timeOfDay, etc.)
+        
+    Parameters:
+      includeClassifierOnlyField - if True, any field which is only sent to the
+         classifier (i.e. not sent in to the bottom of the network) is also
+         included. 
 
     Returns:    List of FieldMetaInfo objects (see description above)
     """
