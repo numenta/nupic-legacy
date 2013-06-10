@@ -70,7 +70,7 @@ export AWS_SECRET_ACCESS_KEY_ID=$(cat $AWS_CREDENTIAL_FILE | head -2 | tail -1 |
 #- Run test
 echo "Running cluster tests ..."
 cd $WORKSPACE/../scripts
-test=(`python verify_aws_test.py`)
+test=(`python2 verify_aws_test.py`)
 test=$?
 
 # Remove from awstest_inprogress list
