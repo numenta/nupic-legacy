@@ -245,7 +245,7 @@ public:
   BasicIMemStream(const charT* bufP=0, size_t bufSize=0) : std::istream(&streamBuf_),
      streamBuf_(bufP, bufSize)
   {
-    rdbuf (&streamBuf_);
+    this->rdbuf (&streamBuf_);
   }
   
   //////////////////////////////////////////////////////////////////////////
@@ -304,7 +304,7 @@ public:
   BasicOMemStream() : std::ostream(&streamBuf_),
      streamBuf_()
   {
-    rdbuf (&streamBuf_);
+    this->rdbuf (&streamBuf_);
   }
   
   ///////////////////////////////////////////////////////////////////////////////////
