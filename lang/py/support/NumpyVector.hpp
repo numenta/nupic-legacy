@@ -32,8 +32,7 @@
 
 #include <nta/types/types.hpp> // For nta::Real.
 #include <algorithm> // For std::copy.
-
-struct PyArrayObject;
+#include <numpy/arrayobject.h>
 
 namespace nta {
 
@@ -61,7 +60,7 @@ namespace nta {
     NumpyArray &operator=(const NumpyArray &); // Verboten.
 
   protected:
-    PyArrayObject *p_;
+    const PyArrayObject *p_;
     int dtype_;
 
     const char *addressOf0() const;
