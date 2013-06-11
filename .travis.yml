@@ -7,7 +7,9 @@ compiler:
 python:
   - "2.6"
 env:
-  - NUPIC=$TRAVIS_BUILD_DIR
+  global:
+    - NUPIC=$TRAVIS_BUILD_DIR
+    - NTA=$HOME/nta/eng
 
 notifications:
   irc: 
@@ -20,5 +22,5 @@ before_install:
 
 install: "$NUPIC/build.sh"
 
-# Not working yet.
-script: "echo yay!"
+# The only tests we've got
+script: "$NTA/bin/testeverything"
