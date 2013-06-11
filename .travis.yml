@@ -21,4 +21,4 @@ before_install:
 install: "$NUPIC/build.sh"
 
 # Not working yet.
-# script: "$NTA/bin/testeverything"
+script: "echo yay!"
