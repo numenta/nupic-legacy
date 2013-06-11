@@ -1,7 +1,6 @@
 branches:
   only:
     - dev-master
-    - travis-unit-tests
 language: python
 compiler:
   - gcc
@@ -23,5 +22,5 @@ before_install:
 
 install: "$NUPIC/build.sh"
 
-# Not working yet.
+# The only tests we've got
 script: "$NTA/bin/testeverything"
