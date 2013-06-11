@@ -269,7 +269,7 @@ namespace nta {
       }
       
       if (winnerIndex >= this->nRows()) 
-        resize(winnerIndex+1, winnerIndex+1);
+        this->resize(winnerIndex+1, winnerIndex+1);
       
       // It's faster to update the CSR stored TAM by rows,
       // but the column indices are origin states, and the row indices 

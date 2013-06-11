@@ -24,7 +24,7 @@
 /** @file 
 */
 
-
+#include <unistd.h>
 #include <string>
 #include <algorithm>
 #include <nta/os/Directory.hpp>
