@@ -22,5 +22,5 @@ before_install:
 
 install: "$NUPIC/build.sh"
 
-# The only tests we've got
-script: "$NTA/bin/testeverything"
+# Run the tests and the sample application
+script: "$NTA/bin/testeverything && python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
