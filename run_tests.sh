@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+
 ROOTDIR=`dirname $0`
 TESTS="tests/external/py tests/unit/py"
 COVERAGE=""
