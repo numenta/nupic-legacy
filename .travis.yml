@@ -24,7 +24,7 @@ install: "$NUPIC/build.sh"
 
 script: 
   # legacy binary tests
-  - "$NTA/bin/testhtm"
+  - "$NTA/bin/htmtest"
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
