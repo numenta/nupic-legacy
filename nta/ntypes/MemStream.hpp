@@ -148,7 +148,7 @@ public:
   {
     data_.reserve (growByMin_);
     char* bufP = (char*)(data_.data());
-    setp (bufP, bufP + data_.capacity());
+    this->setp (bufP, bufP + data_.capacity());
   }
   
   virtual int_type overflow (int_type c)
@@ -182,7 +182,7 @@ public:
     data_.swap (tmp);
     
     char* bufP = (char*)(data_.data());
-    setp (bufP, bufP + data_.capacity());
+    this->setp (bufP, bufP + data_.capacity());
     
     // Restore the current write position after setting the new buffer
     this->pbump ((int)curSize);
@@ -245,7 +245,7 @@ public:
   BasicIMemStream(const charT* bufP=0, size_t bufSize=0) : std::istream(&streamBuf_),
      streamBuf_(bufP, bufSize)
   {
-    rdbuf (&streamBuf_);
+    this->rdbuf (&streamBuf_);
   }
   
   //////////////////////////////////////////////////////////////////////////
@@ -304,7 +304,7 @@ public:
   BasicOMemStream() : std::ostream(&streamBuf_),
      streamBuf_()
   {
-    rdbuf (&streamBuf_);
+    this->rdbuf (&streamBuf_);
   }
   
   ///////////////////////////////////////////////////////////////////////////////////
