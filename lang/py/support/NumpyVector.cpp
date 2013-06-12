@@ -31,7 +31,12 @@
 
 
 //#define NO_IMPORT_ARRAY
+#ifdef _PY27 
+#include <python2.7/Python.h>
+#else
 #include <python2.6/Python.h>
+#endif
+
 #include <numpy/arrayobject.h>
 
 // workaround for change in numpy config.h for python2.5 on windows

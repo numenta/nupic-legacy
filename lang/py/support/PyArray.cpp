@@ -26,7 +26,12 @@
 // must be #included first and transitively every .hpp file that 
 // #includes directly or indirectly PyHelpers.hpp must be #included
 // first.
+#ifdef _PY27 
+#include <python2.7/Python.h>
+#else
 #include <python2.6/Python.h>
+#endif
+
 #include "PyArray.hpp"
 #include <nta/utils/Log.hpp>
 
