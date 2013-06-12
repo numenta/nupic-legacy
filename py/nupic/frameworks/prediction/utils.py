@@ -354,9 +354,9 @@ def printAvailableCheckpoints(directory):
 
   print
   print "To start from a checkpoint:"
-  print "  python RunExperiment.py experiment -t <PHASE>"
+  print "  python2 RunExperiment.py experiment -t <PHASE>"
   print "For example, to start from the checkpoint saved before level1SP:"
-  print "  python RunExperiment.py experiment -t level1SP"
+  print "  python2 RunExperiment.py experiment -t level1SP"
 
 
 

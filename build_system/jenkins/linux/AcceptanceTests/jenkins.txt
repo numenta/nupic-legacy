@@ -66,9 +66,9 @@ export JAVA_HOME=/usr/lib/jvm/jre-1.6.0-openjdk.x86_64/
 source $NTA/tools/nupic-env.sh autotest > source.out 2>&1
 
 # Run tests
-test1=`python $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/short.out' 'short'`
+test1=`python2 $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/short.out' 'short'`
 result1=$?
-test2=`python $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/acceptance.out' 'long'`
+test2=`python2 $WORKSPACE/../scripts/acctest.py $BUILD $WORKSPACE $WORKSPACE'/acceptance.out' 'long'`
 result1=$?
 
 # Mark tests as done

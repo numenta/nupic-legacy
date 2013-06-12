@@ -43,7 +43,7 @@ def validateLicenseFile(validate_license, license_file, output_file):
 
 if __name__=='__main__':
   if not len(sys.argv) == 4:
-    print 'Usage: python license_validator.py <validate_license_path> <license_file> <output_file>'
+    print 'Usage: python2 license_validator.py <validate_license_path> <license_file> <output_file>'
     sys.exit(1)
   
   for x in sys.argv[1:]:

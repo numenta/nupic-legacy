@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # Identical to make, but assumes that the default rule is install,
 # rather than all (which just builds).

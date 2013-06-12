@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
@@ -630,7 +630,7 @@ def usage():
 """
 
 Usage:
-python buildfile_gen.py --rootdir=<root dir>
+python2 buildfile_gen.py --rootdir=<root dir>
                            [--platform=<platform>]
                            [--save]
                            [--testlist=<regexp>]

@@ -81,7 +81,7 @@ NuPIC is installed in %s
 The installer  will open a command prompt
 window in the vision project folder.
 
-Type 'python RunExperiment.py experiments\fdr\horizontalCL\autoperf\quick'
+Type 'python2 RunExperiment.py experiments\fdr\horizontalCL\autoperf\quick'
 and press <ENTER> to validate your installation.
 """
 

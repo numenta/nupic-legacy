@@ -20,7 +20,7 @@ scp ../$TAG'_info' data:/Volumes/big/www/jenkins/$TAG/info
 rm -rf ../$TAG/nta/eng ../$TAG/nta/build
 mkdir -p $WORKSPACE/../$TAG/nta/eng
 export PYTHONPATH=build_system
-python $WORKSPACE/../scripts/buildinfo.py $ARCH $TAG $WORKSPACE
+python2 $WORKSPACE/../scripts/buildinfo.py $ARCH $TAG $WORKSPACE
 
 # Set environment
 NTA_DARWIN64=1

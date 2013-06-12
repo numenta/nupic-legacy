@@ -33,7 +33,7 @@
       <Tool
          Name="VCPreBuildEventTool"
          Description="Prebuild:  creating installation directory"
-         CommandLine="python ${RelativeRootDir}\build_system\win32\makedir.py &quot;$$(OutDir)&quot;"
+         CommandLine="python2 ${RelativeRootDir}\build_system\win32\makedir.py &quot;$$(OutDir)&quot;"
       />
       <Tool
         Name="VCCustomBuildTool"
@@ -84,7 +84,7 @@
       <Tool
          Name="VCPreBuildEventTool"
          Description="Prebuild:  creating installation directory"
-         CommandLine="python ${RelativeRootDir}\build_system\win32\makedir.py &quot;$$(OutDir)&quot;"
+         CommandLine="python2 ${RelativeRootDir}\build_system\win32\makedir.py &quot;$$(OutDir)&quot;"
       />
       <Tool
         Name="VCCustomBuildTool"

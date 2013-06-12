@@ -60,8 +60,8 @@ class ExecutableChecker(BaseChecker):
     for lineno, line in enumerate(node.file_stream):
       lineno += 1
       line = line.strip()
-      if lineno == 1 and (line == '#!/usr/bin/env python' or
-                          line == '#! /usr/bin/env python'):
+      if lineno == 1 and (line == '#!/usr/bin/env python2' or
+                          line == '#! /usr/bin/env python2'):
         hasShebang = True
       # Keep the checks on separate lines so this file doesn't appear as an
       # executable script.

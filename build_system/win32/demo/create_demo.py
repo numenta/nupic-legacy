@@ -164,7 +164,7 @@ def create_executable(trunk_dir, script_dir, work_dir, target):
 
 def usage():
   print \
-"""Usage: python create_demo.py --install_dir=<install dir> --target=<target filename>
+"""Usage: python2 create_demo.py --install_dir=<install dir> --target=<target filename>
                                 --tmpdir=<tmpdir> --version=<version> [--debug]
 
 install_dir (required): The installation directory of NuPIC

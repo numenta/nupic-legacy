@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # Create a release based on a manifest file
 #
-# usage: python install_from_manifest.py manifest_file srcdir destdir
+# usage: python2 install_from_manifest.py manifest_file srcdir destdir
 # --overwrite allows overwriting already existing files. E.g. for installing into an existing binary release
 # --destdir_exists means a) don't create destdir and b) it is not an error that it already exists. Mostly used
 # for submanifests (@tbd -- needed as a command line argument?)

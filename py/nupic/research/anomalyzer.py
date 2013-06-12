@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -29,7 +29,7 @@ from nupic.data.file_record_stream import FileRecordStream
 
 USAGE = """
 Usage:
-  python anomalyzer.py input output action extraArgs
+  python2 anomalyzer.py input output action extraArgs
 Actions:
   add
     extraArgs: column start stop value

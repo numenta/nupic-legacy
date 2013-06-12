@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 # Invokes autobuild.py after updating to make sure we have the latest version.
 # Intended to be run from a cron script
