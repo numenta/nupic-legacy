@@ -1,6 +1,6 @@
 branches:
-  only:
-    - dev-master
+  except:
+    - master
 language: python
 compiler:
   - gcc
