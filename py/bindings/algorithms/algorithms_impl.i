@@ -50,7 +50,11 @@ _ALGORITHMS = _algorithms
  * ---------------------------------------------------------------------
  */
 
+#ifdef _PY27 
+#include <python2.7/Python.h>
+#else
 #include <python2.6/Python.h>
+#endif
 
 #include <sstream>
 #include <iostream>
