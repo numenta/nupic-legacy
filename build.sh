@@ -64,7 +64,7 @@ function doMake {
 
 function cleanUpDirectories {
     popd
-    [[ -d $BUILDDIR ]] && rm -r "$BUILDDIR"
+    [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
 }
 
 prepDirectories
