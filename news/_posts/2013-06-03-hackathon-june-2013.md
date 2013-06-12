@@ -4,7 +4,7 @@ title: First NuPIC Hackathon
 category: news
 ---
 
-We're having a NuPIC Hackathon on June 21, and we have about ~~&nbsp;ten&nbsp;~~ five spaces available for more participants. *First come, first served!* It will be in the San Francisco Bay Area. If you are interested in attending, please contact me directly at <matt@numenta.org>.
+We're having a NuPIC Hackathon on June 21, and we have about five spaces available for more participants. *First come, first served!* It will be in the San Francisco Bay Area. If you are interested in attending, please contact me directly at <matt@numenta.org>.
 
 Like Jeff [said earlier]({{ site.baseurl }}/news/2013/06/03/introducing-nupic.html), this stuff is not easy. The Cortical Learning Algorithm is based on novel concepts that present a steep learning curve. I'd recommend you have at least one of the following qualities before you contact me to attend. If you have both, then you're our target market for this Hackathon, and you should seriously think about coming!
 
