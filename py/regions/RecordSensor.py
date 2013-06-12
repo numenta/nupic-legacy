@@ -205,6 +205,11 @@ class RecordSensor(PyRegion):
     # lastRecord is the last record returned. Used for debugging only
     self.lastRecord = None
 
+  def __setstate__(self, state):
+    # Default value for older versions being deserialized.
+    self.disabledEncoder = None
+    self.__dict__.update(state)
+
   def initialize(self, dims, splitterMaps):
     if self.encoder is None:
       raise Exception("Unable to initialize RecordSensor -- encoder has not been set")
