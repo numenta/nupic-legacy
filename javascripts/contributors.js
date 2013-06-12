@@ -3,7 +3,7 @@
     var headers = ['Name', 'Github', 'Committer', 'Reviewer'];
     var html = '<table>\n<tr>';
     headers.forEach(function(header) {
-        html += '<td>' + header + '</td>';
+        html += '<th>' + header + '</th>';
     });
     html += '</tr>\n';
     $.getJSON(dataUrl, function(data) {
