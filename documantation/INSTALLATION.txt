@@ -1,0 +1,31 @@
+==== INSTALLATION ====
+
+This file describes how to obtain NUPIC for your distribution or build from source. 
+
+1/ DEPENDENCIES: 
+gcc (4.6, 4.7, 4.8) 
+bash
+python 2.6 (development-headers)
+make 
+
+2/ DOWNLOAD 
+
+There are (will be) packages for: 
+-LINUX
+-MAC OS
+-WINDOWS
+-VM images
+
+3/ COMPILING TWEAKS
+
+*) Python version
+If your distributions uses other python version than supported by NUPIC, you can try following: 
+python-config, ln -s python2.6 python, virtualenv (i prefer this one, as it doesn't touch system's python, just set's up new 
+for NUPIC, see 
+http://stackoverflow.com/questions/7237415/python-2-instead-of-python-3-as-the-temporary-default-python
+)
+
+4/ SUCCESS STORIES
+
+Finised a build process? Share info of your distribution, software versions, 
+what works? (build, tests, examples, world-peace?)
