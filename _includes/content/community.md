@@ -22,6 +22,8 @@ Our ticket tracker is at [issues.numenta.org](https://issues.numenta.org). You c
 
 Do you have a feature request or bug report? Please [sign up for a JIRA account](https://issues.numenta.org/secure/Signup!default.jspa) so you can [create tickets](https://issues.numenta.org/secure/CreateIssue!default.jspa) yourself.
 
+Looking for some low-hanging fruit to get your feet wet? Here's a [list of tasks for newbies](https://issues.numenta.org/issues/?jql=labels%20%3D%20newbie) to the project. If you're interested in working on some of them, let us know on our mailing list.
+
 ## Mailing Lists
 
 We'd prefer to facilitate all public conversations about NuPIC and its associated technologies on our primary mailing list: __[nupic@lists.numenta.org](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org)__. You can find a complete list of all our mailing lists [here](http://lists.numenta.org/mailman/listinfo).
