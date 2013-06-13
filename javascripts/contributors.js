@@ -12,9 +12,9 @@
             html += '<tr>';
             headers.forEach(function(header) {
                 var value = person[header];
-                if (value === '1') {
+                if (value == 1) {
                     value = '✔';
-                } else if (value === '0') {
+                } else if (value == 0) {
                     value = '';
                 } else if (header === 'Github') {
                     value = '<a href="https://github.com/' + value + '">' + value + '</a>';
