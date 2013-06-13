@@ -953,8 +953,8 @@ class CLAModel(Model):
     assert len(fieldNames) == len(fieldTypes)
     
     # Also include the classifierOnly field?
-    if includeClassifierOnlyField:
-      encoder = self._getClassifierOnlyEncoder()
+    encoder = self._getClassifierOnlyEncoder()
+    if includeClassifierOnlyField and encoder is not None:
       addFieldNames = encoder.getScalarNames()
       addFieldTypes = encoder.getDecoderOutputFieldTypes()
       assert len(addFieldNames) == len(addFieldTypes)
