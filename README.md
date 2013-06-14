@@ -54,3 +54,8 @@ Run the C++ tests:
 You can run the examples using the OpfRunExperiment OPF client:
 
     python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
+
+
+
+
+blajdlfkajsdl;fkjasldfkja;sldfkja;sdf
