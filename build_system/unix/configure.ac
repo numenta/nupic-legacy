@@ -92,6 +92,12 @@ AC_SUBST(PYTHON_SYS_LIB)
 PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
+# Determine if system-wide python numpy module can be used: 
+AM_CONDITIONAL(NUMPY_MODULE,  pip freeze | grep -i numpy 1>/dev/null)
+NUMPY_SYS_INCLUDE="$PYTHON_SYS_LIB/python${PYTHON_VERSION}/site-packages/numpy/core/include"
+AC_SUBST(NUMPY_SYS_INCLUDE)
+
+
 #
 # Defaults for variables that may be overridded per-platform.
 # Env1-1 are for extra environment variables that need to be set during builds.
