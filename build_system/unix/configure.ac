@@ -92,6 +92,20 @@ AC_SUBST(PYTHON_SYS_LIB)
 PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
+
+### Check for Python modules ###
+
+# pip is used for python modules
+AC_CHECK_PROG(HAVE_PIP,pip,yes)
+if test x"$HAVE_PIP" != x"yes" ; then
+    AC_MSG_ERROR([Error: pip is needed for Python dependencies.])
+fi
+
+# python numpy module: 
+_PY_MODULE=numpy
+AM_CONDITIONAL(HAVE_NUMPY,  pip freeze | grep -i ${_PY_MODULE} 1>/dev/null)
+AM_COND_IF(HAVE_NUMPY, NTA_CXXFLAGS_BASE += "-I${PYTHON_SYS_LIB}/python${PYTHON_VERSION}/site-packages/${_PY_MODULE}/core/include ", [AC_MSG_ERROR([Error: $_PY_MODULE module for Python required! Please run \'sudo pip install $_PY_MODULE\'])])
+
 #
 # Defaults for variables that may be overridded per-platform.
 # Env1-1 are for extra environment variables that need to be set during builds.
