@@ -101,11 +101,11 @@ if test x"$HAVE_PIP" != x"yes" ; then
     AC_MSG_ERROR([Error: pip is needed for Python dependencies.])
 fi
 
-# Determine if system-wide python numpy module can be used: 
-AM_CONDITIONAL(NUMPY_MODULE,  pip freeze | grep -i numpy 1>/dev/null)
-NUMPY_SYS_INCLUDE="$PYTHON_SYS_LIB/python${PYTHON_VERSION}/site-packages/numpy/core/include"
-AC_SUBST(NUMPY_SYS_INCLUDE)
 
+# python numpy module: 
+_PY_MODULE=numpy
+AM_CONDITIONAL(HAVE_NUMPY,  pip freeze | grep -i ${_PY_MODULE} 1>/dev/null)
+AM_COND_IF(HAVE_NUMPY, , AC_MSG_ERROR([Error: $_PY_MODULE module for Python required! Please run \'sudo pip install $_PY_MODULE\']))
 
 #
 # Defaults for variables that may be overridded per-platform.
