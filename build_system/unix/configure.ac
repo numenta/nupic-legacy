@@ -94,6 +94,14 @@ AC_SUBST(PYTHON_SYS_LIB)
 PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
+
+### Check for Python modules ###
+
+# pip is used for python modules
+AC_CHECK_PROG(HAVE_PIP,pip,yes)
+AM_COND_IF(HAVE_PIP, ,AC_MSG_ERROR([Error: pip is needed for Python dependencies.]))
+
+
 #
 # Defaults for variables that may be overridded per-platform.
 # Env1-1 are for extra environment variables that need to be set during builds.
