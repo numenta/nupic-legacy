@@ -3054,6 +3054,35 @@ namespace nta {
     else
       return lp_norm(p, begin, end, take_root);
   }
+  
+  //--------------------------------------------------------------------------------
+  /**
+   */
+  template <typename It>
+  inline void
+  multiply_val(It begin, It end,
+               const typename std::iterator_traits<It>::value_type& val)
+  {
+    {
+      NTA_ASSERT(begin <= end)
+        << "multiply_val: Invalid range";
+    }
+
+    if (val == 1.0f)
+      return;
+
+    for (; begin != end; ++begin)
+      *begin *= val;
+  }
+
+  //--------------------------------------------------------------------------------
+  /**
+   */
+  template <typename T>
+  inline void multiply_val(T& x, const typename T::value_type& val)
+  {
+    multiply_val(x.begin(), x.end(), val);
+  }
 
   //--------------------------------------------------------------------------------
   /**
@@ -4023,35 +4052,6 @@ namespace nta {
   inline void negate(T& x)
   {
     negate(x.begin(), x.end());
-  }
-
-  //--------------------------------------------------------------------------------
-  /**
-   */
-  template <typename It>
-  inline void
-  multiply_val(It begin, It end,
-               const typename std::iterator_traits<It>::value_type& val)
-  {
-    {
-      NTA_ASSERT(begin <= end)
-        << "multiply_val: Invalid range";
-    }
-
-    if (val == 1.0f)
-      return;
-
-    for (; begin != end; ++begin)
-      *begin *= val;
-  }
-
-  //--------------------------------------------------------------------------------
-  /**
-   */
-  template <typename T>
-  inline void multiply_val(T& x, const typename T::value_type& val)
-  {
-    multiply_val(x.begin(), x.end(), val);
   }
 
   //--------------------------------------------------------------------------------
