@@ -25,7 +25,17 @@ __Clients__ take input data and feed it through encoders, models, and metrics an
 Installation
 ------------
 
-NuPIC requires Python (2.6-2.7) (with development headers), GCC (4.6-4.8), and Make.
+Currently supported platforms: 
+ * Linux
+ * Mac OSX 
+ * VM images ([vangrand](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)) 
+
+Dependencies:  
+ * Python (2.6-2.7) (with development headers) 
+ * GCC (4.6-4.8)  
+ * Make
+ * pip
+ * [python modules](https://github.com/numenta/nupic/wiki/Installing-modules,-dependencies,-in-Python)
 
 Add the following to your .bashrc file. Change the paths as needed.
 
