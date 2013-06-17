@@ -171,7 +171,7 @@ if NTA_PYTHON_SUPPORT
     -I$(PYTHON_SYS_INCLUDE)
   
   # add includes to shared numpy python module:
-  NTA_CXXFLAGS_BASE += -I$PYTHON_SYS_LIB/python${PYTHON_VERSION}/site-packages/numpy/core/include
+  NTA_CXXFLAGS_BASE += -I${PYTHON_SYS_LIB}/python${PYTHON_VERSION}/site-packages/numpy/core/include
 
 else
   NTA_PYEMBEDFLAGS =
