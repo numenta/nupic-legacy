@@ -21,7 +21,7 @@ __Clients__ take input data and feed it through encoders, models, and metrics an
 Installation
 ------------
 
-NuPIC requires Python 2.6 (with development headers), GCC, and Make.
+NuPIC requires Python 2.6 (with development headers), GCC (4.6-4.8), and Make.
 
 Add the following to your .bashrc file. Change the paths as needed.
 
