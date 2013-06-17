@@ -1,5 +1,5 @@
 branches:
-  except:
+  only:
     - master
 language: python
 compiler:
