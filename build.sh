@@ -23,14 +23,17 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
-# A place to stash the exit status of build commands below
-status=0
-
 # Set sane defaults
-[[ -z $NUPIC ]] && export NUPIC=$PWD
-[[ -z $NTA ]] && export NTA=$HOME/nta/eng
-[[ -z $BUILDDIR ]] && export BUILDDIR=/tmp/ntabuild
-[[ -z $MK_JOBS ]] && export MK_JOBS=3
+[[ -z $NUPIC ]] && NUPIC=$PWD
+[[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
+[[ -z $MK_JOBS ]] && MK_JOBS=3
+if [[ ! -z $1 ]] ; then
+    NUPIC_INSTALL=$1
+elif [[ ! -z $NTA ]] ; then
+    NUPIC_INSTALL=$NTA
+else
+    NUPIC_INSTALL=$HOME/nta/eng
+fi
 
 function exitOnError {
     if [[ !( "$1" == 0 ) ]] ; then
@@ -39,10 +42,10 @@ function exitOnError {
 }
 
 function prepDirectories {
-    [[ -d $NTA ]] && echo "Warning: directory \"$NTA\" already exists and may contain (old) data. Consider removing it. "
+    [[ -d $NUPIC_INSTALL ]] && echo "Warning: directory \"$NUPIC_INSTALL\" already exists and may contain (old) data. Consider removing it. "
     [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
     mkdir -p "$BUILDDIR"
-    mkdir -p "$NTA"
+    mkdir -p "$NUPIC_INSTALL"
     pushd "$BUILDDIR"
 }
 
@@ -52,7 +55,7 @@ function pythonSetup {
 }
 
 function doConfigure {
-    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NTA"
+    "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NUPIC_INSTALL"
     exitOnError $?
 }
 
@@ -74,4 +77,3 @@ doConfigure
 doMake
 
 cleanUpDirectories
-
