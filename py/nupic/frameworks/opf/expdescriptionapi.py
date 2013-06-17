@@ -150,6 +150,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
     else:
       return self.__modelConfig
 
+
   #############################################################################
   def getModelControl(self):
     """ Returns the task instances of the experiment description.
@@ -157,6 +158,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
     Returns: A python dict describing how the model is to be run
     """
     return self.__control
+
 
   #############################################################################
   def __validateExperimentControl(self, control):
@@ -184,6 +186,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
              "Duplcate task labels are not allowed: %s" % taskLabelDuplicates
 
     return
+
 
   #############################################################################
   def __validateGrokControl(self, control):
@@ -250,25 +253,20 @@ class ExperimentDescriptionAPI(DescriptionIface):
       verbosity = config['tpVerbosity'],
       columnCount = config['claRegionNColumns'],
       cellsPerColumn = config['tpNCellsPerCol'] if config['tpEnable']  else 1,
-      inputWidth   = spParams['columnCount'],
+      inputWidth = spParams['columnCount'],
       seed = 1960,
       temporalImp = config['tpImplementation'],
-      newSynapseCount = config['tpNewSynapseCount']
-                        if config['tpNewSynapseCount'] is not None
-                        else config['spNumActivePerInhArea'],
+      newSynapseCount = config.get('tpNewSynapseCount',
+                                   config['spNumActivePerInhArea']),
       maxSynapsesPerSegment = config['tpMaxSynapsesPerSegment'],
       maxSegmentsPerCell = config['tpMaxSegmentsPerCell'],
       initialPerm = config['tpInitialPerm'],
       permanenceInc = config['tpPermanenceInc'],
-      permanenceDec = config['tpPermanenceInc']
-                      if config['tpPermanenceDec'] is None
-                      else config['tpPermanenceDec'],
+      permanenceDec = config.get('tpPermanenceDec', config['tpPermanenceInc']),
       globalDecay = 0.0,
       maxAge = 0,
-      minThreshold = 12 if config['tpMinSegmentMatchSynapseThreshold'] is None
-                      else config['tpMinSegmentMatchSynapseThreshold'],
-      activationThreshold = 16 if config['tpSegmentActivationThreshold'] is None
-                                  else config['tpSegmentActivationThreshold'],
+      minThreshold = config.get('tpMinSegmentMatchSynapseThreshold', 12),
+      activationThreshold = config.get('tpSegmentActivationThreshold', 16),
 
       outputType = config.get('tpOutputType', 'normal'),
       pamLength = config.get('tpPamLength', 1),
