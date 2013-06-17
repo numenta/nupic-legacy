@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """This script is a command-line client of Online Prediction Framework (OPF).
-It executes a single expiriment.
+It executes a single experiment.
 """
 
 
@@ -39,7 +39,10 @@ def main():
   # in the 'conf' subdirectory of the NuPic install location.
   nupic.support.initLogging(verbose=True)
 
-  # Initialize PRNGs
+  # Initialize pseudo-random number generators (PRNGs)
+  #
+  # This will fix the seed that is used by numpy when generating 'random'
+  # numbers. This allows for repeatability across experiments.
   initExperimentPrng()
 
   # Run it!
