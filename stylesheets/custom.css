@@ -78,3 +78,5 @@ h3.date {
 .failure {
     background-color: #f8eec7;
 }
+.pending {
+    background-color: #ccc;
