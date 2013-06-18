@@ -29,6 +29,8 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/category_1.csv'),
+  'errorMetric': 'avg_err',
+
   'modelParams': { 
     'sensorParams': { 'verbosity': 0},
     'clParams': { 
