@@ -1,5 +1,5 @@
 (function() {
-    var dataUrl = 'http://localhost:8081/prStatus.json?callback=?';
+    var dataUrl = 'http://issues.numenta.org:8081/prStatus.json?callback=?';
     var prTemplate = Handlebars.compile($("#pr-template").html());
     var $pr = $('#pullrequests');
     $.getJSON(dataUrl, function(prs) {
