@@ -364,7 +364,14 @@ class CLAClassifier(object):
       # Return value dict. For buckets which we don't have an actual value
       # for yet, just plug in any valid actual value. It doesn't matter what
       # we use because that bucket won't have non-zero likelihood anyways.
-      actValues = [x if x is not None else classification['actValue']
+      
+      # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
+      #  of the classification input during inference.
+      if self.steps[0] == 0:
+        defaultValue = 0
+      else:
+        defaultValue = classification['actValue']
+      actValues = [x if x is not None else defaultValue
                    for x in self._actualValues]
       retval = {'actualValues': actValues}
 
