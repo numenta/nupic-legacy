@@ -317,6 +317,7 @@ config = {
           
   
   'dataSource': 'fillInBySubExperiment',
+  'errorMetric': 'fillInBySubExperiment'
 }
 # end of config dictionary
 
@@ -372,7 +373,7 @@ control = {
   'metrics':[
     MetricSpec(field='classification', metric='multiStep', 
                inferenceElement='multiStepBestPredictions', 
-               params={'errorMetric': 'avg_err', 
+               params={'errorMetric': config['errorMetric'], 
                        'window': 100,
                        'steps': 0}),
   ],

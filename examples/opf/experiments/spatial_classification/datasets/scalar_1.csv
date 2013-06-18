@@ -1,5 +1,5 @@
 classification,field1,randomData
-string,float,float
+float,float,float
 ,,
 10,1.0,0.855450193306
 2,0.2,0.0993546246061
