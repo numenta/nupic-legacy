@@ -71,3 +71,12 @@ h3.date {
     top: 10px;
     left: 10px;
 }
+
+.success {
+    background-color: #8CF58F;
+}
+.failure {
+    background-color: #f8eec7;
+}
+.pending {
+    background-color: #ccc;
