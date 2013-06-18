@@ -9,7 +9,7 @@
 
     function csvToJson(csv) {
         var contributors = [],
-            lines = csv.split('\n'),
+            lines = csv.trim().split('\n'),
             header = lines.shift().split(',');
         lines.forEach(function(line) {
             var obj = {},
