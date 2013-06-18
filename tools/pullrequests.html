@@ -1,0 +1,25 @@
+---
+layout: default
+title: NuPIC Open Pull Requests
+---
+
+<section>
+    <h2>{{ page.title }}</h2>
+    <div id="pullrequests">
+        loading...
+    </div>
+</section>
+
+<script id="pr-template" type="text/x-handler-template">
+    <div class="pull-request">
+        {% raw %}
+            <h4><a href="{{html_url}}">{{title}}</a></h4>
+            <div class="{{latest_status.state}}">{{latest_status.description}}</div>
+            <pre>{{body}}</pre>
+        {% endraw %}
+        <hr/>
+    </div>
+</script>
+
+<script src="{{ site.baseurl }}/javascripts/handlebars.js"></script>
+<script src="{{ site.baseurl }}/javascripts/pullrequests.js"></script>
