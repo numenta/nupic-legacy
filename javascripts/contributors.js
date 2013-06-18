@@ -1,5 +1,4 @@
 (function() {
-    var dataUrl = 'http://issues.numenta.org:8081/contributors.json?callback=?';
     var csvUrl = '../../resources/contributors.csv';
     var headers = ['Name', 'Github', 'Committer', 'Reviewer'];
     var html = '<table>\n<tr>';
