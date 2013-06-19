@@ -37,11 +37,7 @@
 #include <iomanip>
 #include <boost/type_traits.hpp>
 
-#ifdef NUPIC2
 #include <nta/types/types.hpp>
-#else
-#include <nta/types/types.hpp>
-#endif
 
 #include <nta/math/array_algo.hpp>
 
