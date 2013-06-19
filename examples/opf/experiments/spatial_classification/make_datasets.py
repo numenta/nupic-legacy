@@ -100,7 +100,7 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   scriptDir = os.path.dirname(__file__)
   pathname = os.path.join(scriptDir, 'datasets', filename)
   print "Creating %s..." % (pathname)
-  fields = [('classification', 'string', ''), 
+  fields = [('classification', 'float', ''), 
             ('field1', 'float', '')]  
   if includeRandom:
     fields += [('randomData', 'float', '')]  
@@ -125,9 +125,9 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
     seq = sequences[seqIdx]
     for x in seq:
       if includeRandom:
-        outFile.appendRecord([str(seqIdx), x*stepSize, random.random()])
+        outFile.appendRecord([seqIdx, x*stepSize, random.random()])
       else:
-        outFile.appendRecord([str(seqIdx), x*stepSize])
+        outFile.appendRecord([seqIdx, x*stepSize])
 
   outFile.close()
   
