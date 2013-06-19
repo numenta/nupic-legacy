@@ -39,11 +39,7 @@ import os
 import json
 
 import validictory
-
-
-class ValidationError(Exception):
-  """ Raised when the given value fails the validate() test
-  """
+from validictory import ValidationError
 
 
 class NaNInvalidator(validictory.SchemaValidator):
@@ -90,10 +86,7 @@ def validate(value, **kwds):
   elif 'schemaDict' in kwds:
     schemaDict = kwds.pop('schemaDict')
 
-  try:
-    validictory.validate(value, schemaDict, **kwds)
-  except validictory.ValidationError as e:
-    raise ValidationError(e)
+  validictory.validate(value, schemaDict, **kwds)
 
 
 
