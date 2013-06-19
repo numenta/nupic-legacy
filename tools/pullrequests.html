@@ -10,16 +10,17 @@ title: NuPIC Open Pull Requests
     </div>
 </section>
 
+{% raw %}
 <script id="pr-template" type="text/x-handler-template">
     <div class="pull-request">
-        {% raw %}
             <h4><a href="{{html_url}}">{{title}}</a></h4>
-            <div class="{{latest_status.state}}">{{latest_status.description}}</div>
+            <p class="sha"><a href="http://issues.numenta.org:8081/shaStatus/{{head.sha}}" target="_blank" title="See all statuses for this SHA">{{head.sha}}</a></p>
+            <div class="status {{latest_status.state}}">{{latest_status.description}}</div>
             <pre>{{body}}</pre>
-        {% endraw %}
         <hr/>
     </div>
 </script>
+{% endraw %}
 
 <script src="{{ site.baseurl }}/javascripts/handlebars.js"></script>
 <script src="{{ site.baseurl }}/javascripts/pullrequests.js"></script>
