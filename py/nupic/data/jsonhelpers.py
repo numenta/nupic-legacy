@@ -39,7 +39,9 @@ import os
 import json
 
 import validictory
-from validictory import ValidationError
+from validictory import ValidationError as ValidictoryValidationError
+
+ValidationError = ValidictoryValidationError
 
 
 class NaNInvalidator(validictory.SchemaValidator):
