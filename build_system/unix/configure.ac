@@ -40,7 +40,7 @@ AC_CANONICAL_SYSTEM
 # nostdinc -- don't include standard -I options
 # subdir-objects -- put objects into subdirs. Without this we get very long .o names
 
-AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman nostdinc subdir-objects])
+AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman subdir-objects])
 
 # Gets lots of stuff off of the command line
 # None of our source code actually uses this header file.
