@@ -34,16 +34,15 @@
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
 
+import json
 import math
 import os
-import json
+
 
 import validictory
 
-
-class ValidationError(Exception):
-  """ Raised when the given value fails the validate() test
-  """
+class ValidationError(validictory.ValidationError):
+  pass
 
 
 class NaNInvalidator(validictory.SchemaValidator):
@@ -109,12 +108,8 @@ def loadJsonValueFromFile(inputFilePath):
                   python value that represents the loaded json value
 
   """
-  fileObj = open(inputFilePath)
-
-  value = json.load(fileObj)
-
-  fileObj.close()
-  del fileObj
+  with open(inputFilePath) as fileObj:
+    value = json.load(fileObj)
 
   return value
 
