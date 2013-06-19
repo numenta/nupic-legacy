@@ -417,6 +417,8 @@ namespace nta {
     }
   };
 
+  // declartion of >> which is used in the following function. Avoid lookup error
+  template <typename T> inline std::istream& operator>>(std::istream& in_stream, std::vector<T>& v);
   //--------------------------------------------------------------------------------
   /**
    * Partial specialization for non-primitive types.
@@ -495,6 +497,8 @@ namespace nta {
     }
   };
 
+  // declartion of << which is used in the following function. Avoid lookup error.
+  template <typename T> inline std::ostream& operator<<(std::ostream& out_stream, const std::vector<T>& v);
   //--------------------------------------------------------------------------------
   /**
    * Partial specialization for non-primitive types.
