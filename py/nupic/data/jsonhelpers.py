@@ -34,14 +34,15 @@
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
 
+import json
 import math
 import os
-import json
+
 
 import validictory
-from validictory import ValidationError as ValidictoryValidationError
 
-ValidationError = ValidictoryValidationError
+class ValidationError(validictory.ValidationError):
+  pass
 
 
 class NaNInvalidator(validictory.SchemaValidator):
@@ -88,7 +89,10 @@ def validate(value, **kwds):
   elif 'schemaDict' in kwds:
     schemaDict = kwds.pop('schemaDict')
 
-  validictory.validate(value, schemaDict, **kwds)
+  try:
+    validictory.validate(value, schemaDict, **kwds)
+  except validictory.ValidationError as e:
+    raise ValidationError(e)
 
 
 
