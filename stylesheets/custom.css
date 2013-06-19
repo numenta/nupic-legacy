@@ -72,6 +72,16 @@ h3.date {
     left: 10px;
 }
 
+.pull-request h4, .pull-request p {
+    padding: 0;
+    margin: 0;
+}
+.pull-request .status {
+    padding: 2px 5px;
+}
+.pull-request .sha {
+    text-align: right
+}
 .success {
     background-color: #8CF58F;
 }
