@@ -104,12 +104,8 @@ def loadJsonValueFromFile(inputFilePath):
                   python value that represents the loaded json value
 
   """
-  fileObj = open(inputFilePath)
-
-  value = json.load(fileObj)
-
-  fileObj.close()
-  del fileObj
+  with open(inputFilePath) as fileObj:
+    value = json.load(fileObj)
 
   return value
 
