@@ -29,6 +29,8 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/scalar_0.csv'),
+  'errorMetric': 'aae',
+
   'modelParams': { 
     'sensorParams': { 
       'verbosity': 0,
@@ -42,8 +44,19 @@ config = \
           'name': u'field1',
           'type': 'ScalarEncoder',
           'w': 7
-          },
-       },
+        },
+        'classification': { 
+          'classifierOnly': True,
+          'clipInput': True,
+          'fieldname': u'classification',
+          'maxval': 1.0,
+          'minval': 0.0,
+          'n': 11,
+          'name': u'classification',
+          'type': 'ScalarEncoder',
+          'w': 7
+        },
+      },
     },
     'clParams': { 
       'clVerbosity': 0,

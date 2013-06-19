@@ -29,10 +29,13 @@ config = \
 { 
   'dataSource': 'file://' + os.path.join(os.path.dirname(__file__), 
                                          '../datasets/category_0.csv'),
+                                         
+  'errorMetric': 'avg_err',
+  
   'modelParams': { 
-    'sensorParams': { 'verbosity': 1},
+    'sensorParams': { 'verbosity': 0},
     'clParams': { 
-      'clVerbosity': 1,
+      'clVerbosity': 0,
       'implementation': 'py'
     },
   }
