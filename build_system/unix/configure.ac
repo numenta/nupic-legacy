@@ -256,18 +256,6 @@ fi
 
 AM_CONDITIONAL(NTA_PROFILING_ENABLED, test "x$enable_profiling" = "xyes")
 
-#
-# Workaround for possible gcc 4.1.1 compiler bug. 
-# Symptom is a "lowering visibility" warning in ConstraintParser.cpp related to boost
-# Could also be a boost 1.37 bug. 
-gcc_version=`$CXX --version | head -1 | awk '{print $3}'`
-if test "x$gcc_version" = "x4.1.1" -o "x$gcc_version" = "x4.1.2" 
-then
-  echo "Adding -Wno-attributes workaround for gcc 4.1.1"
-  nta_platform_cxxflags="$nta_platform_cxxflags -Wno-attributes"  
-fi
-
-
 
 
 AC_MSG_NOTICE([============= Extra NTA Options ==============])
