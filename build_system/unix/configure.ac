@@ -75,6 +75,9 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
+# include boost headers (>=1.33.1) and boost-jam (>=3.1.12) for build
+AC_CHECK_HEADERS([boost/foreach.hpp], [], [AC_MSG_ERROR(You need the Boost libraries.)])
+
 if test "x$PYTHON_VERSION" != "x2.6" ; then
     AC_MSG_ERROR([Python 2.6 is required. You have version $PYTHON_VERSION])
 fi
