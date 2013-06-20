@@ -1,0 +1,9 @@
+.no-border {
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+table td {
+    border: 1px;
+}
