@@ -26,11 +26,28 @@ import csv
 import datetime
 
 from nupic.data.datasethelpers import findDataset
+from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import model_params
 
 DATA_PATH = "extra/hotgym/hotgym.csv"
+
+METRIC_SPECS = (
+    MetricSpec(field='consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
+               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='consumption', metric='trivial',
+               inferenceElement='prediction',
+               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
+               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='consumption', metric='trivial',
+               inferenceElement='prediction',
+               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+)
 
 
 
@@ -41,24 +58,23 @@ def createModel():
 
 def runHotgym():
   model = createModel()
-  model.enableInference({'predictionSteps': [1, 5],
-                         'predictedField': 'consumption',
-                         'numRecords': 4000})
-  print findDataset(DATA_PATH)
+  model.enableInference({'predictedField': 'consumption'})
+  metricsManager = MetricsManager(METRIC_SPECS, model.getFieldInfo(),
+                                  model.getInferenceType())
   with open (findDataset(DATA_PATH)) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
-    print headers
-    print reader.next()
-    print reader.next()
+    reader.next()
+    reader.next()
     for record in reader:
-      print record
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
           modelInput["timestamp"], "%Y-%m-%d %H:%M:%S.%f")
       result = model.run(modelInput)
+      result.metrics = metricsManager.update(result)
       print result
+
 
 
 if __name__ == "__main__":
