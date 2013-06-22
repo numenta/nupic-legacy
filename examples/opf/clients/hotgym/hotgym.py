@@ -58,19 +58,15 @@ def createModel():
 
 def runHotgym():
   model = createModel()
-  model.enableInference({'predictionSteps': [1, 5],
-                         'predictedField': 'consumption',
-                         'numRecords': 4000})
+  model.enableInference({'predictedField': 'consumption'})
   metricsManager = MetricsManager(METRIC_SPECS, model.getFieldInfo(),
                                   model.getInferenceType())
   with open (findDataset(DATA_PATH)) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
-    print headers
-    print reader.next()
-    print reader.next()
+    reader.next()
+    reader.next()
     for record in reader:
-      print record
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
@@ -78,6 +74,7 @@ def runHotgym():
       result = model.run(modelInput)
       result.metrics = metricsManager.update(result)
       print result
+
 
 
 if __name__ == "__main__":
