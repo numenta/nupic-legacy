@@ -34,8 +34,8 @@ script:
     # examples/bindings
   - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py" 
   - "python $NUPIC/examples/bindings/sparse_pooler_how_to.py"  
-  - "python $NUPIC/examples/bindings/svm_how_to.py"
-  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py"
+##  - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
+##  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
     # examples/opf (run atleast 1 from each category) 
   - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
   - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
