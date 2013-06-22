@@ -64,11 +64,11 @@ class CLAClassifierDiff(object):
     self._callsPerSerialize = callsPerSerialize
 
 
-  def compute(self, patternNZ, classification, learn, infer):
-    result1 = self._claClassifier.compute(patternNZ, classification, learn,
-                                          infer)
-    result2 = self._fastCLAClassifier.compute(patternNZ, classification, learn,
-                                              infer)
+  def compute(self, recordNum, patternNZ, classification, learn, infer):
+    result1 = self._claClassifier.compute(recordNum, patternNZ, classification,
+                                          learn, infer)
+    result2 = self._fastCLAClassifier.compute(recordNum, patternNZ,
+                                              classification, learn, infer)
     self._calls += 1
     # Check if it is time to serialize and deserialize.
     if self._calls % self._callsPerSerialize == 0:
