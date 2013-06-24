@@ -32,9 +32,14 @@ else
     NUPIC_INSTALL=$HOME/nta/eng
 fi
 
-# Remove old build and install dirs.
+# Remove old build and install dirs and remake the directories.
 rm -r "$BUILDDIR"
+mkdir -p "$BUILDDIR"
 rm -r "$NUPIC_INSTALL"
+mkdir -p "$NUPIC_INSTALL"
+
+# Clean up source location.
+python build_system/setup.py --clean
 
 # Do the build.
 ./build.sh "$NUPIC_INSTALL"
