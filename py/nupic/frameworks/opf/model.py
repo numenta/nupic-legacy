@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
+"""Module defining the OPF Model base class."""
 
 import cPickle as pickle
 
@@ -244,6 +244,38 @@ class Model(object):
                   Model's extra data directory path
     """
     pass
+
+  @classmethod
+  def load(cls, savedModelDir):
+    """ Load saved model
+
+    Parameters:
+    -----------------------------------------------------------------------
+    savedModelDir:
+                  directory of where the experiment is to be or was saved
+
+    Returns: the loaded model instance
+    """
+    logger = opfutils.initLogger(cls)
+    logger.info("Loading model from local checkpoint at %r...", savedModelDir)
+
+    # Load the model
+    modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
+
+    with open(modelPickleFilePath, 'rb') as modelPickleFile:
+      logger.info("Unpickling Model instance...")
+
+      model = pickle.load(modelPickleFile)
+
+      logger.info("Finished unpickling Model instance")
+
+    # Tell the model to load extra data, if any, that was too big for pickling
+    model._deSerializeExtraData(
+        extraDataDir=Model._getModelExtraDataDir(savedModelDir))
+
+    logger.info("Finished Loading model from local checkpoint")
+
+    return model
 
   def _deSerializeExtraData(self, extraDataDir):
     """ This is a protected method that is called during deserialization
