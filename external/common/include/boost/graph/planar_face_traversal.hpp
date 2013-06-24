@@ -10,8 +10,11 @@
 #define __PLANAR_FACE_TRAVERSAL_HPP__
 
 #include <vector>
-#include <boost/utility.hpp> //for next and prior
+#include <set>
+#include <map>
+#include <boost/next_prior.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/graph/properties.hpp>
 
 
 namespace boost
@@ -29,11 +32,11 @@ namespace boost
     {}
 
     template <typename Edge>
-    void next_edge(Edge e)
+    void next_edge(Edge)
     {}
 
     template <typename Vertex>
-    void next_vertex(Vertex v)
+    void next_vertex(Vertex)
     {}
 
     void end_face()
@@ -98,7 +101,7 @@ namespace boost
     // PlanarEmbedding so that get(next_edge, e)[v] is the edge that comes
     // after e in the clockwise embedding around vertex v.
 
-    for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+    for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
       {
         vertex_t v(*vi);
         pi_begin = embedding[v].begin();
@@ -107,7 +110,7 @@ namespace boost
           {
             edge_t e(*pi);
             std::map<vertex_t, edge_t> m = get(next_edge, e);
-            m[v] = next(pi) == pi_end ? *pi_begin : *next(pi);
+            m[v] = boost::next(pi) == pi_end ? *pi_begin : *boost::next(pi);
             put(next_edge, e, m);
           } 
       }
@@ -122,7 +125,7 @@ namespace boost
     std::vector<edge_t> edges_cache;
     std::vector<vertex_t> vertices_in_edge;
 
-    for(tie(fi,fi_end) = edges(g); fi != fi_end; ++fi)
+    for(boost::tie(fi,fi_end) = edges(g); fi != fi_end; ++fi)
       {
         edge_t e(*fi);
         edges_cache.push_back(e);

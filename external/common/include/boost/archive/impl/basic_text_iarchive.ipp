@@ -8,7 +8,6 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 #include <string>
-#include <cassert>
 #include <algorithm>
 #include <cstring>
 
@@ -20,7 +19,7 @@ namespace std{
 #endif
 
 #include <boost/detail/workaround.hpp>
-
+#include <boost/serialization/string.hpp>
 #include <boost/archive/basic_text_iarchive.hpp>
 
 namespace boost {
@@ -28,6 +27,7 @@ namespace archive {
 
 /////////1/////////2/////////3/////////4/////////5/////////6/////////7/////////8
 // implementation of text_text_archive
+
 template<class Archive>
 BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
 basic_text_iarchive<Archive>::load_override(class_name_type & t, int){
@@ -56,7 +56,7 @@ basic_text_iarchive<Archive>::init(void){
 
     // make sure the version of the reading archive library can
     // support the format of the archive being read
-    version_type input_library_version;
+    library_version_type input_library_version;
     * this->This() >> input_library_version;
 
     #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
@@ -65,11 +65,11 @@ basic_text_iarchive<Archive>::init(void){
     #if ! BOOST_WORKAROUND(BOOST_MSVC, <= 1200)
     detail::
     #endif
-    basic_iarchive::set_library_version(input_library_version.t);
+    basic_iarchive::set_library_version(input_library_version);
     #endif
 
     // extra little .t is to get around borland quirk
-    if(BOOST_ARCHIVE_VERSION() < input_library_version.t)
+    if(BOOST_ARCHIVE_VERSION() < input_library_version)
         boost::serialization::throw_exception(
             archive_exception(archive_exception::unsupported_version)
         );

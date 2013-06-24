@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : main function implementation for Unit Test Framework
 // ***************************************************************************
@@ -23,7 +23,8 @@
 
 #include <boost/test/detail/unit_test_parameters.hpp>
 
-#if !defined(__BORLANDC__) && !BOOST_WORKAROUND( BOOST_MSVC, < 1300 )
+#if !defined(__BORLANDC__) && !BOOST_WORKAROUND( BOOST_MSVC, < 1300 ) && !BOOST_WORKAROUND( __SUNPRO_CC, < 0x5100 )
+#define BOOST_TEST_SUPPORT_RUN_BY_NAME
 #include <boost/test/utils/iterator/token_iterator.hpp>
 #endif
 
@@ -100,13 +101,13 @@ public:
         const_string    m_value;
     };
     // Constructor
-#if defined(__BORLANDC__) || BOOST_WORKAROUND( BOOST_MSVC, < 1300 )
+#ifndef BOOST_TEST_SUPPORT_RUN_BY_NAME
     explicit        test_case_filter( const_string ) : m_depth( 0 ) {}
 #else
-    explicit        test_case_filter( const_string tc_to_tun ) 
+    explicit        test_case_filter( const_string tc_to_run ) 
     : m_depth( 0 )
     {
-        string_token_iterator tit( tc_to_tun, (dropped_delimeters = "/", kept_delimeters = dt_none) );
+        string_token_iterator tit( tc_to_run, (dropped_delimeters = "/", kept_delimeters = dt_none) );
 
         while( tit != string_token_iterator() ) {
             m_filters.push_back( 
@@ -186,8 +187,11 @@ unit_test_main( init_unit_test_func init_func, int argc, char* argv[] )
         results_reporter::make_report();
 
         return runtime_config::no_result_code() 
-                    ? boost::exit_success 
+                    ? boost::exit_success
                     : results_collector.results( framework::master_test_suite().p_id ).result_code();
+    }
+    catch( framework::nothing_to_test const& ) {
+        return boost::exit_success;
     }
     catch( framework::internal_error const& ex ) {
         results_reporter::get_stream() << "Boost.Test framework internal error: " << ex.what() << std::endl;

@@ -8,7 +8,7 @@
 #ifndef __ADD_EDGE_VISITORS_HPP__
 #define __ADD_EDGE_VISITORS_HPP__
 
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 namespace boost
 {

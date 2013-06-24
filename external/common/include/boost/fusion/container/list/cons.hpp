@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2005 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2005 Eric Niebler
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -8,6 +8,7 @@
 #if !defined(FUSION_CONS_07172005_0843)
 #define FUSION_CONS_07172005_0843
 
+#include <boost/fusion/container/list/cons_fwd.hpp>
 #include <boost/fusion/support/detail/access.hpp>
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
 #include <boost/fusion/sequence/intrinsic/end.hpp>
@@ -46,16 +47,16 @@ namespace boost { namespace fusion
         nil() {}
 
         template <typename Iterator>
-        nil(Iterator const& iter, mpl::true_ /*this_is_an_iterator*/)
+        nil(Iterator const& /*iter*/, mpl::true_ /*this_is_an_iterator*/)
         {}
 
         template <typename Iterator>
-        void assign_from_iter(Iterator const& iter)
+        void assign_from_iter(Iterator const& /*iter*/)
         {
         }
     };
 
-    template <typename Car, typename Cdr = nil>
+    template <typename Car, typename Cdr /*= nil*/>
     struct cons : sequence_base<cons<Car, Cdr> >
     {
         typedef mpl::int_<Cdr::size::value+1> size;
@@ -69,13 +70,13 @@ namespace boost { namespace fusion
         cons()
             : car(), cdr() {}
 
-        explicit cons(typename detail::call_param<Car>::type car)
-            : car(car), cdr() {}
+        explicit cons(typename detail::call_param<Car>::type in_car)
+            : car(in_car), cdr() {}
 
         cons(
-            typename detail::call_param<Car>::type car
-          , typename detail::call_param<Cdr>::type cdr)
-            : car(car), cdr(cdr) {}
+            typename detail::call_param<Car>::type in_car
+          , typename detail::call_param<Cdr>::type in_cdr)
+            : car(in_car), cdr(in_cdr) {}
         
         template <typename Car2, typename Cdr2>
         cons(cons<Car2, Cdr2> const& rhs)
@@ -87,12 +88,12 @@ namespace boost { namespace fusion
         template <typename Sequence>
         cons(
             Sequence const& seq
-          , typename disable_if<
+          , typename boost::disable_if<
                 mpl::or_<
                     is_convertible<Sequence, cons> // use copy ctor instead
                   , is_convertible<Sequence, Car>  // use copy to car instead
                 > 
-            >::type* dummy = 0
+            >::type* /*dummy*/ = 0
         )
             : car(*fusion::begin(seq))
             , cdr(fusion::next(fusion::begin(seq)), mpl::true_()) {}
@@ -118,7 +119,7 @@ namespace boost { namespace fusion
         }
 
         template <typename Sequence>
-        typename disable_if<is_convertible<Sequence, Car>, cons&>::type
+        typename boost::disable_if<is_convertible<Sequence, Car>, cons&>::type
         operator=(Sequence const& seq)
         {
             typedef typename result_of::begin<Sequence const>::type Iterator;

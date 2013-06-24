@@ -43,6 +43,11 @@ namespace boost { namespace program_options {
             other sources are discarded.
         */
         virtual bool is_composing() const = 0;
+
+        /** Returns true if value must be given. Non-optional value
+
+        */
+        virtual bool is_required() const = 0;
         
         /** Parses a group of tokens that specify a value of option.
             Stores the result in 'value_store', using whatever representation
@@ -131,6 +136,8 @@ namespace boost { namespace program_options {
         unsigned max_tokens() const;
 
         bool is_composing() const { return false; }
+
+        bool is_required() const { return false; }
         
         /** If 'value_store' is already initialized, or new_tokens
             has more than one elements, throws. Otherwise, assigns
@@ -177,7 +184,8 @@ namespace boost { namespace program_options {
             the value when it's known. The parameter can be NULL. */
         typed_value(T* store_to) 
         : m_store_to(store_to), m_composing(false),
-          m_multitoken(false), m_zero_tokens(false)
+          m_multitoken(false), m_zero_tokens(false),
+          m_required(false)
         {} 
 
         /** Specifies default value, which will be used
@@ -219,6 +227,13 @@ namespace boost { namespace program_options {
             return this;
         }
 
+        /** Specifies the name used to to the value in help message.  */
+        typed_value* value_name(const std::string& name)
+        {
+            m_value_name = name;
+            return this;
+        }
+
         /** Specifies an implicit value, which will be used
             if the option is given, but without an adjacent value.
             Using this implies that an explicit value is optional, but if
@@ -253,19 +268,33 @@ namespace boost { namespace program_options {
             return this;
         }
 
-        /** Specifies that the value can span multiple tokens. */
+        /** Specifies that the value can span multiple tokens. 
+        */
         typed_value* multitoken()
         {
             m_multitoken = true;
             return this;
         }
 
+        /** Specifies that no tokens may be provided as the value of
+            this option, which means that only presense of the option
+            is significant. For such option to be useful, either the
+            'validate' function should be specialized, or the 
+            'implicit_value' method should be also used. In most
+            cases, you can use the 'bool_switch' function instead of
+            using this method. */
         typed_value* zero_tokens() 
         {
             m_zero_tokens = true;
             return this;
         }
             
+        /** Specifies that the value must occur. */
+        typed_value* required()
+        {
+            m_required = true;
+            return this;
+        }
 
     public: // value semantic overrides
 
@@ -292,6 +321,7 @@ namespace boost { namespace program_options {
             }
         }
 
+        bool is_required() const { return m_required; }
 
         /** Creates an instance of the 'validator' class and calls
             its operator() to perform the actual conversion. */
@@ -331,11 +361,12 @@ namespace boost { namespace program_options {
         
         // Default value is stored as boost::any and not
         // as boost::optional to avoid unnecessary instantiations.
+        std::string m_value_name;
         boost::any m_default_value;
         std::string m_default_value_as_text;
         boost::any m_implicit_value;
         std::string m_implicit_value_as_text;
-        bool m_composing, m_implicit, m_multitoken, m_zero_tokens;
+        bool m_composing, m_implicit, m_multitoken, m_zero_tokens, m_required;
         boost::function1<void, const T&> m_notifier;
     };
 

@@ -88,7 +88,7 @@ namespace boost { namespace xpressive { namespace detail
             {
                 actor->execute(state.action_args_);
             }
-                        
+
             return true;
         }
     };

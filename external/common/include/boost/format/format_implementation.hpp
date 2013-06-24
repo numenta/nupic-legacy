@@ -37,7 +37,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc>
     basic_format<Ch, Tr, Alloc>:: basic_format(const Ch* s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
         if(s) parse( s );
     }
@@ -45,7 +45,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc>
     basic_format<Ch, Tr, Alloc>:: basic_format(const string_type& s, const std::locale & loc)
         : style_(0), cur_arg_(0), num_args_(0), dumped_(false),
-          loc_(loc), exceptions_(io::all_error_bits)
+          exceptions_(io::all_error_bits), loc_(loc)
     {
         parse(s);  
     }
@@ -67,7 +67,7 @@ namespace boost {
     template< class Ch, class Tr, class Alloc> // just don't copy the buf_ member
     basic_format<Ch, Tr, Alloc>:: basic_format(const basic_format& x)
         : items_(x.items_), bound_(x.bound_), style_(x.style_),
-          cur_arg_(x.cur_arg_), num_args_(x.num_args_), dumped_(false),
+          cur_arg_(x.cur_arg_), num_args_(x.num_args_), dumped_(x.dumped_),
           prefix_(x.prefix_), exceptions_(x.exceptions_), loc_(x.loc_)
     {
     }
@@ -172,6 +172,47 @@ namespace boost {
     }
 
     template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    bound_args() const {
+        if(bound_.size()==0)
+            return 0;
+        int n=0;
+        for(int i=0; i<num_args_ ; ++i)
+            if(bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    fed_args() const {
+        if(bound_.size()==0)
+            return cur_arg_;
+        int n=0;
+        for(int i=0; i<cur_arg_ ; ++i)
+            if(!bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    cur_arg() const {
+      return cur_arg_+1; }
+
+    template< class Ch, class Tr, class Alloc>
+    int basic_format<Ch,Tr, Alloc>::
+    remaining_args() const {
+        if(bound_.size()==0)
+            return num_args_-cur_arg_;
+        int n=0;
+        for(int i=cur_arg_; i<num_args_ ; ++i)
+            if(!bound_[i])
+                ++n;
+        return n;
+    }
+
+    template< class Ch, class Tr, class Alloc>
     typename basic_format<Ch, Tr, Alloc>::string_type 
     basic_format<Ch,Tr, Alloc>:: 
     str () const {
@@ -261,7 +302,7 @@ namespace detail {
             while(self.cur_arg_ < self.num_args_ && self.bound_[self.cur_arg_])   
                 ++self.cur_arg_;
         }
-        // In any case, we either have all args, or are on a non-binded arg :
+        // In any case, we either have all args, or are on an unbound arg :
         BOOST_ASSERT( self.cur_arg_ >= self.num_args_ || ! self.bound_[self.cur_arg_]);
         return self;
     }

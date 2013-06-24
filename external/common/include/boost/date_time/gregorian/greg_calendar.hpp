@@ -2,27 +2,28 @@
 #define GREGORIAN_GREGORIAN_CALENDAR_HPP__
 
 /* Copyright (c) 2002,2003 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
- * Author: Jeff Garland 
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * Author: Jeff Garland
+ * $Date: 2010-01-10 11:17:23 -0800 (Sun, 10 Jan 2010) $
  */
 
-#include "boost/date_time/gregorian/greg_weekday.hpp"
-#include "boost/date_time/gregorian/greg_day_of_year.hpp"
-#include "boost/date_time/gregorian_calendar.hpp"
-#include "boost/date_time/gregorian/greg_ymd.hpp"
-#include "boost/date_time/int_adapter.hpp"
+#include <boost/cstdint.hpp>
+#include <boost/date_time/gregorian/greg_weekday.hpp>
+#include <boost/date_time/gregorian/greg_day_of_year.hpp>
+#include <boost/date_time/gregorian_calendar.hpp>
+#include <boost/date_time/gregorian/greg_ymd.hpp>
+#include <boost/date_time/int_adapter.hpp>
 
 namespace boost {
 namespace gregorian {
-    
+
   //!An internal date representation that includes infinities, not a date
-  typedef date_time::int_adapter<unsigned long> fancy_date_rep;
+  typedef date_time::int_adapter<uint32_t> fancy_date_rep;
 
   //! Gregorian calendar for this implementation, hard work in the base
-  class gregorian_calendar : 
+  class gregorian_calendar :
     public date_time::gregorian_calendar_base<greg_year_month_day, fancy_date_rep::int_type> {
   public:
     //! Type to hold a weekday (eg: Sunday, Monday,...)
@@ -34,14 +35,14 @@ namespace gregorian {
     //! Date rep implements the traits stuff as well
     typedef fancy_date_rep       date_traits_type;
 
-    
+
   private:
   };
 
 } } //namespace gregorian
-  
+
 
 
 
 #endif
-  
+

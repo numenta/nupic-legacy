@@ -29,7 +29,7 @@
 #include <utility>
 #include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 #define SAW_SENTINAL -1
 

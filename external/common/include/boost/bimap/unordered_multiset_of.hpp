@@ -118,9 +118,9 @@ template
 <
     class KeyType,
     class HashFunctor   = hash< BOOST_DEDUCED_TYPENAME 
-		::boost::bimaps::tags::support::value_type_of<KeyType>::type >,
+        ::boost::bimaps::tags::support::value_type_of<KeyType>::type >,
     class EqualKey      = std::equal_to< BOOST_DEDUCED_TYPENAME 
-		::boost::bimaps::tags::support::value_type_of<KeyType>::type >
+        ::boost::bimaps::tags::support::value_type_of<KeyType>::type >
 >
 struct unordered_multiset_of : public ::boost::bimaps::detail::set_type_of_tag
 {
@@ -128,8 +128,8 @@ struct unordered_multiset_of : public ::boost::bimaps::detail::set_type_of_tag
     typedef KeyType user_type;
 
     /// Type of the object that will be stored in the container
-	typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
-		value_type_of<user_type>::type value_type;
+    typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
+        value_type_of<user_type>::type value_type;
 
     /// Hash Functor that takes value_type objects
     typedef HashFunctor     hasher;

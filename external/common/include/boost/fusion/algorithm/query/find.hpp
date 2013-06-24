@@ -1,5 +1,6 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2011 Eric Niebler
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,47 +8,41 @@
 #if !defined(FUSION_FIND_05052005_1107)
 #define FUSION_FIND_05052005_1107
 
+#include <boost/fusion/algorithm/query/find_if_fwd.hpp>
 #include <boost/fusion/algorithm/query/detail/find_if.hpp>
-#include <boost/fusion/algorithm/query/detail/assoc_find.hpp>
-#include <boost/fusion/sequence/intrinsic/begin.hpp>
-#include <boost/fusion/sequence/intrinsic/end.hpp>
+#include <boost/fusion/algorithm/query/detail/segmented_find.hpp>
+#include <boost/fusion/iterator/key_of.hpp>
+#include <boost/fusion/iterator/value_of.hpp>
 #include <boost/fusion/support/category_of.hpp>
+#include <boost/fusion/support/is_segmented.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/placeholders.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/utility/enable_if.hpp>
 
 namespace boost { namespace fusion
 {
-    struct associative_sequence_tag;
-
     namespace result_of
     {
-        template <
-            typename Sequence
-          , typename T
-          , bool is_associative_sequence = traits::is_associative<Sequence>::value >
-        struct find;
-
         template <typename Sequence, typename T>
-        struct find<Sequence, T, false>
-        {
-            typedef
-                detail::static_seq_find_if<
-                    typename result_of::begin<Sequence>::type
-                  , typename result_of::end<Sequence>::type
-                  , is_same<mpl::_, T>
+        struct find
+          : mpl::if_<
+                traits::is_segmented<Sequence>
+              , detail::result_of_segmented_find<Sequence, T>
+              , detail::result_of_find_if<
+                    Sequence,
+                    is_same<
+                        typename mpl::if_<
+                            traits::is_associative<Sequence>
+                          , key_of<mpl::_1>
+                          , value_of<mpl::_1>
+                        >::type
+                      , T
+                    >
                 >
-            filter;
-
-            typedef typename filter::type type;
-        };
-
-        template <typename Sequence, typename T>
-        struct find<Sequence, T, true>
-        {
-            typedef detail::assoc_find<Sequence, T> filter;
-            typedef typename filter::type type;
-        };
+            >::type
+        {};
     }
 
     template <typename T, typename Sequence>
@@ -72,4 +67,3 @@ namespace boost { namespace fusion
 }}
 
 #endif
-

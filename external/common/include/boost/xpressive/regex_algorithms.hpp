@@ -40,36 +40,23 @@ namespace boost { namespace xpressive
 // regex_match
 ///////////////////////////////////////////////////////////////////////////////
 
-/// \brief See if a regex matches a sequence from beginning to end.
-///
-/// Determines whether there is an exact match between the regular expression \c re,
-/// and all of the sequence <tt>[begin, end)</tt>.
-///
-/// \pre Type \c BidiIter meets the requirements of a Bidirectional Iterator (24.1.4).
-/// \pre <tt>[begin,end)</tt> denotes a valid iterator range.
-/// \param begin The beginning of the sequence.
-/// \param end The end of the sequence.
-/// \param what The \c match_results struct into which the sub_matches will be written
-/// \param re The regular expression object to use
-/// \param flags Optional match flags, used to control how the expression is matched 
-///        against the sequence. (See \c match_flag_type.)
-/// \return \c true if a match is found, \c false otherwise
-/// \throw \c regex_error on stack exhaustion
-template<typename BidiIter>
-inline bool regex_match
-(
-    BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) begin
-  , BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) end
-  , match_results<BidiIter> &what
-  , basic_regex<BidiIter> const &re
-  , regex_constants::match_flag_type flags = regex_constants::match_default
-)
+namespace detail
 {
-    typedef detail::core_access<BidiIter> access;
-
-    // an invlid regex matches nothing
-    if(!access::invalid(re))
+    ///////////////////////////////////////////////////////////////////////////////
+    // regex_match_impl
+    template<typename BidiIter>
+    inline bool regex_match_impl
+    (
+        BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) begin
+      , BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) end
+      , match_results<BidiIter> &what
+      , basic_regex<BidiIter> const &re
+      , regex_constants::match_flag_type flags = regex_constants::match_default
+    )
     {
+        typedef detail::core_access<BidiIter> access;
+        BOOST_ASSERT(0 != re.regex_id());
+
         // the state object holds matching state and
         // is passed by reference to all the matchers
         detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
@@ -88,10 +75,46 @@ inline bool regex_match
             state.set_partial_match();
             return true;
         }
+
+        access::reset(what);
+        return false;
+    }
+} // namespace detail
+
+/// \brief See if a regex matches a sequence from beginning to end.
+///
+/// Determines whether there is an exact match between the regular expression \c re,
+/// and all of the sequence <tt>[begin, end)</tt>.
+///
+/// \pre Type \c BidiIter meets the requirements of a Bidirectional Iterator (24.1.4).
+/// \pre <tt>[begin,end)</tt> denotes a valid iterator range.
+/// \param begin The beginning of the sequence.
+/// \param end The end of the sequence.
+/// \param what The \c match_results struct into which the sub_matches will be written
+/// \param re The regular expression object to use
+/// \param flags Optional match flags, used to control how the expression is matched
+///        against the sequence. (See \c match_flag_type.)
+/// \return \c true if a match is found, \c false otherwise
+/// \throw regex_error on stack exhaustion
+template<typename BidiIter>
+inline bool regex_match
+(
+    BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) begin
+  , BOOST_XPR_NONDEDUCED_TYPE_(BidiIter) end
+  , match_results<BidiIter> &what
+  , basic_regex<BidiIter> const &re
+  , regex_constants::match_flag_type flags = regex_constants::match_default
+)
+{
+    typedef detail::core_access<BidiIter> access;
+
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
     }
 
-    access::reset(what);
-    return false;
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -105,9 +128,14 @@ inline bool regex_match
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_match(begin, end, what, re, flags);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -121,10 +149,18 @@ inline bool regex_match
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    typedef detail::core_access<Char *> access;
+
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // BUGBUG this is inefficient
     typedef typename remove_const<Char>::type char_type;
     Char *end = begin + std::char_traits<char_type>::length(begin);
-    return xpressive::regex_match(begin, end, what, re, flags);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -139,10 +175,18 @@ inline bool regex_match
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(rng), end = boost::end(rng);
-    return xpressive::regex_match(begin, end, what, re, flags);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -157,10 +201,18 @@ inline bool regex_match
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(rng), end = boost::end(rng);
-    return xpressive::regex_match(begin, end, what, re, flags);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -173,9 +225,16 @@ inline bool regex_match
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<Char *> what;
-    return xpressive::regex_match(begin, what, re, flags);
+    typedef typename remove_const<Char>::type char_type;
+    Char *end = begin + std::char_traits<char_type>::length(begin);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -189,9 +248,17 @@ inline bool regex_match
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_match(rng, what, re, flags);
+    // Note that the result iterator of the range must be convertible
+    // to BidiIter here.
+    BidiIter begin = boost::begin(rng), end = boost::end(rng);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 /// \overload
@@ -205,9 +272,17 @@ inline bool regex_match
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_match(rng, what, re, flags);
+    // Note that the result iterator of the range must be convertible
+    // to BidiIter here.
+    BidiIter begin = boost::begin(rng), end = boost::end(rng);
+    return detail::regex_match_impl(begin, end, what, re, flags);
 }
 
 
@@ -217,23 +292,21 @@ inline bool regex_match
 
 namespace detail
 {
-///////////////////////////////////////////////////////////////////////////////
-// regex_search_impl
-template<typename BidiIter>
-inline bool regex_search_impl
-(
-    match_state<BidiIter> &state
-  , basic_regex<BidiIter> const &re
-  , bool not_initial_null = false
-)
-{
-    typedef core_access<BidiIter> access;
-    typedef typename iterator_value<BidiIter>::type char_type;
-    match_results<BidiIter> &what = *state.context_.results_ptr_;
-
-    // an invlid regex matches nothing
-    if(!access::invalid(re))
+    ///////////////////////////////////////////////////////////////////////////////
+    // regex_search_impl
+    template<typename BidiIter>
+    inline bool regex_search_impl
+    (
+        match_state<BidiIter> &state
+      , basic_regex<BidiIter> const &re
+      , bool not_initial_null = false
+    )
     {
+        typedef core_access<BidiIter> access;
+        typedef typename iterator_value<BidiIter>::type char_type;
+        match_results<BidiIter> &what = *state.context_.results_ptr_;
+        BOOST_ASSERT(0 != re.regex_id());
+
         bool const partial_ok = state.flags_.match_partial_;
         save_restore<bool> not_null(state.flags_.match_not_null_, state.flags_.match_not_null_ || not_initial_null);
         state.flags_.match_prev_avail_ = state.flags_.match_prev_avail_ || !state.bos();
@@ -322,11 +395,10 @@ inline bool regex_search_impl
                 not_null.restore();
             }
         }
-    }
 
-    access::reset(what);
-    return false;
-}
+        access::reset(what);
+        return false;
+    }
 } // namespace detail
 
 
@@ -345,7 +417,7 @@ inline bool regex_search_impl
 /// \param flags Optional match flags, used to control how the expression is matched against
 ///        the sequence. (See \c match_flag_type.)
 /// \return \c true if a match is found, \c false otherwise
-/// \throw \c regex_error on stack exhaustion
+/// \throw regex_error on stack exhaustion
 template<typename BidiIter>
 inline bool regex_search
 (
@@ -358,17 +430,17 @@ inline bool regex_search
 {
     typedef detail::core_access<BidiIter> access;
 
-    // an invlid regex matches nothing
-    if(!access::invalid(re))
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
     {
-        // the state object holds matching state and
-        // is passed by reference to all the matchers
-        detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
-        return detail::regex_search_impl(state, re);
+        access::reset(what);
+        return false;
     }
 
-    access::reset(what);
-    return false;
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -382,9 +454,20 @@ inline bool regex_search
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_search(begin, end, what, re, flags);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -398,10 +481,22 @@ inline bool regex_search
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    typedef detail::core_access<Char *> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // BUGBUG this is inefficient
     typedef typename remove_const<Char>::type char_type;
     Char *end = begin + std::char_traits<char_type>::length(begin);
-    return xpressive::regex_search(begin, end, what, re, flags);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<Char *> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -416,10 +511,22 @@ inline bool regex_search
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(rng), end = boost::end(rng);
-    return xpressive::regex_search(begin, end, what, re, flags);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -434,10 +541,22 @@ inline bool regex_search
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        access::reset(what);
+        return false;
+    }
+
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(rng), end = boost::end(rng);
-    return xpressive::regex_search(begin, end, what, re, flags);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -450,9 +569,23 @@ inline bool regex_search
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    typedef detail::core_access<Char *> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<Char *> what;
-    return xpressive::regex_search(begin, what, re, flags);
+    // BUGBUG this is inefficient
+    typedef typename remove_const<Char>::type char_type;
+    Char *end = begin + std::char_traits<char_type>::length(begin);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<Char *> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -466,9 +599,23 @@ inline bool regex_search
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_search(rng, what, re, flags);
+    // Note that the result iterator of the range must be convertible
+    // to BidiIter here.
+    BidiIter begin = boost::begin(rng), end = boost::end(rng);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 /// \overload
@@ -482,9 +629,23 @@ inline bool regex_search
   , typename disable_if<detail::is_char_ptr<BidiRange> >::type * = 0
 )
 {
+    typedef detail::core_access<BidiIter> access;
+
+    // a default-constructed regex matches nothing
+    if(0 == re.regex_id())
+    {
+        return false;
+    }
+
     // BUGBUG this is inefficient
     match_results<BidiIter> what;
-    return xpressive::regex_search(rng, what, re, flags);
+    // Note that the result iterator of the range must be convertible
+    // to BidiIter here.
+    BidiIter begin = boost::begin(rng), end = boost::end(rng);
+    // the state object holds matching state and
+    // is passed by reference to all the matchers
+    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+    return detail::regex_search_impl(state, re);
 }
 
 
@@ -494,64 +655,65 @@ inline bool regex_search
 
 namespace detail
 {
-///////////////////////////////////////////////////////////////////////////////
-// regex_replace_impl
-template<typename OutIter, typename BidiIter, typename Formatter>
-inline OutIter regex_replace_impl
-(
-    OutIter out
-  , BidiIter begin
-  , BidiIter end
-  , basic_regex<BidiIter> const &re
-  , Formatter const &format
-  , regex_constants::match_flag_type flags = regex_constants::match_default
-)
-{
-    using namespace regex_constants;
-    typedef detail::core_access<BidiIter> access;
-
-    BidiIter cur = begin;
-    match_results<BidiIter> what;
-    detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
-    bool const yes_copy = (0 == (flags & format_no_copy));
-
-    if(detail::regex_search_impl(state, re))
+    ///////////////////////////////////////////////////////////////////////////////
+    // regex_replace_impl
+    template<typename OutIter, typename BidiIter, typename Formatter>
+    inline OutIter regex_replace_impl
+    (
+        OutIter out
+      , BidiIter begin
+      , BidiIter end
+      , basic_regex<BidiIter> const &re
+      , Formatter const &format
+      , regex_constants::match_flag_type flags = regex_constants::match_default
+    )
     {
-        if(yes_copy)
-        {
-            out = std::copy(cur, what[0].first, out);
-        }
+        using namespace regex_constants;
+        typedef detail::core_access<BidiIter> access;
+        BOOST_ASSERT(0 != re.regex_id());
 
-        out = what.format(out, format, flags);
-        cur = state.cur_ = state.next_search_ = what[0].second;
+        BidiIter cur = begin;
+        match_results<BidiIter> what;
+        detail::match_state<BidiIter> state(begin, end, what, *access::get_regex_impl(re), flags);
+        bool const yes_copy = (0 == (flags & format_no_copy));
 
-        if(0 == (flags & format_first_only))
+        if(detail::regex_search_impl(state, re))
         {
-            bool not_null = (0 == what.length());
-            state.reset(what, *access::get_regex_impl(re));
-            while(detail::regex_search_impl(state, re, not_null))
+            if(yes_copy)
             {
-                if(yes_copy)
-                {
-                    out = std::copy(cur, what[0].first, out);
-                }
+                out = std::copy(cur, what[0].first, out);
+            }
 
-                access::set_prefix_suffix(what, begin, end);
-                out = what.format(out, format, flags);
-                cur = state.cur_ = state.next_search_ = what[0].second;
-                not_null = (0 == what.length());
+            out = what.format(out, format, flags);
+            cur = state.cur_ = state.next_search_ = what[0].second;
+
+            if(0 == (flags & format_first_only))
+            {
+                bool not_null = (0 == what.length());
                 state.reset(what, *access::get_regex_impl(re));
+                while(detail::regex_search_impl(state, re, not_null))
+                {
+                    if(yes_copy)
+                    {
+                        out = std::copy(cur, what[0].first, out);
+                    }
+
+                    access::set_prefix_suffix(what, begin, end);
+                    out = what.format(out, format, flags);
+                    cur = state.cur_ = state.next_search_ = what[0].second;
+                    not_null = (0 == what.length());
+                    state.reset(what, *access::get_regex_impl(re));
+                }
             }
         }
-    }
 
-    if(yes_copy)
-    {
-        out = std::copy(cur, end, out);
-    }
+        if(yes_copy)
+        {
+            out = std::copy(cur, end, out);
+        }
 
-    return out;
-}
+        return out;
+    }
 } // namespace detail
 
 /// \brief Build an output sequence given an input sequence, a regex, and a format string or
@@ -569,7 +731,7 @@ inline OutIter regex_replace_impl
 ///
 /// \pre Type \c BidiIter meets the requirements of a Bidirectional Iterator (24.1.4).
 /// \pre Type \c OutIter meets the requirements of an Output Iterator (24.1.2).
-/// \pre Type \c Formatter models \c ForwardRange, <tt>Callable\<match_results\<BidiIter\> \></tt>, 
+/// \pre Type \c Formatter models \c ForwardRange, <tt>Callable\<match_results\<BidiIter\> \></tt>,
 ///      <tt>Callable\<match_results\<BidiIter\>, OutIter\></tt>, or
 ///      <tt>Callable\<match_results\<BidiIter\>, OutIter, regex_constants::match_flag_type\></tt>;
 ///      or else it is a null-terminated format string, or an expression template
@@ -584,7 +746,7 @@ inline OutIter regex_replace_impl
 /// \param flags Optional match flags, used to control how the expression is matched against
 ///        the sequence. (See \c match_flag_type.)
 /// \return The value of the output iterator after the output sequence has been written to it.
-/// \throw \c regex_error on stack exhaustion or invalid format string.
+/// \throw regex_error on stack exhaustion or invalid format string.
 template<typename OutIter, typename BidiIter, typename Formatter>
 inline OutIter regex_replace
 (
@@ -597,6 +759,17 @@ inline OutIter regex_replace
   , typename disable_if<detail::is_char_ptr<Formatter> >::type * = 0
 )
 {
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            out = std::copy(begin, end, out);
+        }
+
+        return out;
+    }
+
     return detail::regex_replace_impl(out, begin, end, re, format, flags);
 }
 
@@ -613,6 +786,17 @@ inline OutIter regex_replace
   , regex_constants::match_flag_type flags = regex_constants::match_default
 )
 {
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            out = std::copy(begin, end, out);
+        }
+
+        return out;
+    }
+
     return detail::regex_replace_impl(out, begin, end, re, format, flags);
 }
 
@@ -632,7 +816,19 @@ inline BidiContainer regex_replace
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(str), end = boost::end(str);
-    xpressive::regex_replace(std::back_inserter(result), begin, end, re, format, flags);
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            std::copy(begin, end, std::back_inserter(result));
+        }
+
+        return result;
+    }
+
+    detail::regex_replace_impl(std::back_inserter(result), begin, end, re, format, flags);
     return result;
 }
 
@@ -652,7 +848,19 @@ inline BidiContainer regex_replace
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(str), end = boost::end(str);
-    xpressive::regex_replace(std::back_inserter(result), begin, end, re, format, flags);
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            std::copy(begin, end, std::back_inserter(result));
+        }
+
+        return result;
+    }
+
+    detail::regex_replace_impl(std::back_inserter(result), begin, end, re, format, flags);
     return result;
 }
 
@@ -670,8 +878,20 @@ inline std::basic_string<typename remove_const<Char>::type> regex_replace
 {
     typedef typename remove_const<Char>::type char_type;
     std::basic_string<char_type> result;
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            result = str;
+        }
+
+        return result;
+    }
+
     Char *end = str + std::char_traits<char_type>::length(str);
-    xpressive::regex_replace(std::back_inserter(result), str, end, re, format, flags);
+    detail::regex_replace_impl(std::back_inserter(result), str, end, re, format, flags);
     return result;
 }
 
@@ -691,7 +911,19 @@ inline BidiContainer regex_replace
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(str), end = boost::end(str);
-    xpressive::regex_replace(std::back_inserter(result), begin, end, re, format, flags);
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            std::copy(begin, end, std::back_inserter(result));
+        }
+
+        return result;
+    }
+
+    detail::regex_replace_impl(std::back_inserter(result), begin, end, re, format, flags);
     return result;
 }
 
@@ -711,7 +943,19 @@ inline BidiContainer regex_replace
     // Note that the result iterator of the range must be convertible
     // to BidiIter here.
     BidiIter begin = boost::begin(str), end = boost::end(str);
-    xpressive::regex_replace(std::back_inserter(result), begin, end, re, format, flags);
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            std::copy(begin, end, std::back_inserter(result));
+        }
+
+        return result;
+    }
+
+    detail::regex_replace_impl(std::back_inserter(result), begin, end, re, format, flags);
     return result;
 }
 
@@ -728,8 +972,20 @@ inline std::basic_string<typename remove_const<Char>::type> regex_replace
 {
     typedef typename remove_const<Char>::type char_type;
     std::basic_string<char_type> result;
+
+    // Default-constructed regexes match nothing
+    if(0 == re.regex_id())
+    {
+        if((0 == (flags & regex_constants::format_no_copy)))
+        {
+            result = str;
+        }
+
+        return result;
+    }
+
     Char *end = str + std::char_traits<char_type>::length(str);
-    xpressive::regex_replace(std::back_inserter(result), str, end, re, format, flags);
+    detail::regex_replace_impl(std::back_inserter(result), str, end, re, format, flags);
     return result;
 }
 

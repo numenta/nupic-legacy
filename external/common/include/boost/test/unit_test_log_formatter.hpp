@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : 
 // ***************************************************************************
@@ -19,6 +19,8 @@
 #include <boost/test/detail/global_typedef.hpp>
 #include <boost/test/detail/log_level.hpp>
 #include <boost/test/detail/fwd_decl.hpp>
+
+#include <boost/test/execution_monitor.hpp>
 
 // STL
 #include <iosfwd>
@@ -96,7 +98,12 @@ public:
     virtual void        test_unit_finish( std::ostream&, test_unit const& tu, unsigned long elapsed ) = 0;
     virtual void        test_unit_skipped( std::ostream&, test_unit const& ) = 0;
 
-    virtual void        log_exception( std::ostream&, log_checkpoint_data const&, const_string explanation ) = 0;
+    virtual void        log_exception( std::ostream& os, log_checkpoint_data const& cd, execution_exception const& ex )
+    {
+        // for backward compatibility
+        log_exception( os, cd, ex.what() );
+    }
+    virtual void        log_exception( std::ostream&, log_checkpoint_data const&, const_string /* explanation */ ) {}
 
     virtual void        log_entry_start( std::ostream&, log_entry_data const&, log_entry_types let ) = 0;
     virtual void        log_entry_value( std::ostream&, const_string value ) = 0;

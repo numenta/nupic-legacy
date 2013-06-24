@@ -20,7 +20,7 @@ namespace boost {
   template<typename RandomGenerator, typename Graph>
   class small_world_iterator
   {
-    typedef typename graph_traits<Graph>::vertices_size_type 
+    typedef typename graph_traits<Graph>::vertices_size_type
       vertices_size_type;
 
   public:
@@ -31,20 +31,20 @@ namespace boost {
     typedef void difference_type;
 
     small_world_iterator() : gen(0) {}
-    small_world_iterator(RandomGenerator& gen, vertices_size_type n, 
-                         vertices_size_type k, double prob = 0.0, 
-                         bool allow_self_loops = false) 
-      : gen(&gen), n(n), k(k), prob(prob), source(0), 
-        target(allow_self_loops? 0 : 1), 
-        allow_self_loops(allow_self_loops), 
+    small_world_iterator(RandomGenerator& gen, vertices_size_type n,
+                         vertices_size_type k, double prob = 0.0,
+                         bool allow_self_loops = false)
+      : gen(&gen), n(n), k(k), prob(prob), source(0),
+        target(allow_self_loops? 0 : 1),
+        allow_self_loops(allow_self_loops),
         current(0, allow_self_loops? 0 : 1)
     { }
 
     reference operator*() const { return current; }
     pointer operator->() const { return &current; }
-    
+
     small_world_iterator& operator++()
-    { 
+    {
       target = (target + 1) % n;
       if (target == (source + k/2 + 1) % n) {
         ++source;
@@ -62,8 +62,8 @@ namespace boost {
         vertices_size_type upper = (source + k/2) % n;
         do {
           current.second = rand_vertex_gen(*gen);
-        } while (current.second >= lower && current.second <= upper
-                 || (upper < lower 
+        } while ((current.second >= lower && current.second <= upper)
+                 || (upper < lower
                      && (current.second >= lower || current.second <= upper)));
       } else {
         current.second = target;

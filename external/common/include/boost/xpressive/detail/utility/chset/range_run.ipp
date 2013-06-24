@@ -102,14 +102,14 @@ inline bool range_run<Char>::test(Char v) const
 
 template<typename Char>
 template<typename Traits>
-inline bool range_run<Char>::test(Char v, Traits const &traits) const
+inline bool range_run<Char>::test(Char v, Traits const &tr) const
 {
     const_iterator begin = this->run_.begin();
     const_iterator end = this->run_.end();
 
     for(; begin != end; ++begin)
     {
-        if(traits.in_range_nocase(begin->first_, begin->last_, v))
+        if(tr.in_range_nocase(begin->first_, begin->last_, v))
         {
             return true;
         }

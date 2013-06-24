@@ -2,13 +2,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
-#ifndef TRANSLATE_EXCEPTION_DWA2002810_HPP
-# define TRANSLATE_EXCEPTION_DWA2002810_HPP
+#ifndef TRANSLATE_EXCEPTION_TDS20091020_HPP
+# define TRANSLATE_EXCEPTION_TDS20091020_HPP
 
 # include <boost/python/detail/exception_handler.hpp>
 
 # include <boost/call_traits.hpp>
 # include <boost/type_traits/add_const.hpp>
+# include <boost/type_traits/add_reference.hpp>
+# include <boost/type_traits/remove_reference.hpp>
 
 # include <boost/function/function0.hpp>
 

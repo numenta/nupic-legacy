@@ -17,19 +17,21 @@
   (for directed graphs only. use normal BFS for undirected graphs)
 */
 #include <boost/config.hpp>
+#include <boost/ref.hpp>
 #include <vector>
 #include <boost/pending/queue.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graph_concepts.hpp>
 #include <boost/graph/visitors.hpp>
 #include <boost/graph/named_function_params.hpp>
+#include <boost/concept/assert.hpp>
 
 namespace boost {
 
   template <class Visitor, class Graph>
   struct NeighborBFSVisitorConcept {
     void constraints() {
-      function_requires< CopyConstructibleConcept<Visitor> >();
+      BOOST_CONCEPT_ASSERT(( CopyConstructibleConcept<Visitor> ));
       vis.initialize_vertex(u, g);
       vis.discover_vertex(u, g);
       vis.examine_vertex(u, g);
@@ -132,13 +134,13 @@ namespace boost {
        Buffer& Q, BFSVisitor vis, ColorMap color)
 
     {
-      function_requires< BidirectionalGraphConcept<BidirectionalGraph> >();
+      BOOST_CONCEPT_ASSERT(( BidirectionalGraphConcept<BidirectionalGraph> ));
       typedef graph_traits<BidirectionalGraph> GTraits;
       typedef typename GTraits::vertex_descriptor Vertex;
       typedef typename GTraits::edge_descriptor Edge;
-      function_requires< 
-        NeighborBFSVisitorConcept<BFSVisitor, BidirectionalGraph> >();
-      function_requires< ReadWritePropertyMapConcept<ColorMap, Vertex> >();
+      BOOST_CONCEPT_ASSERT(( 
+        NeighborBFSVisitorConcept<BFSVisitor, BidirectionalGraph> ));
+      BOOST_CONCEPT_ASSERT(( ReadWritePropertyMapConcept<ColorMap, Vertex> ));
       typedef typename property_traits<ColorMap>::value_type ColorValue;
       typedef color_traits<ColorValue> Color;
       
@@ -151,7 +153,7 @@ namespace boost {
         vis.examine_vertex(u, g);
 
         typename GTraits::out_edge_iterator ei, ei_end;
-        for (tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
+        for (boost::tie(ei, ei_end) = out_edges(u, g); ei != ei_end; ++ei) {
           Edge e = *ei;
           vis.examine_out_edge(e, g);
           Vertex v = target(e, g);
@@ -171,7 +173,7 @@ namespace boost {
         } // for out-edges
 
         typename GTraits::in_edge_iterator in_ei, in_ei_end;
-        for (tie(in_ei, in_ei_end) = in_edges(u, g); 
+        for (boost::tie(in_ei, in_ei_end) = in_edges(u, g); 
              in_ei != in_ei_end; ++in_ei) {
           Edge e = *in_ei;
           vis.examine_in_edge(e, g);
@@ -211,18 +213,17 @@ namespace boost {
       typedef typename Traits::vertex_descriptor Vertex;
       typedef boost::queue<Vertex> queue_t;
       queue_t Q;
-      detail::wrap_ref<queue_t> Qref(Q);
       // Initialization
       typedef typename property_traits<ColorMap>::value_type ColorValue;
       typedef color_traits<ColorValue> Color;
       typename boost::graph_traits<VertexListGraph>::vertex_iterator i, i_end;
-      for (tie(i, i_end) = vertices(g); i != i_end; ++i) {
+      for (boost::tie(i, i_end) = vertices(g); i != i_end; ++i) {
         put(color, *i, Color::white());
         vis.initialize_vertex(*i, g);
       }
       neighbor_bfs_impl
         (g, s, 
-         choose_param(get_param(params, buffer_param_t()), Qref).ref,
+         choose_param(get_param(params, buffer_param_t()), boost::ref(Q)).get(),
          vis, color);
     }
 
@@ -249,13 +250,13 @@ namespace boost {
     };
 
     template <>
-    struct neighbor_bfs_dispatch<detail::error_property_not_found> {
+    struct neighbor_bfs_dispatch<param_not_found> {
       template <class VertexListGraph, class P, class T, class R>
       static void apply
       (VertexListGraph& g,
        typename graph_traits<VertexListGraph>::vertex_descriptor s,
        const bgl_named_params<P, T, R>& params,
-       detail::error_property_not_found)
+       param_not_found)
       {
         std::vector<default_color_type> color_vec(num_vertices(g));
         null_visitor null_vis;
@@ -287,8 +288,7 @@ namespace boost {
     // graph is not really const since we may write to property maps
     // of the graph.
     VertexListGraph& ng = const_cast<VertexListGraph&>(g);
-    typedef typename property_value< bgl_named_params<P,T,R>, 
-      vertex_color_t>::type C;
+    typedef typename get_param_type< vertex_color_t, bgl_named_params<P,T,R> >::type C;
     detail::neighbor_bfs_dispatch<C>::apply(ng, s, params, 
                                             get_param(params, vertex_color));
   }
@@ -306,11 +306,10 @@ namespace boost {
     // Buffer default
     typedef boost::queue<typename Traits::vertex_descriptor> queue_t;
     queue_t Q;
-    detail::wrap_ref<queue_t> Qref(Q);
 
     detail::neighbor_bfs_impl
       (g, s,
-       choose_param(get_param(params, buffer_param_t()), Qref).ref,
+       choose_param(get_param(params, buffer_param_t()), boost::ref(Q)).get(),
        choose_param(get_param(params, graph_visitor),
                     make_neighbor_bfs_visitor(null_visitor())),
        choose_pmap(get_param(params, vertex_color), g, vertex_color)

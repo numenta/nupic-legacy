@@ -6,7 +6,7 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
  */
 
 #include "boost/date_time/constrained_value.hpp"
@@ -31,7 +31,7 @@ namespace gregorian {
   //! Exception that flags that a weekday number is incorrect
   struct bad_weekday : public std::out_of_range
   {
-    bad_weekday() : std::out_of_range(std::string("Weekday os out of range 0..6")) {}
+    bad_weekday() : std::out_of_range(std::string("Weekday is out of range 0..6")) {}
   };
   typedef CV::simple_exception_policy<unsigned short, 0, 6, bad_weekday> greg_weekday_policies;
   typedef CV::constrained_value<greg_weekday_policies> greg_weekday_rep;

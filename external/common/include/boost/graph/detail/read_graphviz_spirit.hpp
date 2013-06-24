@@ -1,4 +1,4 @@
-// Copyright 2004-5 Trustees of Indiana University
+// Copyright 2004-9 Trustees of Indiana University
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -28,21 +28,22 @@
 #define BOOST_SPIRIT_CLOSURE_LIMIT 6
 
 
-#include <boost/spirit/iterator/multi_pass.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/utility/confix.hpp>
-#include <boost/spirit/utility/distinct.hpp>
-#include <boost/spirit/utility/lists.hpp>
-#include <boost/spirit/utility/escape_char.hpp>
-#include <boost/spirit/attribute.hpp>
-#include <boost/spirit/dynamic.hpp>
-#include <boost/spirit/actor.hpp>
-#include <boost/spirit/phoenix.hpp>
-#include <boost/spirit/phoenix/binders.hpp>
+#include <boost/spirit/include/classic_multi_pass.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_confix.hpp>
+#include <boost/spirit/include/classic_distinct.hpp>
+#include <boost/spirit/include/classic_lists.hpp>
+#include <boost/spirit/include/classic_escape_char.hpp>
+#include <boost/spirit/include/classic_attribute.hpp>
+#include <boost/spirit/include/classic_dynamic.hpp>
+#include <boost/spirit/include/classic_actor.hpp>
+#include <boost/spirit/include/classic_closure.hpp>
+#include <boost/spirit/include/phoenix1.hpp>
+#include <boost/spirit/include/phoenix1_binders.hpp>
 #include <boost/ref.hpp>
 #include <boost/function/function2.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/dynamic_property_map.hpp>
+#include <boost/property_map/dynamic_property_map.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/detail/workaround.hpp>
 #include <algorithm>
@@ -93,25 +94,25 @@ typedef std::map<id_t,edges_t> subgraph_edges_t;
 /////////////////////////////////////////////////////////////////////////////
 // Stack frames used by semantic actions
 /////////////////////////////////////////////////////////////////////////////
-struct id_closure : boost::spirit::closure<id_closure, node_t> {
+struct id_closure : boost::spirit::classic::closure<id_closure, node_t> {
   member1 name;
 };
 
 
-struct node_id_closure : boost::spirit::closure<node_id_closure, node_t> {
+struct node_id_closure : boost::spirit::classic::closure<node_id_closure, node_t> {
   member1 name;
 };
 
-struct attr_list_closure : boost::spirit::closure<attr_list_closure, actor_t> {
+struct attr_list_closure : boost::spirit::classic::closure<attr_list_closure, actor_t> {
   member1 prop_actor;
 };
 
-struct property_closure : boost::spirit::closure<property_closure, id_t, id_t> {
+struct property_closure : boost::spirit::classic::closure<property_closure, id_t, id_t> {
   member1 key;
   member2 value;
 };
 
-struct data_stmt_closure : boost::spirit::closure<data_stmt_closure,
+struct data_stmt_closure : boost::spirit::classic::closure<data_stmt_closure,
                            nodes_t,nodes_t,edge_stack_t,bool,node_t> {
   member1 sources;
   member2 dests;
@@ -120,7 +121,7 @@ struct data_stmt_closure : boost::spirit::closure<data_stmt_closure,
   member5 active_node;
 };
 
-struct subgraph_closure : boost::spirit::closure<subgraph_closure,
+struct subgraph_closure : boost::spirit::classic::closure<subgraph_closure,
                           nodes_t, edges_t, node_t> {
   member1 nodes;
   member2 edges;
@@ -132,7 +133,7 @@ struct subgraph_closure : boost::spirit::closure<subgraph_closure,
 /////////////////////////////////////////////////////////////////////////////
 
 // Grammar for a dot file.
-struct dot_grammar : public boost::spirit::grammar<dot_grammar> { 
+struct dot_grammar : public boost::spirit::classic::grammar<dot_grammar> { 
   mutate_graph& graph_;
   explicit dot_grammar(mutate_graph& graph) : graph_(graph) { }
 
@@ -141,7 +142,7 @@ struct dot_grammar : public boost::spirit::grammar<dot_grammar> {
    
     definition(dot_grammar const& self) : self(self), subgraph_depth(0),
     keyword_p("0-9a-zA-Z_") {
-      using namespace boost::spirit;
+      using namespace boost::spirit::classic;
       using namespace phoenix;
       
       // RG - Future Work
@@ -282,7 +283,7 @@ struct dot_grammar : public boost::spirit::grammar<dot_grammar> {
 
     } // definition()
 
-    typedef boost::spirit::rule<ScannerT> rule_t;
+    typedef boost::spirit::classic::rule<ScannerT> rule_t;
 
     rule_t const& start() const { return the_grammar; }
 
@@ -492,21 +493,21 @@ struct dot_grammar : public boost::spirit::grammar<dot_grammar> {
     int subgraph_depth; 
 
     // Keywords;
-    const boost::spirit::distinct_parser<> keyword_p;
+    const boost::spirit::classic::distinct_parser<> keyword_p;
     //
     // rules that make up the grammar
     //
-    boost::spirit::rule<ScannerT,id_closure::context_t> ID;
-    boost::spirit::rule<ScannerT,property_closure::context_t> a_list;
-    boost::spirit::rule<ScannerT,attr_list_closure::context_t> attr_list;
+    boost::spirit::classic::rule<ScannerT,id_closure::context_t> ID;
+    boost::spirit::classic::rule<ScannerT,property_closure::context_t> a_list;
+    boost::spirit::classic::rule<ScannerT,attr_list_closure::context_t> attr_list;
     rule_t port_location;
     rule_t port_angle;
     rule_t port;
-    boost::spirit::rule<ScannerT,node_id_closure::context_t> node_id;
-    boost::spirit::rule<ScannerT,property_closure::context_t> graph_stmt;
+    boost::spirit::classic::rule<ScannerT,node_id_closure::context_t> node_id;
+    boost::spirit::classic::rule<ScannerT,property_closure::context_t> graph_stmt;
     rule_t attr_stmt;
-    boost::spirit::rule<ScannerT,data_stmt_closure::context_t> data_stmt;
-    boost::spirit::rule<ScannerT,subgraph_closure::context_t> subgraph;
+    boost::spirit::classic::rule<ScannerT,data_stmt_closure::context_t> data_stmt;
+    boost::spirit::classic::rule<ScannerT,subgraph_closure::context_t> subgraph;
     rule_t edgeop;
     rule_t edgeRHS;
     rule_t stmt;
@@ -544,7 +545,7 @@ struct dot_grammar : public boost::spirit::grammar<dot_grammar> {
 //
 // dot_skipper - GraphViz whitespace and comment skipper
 //
-struct dot_skipper : public boost::spirit::grammar<dot_skipper>
+struct dot_skipper : public boost::spirit::classic::grammar<dot_skipper>
 {
     dot_skipper() {}
 
@@ -552,7 +553,7 @@ struct dot_skipper : public boost::spirit::grammar<dot_skipper>
     struct definition
     {
         definition(dot_skipper const& /*self*/)  {
-          using namespace boost::spirit;
+          using namespace boost::spirit::classic;
           using namespace phoenix;
           // comment forms
           skip = eol_p >> comment_p("#")  
@@ -570,8 +571,8 @@ struct dot_skipper : public boost::spirit::grammar<dot_skipper>
 #endif
         }
 
-      boost::spirit::rule<ScannerT>  skip;
-      boost::spirit::rule<ScannerT> const&
+      boost::spirit::classic::rule<ScannerT>  skip;
+      boost::spirit::classic::rule<ScannerT> const&
       start() const { return skip; }
     }; // definition
 }; // dot_skipper
@@ -580,11 +581,11 @@ struct dot_skipper : public boost::spirit::grammar<dot_skipper>
 } // namespace detail
 
 template <typename MultiPassIterator, typename MutableGraph>
-bool read_graphviz(MultiPassIterator begin, MultiPassIterator end,
-                   MutableGraph& graph, dynamic_properties& dp,
-                   std::string const& node_id = "node_id") {
+bool read_graphviz_spirit(MultiPassIterator begin, MultiPassIterator end,
+                          MutableGraph& graph, dynamic_properties& dp,
+                          std::string const& node_id = "node_id") {
   using namespace boost;
-  using namespace boost::spirit;
+  using namespace boost::spirit::classic;
 
   typedef MultiPassIterator iterator_t;
   typedef skip_parser_iteration_policy< boost::detail::graph::dot_skipper>
@@ -603,7 +604,9 @@ bool read_graphviz(MultiPassIterator begin, MultiPassIterator end,
 
   scanner_t scan(begin, end, policies);
 
-  return p.parse(scan);
+  bool ok = p.parse(scan);
+  m_graph.finish_building_graph();
+  return ok;
 }
 
 } // namespace boost

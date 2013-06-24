@@ -18,7 +18,7 @@ template <class ExceptionType, class Translate>
 void register_exception_translator(Translate translate, boost::type<ExceptionType>* = 0)
 {
     detail::register_exception_handler(
-        bind<bool>(detail::translate_exception<ExceptionType,Translate>(), _1, _2, translate)
+        boost::bind<bool>(detail::translate_exception<ExceptionType,Translate>(), _1, _2, translate)
         );
 }
 

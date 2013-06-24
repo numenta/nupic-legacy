@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <algorithm>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 
 

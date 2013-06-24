@@ -14,6 +14,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 namespace phoenix {
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  composite class
@@ -1416,6 +1421,10 @@ namespace impl {
     };
 
 }   // namespace impl
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 }   //  namespace phoenix
 

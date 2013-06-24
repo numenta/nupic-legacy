@@ -18,7 +18,7 @@
 #     define BOOST_TR1_NO_RECURSION
 #     define BOOST_TR1_NO_TYPE_TRAITS_RECURSION
 #  endif
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next <type_traits>
 #  else
 #     include BOOST_TR1_STD_HEADER(type_traits)

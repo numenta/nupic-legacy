@@ -11,20 +11,6 @@
 #ifndef BOOST_UNITS_CMATH_IMPL_HPP 
 #define BOOST_UNITS_CMATH_IMPL_HPP
 
-#include <boost/version.hpp>
-
-#if 0
-//#if (BOOST_VERSION <= 103500)
-    #include <boost/units/detail/cmath_gnu_impl_boost_1_35.hpp>
-    #include <boost/units/detail/cmath_mwcw_impl_boost_1_35.hpp>
-    #include <boost/units/detail/cmath_msvc_impl_boost_1_35.hpp>
-#else
-#if 0
-    #include <boost/units/detail/cmath_gnu_impl.hpp>
-    #include <boost/units/detail/cmath_mwcw_impl.hpp>
-    #include <boost/units/detail/cmath_msvc_impl.hpp>
-# endif
-
 #include <boost/config.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 
@@ -164,7 +150,5 @@ inline Y trunc BOOST_PREVENT_MACRO_SUBSTITUTION(const Y& val)
 }
 }
 }
-
-#endif // (BOOST_VERSION <= 103500)
 
 #endif // BOOST_UNITS_CMATH_IMPL_HPP

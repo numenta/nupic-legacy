@@ -5,7 +5,7 @@
  * accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
  *
- * $Id: integer_traits.hpp 32576 2006-02-05 10:19:42Z johnmaddock $
+ * $Id: integer_traits.hpp 80740 2012-09-28 18:34:12Z jewillco $
  *
  * Idea by Beman Dawes, Ed Brey, Steve Cleary, and Nathan Myers
  */
@@ -27,6 +27,17 @@
 #include <wchar.h>
 #endif
 
+//
+// We simply cannot include this header on gcc without getting copious warnings of the kind:
+//
+// ../../../boost/integer_traits.hpp:164:66: warning: use of C99 long long integer constant
+//
+// And yet there is no other reasonable implementation, so we declare this a system header
+// to suppress these warnings.
+//
+#if defined(__GNUC__) && (__GNUC__ >= 4)
+#pragma GCC system_header
+#endif
 
 namespace boost {
 template<class T>
@@ -216,13 +227,27 @@ class integer_traits< ::boost::ulong_long_type>
 template<>
 class integer_traits< ::boost::long_long_type>
   : public std::numeric_limits< ::boost::long_long_type>,
-    public detail::integer_traits_base< ::boost::long_long_type, (1LL << (sizeof(::boost::long_long_type) - 1)), ~(1LL << (sizeof(::boost::long_long_type) - 1))>
+    public detail::integer_traits_base< ::boost::long_long_type, (1LL << (sizeof(::boost::long_long_type) * CHAR_BIT - 1)), ~(1LL << (sizeof(::boost::long_long_type) * CHAR_BIT - 1))>
 { };
 
 template<>
 class integer_traits< ::boost::ulong_long_type>
   : public std::numeric_limits< ::boost::ulong_long_type>,
     public detail::integer_traits_base< ::boost::ulong_long_type, 0, ~0uLL>
+{ };
+
+#elif defined(BOOST_HAS_MS_INT64)
+
+template<>
+class integer_traits< __int64>
+  : public std::numeric_limits< __int64>,
+    public detail::integer_traits_base< __int64, _I64_MIN, _I64_MAX>
+{ };
+
+template<>
+class integer_traits< unsigned __int64>
+  : public std::numeric_limits< unsigned __int64>,
+    public detail::integer_traits_base< unsigned __int64, 0, _UI64_MAX>
 { };
 
 #endif

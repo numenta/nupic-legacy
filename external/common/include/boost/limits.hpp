@@ -6,7 +6,7 @@
 //
 // use this header as a workaround for missing <limits>
 
-//  See http://www.boost.org/libs/utility/limits.html for documentation.
+//  See http://www.boost.org/libs/compatibility/index.html for documentation.
 
 #ifndef BOOST_LIMITS
 #define BOOST_LIMITS

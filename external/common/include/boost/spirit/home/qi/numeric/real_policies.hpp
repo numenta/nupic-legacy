@@ -1,15 +1,19 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2011 Hartmut Kaiser
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(SPIRIT_REAL_POLICIES_APR_17_2006_1158PM)
-#define SPIRIT_REAL_POLICIES_APR_17_2006_1158PM
+#if !defined(SPIRIT_REAL_POLICIES_APRIL_17_2006_1158PM)
+#define SPIRIT_REAL_POLICIES_APRIL_17_2006_1158PM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/spirit/home/qi/numeric/numeric_utils.hpp>
 #include <boost/spirit/home/qi/detail/string_parse.hpp>
-#include <boost/detail/iterator.hpp>                // boost::iterator_traits<>
 
 namespace boost { namespace spirit { namespace qi
 {
@@ -65,37 +69,37 @@ namespace boost { namespace spirit { namespace qi
             return true;
         }
 
-        template <typename Iterator, typename Attribute>
+        template <typename Iterator>
         static bool
-        parse_exp_n(Iterator& first, Iterator const& last, Attribute& attr)
+        parse_exp_n(Iterator& first, Iterator const& last, int& attr)
         {
-            return extract_int<T, 10, 1, -1>::call(first, last, attr);
+            return extract_int<int, 10, 1, -1>::call(first, last, attr);
         }
-        
+
         ///////////////////////////////////////////////////////////////////////
         //  The parse_nan() and parse_inf() functions get called whenever:
         //
-        //    - a number to parse does not start with a digit (after having 
+        //    - a number to parse does not start with a digit (after having
         //      successfully parsed an optional sign)
         //
         //  or
         //
-        //    - after a floating point number of the value 1 (having no 
-        //      exponential part and a fractional part value of 0) has been 
-        //      parsed. 
+        //    - after a floating point number of the value 1 (having no
+        //      exponential part and a fractional part value of 0) has been
+        //      parsed.
         //
         //  The first call allows to recognize representations of NaN or Inf
-        //  starting with a non-digit character (such as NaN, Inf, QNaN etc.). 
+        //  starting with a non-digit character (such as NaN, Inf, QNaN etc.).
         //
-        //  The second call allows to recognize representation formats starting 
-        //  with a 1.0 (such as 1.0#QNAN or 1.0#INF etc.).
+        //  The second call allows to recognize representation formats starting
+        //  with a 1.0 (such as 1.0#NAN or 1.0#INF etc.).
         //
-        //  The functions should return true if a Nan or Inf has been found. In 
-        //  this case the attr should be set to the matched value (NaN or 
+        //  The functions should return true if a Nan or Inf has been found. In
+        //  this case the attr should be set to the matched value (NaN or
         //  Inf). The optional sign will be automatically applied afterwards.
         //
-        //  The default implementation below recognizes representations of NaN 
-        //  and Inf as mandated by the C99 Standard and as proposed for 
+        //  The default implementation below recognizes representations of NaN
+        //  and Inf as mandated by the C99 Standard and as proposed for
         //  inclusion into the C++0x Standard: nan, nan(...), inf and infinity
         //  (the matching is performed case-insensitively).
         ///////////////////////////////////////////////////////////////////////
@@ -105,10 +109,10 @@ namespace boost { namespace spirit { namespace qi
         {
             if (first == last)
                 return false;   // end of input reached
-            
+
             if (*first != 'n' && *first != 'N')
                 return false;   // not "nan"
-            
+
             // nan[(...)] ?
             if (detail::string_parse("nan", "NAN", first, last, unused))
             {
@@ -128,7 +132,7 @@ namespace boost { namespace spirit { namespace qi
                 return true;
             }
             return false;
-        }        
+        }
 
         template <typename Iterator, typename Attribute>
         static bool
@@ -136,12 +140,12 @@ namespace boost { namespace spirit { namespace qi
         {
             if (first == last)
                 return false;   // end of input reached
-            
+
             if (*first != 'i' && *first != 'I')
                 return false;   // not "inf"
-            
+
             // inf or infinity ?
-            if (detail::string_parse("inf", "INF", first, last, unused)) 
+            if (detail::string_parse("inf", "INF", first, last, unused))
             {
                 // skip allowed 'inity' part of infinity
                 detail::string_parse("inity", "INITY", first, last, unused);
@@ -149,7 +153,7 @@ namespace boost { namespace spirit { namespace qi
                 return true;
             }
             return false;
-        }        
+        }
     };
 
     ///////////////////////////////////////////////////////////////////////////

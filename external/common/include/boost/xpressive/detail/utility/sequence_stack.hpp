@@ -21,6 +21,8 @@
 namespace boost { namespace xpressive { namespace detail
 {
 
+struct fill_t {} const fill = {};
+
 //////////////////////////////////////////////////////////////////////////
 // sequence_stack
 //
@@ -30,11 +32,34 @@ template<typename T>
 struct sequence_stack
 {
 private:
+    static T *allocate(std::size_t size, T const &t)
+    {
+        std::size_t i = 0;
+        T *p = (T *)::operator new(size * sizeof(T));
+        try
+        {
+            for(; i < size; ++i)
+                ::new((void *)(p+i)) T(t);
+        }
+        catch(...)
+        {
+            deallocate(p, i);
+            throw;
+        }
+        return p;
+    }
+
+    static void deallocate(T *p, std::size_t i)
+    {
+        while(i-- > 0)
+            (p+i)->~T();
+        ::operator delete(p);
+    }
 
     struct chunk
     {
-        chunk(std::size_t size, std::size_t count, chunk *back, chunk *next)
-          : begin_(new T[ size ])
+        chunk(std::size_t size, T const &t, std::size_t count, chunk *back, chunk *next)
+          : begin_(allocate(size, t))
           , curr_(begin_ + count)
           , end_(begin_ + size)
           , back_(back)
@@ -48,7 +73,7 @@ private:
 
         ~chunk()
         {
-            delete[] this->begin_;
+            deallocate(this->begin_, this->size());
         }
 
         std::size_t size() const
@@ -70,7 +95,7 @@ private:
     T *curr_;
     T *end_;
 
-    T *grow_(std::size_t count)
+    T *grow_(std::size_t count, T const &t)
     {
         if(this->current_chunk_)
         {
@@ -85,7 +110,7 @@ private:
                 this->curr_ = this->current_chunk_->curr_ = this->current_chunk_->begin_ + count;
                 this->end_ = this->current_chunk_->end_;
                 this->begin_ = this->current_chunk_->begin_;
-                std::fill_n(this->begin_, count, T());
+                std::fill_n(this->begin_, count, t);
                 return this->begin_;
             }
 
@@ -93,7 +118,7 @@ private:
             std::size_t new_size = (std::max)(count, static_cast<std::size_t>(this->current_chunk_->size() * 1.5));
 
             // Create a new expr and insert it into the list
-            this->current_chunk_ = new chunk(new_size, count, this->current_chunk_, this->current_chunk_->next_);
+            this->current_chunk_ = new chunk(new_size, t, count, this->current_chunk_, this->current_chunk_->next_);
         }
         else
         {
@@ -101,7 +126,7 @@ private:
             std::size_t new_size = (std::max)(count, static_cast<std::size_t>(256U));
 
             // Create a new expr and insert it into the list
-            this->current_chunk_ = new chunk(new_size, count, 0, 0);
+            this->current_chunk_ = new chunk(new_size, t, count, 0, 0);
         }
 
         this->begin_ = this->current_chunk_->begin_;
@@ -173,8 +198,7 @@ public:
         this->begin_ = this->curr_ = this->end_ = 0;
     }
 
-    template<bool Fill>
-    T *push_sequence(std::size_t count, mpl::bool_<Fill>)
+    T *push_sequence(std::size_t count, T const &t)
     {
         // This is the ptr to return
         T *ptr = this->curr_;
@@ -189,20 +213,17 @@ public:
             this->curr_ = ptr;
 
             // allocate a new block and return a ptr to the new memory
-            return this->grow_(count);
-        }
-
-        if(Fill)
-        {
-            std::fill_n(ptr, count, T());
+            return this->grow_(count, t);
         }
 
         return ptr;
     }
 
-    T *push_sequence(std::size_t count)
+    T *push_sequence(std::size_t count, T const &t, fill_t)
     {
-        return this->push_sequence(count, mpl::true_());
+        T *ptr = this->push_sequence(count, t);
+        std::fill_n(ptr, count, t);
+        return ptr;
     }
 
     void unwind_to(T *ptr)
@@ -228,9 +249,6 @@ public:
         }
     }
 };
-
-typedef mpl::false_ no_fill_t;
-no_fill_t const no_fill = {};
 
 }}} // namespace boost::xpressive::detail
 

@@ -54,7 +54,7 @@ text_iarchive_impl<Archive>::load(std::string &s)
     #endif
         s.resize(size);
     if(0 < size)
-    	is.read(&(*s.begin()), size);
+        is.read(&(*s.begin()), size);
 }
 
 #ifndef BOOST_NO_CWCHAR

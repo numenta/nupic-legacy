@@ -1,12 +1,12 @@
 #ifndef BOOST_THREAD_WIN32_MUTEX_HPP
 #define BOOST_THREAD_WIN32_MUTEX_HPP
 // (C) Copyright 2005-7 Anthony Williams
+// (C) Copyright 2011-2012 Vicente J. Botet Escriba
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include "basic_timed_mutex.hpp"
-#include <boost/utility.hpp>
+#include <boost/thread/win32/basic_timed_mutex.hpp>
 #include <boost/thread/exceptions.hpp>
 #include <boost/thread/locks.hpp>
 
@@ -20,10 +20,10 @@ namespace boost
     }
 
     class mutex:
-        boost::noncopyable,
         public ::boost::detail::underlying_mutex
     {
     public:
+        BOOST_THREAD_NO_COPYABLE(mutex)
         mutex()
         {
             initialize();
@@ -40,10 +40,10 @@ namespace boost
     typedef mutex try_mutex;
 
     class timed_mutex:
-        boost::noncopyable,
         public ::boost::detail::basic_timed_mutex
     {
     public:
+        BOOST_THREAD_NO_COPYABLE(timed_mutex)
         timed_mutex()
         {
             initialize();

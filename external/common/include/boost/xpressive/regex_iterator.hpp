@@ -118,9 +118,13 @@ struct regex_iterator
       , basic_regex<BidiIter> const &rex
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex, flags))
+      : impl_()
     {
-        this->next_();
+        if(0 != rex.regex_id()) // Empty regexes are guaranteed to match nothing
+        {
+          this->impl_ = new impl_type_(begin, begin, end, begin, rex, flags);
+          this->next_();
+        }
     }
 
     template<typename LetExpr>
@@ -132,10 +136,14 @@ struct regex_iterator
       , detail::let_<LetExpr> const &args
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex, flags))
+      : impl_()
     {
-        detail::bind_args(args, this->impl_->what_);
-        this->next_();
+        if(0 != rex.regex_id()) // Empty regexes are guaranteed to match nothing
+        {
+          this->impl_ = new impl_type_(begin, begin, end, begin, rex, flags);
+          detail::bind_args(args, this->impl_->what_);
+          this->next_();
+        }
     }
 
     regex_iterator(regex_iterator<BidiIter> const &that)

@@ -33,6 +33,7 @@
 #include <boost/mpl/if.hpp> // for boost::mpl::if_c.
 #include <boost/mpl/and.hpp> // for boost::mpl::if_c.
 #include <boost/mpl/or.hpp> // for boost::mpl::if_c.
+#include <boost/mpl/not.hpp> // for boost::mpl::if_c.
 
 #ifdef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 #include <boost/static_assert.hpp>
@@ -69,6 +70,12 @@ namespace boost
       { // If T is integral type, then promote to double.
         typedef typename mpl::if_<is_integral<T>, double, T>::type type;
       };
+      // These full specialisations reduce mpl::if_ usage and speed up
+      // compilation:
+      template <> struct promote_arg<float> { typedef float type; };
+      template <> struct promote_arg<double>{ typedef double type; };
+      template <> struct promote_arg<long double> { typedef long double type; };
+      template <> struct promote_arg<int> {  typedef double type; };
 
       template <class T1, class T2>
       struct promote_args_2
@@ -87,8 +94,26 @@ namespace boost
           >::type
           >::type,
           // else one or the other is a user-defined type:
-          typename mpl::if_< ::boost::is_convertible<T1P, T2P>, T2P, T1P>::type>::type type;
+          typename mpl::if_< typename mpl::and_<mpl::not_<is_floating_point<T2P> >, ::boost::is_convertible<T1P, T2P> >, T2P, T1P>::type>::type type;
       }; // promote_arg2
+      // These full specialisations reduce mpl::if_ usage and speed up
+      // compilation:
+      template <> struct promote_args_2<float, float> { typedef float type; };
+      template <> struct promote_args_2<double, double>{ typedef double type; };
+      template <> struct promote_args_2<long double, long double> { typedef long double type; };
+      template <> struct promote_args_2<int, int> {  typedef double type; };
+      template <> struct promote_args_2<int, float> {  typedef double type; };
+      template <> struct promote_args_2<float, int> {  typedef double type; };
+      template <> struct promote_args_2<int, double> {  typedef double type; };
+      template <> struct promote_args_2<double, int> {  typedef double type; };
+      template <> struct promote_args_2<int, long double> {  typedef long double type; };
+      template <> struct promote_args_2<long double, int> {  typedef long double type; };
+      template <> struct promote_args_2<float, double> {  typedef double type; };
+      template <> struct promote_args_2<double, float> {  typedef double type; };
+      template <> struct promote_args_2<float, long double> {  typedef long double type; };
+      template <> struct promote_args_2<long double, float> {  typedef long double type; };
+      template <> struct promote_args_2<double, long double> {  typedef long double type; };
+      template <> struct promote_args_2<long double, double> {  typedef long double type; };
 
       template <class T1, class T2=float, class T3=float, class T4=float, class T5=float, class T6=float>
       struct promote_args

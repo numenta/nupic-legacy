@@ -30,8 +30,8 @@ namespace detail
 #   include BOOST_PP_ASSIGN_SLOT(1)
 
     BOOST_STATIC_CONSTANT(bits_t, value = (
-        ::boost::function_types::detail::bits<Tag>::value & BOOST_FT_default_cc 
-      | ::boost::function_types::detail::bits<RefTag>::value & BOOST_PP_SLOT(1)
+        (::boost::function_types::detail::bits<Tag>::value & BOOST_FT_default_cc) 
+      | (::boost::function_types::detail::bits<RefTag>::value & BOOST_PP_SLOT(1))
     ));
   };
 

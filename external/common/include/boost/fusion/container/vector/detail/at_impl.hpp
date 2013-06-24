@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -27,17 +27,24 @@ namespace boost { namespace fusion
             template <typename Sequence, typename N>
             struct apply 
             {
-                typedef mpl::at<typename Sequence::types, N> element;
-                typedef typename
-                    mpl::eval_if<
-                        is_const<Sequence>
-                      , detail::cref_result<element>
-                      , detail::ref_result<element>
-                    >::type
-                type;
+                typedef typename mpl::at<typename Sequence::types, N>::type element;
+                typedef typename detail::ref_result<element>::type type;
     
                 static type
                 call(Sequence& v)
+                {
+                    return v.at_impl(N());
+                }
+            };
+
+            template <typename Sequence, typename N>
+            struct apply <Sequence const, N>
+            {
+                typedef typename mpl::at<typename Sequence::types, N>::type element;
+                typedef typename detail::cref_result<element>::type type;
+    
+                static type
+                call(Sequence const& v)
                 {
                     return v.at_impl(N());
                 }

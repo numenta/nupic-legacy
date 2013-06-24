@@ -90,8 +90,8 @@ struct multichar_seekable_filter_tag
       seekable_filter_tag
     { };
 struct multichar_dual_use_filter_tag 
-    : filter_tag, 
-      dual_use
+    : multichar_tag, 
+      dual_use_filter_tag
     { };
 
     //

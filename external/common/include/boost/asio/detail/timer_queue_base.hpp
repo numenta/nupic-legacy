@@ -1,8 +1,8 @@
 //
-// timer_queue_base.hpp
-// ~~~~~~~~~~~~~~~~~~~~
+// detail/timer_queue_base.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,15 +15,12 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/socket_types.hpp> // Must come before posix_time.
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
+#include <boost/asio/detail/config.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
+#include <boost/asio/detail/op_queue.hpp>
+#include <boost/asio/detail/operation.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -33,6 +30,9 @@ class timer_queue_base
   : private noncopyable
 {
 public:
+  // Constructor.
+  timer_queue_base() : next_(0) {}
+
   // Destructor.
   virtual ~timer_queue_base() {}
 
@@ -40,19 +40,22 @@ public:
   virtual bool empty() const = 0;
 
   // Get the time to wait until the next timer.
-  virtual boost::posix_time::time_duration wait_duration() const = 0;
+  virtual long wait_duration_msec(long max_duration) const = 0;
 
-  // Dispatch all ready timers.
-  virtual void dispatch_timers() = 0;
+  // Get the time to wait until the next timer.
+  virtual long wait_duration_usec(long max_duration) const = 0;
 
-  // Dispatch any pending cancels for timers.
-  virtual void dispatch_cancellations() = 0;
+  // Dequeue all ready timers.
+  virtual void get_ready_timers(op_queue<operation>& ops) = 0;
 
-  // Complete all timers that are waiting to be completed.
-  virtual void complete_timers() = 0;
+  // Dequeue all timers.
+  virtual void get_all_timers(op_queue<operation>& ops) = 0;
 
-  // Destroy all timers.
-  virtual void destroy_timers() = 0;
+private:
+  friend class timer_queue_set;
+
+  // Next timer queue in the set.
+  timer_queue_base* next_;
 };
 
 } // namespace detail

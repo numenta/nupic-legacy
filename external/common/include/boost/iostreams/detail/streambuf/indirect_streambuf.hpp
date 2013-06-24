@@ -35,6 +35,7 @@
 #include <boost/iostreams/traits.hpp>
 #include <boost/iostreams/operations.hpp>
 #include <boost/mpl/if.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
 // Must come last.
@@ -151,7 +152,7 @@ indirect_streambuf<T, Tr, Alloc, Mode>::indirect_streambuf()
 
 template<typename T, typename Tr, typename Alloc, typename Mode>
 void indirect_streambuf<T, Tr, Alloc, Mode>::open
-    (const T& t, int buffer_size, int pback_size)
+    (const T& t, std::streamsize buffer_size, std::streamsize pback_size)
 {
     using namespace std;
 
@@ -167,7 +168,7 @@ void indirect_streambuf<T, Tr, Alloc, Mode>::open
 
     // Construct input buffer.
     if (can_read()) {
-        pback_size_ = (std::max)(2, pback_size); // STLPort needs 2.
+        pback_size_ = (std::max)(std::streamsize(2), pback_size); // STLPort needs 2.
         std::streamsize size =
             pback_size_ +
             ( buffer_size ? buffer_size: 1 );
@@ -188,6 +189,7 @@ void indirect_streambuf<T, Tr, Alloc, Mode>::open
     if (can_write() && buffer_size > 1)
         flags_ |= f_output_buffered;
     this->set_true_eof(false);
+    this->set_needs_close();
 }
 
 template<typename T, typename Tr, typename Alloc, typename Mode>
@@ -274,7 +276,7 @@ indirect_streambuf<T, Tr, Alloc, Mode>::pbackfail(int_type c)
             *gptr() = traits_type::to_char_type(c);
         return traits_type::not_eof(c);
     } else {
-        throw bad_putback();
+        boost::throw_exception(bad_putback());
     }
 }
 
@@ -282,8 +284,8 @@ template<typename T, typename Tr, typename Alloc, typename Mode>
 typename indirect_streambuf<T, Tr, Alloc, Mode>::int_type
 indirect_streambuf<T, Tr, Alloc, Mode>::overflow(int_type c)
 {
-    if ( output_buffered() && pptr() == 0 ||
-         shared_buffer() && gptr() != 0 )
+    if ( (output_buffered() && pptr() == 0) ||
+         (shared_buffer() && gptr() != 0) )
     {
         init_put_area();
     }

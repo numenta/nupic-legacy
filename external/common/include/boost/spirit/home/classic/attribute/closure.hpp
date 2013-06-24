@@ -65,7 +65,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     {
     public:
 
-        typedef typename phoenix::tuple_element<0,
+        typedef typename ::phoenix::tuple_element<0,
             typename ClosureT::tuple_t>::type attr_t;
         typedef ClosureT base_t;
         typedef closure_context_linker<closure_context<ClosureT> >
@@ -81,11 +81,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
         template <typename ResultT, typename ParserT, typename ScannerT>
         ResultT& post_parse(ResultT& hit, ParserT const&, ScannerT const&)
-        { hit.value(frame[phoenix::tuple_index<0>()]); return hit; }
+        { hit.value(frame[::phoenix::tuple_index<0>()]); return hit; }
 
     private:
 
-        phoenix::closure_frame<typename ClosureT::phoenix_closure_t> frame;
+        ::phoenix::closure_frame<typename ClosureT::phoenix_closure_t> frame;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     public:
 
         init_closure_context(ClosureT const& clos)
-        : frame(clos.subject(), phoenix::convert_actors<tuple_t>(clos.init)) {}
+        : frame(clos.subject(), ::phoenix::convert_actors<tuple_t>(clos.init)) {}
 
         ~init_closure_context() {}
 
@@ -121,11 +121,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
         template <typename ResultT, typename ParserT, typename ScannerT>
         ResultT& post_parse(ResultT& hit, ParserT const&, ScannerT const&)
-        { hit.value(frame[phoenix::tuple_index<0>()]); return hit; }
+        { hit.value(frame[::phoenix::tuple_index<0>()]); return hit; }
 
     private:
 
-        phoenix::closure_frame<closure_t> frame;
+        ::phoenix::closure_frame<closure_t> frame;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -141,7 +141,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         typedef unary<ParserT, parser<self_t> >                     base_t;
         typedef typename ParserT::phoenix_closure_t                 closure_t;
         typedef typename ParserT::tuple_t                           tuple_t;
-        typedef typename phoenix::tuple_element<0, tuple_t>::type   attr_t;
+        typedef typename ::phoenix::tuple_element<0, tuple_t>::type   attr_t;
 
         template <typename ScannerT>
         struct result
@@ -210,7 +210,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     #endif
     >
     struct closure :
-        public phoenix::closure<
+        public ::phoenix::closure<
             T0, T1, T2
     #if BOOST_SPIRIT_CLOSURE_LIMIT > 3
         ,   T3, T4, T5
@@ -226,7 +226,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     #endif
         >
     {
-        typedef phoenix::closure<
+        typedef ::phoenix::closure<
                 T0, T1, T2
     #if BOOST_SPIRIT_CLOSURE_LIMIT > 3
             ,   T3, T4, T5
@@ -257,19 +257,19 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             template <typename A>
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type
                 >
             >
             operator()(A const &a) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef phoenix::tuple<a_t> actor_tuple_t;
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef ::phoenix::tuple<a_t> actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a)
+                            ::phoenix::as_actor<A>::convert(a)
                         )
                     );
             }
@@ -277,22 +277,22 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             template <typename A, typename B>
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type
                 >
             >
             operator()(A const &a, B const &b) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef phoenix::tuple<a_t, b_t> actor_tuple_t;
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef ::phoenix::tuple<a_t, b_t> actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b)
                         )
                     );
             }
@@ -300,25 +300,25 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             template <typename A, typename B, typename C>
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type
                 >
             >
             operator()(A const &a, B const &b, C const &c) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef phoenix::tuple<a_t, b_t, c_t> actor_tuple_t;
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef ::phoenix::tuple<a_t, b_t, c_t> actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c)
                         )
                     );
             }
@@ -330,32 +330,32 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type
                 >
             >
             operator()(
                 A const &a, B const &b, C const &c, D const &d
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d)
                         )
                     );
             }
@@ -365,35 +365,35 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type
                 >
             >
             operator()(
                 A const &a, B const &b, C const &c, D const &d, E const &e
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e)
                         )
                     );
             }
@@ -404,13 +404,13 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type
                 >
             >
             operator()(
@@ -418,25 +418,25 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 F const &f
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f)
                         )
                     );
             }
@@ -449,14 +449,14 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type
                 >
             >
             operator()(
@@ -464,27 +464,27 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 F const &f, G const &g
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g)
                         )
                     );
             }
@@ -495,15 +495,15 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type
                 >
             >
             operator()(
@@ -511,29 +511,29 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 F const &f, G const &g, H const &h
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h)
                         )
                     );
             }
@@ -544,16 +544,16 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type
                 >
             >
             operator()(
@@ -561,31 +561,31 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 F const &f, G const &g, H const &h, I const &i
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i)
                         )
                     );
             }
@@ -598,17 +598,17 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type
                 >
             >
             operator()(
@@ -616,33 +616,33 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 F const &f, G const &g, H const &h, I const &i, J const &j
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t
                         > actor_tuple_t;
 
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j)
                         )
                     );
             }
@@ -654,18 +654,18 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type,
-                    typename phoenix::as_actor<K>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type,
+                    typename ::phoenix::as_actor<K>::type
                 >
             >
             operator()(
@@ -674,18 +674,18 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 K const &k
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef typename phoenix::as_actor<K>::type k_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef typename ::phoenix::as_actor<K>::type k_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t,
                             k_t
                         > actor_tuple_t;
@@ -693,17 +693,17 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j),
-                            phoenix::as_actor<K>::convert(k)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j),
+                            ::phoenix::as_actor<K>::convert(k)
                         )
                     );
             }
@@ -715,19 +715,19 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type,
-                    typename phoenix::as_actor<K>::type,
-                    typename phoenix::as_actor<L>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type,
+                    typename ::phoenix::as_actor<K>::type,
+                    typename ::phoenix::as_actor<L>::type
                 >
             >
             operator()(
@@ -736,19 +736,19 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 K const &k, L const &l
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef typename phoenix::as_actor<K>::type k_t;
-                typedef typename phoenix::as_actor<L>::type l_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef typename ::phoenix::as_actor<K>::type k_t;
+                typedef typename ::phoenix::as_actor<L>::type l_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t,
                             k_t, l_t
                         > actor_tuple_t;
@@ -756,18 +756,18 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j),
-                            phoenix::as_actor<K>::convert(k),
-                            phoenix::as_actor<L>::convert(l)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j),
+                            ::phoenix::as_actor<K>::convert(k),
+                            ::phoenix::as_actor<L>::convert(l)
                         )
                     );
             }
@@ -781,20 +781,20 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type,
-                    typename phoenix::as_actor<K>::type,
-                    typename phoenix::as_actor<L>::type,
-                    typename phoenix::as_actor<M>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type,
+                    typename ::phoenix::as_actor<K>::type,
+                    typename ::phoenix::as_actor<L>::type,
+                    typename ::phoenix::as_actor<M>::type
                 >
             >
             operator()(
@@ -803,20 +803,20 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 K const &k, L const &l, M const &m
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef typename phoenix::as_actor<K>::type k_t;
-                typedef typename phoenix::as_actor<L>::type l_t;
-                typedef typename phoenix::as_actor<M>::type m_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef typename ::phoenix::as_actor<K>::type k_t;
+                typedef typename ::phoenix::as_actor<L>::type l_t;
+                typedef typename ::phoenix::as_actor<M>::type m_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t,
                             k_t, l_t, m_t
                         > actor_tuple_t;
@@ -824,19 +824,19 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j),
-                            phoenix::as_actor<K>::convert(k),
-                            phoenix::as_actor<L>::convert(l),
-                            phoenix::as_actor<M>::convert(m)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j),
+                            ::phoenix::as_actor<K>::convert(k),
+                            ::phoenix::as_actor<L>::convert(l),
+                            ::phoenix::as_actor<M>::convert(m)
                         )
                     );
             }
@@ -848,21 +848,21 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type,
-                    typename phoenix::as_actor<K>::type,
-                    typename phoenix::as_actor<L>::type,
-                    typename phoenix::as_actor<M>::type,
-                    typename phoenix::as_actor<N>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type,
+                    typename ::phoenix::as_actor<K>::type,
+                    typename ::phoenix::as_actor<L>::type,
+                    typename ::phoenix::as_actor<M>::type,
+                    typename ::phoenix::as_actor<N>::type
                 >
             >
             operator()(
@@ -871,21 +871,21 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 K const &k, L const &l, M const &m, N const &n
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef typename phoenix::as_actor<K>::type k_t;
-                typedef typename phoenix::as_actor<L>::type l_t;
-                typedef typename phoenix::as_actor<M>::type m_t;
-                typedef typename phoenix::as_actor<N>::type n_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef typename ::phoenix::as_actor<K>::type k_t;
+                typedef typename ::phoenix::as_actor<L>::type l_t;
+                typedef typename ::phoenix::as_actor<M>::type m_t;
+                typedef typename ::phoenix::as_actor<N>::type n_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t,
                             k_t, l_t, m_t, n_t
                         > actor_tuple_t;
@@ -893,20 +893,20 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j),
-                            phoenix::as_actor<K>::convert(k),
-                            phoenix::as_actor<L>::convert(l),
-                            phoenix::as_actor<M>::convert(m),
-                            phoenix::as_actor<N>::convert(n)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j),
+                            ::phoenix::as_actor<K>::convert(k),
+                            ::phoenix::as_actor<L>::convert(l),
+                            ::phoenix::as_actor<M>::convert(m),
+                            ::phoenix::as_actor<N>::convert(n)
                         )
                     );
             }
@@ -918,22 +918,22 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             >
             init_closure_parser<
                 DerivedT2,
-                phoenix::tuple<
-                    typename phoenix::as_actor<A>::type,
-                    typename phoenix::as_actor<B>::type,
-                    typename phoenix::as_actor<C>::type,
-                    typename phoenix::as_actor<D>::type,
-                    typename phoenix::as_actor<E>::type,
-                    typename phoenix::as_actor<F>::type,
-                    typename phoenix::as_actor<G>::type,
-                    typename phoenix::as_actor<H>::type,
-                    typename phoenix::as_actor<I>::type,
-                    typename phoenix::as_actor<J>::type,
-                    typename phoenix::as_actor<K>::type,
-                    typename phoenix::as_actor<L>::type,
-                    typename phoenix::as_actor<M>::type,
-                    typename phoenix::as_actor<N>::type,
-                    typename phoenix::as_actor<O>::type
+                ::phoenix::tuple<
+                    typename ::phoenix::as_actor<A>::type,
+                    typename ::phoenix::as_actor<B>::type,
+                    typename ::phoenix::as_actor<C>::type,
+                    typename ::phoenix::as_actor<D>::type,
+                    typename ::phoenix::as_actor<E>::type,
+                    typename ::phoenix::as_actor<F>::type,
+                    typename ::phoenix::as_actor<G>::type,
+                    typename ::phoenix::as_actor<H>::type,
+                    typename ::phoenix::as_actor<I>::type,
+                    typename ::phoenix::as_actor<J>::type,
+                    typename ::phoenix::as_actor<K>::type,
+                    typename ::phoenix::as_actor<L>::type,
+                    typename ::phoenix::as_actor<M>::type,
+                    typename ::phoenix::as_actor<N>::type,
+                    typename ::phoenix::as_actor<O>::type
                 >
             >
             operator()(
@@ -942,22 +942,22 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 K const &k, L const &l, M const &m, N const &n, O const &o
             ) const
             {
-                typedef typename phoenix::as_actor<A>::type a_t;
-                typedef typename phoenix::as_actor<B>::type b_t;
-                typedef typename phoenix::as_actor<C>::type c_t;
-                typedef typename phoenix::as_actor<D>::type d_t;
-                typedef typename phoenix::as_actor<E>::type e_t;
-                typedef typename phoenix::as_actor<F>::type f_t;
-                typedef typename phoenix::as_actor<G>::type g_t;
-                typedef typename phoenix::as_actor<H>::type h_t;
-                typedef typename phoenix::as_actor<I>::type i_t;
-                typedef typename phoenix::as_actor<J>::type j_t;
-                typedef typename phoenix::as_actor<K>::type k_t;
-                typedef typename phoenix::as_actor<L>::type l_t;
-                typedef typename phoenix::as_actor<M>::type m_t;
-                typedef typename phoenix::as_actor<N>::type n_t;
-                typedef typename phoenix::as_actor<O>::type o_t;
-                typedef phoenix::tuple<
+                typedef typename ::phoenix::as_actor<A>::type a_t;
+                typedef typename ::phoenix::as_actor<B>::type b_t;
+                typedef typename ::phoenix::as_actor<C>::type c_t;
+                typedef typename ::phoenix::as_actor<D>::type d_t;
+                typedef typename ::phoenix::as_actor<E>::type e_t;
+                typedef typename ::phoenix::as_actor<F>::type f_t;
+                typedef typename ::phoenix::as_actor<G>::type g_t;
+                typedef typename ::phoenix::as_actor<H>::type h_t;
+                typedef typename ::phoenix::as_actor<I>::type i_t;
+                typedef typename ::phoenix::as_actor<J>::type j_t;
+                typedef typename ::phoenix::as_actor<K>::type k_t;
+                typedef typename ::phoenix::as_actor<L>::type l_t;
+                typedef typename ::phoenix::as_actor<M>::type m_t;
+                typedef typename ::phoenix::as_actor<N>::type n_t;
+                typedef typename ::phoenix::as_actor<O>::type o_t;
+                typedef ::phoenix::tuple<
                             a_t, b_t, c_t, d_t, e_t, f_t, g_t, h_t, i_t, j_t,
                             k_t, l_t, m_t, n_t, o_t
                         > actor_tuple_t;
@@ -965,21 +965,21 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 return init_closure_parser<DerivedT2, actor_tuple_t>(
                         aux_derived(),
                         actor_tuple_t(
-                            phoenix::as_actor<A>::convert(a),
-                            phoenix::as_actor<B>::convert(b),
-                            phoenix::as_actor<C>::convert(c),
-                            phoenix::as_actor<D>::convert(d),
-                            phoenix::as_actor<E>::convert(e),
-                            phoenix::as_actor<F>::convert(f),
-                            phoenix::as_actor<G>::convert(g),
-                            phoenix::as_actor<H>::convert(h),
-                            phoenix::as_actor<I>::convert(i),
-                            phoenix::as_actor<J>::convert(j),
-                            phoenix::as_actor<K>::convert(k),
-                            phoenix::as_actor<L>::convert(l),
-                            phoenix::as_actor<M>::convert(m),
-                            phoenix::as_actor<N>::convert(n),
-                            phoenix::as_actor<O>::convert(o)
+                            ::phoenix::as_actor<A>::convert(a),
+                            ::phoenix::as_actor<B>::convert(b),
+                            ::phoenix::as_actor<C>::convert(c),
+                            ::phoenix::as_actor<D>::convert(d),
+                            ::phoenix::as_actor<E>::convert(e),
+                            ::phoenix::as_actor<F>::convert(f),
+                            ::phoenix::as_actor<G>::convert(g),
+                            ::phoenix::as_actor<H>::convert(h),
+                            ::phoenix::as_actor<I>::convert(i),
+                            ::phoenix::as_actor<J>::convert(j),
+                            ::phoenix::as_actor<K>::convert(k),
+                            ::phoenix::as_actor<L>::convert(l),
+                            ::phoenix::as_actor<M>::convert(m),
+                            ::phoenix::as_actor<N>::convert(n),
+                            ::phoenix::as_actor<O>::convert(o)
                         )
                     );
             }
@@ -1006,7 +1006,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         template <typename TupleT>
         struct result
         {
-            typedef typename phoenix::actor_result<ActorT, TupleT>
+            typedef typename ::phoenix::actor_result<ActorT, TupleT>
                 ::plain_type::iterator type;
         };
 
@@ -1014,7 +1014,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         : actor(actor_) {}
 
         template <typename TupleT>
-        typename phoenix::actor_result<self_t, TupleT>::type
+        typename ::phoenix::actor_result<self_t, TupleT>::type
         eval(TupleT const& /*args*/) const
         { return actor().begin(); }
 
@@ -1029,7 +1029,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         template <typename TupleT>
         struct result
         {
-            typedef typename phoenix::actor_result<ActorT, TupleT>
+            typedef typename ::phoenix::actor_result<ActorT, TupleT>
                 ::plain_type::iterator type;
         };
 
@@ -1037,7 +1037,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         : actor(actor_) {}
 
         template <typename TupleT>
-        typename phoenix::actor_result<self_t, TupleT>::type
+        typename ::phoenix::actor_result<self_t, TupleT>::type
         eval(TupleT const& /*args*/) const
         { return actor().end(); }
 
@@ -1046,14 +1046,14 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
     template <typename BaseT>
     inline f_chseq<
-        phoenix::actor<container_begin<phoenix::actor<BaseT> > >,
-        phoenix::actor<container_end<phoenix::actor<BaseT> > >
+        ::phoenix::actor<container_begin< ::phoenix::actor<BaseT> > >,
+        ::phoenix::actor<container_end< ::phoenix::actor<BaseT> > >
     >
-    f_chseq_p(phoenix::actor<BaseT> const& a)
+    f_chseq_p(::phoenix::actor<BaseT> const& a)
     {
-        typedef phoenix::actor<container_begin<phoenix::actor<BaseT> > >
+        typedef ::phoenix::actor<container_begin< ::phoenix::actor<BaseT> > >
             container_begin_t;
-        typedef phoenix::actor<container_end<phoenix::actor<BaseT> > >
+        typedef ::phoenix::actor<container_end< ::phoenix::actor<BaseT> > >
             container_end_t;
         typedef f_chseq<container_begin_t, container_end_t> result_t;
 
@@ -1062,14 +1062,14 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
     template <typename BaseT>
     inline f_strlit<
-        phoenix::actor<container_begin<phoenix::actor<BaseT> > >,
-        phoenix::actor<container_end<phoenix::actor<BaseT> > >
+        ::phoenix::actor<container_begin< ::phoenix::actor<BaseT> > >,
+        ::phoenix::actor<container_end< ::phoenix::actor<BaseT> > >
     >
-    f_str_p(phoenix::actor<BaseT> const& a)
+    f_str_p(::phoenix::actor<BaseT> const& a)
     {
-        typedef phoenix::actor<container_begin<phoenix::actor<BaseT> > >
+        typedef ::phoenix::actor<container_begin< ::phoenix::actor<BaseT> > >
             container_begin_t;
-        typedef phoenix::actor<container_end<phoenix::actor<BaseT> > >
+        typedef ::phoenix::actor<container_end< ::phoenix::actor<BaseT> > >
             container_end_t;
         typedef f_strlit<container_begin_t, container_end_t> result_t;
 

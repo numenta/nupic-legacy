@@ -16,7 +16,6 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <boost/type_traits/is_same.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 
@@ -43,16 +42,16 @@ private:
     > super_t;
 
     typedef head_iterator<Predicate, Base> this_t;
-    typedef BOOST_DEDUCED_TYPENAME super_t::value_type value_type;
-    typedef BOOST_DEDUCED_TYPENAME super_t::reference reference_type;
+    typedef super_t::value_type value_type;
+    typedef super_t::reference reference_type;
 
     reference_type dereference_impl(){
         if(! m_end){
-            while(! m_predicate(* base_reference()))
-                ++ base_reference();
+            while(! m_predicate(* this->base_reference()))
+                ++ this->base_reference();
             m_end = true;
         }
-        return * base_reference();
+        return * this->base_reference();
     }
 
     reference_type dereference() const {

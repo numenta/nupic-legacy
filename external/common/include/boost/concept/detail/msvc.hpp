@@ -5,6 +5,7 @@
 # define BOOST_CONCEPT_CHECK_MSVC_DWA2006429_HPP
 
 # include <boost/preprocessor/cat.hpp>
+# include <boost/concept/detail/backward_compatibility.hpp>
 
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
 #  include <boost/concept/detail/has_constraints.hpp>
@@ -12,7 +13,8 @@
 # endif
 
 
-namespace boost { namespace concept {
+namespace boost { namespace concepts {
+
 
 template <class Model>
 struct check
@@ -22,7 +24,19 @@ struct check
         x->~Model();
     }
 };
-  
+
+# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
+struct failed {};
+template <class Model>
+struct check<failed ************ Model::************>
+{
+    virtual void failed(Model* x)
+    {
+        x->~Model();
+    }
+};
+# endif
+
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
   
 namespace detail
@@ -38,7 +52,11 @@ struct require
   : mpl::if_c<
         not_satisfied<Model>::value
       , detail::constraint
+# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
       , check<Model>
+# else
+      , check<failed ************ Model::************>
+# endif 
         >::type
 {};
       
@@ -46,7 +64,11 @@ struct require
   
 template <class Model>
 struct require
-  : check<Model>
+# ifndef BOOST_NO_PARTIAL_SPECIALIZATION
+    : check<Model>
+# else
+    : check<failed ************ Model::************>
+# endif 
 {};
   
 # endif
@@ -70,7 +92,7 @@ struct require<void(*)(Model)>
 enum                                                \
 {                                                   \
     BOOST_PP_CAT(boost_concept_check,__LINE__) =    \
-    sizeof(::boost::concept::require<ModelFnPtr>)    \
+    sizeof(::boost::concepts::require<ModelFnPtr>)    \
 }
   
 # else // Not vc-7.1
@@ -83,7 +105,7 @@ require_(void(*)(Model));
 enum                                                    \
 {                                                       \
     BOOST_PP_CAT(boost_concept_check,__LINE__) =        \
-      sizeof(::boost::concept::require_((ModelFnPtr)0)) \
+      sizeof(::boost::concepts::require_((ModelFnPtr)0)) \
 }
   
 # endif

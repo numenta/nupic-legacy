@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : fixed sized mapping with specified invalid value
 // ***************************************************************************
@@ -36,7 +36,7 @@ namespace boost {
 namespace unit_test {
 
 // configurable maximum fixed sized mapping size supported by this header.
-// You could redefine it before inclusion of this file.
+// You can redefine it before inclusion of this file.
 #ifndef MAX_MAP_SIZE
 #define MAX_MAP_SIZE 20
 #endif

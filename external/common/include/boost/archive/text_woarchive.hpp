@@ -34,8 +34,15 @@ namespace std{
 #include <boost/archive/detail/auto_link_warchive.hpp>
 #include <boost/archive/basic_text_oprimitive.hpp>
 #include <boost/archive/basic_text_oarchive.hpp>
+#include <boost/archive/detail/register_archive.hpp>
+#include <boost/serialization/item_version_type.hpp>
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
+
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
 
 namespace boost { 
 namespace archive {
@@ -57,6 +64,12 @@ protected:
     void save(const T & t){
         this->newtoken();
         basic_text_oprimitive<std::wostream>::save(t);
+    }
+    void save(const version_type & t){
+        save(static_cast<const unsigned int>(t));
+    }
+    void save(const boost::serialization::item_version_type & t){
+        save(static_cast<const unsigned int>(t));
     }
     BOOST_WARCHIVE_DECL(void)
     save(const char * t);
@@ -82,7 +95,7 @@ protected:
     }
 public:
     void save_binary(const void *address, std::size_t count){
-        put(L'\n');
+        put(static_cast<wchar_t>('\n'));
         this->end_preamble();
         #if ! defined(__MWERKS__)
         this->basic_text_oprimitive<std::wostream>::save_binary(
@@ -92,7 +105,7 @@ public:
             address, 
             count
         );
-        put(L'\n');
+        put(static_cast<wchar_t>('\n'));
         this->delimiter = this->none;
     }
 
@@ -121,6 +134,10 @@ typedef text_woarchive naked_text_woarchive;
 
 // required by export
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(boost::archive::text_woarchive)
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

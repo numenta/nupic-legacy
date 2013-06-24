@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,115 +6,150 @@
 #if !defined(BOOST_SPIRIT_KARMA_LEFT_ALIGNMENT_FEB_27_2007_1216PM)
 #define BOOST_SPIRIT_KARMA_LEFT_ALIGNMENT_FEB_27_2007_1216PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/support/component.hpp>
-#include <boost/spirit/home/support/attribute_of.hpp>
+#include <boost/spirit/home/karma/meta_compiler.hpp>
+#include <boost/spirit/home/karma/generator.hpp>
 #include <boost/spirit/home/karma/domain.hpp>
-#include <boost/spirit/home/karma/directive/detail/left_alignment_generate.hpp>
+#include <boost/spirit/home/karma/detail/output_iterator.hpp>
+#include <boost/spirit/home/karma/detail/default_width.hpp>
+#include <boost/spirit/home/karma/delimit_out.hpp>
+#include <boost/spirit/home/karma/auxiliary/lazy.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/karma/detail/attributes.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
+#include <boost/fusion/include/at.hpp>
+#include <boost/fusion/include/vector.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/integer_traits.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/detail/workaround.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
-//
-//  The BOOST_KARMA_DEFAULT_FIELD_LENGTH specifies the default field length
-//  to be used for padding.
-//
-///////////////////////////////////////////////////////////////////////////////
-#if !defined(BOOST_KARMA_DEFAULT_FIELD_LENGTH)
-#define BOOST_KARMA_DEFAULT_FIELD_LENGTH 10
-#endif
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
 
+    // enables left_align[]
+    template <>
+    struct use_directive<karma::domain, tag::left_align>
+      : mpl::true_ {};
+
+    // enables left_align(d)[g] and left_align(w)[g], where d is a generator
+    // and w is a maximum width
+    template <typename T>
+    struct use_directive<karma::domain
+          , terminal_ex<tag::left_align, fusion::vector1<T> > >
+      : mpl::true_ {};
+
+    // enables *lazy* left_align(d)[g], where d provides a generator
+    template <>
+    struct use_lazy_directive<karma::domain, tag::left_align, 1> 
+      : mpl::true_ {};
+
+    // enables left_align(w, d)[g], where d is a generator and w is a maximum 
+    // width
+    template <typename Width, typename Padding>
+    struct use_directive<karma::domain
+          , terminal_ex<tag::left_align, fusion::vector2<Width, Padding> > >
+      : spirit::traits::matches<karma::domain, Padding> {};
+
+    // enables *lazy* left_align(w, d)[g], where d provides a generator and w 
+    // is a maximum width
+    template <>
+    struct use_lazy_directive<karma::domain, tag::left_align, 2> 
+      : mpl::true_ {};
+
+}}
+
+///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    using spirit::left_align;
+#endif
+    using spirit::left_align_type;
+
+    namespace detail
+    {
+        ///////////////////////////////////////////////////////////////////////
+        //  The left_align_generate template function is used for all the 
+        //  different flavors of the left_align[] directive. 
+        ///////////////////////////////////////////////////////////////////////
+        template <typename OutputIterator, typename Context, typename Delimiter, 
+            typename Attribute, typename Embedded, typename Padding>
+        inline static bool 
+        left_align_generate(OutputIterator& sink, Context& ctx, 
+            Delimiter const& d, Attribute const& attr, Embedded const& e, 
+            unsigned int const width, Padding const& p) 
+        {
+#if BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1600))
+            e; // suppresses warning: C4100: 'e' : unreferenced formal parameter
+#endif
+            // wrap the given output iterator to allow counting
+            detail::enable_counting<OutputIterator> counting(sink);
+
+            // first generate the underlying output 
+            bool r = e.generate(sink, ctx, d, attr);
+
+            // pad the output until the max width is reached
+            while(r && counting.count() < width) 
+                r = p.generate(sink, ctx, unused, unused);
+
+            return r;
+        }
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     //  The simple left alignment directive is used for left_align[...]
     //  generators. It uses default values for the generated width (defined via
     //  the BOOST_KARMA_DEFAULT_FIELD_LENGTH constant) and for the padding
     //  generator (always spaces).
     ///////////////////////////////////////////////////////////////////////////
-    struct simple_left_aligment
+    template <typename Subject, typename Width = detail::default_width>
+    struct simple_left_alignment 
+      : unary_generator<simple_left_alignment<Subject, Width> >
     {
-        template <typename Component, typename Context, typename Unused>
+        typedef Subject subject_type;
+
+        typedef mpl::int_<
+            generator_properties::counting | subject_type::properties::value
+        > properties;
+
+        template <typename Context, typename Iterator>
         struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::argument1<Component>::type,
-                Context
-            >
-        {
-        };
+          : traits::attribute_of<subject_type, Context, Iterator>
+        {};
 
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& d, Parameter const& param)
+        simple_left_alignment(Subject const& subject, Width width = Width())
+          : subject(subject), width(width) {}
+
+        template <typename OutputIterator, typename Context, typename Delimiter
+          , typename Attribute>
+        bool generate(OutputIterator& sink, Context& ctx, Delimiter const& d
+          , Attribute const& attr) const
         {
-            return detail::left_align_generate(sink, ctx, d, param,
-                argument1(component), BOOST_KARMA_DEFAULT_FIELD_LENGTH, ' ');
+            return detail::left_align_generate(sink, ctx, d, attr,
+                subject, width, compile<karma::domain>(' '));
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "left_align[";
-
-            typedef typename
-                spirit::result_of::argument1<Component>::type::director
-            director;
-
-            result += director::what(spirit::argument1(component), ctx);
-            result += "]";
-            return result;
-        }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    //  The left alignment with width directive, is used for generators
-    //  like left_align(width)[...]. It uses a default value for the padding
-    //  generator (always spaces).
-    ///////////////////////////////////////////////////////////////////////////
-    struct width_left_aligment
-    {
-        template <typename Component, typename Context, typename Unused>
-        struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::subject<Component>::type,
-                Context
-            >
-        {
-        };
-
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& d, Parameter const& param)
-        {
-            return detail::left_align_generate(sink, ctx, d, param,
-                subject(component), proto::arg_c<0>(argument1(component)), ' ');
+            return info("left_align", subject.what(context));
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            std::string result = "left_align(";
-
-            result += boost::lexical_cast<std::string>(
-                proto::arg_c<0>(argument1(component)));
-            result += ")[";
-
-            typedef typename
-                spirit::result_of::subject<Component>::type::director
-            director;
-
-            result += director::what(spirit::subject(component), ctx);
-            result += "]";
-            return result;
-        }
+        Subject subject;
+        Width width;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -123,107 +158,160 @@ namespace boost { namespace spirit { namespace karma
     //  expression. It uses a default value for the generated width (defined
     //  via the BOOST_KARMA_DEFAULT_FIELD_LENGTH constant).
     ///////////////////////////////////////////////////////////////////////////
-    struct padding_left_aligment
+    template <typename Subject, typename Padding
+      , typename Width = detail::default_width>
+    struct padding_left_alignment 
+      : unary_generator<padding_left_alignment<Subject, Padding, Width> >
     {
-        template <typename Component, typename Context, typename Unused>
+        typedef Subject subject_type;
+        typedef Padding padding_type;
+
+        typedef mpl::int_<
+            generator_properties::counting | 
+            subject_type::properties::value | padding_type::properties::value 
+        > properties;
+
+        template <typename Context, typename Iterator>
         struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::subject<Component>::type,
-                Context
-            >
-        {
-        };
+          : traits::attribute_of<subject_type, Context, Iterator>
+        {};
 
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& d, Parameter const& param)
+        padding_left_alignment(Subject const& subject, Padding const& padding
+              , Width width = Width())
+          : subject(subject), padding(padding), width(width) {}
+
+        template <typename OutputIterator, typename Context, typename Delimiter
+          , typename Attribute>
+        bool generate(OutputIterator& sink, Context& ctx, Delimiter const& d
+          , Attribute const& attr) const
         {
-            return detail::left_align_generate(sink, ctx, d, param,
-                subject(component), BOOST_KARMA_DEFAULT_FIELD_LENGTH,
-                argument1(component));
+            return detail::left_align_generate(sink, ctx, d, attr,
+                subject, width, padding);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "left_align(";
-
-            typedef typename
-                spirit::result_of::argument1<Component>::type::director
-            padding;
-
-            result += padding::what(spirit::argument1(component), ctx);
-            result += ")[";
-
-            typedef typename
-                spirit::result_of::subject<Component>::type::director
-            director;
-
-            result += director::what(spirit::subject(component), ctx);
-            result += "]";
-            return result;
+            return info("left_align", subject.what(context));
         }
+
+        Subject subject;
+        Padding padding;
+        Width width;
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    //  The full left alignment directive, is used for generators like
-    //  left_align(width, padding)[...], where width is a integer value to be
-    //  used as the field width and padding is a arbitrary generator
-    //  expression.
+    // Generator generators: make_xxx function (objects)
     ///////////////////////////////////////////////////////////////////////////
-    struct full_left_aligment
+
+    // creates left_align[] directive generator
+    template <typename Subject, typename Modifiers>
+    struct make_directive<tag::left_align, Subject, Modifiers>
     {
-        template <typename Component, typename Context, typename Unused>
-        struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::subject<Component>::type,
-                Context
-            >
+        typedef simple_left_alignment<Subject> result_type;
+        result_type operator()(unused_type, Subject const& subject
+          , unused_type) const
         {
-        };
-
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& d, Parameter const& param)
-        {
-            return detail::left_align_generate(sink, ctx, d, param,
-                subject(component), proto::arg_c<0>(argument1(component)),
-                argument2(component));
+            return result_type(subject);
         }
+    };
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+    // creates left_align(width)[] directive generator
+    template <typename Width, typename Subject, typename Modifiers>
+    struct make_directive<
+        terminal_ex<tag::left_align, fusion::vector1<Width> >
+      , Subject, Modifiers
+      , typename enable_if_c< integer_traits<Width>::is_integral >::type>
+    {
+        typedef simple_left_alignment<Subject, Width> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, Subject const& subject
+          , unused_type) const
         {
-            std::string result = "left_align(";
+            return result_type(subject, fusion::at_c<0>(term.args));
+        }
+    };
 
-            result += boost::lexical_cast<std::string>(
-                proto::arg_c<0>(argument1(component)));
-            result += ", ";
+    // creates left_align(pad)[] directive generator
+    template <typename Padding, typename Subject, typename Modifiers>
+    struct make_directive<
+        terminal_ex<tag::left_align, fusion::vector1<Padding> >
+      , Subject, Modifiers
+      , typename enable_if<
+            mpl::and_<
+                spirit::traits::matches<karma::domain, Padding>,
+                mpl::not_<mpl::bool_<integer_traits<Padding>::is_integral> >
+            >
+        >::type>
+    {
+        typedef typename
+            result_of::compile<karma::domain, Padding, Modifiers>::type
+        padding_type;
 
-            typedef typename
-                spirit::result_of::argument2<Component>::type::director
-            padding;
+        typedef padding_left_alignment<Subject, padding_type> result_type;
 
-            result += padding::what(spirit::argument2(component), ctx);
-            result += ")[";
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, Subject const& subject
+          , Modifiers const& modifiers) const
+        {
+            return result_type(subject
+              , compile<karma::domain>(fusion::at_c<0>(term.args), modifiers));
+        }
+    };
 
-            typedef typename
-                spirit::result_of::subject<Component>::type::director
-            director;
+    // creates left_align(width, pad)[] directive generator
+    template <typename Width, typename Padding, typename Subject
+      , typename Modifiers>
+    struct make_directive<
+        terminal_ex<tag::left_align, fusion::vector2<Width, Padding> >
+      , Subject, Modifiers>
+    {
+        typedef typename
+            result_of::compile<karma::domain, Padding, Modifiers>::type
+        padding_type;
 
-            result += director::what(spirit::subject(component), ctx);
-            result += "]";
-            return result;
+        typedef padding_left_alignment<Subject, padding_type, Width> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, Subject const& subject
+          , unused_type) const
+        {
+            return result_type(subject
+              , compile<karma::domain>(fusion::at_c<1>(term.args))
+              , fusion::at_c<0>(term.args));
         }
     };
 
 }}} // namespace boost::spirit::karma
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Width>
+    struct has_semantic_action<karma::simple_left_alignment<Subject, Width> >
+      : unary_has_semantic_action<Subject> {};
+
+    template <typename Subject, typename Padding, typename Width>
+    struct has_semantic_action<
+            karma::padding_left_alignment<Subject, Padding, Width> >
+      : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Width, typename Attribute
+      , typename Context, typename Iterator>
+    struct handles_container<
+            karma::simple_left_alignment<Subject, Width>, Attribute
+          , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
+
+    template <typename Subject, typename Padding, typename Width
+      , typename Attribute, typename Context, typename Iterator>
+    struct handles_container<
+            karma::padding_left_alignment<Subject, Padding, Width>
+          , Attribute, Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
+}}}
 
 #endif
 

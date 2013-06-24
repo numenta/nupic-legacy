@@ -20,12 +20,14 @@
 #include <boost/preprocessor/cat.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/core/matchers.hpp>
+#include <boost/xpressive/detail/core/regex_domain.hpp>
 #include <boost/xpressive/detail/utility/ignore_unused.hpp>
 
 // Doxygen can't handle proto :-(
 #ifndef BOOST_XPRESSIVE_DOXYGEN_INVOKED
-# include <boost/xpressive/proto/proto.hpp>
-# include <boost/xpressive/proto/transform.hpp>
+# include <boost/proto/core.hpp>
+# include <boost/proto/transform/arg.hpp>
+# include <boost/proto/transform/when.hpp>
 # include <boost/xpressive/detail/core/icase.hpp>
 # include <boost/xpressive/detail/static/compile.hpp>
 # include <boost/xpressive/detail/static/modifier.hpp>
@@ -37,25 +39,6 @@ namespace boost { namespace xpressive { namespace detail
     typedef assert_word_placeholder<word_boundary<mpl::true_> > assert_word_boundary;
     typedef assert_word_placeholder<word_begin> assert_word_begin;
     typedef assert_word_placeholder<word_end> assert_word_end;
-
-    struct mark_tag
-      : proto::extends<basic_mark_tag, mark_tag>
-    {
-        mark_tag(int mark_nbr)
-        {
-            // Marks numbers must be integers greater than 0.
-            BOOST_ASSERT(mark_nbr > 0);
-            mark_placeholder mark = {mark_nbr};
-            proto::arg(*this) = mark;
-        }
-
-        operator basic_mark_tag const &() const
-        {
-            return this->proto_base();
-        }
-
-        using proto::extends<basic_mark_tag, mark_tag>::operator =;
-    };
 
     // workaround msvc-7.1 bug with function pointer types
     // within function types:
@@ -92,8 +75,8 @@ namespace boost { namespace xpressive { namespace detail
     // s1 or -s1
     struct SubMatch
       : proto::or_<
-            proto::when<basic_mark_tag,                push_back(proto::_visitor, mark_number(proto::_arg)) >
-          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_visitor, minus_one())              >
+            proto::when<basic_mark_tag,                push_back(proto::_data, mark_number(proto::_value))   >
+          , proto::when<proto::negate<basic_mark_tag>, push_back(proto::_data, minus_one())                  >
         >
     {};
 
@@ -119,12 +102,10 @@ namespace boost { namespace xpressive { namespace detail
     #endif
 
     // replace "Expr" with "keep(*State) >> Expr"
-    struct skip_primitives : proto::callable
+    struct skip_primitives : proto::transform<skip_primitives>
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef
                 typename proto::shift_right<
@@ -134,17 +115,18 @@ namespace boost { namespace xpressive { namespace detail
                     >::type
                   , Expr
                 >::type
-            type;
-        };
+            result_type;
 
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &state, Visitor &) const
-        {
-            typedef typename result<void(Expr, State, Visitor)>::type type;
-            type that = {{{state}}, expr};
-            return that;
-        }
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param
+            ) const
+            {
+                result_type that = {{{state}}, expr};
+                return that;
+            }
+        };
     };
 
     struct Primitives
@@ -179,18 +161,22 @@ namespace boost { namespace xpressive { namespace detail
         {}
 
         template<typename Sig>
-        struct result;
+        struct result {};
 
         template<typename This, typename Expr>
         struct result<This(Expr)>
         {
             typedef
+                SkipGrammar::impl<
+                    typename proto::result_of::as_expr<Expr>::type
+                  , skip_type const &
+                  , mpl::void_ &
+                >
+            skip_transform;
+
+            typedef
                 typename proto::shift_right<
-                    typename SkipGrammar::result<void(
-                        typename proto::result_of::as_expr<Expr>::type
-                      , skip_type
-                      , mpl::void_
-                    )>::type
+                    typename skip_transform::result_type
                   , typename proto::dereference<skip_type>::type
                 >::type
             type;
@@ -201,9 +187,12 @@ namespace boost { namespace xpressive { namespace detail
         operator ()(Expr const &expr) const
         {
             mpl::void_ ignore;
-            typedef typename result<skip_directive(Expr)>::type result_type;
-            result_type result = {SkipGrammar()(proto::as_expr(expr), this->skip_, ignore), {skip_}};
-            return result;
+            typedef result<skip_directive(Expr)> result_fun;
+            typename result_fun::type that = {
+                typename result_fun::skip_transform()(proto::as_expr(expr), this->skip_, ignore)
+              , {skip_}
+            };
+            return that;
         }
 
     private:
@@ -524,8 +513,74 @@ proto::terminal<detail::self_placeholder>::type const self = {{}};
 detail::set_initializer_type const set = {{}};
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief Sub-match placeholder type, used to create named captures in
+/// static regexes.
+///
+/// \c mark_tag is the type of the global sub-match placeholders \c s0, \c s1, etc.. You
+/// can use the \c mark_tag type to create your own sub-match placeholders with
+/// more meaningful names. This is roughly equivalent to the "named capture"
+/// feature of dynamic regular expressions.
+///
+/// To create a named sub-match placeholder, initialize it with a unique integer.
+/// The integer must only be unique within the regex in which the placeholder
+/// is used. Then you can use it within static regexes to created sub-matches
+/// by assigning a sub-expression to it, or to refer back to already created
+/// sub-matches.
+/// 
+/// \code
+/// mark_tag number(1); // "number" is now equivalent to "s1"
+/// // Match a number, followed by a space and the same number again
+/// sregex rx = (number = +_d) >> ' ' >> number;
+/// \endcode
+///
+/// After a successful \c regex_match() or \c regex_search(), the sub-match placeholder
+/// can be used to index into the <tt>match_results\<\></tt> object to retrieve the
+/// corresponding sub-match.
+struct mark_tag
+  : proto::extends<detail::basic_mark_tag, mark_tag, detail::regex_domain>
+{
+private:
+    typedef proto::extends<detail::basic_mark_tag, mark_tag, detail::regex_domain> base_type;
+
+    static detail::basic_mark_tag make_tag(int mark_nbr)
+    {
+        detail::basic_mark_tag mark = {{mark_nbr}};
+        return mark;
+    }
+
+public:
+    /// \brief Initialize a mark_tag placeholder
+    /// \param mark_nbr An integer that uniquely identifies this \c mark_tag
+    /// within the static regexes in which this \c mark_tag will be used.
+    /// \pre <tt>mark_nbr \> 0</tt>
+    mark_tag(int mark_nbr)
+      : base_type(mark_tag::make_tag(mark_nbr))
+    {
+        // Marks numbers must be integers greater than 0.
+        BOOST_ASSERT(mark_nbr > 0);
+    }
+
+    /// INTERNAL ONLY
+    operator detail::basic_mark_tag const &() const
+    {
+        return this->proto_base();
+    }
+
+    BOOST_PROTO_EXTENDS_USING_ASSIGN_NON_DEPENDENT(mark_tag)
+};
+
+// This macro is used when declaring mark_tags that are global because
+// it guarantees that they are statically initialized. That avoids
+// order-of-initialization bugs. In user code, the simpler: mark_tag s0(0);
+// would be preferable.
+/// INTERNAL ONLY
+#define BOOST_XPRESSIVE_GLOBAL_MARK_TAG(NAME, VALUE)                            \
+    boost::xpressive::mark_tag::proto_base_expr const NAME = {{VALUE}}          \
+    /**/
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $& in Perl
-mark_tag::proto_base_expr const s0 = {{0}};
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s0, 0);
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \brief Sub-match placeholder, like $1 in perl.
@@ -539,15 +594,15 @@ mark_tag::proto_base_expr const s0 = {{0}};
 /// After a successful regex_match() or regex_search(), the sub-match placeholders
 /// can be used to index into the match_results\<\> object to retrieve the Nth
 /// sub-match.
-mark_tag::proto_base_expr const s1 = {{1}};
-mark_tag::proto_base_expr const s2 = {{2}};
-mark_tag::proto_base_expr const s3 = {{3}};
-mark_tag::proto_base_expr const s4 = {{4}};
-mark_tag::proto_base_expr const s5 = {{5}};
-mark_tag::proto_base_expr const s6 = {{6}};
-mark_tag::proto_base_expr const s7 = {{7}};
-mark_tag::proto_base_expr const s8 = {{8}};
-mark_tag::proto_base_expr const s9 = {{9}};
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s1, 1);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s2, 2);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s3, 3);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s4, 4);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s5, 5);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s6, 6);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s7, 7);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s8, 8);
+BOOST_XPRESSIVE_GLOBAL_MARK_TAG(s9, 9);
 
 // NOTE: For the purpose of xpressive's documentation, make icase() look like an
 // ordinary function. In reality, it is a function object defined in detail/icase.hpp
@@ -824,46 +879,46 @@ namespace detail
 {
     inline void ignore_unused_regex_primitives()
     {
-        ignore_unused(repeat_max);
-        ignore_unused(inf);
-        ignore_unused(epsilon);
-        ignore_unused(nil);
-        ignore_unused(alnum);
-        ignore_unused(bos);
-        ignore_unused(eos);
-        ignore_unused(bol);
-        ignore_unused(eol);
-        ignore_unused(bow);
-        ignore_unused(eow);
-        ignore_unused(_b);
-        ignore_unused(_w);
-        ignore_unused(_d);
-        ignore_unused(_s);
-        ignore_unused(_n);
-        ignore_unused(_ln);
-        ignore_unused(_);
-        ignore_unused(self);
-        ignore_unused(set);
-        ignore_unused(s0);
-        ignore_unused(s1);
-        ignore_unused(s2);
-        ignore_unused(s3);
-        ignore_unused(s4);
-        ignore_unused(s5);
-        ignore_unused(s6);
-        ignore_unused(s7);
-        ignore_unused(s8);
-        ignore_unused(s9);
-        ignore_unused(a1);
-        ignore_unused(a2);
-        ignore_unused(a3);
-        ignore_unused(a4);
-        ignore_unused(a5);
-        ignore_unused(a6);
-        ignore_unused(a7);
-        ignore_unused(a8);
-        ignore_unused(a9);
-        ignore_unused(as_xpr);
+        detail::ignore_unused(repeat_max);
+        detail::ignore_unused(inf);
+        detail::ignore_unused(epsilon);
+        detail::ignore_unused(nil);
+        detail::ignore_unused(alnum);
+        detail::ignore_unused(bos);
+        detail::ignore_unused(eos);
+        detail::ignore_unused(bol);
+        detail::ignore_unused(eol);
+        detail::ignore_unused(bow);
+        detail::ignore_unused(eow);
+        detail::ignore_unused(_b);
+        detail::ignore_unused(_w);
+        detail::ignore_unused(_d);
+        detail::ignore_unused(_s);
+        detail::ignore_unused(_n);
+        detail::ignore_unused(_ln);
+        detail::ignore_unused(_);
+        detail::ignore_unused(self);
+        detail::ignore_unused(set);
+        detail::ignore_unused(s0);
+        detail::ignore_unused(s1);
+        detail::ignore_unused(s2);
+        detail::ignore_unused(s3);
+        detail::ignore_unused(s4);
+        detail::ignore_unused(s5);
+        detail::ignore_unused(s6);
+        detail::ignore_unused(s7);
+        detail::ignore_unused(s8);
+        detail::ignore_unused(s9);
+        detail::ignore_unused(a1);
+        detail::ignore_unused(a2);
+        detail::ignore_unused(a3);
+        detail::ignore_unused(a4);
+        detail::ignore_unused(a5);
+        detail::ignore_unused(a6);
+        detail::ignore_unused(a7);
+        detail::ignore_unused(a8);
+        detail::ignore_unused(a9);
+        detail::ignore_unused(as_xpr);
     }
 }
 

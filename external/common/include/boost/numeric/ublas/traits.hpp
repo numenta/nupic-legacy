@@ -23,6 +23,11 @@
 
 #include <boost/type_traits.hpp>
 #include <complex>
+#include <boost/typeof/typeof.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_float.hpp>
+#include <boost/type_traits/is_integral.hpp>
+#include <boost/mpl/and.hpp>
 
 // anonymous namespace to avoid ADL issues
 namespace {
@@ -35,6 +40,14 @@ namespace {
     using namespace std;
     // we'll find either std::abs or else another version via ADL:
     return abs (t);
+  }
+  // unsigned types are always non-negative
+  template<> unsigned int boost_numeric_ublas_abs (const unsigned int& t) {
+    return t;
+  }
+  // unsigned types are always non-negative
+  template<> unsigned long boost_numeric_ublas_abs (const unsigned long& t) {
+    return t;
   }
 }
 
@@ -59,6 +72,87 @@ namespace boost { namespace numeric { namespace ublas {
             typename base_type::types, index>::type id;
         typedef typename id::type promote_type;
     };
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator+ (I in1, std::complex<R> const& in2 ) {
+        return R (in1) + in2;
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator+ (std::complex<R> const& in1, I in2) {
+        return in1 + R (in2);
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator- (I in1, std::complex<R> const& in2) {
+        return R (in1) - in2;
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator- (std::complex<R> const& in1, I in2) {
+        return in1 - R (in2);
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator* (I in1, std::complex<R> const& in2) {
+        return R (in1) * in2;
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator* (std::complex<R> const& in1, I in2) {
+        return in1 * R(in2);
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator/ (I in1, std::complex<R> const& in2) {
+        return R(in1) / in2;
+      }
+
+      template<typename R, typename I> 
+      typename boost::enable_if<
+        mpl::and_<
+          boost::is_float<R>,
+          boost::is_integral<I>
+          >,
+        std::complex<R> >::type inline operator/ (std::complex<R> const& in1, I in2) {
+        return in1 / R (in2);
+      }
+
 
 
     // Type traits - generic numeric properties and functions
@@ -220,8 +314,10 @@ namespace boost { namespace numeric { namespace ublas {
         static
         BOOST_UBLAS_INLINE
         real_type norm_1 (const_reference t) {
-            return type_traits<real_type>::type_abs (self_type::real (t)) +
-                   type_traits<real_type>::type_abs (self_type::imag (t));
+            return self_type::type_abs (t);
+            // original computation has been replaced because a complex number should behave like a scalar type
+            // return type_traits<real_type>::type_abs (self_type::real (t)) +
+            //       type_traits<real_type>::type_abs (self_type::imag (t));
         }
         static
         BOOST_UBLAS_INLINE
@@ -231,8 +327,10 @@ namespace boost { namespace numeric { namespace ublas {
         static
         BOOST_UBLAS_INLINE
         real_type norm_inf (const_reference t) {
-            return (std::max) (type_traits<real_type>::type_abs (self_type::real (t)),
-                             type_traits<real_type>::type_abs (self_type::imag (t)));
+            return self_type::type_abs (t);
+            // original computation has been replaced because a complex number should behave like a scalar type
+            // return (std::max) (type_traits<real_type>::type_abs (self_type::real (t)),
+            //                 type_traits<real_type>::type_abs (self_type::imag (t)));
         }
 
         static
@@ -504,12 +602,150 @@ namespace boost { namespace numeric { namespace ublas {
         struct has_trivial_destructor : public boost::has_trivial_destructor<T> {};
 
         template<typename FLT>
-        struct has_trivial_constructor<std::complex<FLT> > : public boost::true_type {};
+        struct has_trivial_constructor<std::complex<FLT> > : public has_trivial_constructor<FLT> {};
         
         template<typename FLT>
-        struct has_trivial_destructor<std::complex<FLT> > : public boost::true_type {};
+        struct has_trivial_destructor<std::complex<FLT> > : public has_trivial_destructor<FLT> {};
 
     }
+
+
+    /**  \brief Traits class to extract type information from a constant matrix or vector CONTAINER.
+     *
+     */
+    template < class E >
+    struct container_view_traits {
+        /// type of indices
+        typedef typename E::size_type             size_type;
+        /// type of differences of indices
+        typedef typename E::difference_type       difference_type;
+
+        /// storage category: \c unknown_storage_tag, \c dense_tag, \c packed_tag, ...
+        typedef typename E::storage_category      storage_category;
+
+        /// type of elements
+        typedef typename E::value_type            value_type;
+        /// const reference to an element
+        typedef typename E::const_reference       const_reference;
+  
+        /// type used in expressions to mark a reference to this class (usually a const container_reference<const E> or the class itself)
+        typedef typename E::const_closure_type    const_closure_type;
+    };
+
+    /**  \brief Traits class to extract additional type information from a mutable matrix or vector CONTAINER.
+     *
+     */
+    template < class E >
+    struct mutable_container_traits {
+        /// reference to an element
+        typedef typename E::reference             reference;
+  
+        /// type used in expressions to mark a reference to this class (usually a container_reference<E> or the class itself)
+        typedef typename E::closure_type          closure_type;
+    };
+
+    /**  \brief Traits class to extract type information from a matrix or vector CONTAINER.
+     *
+     */
+    template < class E >
+    struct container_traits 
+        : container_view_traits<E>, mutable_container_traits<E> {
+
+    };
+
+
+    /**  \brief Traits class to extract type information from a constant MATRIX.
+     *
+     */
+    template < class MATRIX >
+    struct matrix_view_traits : container_view_traits <MATRIX> {
+
+        /// orientation of the matrix, either \c row_major_tag, \c column_major_tag or \c unknown_orientation_tag
+        typedef typename MATRIX::orientation_category  orientation_category;
+  
+        /// row iterator for the matrix
+        typedef typename MATRIX::const_iterator1  const_iterator1;
+
+        /// column iterator for the matrix
+        typedef typename MATRIX::const_iterator2  const_iterator2;
+    };
+
+    /**  \brief Traits class to extract additional type information from a mutable MATRIX.
+     *
+     */
+    template < class MATRIX >
+    struct mutable_matrix_traits 
+        : mutable_container_traits <MATRIX> {
+
+        /// row iterator for the matrix
+        typedef typename MATRIX::iterator1  iterator1;
+
+        /// column iterator for the matrix
+        typedef typename MATRIX::iterator2  iterator2;
+    };
+
+
+    /**  \brief Traits class to extract type information from a MATRIX.
+     *
+     */
+    template < class MATRIX >
+    struct matrix_traits 
+        : matrix_view_traits <MATRIX>, mutable_matrix_traits <MATRIX> {
+    };
+
+    /**  \brief Traits class to extract type information from a VECTOR.
+     *
+     */
+    template < class VECTOR >
+    struct vector_view_traits : container_view_traits <VECTOR> {
+
+        /// iterator for the VECTOR
+        typedef typename VECTOR::const_iterator  const_iterator;
+
+        /// iterator pointing to the first element
+        static
+        const_iterator begin(const VECTOR & v) {
+            return v.begin();
+        }
+        /// iterator pointing behind the last element
+        static
+        const_iterator end(const VECTOR & v) {
+            return v.end();
+        }
+
+    };
+
+    /**  \brief Traits class to extract type information from a VECTOR.
+     *
+     */
+    template < class VECTOR >
+    struct mutable_vector_traits : mutable_container_traits <VECTOR> {
+        /// iterator for the VECTOR
+        typedef typename VECTOR::iterator  iterator;
+
+        /// iterator pointing to the first element
+        static
+        iterator begin(VECTOR & v) {
+            return v.begin();
+        }
+
+        /// iterator pointing behind the last element
+        static
+        iterator end(VECTOR & v) {
+            return v.end();
+        }
+    };
+
+    /**  \brief Traits class to extract type information from a VECTOR.
+     *
+     */
+    template < class VECTOR >
+    struct vector_traits 
+        : vector_view_traits <VECTOR>, mutable_vector_traits <VECTOR> {
+    };
+
+
+    // Note: specializations for T[N] and T[M][N] have been moved to traits/c_array.hpp
 
 }}}
 

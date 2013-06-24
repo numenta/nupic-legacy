@@ -2,7 +2,7 @@
 // read_until.hpp
 // ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,51 +15,37 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
-#include <boost/asio/detail/push_options.hpp>
+#if !defined(BOOST_NO_IOSTREAM)
+
 #include <cstddef>
-#include <boost/config.hpp>
-#include <boost/regex.hpp>
 #include <boost/type_traits/is_function.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/detail/workaround.hpp>
 #include <string>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/basic_streambuf.hpp>
+#include <boost/asio/detail/regex_fwd.hpp>
 #include <boost/asio/error.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
 
 namespace detail
 {
-#if BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
+  char (&has_result_type_helper(...))[2];
+
+  template <typename T>
+  char has_result_type_helper(T*, typename T::result_type* = 0);
+
   template <typename T>
   struct has_result_type
   {
-    template <typename U> struct inner
-    {
-        struct big { char a[100]; };
-        static big helper(U, ...);
-        static char helper(U, typename U::result_type* = 0);
-    };
-    static const T& ref();
-    enum { value = (sizeof((inner<const T&>::helper)((ref)())) == 1) };
+    enum { value = (sizeof((has_result_type_helper)((T*)(0))) == 1) };
   };
-#else // BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
-  template <typename T>
-  struct has_result_type
-  {
-    struct big { char a[100]; };
-    template <typename U> static big helper(U, ...);
-    template <typename U> static char helper(U, typename U::result_type* = 0);
-    static const T& ref();
-    enum { value = (sizeof((helper)((ref)())) == 1) };
-  };
-#endif // BOOST_WORKAROUND(__CODEGEARC__, BOOST_TESTED_AT(0x610))
 } // namespace detail
 
 /// Type trait used to determine whether a type can be used as a match condition
@@ -124,6 +110,16 @@ struct is_match_condition
  * std::istream is(&b);
  * std::string line;
  * std::getline(is, line); @endcode
+ * After the @c read_until operation completes successfully, the buffer @c b
+ * contains the delimiter:
+ * @code { 'a', 'b', ..., 'c', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * delimiter, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c read_until operation.
  */
 template <typename SyncReadStream, typename Allocator>
 std::size_t read_until(SyncReadStream& s,
@@ -201,6 +197,16 @@ std::size_t read_until(SyncReadStream& s,
  * std::istream is(&b);
  * std::string line;
  * std::getline(is, line); @endcode
+ * After the @c read_until operation completes successfully, the buffer @c b
+ * contains the delimiter:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * delimiter, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c read_until operation.
  */
 template <typename SyncReadStream, typename Allocator>
 std::size_t read_until(SyncReadStream& s,
@@ -280,6 +286,16 @@ std::size_t read_until(SyncReadStream& s,
  * std::istream is(&b);
  * std::string line;
  * std::getline(is, line); @endcode
+ * After the @c read_until operation completes successfully, the buffer @c b
+ * contains the data which matched the regular expression:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * match, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c read_until operation.
  */
 template <typename SyncReadStream, typename Allocator>
 std::size_t read_until(SyncReadStream& s,
@@ -506,8 +522,12 @@ std::size_t read_until(SyncReadStream& s,
  * @li An error occurred.
  *
  * This operation is implemented in terms of zero or more calls to the stream's
- * async_read_some function. If the streambuf's get area already contains the
- * delimiter, the asynchronous operation completes immediately.
+ * async_read_some function, and is known as a <em>composed operation</em>. If
+ * the streambuf's get area already contains the delimiter, this asynchronous
+ * operation completes immediately. The program must ensure that the stream
+ * performs no other read operations (such as async_read, async_read_until, the
+ * stream's async_read_some function, or any other composed operations that
+ * perform reads) until this operation completes.
  *
  * @param s The stream from which the data is to be read. The type must support
  * the AsyncReadStream concept.
@@ -556,11 +576,21 @@ std::size_t read_until(SyncReadStream& s,
  * }
  * ...
  * boost::asio::async_read_until(s, b, '\n', handler); @endcode
+ * After the @c async_read_until operation completes successfully, the buffer
+ * @c b contains the delimiter:
+ * @code { 'a', 'b', ..., 'c', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * delimiter, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c async_read_until operation.
  */
 template <typename AsyncReadStream, typename Allocator, typename ReadHandler>
 void async_read_until(AsyncReadStream& s,
     boost::asio::basic_streambuf<Allocator>& b,
-    char delim, ReadHandler handler);
+    char delim, BOOST_ASIO_MOVE_ARG(ReadHandler) handler);
 
 /// Start an asynchronous operation to read data into a streambuf until it
 /// contains a specified delimiter.
@@ -575,8 +605,12 @@ void async_read_until(AsyncReadStream& s,
  * @li An error occurred.
  *
  * This operation is implemented in terms of zero or more calls to the stream's
- * async_read_some function. If the streambuf's get area already contains the
- * delimiter, the asynchronous operation completes immediately.
+ * async_read_some function, and is known as a <em>composed operation</em>. If
+ * the streambuf's get area already contains the delimiter, this asynchronous
+ * operation completes immediately. The program must ensure that the stream
+ * performs no other read operations (such as async_read, async_read_until, the
+ * stream's async_read_some function, or any other composed operations that
+ * perform reads) until this operation completes.
  *
  * @param s The stream from which the data is to be read. The type must support
  * the AsyncReadStream concept.
@@ -625,11 +659,21 @@ void async_read_until(AsyncReadStream& s,
  * }
  * ...
  * boost::asio::async_read_until(s, b, "\r\n", handler); @endcode
+ * After the @c async_read_until operation completes successfully, the buffer
+ * @c b contains the delimiter:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * delimiter, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c async_read_until operation.
  */
 template <typename AsyncReadStream, typename Allocator, typename ReadHandler>
 void async_read_until(AsyncReadStream& s,
     boost::asio::basic_streambuf<Allocator>& b, const std::string& delim,
-    ReadHandler handler);
+    BOOST_ASIO_MOVE_ARG(ReadHandler) handler);
 
 /// Start an asynchronous operation to read data into a streambuf until some
 /// part of its data matches a regular expression.
@@ -645,8 +689,13 @@ void async_read_until(AsyncReadStream& s,
  * @li An error occurred.
  *
  * This operation is implemented in terms of zero or more calls to the stream's
- * async_read_some function. If the streambuf's get area already contains data
- * that matches the regular expression, the function returns immediately.
+ * async_read_some function, and is known as a <em>composed operation</em>. If
+ * the streambuf's get area already contains data that matches the regular
+ * expression, this asynchronous operation completes immediately. The program
+ * must ensure that the stream performs no other read operations (such as
+ * async_read, async_read_until, the stream's async_read_some function, or any
+ * other composed operations that perform reads) until this operation
+ * completes.
  *
  * @param s The stream from which the data is to be read. The type must support
  * the AsyncReadStream concept.
@@ -697,11 +746,21 @@ void async_read_until(AsyncReadStream& s,
  * }
  * ...
  * boost::asio::async_read_until(s, b, boost::regex("\r\n"), handler); @endcode
+ * After the @c async_read_until operation completes successfully, the buffer
+ * @c b contains the data which matched the regular expression:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n', 'd', 'e', ... } @endcode
+ * The call to @c std::getline then extracts the data up to and including the
+ * match, so that the string @c line contains:
+ * @code { 'a', 'b', ..., 'c', '\r', '\n' } @endcode
+ * The remaining data is left in the buffer @c b as follows:
+ * @code { 'd', 'e', ... } @endcode
+ * This data may be the start of a new line, to be extracted by a subsequent
+ * @c async_read_until operation.
  */
 template <typename AsyncReadStream, typename Allocator, typename ReadHandler>
 void async_read_until(AsyncReadStream& s,
     boost::asio::basic_streambuf<Allocator>& b, const boost::regex& expr,
-    ReadHandler handler);
+    BOOST_ASIO_MOVE_ARG(ReadHandler) handler);
 
 /// Start an asynchronous operation to read data into a streambuf until a
 /// function object indicates a match.
@@ -718,8 +777,12 @@ void async_read_until(AsyncReadStream& s,
  * @li An error occurred.
  *
  * This operation is implemented in terms of zero or more calls to the stream's
- * async_read_some function. If the match condition function object already
- * indicates a match, the operation completes immediately.
+ * async_read_some function, and is known as a <em>composed operation</em>. If
+ * the match condition function object already indicates a match, this
+ * asynchronous operation completes immediately. The program must ensure that
+ * the stream performs no other read operations (such as async_read,
+ * async_read_until, the stream's async_read_some function, or any other
+ * composed operations that perform reads) until this operation completes.
  *
  * @param s The stream from which the data is to be read. The type must support
  * the AsyncReadStream concept.
@@ -826,7 +889,7 @@ template <typename AsyncReadStream, typename Allocator,
     typename MatchCondition, typename ReadHandler>
 void async_read_until(AsyncReadStream& s,
     boost::asio::basic_streambuf<Allocator>& b,
-    MatchCondition match_condition, ReadHandler handler,
+    MatchCondition match_condition, BOOST_ASIO_MOVE_ARG(ReadHandler) handler,
     typename boost::enable_if<is_match_condition<MatchCondition> >::type* = 0);
 
 /*@}*/
@@ -834,8 +897,10 @@ void async_read_until(AsyncReadStream& s,
 } // namespace asio
 } // namespace boost
 
-#include <boost/asio/impl/read_until.ipp>
-
 #include <boost/asio/detail/pop_options.hpp>
+
+#include <boost/asio/impl/read_until.hpp>
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 #endif // BOOST_ASIO_READ_UNTIL_HPP
