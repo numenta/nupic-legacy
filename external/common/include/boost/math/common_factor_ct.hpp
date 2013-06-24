@@ -11,15 +11,13 @@
 #define BOOST_MATH_COMMON_FACTOR_CT_HPP
 
 #include <boost/math_fwd.hpp>  // self include
-
 #include <boost/config.hpp>  // for BOOST_STATIC_CONSTANT, etc.
-
+#include <boost/mpl/integral_c.hpp>
 
 namespace boost
 {
 namespace math
 {
-
 
 //  Implementation details  --------------------------------------------------//
 
@@ -27,15 +25,15 @@ namespace detail
 {
 #ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     // Build GCD with Euclid's recursive algorithm
-    template < unsigned long Value1, unsigned long Value2 >
+    template < static_gcd_type Value1, static_gcd_type Value2 >
     struct static_gcd_helper_t
     {
     private:
-        BOOST_STATIC_CONSTANT( unsigned long, new_value1 = Value2 );
-        BOOST_STATIC_CONSTANT( unsigned long, new_value2 = Value1 % Value2 );
+        BOOST_STATIC_CONSTANT( static_gcd_type, new_value1 = Value2 );
+        BOOST_STATIC_CONSTANT( static_gcd_type, new_value2 = Value1 % Value2 );
 
         #ifndef __BORLANDC__
-        #define BOOST_DETAIL_GCD_HELPER_VAL(Value) static_cast<unsigned long>(Value)
+        #define BOOST_DETAIL_GCD_HELPER_VAL(Value) static_cast<static_gcd_type>(Value)
         #else
         typedef static_gcd_helper_t  self_type;
         #define BOOST_DETAIL_GCD_HELPER_VAL(Value)  (self_type:: Value )
@@ -47,24 +45,24 @@ namespace detail
         #undef BOOST_DETAIL_GCD_HELPER_VAL
 
     public:
-        BOOST_STATIC_CONSTANT( unsigned long, value = next_step_type::value );
+        BOOST_STATIC_CONSTANT( static_gcd_type, value = next_step_type::value );
     };
 
     // Non-recursive case
-    template < unsigned long Value1 >
+    template < static_gcd_type Value1 >
     struct static_gcd_helper_t< Value1, 0UL >
     {
-        BOOST_STATIC_CONSTANT( unsigned long, value = Value1 );
+        BOOST_STATIC_CONSTANT( static_gcd_type, value = Value1 );
     };
 #else
     // Use inner class template workaround from Peter Dimov
-    template < unsigned long Value1 >
+    template < static_gcd_type Value1 >
     struct static_gcd_helper2_t
     {
-        template < unsigned long Value2 >
+        template < static_gcd_type Value2 >
         struct helper
         {
-            BOOST_STATIC_CONSTANT( unsigned long, value
+            BOOST_STATIC_CONSTANT( static_gcd_type, value
              = static_gcd_helper2_t<Value2>::BOOST_NESTED_TEMPLATE
              helper<Value1 % Value2>::value );
         };
@@ -72,7 +70,7 @@ namespace detail
         template <  >
         struct helper< 0UL >
         {
-            BOOST_STATIC_CONSTANT( unsigned long, value = Value1 );
+            BOOST_STATIC_CONSTANT( static_gcd_type, value = Value1 );
         };
     };
 
@@ -80,18 +78,18 @@ namespace detail
     template <  >
     struct static_gcd_helper2_t< 0UL >
     {
-        template < unsigned long Value2 >
+        template < static_gcd_type Value2 >
         struct helper
         {
-            BOOST_STATIC_CONSTANT( unsigned long, value = Value2 );
+            BOOST_STATIC_CONSTANT( static_gcd_type, value = Value2 );
         };
     };
 
     // Build the GCD from the above template(s)
-    template < unsigned long Value1, unsigned long Value2 >
+    template < static_gcd_type Value1, static_gcd_type Value2 >
     struct static_gcd_helper_t
     {
-        BOOST_STATIC_CONSTANT( unsigned long, value
+        BOOST_STATIC_CONSTANT( static_gcd_type, value
          = static_gcd_helper2_t<Value1>::BOOST_NESTED_TEMPLATE
          helper<Value2>::value );
     };
@@ -99,12 +97,12 @@ namespace detail
 
 #ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     // Build the LCM from the GCD
-    template < unsigned long Value1, unsigned long Value2 >
+    template < static_gcd_type Value1, static_gcd_type Value2 >
     struct static_lcm_helper_t
     {
         typedef static_gcd_helper_t<Value1, Value2>  gcd_type;
 
-        BOOST_STATIC_CONSTANT( unsigned long, value = Value1 / gcd_type::value
+        BOOST_STATIC_CONSTANT( static_gcd_type, value = Value1 / gcd_type::value
          * Value2 );
     };
 
@@ -112,26 +110,26 @@ namespace detail
     template < >
     struct static_lcm_helper_t< 0UL, 0UL >
     {
-        BOOST_STATIC_CONSTANT( unsigned long, value = 0UL );
+        BOOST_STATIC_CONSTANT( static_gcd_type, value = 0UL );
     };
 #else
     // Adapt GCD's inner class template workaround for LCM
-    template < unsigned long Value1 >
+    template < static_gcd_type Value1 >
     struct static_lcm_helper2_t
     {
-        template < unsigned long Value2 >
+        template < static_gcd_type Value2 >
         struct helper
         {
             typedef static_gcd_helper_t<Value1, Value2>  gcd_type;
 
-            BOOST_STATIC_CONSTANT( unsigned long, value = Value1
+            BOOST_STATIC_CONSTANT( static_gcd_type, value = Value1
              / gcd_type::value * Value2 );
         };
 
         template <  >
         struct helper< 0UL >
         {
-            BOOST_STATIC_CONSTANT( unsigned long, value = 0UL );
+            BOOST_STATIC_CONSTANT( static_gcd_type, value = 0UL );
         };
     };
 
@@ -139,18 +137,18 @@ namespace detail
     template <  >
     struct static_lcm_helper2_t< 0UL >
     {
-        template < unsigned long Value2 >
+        template < static_gcd_type Value2 >
         struct helper
         {
-            BOOST_STATIC_CONSTANT( unsigned long, value = 0UL );
+            BOOST_STATIC_CONSTANT( static_gcd_type, value = 0UL );
         };
     };
 
     // Build the LCM from the above template(s)
-    template < unsigned long Value1, unsigned long Value2 >
+    template < static_gcd_type Value1, static_gcd_type Value2 >
     struct static_lcm_helper_t
     {
-        BOOST_STATIC_CONSTANT( unsigned long, value
+        BOOST_STATIC_CONSTANT( static_gcd_type, value
          = static_lcm_helper2_t<Value1>::BOOST_NESTED_TEMPLATE
          helper<Value2>::value );
     };
@@ -161,23 +159,17 @@ namespace detail
 
 //  Compile-time greatest common divisor evaluator class declaration  --------//
 
-template < unsigned long Value1, unsigned long Value2 >
-struct static_gcd
+template < static_gcd_type Value1, static_gcd_type Value2 >
+struct static_gcd : public mpl::integral_c<static_gcd_type, (detail::static_gcd_helper_t<Value1, Value2>::value) >
 {
-    BOOST_STATIC_CONSTANT( unsigned long, value
-     = (detail::static_gcd_helper_t<Value1, Value2>::value) );
-
 };  // boost::math::static_gcd
 
 
 //  Compile-time least common multiple evaluator class declaration  ----------//
 
-template < unsigned long Value1, unsigned long Value2 >
-struct static_lcm
+template < static_gcd_type Value1, static_gcd_type Value2 >
+struct static_lcm : public mpl::integral_c<static_gcd_type, (detail::static_lcm_helper_t<Value1, Value2>::value) >
 {
-    BOOST_STATIC_CONSTANT( unsigned long, value
-     = (detail::static_lcm_helper_t<Value1, Value2>::value) );
-
 };  // boost::math::static_lcm
 
 

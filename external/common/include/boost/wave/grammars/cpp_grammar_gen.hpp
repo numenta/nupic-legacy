@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -85,7 +85,7 @@ struct BOOST_WAVE_DECL cpp_grammar_gen
 //             boost::spirit::nil_t,
 //             boost::pool_allocator<boost::spirit::nil_t> 
         > node_factory_type;
-    
+
 //  parse the cpp_grammar and return the resulting parse tree    
     static boost::spirit::classic::tree_parse_info<iterator_type, node_factory_type> 
     parse_cpp_grammar (iterator_type const &first, iterator_type const &last,

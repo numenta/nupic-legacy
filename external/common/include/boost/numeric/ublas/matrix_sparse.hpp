@@ -246,8 +246,24 @@ namespace boost { namespace numeric { namespace ublas {
 
 #endif
 
-
-    // Index map based sparse matrix class
+   /** \brief Index map based sparse matrix of values of type \c T
+    *
+    * This class represents a matrix by using a \c key to value mapping. The default type is
+    * \code template<class T, class L = row_major, class A =  map_std<std::size_t, T> > class mapped_matrix; \endcode
+    * So, by default a STL map container is used to associate keys and values. The key is computed depending on 
+    * the layout type \c L as \code key = layout_type::element(i, size1_, j, size2_); \endcode
+    * which means \code key = (i*size2+j) \endcode for a row major matrix.
+    * Limitations: The matrix size must not exceed \f$(size1*size2) < \f$ \code std::limits<std::size_t> \endcode. 
+    * The \ref find1() and \ref find2() operations have a complexity of at least \f$\mathcal{O}(log(nnz))\f$, depending
+    * on the efficiency of \c std::lower_bound on the key set of the map.
+    * Orientation and storage can also be specified, otherwise a row major orientation is used. 
+    * It is \b not required by the storage to initialize elements of the matrix. By default, the orientation is \c row_major. 
+    *
+    * \sa fwd.hpp, storage_sparse.hpp
+    *
+    * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+    * \tparam L the storage organization. It can be either \c row_major or \c column_major. By default it is \c row_major
+    */
     template<class T, class L, class A>
     class mapped_matrix:
         public matrix_container<mapped_matrix<T, L, A> > {
@@ -1343,7 +1359,7 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
         typedef const matrix_reference<const self_type> const_closure_type;
         typedef matrix_reference<self_type> closure_type;
-        typedef mapped_vector<T, typename A::value_type> vector_temporary_type;
+        typedef mapped_vector<T> vector_temporary_type;
         typedef self_type matrix_temporary_type;
         typedef typename A::value_type::second_type vector_data_value_type;
         typedef sparse_tag storage_category;
@@ -1514,7 +1530,7 @@ namespace boost { namespace numeric { namespace ublas {
         template<class C>          // Container assignment without temporary
         BOOST_UBLAS_INLINE
         mapped_vector_of_mapped_vector &operator = (const matrix_container<C> &m) {
-            resize (m ().size1 (), m ().size2 ());
+            resize (m ().size1 (), m ().size2 (), false);
             assign (m);
             return *this;
         }
@@ -2903,7 +2919,7 @@ namespace boost { namespace numeric { namespace ublas {
         void erase_element (size_type i, size_type j) {
             size_type element1 = layout_type::index_M (i, j);
             size_type element2 = layout_type::index_m (i, j);
-            if (element1 + 1 > filled1_)
+            if (element1 + 1 >= filled1_)
                 return;
             vector_subiterator_type itv (index1_data_.begin () + element1);
             subiterator_type it_begin (index2_data_.begin () + zero_based (*itv));
@@ -4375,17 +4391,69 @@ namespace boost { namespace numeric { namespace ublas {
             m1.swap (m2);
         }
 
+        // replacement if STL lower bound algorithm for use of inplace_merge
+        array_size_type lower_bound (array_size_type beg, array_size_type end, array_size_type target) const {
+            while (end > beg) {
+                array_size_type mid = (beg + end) / 2;
+                if (((index1_data_[mid] < index1_data_[target]) ||
+                     ((index1_data_[mid] == index1_data_[target]) &&
+                      (index2_data_[mid] < index2_data_[target])))) {
+                    beg = mid + 1;
+                } else {
+                    end = mid;
+                }
+            }
+            return beg;
+        }
+
+        // specialized replacement of STL inplace_merge to avoid compilation
+        // problems with respect to the array_triple iterator
+        void inplace_merge (array_size_type beg, array_size_type mid, array_size_type end) const {
+            array_size_type len_lef = mid - beg;
+            array_size_type len_rig = end - mid;
+
+            if (len_lef == 1 && len_rig == 1) {
+                if ((index1_data_[mid] < index1_data_[beg]) ||
+                    ((index1_data_[mid] == index1_data_[beg]) && (index2_data_[mid] < index2_data_[beg])))
+                    {
+                        std::swap(index1_data_[beg], index1_data_[mid]);
+                        std::swap(index2_data_[beg], index2_data_[mid]);
+                        std::swap(value_data_[beg], value_data_[mid]);
+                    }
+            } else if (len_lef > 0 && len_rig > 0) {
+                array_size_type lef_mid, rig_mid;
+                if (len_lef >= len_rig) {
+                    lef_mid = (beg + mid) / 2;
+                    rig_mid = lower_bound(mid, end, lef_mid);
+                } else {
+                    rig_mid = (mid + end) / 2;
+                    lef_mid = lower_bound(beg, mid, rig_mid);
+                }
+                std::rotate(&index1_data_[0] + lef_mid, &index1_data_[0] + mid, &index1_data_[0] + rig_mid);
+                std::rotate(&index2_data_[0] + lef_mid, &index2_data_[0] + mid, &index2_data_[0] + rig_mid);
+                std::rotate(&value_data_[0] + lef_mid, &value_data_[0] + mid, &value_data_[0] + rig_mid);
+
+                array_size_type new_mid = lef_mid + rig_mid - mid;
+                inplace_merge(beg, lef_mid, new_mid);
+                inplace_merge(new_mid, rig_mid, end);
+            }
+        }
+
         // Sorting and summation of duplicates
         BOOST_UBLAS_INLINE
         void sort () const {
             if (! sorted_ && filled_ > 0) {
                 typedef index_triple_array<index_array_type, index_array_type, value_array_type> array_triple;
                 array_triple ita (filled_, index1_data_, index2_data_, value_data_);
+#ifndef BOOST_UBLAS_COO_ALWAYS_DO_FULL_SORT
                 const typename array_triple::iterator iunsorted = ita.begin () + sorted_filled_;
                 // sort new elements and merge
                 std::sort (iunsorted, ita.end ());
-                std::inplace_merge (ita.begin (), iunsorted, ita.end ());
-                
+                inplace_merge(0, sorted_filled_, filled_);
+#else
+                const typename array_triple::iterator iunsorted = ita.begin ();
+                std::sort (iunsorted, ita.end ());
+#endif                
                 // sum duplicates with += and remove
                 array_size_type filled = 0;
                 for (array_size_type i = 1; i < filled_; ++ i) {

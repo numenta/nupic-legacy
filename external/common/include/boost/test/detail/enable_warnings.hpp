@@ -7,14 +7,14 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : enable previosly suppressed warnings
 // ***************************************************************************
 
 #ifdef BOOST_MSVC
-# pragma warning(default: 4511) // copy constructor could not be generated
-# pragma warning(default: 4512) // assignment operator could not be generated
+# pragma warning(default: 4511) // copy constructor can't not be generated
+# pragma warning(default: 4512) // assignment operator can't not be generated
 # pragma warning(default: 4100) // unreferenced formal parameter 
 # pragma warning(default: 4996) // <symbol> was declared deprecated 
 # pragma warning(default: 4355) // 'this' : used in base member initializer list
@@ -24,5 +24,7 @@
 # pragma warning(default: 4290) // C++ exception specification ignored except to ...
 # pragma warning(default: 4180) // qualifier applied to function type has no meaning; ignored
 # pragma warning(default: 4275) // non dll-interface class ... used as base for dll-interface class ...
+# pragma warning(default: 4267) // 'var' : conversion from 'size_t' to 'type', possible loss of data
+# pragma warning(default: 4511) // 'class' : copy constructor could not be generated
 # pragma warning(pop)
 #endif

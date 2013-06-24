@@ -33,19 +33,18 @@ namespace std{
 #include <boost/archive/detail/auto_link_warchive.hpp>
 #include <boost/archive/basic_text_oprimitive.hpp>
 #include <boost/archive/basic_xml_oarchive.hpp>
+#include <boost/archive/detail/register_archive.hpp>
+#include <boost/serialization/item_version_type.hpp>
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 namespace boost {
 namespace archive {
-
-#if 0
-BOOST_WARCHIVE_DECL(std::wostream &)
-operator<<(std::wostream &os, const char *t);
-
-BOOST_WARCHIVE_DECL(std::wostream &)
-operator<<(std::wostream &os, const char t);
-#endif
 
 template<class Archive>
 class xml_woarchive_impl : 
@@ -67,6 +66,14 @@ protected:
     void 
     save(const T & t){
         basic_text_oprimitive<std::wostream>::save(t);
+    }
+    void 
+    save(const version_type & t){
+        save(static_cast<const unsigned int>(t));
+    }
+    void 
+    save(const boost::serialization::item_version_type & t){
+        save(static_cast<const unsigned int>(t));
     }
     BOOST_WARCHIVE_DECL(void)
     save(const char * t);
@@ -122,6 +129,10 @@ typedef xml_woarchive naked_xml_woarchive;
 
 // required by export
 BOOST_SERIALIZATION_REGISTER_ARCHIVE(boost::archive::xml_woarchive)
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

@@ -1,6 +1,6 @@
 //
-//  Copyright (c) 2000-2007
-//  Joerg Walter, Mathias Koch, Gunter Winkler
+//  Copyright (c) 2000-2010
+//  Joerg Walter, Mathias Koch, Gunter Winkler, David Bellot
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -22,7 +22,22 @@
 
 // Iterators based on ideas of Jeremy Siek
 
-namespace boost { namespace numeric { namespace ublas {
+namespace boost { namespace numeric { 
+	
+	/** \brief main namespace of uBLAS.
+	 *
+	 * Use this namespace for all operations with uBLAS. It can also be abbreviated with
+	 * \code namespace ublas = boost::numeric::ublas; \endcode
+	 *
+	 * A common practice is to bring this namespace into the current scope with
+	 * \code using namespace boost::numeric::ublas; \endcode.
+	 *
+	 * However, be warned that using the ublas namespace and the std::vector at the same time can lead to the compiler to confusion. 
+	 * The solution is simply to prefix each ublas vector like \c boost::numeric::ublas::vector<T>. If you think it's too long to 
+	 * write, you can define a new namespace like \c namespace ublas = boost::numeric::ublas and then just declare your vectors
+	 * with \c ublas::vector<T>. STL vectors will be declared as vector<T>. No need to prefix with \c std::
+	 */
+	namespace ublas {
 
     namespace detail {
         using namespace boost::numeric::ublas;
@@ -57,8 +72,20 @@ namespace boost { namespace numeric { namespace ublas {
         }
     }
 
-
-    // Array based matrix class
+    /** \brief A dense matrix of values of type \c T.
+     *
+     * For a \f$(m \times n)\f$-dimensional matrix and \f$ 0 \leq i < m, 0 \leq j < n\f$, every element \f$ m_{i,j} \f$ is mapped to 
+     * the \f$(i.n + j)\f$-th element of the container for row major orientation or the \f$ (i + j.m) \f$-th element of 
+     * the container for column major orientation. In a dense matrix all elements are represented in memory in a 
+     * contiguous chunk of memory by definition.
+     * 
+     * Orientation and storage can also be specified, otherwise a \c row_major and \c unbounded_array are used. It is \b not 
+     * required by the storage to initialize elements of the matrix.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam L the storage organization. It can be either \c row_major or \c column_major. Default is \c row_major
+     * \tparam A the type of Storage array. Default is \c unbounded_array
+     */
     template<class T, class L, class A>
     class matrix:
         public matrix_container<matrix<T, L, A> > {
@@ -87,27 +114,54 @@ namespace boost { namespace numeric { namespace ublas {
         typedef typename L::orientation_category orientation_category;
 
         // Construction and destruction
+	  
+	  /// Default dense matrix constructor. Make a dense matrix of size (0,0)
         BOOST_UBLAS_INLINE
         matrix ():
             matrix_container<self_type> (),
             size1_ (0), size2_ (0), data_ () {}
+
+	  /** Dense matrix constructor with defined size
+	   * \param size1 number of rows
+	   * \param size2 number of columns
+	   */
         BOOST_UBLAS_INLINE
         matrix (size_type size1, size_type size2):
             matrix_container<self_type> (),
             size1_ (size1), size2_ (size2), data_ (layout_type::storage_size (size1, size2)) {
         }
+
+	  /** Dense matrix constructor with defined size a initial value for all the matrix elements
+	   * \param size1 number of rows
+	   * \param size2 number of columns
+	   * \param init initial value assigned to all elements
+	   */
         matrix (size_type size1, size_type size2, const value_type &init):
             matrix_container<self_type> (),
             size1_ (size1), size2_ (size2), data_ (layout_type::storage_size (size1, size2), init) {
         }
+
+	  /** Dense matrix constructor with defined size and an initial data array
+	   * \param size1 number of rows
+	   * \param size2 number of columns
+	   * \param data array to copy into the matrix. Must have the same dimension as the matrix
+	   */
         BOOST_UBLAS_INLINE
         matrix (size_type size1, size_type size2, const array_type &data):
             matrix_container<self_type> (),
             size1_ (size1), size2_ (size2), data_ (data) {}
+
+	  /** Copy-constructor of a dense matrix
+	   * \param m is a dense matrix
+	   */
         BOOST_UBLAS_INLINE
         matrix (const matrix &m):
             matrix_container<self_type> (),
             size1_ (m.size1_), size2_ (m.size2_), data_ (m.data_) {}
+
+	  /** Copy-constructor of a dense matrix from a matrix expression
+	   * \param ae is a matrix expression
+	   */
         template<class AE>
         BOOST_UBLAS_INLINE
         matrix (const matrix_expression<AE> &ae):
@@ -117,26 +171,46 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         // Accessors
+	  /** Return the number of rows of the matrix
+	   * You can also use the free size<>() function in operation/size.hpp as size<1>(m) where m is a matrix
+	   */
         BOOST_UBLAS_INLINE
         size_type size1 () const {
             return size1_;
         }
+
+	  /** Return the number of colums of the matrix
+	   * You can also use the free size<>() function in operation/size.hpp as size<2>(m) where m is a matrix
+	   */
         BOOST_UBLAS_INLINE
         size_type size2 () const {
             return size2_;
         }
 
         // Storage accessors
+	  /** Return a constant reference to the internal storage of a dense matrix, i.e. the raw data
+	   * It's type depends on the type used by the matrix to store its data
+	   */
         BOOST_UBLAS_INLINE
         const array_type &data () const {
             return data_;
         }
+	  /** Return a reference to the internal storage of a dense matrix, i.e. the raw data
+	   * It's type depends on the type used by the matrix to store its data
+	   */
         BOOST_UBLAS_INLINE
         array_type &data () {
             return data_;
         }
 
         // Resizing
+	  /** Resize a matrix to new dimensions
+	   * If data are preserved, then if the size if bigger at least on one dimension, extra values are filled with zeros.
+	   * If data are not preserved, then nothing has to be assumed regarding the content of the matrix after resizing.
+	   * \param size1 the new number of rows
+	   * \param size2 the new number of colums
+	   * \param preserve a boolean to say if one wants the data to be preserved during the resizing. Default is true.
+	   */
         BOOST_UBLAS_INLINE
         void resize (size_type size1, size_type size2, bool preserve = true) {
             if (preserve) {
@@ -180,6 +254,15 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        matrix &operator = (matrix m) {
+            assign_temporary(m);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         matrix &operator = (const matrix &m) {
             size1_ = m.size1_;
@@ -187,6 +270,7 @@ namespace boost { namespace numeric { namespace ublas {
             data () = m.data ();
             return *this;
         }
+#endif
         template<class C>          // Container assignment without temporary
         BOOST_UBLAS_INLINE
         matrix &operator = (const matrix_container<C> &m) {
@@ -971,8 +1055,22 @@ namespace boost { namespace numeric { namespace ublas {
         array_type data_;
     };
 
-
-    // Bounded matrix class
+    /** \brief A dense matrix of values of type \c T with a variable size bounded to a maximum of \f$M\f$ by \f$N\f$. 
+     *
+     * For a \f$(m \times n)\f$-dimensional matrix and \f$ 0 \leq i < m, 0 \leq j < n\f$, every element \f$m_{i,j}\f$ is mapped
+     * to the \f$(i.n + j)\f$-th element of the container for row major orientation or the \f$(i + j.m)\f$-th element
+     * of the container for column major orientation. Finally in a dense matrix all elements are represented in memory 
+     * in a contiguous chunk of memory.
+     *
+     * Orientation can be specified. Default is \c row_major
+     * The default constructor creates the matrix with size \f$M\f$ by \f$N\f$. Elements are constructed by the storage 
+     * type \c bounded_array, which need not initialise their value.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam M maximum and default number of rows (if not specified at construction)
+     * \tparam N maximum and default number of columns (if not specified at construction)
+     * \tparam L the storage organization. It can be either \c row_major or \c column_major. Default is \c row_major
+     */
     template<class T, std::size_t M, std::size_t N, class L>
     class bounded_matrix:
         public matrix<T, L, bounded_array<T, M * N> > {
@@ -1005,11 +1103,21 @@ namespace boost { namespace numeric { namespace ublas {
         ~bounded_matrix () {}
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        bounded_matrix &operator = (bounded_matrix m) {
+            matrix_type::operator = (m);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         bounded_matrix &operator = (const bounded_matrix &m) {
             matrix_type::operator = (m);
             return *this;
         }
+#endif
         template<class L2, class A2>        // Generic matrix assignment
         BOOST_UBLAS_INLINE
         bounded_matrix &operator = (const matrix<T, L2, A2> &m) {
@@ -1030,8 +1138,21 @@ namespace boost { namespace numeric { namespace ublas {
         }
     };
 
-
-    // Array based matrix class
+    /** \brief A dense matrix of values of type \c T stored as a vector of vectors.
+    *
+    * Rows or columns are not stored into contiguous chunks of memory but data inside rows (or columns) are. 
+    * Orientation and storage can also be specified, otherwise a row major and unbounded arrays are used.
+    * The data is stored as a vector of vectors, meaning that rows or columns might not be stored into contiguous chunks
+    * of memory. Orientation and storage can also be specified, otherwise a row major and unbounded arrays are used. 
+    * The storage type defaults to \c unbounded_array<unbounded_array<T>> and orientation is \c row_major. It is \b not 
+    * required by the storage to initialize elements of the matrix. For a \f$(m \times n)\f$-dimensional matrix and 
+    * \f$ 0 \leq i < m, 0 \leq j < n\f$, every element \f$m_{i,j}\f$ is mapped to the \f$(i.n + j)\f$-th element of the 
+    * container for row major orientation or the \f$(i + j.m)\f$-th element of the container for column major orientation.
+    *
+    * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+    * \tparam L the storage organization. It can be either \c row_major or \c column_major. By default it is \c row_major
+    * \tparam A the type of Storage array. By default, it is an \unbounded_array<unbounder_array<T>>
+    */
     template<class T, class L, class A>
     class vector_of_vector:
         public matrix_container<vector_of_vector<T, L, A> > {
@@ -2012,7 +2133,14 @@ namespace boost { namespace numeric { namespace ublas {
     };
 
 
-    // Zero matrix class
+    /** \brief A matrix with all values of type \c T equal to zero
+     *
+     * Changing values does not affect the matrix, however assigning it to a normal matrix will put zero 
+     * everywhere in the target matrix. All accesses are constant time, due to the trivial value.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam ALLOC an allocator for storing the zero element. By default, a standar allocator is used.
+     */
     template<class T, class ALLOC>
     class zero_matrix:
         public matrix_container<zero_matrix<T, ALLOC> > {
@@ -2391,8 +2519,15 @@ namespace boost { namespace numeric { namespace ublas {
     template<class T, class ALLOC>
     const typename zero_matrix<T, ALLOC>::value_type zero_matrix<T, ALLOC>::zero_ = T(/*zero*/);
 
-
-    // Identity matrix class
+    /** \brief An identity matrix with values of type \c T
+     *
+     * Elements or cordinates \f$(i,i)\f$ are equal to 1 (one) and all others to 0 (zero). 
+     * Changing values does not affect the matrix, however assigning it to a normal matrix will
+     * make the matrix equal to an identity matrix. All accesses are constant du to the trivial values.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam ALLOC an allocator for storing the zeros and one elements. By default, a standar allocator is used.
+     */ 
     template<class T, class ALLOC>
     class identity_matrix:
         public matrix_container<identity_matrix<T, ALLOC> > {
@@ -2446,11 +2581,13 @@ namespace boost { namespace numeric { namespace ublas {
         void resize (size_type size, bool preserve = true) {
             size1_ = size;
             size2_ = size;
+            size_common_ = ((std::min)(size1_, size2_));
         }
         BOOST_UBLAS_INLINE
         void resize (size_type size1, size_type size2, bool /*preserve*/ = true) {
             size1_ = size1;
             size2_ = size2;
+            size_common_ = ((std::min)(size1_, size2_));
         }
 
         // Element access
@@ -2467,6 +2604,7 @@ namespace boost { namespace numeric { namespace ublas {
         identity_matrix &operator = (const identity_matrix &m) {
             size1_ = m.size1_;
             size2_ = m.size2_;
+            size_common_ = m.size_common_;
             return *this;
         }
         BOOST_UBLAS_INLINE
@@ -2481,6 +2619,7 @@ namespace boost { namespace numeric { namespace ublas {
             if (this != &m) {
                 std::swap (size1_, m.size1_);
                 std::swap (size2_, m.size2_);
+                std::swap (size_common_, m.size_common_);
             }
         }
         BOOST_UBLAS_INLINE
@@ -2797,7 +2936,14 @@ namespace boost { namespace numeric { namespace ublas {
     const typename identity_matrix<T, ALLOC>::value_type identity_matrix<T, ALLOC>::one_ (1); // ISSUE: need 'one'-traits here
 
 
-    // Scalar matrix class
+    /** \brief A matrix with all values of type \c T equal to the same value
+     *
+     * Changing one value has the effect of changing all the values. Assigning it to a normal matrix will copy
+     * the same value everywhere in this matrix. All accesses are constant time, due to the trivial value.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam ALLOC an allocator for storing the unique value. By default, a standar allocator is used.
+     */
     template<class T, class ALLOC>
     class scalar_matrix:
         public matrix_container<scalar_matrix<T, ALLOC> > {
@@ -3251,7 +3397,23 @@ namespace boost { namespace numeric { namespace ublas {
     };
 
 
-    // Array based matrix class
+    /** \brief An array based matrix class which size is defined at type specification or object instanciation
+     *
+     * This matrix is directly based on a predefined C-style arry of data, thus providing the fastest
+     * implementation possible. The constraint is that dimensions of the matrix must be specified at 
+     * the instanciation or the type specification. 
+     *
+     * For instance, \code typedef c_matrix<double,4,4> my_4by4_matrix \endcode 
+     * defines a 4 by 4 double-precision matrix.  You can also instantiate it directly with 
+     * \code c_matrix<int,8,5> my_fast_matrix \endcode. This will make a 8 by 5 integer matrix. The 
+     * price to pay for this speed is that you cannot resize it to a size larger than the one defined 
+     * in the template parameters. In the previous example, a size of 4 by 5 or 3 by 2 is acceptable, 
+     * but a new size of 9 by 5 or even 10 by 10 will raise a bad_size() exception.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam N the default maximum number of rows
+     * \tparam M the default maximum number of columns
+     */
     template<class T, std::size_t N, std::size_t M>
     class c_matrix:
         public matrix_container<c_matrix<T, N, M> > {
@@ -3294,7 +3456,7 @@ namespace boost { namespace numeric { namespace ublas {
             size1_ (m.size1_), size2_ (m.size2_) /* , data_ () */ {
             if (size1_ > N || size2_ > M)
                 bad_size ().raise ();
-            *this = m;
+            assign(m);
         }
         template<class AE>
         BOOST_UBLAS_INLINE
@@ -3378,6 +3540,15 @@ namespace boost { namespace numeric { namespace ublas {
         }
 
         // Assignment
+#ifdef BOOST_UBLAS_MOVE_SEMANTICS
+
+        /*! @note "pass by value" the key idea to enable move semantics */
+        BOOST_UBLAS_INLINE
+        c_matrix &operator = (c_matrix m) {
+            assign_temporary(m);
+            return *this;
+        }
+#else
         BOOST_UBLAS_INLINE
         c_matrix &operator = (const c_matrix &m) {
             size1_ = m.size1_;
@@ -3386,6 +3557,7 @@ namespace boost { namespace numeric { namespace ublas {
                 std::copy (m.data_ [i], m.data_ [i] + m.size2_, data_ [i]);
             return *this;
         }
+#endif
         template<class C>          // Container assignment without temporary
         BOOST_UBLAS_INLINE
         c_matrix &operator = (const matrix_container<C> &m) {

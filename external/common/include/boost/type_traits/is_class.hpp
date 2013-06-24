@@ -27,10 +27,11 @@
 #   include <boost/type_traits/is_function.hpp>
 #endif
 
+#endif // BOOST_IS_CLASS
+
 #ifdef __EDG_VERSION__
 #   include <boost/type_traits/remove_cv.hpp>
 #endif
-#endif // BOOST_IS_CLASS
 
 // should be the last #include
 #include <boost/type_traits/detail/bool_trait_def.hpp>

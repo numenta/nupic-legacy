@@ -12,15 +12,23 @@
 #include <vector>
 #include <list>
 #include <boost/config.hpp>
-#include <boost/utility.hpp>  //for next and prior
+#include <boost/next_prior.hpp>
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 
 namespace boost
 {
 
 
+  namespace detail {
+    enum planar_canonical_ordering_state
+         {PCO_PROCESSED, 
+          PCO_UNPROCESSED, 
+          PCO_ONE_NEIGHBOR_PROCESSED, 
+          PCO_READY_TO_BE_PROCESSED};
+  }
+    
   template<typename Graph, 
            typename PlanarEmbedding, 
            typename OutputIterator, 
@@ -47,16 +55,11 @@ namespace boost
       <typename std::vector<std::size_t>::iterator, VertexIndexMap> 
       vertex_to_size_t_map_t;
     
-    enum {PROCESSED, 
-          UNPROCESSED, 
-          ONE_NEIGHBOR_PROCESSED, 
-          READY_TO_BE_PROCESSED};
-    
     std::vector<vertex_t> processed_neighbor_vector(num_vertices(g));
     vertex_to_vertex_map_t processed_neighbor
       (processed_neighbor_vector.begin(), vm);
 
-    std::vector<std::size_t> status_vector(num_vertices(g), UNPROCESSED);
+    std::vector<std::size_t> status_vector(num_vertices(g), detail::PCO_UNPROCESSED);
     vertex_to_size_t_map_t status(status_vector.begin(), vm);
 
     std::list<vertex_t> ready_to_be_processed;
@@ -64,7 +67,7 @@ namespace boost
     vertex_t first_vertex = *vertices(g).first;
     vertex_t second_vertex;
     adjacency_iterator_t ai, ai_end;
-    for(tie(ai,ai_end) = adjacent_vertices(first_vertex,g); ai != ai_end; ++ai)
+    for(boost::tie(ai,ai_end) = adjacent_vertices(first_vertex,g); ai != ai_end; ++ai)
       {
         if (*ai == first_vertex)
           continue;
@@ -73,16 +76,16 @@ namespace boost
       }
 
     ready_to_be_processed.push_back(first_vertex);
-    status[first_vertex] = READY_TO_BE_PROCESSED;
+    status[first_vertex] = detail::PCO_READY_TO_BE_PROCESSED;
     ready_to_be_processed.push_back(second_vertex);
-    status[second_vertex] = READY_TO_BE_PROCESSED;
+    status[second_vertex] = detail::PCO_READY_TO_BE_PROCESSED;
 
     while(!ready_to_be_processed.empty())
       {
         vertex_t u = ready_to_be_processed.front();
         ready_to_be_processed.pop_front();
 
-        if (status[u] != READY_TO_BE_PROCESSED && u != second_vertex)
+        if (status[u] != detail::PCO_READY_TO_BE_PROCESSED && u != second_vertex)
           continue;
 
         embedding_iterator_t ei, ei_start, ei_end;
@@ -98,7 +101,7 @@ namespace boost
           {
             
             edge_t e(*ei); // e = (u,v)
-            next_edge_itr = next(ei) == ei_end ? ei_start : next(ei);
+            next_edge_itr = boost::next(ei) == ei_end ? ei_start : boost::next(ei);
             vertex_t v = source(e,g) == u ? target(e,g) : source(e,g);
 
             vertex_t prior_vertex = source(*prior_edge_itr, g) == u ? 
@@ -124,19 +127,19 @@ namespace boost
             // past any loops or parallel edges
             while (next_vertex == v || next_vertex == u)
               {
-                next_edge_itr = next(next_edge_itr) == ei_end ?
-                  ei_start : next(next_edge_itr);
+                next_edge_itr = boost::next(next_edge_itr) == ei_end ?
+                  ei_start : boost::next(next_edge_itr);
                 next_vertex = source(*next_edge_itr, g) == u ? 
                   target(*next_edge_itr, g) : source(*next_edge_itr, g);
               }
 
 
-            if (status[v] == UNPROCESSED)
+            if (status[v] == detail::PCO_UNPROCESSED)
               {
-                status[v] = ONE_NEIGHBOR_PROCESSED;
+                status[v] = detail::PCO_ONE_NEIGHBOR_PROCESSED;
                 processed_neighbor[v] = u;
               }
-            else if (status[v] == ONE_NEIGHBOR_PROCESSED)
+            else if (status[v] == detail::PCO_ONE_NEIGHBOR_PROCESSED)
               {
                 vertex_t x = processed_neighbor[v];
                 //are edges (v,u) and (v,x) adjacent in the planar
@@ -152,24 +155,24 @@ namespace boost
                      )
                     )
                   {
-                    status[v] = READY_TO_BE_PROCESSED;
+                    status[v] = detail::PCO_READY_TO_BE_PROCESSED;
                   }
                 else
                   {
-                    status[v] = READY_TO_BE_PROCESSED + 1;
+                    status[v] = detail::PCO_READY_TO_BE_PROCESSED + 1;
                   }                                                        
               }
-            else if (status[v] > ONE_NEIGHBOR_PROCESSED)
+            else if (status[v] > detail::PCO_ONE_NEIGHBOR_PROCESSED)
               {
                 //check the two edges before and after (v,u) in the planar
                 //embedding, and update status[v] accordingly
 
                 bool processed_before = false;
-                if (status[prior_vertex] == PROCESSED)
+                if (status[prior_vertex] == detail::PCO_PROCESSED)
                   processed_before = true;
 
                 bool processed_after = false;
-                if (status[next_vertex] == PROCESSED)
+                if (status[next_vertex] == detail::PCO_PROCESSED)
                   processed_after = true;
 
                 if (!processed_before && !processed_after)
@@ -180,14 +183,14 @@ namespace boost
 
               }
 
-            if (status[v] == READY_TO_BE_PROCESSED)
+            if (status[v] == detail::PCO_READY_TO_BE_PROCESSED)
               ready_to_be_processed.push_back(v);
 
             prior_edge_itr = ei;
 
           }
 
-        status[u] = PROCESSED;
+        status[u] = detail::PCO_PROCESSED;
         *ordering = u;
         ++ordering;
         

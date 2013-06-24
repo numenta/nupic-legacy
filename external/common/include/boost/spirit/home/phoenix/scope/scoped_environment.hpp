@@ -37,6 +37,10 @@ namespace boost { namespace phoenix
         Env const& env;
         OuterEnv const& outer_env;
         Locals& locals;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        scoped_environment& operator= (scoped_environment const&);
     };
 }}
 

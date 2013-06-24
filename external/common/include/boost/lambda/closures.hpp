@@ -251,7 +251,7 @@ private:
     closure& operator=(closure const&); // no assign
 
     template <int N, typename ClosureT>
-    friend struct closure_member;
+    friend class closure_member;
 
     template <typename ClosureT>
     friend class closure_frame;

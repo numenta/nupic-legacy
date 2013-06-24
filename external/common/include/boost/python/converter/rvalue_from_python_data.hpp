@@ -117,9 +117,9 @@ struct rvalue_from_python_data : rvalue_from_python_storage<T>
 // Implementataions
 //
 template <class T>
-inline rvalue_from_python_data<T>::rvalue_from_python_data(rvalue_from_python_stage1_data const& stage1)
+inline rvalue_from_python_data<T>::rvalue_from_python_data(rvalue_from_python_stage1_data const& _stage1)
 {
-    this->stage1 = stage1;
+    this->stage1 = _stage1;
 }
 
 template <class T>

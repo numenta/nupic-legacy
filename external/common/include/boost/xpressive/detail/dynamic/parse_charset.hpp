@@ -54,7 +54,7 @@ struct char_overflow_handler
     {
         if(numeric::cInRange != result)
         {
-            boost::throw_exception(
+            BOOST_THROW_EXCEPTION(
                 regex_error(
                     regex_constants::error_escape
                   , "character escape too large to fit in target character type"
@@ -69,7 +69,7 @@ struct char_overflow_handler
 //
 template<typename FwdIter, typename CompilerTraits>
 escape_value<typename iterator_value<FwdIter>::type, typename CompilerTraits::regex_traits::char_class_type>
-parse_escape(FwdIter &begin, FwdIter end, CompilerTraits &traits)
+parse_escape(FwdIter &begin, FwdIter end, CompilerTraits &tr)
 {
     using namespace regex_constants;
     typedef typename iterator_value<FwdIter>::type char_type;
@@ -81,11 +81,11 @@ parse_escape(FwdIter &begin, FwdIter end, CompilerTraits &traits)
     BOOST_MPL_ASSERT_RELATION(sizeof(uchar_t), ==, sizeof(char_type));
     typedef numeric::conversion_traits<uchar_t, int> converstion_traits;
 
-    ensure(begin != end, error_escape, "unexpected end of pattern found");
+    BOOST_XPR_ENSURE_(begin != end, error_escape, "unexpected end of pattern found");
     numeric::converter<int, uchar_t, converstion_traits, char_overflow_handler> converter;
     escape_value<char_type,char_class_type> esc = { 0, 0, 0, escape_char };
-    bool const icase = (0 != (regex_constants::icase_ & traits.flags()));
-    regex_traits const &rxtraits = traits.traits();
+    bool const icase = (0 != (regex_constants::icase_ & tr.flags()));
+    regex_traits const &rxtraits = tr.traits();
     FwdIter tmp;
 
     esc.class_ = rxtraits.lookup_classname(begin, begin + 1, icase);
@@ -115,8 +115,8 @@ parse_escape(FwdIter &begin, FwdIter end, CompilerTraits &traits)
         break;
     // control character
     case BOOST_XPR_CHAR_(char_type, 'c'):
-        ensure(++begin != end, error_escape, "unexpected end of pattern found");
-        ensure
+        BOOST_XPR_ENSURE_(++begin != end, error_escape, "unexpected end of pattern found");
+        BOOST_XPR_ENSURE_
         (
             rxtraits.in_range(BOOST_XPR_CHAR_(char_type, 'a'), BOOST_XPR_CHAR_(char_type, 'z'), *begin)
          || rxtraits.in_range(BOOST_XPR_CHAR_(char_type, 'A'), BOOST_XPR_CHAR_(char_type, 'Z'), *begin)
@@ -154,18 +154,18 @@ parse_escape(FwdIter &begin, FwdIter end, CompilerTraits &traits)
         break;
     // hex escape sequence
     case BOOST_XPR_CHAR_(char_type, 'x'):
-        ensure(++begin != end, error_escape, "unexpected end of pattern found");
+        BOOST_XPR_ENSURE_(++begin != end, error_escape, "unexpected end of pattern found");
         tmp = begin;
         esc.ch_ = converter(toi(begin, end, rxtraits, 16, 0xff));
-        ensure(2 == std::distance(tmp, begin), error_escape, "invalid hex escape : "
+        BOOST_XPR_ENSURE_(2 == std::distance(tmp, begin), error_escape, "invalid hex escape : "
             "must be \\x HexDigit HexDigit");
         break;
     // Unicode escape sequence
     case BOOST_XPR_CHAR_(char_type, 'u'):
-        ensure(++begin != end, error_escape, "unexpected end of pattern found");
+        BOOST_XPR_ENSURE_(++begin != end, error_escape, "unexpected end of pattern found");
         tmp = begin;
         esc.ch_ = converter(toi(begin, end, rxtraits, 16, 0xffff));
-        ensure(4 == std::distance(tmp, begin), error_escape, "invalid Unicode escape : "
+        BOOST_XPR_ENSURE_(4 == std::distance(tmp, begin), error_escape, "invalid Unicode escape : "
             "must be \\u HexDigit HexDigit HexDigit HexDigit");
         break;
     // backslash
@@ -192,28 +192,28 @@ inline void parse_charset
     FwdIter &begin
   , FwdIter end
   , compound_charset<RegexTraits> &chset
-  , CompilerTraits &traits
+  , CompilerTraits &tr
 )
 {
     using namespace regex_constants;
     typedef typename RegexTraits::char_type char_type;
     typedef typename RegexTraits::char_class_type char_class_type;
     BOOST_ASSERT(begin != end);
-    RegexTraits const &rxtraits = traits.traits();
-    bool const icase = (0 != (regex_constants::icase_ & traits.flags()));
+    RegexTraits const &rxtraits = tr.traits();
+    bool const icase = (0 != (regex_constants::icase_ & tr.flags()));
     FwdIter iprev = FwdIter();
     escape_value<char_type, char_class_type> esc = {0, 0, 0, escape_char};
     bool invert = false;
 
     // check to see if we have an inverse charset
-    if(begin != end && token_charset_invert == traits.get_charset_token(iprev = begin, end))
+    if(begin != end && token_charset_invert == tr.get_charset_token(iprev = begin, end))
     {
         begin = iprev;
         invert = true;
     }
 
     // skip the end token if-and-only-if it is the first token in the charset
-    if(begin != end && token_charset_end == traits.get_charset_token(iprev = begin, end))
+    if(begin != end && token_charset_end == tr.get_charset_token(iprev = begin, end))
     {
         for(; begin != iprev; ++begin)
         {
@@ -225,14 +225,14 @@ inline void parse_charset
     char_type ch_prev = char_type(), ch_next = char_type();
     bool have_prev = false;
 
-    ensure(begin != end, error_brack, "unexpected end of pattern found");
+    BOOST_XPR_ENSURE_(begin != end, error_brack, "unexpected end of pattern found");
 
     // remember the current position and grab the next token
     iprev = begin;
-    tok = traits.get_charset_token(begin, end);
+    tok = tr.get_charset_token(begin, end);
     do
     {
-        ensure(begin != end, error_brack, "unexpected end of pattern found");
+        BOOST_XPR_ENSURE_(begin != end, error_brack, "unexpected end of pattern found");
 
         if(token_charset_hyphen == tok && have_prev)
         {
@@ -241,26 +241,26 @@ inline void parse_charset
             have_prev = false;
 
             // ch_prev is lower bound of a range
-            switch(traits.get_charset_token(begin, end))
+            switch(tr.get_charset_token(begin, end))
             {
             case token_charset_hyphen:
             case token_charset_invert:
                 begin = iprev2; // un-get these tokens and fall through
             case token_literal:
                 ch_next = *begin++;
-                detail::ensure(ch_prev <= ch_next, error_range, "invalid charset range");
+                BOOST_XPR_ENSURE_(ch_prev <= ch_next, error_range, "invalid charset range");
                 chset.set_range(ch_prev, ch_next, rxtraits, icase);
                 continue;
             case token_charset_backspace:
                 ch_next = char_type(8); // backspace
-                detail::ensure(ch_prev <= ch_next, error_range, "invalid charset range");
+                BOOST_XPR_ENSURE_(ch_prev <= ch_next, error_range, "invalid charset range");
                 chset.set_range(ch_prev, ch_next, rxtraits, icase);
                 continue;
             case token_escape:
-                esc = parse_escape(begin, end, traits);
+                esc = parse_escape(begin, end, tr);
                 if(escape_char == esc.type_)
                 {
-                    detail::ensure(ch_prev <= esc.ch_, error_range, "invalid charset range");
+                    BOOST_XPR_ENSURE_(ch_prev <= esc.ch_, error_range, "invalid charset range");
                     chset.set_range(ch_prev, esc.ch_, rxtraits, icase);
                     continue;
                 }
@@ -298,20 +298,20 @@ inline void parse_charset
         case token_posix_charset_begin:
             {
                 FwdIter tmp = begin, start = begin;
-                bool invert = (token_charset_invert == traits.get_charset_token(tmp, end));
+                bool invert = (token_charset_invert == tr.get_charset_token(tmp, end));
                 if(invert)
                 {
                     begin = start = tmp;
                 }
-                while(token_literal == (tok = traits.get_charset_token(begin, end)))
+                while(token_literal == (tok = tr.get_charset_token(begin, end)))
                 {
                     tmp = ++begin;
-                    ensure(begin != end, error_brack, "unexpected end of pattern found");
+                    BOOST_XPR_ENSURE_(begin != end, error_brack, "unexpected end of pattern found");
                 }
                 if(token_posix_charset_end == tok)
                 {
                     char_class_type chclass = rxtraits.lookup_classname(start, tmp, icase);
-                    ensure(0 != chclass, error_ctype, "unknown class name");
+                    BOOST_XPR_ENSURE_(0 != chclass, error_ctype, "unknown class name");
                     chset.set_class(chclass, invert);
                     continue;
                 }
@@ -322,7 +322,7 @@ inline void parse_charset
             continue;
 
         case token_escape:
-            esc = parse_escape(begin, end, traits);
+            esc = parse_escape(begin, end, tr);
             if(escape_char == esc.type_)
             {
                 ch_prev = esc.ch_;
@@ -346,8 +346,8 @@ inline void parse_charset
             continue;
         }
     }
-    while(ensure((iprev = begin) != end, error_brack, "unexpected end of pattern found"),
-          token_charset_end != (tok = traits.get_charset_token(begin, end)));
+    while(BOOST_XPR_ENSURE_((iprev = begin) != end, error_brack, "unexpected end of pattern found"),
+          token_charset_end != (tok = tr.get_charset_token(begin, end)));
 
     if(have_prev)
     {

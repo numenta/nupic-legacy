@@ -22,6 +22,7 @@
 #include <boost/mpl/and.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/or.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 
 namespace boost { namespace iostreams {
@@ -40,7 +41,7 @@ void skip(Device& dev, stream_offset off, mpl::false_)
     for (stream_offset z = 0; z < off; ) {
         typename traits_type::int_type c;
         if (traits_type::is_eof(c = iostreams::get(dev)))
-            throw BOOST_IOSTREAMS_FAILURE("bad skip offset");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("bad skip offset"));
         if (!traits_type::would_block(c))
             ++z;
     }
@@ -60,7 +61,7 @@ void skip( Filter& flt, Device& dev, stream_offset off,
     for (stream_offset z = 0; z < off; ) {
         std::streamsize amt;
         if ((amt = iostreams::read(flt, dev, &c, 1)) == -1)
-            throw BOOST_IOSTREAMS_FAILURE("bad skip offset");
+            boost::throw_exception(BOOST_IOSTREAMS_FAILURE("bad skip offset"));
         if (amt == 1)
             ++z;
     }
@@ -100,8 +101,8 @@ void skip( Filter& flt, Device& dev, stream_offset off,
     >                                                      can_seek;
     BOOST_STATIC_ASSERT(
         ( can_seek::value || 
-          is_convertible<filter_mode, input>::value &&
-          is_convertible<device_mode, input>::value )
+          (is_convertible<filter_mode, input>::value &&
+          is_convertible<device_mode, input>::value) )
     );
     detail::skip(flt, dev, off, which, can_seek());
 }

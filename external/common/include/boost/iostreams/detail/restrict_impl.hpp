@@ -44,6 +44,7 @@
 # include <boost/iostreams/traits.hpp>         // mode_of, is_direct.
 # include <boost/mpl/bool.hpp>
 # include <boost/static_assert.hpp>
+# include <boost/throw_exception.hpp>
 # include <boost/type_traits/is_convertible.hpp>
 
 # include <boost/iostreams/detail/config/disable_warnings.hpp>
@@ -55,7 +56,7 @@ namespace detail {
 //
 // Template name: restricted_indirect_device.
 // Description: Provides an restricted view of an indirect Device.
-// Template paramters:
+// Template parameters:
 //      Device - An indirect model of Device that models either Source or
 //          SeekableDevice.
 //
@@ -87,7 +88,7 @@ private:
 //
 // Template name: restricted_direct_device.
 // Description: Provides an restricted view of a Direct Device.
-// Template paramters:
+// Template parameters:
 //      Device - A model of Direct and Device.
 //
 template<typename Device>
@@ -117,7 +118,7 @@ private:
 //
 // Template name: restricted_filter.
 // Description: Provides an restricted view of a Filter.
-// Template paramters:
+// Template parameters:
 //      Filter - An indirect model of Filter.
 //
 template<typename Filter>
@@ -159,8 +160,12 @@ public:
     {
         if (!open_)
             open(snk, BOOST_IOS::out);
-        if (end_ != -1 && pos_ + n >= end_)
-            bad_write();
+        if (end_ != -1 && pos_ + n >= end_) {
+            if(pos_ < end_)
+                pos_ += iostreams::write(this->component(),
+                    snk, s, end_ - pos_);
+            boost::throw_exception(bad_write());
+        }
         std::streamsize result = 
             iostreams::write(this->component(), snk, s, n);
         pos_ += result;
@@ -181,11 +186,11 @@ public:
             // Restriction is half-open; seek relative to the actual end.
             pos_ = this->component().seek(dev, off, BOOST_IOS::end);
             if (pos_ < beg_)
-                bad_seek();
+                boost::throw_exception(bad_seek());
             return offset_to_position(pos_ - beg_);
         }
-        if (next < beg_ || end_ != -1 && next >= end_)
-            bad_seek();
+        if (next < beg_ || (end_ != -1 && next >= end_))
+            boost::throw_exception(bad_seek());
         pos_ = this->component().seek(dev, next, BOOST_IOS::cur);
         return offset_to_position(pos_ - beg_);
     }
@@ -248,7 +253,7 @@ restricted_indirect_device<Device>::restricted_indirect_device
       end_(len != -1 ? off + len : -1)
 {
     if (len < -1 || off < 0)
-        throw BOOST_IOSTREAMS_FAILURE("bad offset");
+        boost::throw_exception(BOOST_IOSTREAMS_FAILURE("bad offset"));
     iostreams::skip(this->component(), off);
 }
 
@@ -271,8 +276,11 @@ template<typename Device>
 inline std::streamsize restricted_indirect_device<Device>::write
     (const char_type* s, std::streamsize n)
 {
-    if (end_ != -1 && pos_ + n >= end_)
-        bad_write();
+    if (end_ != -1 && pos_ + n >= end_) {
+        if(pos_ < end_)
+            pos_ += iostreams::write(this->component(), s, end_ - pos_);
+        boost::throw_exception(bad_write());
+    }
     std::streamsize result = iostreams::write(this->component(), s, n);
     pos_ += result;
     return result;
@@ -293,11 +301,11 @@ std::streampos restricted_indirect_device<Device>::seek
         // Restriction is half-open; seek relative to the actual end.
         pos_ = iostreams::seek(this->component(), off, BOOST_IOS::end);
         if (pos_ < beg_)
-            bad_seek();
+            boost::throw_exception(bad_seek());
         return offset_to_position(pos_ - beg_);
     }
-    if (next < beg_ || end_ != -1 && next >= end_)
-        bad_seek();
+    if (next < beg_ || (end_ != -1 && next > end_))
+        boost::throw_exception(bad_seek());
     pos_ = iostreams::seek(this->component(), next - pos_, BOOST_IOS::cur);
     return offset_to_position(pos_ - beg_);
 }
@@ -312,9 +320,9 @@ restricted_direct_device<Device>::restricted_direct_device
     std::pair<char_type*, char_type*> seq =
         sequence(is_convertible<category, input>());
     if ( off < 0 || len < -1 || 
-         len != -1 && off + len > seq.second - seq.first )
+         (len != -1 && off + len > seq.second - seq.first) )
     {
-        throw BOOST_IOSTREAMS_FAILURE("bad offset");
+        boost::throw_exception(BOOST_IOSTREAMS_FAILURE("bad offset"));
     }
     beg_ = seq.first + off;
     end_ = len != -1 ? 
@@ -357,7 +365,7 @@ restricted_filter<Filter>::restricted_filter
       pos_(off), end_(len != -1 ? off + len : -1), open_(false)
 {
     if (len < -1 || off < 0)
-        throw BOOST_IOSTREAMS_FAILURE("bad offset");
+        boost::throw_exception(BOOST_IOSTREAMS_FAILURE("bad offset"));
 }
 
 } // End namespace detail.

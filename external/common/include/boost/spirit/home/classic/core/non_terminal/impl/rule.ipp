@@ -223,10 +223,15 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         //  concrete_parser class
         //
         ///////////////////////////////////////////////////////////////////////
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+        
         template <typename ParserT, typename ScannerT, typename AttrT>
         struct concrete_parser : abstract_parser<ScannerT, AttrT>
         {
-            concrete_parser(ParserT const& p) : p(p) {}
+            concrete_parser(ParserT const& p_) : p(p_) {}
             virtual ~concrete_parser() {}
 
             virtual typename match_result<ScannerT, AttrT>::type
@@ -243,6 +248,10 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
             typename ParserT::embed_t p;
         };
+        
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 #if BOOST_SPIRIT_RULE_SCANNERTYPE_LIMIT > 1
 

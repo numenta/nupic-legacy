@@ -189,9 +189,9 @@ public:
         \par Complexity
              Linear (in <code>min[size(), capacity_ctrl.%capacity()]</code>).
         \note To explicitly clear the extra allocated memory use the <b>shrink-to-fit</b> technique:<br><br>
-              <code>boost::%circular_buffer_space_optimized\<int\> cb(1000);<br>
+              <code>%boost::%circular_buffer_space_optimized\<int\> cb(1000);<br>
               ...<br>
-              boost::%circular_buffer_space_optimized\<int\>(cb).swap(cb);</code><br><br>
+              %boost::%circular_buffer_space_optimized\<int\>(cb).swap(cb);</code><br><br>
               For more information about the shrink-to-fit technique in STL see
               <a href="http://www.gotw.ca/gotw/054.htm">http://www.gotw.ca/gotw/054.htm</a>.
         \sa <code>rset_capacity(const capacity_type&)</code>,
@@ -513,6 +513,12 @@ public:
     */
     ~circular_buffer_space_optimized();
 
+    //! no-comment
+    void erase_begin(size_type n);
+
+    //! no-comment
+    void erase_end(size_type n);
+
 #endif // #if defined(BOOST_CB_NEVER_DEFINED)
 
     //! The assign operator.
@@ -565,7 +571,8 @@ public:
              equal to <code>end()</code>).
         \par Complexity
              Linear (in the <code>n</code>).
-        \sa <code>operator=</code>, <code>\link assign(capacity_type, size_type, param_value_type)
+        \sa <code>\link operator=(const circular_buffer_space_optimized&) operator=\endlink</code>,
+            <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(InputIterator, InputIterator)</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
@@ -597,8 +604,9 @@ public:
              equal to <code>end()</code>).
         \par Complexity
              Linear (in the <code>n</code>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>, <code>assign(InputIterator, InputIterator)</code>,
+        \sa <code>\link operator=(const circular_buffer_space_optimized&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
+            <code>assign(InputIterator, InputIterator)</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
     */
     void assign(capacity_type capacity_ctrl, size_type n, param_value_type item) {
@@ -630,8 +638,8 @@ public:
              equal to <code>end()</code>).
         \par Complexity
              Linear (in the <code>std::distance(first, last)</code>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>,
+        \sa <code>\link operator=(const circular_buffer_space_optimized&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
             <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
@@ -672,8 +680,8 @@ public:
              Linear (in <code>std::distance(first, last)</code>; in
              <code>min[capacity_ctrl.%capacity(), std::distance(first, last)]</code> if the <code>InputIterator</code>
              is a <a href="http://www.sgi.com/tech/stl/RandomAccessIterator.html">RandomAccessIterator</a>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>,
+        \sa <code>\link operator=(const circular_buffer_space_optimized&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
             <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(InputIterator, InputIterator)</code>
@@ -1229,8 +1237,8 @@ private:
     }
 
     //! Ensure the reserve for possible growth up.
-    size_type ensure_reserve(size_type new_capacity, size_type size) const {
-        if (size + new_capacity / 5 >= new_capacity)
+    size_type ensure_reserve(size_type new_capacity, size_type buffer_size) const {
+        if (buffer_size + new_capacity / 5 >= new_capacity)
             new_capacity *= 2; // ensure at least 20% reserve
         if (new_capacity > m_capacity_ctrl)
             return m_capacity_ctrl;
@@ -1252,11 +1260,7 @@ private:
                 ensure_reserve(new_capacity, new_size));
         }
 #if BOOST_CB_ENABLE_DEBUG
-# if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(70190006))
         this->invalidate_iterators_except(end());
-# else
-        invalidate_iterators_except(end());
-# endif
 #endif
     }
 
@@ -1276,11 +1280,7 @@ private:
         circular_buffer<T, Alloc>::set_capacity(
             ensure_reserve(new_capacity, size()));
 #if BOOST_CB_ENABLE_DEBUG
-# if BOOST_WORKAROUND(__DECCXX_VER, BOOST_TESTED_AT(70190006))
         this->invalidate_iterators_except(end());
-# else
-        invalidate_iterators_except(end());
-# endif
 #endif
     }
 

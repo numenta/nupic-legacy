@@ -74,17 +74,30 @@ typedef normal_distribution<double> normal;
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const normal_distribution<RealType, Policy>& /*dist*/)
 { // Range of permissible values for random variable x.
-   using boost::math::tools::max_value;
-   return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + max value.
+  if (std::numeric_limits<RealType>::has_infinity)
+  { 
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
+  }
+  else
+  { // Can only use max_value.
+    using boost::math::tools::max_value;
+    return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + max value.
+  }
 }
 
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> support(const normal_distribution<RealType, Policy>& /*dist*/)
 { // Range of supported values for random variable x.
    // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
-
+  if (std::numeric_limits<RealType>::has_infinity)
+  { 
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
+  }
+  else
+  { // Can only use max_value.
    using boost::math::tools::max_value;
    return std::pair<RealType, RealType>(-max_value<RealType>(),  max_value<RealType>()); // - to + max value.
+  }
 }
 
 template <class RealType, class Policy>
@@ -106,7 +119,7 @@ inline RealType pdf(const normal_distribution<RealType, Policy>& dist, const Rea
    //  return 0;
    //}
 
-   RealType result;
+   RealType result = 0;
    if(false == detail::check_scale(function, sd, &result, Policy()))
    {
       return result;
@@ -138,7 +151,7 @@ inline RealType cdf(const normal_distribution<RealType, Policy>& dist, const Rea
    RealType sd = dist.standard_deviation();
    RealType mean = dist.mean();
    static const char* function = "boost::math::cdf(const normal_distribution<%1%>&, %1%)";
-   RealType result;
+   RealType result = 0;
    if(false == detail::check_scale(function, sd, &result, Policy()))
    {
       return result;
@@ -179,7 +192,7 @@ inline RealType quantile(const normal_distribution<RealType, Policy>& dist, cons
    RealType mean = dist.mean();
    static const char* function = "boost::math::quantile(const normal_distribution<%1%>&, %1%)";
 
-   RealType result;
+   RealType result = 0;
    if(false == detail::check_scale(function, sd, &result, Policy()))
       return result;
    if(false == detail::check_location(function, mean, &result, Policy()))
@@ -218,7 +231,7 @@ inline RealType cdf(const complemented2_type<normal_distribution<RealType, Polic
    //{ // cdf complement -infinity is unity.
    //  return 1;
    //}
-   RealType result;
+   RealType result = 0;
    if(false == detail::check_scale(function, sd, &result, Policy()))
       return result;
    if(false == detail::check_location(function, mean, &result, Policy()))
@@ -239,7 +252,7 @@ inline RealType quantile(const complemented2_type<normal_distribution<RealType, 
    RealType sd = c.dist.standard_deviation();
    RealType mean = c.dist.mean();
    static const char* function = "boost::math::quantile(const complement(normal_distribution<%1%>&), %1%)";
-   RealType result;
+   RealType result = 0;
    if(false == detail::check_scale(function, sd, &result, Policy()))
       return result;
    if(false == detail::check_location(function, mean, &result, Policy()))

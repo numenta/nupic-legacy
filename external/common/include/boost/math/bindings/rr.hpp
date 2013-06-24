@@ -3,6 +3,8 @@
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+#ifndef BOOST_MATH_NTL_RR_HPP
+#define BOOST_MATH_NTL_RR_HPP
 
 #include <boost/config.hpp>
 #include <boost/limits.hpp>
@@ -11,14 +13,13 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/tools/roots.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <boost/math/bindings/detail/big_digamma.hpp>
+#include <boost/math/bindings/detail/big_lanczos.hpp>
 
 #include <ostream>
 #include <istream>
 #include <boost/config/no_tr1/cmath.hpp>
 #include <NTL/RR.h>
-
-#ifndef BOOST_MATH_NTL_RR_HPP
-#define BOOST_MATH_NTL_RR_HPP
 
 namespace boost{ namespace math{
 
@@ -421,6 +422,80 @@ inline std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, t
 
 } // namespace ntl
 
+namespace lanczos{
+
+struct ntl_lanczos
+{
+   static ntl::RR lanczos_sum(const ntl::RR& z)
+   {
+      unsigned long p = ntl::RR::precision();
+      if(p <= 72)
+         return lanczos13UDT::lanczos_sum(z);
+      else if(p <= 120)
+         return lanczos22UDT::lanczos_sum(z);
+      else if(p <= 170)
+         return lanczos31UDT::lanczos_sum(z);
+      else //if(p <= 370) approx 100 digit precision:
+         return lanczos61UDT::lanczos_sum(z);
+   }
+   static ntl::RR lanczos_sum_expG_scaled(const ntl::RR& z)
+   {
+      unsigned long p = ntl::RR::precision();
+      if(p <= 72)
+         return lanczos13UDT::lanczos_sum_expG_scaled(z);
+      else if(p <= 120)
+         return lanczos22UDT::lanczos_sum_expG_scaled(z);
+      else if(p <= 170)
+         return lanczos31UDT::lanczos_sum_expG_scaled(z);
+      else //if(p <= 370) approx 100 digit precision:
+         return lanczos61UDT::lanczos_sum_expG_scaled(z);
+   }
+   static ntl::RR lanczos_sum_near_1(const ntl::RR& z)
+   {
+      unsigned long p = ntl::RR::precision();
+      if(p <= 72)
+         return lanczos13UDT::lanczos_sum_near_1(z);
+      else if(p <= 120)
+         return lanczos22UDT::lanczos_sum_near_1(z);
+      else if(p <= 170)
+         return lanczos31UDT::lanczos_sum_near_1(z);
+      else //if(p <= 370) approx 100 digit precision:
+         return lanczos61UDT::lanczos_sum_near_1(z);
+   }
+   static ntl::RR lanczos_sum_near_2(const ntl::RR& z)
+   {
+      unsigned long p = ntl::RR::precision();
+      if(p <= 72)
+         return lanczos13UDT::lanczos_sum_near_2(z);
+      else if(p <= 120)
+         return lanczos22UDT::lanczos_sum_near_2(z);
+      else if(p <= 170)
+         return lanczos31UDT::lanczos_sum_near_2(z);
+      else //if(p <= 370) approx 100 digit precision:
+         return lanczos61UDT::lanczos_sum_near_2(z);
+   }
+   static ntl::RR g()
+   { 
+      unsigned long p = ntl::RR::precision();
+      if(p <= 72)
+         return lanczos13UDT::g();
+      else if(p <= 120)
+         return lanczos22UDT::g();
+      else if(p <= 170)
+         return lanczos31UDT::g();
+      else //if(p <= 370) approx 100 digit precision:
+         return lanczos61UDT::g();
+   }
+};
+
+template<class Policy>
+struct lanczos<ntl::RR, Policy>
+{
+   typedef ntl_lanczos type;
+};
+
+} // namespace lanczos
+
 namespace tools
 {
 
@@ -487,7 +562,21 @@ inline unsigned real_cast<unsigned, boost::math::ntl::RR>(boost::math::ntl::RR t
 template <>
 inline int real_cast<int, boost::math::ntl::RR>(boost::math::ntl::RR t)
 {
-   unsigned result;
+   int result;
+   detail::convert_to_long_result(t.value(), result);
+   return result;
+}
+template <>
+inline long real_cast<long, boost::math::ntl::RR>(boost::math::ntl::RR t)
+{
+   long result;
+   detail::convert_to_long_result(t.value(), result);
+   return result;
+}
+template <>
+inline long long real_cast<long long, boost::math::ntl::RR>(boost::math::ntl::RR t)
+{
+   long long result;
    detail::convert_to_long_result(t.value(), result);
    return result;
 }
@@ -593,13 +682,13 @@ namespace ntl{
    {
       asin_root(RR const& target) : t(target){}
 
-      std::tr1::tuple<RR, RR, RR> operator()(RR const& p)
+      boost::math::tuple<RR, RR, RR> operator()(RR const& p)
       {
          RR f0 = sin(p);
          RR f1 = cos(p);
          RR f2 = -f0;
          f0 -= t;
-         return std::tr1::make_tuple(f0, f1, f2);
+         return boost::math::make_tuple(f0, f1, f2);
       }
    private:
       RR t;
@@ -621,13 +710,13 @@ namespace ntl{
    {
       acos_root(RR const& target) : t(target){}
 
-      std::tr1::tuple<RR, RR, RR> operator()(RR const& p)
+      boost::math::tuple<RR, RR, RR> operator()(RR const& p)
       {
          RR f0 = cos(p);
          RR f1 = -sin(p);
          RR f2 = -f0;
          f0 -= t;
-         return std::tr1::make_tuple(f0, f1, f2);
+         return boost::math::make_tuple(f0, f1, f2);
       }
    private:
       RR t;
@@ -649,14 +738,14 @@ namespace ntl{
    {
       atan_root(RR const& target) : t(target){}
 
-      std::tr1::tuple<RR, RR, RR> operator()(RR const& p)
+      boost::math::tuple<RR, RR, RR> operator()(RR const& p)
       {
          RR c = cos(p);
          RR ta = tan(p);
          RR f0 = ta - t;
          RR f1 = 1 / (c * c);
          RR f2 = 2 * ta / (c * c);
-         return std::tr1::make_tuple(f0, f1, f2);
+         return boost::math::make_tuple(f0, f1, f2);
       }
    private:
       RR t;
@@ -672,6 +761,17 @@ namespace ntl{
          -boost::math::constants::pi<RR>()/2,
          boost::math::constants::pi<RR>()/2,
          NTL::RR::precision());
+   }
+
+   inline RR atan2(RR y, RR x)
+   {
+      if(x > 0)
+         return atan(y / x);
+      if(x < 0)
+      {
+         return y < 0 ? atan(y / x) - boost::math::constants::pi<RR>() : atan(y / x) + boost::math::constants::pi<RR>();
+      }
+      return y < 0 ? -boost::math::constants::half_pi<RR>() : boost::math::constants::half_pi<RR>() ;
    }
 
    inline RR sinh(RR z)
@@ -704,12 +804,77 @@ namespace ntl{
    }
 
    template <class Policy>
+   inline long lround(RR const& x, const Policy& pol)
+   {
+      return tools::real_cast<long>(round(x, pol));
+   }
+
+   template <class Policy>
+   inline long long llround(RR const& x, const Policy& pol)
+   {
+      return tools::real_cast<long long>(round(x, pol));
+   }
+
+   template <class Policy>
    inline int itrunc(RR const& x, const Policy& pol)
    {
       return tools::real_cast<int>(trunc(x, pol));
    }
 
+   template <class Policy>
+   inline long ltrunc(RR const& x, const Policy& pol)
+   {
+      return tools::real_cast<long>(trunc(x, pol));
+   }
+
+   template <class Policy>
+   inline long long lltrunc(RR const& x, const Policy& pol)
+   {
+      return tools::real_cast<long long>(trunc(x, pol));
+   }
+
 } // namespace ntl
+
+namespace detail{
+
+template <class Policy>
+ntl::RR digamma_imp(ntl::RR x, const mpl::int_<0>* , const Policy& pol)
+{
+   //
+   // This handles reflection of negative arguments, and all our
+   // error handling, then forwards to the T-specific approximation.
+   //
+   BOOST_MATH_STD_USING // ADL of std functions.
+
+   ntl::RR result = 0;
+   //
+   // Check for negative arguments and use reflection:
+   //
+   if(x < 0)
+   {
+      // Reflect:
+      x = 1 - x;
+      // Argument reduction for tan:
+      ntl::RR remainder = x - floor(x);
+      // Shift to negative if > 0.5:
+      if(remainder > 0.5)
+      {
+         remainder -= 1;
+      }
+      //
+      // check for evaluation at a negative pole:
+      //
+      if(remainder == 0)
+      {
+         return policies::raise_pole_error<ntl::RR>("boost::math::digamma<%1%>(%1%)", 0, (1-x), pol);
+      }
+      result = constants::pi<ntl::RR>() / tan(constants::pi<ntl::RR>() * remainder);
+   }
+   result += big_digamma(x);
+   return result;
+}
+
+} // namespace detail
 
 } // namespace math
 } // namespace boost

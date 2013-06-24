@@ -8,12 +8,6 @@
 #ifndef PHOENIX_STL_CONTAINER_CONTAINER_HPP
 #define PHOENIX_STL_CONTAINER_CONTAINER_HPP
 
-#include <boost/spirit/home/phoenix/core/limits.hpp>
-
-#if (PHOENIX_LIMIT < 5)
-# error "PHOENIX_LIMIT is set too low"
-#endif
-
 #include <boost/spirit/home/phoenix/stl/container/detail/container.hpp>
 #include <boost/spirit/home/phoenix/function/function.hpp>
 #include <boost/mpl/and.hpp>

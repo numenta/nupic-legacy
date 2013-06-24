@@ -122,6 +122,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::quantile> const tail_quantile = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_quantile)
 }
 
 using extract::tail_quantile;

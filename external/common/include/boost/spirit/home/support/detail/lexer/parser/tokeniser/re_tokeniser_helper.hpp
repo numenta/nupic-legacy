@@ -1,5 +1,5 @@
 // tokeniser_helper.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -92,8 +92,7 @@ public:
                 if (chset_)
                 {
                     state temp_state_ (str_ + 1, str_ + str_len_,
-                        state_._case_sensitive, state_._locale,
-                        state_._dot_not_newline);
+                        state_._flags, state_._locale);
                     string temp_chars_;
                     bool temp_negated_ = false;
 
@@ -104,7 +103,7 @@ public:
                         std::ostringstream ss_;
 
                         ss_ << "Mismatch in charset negation preceding "
-                            "index " << state_._index - 1 << '.';
+                            "index " << state_.index () << '.';
                         throw runtime_error (ss_.str ().c_str ());
                     }
 
@@ -139,7 +138,7 @@ public:
             }
             else if (!chset_)
             {
-                if (!state_._case_sensitive &&
+                if ((state_._flags & icase) &&
                     (std::isupper (prev_, state_._locale) ||
                     std::islower (prev_, state_._locale)))
                 {
@@ -160,6 +159,70 @@ public:
         {
             throw runtime_error ("Empty charsets not allowed.");
         }
+    }
+
+    static CharT chr (state &state_)
+    {
+        CharT ch_ = 0;
+
+        // eos_ has already been checked for.
+        switch (*state_._curr)
+        {
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+                ch_ = decode_octal (state_);
+                break;
+            case 'a':
+                ch_ = '\a';
+                state_.increment ();
+                break;
+            case 'b':
+                ch_ = '\b';
+                state_.increment ();
+                break;
+            case 'c':
+                ch_ = decode_control_char (state_);
+                break;
+            case 'e':
+                ch_ = 27; // '\e' not recognised by compiler
+                state_.increment ();
+                break;
+            case 'f':
+                ch_ = '\f';
+                state_.increment ();
+                break;
+            case 'n':
+                ch_ = '\n';
+                state_.increment ();
+                break;
+            case 'r':
+                ch_ = '\r';
+                state_.increment ();
+                break;
+            case 't':
+                ch_ = '\t';
+                state_.increment ();
+                break;
+            case 'v':
+                ch_ = '\v';
+                state_.increment ();
+                break;
+            case 'x':
+                ch_ = decode_hex (state_);
+                break;
+            default:
+                ch_ = *state_._curr;
+                state_.increment ();
+                break;
+        }
+
+        return ch_;
     }
 
 private:
@@ -247,70 +310,6 @@ private:
         return str_;
     }
 
-    static CharT chr (state &state_)
-    {
-        CharT ch_ = 0;
-
-        // eos_ has already been checked for.
-        switch (*state_._curr)
-        {
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-                ch_ = decode_octal (state_);
-                break;
-            case 'a':
-                ch_ = '\a';
-                state_.increment ();
-                break;
-            case 'b':
-                ch_ = '\b';
-                state_.increment ();
-                break;
-            case 'c':
-                ch_ = decode_control_char (state_);
-                break;
-            case 'e':
-                ch_ = 27; // '\e' not recognised by compiler
-                state_.increment ();
-                break;
-            case 'f':
-                ch_ = '\f';
-                state_.increment ();
-                break;
-            case 'n':
-                ch_ = '\n';
-                state_.increment ();
-                break;
-            case 'r':
-                ch_ = '\r';
-                state_.increment ();
-                break;
-            case 't':
-                ch_ = '\t';
-                state_.increment ();
-                break;
-            case 'v':
-                ch_ = '\v';
-                state_.increment ();
-                break;
-            case 'x':
-                ch_ = decode_hex (state_);
-                break;
-            default:
-                ch_ = *state_._curr;
-                state_.increment ();
-                break;
-        }
-
-        return ch_;
-    }
-
     static CharT decode_octal (state &state_)
     {
         std::size_t accumulator_ = 0;
@@ -373,7 +372,7 @@ private:
                 std::ostringstream ss_;
 
                 ss_ << "Invalid control char at index " <<
-                    state_._index - 1 << '.';
+                    state_.index () - 1 << '.';
                 throw runtime_error (ss_.str ().c_str ());
             }
         }
@@ -401,7 +400,7 @@ private:
             std::ostringstream ss_;
 
             ss_ << "Illegal char following \\x at index " <<
-                state_._index - 1 << '.';
+                state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 
@@ -454,7 +453,7 @@ private:
             std::ostringstream ss_;
 
             ss_ << "Charset cannot form start of range preceding "
-                "index " << state_._index - 1 << '.';
+                "index " << state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 
@@ -478,7 +477,7 @@ private:
                 std::ostringstream ss_;
 
                 ss_ << "Charset cannot form end of range preceding index "
-                    << state_._index << '.';
+                    << state_.index () << '.';
                 throw runtime_error (ss_.str ().c_str ());
             }
         }
@@ -488,7 +487,7 @@ private:
             std::ostringstream ss_;
 
             ss_ << "POSIX char class cannot form end of range at "
-                "index " << state_._index - 1 << '.';
+                "index " << state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 */
@@ -516,7 +515,7 @@ private:
             std::ostringstream ss_;
 
             ss_ << "Invalid range in charset preceding index " <<
-                state_._index - 1 << '.';
+                state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 
@@ -526,7 +525,7 @@ private:
         {
             CharT ch_ = static_cast<CharT> (start_);
 
-            if (!state_._case_sensitive &&
+            if ((state_._flags & icase) &&
                 (std::isupper (ch_, state_._locale) ||
                 std::islower (ch_, state_._locale)))
             {

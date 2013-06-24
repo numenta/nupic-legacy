@@ -19,7 +19,7 @@
 #define BOOST_SIGNALS_ARGS_AS_MEMBERS T1 a1;
 #define BOOST_SIGNALS_COPY_PARMS T1 ia1
 #define BOOST_SIGNALS_INIT_ARGS :a1(ia1)
-#define BOOST_SIGNALS_ARG_TYPES typedef T1 arg2_type;
+#define BOOST_SIGNALS_ARG_TYPES typedef T1 arg1_type;
 
 #include <boost/signals/signal_template.hpp>
 

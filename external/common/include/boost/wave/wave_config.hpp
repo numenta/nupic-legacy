@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -80,6 +80,18 @@
 //
 #if !defined(BOOST_WAVE_SUPPORT_INCLUDE_NEXT)
 #define BOOST_WAVE_SUPPORT_INCLUDE_NEXT 1
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
+//  Decide, whether to support C++11
+//
+//  To implement C++11 keywords and preprocessor semantics define the following 
+//  to something not equal to zero.
+//
+#if !defined(BOOST_WAVE_SUPPORT_CPP0X)
+#define BOOST_WAVE_SUPPORT_CPP0X 1
+#undef BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS
+#define BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS 1
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -158,20 +170,45 @@
 #endif 
 
 ///////////////////////////////////////////////////////////////////////////////
+//  Configure Wave thread support, Boost.Spirit and Boost.Pool are configured 
+//  based on these settings automatically
+//
+//  If BOOST_WAVE_SUPPORT_THREADING is not defined, Wave will use the global 
+//  Boost build settings (BOOST_HAS_THREADS), if it is defined its value
+//  defines, whether threading will be enabled or not (should be set to '0' 
+//  or '1').
+#if !defined(BOOST_WAVE_SUPPORT_THREADING)
+#if defined(BOOST_HAS_THREADS)
+#define BOOST_WAVE_SUPPORT_THREADING 1
+#else
+#define BOOST_WAVE_SUPPORT_THREADING 0
+#endif
+#endif
+
+#if BOOST_WAVE_SUPPORT_THREADING != 0 
+#define BOOST_SPIRIT_THREADSAFE 1
+#define PHOENIX_THREADSAFE 1
+#else
+// disable thread support in Boost.Pool
+#define BOOST_NO_MT 1
+#endif
+
+///////////////////////////////////////////////////////////////////////////////
 //  Define the string type to be used to store the token values and the file 
 //  names inside a file_position template class
 //
 #if !defined(BOOST_WAVE_STRINGTYPE)
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || \
-    BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
-    (defined(__DECCXX) && defined(__alpha)) || \
-    defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING)
-    
 // VC7 isn't able to compile the flex_string class, fall back to std::string 
 // CW up to 8.3 chokes as well *sigh*
 // Tru64/CXX has linker problems when using flex_string
+#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300) || \
+    BOOST_WORKAROUND(__MWERKS__, < 0x3200) || \
+    (defined(__DECCXX) && defined(__alpha)) || \
+    defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING) 
+
 #define BOOST_WAVE_STRINGTYPE std::string
+
 #if !defined(BOOST_WAVE_STRINGTYPE_USE_STDSTRING)
 #define BOOST_WAVE_STRINGTYPE_USE_STDSTRING 1
 #endif
@@ -332,7 +369,7 @@
 //  Decide, whether to support long long integers in the preprocessor.
 //
 //  The C++ standard requires the preprocessor to use one of the following 
-//  types for integer literals: long or unsigned long depending on a optional 
+//  types for integer literals: long or unsigned long depending on an optional 
 //  suffix ('u', 'l', 'ul', or 'lu')
 //
 //  Sometimes it's required to preprocess integer literals bigger than that
@@ -366,27 +403,19 @@ namespace boost { namespace wave
 }}
 
 ///////////////////////////////////////////////////////////////////////////////
-//  Configure Wave thread support, Boost.Spirit and Boost.Pool are configured 
-//  based on these settings automatically
+//  On some platforms Wave will not be able to properly detect whether wchar_t
+//  is representing a signed or unsigned integral data type. Use the 
+//  configuration constants below to force wchar_t being signed or unsigned, as
+//  appropriate.
 //
-//  If BOOST_WAVE_SUPPORT_THREADING is not defined, Wave will use the global 
-//  Boost build settings (BOOST_HAS_THREADS), if it is defined its value
-//  defines, whether threading will be enabled or not (should be set to '0' 
-//  or '1').
-#if !defined(BOOST_WAVE_SUPPORT_THREADING)
-#if defined(BOOST_HAS_THREADS)
-#define BOOST_WAVE_SUPPORT_THREADING 1
-#else
-#define BOOST_WAVE_SUPPORT_THREADING 0
-#endif
-#endif
+//  The default is to use std::numeric_limits<wchar_t>::is_signed.
 
-#if BOOST_WAVE_SUPPORT_THREADING != 0 
-#define BOOST_SPIRIT_THREADSAFE 1
-#define PHOENIX_THREADSAFE 1
-#else
-// disable thread support in Boost.Pool
-#define BOOST_NO_MT 1
+#define BOOST_WAVE_WCHAR_T_AUTOSELECT       1
+#define BOOST_WAVE_WCHAR_T_FORCE_SIGNED     2
+#define BOOST_WAVE_WCHAR_T_FORCE_UNSIGNED   3
+
+#if !defined(BOOST_WAVE_WCHAR_T_SIGNEDNESS)
+#define BOOST_WAVE_WCHAR_T_SIGNEDNESS BOOST_WAVE_WCHAR_T_AUTOSELECT
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -402,15 +431,14 @@ namespace boost { namespace wave
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Set up dll import/export options
-#if defined(BOOST_HAS_DECLSPEC) && \
-    (defined(BOOST_WAVE_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)) && \
+#if (defined(BOOST_WAVE_DYN_LINK) || defined(BOOST_ALL_DYN_LINK)) && \
     !defined(BOOST_WAVE_STATIC_LINK)
     
 #if defined(BOOST_WAVE_SOURCE)
-#define BOOST_WAVE_DECL __declspec(dllexport)
+#define BOOST_WAVE_DECL BOOST_SYMBOL_EXPORT 
 #define BOOST_WAVE_BUILD_DLL
 #else
-#define BOOST_WAVE_DECL __declspec(dllimport)
+#define BOOST_WAVE_DECL BOOST_SYMBOL_IMPORT 
 #endif
 
 #endif // building a shared library

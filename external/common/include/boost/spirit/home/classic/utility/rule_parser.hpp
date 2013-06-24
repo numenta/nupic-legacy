@@ -419,7 +419,7 @@ namespace boost
           BOOST_SPIRIT_RP_EMIT(MV_STATIC,mbrs,BOOST_PP_IDENTITY(typename))     \
         public:                                                                \
           BOOST_TYPEOF_NESTED_TYPEDEF_TPL(__expr,                              \
-            ::BOOST_SPIRIT_CLASSIC_NS::type_of::depend_on_type<__Dummy>(x) );            \
+            ::BOOST_SPIRIT_CLASSIC_NS::type_of::depend_on_type<__Dummy>(x) )   \  
         };                                                                     \
                                                                                \
       public:                                                                  \
@@ -495,7 +495,7 @@ namespace boost
           BOOST_SPIRIT_RP_EMIT(PM_OPAQUE_STATIC,pars,-)                        \
           BOOST_SPIRIT_RP_EMIT(MV_STATIC,mbrs,BOOST_PP_EMPTY)                  \
         public:                                                                \
-          BOOST_TYPEOF_NESTED_TYPEDEF(__expr,x)  ;                             \
+          BOOST_TYPEOF_NESTED_TYPEDEF(__expr,x)                                \
         };                                                                     \
                                                                                \
       public:                                                                  \

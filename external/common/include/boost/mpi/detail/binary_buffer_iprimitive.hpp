@@ -88,7 +88,8 @@ public:
       load_impl(&t, sizeof(T));
     }
 
-    void load( std::string & s)
+    template<class CharType>
+    void load(std::basic_string<CharType> & s)
     {
       unsigned int l;
       load(l);

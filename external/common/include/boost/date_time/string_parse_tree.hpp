@@ -2,16 +2,16 @@
 #define BOOST_DATE_TIME_STRING_PARSE_TREE___HPP__
 
 /* Copyright (c) 2004-2005 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
  */
 
 
 #include "boost/lexical_cast.hpp" //error without?
-#include "boost/algorithm/string/case_conv.hpp" 
+#include "boost/algorithm/string/case_conv.hpp"
 #include <map>
 #include <string>
 #include <vector>
@@ -37,21 +37,21 @@ struct parse_match_result
       return cache;
     }
     //some of the cache was used return the rest
-    return string_type(cache, match_depth); 
+    return string_type(cache, match_depth);
   }
   charT last_char() const
   {
     return cache[cache.size()-1];
   }
   //! Returns true if more characters were parsed than was necessary
-  /*! Should be used in conjunction with last_char() 
-   *  to get the remaining character. 
+  /*! Should be used in conjunction with last_char()
+   *  to get the remaining character.
    */
   bool has_remaining() const
   {
     return (cache.size() > match_depth);
   }
-  
+
   // cache will hold characters that have been read from the stream
   string_type cache;
   unsigned short match_depth;
@@ -64,8 +64,8 @@ template<typename charT>
 std::basic_ostream<charT>&
 operator<<(std::basic_ostream<charT>& os, parse_match_result<charT>& mr)
 {
-  os << "cm: " << mr.current_match 
-     << " C: '" << mr.cache 
+  os << "cm: " << mr.current_match
+     << " C: '" << mr.cache
      << "' md: " << mr.match_depth
      << " R: " << mr.remaining();
   return os;
@@ -93,11 +93,11 @@ struct string_parse_tree
   typedef std::basic_string<charT> string_type;
   typedef std::vector<std::basic_string<charT> > collection_type;
   typedef parse_match_result<charT> parse_match_result_type;
- 
-  /*! Parameter "starting_point" desingates where the numbering begins. 
-   * A starting_point of zero will start the numbering at zero 
-   * (Sun=0, Mon=1, ...) were a starting_point of one starts the 
-   * numbering at one (Jan=1, Feb=2, ...). The default is zero, 
+
+  /*! Parameter "starting_point" designates where the numbering begins.
+   * A starting_point of zero will start the numbering at zero
+   * (Sun=0, Mon=1, ...) were a starting_point of one starts the
+   * numbering at one (Jan=1, Feb=2, ...). The default is zero,
    * negative vaules are not allowed */
   string_parse_tree(collection_type names, unsigned int starting_point=0)
   {
@@ -126,44 +126,44 @@ struct string_parse_tree
     while(i < s.size()) {
       if (i==0) {
         if (i == (s.size()-1)) {
-          ti = m_next_chars.insert(value_type(s[i], 
+          ti = m_next_chars.insert(value_type(s[i],
                                               string_parse_tree<charT>(value)));
         }
         else {
-          ti = m_next_chars.insert(value_type(s[i], 
+          ti = m_next_chars.insert(value_type(s[i],
                                               string_parse_tree<charT>()));
         }
       }
       else {
         if (i == (s.size()-1)) {
-          ti = ti->second.m_next_chars.insert(value_type(s[i], 
+          ti = ti->second.m_next_chars.insert(value_type(s[i],
                                                          string_parse_tree<charT>(value)));
         }
-        
+
         else {
-          ti = ti->second.m_next_chars.insert(value_type(s[i], 
+          ti = ti->second.m_next_chars.insert(value_type(s[i],
                                                          string_parse_tree<charT>()));
         }
-      
-      } 
+
+      }
       i++;
     }
   }
- 
-  
+
+
   //! Recursive function that finds a matching string in the tree.
-  /*! Must check match_results::has_remaining() after match() is 
-   * called. This is required so the user can determine if 
-   * stream iterator is already pointing to the expected 
+  /*! Must check match_results::has_remaining() after match() is
+   * called. This is required so the user can determine if
+   * stream iterator is already pointing to the expected
    * character or not (match() might advance sitr to next char in stream).
    *
-   * A parse_match_result that has been returned from a failed match 
-   * attempt can be sent in to the match function of a different 
-   * string_parse_tree to attempt a match there. Use the iterators 
-   * for the partially consumed stream, the parse_match_result object, 
+   * A parse_match_result that has been returned from a failed match
+   * attempt can be sent in to the match function of a different
+   * string_parse_tree to attempt a match there. Use the iterators
+   * for the partially consumed stream, the parse_match_result object,
    * and '0' for the level parameter. */
   short
-  match(std::istreambuf_iterator<charT>& sitr, 
+  match(std::istreambuf_iterator<charT>& sitr,
         std::istreambuf_iterator<charT>& stream_end,
         parse_match_result_type& result,
         unsigned int& level)  const
@@ -171,7 +171,7 @@ struct string_parse_tree
 
     level++;
     charT c;
-    // if we conditionally advance sitr, we won't have 
+    // if we conditionally advance sitr, we won't have
     // to consume the next character past the input
     bool adv_itr = true;
     if (level > result.cache.size()) {
@@ -181,16 +181,16 @@ struct string_parse_tree
       //sitr++;
     }
     else {
-      // if we're looking for characters from the cache, 
+      // if we're looking for characters from the cache,
       // we don't want to increment sitr
-      adv_itr = false; 
+      adv_itr = false;
       c = static_cast<charT>(std::tolower(result.cache[level-1]));
     }
     const_iterator litr = m_next_chars.lower_bound(c);
     const_iterator uitr = m_next_chars.upper_bound(c);
     while (litr != uitr) { // equal if not found
       if(adv_itr) {
-        sitr++; 
+        sitr++;
         result.cache += c;
       }
       if (litr->second.m_value != -1) { // -1 is default value
@@ -198,16 +198,16 @@ struct string_parse_tree
           result.current_match = litr->second.m_value;
           result.match_depth = static_cast<unsigned short>(level);
         }
-        litr->second.match(sitr, stream_end, 
+        litr->second.match(sitr, stream_end,
                            result, level);
         level--;
       }
       else {
-        litr->second.match(sitr, stream_end, 
+        litr->second.match(sitr, stream_end,
                            result, level);
         level--;
       }
-    
+
       if(level <= result.cache.size()) {
         adv_itr = false;
       }
@@ -218,13 +218,13 @@ struct string_parse_tree
 
   }
 
-  /*! Must check match_results::has_remaining() after match() is 
-   * called. This is required so the user can determine if 
-   * stream iterator is already pointing to the expected 
+  /*! Must check match_results::has_remaining() after match() is
+   * called. This is required so the user can determine if
+   * stream iterator is already pointing to the expected
    * character or not (match() might advance sitr to next char in stream).
    */
   parse_match_result_type
-  match(std::istreambuf_iterator<charT>& sitr, 
+  match(std::istreambuf_iterator<charT>& sitr,
         std::istreambuf_iterator<charT>& stream_end) const
   {
     // lookup to_lower of char in tree.
@@ -242,8 +242,8 @@ struct string_parse_tree
     iterator end = m_next_chars.end();
     //    os << "starting level: " << level << std::endl;
     while (itr != end) {
-      os << "level:  " << level 
-         << " node:  " << itr->first 
+      os << "level:  " << level
+         << " node:  " << itr->first
          << " value: " << itr->second.m_value
          << std::endl;
       itr->second.printme(os, level);
@@ -257,14 +257,14 @@ struct string_parse_tree
     int level = 0;
     printme(os, level);
   }
-    
+
   void printmatch(std::ostream& os, charT c)
   {
     iterator litr = m_next_chars.lower_bound(c);
     iterator uitr = m_next_chars.upper_bound(c);
     os << "matches for: " << c << std::endl;
     while (litr != uitr) {
-      os << " node:  " << litr->first 
+      os << " node:  " << litr->first
          << " value: " << litr->second.m_value
          << std::endl;
       litr++;

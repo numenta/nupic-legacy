@@ -465,12 +465,18 @@ BOOST_LAMBDA_SWITCH( BOOST_PP_INC(N) )
 #define BOOST_LAMBDA_SWITCH_STATEMENT_HELPER(z, N, A) \
 BOOST_LAMBDA_SWITCH_STATEMENT(BOOST_PP_INC(N))
 
-
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4065)
+#endif
 
   // up to 9 cases supported (counting default:)
 BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_HELPER,FOO)
 BOOST_PP_REPEAT_2ND(9,BOOST_LAMBDA_SWITCH_STATEMENT_HELPER,FOO)
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 } // namespace lambda 
 } // namespace boost

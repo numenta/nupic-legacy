@@ -20,36 +20,6 @@ namespace boost {
 
 //  trim iterator helper -----------------------------------------------//
 
-            // Search for first non matching character from the beginning of the sequence
-            template< typename ForwardIteratorT, typename PredicateT >
-            inline ForwardIteratorT trim_begin( 
-                ForwardIteratorT InBegin, 
-                ForwardIteratorT InEnd, 
-                PredicateT IsSpace )
-            {
-                ForwardIteratorT It=InBegin;
-                for(; It!=InEnd; ++It )
-                {
-                    if (!IsSpace(*It))
-                        return It;
-                }
-
-                return It;
-            }
-
-            // Search for first non matching character from the end of the sequence
-            template< typename ForwardIteratorT, typename PredicateT >
-            inline ForwardIteratorT trim_end( 
-                ForwardIteratorT InBegin, 
-                ForwardIteratorT InEnd, 
-                PredicateT IsSpace )
-            {
-                typedef BOOST_STRING_TYPENAME boost::detail::
-                    iterator_traits<ForwardIteratorT>::iterator_category category;
-
-                return trim_end_iter_select( InBegin, InEnd, IsSpace, category() );
-            }
-
             template< typename ForwardIteratorT, typename PredicateT >
             inline ForwardIteratorT trim_end_iter_select( 
                 ForwardIteratorT InBegin, 
@@ -86,6 +56,36 @@ namespace boost {
 
                 return InBegin;
             }
+   // Search for first non matching character from the beginning of the sequence
+            template< typename ForwardIteratorT, typename PredicateT >
+            inline ForwardIteratorT trim_begin( 
+                ForwardIteratorT InBegin, 
+                ForwardIteratorT InEnd, 
+                PredicateT IsSpace )
+            {
+                ForwardIteratorT It=InBegin;
+                for(; It!=InEnd; ++It )
+                {
+                    if (!IsSpace(*It))
+                        return It;
+                }
+
+                return It;
+            }
+
+            // Search for first non matching character from the end of the sequence
+            template< typename ForwardIteratorT, typename PredicateT >
+            inline ForwardIteratorT trim_end( 
+                ForwardIteratorT InBegin, 
+                ForwardIteratorT InEnd, 
+                PredicateT IsSpace )
+            {
+                typedef BOOST_STRING_TYPENAME boost::detail::
+                    iterator_traits<ForwardIteratorT>::iterator_category category;
+
+                return ::boost::algorithm::detail::trim_end_iter_select( InBegin, InEnd, IsSpace, category() );
+            }
+
 
         } // namespace detail
     } // namespace algorithm

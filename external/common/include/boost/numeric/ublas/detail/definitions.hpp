@@ -80,7 +80,7 @@ namespace boost { namespace numeric { namespace ublas {
         closure_type lval_;
     };
 
-    // Improve syntax of effcient assignment where no aliases of LHS appear on the RHS
+    // Improve syntax of efficient assignment where no aliases of LHS appear on the RHS
     //  noalias(lhs) = rhs_expression
     template <class C>
     BOOST_UBLAS_INLINE

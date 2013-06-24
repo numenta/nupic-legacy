@@ -9,10 +9,10 @@
 #define __MAKE_CONNECTED_HPP__
 
 #include <boost/config.hpp>
-#include <boost/utility.hpp> //for next
+#include <boost/next_prior.hpp>
 #include <boost/tuple/tuple.hpp>   //for tie
 #include <boost/graph/connected_components.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <vector>
 
 #include <boost/graph/planar_detail/add_edge_visitors.hpp>
@@ -46,7 +46,7 @@ namespace boost
       return;
 
     vertex_iterator_t vi, vi_end;
-    tie(vi,vi_end) = vertices(g);
+    boost::tie(vi,vi_end) = vertices(g);
     std::copy(vi, vi_end, vertices_by_component.begin());
 
     bucket_sort(vertices_by_component.begin(),
@@ -62,7 +62,7 @@ namespace boost
     if (ci_prev == ci_end)
       return;
 
-    for(vec_of_vertices_itr_t ci = next(ci_prev); 
+    for(vec_of_vertices_itr_t ci = boost::next(ci_prev); 
         ci != ci_end;  ci_prev = ci, ++ci
         )
       {

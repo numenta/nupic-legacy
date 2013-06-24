@@ -41,7 +41,7 @@ namespace boost {
                 BOOST_STRING_TYPENAME InputT::iterator At,
                 const InsertT& Insert )
             {
-                insert( Input, At, ::boost::begin(Insert), ::boost::end(Insert) );
+                ::boost::algorithm::detail::insert( Input, At, ::boost::begin(Insert), ::boost::end(Insert) );
             }
            
 //  erase helper  ---------------------------------------------------//
@@ -184,11 +184,11 @@ namespace boost {
             {
                 if(From!=To)
                 {
-                    replace( Input, From, To, ::boost::begin(Insert), ::boost::end(Insert) );
+                    ::boost::algorithm::detail::replace( Input, From, To, ::boost::begin(Insert), ::boost::end(Insert) );
                 }
                 else
                 {
-                    insert( Input, From, ::boost::begin(Insert), ::boost::end(Insert) );
+                    ::boost::algorithm::detail::insert( Input, From, ::boost::begin(Insert), ::boost::end(Insert) );
                 }
             }
 

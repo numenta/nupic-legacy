@@ -2,7 +2,7 @@
 // buffered_stream.hpp
 // ~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,19 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
-#include <boost/config.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/buffered_read_stream.hpp>
 #include <boost/asio/buffered_write_stream.hpp>
 #include <boost/asio/buffered_stream_fwd.hpp>
+#include <boost/asio/detail/noncopyable.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/detail/noncopyable.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -88,13 +85,6 @@ public:
   const lowest_layer_type& lowest_layer() const
   {
     return stream_impl_.lowest_layer();
-  }
-
-  /// (Deprecated: use get_io_service().) Get the io_service associated with
-  /// the object.
-  boost::asio::io_service& io_service()
-  {
-    return stream_impl_.get_io_service();
   }
 
   /// Get the io_service associated with the object.

@@ -33,8 +33,8 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename Traits::char_type char_type;
         Traits const &traits_;
 
-        explicit char_translate(Traits const &traits)
-          : traits_(traits)
+        explicit char_translate(Traits const &tr)
+          : traits_(tr)
         {}
 
         char_type operator ()(char_type ch1) const
@@ -54,8 +54,8 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename Traits::char_type char_type;
         Traits const &traits_;
 
-        explicit char_translate(Traits const &traits)
-          : traits_(traits)
+        explicit char_translate(Traits const &tr)
+          : traits_(tr)
         {}
 
         char_type operator ()(char_type ch1) const
@@ -75,10 +75,10 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef typename Matcher::value_type::second_type const* result_type;
 
-        attr_matcher(int slot, Matcher const &matcher, Traits const& traits)
+        attr_matcher(int slot, Matcher const &matcher, Traits const& tr)
           : slot_(slot-1)
         {
-            char_translate<Traits, ICase::value> trans(traits);
+            char_translate<Traits, ICase::value> trans(tr);
             this->sym_.load(matcher, trans);
         }
 

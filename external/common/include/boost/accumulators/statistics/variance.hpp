@@ -51,7 +51,7 @@ namespace impl
         {
             extractor<MeanFeature> mean;
             result_type tmp = mean(args);
-            return moment<2>(args) - tmp * tmp;
+            return accumulators::moment<2>(args) - tmp * tmp;
         }
     };
 
@@ -150,6 +150,9 @@ namespace extract
 {
     extractor<tag::lazy_variance> const lazy_variance = {};
     extractor<tag::variance> const variance = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(lazy_variance)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(variance)
 }
 
 using extract::lazy_variance;

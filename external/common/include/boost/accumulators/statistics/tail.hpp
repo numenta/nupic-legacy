@@ -71,9 +71,9 @@ namespace detail
     template<typename Args>
     struct stat_assign_visitor
     {
-        stat_assign_visitor(Args const &args, std::size_t index)
-          : args(args)
-          , index(index)
+        stat_assign_visitor(Args const &a, std::size_t i)
+          : args(a)
+          , index(i)
         {
         }
 
@@ -246,8 +246,8 @@ namespace impl
         struct indirect_cmp
           : std::binary_function<std::size_t, std::size_t, bool>
         {
-            indirect_cmp(std::vector<Sample> const &samples)
-              : samples(samples)
+            indirect_cmp(std::vector<Sample> const &s)
+              : samples(s)
             {
             }
 
@@ -317,6 +317,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::abstract_tail> const tail = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail)
 }
 
 using extract::tail;

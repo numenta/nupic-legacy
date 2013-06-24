@@ -60,6 +60,10 @@ namespace boost { namespace phoenix
             }
 
             Env const& env;
+
+        private:
+            // silence MSVC warning C4512: assignment operator could not be generated
+            initialize_local& operator= (initialize_local const&);
         };
 
         template <typename T>

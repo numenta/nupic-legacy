@@ -42,7 +42,7 @@ namespace boost { namespace xpressive { namespace detail
             this->impl_.mark_count_ = impl->mark_count_;
             this->impl_.hidden_mark_count_ = impl->hidden_mark_count_;
 
-            ensure(this->impl_.xpr_, regex_constants::error_badref, "bad regex reference");
+            BOOST_XPR_ENSURE_(this->impl_.xpr_, regex_constants::error_badref, "bad regex reference");
         }
 
         template<typename Next>

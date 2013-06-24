@@ -1,4 +1,4 @@
-/* Copyright 2003-2008 Joaquin M Lopez Munoz.
+/* Copyright 2003-2009 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -237,15 +237,21 @@ template<typename Iterator>
 inline void detach_equivalent_iterators(Iterator& it)
 {
   if(it.valid()){
-    Iterator *prev_,*next_;
-    for(
-      prev_=static_cast<Iterator*>(&it.cont->header);
-      (next_=static_cast<Iterator*>(prev_->next))!=0;){
-      if(next_!=&it&&*next_==it){
-        prev_->next=next_->next;
-        next_->cont=0;
+    {
+#if defined(BOOST_HAS_THREADS)
+      boost::detail::lightweight_mutex::scoped_lock lock(it.cont->mutex);
+#endif
+
+      Iterator *prev_,*next_;
+      for(
+        prev_=static_cast<Iterator*>(&it.cont->header);
+        (next_=static_cast<Iterator*>(prev_->next))!=0;){
+        if(next_!=&it&&*next_==it){
+          prev_->next=next_->next;
+          next_->cont=0;
+        }
+        else prev_=next_;
       }
-      else prev_=next_;
     }
     it.detach();
   }

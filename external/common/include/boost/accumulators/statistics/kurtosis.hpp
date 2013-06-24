@@ -55,12 +55,12 @@ namespace impl
         result_type result(Args const &args) const
         {
             return numeric::average(
-                        moment<4>(args)
-                        - 4. * moment<3>(args) * mean(args)
-                        + 6. * moment<2>(args) * mean(args) * mean(args)
+                        accumulators::moment<4>(args)
+                        - 4. * accumulators::moment<3>(args) * mean(args)
+                        + 6. * accumulators::moment<2>(args) * mean(args) * mean(args)
                         - 3. * mean(args) * mean(args) * mean(args) * mean(args)
-                      , ( moment<2>(args) - mean(args) * mean(args) )
-                        * ( moment<2>(args) - mean(args) * mean(args) )
+                      , ( accumulators::moment<2>(args) - mean(args) * mean(args) )
+                        * ( accumulators::moment<2>(args) - mean(args) * mean(args) )
                     ) - 3.;
         }
     };
@@ -87,6 +87,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::kurtosis> const kurtosis = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(kurtosis)
 }
 
 using extract::kurtosis;

@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 63441 $
 //
 //  Description : as a central place for global configuration switches
 // ***************************************************************************
@@ -84,17 +84,12 @@
 #if defined(BOOST_TEST_DYN_LINK)
 #  define BOOST_TEST_ALTERNATIVE_INIT_API
 
-#  if defined(BOOST_HAS_DECLSPEC) && defined(BOOST_TEST_DYN_LINK)
-#    ifdef BOOST_TEST_SOURCE
-#      define BOOST_TEST_DECL __declspec(dllexport)
-#    else
-#      define BOOST_TEST_DECL __declspec(dllimport)
-#    endif  // BOOST_TEST_SOURCE
-#  endif  // BOOST_HAS_DECLSPEC
-#endif  // BOOST_TEST_DYN_LINK
-
-
-#ifndef BOOST_TEST_DECL
+#  ifdef BOOST_TEST_SOURCE
+#    define BOOST_TEST_DECL BOOST_SYMBOL_EXPORT
+#  else
+#    define BOOST_TEST_DECL BOOST_SYMBOL_IMPORT
+#  endif  // BOOST_TEST_SOURCE
+#else
 #  define BOOST_TEST_DECL
 #endif
 

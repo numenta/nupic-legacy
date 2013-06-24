@@ -17,6 +17,7 @@
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/iteration/iterate.hpp>
 #include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/arithmetic/dec.hpp>
 
 #include <boost/mpl/void.hpp>
 
@@ -44,7 +45,7 @@ namespace boost { namespace phoenix {
         }
 
 #define BOOST_PP_ITERATION_PARAMS_1                                                                                 \
-        (3, (1, BOOST_PP_SUB(PHOENIX_MEMBER_LIMIT, 2), "boost/spirit/home/phoenix/operator/detail/mem_fun_ptr_eval.hpp"))
+        (3, (1, BOOST_PP_DEC(BOOST_PP_DEC(PHOENIX_MEMBER_LIMIT)), "boost/spirit/home/phoenix/operator/detail/mem_fun_ptr_eval.hpp"))
 
 #include BOOST_PP_ITERATE()
 

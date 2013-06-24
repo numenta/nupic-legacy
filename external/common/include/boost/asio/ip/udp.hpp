@@ -1,8 +1,8 @@
 //
-// udp.hpp
-// ~~~~~~~
+// ip/udp.hpp
+// ~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,14 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
+#include <boost/asio/detail/config.hpp>
 #include <boost/asio/basic_datagram_socket.hpp>
+#include <boost/asio/detail/socket_types.hpp>
 #include <boost/asio/ip/basic_endpoint.hpp>
 #include <boost/asio/ip/basic_resolver.hpp>
 #include <boost/asio/ip/basic_resolver_iterator.hpp>
 #include <boost/asio/ip/basic_resolver_query.hpp>
-#include <boost/asio/detail/socket_types.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -44,12 +45,6 @@ class udp
 public:
   /// The type of a UDP endpoint.
   typedef basic_endpoint<udp> endpoint;
-
-  /// The type of a resolver query.
-  typedef basic_resolver_query<udp> resolver_query;
-
-  /// The type of a resolver iterator.
-  typedef basic_resolver_iterator<udp> resolver_iterator;
 
   /// Construct to represent the IPv4 UDP protocol.
   static udp v4()
@@ -101,8 +96,8 @@ public:
 
 private:
   // Construct with a specific family.
-  explicit udp(int family)
-    : family_(family)
+  explicit udp(int protocol_family)
+    : family_(protocol_family)
   {
   }
 

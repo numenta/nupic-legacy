@@ -42,6 +42,18 @@
 //
 #include <cstddef>
 
+// Including <cstdlib> allows us to use __GLIBCXX__ to
+// determine the version of the stdc++ library in use
+// under Darwin.
+#include <cstdlib>
+
+#  if defined(_RWSTD_VER) && _RWSTD_VER >= 0x04010200
+#     if !defined (__SUNPRO_CC) && !defined (__DECCXX)
+#        define BOOST_TR1_STD_CHEADER(name) <../include/ansi/name>
+#     endif
+#  endif
+
+
 #  if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && !defined(__BORLANDC__)
 #     ifdef __SUNPRO_CC
          // can't use <../stlport/name> since some compilers put stlport in a different directory:
@@ -51,6 +63,11 @@
 #     else
 #        define BOOST_TR1_STD_HEADER(name) <../stlport/name>
 #     endif
+#  elif defined(__PATHSCALE__) && (defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER))
+#     define BOOST_TR1_STD_HEADER(name) <../include/name>
+
+#  elif defined(__SUNPRO_CC) && (defined(__STD_RWCOMPILER_H__) || defined(_RWSTD_VER))
+#     define BOOST_TR1_STD_HEADER(name) <../stdcxx4/name>
 
 #  elif defined(__HP_aCC)
       // HP aCC include path:
@@ -62,17 +79,21 @@
 #  elif defined(__BORLANDC__) && __BORLANDC__ >= 0x570
 #     define BOOST_TR1_STD_HEADER(name) <../include/dinkumware/name>
 
+#  elif defined(__clang__)
+#     define BOOST_TR1_STD_HEADER(name) <../include/name>
+
 #  elif defined(__GNUC__) && __GNUC__ >= 3
 #    if defined(BOOST_TR1_GCC_INCLUDE_PATH)
 #      define BOOST_TR1_STD_HEADER(name) <../BOOST_TR1_GCC_INCLUDE_PATH/name>
-#      ifndef BOOST_TR1_DISABLE_INCLUDE_NEXT
-#        define BOOST_TR1_DISABLE_INCLUDE_NEXT
-#      endif
 #    elif ( (__GNUC__ == 3 ) && ((__GNUC_MINOR__ == 0) || ((__GNUC_MINOR__ < 3) && defined(__APPLE_CC__))))
 #      define BOOST_TR1_STD_HEADER(name) <../g++-v3/name>
 #    else
-#      if ( ((__GNUC__ == 4 ) || (__GNUC_MINOR__ >= 3)) && defined(__APPLE_CC__))
+#      if ( ((__GNUC__ == 3 ) && (__GNUC_MINOR__ >= 3)) && (defined(__APPLE_CC__) || defined(__CYGWIN__)))
 #        define BOOST_TR1_STD_HEADER(name) <../c++/name>
+#      elif ((__GLIBCXX__ == 20050421) && defined(__APPLE_CC__))
+         // Some Darwin tools fix libstdc++ at 4.0.0 irrespective of the actual
+         // compiler version:
+#        define BOOST_TR1_STD_HEADER(name) <../4.0.0/name>
          /*
           *  Before version 3.4.0 the 0 patch level was not part of the include path:
           */
@@ -85,9 +106,20 @@
 #      endif
 #    endif
 
+#      if !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT) && !defined(__ICC) \
+            && (defined(linux) || defined(__linux) || defined(__linux__) || defined(__GNU__) || defined(__GLIBC__))
+         // Disable use of #include_next on Linux as typically we are installed in a directory that is searched
+         // *after* the std lib include path:
+#        define BOOST_TR1_DISABLE_INCLUDE_NEXT
+#      endif
+
 #  else
 #     define BOOST_TR1_STD_HEADER(name) <../include/name>
 #  endif
+
+#if !defined(BOOST_TR1_STD_CHEADER)
+#  define BOOST_TR1_STD_CHEADER(name) BOOST_TR1_STD_HEADER(name)
+#endif
 
 #if defined(__GNUC__) && !defined(BOOST_HAS_INCLUDE_NEXT)
 #  define BOOST_HAS_INCLUDE_NEXT
@@ -95,7 +127,9 @@
 #ifdef __GXX_EXPERIMENTAL_CXX0X__
 #  define BOOST_HAS_CPP_0X
 #endif
-
+#if defined(_MSC_VER) && (_MSC_VER >= 1600) && !defined(BOOST_HAS_CPP_0X)
+#   define BOOST_HAS_CPP_0X
+#endif
 //
 // We may be in the middle of parsing boost/config.hpp
 // when this header is included, so don't rely on config

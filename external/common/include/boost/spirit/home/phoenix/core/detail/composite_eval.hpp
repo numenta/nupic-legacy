@@ -30,7 +30,7 @@
 
             template <typename RT, typename Composite, typename Env>
             static RT
-            call(Composite const& composite, Env const& env)
+            call(Composite const& /*composite*/, Env const& env)
             {
                 typedef typename Composite::eval_policy_type eval_policy_type;
                 return eval_policy_type::template eval<RT>(env);

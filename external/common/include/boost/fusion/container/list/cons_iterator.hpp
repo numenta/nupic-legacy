@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2005 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2005 Eric Niebler
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -34,11 +34,15 @@ namespace boost { namespace fusion
         typedef cons_iterator_identity<
             typename add_const<Cons>::type> 
         identity;
-        
-        explicit cons_iterator(cons_type& cons)
-            : cons(cons) {}
+
+        explicit cons_iterator(cons_type& in_cons)
+            : cons(in_cons) {}
 
         cons_type& cons;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        cons_iterator& operator= (cons_iterator const&);
     };
 
     struct nil_iterator : iterator_base<nil_iterator>

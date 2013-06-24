@@ -31,10 +31,14 @@ namespace detail{
 template <class I>
 struct is_random_imp
 {
+#ifndef BOOST_NO_STD_ITERATOR_TRAITS
 private:
    typedef typename std::iterator_traits<I>::iterator_category cat;
 public:
    BOOST_STATIC_CONSTANT(bool, value = (::boost::is_convertible<cat*, std::random_access_iterator_tag*>::value));
+#else
+   BOOST_STATIC_CONSTANT(bool, value = false);
+#endif
 };
 
 template <class I>

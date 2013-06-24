@@ -17,7 +17,7 @@
 #define BOOST_NUMERIC_INTERVAL_NO_HARDWARE
 
 // define appropriate specialization of rounding_control for built-in types
-#if defined(__x86_64__) && defined(__USE_ISOC99)
+#if defined(__x86_64__) && (defined(__USE_ISOC99) || defined(__APPLE__))
 #  include <boost/numeric/interval/detail/c99_rounding_control.hpp>
 #elif defined(__i386__) || defined(_M_IX86) || defined(__BORLANDC__) || defined(_M_X64)
 #  include <boost/numeric/interval/detail/x86_rounding_control.hpp>

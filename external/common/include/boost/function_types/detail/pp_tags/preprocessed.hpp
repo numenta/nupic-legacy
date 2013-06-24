@@ -53,7 +53,7 @@ BOOST_STATIC_CONSTANT(bool, match =
 RHS_bits == (LHS_bits & RHS_mask & (RHS_bits | ~0x000000ff))
 );
 BOOST_STATIC_CONSTANT(bits_t, combined_bits = 
-LHS_bits & ~RHS_mask | RHS_bits
+(LHS_bits & ~RHS_mask) | RHS_bits
 );
 BOOST_STATIC_CONSTANT(bits_t, combined_mask =
 LHS_mask | RHS_mask

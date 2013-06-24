@@ -21,6 +21,7 @@
 
 #undef BOOST_NO_SWPRINTF
 #undef BOOST_DEDUCED_TYPENAME
+
 //
 // version check:
 // probably nothing to do here?
