@@ -1,0 +1,5 @@
+# see top-level Makefile.in
+# libswigocaml is not needed anymore.
+swigp4.ml
+swig.mli
+swig.ml
