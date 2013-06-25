@@ -27,6 +27,7 @@ classifiers and the results are checked for differences.
 """
 
 import cPickle as pickle
+import numbers
 
 from nupic.algorithms.CLAClassifier import CLAClassifier
 from nupic.bindings.algorithms import FastCLAClassifier
@@ -64,11 +65,11 @@ class CLAClassifierDiff(object):
     self._callsPerSerialize = callsPerSerialize
 
 
-  def compute(self, patternNZ, classification, learn, infer):
-    result1 = self._claClassifier.compute(patternNZ, classification, learn,
-                                          infer)
-    result2 = self._fastCLAClassifier.compute(patternNZ, classification, learn,
-                                              infer)
+  def compute(self, recordNum, patternNZ, classification, learn, infer):
+    result1 = self._claClassifier.compute(recordNum, patternNZ, classification,
+                                          learn, infer)
+    result2 = self._fastCLAClassifier.compute(recordNum, patternNZ,
+                                              classification, learn, infer)
     self._calls += 1
     # Check if it is time to serialize and deserialize.
     if self._calls % self._callsPerSerialize == 0:
@@ -83,7 +84,12 @@ class CLAClassifierDiff(object):
     for k, l in result1.iteritems():
       assert type(l) == type(result2[k])
       for i in xrange(len(l)):
-        assert abs(float(l[i]) - float(result2[k][i])) < 0.0000001, (
-            'Python CLAClassifier has value %f and C++ FastCLAClassifier has '
-            'value %f.' % (l[i], result2[k][i]))
+        if isinstance(classification['actValue'], numbers.Real):
+          assert abs(float(l[i]) - float(result2[k][i])) < 0.0000001, (
+              'Python CLAClassifier has value %f and C++ FastCLAClassifier has '
+              'value %f.' % (l[i], result2[k][i]))
+        else:
+          assert l[i] == result2[k][i], (
+              'Python CLAClassifier has value %s and C++ FastCLAClassifier has '
+              'value %s.' % (str(l[i]), str(result2[k][i])))
     return result1
