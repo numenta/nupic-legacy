@@ -2,7 +2,7 @@
 layout: default
 title: Numenta News
 ---
-{% for post in site.categories.news reversed %}
+{% for post in site.categories.news %}
 <section>
     <h3 class="date">{{ post.date | date_to_string }}</h3>
     <h2><a href="{{site.baseurl}}{{ post.url }}">{{ post.title }}</a></h2>
