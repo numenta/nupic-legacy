@@ -2959,7 +2959,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         # Convert the bucketIdx back to the original value.
         for i in xrange(len(arrayResult["actualValues"])):
           arrayResult["actualValues"][i] = self.valueToCategory.get(int(
-              arrayResult["actualValues"][i]), None)
+              arrayResult["actualValues"][i]), classification["actValue"])
         self.valueToCategory[actValue] = classification["actValue"]
       return arrayResult
 
