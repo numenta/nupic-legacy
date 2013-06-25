@@ -19,10 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import cPickle as pickle
-
 import os
-import shutil
 import logging
 
 import nupic.frameworks.opf.opfutils as opfutils
@@ -89,24 +86,4 @@ class ModelFactory(object):
 
     Returns: the loaded model instance
     """
-
-    logger = ModelFactory.__getLogger()
-    logger.info("Loading model from local checkpoint at %r...", savedModelDir)
-
-    # Load the model
-    modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
-
-    with open(modelPickleFilePath, 'rb') as modelPickleFile:
-      logger.info("Unpickling Model instance...")
-
-      model = pickle.load(modelPickleFile)
-
-      logger.info("Finished unpickling Model instance")
-
-    # Tell the model to load extra data, if any, that was too big for pickling
-    model._deSerializeExtraData(
-      extraDataDir=Model._getModelExtraDataDir(savedModelDir))
-
-    logger.info("Finished Loading model from local checkpoint")
-
-    return model
+    return Model.load(savedModelDir)
