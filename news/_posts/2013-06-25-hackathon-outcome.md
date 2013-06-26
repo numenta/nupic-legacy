@@ -63,6 +63,7 @@ The demonstrations in their entirety are [here](http://www.youtube.com/watch?v=_
         <th id="alexander-sam">
             <a href="#alexander-sam">Alexander Van Dijk, Sam Gateau</a><br/><br/>
             Streaming Weather<br/>
+            <a href="https://github.com/tobedetermined/nupic/tree/master/examples/opf/clients/weatherapi">source code</a>
         </th>
         <td>
             <iframe class="youtube-player" type="text/html" width="400" height="285" src="http://www.youtube.com/embed/_bFmvlLmvcY?start=1600" allowfullscreen="allowfullscreen" frameborder="0">
