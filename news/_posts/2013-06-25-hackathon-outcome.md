@@ -138,7 +138,8 @@ If you are interesting in joining our next hackathon, please [sign up for our ma
 
 <br/>
 
-> Matt Taylor<br/>
-> Open Source Community Flag-Bearer<br/>
-> Numenta <br/>
-> <matt@numenta.org>
+> Matt Taylor <br/>
+> Open Source Community Flag-Bearer <br/>
+> Numenta, Inc.
+
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1h50kg/first_nupic_hackathon_outcome/)
