@@ -26,9 +26,7 @@ from collections import deque
 import time
 
 import psutil
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.pylab import *
+from matplotlib.pylab import draw, plot
 
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf.metrics import MetricSpec
@@ -37,7 +35,12 @@ from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import model_params
 
+SECONDS_PER_STEP = 2
+WINDOW = 60
+
 METRIC_SPECS = (
+    # This metric computes average absolute error for 5-step predictions over
+    # the last 60 steps
     MetricSpec(field='cpu', metric='multiStep',
                inferenceElement='multiStepBestPredictions',
                params={'errorMetric': 'aae', 'window': 60, 'steps': 5}),
@@ -45,42 +48,53 @@ METRIC_SPECS = (
 
 
 
-def createModel():
-  return ModelFactory.create(model_params.MODEL_PARAMS)
-
-
-
 def runCPU():
-  ion()
-  model = createModel()
+  """Poll CPU usage, make predictions, and plot the results. Runs forever."""
+  # Create the model for predicting CPU usage.
+  model = ModelFactory.create(model_params.MODEL_PARAMS)
   model.enableInference({'predictedField': 'cpu'})
+  # Create a metrics manager for computing an error metric.
   metricsManager = MetricsManager(METRIC_SPECS, model.getFieldInfo(),
                                   model.getInferenceType())
+  # The shifter will align prediction and actual values.
   shifter = InferenceShifter()
-  actHistory = deque([0.0] * 60, maxlen=60)
-  predHistory = deque([0.0] * 60, maxlen=60)
+  # Keep the last WINDOW predicted and actual values for plotting.
+  actHistory = deque([0.0] * WINDOW, maxlen=60)
+  predHistory = deque([0.0] * WINDOW, maxlen=60)
 
-  actline, = plot(range(60), actHistory)
-  predline, = plot(range(60), predHistory)
+  # Initialize the plot lines that we will update with each new record.
+  actline, = plot(range(WINDOW), actHistory)
+  predline, = plot(range(WINDOW), predHistory)
+  # Set the y-axis range.
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
 
   while True:
     s = time.time()
+
+    # Get the CPU usage.
     cpu = psutil.cpu_percent()
+
+    # Run the input through the model and shift the resulting prediction.
     modelInput = {'cpu': cpu}
     result = shifter.shift(model.run(modelInput))
+
+    # Compute an error metric (not currently used).
     result.metrics = metricsManager.update(result)
+
+    # Update the trailing predicted and actual value deques.
     inference = result.inferences['multiStepBestPredictions'][5]
     if inference is not None:
       actHistory.append(result.rawInput['cpu'])
       predHistory.append(inference)
 
+    # Redraw the chart with the new data.
     actline.set_ydata(actHistory)  # update the data
     predline.set_ydata(predHistory)  # update the data
     draw()
 
-    time.sleep(2.0 - (time.time() - s))
+    # Make sure we wait a total of 2 seconds per iteration.
+    time.sleep(SECONDS_PER_STEP - (time.time() - s))
 
 
 
