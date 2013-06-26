@@ -4,11 +4,11 @@ title: Hackathon Outcome
 category: news
 ---
 
-The first NuPIC Hackathon occurred over the past weekend, ending with eight demo application from ten different participants. Even though there were some struggles getting NuPIC building and running on different platforms (we anticipated that), I consider this event a success just based on the number of demonstrations ready within 24 hours.
+The first NuPIC Hackathon occurred over the past weekend, ending with eight demo applications from ten different participants. Even though there were some struggles getting NuPIC building and running on different platforms (we anticipated that), I consider this event a success based on the number of demonstrations ready within 24 hours.
 
-We had a great group of participants in attendance. Thank you all for coming, especially those of you who stuck it out all night and produced demos! We had hackers fly in from Seattle, St. Louis, Memphis, and Mexico... not to mention those attending from the San Francisco bay area.
+We had a great group of participants in attendance. Thank you all for coming, especially those of you who stuck it out all night and produced demos! We had hackers fly in from **Seattle**, **St. Louis**, **Memphis**, and **Mexico**... not to mention those attending from the San Francisco bay area.
 
-Almost the entire event was live-streamed on [YouTube](https://www.youtube.com/channel/UC8-ttzWLgXZOGuhUyrPlUuA). All the individual videos are linked below, but the most interesting videos are the <a href="#kickoff_video_and_slides">kickoff</a> and the <a href="#demonstrations">demonstrations</a> at the end of the event. If you feel like watching all 24 hours of the event, be my guest:
+The event was live-streamed on [YouTube](https://www.youtube.com/channel/UC8-ttzWLgXZOGuhUyrPlUuA). All the individual videos are linked below, but the most interesting videos are the <a href="#kickoff_video_and_slides">kickoff</a> and the <a href="#demonstrations">demonstrations</a> at the end.
 
 ## Kickoff Video and Slides
 
@@ -22,9 +22,9 @@ Almost the entire event was live-streamed on [YouTube](https://www.youtube.com/c
 <br/>
 <br/>
 
-## Hours of Hacking
+## Hours and Hours of Hacking
 
-You might witness some good discussions at times, or you might witness hackers falling asleep in their coffee if you happen to tune in at 3AM.
+An awful lot of interesting conversations occurred. If you jump into any of the following videos, you might happen upon something intriguing. Of course, you might also see us falling asleep in our coffees at 3am.
 
 - [Part 2](http://www.youtube.com/watch?v=ub-qXF8AyNs)
 - [Part 3](http://www.youtube.com/watch?v=R08sDbYAwXk)
@@ -128,9 +128,11 @@ The demonstrations in their entirety are [here](http://www.youtube.com/watch?v=_
 <br/>
 <br/>
 
+We were so happy with the hacks, we gave everyone who came up with one a [raspberry pi](http://www.raspberrypi.org/) (and we'll be working on getting NuPIC to [build on one](https://issues.numenta.org/browse/NPC-141)!). 
+
 ## Thank you!
 
-We really had a great time hosting this hackathon, and we can't wait to do it again. Additionally, we got really valuable feedback from all the participants on how we can improve NuPIC for all our users and contributors. Don't doubt that we'll be taking all your comments and critiques into consideration as we continue to mature our open source offering. 
+We had a great time hosting this hackathon, and we can't wait to do it again. Additionally, we got really valuable feedback from all the participants on how we can improve NuPIC for all our users and contributors. Don't doubt that we'll be taking all your comments and critiques into consideration as we continue to mature our open source offering. 
 
 If you are interesting in joining our next hackathon, please [sign up for our mailing list](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org), were I'll continue to post notifications about future events.
 
