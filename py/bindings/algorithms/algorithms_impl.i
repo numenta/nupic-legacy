@@ -3010,11 +3010,11 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     self->fastCompute(recordNum, patternNZ, bucketIdx, actValue, category,
                       learn, infer, &result);
     PyObject* d = PyDict_New();
-    for (map<UInt, vector<Real64>*>::const_iterator it = result.begin();
+    for (map<Int, vector<Real64>*>::const_iterator it = result.begin();
          it != result.end(); ++it)
     {
       PyObject* key;
-      if (it->first == 0)
+      if (it->first == -1)
       {
         key = PyString_FromString("actualValues");
       } else {

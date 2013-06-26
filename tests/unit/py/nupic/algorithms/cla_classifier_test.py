@@ -58,6 +58,20 @@ class CLAClassifierTest(unittest.TestCase):
     self._checkValue(retval, 0, 10, 1.)
 
 
+  def testSingleValue0Steps(self):
+    """Send same value 10 times and expect 100% likelihood for prediction 
+    using 0-step ahead prediction"""
+    classifier = self._classifier([0])
+
+    # Enough times to perform Inference and learn associations
+    retval = []
+    for recordNum in xrange(10):
+      retval = self._compute(classifier, recordNum, [1, 5], 0, 10)
+
+    self.assertEqual(retval['actualValues'][0], 10)
+    self.assertEqual(retval[0][0], 1.0)
+
+
   def testComputeResultTypes(self):
     c = self._classifier([1], 0.1, 0.1, 0)
     result = c.compute(recordNum=0,

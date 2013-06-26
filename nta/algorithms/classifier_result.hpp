@@ -66,7 +66,7 @@ namespace nta
            * iterator methods. The vectors are owned by this class and are
            * deleted in the destructor.
            *
-           * @param step The prediction step to create a vector for. If 0, then
+           * @param step The prediction step to create a vector for. If -1, then
            *             a vector for the actual values to use for each bucket
            *             is returned.
            * @param size The size of the desired vector.
@@ -74,12 +74,12 @@ namespace nta
            *
            * @returns The specified vector.
            */
-          virtual vector<Real64>* createVector(UInt step, UInt size, Real64 value);
+          virtual vector<Real64>* createVector(Int step, UInt size, Real64 value);
 
           /**
            * Iterator method begin.
            */
-          virtual map<UInt, vector<Real64>*>::const_iterator begin()
+          virtual map<Int, vector<Real64>*>::const_iterator begin()
           {
             return result_.begin();
           }
@@ -87,14 +87,14 @@ namespace nta
           /**
            * Iterator method end.
            */
-          virtual map<UInt, vector<Real64>*>::const_iterator end()
+          virtual map<Int, vector<Real64>*>::const_iterator end()
           {
             return result_.end();
           }
 
         private:
 
-          map<UInt, vector<Real64>*> result_;
+          map<Int, vector<Real64>*> result_;
 
       }; // end class ClassifierResult
 
