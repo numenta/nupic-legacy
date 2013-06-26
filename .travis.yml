@@ -30,7 +30,11 @@ script:
   # actual unit tests
   - "$NUPIC/run_tests.sh"
   
-  # run all example files
+  # run example files
+
+  # every 100 builds, check all examples, otherwise just a portion of it
+  - if [[ ! $(( $RANDOM % 100 )) -eq 0 ]]; then 
+    # just some examples...
     # examples/bindings
   - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py" 
   - "python $NUPIC/examples/bindings/sparse_pooler_how_to.py"  
@@ -50,3 +54,7 @@ script:
     # examples/tp
   - "python $NUPIC/examples/tp/hello_tp.py"
   - "python $NUPIC/examples/tp/tp_test.py"
+  - else 
+    # all tests are run, may take a while
+    - echo "Congratulations to your today's luck! Here's your cookie... happy waiting. "
+  - fi
