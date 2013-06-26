@@ -35,7 +35,6 @@ config = \
     'sensorParams': { 'verbosity': 0},
     'clParams': { 
       'clVerbosity': 0,
-      'implementation': 'py'
     },
   }
 }
