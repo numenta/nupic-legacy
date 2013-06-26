@@ -130,17 +130,25 @@ namespace nta
           // been seen yet, the actual value doesn't matter since it will have
           // zero likelihood.
           vector<Real64>* actValueVector = result->createVector(
-              0, actualValues_.size(), 0.0);
+              -1, actualValues_.size(), 0.0);
           for (UInt i = 0; i < actualValues_.size(); ++i)
           {
             if (actualValuesSet_[i])
             {
               (*actValueVector)[i] = actualValues_[i];
             } else {
-              (*actValueVector)[i] = actValue;
+              // if doing 0-step ahead prediction, we shouldn't use any 
+              // knowledge of the classification input during inference
+              if (steps_.at(0) == 0)
+              {
+                (*actValueVector)[i] = 0;
+              } else {
+                (*actValueVector)[i] = actValue;
+              }
             }
           }
 
+          // Generate the predictions for each steps-ahead value
           for (vector<UInt>::const_iterator step = steps_.begin();
                step != steps_.end(); ++step)
           {

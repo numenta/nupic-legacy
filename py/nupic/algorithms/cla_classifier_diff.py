@@ -79,7 +79,8 @@ class CLAClassifierDiff(object):
     # Assert both results are the same type.
     assert type(result1) == type(result2)
     # Assert that the keys match.
-    assert set(result1.keys()) == set(result2.keys())
+    assert set(result1.keys()) == set(result2.keys()), "diff detected: " \
+      "py result=%s, C++ result=%s" % (result1, result2)
     # Assert that the values match.
     for k, l in result1.iteritems():
       assert type(l) == type(result2[k])
