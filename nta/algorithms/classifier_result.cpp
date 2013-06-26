@@ -38,24 +38,24 @@ namespace nta
 
       ClassifierResult::~ClassifierResult()
       {
-        for (map<UInt, vector<Real64>*>::const_iterator it = result_.begin();
+        for (map<Int, vector<Real64>*>::const_iterator it = result_.begin();
              it != result_.end(); ++it)
         {
           delete it->second;
         }
       }
 
-      vector<Real64>* ClassifierResult::createVector(UInt step, UInt size,
+      vector<Real64>* ClassifierResult::createVector(Int step, UInt size,
                                                 Real64 value)
       {
         vector<Real64>* v;
-        map<UInt, vector<Real64>*>::const_iterator it = result_.find(step);
+        map<Int, vector<Real64>*>::const_iterator it = result_.find(step);
         if (it != result_.end())
         {
           v = it->second;
         } else {
           v = new vector<Real64>(size, value);
-          result_.insert(pair<UInt, vector<Real64>*>(step, v));
+          result_.insert(pair<Int, vector<Real64>*>(step, v));
         }
         return v;
       }
