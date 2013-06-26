@@ -95,29 +95,31 @@ def updateLibs(trunkdir):
         c = c + 1
   log.info("Updated %d libraries in arch %s" % (c, arch))
 
-    
-def clean(trunkdir):
+
+def clean(path, root=True):
   """Remove all auto-generated Makefile.am's. Useful for debugging this script"""
-  for (path, dirs, files) in os.walk(trunkdir, topdown=True):
-    for f in copyList:
-      if f in files:
+  for f in [f for f in os.listdir(path)
+            if os.path.isfile(os.path.join(path, f))]:
+    # Remove ignored files.
+    if f in copyList:
         log.info("Removing %s in %s" % (f, path))
         os.remove(os.path.join(path, f))
         files.remove(f)
-    for file in files:
-      if file.endswith(".vcproj"):
-        log.info("Removing %s in %s" % (file, path))
-        os.remove(os.path.join(path, file))
+    if f.endswith(".vcproj"):
+      log.info("Removing %s in %s" % (f, path))
+      os.remove(os.path.join(path, f))
 
-    for dir in dirs:
-      if os.path.exists(os.path.join(path, dir, ".build_system_ignore")):
-        dirs.remove(dir)
-      elif dir in ignoreList:
-        dirs.remove(dir)
+    # Recursively call for directories that don't have an ignore file.
+    for d in [d for d in os.listdir(path)
+              if os.path.isdir(os.path.join(path, d))]:
+      if (not os.path.exists(os.path.join(path, d, ".build_system_ignore")) and
+          d not in ignoreList):
+        clean(os.path.join(path, d), root=False)
+
   configureFile = os.path.join(trunkdir, "configure.ac")
-  if os.path.exists(configureFile):
+  if root and os.path.exists(configureFile):
     os.remove(configureFile)
-  
+
 
 def usage():
   print """
