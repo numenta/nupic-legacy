@@ -26,19 +26,6 @@ MODEL_PARAMS = {
     # Version that specifies the format of the config.
     'version': 1,
 
-    # Intermediate variables used to compute fields in modelParams and also
-    # referenced from the control section.
-    'aggregationInfo': {   'days': 0,
-        'fields': [('consumption', 'sum')],
-        'hours': 1,
-        'microseconds': 0,
-        'milliseconds': 0,
-        'minutes': 0,
-        'months': 0,
-        'seconds': 0,
-        'weeks': 0,
-        'years': 0},
-    
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -53,20 +40,18 @@ MODEL_PARAMS = {
             # >=3: even more info (see compute() in py/regions/RecordSensor.py)
             'verbosity' : 0,
 
-            # Example:
-            #     dsEncoderSchema = [
-            #       DeferredDictLookup('__field_name_encoder'),
-            #     ],
-            #
-            # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   'consumption': {
-                                   'fieldname': u'cpu',
-                                   'n': 200,
-                                   'name': u'consumption',
-                                   'type': 'ScalarEncoder',
-                                   'minval': 0.0,
-                                   'maxval': 100.0,
-                                   'w': 21}},
+            # CPU usage encoder.
+            'encoders': {
+                'cpu': {
+                    'fieldname': u'cpu',
+                    'n': 200,
+                    'name': u'cpu',
+                    'type': 'ScalarEncoder',
+                    'minval': 0.0,
+                    'maxval': 100.0,
+                    'w': 21
+                }
+            },
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -77,8 +62,6 @@ MODEL_PARAMS = {
             #   days, hours, minutes, seconds, milliseconds, microseconds, weeks
             #
             # Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),
-            #
-            # (value generated from SENSOR_AUTO_RESET)
             'sensorAutoReset' : None,
         },
 
