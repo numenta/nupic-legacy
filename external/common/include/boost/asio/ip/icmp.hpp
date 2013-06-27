@@ -1,8 +1,8 @@
 //
-// icmp.hpp
-// ~~~~~~~~
+// ip/icmp.hpp
+// ~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,14 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
+#include <boost/asio/detail/config.hpp>
+#include <boost/asio/detail/socket_types.hpp>
 #include <boost/asio/basic_raw_socket.hpp>
 #include <boost/asio/ip/basic_endpoint.hpp>
 #include <boost/asio/ip/basic_resolver.hpp>
 #include <boost/asio/ip/basic_resolver_iterator.hpp>
 #include <boost/asio/ip/basic_resolver_query.hpp>
-#include <boost/asio/detail/socket_types.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -44,12 +45,6 @@ class icmp
 public:
   /// The type of a ICMP endpoint.
   typedef basic_endpoint<icmp> endpoint;
-
-  /// The type of a resolver query.
-  typedef basic_resolver_query<icmp> resolver_query;
-
-  /// The type of a resolver iterator.
-  typedef basic_resolver_iterator<icmp> resolver_iterator;
 
   /// Construct to represent the IPv4 ICMP protocol.
   static icmp v4()
@@ -101,9 +96,9 @@ public:
 
 private:
   // Construct with a specific family.
-  explicit icmp(int protocol, int family)
-    : protocol_(protocol),
-      family_(family)
+  explicit icmp(int protocol_id, int protocol_family)
+    : protocol_(protocol_id),
+      family_(protocol_family)
   {
   }
 

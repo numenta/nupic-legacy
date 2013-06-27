@@ -23,10 +23,17 @@ namespace boost { namespace program_options {
     template<class charT>
     class basic_option {
     public:
-        basic_option() : position_key(-1), unregistered(false) {}
-        basic_option(const std::string& string_key, 
-               const std::vector< std::string> &value) 
-        : string_key(string_key), value(value), unregistered(false)
+        basic_option() 
+        : position_key(-1)
+        , unregistered(false) 
+        , case_insensitive(false)
+        {}
+        basic_option(const std::string& xstring_key, 
+               const std::vector< std::string> &xvalue)
+        : string_key(xstring_key)
+        , value(xvalue)
+        , unregistered(false)
+        , case_insensitive(false)
         {}
 
         /** String key of this option. Intentionally independent of the template
@@ -50,7 +57,10 @@ namespace boost { namespace program_options {
             recovered from the "original_tokens" member.
         */
         bool unregistered;
-
+        /** True if string_key has to be handled
+            case insensitive.
+        */
+        bool case_insensitive;
     };
     typedef basic_option<char> option;
     typedef basic_option<wchar_t> woption;

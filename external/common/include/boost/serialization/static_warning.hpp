@@ -62,128 +62,47 @@
 // W8073 is disabled by default. If enabling selected warnings is considered 
 // unacceptable, this section can be replaced with:
 //   #if defined(__BORLANDC__) && (__BORLANDC__ <= 0x600)
-//    pragma warn +stu
+//    pragma warn +st
 //   #endif
 
-# if defined(BOOST_MSVC)
-#  pragma warning(2:4150) // C4150: deletion of pointer to incomplete type 'type'.
-# elif defined(BOOST_INTEL) && (defined(__WIN32__) || defined(WIN32))
-#  pragma warning(2:457) // #457: delete of pointer to incomplete class.
-# elif defined(__BORLANDC__) && (__BORLANDC__ <= 0x600)
-#  pragma warn +stu  // W8073: Undefined structure 'structure'.
-# elif defined(__MWERKS__)
-#  pragma extended_errorcheck on // Enable 'extended error checking'.
-# endif
+// 6. replaced implementation with one which depends solely on
+//    mpl::print<>.  The previous one was found to fail for functions
+//    under recent versions of gcc and intel compilers - Robert Ramey
 
-//------------------Configure-------------------------------------------------//
-# if defined(BOOST_INTEL)
-# elif defined(__PGI)
-#  define BOOST_HAS_DESCRIPTIVE_DIVIDE_BY_ZERO_WARNING
-# elif defined(__GNUC__) && !defined(BOOST_INTEL) // && (__GNUC__ * 100 + __GNUC_MINOR__ <= 302)
-#  define BOOST_HAS_DESCRIPTIVE_DIVIDE_BY_ZERO_WARNING
-# elif  defined(__DECCXX) // for Tru64
-#  define BOOST_HAS_DESCRIPTIVE_DIVIDE_BY_ZERO_WARNING
-# elif defined(__DMC__)
-#  define BOOST_HAS_DESCRIPTIVE_RETURNING_ADDRESS_OF_TEMPORARY_WARNING
-# elif defined(BOOST_MSVC) // && (BOOST_MSVC < 1300)
-#  define BOOST_NO_PREDEFINED_LINE_MACRO
-#  pragma warning(disable:4094) // C4094: untagged 'struct' declared no symbols
-# else
-#  define BOOST_HAS_DESCRIPTIVE_INCOMPLETE_TYPE_WARNING
-#endif
-
-//------------------Helper templates------------------------------------------//
+#include <boost/mpl/bool.hpp>
+#include <boost/mpl/print.hpp>
+#include <boost/mpl/eval_if.hpp>
 
 namespace boost {
 namespace serialization {
 
-struct STATIC_WARNING;
+template<int L> 
+struct BOOST_SERIALIZATION_STATIC_WARNING_LINE{};
 
-template<bool>
-struct static_warning_impl;
-
-template<>
-struct static_warning_impl<false> {
-    enum { value = 0 };
-    #if !defined(BOOST_HAS_DESCRIPTIVE_UNREFERENCED_VARIABLE_WARNING) && \
-        !defined(BOOST_HAS_DESCRIPTIVE_RETURNING_ADDRESS_OF_TEMPORARY_WARNING)
-        typedef boost::serialization::STATIC_WARNING type;
-    #else
-        typedef int type;
-    #endif
-    #if defined(BOOST_NO_PREDEFINED_LINE_MACRO)
-        struct STATIC_WARNING { };
-    #endif
+template<bool B, int L>
+struct static_warning_test{
+    typename boost::mpl::eval_if_c<
+        B,
+        boost::mpl::true_,
+        typename boost::mpl::identity<
+            boost::mpl::print<
+                BOOST_SERIALIZATION_STATIC_WARNING_LINE<L>
+            >
+        >
+    >::type type;
 };
 
-template<>
-struct static_warning_impl<true> {
-    enum { value = 1 };
-    struct type { type() { } int* operator&() { return new int; } };
-    #if defined(BOOST_NO_PREDEFINED_LINE_MACRO)
-        class STATIC_WARNING { };
-    #endif
-};
+template<int i>
+struct BOOST_SERIALIZATION_SS {};
 
-} // namespace serialization
-} // namespace boost
+} // serialization
+} // boost
 
-//------------------Definition of BOOST_STATIC_WARNING------------------------//
+#define BOOST_SERIALIZATION_BSW(B, L) \
+    typedef boost::serialization::BOOST_SERIALIZATION_SS< \
+        sizeof( boost::serialization::static_warning_test< B, L > ) \
+    > BOOST_JOIN(STATIC_WARNING_LINE, L);
 
-#if defined(BOOST_HAS_DESCRIPTIVE_UNREFERENCED_VARIABLE_WARNING)
-#    define BOOST_STATIC_WARNING_IMPL(B)                        \
-     struct BOOST_JOIN(STATIC_WARNING, __LINE__) {              \
-       void f() {                                               \
-           ::boost::serialization::static_warning_impl<(bool)( B )>::type      \
-           STATIC_WARNING;                                      \
-       }                                                        \
-     }                                                          \
-     /**/
-#elif defined(BOOST_HAS_DESCRIPTIVE_RETURNING_ADDRESS_OF_TEMPORARY_WARNING)
-#    define BOOST_STATIC_WARNING_IMPL(B)                        \
-     struct BOOST_JOIN(STATIC_WARNING, __LINE__) {              \
-        int* f() {                                              \
-            ::boost::serialization::static_warning_impl<(bool)( B )>::type     \
-            STATIC_WARNING;                                     \
-            return &STATIC_WARNING;                             \
-        }                                                       \
-     }                                                          \
-     /**/
-#elif defined(BOOST_HAS_DESCRIPTIVE_DIVIDE_BY_ZERO_WARNING)
-#    define BOOST_STATIC_WARNING_IMPL(B)                        \
-     struct BOOST_JOIN(STATIC_WARNING, __LINE__) {              \
-         int f() {                                              \
-            int STATIC_WARNING = 1;                             \
-            return STATIC_WARNING /                             \
-                boost::serialization::static_warning_impl<(bool)( B )>::value; } \
-     }                                                          \
-     /**/
-#elif defined(BOOST_NO_PREDEFINED_LINE_MACRO) 
-     // VC6; __LINE__ macro broken when -ZI is used see Q199057, so 
-     // non-conforming workaround is used.
-#    define BOOST_STATIC_WARNING_IMPL(B)                       \
-     struct {                                                  \
-        struct S {                                             \
-            typedef boost::serialization::static_warning_impl<(bool)( B )> f; \
-            friend class f::STATIC_WARNING;                    \
-        };                                                     \
-     }                                                         \
-     /**/
-#elif defined(BOOST_HAS_DESCRIPTIVE_INCOMPLETE_TYPE_WARNING)
-#    define BOOST_STATIC_WARNING_IMPL(B)                     \
-     struct BOOST_JOIN(STATIC_WARNING, __LINE__) {           \
-         ::boost::serialization::static_warning_impl<(bool)( B )>::type* p; \
-         void f() { delete p; }                              \
-     }                                                       \
-     /**/
-#else // not defined for this compiler
-#    define BOOST_STATIC_WARNING_IMPL(B)
-#endif
-
-#ifndef BOOST_DISABLE_STATIC_WARNINGS
-# define BOOST_STATIC_WARNING(B) BOOST_STATIC_WARNING_IMPL(B)
-#else // #ifdef BOOST_ENABLE_STATIC_WARNINGS //-------------------------------//
-# define BOOST_STATIC_WARNING(B) BOOST_STATIC_WARNING_IMPL(true)
-#endif
+#define BOOST_STATIC_WARNING(B) BOOST_SERIALIZATION_BSW(B, __LINE__)
 
 #endif // BOOST_SERIALIZATION_STATIC_WARNING_HPP

@@ -82,7 +82,7 @@ struct range_run
     bool empty() const;
     bool test(Char v) const;
     template<typename Traits>
-    bool test(Char v, Traits const &traits) const;
+    bool test(Char v, Traits const &tr) const;
     void set(range_type const &r);
     void clear(range_type const &r);
     void clear();

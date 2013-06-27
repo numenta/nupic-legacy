@@ -21,6 +21,11 @@ namespace boost { namespace spirit {
 
 BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  refactor_unary_parser class
@@ -268,6 +273,10 @@ private:
 };
 
 const attach_action_gen<> attach_action_d = attach_action_gen<>();
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 BOOST_SPIRIT_CLASSIC_NAMESPACE_END

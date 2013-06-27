@@ -33,10 +33,10 @@ struct sub_match_impl
     BidiIter begin_;
     bool zero_width_;
 
-    sub_match_impl()
-      : sub_match<BidiIter>()
+    sub_match_impl(BidiIter const &begin)
+      : sub_match<BidiIter>(begin, begin)
       , repeat_count_(0)
-      , begin_()
+      , begin_(begin)
       , zero_width_(false)
     {
     }

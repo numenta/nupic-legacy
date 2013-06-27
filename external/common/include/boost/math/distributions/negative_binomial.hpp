@@ -165,7 +165,7 @@ namespace boost
         RealType alpha) // alpha 0.05 equivalent to 95% for one-sided test.
       {
         static const char* function = "boost::math::negative_binomial<%1%>::find_lower_bound_on_p";
-        RealType result;  // of error checks.
+        RealType result = 0;  // of error checks.
         RealType failures = trials - successes;
         if(false == detail::check_probability(function, alpha, &result, Policy())
           && negative_binomial_detail::check_dist_and_k(
@@ -190,7 +190,7 @@ namespace boost
         RealType alpha) // alpha 0.05 equivalent to 95% for one-sided test.
       {
         static const char* function = "boost::math::negative_binomial<%1%>::find_upper_bound_on_p";
-        RealType result;  // of error checks.
+        RealType result = 0;  // of error checks.
         RealType failures = trials - successes;
         if(false == negative_binomial_detail::check_dist_and_k(
           function, successes, RealType(0), failures, &result, Policy())
@@ -222,7 +222,7 @@ namespace boost
       {
         static const char* function = "boost::math::negative_binomial<%1%>::find_minimum_number_of_trials";
         // Error checks:
-        RealType result;
+        RealType result = 0;
         if(false == negative_binomial_detail::check_dist_and_k(
           function, RealType(1), p, k, &result, Policy())
           && detail::check_probability(function, alpha, &result, Policy()))
@@ -239,7 +239,7 @@ namespace boost
       {
         static const char* function = "boost::math::negative_binomial<%1%>::find_maximum_number_of_trials";
         // Error checks:
-        RealType result;
+        RealType result = 0;
         if(false == negative_binomial_detail::check_dist_and_k(
           function, RealType(1), p, k, &result, Policy())
           &&  detail::check_probability(function, alpha, &result, Policy()))
@@ -260,7 +260,7 @@ namespace boost
     inline const std::pair<RealType, RealType> range(const negative_binomial_distribution<RealType, Policy>& /* dist */)
     { // Range of permissible values for random variable k.
        using boost::math::tools::max_value;
-       return std::pair<RealType, RealType>(0, max_value<RealType>()); // max_integer?
+       return std::pair<RealType, RealType>(static_cast<RealType>(0), max_value<RealType>()); // max_integer?
     }
 
     template <class RealType, class Policy>
@@ -268,7 +268,7 @@ namespace boost
     { // Range of supported values for random variable k.
        // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
        using boost::math::tools::max_value;
-       return std::pair<RealType, RealType>(0,  max_value<RealType>()); // max_integer?
+       return std::pair<RealType, RealType>(static_cast<RealType>(0),  max_value<RealType>()); // max_integer?
     }
 
     template <class RealType, class Policy>
@@ -343,7 +343,7 @@ namespace boost
 
       RealType r = dist.successes();
       RealType p = dist.success_fraction();
-      RealType result;
+      RealType result = 0;
       if(false == negative_binomial_detail::check_dist_and_k(
         function,
         r,
@@ -370,7 +370,7 @@ namespace boost
       RealType p = dist.success_fraction();
       RealType r = dist.successes();
       // Error check:
-      RealType result;
+      RealType result = 0;
       if(false == negative_binomial_detail::check_dist_and_k(
         function,
         r,
@@ -399,7 +399,7 @@ namespace boost
       RealType p = dist.success_fraction();
       RealType r = dist.successes();
       // Error check:
-      RealType result;
+      RealType result = 0;
       if(false == negative_binomial_detail::check_dist_and_k(
         function,
         r,
@@ -435,7 +435,7 @@ namespace boost
       RealType p = dist.success_fraction();
       RealType r = dist.successes();
       // Check dist and P.
-      RealType result;
+      RealType result = 0;
       if(false == negative_binomial_detail::check_dist_and_prob
         (function, r, p, P, &result, Policy()))
       {
@@ -468,14 +468,14 @@ namespace boost
       RealType guess = 0;
       RealType factor = 5;
       if(r * r * r * P * p > 0.005)
-         guess = detail::inverse_negative_binomial_cornish_fisher(r, p, 1-p, P, 1-P, Policy());
+         guess = detail::inverse_negative_binomial_cornish_fisher(r, p, RealType(1-p), P, RealType(1-P), Policy());
 
       if(guess < 10)
       {
          //
          // Cornish-Fisher Negative binomial approximation not accurate in this area:
          //
-         guess = (std::min)(r * 2, RealType(10));
+         guess = (std::min)(RealType(r * 2), RealType(10));
       }
       else
          factor = (1-P < sqrt(tools::epsilon<RealType>())) ? 2 : (guess < 20 ? 1.2f : 1.1f);
@@ -509,7 +509,7 @@ namespace boost
        const negative_binomial_distribution<RealType, Policy>& dist = c.dist;
        RealType p = dist.success_fraction();
        RealType r = dist.successes();
-       RealType result;
+       RealType result = 0;
        if(false == negative_binomial_detail::check_dist_and_prob(
           function,
           r,
@@ -545,14 +545,14 @@ namespace boost
        RealType guess = 0;
        RealType factor = 5;
        if(r * r * r * (1-Q) * p > 0.005)
-          guess = detail::inverse_negative_binomial_cornish_fisher(r, p, 1-p, 1-Q, Q, Policy());
+          guess = detail::inverse_negative_binomial_cornish_fisher(r, p, RealType(1-p), RealType(1-Q), Q, Policy());
 
        if(guess < 10)
        {
           //
           // Cornish-Fisher Negative binomial approximation not accurate in this area:
           //
-          guess = (std::min)(r * 2, RealType(10));
+          guess = (std::min)(RealType(r * 2), RealType(10));
        }
        else
           factor = (Q < sqrt(tools::epsilon<RealType>())) ? 2 : (guess < 20 ? 1.2f : 1.1f);

@@ -24,7 +24,7 @@ struct name##_instance_t                                    \
                                                             \
 namespace                                                   \
 {                                                           \
-    const type& name = name##_instance_t<true>::instance;   \
+    static const type& name = name##_instance_t<true>::instance;   \
 }                                                           \
                                                             \
 template<bool b>                                            \

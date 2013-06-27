@@ -1,4 +1,6 @@
-// Copyright Paul A. Bristow 2007.
+// fwd.hpp Forward declarations of Boost.Math distributions.
+
+// Copyright Paul A. Bristow 2007, 2010.
 // Copyright John Maddock 2007.
 
 // Use, modification and distribution are subject to the
@@ -37,6 +39,30 @@ class fisher_f_distribution;
 
 template <class RealType, class Policy>
 class gamma_distribution;
+
+template <class RealType, class Policy>
+class geometric_distribution;
+
+template <class RealType, class Policy>
+class hypergeometric_distribution;
+
+template <class RealType, class Policy>
+class inverse_chi_squared_distribution;
+
+template <class RealType, class Policy>
+class inverse_gamma_distribution;
+
+template <class RealType, class Policy>
+class inverse_gaussian_distribution;
+
+template <class RealType, class Policy>
+class inverse_uniform_distribution;
+
+template <class RealType, class Policy>
+class laplace_distribution;
+
+template <class RealType, class Policy>
+class logistic_distribution;
 
 template <class RealType, class Policy>
 class lognormal_distribution;
@@ -92,6 +118,8 @@ class weibull_distribution;
    typedef boost::math::extreme_value_distribution<Type, Policy> extreme_value;\
    typedef boost::math::fisher_f_distribution<Type, Policy> fisher_f;\
    typedef boost::math::gamma_distribution<Type, Policy> gamma;\
+   typedef boost::math::laplace_distribution<Type, Policy> laplace;\
+   typedef boost::math::logistic_distribution<Type, Policy> logistic;\
    typedef boost::math::lognormal_distribution<Type, Policy> lognormal;\
    typedef boost::math::negative_binomial_distribution<Type, Policy> negative_binomial;\
    typedef boost::math::normal_distribution<Type, Policy> normal;\
@@ -106,5 +134,11 @@ class weibull_distribution;
    typedef boost::math::non_central_beta_distribution<Type, Policy> non_central_beta;\
    typedef boost::math::non_central_f_distribution<Type, Policy> non_central_f;\
    typedef boost::math::non_central_t_distribution<Type, Policy> non_central_t;\
+   typedef boost::math::hypergeometric_distribution<Type, Policy> hypergeometric;\
+   typedef boost::math::inverse_uniform_distribution<Type, Policy> inverse_uniform;\
+   typedef boost::math::geometric_distribution<Type, Policy> geometric;\
+   typedef boost::math::inverse_chi_squared_distribution<Type, Policy> inverse_chi_squared;\
+   typedef boost::math::inverse_gamma_distribution<Type, Policy> inverse_gamma;\
+   typedef boost::math::inverse_gaussian_distribution<Type, Policy> inverse_gaussian;\
 
 #endif // BOOST_MATH_DISTRIBUTIONS_FWD_HPP

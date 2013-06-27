@@ -9,9 +9,8 @@
 #define __IS_KURATOWSKI_SUBGRAPH_HPP__
 
 #include <boost/config.hpp>
-#include <boost/utility.hpp> //for next/prior
 #include <boost/tuple/tuple.hpp>   //for tie
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/isomorphism.hpp>
 #include <boost/graph/adjacency_list.hpp>
@@ -33,7 +32,7 @@ namespace boost
     {
       typename graph_traits<Graph>::vertex_iterator vi, vi_end, inner_vi;
       Graph K_5(5);
-      for(tie(vi,vi_end) = vertices(K_5); vi != vi_end; ++vi)
+      for(boost::tie(vi,vi_end) = vertices(K_5); vi != vi_end; ++vi)
         for(inner_vi = next(vi); inner_vi != vi_end; ++inner_vi)
           add_edge(*vi, *inner_vi, K_5);
       return K_5;
@@ -47,7 +46,7 @@ namespace boost
         vi, vi_end, bipartition_start, inner_vi;
       Graph K_3_3(6);
       bipartition_start = next(next(next(vertices(K_3_3).first)));
-      for(tie(vi, vi_end) = vertices(K_3_3); vi != bipartition_start; ++vi)
+      for(boost::tie(vi, vi_end) = vertices(K_3_3); vi != bipartition_start; ++vi)
         for(inner_vi= bipartition_start; inner_vi != vi_end; ++inner_vi)
           add_edge(*vi, *inner_vi, K_3_3);
       return K_3_3;
@@ -97,6 +96,8 @@ namespace boost
 
     }
 
+    enum target_graph_t { tg_k_3_3, tg_k_5};
+
   } // namespace detail
 
 
@@ -123,9 +124,7 @@ namespace boost
 
     typedef adjacency_list<vecS, vecS, undirectedS> small_graph_t;
 
-    enum target_graph_t { k_3_3, k_5};
-
-    target_graph_t target_graph = k_3_3; //unless we decide otherwise later
+    detail::target_graph_t target_graph = detail::tg_k_3_3; //unless we decide otherwise later
 
     static small_graph_t K_5(detail::make_K_5<small_graph_t>());
 
@@ -158,7 +157,7 @@ namespace boost
       {
 
         vertex_iterator_t vi, vi_end;
-        for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+        for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
           {
             vertex_t v(*vi);
 
@@ -176,7 +175,7 @@ namespace boost
 
             while (neighbors[v].size() > 0 && neighbors[v].size() < max_size)
               {
-                // Find one of v's neighbors u such that that v and u
+                // Find one of v's neighbors u such that v and u
                 // have no neighbors in common. We'll look for such a 
                 // neighbor with a naive cubic-time algorithm since the 
                 // max size of any of the neighbor sets we'll consider 
@@ -242,14 +241,14 @@ namespace boost
         if (max_size == 3)
           {
             // check to see whether we should go on to find a K_5
-            for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+            for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
               if (neighbors[*vi].size() == 4)
                 {
-                  target_graph = k_5;
+                  target_graph = detail::tg_k_5;
                   break;
                 }
 
-            if (target_graph == k_3_3)
+            if (target_graph == detail::tg_k_3_3)
               break;
           }
         
@@ -261,7 +260,7 @@ namespace boost
     v_list_t main_vertices;
     vertex_iterator_t vi, vi_end;
     
-    for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+    for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
       {
         if (!neighbors[*vi].empty())
           main_vertices.push_back(*vi);
@@ -299,13 +298,13 @@ namespace boost
           }
       }
     
-    if (target_graph == k_5)
+    if (target_graph == detail::tg_k_5)
       {
-        return isomorphism(K_5,contracted_graph);
+        return boost::isomorphism(K_5,contracted_graph);
       }
-    else //target_graph == k_3_3
+    else //target_graph == tg_k_3_3
       {
-        return isomorphism(K_3_3,contracted_graph);
+        return boost::isomorphism(K_3_3,contracted_graph);
       }
     
     

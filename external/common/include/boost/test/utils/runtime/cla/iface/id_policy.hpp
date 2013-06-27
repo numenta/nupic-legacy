@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : defines interface for identification_policy
 // ***************************************************************************
@@ -34,6 +34,11 @@ namespace cla {
 // **************             identification_policy            ************** //
 // ************************************************************************** //
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4244)
+#endif
+
 class identification_policy {
 public:
     // Public properties
@@ -49,11 +54,15 @@ public:
 
 protected:
     // Constructor
-    explicit        identification_policy( rtti::id_t const& dyn_type )
+    explicit        identification_policy( rtti::id_t dyn_type )
     : p_type_id( dyn_type )
     {}
     BOOST_TEST_PROTECTED_VIRTUAL ~identification_policy() {}
 };
+
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 } // namespace cla
 

@@ -6,16 +6,17 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
  */
 
 
 /*! @file time.hpp
   This file contains the interface for the time associated classes.
 */
-#include "boost/date_time/time_defs.hpp"
-#include "boost/operators.hpp"
 #include <string>
+#include <boost/operators.hpp>
+#include <boost/date_time/time_defs.hpp>
+#include <boost/date_time/special_defs.hpp>
 
 namespace boost {
 namespace date_time {
@@ -77,21 +78,21 @@ namespace date_time {
     /*! Optional bool parameter will return time zone as an offset 
      * (ie "+07:00"). Empty string is returned for classes that do 
      * not use a time_zone */
-    std::string zone_name(bool as_offset=false) const
+    std::string zone_name(bool /*as_offset*/=false) const
     {
       return time_system::zone_name(time_);
     }
     /*! Optional bool parameter will return time zone as an offset 
      * (ie "+07:00"). Empty string is returned for classes that do 
      * not use a time_zone */
-    std::string zone_abbrev(bool as_offset=false) const
+    std::string zone_abbrev(bool /*as_offset*/=false) const
     {
       return time_system::zone_name(time_);
     }
     //! An empty string is returned for classes that do not use a time_zone
     std::string zone_as_posix_string() const
     {
-      return std::string("");
+      return std::string();
     }
 
     //! check to see if date is not a value

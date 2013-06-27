@@ -120,11 +120,11 @@ T ibeta_inv_ab_imp(const T& b, const T& z, const T& p, const T& q, bool swap_ab,
       //
       if((p < q) != swap_ab)
       {
-         guess = (std::min)(b * 2, T(1));
+         guess = (std::min)(T(b * 2), T(1));
       }
       else
       {
-         guess = (std::min)(b / 2, T(1));
+         guess = (std::min)(T(b / 2), T(1));
       }
    }
    if(n * n * n * u * sf > 0.005)
@@ -137,11 +137,11 @@ T ibeta_inv_ab_imp(const T& b, const T& z, const T& p, const T& q, bool swap_ab,
       //
       if((p < q) != swap_ab)
       {
-         guess = (std::min)(b * 2, T(10));
+         guess = (std::min)(T(b * 2), T(10));
       }
       else
       {
-         guess = (std::min)(b / 2, T(10));
+         guess = (std::min)(T(b / 2), T(10));
       }
    }
    else
@@ -186,7 +186,7 @@ typename tools::promote_args<RT1, RT2, RT3>::type
          static_cast<value_type>(b), 
          static_cast<value_type>(x), 
          static_cast<value_type>(p), 
-         1 - static_cast<value_type>(p), 
+         static_cast<value_type>(1 - static_cast<value_type>(p)), 
          false, pol), 
       "boost::math::ibeta_inva<%1%>(%1%,%1%,%1%)");
 }
@@ -217,7 +217,7 @@ typename tools::promote_args<RT1, RT2, RT3>::type
       detail::ibeta_inv_ab_imp(
          static_cast<value_type>(b), 
          static_cast<value_type>(x), 
-         1 - static_cast<value_type>(q), 
+         static_cast<value_type>(1 - static_cast<value_type>(q)), 
          static_cast<value_type>(q), 
          false, pol),
       "boost::math::ibetac_inva<%1%>(%1%,%1%,%1%)");
@@ -250,7 +250,7 @@ typename tools::promote_args<RT1, RT2, RT3>::type
          static_cast<value_type>(a), 
          static_cast<value_type>(x), 
          static_cast<value_type>(p), 
-         1 - static_cast<value_type>(p), 
+         static_cast<value_type>(1 - static_cast<value_type>(p)), 
          true, pol),
       "boost::math::ibeta_invb<%1%>(%1%,%1%,%1%)");
 }
@@ -281,7 +281,7 @@ typename tools::promote_args<RT1, RT2, RT3>::type
       detail::ibeta_inv_ab_imp(
          static_cast<value_type>(a), 
          static_cast<value_type>(x), 
-         1 - static_cast<value_type>(q), 
+         static_cast<value_type>(1 - static_cast<value_type>(q)), 
          static_cast<value_type>(q), 
          true, pol),
          "boost::math::ibetac_invb<%1%>(%1%,%1%,%1%)");

@@ -1,7 +1,7 @@
 /*
  *
- * Copyright (c) 1998-2002
- * John Maddock
+ * Copyright (c) 1998-2009 John Maddock
+ * Copyright 2008 Eric Niebler. 
  *
  * Use, modification and distribution are subject to the 
  * Boost Software License, Version 1.0. (See accompanying file 
@@ -21,6 +21,20 @@
 #ifndef BOOST_REGEX_FORMAT_HPP
 #define BOOST_REGEX_FORMAT_HPP
 
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_function.hpp>
+#include <boost/type_traits/is_class.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/type_traits/is_convertible.hpp>
+#include <boost/type_traits/remove_pointer.hpp>
+#include <boost/type_traits/remove_cv.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/not.hpp>
+#ifndef BOOST_NO_SFINAE
+#include <boost/mpl/has_xxx.hpp>
+#endif
+#include <boost/ref.hpp>
 
 namespace boost{
 
@@ -76,15 +90,15 @@ struct trivial_format_traits
    }
 };
 
-template <class OutputIterator, class Results, class traits>
+template <class OutputIterator, class Results, class traits, class ForwardIter>
 class basic_regex_formatter
 {
 public:
    typedef typename traits::char_type char_type;
    basic_regex_formatter(OutputIterator o, const Results& r, const traits& t)
       : m_traits(t), m_results(r), m_out(o), m_state(output_copy), m_restore_state(output_copy), m_have_conditional(false) {}
-   OutputIterator format(const char_type* p1, const char_type* p2, match_flag_type f);
-   OutputIterator format(const char_type* p1, match_flag_type f)
+   OutputIterator format(ForwardIter p1, ForwardIter p2, match_flag_type f);
+   OutputIterator format(ForwardIter p1, match_flag_type f)
    {
       return format(p1, p1 + m_traits.length(p1), f);
    }
@@ -107,23 +121,91 @@ private:
    void format_escape();
    void format_conditional();
    void format_until_scope_end();
+   bool handle_perl_verb(bool have_brace);
 
-   const traits& m_traits;       // the traits class for localised formatting operations
-   const Results& m_results;     // the match_results being used.
-   OutputIterator m_out;         // where to send output.
-   const char_type* m_position;  // format string, current position
-   const char_type* m_end;       // format string end
-   match_flag_type m_flags;      // format flags to use
-   output_state    m_state;      // what to do with the next character
-   output_state    m_restore_state;  // what state to restore to.
-   bool            m_have_conditional; // we are parsing a conditional
+   inline typename Results::value_type const& get_named_sub(ForwardIter i, ForwardIter j, const mpl::false_&)
+   {
+      std::vector<char_type> v(i, j);
+      return (i != j) ? this->m_results.named_subexpression(&v[0], &v[0] + v.size())
+         : this->m_results.named_subexpression(static_cast<const char_type*>(0), static_cast<const char_type*>(0));
+   }
+   inline typename Results::value_type const& get_named_sub(ForwardIter i, ForwardIter j, const mpl::true_&)
+   {
+      return this->m_results.named_subexpression(i, j);
+   }
+   inline typename Results::value_type const& get_named_sub(ForwardIter i, ForwardIter j)
+   {
+      typedef typename boost::is_convertible<ForwardIter, const char_type*>::type tag_type;
+      return get_named_sub(i, j, tag_type());
+   }
+   inline int get_named_sub_index(ForwardIter i, ForwardIter j, const mpl::false_&)
+   {
+      std::vector<char_type> v(i, j);
+      return (i != j) ? this->m_results.named_subexpression_index(&v[0], &v[0] + v.size())
+         : this->m_results.named_subexpression_index(static_cast<const char_type*>(0), static_cast<const char_type*>(0));
+   }
+   inline int get_named_sub_index(ForwardIter i, ForwardIter j, const mpl::true_&)
+   {
+      return this->m_results.named_subexpression_index(i, j);
+   }
+   inline int get_named_sub_index(ForwardIter i, ForwardIter j)
+   {
+      typedef typename boost::is_convertible<ForwardIter, const char_type*>::type tag_type;
+      return get_named_sub_index(i, j, tag_type());
+   }
+#ifdef BOOST_MSVC
+   // msvc-8.0 issues a spurious warning on the call to std::advance here:
+#pragma warning(push)
+#pragma warning(disable:4244)
+#endif
+   inline int toi(ForwardIter& i, ForwardIter j, int base, const boost::mpl::false_&)
+   {
+      if(i != j)
+      {
+         std::vector<char_type> v(i, j);
+         const char_type* start = &v[0];
+         const char_type* pos = start;
+         int r = m_traits.toi(pos, &v[0] + v.size(), base);
+         std::advance(i, pos - start);
+         return r;
+      }
+      return -1;
+   }
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
+   inline int toi(ForwardIter& i, ForwardIter j, int base, const boost::mpl::true_&)
+   {
+      return m_traits.toi(i, j, base);
+   }
+   inline int toi(ForwardIter& i, ForwardIter j, int base)
+   {
+#if defined(_MSC_VER) && defined(__INTEL_COMPILER) && ((__INTEL_COMPILER == 9999) || (__INTEL_COMPILER == 1210))
+      // Workaround for Intel support issue #656654.
+      // See also https://svn.boost.org/trac/boost/ticket/6359
+      return toi(i, j, base, mpl::false_());
+#else
+      typedef typename boost::is_convertible<ForwardIter, const char_type*&>::type tag_type;
+      return toi(i, j, base, tag_type());
+#endif
+   }
+
+   const traits&    m_traits;       // the traits class for localised formatting operations
+   const Results&   m_results;     // the match_results being used.
+   OutputIterator   m_out;         // where to send output.
+   ForwardIter      m_position;  // format string, current position
+   ForwardIter      m_end;       // format string end
+   match_flag_type  m_flags;      // format flags to use
+   output_state     m_state;      // what to do with the next character
+   output_state     m_restore_state;  // what state to restore to.
+   bool             m_have_conditional; // we are parsing a conditional
 private:
    basic_regex_formatter(const basic_regex_formatter&);
    basic_regex_formatter& operator=(const basic_regex_formatter&);
 };
 
-template <class OutputIterator, class Results, class traits>
-OutputIterator basic_regex_formatter<OutputIterator, Results, traits>::format(const char_type* p1, const char_type* p2, match_flag_type f)
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+OutputIterator basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format(ForwardIter p1, ForwardIter p2, match_flag_type f)
 {
    m_position = p1;
    m_end = p2;
@@ -132,8 +214,8 @@ OutputIterator basic_regex_formatter<OutputIterator, Results, traits>::format(co
    return m_out;
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::format_all()
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format_all()
 {
    // over and over:
    while(m_position != m_end)
@@ -210,8 +292,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_all()
    }
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format_perl()
 {
    //
    // On entry *m_position points to a '$' character
@@ -231,6 +313,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
    //
    // OK find out what kind it is:
    //
+   bool have_brace = false;
+   ForwardIter save_position = m_position;
    switch(*m_position)
    {
    case '&':
@@ -248,28 +332,176 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_perl()
    case '$':
       put(*m_position++);
       break;
+   case '+':
+      if((++m_position != m_end) && (*m_position == '{'))
+      {
+         ForwardIter base = ++m_position;
+         while((m_position != m_end) && (*m_position != '}')) ++m_position;
+         if(m_position != m_end)
+         {
+            // Named sub-expression:
+            put(get_named_sub(base, m_position));
+            ++m_position;
+            break;
+         }
+         else
+         {
+            m_position = --base;
+         }
+      }
+      put((this->m_results)[this->m_results.size() > 1 ? static_cast<int>(this->m_results.size() - 1) : 1]);
+      break;
+   case '{':
+      have_brace = true;
+      ++m_position;
+      // fall through....
    default:
       // see if we have a number:
       {
          std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
-         len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
-         int v = m_traits.toi(m_position, m_position + len, 10);
-         if(v < 0)
+         //len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
+         int v = this->toi(m_position, m_position + len, 10);
+         if((v < 0) || (have_brace && ((m_position == m_end) || (*m_position != '}'))))
          {
-            // leave the $ as is, and carry on:
-            --m_position;
-            put(*m_position);
-            ++m_position;
+            // Look for a Perl-5.10 verb:
+            if(!handle_perl_verb(have_brace))
+            {
+               // leave the $ as is, and carry on:
+               m_position = --save_position;
+               put(*m_position);
+               ++m_position;
+            }
             break;
          }
          // otherwise output sub v:
          put(this->m_results[v]);
+         if(have_brace)
+            ++m_position;
       }
    }
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+bool basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::handle_perl_verb(bool have_brace)
+{
+   // 
+   // We may have a capitalised string containing a Perl action:
+   //
+   static const char_type MATCH[] = { 'M', 'A', 'T', 'C', 'H' };
+   static const char_type PREMATCH[] = { 'P', 'R', 'E', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type POSTMATCH[] = { 'P', 'O', 'S', 'T', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type LAST_PAREN_MATCH[] = { 'L', 'A', 'S', 'T', '_', 'P', 'A', 'R', 'E', 'N', '_', 'M', 'A', 'T', 'C', 'H' };
+   static const char_type LAST_SUBMATCH_RESULT[] = { 'L', 'A', 'S', 'T', '_', 'S', 'U', 'B', 'M', 'A', 'T', 'C', 'H', '_', 'R', 'E', 'S', 'U', 'L', 'T' };
+   static const char_type LAST_SUBMATCH_RESULT_ALT[] = { '^', 'N' };
+
+   if(m_position == m_end)
+      return false;
+   if(have_brace && (*m_position == '^'))
+      ++m_position;
+
+   std::ptrdiff_t max_len = m_end - m_position;
+
+   if((max_len >= 5) && std::equal(m_position, m_position + 5, MATCH))
+   {
+      m_position += 5;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 5;
+            return false;
+         }
+      }
+      put(this->m_results[0]);
+      return true;
+   }
+   if((max_len >= 8) && std::equal(m_position, m_position + 8, PREMATCH))
+   {
+      m_position += 8;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 8;
+            return false;
+         }
+      }
+      put(this->m_results.prefix());
+      return true;
+   }
+   if((max_len >= 9) && std::equal(m_position, m_position + 9, POSTMATCH))
+   {
+      m_position += 9;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 9;
+            return false;
+         }
+      }
+      put(this->m_results.suffix());
+      return true;
+   }
+   if((max_len >= 16) && std::equal(m_position, m_position + 16, LAST_PAREN_MATCH))
+   {
+      m_position += 16;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 16;
+            return false;
+         }
+      }
+      put((this->m_results)[this->m_results.size() > 1 ? static_cast<int>(this->m_results.size() - 1) : 1]);
+      return true;
+   }
+   if((max_len >= 20) && std::equal(m_position, m_position + 20, LAST_SUBMATCH_RESULT))
+   {
+      m_position += 20;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 20;
+            return false;
+         }
+      }
+      put(this->m_results.get_last_closed_paren());
+      return true;
+   }
+   if((max_len >= 2) && std::equal(m_position, m_position + 2, LAST_SUBMATCH_RESULT_ALT))
+   {
+      m_position += 2;
+      if(have_brace)
+      {
+         if((m_position != m_end) && (*m_position == '}'))
+            ++m_position;
+         else
+         {
+            m_position -= 2;
+            return false;
+         }
+      }
+      put(this->m_results.get_last_closed_paren());
+      return true;
+   }
+   return false;
+}
+
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format_escape()
 {
    // skip the escape and check for trailing escape:
    if(++m_position == m_end)
@@ -314,7 +546,7 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
       if(*m_position == static_cast<char_type>('{'))
       {
          ++m_position;
-         int val = m_traits.toi(m_position, m_end, 16);
+         int val = this->toi(m_position, m_end, 16);
          if(val < 0)
          {
             // invalid value treat everything as literals:
@@ -322,8 +554,9 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
             put(static_cast<char_type>('{'));
             return;
          }
-         if(*m_position != static_cast<char_type>('}'))
+         if((m_position == m_end) || (*m_position != static_cast<char_type>('}')))
          {
+            --m_position;
             while(*m_position != static_cast<char_type>('\\'))
                --m_position;
             ++m_position;
@@ -338,7 +571,7 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
       {
          std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
          len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
-         int val = m_traits.toi(m_position, m_position + len, 16);
+         int val = this->toi(m_position, m_position + len, 16);
          if(val < 0)
          {
             --m_position;
@@ -400,7 +633,9 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
             break;
       }
       // see if we have a \n sed style backreference:
-      int v = m_traits.toi(m_position, m_position+1, 10);
+      std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
+      len = (std::min)(static_cast<std::ptrdiff_t>(1), len);
+      int v = this->toi(m_position, m_position+len, 10);
       if((v > 0) || ((v == 0) && (m_flags & ::boost::regex_constants::format_sed)))
       {
          put(m_results[v]);
@@ -410,9 +645,9 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
       {
          // octal ecape sequence:
          --m_position;
-         std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
+         len = ::boost::re_detail::distance(m_position, m_end);
          len = (std::min)(static_cast<std::ptrdiff_t>(4), len);
-         v = m_traits.toi(m_position, m_position + len, 8);
+         v = this->toi(m_position, m_position + len, 8);
          BOOST_ASSERT(v >= 0);
          put(static_cast<char_type>(v));
          break;
@@ -423,8 +658,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_escape()
    }
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::format_conditional()
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format_conditional()
 {
    if(m_position == m_end)
    {
@@ -432,9 +667,35 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_conditional(
       put(static_cast<char_type>('?'));
       return;
    }
-   std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
-   len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
-   int v = m_traits.toi(m_position, m_position + len, 10);
+   int v;
+   if(*m_position == '{')
+   {
+      ForwardIter base = m_position;
+      ++m_position;
+      v = this->toi(m_position, m_end, 10);
+      if(v < 0)
+      {
+         // Try a named subexpression:
+         while((m_position != m_end) && (*m_position != '}'))
+            ++m_position;
+         v = this->get_named_sub_index(base + 1, m_position);
+      }
+      if((v < 0) || (*m_position != '}'))
+      {
+         m_position = base;
+         // oops trailing '?':
+         put(static_cast<char_type>('?'));
+         return;
+      }
+      // Skip trailing '}':
+      ++m_position;
+   }
+   else
+   {
+      std::ptrdiff_t len = ::boost::re_detail::distance(m_position, m_end);
+      len = (std::min)(static_cast<std::ptrdiff_t>(2), len);
+      v = this->toi(m_position, m_position + len, 10);
+   }
    if(v < 0)
    {
       // oops not a number:
@@ -482,8 +743,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_conditional(
    }
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::format_until_scope_end()
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::format_until_scope_end()
 {
    do
    {
@@ -494,8 +755,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::format_until_scope_
    }while(m_position != m_end);
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::put(char_type c)
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::put(char_type c)
 {
    // write a single character to output
    // according to which case translation mode we are in:
@@ -524,8 +785,8 @@ void basic_regex_formatter<OutputIterator, Results, traits>::put(char_type c)
    ++m_out;
 }
 
-template <class OutputIterator, class Results, class traits>
-void basic_regex_formatter<OutputIterator, Results, traits>::put(const sub_match_type& sub)
+template <class OutputIterator, class Results, class traits, class ForwardIter>
+void basic_regex_formatter<OutputIterator, Results, traits, ForwardIter>::put(const sub_match_type& sub)
 {
    typedef typename sub_match_type::iterator iterator_type;
    iterator_type i = sub.first;
@@ -563,10 +824,10 @@ public:
 #endif
 };
 
-template <class OutputIterator, class Iterator, class Alloc, class charT, class traits>
+template <class OutputIterator, class Iterator, class Alloc, class ForwardIter, class traits>
 OutputIterator regex_format_imp(OutputIterator out,
                           const match_results<Iterator, Alloc>& m,
-                          const charT* p1, const charT* p2,
+                          ForwardIter p1, ForwardIter p2,
                           match_flag_type flags,
                           const traits& t
                          )
@@ -579,57 +840,297 @@ OutputIterator regex_format_imp(OutputIterator out,
    re_detail::basic_regex_formatter<
       OutputIterator, 
       match_results<Iterator, Alloc>, 
-      traits > f(out, m, t);
+      traits, ForwardIter> f(out, m, t);
    return f.format(p1, p2, flags);
 }
 
+#ifndef BOOST_NO_SFINAE
+
+BOOST_MPL_HAS_XXX_TRAIT_DEF(const_iterator)
+
+struct any_type 
+{
+   template <class T>
+   any_type(const T&); 
+   template <class T, class U>
+   any_type(const T&, const U&); 
+   template <class T, class U, class V>
+   any_type(const T&, const U&, const V&); 
+};
+typedef char no_type;
+typedef char (&unary_type)[2];
+typedef char (&binary_type)[3];
+typedef char (&ternary_type)[4];
+
+no_type check_is_formatter(unary_type, binary_type, ternary_type);
+template<typename T>
+unary_type check_is_formatter(T const &, binary_type, ternary_type);
+template<typename T>
+binary_type check_is_formatter(unary_type, T const &, ternary_type);
+template<typename T, typename U>
+binary_type check_is_formatter(T const &, U const &, ternary_type);
+template<typename T>
+ternary_type check_is_formatter(unary_type, binary_type, T const &);
+template<typename T, typename U>
+ternary_type check_is_formatter(T const &, binary_type, U const &);
+template<typename T, typename U>
+ternary_type check_is_formatter(unary_type, T const &, U const &);
+template<typename T, typename U, typename V>
+ternary_type check_is_formatter(T const &, U const &, V const &);
+
+struct unary_binary_ternary
+{
+    typedef unary_type (*unary_fun)(any_type);
+    typedef binary_type (*binary_fun)(any_type, any_type);
+    typedef ternary_type (*ternary_fun)(any_type, any_type, any_type);
+    operator unary_fun();
+    operator binary_fun();
+    operator ternary_fun();
+};
+
+template<typename Formatter, bool IsFunction = boost::is_function<Formatter>::value>
+struct formatter_wrapper
+  : Formatter
+  , unary_binary_ternary
+{
+   formatter_wrapper(){}
+};
+
+template<typename Formatter>
+struct formatter_wrapper<Formatter, true>
+  : unary_binary_ternary
+{
+    operator Formatter *();
+};
+
+template<typename Formatter>
+struct formatter_wrapper<Formatter *, false>
+  : unary_binary_ternary
+{
+    operator Formatter *();
+};
+
+template <class F, class M, class O>
+struct format_traits_imp
+{
+private:
+   //
+   // F must be a pointer, a function, or a class with a function call operator:
+   //
+   BOOST_STATIC_ASSERT((::boost::is_pointer<F>::value || ::boost::is_function<F>::value || ::boost::is_class<F>::value));
+   static formatter_wrapper<typename unwrap_reference<F>::type> f;
+   static M m;
+   static O out;
+   static boost::regex_constants::match_flag_type flags;
+public:
+   BOOST_STATIC_CONSTANT(int, value = sizeof(check_is_formatter(f(m), f(m, out), f(m, out, flags))));
+};
+
+template <class F, class M, class O>
+struct format_traits
+{
+public:
+   // 
+   // Type is mpl::int_<N> where N is one of:
+   //
+   // 0 : F is a pointer to a presumably null-terminated string.
+   // 1 : F is a character-container such as a std::string.
+   // 2 : F is a Unary Functor.
+   // 3 : F is a Binary Functor.
+   // 4 : F is a Ternary Functor.
+   //
+   typedef typename boost::mpl::if_<
+      boost::mpl::and_<boost::is_pointer<F>, boost::mpl::not_<boost::is_function<typename boost::remove_pointer<F>::type> > >,
+      boost::mpl::int_<0>,
+      typename boost::mpl::if_<
+         has_const_iterator<F>,
+         boost::mpl::int_<1>,
+         boost::mpl::int_<format_traits_imp<F, M, O>::value>
+      >::type
+   >::type type;
+   //
+   // This static assertion will fail if the functor passed does not accept
+   // the same type of arguments passed.
+   //
+   BOOST_STATIC_ASSERT( boost::is_class<F>::value && !has_const_iterator<F>::value ? (type::value > 1) : true);
+};
+
+#else // BOOST_NO_SFINAE
+
+template <class F, class M, class O>
+struct format_traits
+{
+public:
+   // 
+   // Type is mpl::int_<N> where N is one of:
+   //
+   // 0 : F is a pointer to a presumably null-terminated string.
+   // 1 : F is a character-container such as a std::string.
+   //
+   // Other options such as F being a Functor are not supported without
+   // SFINAE support.
+   //
+   typedef typename boost::mpl::if_<
+      boost::is_pointer<F>,
+      boost::mpl::int_<0>,
+      boost::mpl::int_<1>
+   >::type type;
+};
+
+#endif // BOOST_NO_SFINAE
+
+template <class Base, class Match>
+struct format_functor3
+{
+   format_functor3(Base b) : func(b) {}
+   template <class OutputIter>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f)
+   {
+      return boost::unwrap_ref(func)(m, i, f);
+   }
+   template <class OutputIter, class Traits>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f, const Traits&)
+   {
+      return (*this)(m, i, f);
+   }
+private:
+   Base func;
+   format_functor3(const format_functor3&);
+   format_functor3& operator=(const format_functor3&);
+};
+
+template <class Base, class Match>
+struct format_functor2
+{
+   format_functor2(Base b) : func(b) {}
+   template <class OutputIter>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type /*f*/)
+   {
+      return boost::unwrap_ref(func)(m, i);
+   }
+   template <class OutputIter, class Traits>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f, const Traits&)
+   {
+      return (*this)(m, i, f);
+   }
+private:
+   Base func;
+   format_functor2(const format_functor2&);
+   format_functor2& operator=(const format_functor2&);
+};
+
+template <class Base, class Match>
+struct format_functor1
+{
+   format_functor1(Base b) : func(b) {}
+
+   template <class S, class OutputIter>
+   OutputIter do_format_string(const S& s, OutputIter i)
+   {
+      return re_detail::copy(s.begin(), s.end(), i);
+   }
+   template <class S, class OutputIter>
+   inline OutputIter do_format_string(const S* s, OutputIter i)
+   {
+      while(s && *s)
+      {
+         *i = *s;
+         ++i;
+         ++s;
+      }
+      return i;
+   }
+   template <class OutputIter>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type /*f*/)
+   {
+      return do_format_string(boost::unwrap_ref(func)(m), i);
+   }
+   template <class OutputIter, class Traits>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f, const Traits&)
+   {
+      return (*this)(m, i, f);
+   }
+private:
+   Base func;
+   format_functor1(const format_functor1&);
+   format_functor1& operator=(const format_functor1&);
+};
+
+template <class charT, class Match, class Traits>
+struct format_functor_c_string
+{
+   format_functor_c_string(const charT* ps) : func(ps) {}
+
+   template <class OutputIter>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f, const Traits& t = Traits())
+   {
+      typedef typename Match::char_type char_type;
+      const charT* end = func;
+      while(*end) ++end;
+      return regex_format_imp(i, m, func, end, f, t);
+   }
+private:
+   const charT* func;
+   format_functor_c_string(const format_functor_c_string&);
+   format_functor_c_string& operator=(const format_functor_c_string&);
+};
+
+template <class Container, class Match, class Traits>
+struct format_functor_container
+{
+   format_functor_container(const Container& c) : func(c) {}
+
+   template <class OutputIter>
+   OutputIter operator()(const Match& m, OutputIter i, boost::regex_constants::match_flag_type f, const Traits& t = Traits())
+   {
+      typedef typename Match::char_type char_type;
+      return re_detail::regex_format_imp(i, m, func.begin(), func.end(), f, t);
+   }
+private:
+   const Container& func;
+   format_functor_container(const format_functor_container&);
+   format_functor_container& operator=(const format_functor_container&);
+};
+
+template <class Func, class Match, class OutputIterator, class Traits = re_detail::trivial_format_traits<typename Match::char_type> >
+struct compute_functor_type
+{
+   typedef typename format_traits<Func, Match, OutputIterator>::type tag;
+   typedef typename boost::remove_cv< typename boost::remove_pointer<Func>::type>::type maybe_char_type;
+
+   typedef typename mpl::if_<
+      ::boost::is_same<tag, mpl::int_<0> >, format_functor_c_string<maybe_char_type, Match, Traits>,
+      typename mpl::if_<
+         ::boost::is_same<tag, mpl::int_<1> >, format_functor_container<Func, Match, Traits>,
+         typename mpl::if_<
+            ::boost::is_same<tag, mpl::int_<2> >, format_functor1<Func, Match>,
+            typename mpl::if_<
+               ::boost::is_same<tag, mpl::int_<3> >, format_functor2<Func, Match>, 
+               format_functor3<Func, Match>
+            >::type
+         >::type
+      >::type
+   >::type type;
+};
 
 } // namespace re_detail
 
-template <class OutputIterator, class Iterator, class charT>
-OutputIterator regex_format(OutputIterator out,
-                          const match_results<Iterator>& m,
-                          const charT* fmt,
+template <class OutputIterator, class Iterator, class Allocator, class Functor>
+inline OutputIterator regex_format(OutputIterator out,
+                          const match_results<Iterator, Allocator>& m,
+                          Functor fmt,
                           match_flag_type flags = format_all
                          )
 {
-   re_detail::trivial_format_traits<charT> traits;
-   return re_detail::regex_format_imp(out, m, fmt, fmt + traits.length(fmt), flags, traits);
+   return m.format(out, fmt, flags);
 }
 
-template <class OutputIterator, class Iterator, class charT>
-OutputIterator regex_format(OutputIterator out,
-                          const match_results<Iterator>& m,
-                          const std::basic_string<charT>& fmt,
-                          match_flag_type flags = format_all
-                         )
-{
-   re_detail::trivial_format_traits<charT> traits;
-   return re_detail::regex_format_imp(out, m, fmt.data(), fmt.data() + fmt.size(), flags, traits);
-}  
-
-template <class Iterator, class charT>
-std::basic_string<charT> regex_format(const match_results<Iterator>& m, 
-                                      const charT* fmt, 
+template <class Iterator, class Allocator, class Functor>
+inline std::basic_string<typename match_results<Iterator, Allocator>::char_type> regex_format(const match_results<Iterator, Allocator>& m, 
+                                      Functor fmt, 
                                       match_flag_type flags = format_all)
 {
-   std::basic_string<charT> result;
-   re_detail::string_out_iterator<std::basic_string<charT> > i(result);
-   re_detail::trivial_format_traits<charT> traits;
-   re_detail::regex_format_imp(i, m, fmt, fmt + traits.length(fmt), flags, traits);
-   return result;
-}
-
-template <class Iterator, class charT>
-std::basic_string<charT> regex_format(const match_results<Iterator>& m, 
-                                      const std::basic_string<charT>& fmt, 
-                                      match_flag_type flags = format_all)
-{
-   std::basic_string<charT> result;
-   re_detail::string_out_iterator<std::basic_string<charT> > i(result);
-   re_detail::trivial_format_traits<charT> traits;
-   re_detail::regex_format_imp(i, m, fmt.data(), fmt.data() + fmt.size(), flags, traits);
-   return result;
+   return m.format(fmt, flags);
 }
 
 #ifdef BOOST_MSVC

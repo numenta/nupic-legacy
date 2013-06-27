@@ -16,8 +16,11 @@
 #include <boost/mpl/sizeof.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
-#include <boost/xpressive/proto/proto.hpp>
-#include <boost/xpressive/proto/transform.hpp>
+#include <boost/proto/core.hpp>
+#include <boost/proto/transform/arg.hpp>
+#include <boost/proto/transform/when.hpp>
+#include <boost/proto/transform/fold.hpp>
+#include <boost/proto/transform/fold_tree.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -92,109 +95,119 @@ namespace boost { namespace xpressive { namespace grammar_detail
         >
     {};
 
-    template<typename Grammar>
-    struct as_lookahead : proto::callable
+    template<typename Grammar, typename Callable = proto::callable>
+    struct as_lookahead : proto::transform<as_lookahead<Grammar, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename proto::result_of::arg<Expr>::type arg_type;
-            
+            typedef typename proto::result_of::child<Expr>::type arg_type;
+
             typedef
-                typename Grammar::template result<void(
-                    arg_type
-                  , typename IndependentEndXpression::result<void(arg_type, int, int)>::type
-                  , Visitor
-                )>::type
-            xpr_type;
-            typedef detail::lookahead_matcher<xpr_type> type;
-        };
+                typename IndependentEndXpression::impl<arg_type, int, int>::result_type
+            end_xpr_type;
 
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            typedef result<void(Expr, State, Visitor)> result_type;
-            int i = 0;
-            return typename result_type::type(
-                Grammar()(
-                    proto::arg(expr)
-                  , IndependentEndXpression()(proto::arg(expr), i, i)
-                  , visitor
-                )
-              , false
-            );
-        }
+            typedef
+                typename Grammar::template impl<arg_type, end_xpr_type, Data>::result_type
+            xpr_type;
+
+            typedef
+                detail::lookahead_matcher<xpr_type>
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                int i = 0;
+                return result_type(
+                    typename Grammar::template impl<arg_type, end_xpr_type, Data>()(
+                        proto::child(expr)
+                      , IndependentEndXpression::impl<arg_type, int, int>()(proto::child(expr), i, i)
+                      , data
+                    )
+                  , false
+                );
+            }
+        };
     };
 
-    template<typename Grammar>
-    struct as_lookbehind : proto::callable
+    template<typename Grammar, typename Callable = proto::callable>
+    struct as_lookbehind : proto::transform<as_lookbehind<Grammar, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename proto::result_of::arg<Expr>::type arg_type;
+            typedef typename proto::result_of::child<Expr>::type arg_type;
+
             typedef
-                typename Grammar::template result<void(
-                    arg_type
-                  , typename IndependentEndXpression::result<void(arg_type, int, int)>::type
-                  , Visitor
-                )>::type
-            xpr_type;
-            typedef detail::lookbehind_matcher<xpr_type> type;
-        };
+                typename IndependentEndXpression::impl<arg_type, int, int>::result_type
+            end_xpr_type;
 
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            typedef typename result<void(Expr, State, Visitor)>::xpr_type xpr_type;
-            int i = 0;
-            xpr_type const &expr2 = Grammar()(
-                proto::arg(expr)
-              , IndependentEndXpression()(proto::arg(expr), i, i)
-              , visitor
-            );
-            std::size_t width = expr2.get_width().value();
-            return detail::lookbehind_matcher<xpr_type>(expr2, width, false);
-        }
+            typedef
+                typename Grammar::template impl<arg_type, end_xpr_type, Data>::result_type
+            xpr_type;
+
+            typedef
+                detail::lookbehind_matcher<xpr_type>
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                int i = 0;
+                xpr_type expr2 = typename Grammar::template impl<arg_type, end_xpr_type, Data>()(
+                    proto::child(expr)
+                  , IndependentEndXpression::impl<arg_type, int, int>()(proto::child(expr), i, i)
+                  , data
+                );
+                std::size_t width = expr2.get_width().value();
+                return result_type(expr2, width, false);
+            }
+        };
     };
 
-    template<typename Grammar>
-    struct as_keeper : proto::callable
+    template<typename Grammar, typename Callable = proto::callable>
+    struct as_keeper : proto::transform<as_keeper<Grammar, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename proto::result_of::arg<Expr>::type arg_type;
-            typedef detail::keeper_matcher<
-                typename Grammar::template result<void(
-                    arg_type
-                  , typename IndependentEndXpression::result<void(arg_type, int, int)>::type
-                  , Visitor
-                )>::type
-            > type;
+            typedef typename proto::result_of::child<Expr>::type arg_type;
+
+            typedef
+                typename IndependentEndXpression::impl<arg_type, int, int>::result_type
+            end_xpr_type;
+
+            typedef
+                typename Grammar::template impl<arg_type, end_xpr_type, Data>::result_type
+            xpr_type;
+
+            typedef
+                detail::keeper_matcher<xpr_type>
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                int i = 0;
+                return result_type(
+                    typename Grammar::template impl<arg_type, end_xpr_type, Data>()(
+                        proto::child(expr)
+                      , IndependentEndXpression::impl<arg_type, int, int>()(proto::child(expr), i, i)
+                      , data
+                    )
+                );
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            int i = 0;
-            return typename result<void(Expr, State, Visitor)>::type(
-                Grammar()(
-                    proto::arg(expr)
-                  , IndependentEndXpression()(proto::arg(expr), i, i)
-                  , visitor
-                )
-            );
-        }
     };
 
 }}}

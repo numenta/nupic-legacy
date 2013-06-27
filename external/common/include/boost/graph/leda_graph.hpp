@@ -17,9 +17,9 @@
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/properties.hpp>
 
-#include <LEDA/graph.h>
-#include <LEDA/node_array.h>
-#include <LEDA/node_map.h>
+#include <LEDA/graph/graph.h>
+#include <LEDA/graph/node_array.h>
+#include <LEDA/graph/node_map.h>
 
 // The functions and classes in this file allows the user to
 // treat a LEDA GRAPH object as a boost graph "as is". No
@@ -481,11 +481,11 @@ namespace boost {
     leda::GRAPH<vtype,etype>& g)
   {
     typename graph_traits< leda::GRAPH<vtype,etype> >::out_edge_iterator ei, ei_end;
-    for (tie(ei, ei_end)=out_edges(u,g); ei!=ei_end; ei++)
+    for (boost::tie(ei, ei_end)=out_edges(u,g); ei!=ei_end; ei++)
       remove_edge(*ei);
 
     typename graph_traits< leda::GRAPH<vtype,etype> >::in_edge_iterator iei, iei_end;
-    for (tie(iei, iei_end)=in_edges(u,g); iei!=iei_end; iei++)
+    for (boost::tie(iei, iei_end)=in_edges(u,g); iei!=iei_end; iei++)
       remove_edge(*iei);
   }
 
@@ -684,11 +684,11 @@ namespace boost {
     leda::graph& g)
   {
     graph_traits<leda::graph>::out_edge_iterator ei, ei_end;
-    for (tie(ei, ei_end)=out_edges(u,g); ei!=ei_end; ei++)
+    for (boost::tie(ei, ei_end)=out_edges(u,g); ei!=ei_end; ei++)
       remove_edge(*ei, g);
 
     graph_traits<leda::graph>::in_edge_iterator iei, iei_end;
-    for (tie(iei, iei_end)=in_edges(u,g); iei!=iei_end; iei++)
+    for (boost::tie(iei, iei_end)=in_edges(u,g); iei!=iei_end; iei++)
       remove_edge(*iei, g);
   }
 
@@ -884,7 +884,7 @@ namespace boost {
   inline
   typename boost::property_traits<
     typename boost::property_map<leda::GRAPH<vtype, etype>,PropertyTag>::const_type
-::value_type
+   >::value_type
   get(PropertyTag p, const leda::GRAPH<vtype, etype>& g, const Key& key) {
     return get(get(p, g), key);
   }

@@ -50,7 +50,7 @@ namespace impl
         {
             extractor<MeanFeature> const some_mean = {};
             result_type tmp = some_mean(args);
-            return weighted_moment<2>(args) - tmp * tmp;
+            return accumulators::weighted_moment<2>(args) - tmp * tmp;
         }
     };
 
@@ -140,6 +140,9 @@ namespace extract
 {
     extractor<tag::lazy_weighted_variance> const lazy_weighted_variance = {};
     extractor<tag::weighted_variance> const weighted_variance = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(lazy_weighted_variance)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_variance)
 }
 
 using extract::lazy_weighted_variance;

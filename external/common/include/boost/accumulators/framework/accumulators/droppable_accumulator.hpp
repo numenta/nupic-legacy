@@ -115,6 +115,12 @@ namespace boost { namespace accumulators
         {
         }
 
+        droppable_accumulator_base(droppable_accumulator_base const &that)
+          : Accumulator(*static_cast<Accumulator const *>(&that))
+          , ref_count_(that.ref_count_)
+        {
+        }
+
         template<typename Args>
         void operator ()(Args const &args)
         {
@@ -160,6 +166,11 @@ namespace boost { namespace accumulators
         template<typename Args>
         droppable_accumulator(Args const &args)
           : droppable_accumulator::base(args)
+        {
+        }
+
+        droppable_accumulator(droppable_accumulator const &that)
+          : droppable_accumulator::base(*static_cast<typename droppable_accumulator::base const *>(&that))
         {
         }
     };
@@ -218,9 +229,9 @@ namespace boost { namespace accumulators
     private:
         with_cached_result &operator =(with_cached_result const &);
 
-        void set(result_type const &result)
+        void set(result_type const &r)
         {
-            ::new(this->cache.address()) result_type(result);
+            ::new(this->cache.address()) result_type(r);
         }
 
         result_type const &get() const

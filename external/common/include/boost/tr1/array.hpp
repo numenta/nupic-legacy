@@ -9,7 +9,7 @@
 
 #ifdef BOOST_HAS_TR1_ARRAY
 
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next BOOST_TR1_HEADER(array)
 #  else
 #     include <boost/tr1/detail/config_all.hpp>

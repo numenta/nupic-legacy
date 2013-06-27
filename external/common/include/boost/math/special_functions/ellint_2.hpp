@@ -74,8 +74,8 @@ T ellint_e_imp(T phi, T k, const Policy& pol)
        // but that fails if T has more digits than a long long,
        // so rewritten to use fmod instead:
        //
-       T rphi = boost::math::tools::fmod_workaround(phi, constants::pi<T>() / 2);
-       T m = 2 * (phi - rphi) / constants::pi<T>();
+       T rphi = boost::math::tools::fmod_workaround(phi, T(constants::pi<T>() / 2));
+       T m = floor((2 * phi) / constants::pi<T>());
        int s = 1;
        if(boost::math::tools::fmod_workaround(m, T(2)) > 0.5)
        {
@@ -93,7 +93,7 @@ T ellint_e_imp(T phi, T k, const Policy& pol)
        if(m != 0)
           result += m * ellint_e_imp(k, pol);
     }
-    return invert ? -result : result;
+    return invert ? T(-result) : result;
 }
 
 // Complete elliptic integral (Legendre form) of the second kind

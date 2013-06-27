@@ -69,6 +69,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::count> const count = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(count)
 }
 
 using extract::count;

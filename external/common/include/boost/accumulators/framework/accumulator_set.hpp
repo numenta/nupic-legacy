@@ -42,8 +42,8 @@ namespace detail
     template<typename Args>
     struct accumulator_visitor
     {
-        explicit accumulator_visitor(Args const &args)
-          : args(args)
+        explicit accumulator_visitor(Args const &a)
+          : args(a)
         {
         }
 

@@ -8,9 +8,6 @@
 //  cygwin specific config options:
 
 #define BOOST_PLATFORM "Cygwin"
-#define BOOST_NO_CWCTYPE
-#define BOOST_NO_CWCHAR
-#define BOOST_NO_SWPRINTF
 #define BOOST_HAS_DIRENT_H
 #define BOOST_HAS_LOG1P
 #define BOOST_HAS_EXPM1
@@ -42,8 +39,18 @@
 #define BOOST_HAS_STDINT_H
 #endif
 
+/// Cygwin has no fenv.h
+#define BOOST_NO_FENV_H
+
 // boilerplate code:
 #include <boost/config/posix_features.hpp>
+
+//
+// Cygwin lies about XSI conformance, there is no nl_types.h:
+//
+#ifdef BOOST_HAS_NL_TYPES_H
+#  undef BOOST_HAS_NL_TYPES_H
+#endif
  
 
 

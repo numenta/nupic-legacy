@@ -124,11 +124,11 @@ typedef enum{
    REG_STARTEND =  00004
 } reg_exec_flags;
 
-//
-// POSIX error codes:
-//
+/*
+ * POSIX error codes:
+ */
 typedef unsigned reg_error_t;
-typedef reg_error_t reg_errcode_t;  // backwards compatibility
+typedef reg_error_t reg_errcode_t;  /* backwards compatibility */
 
 static const reg_error_t REG_NOERROR = 0;   /* Success.  */
 static const reg_error_t REG_NOMATCH = 1;   /* Didn't find a match (for regexec).  */
@@ -154,8 +154,9 @@ static const reg_error_t REG_EMPTY = 17;    /* empty expression */
 static const reg_error_t REG_E_MEMORY = 15; /* = REG_ESIZE : out of memory */
 static const reg_error_t REG_ECOMPLEXITY = 18; /* complexity too high */
 static const reg_error_t REG_ESTACK = 19;   /* out of stack space */
-static const reg_error_t REG_E_UNKNOWN = 20; /* unknown error */
-static const reg_error_t REG_ENOSYS = 20;   /* = REG_E_UNKNOWN : Reserved. */
+static const reg_error_t REG_E_PERL = 20;   /* Perl (?...) error */
+static const reg_error_t REG_E_UNKNOWN = 21; /* unknown error */
+static const reg_error_t REG_ENOSYS = 21;   /* = REG_E_UNKNOWN : Reserved. */
 
 BOOST_REGEX_DECL int BOOST_REGEX_CCALL regcompA(regex_tA*, const char*, int);
 BOOST_REGEX_DECL regsize_t BOOST_REGEX_CCALL regerrorA(int, const regex_tA*, char*, regsize_t);
@@ -195,14 +196,14 @@ BOOST_REGEX_DECL void BOOST_REGEX_CCALL regfreeW(regex_tW*);
 #endif
 
 #ifdef __cplusplus
-} // extern "C"
-} // namespace
+} /* extern "C" */
+} /* namespace */
 #endif
 
-//
-// C++ high level wrapper goes here:
-//
 #if defined(__cplusplus)
+/*
+ * C++ high level wrapper goes here:
+ */
 #include <string>
 #include <vector>
 namespace boost{
@@ -228,7 +229,7 @@ struct pred2;
 struct pred3;
 struct pred4;
 
-}  // namespace re_detail
+}  /* namespace re_detail */
 
 #if (defined(BOOST_MSVC) || defined(__BORLANDC__)) && !defined(BOOST_DISABLE_WIN32)
 typedef bool (__cdecl *GrepCallback)(const RegEx& expression);
@@ -257,9 +258,9 @@ public:
    unsigned int SetExpression(const std::string& s, bool icase = false){ return SetExpression(s.c_str(), icase); }
    std::string Expression()const;
    unsigned int error_code()const;
-   //
-   // now matching operators:
-   //
+   /*
+    * now matching operators:
+    */
    bool Match(const char* p, match_flag_type flags = match_default);
    bool Match(const std::string& s, match_flag_type flags = match_default) { return Match(s.c_str(), flags); }
    bool Search(const char* p, match_flag_type flags = match_default);
@@ -283,9 +284,9 @@ public:
                        bool copy = true, match_flag_type flags = match_default);
 
    std::size_t Split(std::vector<std::string>& v, std::string& s, match_flag_type flags = match_default, unsigned max_count = ~0);
-   //
-   // now operators for returning what matched in more detail:
-   //
+   /*
+    * now operators for returning what matched in more detail:
+    */
    std::size_t Position(int i = 0)const;
    std::size_t Length(int i = 0)const;
    bool Matched(int i = 0)const;
@@ -312,11 +313,11 @@ public:
 #pragma warning(pop)
 #endif
 
-} // namespace boost
+} /* namespace boost */
 
-#endif
+#endif /* __cplusplus */
 
-#endif // include guard
+#endif /* include guard */
 
 
 

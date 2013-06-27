@@ -3,7 +3,7 @@
 
 //  thread.hpp
 //
-//  (C) Copyright 2007-8 Anthony Williams 
+//  (C) Copyright 2007-8 Anthony Williams
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -20,6 +20,9 @@
 #endif
 
 #include <boost/thread/detail/thread.hpp>
+#include <boost/thread/detail/thread_interruption.hpp>
+#include <boost/thread/detail/thread_group.hpp>
+#include <boost/thread/v2/thread.hpp>
 
 
 #endif

@@ -18,8 +18,6 @@
 
 #include <string>
 #include <ostream>
-#include <boost/noncopyable.hpp>
-#include <boost/cstdint.hpp>
 #include <cstddef> // size_t
 
 #include <boost/config.hpp>
@@ -29,6 +27,8 @@ namespace std{
 } // namespace std
 #endif
 
+#include <boost/cstdint.hpp>
+#include <boost/integer_traits.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
@@ -42,13 +42,17 @@ namespace detail{
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_oserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_oserializer;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 template<class ArchiveImplementation>
 class polymorphic_oarchive_route :
     public polymorphic_oarchive,
     // note: gcc dynamic cross cast fails if the the derivation below is
     // not public.  I think this is a mistake.
-    public /*protected*/ ArchiveImplementation,
-    private boost::noncopyable
+    public /*protected*/ ArchiveImplementation
 {
 private:
     // these are used by the serialization library.
@@ -105,7 +109,14 @@ private:
     virtual void save(const unsigned long t){
         ArchiveImplementation::save(t);
     }
-    #if !defined(BOOST_NO_INTRINSIC_INT64_T)
+    #if defined(BOOST_HAS_LONG_LONG)
+    virtual void save(const boost::long_long_type t){
+        ArchiveImplementation::save(t);
+    }
+    virtual void save(const boost::ulong_long_type t){
+        ArchiveImplementation::save(t);
+    }
+    #elif defined(BOOST_HAS_MS_INT64)
     virtual void save(const boost::int64_t t){
         ArchiveImplementation::save(t);
     }
@@ -127,7 +138,7 @@ private:
         ArchiveImplementation::save(t);
     }
     #endif
-    virtual unsigned int get_library_version() const{
+    virtual library_version_type get_library_version() const{
         return ArchiveImplementation::get_library_version();
     }
     virtual unsigned int get_flags() const {
@@ -164,6 +175,12 @@ public:
     polymorphic_oarchive & operator&(T & t){
         return polymorphic_oarchive::operator&(t);
     }
+    // register type function
+    template<class T>
+    const basic_pointer_oserializer * 
+    register_type(T * t = NULL){
+        return ArchiveImplementation::register_type(t);
+    }
     // all current archives take a stream as constructor argument
     template <class _Elem, class _Tr>
     polymorphic_oarchive_route(
@@ -178,6 +195,10 @@ public:
 } // namespace detail
 } // namespace archive
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

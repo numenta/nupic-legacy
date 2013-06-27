@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,121 +6,195 @@
 #if !defined(BOOST_SPIRIT_KARMA_DELIMIT_MAR_02_2007_0217PM)
 #define BOOST_SPIRIT_KARMA_DELIMIT_MAR_02_2007_0217PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/support/component.hpp>
-#include <boost/spirit/home/support/attribute_of.hpp>
+#include <boost/spirit/home/karma/meta_compiler.hpp>
+#include <boost/spirit/home/karma/generator.hpp>
 #include <boost/spirit/home/karma/domain.hpp>
+#include <boost/spirit/home/karma/detail/unused_delimiter.hpp>
+#include <boost/spirit/home/karma/delimit_out.hpp>
+#include <boost/spirit/home/karma/auxiliary/lazy.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
+#include <boost/spirit/home/karma/detail/attributes.hpp>
+#include <boost/spirit/home/support/info.hpp>
 #include <boost/fusion/include/at.hpp>
-#include <boost/fusion/include/value_at.hpp>
+#include <boost/fusion/include/vector.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_directive<karma::domain, tag::delimit>   // enables delimit[]
+      : mpl::true_ {};
+
+    // enables delimit(d)[g], where d is a generator
+    template <typename T>
+    struct use_directive<karma::domain
+          , terminal_ex<tag::delimit, fusion::vector1<T> > > 
+      : boost::spirit::traits::matches<karma::domain, T> {};
+
+    // enables *lazy* delimit(d)[g]
+    template <>
+    struct use_lazy_directive<karma::domain, tag::delimit, 1> 
+      : mpl::true_ {};
+
+}}
 
 namespace boost { namespace spirit { namespace karma
 {
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    using spirit::delimit;
+#endif
+    using spirit::delimit_type;
+
     ///////////////////////////////////////////////////////////////////////////
-    //  The delimit_space generator is used for delimit[...] directives.
+    //  The redelimit_generator generator is used for delimit[...] directives.
     ///////////////////////////////////////////////////////////////////////////
-    struct delimit_space
+    template <typename Subject>
+    struct redelimit_generator : unary_generator<redelimit_generator<Subject> >
     {
-        template <typename Component, typename Context, typename Unused>
+        typedef Subject subject_type;
+
+        typedef typename subject_type::properties properties;
+
+        template <typename Context, typename Iterator>
         struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::right<Component>::type,
-                Context
-            >
-        {
-        };
+          : traits::attribute_of<subject_type, Context, Iterator>
+        {};
 
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& /*d*/, Parameter const& param)
-        {
-            //  the delimit_space generator simply dispatches to the embedded
-            //  generator while supplying a single space as the new delimiter
-            //  to use
-            typedef typename
-                result_of::right<Component>::type::director
-            director;
+        redelimit_generator(Subject const& subject)
+          : subject(subject) {}
 
-            return director::generate(spirit::right(component),
-                sink, ctx, spirit::as_component(karma::domain(), ' '), param);
+        template <typename OutputIterator, typename Context, typename Delimiter
+          , typename Attribute>
+        bool generate(OutputIterator& sink, Context& ctx, Delimiter const& d
+          , Attribute const& attr) const
+        {
+            //  The delimit_space generator simply dispatches to the embedded
+            //  generator while supplying either the delimiter which has been 
+            //  used before a surrounding verbatim[] directive or a single 
+            //  space as the new delimiter to use (if no surrounding verbatim[]
+            //  was specified).
+            return subject.generate(sink, ctx
+              , detail::get_delimiter(d, compile<karma::domain>(' ')), attr);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "delimit[";
-
-            typedef typename
-                spirit::result_of::right<Component>::type::director
-            director;
-
-            result += director::what(spirit::right(component), ctx);
-            result += "]";
-            return result;
+            return info("delimit", subject.what(context));
         }
+
+        Subject subject;
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    //  The delimit_ generator is used for delimit(d)[...] directives.
+    //  The delimit_generator is used for delimit(d)[...] directives.
     ///////////////////////////////////////////////////////////////////////////
-    struct delimit_
+    template <typename Subject, typename Delimiter>
+    struct delimit_generator 
+      : unary_generator<delimit_generator<Subject, Delimiter> >
     {
-        template <typename Component, typename Context, typename Unused>
-        struct attribute
-          : traits::attribute_of<
-                karma::domain,
-                typename result_of::subject<Component>::type,
-                Context
-            >
-        {
-        };
+        typedef Subject subject_type;
+        typedef Delimiter delimiter_type;
 
-        template <typename Component, typename OutputIterator,
-            typename Context, typename Delimiter, typename Parameter>
-        static bool
-        generate(Component const& component, OutputIterator& sink,
-            Context& ctx, Delimiter const& /*d*/, Parameter const& param)
+        typedef typename subject_type::properties properties;
+
+        template <typename Context, typename Iterator>
+        struct attribute
+          : traits::attribute_of<subject_type, Context, Iterator>
+        {};
+
+        delimit_generator(Subject const& subject, Delimiter const& delimiter)
+          : subject(subject), delimiter(delimiter) {}
+
+        template <typename OutputIterator, typename Context
+          , typename Delimiter_, typename Attribute>
+        bool generate(OutputIterator& sink, Context& ctx, Delimiter_ const&
+          , Attribute const& attr) const
         {
             //  the delimit generator simply dispatches to the embedded
             //  generator while supplying it's argument as the new delimiter
             //  to use
-            typedef typename
-                spirit::result_of::subject<Component>::type::director
-            director;
-
-            return director::generate(spirit::subject(component), sink, ctx,
-                spirit::as_component(
-                    karma::domain(), spirit::argument1(component)),
-                param);
+            return subject.generate(sink, ctx, delimiter, attr);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "delimit(";
+            return info("delimit", subject.what(context));
+        }
 
-            typedef typename
-                spirit::result_of::argument1<Component>::type::director
-            delimiter;
+        Subject subject;
+        Delimiter delimiter;
+    };
 
-            result += delimiter::what(spirit::argument1(component), ctx);
-            result +=")[";
-
-            typedef typename
-                spirit::result_of::subject<Component>::type::director
-            director;
-
-            result += director::what(spirit::subject(component), ctx);
-            result += "]";
-            return result;
+    ///////////////////////////////////////////////////////////////////////////
+    // Generator generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Modifiers>
+    struct make_directive<tag::delimit, Subject, Modifiers>
+    {
+        typedef redelimit_generator<Subject> result_type;
+        result_type operator()(unused_type, Subject const& subject
+          , unused_type) const
+        {
+            return result_type(subject);
         }
     };
 
+    template <typename Delimiter, typename Subject, typename Modifiers>
+    struct make_directive<
+        terminal_ex<tag::delimit, fusion::vector1<Delimiter> >
+      , Subject, Modifiers>
+    {
+        typedef typename
+            result_of::compile<karma::domain, Delimiter, Modifiers>::type
+        delimiter_type;
+
+        typedef delimit_generator<Subject, delimiter_type> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, Subject const& subject
+          , unused_type) const
+        {
+            return result_type(subject
+              , compile<karma::domain>(fusion::at_c<0>(term.args)));
+        }
+    };
+
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject>
+    struct has_semantic_action<karma::redelimit_generator<Subject> >
+      : unary_has_semantic_action<Subject> {};
+
+    template <typename Subject, typename Delimiter>
+    struct has_semantic_action<karma::delimit_generator<Subject, Delimiter> >
+      : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Attribute
+            , typename Context, typename Iterator>
+    struct handles_container<karma::redelimit_generator<Subject>, Attribute
+      , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
+
+    template <typename Subject, typename Delimiter, typename Attribute
+            , typename Context, typename Iterator>
+    struct handles_container<karma::delimit_generator<Subject, Delimiter>
+      , Attribute, Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

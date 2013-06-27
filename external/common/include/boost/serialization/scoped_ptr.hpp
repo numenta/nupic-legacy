@@ -25,7 +25,7 @@ namespace serialization {
     template<class Archive, class T>
     void save(
         Archive & ar, 
-        const boost::scoped_ptr<T> & t, 
+        const boost::scoped_ptr< T > & t, 
         const unsigned int /* version */
     ){
         T* r = t.get();
@@ -35,7 +35,7 @@ namespace serialization {
     template<class Archive, class T>
     void load(
         Archive & ar, 
-        boost::scoped_ptr<T> & t, 
+        boost::scoped_ptr< T > & t, 
         const unsigned int /* version */
     ){
         T* r;
@@ -46,7 +46,7 @@ namespace serialization {
     template<class Archive, class T>
     void serialize(
         Archive& ar, 
-        boost::scoped_ptr<T>& t, 
+        boost::scoped_ptr< T >& t, 
         const unsigned int version
     ){
         boost::serialization::split_free(ar, t, version);

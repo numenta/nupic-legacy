@@ -1,4 +1,4 @@
-/* Copyright 2003-2008 Joaquin M Lopez Munoz.
+/* Copyright 2003-2009 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -173,6 +173,8 @@ void random_access_index_sort(
    *     and possibly won't perform much better than the
    *     solution adopted.
    */
+
+  if(ptrs.size()<=1)return;
 
   typedef typename Node::value_type         value_type;
   typedef typename Node::impl_pointer       impl_pointer;

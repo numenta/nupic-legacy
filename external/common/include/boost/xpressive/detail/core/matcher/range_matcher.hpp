@@ -48,14 +48,14 @@ namespace boost { namespace xpressive { namespace detail
             this->not_ = !this->not_;
         }
 
-        bool in_range(Traits const &traits, char_type ch, mpl::false_) const // case-sensitive
+        bool in_range(Traits const &tr, char_type ch, mpl::false_) const // case-sensitive
         {
-            return traits.in_range(this->ch_min_, this->ch_max_, ch);
+            return tr.in_range(this->ch_min_, this->ch_max_, ch);
         }
 
-        bool in_range(Traits const &traits, char_type ch, mpl::true_) const // case-insensitive
+        bool in_range(Traits const &tr, char_type ch, mpl::true_) const // case-insensitive
         {
-            return traits.in_range_nocase(this->ch_min_, this->ch_max_, ch);
+            return tr.in_range_nocase(this->ch_min_, this->ch_max_, ch);
         }
 
         template<typename BidiIter, typename Next>

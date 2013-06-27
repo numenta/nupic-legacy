@@ -21,7 +21,7 @@ namespace boost {
   {
     visitor.preorder(v, t);
     typename tree_traits<Tree>::children_iterator i, end;
-    tie(i, end) = children(v, t);
+    boost::tie(i, end) = children(v, t);
     if (i != end) {
       traverse_tree(*i++, t, visitor);
       visitor.inorder(v, t);

@@ -36,7 +36,7 @@ namespace boost { namespace xpressive { namespace detail
         string_type str_;
         char_type const *end_;
 
-        string_matcher(string_type const &str, Traits const &traits)
+        string_matcher(string_type const &str, Traits const &tr)
           : str_(str)
           , end_()
         {
@@ -44,7 +44,7 @@ namespace boost { namespace xpressive { namespace detail
             typename range_iterator<string_type>::type end = boost::end(this->str_);
             for(; cur != end; ++cur)
             {
-                *cur = detail::translate(*cur, traits, icase_type());
+                *cur = detail::translate(*cur, tr, icase_type());
             }
             this->end_ = detail::data_end(str_);
         }

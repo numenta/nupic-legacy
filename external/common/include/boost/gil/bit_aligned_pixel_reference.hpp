@@ -145,7 +145,7 @@ struct bit_aligned_pixel_reference {
 
     // Construct from another compatible pixel type
     bit_aligned_pixel_reference(const bit_aligned_pixel_reference& p) : _bit_range(p._bit_range) {}
-    template <typename BF, typename CR> bit_aligned_pixel_reference(packed_pixel<BF,CR,Layout>& p) : _bit_range(static_cast<data_ptr_t>(&at_c<0>(p)), at_c<0>(p).first_bit()) {
+    template <typename BF, typename CR> bit_aligned_pixel_reference(packed_pixel<BF,CR,Layout>& p) : _bit_range(static_cast<data_ptr_t>(&gil::at_c<0>(p)), gil::at_c<0>(p).first_bit()) {
         check_compatible<packed_pixel<BF,CR,Layout> >();
     }
 
@@ -169,8 +169,8 @@ private:
 
 private:
     static void check_gray() {  BOOST_STATIC_ASSERT((is_same<typename Layout::color_space_t, gray_t>::value)); }
-    template <typename Channel> void assign(const Channel& chan, mpl::false_) const { check_gray(); at_c<0>(*this)=chan; }
-    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return at_c<0>(*this)==chan; }
+    template <typename Channel> void assign(const Channel& chan, mpl::false_) const { check_gray(); gil::at_c<0>(*this)=chan; }
+    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 };
 
 /////////////////////////////

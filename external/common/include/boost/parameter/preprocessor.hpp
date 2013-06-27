@@ -14,7 +14,9 @@
 # include <boost/parameter/aux_/preprocessor/flatten.hpp>
 
 # include <boost/preprocessor/repetition/repeat_from_to.hpp>
+# include <boost/preprocessor/comparison/equal.hpp>
 # include <boost/preprocessor/control/if.hpp>
+# include <boost/preprocessor/control/iif.hpp>
 # include <boost/preprocessor/control/expr_if.hpp>
 # include <boost/preprocessor/repetition/enum_params.hpp>
 # include <boost/preprocessor/repetition/enum_binary_params.hpp>
@@ -23,9 +25,12 @@
 # include <boost/preprocessor/seq/for_each_product.hpp>
 # include <boost/preprocessor/seq/for_each_i.hpp> 
 # include <boost/preprocessor/tuple/elem.hpp> 
+# include <boost/preprocessor/tuple/eat.hpp>
 # include <boost/preprocessor/seq/fold_left.hpp>
+# include <boost/preprocessor/seq/push_back.hpp>
 # include <boost/preprocessor/seq/size.hpp>
 # include <boost/preprocessor/seq/enum.hpp>
+# include <boost/preprocessor/seq/push_back.hpp>
 
 # include <boost/preprocessor/detail/is_nullary.hpp>
 
@@ -358,7 +363,7 @@ struct funptr_predicate<void**>
 #  define BOOST_PARAMETER_FUNCTION_FWD_MATCH_Z(z, name, parameters, n) \
     , typename boost::parameter::aux::match< \
           parameters, BOOST_PP_ENUM_PARAMS(n, ParameterArgumentType) \
-      >::type boost_parameter_enabler_argument = parameters()
+      >::type = parameters()
 # else
 #  define BOOST_PARAMETER_FUNCTION_FWD_MATCH_Z(z, name, parameters, n)
 # endif
@@ -696,6 +701,7 @@ struct funptr_predicate<void**>
             ) \
         ] \
       , BOOST_PARAMETER_FN_ARG_PRED(arg) \
+      , Args \
     )
 
 # define BOOST_PARAMETER_FUNCTION_DEFAULT_FUNCTION_BODY(name, n, split_args, tag_namespace) \
@@ -723,6 +729,7 @@ struct funptr_predicate<void**>
     BOOST_PARAMETER_FUNCTION_CAST( \
         boost::parameter::aux::as_lvalue(BOOST_PARAMETER_FN_ARG_DEFAULT(arg), 0L) \
       , BOOST_PARAMETER_FN_ARG_PRED(arg) \
+      , Args \
     )
 
 # define BOOST_PARAMETER_FUNCTION_DEFAULT_EVAL_DEFAULT_BODY(name, n, split_args, tag_ns, const_) \
@@ -838,6 +845,7 @@ struct funptr_predicate<void**>
               boost::parameter::keyword<tag_ns::BOOST_PARAMETER_FN_ARG_KEYWORD(arg)>::instance \
           ] \
         , BOOST_PARAMETER_FN_ARG_PRED(arg) \
+        , Args \
       )
 
 // Generates the function template that recives a ArgumentPack, and then

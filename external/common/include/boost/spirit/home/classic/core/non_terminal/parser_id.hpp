@@ -106,7 +106,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                 : parser_id(reinterpret_cast<std::size_t>(this)); 
         }
 
-        void set_id(parser_id id) { tag = id; } 
+        void set_id(parser_id id_) { tag = id_; } 
         
     private:
     

@@ -24,6 +24,7 @@
 #include <vector>
 #include "../../gil_all.hpp"
 #include "io_error.hpp"
+#include <jpeglib.h>
 
 namespace boost { namespace gil {
 

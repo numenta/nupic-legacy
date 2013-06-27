@@ -126,8 +126,8 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         typedef unary<ParserT, parser<self_t> >         base_t;
         typedef unary_parser_category                   parser_category_t;
 
-        assertive_parser(ParserT const& parser, ErrorDescrT descriptor)
-        : base_t(parser), descriptor(descriptor) {}
+        assertive_parser(ParserT const& parser, ErrorDescrT descriptor_)
+        : base_t(parser), descriptor(descriptor_) {}
 
         template <typename ScannerT>
         struct result
@@ -222,9 +222,9 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 
         error_status(
             result_t result_ = fail,
-            std::ptrdiff_t length = -1,
+            std::ptrdiff_t length_ = -1,
             T const& value_ = T())
-        : result(result_), length(length), value(value_) {}
+        : result(result_), length(length_), value(value_) {}
 
         result_t        result;
         std::ptrdiff_t  length;

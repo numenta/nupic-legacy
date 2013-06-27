@@ -2,7 +2,7 @@
 // socket_base.hpp
 // ~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,16 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/detail/io_control.hpp>
 #include <boost/asio/detail/socket_option.hpp>
 #include <boost/asio/detail/socket_types.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -66,6 +63,9 @@ public:
 
   /// Specify that the data should not be subject to routing.
   static const int message_do_not_route = implementation_defined;
+
+  /// Specifies that the data marks the end of a record.
+  static const int message_end_of_record = implementation_defined;
 #else
   BOOST_STATIC_CONSTANT(int,
       message_peek = boost::asio::detail::message_peek);
@@ -73,6 +73,8 @@ public:
       message_out_of_band = boost::asio::detail::message_out_of_band);
   BOOST_STATIC_CONSTANT(int,
       message_do_not_route = boost::asio::detail::message_do_not_route);
+  BOOST_STATIC_CONSTANT(int,
+      message_end_of_record = boost::asio::detail::message_end_of_record);
 #endif
 
   /// Socket option to permit sending of broadcast messages.
@@ -445,7 +447,8 @@ public:
     enable_connection_aborted;
 #endif
 
-  /// IO control command to set the blocking mode of the socket.
+  /// (Deprecated: Use non_blocking().) IO control command to
+  /// set the blocking mode of the socket.
   /**
    * Implements the FIONBIO IO control command.
    *

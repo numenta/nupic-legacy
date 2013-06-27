@@ -17,7 +17,11 @@
 #include "boost/detail/workaround.hpp"
 #include "boost/variant/detail/generic_result_type.hpp"
 
+#if BOOST_WORKAROUND(__EDG__, BOOST_TESTED_AT(302))
 #include "boost/utility/enable_if.hpp"
+#include "boost/mpl/not.hpp"
+#include "boost/type_traits/is_const.hpp"
+#endif
 
 namespace boost {
 

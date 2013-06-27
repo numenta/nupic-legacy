@@ -116,6 +116,9 @@ namespace extract
 {
     extractor<tag::abstract_tail_variate> const tail_variate = {};
     extractor<tag::abstract_tail_weights> const tail_weights = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_variate)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_weights)
 }
 
 using extract::tail_variate;

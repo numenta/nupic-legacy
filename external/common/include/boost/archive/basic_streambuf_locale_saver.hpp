@@ -29,11 +29,20 @@
 #include <locale>     // for std::locale
 #include <streambuf>  // for std::basic_streambuf
 
+#include <boost/config.hpp>
+#include <boost/noncopyable.hpp>
+
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 namespace boost{
 namespace archive{
 
 template < typename Ch, class Tr >
-class basic_streambuf_locale_saver
+class basic_streambuf_locale_saver :
+    private boost::noncopyable
 {
 public:
     typedef ::std::basic_streambuf<Ch, Tr> state_type;
@@ -55,6 +64,10 @@ private:
 
 } // archive
 } // boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_NO_STD_LOCALE
 #endif // BOOST_ARCHIVE_BASIC_STREAMBUF_LOCALE_SAVER_HPP

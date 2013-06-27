@@ -11,8 +11,6 @@
 #include <boost/fusion/functional/adapter/fused.hpp>
 #include <boost/fusion/functional/adapter/fused_procedure.hpp>
 #include <boost/fusion/functional/adapter/fused_function_object.hpp>
-#include <boost/fusion/functional/adapter/unfused_generic.hpp>
-#include <boost/fusion/functional/adapter/unfused_lvalue_args.hpp>
-#include <boost/fusion/functional/adapter/unfused_rvalue_args.hpp>
+#include <boost/fusion/functional/adapter/unfused.hpp>
 #include <boost/fusion/functional/adapter/unfused_typed.hpp>
 #endif

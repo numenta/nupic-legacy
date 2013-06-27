@@ -194,9 +194,9 @@ template<>
 struct determine_extra_equations_skip_zeros_impl<true, false> {
     template<class RowsBegin, int RemainingRows, int CurrentColumn, int TotalColumns, class Result>
     struct apply {
-        typedef typename RowsBegin::item current_row;
+        typedef typename RowsBegin::next::item next_row;
         typedef typename determine_extra_equations_skip_zeros_impl<
-            current_row::item::Numerator == 0,
+            next_row::item::Numerator == 0,
             RemainingRows == 2  // the next one will be the last.
         >::template apply<
             typename RowsBegin::next,
@@ -213,7 +213,7 @@ struct determine_extra_equations_skip_zeros_impl<true, false> {
 // all the elements in this column are zero.
 template<>
 struct determine_extra_equations_skip_zeros_impl<true, true> {
-    template<class RowsBegin, int RemainingRows, int CurrentColumn, int TotalColumns, class MatrixWithFirstColumnStripped, class Result>
+    template<class RowsBegin, int RemainingRows, int CurrentColumn, int TotalColumns, class Result>
     struct apply {
         typedef list<typename RowsBegin::item::next, dimensionless_type> next_equations;
         typedef list<typename create_row_of_identity<CurrentColumn, TotalColumns>::type, Result> type;
@@ -952,20 +952,6 @@ struct strip_zeroes_impl<0> {
 // dimension.
 //
 // list<rational> calculate_base_unit_exponents(list<base_unit> units, dimension_list dimensions);
-//
-// What is the purpose of all this magic with
-// base_dimensions? Can't we just solve the
-// equations for the dimension directly?  Yes,
-// we can, but remember that solving a
-// system of linear equations is O(N^3).
-// By normalizing the system we incur a
-// high one time cost O(N^4), but for all
-// solutions after the first it is O(N^2)
-// In addition, the constant factor is
-// good because everything is already set up.
-// Since we expect a few systems to be
-// used many times, the cost of creating
-// a system is probably not significant.
 
 template<class T>
 struct is_base_dimension_unit {

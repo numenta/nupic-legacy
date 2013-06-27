@@ -1,7 +1,7 @@
 // signbit.hpp
 
-#ifndef BOOST_MATH_SIGNBIT_HPP
-#define BOOST_MATH_SIGNBIT_HPP
+#ifndef BOOST_SPIRIT_MATH_SIGNBIT_HPP
+#define BOOST_SPIRIT_MATH_SIGNBIT_HPP
 
 // Copyright (c) 2006 Johan Rade
 
@@ -9,9 +9,14 @@
 // (See accompanying file LICENSE_1_0.txt
 // or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#include "detail/fp_traits.hpp"
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <boost/spirit/home/support/detail/math/detail/fp_traits.hpp>
 
 namespace boost {
+namespace spirit {
 namespace math {
 
 //------------------------------------------------------------------------------
@@ -81,6 +86,7 @@ template<class T> T (changesign)(T x)
 //------------------------------------------------------------------------------
 
 }   // namespace math
+}   // namespace spirit
 }   // namespace boost
 
 #endif

@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -23,6 +23,7 @@
 
 #include <boost/throw_exception.hpp>
 #include <boost/pool/singleton_pool.hpp>
+#include <boost/detail/atomic_count.hpp>
 
 // this must occur after all of the includes and before any code appears
 #ifdef BOOST_HAS_ABI_HEADERS
@@ -42,11 +43,17 @@ class token_data
 public:
     typedef StringTypeT string_type;
     typedef PositionT   position_type;
-    
+
+    //  default constructed tokens correspond to EOI tokens
     token_data()
     :   id(T_EOI), refcnt(1)
     {}
-    
+
+    //  construct an invalid token
+    explicit token_data(int)
+    :   id(T_UNKNOWN), refcnt(1)
+    {}
+
     token_data(token_id id_, string_type const &value_, position_type const &pos_)
     :   id(id_), value(value_), pos(pos_), refcnt(1)
     {}
@@ -54,14 +61,14 @@ public:
     token_data(token_data const& rhs)
     :   id(rhs.id), value(rhs.value), pos(rhs.pos), refcnt(1)
     {}
-    
+
     ~token_data()
     {}
-    
+
     std::size_t addref() { return ++refcnt; }
     std::size_t release() { return --refcnt; }
     std::size_t get_refcnt() const { return refcnt; }
-    
+
 // accessors
     operator token_id() const { return id; }
     string_type const &get_value() const { return value; }
@@ -77,7 +84,7 @@ public:
         //  positions
         return (lhs.id == rhs.id && lhs.value == rhs.value) ? true : false;
     }
-    
+
     void init(token_id id_, string_type const &value_, position_type const &pos_)
     {
         BOOST_ASSERT(refcnt == 1);
@@ -85,7 +92,7 @@ public:
         value = value_; 
         pos = pos_;
     }
-    
+
     void init(token_data const& rhs)
     {
         BOOST_ASSERT(refcnt == 1);
@@ -93,10 +100,10 @@ public:
         value = rhs.value; 
         pos = rhs.pos;
     }
-    
+
     static void *operator new(std::size_t size);
     static void operator delete(void *p, std::size_t size);
-    
+
 #if defined(BOOST_SPIRIT_DEBUG)
 // debug support
     void print (std::ostream &stream) const
@@ -131,7 +138,7 @@ private:
     token_id id;                // the token id
     string_type value;          // the text, which was parsed into this token
     position_type pos;          // the original file position
-    std::size_t refcnt;
+    boost::detail::atomic_count refcnt;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -145,7 +152,7 @@ token_data<StringTypeT, PositionT>::operator new(std::size_t size)
     typedef boost::singleton_pool<
             token_data_tag, sizeof(token_data<StringTypeT, PositionT>)
         > pool_type;
-        
+
     void *ret = pool_type::malloc();
     if (0 == ret)
         boost::throw_exception(std::bad_alloc());
@@ -189,10 +196,16 @@ private:
     typedef impl::token_data<string_type, position_type> data_type;
     
 public:
+    //  default constructed tokens correspond to EOI tokens
     lex_token()
     :   data(0)
     {}
-    
+
+    //  construct an invalid token
+    explicit lex_token(int)
+    :   data(new data_type(0))
+    {}
+
     lex_token(lex_token const& rhs)
     :   data(rhs.data)
     {
@@ -210,7 +223,7 @@ public:
             delete data;
         data = 0;
     }
-    
+
     lex_token& operator=(lex_token const& rhs)
     {
         if (&rhs != this) {
@@ -223,13 +236,14 @@ public:
         }
         return *this;
     }
-    
+
 // accessors
     operator token_id() const { return 0 != data ? token_id(*data) : T_EOI; }
     string_type const &get_value() const { return data->get_value(); }
     position_type const &get_position() const { return data->get_position(); }
     bool is_eoi() const { return 0 == data || token_id(*data) == T_EOI; }
-    
+    bool is_valid() const { return 0 != data && token_id(*data) != T_UNKNOWN; }
+
     void set_token_id (token_id id_) { make_unique(); data->set_token_id(id_); }
     void set_value (string_type const &value_) { make_unique(); data->set_value(value_); }
     void set_position (position_type const &pos_) { make_unique(); data->set_position(pos_); }
@@ -242,8 +256,8 @@ public:
             return false;
         return *(lhs.data) == *(rhs.data);
     }
-    
-// debug support    
+
+// debug support
 #if BOOST_WAVE_DUMP_PARSE_TREE != 0
 // access functions for the tree_to_xml functionality
     static int get_token_id(lex_token const &t) 
@@ -251,7 +265,7 @@ public:
     static string_type get_token_value(lex_token const &t) 
         { return t.get_value(); }
 #endif 
-    
+
 #if defined(BOOST_SPIRIT_DEBUG)
 // debug support
     void print (std::ostream &stream) const
@@ -275,15 +289,27 @@ private:
     {
         if (1 == data->get_refcnt())
             return;
-        
+
         data_type* newdata = new data_type(*data) ;
 
         data->release();          // release this reference, can't get zero 
         data = newdata;
     }
-    
+
     data_type* data;
 };
+
+///////////////////////////////////////////////////////////////////////////////
+//  This overload is needed by the multi_pass/functor_input_policy to 
+//  validate a token instance. It has to be defined in the same namespace 
+//  as the token class itself to allow ADL to find it.
+///////////////////////////////////////////////////////////////////////////////
+template <typename Position>
+inline bool 
+token_is_valid(lex_token<Position> const& t)
+{
+    return t.is_valid();
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 #if defined(BOOST_SPIRIT_DEBUG)

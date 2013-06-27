@@ -168,7 +168,7 @@ BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
 basic_xml_oarchive<Archive>::save_override(const version_type & t, int)
 {
     int i = t.t; // extra .t is for borland
-    write_attribute(VBOOST_ARCHIVE_XML_ERSION(), i);
+    write_attribute(BOOST_ARCHIVE_XML_VERSION(), i);
 }
 #endif
 

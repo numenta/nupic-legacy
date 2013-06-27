@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : implements model of parameter with single char name
 // ***************************************************************************
@@ -34,7 +34,7 @@ BOOST_RT_PARAM_INLINE
 char_name_policy::char_name_policy()
 : basic_naming_policy( rtti::type_id<char_name_policy>() )
 {
-    assign_op( m_prefix, BOOST_RT_PARAM_CSTRING_LITERAL( "-" ), 0 );
+    assign_op( p_prefix.value, BOOST_RT_PARAM_CSTRING_LITERAL( "-" ), 0 );
 }
 
 //____________________________________________________________________________//
@@ -43,7 +43,7 @@ BOOST_RT_PARAM_INLINE bool
 char_name_policy::conflict_with( identification_policy const& id ) const
 {
     return id.p_type_id == p_type_id && 
-           m_name == static_cast<char_name_policy const&>( id ).m_name;
+           p_name == static_cast<char_name_policy const&>( id ).p_name;
 }
 
 //____________________________________________________________________________//

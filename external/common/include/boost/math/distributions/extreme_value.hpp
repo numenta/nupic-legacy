@@ -37,11 +37,11 @@ namespace detail{
 template <class RealType, class Policy>
 inline bool verify_scale_b(const char* function, RealType b, RealType* presult, const Policy& pol)
 {
-   if(b <= 0)
+   if((b <= 0) || !(boost::math::isfinite)(b))
    {
       *presult = policies::raise_domain_error<RealType>(
          function,
-         "The scale parameter \"b\" must be > 0, but was: %1%.", b, pol);
+         "The scale parameter \"b\" must be finite and > 0, but was: %1%.", b, pol);
       return false;
    }
    return true;
@@ -61,6 +61,7 @@ public:
    {
       RealType err;
       detail::verify_scale_b("boost::math::extreme_value_distribution<%1%>::extreme_value_distribution", b, &err, Policy());
+      detail::check_finite("boost::math::extreme_value_distribution<%1%>::extreme_value_distribution", a, &err, Policy());
    } // extreme_value_distribution
 
    RealType location()const { return m_a; }
@@ -76,7 +77,9 @@ template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const extreme_value_distribution<RealType, Policy>& /*dist*/)
 { // Range of permissible values for random variable x.
    using boost::math::tools::max_value;
-   return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>());
+   return std::pair<RealType, RealType>(
+      std::numeric_limits<RealType>::has_infinity ? -std::numeric_limits<RealType>::infinity() : -max_value<RealType>(), 
+      std::numeric_limits<RealType>::has_infinity ? std::numeric_limits<RealType>::infinity() : max_value<RealType>());
 }
 
 template <class RealType, class Policy>
@@ -92,10 +95,18 @@ inline RealType pdf(const extreme_value_distribution<RealType, Policy>& dist, co
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
+   static const char* function = "boost::math::pdf(const extreme_value_distribution<%1%>&, %1%)";
+
    RealType a = dist.location();
    RealType b = dist.scale();
-   RealType result;
-   if(0 == detail::verify_scale_b("boost::math::pdf(const extreme_value_distribution<%1%>&, %1%)", b, &result, Policy()))
+   RealType result = 0;
+   if((boost::math::isinf)(x))
+      return 0.0f;
+   if(0 == detail::verify_scale_b(function, b, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
+      return result;
+   if(0 == detail::check_x(function, x, &result, Policy()))
       return result;
    result = exp((a-x)/b) * exp(-exp((a-x)/b)) / b;
    return result;
@@ -106,10 +117,20 @@ inline RealType cdf(const extreme_value_distribution<RealType, Policy>& dist, co
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
+   static const char* function = "boost::math::cdf(const extreme_value_distribution<%1%>&, %1%)";
+
+   if((boost::math::isinf)(x))
+      return x < 0 ? 0.0f : 1.0f;
    RealType a = dist.location();
    RealType b = dist.scale();
-   RealType result;
-   if(0 == detail::verify_scale_b("boost::math::cdf(const extreme_value_distribution<%1%>&, %1%)", b, &result, Policy()))
+   RealType result = 0;
+   if(0 == detail::verify_scale_b(function, b, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
+      return result;
+   if(0 == detail::check_x("boost::math::cdf(const extreme_value_distribution<%1%>&, %1%)", x, &result, Policy()))
       return result;
 
    result = exp(-exp((a-x)/b));
@@ -126,8 +147,10 @@ RealType quantile(const extreme_value_distribution<RealType, Policy>& dist, cons
 
    RealType a = dist.location();
    RealType b = dist.scale();
-   RealType result;
+   RealType result = 0;
    if(0 == detail::verify_scale_b(function, b, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
       return result;
    if(0 == detail::check_probability(function, p, &result, Policy()))
       return result;
@@ -147,10 +170,18 @@ inline RealType cdf(const complemented2_type<extreme_value_distribution<RealType
 {
    BOOST_MATH_STD_USING // for ADL of std functions
 
+   static const char* function = "boost::math::cdf(const extreme_value_distribution<%1%>&, %1%)";
+
+   if((boost::math::isinf)(c.param))
+      return c.param < 0 ? 1.0f : 0.0f;
    RealType a = c.dist.location();
    RealType b = c.dist.scale();
-   RealType result;
-   if(0 == detail::verify_scale_b("boost::math::cdf(const extreme_value_distribution<%1%>&, %1%)", b, &result, Policy()))
+   RealType result = 0;
+   if(0 == detail::verify_scale_b(function, b, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
+      return result;
+   if(0 == detail::check_x(function, c.param, &result, Policy()))
       return result;
 
    result = -boost::math::expm1(-exp((a-c.param)/b), Policy());
@@ -168,8 +199,10 @@ RealType quantile(const complemented2_type<extreme_value_distribution<RealType, 
    RealType a = c.dist.location();
    RealType b = c.dist.scale();
    RealType q = c.param;
-   RealType result;
+   RealType result = 0;
    if(0 == detail::verify_scale_b(function, b, &result, Policy()))
+      return result;
+   if(0 == detail::check_finite(function, a, &result, Policy()))
       return result;
    if(0 == detail::check_probability(function, q, &result, Policy()))
       return result;
@@ -189,8 +222,10 @@ inline RealType mean(const extreme_value_distribution<RealType, Policy>& dist)
 {
    RealType a = dist.location();
    RealType b = dist.scale();
-   RealType result;
+   RealType result = 0;
    if(0 == detail::verify_scale_b("boost::math::mean(const extreme_value_distribution<%1%>&)", b, &result, Policy()))
+      return result;
+   if(0 == detail::check_scale("boost::math::mean(const extreme_value_distribution<%1%>&)", a, &result, Policy()))
       return result;
    return a + constants::euler<RealType>() * b;
 }
@@ -201,8 +236,10 @@ inline RealType standard_deviation(const extreme_value_distribution<RealType, Po
    BOOST_MATH_STD_USING // for ADL of std functions.
 
    RealType b = dist.scale();
-   RealType result;
+   RealType result = 0;
    if(0 == detail::verify_scale_b("boost::math::standard_deviation(const extreme_value_distribution<%1%>&)", b, &result, Policy()))
+      return result;
+   if(0 == detail::check_scale("boost::math::standard_deviation(const extreme_value_distribution<%1%>&)", dist.location(), &result, Policy()))
       return result;
    return constants::pi<RealType>() * b / sqrt(static_cast<RealType>(6));
 }

@@ -16,7 +16,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <cassert>
+#include <boost/assert.hpp>
 
 #include <cstddef> // std::size_t
 #include <boost/config.hpp>
@@ -36,9 +36,11 @@ namespace std{
 namespace boost {
 namespace serialization {
 
-struct binary_object {
-    /* const */ void * const m_t;
-    const std::size_t m_size;
+struct binary_object :
+    public wrapper_traits<nvp<const binary_object> >
+{
+    void const * m_t;
+    std::size_t m_size;
     template<class Archive>
     void save(Archive & ar, const unsigned int /* file_version */) const {
         ar.save_binary(m_t, m_size);
@@ -48,6 +50,11 @@ struct binary_object {
         ar.load_binary(const_cast<void *>(m_t), m_size);
     }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
+    binary_object & operator=(const binary_object & rhs) {
+        m_t = rhs.m_t;
+        m_size = rhs.m_size;
+        return *this;
+    }
     binary_object(/* const */ void * const t, std::size_t size) :
         m_t(t),
         m_size(size)
@@ -69,28 +76,7 @@ make_binary_object(/* const */ void * t, std::size_t size){
     return binary_object(t, size);
 }
 
-// this is a wrapper
-
-template <>
-struct is_wrapper<binary_object>
- : public mpl::true_
-{};
-
 } // namespace serialization
 } // boost
-
-// don't need versioning info for this type
-BOOST_CLASS_IMPLEMENTATION(
-    binary_object, 
-    boost::serialization::object_serializable
-)
-
-// don't track binary objects - usually they will be created on the stack
-// and tracking algorithm (which uses the object address) might get
-// confused.  note that these address will likely be members of some
-// other structure which itself is tracked, so as a practical matter
-// suppressing tracking shouldn't cause any redundancy.
-
-BOOST_CLASS_TRACKING(binary_object, boost::serialization::track_never) 
 
 #endif // BOOST_SERIALIZATION_BINARY_OBJECT_HPP

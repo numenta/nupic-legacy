@@ -27,9 +27,15 @@
 namespace boost { 
 namespace archive {
 
-typedef detail::polymorphic_iarchive_route<
-        xml_wiarchive_impl<naked_xml_wiarchive> 
-> polymorphic_xml_wiarchive;
+class polymorphic_xml_wiarchive : 
+    public detail::polymorphic_iarchive_route<naked_xml_wiarchive>
+{
+public:
+    polymorphic_xml_wiarchive(std::wistream & is, unsigned int flags = 0) :
+        detail::polymorphic_iarchive_route<naked_xml_wiarchive>(is, flags)
+    {}
+    ~polymorphic_xml_wiarchive(){}
+};
 
 } // namespace archive
 } // namespace boost

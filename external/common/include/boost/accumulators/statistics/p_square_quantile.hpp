@@ -8,6 +8,7 @@
 #ifndef BOOST_ACCUMULATORS_STATISTICS_P_SQUARE_QUANTILE_HPP_DE_01_01_2006
 #define BOOST_ACCUMULATORS_STATISTICS_P_SQUARE_QUANTILE_HPP_DE_01_01_2006
 
+#include <cmath>
 #include <functional>
 #include <boost/array.hpp>
 #include <boost/mpl/placeholders.hpp>
@@ -229,6 +230,9 @@ namespace extract
 {
     extractor<tag::p_square_quantile> const p_square_quantile = {};
     extractor<tag::p_square_quantile_for_median> const p_square_quantile_for_median = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(p_square_quantile)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(p_square_quantile_for_median)
 }
 
 using extract::p_square_quantile;

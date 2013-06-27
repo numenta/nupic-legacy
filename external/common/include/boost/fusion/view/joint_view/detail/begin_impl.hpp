@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -14,7 +14,7 @@ namespace boost { namespace fusion
 {
     struct joint_view_tag;
 
-    template <typename First, typename Last, typename Concat>
+    template <typename Category, typename First, typename Last, typename Concat>
     struct joint_view_iterator;
 
     namespace extension
@@ -31,13 +31,14 @@ namespace boost { namespace fusion
                 typedef typename Sequence::first_type first_type;
                 typedef typename Sequence::last_type last_type;
                 typedef typename Sequence::concat_type concat_type;
+                typedef typename Sequence::category category;
                 typedef result_of::equal_to<first_type, last_type> equal_to;
 
                 typedef typename
                     mpl::if_<
                         equal_to
                       , concat_type
-                      , joint_view_iterator<first_type, last_type, concat_type>
+                      , joint_view_iterator<category, first_type, last_type, concat_type>
                     >::type
                 type;
 

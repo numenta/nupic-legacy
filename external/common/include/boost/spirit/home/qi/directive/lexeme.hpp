@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,62 +7,100 @@
 #if !defined(SPIRIT_LEXEME_MARCH_24_2007_0802AM)
 #define SPIRIT_LEXEME_MARCH_24_2007_0802AM
 
-#include <boost/spirit/home/support/component.hpp>
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <boost/spirit/home/qi/meta_compiler.hpp>
+#include <boost/spirit/home/qi/skip_over.hpp>
+#include <boost/spirit/home/qi/parser.hpp>
+#include <boost/spirit/home/qi/detail/unused_skipper.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/support/attribute_of.hpp>
-#include <boost/spirit/home/qi/domain.hpp>
-#include <boost/spirit/home/qi/skip.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_directive<qi::domain, tag::lexeme> // enables lexeme
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
-    struct lexeme_director
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    using spirit::lexeme;
+#endif
+    using spirit::lexeme_type;
+
+    template <typename Subject>
+    struct lexeme_directive : unary_parser<lexeme_directive<Subject> >
     {
-        template <typename Component, typename Context, typename Iterator>
+        typedef Subject subject_type;
+        lexeme_directive(Subject const& subject)
+          : subject(subject) {}
+
+        template <typename Context, typename Iterator>
         struct attribute
         {
             typedef typename
-                result_of::subject<Component>::type
-            subject_type;
-
-            typedef typename
-                traits::attribute_of<
-                    qi::domain, subject_type, Context, Iterator>::type
+                traits::attribute_of<subject_type, Context, Iterator>::type
             type;
         };
 
-        template <
-            typename Component
-          , typename Iterator, typename Context
+        template <typename Iterator, typename Context
           , typename Skipper, typename Attribute>
-        static bool parse(
-            Component const& component
-          , Iterator& first, Iterator const& last
+        bool parse(Iterator& first, Iterator const& last
           , Context& context, Skipper const& skipper
-          , Attribute& attr)
+          , Attribute& attr) const
         {
-            typedef typename
-                result_of::subject<Component>::type::director
-            director;
-
-            qi::skip(first, last, skipper);
-            return director::parse(
-                spirit::subject(component), first, last, context, unused, attr);
+            qi::skip_over(first, last, skipper);
+            return subject.parse(first, last, context
+              , detail::unused_skipper<Skipper>(skipper), attr);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "lexeme[";
+            return info("lexeme", subject.what(context));
 
-            typedef typename
-                result_of::subject<Component>::type::director
-            director;
+        }
 
-            result += director::what(subject(component), ctx);
-            result += "]";
-            return result;
+        Subject subject;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Modifiers>
+    struct make_directive<tag::lexeme, Subject, Modifiers>
+    {
+        typedef lexeme_directive<Subject> result_type;
+        result_type operator()(unused_type, Subject const& subject, unused_type) const
+        {
+            return result_type(subject);
         }
     };
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject>
+    struct has_semantic_action<qi::lexeme_directive<Subject> >
+      : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Attribute, typename Context
+        , typename Iterator>
+    struct handles_container<qi::lexeme_directive<Subject>, Attribute
+        , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

@@ -1,10 +1,16 @@
-//Copyright (c) 2006-2008 Emil Dotchevski and Reverge Studios, Inc.
+//Copyright (c) 2006-2009 Emil Dotchevski and Reverge Studios, Inc.
 
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef UUID_1A590226753311DD9E4CCF6156D89593
 #define UUID_1A590226753311DD9E4CCF6156D89593
+#if defined(__GNUC__) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma GCC system_header
+#endif
+#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma warning(push,1)
+#endif
 
 #include <boost/exception/exception.hpp>
 #include <boost/exception/detail/error_info_impl.hpp>
@@ -17,23 +23,25 @@ boost
     namespace
     exception_detail
         {
+        template <class ErrorInfo>
         struct
-        strwrap
+        get_info
             {
-			std::string str;
-            char const * ptr;
-
-            explicit
-            strwrap( char const * s ):
-                str(s),
-                ptr(&str[0])
+            static
+            typename ErrorInfo::value_type *
+            get( exception const & x )
                 {
+                if( exception_detail::error_info_container * c=x.data_.get() )
+                    if( shared_ptr<exception_detail::error_info_base> eib = c->get(BOOST_EXCEPTION_STATIC_TYPEID(ErrorInfo)) )
+                        {
+#ifndef BOOST_NO_RTTI
+                        BOOST_ASSERT( 0!=dynamic_cast<ErrorInfo *>(eib.get()) );
+#endif
+                        ErrorInfo * w = static_cast<ErrorInfo *>(eib.get());
+                        return &w->value();
+                        }
+                return 0;
                 }
-
-            private:
-
-            strwrap( strwrap const & );
-            strwrap & operator=( strwrap const & );
             };
 
         template <>
@@ -41,16 +49,10 @@ boost
         get_info<throw_function>
             {
             static
-            shared_ptr<char const * const>
+            char const * *
             get( exception const & x )
                 {
-                if( x.throw_function_ && *x.throw_function_ )
-                    {
-                    shared_ptr<strwrap> s(new strwrap(x.throw_function_));
-                    return shared_ptr<char const *>(s,&s->ptr);
-                    }
-                else
-                    return shared_ptr<char const * const>();
+                return x.throw_function_ ? &x.throw_function_ : 0;
                 }
             };
 
@@ -59,16 +61,10 @@ boost
         get_info<throw_file>
             {
             static
-            shared_ptr<char const * const>
+            char const * *
             get( exception const & x )
                 {
-                if( x.throw_file_ && *x.throw_file_ )
-                    {
-                    shared_ptr<strwrap> s(new strwrap(x.throw_file_));
-                    return shared_ptr<char const *>(s,&s->ptr);
-                    }
-                else
-                    return shared_ptr<char const * const>();
+                return x.throw_file_ ? &x.throw_file_ : 0;
                 }
             };
 
@@ -77,58 +73,58 @@ boost
         get_info<throw_line>
             {
             static
-            shared_ptr<int const>
+            int *
             get( exception const & x )
                 {
-                if( x.throw_line_!=-1 )
-                    return boost::shared_ptr<int>(new int(x.throw_line_));
-                else
-                    return shared_ptr<int const>();
+                return x.throw_line_!=-1 ? &x.throw_line_ : 0;
                 }
             };
 
-        template <class ErrorInfo>
+        template <class T,class R>
         struct
-        get_info
+        get_error_info_return_type
             {
-            static
-            shared_ptr<typename ErrorInfo::value_type const>
-            get( exception const & x )
-                {
-                if( exception_detail::error_info_container * c=x.data_.get() )
-                    if( shared_ptr<exception_detail::error_info_base const> eib = c->get(BOOST_EXCEPTION_STATIC_TYPEID(ErrorInfo)) )
-                        {
-#ifndef BOOST_NO_RTTI
-                        BOOST_ASSERT( 0!=dynamic_cast<ErrorInfo const *>(eib.get()) );
-#endif
-                        ErrorInfo const * w = static_cast<ErrorInfo const *>(eib.get());
-                        return shared_ptr<typename ErrorInfo::value_type const>(eib,&w->value());
-                        }
-                return shared_ptr<typename ErrorInfo::value_type const>();
-                }
+            typedef R * type;
+            };
+
+        template <class T,class R>
+        struct
+        get_error_info_return_type<T const,R>
+            {
+            typedef R const * type;
             };
         }
 
 #ifdef BOOST_NO_RTTI
     template <class ErrorInfo>
     inline
-    shared_ptr<typename ErrorInfo::value_type const>
+    typename ErrorInfo::value_type const *
     get_error_info( boost::exception const & x )
+        {
+        return exception_detail::get_info<ErrorInfo>::get(x);
+        }
+    template <class ErrorInfo>
+    inline
+    typename ErrorInfo::value_type *
+    get_error_info( boost::exception & x )
         {
         return exception_detail::get_info<ErrorInfo>::get(x);
         }
 #else
     template <class ErrorInfo,class E>
     inline
-    shared_ptr<typename ErrorInfo::value_type const>
-    get_error_info( E const & some_exception )
+    typename exception_detail::get_error_info_return_type<E,typename ErrorInfo::value_type>::type
+    get_error_info( E & some_exception )
         {
         if( exception const * x = dynamic_cast<exception const *>(&some_exception) )
             return exception_detail::get_info<ErrorInfo>::get(*x);
         else
-            return shared_ptr<typename ErrorInfo::value_type const>();
+            return 0;
         }
 #endif
     }
 
+#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma warning(pop)
+#endif
 #endif

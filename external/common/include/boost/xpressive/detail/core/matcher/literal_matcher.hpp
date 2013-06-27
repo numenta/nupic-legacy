@@ -37,8 +37,8 @@ namespace boost { namespace xpressive { namespace detail
           : ch_(ch)
         {}
 
-        literal_matcher(char_type ch, Traits const &traits)
-          : ch_(detail::translate(ch, traits, icase_type()))
+        literal_matcher(char_type ch, Traits const &tr)
+          : ch_(detail::translate(ch, tr, icase_type()))
         {}
 
         template<typename BidiIter, typename Next>

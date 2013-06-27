@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : implements XML Log formatter
 // ***************************************************************************
@@ -110,15 +110,23 @@ xml_log_formatter::test_unit_skipped( std::ostream& ostr, test_unit const& tu )
 //____________________________________________________________________________//
 
 void
-xml_log_formatter::log_exception( std::ostream& ostr, log_checkpoint_data const& checkpoint_data, const_string explanation )
+xml_log_formatter::log_exception( std::ostream& ostr, log_checkpoint_data const& checkpoint_data, execution_exception const& ex )
 {
-    ostr << "<Exception>" << pcdata() << explanation;
+    execution_exception::location const& loc = ex.where();
+
+    ostr << "<Exception file" << attr_value() << loc.m_file_name
+         << " line"           << attr_value() << loc.m_line_num;
+
+    if( !loc.m_function.is_empty() )
+        ostr << " function"   << attr_value() << loc.m_function;
+
+    ostr << ">" << cdata() << ex.what();
 
     if( !checkpoint_data.m_file_name.is_empty() ) {
         ostr << "<LastCheckpoint file" << attr_value() << checkpoint_data.m_file_name
              << " line"                << attr_value() << checkpoint_data.m_line_num
              << ">"
-             << pcdata() << checkpoint_data.m_message
+             << cdata() << checkpoint_data.m_message
              << "</LastCheckpoint>";
     }
 
@@ -134,9 +142,9 @@ xml_log_formatter::log_entry_start( std::ostream& ostr, log_entry_data const& en
 
     m_curr_tag = xml_tags[let];
     ostr << '<' << m_curr_tag
-         << " file" << attr_value() << entry_data.m_file_name
-         << " line" << attr_value() << entry_data.m_line_num
-         << ">";
+         << BOOST_TEST_L( " file" ) << attr_value() << entry_data.m_file_name
+         << BOOST_TEST_L( " line" ) << attr_value() << entry_data.m_line_num
+         << BOOST_TEST_L( "><![CDATA[" );
 }
 
 //____________________________________________________________________________//
@@ -144,7 +152,7 @@ xml_log_formatter::log_entry_start( std::ostream& ostr, log_entry_data const& en
 void
 xml_log_formatter::log_entry_value( std::ostream& ostr, const_string value )
 {
-    ostr << pcdata() << value;
+    ostr << value;
 }
 
 //____________________________________________________________________________//
@@ -152,7 +160,7 @@ xml_log_formatter::log_entry_value( std::ostream& ostr, const_string value )
 void
 xml_log_formatter::log_entry_finish( std::ostream& ostr )
 {
-    ostr << "</" << m_curr_tag << ">";
+    ostr << BOOST_TEST_L( "]]></" ) << m_curr_tag << BOOST_TEST_L( ">" );
 
     m_curr_tag.clear();
 }

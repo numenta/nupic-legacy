@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -58,7 +58,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
 {
     typedef typename ContextT::token_type token_type;
     typedef typename token_type::string_type string_type;
-    
+
     using namespace cpplexer;
     if (T_IDENTIFIER == token_id(*it)) {
     // check for pragma wave ...
@@ -85,16 +85,18 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                                 [
                                     spirit_assign_actor(option)
                                 ] 
-                            |   pattern_p(KeywordTokenType, TokenTypeMask)
+                            |   pattern_p(KeywordTokenType, 
+                                    TokenTypeMask|PPTokenFlag)
                                 [
                                     spirit_assign_actor(option)
                                 ] 
                             |   pattern_p(OperatorTokenType|AltExtTokenType, 
-                                    ExtTokenTypeMask)   // and, bit_and etc.
+                                    ExtTokenTypeMask|PPTokenFlag)   // and, bit_and etc.
                                 [
                                     spirit_assign_actor(option)
                                 ] 
-                            |   pattern_p(BoolLiteralTokenType, TokenTypeMask)
+                            |   pattern_p(BoolLiteralTokenType, 
+                                    TokenTypeMask|PPTokenFlag)
                                 [
                                     spirit_assign_actor(option)
                                 ] 
@@ -103,15 +105,16 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                                 ch_p(T_LEFTPAREN),
                                 ch_p(T_RIGHTPAREN)
                             )[spirit_assign_actor(values)],
-                    pattern_p(WhiteSpaceTokenType, TokenTypeMask)).hit)
+                    pattern_p(WhiteSpaceTokenType, TokenTypeMask|PPTokenFlag)).hit)
             {
+                typename ContextT::string_type msg(
+                    impl::as_string<string_type>(it, end));
                 BOOST_WAVE_THROW_CTX(ctx, preprocess_exception, 
                     ill_formed_pragma_option,
-                    impl::as_string<string_type>(it, end).c_str(), 
-                    act_token.get_position());
+                    msg.c_str(), act_token.get_position());
                 return false;
             }
-        
+
         // remove the falsely matched surrounding parenthesis's
             if (values.size() >= 2) {
                 BOOST_ASSERT(T_LEFTPAREN == values.front() && T_RIGHTPAREN == values.back());
@@ -119,7 +122,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                 typename ContainerT::reverse_iterator rit = values.rbegin();
                 values.erase((++rit).base());
             }
-            
+
         // decode the option (call the context_policy hook)
             if (!ctx.get_hooks().interpret_pragma(
                   ctx.derived(), pending, option, values, act_token)) 
@@ -143,7 +146,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
 #if BOOST_WAVE_SUPPORT_PRAGMA_ONCE != 0
         else if ((*it).get_value() == "once") {
         // #pragma once
-            return ctx.add_pragma_once_header(ctx.get_current_filename());
+            return ctx.add_pragma_once_header(act_token, ctx.get_current_filename());
         }
 #endif 
 #if BOOST_WAVE_SUPPORT_PRAGMA_MESSAGE != 0
@@ -151,7 +154,7 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
         // #pragma message(...) or #pragma message ...
             using namespace boost::spirit::classic;
             ContainerT values;
-            
+
             if (!parse (++it, end, 
                             (   (   ch_p(T_LEFTPAREN) 
                                 >>  lexeme_d[
@@ -163,17 +166,18 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
                                     *(anychar_p[spirit_append_actor(values)] - ch_p(T_NEWLINE))
                                 ]
                             ),
-                            pattern_p(WhiteSpaceTokenType, TokenTypeMask)
+                            pattern_p(WhiteSpaceTokenType, TokenTypeMask|PPTokenFlag)
                        ).hit
                )
             {
+                typename ContextT::string_type msg(
+                    impl::as_string<string_type>(it, end));
                 BOOST_WAVE_THROW_CTX(ctx, preprocess_exception, 
                     ill_formed_pragma_message,
-                    impl::as_string<string_type>(it, end).c_str(), 
-                    act_token.get_position());
+                    msg.c_str(), act_token.get_position());
                 return false;
             }
-        
+
         // remove the falsely matched closing parenthesis/newline
             if (values.size() > 0) {
                 BOOST_ASSERT(T_RIGHTPAREN == values.back() || T_NEWLINE == values.back());
@@ -182,9 +186,10 @@ interpret_pragma(ContextT &ctx, typename ContextT::token_type const &act_token,
             }
 
         // output the message itself
+            typename ContextT::string_type msg(impl::as_string(values));
             BOOST_WAVE_THROW_CTX(ctx, preprocess_exception, 
                 pragma_message_directive, 
-                impl::as_string(values).c_str(), act_token.get_position());
+                msg.c_str(), act_token.get_position());
             return false;
         }
 #endif

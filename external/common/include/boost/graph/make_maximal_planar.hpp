@@ -11,7 +11,7 @@
 #include <boost/config.hpp>
 #include <boost/tuple/tuple.hpp>   //for tie
 #include <boost/graph/biconnected_components.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <vector>
 #include <iterator>
 #include <algorithm>
@@ -62,7 +62,7 @@ namespace boost
       degree(degree_vector.begin(), vm)
     {
       vertex_iterator_t vi, vi_end;
-      for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+      for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
         put(degree, *vi, out_degree(*vi, g));
     }
 
@@ -117,7 +117,7 @@ namespace boost
 
       // Mark all of the min degree vertex's neighbors
       adjacency_iterator_t ai, ai_end;
-      for(tie(ai,ai_end) = adjacent_vertices(vertices_on_face.front(),g); 
+      for(boost::tie(ai,ai_end) = adjacent_vertices(vertices_on_face.front(),g); 
           ai != ai_end; ++ai
           )
         {
@@ -130,7 +130,7 @@ namespace boost
       // The iterator manipulations on the next two lines are safe because 
       // vertices_on_face.size() > 3 (from the first test in this function)
       fi_end = prior(vertices_on_face.end());
-      for(face_iterator fi = next(next(vertices_on_face.begin())); 
+      for(face_iterator fi = boost::next(boost::next(vertices_on_face.begin())); 
           fi != fi_end; ++fi
           )
         {
@@ -145,7 +145,7 @@ namespace boost
         {
           add_edge_range(
                          vertices_on_face[0],
-                         next(next(vertices_on_face.begin())),
+                         boost::next(boost::next(vertices_on_face.begin())),
                          prior(vertices_on_face.end())
                          );
         }
@@ -153,13 +153,13 @@ namespace boost
         {
           add_edge_range(
                          vertices_on_face[1],
-                         next(marked_neighbor),
+                         boost::next(marked_neighbor),
                          vertices_on_face.end()
                          );
 
           add_edge_range(
-                         *next(marked_neighbor),
-                         next(next(vertices_on_face.begin())),
+                         *boost::next(marked_neighbor),
+                         boost::next(boost::next(vertices_on_face.begin())),
                          marked_neighbor
                          );
         }

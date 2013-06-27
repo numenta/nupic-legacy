@@ -20,7 +20,7 @@
 #include <boost/accumulators/statistics/median.hpp>
 #include <boost/accumulators/statistics/weighted_p_square_quantile.hpp>
 #include <boost/accumulators/statistics/weighted_density.hpp>
-#include <boost/accumulators/statistics/weighted_p_square_cumulative_distribution.hpp>
+#include <boost/accumulators/statistics/weighted_p_square_cumul_dist.hpp>
 
 namespace boost { namespace accumulators
 {
@@ -206,6 +206,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::median> const weighted_median = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_median)
 }
 
 using extract::weighted_median;

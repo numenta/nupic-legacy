@@ -3,14 +3,15 @@
 
 //  win32_thread_primitives.hpp
 //
-//  (C) Copyright 2005-7 Anthony Williams 
-//  (C) Copyright 2007 David Deakins 
+//  (C) Copyright 2005-7 Anthony Williams
+//  (C) Copyright 2007 David Deakins
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
 //  http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/config.hpp>
+#include <boost/thread/detail/config.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/assert.hpp>
 #include <boost/thread/exceptions.hpp>
 #include <boost/detail/interlocked.hpp>
@@ -30,14 +31,18 @@ namespace boost
             unsigned const infinite=INFINITE;
             unsigned const timeout=WAIT_TIMEOUT;
             handle const invalid_handle_value=INVALID_HANDLE_VALUE;
+            unsigned const event_modify_state=EVENT_MODIFY_STATE;
+            unsigned const synchronize=SYNCHRONIZE;
 
 # ifdef BOOST_NO_ANSI_APIS
             using ::CreateMutexW;
             using ::CreateEventW;
+            using ::OpenEventW;
             using ::CreateSemaphoreW;
 # else
             using ::CreateMutexA;
             using ::CreateEventA;
+            using ::OpenEventA;
             using ::CreateSemaphoreA;
 # endif
             using ::CloseHandle;
@@ -89,7 +94,7 @@ namespace boost
     {
         namespace win32
         {
-            
+
 # ifdef _WIN64
             typedef unsigned __int64 ulong_ptr;
 # else
@@ -99,6 +104,8 @@ namespace boost
             unsigned const infinite=~0U;
             unsigned const timeout=258U;
             handle const invalid_handle_value=(handle)(-1);
+            unsigned const event_modify_state=2;
+            unsigned const synchronize=0x100000u;
 
             extern "C"
             {
@@ -107,10 +114,12 @@ namespace boost
                 __declspec(dllimport) void* __stdcall CreateMutexW(_SECURITY_ATTRIBUTES*,int,wchar_t const*);
                 __declspec(dllimport) void* __stdcall CreateSemaphoreW(_SECURITY_ATTRIBUTES*,long,long,wchar_t const*);
                 __declspec(dllimport) void* __stdcall CreateEventW(_SECURITY_ATTRIBUTES*,int,int,wchar_t const*);
+                __declspec(dllimport) void* __stdcall OpenEventW(unsigned long,int,wchar_t const*);
 # else
                 __declspec(dllimport) void* __stdcall CreateMutexA(_SECURITY_ATTRIBUTES*,int,char const*);
                 __declspec(dllimport) void* __stdcall CreateSemaphoreA(_SECURITY_ATTRIBUTES*,long,long,char const*);
                 __declspec(dllimport) void* __stdcall CreateEventA(_SECURITY_ATTRIBUTES*,int,int,char const*);
+                __declspec(dllimport) void* __stdcall OpenEventA(unsigned long,int,char const*);
 # endif
                 __declspec(dllimport) int __stdcall CloseHandle(void*);
                 __declspec(dllimport) int __stdcall ReleaseMutex(void*);
@@ -161,38 +170,47 @@ namespace boost
                 auto_reset_event=false,
                 manual_reset_event=true
             };
-            
+
             enum initial_event_state
             {
                 event_initially_reset=false,
                 event_initially_set=true
             };
-            
+
             inline handle create_anonymous_event(event_type type,initial_event_state state)
             {
-#if !defined(BOOST_NO_ANSI_APIS)  
+#if !defined(BOOST_NO_ANSI_APIS)
                 handle const res=win32::CreateEventA(0,type,state,0);
 #else
                 handle const res=win32::CreateEventW(0,type,state,0);
-#endif                
+#endif
                 if(!res)
                 {
-                    throw thread_resource_error();
+                    boost::throw_exception(thread_resource_error());
                 }
                 return res;
             }
 
             inline handle create_anonymous_semaphore(long initial_count,long max_count)
             {
-#if !defined(BOOST_NO_ANSI_APIS)  
+#if !defined(BOOST_NO_ANSI_APIS)
                 handle const res=CreateSemaphoreA(0,initial_count,max_count,0);
 #else
                 handle const res=CreateSemaphoreW(0,initial_count,max_count,0);
-#endif               
+#endif
                 if(!res)
                 {
-                    throw thread_resource_error();
+                    boost::throw_exception(thread_resource_error());
                 }
+                return res;
+            }
+            inline handle create_anonymous_semaphore_nothrow(long initial_count,long max_count)
+            {
+#if !defined(BOOST_NO_ANSI_APIS)
+                handle const res=CreateSemaphoreA(0,initial_count,max_count,0);
+#else
+                handle const res=CreateSemaphoreW(0,initial_count,max_count,0);
+#endif
                 return res;
             }
 
@@ -204,7 +222,7 @@ namespace boost
                 bool const success=DuplicateHandle(current_process,source,current_process,&new_handle,0,false,same_access_flag)!=0;
                 if(!success)
                 {
-                    throw thread_resource_error();
+                    boost::throw_exception(thread_resource_error());
                 }
                 return new_handle;
             }
@@ -228,7 +246,7 @@ namespace boost
                         BOOST_VERIFY(CloseHandle(handle_to_manage));
                     }
                 }
-                
+
             public:
                 explicit handle_manager(handle handle_to_manage_):
                     handle_to_manage(handle_to_manage_)
@@ -236,7 +254,7 @@ namespace boost
                 handle_manager():
                     handle_to_manage(0)
                 {}
-                
+
                 handle_manager& operator=(handle new_handle)
                 {
                     cleanup();
@@ -270,13 +288,13 @@ namespace boost
                 {
                     return !handle_to_manage;
                 }
-                
+
                 ~handle_manager()
                 {
                     cleanup();
                 }
             };
-            
+
         }
     }
 }
@@ -309,7 +327,7 @@ namespace boost
             {
                 return _interlockedbittestandreset(x,bit)!=0;
             }
-            
+
         }
     }
 }
@@ -323,24 +341,50 @@ namespace boost
         {
             inline bool interlocked_bit_test_and_set(long* x,long bit)
             {
+#ifndef BOOST_INTEL_CXX_VERSION
                 __asm {
                     mov eax,bit;
                     mov edx,x;
                     lock bts [edx],eax;
                     setc al;
-                };          
+                };
+#else
+                bool ret;
+                __asm {
+                    mov eax,bit
+                    mov edx,x
+                    lock bts [edx],eax
+                    setc al
+                    mov ret, al
+                };
+                return ret;
+
+#endif
             }
 
             inline bool interlocked_bit_test_and_reset(long* x,long bit)
             {
+#ifndef BOOST_INTEL_CXX_VERSION
                 __asm {
                     mov eax,bit;
                     mov edx,x;
                     lock btr [edx],eax;
                     setc al;
-                };          
+                };
+#else
+                bool ret;
+                __asm {
+                    mov eax,bit
+                    mov edx,x
+                    lock btr [edx],eax
+                    setc al
+                    mov ret, al
+                };
+                return ret;
+
+#endif
             }
-            
+
         }
     }
 }

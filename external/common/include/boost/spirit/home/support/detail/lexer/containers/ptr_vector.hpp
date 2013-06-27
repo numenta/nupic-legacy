@@ -1,5 +1,5 @@
 // ptr_vector.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -98,8 +98,8 @@ public:
 private:
     vector _vector;
 
-    ptr_vector (ptr_vector const &); // No copy construction.
-    ptr_vector &operator = (ptr_vector const &); // No assignment.
+    ptr_vector (const ptr_vector &); // No copy construction.
+    ptr_vector &operator = (const ptr_vector &); // No assignment.
 };
 }
 }

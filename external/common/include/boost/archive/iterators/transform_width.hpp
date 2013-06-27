@@ -24,6 +24,8 @@
 // character and 8 bit bytes. Lowest common multiple is 24 => 4 6 bit characters
 // or 3 8 bit characters
 
+#include <algorithm>
+
 #include <boost/config.hpp> // for BOOST_DEDUCED_TYPENAME & PTFO
 #include <boost/serialization/pfto.hpp>
 
@@ -113,7 +115,7 @@ public:
     // make composible buy using templated constructor
     template<class T>
     transform_width(BOOST_PFTO_WRAPPER(T) start) : 
-        super_t(Base(BOOST_MAKE_PFTO_WRAPPER(static_cast<T>(start)))),
+        super_t(Base(BOOST_MAKE_PFTO_WRAPPER(static_cast< T >(start)))),
         m_displacement(0),
         m_full(false),
         m_bufferfull(false)
