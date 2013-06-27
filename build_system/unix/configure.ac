@@ -40,7 +40,7 @@ AC_CANONICAL_SYSTEM
 # nostdinc -- don't include standard -I options
 # subdir-objects -- put objects into subdirs. Without this we get very long .o names
 
-AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman nostdinc subdir-objects])
+AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman subdir-objects])
 
 # Gets lots of stuff off of the command line
 # None of our source code actually uses this header file.
@@ -255,18 +255,6 @@ else
 fi
 
 AM_CONDITIONAL(NTA_PROFILING_ENABLED, test "x$enable_profiling" = "xyes")
-
-#
-# Workaround for possible gcc 4.1.1 compiler bug. 
-# Symptom is a "lowering visibility" warning in ConstraintParser.cpp related to boost
-# Could also be a boost 1.37 bug. 
-gcc_version=`$CXX --version | head -1 | awk '{print $3}'`
-if test "x$gcc_version" = "x4.1.1" -o "x$gcc_version" = "x4.1.2" 
-then
-  echo "Adding -Wno-attributes workaround for gcc 4.1.1"
-  nta_platform_cxxflags="$nta_platform_cxxflags -Wno-attributes"  
-fi
-
 
 
 
