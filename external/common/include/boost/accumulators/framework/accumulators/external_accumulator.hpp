@@ -45,7 +45,7 @@ namespace boost { namespace accumulators { namespace impl
             // No named parameter passed to the extractor. Maybe the external
             // feature is held by reference<>.
             extractor<feature_tag> extract;
-            return extract(reference_tag<Tag>(args));
+            return extract(accumulators::reference_tag<Tag>(args));
         }
 
         template<typename Args, typename AccumulatorSet>

@@ -8,6 +8,10 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+/// \file
+/// \brief base dimensions (mass, length, time...).
+/// \details base dimension definition registration.
+
 #ifndef BOOST_UNITS_BASE_DIMENSION_HPP
 #define BOOST_UNITS_BASE_DIMENSION_HPP
 
@@ -50,7 +54,7 @@ struct check_base_dimension {
 /// to use the same value in multiple definitions.
 template<class Derived,
          long N
-#ifndef BOOST_UNITS_DOXYGEN
+#if !defined(BOOST_UNITS_DOXYGEN) && !defined(__BORLANDC__)
          ,
          class = typename detail::ordinal_has_already_been_defined<
              check_base_dimension<Derived, N>::value
@@ -73,17 +77,27 @@ class base_dimension :
         typedef Derived type;
 
     private:
+        /// Check for C++0x.  In C++0x, we have to have identical
+        /// arguments but a different return type to trigger an
+        /// error.  Note that this is only needed for clang as
+        /// check_base_dimension will trigger an error earlier
+        /// for compilers with less strict name lookup.
+        /// INTERNAL ONLY
+        friend Derived* 
+        check_double_register(const units::base_dimension_ordinal<N>&) 
+        { return(0); }
+
         /// Register this ordinal
         /// INTERNAL ONLY
         friend detail::yes 
         boost_units_is_registered(const units::base_dimension_ordinal<N>&) 
-        { return(detail::yes()); }
+        { detail::yes result; return(result); }
         
         /// But make sure we can identify the current instantiation!
         /// INTERNAL ONLY
         friend detail::yes 
         boost_units_is_registered(const units::base_dimension_pair<Derived, N>&) 
-        { return(detail::yes()); }
+        { detail::yes result; return(result); }
 };
 
 } // namespace units

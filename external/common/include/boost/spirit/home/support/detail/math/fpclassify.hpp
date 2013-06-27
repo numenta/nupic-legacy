@@ -1,7 +1,7 @@
 // fpclassify.hpp
 
-#ifndef BOOST_MATH_FPCLASSIFY_HPP
-#define BOOST_MATH_FPCLASSIFY_HPP
+#ifndef BOOST_SPIRIT_MATH_FPCLASSIFY_HPP
+#define BOOST_SPIRIT_MATH_FPCLASSIFY_HPP
 
 // Copyright (c) 2006 Johan Rade
 
@@ -38,7 +38,11 @@ Some of the functions below have two implementations,
 depending on whether all the mantissa bits are copied or not.
 */
 
-#include <boost/config/no_tr1/cmath.hpp>
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <cmath>
 
 #ifndef FP_INFINITE
 #   define FP_INFINITE 0
@@ -48,9 +52,10 @@ depending on whether all the mantissa bits are copied or not.
 #   define FP_ZERO 4
 #endif
 
-#include "detail/fp_traits.hpp"
+#include <boost/spirit/home/support/detail/math/detail/fp_traits.hpp>
 
 namespace boost {
+namespace spirit {
 namespace math {
     
 //------------------------------------------------------------------------------
@@ -224,6 +229,7 @@ template<class T> int (fpclassify)(T x)
 //------------------------------------------------------------------------------
 
 }   // namespace math
+}   // namespace spirit
 }   // namespace boost
 
 #endif

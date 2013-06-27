@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -15,14 +15,13 @@
 
 #ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN 
+#define WIN32_LEAN_AND_MEAN
 #define BOOST_INTERPROCESS_WIN32_LEAN_AND_MEAN
 #endif   //#ifndef WIN32_LEAN_AND_MEAN
 #endif   //#ifdef _WIN32
 
-//#include <boost/date_time/posix_time/ptime.hpp>
-//#include <boost/date_time/microsec_time_clock.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/posix_time/conversion.hpp>
 
 namespace boost {
 namespace interprocess {

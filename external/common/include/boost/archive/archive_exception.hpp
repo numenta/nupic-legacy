@@ -17,7 +17,22 @@
 //  See http://www.boost.org for updates, documentation, and revision history.
 
 #include <exception>
-#include <cassert>
+#include <boost/assert.hpp>
+#include <string>
+
+#include <boost/config.hpp> 
+#include <boost/preprocessor/empty.hpp>
+#include <boost/archive/detail/decl.hpp>
+
+// note: the only reason this is in here is that windows header
+// includes #define exception_code _exception_code (arrrgghhhh!).
+// the most expedient way to address this is be sure that this
+// header is always included whenever this header file is included.
+#if defined(BOOST_WINDOWS) 
+#include <excpt.h> 
+#endif 
+
+#include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
 namespace boost {
 namespace archive {
@@ -25,7 +40,7 @@ namespace archive {
 //////////////////////////////////////////////////////////////////////
 // exceptions thrown by archives
 //
-class archive_exception : 
+class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) archive_exception : 
     public virtual std::exception
 {
 public:
@@ -39,77 +54,44 @@ public:
         unsupported_version,// archive created with library version
                             // subsequent to this one
         pointer_conflict,   // an attempt has been made to directly
-                            // serialization::detail an object
-                            // after having already serialzed the same
-                            // object through a pointer.  Were this permited,
-                            // it the archive load would result in the
-                            // creation of an extra copy of the obect.
+                            // serialize an object which has
+                            // already been serialzed through a pointer.  
+                            // Were this permited, the archive load would result 
+                            // in the creation of an extra copy of the obect.
         incompatible_native_format, // attempt to read native binary format
                             // on incompatible platform
         array_size_too_short,// array being loaded doesn't fit in array allocated
-        stream_error,       // i/o error on stream
+        input_stream_error, // error on input stream
         invalid_class_name, // class name greater than the maximum permitted.
                             // most likely a corrupted archive or an attempt
                             // to insert virus via buffer overrun method.
-        unregistered_cast   // base - derived relationship not registered with 
+        unregistered_cast,   // base - derived relationship not registered with 
                             // void_cast_register
+        unsupported_class_version, // type saved with a version # greater than the 
+                            // one used by the program.  This indicates that the proggram
+                            // needs to be rebuilt.
+        multiple_code_instantiation, // code for implementing serialization for some
+                            // type has been instantiated in more than one module.
+        output_stream_error // error on input stream
     } exception_code;
-    exception_code code;
-    archive_exception(exception_code c) : 
-        code(c)
-    {}
-    virtual const char *what( ) const throw( )
-    {
-        const char *msg = "programming error";
-        switch(code){
-        case no_exception:
-            msg = "uninitialized exception";
-            break;
-        case unregistered_class:
-            msg = "unregistered class";
-            break;
-        case invalid_signature:
-            msg = "invalid signature";
-            break;
-        case unsupported_version:
-            msg = "unsupported version";
-            break;
-        case pointer_conflict:
-            msg = "pointer conflict";
-            break;
-        case incompatible_native_format:
-            msg = "incompatible native format";
-            break;
-        case array_size_too_short:
-            msg = "array size too short";
-            break;
-        case stream_error:
-            msg = "stream error";
-            break;
-        case invalid_class_name:
-            msg = "class name too long";
-            break;
-        case unregistered_cast:
-            msg = "unregistered void cast";
-            break;
-        case other_exception:
-            // if get here - it indicates a derived exception 
-            // was sliced by passing by value in catch
-            msg = "unknown derived exception";
-            break;
-        default:
-            assert(false);
-            break;
-        }
-        return msg;
-    }
 protected:
-    archive_exception() : 
-         code(no_exception)
-    {}
+    std::string m_msg;
+public:
+    exception_code code;
+    archive_exception(
+        exception_code c, 
+        const char * e1 = NULL,
+        const char * e2 = NULL
+    );
+    ~archive_exception() throw ();
+    virtual const char *what( ) const throw();
+protected:
+    archive_exception();
 };
 
 }// namespace archive
 }// namespace boost
+
+#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 
 #endif //BOOST_ARCHIVE_ARCHIVE_EXCEPTION_HPP

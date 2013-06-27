@@ -83,7 +83,7 @@ template<> struct shared_ptr_traits<void const volatile>
 
 // enable_shared_from_this support
 
-template<class T, class Y> void sp_enable_shared_from_this( shared_count const & pn, enable_shared_from_this<T> const * pe, Y const * px )
+template<class T, class Y> void sp_enable_shared_from_this( shared_count const & pn, enable_shared_from_this< T > const * pe, Y const * px )
 {
     if(pe != 0) pe->_internal_weak_this._internal_assign(const_cast<Y*>(px), pn);
 }
@@ -107,14 +107,14 @@ template<class T> class shared_ptr
 {
 private:
     // Borland 5.5.1 specific workaround
-    typedef shared_ptr<T> this_type;
+    typedef shared_ptr< T > this_type;
 
 public:
 
     typedef T element_type;
     typedef T value_type;
     typedef T * pointer;
-    typedef BOOST_DEDUCED_TYPENAME detail::shared_ptr_traits<T>::reference reference;
+    typedef BOOST_DEDUCED_TYPENAME detail::shared_ptr_traits< T >::reference reference;
 
     shared_ptr(): px(0), pn() // never throws in 1.30+
     {
@@ -309,7 +309,7 @@ public:
         return pn.use_count();
     }
 
-    void swap(shared_ptr<T> & other) // never throws
+    void swap(shared_ptr< T > & other) // never throws
     {
         std::swap(px, other.px);
         pn.swap(other.pn);
@@ -343,12 +343,12 @@ public: // for serialization
 
 };  // shared_ptr
 
-template<class T, class U> inline bool operator==(shared_ptr<T> const & a, shared_ptr<U> const & b)
+template<class T, class U> inline bool operator==(shared_ptr< T > const & a, shared_ptr<U> const & b)
 {
     return a.get() == b.get();
 }
 
-template<class T, class U> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<U> const & b)
+template<class T, class U> inline bool operator!=(shared_ptr< T > const & a, shared_ptr<U> const & b)
 {
     return a.get() != b.get();
 }
@@ -357,64 +357,64 @@ template<class T, class U> inline bool operator!=(shared_ptr<T> const & a, share
 
 // Resolve the ambiguity between our op!= and the one in rel_ops
 
-template<class T> inline bool operator!=(shared_ptr<T> const & a, shared_ptr<T> const & b)
+template<class T> inline bool operator!=(shared_ptr< T > const & a, shared_ptr< T > const & b)
 {
     return a.get() != b.get();
 }
 
 #endif
 
-template<class T, class U> inline bool operator<(shared_ptr<T> const & a, shared_ptr<U> const & b)
+template<class T, class U> inline bool operator<(shared_ptr< T > const & a, shared_ptr<U> const & b)
 {
     return a._internal_less(b);
 }
 
-template<class T> inline void swap(shared_ptr<T> & a, shared_ptr<T> & b)
+template<class T> inline void swap(shared_ptr< T > & a, shared_ptr< T > & b)
 {
     a.swap(b);
 }
 
-template<class T, class U> shared_ptr<T> static_pointer_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > static_pointer_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::static_cast_tag());
+    return shared_ptr< T >(r, detail::static_cast_tag());
 }
 
-template<class T, class U> shared_ptr<T> const_pointer_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > const_pointer_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::const_cast_tag());
+    return shared_ptr< T >(r, detail::const_cast_tag());
 }
 
-template<class T, class U> shared_ptr<T> dynamic_pointer_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > dynamic_pointer_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::dynamic_cast_tag());
+    return shared_ptr< T >(r, detail::dynamic_cast_tag());
 }
 
 // shared_*_cast names are deprecated. Use *_pointer_cast instead.
 
-template<class T, class U> shared_ptr<T> shared_static_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > shared_static_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::static_cast_tag());
+    return shared_ptr< T >(r, detail::static_cast_tag());
 }
 
-template<class T, class U> shared_ptr<T> shared_dynamic_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > shared_dynamic_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::dynamic_cast_tag());
+    return shared_ptr< T >(r, detail::dynamic_cast_tag());
 }
 
-template<class T, class U> shared_ptr<T> shared_polymorphic_cast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > shared_polymorphic_cast(shared_ptr<U> const & r)
 {
-    return shared_ptr<T>(r, detail::polymorphic_cast_tag());
+    return shared_ptr< T >(r, detail::polymorphic_cast_tag());
 }
 
-template<class T, class U> shared_ptr<T> shared_polymorphic_downcast(shared_ptr<U> const & r)
+template<class T, class U> shared_ptr< T > shared_polymorphic_downcast(shared_ptr<U> const & r)
 {
     BOOST_ASSERT(dynamic_cast<T *>(r.get()) == r.get());
-    return shared_static_cast<T>(r);
+    return shared_static_cast< T >(r);
 }
 
 // get_pointer() enables boost::mem_fn to recognize shared_ptr
 
-template<class T> inline T * get_pointer(shared_ptr<T> const & p)
+template<class T> inline T * get_pointer(shared_ptr< T > const & p)
 {
     return p.get();
 }
@@ -452,7 +452,7 @@ template<class E, class T, class Y> std::basic_ostream<E, T> & operator<< (std::
 // g++ 2.9x doesn't allow static_cast<X const *>(void *)
 // apparently EDG 2.38 also doesn't accept it
 
-template<class D, class T> D * get_deleter(shared_ptr<T> const & p)
+template<class D, class T> D * get_deleter(shared_ptr< T > const & p)
 {
     void const * q = p._internal_get_deleter(typeid(D));
     return const_cast<D *>(static_cast<D const *>(q));
@@ -460,7 +460,7 @@ template<class D, class T> D * get_deleter(shared_ptr<T> const & p)
 
 #else
 
-template<class D, class T> D * get_deleter(shared_ptr<T> const & p)
+template<class D, class T> D * get_deleter(shared_ptr< T > const & p)
 {
     return static_cast<D *>(p._internal_get_deleter(typeid(D)));
 }

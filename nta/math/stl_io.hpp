@@ -37,11 +37,7 @@
 #include <iomanip>
 #include <boost/type_traits.hpp>
 
-#ifdef NUPIC2
 #include <nta/types/types.hpp>
-#else
-#include <nta/types/types.hpp>
-#endif
 
 #include <nta/math/array_algo.hpp>
 
@@ -421,6 +417,8 @@ namespace nta {
     }
   };
 
+  // declartion of >> which is used in the following function. Avoid lookup error
+  template <typename T> inline std::istream& operator>>(std::istream& in_stream, std::vector<T>& v);
   //--------------------------------------------------------------------------------
   /**
    * Partial specialization for non-primitive types.
@@ -499,6 +497,8 @@ namespace nta {
     }
   };
 
+  // declartion of << which is used in the following function. Avoid lookup error.
+  template <typename T> inline std::ostream& operator<<(std::ostream& out_stream, const std::vector<T>& v);
   //--------------------------------------------------------------------------------
   /**
    * Partial specialization for non-primitive types.

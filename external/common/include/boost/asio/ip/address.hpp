@@ -1,8 +1,8 @@
 //
-// address.hpp
-// ~~~~~~~~~~~
+// ip/address.hpp
+// ~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,18 +15,17 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <iosfwd>
+#include <boost/asio/detail/config.hpp>
 #include <string>
-#include <boost/throw_exception.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
-#include <boost/asio/error.hpp>
+#include <boost/system/error_code.hpp>
 #include <boost/asio/ip/address_v4.hpp>
 #include <boost/asio/ip/address_v6.hpp>
-#include <boost/asio/detail/throw_error.hpp>
+
+#if !defined(BOOST_NO_IOSTREAM)
+# include <iosfwd>
+#endif // !defined(BOOST_NO_IOSTREAM)
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -45,63 +44,37 @@ class address
 {
 public:
   /// Default constructor.
-  address()
-    : type_(ipv4),
-      ipv4_address_(),
-      ipv6_address_()
-  {
-  }
+  BOOST_ASIO_DECL address();
 
   /// Construct an address from an IPv4 address.
-  address(const boost::asio::ip::address_v4& ipv4_address)
-    : type_(ipv4),
-      ipv4_address_(ipv4_address),
-      ipv6_address_()
-  {
-  }
+  BOOST_ASIO_DECL address(const boost::asio::ip::address_v4& ipv4_address);
 
   /// Construct an address from an IPv6 address.
-  address(const boost::asio::ip::address_v6& ipv6_address)
-    : type_(ipv6),
-      ipv4_address_(),
-      ipv6_address_(ipv6_address)
-  {
-  }
+  BOOST_ASIO_DECL address(const boost::asio::ip::address_v6& ipv6_address);
 
   /// Copy constructor.
-  address(const address& other)
-    : type_(other.type_),
-      ipv4_address_(other.ipv4_address_),
-      ipv6_address_(other.ipv6_address_)
-  {
-  }
+  BOOST_ASIO_DECL address(const address& other);
+
+#if defined(BOOST_ASIO_HAS_MOVE)
+  /// Move constructor.
+  BOOST_ASIO_DECL address(address&& other);
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
   /// Assign from another address.
-  address& operator=(const address& other)
-  {
-    type_ = other.type_;
-    ipv4_address_ = other.ipv4_address_;
-    ipv6_address_ = other.ipv6_address_;
-    return *this;
-  }
+  BOOST_ASIO_DECL address& operator=(const address& other);
+
+#if defined(BOOST_ASIO_HAS_MOVE)
+  /// Move-assign from another address.
+  BOOST_ASIO_DECL address& operator=(address&& other);
+#endif // defined(BOOST_ASIO_HAS_MOVE)
 
   /// Assign from an IPv4 address.
-  address& operator=(const boost::asio::ip::address_v4& ipv4_address)
-  {
-    type_ = ipv4;
-    ipv4_address_ = ipv4_address;
-    ipv6_address_ = boost::asio::ip::address_v6();
-    return *this;
-  }
+  BOOST_ASIO_DECL address& operator=(
+      const boost::asio::ip::address_v4& ipv4_address);
 
   /// Assign from an IPv6 address.
-  address& operator=(const boost::asio::ip::address_v6& ipv6_address)
-  {
-    type_ = ipv6;
-    ipv4_address_ = boost::asio::ip::address_v4();
-    ipv6_address_ = ipv6_address;
-    return *this;
-  }
+  BOOST_ASIO_DECL address& operator=(
+      const boost::asio::ip::address_v6& ipv6_address);
 
   /// Get whether the address is an IP version 4 address.
   bool is_v4() const
@@ -116,127 +89,72 @@ public:
   }
 
   /// Get the address as an IP version 4 address.
-  boost::asio::ip::address_v4 to_v4() const
-  {
-    if (type_ != ipv4)
-    {
-      boost::system::system_error e(
-          boost::asio::error::address_family_not_supported);
-      boost::throw_exception(e);
-    }
-    return ipv4_address_;
-  }
+  BOOST_ASIO_DECL boost::asio::ip::address_v4 to_v4() const;
 
   /// Get the address as an IP version 6 address.
-  boost::asio::ip::address_v6 to_v6() const
-  {
-    if (type_ != ipv6)
-    {
-      boost::system::system_error e(
-          boost::asio::error::address_family_not_supported);
-      boost::throw_exception(e);
-    }
-    return ipv6_address_;
-  }
+  BOOST_ASIO_DECL boost::asio::ip::address_v6 to_v6() const;
 
   /// Get the address as a string in dotted decimal format.
-  std::string to_string() const
-  {
-    if (type_ == ipv6)
-      return ipv6_address_.to_string();
-    return ipv4_address_.to_string();
-  }
+  BOOST_ASIO_DECL std::string to_string() const;
 
   /// Get the address as a string in dotted decimal format.
-  std::string to_string(boost::system::error_code& ec) const
-  {
-    if (type_ == ipv6)
-      return ipv6_address_.to_string(ec);
-    return ipv4_address_.to_string(ec);
-  }
+  BOOST_ASIO_DECL std::string to_string(boost::system::error_code& ec) const;
 
   /// Create an address from an IPv4 address string in dotted decimal form,
   /// or from an IPv6 address in hexadecimal notation.
-  static address from_string(const char* str)
-  {
-    boost::system::error_code ec;
-    address addr = from_string(str, ec);
-    boost::asio::detail::throw_error(ec);
-    return addr;
-  }
+  BOOST_ASIO_DECL static address from_string(const char* str);
 
   /// Create an address from an IPv4 address string in dotted decimal form,
   /// or from an IPv6 address in hexadecimal notation.
-  static address from_string(const char* str, boost::system::error_code& ec)
-  {
-    boost::asio::ip::address_v6 ipv6_address =
-      boost::asio::ip::address_v6::from_string(str, ec);
-    if (!ec)
-    {
-      address tmp;
-      tmp.type_ = ipv6;
-      tmp.ipv6_address_ = ipv6_address;
-      return tmp;
-    }
-
-    boost::asio::ip::address_v4 ipv4_address =
-      boost::asio::ip::address_v4::from_string(str, ec);
-    if (!ec)
-    {
-      address tmp;
-      tmp.type_ = ipv4;
-      tmp.ipv4_address_ = ipv4_address;
-      return tmp;
-    }
-
-    return address();
-  }
+  BOOST_ASIO_DECL static address from_string(
+      const char* str, boost::system::error_code& ec);
 
   /// Create an address from an IPv4 address string in dotted decimal form,
   /// or from an IPv6 address in hexadecimal notation.
-  static address from_string(const std::string& str)
-  {
-    return from_string(str.c_str());
-  }
+  BOOST_ASIO_DECL static address from_string(const std::string& str);
 
   /// Create an address from an IPv4 address string in dotted decimal form,
   /// or from an IPv6 address in hexadecimal notation.
-  static address from_string(const std::string& str,
-      boost::system::error_code& ec)
-  {
-    return from_string(str.c_str(), ec);
-  }
+  BOOST_ASIO_DECL static address from_string(
+      const std::string& str, boost::system::error_code& ec);
+
+  /// Determine whether the address is a loopback address.
+  BOOST_ASIO_DECL bool is_loopback() const;
+
+  /// Determine whether the address is unspecified.
+  BOOST_ASIO_DECL bool is_unspecified() const;
+
+  /// Determine whether the address is a multicast address.
+  BOOST_ASIO_DECL bool is_multicast() const;
 
   /// Compare two addresses for equality.
-  friend bool operator==(const address& a1, const address& a2)
-  {
-    if (a1.type_ != a2.type_)
-      return false;
-    if (a1.type_ == ipv6)
-      return a1.ipv6_address_ == a2.ipv6_address_;
-    return a1.ipv4_address_ == a2.ipv4_address_;
-  }
+  BOOST_ASIO_DECL friend bool operator==(const address& a1, const address& a2);
 
   /// Compare two addresses for inequality.
   friend bool operator!=(const address& a1, const address& a2)
   {
-    if (a1.type_ != a2.type_)
-      return true;
-    if (a1.type_ == ipv6)
-      return a1.ipv6_address_ != a2.ipv6_address_;
-    return a1.ipv4_address_ != a2.ipv4_address_;
+    return !(a1 == a2);
   }
 
   /// Compare addresses for ordering.
-  friend bool operator<(const address& a1, const address& a2)
+  BOOST_ASIO_DECL friend bool operator<(const address& a1, const address& a2);
+
+  /// Compare addresses for ordering.
+  friend bool operator>(const address& a1, const address& a2)
   {
-    if (a1.type_ < a2.type_)
-      return true;
-    if (a1.type_ > a2.type_)
-      return false;
-    if (a1.type_ == ipv6)
-      return a1.ipv6_address_ < a2.ipv6_address_;
-    return a1.ipv4_address_ < a2.ipv4_address_;
+    return a2 < a1;
+  }
+
+  /// Compare addresses for ordering.
+  friend bool operator<=(const address& a1, const address& a2)
+  {
+    return !(a2 < a1);
+  }
+
+  /// Compare addresses for ordering.
+  friend bool operator>=(const address& a1, const address& a2)
+  {
+    return !(a1 < a2);
   }
 
 private:
@@ -249,6 +167,8 @@ private:
   // The underlying IPv6 address.
   boost::asio::ip::address_v6 ipv6_address_;
 };
+
+#if !defined(BOOST_NO_IOSTREAM)
 
 /// Output an address as a string.
 /**
@@ -264,16 +184,19 @@ private:
  */
 template <typename Elem, typename Traits>
 std::basic_ostream<Elem, Traits>& operator<<(
-    std::basic_ostream<Elem, Traits>& os, const address& addr)
-{
-  os << addr.to_string();
-  return os;
-}
+    std::basic_ostream<Elem, Traits>& os, const address& addr);
+
+#endif // !defined(BOOST_NO_IOSTREAM)
 
 } // namespace ip
 } // namespace asio
 } // namespace boost
 
 #include <boost/asio/detail/pop_options.hpp>
+
+#include <boost/asio/ip/impl/address.hpp>
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/ip/impl/address.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
 
 #endif // BOOST_ASIO_IP_ADDRESS_HPP

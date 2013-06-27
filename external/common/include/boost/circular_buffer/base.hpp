@@ -20,6 +20,7 @@
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/type_traits/is_stateless.hpp>
 #include <boost/type_traits/is_integral.hpp>
+#include <boost/type_traits/is_scalar.hpp>
 #include <algorithm>
 #include <utility>
 #include <deque>
@@ -31,6 +32,12 @@
 #endif
 #if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
     #include <stddef.h>
+#endif
+
+#if defined(BOOST_NO_STDC_NAMESPACE)
+namespace std {
+    using ::memset;
+}
 #endif
 
 namespace boost {
@@ -393,7 +400,7 @@ public:
              Does not invalidate any iterators.
         \par Complexity
              Constant (in the size of the <code>circular_buffer</code>).
-        \sa <code>operator[]</code>
+        \sa <code>\link operator[](size_type) operator[] \endlink</code>
     */
     reference at(size_type index) {
         check_position(index);
@@ -709,7 +716,7 @@ public:
              iterators pointing to the first <code>n</code> elements; does not invalidate any iterators if the
              <code>circular_buffer</code> is full.
         \par Complexity
-             Linear (in <code>std::min(m, n)</code>); constant if the <code>circular_buffer</code> is full.
+             Linear (in <code>(std::min)(m, n)</code>); constant if the <code>circular_buffer</code> is full.
         \sa <code><a href="http://www.sgi.com/tech/stl/rotate.html">std::rotate</a></code>
     */
     void rotate(const_iterator new_begin) {
@@ -998,17 +1005,17 @@ public:
 
     //! Create an empty <code>circular_buffer</code> with the specified capacity.
     /*!
-        \post <code>capacity() == capacity \&\& size() == 0</code>
-        \param capacity The maximum number of elements which can be stored in the <code>circular_buffer</code>.
+        \post <code>capacity() == buffer_capacity \&\& size() == 0</code>
+        \param buffer_capacity The maximum number of elements which can be stored in the <code>circular_buffer</code>.
         \param alloc The allocator.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
         \par Complexity
              Constant.
     */
-    explicit circular_buffer(capacity_type capacity, const allocator_type& alloc = allocator_type())
+    explicit circular_buffer(capacity_type buffer_capacity, const allocator_type& alloc = allocator_type())
     : m_size(0), m_alloc(alloc) {
-        initialize_buffer(capacity);
+        initialize_buffer(buffer_capacity);
         m_first = m_last = m_buff;
     }
 
@@ -1033,10 +1040,10 @@ public:
 
     /*! \brief Create a <code>circular_buffer</code> with the specified capacity and filled with <code>n</code>
                copies of <code>item</code>.
-        \pre <code>capacity >= n</code>
-        \post <code>capacity() == capacity \&\& size() == n \&\& (*this)[0] == item \&\& (*this)[1] == item \&\& ...
-              \&\& (*this)[n - 1] == item</code>
-        \param capacity The capacity of the created <code>circular_buffer</code>.
+        \pre <code>buffer_capacity >= n</code>
+        \post <code>capacity() == buffer_capacity \&\& size() == n \&\& (*this)[0] == item \&\& (*this)[1] == item
+              \&\& ... \&\& (*this)[n - 1] == item</code>
+        \param buffer_capacity The capacity of the created <code>circular_buffer</code>.
         \param n The number of elements the created <code>circular_buffer</code> will be filled with.
         \param item The element the created <code>circular_buffer</code> will be filled with.
         \param alloc The allocator.
@@ -1046,13 +1053,13 @@ public:
         \par Complexity
              Linear (in the <code>n</code>).
     */
-    circular_buffer(capacity_type capacity, size_type n, param_value_type item,
+    circular_buffer(capacity_type buffer_capacity, size_type n, param_value_type item,
         const allocator_type& alloc = allocator_type())
     : m_size(n), m_alloc(alloc) {
-        BOOST_CB_ASSERT(capacity >= size()); // check for capacity lower than size
-        initialize_buffer(capacity, item);
+        BOOST_CB_ASSERT(buffer_capacity >= size()); // check for capacity lower than size
+        initialize_buffer(buffer_capacity, item);
         m_first = m_buff;
-        m_last = capacity == n ? m_buff : m_buff + n;
+        m_last = buffer_capacity == n ? m_buff : m_buff + n;
     }
 
     //! The copy constructor.
@@ -1067,7 +1074,11 @@ public:
              Linear (in the size of <code>cb</code>).
     */
     circular_buffer(const circular_buffer<T, Alloc>& cb)
-    : m_size(cb.size()), m_alloc(cb.get_allocator()) {
+    :
+#if BOOST_CB_ENABLE_DEBUG
+    debug_iterator_registry(),
+#endif
+    m_size(cb.size()), m_alloc(cb.get_allocator()) {
         initialize_buffer(cb.capacity());
         m_first = m_buff;
         BOOST_TRY {
@@ -1126,13 +1137,13 @@ public:
         \pre Valid range <code>[first, last)</code>.<br>
              <code>first</code> and <code>last</code> have to meet the requirements of
              <a href="http://www.sgi.com/tech/stl/InputIterator.html">InputIterator</a>.
-        \post <code>capacity() == capacity \&\& size() \<= std::distance(first, last) \&\&
-             (*this)[0]== *(last - capacity) \&\& (*this)[1] == *(last - capacity + 1) \&\& ... \&\&
-             (*this)[capacity - 1] == *(last - 1)</code><br><br>
+        \post <code>capacity() == buffer_capacity \&\& size() \<= std::distance(first, last) \&\&
+             (*this)[0]== *(last - buffer_capacity) \&\& (*this)[1] == *(last - buffer_capacity + 1) \&\& ... \&\&
+             (*this)[buffer_capacity - 1] == *(last - 1)</code><br><br>
              If the number of items to be copied from the range <code>[first, last)</code> is greater than the
-             specified <code>capacity</code> then only elements from the range <code>[last - capacity, last)</code>
-             will be copied.
-        \param capacity The capacity of the created <code>circular_buffer</code>.
+             specified <code>buffer_capacity</code> then only elements from the range
+             <code>[last - buffer_capacity, last)</code> will be copied.
+        \param buffer_capacity The capacity of the created <code>circular_buffer</code>.
         \param first The beginning of the range to be copied.
         \param last The end of the range to be copied.
         \param alloc The allocator.
@@ -1145,10 +1156,10 @@ public:
              <a href="http://www.sgi.com/tech/stl/RandomAccessIterator.html">RandomAccessIterator</a>).
     */
     template <class InputIterator>
-    circular_buffer(capacity_type capacity, InputIterator first, InputIterator last,
+    circular_buffer(capacity_type buffer_capacity, InputIterator first, InputIterator last,
         const allocator_type& alloc = allocator_type())
     : m_alloc(alloc) {
-        initialize(capacity, first, last, is_integral<InputIterator>());
+        initialize(buffer_capacity, first, last, is_integral<InputIterator>());
     }
 
 #endif // #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
@@ -1161,7 +1172,7 @@ public:
              Invalidates all iterators pointing to the <code>circular_buffer</code> (including iterators equal to
              <code>end()</code>).
         \par Complexity
-             Linear (in the size of the <code>circular_buffer</code>).
+             Constant (in the size of the <code>circular_buffer</code>) for scalar types; linear for other types.
         \sa <code>clear()</code>
     */
     ~circular_buffer() {
@@ -1227,7 +1238,8 @@ public:
              <code>end()</code>).
         \par Complexity
              Linear (in the <code>n</code>).
-        \sa <code>operator=</code>, <code>\link assign(capacity_type, size_type, param_value_type)
+        \sa <code>\link operator=(const circular_buffer&) operator=\endlink</code>,
+            <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(InputIterator, InputIterator)</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
@@ -1241,9 +1253,9 @@ public:
         The capacity of the <code>circular_buffer</code> will be set to the specified value and the content of the
         <code>circular_buffer</code> will be removed and replaced with <code>n</code> copies of the <code>item</code>.
         \pre <code>capacity >= n</code>
-        \post <code>capacity() == capacity \&\& size() == n \&\& (*this)[0] == item \&\& (*this)[1] == item
+        \post <code>capacity() == buffer_capacity \&\& size() == n \&\& (*this)[0] == item \&\& (*this)[1] == item
               \&\& ... \&\& (*this) [n - 1] == item </code>
-        \param capacity The new capacity.
+        \param buffer_capacity The new capacity.
         \param n The number of elements the <code>circular_buffer</code> will be filled with.
         \param item The element the <code>circular_buffer</code> will be filled with.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
@@ -1256,13 +1268,14 @@ public:
              <code>end()</code>).
         \par Complexity
              Linear (in the <code>n</code>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>, <code>assign(InputIterator, InputIterator)</code>,
+        \sa <code>\link operator=(const circular_buffer&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
+            <code>assign(InputIterator, InputIterator)</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
     */
-    void assign(capacity_type capacity, size_type n, param_value_type item) {
-        BOOST_CB_ASSERT(capacity >= n); // check for new capacity lower than n
-        assign_n(capacity, n, cb_details::assign_n<param_value_type, allocator_type>(n, item, m_alloc));
+    void assign(capacity_type buffer_capacity, size_type n, param_value_type item) {
+        BOOST_CB_ASSERT(buffer_capacity >= n); // check for new capacity lower than n
+        assign_n(buffer_capacity, n, cb_details::assign_n<param_value_type, allocator_type>(n, item, m_alloc));
     }
 
     //! Assign a copy of the range into the <code>circular_buffer</code>.
@@ -1287,8 +1300,8 @@ public:
              <code>end()</code>).
         \par Complexity
              Linear (in the <code>std::distance(first, last)</code>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>,
+        \sa <code>\link operator=(const circular_buffer&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
             <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(capacity_type, InputIterator, InputIterator)</code>
@@ -1305,13 +1318,13 @@ public:
         \pre Valid range <code>[first, last)</code>.<br>
              <code>first</code> and <code>last</code> have to meet the requirements of
              <a href="http://www.sgi.com/tech/stl/InputIterator.html">InputIterator</a>.
-        \post <code>capacity() == capacity \&\& size() \<= std::distance(first, last) \&\&
-             (*this)[0]== *(last - capacity) \&\& (*this)[1] == *(last - capacity + 1) \&\& ... \&\&
-             (*this)[capacity - 1] == *(last - 1)</code><br><br>
+        \post <code>capacity() == buffer_capacity \&\& size() \<= std::distance(first, last) \&\&
+             (*this)[0]== *(last - buffer_capacity) \&\& (*this)[1] == *(last - buffer_capacity + 1) \&\& ... \&\&
+             (*this)[buffer_capacity - 1] == *(last - 1)</code><br><br>
              If the number of items to be copied from the range <code>[first, last)</code> is greater than the
-             specified <code>capacity</code> then only elements from the range <code>[last - capacity, last)</code>
-             will be copied.
-        \param capacity The new capacity.
+             specified <code>buffer_capacity</code> then only elements from the range
+             <code>[last - buffer_capacity, last)</code> will be copied.
+        \param buffer_capacity The new capacity.
         \param first The beginning of the range to be copied.
         \param last The end of the range to be copied.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
@@ -1326,15 +1339,15 @@ public:
              Linear (in <code>std::distance(first, last)</code>; in
              <code>min[capacity, std::distance(first, last)]</code> if the <code>InputIterator</code> is a
              <a href="http://www.sgi.com/tech/stl/RandomAccessIterator.html">RandomAccessIterator</a>).
-        \sa <code>operator=</code>, <code>\link assign(size_type, param_value_type)
-            assign(size_type, const_reference)\endlink</code>,
+        \sa <code>\link operator=(const circular_buffer&) operator=\endlink</code>,
+            <code>\link assign(size_type, param_value_type) assign(size_type, const_reference)\endlink</code>,
             <code>\link assign(capacity_type, size_type, param_value_type)
             assign(capacity_type, size_type, const_reference)\endlink</code>,
             <code>assign(InputIterator, InputIterator)</code>
     */
     template <class InputIterator>
-    void assign(capacity_type capacity, InputIterator first, InputIterator last) {
-        assign(capacity, first, last, is_integral<InputIterator>());
+    void assign(capacity_type buffer_capacity, InputIterator first, InputIterator last) {
+        assign(buffer_capacity, first, last, is_integral<InputIterator>());
     }
 
     //! Swap the contents of two <code>circular_buffer</code>s.
@@ -1801,7 +1814,8 @@ public:
         \par Complexity
              Linear (in <code>std::distance(pos, end())</code>).
         \sa <code>erase(iterator, iterator)</code>, <code>rerase(iterator)</code>,
-            <code>rerase(iterator, iterator)</code>, <code>clear()</code>
+            <code>rerase(iterator, iterator)</code>, <code>erase_begin(size_type)</code>,
+            <code>erase_end(size_type)</code>, <code>clear()</code>
     */
     iterator erase(iterator pos) {
         BOOST_CB_ASSERT(pos.is_valid(this)); // check for uninitialized or invalidated iterator
@@ -1838,7 +1852,7 @@ public:
         \par Complexity
              Linear (in <code>std::distance(first, end())</code>).
         \sa <code>erase(iterator)</code>, <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>,
-            <code>clear()</code>
+            <code>erase_begin(size_type)</code>, <code>erase_end(size_type)</code>, <code>clear()</code>
     */
     iterator erase(iterator first, iterator last) {
         BOOST_CB_ASSERT(first.is_valid(this)); // check for uninitialized or invalidated iterator
@@ -1877,7 +1891,8 @@ public:
               <code>erase(iterator)</code> if the iterator <code>pos</code> is close to the beginning of the
               <code>circular_buffer</code>. (See the <i>Complexity</i>.)
         \sa <code>erase(iterator)</code>, <code>erase(iterator, iterator)</code>,
-            <code>rerase(iterator, iterator)</code>, <code>clear()</code>
+            <code>rerase(iterator, iterator)</code>, <code>erase_begin(size_type)</code>,
+            <code>erase_end(size_type)</code>, <code>clear()</code>
     */
     iterator rerase(iterator pos) {
         BOOST_CB_ASSERT(pos.is_valid(this)); // check for uninitialized or invalidated iterator
@@ -1917,7 +1932,7 @@ public:
               <code>erase(iterator, iterator)</code> if <code>std::distance(begin(), first)</code> is lower that
               <code>std::distance(last, end())</code>.
         \sa <code>erase(iterator)</code>, <code>erase(iterator, iterator)</code>, <code>rerase(iterator)</code>,
-            <code>clear()</code>
+            <code>erase_begin(size_type)</code>, <code>erase_end(size_type)</code>, <code>clear()</code>
     */
     iterator rerase(iterator first, iterator last) {
         BOOST_CB_ASSERT(first.is_valid(this)); // check for uninitialized or invalidated iterator
@@ -1943,6 +1958,70 @@ public:
         return iterator(this, last.m_it);
     }
 
+    //! Remove first <code>n</code> elements (with constant complexity for scalar types).
+    /*!
+        \pre <code>n \<= size()</code>
+        \post The <code>n</code> elements at the beginning of the <code>circular_buffer</code> will be removed.
+        \param n The number of elements to be removed.
+        \throws Whatever <code>T::operator = (const T&)</code> throws. (Does not throw anything in case of scalars.)
+        \par Exception Safety
+             Basic; no-throw if the operation in the <i>Throws</i> section does not throw anything. (I.e. no throw in
+             case of scalars.)
+        \par Iterator Invalidation
+             Invalidates iterators pointing to the first <code>n</code> erased elements.
+        \par Complexity
+             Constant (in <code>n</code>) for scalar types; linear for other types.
+        \note This method has been specially designed for types which do not require an explicit destructruction (e.g.
+              integer, float or a pointer). For these scalar types a call to a destructor is not required which makes
+              it possible to implement the "erase from beginning" operation with a constant complexity. For non-sacalar
+              types the complexity is linear (hence the explicit destruction is needed) and the implementation is
+              actually equivalent to
+              <code>\link circular_buffer::rerase(iterator, iterator) rerase(begin(), begin() + n)\endlink</code>.
+        \sa <code>erase(iterator)</code>, <code>erase(iterator, iterator)</code>,
+            <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>,
+            <code>erase_end(size_type)</code>, <code>clear()</code>
+    */
+    void erase_begin(size_type n) {
+        BOOST_CB_ASSERT(n <= size()); // check for n greater than size
+#if BOOST_CB_ENABLE_DEBUG
+        erase_begin(n, false_type());
+#else
+        erase_begin(n, is_scalar<value_type>());
+#endif
+    }
+
+    //! Remove last <code>n</code> elements (with constant complexity for scalar types).
+    /*!
+        \pre <code>n \<= size()</code>
+        \post The <code>n</code> elements at the end of the <code>circular_buffer</code> will be removed.
+        \param n The number of elements to be removed.
+        \throws Whatever <code>T::operator = (const T&)</code> throws. (Does not throw anything in case of scalars.)
+        \par Exception Safety
+             Basic; no-throw if the operation in the <i>Throws</i> section does not throw anything. (I.e. no throw in
+             case of scalars.)
+        \par Iterator Invalidation
+             Invalidates iterators pointing to the last <code>n</code> erased elements.
+        \par Complexity
+             Constant (in <code>n</code>) for scalar types; linear for other types.
+        \note This method has been specially designed for types which do not require an explicit destructruction (e.g.
+              integer, float or a pointer). For these scalar types a call to a destructor is not required which makes
+              it possible to implement the "erase from end" operation with a constant complexity. For non-sacalar
+              types the complexity is linear (hence the explicit destruction is needed) and the implementation is
+              actually equivalent to
+              <code>\link circular_buffer::erase(iterator, iterator) erase(end() - n, end())\endlink</code>.
+        \sa <code>erase(iterator)</code>, <code>erase(iterator, iterator)</code>,
+            <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>,
+            <code>erase_begin(size_type)</code>, <code>clear()</code>
+    */
+    void erase_end(size_type n) {
+        BOOST_CB_ASSERT(n <= size()); // check for n greater than size
+#if BOOST_CB_ENABLE_DEBUG
+        erase_end(n, false_type());
+#else
+        erase_end(n, is_scalar<value_type>());
+#endif
+    }
+
     //! Remove all stored elements from the <code>circular_buffer</code>.
     /*!
         \post <code>size() == 0</code>
@@ -1953,9 +2032,10 @@ public:
              Invalidates all iterators pointing to the <code>circular_buffer</code> (except iterators equal to
              <code>end()</code>).
         \par Complexity
-             Linear (in the size of the <code>circular_buffer</code>).
+             Constant (in the size of the <code>circular_buffer</code>) for scalar types; linear for other types.
         \sa <code>~circular_buffer()</code>, <code>erase(iterator)</code>, <code>erase(iterator, iterator)</code>,
-            <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>
+            <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>,
+            <code>erase_begin(size_type)</code>, <code>erase_end(size_type)</code>
     */
     void clear() {
         destroy_content();
@@ -2007,7 +2087,7 @@ private:
             throw_exception(std::length_error("circular_buffer"));
 #if BOOST_CB_ENABLE_DEBUG
         pointer p = (n == 0) ? 0 : m_alloc.allocate(n, 0);
-        ::memset(p, cb_details::UNINITIALIZED, sizeof(value_type) * n);
+        std::memset(p, cb_details::UNINITIALIZED, sizeof(value_type) * n);
         return p;
 #else
         return (n == 0) ? 0 : m_alloc.allocate(n, 0);
@@ -2050,7 +2130,7 @@ private:
         m_alloc.destroy(p);
 #if BOOST_CB_ENABLE_DEBUG
         invalidate_iterators(iterator(this, p));
-        ::memset(p, cb_details::UNINITIALIZED, sizeof(value_type));
+        std::memset(p, cb_details::UNINITIALIZED, sizeof(value_type));
 #endif
     }
 
@@ -2062,6 +2142,20 @@ private:
 
     //! Destroy the whole content of the circular buffer.
     void destroy_content() {
+#if BOOST_CB_ENABLE_DEBUG
+        destroy_content(false_type());
+#else
+        destroy_content(is_scalar<value_type>());
+#endif
+    }
+
+    //! Specialized destroy_content method.
+    void destroy_content(const true_type&) {
+        m_first = add(m_first, size());
+    }
+
+    //! Specialized destroy_content method.
+    void destroy_content(const false_type&) {
         for (size_type ii = 0; ii < size(); ++ii, increment(m_first))
             destroy_item(m_first);
     }
@@ -2079,14 +2173,14 @@ private:
     }
 
     //! Initialize the internal buffer.
-    void initialize_buffer(capacity_type capacity) {
-        m_buff = allocate(capacity);
-        m_end = m_buff + capacity;
+    void initialize_buffer(capacity_type buffer_capacity) {
+        m_buff = allocate(buffer_capacity);
+        m_end = m_buff + buffer_capacity;
     }
 
     //! Initialize the internal buffer.
-    void initialize_buffer(capacity_type capacity, param_value_type item) {
-        initialize_buffer(capacity);
+    void initialize_buffer(capacity_type buffer_capacity, param_value_type item) {
+        initialize_buffer(buffer_capacity);
         BOOST_TRY {
             cb_details::uninitialized_fill_n_with_alloc(m_buff, size(), item, m_alloc);
         } BOOST_CATCH(...) {
@@ -2135,35 +2229,35 @@ private:
 
     //! Specialized initialize method.
     template <class IntegralType>
-    void initialize(capacity_type capacity, IntegralType n, IntegralType item, const true_type&) {
-        BOOST_CB_ASSERT(capacity >= static_cast<size_type>(n)); // check for capacity lower than n
+    void initialize(capacity_type buffer_capacity, IntegralType n, IntegralType item, const true_type&) {
+        BOOST_CB_ASSERT(buffer_capacity >= static_cast<size_type>(n)); // check for capacity lower than n
         m_size = static_cast<size_type>(n);
-        initialize_buffer(capacity, item);
+        initialize_buffer(buffer_capacity, item);
         m_first = m_buff;
-        m_last = capacity == size() ? m_buff : m_buff + size();
+        m_last = buffer_capacity == size() ? m_buff : m_buff + size();
     }
 
     //! Specialized initialize method.
     template <class Iterator>
-    void initialize(capacity_type capacity, Iterator first, Iterator last, const false_type&) {
+    void initialize(capacity_type buffer_capacity, Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        initialize(capacity, first, last, BOOST_ITERATOR_CATEGORY<Iterator>::type());
+        initialize(buffer_capacity, first, last, BOOST_ITERATOR_CATEGORY<Iterator>::type());
 #else
-        initialize(capacity, first, last, BOOST_DEDUCED_TYPENAME BOOST_ITERATOR_CATEGORY<Iterator>::type());
+        initialize(buffer_capacity, first, last, BOOST_DEDUCED_TYPENAME BOOST_ITERATOR_CATEGORY<Iterator>::type());
 #endif
     }
 
     //! Specialized initialize method.
     template <class InputIterator>
-    void initialize(capacity_type capacity,
+    void initialize(capacity_type buffer_capacity,
         InputIterator first,
         InputIterator last,
         const std::input_iterator_tag&) {
-        initialize_buffer(capacity);
+        initialize_buffer(buffer_capacity);
         m_first = m_last = m_buff;
         m_size = 0;
-        if (capacity == 0)
+        if (buffer_capacity == 0)
             return;
         while (first != last && !full()) {
             m_alloc.construct(m_last, *first++);
@@ -2179,32 +2273,32 @@ private:
 
     //! Specialized initialize method.
     template <class ForwardIterator>
-    void initialize(capacity_type capacity,
+    void initialize(capacity_type buffer_capacity,
         ForwardIterator first,
         ForwardIterator last,
         const std::forward_iterator_tag&) {
         BOOST_CB_ASSERT(std::distance(first, last) >= 0); // check for wrong range
-        initialize(capacity, first, last, std::distance(first, last));
+        initialize(buffer_capacity, first, last, std::distance(first, last));
     }
 
     //! Initialize the circular buffer.
     template <class ForwardIterator>
-    void initialize(capacity_type capacity,
+    void initialize(capacity_type buffer_capacity,
         ForwardIterator first,
         ForwardIterator last,
         size_type distance) {
-        initialize_buffer(capacity);
+        initialize_buffer(buffer_capacity);
         m_first = m_buff;
-        if (distance > capacity) {
-            std::advance(first, distance - capacity);
-            m_size = capacity;
+        if (distance > buffer_capacity) {
+            std::advance(first, distance - buffer_capacity);
+            m_size = buffer_capacity;
         } else {
             m_size = distance;
         }
         BOOST_TRY {
             m_last = cb_details::uninitialized_copy_with_alloc(first, last, m_buff, m_alloc);
         } BOOST_CATCH(...) {
-            deallocate(m_buff, capacity);
+            deallocate(m_buff, buffer_capacity);
             BOOST_RETHROW
         }
         BOOST_CATCH_END
@@ -2559,6 +2653,30 @@ private:
         m_first = sub(m_first, n);
         m_last = sub(m_last, n - construct);
         m_size += construct;
+    }
+
+    //! Specialized erase_begin method.
+    void erase_begin(size_type n, const true_type&) {
+        m_first = add(m_first, n);
+        m_size -= n;
+    }
+
+    //! Specialized erase_begin method.
+    void erase_begin(size_type n, const false_type&) {
+        iterator b = begin();
+        rerase(b, b + n);
+    }
+
+    //! Specialized erase_end method.
+    void erase_end(size_type n, const true_type&) {
+        m_last = sub(m_last, n);
+        m_size -= n;
+    }
+
+    //! Specialized erase_end method.
+    void erase_end(size_type n, const false_type&) {
+        iterator e = end();
+        erase(e - n, e);
     }
 };
 

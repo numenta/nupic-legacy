@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008.
+// (C) Copyright Ion Gaztanaga 2005-2012.
 //
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -20,8 +20,8 @@
 #include <cstddef>
 
 namespace boost {
-namespace interprocess { 
-namespace detail {
+namespace interprocess {
+namespace ipcdetail {
 
 template <class T, T val>
 struct integral_constant
@@ -59,6 +59,9 @@ struct enable_if_c<false, T> {};
 template <class Cond, class T = void>
 struct enable_if : public enable_if_c<Cond::value, T> {};
 
+template <class Cond, class T = void>
+struct disable_if : public enable_if_c<!Cond::value, T> {};
+
 template <class T, class U>
 class is_convertible
 {
@@ -68,7 +71,7 @@ class is_convertible
    static false_t dispatch(...);
    static T trigger();
    public:
-   enum { value = sizeof(dispatch(trigger())) == sizeof(true_t) };
+   static const bool value = sizeof(dispatch(trigger())) == sizeof(true_t);
 };
 
 template<
@@ -102,23 +105,24 @@ struct if_
 
 
 template <class Pair>
-struct select1st 
-//   : public std::unary_function<Pair, typename Pair::first_type> 
+struct select1st
+//   : public std::unary_function<Pair, typename Pair::first_type>
 {
-   const typename Pair::first_type& operator()(const Pair& x) const 
+   template<class OtherPair>
+   const typename Pair::first_type& operator()(const OtherPair& x) const
    {  return x.first;   }
 
-   const typename Pair::first_type& operator()(const typename Pair::first_type& x) const 
+   const typename Pair::first_type& operator()(const typename Pair::first_type& x) const
    {  return x;   }
 };
 
 // identity is an extension: it is not part of the standard.
 template <class T>
-struct identity 
-//   : public std::unary_function<T,T> 
+struct identity
+//   : public std::unary_function<T,T>
 {
    typedef T type;
-   const T& operator()(const T& x) const 
+   const T& operator()(const T& x) const
    { return x; }
 };
 
@@ -140,8 +144,8 @@ struct ls_zeros<1>
    static const std::size_t value = 0;
 };
 
-}  //namespace detail { 
-}  //namespace interprocess { 
+}  //namespace ipcdetail {
+}  //namespace interprocess {
 }  //namespace boost {
 
 #endif   //#ifndef BOOST_INTERPROCESS_DETAIL_MPL_HPP

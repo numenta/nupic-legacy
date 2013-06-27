@@ -44,7 +44,7 @@ template <typename Iterator,    // Models Iterator
 class dereference_iterator_adaptor : public iterator_adaptor<dereference_iterator_adaptor<Iterator,DFn>,
                                                              Iterator,
                                                              typename DFn::value_type,
-                                                             use_default,
+                                                             typename std::iterator_traits<Iterator>::iterator_category,
                                                              typename DFn::reference,
                                                              use_default> {
     DFn _deref_fn;
@@ -52,7 +52,7 @@ public:
     typedef iterator_adaptor<dereference_iterator_adaptor<Iterator,DFn>,
                                     Iterator,
                                     typename DFn::value_type,
-                                    use_default,
+                                    typename std::iterator_traits<Iterator>::iterator_category,
                                     typename DFn::reference,
                                     use_default> parent_t;
     typedef typename DFn::result_type                         reference;

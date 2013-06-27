@@ -39,6 +39,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     ///////////////////////////////////////////////////////////////////////////
     struct alternative_parser_gen;
     
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
     template <typename A, typename B>
     struct alternative
     :   public binary<A, B, parser<alternative<A, B> > >
@@ -66,6 +71,10 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             return this->right().parse(scan);
         }
     };
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
     
     struct alternative_parser_gen
     {

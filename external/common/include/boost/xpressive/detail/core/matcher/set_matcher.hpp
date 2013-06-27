@@ -51,20 +51,20 @@ struct set_matcher
         this->not_ = !this->not_;
     }
 
-    void nocase(Traits const &traits)
+    void nocase(Traits const &tr)
     {
         this->icase_ = true;
 
         for(int i = 0; i < Size::value; ++i)
         {
-            this->set_[i] = traits.translate_nocase(this->set_[i]);
+            this->set_[i] = tr.translate_nocase(this->set_[i]);
         }
     }
 
-    bool in_set(Traits const &traits, char_type ch) const
+    bool in_set(Traits const &tr, char_type ch) const
     {
         char_type const *begin = &this->set_[0], *end = begin + Size::value;
-        ch = this->icase_ ? traits.translate_nocase(ch) : traits.translate(ch);
+        ch = this->icase_ ? tr.translate_nocase(ch) : tr.translate(ch);
         return end != std::find(begin, end, ch);
     }
 

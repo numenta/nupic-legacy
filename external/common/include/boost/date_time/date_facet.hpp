@@ -2,28 +2,32 @@
 #define _DATE_TIME_DATE_FACET__HPP___
 
 /* Copyright (c) 2004-2005 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author:  Martin Andrian, Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2012-09-30 16:25:22 -0700 (Sun, 30 Sep 2012) $
  */
 
-
-#include "boost/algorithm/string/replace.hpp"
-#include "boost/date_time/period.hpp"
-#include "boost/date_time/special_values_formatter.hpp"
-#include "boost/date_time/period_formatter.hpp"
-#include "boost/date_time/period_parser.hpp"
-#include "boost/date_time/date_generator_formatter.hpp"
-#include "boost/date_time/date_generator_parser.hpp"
-#include "boost/date_time/format_date_parser.hpp"
+#include <locale>
 #include <string>
 #include <vector>
+#include <iterator> // ostreambuf_iterator
+#include <boost/throw_exception.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/period.hpp>
+#include <boost/date_time/special_defs.hpp>
+#include <boost/date_time/special_values_formatter.hpp>
+#include <boost/date_time/period_formatter.hpp>
+#include <boost/date_time/period_parser.hpp>
+#include <boost/date_time/date_generator_formatter.hpp>
+#include <boost/date_time/date_generator_parser.hpp>
+#include <boost/date_time/format_date_parser.hpp>
 
 namespace boost { namespace date_time {
 
-  
+
   /*! Class that provides format based I/O facet for date types.
    *
    * This class allows the formatting of dates by using format string.
@@ -40,7 +44,7 @@ namespace boost { namespace date_time {
    * Default weekday format == %a
    */
   template <class date_type,
-            class CharT, 
+            class CharT,
             class OutItrT = std::ostreambuf_iterator<CharT, std::char_traits<CharT> > >
   class date_facet : public std::locale::facet {
   public:
@@ -77,9 +81,9 @@ namespace boost { namespace date_time {
 #if defined (__SUNPRO_CC) && defined (_RWSTD_VER)
       std::locale::id& __get_id (void) const { return id; }
 #endif
-    
-    explicit date_facet(::size_t a_ref = 0) 
-      : std::locale::facet(a_ref), 
+
+    explicit date_facet(::size_t a_ref = 0)
+      : std::locale::facet(a_ref),
         //m_format(standard_format_specifier)
         m_format(default_date_format),
         m_month_format(short_month_format),
@@ -88,22 +92,22 @@ namespace boost { namespace date_time {
 
     explicit date_facet(const char_type* format_str,
                         const input_collection_type& short_names,
-                        ::size_t ref_count = 0) 
-      : std::locale::facet(ref_count), 
+                        ::size_t ref_count = 0)
+      : std::locale::facet(ref_count),
         m_format(format_str),
         m_month_format(short_month_format),
         m_weekday_format(short_weekday_format),
-        m_month_short_names(short_names) 
+        m_month_short_names(short_names)
     {}
 
-     
-    explicit date_facet(const char_type* format_str, 
-                        period_formatter_type per_formatter = period_formatter_type(), 
+
+    explicit date_facet(const char_type* format_str,
+                        period_formatter_type per_formatter = period_formatter_type(),
                         special_values_formatter_type sv_formatter = special_values_formatter_type(),
                         date_gen_formatter_type dg_formatter = date_gen_formatter_type(),
                         ::size_t ref_count = 0)
-      : std::locale::facet(ref_count), 
-        m_format(format_str), 
+      : std::locale::facet(ref_count),
+        m_format(format_str),
         m_month_format(short_month_format),
         m_weekday_format(short_weekday_format),
         m_period_formatter(per_formatter),
@@ -127,11 +131,11 @@ namespace boost { namespace date_time {
     void weekday_format(const char_type* const format_str) {
       m_weekday_format = format_str;
     }
-    
+
     void period_formatter(period_formatter_type per_formatter) {
       m_period_formatter= per_formatter;
     }
-    void special_values_formatter(const special_values_formatter_type& svf) 
+    void special_values_formatter(const special_values_formatter_type& svf)
     {
       m_special_values_formatter = svf;
     }
@@ -160,24 +164,24 @@ namespace boost { namespace date_time {
       m_date_gen_formatter.elements(new_strings, beg_pos);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const date_type& d) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const date_type& d) const
     {
-      if (d.is_special()) { 
+      if (d.is_special()) {
         return do_put_special(next, a_ios, fill_char, d.as_special());
       }
       //The following line of code required the date to support a to_tm function
       return do_put_tm(next, a_ios, fill_char, to_tm(d), m_format);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const duration_type& dd) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const duration_type& dd) const
     {
-      if (dd.is_special()) { 
+      if (dd.is_special()) {
         return do_put_special(next, a_ios, fill_char, dd.get_rep().as_special());
       }
 
@@ -195,164 +199,151 @@ namespace boost { namespace date_time {
     }
 
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const month_type& m) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const month_type& m) const
     {
-      //if (d.is_special()) { 
+      //if (d.is_special()) {
       //  return do_put_special(next, a_ios, fill_char, d.as_special());
       //}
       //The following line of code required the date to support a to_tm function
-      tm dtm;
-      init_tm(dtm);
-      dtm.tm_mon = m -1;
+      std::tm dtm;
+      std::memset(&dtm, 0, sizeof(dtm));
+      dtm.tm_mon = m - 1;
       return do_put_tm(next, a_ios, fill_char, dtm, m_month_format);
     }
 
     //! puts the day of month
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const day_type& day) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const day_type& day) const
     {
-      tm dtm;
-      init_tm(dtm);
+      std::tm dtm;
+      std::memset(&dtm, 0, sizeof(dtm));
       dtm.tm_mday = day.as_number();
       char_type tmp[3] = {'%','d'};
       string_type temp_format(tmp);
       return do_put_tm(next, a_ios, fill_char, dtm, temp_format);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const day_of_week_type& dow) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const day_of_week_type& dow) const
     {
-      //if (d.is_special()) { 
+      //if (d.is_special()) {
       //  return do_put_special(next, a_ios, fill_char, d.as_special());
       //}
       //The following line of code required the date to support a to_tm function
-      tm dtm;
-      init_tm(dtm);
+      std::tm dtm;
+      std::memset(&dtm, 0, sizeof(dtm));
       dtm.tm_wday = dow;
       return do_put_tm(next, a_ios, fill_char, dtm, m_weekday_format);
     }
 
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const period_type& p) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const period_type& p) const
     {
       return m_period_formatter.put_period(next, a_ios, fill_char, p, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const partial_date_type& pd) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const partial_date_type& pd) const
     {
       return m_date_gen_formatter.put_partial_date(next, a_ios, fill_char, pd, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const nth_kday_type& nkd) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const nth_kday_type& nkd) const
     {
       return m_date_gen_formatter.put_nth_kday(next, a_ios, fill_char, nkd, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const first_kday_type& fkd) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const first_kday_type& fkd) const
     {
       return m_date_gen_formatter.put_first_kday(next, a_ios, fill_char, fkd, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const last_kday_type& lkd) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const last_kday_type& lkd) const
     {
       return m_date_gen_formatter.put_last_kday(next, a_ios, fill_char, lkd, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const kday_before_type& fkb) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const kday_before_type& fkb) const
     {
       return m_date_gen_formatter.put_kday_before(next, a_ios, fill_char, fkb, *this);
     }
 
-    OutItrT put(OutItrT next, 
-                std::ios_base& a_ios, 
-                char_type fill_char, 
-                const kday_after_type& fka) const 
+    OutItrT put(OutItrT next,
+                std::ios_base& a_ios,
+                char_type fill_char,
+                const kday_after_type& fka) const
     {
       return m_date_gen_formatter.put_kday_after(next, a_ios, fill_char, fka, *this);
     }
-    
+
   protected:
-    //! Helper function to initialize all fields in a tm struct
-    tm init_tm(tm& tm_value) const
-    {
-      tm_value.tm_sec = 0;         /* seconds */
-      tm_value.tm_min = 0;         /* minutes */
-      tm_value.tm_hour = 0;        /* hours */
-      tm_value.tm_mday = 0;        /* day of the month */
-      tm_value.tm_mon = 0;         /* month */
-      tm_value.tm_year = 0;        /* year */
-      tm_value.tm_wday = 0;        /* day of the week */
-      tm_value.tm_yday = 0;        /* day in the year */
-      tm_value.tm_isdst = 0;       /* daylight saving time */
-      return tm_value;
-    }
-    virtual OutItrT do_put_special(OutItrT next, 
-                                   std::ios_base& /*a_ios*/, 
-                                   char_type /*fill_char*/, 
-                                   const boost::date_time::special_values sv) const 
+    virtual OutItrT do_put_special(OutItrT next,
+                                   std::ios_base& /*a_ios*/,
+                                   char_type /*fill_char*/,
+                                   const boost::date_time::special_values sv) const
     {
       m_special_values_formatter.put_special(next, sv);
       return next;
     }
-    virtual OutItrT do_put_tm(OutItrT next, 
-                              std::ios_base& a_ios, 
-                              char_type fill_char, 
+    virtual OutItrT do_put_tm(OutItrT next,
+                              std::ios_base& a_ios,
+                              char_type fill_char,
                               const tm& tm_value,
-                              string_type a_format) const 
+                              string_type a_format) const
     {
       // update format string with custom names
       if (m_weekday_long_names.size()) {
-        boost::algorithm::replace_all(a_format, 
-                                      long_weekday_format, 
+        boost::algorithm::replace_all(a_format,
+                                      long_weekday_format,
                                       m_weekday_long_names[tm_value.tm_wday]);
       }
       if (m_weekday_short_names.size()) {
-        boost::algorithm::replace_all(a_format, 
-                                      short_weekday_format, 
+        boost::algorithm::replace_all(a_format,
+                                      short_weekday_format,
                                       m_weekday_short_names[tm_value.tm_wday]);
 
       }
       if (m_month_long_names.size()) {
-        boost::algorithm::replace_all(a_format, 
-                                      long_month_format, 
+        boost::algorithm::replace_all(a_format,
+                                      long_month_format,
                                       m_month_long_names[tm_value.tm_mon]);
       }
       if (m_month_short_names.size()) {
-        boost::algorithm::replace_all(a_format, 
-                                      short_month_format, 
+        boost::algorithm::replace_all(a_format,
+                                      short_month_format,
                                       m_month_short_names[tm_value.tm_mon]);
       }
       // use time_put facet to create final string
-      return std::use_facet<std::time_put<CharT> >(a_ios.getloc()).put(next, a_ios, 
-                                                                       fill_char, 
+      const char_type* p_format = a_format.c_str();
+      return std::use_facet<std::time_put<CharT> >(a_ios.getloc()).put(next, a_ios,
+                                                                       fill_char,
                                                                        &tm_value,
-                                                                       &*a_format.begin(), 
-                                                                       &*a_format.begin()+a_format.size());
+                                                                       p_format,
+                                                                       p_format + a_format.size());
     }
   protected:
     string_type                   m_format;
@@ -371,51 +362,51 @@ namespace boost { namespace date_time {
   template <class date_type, class CharT, class OutItrT>
   std::locale::id date_facet<date_type, CharT, OutItrT>::id;
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
   date_facet<date_type, CharT, OutItrT>::long_weekday_format[3] = {'%','A'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
   date_facet<date_type, CharT, OutItrT>::short_weekday_format[3] = {'%','a'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
   date_facet<date_type, CharT, OutItrT>::long_month_format[3] = {'%','B'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
   date_facet<date_type, CharT, OutItrT>::short_month_format[3] = {'%','b'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
   date_facet<date_type, CharT, OutItrT>::default_period_separator[4] = { ' ', '/', ' '};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
-  date_facet<date_type, CharT, OutItrT>::standard_format_specifier[3] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
+  date_facet<date_type, CharT, OutItrT>::standard_format_specifier[3] =
     {'%', 'x' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
-  date_facet<date_type, CharT, OutItrT>::iso_format_specifier[7] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
+  date_facet<date_type, CharT, OutItrT>::iso_format_specifier[7] =
     {'%', 'Y', '%', 'm', '%', 'd' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
-  date_facet<date_type, CharT, OutItrT>::iso_format_extended_specifier[9] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
+  date_facet<date_type, CharT, OutItrT>::iso_format_extended_specifier[9] =
     {'%', 'Y', '-', '%', 'm', '-', '%', 'd' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_facet<date_type, CharT, OutItrT>::char_type 
-  date_facet<date_type, CharT, OutItrT>::default_date_format[9] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_facet<date_type, CharT, OutItrT>::char_type
+  date_facet<date_type, CharT, OutItrT>::default_date_format[9] =
     {'%','Y','-','%','b','-','%','d'};
 
 
 
   //! Input facet
   template <class date_type,
-            class CharT, 
+            class CharT,
             class InItrT = std::istreambuf_iterator<CharT, std::char_traits<CharT> > >
   class date_input_facet : public std::locale::facet {
   public:
@@ -429,7 +420,7 @@ namespace boost { namespace date_time {
     typedef std::basic_string<CharT> string_type;
     typedef CharT                    char_type;
     typedef boost::date_time::period_parser<date_type, CharT>  period_parser_type;
-    typedef boost::date_time::special_values_parser<date_type,CharT> special_values_parser_type; 
+    typedef boost::date_time::special_values_parser<date_type,CharT> special_values_parser_type;
     typedef std::vector<std::basic_string<CharT> > input_collection_type;
     typedef format_date_parser<date_type, CharT> format_date_parser_type;
     // date_generators stuff goes here
@@ -453,9 +444,9 @@ namespace boost { namespace date_time {
     static const char_type iso_format_extended_specifier[9];
     static const char_type default_date_format[9]; // YYYY-Mon-DD
     static std::locale::id id;
-    
-    explicit date_input_facet(::size_t a_ref = 0) 
-      : std::locale::facet(a_ref), 
+
+    explicit date_input_facet(::size_t a_ref = 0)
+      : std::locale::facet(a_ref),
         m_format(default_date_format),
         m_month_format(short_month_format),
         m_weekday_format(short_weekday_format),
@@ -465,8 +456,8 @@ namespace boost { namespace date_time {
     {}
 
     explicit date_input_facet(const string_type& format_str,
-                              ::size_t a_ref = 0) 
-      : std::locale::facet(a_ref), 
+                              ::size_t a_ref = 0)
+      : std::locale::facet(a_ref),
         m_format(format_str),
         m_month_format(short_month_format),
         m_weekday_format(short_weekday_format),
@@ -513,7 +504,7 @@ namespace boost { namespace date_time {
     void year_format(const char_type* const format_str) {
       m_year_format = format_str;
     }
-    
+
     void period_parser(period_parser_type per_parser) {
       m_period_parser = per_parser;
     }
@@ -549,7 +540,7 @@ namespace boost { namespace date_time {
                                   const string_type& before,
                                   const string_type& after,
                                   const string_type& of)
-                           
+
     {
       m_date_gen_parser.element_strings(first,second,third,fourth,fifth,last,before,after,of);
     }
@@ -559,68 +550,68 @@ namespace boost { namespace date_time {
       m_sv_parser = sv_parser;
     }
 
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& /*a_ios*/, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& /*a_ios*/,
                date_type& d) const
     {
       d = m_parser.parse_date(from, to, m_format, m_sv_parser);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& /*a_ios*/, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& /*a_ios*/,
                month_type& m) const
     {
       m = m_parser.parse_month(from, to, m_month_format);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& /*a_ios*/, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& /*a_ios*/,
                day_of_week_type& wd) const
     {
       wd = m_parser.parse_weekday(from, to, m_weekday_format);
       return from;
     }
     //! Expects 1 or 2 digit day range: 1-31
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& /*a_ios*/, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& /*a_ios*/,
                day_type& d) const
     {
       d = m_parser.parse_var_day_of_month(from, to);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& /*a_ios*/, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& /*a_ios*/,
                year_type& y) const
     {
       y = m_parser.parse_year(from, to, m_year_format);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                duration_type& dd) const
     {
       // skip leading whitespace
-      while(std::isspace(*from) && from != to) { ++from; } 
-     
-      /* num_get.get() will always consume the first character if it 
-       * is a sign indicator (+/-). Special value strings may begin 
+      while(std::isspace(*from) && from != to) { ++from; }
+
+      /* num_get.get() will always consume the first character if it
+       * is a sign indicator (+/-). Special value strings may begin
        * with one of these signs so we'll need a copy of it
        * in case num_get.get() fails. */
-      char_type c = '\0'; 
+      char_type c = '\0';
       // TODO Are these characters somewhere in the locale?
-      if(*from == '-' || *from == '+') { 
+      if(*from == '-' || *from == '+') {
         c = *from;
       }
       typedef std::num_get<CharT, InItrT> num_get;
       typename duration_type::duration_rep_type val = 0;
       std::ios_base::iostate err = std::ios_base::goodbit;
-      
+
       if (std::has_facet<num_get>(a_ios.getloc())) {
         from = std::use_facet<num_get>(a_ios.getloc()).get(from, to, a_ios, err, val);
       }
@@ -638,67 +629,68 @@ namespace boost { namespace date_time {
         }
         m_sv_parser.match(from, to, mr);
         if(mr.current_match == match_results::PARSE_ERROR) {
-          throw std::ios_base::failure("Parse failed. No match found for '" + mr.cache + "'");
+          boost::throw_exception(std::ios_base::failure("Parse failed. No match found for '" + mr.cache + "'"));
+          BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(return from); // should never reach
         }
-        dd = duration_type(static_cast<special_values>(mr.current_match)); 
+        dd = duration_type(static_cast<special_values>(mr.current_match));
       }
       else {
         dd = duration_type(val);
       }
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                period_type& p) const
     {
-      p = m_period_parser.get_period(from, to, a_ios, p, duration_type::unit(), *this);     
+      p = m_period_parser.get_period(from, to, a_ios, p, duration_type::unit(), *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                nth_kday_type& nkd) const
     {
       nkd = m_date_gen_parser.get_nth_kday_type(from, to, a_ios, *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                partial_date_type& pd) const
     {
 
       pd = m_date_gen_parser.get_partial_date_type(from, to, a_ios, *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                first_kday_type& fkd) const
     {
       fkd = m_date_gen_parser.get_first_kday_type(from, to, a_ios, *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                last_kday_type& lkd) const
     {
       lkd = m_date_gen_parser.get_last_kday_type(from, to, a_ios, *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                kday_before_type& fkb) const
     {
       fkb = m_date_gen_parser.get_kday_before_type(from, to, a_ios, *this);
       return from;
     }
-    InItrT get(InItrT& from, 
-               InItrT& to, 
-               std::ios_base& a_ios, 
+    InItrT get(InItrT& from,
+               InItrT& to,
+               std::ios_base& a_ios,
                kday_after_type& fka) const
     {
       fka = m_date_gen_parser.get_kday_after_type(from, to, a_ios, *this);
@@ -721,52 +713,52 @@ namespace boost { namespace date_time {
   template <class date_type, class CharT, class OutItrT>
   std::locale::id date_input_facet<date_type, CharT, OutItrT>::id;
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::long_weekday_format[3] = {'%','A'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::short_weekday_format[3] = {'%','a'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::long_month_format[3] = {'%','B'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::short_month_format[3] = {'%','b'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::four_digit_year_format[3] = {'%','Y'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::two_digit_year_format[3] = {'%','y'};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
   date_input_facet<date_type, CharT, OutItrT>::default_period_separator[4] = { ' ', '/', ' '};
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
-  date_input_facet<date_type, CharT, OutItrT>::standard_format_specifier[3] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
+  date_input_facet<date_type, CharT, OutItrT>::standard_format_specifier[3] =
     {'%', 'x' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
-  date_input_facet<date_type, CharT, OutItrT>::iso_format_specifier[7] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
+  date_input_facet<date_type, CharT, OutItrT>::iso_format_specifier[7] =
     {'%', 'Y', '%', 'm', '%', 'd' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
-  date_input_facet<date_type, CharT, OutItrT>::iso_format_extended_specifier[9] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
+  date_input_facet<date_type, CharT, OutItrT>::iso_format_extended_specifier[9] =
     {'%', 'Y', '-', '%', 'm', '-', '%', 'd' };
 
-  template <class date_type, class CharT, class OutItrT>  
-  const typename date_input_facet<date_type, CharT, OutItrT>::char_type 
-  date_input_facet<date_type, CharT, OutItrT>::default_date_format[9] = 
+  template <class date_type, class CharT, class OutItrT>
+  const typename date_input_facet<date_type, CharT, OutItrT>::char_type
+  date_input_facet<date_type, CharT, OutItrT>::default_date_format[9] =
     {'%','Y','-','%','b','-','%','d'};
 
 } } // namespaces

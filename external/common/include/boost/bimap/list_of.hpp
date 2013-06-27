@@ -107,8 +107,8 @@ struct list_of : public ::boost::bimaps::detail::set_type_of_tag
     typedef Type user_type;
 
     /// Type of the object that will be stored in the list
-	typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
-		value_type_of<user_type>::type value_type;
+    typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
+        value_type_of<user_type>::type value_type;
 
 
     struct lazy_concept_checked

@@ -1,144 +1,202 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
-//
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying
-//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+/*=============================================================================
+    Copyright (c) 2001-2011 Hartmut Kaiser
+    http://spirit.sourceforge.net/
 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+=============================================================================*/
 #if !defined(BOOST_SPIRIT_CONSTRUCT_MAR_24_2007_0629PM)
 #define BOOST_SPIRIT_CONSTRUCT_MAR_24_2007_0629PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
+#include <boost/config.hpp>
 #include <boost/spirit/home/qi/parse.hpp>
-#include <boost/spirit/home/qi/numeric.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/attributes_fwd.hpp>
 
-namespace boost { namespace spirit { namespace qi { namespace detail
+namespace boost { namespace spirit { namespace traits
 {
-    namespace construct_
+    ///////////////////////////////////////////////////////////////////////////
+    //  We provide overloads for the assign_to_attribute_from_iterators
+    //  customization point for all built in types
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<char, Iterator>
     {
-        ///////////////////////////////////////////////////////////////////////
-        //  We provide overloads for the construct customization point for all
-        //  built in types
-        ///////////////////////////////////////////////////////////////////////
-        template <typename Iterator>
-        inline void
-        construct(char& attr, Iterator const& first, Iterator const& last)
+        static void
+        call(Iterator const& first, Iterator const&, char& attr)
         {
             attr = *first;
         }
+    };
+
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<signed char, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const&, signed char& attr)
+        {
+            attr = *first;
+        }
+    };
+
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<unsigned char, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const&, unsigned char& attr)
+        {
+            attr = *first;
+        }
+    };
+
+    // wchar_t is intrinsic
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<wchar_t, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const&, wchar_t& attr)
+        {
+            attr = *first;
+        }
+    };
 
 #if !defined(BOOST_NO_INTRINSIC_WCHAR_T)
-        // wchar_t is intrinsic
-        template <typename Iterator>
-        inline void
-        construct(wchar_t& attr, Iterator const& first, Iterator const& last)
+    // wchar_t is intrinsic, have separate overload for unsigned short
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<unsigned short, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const&, unsigned short& attr)
         {
             attr = *first;
         }
-        template <typename Iterator>
-        inline void
-        construct(unsigned short& attr, Iterator const& first,
-            Iterator const& last)
-        {
-            Iterator first_ = first;
-            parse(first_, last, ushort, attr);
-        }
-#else
-        // is wchar_t is not an intrinsic type, treat wchar_t only
-        template <typename Iterator>
-        inline void
-        construct(wchar_t& attr, Iterator const& first, Iterator const& last)
-        {
-            attr = *first;
-        }
+    };
 #endif
 
-        template <typename Iterator>
-        inline void
-        construct(short& attr, Iterator const& first, Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<bool, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, bool& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, short_, attr);
+            qi::parse(first_, last, bool_type(), attr);
         }
+    };
 
-        template <typename Iterator>
-        inline void
-        construct(int& attr, Iterator const& first, Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<short, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, short& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, int_, attr);
+            qi::parse(first_, last, short_type(), attr);
         }
-        template <typename Iterator>
-        inline void
-        construct(unsigned int& attr, Iterator const& first,
-            Iterator const& last)
-        {
-            Iterator first_ = first;
-            parse(first_, last, uint_, attr);
-        }
+    };
 
-        template <typename Iterator>
-        inline void
-        construct(long& attr, Iterator const& first, Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<int, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, int& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, long_, attr);
+            qi::parse(first_, last, int_type(), attr);
         }
-        template <typename Iterator>
-        inline void
-        construct(unsigned long& attr, Iterator const& first,
-            Iterator const& last)
+    };
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<unsigned int, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, unsigned int& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, ulong, attr);
+            qi::parse(first_, last, uint_type(), attr);
         }
+    };
+
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<long, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, long& attr)
+        {
+            Iterator first_ = first;
+            qi::parse(first_, last, long_type(), attr);
+        }
+    };
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<unsigned long, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, unsigned long& attr)
+        {
+            Iterator first_ = first;
+            qi::parse(first_, last, ulong_type(), attr);
+        }
+    };
 
 #ifdef BOOST_HAS_LONG_LONG
-        template <typename Iterator>
-        inline void
-        construct(boost::long_long_type& attr, Iterator const& first,
-            Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<long_long_type, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, long_long_type& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, long_long, attr);
+            qi::parse(first_, last, long_long_type(), attr);
         }
-        template <typename Iterator>
-        inline void
-        construct(boost::ulong_long_type& attr, Iterator const& first,
-            Iterator const& last)
+    };
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<ulong_long_type, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, ulong_long_type& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, ulong_long, attr);
+            qi::parse(first_, last, ulong_long_type(), attr);
         }
+    };
 #endif
 
-        template <typename Iterator>
-        inline void
-        construct(float& attr, Iterator const& first, Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<float, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, float& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, float_, attr);
+            qi::parse(first_, last, float_type(), attr);
         }
+    };
 
-        template <typename Iterator>
-        inline void
-        construct(double& attr, Iterator const& first, Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<double, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, double& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, double_, attr);
+            qi::parse(first_, last, double_type(), attr);
         }
+    };
 
-        template <typename Iterator>
-        inline void
-        construct(long double& attr, Iterator const& first,
-            Iterator const& last)
+    template <typename Iterator>
+    struct assign_to_attribute_from_iterators<long double, Iterator>
+    {
+        static void
+        call(Iterator const& first, Iterator const& last, long double& attr)
         {
             Iterator first_ = first;
-            parse(first_, last, long_double, attr);
+            qi::parse(first_, last, long_double_type(), attr);
         }
-    }
-    
-}}}}
+    };
+
+}}}
 
 #endif

@@ -28,7 +28,7 @@ namespace boost {
 namespace serialization {
     template<class T>
     struct is_bitwise_serializable
-     : public is_arithmetic<T>
+     : public is_arithmetic< T >
     {};
 } // namespace serialization
 } // namespace boost

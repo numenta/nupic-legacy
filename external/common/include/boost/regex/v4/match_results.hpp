@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 1998-2002
+ * Copyright (c) 1998-2009
  * John Maddock
  *
  * Use, modification and distribution are subject to the 
@@ -33,8 +33,17 @@
 namespace boost{
 #ifdef BOOST_MSVC
 #pragma warning(push)
-#pragma warning(disable : 4251 4231 4660)
+#pragma warning(disable : 4251 4231)
+#  if BOOST_MSVC < 1600
+#     pragma warning(disable : 4660)
+#  endif
 #endif
+
+namespace re_detail{
+
+class named_subexpressions;
+
+}
 
 template <class BidiIterator, class Allocator>
 class match_results
@@ -62,20 +71,35 @@ public:
    typedef typename re_detail::regex_iterator_traits<
                                     BidiIterator>::value_type               char_type;
    typedef          std::basic_string<char_type>                            string_type;
+   typedef          re_detail::named_subexpressions                         named_sub_type;
 
    // construct/copy/destroy:
    explicit match_results(const Allocator& a = Allocator())
 #ifndef BOOST_NO_STD_ALLOCATOR
-      : m_subs(a), m_base() {}
+      : m_subs(a), m_base(), m_last_closed_paren(0), m_is_singular(true) {}
 #else
-      : m_subs(), m_base() { (void)a; }
+      : m_subs(), m_base(), m_last_closed_paren(0), m_is_singular(true) { (void)a; }
 #endif
    match_results(const match_results& m)
-      : m_subs(m.m_subs), m_base(m.m_base) {}
+      : m_subs(m.m_subs), m_named_subs(m.m_named_subs), m_last_closed_paren(m.m_last_closed_paren), m_is_singular(m.m_is_singular) 
+   {
+      if(!m_is_singular)
+      {
+         m_base = m.m_base;
+         m_null = m.m_null;
+      }
+   }
    match_results& operator=(const match_results& m)
    {
       m_subs = m.m_subs;
-      m_base = m.m_base;
+      m_named_subs = m.m_named_subs;
+      m_last_closed_paren = m.m_last_closed_paren;
+      m_is_singular = m.m_is_singular;
+      if(!m_is_singular)
+      {
+         m_base = m.m_base;
+         m_null = m.m_null;
+      }
       return *this;
    }
    ~match_results(){}
@@ -90,13 +114,39 @@ public:
    // element access:
    difference_type length(int sub = 0) const
    {
+      if(m_is_singular)
+         raise_logic_error();
       sub += 2;
       if((sub < (int)m_subs.size()) && (sub > 0))
          return m_subs[sub].length();
       return 0;
    }
+   difference_type length(const char_type* sub) const
+   {
+      if(m_is_singular)
+         raise_logic_error();
+      const char_type* sub_end = sub;
+      while(*sub_end) ++sub_end;
+      return length(named_subexpression_index(sub, sub_end));
+   }
+   template <class charT>
+   difference_type length(const charT* sub) const
+   {
+      if(m_is_singular)
+         raise_logic_error();
+      const charT* sub_end = sub;
+      while(*sub_end) ++sub_end;
+      return length(named_subexpression_index(sub, sub_end));
+   }
+   template <class charT, class Traits, class A>
+   difference_type length(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return length(sub.c_str());
+   }
    difference_type position(size_type sub = 0) const
    {
+      if(m_is_singular)
+         raise_logic_error();
       sub += 2;
       if(sub < m_subs.size())
       {
@@ -108,8 +158,28 @@ public:
       }
       return ~static_cast<difference_type>(0);
    }
+   difference_type position(const char_type* sub) const
+   {
+      const char_type* sub_end = sub;
+      while(*sub_end) ++sub_end;
+      return position(named_subexpression_index(sub, sub_end));
+   }
+   template <class charT>
+   difference_type position(const charT* sub) const
+   {
+      const charT* sub_end = sub;
+      while(*sub_end) ++sub_end;
+      return position(named_subexpression_index(sub, sub_end));
+   }
+   template <class charT, class Traits, class A>
+   difference_type position(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return position(sub.c_str());
+   }
    string_type str(int sub = 0) const
    {
+      if(m_is_singular)
+         raise_logic_error();
       sub += 2;
       string_type result;
       if(sub < (int)m_subs.size() && (sub > 0))
@@ -122,8 +192,29 @@ public:
       }
       return result;
    }
+   string_type str(const char_type* sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class Traits, class A>
+   string_type str(const std::basic_string<char_type, Traits, A>& sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class charT>
+   string_type str(const charT* sub) const
+   {
+      return (*this)[sub].str();
+   }
+   template <class charT, class Traits, class A>
+   string_type str(const std::basic_string<charT, Traits, A>& sub) const
+   {
+      return (*this)[sub].str();
+   }
    const_reference operator[](int sub) const
    {
+      if(m_is_singular && m_subs.empty())
+         raise_logic_error();
       sub += 2;
       if(sub < (int)m_subs.size() && (sub >= 0))
       {
@@ -131,14 +222,106 @@ public:
       }
       return m_null;
    }
+   //
+   // Named sub-expressions:
+   //
+   const_reference named_subexpression(const char_type* i, const char_type* j) const
+   {
+      //
+      // Scan for the leftmost *matched* subexpression with the specified named:
+      //
+      if(m_is_singular)
+         raise_logic_error();
+      re_detail::named_subexpressions::range_type r = m_named_subs->equal_range(i, j);
+      while((r.first != r.second) && ((*this)[r.first->index].matched == false))
+         ++r.first;
+      return r.first != r.second ? (*this)[r.first->index] : m_null;
+   }
+   template <class charT>
+   const_reference named_subexpression(const charT* i, const charT* j) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(i == j)
+         return m_null;
+      std::vector<char_type> s;
+      while(i != j)
+         s.insert(s.end(), *i++);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
+   }
+   int named_subexpression_index(const char_type* i, const char_type* j) const
+   {
+      //
+      // Scan for the leftmost *matched* subexpression with the specified named.
+      // If none found then return the leftmost expression with that name,
+      // otherwise an invalid index:
+      //
+      if(m_is_singular)
+         raise_logic_error();
+      re_detail::named_subexpressions::range_type s, r;
+      s = r = m_named_subs->equal_range(i, j);
+      while((r.first != r.second) && ((*this)[r.first->index].matched == false))
+         ++r.first;
+      if(r.first == r.second)
+         r = s;
+      return r.first != r.second ? r.first->index : -20;
+   }
+   template <class charT>
+   int named_subexpression_index(const charT* i, const charT* j) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(i == j)
+         return -20;
+      std::vector<char_type> s;
+      while(i != j)
+         s.insert(s.end(), *i++);
+      return named_subexpression_index(&*s.begin(), &*s.begin() + s.size());
+   }
+   template <class Traits, class A>
+   const_reference operator[](const std::basic_string<char_type, Traits, A>& s) const
+   {
+      return named_subexpression(s.c_str(), s.c_str() + s.size());
+   }
+   const_reference operator[](const char_type* p) const
+   {
+      const char_type* e = p;
+      while(*e) ++e;
+      return named_subexpression(p, e);
+   }
+
+   template <class charT>
+   const_reference operator[](const charT* p) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(*p == 0)
+         return m_null;
+      std::vector<char_type> s;
+      while(*p)
+         s.insert(s.end(), *p++);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
+   }
+   template <class charT, class Traits, class A>
+   const_reference operator[](const std::basic_string<charT, Traits, A>& ns) const
+   {
+      BOOST_STATIC_ASSERT(sizeof(charT) <= sizeof(char_type));
+      if(ns.empty())
+         return m_null;
+      std::vector<char_type> s;
+      for(unsigned i = 0; i < ns.size(); ++i)
+         s.insert(s.end(), ns[i]);
+      return named_subexpression(&*s.begin(), &*s.begin() + s.size());
+   }
 
    const_reference prefix() const
    {
+      if(m_is_singular)
+         raise_logic_error();
       return (*this)[-1];
    }
 
    const_reference suffix() const
    {
+      if(m_is_singular)
+         raise_logic_error();
       return (*this)[-2];
    }
    const_iterator begin() const
@@ -150,41 +333,68 @@ public:
       return m_subs.end();
    }
    // format:
-   template <class OutputIterator>
+   template <class OutputIterator, class Functor>
    OutputIterator format(OutputIterator out,
-                         const string_type& fmt,
+                         Functor fmt,
                          match_flag_type flags = format_default) const
    {
-      re_detail::trivial_format_traits<char_type> traits;
-      return re_detail::regex_format_imp(out, *this, fmt.data(), fmt.data() + fmt.size(), flags, traits);
+      if(m_is_singular)
+         raise_logic_error();
+      typedef typename re_detail::compute_functor_type<Functor, match_results<BidiIterator, Allocator>, OutputIterator>::type F;
+      F func(fmt);
+      return func(*this, out, flags);
    }
-   string_type format(const string_type& fmt,
-                      match_flag_type flags = format_default) const
+   template <class Functor>
+   string_type format(Functor fmt, match_flag_type flags = format_default) const
    {
-      string_type result;
-      re_detail::string_out_iterator<string_type> i(result);
-      re_detail::trivial_format_traits<char_type> traits;
-      re_detail::regex_format_imp(i, *this, fmt.data(), fmt.data() + fmt.size(), flags, traits);
+      if(m_is_singular)
+         raise_logic_error();
+      std::basic_string<char_type> result;
+      re_detail::string_out_iterator<std::basic_string<char_type> > i(result);
+
+      typedef typename re_detail::compute_functor_type<Functor, match_results<BidiIterator, Allocator>, re_detail::string_out_iterator<std::basic_string<char_type> > >::type F;
+      F func(fmt);
+
+      func(*this, i, flags);
       return result;
    }
    // format with locale:
-   template <class OutputIterator, class RegexT>
+   template <class OutputIterator, class Functor, class RegexT>
    OutputIterator format(OutputIterator out,
-                         const string_type& fmt,
+                         Functor fmt,
                          match_flag_type flags,
                          const RegexT& re) const
    {
-      return ::boost::re_detail::regex_format_imp(out, *this, fmt.data(), fmt.data() + fmt.size(), flags, re.get_traits());
+      if(m_is_singular)
+         raise_logic_error();
+      typedef ::boost::regex_traits_wrapper<typename RegexT::traits_type> traits_type;
+      typedef typename re_detail::compute_functor_type<Functor, match_results<BidiIterator, Allocator>, OutputIterator, traits_type>::type F;
+      F func(fmt);
+      return func(*this, out, flags, re.get_traits());
    }
-   template <class RegexT>
-   string_type format(const string_type& fmt,
+   template <class RegexT, class Functor>
+   string_type format(Functor fmt,
                       match_flag_type flags,
                       const RegexT& re) const
    {
-      string_type result;
-      re_detail::string_out_iterator<string_type> i(result);
-      ::boost::re_detail::regex_format_imp(i, *this, fmt.data(), fmt.data() + fmt.size(), flags, re.get_traits());
+      if(m_is_singular)
+         raise_logic_error();
+      typedef ::boost::regex_traits_wrapper<typename RegexT::traits_type> traits_type;
+      std::basic_string<char_type> result;
+      re_detail::string_out_iterator<std::basic_string<char_type> > i(result);
+
+      typedef typename re_detail::compute_functor_type<Functor, match_results<BidiIterator, Allocator>, re_detail::string_out_iterator<std::basic_string<char_type> >, traits_type >::type F;
+      F func(fmt);
+
+      func(*this, i, flags, re.get_traits());
       return result;
+   }
+
+   const_reference get_last_closed_paren()const
+   {
+      if(m_is_singular)
+         raise_logic_error();
+      return m_last_closed_paren == 0 ? m_null : (*this)[m_last_closed_paren];
    }
 
    allocator_type get_allocator() const
@@ -198,11 +408,39 @@ public:
    void swap(match_results& that)
    {
       std::swap(m_subs, that.m_subs);
-      std::swap(m_base, that.m_base);
+      std::swap(m_named_subs, that.m_named_subs);
+      std::swap(m_last_closed_paren, that.m_last_closed_paren);
+      if(m_is_singular)
+      {
+         if(!that.m_is_singular)
+         {
+            m_base = that.m_base;
+            m_null = that.m_null;
+         }
+      }
+      else if(that.m_is_singular)
+      {
+         that.m_base = m_base;
+         that.m_null = m_null;
+      }
+      else
+      {
+         std::swap(m_base, that.m_base);
+         std::swap(m_null, that.m_null);
+      }
+      std::swap(m_is_singular, that.m_is_singular);
    }
    bool operator==(const match_results& that)const
    {
-      return (m_subs == that.m_subs) && (m_base == that.m_base);
+      if(m_is_singular)
+      {
+         return that.m_is_singular;
+      }
+      else if(that.m_is_singular)
+      {
+         return false;
+      }
+      return (m_subs == that.m_subs) && (m_base == that.m_base) && (m_last_closed_paren == that.m_last_closed_paren);
    }
    bool operator!=(const match_results& that)const
    { return !(*this == that); }
@@ -212,6 +450,8 @@ public:
 
    const capture_sequence_type& captures(int i)const
    {
+      if(m_is_singular)
+         raise_logic_error();
       return (*this)[i].captures();
    }
 #endif
@@ -228,21 +468,25 @@ public:
       m_null.first = i;
       m_null.second = i;
       m_null.matched = false;
+      m_is_singular = false;
    }
 
-   void BOOST_REGEX_CALL set_second(BidiIterator i, size_type pos, bool m = true)
+   void BOOST_REGEX_CALL set_second(BidiIterator i, size_type pos, bool m = true, bool escape_k = false)
    {
+      if(pos)
+         m_last_closed_paren = static_cast<int>(pos);
       pos += 2;
       BOOST_ASSERT(m_subs.size() > pos);
       m_subs[pos].second = i;
       m_subs[pos].matched = m;
-      if(pos == 2)
+      if((pos == 2) && !escape_k)
       {
          m_subs[0].first = i;
          m_subs[0].matched = (m_subs[0].first != m_subs[0].second);
          m_null.first = i;
          m_null.second = i;
          m_null.matched = false;
+         m_is_singular = false;
       }
    }
    void BOOST_REGEX_CALL set_size(size_type n, BidiIterator i, BidiIterator j)
@@ -261,6 +505,7 @@ public:
             m_subs.insert(m_subs.end(), n+2-len, v);
       }
       m_subs[1].first = i;
+      m_last_closed_paren = 0;
    }
    void BOOST_REGEX_CALL set_base(BidiIterator pos)
    {
@@ -272,6 +517,7 @@ public:
    }
    void BOOST_REGEX_CALL set_first(BidiIterator i)
    {
+      BOOST_ASSERT(m_subs.size() > 2);
       // set up prefix:
       m_subs[1].second = i;
       m_subs[1].matched = (m_subs[1].first != i);
@@ -284,26 +530,55 @@ public:
          m_subs[n].matched = false;
       }
    }
-   void BOOST_REGEX_CALL set_first(BidiIterator i, size_type pos)
+   void BOOST_REGEX_CALL set_first(BidiIterator i, size_type pos, bool escape_k = false)
    {
       BOOST_ASSERT(pos+2 < m_subs.size());
-      if(pos)
+      if(pos || escape_k)
+      {
          m_subs[pos+2].first = i;
+         if(escape_k)
+         {
+            m_subs[1].second = i;
+            m_subs[1].matched = (m_subs[1].first != m_subs[1].second);
+         }
+      }
       else
          set_first(i);
    }
    void BOOST_REGEX_CALL maybe_assign(const match_results<BidiIterator, Allocator>& m);
 
+   void BOOST_REGEX_CALL set_named_subs(boost::shared_ptr<named_sub_type> subs)
+   {
+      m_named_subs = subs;
+   }
 
 private:
-   vector_type            m_subs; // subexpressions
-   BidiIterator   m_base; // where the search started from
-   sub_match<BidiIterator> m_null; // a null match
+   //
+   // Error handler called when an uninitialized match_results is accessed:
+   //
+   static void raise_logic_error()
+   {
+      std::logic_error e("Attempt to access an uninitialzed boost::match_results<> class.");
+      boost::throw_exception(e);
+   }
+
+
+   vector_type            m_subs;                      // subexpressions
+   BidiIterator   m_base;                              // where the search started from
+   sub_match<BidiIterator> m_null;                     // a null match
+   boost::shared_ptr<named_sub_type> m_named_subs;     // Shared copy of named subs in the regex object
+   int m_last_closed_paren;                            // Last ) to be seen - used for formatting
+   bool m_is_singular;                                 // True if our stored iterators are singular
 };
 
 template <class BidiIterator, class Allocator>
 void BOOST_REGEX_CALL match_results<BidiIterator, Allocator>::maybe_assign(const match_results<BidiIterator, Allocator>& m)
 {
+   if(m_is_singular)
+   {
+      *this = m;
+      return;
+   }
    const_iterator p1, p2;
    p1 = begin();
    p2 = m.begin();

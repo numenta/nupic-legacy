@@ -19,7 +19,11 @@
 #include <boost/config.hpp>
 
 // Boost
-#include <boost/serialization/nvp.hpp>
+
+#ifndef BOOST_BIMAP_DISABLE_SERIALIZATION
+  #include <boost/serialization/nvp.hpp>
+#endif // BOOST_BIMAP_DISABLE_SERIALIZATION
+
 #include <boost/iterator/detail/enable_if.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
 #include <boost/bimap/relation/support/pair_by.hpp>
@@ -93,13 +97,13 @@ struct map_view_iterator : public map_view_iterator_base<Tag,Relation,CoreIterat
     friend class ::boost::serialization::access;
 
     template< class Archive >
-    void save(Archive & ar, const unsigned int version) const
+    void save(Archive & ar, const unsigned int) const
     {
         ar << ::boost::serialization::make_nvp("mi_iterator",this->base());
     }
 
     template< class Archive >
-    void load(Archive & ar, const unsigned int version)
+    void load(Archive & ar, const unsigned int)
     {
         CoreIterator iter;
         ar >> ::boost::serialization::make_nvp("mi_iterator",iter);
@@ -174,13 +178,13 @@ struct const_map_view_iterator :
     friend class ::boost::serialization::access;
 
     template< class Archive >
-    void save(Archive & ar, const unsigned int version) const
+    void save(Archive & ar, const unsigned int) const
     {
         ar << ::boost::serialization::make_nvp("mi_iterator",this->base());
     }
 
     template< class Archive >
-    void load(Archive & ar, const unsigned int version)
+    void load(Archive & ar, const unsigned int)
     {
         CoreIterator iter;
         ar >> ::boost::serialization::make_nvp("mi_iterator",iter);

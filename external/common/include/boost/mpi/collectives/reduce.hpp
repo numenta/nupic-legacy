@@ -52,7 +52,7 @@ namespace detail {
     BOOST_MPI_CHECK_RESULT(MPI_Reduce,
                            (const_cast<T*>(in_values), out_values, n,
                             boost::mpi::get_mpi_datatype<T>(*in_values),
-                            is_mpi_op<Op, T>::op(), root, comm));
+                            (is_mpi_op<Op, T>::op()), root, comm));
   }
 
   // We are reducing to the root for a type that has an associated MPI
@@ -65,7 +65,7 @@ namespace detail {
     BOOST_MPI_CHECK_RESULT(MPI_Reduce,
                            (const_cast<T*>(in_values), 0, n,
                             boost::mpi::get_mpi_datatype<T>(*in_values),
-                            is_mpi_op<Op, T>::op(), root, comm));
+                            (is_mpi_op<Op, T>::op()), root, comm));
   }
 
   /**********************************************************************

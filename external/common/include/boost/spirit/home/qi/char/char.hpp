@@ -1,367 +1,613 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2011 Hartmut Kaiser
+    Copyright (c)      2010 Bryce Lelbach
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(BOOST_SPIRIT_CHAR_APR_16_2006_1051AM)
-#define BOOST_SPIRIT_CHAR_APR_16_2006_1051AM
+#if !defined(BOOST_SPIRIT_CHAR_APRIL_16_2006_1051AM)
+#define BOOST_SPIRIT_CHAR_APRIL_16_2006_1051AM
 
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/string_traits.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/detail/get_encoding.hpp>
+#include <boost/spirit/home/support/char_set/basic_chset.hpp>
 #include <boost/spirit/home/qi/char/char_parser.hpp>
-#include <boost/spirit/home/qi/char/detail/get_char.hpp>
-#include <boost/spirit/home/qi/domain.hpp>
+#include <boost/spirit/home/qi/char/char_class.hpp>
+#include <boost/spirit/home/qi/meta_compiler.hpp>
+#include <boost/spirit/home/qi/auxiliary/lazy.hpp>
+#include <boost/spirit/home/qi/detail/enable_lit.hpp>
 #include <boost/fusion/include/at.hpp>
-#include <boost/fusion/include/value_at.hpp>
-#include <boost/fusion/include/vector.hpp>
-#include <boost/spirit/home/support/modifier.hpp>
-#include <boost/spirit/home/support/char_class.hpp>
-#include <boost/spirit/home/support/detail/to_narrow.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/assert.hpp>
+#include <boost/mpl/identity.hpp>
 #include <boost/utility/enable_if.hpp>
-#include <boost/type_traits/remove_reference.hpp>
-#include <boost/foreach.hpp>
-#include <boost/mpl/print.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <string>
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename CharEncoding>
+    struct use_terminal<qi::domain
+      , terminal<
+            tag::char_code<tag::char_, CharEncoding>    // enables char_
+        >
+    > : mpl::true_ {};
+
+    template <typename CharEncoding, typename A0>
+    struct use_terminal<qi::domain
+      , terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>    // enables char_('x'), char_("x")
+          , fusion::vector1<A0>                         // and char_("a-z0-9")
+        >
+    > : mpl::true_ {};
+
+    template <typename CharEncoding, typename A0, typename A1>
+    struct use_terminal<qi::domain
+      , terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>    // enables char_('a','z')
+          , fusion::vector2<A0, A1>
+        >
+    > : mpl::true_ {};
+
+    template <typename CharEncoding>                    // enables *lazy* char_('x'), char_("x")
+    struct use_lazy_terminal<                           // and char_("a-z0-9")
+        qi::domain
+      , tag::char_code<tag::char_, CharEncoding>
+      , 1 // arity
+    > : mpl::true_ {};
+
+    template <typename CharEncoding>                    // enables *lazy* char_('a','z')
+    struct use_lazy_terminal<
+        qi::domain
+      , tag::char_code<tag::char_, CharEncoding>
+      , 2 // arity
+    > : mpl::true_ {};
+
+    template <>
+    struct use_terminal<qi::domain, char>               // enables 'x'
+      : mpl::true_ {};
+
+    template <>
+    struct use_terminal<qi::domain, char[2]>            // enables "x"
+      : mpl::true_ {};
+
+    template <>
+    struct use_terminal<qi::domain, wchar_t>            // enables wchar_t
+      : mpl::true_ {};
+
+    template <>
+    struct use_terminal<qi::domain, wchar_t[2]>         // enables L"x"
+      : mpl::true_ {};
+
+    // enables lit(...)
+    template <typename A0>
+    struct use_terminal<qi::domain
+          , terminal_ex<tag::lit, fusion::vector1<A0> >
+          , typename enable_if<traits::is_char<A0> >::type>
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
-    ///////////////////////////////////////////////////////////////////////////
-    // parse any character
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct any_char : char_parser<any_char<Char>, Char>
-    {
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const&, CharParam, Context&)
-        {
-            return true;
-        }
-
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            return "any-char";
-        }
-    };
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    using spirit::lit; // lit('x') is equivalent to 'x'
+#endif
+    using spirit::lit_type;
 
     ///////////////////////////////////////////////////////////////////////////
-    // parse a single character
+    // Parser for a single character
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct literal_char : char_parser<literal_char<Char>, Char>
+    template <typename CharEncoding, bool no_attribute, bool no_case = false>
+    struct literal_char
+      : char_parser<
+            literal_char<CharEncoding, no_attribute, false>
+          , typename CharEncoding::char_type
+          , typename mpl::if_c<no_attribute, unused_type
+              , typename CharEncoding::char_type>::type>
     {
-        template <typename Component, typename Context, typename Iterator>
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
+
+        template <typename Char>
+        literal_char(Char ch)
+          : ch(static_cast<char_type>(ch)) {}
+
+        template <typename Context, typename Iterator>
         struct attribute
         {
-            typedef unused_type type;   // literal parsers have no attribute
-        };
-
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context&)
-        {
-            return detail::get_char(fusion::at_c<0>(component.elements)) == ch;
-        }
-
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            return std::string("'")
-                + spirit::detail::to_narrow_char(
-                    detail::get_char(fusion::at_c<0>(component.elements)))
-                + '\'';
-        }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    // parse a character set
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct char_set : char_parser<char_set<Char>, Char>
-    {
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context&)
-        {
-            return component.ptr->test(ch);
-        }
-
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            return "char-set";
-        }
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    // parse a lazy character
-    ///////////////////////////////////////////////////////////////////////////
-    struct lazy_char : char_parser<lazy_char>
-    {
-        template <typename Component, typename Context, typename Iterator>
-        struct attribute
-        {
-            typedef typename
-                result_of::subject<Component>::type
-            subject_type;
-
-            typedef typename
-                remove_reference<
-                    typename boost::result_of<subject_type(unused_type, Context)>::type
-                >::type
+            typedef typename mpl::if_c<
+                no_attribute, unused_type, char_type>::type
             type;
         };
 
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context& context)
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch_, Context&) const
         {
-            return fusion::at_c<0>(component.elements)(unused, context) == ch;
+            return traits::ischar<CharParam, char_encoding>::call(ch_) &&
+                   ch == char_type(ch_);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& /*context*/) const
         {
-            return std::string("'")
-                + spirit::detail::to_narrow_char(
-                    fusion::at_c<0>(component.elements)(unused, ctx))
-                + '\'';
+            return info("literal-char", char_encoding::toucs4(ch));
         }
+
+        char_type ch;
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // parse a character range
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct char_range : char_parser<char_range<Char>, Char>
+    template <typename CharEncoding, bool no_attribute>
+    struct literal_char<CharEncoding, no_attribute, true> // case insensitive
+      : char_parser<
+            literal_char<CharEncoding, no_attribute, true>
+          , typename mpl::if_c<no_attribute, unused_type
+              , typename CharEncoding::char_type>::type>
     {
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context&)
-        {
-            return
-                !(ch < fusion::at_c<0>(component.elements)) &&
-                !(fusion::at_c<1>(component.elements) < ch);
-        }
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            std::string result;
-            result += std::string("'") + fusion::at_c<0>(component.elements) + '\'';
-            result += "...";
-            result += std::string("'") + fusion::at_c<1>(component.elements) + '\'';
-            return result;
-        }
-    };
+        literal_char(char_type ch)
+          : lo(static_cast<char_type>(char_encoding::tolower(ch)))
+          , hi(static_cast<char_type>(char_encoding::toupper(ch))) {}
 
-    ///////////////////////////////////////////////////////////////////////////
-    // parse a lazy character range
-    ///////////////////////////////////////////////////////////////////////////
-    struct lazy_char_range : char_parser<lazy_char_range>
-    {
-        template <typename Component, typename Context, typename Iterator>
+        template <typename Context, typename Iterator>
         struct attribute
         {
-            typedef typename
-                result_of::subject<Component>::type
-            subject_type;
-
-            typedef typename
-                remove_reference<
-                    typename boost::result_of<subject_type(unused_type, Context)>::type
-                >::type
+            typedef typename mpl::if_c<
+                no_attribute, unused_type, char_type>::type
             type;
         };
 
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context& context)
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch_, Context&) const
         {
-            return
-                !(ch < fusion::at_c<0>(component.elements)(unused, context)) &&
-                !(fusion::at_c<1>(component.elements)(unused, context) < ch);
+            if (!traits::ischar<CharParam, char_encoding>::call(ch_))
+                return false;
+
+            char_type ch = char_type(ch_);  // optimize for token based parsing
+            return this->lo == ch || this->hi == ch;
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& /*context*/) const
         {
-            return "char-range";
+            return info("no-case-literal-char", char_encoding::toucs4(lo));
         }
+
+        char_type lo, hi;
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    // no_case literal_char version
+    // Parser for a character range
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct no_case_literal_char : char_parser<no_case_literal_char<Char>, Char>
+    template <typename CharEncoding, bool no_case = false>
+    struct char_range
+      : char_parser<char_range<CharEncoding, false>, typename CharEncoding::char_type>
     {
-        template <typename Component, typename Context, typename Iterator>
-        struct attribute
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
+
+        char_range(char_type from, char_type to)
+          : from(from), to(to) {}
+
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch_, Context&) const
         {
-            typedef unused_type type;   // literal parsers have no attribute
+            if (!traits::ischar<CharParam, char_encoding>::call(ch_))
+                return false;
+
+            char_type ch = char_type(ch_);  // optimize for token based parsing
+            return !(ch < from) && !(to < ch);
+        }
+
+        template <typename Context>
+        info what(Context& /*context*/) const
+        {
+            info result("char-range", char_encoding::toucs4(from));
+            boost::get<std::string>(result.value) += '-';
+            boost::get<std::string>(result.value) += to_utf8(char_encoding::toucs4(to));
+            return result;
+        }
+
+        char_type from, to;
+    };
+
+    template <typename CharEncoding>
+    struct char_range<CharEncoding, true> // case insensitive
+      : char_parser<char_range<CharEncoding, true>, typename CharEncoding::char_type>
+    {
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
+
+        char_range(char_type from, char_type to)
+          : from_lo(static_cast<char_type>(char_encoding::tolower(from)))
+          , to_lo(static_cast<char_type>(char_encoding::tolower(to)))
+          , from_hi(static_cast<char_type>(char_encoding::toupper(from)))
+          , to_hi(static_cast<char_type>(char_encoding::toupper(to)))
+        {}
+
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch_, Context&) const
+        {
+            if (!traits::ischar<CharParam, char_encoding>::call(ch_))
+                return false;
+
+            char_type ch = char_type(ch_);  // optimize for token based parsing
+            return (!(ch < from_lo) && !(to_lo < ch))
+                || (!(ch < from_hi) && !(to_hi < ch))
+            ;
+        }
+
+        template <typename Context>
+        info what(Context& /*context*/) const
+        {
+            info result("no-case-char-range", char_encoding::toucs4(from_lo));
+            boost::get<std::string>(result.value) += '-';
+            boost::get<std::string>(result.value) += to_utf8(char_encoding::toucs4(to_lo));
+            return result;
+        }
+
+        char_type from_lo, to_lo, from_hi, to_hi;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser for a character set
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename CharEncoding, bool no_attribute, bool no_case = false>
+    struct char_set
+      : char_parser<char_set<CharEncoding, no_attribute, false>
+          , typename mpl::if_c<no_attribute, unused_type
+              , typename CharEncoding::char_type>::type>
+    {
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
+
+        template <typename String>
+        char_set(String const& str)
+        {
+            using spirit::detail::cast_char;
+
+            typedef typename
+                remove_const<
+                    typename traits::char_type_of<String>::type
+                >::type
+            in_type;
+
+            BOOST_SPIRIT_ASSERT_MSG((
+                (sizeof(char_type) >= sizeof(in_type))
+            ), cannot_convert_string, (String));
+
+            in_type const* definition =
+                (in_type const*)traits::get_c_string(str);
+            in_type ch = *definition++;
+            while (ch)
+            {
+                in_type next = *definition++;
+                if (next == '-')
+                {
+                    next = *definition++;
+                    if (next == 0)
+                    {
+                        chset.set(cast_char<char_type>(ch));
+                        chset.set('-');
+                        break;
+                    }
+                    chset.set(
+                        cast_char<char_type>(ch),
+                        cast_char<char_type>(next)
+                    );
+                }
+                else
+                {
+                    chset.set(cast_char<char_type>(ch));
+                }
+                ch = next;
+            }
+        }
+
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch, Context&) const
+        {
+            return traits::ischar<CharParam, char_encoding>::call(ch) &&
+                   chset.test(char_type(ch));
+        }
+
+        template <typename Context>
+        info what(Context& /*context*/) const
+        {
+            return info("char-set");
+        }
+
+        support::detail::basic_chset<char_type> chset;
+    };
+
+    template <typename CharEncoding, bool no_attribute>
+    struct char_set<CharEncoding, no_attribute, true> // case insensitive
+      : char_parser<char_set<CharEncoding, no_attribute, true>
+          , typename mpl::if_c<no_attribute, unused_type
+              , typename CharEncoding::char_type>::type>
+    {
+        typedef typename CharEncoding::char_type char_type;
+        typedef CharEncoding char_encoding;
+
+        template <typename String>
+        char_set(String const& str)
+        {
+            typedef typename traits::char_type_of<String>::type in_type;
+
+            BOOST_SPIRIT_ASSERT_MSG((
+                (sizeof(char_type) == sizeof(in_type))
+            ), cannot_convert_string, (String));
+
+            char_type const* definition =
+                (char_type const*)traits::get_c_string(str);
+            char_type ch = *definition++;
+            while (ch)
+            {
+                char_type next = *definition++;
+                if (next == '-')
+                {
+                    next = *definition++;
+                    if (next == 0)
+                    {
+                        chset.set(static_cast<char_type>(CharEncoding::tolower(ch)));
+                        chset.set(static_cast<char_type>(CharEncoding::toupper(ch)));
+                        chset.set('-');
+                        break;
+                    }
+                    chset.set(static_cast<char_type>(CharEncoding::tolower(ch))
+                      , static_cast<char_type>(CharEncoding::tolower(next)));
+                    chset.set(static_cast<char_type>(CharEncoding::toupper(ch))
+                      , static_cast<char_type>(CharEncoding::toupper(next)));
+                }
+                else
+                {
+                    chset.set(static_cast<char_type>(CharEncoding::tolower(ch)));
+                    chset.set(static_cast<char_type>(CharEncoding::toupper(ch)));
+                }
+                ch = next;
+            }
+        }
+
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch, Context&) const
+        {
+            return traits::ischar<CharParam, char_encoding>::call(ch) &&
+                   chset.test(char_type(ch));
+        }
+
+        template <typename Context>
+        info what(Context& /*context*/) const
+        {
+            return info("no-case-char-set");
+        }
+
+        support::detail::basic_chset<char_type> chset;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    namespace detail
+    {
+        template <typename Modifiers, typename Encoding>
+        struct basic_literal
+        {
+            static bool const no_case =
+                has_modifier<
+                    Modifiers
+                  , tag::char_code_base<tag::no_case>
+                >::value;
+
+            static bool const no_attr =
+                !has_modifier<
+                    Modifiers
+                  , tag::lazy_eval
+                >::value;
+
+            typedef literal_char<
+                typename spirit::detail::get_encoding_with_case<
+                    Modifiers, Encoding, no_case>::type
+              , no_attr
+              , no_case>
+            result_type;
+
+            template <typename Char>
+            result_type operator()(Char ch, unused_type) const
+            {
+                return result_type(ch);
+            }
+
+            template <typename Char>
+            result_type operator()(Char const* str, unused_type) const
+            {
+                return result_type(str[0]);
+            }
         };
+    }
 
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context&)
-        {
-            return detail::get_char(fusion::at_c<0>(component.elements)) == ch
-                || detail::get_char(fusion::at_c<1>(component.elements)) == ch
-            ;
-        }
+    template <typename Modifiers>
+    struct make_primitive<char, Modifiers>
+      : detail::basic_literal<Modifiers, char_encoding::standard> {};
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+    template <typename Modifiers>
+    struct make_primitive<char const(&)[2], Modifiers>
+      : detail::basic_literal<Modifiers, char_encoding::standard> {};
+
+    template <typename Modifiers>
+    struct make_primitive<wchar_t, Modifiers>
+      : detail::basic_literal<Modifiers, char_encoding::standard_wide> {};
+
+    template <typename Modifiers>
+    struct make_primitive<wchar_t const(&)[2], Modifiers>
+      : detail::basic_literal<Modifiers, char_encoding::standard_wide> {};
+
+    template <typename CharEncoding, typename Modifiers>
+    struct make_primitive<
+        terminal<tag::char_code<tag::char_, CharEncoding> >, Modifiers>
+    {
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
+
+        typedef tag::char_code<tag::char_, char_encoding> tag;
+        typedef char_class<tag> result_type;
+        result_type operator()(unused_type, unused_type) const
         {
-            std::string result;
-            result += std::string("'")
-                + spirit::detail::to_narrow_char(
-                    detail::get_char(fusion::at_c<0>(component.elements))) + '\'';
-            result += " or ";
-            result += std::string("'") +
-                spirit::detail::to_narrow_char(
-                    detail::get_char(fusion::at_c<1>(component.elements))) + '\'';
-            return result;
+            return result_type();
         }
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    // no_case char_range version
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Char>
-    struct no_case_char_range : char_parser<no_case_char_range<Char>, Char>
+    // char_('x')
+    template <typename CharEncoding, typename Modifiers, typename A0>
+    struct make_primitive<
+        terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>
+          , fusion::vector1<A0> >
+      , Modifiers>
     {
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const& component, CharParam ch, Context&)
-        {
-            return
-                (!(ch < fusion::at_c<0>(component.elements)) &&
-                 !(fusion::at_c<1>(component.elements) < ch))
-            ||  (!(ch < fusion::at_c<2>(component.elements)) &&
-                 !(fusion::at_c<3>(component.elements) < ch))
-            ;
-        }
+        static bool const no_case =
+            has_modifier<Modifiers, tag::char_code_base<tag::no_case> >::value;
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
-        {
-            std::string result;
-            result += std::string("'") + fusion::at_c<0>(component.elements) + '\'';
-            result += "...";
-            result += std::string("'") + fusion::at_c<1>(component.elements) + '\'';
-            result += " or ";
-            result += std::string("'") + fusion::at_c<2>(component.elements) + '\'';
-            result += "...";
-            result += std::string("'") + fusion::at_c<3>(component.elements) + '\'';
-            return result;
-        }
-    };
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
 
-    template <typename Char, typename Elements>
-    struct char_set_component;
-}}}
+        typedef typename
+            mpl::if_<
+                traits::is_string<A0>
+              , char_set<char_encoding, false, no_case>
+              , literal_char<char_encoding, false, no_case>
+            >::type
+        result_type;
 
-namespace boost { namespace spirit { namespace traits
-{
-    ///////////////////////////////////////////////////////////////////////////
-    // char_set_component generator
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename Char, typename Elements, typename Modifier>
-    struct make_component<qi::domain, qi::char_set<Char>, Elements, Modifier
-      , typename disable_if<
-            is_member_of_modifier<Modifier, spirit::char_class::no_case_base_tag>
-        >::type
-    > : mpl::identity<qi::char_set_component<Char, Elements> >
-    {
-        static qi::char_set_component<Char, Elements>
-        call(Elements const& elements)
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
         {
-            return qi::char_set_component<Char, Elements>(
-                fusion::at_c<0>(elements));
+            return result_type(fusion::at_c<0>(term.args));
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // no_case char_set_component generator
-    ///////////////////////////////////////////////////////////////////////////
-    template <
-        typename Domain, typename Elements, typename Modifier, typename Char
-    >
-    struct make_modified_component<
-        Domain, qi::char_set<Char>, Elements, Modifier
-      , typename enable_if<
-            is_member_of_modifier<Modifier, spirit::char_class::no_case_base_tag>
-        >::type
-    >
+    // lit('x')
+    template <typename Modifiers, typename A0>
+    struct make_primitive<
+        terminal_ex<tag::lit, fusion::vector1<A0> >
+      , Modifiers
+      , typename enable_if<traits::is_char<A0> >::type>
     {
-        typedef qi::char_set_component<Char, Elements> type;
-        typedef typename Modifier::char_set char_set;
+        static bool const no_case =
+            has_modifier<
+                Modifiers
+              , tag::char_code_base<tag::no_case>
+            >::value;
 
-        static type
-        call(Elements const& elements)
+        typedef typename traits::char_encoding_from_char<
+                typename traits::char_type_of<A0>::type>::type encoding;
+
+        typedef literal_char<
+            typename spirit::detail::get_encoding_with_case<
+                Modifiers, encoding, no_case>::type
+          , true, no_case>
+        result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
         {
-            return qi::char_set_component<Char, Elements>(
-                fusion::at_c<0>(elements), char_set());
+            return result_type(fusion::at_c<0>(term.args));
         }
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    // no_case_literal_char generator
-    ///////////////////////////////////////////////////////////////////////////
-    template <
-        typename Domain, typename Elements, typename Modifier, typename Char
-    >
-    struct make_modified_component<
-        Domain, qi::literal_char<Char>, Elements, Modifier
-      , typename enable_if<
-            is_member_of_modifier<Modifier, spirit::char_class::no_case_base_tag>
-        >::type
-    >
+    template <typename CharEncoding, typename Modifiers, typename Char>
+    struct make_primitive<
+        terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>
+          , fusion::vector1<Char(&)[2]> // For single char strings
+        >
+      , Modifiers>
     {
-        typedef fusion::vector<Char, Char> vector_type;
-        typedef
-            component<qi::domain, qi::no_case_literal_char<Char>, vector_type>
-        type;
+        static bool const no_case =
+            has_modifier<Modifiers, tag::char_code_base<tag::no_case> >::value;
 
-        static type
-        call(Elements const& elements)
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
+
+        typedef literal_char<char_encoding, false, no_case> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
         {
-            typedef typename Modifier::char_set char_set;
+            return result_type(fusion::at_c<0>(term.args)[0]);
+        }
+    };
 
-            Char ch = qi::detail::get_char(fusion::at_c<0>(elements));
-            vector_type v(
-                char_set::tolower(ch)
-              , char_set::toupper(ch)
+    template <typename CharEncoding, typename Modifiers, typename A0, typename A1>
+    struct make_primitive<
+        terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>
+          , fusion::vector2<A0, A1>
+        >
+      , Modifiers>
+    {
+        static bool const no_case =
+            has_modifier<Modifiers, tag::char_code_base<tag::no_case> >::value;
+
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
+
+        typedef char_range<char_encoding, no_case> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
+        {
+            return result_type(
+                fusion::at_c<0>(term.args)
+              , fusion::at_c<1>(term.args)
             );
-            return type(v);
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////////
-    // no_case_char_range generator
-    ///////////////////////////////////////////////////////////////////////////
-    template <
-        typename Domain, typename Elements, typename Modifier, typename Char
-    >
-    struct make_modified_component<
-        Domain, qi::char_range<Char>, Elements, Modifier
-      , typename enable_if<
-            is_member_of_modifier<Modifier, spirit::char_class::no_case_base_tag>
-        >::type
-    >
+    template <typename CharEncoding, typename Modifiers, typename Char>
+    struct make_primitive<
+        terminal_ex<
+            tag::char_code<tag::char_, CharEncoding>
+          , fusion::vector2<Char(&)[2], Char(&)[2]> // For single char strings
+        >
+      , Modifiers>
     {
-        typedef fusion::vector<Char, Char, Char, Char> vector_type;
-        typedef
-            component<qi::domain, qi::no_case_char_range<Char>, vector_type>
-        type;
+        static bool const no_case =
+            has_modifier<Modifiers, tag::char_code_base<tag::no_case> >::value;
 
-        static type
-        call(Elements const& elements)
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
+
+        typedef char_range<char_encoding, no_case> result_type;
+
+        template <typename Terminal>
+        result_type operator()(Terminal const& term, unused_type) const
         {
-            typedef typename Modifier::char_set char_set;
-
-            Char first = fusion::at_c<0>(elements);
-            Char last = fusion::at_c<1>(elements);
-            vector_type v(
-                char_set::tolower(first)
-              , char_set::tolower(last)
-              , char_set::toupper(first)
-              , char_set::toupper(last)
+            return result_type(
+                fusion::at_c<0>(term.args)[0]
+              , fusion::at_c<1>(term.args)[0]
             );
-            return type(v);
         }
     };
 }}}

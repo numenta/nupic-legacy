@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : token iterator for string and range tokenization
 // ***************************************************************************
@@ -192,7 +192,7 @@ protected:
     : m_is_dropped( dt_isspace )
     , m_is_kept( dt_ispunct )
     , m_keep_empty_tokens( false )
-    , m_tokens_left( (std::size_t)-1 )
+    , m_tokens_left( static_cast<std::size_t>(-1) )
     , m_token_produced( false )
     {
     }

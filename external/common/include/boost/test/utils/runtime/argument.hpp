@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : model of actual argument (both typed and abstract interface)
 // ***************************************************************************
@@ -34,6 +34,11 @@ namespace BOOST_RT_PARAM_NAMESPACE {
 // ************************************************************************** //
 // **************              runtime::argument               ************** //
 // ************************************************************************** //
+
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4244)
+#endif
 
 class argument {
 public:
@@ -76,23 +81,27 @@ public:
 
 template<typename T>
 inline T const&
-arg_value( argument const& arg )
+arg_value( argument const& arg_ )
 {
-    assert( arg.p_value_type == rtti::type_id<T>() ); // detect logic error
+    assert( arg_.p_value_type == rtti::type_id<T>() ); // detect logic error
 
-    return static_cast<typed_argument<T> const&>( arg ).p_value.value;
+    return static_cast<typed_argument<T> const&>( arg_ ).p_value.value;
 }
 
 //____________________________________________________________________________//
 
 template<typename T>
 inline T&
-arg_value( argument& arg )
+arg_value( argument& arg_ )
 {
-    assert( arg.p_value_type == rtti::type_id<T>() ); // detect logic error
+    assert( arg_.p_value_type == rtti::type_id<T>() ); // detect logic error
 
-    return static_cast<typed_argument<T>&>( arg ).p_value.value;
+    return static_cast<typed_argument<T>&>( arg_ ).p_value.value;
 }
+
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 
 //____________________________________________________________________________//
 

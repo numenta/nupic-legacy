@@ -33,7 +33,7 @@ namespace detail {
     BOOST_MPI_CHECK_RESULT(MPI_Allreduce,
                            (const_cast<T*>(in_values), out_values, n,
                             boost::mpi::get_mpi_datatype<T>(*in_values),
-                            is_mpi_op<Op, T>::op(), comm));
+                            (is_mpi_op<Op, T>::op()), comm));
   }
 
   /**********************************************************************

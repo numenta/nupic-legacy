@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -37,7 +37,8 @@ namespace util {
     {
         pattern_and(CharT pattern_, unsigned long pattern_mask_ = 0UL)
         :   pattern(pattern_), 
-            pattern_mask((0UL != pattern_mask_) ? pattern_mask_ : pattern_)
+            pattern_mask((0UL != pattern_mask_) ? 
+                pattern_mask_ : (unsigned long)pattern_)
         {}
 
         template <typename T>
@@ -50,8 +51,8 @@ namespace util {
 
     template <typename CharT>
     inline pattern_and<CharT>
-    pattern_p(CharT pattern, long pattern_mask = 0L)
-    { return pattern_and<CharT>(pattern, (unsigned long)pattern_mask); }
+    pattern_p(CharT pattern, unsigned long pattern_mask = 0UL)
+    { return pattern_and<CharT>(pattern, pattern_mask); }
 
 ///////////////////////////////////////////////////////////////////////////////
 }   // namespace util

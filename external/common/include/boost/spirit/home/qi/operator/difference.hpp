@@ -1,52 +1,60 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#if !defined(SPIRIT_DIFFERENCE_FEB_11_2007_1250PM)
-#define SPIRIT_DIFFERENCE_FEB_11_2007_1250PM
+#if !defined(SPIRIT_DIFFERENCE_FEBRUARY_11_2007_1250PM)
+#define SPIRIT_DIFFERENCE_FEBRUARY_11_2007_1250PM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/spirit/home/qi/domain.hpp>
-#include <boost/spirit/home/support/component.hpp>
-#include <boost/spirit/home/support/attribute_of.hpp>
-#include <vector>
+#include <boost/spirit/home/qi/meta_compiler.hpp>
+#include <boost/spirit/home/qi/parser.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
+#include <boost/fusion/include/at.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_operator<qi::domain, proto::tag::minus> // enables -
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
-    struct difference
+    template <typename Left, typename Right>
+    struct difference : binary_parser<difference<Left, Right> >
     {
-        template <typename Component, typename Context, typename Iterator>
+        typedef Left left_type;
+        typedef Right right_type;
+
+        template <typename Context, typename Iterator>
         struct attribute
         {
             typedef typename
-                result_of::left<Component>::type
-            left_type;
-
-            typedef typename
-                traits::attribute_of<
-                    qi::domain, left_type, Context, Iterator>::type
+                traits::attribute_of<left_type, Context, Iterator>::type
             type;
         };
 
-        template <
-            typename Component
-          , typename Iterator, typename Context
+        difference(Left const& left, Right const& right)
+          : left(left), right(right) {}
+
+        template <typename Iterator, typename Context
           , typename Skipper, typename Attribute>
-        static bool parse(
-            Component const& component
-          , Iterator& first, Iterator const& last
+        bool parse(Iterator& first, Iterator const& last
           , Context& context, Skipper const& skipper
-          , Attribute& attr)
+          , Attribute& attr) const
         {
-            typedef typename
-                result_of::left<Component>::type::director
-            ldirector;
-
-            typedef typename
-                result_of::right<Component>::type::director
-            rdirector;
-
             // Unlike classic Spirit, with this version of difference, the rule
             // lit("policeman") - "police" will always fail to match.
 
@@ -56,38 +64,49 @@ namespace boost { namespace spirit { namespace qi
 
             // Try RHS first
             Iterator start = first;
-            if (rdirector::parse(spirit::right(component), first, last, context, 
-                skipper, unused))
+            if (right.parse(first, last, context, skipper, unused))
             {
                 // RHS succeeds, we fail.
                 first = start;
                 return false;
             }
             // RHS fails, now try LHS
-            return ldirector::parse(spirit::left(component), first, last, 
-                context, skipper, attr);
+            return left.parse(first, last, context, skipper, attr);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "difference[";
-
-            typedef typename
-                result_of::left<Component>::type::director
-            ldirector;
-
-            typedef typename
-                result_of::right<Component>::type::director
-            rdirector;
-
-            result += ldirector::what(spirit::left(component), ctx);
-            result += ", ";
-            result += rdirector::what(spirit::right(component), ctx);
-            result += "]";
-            return result;
+            return info("difference",
+                std::make_pair(left.what(context), right.what(context)));
         }
+
+        Left left;
+        Right right;
     };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements, typename Modifiers>
+    struct make_composite<proto::tag::minus, Elements, Modifiers>
+      : make_binary_composite<Elements, difference>
+    {};
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Left, typename Right>
+    struct has_semantic_action<qi::difference<Left, Right> >
+      : binary_has_semantic_action<Left, Right> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Left, typename Right, typename Attribute
+      , typename Context, typename Iterator>
+    struct handles_container<qi::difference<Left, Right>, Attribute, Context
+      , Iterator>
+      : binary_handles_container<Left, Right, Attribute, Context, Iterator> {};
 }}}
 
 #endif

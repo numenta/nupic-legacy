@@ -26,6 +26,7 @@
 #include <boost/bimap/container_adaptor/detail/identity_converters.hpp>
 #include <boost/bimap/container_adaptor/container_adaptor.hpp>
 #include <boost/call_traits.hpp>
+#include <boost/operators.hpp>
 
 namespace boost {
 namespace bimaps {

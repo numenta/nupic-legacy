@@ -270,7 +270,7 @@ namespace boost
 
     vertex_t m_lead;
     vertex_t m_follow;
-	edge_storage<Graph, boost::is_same<ValueType, edge_t>::value > m_edge;
+    edge_storage<Graph, boost::is_same<ValueType, edge_t>::value > m_edge;
     FaceHandlesMap m_face_handles;
   };
   

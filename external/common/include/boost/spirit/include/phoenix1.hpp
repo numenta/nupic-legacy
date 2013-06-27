@@ -6,7 +6,7 @@
   Distributed under the Boost Software License, Version 1.0. (See accompanying
   file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#ifndef BOOST_SPIRIT_INCLUDE_PHOENIX
-#define BOOST_SPIRIT_INCLUDE_PHOENIX
+#ifndef BOOST_SPIRIT_INCLUDE_PHOENIX1
+#define BOOST_SPIRIT_INCLUDE_PHOENIX1
 #include <boost/spirit/home/classic/phoenix.hpp>
 #endif

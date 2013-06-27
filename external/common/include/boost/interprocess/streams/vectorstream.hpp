@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2008. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -8,7 +8,7 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 //
-// This file comes from SGI's sstream file. Modified by Ion Gaztanaga 2005.
+// This file comes from SGI's sstream file. Modified by Ion Gaztanaga 2005-2012.
 // Changed internal SGI string to a generic, templatized vector. Added efficient
 // internal buffer get/set/swap functions, so that we can obtain/establish the
 // internal buffer without any reallocation or copy. Kill those temporaries!
@@ -30,7 +30,7 @@
 //!This file defines basic_vectorbuf, basic_ivectorstream,
 //!basic_ovectorstream, and basic_vectorstreamclasses.  These classes
 //!represent streamsbufs and streams whose sources or destinations are
-//!STL-like vectors that can be swapped with external vectors to avoid 
+//!STL-like vectors that can be swapped with external vectors to avoid
 //!unnecessary allocations/copies.
 
 #ifndef BOOST_INTERPROCESS_VECTORSTREAM_HPP
@@ -43,17 +43,17 @@
 #include <ios>
 #include <istream>
 #include <ostream>
-#include <string>    // char traits            
+#include <string>    // char traits
 #include <cstddef>   // ptrdiff_t
 #include <boost/interprocess/interprocess_fwd.hpp>
-#include <cassert>
+#include <boost/assert.hpp>
 
 namespace boost {  namespace interprocess {
 
 //!A streambuf class that controls the transmission of elements to and from
-//!a basic_ivectorstream, basic_ovectorstream or basic_vectorstream. 
+//!a basic_ivectorstream, basic_ovectorstream or basic_vectorstream.
 //!It holds a character vector specified by CharVector template parameter
-//!as its formatting buffer. The vector must have contiguous storage, like 
+//!as its formatting buffer. The vector must have contiguous storage, like
 //!std::vector, boost::interprocess::vector or boost::interprocess::basic_string
 template <class CharVector, class CharTraits>
 class basic_vectorbuf
@@ -96,11 +96,11 @@ class basic_vectorbuf
 
    public:
 
-   //!Swaps the underlying vector with the passed vector. 
+   //!Swaps the underlying vector with the passed vector.
    //!This function resets the read/write position in the stream.
    //!Does not throw.
    void swap_vector(vector_type &vect)
-   {  
+   {
       if (this->m_mode & std::ios_base::out){
          //Update high water if necessary
          //And resize vector to remove extra size
@@ -108,64 +108,70 @@ class basic_vectorbuf
             //Restore the vector's size if necessary
             mp_high_water = base_t::pptr();
          }
+         //This does not reallocate
          m_vect.resize(mp_high_water - (m_vect.size() ? &m_vect[0] : 0));
-
-         //Now swap vector
-         m_vect.swap(vect);
-
-         //If the stream is writable put the high water mark
-         //and maximize the size.
-         typename vector_type::size_type old_size = m_vect.size();
-         m_vect.resize(m_vect.capacity());
-         this->initialize_pointers();
-         mp_high_water = old_size ? &m_vect[0] + old_size : 0;
       }
-      else{
-         //Now swap vector
-         m_vect.swap(vect);
-         this->initialize_pointers();
-      }
+      //Now swap vector
+      m_vect.swap(vect);
+      this->initialize_pointers();
    }
 
    //!Returns a const reference to the internal vector.
    //!Does not throw.
-   const vector_type &vector() const 
-   {  
+   const vector_type &vector() const
+   {
       if (this->m_mode & std::ios_base::out){
          if (mp_high_water < base_t::pptr()){
             //Restore the vector's size if necessary
             mp_high_water = base_t::pptr();
          }
-         m_vect.resize(mp_high_water - (m_vect.size() ? &m_vect[0] : 0));
-         const_cast<basic_vectorbuf * const>(this)->initialize_pointers();
+         //This shouldn't reallocate
+         typedef typename vector_type::size_type size_type;
+         char_type *old_ptr = base_t::pbase();
+         size_type high_pos = size_type(mp_high_water-old_ptr);
+         if(m_vect.size() > high_pos){
+            m_vect.resize(high_pos);
+            //But we must update end write pointer because vector size is now shorter
+            int old_pos = base_t::pptr() - base_t::pbase();
+            const_cast<basic_vectorbuf*>(this)->base_t::setp(old_ptr, old_ptr + high_pos);
+            const_cast<basic_vectorbuf*>(this)->base_t::pbump(old_pos);
+         }
       }
-      return m_vect; 
+      return m_vect;
    }
 
    //!Preallocates memory from the internal vector.
    //!Resets the stream to the first position.
    //!Throws if the internals vector's memory allocation throws.
-   void reserve(typename vector_type::size_type size) 
+   void reserve(typename vector_type::size_type size)
    {
-      m_vect.reserve(size);
-      //Now update pointer data
-      typename vector_type::size_type old_size = m_vect.size();
-      m_vect.resize(m_vect.capacity());
-      this->initialize_pointers();
-      mp_high_water = old_size ? &m_vect[0] + old_size : 0;
+      if (this->m_mode & std::ios_base::out && size > m_vect.size()){
+         typename vector_type::difference_type write_pos = base_t::pptr() - base_t::pbase();
+         typename vector_type::difference_type read_pos  = base_t::gptr() - base_t::eback();
+         //Now update pointer data
+         m_vect.reserve(size);
+         this->initialize_pointers();
+         base_t::pbump((int)write_pos);
+         if(this->m_mode & std::ios_base::in){
+            base_t::gbump((int)read_pos);
+         }
+      }
    }
 
    //!Calls clear() method of the internal vector.
    //!Resets the stream to the first position.
-   void clear() 
+   void clear()
    {  m_vect.clear();   this->initialize_pointers();   }
 
    /// @cond
    private:
+   //Maximizes high watermark to the initial vector size,
+   //initializes read and write iostream buffers to the capacity
+   //and resets stream positions
    void initialize_pointers()
    {
       // The initial read position is the beginning of the vector.
-      if(m_mode & std::ios_base::in){
+      if(!(m_mode & std::ios_base::out)){
          if(m_vect.empty()){
             this->setg(0, 0, 0);
          }
@@ -176,17 +182,29 @@ class basic_vectorbuf
 
       // The initial write position is the beginning of the vector.
       if(m_mode & std::ios_base::out){
+         //First get real size
+         int real_size = (int)m_vect.size();
+         //Then maximize size for high watermarking
+         m_vect.resize(m_vect.capacity());
+         BOOST_ASSERT(m_vect.size() == m_vect.capacity());
+         //Set high watermarking with the expanded size
+         mp_high_water = m_vect.size() ? (&m_vect[0] + real_size) : 0;
+         //Now set formatting pointers
          if(m_vect.empty()){
             this->setp(0, 0);
+            if(m_mode & std::ios_base::in)
+               this->setg(0, 0, 0);
          }
          else{
-            this->setp(&m_vect[0], &m_vect[0] + m_vect.size());
+            char_type *p = &m_vect[0];
+            this->setp(p, p + m_vect.size());
+            if(m_mode & std::ios_base::in)
+               this->setg(p, p, p + real_size);
          }
-
-         if (m_mode & (std::ios_base::app | std::ios_base::ate))
-            base_t::pbump((int)m_vect.size());
+         if (m_mode & (std::ios_base::app | std::ios_base::ate)){
+            base_t::pbump((int)real_size);
+         }
       }
-      mp_high_water = m_vect.empty() ? 0 : (&m_vect[0] + m_vect.size());
    }
 
    protected:
@@ -194,10 +212,12 @@ class basic_vectorbuf
    {
       if (base_t::gptr() == 0)
          return CharTraits::eof();
-      if (mp_high_water < base_t::pptr())
-         mp_high_water = base_t::pptr();
-      if (base_t::egptr() < mp_high_water)
-         base_t::setg(base_t::eback(), base_t::gptr(), mp_high_water);
+      if(m_mode & std::ios_base::out){
+         if (mp_high_water < base_t::pptr())
+            mp_high_water = base_t::pptr();
+         if (base_t::egptr() < mp_high_water)
+            base_t::setg(base_t::eback(), base_t::gptr(), mp_high_water);
+      }
       if (base_t::gptr() < base_t::egptr())
          return CharTraits::to_int_type(*base_t::gptr());
       return CharTraits::eof();
@@ -232,48 +252,27 @@ class basic_vectorbuf
    {
       if(m_mode & std::ios_base::out) {
          if(!CharTraits::eq_int_type(c, CharTraits::eof())) {
-//            if(!(m_mode & std::ios_base::in)) {
-//               if(this->pptr() < this->epptr()) {
-//                  *this->pptr() = CharTraits::to_char_type(c);
-//                           this->pbump(1);
-//                  if (mp_high_water < base_t::pptr())
-//                     mp_high_water = base_t::pptr();
-//                  if ((m_mode & std::ios_base::in) && base_t::egptr() < mp_high_water)
-//                     base_t::setg(base_t::eback(), base_t::gptr(), mp_high_water);
-//                  return c;
-//               }
-//               else
-//                  return CharTraits::eof();
-//            }
-//            else {
-//               try{
-                  typedef typename vector_type::difference_type dif_t;
-                  dif_t inpos  = base_t::gptr() - base_t::eback();
-                  //The new output position is the previous one plus one
-                  //because 'overflow' requires putting 'c' on the buffer
-                  dif_t new_outpos = base_t::pptr() - base_t::pbase() + 1;
-                  //Adjust high water if necessary
-                  dif_t hipos = mp_high_water - base_t::pbase();
-                  if (hipos < new_outpos)
-                     hipos = new_outpos;
-                  //Insert the new data
-                  m_vect.push_back(CharTraits::to_char_type(c));
-                  m_vect.resize(m_vect.capacity());
-                  char_type* p = const_cast<char_type*>(&m_vect[0]);
-                  //A reallocation has happened, update pointers
-                  if (m_mode & std::ios_base::in)
-                     base_t::setg(p, p + inpos, p + hipos);
-                  base_t::setp(p, p + (dif_t)m_vect.size());
-                  //Update write position to the old position + 1
-                  base_t::pbump((int)new_outpos);
-                  //Update high water pointer, since the buffer has been reallocated
-                  mp_high_water = base_t::pbase() + hipos;
-                  return c;
-//               }
-//               catch(...){
-//                  return CharTraits::eof();
-//               }
-//            }
+               typedef typename vector_type::difference_type dif_t;
+               //The new output position is the previous one plus one
+               //because 'overflow' requires putting 'c' on the buffer
+               dif_t new_outpos = base_t::pptr() - base_t::pbase() + 1;
+               //Adjust high water if necessary
+               dif_t hipos = mp_high_water - base_t::pbase();
+               if (hipos < new_outpos)
+                  hipos = new_outpos;
+               //Insert the new data
+               m_vect.push_back(CharTraits::to_char_type(c));
+               m_vect.resize(m_vect.capacity());
+               BOOST_ASSERT(m_vect.size() == m_vect.capacity());
+               char_type* p = const_cast<char_type*>(&m_vect[0]);
+               //A reallocation might have happened, update pointers
+               base_t::setp(p, p + (dif_t)m_vect.size());
+               mp_high_water = p + hipos;
+               if (m_mode & std::ios_base::in)
+                  base_t::setg(p, p + (base_t::gptr() - base_t::eback()), mp_high_water);
+               //Update write position to the old position + 1
+               base_t::pbump((int)new_outpos);
+               return c;
          }
          else  // c is EOF, so we don't have to do anything
             return CharTraits::not_eof(c);
@@ -283,24 +282,15 @@ class basic_vectorbuf
    }
 
    virtual pos_type seekoff(off_type off, std::ios_base::seekdir dir,
-                              std::ios_base::openmode mode 
+                              std::ios_base::openmode mode
                                  = std::ios_base::in | std::ios_base::out)
    {
-      bool in = false, out = false;
-         
-      const std::ios_base::openmode inout = 
-         std::ios_base::in | std::ios_base::out;
-
-      if((mode & inout) == inout) {
-         if(dir == std::ios_base::beg || dir == std::ios_base::end)
-            in = out = true;
-      }
-      else if(mode & std::ios_base::in)
-         in = true;
-      else if(mode & std::ios_base::out)
-         out = true;
-
-      if(!in && !out)
+      //Get seek mode
+      bool in(0 != (mode & std::ios_base::in)), out(0 != (mode & std::ios_base::out));
+      //Test for logic errors
+      if(!in & !out)
+         return pos_type(off_type(-1));
+      else if((in && out) && (dir == std::ios_base::cur))
          return pos_type(off_type(-1));
       else if((in  && (!(m_mode & std::ios_base::in) || this->gptr() == 0)) ||
                (out && (!(m_mode & std::ios_base::out) || this->pptr() == 0)))
@@ -310,8 +300,22 @@ class basic_vectorbuf
       //Just calculate the end of the stream. If the stream is read-only
       //the limit is the size of the vector. Otherwise, the high water mark
       //will mark the real size.
-      off_type limit = static_cast<off_type> (mode & std::ios_base::out ?
-         mp_high_water - base_t::pbase() : m_vect.size()/*mp_high_water - base_t::eback()*/);
+      off_type limit;
+      if(m_mode & std::ios_base::out){
+         //Update high water marking because pptr() is going to change and it might
+         //have been updated since last overflow()
+         if(mp_high_water < base_t::pptr())
+            mp_high_water = base_t::pptr();
+         //Update read limits in case high water mark was changed
+         if(m_mode & std::ios_base::in){
+            if (base_t::egptr() < mp_high_water)
+               base_t::setg(base_t::eback(), base_t::gptr(), mp_high_water);
+         }
+         limit = static_cast<off_type>(mp_high_water - base_t::pbase());
+      }
+      else{
+         limit = static_cast<off_type>(m_vect.size());
+      }
 
       switch(dir) {
          case std::ios_base::beg:
@@ -321,7 +325,7 @@ class basic_vectorbuf
             newoff = limit;
          break;
          case std::ios_base::cur:
-            newoff = in ? static_cast<std::streamoff>(this->gptr() - this->eback()) 
+            newoff = in ? static_cast<std::streamoff>(this->gptr() - this->eback())
                         : static_cast<std::streamoff>(this->pptr() - this->pbase());
          break;
          default:
@@ -334,6 +338,9 @@ class basic_vectorbuf
          return pos_type(-1);
       if (m_mode & std::ios_base::app && mode & std::ios_base::out && newoff != limit)
          return pos_type(-1);
+      //This can reassign pointers
+      //if(m_vect.size() != m_vect.capacity())
+         //this->initialize_pointers();
       if (in)
          base_t::setg(base_t::eback(), base_t::eback() + newoff, base_t::egptr());
       if (out){
@@ -343,7 +350,7 @@ class basic_vectorbuf
       return pos_type(newoff);
    }
 
-   virtual pos_type seekpos(pos_type pos, std::ios_base::openmode mode 
+   virtual pos_type seekpos(pos_type pos, std::ios_base::openmode mode
                                  = std::ios_base::in | std::ios_base::out)
    {  return seekoff(pos - pos_type(off_type(0)), std::ios_base::beg, mode);  }
 
@@ -360,7 +367,10 @@ class basic_vectorbuf
 //!boost::interprocess::basic_string
 template <class CharVector, class CharTraits>
 class basic_ivectorstream
-   : public std::basic_istream<typename CharVector::value_type, CharTraits>
+   /// @cond
+   : private basic_vectorbuf<CharVector, CharTraits>
+   /// @endcond
+   , public std::basic_istream<typename CharVector::value_type, CharTraits>
 {
    public:
    typedef CharVector                                                   vector_type;
@@ -373,25 +383,27 @@ class basic_ivectorstream
 
    /// @cond
    private:
-   typedef std::basic_ios<char_type, CharTraits>                basic_ios_t;
-   typedef std::basic_istream<char_type, CharTraits>            base_t;
+   typedef basic_vectorbuf<CharVector, CharTraits>    vectorbuf_t;
+   typedef std::basic_istream<char_type, CharTraits>  base_t;
+
+   vectorbuf_t &       m_buf()      {  return *this;  }
+   const vectorbuf_t & m_buf() const{  return *this;  }
    /// @endcond
 
    public:
    //!Constructor. Throws if vector_type default
    //!constructor throws.
    basic_ivectorstream(std::ios_base::openmode mode = std::ios_base::in)
-      :  basic_ios_t(), base_t(0), m_buf(mode | std::ios_base::in)
-   {  basic_ios_t::init(&m_buf); }
+      :  vectorbuf_t(mode | std::ios_base::in), base_t(&m_buf())
+   {}
 
    //!Constructor. Throws if vector_type(const VectorParameter &param)
    //!throws.
    template<class VectorParameter>
    basic_ivectorstream(const VectorParameter &param,
                        std::ios_base::openmode mode = std::ios_base::in)
-      :  basic_ios_t(), base_t(0), 
-         m_buf(param, mode | std::ios_base::in)
-   {  basic_ios_t::init(&m_buf); }
+      :  vectorbuf_t(param, mode | std::ios_base::in), base_t(&m_buf())
+   {}
 
    ~basic_ivectorstream(){};
 
@@ -399,34 +411,29 @@ class basic_ivectorstream
    //!Returns the address of the stored
    //!stream buffer.
    basic_vectorbuf<CharVector, CharTraits>* rdbuf() const
-   { return const_cast<basic_vectorbuf<CharVector, CharTraits>*>(&m_buf); }
+   { return const_cast<basic_vectorbuf<CharVector, CharTraits>*>(&m_buf()); }
 
-   //!Swaps the underlying vector with the passed vector. 
+   //!Swaps the underlying vector with the passed vector.
    //!This function resets the read position in the stream.
    //!Does not throw.
    void swap_vector(vector_type &vect)
-   {  m_buf.swap_vector(vect);   }
+   {  m_buf().swap_vector(vect);   }
 
    //!Returns a const reference to the internal vector.
    //!Does not throw.
-   const vector_type &vector() const 
-   {  return m_buf.vector();   }
+   const vector_type &vector() const
+   {  return m_buf().vector();   }
 
    //!Calls reserve() method of the internal vector.
    //!Resets the stream to the first position.
    //!Throws if the internals vector's reserve throws.
-   void reserve(typename vector_type::size_type size) 
-   {  m_buf.reserve(size);   }
+   void reserve(typename vector_type::size_type size)
+   {  m_buf().reserve(size);   }
 
    //!Calls clear() method of the internal vector.
    //!Resets the stream to the first position.
-   void clear() 
-   {  m_buf.clear();   }
-
-   /// @cond
-   private:
-   basic_vectorbuf<CharVector, CharTraits> m_buf;
-   /// @endcond
+   void clear()
+   {  m_buf().clear();   }
 };
 
 //!A basic_ostream class that holds a character vector specified by CharVector
@@ -435,7 +442,10 @@ class basic_ivectorstream
 //!boost::interprocess::basic_string
 template <class CharVector, class CharTraits>
 class basic_ovectorstream
-   : public std::basic_ostream<typename CharVector::value_type, CharTraits>
+   /// @cond
+   : private basic_vectorbuf<CharVector, CharTraits>
+   /// @endcond
+   , public std::basic_ostream<typename CharVector::value_type, CharTraits>
 {
    public:
    typedef CharVector                                                   vector_type;
@@ -448,24 +458,27 @@ class basic_ovectorstream
 
    /// @cond
    private:
-   typedef std::basic_ios<char_type, CharTraits>      basic_ios_t;
+   typedef basic_vectorbuf<CharVector, CharTraits>    vectorbuf_t;
    typedef std::basic_ostream<char_type, CharTraits>  base_t;
+
+   vectorbuf_t &       m_buf()      {  return *this;  }
+   const vectorbuf_t & m_buf()const {  return *this;  }
    /// @endcond
 
    public:
    //!Constructor. Throws if vector_type default
    //!constructor throws.
    basic_ovectorstream(std::ios_base::openmode mode = std::ios_base::out)
-      :  basic_ios_t(), base_t(0), m_buf(mode | std::ios_base::out)
-   {  basic_ios_t::init(&m_buf); }
+      :  vectorbuf_t(mode | std::ios_base::out), base_t(&m_buf())
+   {}
 
    //!Constructor. Throws if vector_type(const VectorParameter &param)
    //!throws.
    template<class VectorParameter>
    basic_ovectorstream(const VectorParameter &param,
                         std::ios_base::openmode mode = std::ios_base::out)
-      :  basic_ios_t(), base_t(0), m_buf(param, mode | std::ios_base::out)
-   {  basic_ios_t::init(&m_buf); }
+      :  vectorbuf_t(param, mode | std::ios_base::out), base_t(&m_buf())
+   {}
 
    ~basic_ovectorstream(){}
 
@@ -473,29 +486,24 @@ class basic_ovectorstream
    //!Returns the address of the stored
    //!stream buffer.
    basic_vectorbuf<CharVector, CharTraits>* rdbuf() const
-   { return const_cast<basic_vectorbuf<CharVector, CharTraits>*>(&m_buf); }
+   { return const_cast<basic_vectorbuf<CharVector, CharTraits>*>(&m_buf()); }
 
-   //!Swaps the underlying vector with the passed vector. 
+   //!Swaps the underlying vector with the passed vector.
    //!This function resets the write position in the stream.
    //!Does not throw.
    void swap_vector(vector_type &vect)
-   {  m_buf.swap_vector(vect);   }
+   {  m_buf().swap_vector(vect);   }
 
    //!Returns a const reference to the internal vector.
    //!Does not throw.
-   const vector_type &vector() const 
-   {  return m_buf.vector();   }
+   const vector_type &vector() const
+   {  return m_buf().vector();   }
 
    //!Calls reserve() method of the internal vector.
    //!Resets the stream to the first position.
    //!Throws if the internals vector's reserve throws.
-   void reserve(typename vector_type::size_type size) 
-   {  m_buf.reserve(size);   }
-
-   /// @cond
-   private:
-   basic_vectorbuf<CharVector, CharTraits> m_buf;
-   /// @endcond
+   void reserve(typename vector_type::size_type size)
+   {  m_buf().reserve(size);   }
 };
 
 
@@ -526,7 +534,7 @@ class basic_vectorstream
    public:
    //!Constructor. Throws if vector_type default
    //!constructor throws.
-   basic_vectorstream(std::ios_base::openmode mode 
+   basic_vectorstream(std::ios_base::openmode mode
                       = std::ios_base::in | std::ios_base::out)
       :  basic_ios_t(), base_t(0), m_buf(mode)
    {  basic_ios_t::init(&m_buf); }
@@ -546,7 +554,7 @@ class basic_vectorstream
    basic_vectorbuf<CharVector, CharTraits>* rdbuf() const
    { return const_cast<basic_vectorbuf<CharVector, CharTraits>*>(&m_buf); }
 
-   //!Swaps the underlying vector with the passed vector. 
+   //!Swaps the underlying vector with the passed vector.
    //!This function resets the read/write position in the stream.
    //!Does not throw.
    void swap_vector(vector_type &vect)
@@ -554,18 +562,18 @@ class basic_vectorstream
 
    //!Returns a const reference to the internal vector.
    //!Does not throw.
-   const vector_type &vector() const 
+   const vector_type &vector() const
    {  return m_buf.vector();   }
 
    //!Calls reserve() method of the internal vector.
    //!Resets the stream to the first position.
    //!Throws if the internals vector's reserve throws.
-   void reserve(typename vector_type::size_type size) 
+   void reserve(typename vector_type::size_type size)
    {  m_buf.reserve(size);   }
 
    //!Calls clear() method of the internal vector.
    //!Resets the stream to the first position.
-   void clear() 
+   void clear()
    {  m_buf.clear();   }
 
    /// @cond

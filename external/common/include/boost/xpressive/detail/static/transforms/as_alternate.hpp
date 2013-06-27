@@ -16,7 +16,7 @@
 #include <boost/config.hpp>
 #include <boost/mpl/assert.hpp>
 #include <boost/type_traits/is_same.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/core/matcher/alternate_matcher.hpp>
@@ -61,57 +61,69 @@ namespace boost { namespace xpressive
     {
         ///////////////////////////////////////////////////////////////////////////////
         // in_alternate_list
-        template<typename Grammar>
-        struct in_alternate_list : proto::callable
+        template<typename Grammar, typename Callable = proto::callable>
+        struct in_alternate_list : proto::transform<in_alternate_list<Grammar, Callable> >
         {
-            template<typename Sig> struct result {};
-
-            template<typename This, typename Expr, typename State, typename Visitor>
-            struct result<This(Expr, State, Visitor)>
+            template<typename Expr, typename State, typename Data>
+            struct impl : proto::transform_impl<Expr, State, Data>
             {
-                typedef detail::alternates_list<
-                    typename Grammar::template result<void(Expr, detail::alternate_end_xpression, Visitor)>::type
-                  , State
-                > type;
+                typedef
+                    detail::alternates_list<
+                        typename Grammar::template impl<
+                            Expr
+                          , detail::alternate_end_xpression
+                          , Data
+                        >::result_type
+                      , State
+                    >
+                result_type;
+
+                result_type operator ()(
+                    typename impl::expr_param expr
+                  , typename impl::state_param state
+                  , typename impl::data_param data
+                ) const
+                {
+                    return result_type(
+                        typename Grammar::template impl<Expr, detail::alternate_end_xpression, Data>()(
+                            expr
+                          , detail::alternate_end_xpression()
+                          , data
+                        )
+                      , state
+                    );
+                }
             };
-
-            template<typename Expr, typename State, typename Visitor>
-            typename result<void(Expr, State, Visitor)>::type
-            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
-            {
-                return typename result<void(Expr, State, Visitor)>::type(
-                    Grammar()(expr, detail::alternate_end_xpression(), visitor)
-                  , state
-                );
-            }
         };
 
         ///////////////////////////////////////////////////////////////////////////////
         // as_alternate_matcher
-        template<typename Grammar>
-        struct as_alternate_matcher : proto::callable
+        template<typename Grammar, typename Callable = proto::callable>
+        struct as_alternate_matcher : proto::transform<as_alternate_matcher<Grammar, Callable> >
         {
-            template<typename Sig> struct result {};
-
-            template<typename This, typename Expr, typename State, typename Visitor>
-            struct result<This(Expr, State, Visitor)>
+            template<typename Expr, typename State, typename Data>
+            struct impl : proto::transform_impl<Expr, State, Data>
             {
-                typedef detail::alternate_matcher<
-                    typename Grammar::template result<void(Expr, State, Visitor)>::type
-                  , typename Visitor::traits_type
-                > type;
+                typedef typename impl::data data_type;
+                typedef
+                    detail::alternate_matcher<
+                        typename Grammar::template impl<Expr, State, Data>::result_type
+                      , typename data_type::traits_type
+                    >
+                result_type;
+
+                result_type operator ()(
+                    typename impl::expr_param expr
+                  , typename impl::state_param state
+                  , typename impl::data_param data
+                ) const
+                {
+                    return result_type(
+                        typename Grammar::template impl<Expr, State, Data>()(expr, state, data)
+                    );
+                }
             };
-
-            template<typename Expr, typename State, typename Visitor>
-            typename result<void(Expr, State, Visitor)>::type
-            operator ()(Expr const &expr, State const &state, Visitor &visitor) const
-            {
-                return typename result<void(Expr, State, Visitor)>::type(
-                    Grammar()(expr, state, visitor)
-                );
-            }
         };
-
     }
 
 }}

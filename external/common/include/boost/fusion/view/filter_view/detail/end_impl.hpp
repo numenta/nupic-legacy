@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -11,7 +11,7 @@ namespace boost { namespace fusion
 {
     struct filter_view_tag;
 
-    template <typename First, typename Last, typename Pred>
+    template <typename Category,  typename First, typename Last, typename Pred>
     struct filter_iterator;
 
     namespace extension
@@ -27,7 +27,8 @@ namespace boost { namespace fusion
             {
                 typedef typename Sequence::last_type last_type;
                 typedef typename Sequence::pred_type pred_type;
-                typedef filter_iterator<last_type, last_type, pred_type> type;
+                typedef typename Sequence::category category;
+                typedef filter_iterator<category,last_type, last_type, pred_type> type;
 
                 static type
                 call(Sequence& s)

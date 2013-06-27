@@ -1,7 +1,8 @@
 //
 //=======================================================================
 // Copyright 1997-2001 University of Notre Dame.
-// Authors: Andrew Lumsdaine, Lie-Quan Lee, Jeremy G. Siek
+// Copyright 2009 Trustees of Indiana University.
+// Authors: Andrew Lumsdaine, Lie-Quan Lee, Jeremy G. Siek, Michael Hansen
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -14,6 +15,10 @@
 
 #include <boost/detail/iterator.hpp>
 #include <boost/graph/detail/incremental_components.hpp>
+#include <boost/iterator/counting_iterator.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/pending/disjoint_sets.hpp>
+#include <iterator>
 
 namespace boost {
 
@@ -42,11 +47,6 @@ namespace boost {
   // similar to the algorithm described in Ch. 22 of "Intro to
   // Algorithms" by Cormen, et. all.
   //  
-  // RankContainer is a random accessable container (operator[] is
-  // defined) with a value type that can represent an integer part of
-  // a binary log of the value type of the corresponding
-  // ParentContainer (char is always enough) its size_type is no less
-  // than the size_type of the corresponding ParentContainer
 
   // An implementation of disjoint sets can be found in
   // boost/pending/disjoint_sets.hpp
@@ -55,7 +55,7 @@ namespace boost {
   void incremental_components(EdgeListGraph& g, DisjointSets& ds)
   {
     typename graph_traits<EdgeListGraph>::edge_iterator e, end;
-    for (tie(e,end) = edges(g); e != end; ++e)
+    for (boost::tie(e,end) = edges(g); e != end; ++e)
       ds.union_set(source(*e,g),target(*e,g));
   }
   
@@ -91,7 +91,7 @@ namespace boost {
   {
     typename graph_traits<VertexListGraph>
       ::vertex_iterator v, vend;
-    for (tie(v, vend) = vertices(G); v != vend; ++v)
+    for (boost::tie(v, vend) = vertices(G); v != vend; ++v)
       ds.make_set(*v);
   }
 
@@ -101,70 +101,131 @@ namespace boost {
     return ds.find_set(u) == ds.find_set(v);
   }
 
-  // considering changing the so that it initializes with a pair of
-  // vertex iterators and a parent PA.
-  
-  template <class IndexT>
-  class component_index
-  {
-  public://protected: (avoid friends for now)
-    typedef std::vector<IndexT> MyIndexContainer;
-    MyIndexContainer header;
-    MyIndexContainer index;
-    typedef typename MyIndexContainer::size_type SizeT;
-    typedef typename MyIndexContainer::const_iterator IndexIter;
+  // Class that builds a quick-access indexed linked list that allows
+  // for fast iterating through a parent component's children.
+  template <typename IndexType>
+  class component_index {
+
+  private:
+    typedef std::vector<IndexType> IndexContainer;
+
   public:
-    typedef detail::component_iterator<IndexIter, IndexT, SizeT> 
+    typedef counting_iterator<IndexType> iterator;
+    typedef iterator const_iterator;
+    typedef IndexType value_type;
+    typedef IndexType size_type;
+
+    typedef detail::component_index_iterator<typename IndexContainer::iterator>
       component_iterator;
-    class component {
-      friend class component_index;
-    protected:
-      IndexT number;
-      const component_index<IndexT>* comp_ind_ptr;
-      component(IndexT i, const component_index<IndexT>* p) 
-        : number(i), comp_ind_ptr(p) {}
-    public:
-      typedef component_iterator iterator;
-      typedef component_iterator const_iterator;
-      typedef IndexT value_type;
-      iterator begin() const {
-        return iterator( comp_ind_ptr->index.begin(),
-                         (comp_ind_ptr->header)[number] );
-      }
-      iterator end() const {
-        return iterator( comp_ind_ptr->index.begin(), 
-                         comp_ind_ptr->index.size() );
-      }
-    };
-    typedef SizeT size_type;
-    typedef component value_type;
-    
-#if defined(BOOST_NO_TEMPLATED_ITERATOR_CONSTRUCTORS)
-    template <class Iterator>
-    component_index(Iterator first, Iterator last) 
-    : index(std::distance(first, last))
-    { 
-      std::copy(first, last, index.begin());
-      detail::construct_component_index(index, header);
-    }
-#else
-    template <class Iterator>
-    component_index(Iterator first, Iterator last) 
-      : index(first, last)
-    { 
-      detail::construct_component_index(index, header);
-    }
-#endif
 
-    component operator[](IndexT i) const {
-      return component(i, this);
-    }
-    SizeT size() const {
-      return header.size();
-    }
-    
-  };
+  public:
+    template <typename ParentIterator,
+              typename ElementIndexMap>
+    component_index(ParentIterator parent_start,
+                    ParentIterator parent_end,
+                    const ElementIndexMap& index_map) :
+      m_num_elements(std::distance(parent_start, parent_end)),
+      m_components(make_shared<IndexContainer>()),
+      m_index_list(make_shared<IndexContainer>(m_num_elements)) {
 
+      build_index_lists(parent_start, index_map);
+      
+    } // component_index
+
+    template <typename ParentIterator>
+    component_index(ParentIterator parent_start,
+                    ParentIterator parent_end) :
+      m_num_elements(std::distance(parent_start, parent_end)),
+      m_components(make_shared<IndexContainer>()),
+      m_index_list(make_shared<IndexContainer>(m_num_elements)) {
+
+      build_index_lists(parent_start, boost::identity_property_map());
+
+    } // component_index
+
+    // Returns the number of components
+    inline std::size_t size() const {
+      return (m_components->size());
+    }
+
+    // Beginning iterator for component indices
+    iterator begin() const {
+      return (iterator(0));
+    }
+
+    // End iterator for component indices
+    iterator end() const {
+      return (iterator(this->size()));
+    }
+
+    // Returns a pair of begin and end iterators for the child
+    // elements of component [component_index].
+    std::pair<component_iterator, component_iterator>
+    operator[](IndexType component_index) const {
+
+      IndexType first_index = (*m_components)[component_index];
+
+      return (std::make_pair
+              (component_iterator(m_index_list->begin(), first_index),
+               component_iterator(m_num_elements)));
+    }
+
+  private:
+    template <typename ParentIterator,
+              typename ElementIndexMap>
+    void build_index_lists(ParentIterator parent_start,
+                           const ElementIndexMap& index_map) {
+
+      typedef typename std::iterator_traits<ParentIterator>::value_type Element;
+      typename IndexContainer::iterator index_list =
+        m_index_list->begin();
+
+      // First pass - find root elements, construct index list
+      for (IndexType element_index = 0; element_index < m_num_elements;
+           ++element_index) {
+
+        Element parent_element = parent_start[element_index];
+        IndexType parent_index = get(index_map, parent_element);
+
+        if (element_index != parent_index) {
+          index_list[element_index] = parent_index;
+        }
+        else {
+          m_components->push_back(element_index);
+
+          // m_num_elements is the linked list terminator
+          index_list[element_index] = m_num_elements;
+        }
+      }
+
+      // Second pass - build linked list
+      for (IndexType element_index = 0; element_index < m_num_elements;
+           ++element_index) {
+
+        Element parent_element = parent_start[element_index];
+        IndexType parent_index = get(index_map, parent_element);
+
+        if (element_index != parent_index) {
+
+          // Follow list until a component parent is found
+          while (index_list[parent_index] != m_num_elements) {
+            parent_index = index_list[parent_index];
+          }
+
+          // Push element to the front of the linked list
+          index_list[element_index] = index_list[parent_index];
+          index_list[parent_index] = element_index;
+        }
+      }
+
+    } // build_index_lists
+
+  protected:
+    IndexType m_num_elements;
+    shared_ptr<IndexContainer> m_components, m_index_list;
+
+  }; // class component_index
+ 
 } // namespace boost
 
 #endif // BOOST_INCREMENTAL_COMPONENTS_HPP

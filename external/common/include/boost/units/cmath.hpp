@@ -11,43 +11,35 @@
 #ifndef BOOST_UNITS_CMATH_HPP 
 #define BOOST_UNITS_CMATH_HPP
 
-#include <boost/version.hpp>
-
-// The trunk still has BOOST_VERSION == 103500
-//#if (BOOST_VERSION <= 103500)
-#if 0
-    #include <boost/units/detail/cmath_boost_1_35.hpp>
-#else
-
 #include <boost/config/no_tr1/cmath.hpp>
 #include <cstdlib>
 
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <boost/math/special_functions/hypot.hpp>
-//#include <boost/math/special_functions/next.hpp>
-//#include <boost/math/special_functions/round.hpp>
+#include <boost/math/special_functions/next.hpp>
+#include <boost/math/special_functions/round.hpp>
 #include <boost/math/special_functions/sign.hpp>
 
 #include <boost/units/dimensionless_quantity.hpp>
 #include <boost/units/pow.hpp>
 #include <boost/units/quantity.hpp>
 #include <boost/units/detail/cmath_impl.hpp>
+#include <boost/units/detail/dimensionless_unit.hpp>
 
 #include <boost/units/systems/si/plane_angle.hpp>
 
-/// \file 
-/// \brief Overloads of functions in \<cmath\> for quantities
-///
-/// \detailed Only functions for which a dimensionally-correct result type  
-/// can be determined are overloaded. All functions work with dimensionless
-/// quantities.
+/// \file
+/// \brief Overloads of functions in \<cmath\> for quantities.
+/// \details Only functions for which a dimensionally-correct result type
+///   can be determined are overloaded.
+///   All functions work with dimensionless quantities.
 
 // BOOST_PREVENT_MACRO_SUBSTITUTION is needed on certain compilers that define 
 // some <cmath> functions as macros; it is used for all functions even though it
 // isn't necessary -- I didn't want to think :)
 //
 // the form using namespace detail; return(f(x)); is used
-// to enable ADL for UDTs
+// to enable ADL for UDTs.
 
 namespace boost {
 
@@ -349,9 +341,6 @@ nearbyint BOOST_PREVENT_MACRO_SUBSTITUTION (const quantity<Unit,Y>& q)
 
 #endif
 
-// these are not in the release branch yet
-#if 0
-
 template<class Unit,class Y>
 inline 
 quantity<Unit,Y> nextafter BOOST_PREVENT_MACRO_SUBSTITUTION (const quantity<Unit,Y>& q1,
@@ -378,8 +367,6 @@ quantity<Unit,Y> nexttoward BOOST_PREVENT_MACRO_SUBSTITUTION (const quantity<Uni
     return quantity_type::from_value(nextafter BOOST_PREVENT_MACRO_SUBSTITUTION (q1.value(),q2.value()));
 }
 
-#endif
-
 #if 0
 
 template<class Unit,class Y>
@@ -394,6 +381,8 @@ rint BOOST_PREVENT_MACRO_SUBSTITUTION (const quantity<Unit,Y>& q)
     return quantity_type::from_value(rint BOOST_PREVENT_MACRO_SUBSTITUTION (q.value()));
 }
 
+#endif
+
 template<class Unit,class Y>
 inline 
 quantity<Unit,Y> 
@@ -405,8 +394,6 @@ round BOOST_PREVENT_MACRO_SUBSTITUTION (const quantity<Unit,Y>& q)
     
     return quantity_type::from_value(round BOOST_PREVENT_MACRO_SUBSTITUTION (q.value()));
 }
-
-#endif
 
 template<class Unit,class Y>
 inline 
@@ -551,8 +538,6 @@ sqrt(const quantity<Unit,Y>& q)
 
 } // namespace boost
 
-#endif // (BOOST_VERSION <= 103500)
-
 namespace boost {
 
 namespace units {
@@ -619,6 +604,15 @@ acos(const quantity<unit<dimensionless_type, homogeneous_system<System> >,Y>& va
     return quantity<unit<plane_angle_dimension, homogeneous_system<System> >,Y>(acos(val.value())*si::radians);
 }
 
+/// acos of dimensionless quantity returning angle in radians
+template<class Y>
+quantity<angle::radian_base_unit::unit_type,Y>
+acos(const quantity<unit<dimensionless_type, heterogeneous_dimensionless_system>,Y>& val)
+{
+    using std::acos;
+    return quantity<angle::radian_base_unit::unit_type,Y>::from_value(acos(val.value()));
+}
+
 /// asin of dimensionless quantity returning angle in same system
 template<class Y,class System>
 quantity<unit<plane_angle_dimension, homogeneous_system<System> >,Y>
@@ -626,6 +620,15 @@ asin(const quantity<unit<dimensionless_type, homogeneous_system<System> >,Y>& va
 {
     using std::asin;
     return quantity<unit<plane_angle_dimension, homogeneous_system<System> >,Y>(asin(val.value())*si::radians);
+}
+
+/// asin of dimensionless quantity returning angle in radians
+template<class Y>
+quantity<angle::radian_base_unit::unit_type,Y>
+asin(const quantity<unit<dimensionless_type, heterogeneous_dimensionless_system>,Y>& val)
+{
+    using std::asin;
+    return quantity<angle::radian_base_unit::unit_type,Y>::from_value(asin(val.value()));
 }
 
 /// atan of dimensionless quantity returning angle in same system
@@ -637,14 +640,33 @@ atan(const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& v
     return quantity<unit<plane_angle_dimension, homogeneous_system<System> >,Y>(atan(val.value())*si::radians);
 }
 
+/// atan of dimensionless quantity returning angle in radians
+template<class Y>
+quantity<angle::radian_base_unit::unit_type,Y>
+atan(const quantity<unit<dimensionless_type, heterogeneous_dimensionless_system>, Y>& val)
+{
+    using std::atan;
+    return quantity<angle::radian_base_unit::unit_type,Y>::from_value(atan(val.value()));
+}
+
 /// atan2 of @c value_type returning angle in radians
-template<class Y, class System>
+template<class Y, class Dimension, class System>
 quantity<unit<plane_angle_dimension, homogeneous_system<System> >, Y>
-atan2(const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& y,
-      const quantity<unit<dimensionless_type, homogeneous_system<System> >, Y>& x)
+atan2(const quantity<unit<Dimension, homogeneous_system<System> >, Y>& y,
+      const quantity<unit<Dimension, homogeneous_system<System> >, Y>& x)
 {
     using std::atan2;
     return quantity<unit<plane_angle_dimension, homogeneous_system<System> >, Y>(atan2(y.value(),x.value())*si::radians);
+}
+
+/// atan2 of @c value_type returning angle in radians
+template<class Y, class Dimension, class System>
+quantity<angle::radian_base_unit::unit_type,Y>
+atan2(const quantity<unit<Dimension, heterogeneous_system<System> >, Y>& y,
+      const quantity<unit<Dimension, heterogeneous_system<System> >, Y>& x)
+{
+    using std::atan2;
+    return quantity<angle::radian_base_unit::unit_type,Y>::from_value(atan2(y.value(),x.value()));
 }
 
 } // namespace units

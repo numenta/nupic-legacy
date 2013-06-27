@@ -9,7 +9,7 @@
 #define BOOST_SPIRIT_PARSER_HPP
 
 #include <boost/config.hpp>
-#include <boost/type_traits.hpp>
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/spirit/home/classic/namespace.hpp>
 #include <boost/spirit/home/classic/core/scanner/scanner.hpp>
 #include <boost/spirit/home/classic/core/nil.hpp>

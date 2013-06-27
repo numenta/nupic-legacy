@@ -64,6 +64,9 @@ public: // visitor interface
         out_ << operand;
     }
 
+private:
+    printer& operator=(const printer&);
+
 };
 
 }} // namespace detail::variant

@@ -1,5 +1,5 @@
 // num_token.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -133,13 +133,11 @@ const char *basic_num_token<CharT>::_precedence_strings[END + 1] =
 {{"BEGIN"}, {"REGEX"}, {"OREXP"}, {"SEQUENCE"}, {"SUB"}, {"EXPRESSION"},
     {"REPEAT"}, {"DUPLICATE"}, {"|"}, {"CHARSET"}, {"MACRO"},
     {"("}, {")"}, {"?"}, {"??"}, {"*"}, {"*?"}, {"+"}, {"+?"}, {"{n[,[m]]}"},
-    {"{n[,[m]]}?"}, {"END"}
-};
+    {"{n[,[m]]}?"}, {"END"}};
 #else
 {"BEGIN", "REGEX", "OREXP", "SEQUENCE", "SUB", "EXPRESSION", "REPEAT",
     "DUPLICATE", "|", "CHARSET", "MACRO", "(", ")", "?", "??", "*", "*?",
-    "+", "+?", "{n[,[m]]}", "{n[,[m]]}?", "END"
-};
+    "+", "+?", "{n[,[m]]}", "{n[,[m]]}?", "END"};
 #endif
 }
 }

@@ -238,6 +238,12 @@ namespace ptr_container_detail
             sd.release();
         }
 
+        template< class U >
+        void remove( U* ptr )
+        {
+            null_policy_deallocate_clone( ptr );
+        }
+        
         template< class I >
         void remove( I i )
         { 
@@ -437,18 +443,18 @@ namespace ptr_container_detail
           : c_( n ) {}
 
         template< class Hash, class Pred >
-        reversible_ptr_container( const Hash& hash,
+        reversible_ptr_container( const Hash& h,
                                   const Pred& pred,
                                   const allocator_type& a )
-          : c_( hash, pred, a ) {}
+          : c_( h, pred, a ) {}
 
         template< class InputIterator, class Hash, class Pred >
         reversible_ptr_container( InputIterator first,
                                   InputIterator last,
-                                  const Hash& hash,
+                                  const Hash& h,
                                   const Pred& pred,
                                   const allocator_type& a )
-          : c_( hash, pred, a )
+          : c_( h, pred, a )
         {
             associative_constructor_impl( first, last );
         }

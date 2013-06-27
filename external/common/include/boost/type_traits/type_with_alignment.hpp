@@ -86,7 +86,7 @@ struct lower_alignment_helper_impl<false>
 {
     template <std::size_t target, class TestType>
     struct apply
-      : mpl::if_c<(alignment_of<TestType>::value == target), TestType, char>
+      : public mpl::if_c<(alignment_of<TestType>::value == target), TestType, char>
     {
         enum { value = (alignment_of<TestType>::value == target) };
     };
@@ -94,7 +94,7 @@ struct lower_alignment_helper_impl<false>
 
 template <bool found, std::size_t target, class TestType>
 struct lower_alignment_helper
-  : lower_alignment_helper_impl<found>::template apply<target,TestType>
+  : public lower_alignment_helper_impl<found>::template apply<target,TestType>
 {
 };
 #else
@@ -225,6 +225,8 @@ struct __attribute__((__aligned__(4))) a4 {};
 struct __attribute__((__aligned__(8))) a8 {};
 struct __attribute__((__aligned__(16))) a16 {};
 struct __attribute__((__aligned__(32))) a32 {};
+struct __attribute__((__aligned__(64))) a64 {};
+struct __attribute__((__aligned__(128))) a128 {};
 }
 
 template<> class type_with_alignment<1>  { public: typedef char type; };
@@ -233,6 +235,8 @@ template<> class type_with_alignment<4>  { public: typedef align::a4 type; };
 template<> class type_with_alignment<8>  { public: typedef align::a8 type; };
 template<> class type_with_alignment<16> { public: typedef align::a16 type; };
 template<> class type_with_alignment<32> { public: typedef align::a32 type; };
+template<> class type_with_alignment<64> { public: typedef align::a64 type; };
+template<> class type_with_alignment<128> { public: typedef align::a128 type; };
 
 namespace detail {
 BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a2,true)
@@ -240,6 +244,8 @@ BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a4,true)
 BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a8,true)
 BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a16,true)
 BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a32,true)
+BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a64,true)
+BOOST_TT_AUX_BOOL_TRAIT_IMPL_SPEC1(is_pod,::boost::align::a128,true)
 }
 #endif
 #if (defined(BOOST_MSVC) || (defined(BOOST_INTEL) && defined(_MSC_VER))) && _MSC_VER >= 1300
@@ -286,43 +292,43 @@ struct __declspec(align(128)) a128 {
 template<> class type_with_alignment<8>  
 { 
    typedef mpl::if_c<
-      ::boost::alignment_of<detail::max_align>::value < 8,
+      ::boost::alignment_of<boost::detail::max_align>::value < 8,
       align::a8,
-      detail::type_with_alignment_imp<8> >::type t1; 
+      boost::detail::type_with_alignment_imp<8> >::type t1; 
 public: 
    typedef t1::type type;
 };
 template<> class type_with_alignment<16> 
 { 
    typedef mpl::if_c<
-      ::boost::alignment_of<detail::max_align>::value < 16,
+      ::boost::alignment_of<boost::detail::max_align>::value < 16,
       align::a16,
-      detail::type_with_alignment_imp<16> >::type t1; 
+      boost::detail::type_with_alignment_imp<16> >::type t1; 
 public: 
    typedef t1::type type;
 };
 template<> class type_with_alignment<32> 
 { 
    typedef mpl::if_c<
-      ::boost::alignment_of<detail::max_align>::value < 32,
+      ::boost::alignment_of<boost::detail::max_align>::value < 32,
       align::a32,
-      detail::type_with_alignment_imp<32> >::type t1; 
+      boost::detail::type_with_alignment_imp<32> >::type t1; 
 public: 
    typedef t1::type type;
 };
 template<> class type_with_alignment<64> {
    typedef mpl::if_c<
-      ::boost::alignment_of<detail::max_align>::value < 64,
+      ::boost::alignment_of<boost::detail::max_align>::value < 64,
       align::a64,
-      detail::type_with_alignment_imp<64> >::type t1; 
+      boost::detail::type_with_alignment_imp<64> >::type t1; 
 public: 
    typedef t1::type type;
 };
 template<> class type_with_alignment<128> {
    typedef mpl::if_c<
-      ::boost::alignment_of<detail::max_align>::value < 128,
+      ::boost::alignment_of<boost::detail::max_align>::value < 128,
       align::a128,
-      detail::type_with_alignment_imp<128> >::type t1; 
+      boost::detail::type_with_alignment_imp<128> >::type t1; 
 public: 
    typedef t1::type type;
 };

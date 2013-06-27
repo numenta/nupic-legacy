@@ -31,7 +31,7 @@ class mode_adapter {
 private:
     struct empty_base { };
 public:
-    typedef typename wrapped_type<T>::type  policy_type;
+    typedef typename wrapped_type<T>::type  component_type;
     typedef typename char_type_of<T>::type  char_type;
     struct category 
         : Mode, 
@@ -43,7 +43,7 @@ public:
           #endif
           localizable_tag
         { };
-    explicit mode_adapter(const policy_type& t) : t_(t) { }
+    explicit mode_adapter(const component_type& t) : t_(t) { }
 
         // Device member functions.
 
@@ -88,7 +88,7 @@ public:
     void imbue(const Locale& loc)
     { iostreams::imbue(t_, loc); }
 private:
-    policy_type t_;
+    component_type t_;
 };
                     
 //------------------Implementation of mode_adapter----------------------------//

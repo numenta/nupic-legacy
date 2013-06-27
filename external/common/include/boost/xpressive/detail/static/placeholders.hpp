@@ -108,6 +108,7 @@ struct attribute_placeholder
     BOOST_XPR_QUANT_STYLE(quant_variable_width, unknown_width::value, false)
 
     typedef Nbr nbr_type;
+    static Nbr nbr() { return Nbr(); }
 };
 
 }}} // namespace boost::xpressive::detail

@@ -6,16 +6,7 @@
 // License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/split_member.hpp>
-#include <boost/serialization/wrapper.hpp>
-#include <boost/mpl/always.hpp>
-#include <boost/mpl/apply.hpp>
-#include <boost/mpl/bool.hpp>
-#include <boost/type_traits/remove_const.hpp>
-#include <boost/array.hpp>
 #include <iostream>
-
 #include <cstddef> // std::size_t
 #include <cstddef>
 #include <boost/config.hpp> // msvc 6.0 needs this for warning suppression
@@ -24,6 +15,15 @@ namespace std{
     using ::size_t; 
 } // namespace std
 #endif
+
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/split_member.hpp>
+#include <boost/serialization/wrapper.hpp>
+#include <boost/mpl/always.hpp>
+#include <boost/mpl/apply.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/array.hpp>
 
 namespace boost { namespace serialization {
 
@@ -42,8 +42,8 @@ struct use_array_optimization : boost::mpl::always<boost::mpl::false_> {};
 #endif
 
 template<class T>
-class array
- : public wrapper_traits<array<T> >
+class array :
+    public wrapper_traits<const array< T > >
 {
 public:    
     typedef T value_type;
@@ -52,7 +52,15 @@ public:
         m_t(t),
         m_element_count(s)
     {}
-    
+    array(const array & rhs) :
+        m_t(rhs.m_t),
+        m_element_count(rhs.m_element_count)
+    {}
+    array & operator=(const array & rhs){
+        m_t = rhs.m_t;
+        m_element_count = rhs.m_element_count;
+    }
+
     // default implementation
     template<class Archive>
     void serialize_optimized(Archive &ar, const unsigned int, mpl::false_ ) const
@@ -91,7 +99,7 @@ public:
     {
       typedef BOOST_DEDUCED_TYPENAME 
           boost::serialization::use_array_optimization<Archive>::template apply<
-                    BOOST_DEDUCED_TYPENAME remove_const<T>::type 
+                    BOOST_DEDUCED_TYPENAME remove_const< T >::type 
                 >::type use_optimized;
       serialize_optimized(ar,version,use_optimized());
     }
@@ -106,10 +114,9 @@ public:
       return m_element_count;
     }
     
-    
 private:
     value_type* m_t;
-    std::size_t const m_element_count;
+    std::size_t m_element_count;
 };
 
 template<class T>
@@ -117,19 +124,15 @@ inline
 #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
 const
 #endif
-array<T> make_array( T* t, std::size_t s){
-    return array<T>(t, s);
+array< T > make_array( T* t, std::size_t s){
+    return array< T >(t, s);
 }
 
-
 template <class Archive, class T, std::size_t N>
-
 void serialize(Archive& ar, boost::array<T,N>& a, const unsigned int /* version */)
 {
   ar & boost::serialization::make_nvp("elems",a.elems);
 }
-
-
 
 } } // end namespace boost::serialization
 

@@ -8,11 +8,6 @@
 #define PHOENIX_CORE_BASIC_ENVIRONMENT_HPP
 
 #include <boost/spirit/home/phoenix/core/limits.hpp>
-
-#if !defined(PHOENIX_ARG_LIMIT)
-# define PHOENIX_ARG_LIMIT PHOENIX_LIMIT
-#endif
-
 #include <boost/mpl/remove.hpp>
 #include <boost/mpl/transform.hpp>
 #include <boost/preprocessor/cat.hpp>

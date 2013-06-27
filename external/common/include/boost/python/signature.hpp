@@ -52,16 +52,23 @@ struct most_derived
 //
 //      template <class RT, class T0... class TN>
 //      inline mpl::vector<RT, T0...TN>
-//      get_signature(RT(*)(T0...TN), void* = 0)
+//      get_signature(RT(BOOST_PYTHON_FN_CC *)(T0...TN), void* = 0)
 //      {
 //          return mpl::list<RT, T0...TN>();
 //      }
+//
+//    where BOOST_PYTHON_FN_CC is a calling convention keyword, can be
+//
+//        empty, for default calling convention
+//        __cdecl (if BOOST_PYTHON_ENABLE_CDECL is defined)
+//        __stdcall (if BOOST_PYTHON_ENABLE_STDCALL is defined)
+//        __fastcall (if BOOST_PYTHON_ENABLE_FASTCALL is defined)
 //
 //   And, for an appropriate assortment of cv-qualifications::
 //
 //      template <class RT, class ClassT, class T0... class TN>
 //      inline mpl::vector<RT, ClassT&, T0...TN>
-//      get_signature(RT(ClassT::*)(T0...TN) cv))
+//      get_signature(RT(BOOST_PYTHON_FN_CC ClassT::*)(T0...TN) cv))
 //      {
 //          return mpl::list<RT, ClassT&, T0...TN>();
 //      }
@@ -72,7 +79,7 @@ struct most_derived
 //        , typename most_derived<Target, ClassT>::type&
 //        , T0...TN
 //      >
-//      get_signature(RT(ClassT::*)(T0...TN) cv), Target*)
+//      get_signature(RT(BOOST_PYTHON_FN_CC ClassT::*)(T0...TN) cv), Target*)
 //      {
 //          return mpl::list<RT, ClassT&, T0...TN>();
 //      }
@@ -87,7 +94,8 @@ struct most_derived
 //
 //  These functions extract the return type, class (for member
 //  functions) and arguments of the input signature and stuff them in
-//  an mpl type sequence.  Note that cv-qualification is dropped from
+//  an mpl type sequence (the calling convention is dropped).
+//  Note that cv-qualification is dropped from
 //  the "hidden this" argument of member functions; that is a
 //  necessary sacrifice to ensure that an lvalue from_python converter
 //  is used.  A pointer is not used so that None will be rejected for
@@ -100,10 +108,64 @@ struct most_derived
 //
 // @group {
 
+// 'default' calling convention
+
+#  define BOOST_PYTHON_FN_CC
+
 #  define BOOST_PP_ITERATION_PARAMS_1                                   \
     (3, (0, BOOST_PYTHON_MAX_ARITY, <boost/python/signature.hpp>))
 
 #  include BOOST_PP_ITERATE()
+
+#  undef BOOST_PYTHON_FN_CC
+
+// __cdecl calling convention
+
+#  if defined(BOOST_PYTHON_ENABLE_CDECL)
+
+#   define BOOST_PYTHON_FN_CC __cdecl
+#   define BOOST_PYTHON_FN_CC_IS_CDECL
+
+#   define BOOST_PP_ITERATION_PARAMS_1                                   \
+     (3, (0, BOOST_PYTHON_MAX_ARITY, <boost/python/signature.hpp>))
+
+#   include BOOST_PP_ITERATE()
+
+#   undef BOOST_PYTHON_FN_CC
+#   undef BOOST_PYTHON_FN_CC_IS_CDECL
+
+#  endif // defined(BOOST_PYTHON_ENABLE_CDECL)
+
+// __stdcall calling convention
+
+#  if defined(BOOST_PYTHON_ENABLE_STDCALL)
+
+#   define BOOST_PYTHON_FN_CC __stdcall
+
+#   define BOOST_PP_ITERATION_PARAMS_1                                   \
+     (3, (0, BOOST_PYTHON_MAX_ARITY, <boost/python/signature.hpp>))
+
+#   include BOOST_PP_ITERATE()
+
+#   undef BOOST_PYTHON_FN_CC
+
+#  endif // defined(BOOST_PYTHON_ENABLE_STDCALL)
+
+// __fastcall calling convention
+
+#  if defined(BOOST_PYTHON_ENABLE_FASTCALL)
+
+#   define BOOST_PYTHON_FN_CC __fastcall
+
+#   define BOOST_PP_ITERATION_PARAMS_1                                   \
+     (3, (0, BOOST_PYTHON_MAX_ARITY, <boost/python/signature.hpp>))
+
+#   include BOOST_PP_ITERATE()
+
+#   undef BOOST_PYTHON_FN_CC
+
+#  endif // defined(BOOST_PYTHON_ENABLE_FASTCALL)
+
 #  undef BOOST_PYTHON_LIST_INC
 
 // }
@@ -113,20 +175,30 @@ struct most_derived
 
 # endif // SIGNATURE_JDG20020813_HPP
 
-#elif BOOST_PP_ITERATION_DEPTH() == 1 // defined(BOOST_PP_IS_ITERATING)
+// For gcc 4.4 compatability, we must include the
+// BOOST_PP_ITERATION_DEPTH test inside an #else clause.
+#else // BOOST_PP_IS_ITERATING
+#if BOOST_PP_ITERATION_DEPTH() == 1 // defined(BOOST_PP_IS_ITERATING)
 
 # define N BOOST_PP_ITERATION()
+
+   // as 'get_signature(RT(*)(T0...TN), void* = 0)' is the same
+   // function as 'get_signature(RT(__cdecl *)(T0...TN), void* = 0)',
+   // we don't define it twice
+#  if !defined(BOOST_PYTHON_FN_CC_IS_CDECL)
 
 template <
     class RT BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, class T)>
 inline BOOST_PYTHON_LIST_INC(N)<
     RT BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, T)>
-get_signature(RT(*)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)), void* = 0)
+get_signature(RT(BOOST_PYTHON_FN_CC *)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)), void* = 0)
 {
     return BOOST_PYTHON_LIST_INC(N)<
             RT BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, T)
         >();
 }
+
+#  endif // !defined(BOOST_PYTHON_FN_CC_IS_CDECL)
 
 # undef N
 
@@ -143,7 +215,7 @@ template <
     class RT, class ClassT BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, class T)>
 inline BOOST_PYTHON_LIST_INC(BOOST_PP_INC(N))<
     RT, ClassT& BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, T)>
-get_signature(RT(ClassT::*)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)) Q)
+get_signature(RT(BOOST_PYTHON_FN_CC ClassT::*)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)) Q)
 {
     return BOOST_PYTHON_LIST_INC(BOOST_PP_INC(N))<
             RT, ClassT& BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, T)
@@ -162,7 +234,7 @@ inline BOOST_PYTHON_LIST_INC(BOOST_PP_INC(N))<
     BOOST_PP_ENUM_TRAILING_PARAMS_Z(1, N, T)
 >
 get_signature(
-    RT(ClassT::*)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)) Q
+    RT(BOOST_PYTHON_FN_CC ClassT::*)(BOOST_PP_ENUM_PARAMS_Z(1, N, T)) Q
   , Target*
 )
 {
@@ -176,4 +248,5 @@ get_signature(
 # undef Q
 # undef N
 
+#endif // BOOST_PP_ITERATION_DEPTH()
 #endif // !defined(BOOST_PP_IS_ITERATING)

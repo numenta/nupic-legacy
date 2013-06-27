@@ -21,7 +21,10 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/operators.hpp>
 #include <boost/call_traits.hpp>
-#include <boost/serialization/nvp.hpp>
+
+#ifndef BOOST_BIMAP_DISABLE_SERIALIZATION
+  #include <boost/serialization/nvp.hpp>
+#endif // BOOST_BIMAP_DISABLE_SERIALIZATION
 
 #include <boost/functional/hash/hash.hpp>
 
@@ -139,7 +142,7 @@ class relation_info_hook : public
 
     #ifndef BOOST_BIMAP_DISABLE_SERIALIZATION
     template< class Archive >
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int)
     {
         ar & ::boost::serialization::make_nvp("left" , base_::left );
         ar & ::boost::serialization::make_nvp("right", base_::right);
@@ -185,7 +188,7 @@ class relation_info_hook<TA,TB,::boost::mpl::na,force_mutable> :
 
     #ifndef BOOST_BIMAP_DISABLE_SERIALIZATION
     template< class Archive >
-    void serialize(Archive & ar, const unsigned int version)
+    void serialize(Archive & ar, const unsigned int)
     {
         ar & ::boost::serialization::make_nvp("left" , base_::left );
         ar & ::boost::serialization::make_nvp("right", base_::right);

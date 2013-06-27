@@ -16,9 +16,8 @@
 #  error "Compiler not supported or configured - please reconfigure"
 #endif
 
-// last known and checked version is 0x600 (Builder X preview)
-// or 0x593 (CodeGear C++ Builder 2007 December 2007 update):
-#if (__BORLANDC__ > 0x593) && (__BORLANDC__ != 0x600)
+// last known compiler version:
+#if (__BORLANDC__ > 0x613)
 //#  if defined(BOOST_ASSERT_CONFIG)
 #     error "Unknown compiler version - please run the configure tests and report the results"
 //#  else
@@ -47,6 +46,8 @@
 // Borland C++Builder 5, command-line compiler 5.5:
 #       define BOOST_NO_OPERATORS_IN_NAMESPACE
 #     endif
+// Variadic macros do not exist for C++ Builder versions 5 and below
+#define BOOST_NO_CXX11_VARIADIC_MACROS
 #   endif
 
 // Version 5.51 and below:
@@ -55,8 +56,13 @@
 #  define BOOST_NO_CV_VOID_SPECIALIZATIONS
 #  define BOOST_NO_DEDUCED_TYPENAME
 // workaround for missing WCHAR_MAX/WCHAR_MIN:
+#ifdef __cplusplus
 #include <climits>
 #include <cwchar>
+#else
+#include <limits.h>
+#include <wchar.h>
+#endif // __cplusplus
 #ifndef WCHAR_MAX
 #  define WCHAR_MAX 0xffff
 #endif
@@ -67,9 +73,8 @@
 
 // Borland C++ Builder 6 and below:
 #if (__BORLANDC__ <= 0x564)
-#  define BOOST_NO_INTEGRAL_INT64_T
 
-#  ifdef NDEBUG
+#  if defined(NDEBUG) && defined(__cplusplus)
       // fix broken <cstring> so that Boost.test works:
 #     include <cstring>
 #     undef strcmp
@@ -108,27 +113,30 @@
 #  endif
 #endif
 
-// Borland C++ Builder 2007 December 2007 Update and below:
-#if (__BORLANDC__ <= 0x593)
+#if (__BORLANDC__ <= 0x613)  // Beman has asked Alisdair for more info
    // we shouldn't really need this - but too many things choke
    // without it, this needs more investigation:
 #  define BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
 #  define BOOST_NO_IS_ABSTRACT
 #  define BOOST_NO_FUNCTION_TYPE_SPECIALIZATIONS
+#  define BOOST_NO_USING_TEMPLATE
+#  define BOOST_SP_NO_SP_CONVERTIBLE
 
 // Temporary workaround
 #define BOOST_MPL_CFG_NO_PREPROCESSED_HEADERS
 #endif
 
 // Borland C++ Builder 2008 and below:
-#if (__BORLANDC__ <= 0x601)
+#  define BOOST_NO_INTEGRAL_INT64_T
 #  define BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL
-#  define BOOST_ILLEGAL_CV_REFERENCES
 #  define BOOST_NO_DEPENDENT_NESTED_DERIVATIONS
 #  define BOOST_NO_MEMBER_TEMPLATE_FRIENDS
 #  define BOOST_NO_TWO_PHASE_NAME_LOOKUP
-#  define BOOST_NO_USING_TEMPLATE
 #  define BOOST_NO_USING_DECLARATION_OVERLOADS_FROM_TYPENAME_BASE
+#  define BOOST_NO_NESTED_FRIENDSHIP
+#  define BOOST_NO_TYPENAME_WITH_CTOR
+#if (__BORLANDC__ < 0x600)
+#  define BOOST_ILLEGAL_CV_REFERENCES
 #endif
 
 //
@@ -138,25 +146,50 @@
 #if (__BORLANDC__ >= 0x599)
 #  pragma defineonoption BOOST_CODEGEAR_0X_SUPPORT -Ax
 #endif
-
-#if defined( BOOST_CODEGEAR_0X_SUPPORT )
-#  #if __BORLANDC__ >= 0x610
+//
+// C++0x Macros:
+//
+#if !defined( BOOST_CODEGEAR_0X_SUPPORT ) || (__BORLANDC__ < 0x610)
+#  define BOOST_NO_CXX11_CHAR16_T
+#  define BOOST_NO_CXX11_CHAR32_T
+#  define BOOST_NO_CXX11_DECLTYPE
+#  define BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+#  define BOOST_NO_CXX11_EXTERN_TEMPLATE
+#  define BOOST_NO_CXX11_RVALUE_REFERENCES 
+#  define BOOST_NO_CXX11_SCOPED_ENUMS
+#  define BOOST_NO_CXX11_STATIC_ASSERT
+#else
 #  define BOOST_HAS_ALIGNOF
 #  define BOOST_HAS_CHAR16_T
 #  define BOOST_HAS_CHAR32_T
 #  define BOOST_HAS_DECLTYPE
-//#  define BOOST_HAS_DEFAULTED_FN
-//#  define BOOST_HAS_DELETED_FN
 #  define BOOST_HAS_EXPLICIT_CONVERSION_OPS
-//#  define BOOST_HAS_NULLPTR
-//#  define BOOST_HAS_RAW_STRING
 #  define BOOST_HAS_REF_QUALIFIER
 #  define BOOST_HAS_RVALUE_REFS
-//#  define BOOST_HAS_SCOPED_ENUM
 #  define BOOST_HAS_STATIC_ASSERT
-//#  define BOOST_HAS_VARIADIC_TMPL
-#  #endif //__BORLANDC__ >= 0x610
 #endif
+
+#define BOOST_NO_CXX11_AUTO_DECLARATIONS
+#define BOOST_NO_CXX11_AUTO_MULTIDECLARATIONS
+#define BOOST_NO_CXX11_CONSTEXPR
+#define BOOST_NO_CXX11_DECLTYPE_N3276
+#define BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#define BOOST_NO_CXX11_DELETED_FUNCTIONS
+#define BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS
+#define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#define BOOST_NO_CXX11_LAMBDAS
+#define BOOST_NO_CXX11_LOCAL_CLASS_TEMPLATE_PARAMETERS
+#define BOOST_NO_CXX11_NULLPTR
+#define BOOST_NO_CXX11_RANGE_BASED_FOR
+#define BOOST_NO_CXX11_RAW_LITERALS
+#define BOOST_NO_CXX11_RVALUE_REFERENCES
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#define BOOST_NO_SFINAE_EXPR
+#define BOOST_NO_CXX11_TEMPLATE_ALIASES
+#define BOOST_NO_CXX11_UNICODE_LITERALS    // UTF-8 still not supported
+#define BOOST_NO_CXX11_VARIADIC_TEMPLATES
+#define BOOST_NO_CXX11_NOEXCEPT
+#define BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
 
 #if __BORLANDC__ >= 0x590
 #  define BOOST_HAS_TR1_HASH
@@ -169,6 +202,8 @@
 #if __BORLANDC__ >= 0x561
 #  ifndef __NO_LONG_LONG
 #     define BOOST_HAS_LONG_LONG
+#  else
+#     define BOOST_NO_LONG_LONG
 #  endif
    // On non-Win32 platforms let the platform config figure this out:
 #  ifdef _WIN32
@@ -194,7 +229,7 @@
 //
 // check for exception handling support:
 //
-#if !defined(_CPPUNWIND) && !defined(BOOST_CPPUNWIND) && !defined(__EXCEPTIONS)
+#if !defined(_CPPUNWIND) && !defined(BOOST_CPPUNWIND) && !defined(__EXCEPTIONS) && !defined(BOOST_NO_EXCEPTIONS)
 #  define BOOST_NO_EXCEPTIONS
 #endif
 //
@@ -206,13 +241,14 @@
 //
 // all versions support __declspec:
 //
-#ifndef __STRICT_ANSI__
-#  define BOOST_HAS_DECLSPEC
+#if defined(__STRICT_ANSI__)
+// config/platform/win32.hpp will define BOOST_SYMBOL_EXPORT, etc., unless already defined  
+#  define BOOST_SYMBOL_EXPORT
 #endif
 //
 // ABI fixing headers:
 //
-#if __BORLANDC__ < 0x600 // not implemented for version 6 compiler yet
+#if __BORLANDC__ != 0x600 // not implemented for version 6 compiler yet
 #ifndef BOOST_ABI_PREFIX
 #  define BOOST_ABI_PREFIX "boost/config/abi/borland_prefix.hpp"
 #endif
@@ -237,7 +273,15 @@
 #  define BOOST_NO_VOID_RETURNS
 #endif
 
+// Borland did not implement value-initialization completely, as I reported
+// in 2007, Borland Report 51854, "Value-initialization: POD struct should be
+// zero-initialized", http://qc.embarcadero.com/wc/qcmain.aspx?d=51854
+// See also: http://www.boost.org/libs/utility/value_init.htm#compiler_issues
+// (Niels Dekker, LKEB, April 2010)
+#define BOOST_NO_COMPLETE_VALUE_INITIALIZATION
+
 #define BOOST_COMPILER "Borland C++ version " BOOST_STRINGIZE(__BORLANDC__)
+
 
 
 

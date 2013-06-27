@@ -41,12 +41,15 @@
 
 #include <boost/serialization/split_free.hpp>
 #include <boost/serialization/serialization.hpp>
+#include <boost/serialization/nvp.hpp>
 
 namespace boost {
 namespace serialization {
 
 template<class Archive>
-struct variant_save_visitor : boost::static_visitor<> {
+struct variant_save_visitor : 
+    boost::static_visitor<> 
+{
     variant_save_visitor(Archive& ar) :
         m_ar(ar)
     {}
@@ -81,7 +84,7 @@ struct variant_impl {
             Archive & /*ar*/,
             int /*which*/,
             V & /*v*/,
-            unsigned int /*version*/
+            const unsigned int /*version*/
         ){}
     };
 
@@ -91,7 +94,7 @@ struct variant_impl {
             Archive & ar,
             int which,
             V & v,
-            unsigned int version
+            const unsigned int version
         ){
             if(which == 0){
                 // note: A non-intrusive implementation (such as this one)
@@ -115,7 +118,7 @@ struct variant_impl {
         Archive & ar,
         int which,
         V & v,
-        unsigned int version
+        const unsigned int version
     ){
         typedef BOOST_DEDUCED_TYPENAME mpl::eval_if<mpl::empty<S>,
             mpl::identity<load_null>,
@@ -130,7 +133,7 @@ template<class Archive, BOOST_VARIANT_ENUM_PARAMS(/* typename */ class T)>
 void load(
     Archive & ar, 
     boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>& v,
-    unsigned int version
+    const unsigned int version
 ){
     int which;
     typedef BOOST_DEDUCED_TYPENAME boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)>::types types;
@@ -149,7 +152,7 @@ template<class Archive,BOOST_VARIANT_ENUM_PARAMS(/* typename */ class T)>
 inline void serialize(
     Archive & ar,
     boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> & v,
-    unsigned int file_version
+    const unsigned int file_version
 ){
     split_free(ar,v,file_version);
 }

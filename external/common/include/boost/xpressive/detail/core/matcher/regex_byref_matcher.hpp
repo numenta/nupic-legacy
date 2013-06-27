@@ -52,7 +52,7 @@ namespace boost { namespace xpressive { namespace detail
         bool match(match_state<BidiIter> &state, Next const &next) const
         {
             BOOST_ASSERT(this->pimpl_ == this->wimpl_.lock().get());
-            ensure(this->pimpl_->xpr_, regex_constants::error_badref, "bad regex reference");
+            BOOST_XPR_ENSURE_(this->pimpl_->xpr_, regex_constants::error_badref, "bad regex reference");
 
             return push_context_match(*this->pimpl_, state, this->wrap_(next, is_static_xpression<Next>()));
         }
