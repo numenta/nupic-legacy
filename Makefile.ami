@@ -14,10 +14,6 @@ SUBDIRS = lang/py/support nta qa examples lang/py/bindings/engine_internal py
 
 nupic: all
 
-all clean: $(SUBDIRS)
-	   ./build_system/unix/cleanup.sh
-	   python2 ./build_system/setup.py --clean
-
 ################################################
 # End of custom rules
 ################################################
