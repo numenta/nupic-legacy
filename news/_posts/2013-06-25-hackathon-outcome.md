@@ -53,6 +53,7 @@ The demonstrations in their entirety are [here](http://www.youtube.com/watch?v=_
         <th id="kevin">
             <a href="#kevin">Kevin Archie</a><br/><br/>
             Prediction Charting<br/>
+            <a href="https://gist.github.com/karchie/5876071">source code</a>
         </th>
         <td>
             <iframe class="youtube-player" type="text/html" width="400" height="285" src="http://www.youtube.com/embed/_bFmvlLmvcY?start=1242" allowfullscreen="allowfullscreen" frameborder="0">
