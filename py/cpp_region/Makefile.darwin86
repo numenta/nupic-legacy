@@ -1,7 +1,7 @@
 BUILDDIR=~/nta/build/nta2
 PYTHONDIR=/Library/Frameworks/Python.framework/Versions/Current
 pynode.so: pynode.cpp
-	g++ -gfull -o pynode.so -m32 -fvisibility=hidden -I../.. -I$(PYTHONDIR)/include/python2.6 -shared pynode.cpp -DNTA_PLATFORM_darwin86 $(BUILDDIR)/net/libnet.a $(BUILDDIR)/utils/libutils.a $(BUILDDIR)/types2/libtypes2.a -framework Python
+	$(CXX) -gfull -o pynode.so -m32 -fvisibility=hidden -I../.. -I$(PYTHONDIR)/include/python2.6 -shared pynode.cpp -DNTA_PLATFORM_darwin86 $(BUILDDIR)/net/libnet.a $(BUILDDIR)/utils/libutils.a $(BUILDDIR)/types2/libtypes2.a -framework Python
 
 clean:
 	rm -rf pynode.so  pynode.so.dSYM
