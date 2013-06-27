@@ -217,7 +217,7 @@ int NumpyArray::stride(int i) const
 PyObject *NumpyArray::forPython() {
   if(p_) {
     Py_XINCREF(p_);
-    PyObject *toReturn = PyArray_Return(p_);
+    PyObject *toReturn = PyArray_Return((PyArrayObject *)p_);
     return toReturn;
   }
   else return 0;
