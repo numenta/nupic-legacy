@@ -29,8 +29,14 @@
 // must be #included first and transitively every .hpp file that 
 // #includes directly or indirectly PyHelpers.hpp must be #included
 // first.
+#ifdef _PY27 
+#include <python2.7/Python.h>
+#include <python2.7/frameobject.h>
+#else
 #include <python2.6/Python.h>
 #include <python2.6/frameobject.h>
+#endif
+
 #include <nta/utils/Log.hpp>
 #include <iostream>
 #include <fstream>
