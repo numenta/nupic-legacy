@@ -1,264 +1,231 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
-//
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying
+//  Copyright (c) 2001-2011 Hartmut Kaiser
+// 
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#if !defined(BOOST_SPIRIT_KARMA_GENERATE_FEB_20_2007_0959AM)
-#define BOOST_SPIRIT_KARMA_GENERATE_FEB_20_2007_0959AM
+#if !defined(BOOST_SPIRIT_KARMA_GENERATE_DEC_01_2009_0734PM)
+#define BOOST_SPIRIT_KARMA_GENERATE_DEC_01_2009_0734PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/karma/meta_grammar.hpp>
-#include <boost/spirit/home/karma/delimit.hpp>
-#include <boost/spirit/home/karma/detail/output_iterator.hpp>
-#include <boost/spirit/home/support/unused.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/mpl/bool.hpp>
+#include <boost/spirit/home/support/context.hpp>
+#include <boost/spirit/home/support/nonterminal/locals.hpp>
+#include <boost/spirit/home/karma/detail/generate.hpp>
 
-///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace karma
 {
     ///////////////////////////////////////////////////////////////////////////
     template <typename OutputIterator, typename Expr>
     inline bool
-    generate(OutputIterator target_sink, Expr const& xpr)
+    generate(
+        OutputIterator& sink
+      , Expr const& expr)
     {
-        typedef spirit::traits::is_component<karma::domain, Expr> is_component;
-
-        // report invalid expression error as early as possible
-        BOOST_MPL_ASSERT_MSG(is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr));
-
-        // wrap user supplied iterator into our own output iterator
-        detail::output_iterator<OutputIterator> sink(target_sink);
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        return director::generate(c, sink, unused, unused, unused);
+        return detail::generate_impl<Expr>::call(sink, expr);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
     template <typename OutputIterator, typename Expr>
     inline bool
-    generate(detail::output_iterator<OutputIterator>& sink, Expr const& xpr)
+    generate(
+        OutputIterator const& sink_
+      , Expr const& expr)
     {
-        typedef spirit::traits::is_component<karma::domain, Expr> is_component;
-
-        // report invalid expression error as early as possible
-        BOOST_MPL_ASSERT_MSG(is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr));
-
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        return director::generate(c, sink, unused, unused, unused);
+        OutputIterator sink = sink_;
+        return karma::generate(sink, expr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename OutputIterator, typename Expr, typename Parameter>
-    inline bool
-    generate(OutputIterator target_sink, Expr const& xpr, Parameter const& param)
+    namespace detail
     {
-        typedef spirit::traits::is_component<karma::domain, Expr> is_component;
+        template <typename T>
+        struct make_context
+        {
+            typedef context<fusion::cons<T const&>, locals<> > type;
+        };
 
-        // report invalid expression error as early as possible
-        BOOST_MPL_ASSERT_MSG(is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter));
+        template <>
+        struct make_context<unused_type>
+        {
+            typedef unused_type type;
+        };
+    }
+
+    template <typename OutputIterator, typename Properties, typename Expr
+      , typename Attr>
+    inline bool
+    generate(
+        detail::output_iterator<OutputIterator, Properties>& sink
+      , Expr const& expr
+      , Attr const& attr)
+    {
+        // Report invalid expression error as early as possible.
+        // If you got an error_invalid_expression error message here,
+        // then the expression (expr) is not a valid spirit karma expression.
+        BOOST_SPIRIT_ASSERT_MATCH(karma::domain, Expr);
+
+        typename detail::make_context<Attr>::type context(attr);
+        return compile<karma::domain>(expr).generate(sink, context, unused, attr);
+    }
+
+    template <typename OutputIterator, typename Expr, typename Attr>
+    inline bool
+    generate(
+        OutputIterator& sink_
+      , Expr const& expr
+      , Attr const& attr)
+    {
+        // Report invalid expression error as early as possible.
+        // If you got an error_invalid_expression error message here,
+        // then the expression (expr) is not a valid spirit karma expression.
+        BOOST_SPIRIT_ASSERT_MATCH(karma::domain, Expr);
+
+        typedef traits::properties_of<
+            typename result_of::compile<karma::domain, Expr>::type
+        > properties;
 
         // wrap user supplied iterator into our own output iterator
-        detail::output_iterator<OutputIterator> sink(target_sink);
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        return director::generate(c, sink, unused, unused, param);
+        detail::output_iterator<OutputIterator
+          , mpl::int_<properties::value> > sink(sink_);
+        return karma::generate(sink, expr, attr);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename OutputIterator, typename Expr, typename Parameter>
+    template <typename OutputIterator, typename Expr, typename Attr>
     inline bool
-    generate(detail::output_iterator<OutputIterator>& sink, Expr const& xpr, 
-        Parameter const& param)
+    generate(
+        OutputIterator const& sink_
+      , Expr const& expr
+      , Attr const& attr)
     {
-        typedef spirit::traits::is_component<karma::domain, Expr> is_component;
-
-        // report invalid expression error as early as possible
-        BOOST_MPL_ASSERT_MSG(is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter));
-
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        return director::generate(c, sink, unused, unused, param);
+        OutputIterator sink = sink_;
+        return karma::generate(sink, expr, attr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename OutputIterator, typename Expr, typename Delimiter>
     inline bool
-    generate_delimited(OutputIterator target_sink, Expr const& xpr,
-        Delimiter const& delimiter)
+    generate_delimited(
+        OutputIterator& sink
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , BOOST_SCOPED_ENUM(delimit_flag) pre_delimit = 
+            delimit_flag::dont_predelimit)
     {
-        typedef
-            spirit::traits::is_component<karma::domain, Expr>
-        expr_is_component;
-        typedef
-            spirit::traits::is_component<karma::domain, Delimiter>
-        delimiter_is_component;
-
-        // report invalid expression errors as early as possible
-        BOOST_MPL_ASSERT_MSG(expr_is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Delimiter));
-
-        BOOST_MPL_ASSERT_MSG(delimiter_is_component::value,
-            delimiter_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Delimiter));
-        
-        // wrap user supplied iterator into our own output iterator
-        detail::output_iterator<OutputIterator> sink(target_sink);
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-        typedef
-            typename result_of::as_component<karma::domain, Delimiter>::type
-        delim_component;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        delim_component d = spirit::as_component(karma::domain(), delimiter);
-        return director::generate(c, sink, unused, d, unused);
+        return detail::generate_delimited_impl<Expr>::call(
+            sink, expr, delimiter, pre_delimit);
     }
 
-    ///////////////////////////////////////////////////////////////////////////
     template <typename OutputIterator, typename Expr, typename Delimiter>
     inline bool
-    generate_delimited(detail::output_iterator<OutputIterator>& sink, 
-        Expr const& xpr, Delimiter const& delimiter)
+    generate_delimited(
+        OutputIterator const& sink_
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , BOOST_SCOPED_ENUM(delimit_flag) pre_delimit = 
+            delimit_flag::dont_predelimit)
     {
-        typedef
-            spirit::traits::is_component<karma::domain, Expr>
-        expr_is_component;
-        typedef
-            spirit::traits::is_component<karma::domain, Delimiter>
-        delimiter_is_component;
-
-        // report invalid expression errors as early as possible
-        BOOST_MPL_ASSERT_MSG(expr_is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Delimiter));
-
-        BOOST_MPL_ASSERT_MSG(delimiter_is_component::value,
-            delimiter_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Delimiter));
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-        typedef
-            typename result_of::as_component<karma::domain, Delimiter>::type
-        delim_component;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        delim_component d = spirit::as_component(karma::domain(), delimiter);
-        return director::generate(c, sink, unused, d, unused);
+        OutputIterator sink = sink_;
+        return karma::generate_delimited(sink, expr, delimiter, pre_delimit);
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename OutputIterator, typename Expr, typename Parameter,
-        typename Delimiter>
+    template <typename OutputIterator, typename Properties, typename Expr
+      , typename Delimiter, typename Attribute>
     inline bool
-    generate_delimited(OutputIterator target_sink, Expr const& xpr,
-        Parameter const& param, Delimiter const& delimiter)
+    generate_delimited(
+        detail::output_iterator<OutputIterator, Properties>& sink
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , BOOST_SCOPED_ENUM(delimit_flag) pre_delimit
+      , Attribute const& attr)
     {
-        typedef
-            spirit::traits::is_component<karma::domain, Expr>
-        expr_is_component;
-        typedef
-            spirit::traits::is_component<karma::domain, Delimiter>
-        delimiter_is_component;
+        // Report invalid expression error as early as possible.
+        // If you got an error_invalid_expression error message here,
+        // then either the expression (expr) or skipper is not a valid
+        // spirit karma expression.
+        BOOST_SPIRIT_ASSERT_MATCH(karma::domain, Expr);
+        BOOST_SPIRIT_ASSERT_MATCH(karma::domain, Delimiter);
 
-        // report invalid expression errors as early as possible
-        BOOST_MPL_ASSERT_MSG(expr_is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter, Delimiter));
+        typename result_of::compile<karma::domain, Delimiter>::type const 
+            delimiter_ = compile<karma::domain>(delimiter);
 
-        BOOST_MPL_ASSERT_MSG(delimiter_is_component::value,
-            delimiter_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter, Delimiter));
-        
+        if (pre_delimit == delimit_flag::predelimit &&
+            !karma::delimit_out(sink, delimiter_))
+        {
+            return false;
+        }
+
+        typename detail::make_context<Attribute>::type context(attr);
+        return compile<karma::domain>(expr).
+            generate(sink, context, delimiter_, attr);
+    }
+
+    template <typename OutputIterator, typename Expr, typename Delimiter
+      , typename Attribute>
+    inline bool
+    generate_delimited(
+        OutputIterator& sink_
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , BOOST_SCOPED_ENUM(delimit_flag) pre_delimit
+      , Attribute const& attr)
+    {
+        typedef traits::properties_of<
+            typename result_of::compile<karma::domain, Expr>::type
+        > properties;
+        typedef traits::properties_of<
+            typename result_of::compile<karma::domain, Delimiter>::type
+        > delimiter_properties;
+
         // wrap user supplied iterator into our own output iterator
-        detail::output_iterator<OutputIterator> sink(target_sink);
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-        typedef
-            typename result_of::as_component<karma::domain, Delimiter>::type
-        delim_component;
+        detail::output_iterator<OutputIterator
+          , mpl::int_<properties::value | delimiter_properties::value>
+        > sink(sink_);
+        return karma::generate_delimited(sink, expr, delimiter, pre_delimit, attr);
+    }
 
-        component c = spirit::as_component(karma::domain(), xpr);
-        delim_component d = spirit::as_component(karma::domain(), delimiter);
-        return director::generate(c, sink, unused, d, param);
+    template <typename OutputIterator, typename Expr, typename Delimiter
+      , typename Attribute>
+    inline bool
+    generate_delimited(
+        OutputIterator const& sink_
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , BOOST_SCOPED_ENUM(delimit_flag) pre_delimit
+      , Attribute const& attr)
+    {
+        OutputIterator sink = sink_;
+        return karma::generate_delimited(sink, expr, delimiter, pre_delimit, attr);
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename OutputIterator, typename Expr, typename Parameter,
-        typename Delimiter>
+    template <typename OutputIterator, typename Expr, typename Delimiter
+      , typename Attribute>
     inline bool
-    generate_delimited(detail::output_iterator<OutputIterator>& sink, 
-        Expr const& xpr, Parameter const& param, Delimiter const& delimiter)
+    generate_delimited(
+        OutputIterator& sink
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , Attribute const& attr)
     {
-        typedef
-            spirit::traits::is_component<karma::domain, Expr>
-        expr_is_component;
-        typedef
-            spirit::traits::is_component<karma::domain, Delimiter>
-        delimiter_is_component;
-
-        // report invalid expression errors as early as possible
-        BOOST_MPL_ASSERT_MSG(expr_is_component::value,
-            xpr_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter, Delimiter));
-
-        BOOST_MPL_ASSERT_MSG(delimiter_is_component::value,
-            delimiter_is_not_convertible_to_a_generator, 
-            (OutputIterator, Expr, Parameter, Delimiter));
-        
-        typedef
-            typename result_of::as_component<karma::domain, Expr>::type
-        component;
-        typedef typename component::director director;
-        typedef
-            typename result_of::as_component<karma::domain, Delimiter>::type
-        delim_component;
-
-        component c = spirit::as_component(karma::domain(), xpr);
-        delim_component d = spirit::as_component(karma::domain(), delimiter);
-        return director::generate(c, sink, unused, d, param);
+        return karma::generate_delimited(sink, expr, delimiter
+          , delimit_flag::dont_predelimit, attr);
     }
 
+    template <typename OutputIterator, typename Expr, typename Delimiter
+      , typename Attribute>
+    inline bool
+    generate_delimited(
+        OutputIterator const& sink_
+      , Expr const& expr
+      , Delimiter const& delimiter
+      , Attribute const& attr)
+    {
+        OutputIterator sink = sink_;
+        return karma::generate_delimited(sink, expr, delimiter
+          , delimit_flag::dont_predelimit, attr);
+    }
 }}}
 
 #endif

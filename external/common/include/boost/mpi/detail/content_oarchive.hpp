@@ -14,6 +14,7 @@
 #include <boost/mpi/detail/ignore_skeleton_oarchive.hpp>
 #include <boost/mpi/detail/mpi_datatype_primitive.hpp>
 #include <boost/mpi/datatype.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost { namespace mpi {
 

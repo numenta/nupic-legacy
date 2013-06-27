@@ -1,8 +1,8 @@
 //
-// old_win_sdk_compat.hpp
-// ~~~~~~~~~~~~~~~~~~~~~~
+// detail/old_win_sdk_compat.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,11 +15,7 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_WINDOWS) || defined(__CYGWIN__)
 
@@ -35,6 +31,8 @@
 // N.B. this emulation is also used if building for a Windows 2000 target with
 // a recent (i.e. Vista or later) SDK, as the SDK does not provide IPv6 support
 // in that case.
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -86,14 +84,6 @@ struct ipv6_mreq_emulation
   in6_addr_emulation ipv6mr_multiaddr;
   unsigned int ipv6mr_interface;
 };
-
-#if !defined(IN6ADDR_ANY_INIT)
-# define IN6ADDR_ANY_INIT { 0 }
-#endif
-
-#if !defined(IN6ADDR_LOOPBACK_INIT)
-# define IN6ADDR_LOOPBACK_INIT { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 }
-#endif
 
 struct addrinfo_emulation
 {
@@ -203,125 +193,11 @@ struct addrinfo_emulation
 # define IPV6_LEAVE_GROUP 13
 #endif
 
-inline int IN6_IS_ADDR_UNSPECIFIED(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0)
-      && (a->s6_addr[1] == 0)
-      && (a->s6_addr[2] == 0)
-      && (a->s6_addr[3] == 0)
-      && (a->s6_addr[4] == 0)
-      && (a->s6_addr[5] == 0)
-      && (a->s6_addr[6] == 0)
-      && (a->s6_addr[7] == 0)
-      && (a->s6_addr[8] == 0)
-      && (a->s6_addr[9] == 0)
-      && (a->s6_addr[10] == 0)
-      && (a->s6_addr[11] == 0)
-      && (a->s6_addr[12] == 0)
-      && (a->s6_addr[13] == 0)
-      && (a->s6_addr[14] == 0)
-      && (a->s6_addr[15] == 0));
-}
-
-inline int IN6_IS_ADDR_LOOPBACK(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0)
-      && (a->s6_addr[1] == 0)
-      && (a->s6_addr[2] == 0)
-      && (a->s6_addr[3] == 0)
-      && (a->s6_addr[4] == 0)
-      && (a->s6_addr[5] == 0)
-      && (a->s6_addr[6] == 0)
-      && (a->s6_addr[7] == 0)
-      && (a->s6_addr[8] == 0)
-      && (a->s6_addr[9] == 0)
-      && (a->s6_addr[10] == 0)
-      && (a->s6_addr[11] == 0)
-      && (a->s6_addr[12] == 0)
-      && (a->s6_addr[13] == 0)
-      && (a->s6_addr[14] == 0)
-      && (a->s6_addr[15] == 1));
-}
-
-inline int IN6_IS_ADDR_MULTICAST(const in6_addr_emulation* a)
-{
-  return (a->s6_addr[0] == 0xff);
-}
-
-inline int IN6_IS_ADDR_LINKLOCAL(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0xfe) && ((a->s6_addr[1] & 0xc0) == 0x80));
-}
-
-inline int IN6_IS_ADDR_SITELOCAL(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0xfe) && ((a->s6_addr[1] & 0xc0) == 0xc0));
-}
-
-inline int IN6_IS_ADDR_V4MAPPED(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0)
-      && (a->s6_addr[1] == 0)
-      && (a->s6_addr[2] == 0)
-      && (a->s6_addr[3] == 0)
-      && (a->s6_addr[4] == 0)
-      && (a->s6_addr[5] == 0)
-      && (a->s6_addr[6] == 0)
-      && (a->s6_addr[7] == 0)
-      && (a->s6_addr[8] == 0)
-      && (a->s6_addr[9] == 0)
-      && (a->s6_addr[10] == 0xff)
-      && (a->s6_addr[11] == 0xff));
-}
-
-inline int IN6_IS_ADDR_V4COMPAT(const in6_addr_emulation* a)
-{
-  return ((a->s6_addr[0] == 0)
-      && (a->s6_addr[1] == 0)
-      && (a->s6_addr[2] == 0)
-      && (a->s6_addr[3] == 0)
-      && (a->s6_addr[4] == 0)
-      && (a->s6_addr[5] == 0)
-      && (a->s6_addr[6] == 0)
-      && (a->s6_addr[7] == 0)
-      && (a->s6_addr[8] == 0)
-      && (a->s6_addr[9] == 0)
-      && (a->s6_addr[10] == 0xff)
-      && (a->s6_addr[11] == 0xff)
-      && !((a->s6_addr[12] == 0)
-        && (a->s6_addr[13] == 0)
-        && (a->s6_addr[14] == 0)
-        && ((a->s6_addr[15] == 0) || (a->s6_addr[15] == 1))));
-}
-
-inline int IN6_IS_ADDR_MC_NODELOCAL(const in6_addr_emulation* a)
-{
-  return IN6_IS_ADDR_MULTICAST(a) && ((a->s6_addr[1] & 0xf) == 1);
-}
-
-inline int IN6_IS_ADDR_MC_LINKLOCAL(const in6_addr_emulation* a)
-{
-  return IN6_IS_ADDR_MULTICAST(a) && ((a->s6_addr[1] & 0xf) == 2);
-}
-
-inline int IN6_IS_ADDR_MC_SITELOCAL(const in6_addr_emulation* a)
-{
-  return IN6_IS_ADDR_MULTICAST(a) && ((a->s6_addr[1] & 0xf) == 5);
-}
-
-inline int IN6_IS_ADDR_MC_ORGLOCAL(const in6_addr_emulation* a)
-{
-  return IN6_IS_ADDR_MULTICAST(a) && ((a->s6_addr[1] & 0xf) == 8);
-}
-
-inline int IN6_IS_ADDR_MC_GLOBAL(const in6_addr_emulation* a)
-{
-  return IN6_IS_ADDR_MULTICAST(a) && ((a->s6_addr[1] & 0xf) == 0xe);
-}
-
 } // namespace detail
 } // namespace asio
 } // namespace boost
+
+#include <boost/asio/detail/pop_options.hpp>
 
 #endif // defined(BOOST_ASIO_HAS_OLD_WIN_SDK)
 
@@ -336,7 +212,5 @@ inline int IN6_IS_ADDR_MC_GLOBAL(const in6_addr_emulation* a)
 #endif
 
 #endif // defined(BOOST_WINDOWS) || defined(__CYGWIN__)
-
-#include <boost/asio/detail/pop_options.hpp>
 
 #endif // BOOST_ASIO_DETAIL_OLD_WIN_SDK_COMPAT_HPP

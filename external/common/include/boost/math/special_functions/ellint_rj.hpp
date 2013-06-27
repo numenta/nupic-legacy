@@ -21,6 +21,7 @@
 #include <boost/math/tools/config.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/ellint_rc.hpp>
+#include <boost/math/special_functions/ellint_rf.hpp>
 
 // Carlson's elliptic integral of the third kind
 // R_J(x, y, z, p) = 1.5 * \int_{0}^{\infty} (t+p)^{-1} [(t+x)(t+y)(t+z)]^{-1/2} dt
@@ -133,7 +134,7 @@ T ellint_rj_imp(T x, T y, T z, T p, const Policy& pol)
     while(k < policies::get_max_series_iterations<Policy>());
 
     // Check to see if we gave up too soon:
-    policies::check_series_iterations(function, k, pol);
+    policies::check_series_iterations<T>(function, k, pol);
 
     // Taylor series expansion to the 5th order
     EA = X * Y + Y * Z + Z * X;

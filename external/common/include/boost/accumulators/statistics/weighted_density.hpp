@@ -210,6 +210,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::density> const weighted_density = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_density)
 }
 
 using extract::weighted_density;

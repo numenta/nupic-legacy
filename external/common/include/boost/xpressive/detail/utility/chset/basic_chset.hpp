@@ -32,23 +32,23 @@ struct basic_chset
     bool empty() const;
     void set(Char from, Char to);
     template<typename Traits>
-    void set(Char from, Char to, Traits const &traits);
+    void set(Char from, Char to, Traits const &tr);
     void set(Char c);
     template<typename Traits>
-    void set(Char c, Traits const &traits);
+    void set(Char c, Traits const &tr);
 
     void clear(Char from, Char to);
     template<typename Traits>
-    void clear(Char from, Char to, Traits const &traits);
+    void clear(Char from, Char to, Traits const &tr);
     void clear(Char c);
     template<typename Traits>
-    void clear(Char c, Traits const &traits);
+    void clear(Char c, Traits const &tr);
     void clear();
 
     template<typename Traits>
-    bool test(Char v, Traits const &traits, mpl::false_) const; // case-sensitive
+    bool test(Char v, Traits const &tr, mpl::false_) const; // case-sensitive
     template<typename Traits>
-    bool test(Char v, Traits const &traits, mpl::true_) const; // case-insensitive
+    bool test(Char v, Traits const &tr, mpl::true_) const; // case-insensitive
 
     void inverse();
     void swap(basic_chset& x);
@@ -79,23 +79,23 @@ struct basic_chset_8bit
 
     void set(Char from, Char to);
     template<typename Traits>
-    void set(Char from, Char to, Traits const &traits);
+    void set(Char from, Char to, Traits const &tr);
     void set(Char c);
     template<typename Traits>
-    void set(Char c, Traits const &traits);
+    void set(Char c, Traits const &tr);
 
     void clear(Char from, Char to);
     template<typename Traits>
-    void clear(Char from, Char to, Traits const &traits);
+    void clear(Char from, Char to, Traits const &tr);
     void clear(Char c);
     template<typename Traits>
-    void clear(Char c, Traits const &traits);
+    void clear(Char c, Traits const &tr);
     void clear();
 
     template<typename Traits>
-    bool test(Char v, Traits const &traits, mpl::false_) const; // case-sensitive
+    bool test(Char v, Traits const &tr, mpl::false_) const; // case-sensitive
     template<typename Traits>
-    bool test(Char v, Traits const &traits, mpl::true_) const; // case-insensitive
+    bool test(Char v, Traits const &tr, mpl::true_) const; // case-insensitive
 
     void inverse();
     void swap(basic_chset_8bit& x);
@@ -159,13 +159,13 @@ struct is_narrow_char<unsigned char>
 ///////////////////////////////////////////////////////////////////////////////
 // helpers
 template<typename Char, typename Traits>
-void set_char(basic_chset<Char> &chset, Char ch, Traits const &traits, bool icase);
+void set_char(basic_chset<Char> &chset, Char ch, Traits const &tr, bool icase);
 
 template<typename Char, typename Traits>
-void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &traits, bool icase);
+void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &tr, bool icase);
 
 template<typename Char, typename Traits>
-void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits);
+void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr);
 
 }}} // namespace boost::xpressive::detail
 

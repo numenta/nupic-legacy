@@ -24,7 +24,7 @@ struct distribution_quantile_finder
 
    value_type operator()(value_type const& x)
    {
-      return comp ? target - cdf(complement(dist, x)) : cdf(dist, x) - target;
+      return comp ? value_type(target - cdf(complement(dist, x))) : value_type(cdf(dist, x) - target);
    }
 
 private:
@@ -92,7 +92,7 @@ typename Dist::value_type
    // Max bounds of the distribution:
    //
    value_type min_bound, max_bound;
-   std::tr1::tie(min_bound, max_bound) = support(dist);
+   boost::math::tie(min_bound, max_bound) = support(dist);
 
    if(guess > max_bound)
       guess = max_bound;
@@ -124,17 +124,21 @@ typename Dist::value_type
             --count;
             if(fb == 0)
                return b;
+            if(a == b)
+               return b; // can't go any higher!
          }
          else
          {
             b = a;
-            a = (std::max)(b - 1, value_type(0));
+            a = (std::max)(value_type(b - 1), value_type(0));
             if(a < min_bound)
                a = min_bound;
             fa = f(a);
             --count;
             if(fa == 0)
                return a;
+            if(a == b)
+               return a;  //  We can't go any lower than this!
          }
       }
    }
@@ -158,7 +162,7 @@ typename Dist::value_type
       }
       else
       {
-         b = (std::max)(a - adder, value_type(0));
+         b = (std::max)(value_type(a - adder), value_type(0));
          if(b < min_bound)
             b = min_bound;
       }
@@ -182,7 +186,7 @@ typename Dist::value_type
          }
          else
          {
-            b = (std::max)(a - adder, value_type(0));
+            b = (std::max)(value_type(a - adder), value_type(0));
             if(b < min_bound)
                b = min_bound;
          }
@@ -208,7 +212,7 @@ typename Dist::value_type
          // Zero is to the right of x2, so walk upwards
          // until we find it:
          //
-         while((boost::math::sign)(fb) == (boost::math::sign)(fa))
+         while(((boost::math::sign)(fb) == (boost::math::sign)(fa)) && (a != b))
          {
             if(count == 0)
                policies::raise_evaluation_error(function, "Unable to bracket root, last nearest value was %1%", b, policy_type());
@@ -228,7 +232,7 @@ typename Dist::value_type
          // Zero is to the left of a, so walk downwards
          // until we find it:
          //
-         while((boost::math::sign)(fb) == (boost::math::sign)(fa))
+         while(((boost::math::sign)(fb) == (boost::math::sign)(fa)) && (a != b))
          {
             if(fabs(a) < tools::min_value<value_type>())
             {
@@ -255,6 +259,8 @@ typename Dist::value_type
       return a;
    if(fb == 0)
       return b;
+   if(a == b)
+      return b;  // Ran out of bounds trying to bracket - there is no answer!
    //
    // Adjust bounds so that if we're looking for an integer
    // result, then both ends round the same way:
@@ -330,7 +336,7 @@ inline typename Dist::value_type
          dist, 
          p, 
          q,
-         (guess < 1 ? value_type(1) : floor(guess)), 
+         (guess < 1 ? value_type(1) : (value_type)floor(guess)), 
          multiplier, 
          adder, 
          tools::equal_floor(),
@@ -340,7 +346,7 @@ inline typename Dist::value_type
       dist, 
       p, 
       q,
-      ceil(guess), 
+      (value_type)ceil(guess), 
       multiplier, 
       adder, 
       tools::equal_ceil(),

@@ -28,6 +28,10 @@
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
 
 namespace boost {
 namespace archive {
@@ -85,23 +89,23 @@ public:
         // If your program fails to compile here, its most likely due to
         // not specifying an nvp wrapper around the variable to
         // be serialized.
-        BOOST_MPL_ASSERT((serialization::is_wrapper<T>));
+        BOOST_MPL_ASSERT((serialization::is_wrapper< T >));
         this->detail_common_oarchive::save_override(t, 0);
     }
 
-   // special treatment for name-value pairs.
+    // special treatment for name-value pairs.
     typedef detail::common_oarchive<Archive> detail_common_oarchive;
     template<class T>
     void save_override(
         #ifndef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
         const
         #endif
-        ::boost::serialization::nvp<T> & t,
+        ::boost::serialization::nvp< T > & t,
         int
     ){
-        save_start(t.name());
+        this->This()->save_start(t.name());
         this->detail_common_oarchive::save_override(t.const_value(), 0);
-        save_end(t.name());
+        this->This()->save_end(t.name());
     }
 
     // specific overrides for attributes - not name value pairs so we
@@ -131,6 +135,10 @@ public:
 
 } // namespace archive
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

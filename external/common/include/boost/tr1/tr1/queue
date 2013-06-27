@@ -14,7 +14,7 @@
 #     define BOOST_TR1_NO_queue_RECURSION
 #  endif
 #  include <boost/tr1/detail/config_all.hpp>
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next <queue>
 #  else
 #     include BOOST_TR1_STD_HEADER(queue)

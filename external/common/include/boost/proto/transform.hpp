@@ -9,16 +9,16 @@
 #ifndef BOOST_PROTO_TRANSFORM_HPP_EAN_06_23_2007
 #define BOOST_PROTO_TRANSFORM_HPP_EAN_06_23_2007
 
-#include <boost/proto/detail/prefix.hpp> // must be first include
 #include <boost/proto/transform/arg.hpp>
 #include <boost/proto/transform/call.hpp>
 #include <boost/proto/transform/default.hpp>
+#include <boost/proto/transform/env.hpp>
 #include <boost/proto/transform/fold.hpp>
 #include <boost/proto/transform/fold_tree.hpp>
+#include <boost/proto/transform/integral_c.hpp>
 #include <boost/proto/transform/lazy.hpp>
 #include <boost/proto/transform/make.hpp>
 #include <boost/proto/transform/pass_through.hpp>
 #include <boost/proto/transform/when.hpp>
-#include <boost/proto/detail/suffix.hpp> // must be last include
 
 #endif

@@ -7,13 +7,17 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines model of program environment variable
 // ***************************************************************************
 
 #ifndef BOOST_RT_ENV_VARIABLE_HPP_062604GER
 #define BOOST_RT_ENV_VARIABLE_HPP_062604GER
+
+#ifdef UNDER_CE
+#error Windows CE does not support environment variables.
+#endif
 
 // Boost.Runtime.Parameter
 #include <boost/test/utils/runtime/config.hpp>
@@ -100,7 +104,13 @@ public:
     // access methods
     T const&    value() const                               { return variable_base::value<T>(); }
 
+#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206)) || \
+    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0593))
+    template<typename T>
+    void        value( boost::optional<T>& res ) const      { variable_base::value( res ); }
+#else
     using       variable_base::value;
+#endif
 
     // Value assignment
     template<typename V>

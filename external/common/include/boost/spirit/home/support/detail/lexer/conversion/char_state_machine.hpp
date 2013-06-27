@@ -1,5 +1,5 @@
 // char_state_machine.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -29,6 +29,7 @@ struct basic_char_state_machine
 
         bool _end_state;
         std::size_t _id;
+        std::size_t _unique_id;
         std::size_t _state;
         std::size_t _bol_index;
         std::size_t _eol_index;
@@ -37,6 +38,7 @@ struct basic_char_state_machine
         state () :
             _end_state (false),
             _id (0),
+            _unique_id (npos),
             _state (0),
             _bol_index (npos),
             _eol_index (npos)

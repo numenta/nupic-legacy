@@ -39,6 +39,10 @@ namespace boost { namespace phoenix
         }
 
         T& ref;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        reference& operator= (reference const&);
     };
 
     template <typename T>

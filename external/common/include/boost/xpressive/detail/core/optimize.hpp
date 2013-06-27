@@ -28,7 +28,7 @@ template<typename BidiIter, typename Traits>
 intrusive_ptr<finder<BidiIter> > optimize_regex
 (
     xpression_peeker<typename iterator_value<BidiIter>::type> const &peeker
-  , Traits const &traits
+  , Traits const &tr
   , mpl::false_
 )
 {
@@ -36,7 +36,7 @@ intrusive_ptr<finder<BidiIter> > optimize_regex
     {
         return intrusive_ptr<finder<BidiIter> >
         (
-            new line_start_finder<BidiIter, Traits>(traits)
+            new line_start_finder<BidiIter, Traits>(tr)
         );
     }
     else if(peeker.leading_simple_repeat())
@@ -64,7 +64,7 @@ template<typename BidiIter, typename Traits>
 intrusive_ptr<finder<BidiIter> > optimize_regex
 (
     xpression_peeker<typename iterator_value<BidiIter>::type> const &peeker
-  , Traits const &traits
+  , Traits const &tr
   , mpl::true_
 )
 {
@@ -77,11 +77,11 @@ intrusive_ptr<finder<BidiIter> > optimize_regex
         BOOST_ASSERT(1 == peeker.bitset().count());
         return intrusive_ptr<finder<BidiIter> >
         (
-            new boyer_moore_finder<BidiIter, Traits>(str.begin_, str.end_, traits, str.icase_)
+            new boyer_moore_finder<BidiIter, Traits>(str.begin_, str.end_, tr, str.icase_)
         );
     }
 
-    return optimize_regex<BidiIter>(peeker, traits, mpl::false_());
+    return optimize_regex<BidiIter>(peeker, tr, mpl::false_());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -92,22 +92,22 @@ void common_compile
 (
     intrusive_ptr<matchable_ex<BidiIter> const> const &regex
   , regex_impl<BidiIter> &impl
-  , Traits const &traits
+  , Traits const &tr
 )
 {
     typedef typename iterator_value<BidiIter>::type char_type;
 
     // "link" the regex
-    xpression_linker<char_type> linker(traits);
+    xpression_linker<char_type> linker(tr);
     regex->link(linker);
 
     // "peek" into the compiled regex to see if there are optimization opportunities
     hash_peek_bitset<char_type> bset;
-    xpression_peeker<char_type> peeker(bset, traits, linker.has_backrefs());
+    xpression_peeker<char_type> peeker(bset, tr, linker.has_backrefs());
     regex->peek(peeker);
 
     // optimization: get the peek chars OR the boyer-moore search string
-    impl.finder_ = optimize_regex<BidiIter>(peeker, traits, is_random<BidiIter>());
+    impl.finder_ = optimize_regex<BidiIter>(peeker, tr, is_random<BidiIter>());
     impl.xpr_ = regex;
 }
 

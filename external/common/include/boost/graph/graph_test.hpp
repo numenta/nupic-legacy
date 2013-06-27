@@ -17,6 +17,8 @@
 #include <boost/graph/isomorphism.hpp>
 #include <boost/graph/copy.hpp>
 #include <boost/graph/graph_utility.hpp> // for connects
+#include <boost/range.hpp>
+#include <boost/range/algorithm/find_if.hpp>
 
 
 // UNDER CONSTRUCTION 
@@ -151,7 +153,7 @@ namespace boost {
       typedef typename graph_traits<Graph>::vertex_iterator v_iter;
       std::pair<v_iter, v_iter> p = vertices(g);
       BOOST_CHECK(num_vertices(g) == vertex_set.size());
-      v_size_t n = std::distance(p.first, p.second);
+      v_size_t n = (size_t)std::distance(p.first, p.second);
       BOOST_CHECK(n == num_vertices(g));
       for (; p.first != p.second; ++p.first) {
         vertex_t v = *p.first;
@@ -171,7 +173,7 @@ namespace boost {
       BOOST_CHECK(m == num_edges(g));
       for (; p.first != p.second; ++p.first) {
         edge_t e = *p.first;
-        BOOST_CHECK(any_if(edge_set, connects(source(e, g), target(e, g), g)));
+        BOOST_CHECK(find_if(edge_set, connects(source(e, g), target(e, g), g)) != boost::end(edge_set));
         BOOST_CHECK(container_contains(vertex_set, source(e, g)) == true);
         BOOST_CHECK(container_contains(vertex_set, target(e, g)) == true);
       }
@@ -196,8 +198,8 @@ namespace boost {
         for (k = vertex_set.begin(); k != vertex_set.end(); ++k) {
           p = edge(*j, *k, g);
           if (p.second == true)
-            BOOST_CHECK(any_if(edge_set, 
-              connects(source(p.first, g), target(p.first, g), g)) == true);
+            BOOST_CHECK(find_if(edge_set, 
+              connects(source(p.first, g), target(p.first, g), g)) != boost::end(edge_set));
         }
     }
 
@@ -211,7 +213,7 @@ namespace boost {
       IsoMap iso_map(iso_vec.begin(), get(vertex_index, g));
       copy_graph(g, cpy, orig_to_copy(iso_map));
 
-      assert((verify_isomorphism(g, cpy, iso_map)));
+      BOOST_CHECK((verify_isomorphism(g, cpy, iso_map)));
 
       vertex_t v = add_vertex(g);
       
@@ -323,10 +325,10 @@ namespace boost {
 
     template <typename PropVal, typename PropertyTag>
     void test_readable_vertex_property_graph
-      (const std::vector<PropVal>& vertex_prop, PropertyTag, const Graph& g)
+      (const std::vector<PropVal>& vertex_prop, PropertyTag tag, const Graph& g)
     {
       typedef typename property_map<Graph, PropertyTag>::const_type const_Map;
-      const_Map pmap = get(PropertyTag(), g);
+      const_Map pmap = get(tag, g);
       typename std::vector<PropVal>::const_iterator i = vertex_prop.begin();
 
   for (typename boost::graph_traits<Graph>::vertex_iterator 
@@ -337,7 +339,7 @@ namespace boost {
          ++bgl_first_9) {
       //BGL_FORALL_VERTICES_T(v, g, Graph) {
         typename property_traits<const_Map>::value_type 
-          pval1 = get(pmap, v), pval2 = get(PropertyTag(), g, v);
+          pval1 = get(pmap, v), pval2 = get(tag, g, v);
         BOOST_CHECK(pval1 == pval2);
         BOOST_CHECK(pval1 == *i++);
       }
@@ -348,7 +350,7 @@ namespace boost {
       (const std::vector<PropVal>& vertex_prop, PropertyTag tag, Graph& g)
     {
       typedef typename property_map<Graph, PropertyTag>::type PMap;
-      PMap pmap = get(PropertyTag(), g);
+      PMap pmap = get(tag, g);
       typename std::vector<PropVal>::const_iterator i = vertex_prop.begin();
   for (typename boost::graph_traits<Graph>::vertex_iterator 
            bgl_first_9 = vertices(g).first, bgl_last_9 = vertices(g).second;
@@ -366,7 +368,7 @@ namespace boost {
       
       typename std::vector<PropVal>::const_iterator j = vertex_prop.begin();
       BGL_FORALL_VERTICES_T(v, g, Graph)
-        put(PropertyTag(), g, v, *j++);
+        put(tag, g, v, *j++);
       
       test_readable_vertex_property_graph(vertex_prop, tag, g);      
     }

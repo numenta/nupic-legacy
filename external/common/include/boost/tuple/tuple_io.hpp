@@ -29,6 +29,8 @@
 #include <ostream>
 #endif  
 
+#include <sstream>
+
 #include "boost/tuple/tuple.hpp"
 
 // This is ugly: one should be using twoargument isspace since whitspace can
@@ -244,6 +246,22 @@ print(std::ostream& o, const cons<T1, T2>& t) {
 
 }
 
+template<class T>
+inline bool handle_width(std::ostream& o, const T& t) {
+    std::streamsize width = o.width();
+    if(width == 0) return false;
+
+    std::ostringstream ss;
+
+    ss.copyfmt(o);
+    ss.tie(0);
+    ss.width(0);
+
+    ss << t;
+    o << ss.str();
+
+    return true;
+}
 
 
 #else
@@ -280,14 +298,48 @@ print(std::basic_ostream<CharType, CharTrait>& o, const cons<T1, T2>& t) {
   return print(o, t.tail);
 }
 
+template<class CharT, class Traits, class T>
+inline bool handle_width(std::basic_ostream<CharT, Traits>& o, const T& t) {
+    std::streamsize width = o.width();
+    if(width == 0) return false;
+
+    std::basic_ostringstream<CharT, Traits> ss;
+
+    ss.copyfmt(o);
+    ss.tie(0);
+    ss.width(0);
+
+    ss << t;
+    o << ss.str();
+
+    return true;
+}
+
 #endif  // BOOST_NO_TEMPLATED_STREAMS
 
 } // namespace detail
 
 #if defined (BOOST_NO_TEMPLATED_STREAMS)
+
+inline std::ostream& operator<<(std::ostream& o, const null_type& t) {
+  if (!o.good() ) return o;
+  if (detail::handle_width(o, t)) return o;
+ 
+  const char l = 
+    detail::format_info::get_manipulator(o, detail::format_info::open);
+  const char r = 
+    detail::format_info::get_manipulator(o, detail::format_info::close);
+   
+  o << l;
+  o << r;
+
+  return o;
+}
+
 template<class T1, class T2>
 inline std::ostream& operator<<(std::ostream& o, const cons<T1, T2>& t) {
   if (!o.good() ) return o;
+  if (detail::handle_width(o, t)) return o;
  
   const char l = 
     detail::format_info::get_manipulator(o, detail::format_info::open);
@@ -305,11 +357,30 @@ inline std::ostream& operator<<(std::ostream& o, const cons<T1, T2>& t) {
 
 #else
 
+template<class CharType, class CharTrait>
+inline std::basic_ostream<CharType, CharTrait>& 
+operator<<(std::basic_ostream<CharType, CharTrait>& o, 
+           const null_type& t) {
+  if (!o.good() ) return o;
+  if (detail::handle_width(o, t)) return o;
+ 
+  const CharType l = 
+    detail::format_info::get_manipulator(o, detail::format_info::open);
+  const CharType r = 
+    detail::format_info::get_manipulator(o, detail::format_info::close);
+   
+  o << l;
+  o << r;
+
+  return o;
+}
+
 template<class CharType, class CharTrait, class T1, class T2>
 inline std::basic_ostream<CharType, CharTrait>& 
 operator<<(std::basic_ostream<CharType, CharTrait>& o, 
            const cons<T1, T2>& t) {
   if (!o.good() ) return o;
+  if (detail::handle_width(o, t)) return o;
  
   const CharType l = 
     detail::format_info::get_manipulator(o, detail::format_info::open);
@@ -352,6 +423,8 @@ extract_and_check_delimiter(
     if (is.good() && c!=d) {
       is.setstate(std::ios::failbit);
     } 
+  } else {
+    is >> std::ws;
   }
   return is;
 }
@@ -446,6 +519,8 @@ extract_and_check_delimiter(
     if (is.good() && c!=d) { 
       is.setstate(std::ios::failbit);
     }
+  } else {
+    is >> std::ws;
   }
   return is;
 }

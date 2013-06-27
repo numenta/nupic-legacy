@@ -26,6 +26,8 @@
 #include <boost/mpl/and.hpp>
 #include <boost/mpi/detail/mpi_datatype_cache.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/archive/basic_archive.hpp>
+#include <boost/serialization/item_version_type.hpp>
 #include <utility> // for std::pair
 
 namespace boost { namespace mpi {
@@ -298,6 +300,7 @@ BOOST_MPI_DATATYPE(unsigned __int64, MPI_UNSIGNED_LONG_LONG, builtin);
 BOOST_MPI_DATATYPE(signed char, MPI_SIGNED_CHAR, builtin);
 #endif
 
+
 #endif // Doxygen
 
 namespace detail {
@@ -325,8 +328,26 @@ struct is_mpi_datatype<bool>
   : boost::mpl::bool_<true>
 {};
 
+
+#ifndef BOOST_MPI_DOXYGEN
+// direct support for special primitive data types of the serialization library
+BOOST_MPI_DATATYPE(boost::archive::library_version_type, get_mpi_datatype(uint_least16_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::version_type, get_mpi_datatype(uint_least8_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::class_id_type, get_mpi_datatype(int_least16_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::class_id_reference_type, get_mpi_datatype(int_least16_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::class_id_optional_type, get_mpi_datatype(int_least16_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::object_id_type, get_mpi_datatype(uint_least32_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::object_reference_type, get_mpi_datatype(uint_least32_t()), integer);
+BOOST_MPI_DATATYPE(boost::archive::tracking_type, get_mpi_datatype(bool()), builtin);
+BOOST_MPI_DATATYPE(boost::serialization::collection_size_type, get_mpi_datatype(std::size_t()), integer);
+BOOST_MPI_DATATYPE(boost::serialization::item_version_type, get_mpi_datatype(uint_least8_t()), integer);
+#endif // Doxygen
+
+
 } } // end namespace boost::mpi
 
+// direct support for special primitive data types of the serialization library
+// in the case of homogeneous systems
 // define a macro to make explicit designation of this more transparent
 #define BOOST_IS_MPI_DATATYPE(T)              \
 namespace boost {                             \

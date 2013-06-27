@@ -1,4 +1,4 @@
-/* Copyright 2003-2008 Joaquin M Lopez Munoz.
+/* Copyright 2003-2009 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -178,11 +178,30 @@ void construct(void* p,const Type& t)
   new (p) Type(t);
 }
 
+#if BOOST_WORKAROUND(BOOST_MSVC,BOOST_TESTED_AT(1500))
+/* MSVC++ issues spurious warnings about unreferencend formal parameters
+ * in destroy<Type> when Type is a class with trivial dtor.
+ */
+
+#pragma warning(push)
+#pragma warning(disable:4100)  
+#endif
+
 template<typename Type>
 void destroy(const Type* p)
 {
+
+#if BOOST_WORKAROUND(__SUNPRO_CC,BOOST_TESTED_AT(0x590))
+  const_cast<Type*>(p)->~Type();
+#else
   p->~Type();
+#endif
+
 }
+
+#if BOOST_WORKAROUND(BOOST_MSVC,BOOST_TESTED_AT(1500))
+#pragma warning(pop)
+#endif
 
 } /* namespace boost::detail::allocator */
 

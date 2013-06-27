@@ -86,6 +86,51 @@
 #endif
 
 //
+// C++0x features
+//
+//   See boost\config\suffix.hpp for BOOST_NO_LONG_LONG
+//
+#if !defined(__EDG__)
+
+#define BOOST_NO_CXX11_AUTO_DECLARATIONS
+#define BOOST_NO_CXX11_AUTO_MULTIDECLARATIONS
+#define BOOST_NO_CXX11_CHAR16_T
+#define BOOST_NO_CXX11_CHAR32_T
+#define BOOST_NO_CXX11_CONSTEXPR
+#define BOOST_NO_CXX11_DECLTYPE
+#define BOOST_NO_CXX11_DECLTYPE_N3276
+#define BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#define BOOST_NO_CXX11_DELETED_FUNCTIONS
+#define BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_CXX11_EXTERN_TEMPLATE
+#define BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS
+#define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#define BOOST_NO_CXX11_LAMBDAS
+#define BOOST_NO_CXX11_LOCAL_CLASS_TEMPLATE_PARAMETERS
+#define BOOST_NO_CXX11_NOEXCEPT
+#define BOOST_NO_CXX11_NULLPTR
+#define BOOST_NO_CXX11_RANGE_BASED_FOR
+#define BOOST_NO_CXX11_RAW_LITERALS
+#define BOOST_NO_CXX11_RVALUE_REFERENCES
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#define BOOST_NO_SFINAE_EXPR
+#define BOOST_NO_CXX11_STATIC_ASSERT
+#define BOOST_NO_CXX11_TEMPLATE_ALIASES
+#define BOOST_NO_CXX11_UNICODE_LITERALS
+#define BOOST_NO_CXX11_VARIADIC_TEMPLATES
+
+/* 
+  See https://forums13.itrc.hp.com/service/forums/questionanswer.do?threadId=1443331 and
+      https://forums13.itrc.hp.com/service/forums/questionanswer.do?threadId=1443436
+*/
+
+#if (__HP_aCC < 62500) || !defined(HP_CXX0x_SOURCE)
+  #define BOOST_NO_CXX11_VARIADIC_MACROS
+#endif
+
+#endif
+
+//
 // last known and checked version for HP-UX/ia64 is 61300
 // last known and checked version for PA-RISC is 38000
 #if ((__HP_aCC > 61300) || ((__HP_aCC > 38000) && defined(__hpxstd98)))

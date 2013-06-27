@@ -12,6 +12,7 @@
 #include <limits>
 #include <numeric>
 #include <functional>
+#include <boost/throw_exception.hpp>
 #include <boost/range.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/placeholders.hpp>
@@ -259,6 +260,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::abstract_peaks_over_threshold> const weighted_peaks_over_threshold = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_peaks_over_threshold)
 }
 
 using extract::weighted_peaks_over_threshold;

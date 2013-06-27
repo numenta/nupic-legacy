@@ -1,5 +1,5 @@
 //  Copyright John Maddock 2007.
-//  Copyright Paul A. Bristow 2007
+//  Copyright Paul A. Bristow 2007, 2009
 //  Use, modification and distribution are subject to the
 //  Boost Software License, Version 1.0. (See accompanying file
 //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -13,6 +13,8 @@
 // Weisstein, Eric W. "Pareto Distribution."
 // From MathWorld--A Wolfram Web Resource.
 // http://mathworld.wolfram.com/ParetoDistribution.html
+// Handbook of Statistical Distributions with Applications, K Krishnamoorthy, ISBN 1-58488-635-8, Chapter 23, pp 257 - 267.
+// Caution KK's a and b are the reverse of Mathworld!
 
 #include <boost/math/distributions/fwd.hpp>
 #include <boost/math/distributions/complement.hpp>
@@ -28,14 +30,14 @@ namespace boost
     namespace detail
     { // Parameter checking.
       template <class RealType, class Policy>
-      inline bool check_pareto_location(
+      inline bool check_pareto_scale(
         const char* function,
-        RealType location,
+        RealType scale,
         RealType* result, const Policy& pol)
       {
-        if((boost::math::isfinite)(location))
+        if((boost::math::isfinite)(scale))
         { // any > 0 finite value is OK.
-          if (location > 0)
+          if (scale > 0)
           {
             return true;
           }
@@ -43,7 +45,7 @@ namespace boost
           {
             *result = policies::raise_domain_error<RealType>(
               function,
-              "Location parameter is %1%, but must be > 0!", location, pol);
+              "Scale parameter is %1%, but must be > 0!", scale, pol);
             return false;
           }
         }
@@ -51,10 +53,10 @@ namespace boost
         { // Not finite.
           *result = policies::raise_domain_error<RealType>(
             function,
-            "Location parameter is %1%, but must be finite!", location, pol);
+            "Scale parameter is %1%, but must be finite!", scale, pol);
           return false;
         }
-      } // bool check_pareto_location
+      } // bool check_pareto_scale
 
       template <class RealType, class Policy>
       inline bool check_pareto_shape(
@@ -92,7 +94,7 @@ namespace boost
         RealType* result, const Policy& pol)
       {
         if((boost::math::isfinite)(x))
-        { // 
+        { //
           if (x > 0)
           {
             return true;
@@ -117,11 +119,11 @@ namespace boost
       template <class RealType, class Policy>
       inline bool check_pareto( // distribution parameters.
         const char* function,
-        RealType location,
+        RealType scale,
         RealType shape,
         RealType* result, const Policy& pol)
       {
-        return check_pareto_location(function, location, result, pol) 
+        return check_pareto_scale(function, scale, result, pol)
            && check_pareto_shape(function, shape, result, pol);
       } // bool check_pareto(
 
@@ -134,26 +136,26 @@ namespace boost
       typedef RealType value_type;
       typedef Policy policy_type;
 
-      pareto_distribution(RealType location = 1, RealType shape = 1)
-        : m_location(location), m_shape(shape)
+      pareto_distribution(RealType scale = 1, RealType shape = 1)
+        : m_scale(scale), m_shape(shape)
       { // Constructor.
-        RealType result;
-        detail::check_pareto("boost::math::pareto_distribution<%1%>::pareto_distribution", location, shape, &result, Policy());
+        RealType result = 0;
+        detail::check_pareto("boost::math::pareto_distribution<%1%>::pareto_distribution", scale, shape, &result, Policy());
       }
 
-      RealType location()const
-      { // AKA Xm and b
-        return m_location;
+      RealType scale()const
+      { // AKA Xm and Wolfram b and beta
+        return m_scale;
       }
 
       RealType shape()const
-      { // AKA k and a
+      { // AKA k and Wolfram a and alpha
         return m_shape;
       }
     private:
       // Data members:
-      RealType m_location;  // distribution location (xm)
-      RealType m_shape;  // distribution shape (k)
+      RealType m_scale;  // distribution scale (xm) or beta
+      RealType m_shape;  // distribution shape (k) or alpha
     };
 
     typedef pareto_distribution<double> pareto; // Convenience to allow pareto(2., 3.);
@@ -162,7 +164,7 @@ namespace boost
     inline const std::pair<RealType, RealType> range(const pareto_distribution<RealType, Policy>& /*dist*/)
     { // Range of permissible values for random variable x.
       using boost::math::tools::max_value;
-      return std::pair<RealType, RealType>(0, max_value<RealType>()); // location zero to + infinity.
+      return std::pair<RealType, RealType>(static_cast<RealType>(0), max_value<RealType>()); // scale zero to + infinity.
     } // range
 
     template <class RealType, class Policy>
@@ -170,7 +172,7 @@ namespace boost
     { // Range of supported values for random variable x.
       // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
       using boost::math::tools::max_value;
-      return std::pair<RealType, RealType>(dist.location(), max_value<RealType>() ); // location to + infinity.
+      return std::pair<RealType, RealType>(dist.scale(), max_value<RealType>() ); // scale to + infinity.
     } // support
 
     template <class RealType, class Policy>
@@ -178,18 +180,17 @@ namespace boost
     {
       BOOST_MATH_STD_USING  // for ADL of std function pow.
       static const char* function = "boost::math::pdf(const pareto_distribution<%1%>&, %1%)";
-      RealType location = dist.location();
+      RealType scale = dist.scale();
       RealType shape = dist.shape();
-      RealType result;
+      RealType result = 0;
       if(false == (detail::check_pareto_x(function, x, &result, Policy())
-         && detail::check_pareto(function, location, shape, &result, Policy())))
+         && detail::check_pareto(function, scale, shape, &result, Policy())))
          return result;
-      if (x < location)
-      { // regardless of shape, pdf is zero.
-        return 0; 
+      if (x < scale)
+      { // regardless of shape, pdf is zero (or should be disallow x < scale and throw an exception?).
+        return 0;
       }
-
-      result = shape * pow(location, shape) / pow(x, shape+1);
+      result = shape * pow(scale, shape) / pow(x, shape+1);
       return result;
     } // pdf
 
@@ -198,21 +199,21 @@ namespace boost
     {
       BOOST_MATH_STD_USING  // for ADL of std function pow.
       static const char* function = "boost::math::cdf(const pareto_distribution<%1%>&, %1%)";
-      RealType location = dist.location();
+      RealType scale = dist.scale();
       RealType shape = dist.shape();
-      RealType result;
+      RealType result = 0;
 
       if(false == (detail::check_pareto_x(function, x, &result, Policy())
-         && detail::check_pareto(function, location, shape, &result, Policy())))
+         && detail::check_pareto(function, scale, shape, &result, Policy())))
          return result;
 
-      if (x <= location)
+      if (x <= scale)
       { // regardless of shape, cdf is zero.
-        return 0; 
+        return 0;
       }
 
-      // result = RealType(1) - pow((location / x), shape);
-      result = -boost::math::powm1(location/x, shape, Policy()); // should be more accurate.
+      // result = RealType(1) - pow((scale / x), shape);
+      result = -boost::math::powm1(scale/x, shape, Policy()); // should be more accurate.
       return result;
     } // cdf
 
@@ -221,23 +222,23 @@ namespace boost
     {
       BOOST_MATH_STD_USING  // for ADL of std function pow.
       static const char* function = "boost::math::quantile(const pareto_distribution<%1%>&, %1%)";
-      RealType result;
-      RealType location = dist.location();
+      RealType result = 0;
+      RealType scale = dist.scale();
       RealType shape = dist.shape();
       if(false == (detail::check_probability(function, p, &result, Policy())
-           && detail::check_pareto(function, location, shape, &result, Policy())))
+           && detail::check_pareto(function, scale, shape, &result, Policy())))
       {
         return result;
       }
       if (p == 0)
       {
-        return location; // x must be location (or less).
+        return scale; // x must be scale (or less).
       }
       if (p == 1)
       {
         return tools::max_value<RealType>(); // x = + infinity.
       }
-      result = location /
+      result = scale /
         (pow((1 - p), 1 / shape));
       // K. Krishnamoorthy,  ISBN 1-58488-635-8 eq 23.1.3
       return result;
@@ -248,46 +249,46 @@ namespace boost
     {
        BOOST_MATH_STD_USING  // for ADL of std function pow.
        static const char* function = "boost::math::cdf(const pareto_distribution<%1%>&, %1%)";
-       RealType result;
+       RealType result = 0;
        RealType x = c.param;
-       RealType location = c.dist.location();
+       RealType scale = c.dist.scale();
        RealType shape = c.dist.shape();
        if(false == (detail::check_pareto_x(function, x, &result, Policy())
-           && detail::check_pareto(function, location, shape, &result, Policy())))
+           && detail::check_pareto(function, scale, shape, &result, Policy())))
          return result;
 
-       if (x <= location)
+       if (x <= scale)
        { // regardless of shape, cdf is zero, and complement is unity.
-         return 1; 
+         return 1;
        }
-       result = pow((location/x), shape);
-   
+       result = pow((scale/x), shape);
+
        return result;
     } // cdf complement
-    
+
     template <class RealType, class Policy>
     inline RealType quantile(const complemented2_type<pareto_distribution<RealType, Policy>, RealType>& c)
     {
       BOOST_MATH_STD_USING  // for ADL of std function pow.
       static const char* function = "boost::math::quantile(const pareto_distribution<%1%>&, %1%)";
-      RealType result;
+      RealType result = 0;
       RealType q = c.param;
-      RealType location = c.dist.location();
+      RealType scale = c.dist.scale();
       RealType shape = c.dist.shape();
       if(false == (detail::check_probability(function, q, &result, Policy())
-           && detail::check_pareto(function, location, shape, &result, Policy())))
+           && detail::check_pareto(function, scale, shape, &result, Policy())))
       {
         return result;
       }
       if (q == 1)
       {
-        return location; // x must be location (or less).
+        return scale; // x must be scale (or less).
       }
       if (q == 0)
       {
         return tools::max_value<RealType>(); // x = + infinity.
       }
-      result = location / (pow(q, 1 / shape));
+      result = scale / (pow(q, 1 / shape));
       // K. Krishnamoorthy,  ISBN 1-58488-635-8 eq 23.1.3
       return result;
     } // quantile complement
@@ -295,15 +296,15 @@ namespace boost
     template <class RealType, class Policy>
     inline RealType mean(const pareto_distribution<RealType, Policy>& dist)
     {
-      RealType result;
+      RealType result = 0;
       static const char* function = "boost::math::mean(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, dist.location(), dist.shape(), &result, Policy()))
+      if(false == detail::check_pareto(function, dist.scale(), dist.shape(), &result, Policy()))
       {
         return result;
       }
       if (dist.shape() > RealType(1))
       {
-        return dist.shape() * dist.location() / (dist.shape() - 1);
+        return dist.shape() * dist.scale() / (dist.shape() - 1);
       }
       else
       {
@@ -315,36 +316,36 @@ namespace boost
     template <class RealType, class Policy>
     inline RealType mode(const pareto_distribution<RealType, Policy>& dist)
     {
-      return dist.location();
+      return dist.scale();
     } // mode
 
     template <class RealType, class Policy>
     inline RealType median(const pareto_distribution<RealType, Policy>& dist)
     {
-      RealType result;
+      RealType result = 0;
       static const char* function = "boost::math::median(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, dist.location(), dist.shape(), &result, Policy()))
+      if(false == detail::check_pareto(function, dist.scale(), dist.shape(), &result, Policy()))
       {
         return result;
       }
       BOOST_MATH_STD_USING
-      return dist.location() * pow(RealType(2), (1/dist.shape()));
+      return dist.scale() * pow(RealType(2), (1/dist.shape()));
     } // median
 
     template <class RealType, class Policy>
     inline RealType variance(const pareto_distribution<RealType, Policy>& dist)
     {
-      RealType result;
-      RealType location = dist.location();
+      RealType result = 0;
+      RealType scale = dist.scale();
       RealType shape = dist.shape();
       static const char* function = "boost::math::variance(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, location, shape, &result, Policy()))
+      if(false == detail::check_pareto(function, scale, shape, &result, Policy()))
       {
         return result;
       }
       if (shape > 2)
       {
-        result = (location * location * shape) /
+        result = (scale * scale * shape) /
          ((shape - 1) *  (shape - 1) * (shape - 2));
       }
       else
@@ -358,12 +359,12 @@ namespace boost
 
     template <class RealType, class Policy>
     inline RealType skewness(const pareto_distribution<RealType, Policy>& dist)
-    {  
+    {
       BOOST_MATH_STD_USING
-      RealType result;
+      RealType result = 0;
       RealType shape = dist.shape();
       static const char* function = "boost::math::pdf(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, dist.location(), shape, &result, Policy()))
+      if(false == detail::check_pareto(function, dist.scale(), shape, &result, Policy()))
       {
         return result;
       }
@@ -385,10 +386,10 @@ namespace boost
     template <class RealType, class Policy>
     inline RealType kurtosis(const pareto_distribution<RealType, Policy>& dist)
     {
-      RealType result;
+      RealType result = 0;
       RealType shape = dist.shape();
       static const char* function = "boost::math::pdf(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, dist.location(), shape, &result, Policy()))
+      if(false == detail::check_pareto(function, dist.scale(), shape, &result, Policy()))
       {
         return result;
       }
@@ -409,10 +410,10 @@ namespace boost
     template <class RealType, class Policy>
     inline RealType kurtosis_excess(const pareto_distribution<RealType, Policy>& dist)
     {
-      RealType result;
+      RealType result = 0;
       RealType shape = dist.shape();
       static const char* function = "boost::math::pdf(const pareto_distribution<%1%>&, %1%)";
-      if(false == detail::check_pareto(function, dist.location(), shape, &result, Policy()))
+      if(false == detail::check_pareto(function, dist.scale(), shape, &result, Policy()))
       {
         return result;
       }

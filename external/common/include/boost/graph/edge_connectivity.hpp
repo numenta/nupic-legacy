@@ -16,7 +16,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <boost/graph/edmunds_karp_max_flow.hpp>
+#include <boost/graph/edmonds_karp_max_flow.hpp>
 
 namespace boost {
 
@@ -34,7 +34,7 @@ namespace boost {
       size_type delta = (std::numeric_limits<size_type>::max)();
 
       typename Traits::vertex_iterator i, iend;
-      for (tie(i, iend) = vertices(g); i != iend; ++i)
+      for (boost::tie(i, iend) = vertices(g); i != iend; ++i)
         if (degree(*i, g) < delta) {
           delta = degree(*i, g);
           p = *i;
@@ -48,7 +48,7 @@ namespace boost {
                    OutputIterator result)
     {
       typename graph_traits<Graph>::adjacency_iterator ai, aend;
-      for (tie(ai, aend) = adjacent_vertices(u, g); ai != aend; ++ai)
+      for (boost::tie(ai, aend) = adjacent_vertices(u, g); ai != aend; ++ai)
         *result++ = *ai;
     }
 
@@ -111,11 +111,11 @@ namespace boost {
     typename property_map<FlowGraph, edge_reverse_t>::type
       rev_edge = get(edge_reverse, flow_g);
 
-    for (tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
+    for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
       u = source(*ei, g), v = target(*ei, g);
-      tie(e1, inserted) = add_edge(u, v, flow_g);
+      boost::tie(e1, inserted) = add_edge(u, v, flow_g);
       cap[e1] = 1;
-      tie(e2, inserted) = add_edge(v, u, flow_g);
+      boost::tie(e2, inserted) = add_edge(v, u, flow_g);
       cap[e2] = 1; // not sure about this
       rev_edge[e1] = e2;
       rev_edge[e2] = e1;
@@ -124,7 +124,7 @@ namespace boost {
     //-------------------------------------------------------------------------
     // The Algorithm
 
-    tie(p, delta) = detail::min_degree_vertex(g);
+    boost::tie(p, delta) = detail::min_degree_vertex(g);
     S_star.push_back(p);
     alpha_star = delta;
     S.insert(p);
@@ -132,20 +132,21 @@ namespace boost {
     detail::neighbors(g, S.begin(), S.end(), 
                       std::inserter(neighbor_S, neighbor_S.begin()));
 
-    std::set_difference(vertices(g).first, vertices(g).second,
+    boost::tie(vi, vi_end) = vertices(g);
+    std::set_difference(vi, vi_end,
                         neighbor_S.begin(), neighbor_S.end(),
                         std::back_inserter(non_neighbor_S));
 
     while (!non_neighbor_S.empty()) { // at most n - 1 times
       k = non_neighbor_S.front();
 
-      alpha_S_k = edmunds_karp_max_flow
+      alpha_S_k = edmonds_karp_max_flow
         (flow_g, p, k, cap, res_cap, rev_edge, &color[0], &pred[0]);
 
       if (alpha_S_k < alpha_star) {
         alpha_star = alpha_S_k;
         S_star.clear();
-        for (tie(vi, vi_end) = vertices(flow_g); vi != vi_end; ++vi)
+        for (boost::tie(vi, vi_end) = vertices(flow_g); vi != vi_end; ++vi)
           if (color[*vi] != Color::white())
             S_star.push_back(*vi);
       }
@@ -153,7 +154,8 @@ namespace boost {
       neighbor_S.insert(k);
       detail::neighbors(g, k, std::inserter(neighbor_S, neighbor_S.begin()));
       non_neighbor_S.clear();
-      std::set_difference(vertices(g).first, vertices(g).second,
+      boost::tie(vi, vi_end) = vertices(g);
+      std::set_difference(vi, vi_end,
                           neighbor_S.begin(), neighbor_S.end(),
                           std::back_inserter(non_neighbor_S));
     }
@@ -167,7 +169,7 @@ namespace boost {
     degree_size_type c = 0;
     for (si = S_star.begin(); si != S_star.end(); ++si) {
       out_edge_iterator ei, ei_end;
-      for (tie(ei, ei_end) = out_edges(*si, g); ei != ei_end; ++ei)
+      for (boost::tie(ei, ei_end) = out_edges(*si, g); ei != ei_end; ++ei)
         if (!in_S_star[target(*ei, g)]) {
           *disconnecting_set++ = *ei;
           ++c;

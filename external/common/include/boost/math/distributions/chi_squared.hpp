@@ -1,5 +1,5 @@
 // Copyright John Maddock 2006, 2007.
-// Copyright Paul A. Bristow 2008.
+// Copyright Paul A. Bristow 2008, 2010.
 
 // Use, modification and distribution are subject to the
 // Boost Software License, Version 1.0.
@@ -50,7 +50,7 @@ private:
    //
    // Data member:
    //
-   RealType m_df;  // degrees of freedom are a real number.
+   RealType m_df; // degrees of freedom is a positive real number.
 }; // class chi_squared_distribution
 
 typedef chi_squared_distribution<double> chi_squared;
@@ -58,15 +58,22 @@ typedef chi_squared_distribution<double> chi_squared;
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const chi_squared_distribution<RealType, Policy>& /*dist*/)
 { // Range of permissible values for random variable x.
-   using boost::math::tools::max_value;
-   return std::pair<RealType, RealType>(0, max_value<RealType>()); // 0 to + infinity.
+  if (std::numeric_limits<RealType>::has_infinity)
+  { 
+    return std::pair<RealType, RealType>(static_cast<RealType>(0), std::numeric_limits<RealType>::infinity()); // 0 to + infinity.
+  }
+  else
+  {
+    using boost::math::tools::max_value;
+    return std::pair<RealType, RealType>(static_cast<RealType>(0), max_value<RealType>()); // 0 to + max.
+  }
 }
 
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> support(const chi_squared_distribution<RealType, Policy>& /*dist*/)
 { // Range of supported values for random variable x.
    // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
-   return std::pair<RealType, RealType>(0, tools::max_value<RealType>()); // 0 to + infinity.
+   return std::pair<RealType, RealType>(static_cast<RealType>(0), tools::max_value<RealType>()); // 0 to + infinity.
 }
 
 template <class RealType, class Policy>
@@ -138,11 +145,12 @@ inline RealType quantile(const chi_squared_distribution<RealType, Policy>& dist,
    static const char* function = "boost::math::quantile(const chi_squared_distribution<%1%>&, %1%)";
    // Error check:
    RealType error_result;
-   if(false == detail::check_df(
-         function, degrees_of_freedom, &error_result, Policy())
-         && detail::check_probability(
-            function, p, &error_result, Policy()))
-      return error_result;
+   if(false ==
+     (
+       detail::check_df(function, degrees_of_freedom, &error_result, Policy())
+       && detail::check_probability(function, p, &error_result, Policy()))
+     )
+     return error_result;
 
    return 2 * boost::math::gamma_p_inv(degrees_of_freedom / 2, p, Policy());
 } // quantile
@@ -176,11 +184,11 @@ inline RealType quantile(const complemented2_type<chi_squared_distribution<RealT
    static const char* function = "boost::math::quantile(const chi_squared_distribution<%1%>&, %1%)";
    // Error check:
    RealType error_result;
-   if(false == detail::check_df(
-         function, degrees_of_freedom, &error_result, Policy())
-         && detail::check_probability(
-            function, q, &error_result, Policy()))
-      return error_result;
+   if(false == (
+     detail::check_df(function, degrees_of_freedom, &error_result, Policy())
+     && detail::check_probability(function, q, &error_result, Policy()))
+     )
+    return error_result;
 
    return 2 * boost::math::gamma_q_inv(degrees_of_freedom / 2, q, Policy());
 }
@@ -267,7 +275,9 @@ template <class RealType, class Policy>
 struct df_estimator
 {
    df_estimator(RealType a, RealType b, RealType variance, RealType delta)
-      : alpha(a), beta(b), ratio(delta/variance) {}
+      : alpha(a), beta(b), ratio(delta/variance)
+   { // Constructor
+   }
 
    RealType operator()(const RealType& df)
    {
@@ -282,14 +292,16 @@ struct df_estimator
          result = cdf(cs, quantile(complement(cs, alpha)) / r) - beta;
       }
       else
-      {
+      { // ratio <= 0
          RealType r = 1 + ratio;
          result = cdf(complement(cs, quantile(cs, alpha) / r)) - beta;
       }
       return result;
    }
 private:
-   RealType alpha, beta, ratio;
+   RealType alpha;
+   RealType beta;
+   RealType ratio; // Difference from variance / variance, so fractional.
 };
 
 } // namespace detail
@@ -305,18 +317,23 @@ RealType chi_squared_distribution<RealType, Policy>::find_degrees_of_freedom(
    static const char* function = "boost::math::chi_squared_distribution<%1%>::find_degrees_of_freedom(%1%,%1%,%1%,%1%,%1%)";
    // Check for domain errors:
    RealType error_result;
-   if(false == detail::check_probability(
-         function, alpha, &error_result, Policy())
-         && detail::check_probability(function, beta, &error_result, Policy()))
+   if(false ==
+     detail::check_probability(function, alpha, &error_result, Policy())
+     && detail::check_probability(function, beta, &error_result, Policy()))
+   { // Either probability is outside 0 to 1.
       return error_result;
+   }
 
    if(hint <= 0)
+   { // No hint given, so guess df = 1.
       hint = 1;
+   }
 
    detail::df_estimator<RealType, Policy> f(alpha, beta, variance, difference_from_variance);
    tools::eps_tolerance<RealType> tol(policies::digits<RealType, Policy>());
    boost::uintmax_t max_iter = policies::get_max_root_iterations<Policy>();
-   std::pair<RealType, RealType> r = tools::bracket_and_solve_root(f, hint, RealType(2), false, tol, max_iter, Policy());
+   std::pair<RealType, RealType> r =
+     tools::bracket_and_solve_root(f, hint, RealType(2), false, tol, max_iter, Policy());
    RealType result = r.first + (r.second - r.first) / 2;
    if(max_iter >= policies::get_max_root_iterations<Policy>())
    {

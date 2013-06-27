@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,110 +6,89 @@
 #if !defined(BOOST_SPIRIT_LEX_TOKEN_DEF_MAR_13_2007_0145PM)
 #define BOOST_SPIRIT_LEX_TOKEN_DEF_MAR_13_2007_0145PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/lex/lexer/lexer_fwd.hpp>
-#include <boost/spirit/home/lex/lexer/terminal_holder.hpp>
-#include <boost/fusion/include/vector.hpp>
-#include <boost/spirit/home/qi/skip.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/argument.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
+#include <boost/spirit/home/qi/parser.hpp>
+#include <boost/spirit/home/qi/skip_over.hpp>
 #include <boost/spirit/home/qi/detail/construct.hpp>
 #include <boost/spirit/home/qi/detail/assign_to.hpp>
+#include <boost/spirit/home/lex/reference.hpp>
+#include <boost/spirit/home/lex/lexer_type.hpp>
+#include <boost/spirit/home/lex/lexer/terminals.hpp>
+
+#include <boost/fusion/include/vector.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/detail/iterator.hpp>
 #include <boost/type_traits/is_same.hpp>
+#include <boost/variant.hpp>
+
 #include <string>
 #include <cstdlib>
+
+#if defined(BOOST_MSVC)
+# pragma warning(push)
+# pragma warning(disable: 4355) // 'this' : used in base member initializer list warning
+#endif
 
 namespace boost { namespace spirit { namespace lex
 {
     ///////////////////////////////////////////////////////////////////////////
-    //  create a unique token id, note this is not thread safe
-    ///////////////////////////////////////////////////////////////////////////
-    enum tokenids {
-        // this is the first token id automatically assigned by the library
-        // if needed
-        min_token_id = 0x10000
-    };
-    
-    ///////////////////////////////////////////////////////////////////////////
-    //  The next_id template needs to be specialized for any non-default token 
-    //  id type used by a custom token type. It need to expose a function
-    //  'static Idtype get()' returning the next available token id each time 
-    //  it is called.
-    template <typename Idtype>
-    struct next_id;
-    
-    ///////////////////////////////////////////////////////////////////////////
-    //  Default specialization for the next_id template returning the next 
-    //  available token id.
-    template <>
-    struct next_id<std::size_t>
-    {
-        static std::size_t get()
-        {
-            static std::size_t next_token_id = min_token_id;
-            return next_token_id++;   
-        }
-    };
-    
-    ///////////////////////////////////////////////////////////////////////////
     //  This component represents a token definition
     ///////////////////////////////////////////////////////////////////////////
-    template<typename Attribute, typename Char, typename Idtype>
-    class token_def
-      : public proto::extends<
-            typename make_terminal_holder<
-                token_def<Attribute, Char, Idtype>*, 
-                token_def<Attribute, Char, Idtype>
-            >::type,
-            token_def<Attribute, Char, Idtype>
-        >
+    template<typename Attribute = unused_type
+      , typename Char = char
+      , typename Idtype = std::size_t>
+    struct token_def
+      : proto::extends<
+            typename proto::terminal<
+                lex::reference<token_def<Attribute, Char, Idtype> const, Idtype> 
+            >::type
+          , token_def<Attribute, Char, Idtype> >
+      , qi::parser<token_def<Attribute, Char, Idtype> >
+      , lex::lexer_type<token_def<Attribute, Char, Idtype> >
     {
     private:
         // initialize proto base class
-        typedef terminal_holder<token_def*, token_def> terminal_holder_;
-        typedef typename proto::terminal<terminal_holder_>::type tag;
-        typedef proto::extends<tag, token_def> base_type;
+        typedef lex::reference<token_def const, Idtype> reference_;
+        typedef typename proto::terminal<reference_>::type terminal_type;
+        typedef proto::extends<terminal_type, token_def> proto_base_type;
 
-        tag make_tag() 
-        {
-            tag xpr = {{ this }};
-            return xpr;
-        }
+        static std::size_t const all_states_id = static_cast<std::size_t>(-2);
 
     public:
-        // Qi interface: metafunction calculating parser return type
-        template <typename Component, typename Context, typename Iterator>
+        // Qi interface: meta-function calculating parser return type
+        template <typename Context, typename Iterator>
         struct attribute
         {
             //  The return value of the token_def is either the specified 
             //  attribute type, or the pair of iterators from the match of the 
             //  corresponding token (if no attribute type has been specified),
-            //  or unused_type (if omitted has been specified).
+            //  or unused_type (if omit has been specified).
             typedef typename Iterator::base_iterator_type iterator_type;
-            typedef typename
-                mpl::if_<
-                    is_same<Attribute, unused_type>,
-                    iterator_range<iterator_type>,
-                    typename mpl::if_<
-                        is_same<Attribute, omitted>,
-                        unused_type,
-                        Attribute
-                    >::type
+            typedef typename mpl::if_<
+                traits::not_is_unused<Attribute>
+              , typename mpl::if_<
+                    is_same<Attribute, lex::omit>, unused_type, Attribute
                 >::type
-            type;
+              , iterator_range<iterator_type>
+            >::type type;
         };
 
-    private:
+    public:
         // Qi interface: parse functionality
-        template <typename Iterator, typename Context, typename Skipper, 
-            typename Attribute1>
-        bool parse(Iterator& first, Iterator const& last, 
-            Context& /*context*/, Skipper const& skipper, Attribute1& attr) const
+        template <typename Iterator, typename Context
+          , typename Skipper, typename Attribute_>
+        bool parse(Iterator& first, Iterator const& last
+          , Context& /*context*/, Skipper const& skipper
+          , Attribute_& attr) const
         {
-            qi::skip(first, last, skipper);   // always do a pre-skip
+            qi::skip_over(first, last, skipper);   // always do a pre-skip
 
             if (first != last) {
                 typedef typename 
@@ -118,82 +97,150 @@ namespace boost { namespace spirit { namespace lex
 
                 //  If the following assertion fires you probably forgot to  
                 //  associate this token definition with a lexer instance.
-                BOOST_ASSERT((std::size_t)(~0) != token_state);
+                BOOST_ASSERT(std::size_t(~0) != token_state_);
 
-                token_type &t = *first;
-                if (token_id == t.id() && token_state == t.state()) {
-                    qi::detail::assign_to(t, attr);
+                token_type const& t = *first;
+                if (token_id_ == t.id() && 
+                    (all_states_id == token_state_ || token_state_ == t.state())) 
+                {
+                    spirit::traits::assign_to(t, attr);
                     ++first;
                     return true;
                 }
             }
             return false;
         }
-        friend struct terminal_director;
-        
-        std::string what() const
+
+        template <typename Context>
+        info what(Context& /*context*/) const
         {
-            std::string result = "token_def(\"";
-            result += def;
-            result += "\")";
-            return result;
+            if (0 == def_.which()) 
+                return info("token_def", boost::get<string_type>(def_));
+
+            return info("token_def", boost::get<char_type>(def_));
         }
-        
+
         ///////////////////////////////////////////////////////////////////////
         // Lex interface: collect token definitions and put it into the 
         // provided lexer def
         template <typename LexerDef, typename String>
-        void collect(LexerDef& lexdef, String const& state)
+        void collect(LexerDef& lexdef, String const& state
+          , String const& targetstate) const
         {
-            token_state = lexdef.add_state(state.c_str());
-            if (0 == token_id)
-                token_id = next_id<Idtype>::get();
-            lexdef.add_token (state.c_str(), def, token_id);
+            std::size_t state_id = lexdef.add_state(state.c_str());
+
+            // If the following assertion fires you are probably trying to use 
+            // a single token_def instance in more than one lexer state. This 
+            // is not possible. Please create a separate token_def instance 
+            // from the same regular expression for each lexer state it needs 
+            // to be associated with.
+            BOOST_ASSERT(
+                (std::size_t(~0) == token_state_ || state_id == token_state_) &&
+                "Can't use single token_def with more than one lexer state");
+
+            char_type const* target = targetstate.empty() ? 0 : targetstate.c_str();
+            if (target)
+                lexdef.add_state(target);
+
+            token_state_ = state_id;
+            if (0 == token_id_)
+                token_id_ = lexdef.get_next_id();
+
+            if (0 == def_.which()) {
+                unique_id_ = lexdef.add_token(state.c_str()
+                  , boost::get<string_type>(def_), token_id_, target);
+            }
+            else {
+                unique_id_ = lexdef.add_token(state.c_str()
+                  , boost::get<char_type>(def_), token_id_, target);
+            }
         }
-            
+
+        template <typename LexerDef>
+        void add_actions(LexerDef&) const {}
+
     public:
         typedef Char char_type;
         typedef Idtype id_type;
         typedef std::basic_string<char_type> string_type;
-        
+
         // Lex interface: constructing token definitions
         token_def() 
-          : base_type(make_tag()), token_id(0), token_state(~0) 
-        {}
+          : proto_base_type(terminal_type::make(reference_(*this)))
+          , def_('\0'), token_id_()
+          , unique_id_(std::size_t(~0)), token_state_(std::size_t(~0)) {}
+
+        token_def(token_def const& rhs) 
+          : proto_base_type(terminal_type::make(reference_(*this)))
+          , def_(rhs.def_), token_id_(rhs.token_id_)
+          , unique_id_(rhs.unique_id_), token_state_(rhs.token_state_) {}
+
         explicit token_def(char_type def_, Idtype id_ = Idtype())
-          : base_type(make_tag()), def(lex::detail::escape(def_)), 
-            token_id(0 == id_ ? def_ : id_), token_state(~0) 
-        {}
-        explicit token_def(string_type def_, Idtype id_ = Idtype())
-          : base_type(make_tag()), def(def_), token_id(id_), token_state(~0) 
-        {}
-        
+          : proto_base_type(terminal_type::make(reference_(*this)))
+          , def_(def_)
+          , token_id_(Idtype() == id_ ? Idtype(def_) : id_)
+          , unique_id_(std::size_t(~0)), token_state_(std::size_t(~0)) {}
+
+        explicit token_def(string_type const& def_, Idtype id_ = Idtype())
+          : proto_base_type(terminal_type::make(reference_(*this)))
+          , def_(def_), token_id_(id_)
+          , unique_id_(std::size_t(~0)), token_state_(std::size_t(~0)) {}
+
         template <typename String>
         token_def& operator= (String const& definition)
         {
-            def = definition;
-            token_id = 0;
+            def_ = definition;
+            token_id_ = Idtype();
+            unique_id_ = std::size_t(~0);
+            token_state_ = std::size_t(~0);
             return *this;
         }
         token_def& operator= (token_def const& rhs)
         {
-            def = rhs.def;
-            token_id = rhs.token_id;
+            def_ = rhs.def_;
+            token_id_ = rhs.token_id_;
+            unique_id_ = rhs.unique_id_;
+            token_state_ = rhs.token_state_;
             return *this;
         }
-        
-        // general accessors 
-        Idtype id() const { return token_id; }
-        void id(Idtype id) { token_id = id; }
-        string_type const& definition() const { return def; }
-        std::size_t state() const { return token_state; }
-        
-    private:
-        string_type def;
-        Idtype token_id;
-        std::size_t token_state;
-    };
 
+        // general accessors 
+        Idtype const& id() const { return token_id_; }
+        void id(Idtype const& id) { token_id_ = id; }
+        std::size_t unique_id() const { return unique_id_; }
+
+        string_type definition() const 
+        { 
+            return (0 == def_.which()) ? 
+                boost::get<string_type>(def_) : 
+                string_type(1, boost::get<char_type>(def_));
+        }
+        std::size_t state() const { return token_state_; }
+
+    private:
+        variant<string_type, char_type> def_;
+        mutable Idtype token_id_;
+        mutable std::size_t unique_id_;
+        mutable std::size_t token_state_;
+    };
 }}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template<typename Attribute, typename Char, typename Idtype
+      , typename Attr, typename Context, typename Iterator>
+    struct handles_container<
+            lex::token_def<Attribute, Char, Idtype>, Attr, Context, Iterator>
+      : traits::is_container<
+            typename attribute_of<
+                lex::token_def<Attribute, Char, Idtype>, Context, Iterator
+            >::type>
+    {};
+}}}
+
+#if defined(BOOST_MSVC)
+# pragma warning(pop)
+#endif
 
 #endif

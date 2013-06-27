@@ -16,7 +16,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <cassert>
+#include <boost/assert.hpp>
 
 #include <boost/config.hpp> // for BOOST_DEDUCED_TYPENAME
 #include <boost/iterator/iterator_adaptor.hpp>
@@ -50,13 +50,11 @@ class unescape
     > super_t;
 
     typedef unescape<Derived, Base> this_t;
-    typedef BOOST_DEDUCED_TYPENAME super_t::reference reference_type;
 public:
-    // gcc 3.4.1 - linux required that this be public
-    typedef BOOST_DEDUCED_TYPENAME super_t::value_type value_type;
+    typedef BOOST_DEDUCED_TYPENAME this_t::value_type value_type;
+    typedef BOOST_DEDUCED_TYPENAME this_t::reference reference;
 private:
-
-    reference_type dereference_impl() {
+    value_type dereference_impl() {
         if(! m_full){
             m_current_value = static_cast<Derived *>(this)->drain();
             m_full = true;
@@ -64,11 +62,10 @@ private:
         return m_current_value;
     }
 
-    reference_type dereference() const {
+    reference dereference() const {
         return const_cast<this_t *>(this)->dereference_impl();
     }
 
-    // value_type is const char - can't be const fix later
     value_type m_current_value;
     bool m_full;
 

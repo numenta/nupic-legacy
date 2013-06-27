@@ -7,7 +7,7 @@
  *
  * See http://www.boost.org for most recent version including documentation.
  *
- * $Id: uniform_real.hpp 47233 2008-07-08 16:22:46Z steven_watanabe $
+ * $Id: uniform_real.hpp 71018 2011-04-05 21:27:52Z steven_watanabe $
  *
  * Revision history
  *  2001-04-08  added min<max assertion (N. Becker)
@@ -17,65 +17,64 @@
 #ifndef BOOST_RANDOM_UNIFORM_REAL_HPP
 #define BOOST_RANDOM_UNIFORM_REAL_HPP
 
-#include <cassert>
-#include <iostream>
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/limits.hpp>
-#include <boost/static_assert.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
 
 namespace boost {
 
-// uniform distribution on a real range
+/**
+ * The distribution function uniform_real models a random distribution.
+ * On each invocation, it returns a random floating-point value uniformly
+ * distributed in the range [min..max).
+ *
+ * This class is deprecated.  Please use @c uniform_real_distribution in
+ * new code.
+ */
 template<class RealType = double>
-class uniform_real
+class uniform_real : public random::uniform_real_distribution<RealType>
 {
+    typedef random::uniform_real_distribution<RealType> base_type;
 public:
-  typedef RealType input_type;
-  typedef RealType result_type;
 
-  explicit uniform_real(RealType min_arg = RealType(0),
-                        RealType max_arg = RealType(1))
-    : _min(min_arg), _max(max_arg)
-  {
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-    BOOST_STATIC_ASSERT(!std::numeric_limits<RealType>::is_integer);
-#endif
-    assert(min_arg <= max_arg);
-  }
+    class param_type : public base_type::param_type
+    {
+    public:
+        typedef uniform_real distribution_type;
+        /**
+         * Constructs the parameters of a uniform_real distribution.
+         *
+         * Requires: min <= max
+         */
+        explicit param_type(RealType min_arg = RealType(0.0),
+                            RealType max_arg = RealType(1.0))
+          : base_type::param_type(min_arg, max_arg)
+        {}
+    };
 
-  // compiler-generated copy ctor and assignment operator are fine
+    /**
+     * Constructs a uniform_real object. @c min and @c max are the
+     * parameters of the distribution.
+     *
+     * Requires: min <= max
+     */
+    explicit uniform_real(RealType min_arg = RealType(0.0),
+                          RealType max_arg = RealType(1.0))
+      : base_type(min_arg, max_arg)
+    {
+        BOOST_ASSERT(min_arg <= max_arg);
+    }
 
-  result_type min BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _min; }
-  result_type max BOOST_PREVENT_MACRO_SUBSTITUTION () const { return _max; }
-  void reset() { }
+    /** Constructs a uniform_real distribution from its parameters. */
+    explicit uniform_real(const param_type& parm)
+      : base_type(parm)
+    {}
 
-  template<class Engine>
-  result_type operator()(Engine& eng) {
-    return static_cast<result_type>(eng() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION())
-           / static_cast<result_type>(eng.max BOOST_PREVENT_MACRO_SUBSTITUTION() - eng.min BOOST_PREVENT_MACRO_SUBSTITUTION())
-           * (_max - _min) + _min;
-  }
-
-#if !defined(BOOST_NO_OPERATORS_IN_NAMESPACE) && !defined(BOOST_NO_MEMBER_TEMPLATE_FRIENDS)
-  template<class CharT, class Traits>
-  friend std::basic_ostream<CharT,Traits>&
-  operator<<(std::basic_ostream<CharT,Traits>& os, const uniform_real& ud)
-  {
-    os << ud._min << " " << ud._max;
-    return os;
-  }
-
-  template<class CharT, class Traits>
-  friend std::basic_istream<CharT,Traits>&
-  operator>>(std::basic_istream<CharT,Traits>& is, uniform_real& ud)
-  {
-    is >> std::ws >> ud._min >> std::ws >> ud._max;
-    return is;
-  }
-#endif
-
-private:
-  RealType _min, _max;
+    /** Returns the parameters of the distribution */
+    param_type param() const { return param_type(this->a(), this->b()); }
+    /** Sets the parameters of the distribution. */
+    void param(const param_type& parm) { this->base_type::param(parm); }
 };
 
 } // namespace boost

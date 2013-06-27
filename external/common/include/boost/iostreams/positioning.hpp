@@ -102,8 +102,10 @@ inline std::fpos_t streampos_to_fpos_t(std::streampos pos)
 inline stream_offset position_to_offset(std::streampos pos)
 {
     return fpos_t_to_offset(streampos_to_fpos_t(pos)) +
-           static_cast<stream_offset>(static_cast<std::streamoff>(pos)) -
-           static_cast<stream_offset>(_FPOSOFF(streampos_to_fpos_t(pos)));
+        static_cast<stream_offset>(
+            static_cast<std::streamoff>(pos) -
+            _FPOSOFF(streampos_to_fpos_t(pos))
+        );
 }
 
 # endif // # ifndef BOOST_IOSTREAMS_HAS_DINKUMWARE_FPOS 

@@ -5,14 +5,14 @@
 
     State machine detecting include guards in an included file. 
     This detects two forms of include guards:
-    
+
         #ifndef INCLUDE_GUARD_MACRO
         #define INCLUDE_GUARD_MACRO
         ...
         #endif
-    
+
     or
-    
+
         if !defined(INCLUDE_GUARD_MACRO)
         #define INCLUDE_GUARD_MACRO
         ...
@@ -21,8 +21,8 @@
     note, that the parenthesis are optional (i.e. !defined INCLUDE_GUARD_MACRO
     will work as well). The code allows for any whitespace, newline and single 
     '#' tokens before the #if/#ifndef and after the final #endif.
-    
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -61,7 +61,7 @@ public:
         }
         return false; 
     }
-    
+
 private:
     typedef Token& state_type(Token& t);
     state_type include_guards::* state;
@@ -70,7 +70,7 @@ private:
     bool current_state;
     typename Token::string_type guard_name;
     int if_depth;
-    
+
     state_type state_0, state_1, state_2, state_3, state_4, state_5;
     state_type state_1a, state_1b, state_1c, state_1d, state_1e;
 

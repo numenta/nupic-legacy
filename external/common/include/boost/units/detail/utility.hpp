@@ -12,24 +12,15 @@
 #define BOOST_UNITS_UTILITY_HPP
 
 #include <cstdlib>
-#include <complex>
-#include <iostream>
 #include <typeinfo>
 #include <string>
 
-#include <boost/assert.hpp>
-#include <boost/cstdint.hpp>
-#include <boost/limits.hpp>
-
-#if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
+#if defined(__GLIBCXX__) || defined(__GLIBCPP__)
 #define BOOST_UNITS_USE_DEMANGLING
+#include <cxxabi.h>
 #endif // __GNUC__
 
 #ifdef BOOST_UNITS_USE_DEMANGLING
-
-#if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
-#include <cxxabi.h>
-#endif // __GNUC__
 
 #include <boost/algorithm/string/replace.hpp>
 
@@ -43,7 +34,6 @@ inline
 std::string
 demangle(const char* name)
 {
-    #if (__GNUC__ && __cplusplus && __GNUC__ >= 3)
     // need to demangle C++ symbols
     char*       realname;
     std::size_t len; 
@@ -57,21 +47,12 @@ demangle(const char* name)
         
         std::free(realname);
         
-        //boost::replace_all(out," ","");
         boost::replace_all(out,"boost::units::","");
-        //boost::replace_all(out,"static_rational","R");
-        //boost::replace_all(out,"dimensionless_type","dl");
-        //boost::replace_all(out,"_base_dimension","_bd");
-        //boost::replace_all(out,"_base_unit","_bu");
-        //boost::replace_all(out,"heterogeneous_system","hts");
         
         return out;
     }
     
     return std::string("demangle :: error - unable to demangle specified symbol");
-    #else
-    return name;
-    #endif
 }
 
 } // namespace detail

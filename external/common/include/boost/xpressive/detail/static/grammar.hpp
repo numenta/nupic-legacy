@@ -16,7 +16,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/assert.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 #include <boost/xpressive/detail/static/is_pure.hpp>
 #include <boost/xpressive/detail/static/transforms/as_matcher.hpp>
 #include <boost/xpressive/detail/static/transforms/as_alternate.hpp>
@@ -33,8 +33,8 @@
 #define BOOST_XPRESSIVE_CHECK_REGEX(Expr, Char)\
     BOOST_MPL_ASSERT\
     ((\
-        typename boost::mpl::if_<\
-            boost::xpressive::is_valid_regex<Expr, Char>\
+        typename boost::mpl::if_c<\
+            boost::xpressive::is_valid_regex<Expr, Char>::value\
           , boost::mpl::true_\
           , boost::xpressive::INVALID_REGULAR_EXPRESSION\
         >::type\
@@ -75,7 +75,7 @@ namespace boost { namespace xpressive
         template<typename Char, typename Gram, typename Greedy>
         struct as_repeat
           : if_<
-                make<detail::use_simple_repeat<_arg, Char> >
+                make<detail::use_simple_repeat<_child, Char> >
               , as_simple_quantifier<Gram, Greedy>
               , as_default_quantifier<Greedy>
             >
@@ -97,8 +97,8 @@ namespace boost { namespace xpressive
             {};
 
             template<typename Dummy>
-            struct case_<tag::posit, Dummy>
-              : posit<Gram>
+            struct case_<tag::unary_plus, Dummy>
+              : unary_plus<Gram>
             {};
 
             template<typename Dummy>
@@ -210,7 +210,7 @@ namespace boost { namespace xpressive
             struct case_<optional_tag<Greedy> , Dummy>
               : when<
                     unary_expr<optional_tag<Greedy>, Gram>
-                  , in_sequence<call<as_optional<Gram, Greedy>(_arg)> >
+                  , in_sequence<call<as_optional<Gram, Greedy>(_child)> >
                 >
             {};
 
@@ -223,9 +223,9 @@ namespace boost { namespace xpressive
             {};
 
             template<typename Dummy>
-            struct case_<tag::posit, Dummy>
+            struct case_<tag::unary_plus, Dummy>
               : when<
-                    posit<Gram>
+                    unary_plus<Gram>
                   , call<Gram(as_repeat<Char, Gram, mpl::true_>)>
                 >
             {};
@@ -250,7 +250,7 @@ namespace boost { namespace xpressive
             struct case_<tag::negate, Dummy>
               : when<
                     negate<switch_<NonGreedyRepeatCases<Gram> > >
-                  , call<Gram(call<as_repeat<Char, Gram, mpl::false_>(_arg)>)>
+                  , call<Gram(call<as_repeat<Char, Gram, mpl::false_>(_child)>)>
                 >
             {};
 
@@ -258,7 +258,7 @@ namespace boost { namespace xpressive
             struct case_<tag::complement, Dummy>
               : when<
                     complement<switch_<InvertibleCases<Char, Gram> > >
-                  , in_sequence<call<as_inverse(call<switch_<InvertibleCases<Char, Gram> >(_arg)>)> >
+                  , in_sequence<call<as_inverse(call<switch_<InvertibleCases<Char, Gram> >(_child)>)> >
                 >
             {};
 

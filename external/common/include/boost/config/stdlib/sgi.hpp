@@ -40,6 +40,17 @@
 #  define BOOST_NO_STRINGSTREAM
 #endif
 
+// Apple doesn't seem to reliably defined a *unix* macro
+#if !defined(CYGWIN) && (  defined(__unix__)  \
+                        || defined(__unix)    \
+                        || defined(unix)      \
+                        || defined(__APPLE__) \
+                        || defined(__APPLE)   \
+                        || defined(APPLE))
+#  include <unistd.h>
+#endif
+
+
 //
 // Assume no std::locale without own iostreams (this may be an
 // incorrect assumption in some cases):
@@ -104,6 +115,32 @@
 // Whatever map SGI style type traits to boost equivalents:
 //
 #define BOOST_HAS_SGI_TYPE_TRAITS
+
+//  C++0x headers not yet implemented
+//
+#  define BOOST_NO_CXX11_HDR_ARRAY
+#  define BOOST_NO_CXX11_HDR_CHRONO
+#  define BOOST_NO_CXX11_HDR_CODECVT
+#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define BOOST_NO_CXX11_HDR_FORWARD_LIST
+#  define BOOST_NO_CXX11_HDR_FUTURE
+#  define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#  define BOOST_NO_CXX11_HDR_MUTEX
+#  define BOOST_NO_CXX11_HDR_RANDOM
+#  define BOOST_NO_CXX11_HDR_RATIO
+#  define BOOST_NO_CXX11_HDR_REGEX
+#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define BOOST_NO_CXX11_HDR_THREAD
+#  define BOOST_NO_CXX11_HDR_TUPLE
+#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define BOOST_NO_CXX11_HDR_TYPEINDEX
+#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define BOOST_NO_CXX11_HDR_UNORDERED_SET
+#  define BOOST_NO_CXX11_NUMERIC_LIMITS
+#  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define BOOST_NO_CXX11_SMART_PTR
+#  define BOOST_NO_CXX11_HDR_FUNCTIONAL
 
 #define BOOST_STDLIB "SGI standard library"
 

@@ -23,6 +23,7 @@
 
 #include <ostream>
 #include <boost/archive/binary_oarchive_impl.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost { 
 namespace archive {

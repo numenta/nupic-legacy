@@ -9,35 +9,46 @@
 
 /*
   Reads maximal flow problem in extended DIMACS format.
-  This works, but could use some polishing. 
+  This works, but could use some polishing.
 */
 
 /* ----------------------------------------------------------------- */
 
+#ifndef BOOST_GRAPH_READ_DIMACS_HPP
+#define BOOST_GRAPH_READ_DIMACS_HPP
+
 #include <vector>
-#include <istream>
-#include <stdio.h>
+#include <iostream>
+#include <string>
+#include <cstdio>
+#include <cstring>
+#include <cstdlib>
+
+#include <boost/graph/graph_traits.hpp>
 
 namespace boost {
 
+  namespace detail {
+
 template <class Graph, class CapacityMap, class ReverseEdgeMap>
-int read_dimacs_max_flow(Graph& g,
-                         CapacityMap capacity, 
-                         ReverseEdgeMap reverse_edge,
-                         typename graph_traits<Graph>::vertex_descriptor& src,
-                         typename graph_traits<Graph>::vertex_descriptor& sink,
-                         std::istream& in=std::cin)
+int read_dimacs_max_flow_internal(Graph& g,
+                                  CapacityMap capacity,
+                                  ReverseEdgeMap reverse_edge,
+                                  typename graph_traits<Graph>::vertex_descriptor& src,
+                                  typename graph_traits<Graph>::vertex_descriptor& sink,
+                                  std::istream& in,
+                                  bool require_source_and_sink,
+                                  const std::string& problem_type)
 {
   //  const int MAXLINE = 100;      /* max line length in the input file */
   const int ARC_FIELDS = 3;     /* no of fields in arc line  */
   const int NODE_FIELDS = 2;    /* no of fields in node line  */
   const int P_FIELDS = 3;       /* no of fields in problem line */
-  const char* PROBLEM_TYPE = "max"; /* name of problem type*/
 
   typedef typename graph_traits<Graph>::vertices_size_type vertices_size_type;
   typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
   typedef typename graph_traits<Graph>::edge_descriptor edge_descriptor;
-  
+
   std::vector<vertex_descriptor> verts;
 
   long m, n,                    /*  number of edges and nodes */
@@ -48,11 +59,11 @@ int read_dimacs_max_flow(Graph& g,
     no_nslines=0,               /* no of node-source-lines */
     no_nklines=0,               /* no of node-source-lines */
     no_alines=0;                /* no of arc-lines */
-  
+
   std::string in_line;          /* for reading input line */
-  char pr_type[3];              /* for reading type of the problem */
+  char pr_type[4];              /* for reading type of the problem */
   char nd;                      /* source (s) or sink (t) */
-  
+
   int k,                        /* temporary */
     err_no;                     /* no of detected error */
 
@@ -78,9 +89,9 @@ int read_dimacs_max_flow(Graph& g,
   const int EN19 = 18;
   const int EN20 = 19;
   const int EN22 = 20;
-  
-  static char *err_message[] = 
-  { 
+
+  static const char *err_message[] =
+  {
     /* 0*/    "more than one problem line.",
     /* 1*/    "wrong number of parameters in the problem line.",
     /* 2*/    "it is not a Max Flow problem line.",
@@ -121,26 +132,26 @@ int read_dimacs_max_flow(Graph& g,
     case '\n':                 /* skip empty lines   */
     case '\0':                 /* skip empty lines at the end of file */
       break;
-      
+
     case 'p':                  /* problem description      */
       if ( no_plines > 0 )
         /* more than one problem line */
         { err_no = EN1 ; goto error; }
-      
+
       no_plines = 1;
-      
+
       if (
           /* reading problem line: type of problem, no of nodes, no of arcs */
-          sscanf ( in_line.c_str(), "%*c %3s %ld %ld", pr_type, &n, &m )
+          std::sscanf ( in_line.c_str(), "%*c %3s %ld %ld", pr_type, &n, &m )
           != P_FIELDS
           )
         /*wrong number of parameters in the problem line*/
         { err_no = EN2; goto error; }
-      
-      if ( strcmp ( pr_type, PROBLEM_TYPE ) )
+
+      if ( pr_type != problem_type )
         /*wrong problem type*/
         { err_no = EN3; goto error; }
-      
+
       if ( n <= 0  || m <= 0 )
         /*wrong value of no of arcs or nodes*/
         { err_no = EN4; goto error; }
@@ -150,83 +161,83 @@ int read_dimacs_max_flow(Graph& g,
           verts.push_back(add_vertex(g));
       }
       break;
-      
+
     case 'n':                    /* source(s) description */
       if ( no_plines == 0 )
         /* there was not problem line above */
         { err_no = EN8; goto error; }
-      
+
       /* reading source  or sink */
-      k = sscanf ( in_line.c_str(),"%*c %ld %c", &i, &nd );
+      k = std::sscanf ( in_line.c_str(),"%*c %ld %c", &i, &nd );
       --i; // index from 0
       if ( k < NODE_FIELDS )
         /* node line is incorrect */
         { err_no = EN11; goto error; }
-      
+
       if ( i < 0 || i > n )
         /* wrong value of node */
         { err_no = EN12; goto error; }
-      
+
       switch (nd) {
       case 's':  /* source line */
-        
+
         if ( no_nslines != 0)
-          /* more than one source line */ 
+          /* more than one source line */
           { err_no = EN9; goto error; }
-        
+
         no_nslines = 1;
         src = verts[i];
         break;
-        
+
       case 't':  /* sink line */
-        
+
         if ( no_nklines != 0)
           /* more than one sink line */
           { err_no = EN9; goto error; }
-        
+
         no_nklines = 1;
         sink = verts[i];
         break;
-        
+
       default:
         /* wrong type of node-line */
-        err_no = EN12; goto error; 
+        err_no = EN12; goto error;
       }
       break;
-      
+
     case 'a':                    /* arc description */
-      if ( no_nslines == 0 || no_nklines == 0 ) 
+      if ( require_source_and_sink && (no_nslines == 0 || no_nklines == 0) )
         /* there was not source and sink description above */
         { err_no = EN14; goto error; }
-      
+
       if ( no_alines >= m )
         /*too many arcs on input*/
         { err_no = EN16; goto error; }
-      
+
       if (
           /* reading an arc description */
-          sscanf ( in_line.c_str(),"%*c %ld %ld %ld",
-                   &tail, &head, &cap )
+          std::sscanf ( in_line.c_str(),"%*c %ld %ld %ld",
+                        &tail, &head, &cap )
           != ARC_FIELDS
-          ) 
+          )
         /* arc description is not correct */
         { err_no = EN15; goto error; }
 
       --tail; // index from 0, not 1
       --head;
       if ( tail < 0  ||  tail > n  ||
-           head < 0  ||  head > n  
+           head < 0  ||  head > n
            )
         /* wrong value of nodes */
         { err_no = EN17; goto error; }
 
-      {      
-        edge_descriptor e1, e2; 
+      {
+        edge_descriptor e1, e2;
         bool in1, in2;
-        tie(e1, in1) = add_edge(verts[tail], verts[head], g);
-        tie(e2, in2) = add_edge(verts[head], verts[tail], g);
+        boost::tie(e1, in1) = add_edge(verts[tail], verts[head], g);
+        boost::tie(e2, in2) = add_edge(verts[head], verts[tail], g);
         if (!in1 || !in2) {
-          std::cerr << "unable to add edge (" << head << "," << tail << ")" 
+          std::cerr << "unable to add edge (" << head << "," << tail << ")"
                     << std::endl;
           return -1;
         }
@@ -237,41 +248,64 @@ int read_dimacs_max_flow(Graph& g,
       }
       ++no_alines;
       break;
-      
+
     default:
       /* unknown type of line */
       err_no = EN18; goto error;
-      
+
     } /* end of switch */
   }     /* end of input loop */
-  
-  /* ----- all is red  or  error while reading ----- */ 
-  
-  if ( feof (stdin) == 0 ) /* reading error */
-    { err_no=EN21; goto error; } 
-  
+
+  /* ----- all is red  or  error while reading ----- */
+
+  if ( in.eof() == 0 ) /* reading error */
+    { err_no=EN21; goto error; }
+
   if ( no_lines == 0 ) /* empty input */
-    { err_no = EN22; goto error; } 
-  
+    { err_no = EN22; goto error; }
+
   if ( no_alines < m ) /* not enough arcs */
-    { err_no = EN19; goto error; } 
-  
-  if ( out_degree(src, g) == 0 || out_degree(sink, g) == 0  ) 
+    { err_no = EN19; goto error; }
+
+  if ( require_source_and_sink &&
+       (out_degree(src, g) == 0 || out_degree(sink, g) == 0) )
     /* no arc goes out of the source */
     { err_no = EN20; goto error; }
-  
+
   /* Thanks God! all is done */
   return (0);
-  
+
   /* ---------------------------------- */
  error:  /* error found reading input */
-  
-  printf ( "\nline %ld of input - %s\n", 
-           no_lines, err_message[err_no] );
-  
-  exit (1);
-  return (0); /* to avoid warning */
+
+  std::printf ( "\nline %ld of input - %s\n",
+                no_lines, err_message[err_no] );
+
+  return -1;
 }
 /* --------------------   end of parser  -------------------*/
 
+  } // namespace detail
+
+template <class Graph, class CapacityMap, class ReverseEdgeMap>
+int read_dimacs_max_flow(Graph& g,
+                         CapacityMap capacity,
+                         ReverseEdgeMap reverse_edge,
+                         typename graph_traits<Graph>::vertex_descriptor& src,
+                         typename graph_traits<Graph>::vertex_descriptor& sink,
+                         std::istream& in = std::cin) {
+  return detail::read_dimacs_max_flow_internal(g, capacity, reverse_edge, src, sink, in, true, "max");
+}
+
+template <class Graph, class CapacityMap, class ReverseEdgeMap>
+int read_dimacs_min_cut(Graph& g,
+                        CapacityMap capacity,
+                        ReverseEdgeMap reverse_edge,
+                        std::istream& in = std::cin) {
+  typename graph_traits<Graph>::vertex_descriptor dummy_src, dummy_sink; // Not filled in
+  return detail::read_dimacs_max_flow_internal(g, capacity, reverse_edge, dummy_src, dummy_sink, in, false, "cut");
+}
+
 } // namespace boost
+
+#endif // BOOST_GRAPH_READ_DIMACS_HPP

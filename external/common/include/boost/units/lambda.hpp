@@ -34,6 +34,7 @@
 
 #include <boost/lambda/lambda.hpp>
 #include <boost/units/units_fwd.hpp>
+#include <boost/units/detail/dimensionless_unit.hpp>
 #include <boost/units/operators.hpp>
 
 namespace boost {
@@ -318,6 +319,28 @@ namespace lambda {
     };
 
     /// Partial specialization of return type trait for action
+    /// quantity<dimensionless, X> + Y.
+    template<typename System, typename X, typename Y>
+    struct plain_return_type_2<arithmetic_action<plus_action>,
+                               boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), X>,
+                               Y> {
+        typedef typename boost::units::add_typeof_helper<
+            boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), X>,
+            Y>::type type;
+    };
+
+    /// Partial specialization of return type trait for action
+    /// X + quantity<dimensionless, Y>.
+    template<typename System, typename X, typename Y>
+    struct plain_return_type_2<arithmetic_action<plus_action>,
+                               X,
+                               boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), Y> > {
+        typedef typename boost::units::add_typeof_helper<
+            X,
+            boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), Y> >::type type;
+    };
+
+    /// Partial specialization of return type trait for action
     /// quantity<Unit1, X> - quantity<Unit2, Y>.
     template<typename Unit1, typename X, typename Unit2, typename Y>
     struct plain_return_type_2<arithmetic_action<minus_action>,
@@ -326,6 +349,28 @@ namespace lambda {
         typedef typename boost::units::subtract_typeof_helper<
             boost::units::quantity<Unit1, X>,
             boost::units::quantity<Unit2, Y> >::type type;
+    };
+
+    /// Partial specialization of return type trait for action
+    /// quantity<dimensionless, X> - Y.
+    template<typename System, typename X, typename Y>
+    struct plain_return_type_2<arithmetic_action<minus_action>,
+                               boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), X>,
+                               Y> {
+        typedef typename boost::units::subtract_typeof_helper<
+            boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), X>,
+            Y>::type type;
+    };
+
+    /// Partial specialization of return type trait for action
+    /// X - quantity<dimensionless, Y>.
+    template<typename System, typename X, typename Y>
+    struct plain_return_type_2<arithmetic_action<minus_action>,
+                               X,
+                               boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), Y> > {
+        typedef typename boost::units::subtract_typeof_helper<
+            X,
+            boost::units::quantity<BOOST_UNITS_DIMENSIONLESS_UNIT(System), Y> >::type type;
     };
 
     /// Partial specialization of return type trait for action

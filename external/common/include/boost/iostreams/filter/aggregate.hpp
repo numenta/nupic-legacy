@@ -13,7 +13,7 @@
 #endif              
 
 #include <algorithm>                          // copy, min.
-#include <cassert>
+#include <boost/assert.hpp>
 #include <iterator>                           // back_inserter
 #include <vector>
 #include <boost/iostreams/constants.hpp>      // default_device_buffer_size 
@@ -33,7 +33,7 @@ namespace boost { namespace iostreams {
 
 //
 // Template name: aggregate_filter.
-// Template paramters:
+// Template parameters:
 //      Ch - The character type.
 //      Alloc - The allocator type.
 // Description: Utility for defining DualUseFilters which filter an
@@ -58,7 +58,7 @@ public:
     std::streamsize read(Source& src, char_type* s, std::streamsize n)
     {
         using namespace std;
-        assert(!(state_ & f_write));
+        BOOST_ASSERT(!(state_ & f_write));
         state_ |= f_read;
         if (!(state_ & f_eof))
             do_read(src);
@@ -74,7 +74,7 @@ public:
     template<typename Sink>
     std::streamsize write(Sink&, const char_type* s, std::streamsize n)
     {
-        assert(!(state_ & f_read));
+        BOOST_ASSERT(!(state_ & f_read));
         state_ |= f_write;
         data_.insert(data_.end(), s, s + n);
         return n;
@@ -126,7 +126,7 @@ private:
     }
 
     template<typename Sink>
-    void do_write(Sink& sink, const char* s, std::streamsize n) 
+    void do_write(Sink& sink, const char_type* s, std::streamsize n) 
     { 
         typedef typename iostreams::category_of<Sink>::type  category;
         typedef is_convertible<category, output>             can_write;
@@ -134,11 +134,11 @@ private:
     }
 
     template<typename Sink>
-    void do_write(Sink& sink, const char* s, std::streamsize n, mpl::true_) 
+    void do_write(Sink& sink, const char_type* s, std::streamsize n, mpl::true_) 
     { iostreams::write(sink, s, n); }
 
     template<typename Sink>
-    void do_write(Sink&, const char*, std::streamsize, mpl::false_) { }
+    void do_write(Sink&, const char_type*, std::streamsize, mpl::false_) { }
 
     void close_impl()
     {

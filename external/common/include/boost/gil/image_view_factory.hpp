@@ -102,7 +102,7 @@ typename detail::channel_pointer_type<HomogeneousView>::type interleaved_view_ge
     BOOST_STATIC_ASSERT((!is_planar<HomogeneousView>::value && view_is_basic<HomogeneousView>::value));
     BOOST_STATIC_ASSERT((boost::is_pointer<typename HomogeneousView::x_iterator>::value));
 
-    return &at_c<0>(view(0,0));
+    return &gil::at_c<0>(view(0,0));
 }
 
 /// \ingroup ImageViewConstructors
@@ -430,7 +430,7 @@ namespace detail {
             typedef typename type::xy_locator                             locator_t;
             typedef typename type::x_iterator                            x_iterator_t;
             typedef typename iterator_adaptor_get_base<x_iterator_t>::type x_iterator_base_t;
-            x_iterator_t sit(x_iterator_base_t(&at_c<K>(src(0,0))),src.pixels().pixel_size());
+            x_iterator_t sit(x_iterator_base_t(&gil::at_c<K>(src(0,0))),src.pixels().pixel_size());
             return type(src.dimensions(),locator_t(sit, src.pixels().row_size()));
         }
     };
@@ -444,7 +444,7 @@ namespace detail {
         typedef typename view_type<channel_t, gray_layout_t, false, false, view_is_mutable<View>::value>::type type;
         static type make(const View& src) {
             typedef typename type::x_iterator x_iterator_t;
-            return interleaved_view(src.width(),src.height(),(x_iterator_t)&at_c<K>(src(0,0)), src.pixels().row_size());
+            return interleaved_view(src.width(),src.height(),(x_iterator_t)&gil::at_c<K>(src(0,0)), src.pixels().row_size());
         }
     };
 
@@ -494,7 +494,7 @@ namespace detail {
         template <typename P> kth_channel_deref_fn(const kth_channel_deref_fn<K,P>&) {}
 
         result_type operator()(argument_type srcP) const { 
-            return result_type(at_c<K>(srcP)); 
+            return result_type(gil::at_c<K>(srcP));
         }
     };
 

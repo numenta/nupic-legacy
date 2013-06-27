@@ -289,7 +289,7 @@ private:
         OtherDerivedT const &rhs = static_cast<OtherDerivedT const &>(x);
         bool x_is_end = rhs._isend;
 
-        return (_isend && x_is_end) || (this->base() == rhs.base());
+        return (_isend == x_is_end) && (_isend || this->base() == rhs.base());
     }
 
 protected:

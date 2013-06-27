@@ -31,8 +31,8 @@ namespace boost { namespace xpressive { namespace detail
     {
         typedef typename Traits::char_type char_type;
         
-        assert_eol_matcher(Traits const &traits)
-          : assert_line_base<Traits>(traits)
+        assert_eol_matcher(Traits const &tr)
+          : assert_line_base<Traits>(tr)
         {
         }
 

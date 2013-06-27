@@ -18,7 +18,7 @@
 /// \brief A model of a heterogeneous pixel whose channels are bit ranges. For example 16-bit RGB in '565' format
 /// \author Lubomir Bourdev and Hailin Jin \n
 ///         Adobe Systems Incorporated
-/// \date   2005-2007 \n Last updated on September 28, 2006
+/// \date   2005-2009 \n Last updated on February 20, 2009
 ///
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -81,15 +81,15 @@ struct packed_pixel {
     } 
     packed_pixel(int chan0, int chan1, int chan2) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==3)); 
-        at_c<0>(*this)=chan0; at_c<1>(*this)=chan1; at_c<2>(*this)=chan2; 
+        gil::at_c<0>(*this)=chan0; gil::at_c<1>(*this)=chan1; gil::at_c<2>(*this)=chan2; 
     } 
     packed_pixel(int chan0, int chan1, int chan2, int chan3) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==4)); 
-        at_c<0>(*this)=chan0; at_c<1>(*this)=chan1; at_c<2>(*this)=chan2; at_c<2>(*this)=chan3; 
+        gil::at_c<0>(*this)=chan0; gil::at_c<1>(*this)=chan1; gil::at_c<2>(*this)=chan2; gil::at_c<3>(*this)=chan3; 
     } 
     packed_pixel(int chan0, int chan1, int chan2, int chan3, int chan4) : _bitfield(0) { 
         BOOST_STATIC_ASSERT((num_channels<packed_pixel>::value==5)); 
-        at_c<0>(*this)=chan0; at_c<1>(*this)=chan1; at_c<2>(*this)=chan2; at_c<2>(*this)=chan3;  at_c<3>(*this)=chan4;
+        gil::at_c<0>(*this)=chan0; gil::at_c<1>(*this)=chan1; gil::at_c<2>(*this)=chan2; gil::at_c<3>(*this)=chan3; gil::at_c<4>(*this)=chan4;
     } 
 
     packed_pixel& operator=(const packed_pixel& p)     { _bitfield=p._bitfield; return *this; }

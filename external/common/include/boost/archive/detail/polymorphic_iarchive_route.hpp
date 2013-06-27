@@ -27,8 +27,8 @@ namespace std{
 } // namespace std
 #endif
 
-#include <boost/noncopyable.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/integer_traits.hpp>
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
 
@@ -42,13 +42,17 @@ namespace detail{
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_iserializer;
 
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
+
 template<class ArchiveImplementation>
 class polymorphic_iarchive_route :
     public polymorphic_iarchive,
     // note: gcc dynamic cross cast fails if the the derivation below is
     // not public.  I think this is a mistake.
-    public /*protected*/ ArchiveImplementation,
-    private boost::noncopyable
+    public /*protected*/ ArchiveImplementation
 {
 private:
     // these are used by the serialization library.
@@ -67,10 +71,10 @@ private:
     ){
         return ArchiveImplementation::load_pointer(t, bpis_ptr, finder);
     }
-    virtual void set_library_version(unsigned int archive_library_version){
+    virtual void set_library_version(library_version_type archive_library_version){
         ArchiveImplementation::set_library_version(archive_library_version);
     }
-    virtual unsigned int get_library_version() const{
+    virtual library_version_type get_library_version() const{
         return ArchiveImplementation::get_library_version();
     }
     virtual unsigned int get_flags() const {
@@ -126,11 +130,18 @@ private:
     virtual void load(unsigned long & t){
         ArchiveImplementation::load(t);
     }
-    #if !defined(BOOST_NO_INTRINSIC_INT64_T)
-    virtual void load(boost::int64_t & t){
+    #if defined(BOOST_HAS_LONG_LONG)
+    virtual void load(boost::long_long_type & t){
         ArchiveImplementation::load(t);
     }
-    virtual void load(boost::uint64_t & t){
+    virtual void load(boost::ulong_long_type & t){
+        ArchiveImplementation::load(t);
+    }
+    #elif defined(BOOST_HAS_MS_INT64)
+    virtual void load(__int64 & t){
+        ArchiveImplementation::load(t);
+    }
+    virtual void load(unsigned __int64 & t){
         ArchiveImplementation::load(t);
     }
     #endif
@@ -169,13 +180,17 @@ public:
     polymorphic_iarchive & operator>>(T & t){
         return polymorphic_iarchive::operator>>(t);
     }
-
     // the & operator
     template<class T>
     polymorphic_iarchive & operator&(T & t){
         return polymorphic_iarchive::operator&(t);
     }
-
+    // register type function
+    template<class T>
+    const basic_pointer_iserializer * 
+    register_type(T * t = NULL){
+        return ArchiveImplementation::register_type(t);
+    }
     // all current archives take a stream as constructor argument
     template <class _Elem, class _Tr>
     polymorphic_iarchive_route(
@@ -190,6 +205,10 @@ public:
 } // namespace detail
 } // namespace archive
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
 

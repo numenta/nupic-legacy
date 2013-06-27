@@ -44,13 +44,13 @@ namespace boost { namespace gil {
 template <typename NonAlignedPixelReference>
 struct bit_aligned_pixel_iterator : public iterator_facade<bit_aligned_pixel_iterator<NonAlignedPixelReference>,
                                                   typename NonAlignedPixelReference::value_type,
-                                                  random_access_traversal_tag,
+                                                  std::random_access_iterator_tag,
                                                   const NonAlignedPixelReference,
                                                   typename NonAlignedPixelReference::bit_range_t::difference_type> {
 private:
     typedef iterator_facade<bit_aligned_pixel_iterator<NonAlignedPixelReference>,
                             typename NonAlignedPixelReference::value_type,
-                            random_access_traversal_tag,
+                            std::random_access_iterator_tag,
                             const NonAlignedPixelReference,
                             typename NonAlignedPixelReference::bit_range_t::difference_type> parent_t;
     template <typename Ref> friend struct bit_aligned_pixel_iterator;

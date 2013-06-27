@@ -1,30 +1,92 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2011 Hartmut Kaiser
+    Copyright (c)      2011 Thomas Heller
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(BOOST_SPIRIT_ARGUMENT_FEB_17_2007_0339PM)
-#define BOOST_SPIRIT_ARGUMENT_FEB_17_2007_0339PM
+#if !defined(BOOST_SPIRIT_ARGUMENT_FEBRUARY_17_2007_0339PM)
+#define BOOST_SPIRIT_ARGUMENT_FEBRUARY_17_2007_0339PM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/preprocessor/repetition/repeat_from_to.hpp>
 #include <boost/preprocessor/arithmetic/inc.hpp>
-#include <boost/spirit/home/phoenix/core/actor.hpp>
-#include <boost/spirit/home/phoenix/core/argument.hpp>
+#include <boost/spirit/include/phoenix_core.hpp>
+#include <boost/spirit/home/support/assert_msg.hpp>
+#include <boost/spirit/home/support/limits.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/size.hpp>
 #include <boost/mpl/size.hpp>
 #include <boost/mpl/at.hpp>
 
-#if !defined(SPIRIT_ARG_LIMIT)
-# define SPIRIT_ARG_LIMIT PHOENIX_LIMIT
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+
+#define SPIRIT_DECLARE_ARG(z, n, data)                                        \
+    typedef phoenix::actor<argument<n> >                                      \
+        BOOST_PP_CAT(BOOST_PP_CAT(_, BOOST_PP_INC(n)), _type);                \
+    phoenix::actor<argument<n> > const                                        \
+        BOOST_PP_CAT(_, BOOST_PP_INC(n)) =                                    \
+            BOOST_PP_CAT(BOOST_PP_CAT(_, BOOST_PP_INC(n)), _type)();          \
+        /***/
+
+#define SPIRIT_USING_ARGUMENT(z, n, data)                                     \
+    using spirit::BOOST_PP_CAT(BOOST_PP_CAT(_, n), _type);                    \
+    using spirit::BOOST_PP_CAT(_, n);                                         \
+        /***/
+
+#else
+
+#define SPIRIT_DECLARE_ARG(z, n, data)                                        \
+    typedef phoenix::actor<argument<n> >                                      \
+        BOOST_PP_CAT(BOOST_PP_CAT(_, BOOST_PP_INC(n)), _type);                \
+        /***/
+
+#define SPIRIT_USING_ARGUMENT(z, n, data)                                     \
+    using spirit::BOOST_PP_CAT(BOOST_PP_CAT(_, n), _type);                    \
+        /***/
+
 #endif
 
-#define SPIRIT_DECLARE_ARG(z, n, data)                                          \
-    phoenix::actor<argument<n> > const                                          \
-        BOOST_PP_CAT(_, BOOST_PP_INC(n)) = argument<n>();                       \
-    phoenix::actor<attribute<n> > const                                         \
-        BOOST_PP_CAT(_r, n) = attribute<n>();
+namespace boost { namespace spirit
+{
+    template <int N>
+    struct argument;
+
+    template <typename Dummy>
+    struct attribute_context;
+}}
+
+BOOST_PHOENIX_DEFINE_CUSTOM_TERMINAL(
+    template <int N>
+  , boost::spirit::argument<N>
+  , mpl::false_                 // is not nullary
+  , v2_eval(
+        proto::make<
+            boost::spirit::argument<N>()
+        >
+      , proto::call<
+            functional::env(proto::_state)
+        >
+    )
+)
+
+BOOST_PHOENIX_DEFINE_CUSTOM_TERMINAL(
+    template <typename Dummy>
+  , boost::spirit::attribute_context<Dummy>
+  , mpl::false_                 // is not nullary
+  , v2_eval(
+        proto::make<
+            boost::spirit::attribute_context<Dummy>()
+        >
+      , proto::call<
+            functional::env(proto::_state)
+        >
+    )
+)
 
 namespace boost { namespace spirit
 {
@@ -38,7 +100,7 @@ namespace boost { namespace spirit
             sequence_size;
 
             // report invalid argument not found (N is out of bounds)
-            BOOST_MPL_ASSERT_MSG(
+            BOOST_SPIRIT_ASSERT_MSG(
                 (N < sequence_size::value),
                 index_is_out_of_bounds, ());
 
@@ -65,6 +127,7 @@ namespace boost { namespace spirit
         return result_of::get_arg<T, N>::call(val);
     }
 
+    template <typename>
     struct attribute_context
     {
         typedef mpl::true_ no_nullary;
@@ -111,127 +174,43 @@ namespace boost { namespace spirit
         }
     };
 
-    template <int N>
-    struct attribute
-    {
-        typedef mpl::true_ no_nullary;
-
-        template <typename Env>
-        struct result
-        {
-            typedef typename
-                mpl::at_c<typename Env::args_type, 1>::type
-            arg_type;
-
-            typedef typename
-                result_of::get_arg<
-                    typename result_of::get_arg<arg_type, 0>::type
-                  , N
-                >::type
-            type;
-        };
-
-        template <typename Env>
-        typename result<Env>::type
-        eval(Env const& env) const
-        {
-            return get_arg<N>(get_arg<0>(fusion::at_c<1>(env.args())));
-        }
-    };
-
-    template <int N>
-    struct local_var
-    {
-        typedef mpl::true_ no_nullary;
-
-        template <typename Env>
-        struct result
-        {
-            typedef typename
-                mpl::at_c<typename Env::args_type, 1>::type
-            arg_type;
-
-            typedef typename
-                result_of::get_arg<
-                    typename result_of::get_arg<arg_type, 1>::type
-                  , N
-                >::type
-            type;
-        };
-
-        template <typename Env>
-        typename result<Env>::type
-        eval(Env const& env) const
-        {
-            return get_arg<N>(get_arg<1>(fusion::at_c<1>(env.args())));
-        }
-    };
-
-    struct lexer_state
-    {
-        typedef mpl::true_ no_nullary;
-
-        template <typename Env>
-        struct result
-        {
-            typedef typename 
-                mpl::at_c<typename Env::args_type, 3>::type::state_type 
-            type;
-        };
-
-        template <typename Env>
-        typename result<Env>::type
-        eval(Env const& env) const
-        {
-            return fusion::at_c<3>(env.args()).state;
-        }
-    };
-    
-    namespace arg_names
-    {
     // _0 refers to the whole attribute as generated by the lhs parser
-        phoenix::actor<attribute_context> const _0 = attribute_context();
+    typedef phoenix::actor<attribute_context<void> > _0_type;
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    _0_type const _0 = _0_type();
+#endif
 
-    // _1, _2, ... refer to the attributes of the single components the lhs 
+    // _1, _2, ... refer to the attributes of the single components the lhs
     // parser is composed of
-        phoenix::actor<argument<0> > const _1 = argument<0>();
-        phoenix::actor<argument<1> > const _2 = argument<1>();
-        phoenix::actor<argument<2> > const _3 = argument<2>();
+    typedef phoenix::actor<argument<0> > _1_type;
+    typedef phoenix::actor<argument<1> > _2_type;
+    typedef phoenix::actor<argument<2> > _3_type;
 
-    // 'pass' may be used to make a match fail in retrospective
-        phoenix::actor<phoenix::argument<2> > const pass = phoenix::argument<2>();
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    _1_type const _1 = _1_type();
+    _2_type const _2 = _2_type();
+    _3_type const _3 = _3_type();
+#endif
 
-    // 'id' may be used in a lexer semantic action to refer to the token id 
-    // of a matched token 
-        phoenix::actor<phoenix::argument<1> > const id = phoenix::argument<1>();
-        
-    // 'state' may be used in a lexer semantic action to refer to the 
-    // current lexer state 
-        phoenix::actor<lexer_state> const state = lexer_state();
-    
-    // _val refers to the 'return' value of a rule
-    // _r0, _r1, ... refer to the rule arguments
-        phoenix::actor<attribute<0> > const _val = attribute<0>();
-        phoenix::actor<attribute<0> > const _r0 = attribute<0>();
-        phoenix::actor<attribute<1> > const _r1 = attribute<1>();
-        phoenix::actor<attribute<2> > const _r2 = attribute<2>();
+    // '_pass' may be used to make a match fail in retrospective
+    typedef phoenix::arg_names::_3_type _pass_type;
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    _pass_type const _pass = _pass_type();
+#endif
 
     //  Bring in the rest of the arguments and attributes (_4 .. _N+1), using PP
-        BOOST_PP_REPEAT_FROM_TO(
-            3, SPIRIT_ARG_LIMIT, SPIRIT_DECLARE_ARG, _)
+    BOOST_PP_REPEAT_FROM_TO(
+        3, SPIRIT_ARGUMENTS_LIMIT, SPIRIT_DECLARE_ARG, _)
 
-    // _a, _b, ... refer to the local variables of a rule
-        phoenix::actor<local_var<0> > const _a = local_var<0>();
-        phoenix::actor<local_var<1> > const _b = local_var<1>();
-        phoenix::actor<local_var<2> > const _c = local_var<2>();
-        phoenix::actor<local_var<3> > const _d = local_var<3>();
-        phoenix::actor<local_var<4> > const _e = local_var<4>();
-        phoenix::actor<local_var<5> > const _f = local_var<5>();
-        phoenix::actor<local_var<6> > const _g = local_var<6>();
-        phoenix::actor<local_var<7> > const _h = local_var<7>();
-        phoenix::actor<local_var<8> > const _i = local_var<8>();
-        phoenix::actor<local_var<9> > const _j = local_var<9>();
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    // You can bring these in with the using directive
+    // without worrying about bringing in too much.
+    namespace labels
+    {
+        BOOST_PP_REPEAT(SPIRIT_ARGUMENTS_LIMIT, SPIRIT_USING_ARGUMENT, _)
     }
+#endif
+
 }}
 
 #undef SPIRIT_DECLARE_ARG

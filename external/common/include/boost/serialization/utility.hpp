@@ -46,7 +46,7 @@ inline void serialize(
 /// specialization of is_bitwise_serializable for pairs
 template <class T, class U>
 struct is_bitwise_serializable<std::pair<T,U> >
- : public mpl::and_<is_bitwise_serializable<T>,is_bitwise_serializable<U> >
+ : public mpl::and_<is_bitwise_serializable< T >,is_bitwise_serializable<U> >
 {
 };
 

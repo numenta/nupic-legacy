@@ -98,23 +98,23 @@ void perl_matcher<BidiIterator, Allocator, traits>::estimate_max_state_count(std
    //
    // Calculate NS^2 first:
    //
-   static const boost::uintmax_t k = 100000;
-   boost::uintmax_t dist = boost::re_detail::distance(base, last);
+   static const std::ptrdiff_t k = 100000;
+   std::ptrdiff_t dist = boost::re_detail::distance(base, last);
    if(dist == 0)
       dist = 1;
-   boost::uintmax_t states = re.size();
+   std::ptrdiff_t states = re.size();
    if(states == 0)
       states = 1;
    states *= states;
-   if((std::numeric_limits<boost::uintmax_t>::max)() / dist < states)
+   if((std::numeric_limits<std::ptrdiff_t>::max)() / dist < states)
    {
-      max_state_count = (std::numeric_limits<boost::uintmax_t>::max)() - 2;
+      max_state_count = (std::min)((std::ptrdiff_t)BOOST_REGEX_MAX_STATE_COUNT, (std::numeric_limits<std::ptrdiff_t>::max)() - 2);
       return;
    }
    states *= dist;
-   if((std::numeric_limits<boost::uintmax_t>::max)() - k < states)
+   if((std::numeric_limits<std::ptrdiff_t>::max)() - k < states)
    {
-      max_state_count = (std::numeric_limits<boost::uintmax_t>::max)() - 2;
+      max_state_count = (std::min)((std::ptrdiff_t)BOOST_REGEX_MAX_STATE_COUNT, (std::numeric_limits<std::ptrdiff_t>::max)() - 2);
       return;
    }
    states += k;
@@ -125,15 +125,15 @@ void perl_matcher<BidiIterator, Allocator, traits>::estimate_max_state_count(std
    // Now calculate N^2:
    //
    states = dist;
-   if((std::numeric_limits<boost::uintmax_t>::max)() / dist < states)
+   if((std::numeric_limits<std::ptrdiff_t>::max)() / dist < states)
    {
-      max_state_count = (std::numeric_limits<boost::uintmax_t>::max)() - 2;
+      max_state_count = (std::min)((std::ptrdiff_t)BOOST_REGEX_MAX_STATE_COUNT, (std::numeric_limits<std::ptrdiff_t>::max)() - 2);
       return;
    }
    states *= dist;
-   if((std::numeric_limits<boost::uintmax_t>::max)() - k < states)
+   if((std::numeric_limits<std::ptrdiff_t>::max)() - k < states)
    {
-      max_state_count = (std::numeric_limits<boost::uintmax_t>::max)() - 2;
+      max_state_count = (std::min)((std::ptrdiff_t)BOOST_REGEX_MAX_STATE_COUNT, (std::numeric_limits<std::ptrdiff_t>::max)() - 2);
       return;
    }
    states += k;
@@ -200,12 +200,13 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_imp()
    m_match_flags |= regex_constants::match_all;
    m_presult->set_size((m_match_flags & match_nosubs) ? 1 : re.mark_count(), search_base, last);
    m_presult->set_base(base);
+   m_presult->set_named_subs(this->re.get_named_subs());
    if(m_match_flags & match_posix)
       m_result = *m_presult;
    verify_options(re.flags(), m_match_flags);
    if(0 == match_prefix())
       return false;
-   return m_result[0].second == last;
+   return (m_result[0].second == last) && (m_result[0].first == base);
 
 #if defined(BOOST_REGEX_NON_RECURSIVE) && !defined(BOOST_NO_EXCEPTIONS)
    }
@@ -261,6 +262,7 @@ bool perl_matcher<BidiIterator, Allocator, traits>::find_imp()
       pstate = re.get_first_state();
       m_presult->set_size((m_match_flags & match_nosubs) ? 1 : re.mark_count(), base, last);
       m_presult->set_base(base);
+      m_presult->set_named_subs(this->re.get_named_subs());
       m_match_flags |= regex_constants::match_init;
    }
    else
@@ -341,25 +343,6 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_prefix()
    if(!m_has_found_match)
       position = restart; // reset search postion
    return m_has_found_match;
-}
-
-template <class BidiIterator, class Allocator, class traits>
-bool perl_matcher<BidiIterator, Allocator, traits>::match_endmark()
-{
-   int index = static_cast<const re_brace*>(pstate)->index;
-   if(index > 0)
-   {
-      if((m_match_flags & match_nosubs) == 0)
-         m_presult->set_second(position, index);
-   }
-   else if((index < 0) && (index != -4))
-   {
-      // matched forward lookahead:
-      pstate = 0;
-      return true;
-   }
-   pstate = pstate->next.p;
-   return true;
 }
 
 template <class BidiIterator, class Allocator, class traits>
@@ -459,35 +442,6 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_wild()
       return false;
    pstate = pstate->next.p;
    ++position;
-   return true;
-}
-
-template <class BidiIterator, class Allocator, class traits>
-bool perl_matcher<BidiIterator, Allocator, traits>::match_match()
-{
-   if((m_match_flags & match_not_null) && (position == (*m_presult)[0].first))
-      return false;
-   if((m_match_flags & match_all) && (position != last))
-      return false;
-   if((m_match_flags & regex_constants::match_not_initial_null) && (position == search_base))
-      return false;
-   m_presult->set_second(position);
-   pstate = 0;
-   m_has_found_match = true;
-   if((m_match_flags & match_posix) == match_posix)
-   {
-      m_result.maybe_assign(*m_presult);
-      if((m_match_flags & match_any) == 0)
-         return false;
-   }
-#ifdef BOOST_REGEX_MATCH_EXTRA
-   if(match_extra & m_match_flags)
-   {
-      for(unsigned i = 0; i < m_presult->size(); ++i)
-         if((*m_presult)[i].matched)
-            ((*m_presult)[i]).get_captures().push_back((*m_presult)[i]);
-   }
-#endif
    return true;
 }
 
@@ -634,8 +588,23 @@ bool perl_matcher<BidiIterator, Allocator, traits>::match_backref()
    // in the match, this is in line with ECMAScript, but not Perl
    // or PCRE.
    //
-   BidiIterator i = (*m_presult)[static_cast<const re_brace*>(pstate)->index].first;
-   BidiIterator j = (*m_presult)[static_cast<const re_brace*>(pstate)->index].second;
+   int index = static_cast<const re_brace*>(pstate)->index;
+   if(index >= 10000)
+   {
+      named_subexpressions::range_type r = re.get_data().equal_range(index);
+      BOOST_ASSERT(r.first != r.second);
+      do
+      {
+         index = r.first->index;
+         ++r.first;
+      }while((r.first != r.second) && ((*m_presult)[index].matched != true));
+   }
+
+   if((m_match_flags & match_perl) && !(*m_presult)[index].matched)
+      return false;
+
+   BidiIterator i = (*m_presult)[index].first;
+   BidiIterator j = (*m_presult)[index].second;
    while(i != j)
    {
       if((position == last) || (traits_inst.translate(*position, icase) != traits_inst.translate(*i, icase)))
@@ -758,8 +727,58 @@ template <class BidiIterator, class Allocator, class traits>
 inline bool perl_matcher<BidiIterator, Allocator, traits>::match_assert_backref()
 {
    // return true if marked sub-expression N has been matched:
-   bool result = (*m_presult)[static_cast<const re_brace*>(pstate)->index].matched;
-   pstate = pstate->next.p;
+   int index = static_cast<const re_brace*>(pstate)->index;
+   bool result = false;
+   if(index == 9999)
+   {
+      // Magic value for a (DEFINE) block:
+      return false;
+   }
+   else if(index > 0)
+   {
+      // Have we matched subexpression "index"?
+      // Check if index is a hash value:
+      if(index >= 10000)
+      {
+         named_subexpressions::range_type r = re.get_data().equal_range(index);
+         while(r.first != r.second)
+         {
+            if((*m_presult)[r.first->index].matched)
+            {
+               result = true;
+               break;
+            }
+            ++r.first;
+         }
+      }
+      else
+      {
+         result = (*m_presult)[index].matched;
+      }
+      pstate = pstate->next.p;
+   }
+   else
+   {
+      // Have we recursed into subexpression "index"?
+      // If index == 0 then check for any recursion at all, otherwise for recursion to -index-1.
+      int idx = -index-1;
+      if(idx >= 10000)
+      {
+         named_subexpressions::range_type r = re.get_data().equal_range(idx);
+         int stack_index = recursion_stack.empty() ? -1 : recursion_stack.back().idx;
+         while(r.first != r.second)
+         {
+            result |= (stack_index == r.first->index);
+            if(result)break;
+            ++r.first;
+         }
+      }
+      else
+      {
+         result = !recursion_stack.empty() && ((recursion_stack.back().idx == idx) || (index == 0));
+      }
+      pstate = pstate->next.p;
+   }
    return result;
 }
 

@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,14 +7,21 @@
 #if !defined(FUSION_BEGIN_04052005_1132)
 #define FUSION_BEGIN_04052005_1132
 
+#include <boost/blank.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/fusion/sequence/intrinsic_fwd.hpp>
 #include <boost/fusion/support/tag_of.hpp>
+#include <boost/fusion/support/is_sequence.hpp>
+#include <boost/fusion/support/is_segmented.hpp>
+#include <boost/fusion/sequence/intrinsic/detail/segmented_begin.hpp>
 
 namespace boost { namespace fusion
 {
     // Special tags:
     struct sequence_facade_tag; // iterator facade tag
     struct boost_tuple_tag; // boost::tuples::tuple tag
-    struct array_tag; // boost::array tag
+    struct boost_array_tag; // boost::array tag
     struct mpl_sequence_tag; // mpl sequence tag
     struct std_pair_tag; // std::pair tag
 
@@ -24,7 +31,13 @@ namespace boost { namespace fusion
         struct begin_impl
         {
             template <typename Sequence>
-            struct apply;
+            struct apply
+              : mpl::if_<
+                    traits::is_segmented<Sequence>
+                  , detail::segmented_begin<Sequence>
+                  , blank
+                >::type
+            {};
         };
 
         template <>
@@ -38,7 +51,7 @@ namespace boost { namespace fusion
         struct begin_impl<boost_tuple_tag>;
 
         template <>
-        struct begin_impl<array_tag>;
+        struct begin_impl<boost_array_tag>;
 
         template <>
         struct begin_impl<mpl_sequence_tag>;
@@ -57,14 +70,22 @@ namespace boost { namespace fusion
     }
 
     template <typename Sequence>
-    inline typename result_of::begin<Sequence>::type const
+    inline typename
+        lazy_enable_if<
+            traits::is_sequence<Sequence>
+          , result_of::begin<Sequence>
+        >::type const
     begin(Sequence& seq)
     {
         return result_of::begin<Sequence>::call(seq);
     }
 
     template <typename Sequence>
-    inline typename result_of::begin<Sequence const>::type const
+    inline typename
+        lazy_enable_if<
+            traits::is_sequence<Sequence>
+          , result_of::begin<Sequence const>
+        >::type const
     begin(Sequence const& seq)
     {
         return result_of::begin<Sequence const>::call(seq);

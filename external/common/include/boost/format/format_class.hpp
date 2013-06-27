@@ -68,6 +68,31 @@ namespace boost {
             { return io::detail::feed<CharT, Tr, Alloc, T&>(*this,x); }
 #endif
 
+#if defined(__GNUC__)
+        // GCC can't handle anonymous enums without some help
+        // ** arguments passing ** //
+        basic_format&   operator%(const int& x)
+            { return io::detail::feed<CharT, Tr, Alloc, const int&>(*this,x); }
+
+#ifndef BOOST_NO_OVERLOAD_FOR_NON_CONST
+        basic_format&   operator%(int& x)
+            { return io::detail::feed<CharT, Tr, Alloc, int&>(*this,x); }
+#endif
+#endif
+
+        // The total number of arguments expected to be passed to the format objectt
+        int expected_args() const
+            { return num_args_; }
+        // The number of arguments currently bound (see bind_arg(..) )
+        int bound_args() const;
+        // The number of arguments currently fed to the format object
+        int fed_args() const;
+        // The index (1-based) of the current argument (i.e. next to be formatted)
+        int cur_arg() const;
+        // The number of arguments still required to be fed
+        int remaining_args() const; // same as expected_args() - bound_args() - fed_args()
+
+
         // ** object modifying **//
         template<class T>
         basic_format&  bind_arg(int argN, const T& val) 

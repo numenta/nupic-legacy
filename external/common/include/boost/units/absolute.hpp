@@ -8,11 +8,16 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 
+///
+/// \file
+/// \brief Absolute units (points rather than vectors).
+/// \details Operations between absolute units, and relative units like temperature differences.
+///
+
 #ifndef BOOST_UNITS_ABSOLUTE_HPP
 #define BOOST_UNITS_ABSOLUTE_HPP
 
-// necessary because the expression os << "absolute " is not dependent.
-#include <ostream>
+#include <iosfwd>
 
 #include <boost/units/detail/absolute_impl.hpp>
 
@@ -24,7 +29,7 @@ namespace units {
 /// originally for temperatures, this class implements operators for absolute units 
 /// so that addition of a relative unit to an absolute unit results in another
 /// absolute unit : absolute<T> +/- T -> absolute<T> and subtraction of one absolute
-/// unit from another results in a relative unit : absolute<T> - absolute<T> -> T
+/// unit from another results in a relative unit : absolute<T> - absolute<T> -> T.
 template<class Y>
 class absolute
 {
@@ -90,8 +95,8 @@ quantity<absolute<unit<D, S> >, T> operator*(const absolute<unit<D, S> >&, const
 }
 
 /// Print an absolute unit
-template<class Y>
-std::ostream& operator<<(std::ostream& os,const absolute<Y>& aval)
+template<class Char, class Traits, class Y>
+std::basic_ostream<Char, Traits>& operator<<(std::basic_ostream<Char, Traits>& os,const absolute<Y>& aval)
 {
 
     os << "absolute " << aval.value();

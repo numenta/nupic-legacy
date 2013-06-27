@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -16,6 +16,27 @@
 #include <boost/mpl/next_prior.hpp>
 #include <boost/mpl/advance_fwd.hpp>
 #include <boost/mpl/distance_fwd.hpp>
+#include <boost/mpl/iterator_tags.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
+namespace boost { namespace fusion { namespace detail
+{
+
+template<class Category>
+struct to_mpl_category {
+    typedef typename mpl::eval_if<
+        is_base_of<random_access_traversal_tag, Category>,
+        mpl::random_access_iterator_tag,
+        mpl::eval_if<
+            is_base_of<bidirectional_traversal_tag, Category>,
+            mpl::bidirectional_iterator_tag,
+            mpl::forward_iterator_tag
+        >
+    >::type type;
+};
+
+}}}
 
 namespace boost { namespace mpl
 {
@@ -23,7 +44,8 @@ namespace boost { namespace mpl
     struct fusion_iterator
     {
         typedef typename fusion::result_of::value_of<Iterator>::type type;
-        typedef typename fusion::traits::category_of<Iterator>::type category;
+        typedef typename fusion::traits::category_of<Iterator>::type fusion_category;
+        typedef typename fusion::detail::to_mpl_category<fusion_category>::type category;
         typedef Iterator iterator;
     };
 

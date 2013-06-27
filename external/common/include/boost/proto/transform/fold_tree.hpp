@@ -9,39 +9,34 @@
 #ifndef BOOST_PROTO_TRANSFORM_FOLD_TREE_HPP_EAN_11_05_2007
 #define BOOST_PROTO_TRANSFORM_FOLD_TREE_HPP_EAN_11_05_2007
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/proto/proto_fwd.hpp>
 #include <boost/proto/traits.hpp>
 #include <boost/proto/matches.hpp>
 #include <boost/proto/transform/fold.hpp>
 #include <boost/proto/transform/impl.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
 namespace boost { namespace proto
 {
     namespace detail
     {
         template<typename Tag>
-        struct has_tag : transform<has_tag<Tag> >
+        struct has_tag
         {
             template<typename Expr, typename State, typename Data, typename EnableIf = Tag>
             struct impl
-              : transform_impl<Expr, State, Data>
             {
                 typedef mpl::false_ result_type;
             };
 
             template<typename Expr, typename State, typename Data>
             struct impl<Expr, State, Data, typename Expr::proto_tag>
-              : transform_impl<Expr, State, Data>
             {
                 typedef mpl::true_ result_type;
             };
 
             template<typename Expr, typename State, typename Data>
             struct impl<Expr &, State, Data, typename Expr::proto_tag>
-              : transform_impl<Expr &, State, Data>
             {
                 typedef mpl::true_ result_type;
             };
@@ -85,9 +80,9 @@ namespace boost { namespace proto
     /// \endcode
     ///
     /// With <tt>recurse_if_\<\></tt> as defined above,
-    /// <tt>fold_tree\<Sequence, State0, Fun\>()(expr, state, data)</tt> is
+    /// <tt>fold_tree\<Sequence, State0, Fun\>()(e, s, d)</tt> is
     /// equivalent to
-    /// <tt>fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(expr, state, data).</tt>
+    /// <tt>fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(e, s, d).</tt>
     /// It has the effect of folding a tree front-to-back, recursing into
     /// child nodes that share a tag type with the parent node.
     template<typename Sequence, typename State0, typename Fun>
@@ -99,11 +94,17 @@ namespace boost { namespace proto
           : fold<
                 Sequence
               , State0
-              , detail::fold_tree_<
-                    typename remove_reference<Expr>::type::proto_tag
-                  , Fun
-                >
+              , detail::fold_tree_<typename Expr::proto_tag, Fun>
             >::template impl<Expr, State, Data>
+        {};
+
+        template<typename Expr, typename State, typename Data>
+        struct impl<Expr &, State, Data>
+          : fold<
+                Sequence
+              , State0
+              , detail::fold_tree_<typename Expr::proto_tag, Fun>
+            >::template impl<Expr &, State, Data>
         {};
     };
 
@@ -134,9 +135,9 @@ namespace boost { namespace proto
     /// \endcode
     ///
     /// With <tt>recurse_if_\<\></tt> as defined above,
-    /// <tt>reverse_fold_tree\<Sequence, State0, Fun\>()(expr, state, data)</tt> is
+    /// <tt>reverse_fold_tree\<Sequence, State0, Fun\>()(e, s, d)</tt> is
     /// equivalent to
-    /// <tt>reverse_fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(expr, state, data).</tt>
+    /// <tt>reverse_fold<Sequence, State0, recurse_if_<Expr::proto_tag, Fun> >()(e, s, d).</tt>
     /// It has the effect of folding a tree back-to-front, recursing into
     /// child nodes that share a tag type with the parent node.
     template<typename Sequence, typename State0, typename Fun>
@@ -148,11 +149,17 @@ namespace boost { namespace proto
           : reverse_fold<
                 Sequence
               , State0
-              , detail::reverse_fold_tree_<
-                    typename remove_reference<Expr>::type::proto_tag
-                  , Fun
-                >
+              , detail::reverse_fold_tree_<typename Expr::proto_tag, Fun>
             >::template impl<Expr, State, Data>
+        {};
+
+        template<typename Expr, typename State, typename Data>
+        struct impl<Expr &, State, Data>
+          : reverse_fold<
+                Sequence
+              , State0
+              , detail::reverse_fold_tree_<typename Expr::proto_tag, Fun>
+            >::template impl<Expr &, State, Data>
         {};
     };
 
@@ -169,6 +176,7 @@ namespace boost { namespace proto
     struct is_callable<reverse_fold_tree<Sequence, State0, Fun> >
       : mpl::true_
     {};
+
 }}
 
 #endif

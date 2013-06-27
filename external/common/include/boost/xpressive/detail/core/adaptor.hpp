@@ -37,13 +37,19 @@ struct xpression_adaptor
     Xpr xpr_;
 
     xpression_adaptor(Xpr const &xpr)
+    #if BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4))                          \
+      && ((__GNUC__ > 3) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+        // Ugh, gcc has an optimizer bug which elides this c'tor call
+        // resulting in pure virtual function calls.
+        __attribute__((__noinline__))
+    #endif
       : xpr_(xpr)
     {
     }
 
     virtual bool match(match_state<iterator_type> &state) const
     {
-        typedef typename unwrap_reference<Xpr const>::type xpr_type;
+        typedef typename boost::unwrap_reference<Xpr const>::type xpr_type;
         return implicit_cast<xpr_type &>(this->xpr_).match(state);
     }
 

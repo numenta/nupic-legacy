@@ -14,7 +14,7 @@
 #endif
 
 #include <boost/mpl/assert.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
 #include <boost/xpressive/detail/utility/chset/chset.hpp>
@@ -64,52 +64,53 @@ namespace boost { namespace xpressive { namespace grammar_detail
     void fill_list_set(Char *&buffer, Expr const &expr, Traits const &traits)
     {
         fill_list_set(buffer, proto::left(expr), traits);
-        *buffer++ = traits.translate(detail::char_cast<Char>(proto::arg(proto::right(expr)), traits));
+        *buffer++ = traits.translate(detail::char_cast<Char>(proto::value(proto::right(expr)), traits));
     }
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_list_set_matcher
-    template<typename Char>
-    struct as_list_set_matcher
+    template<typename Char, typename Callable = proto::callable>
+    struct as_list_set_matcher : proto::transform<as_list_set_matcher<Char, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef detail::set_matcher<
-                typename Visitor::traits_type
-              , typename ListSet<Char>::template result<void(Expr, State, Visitor)>::type
-            > type;
+            typedef typename impl::data data_type;
+            typedef
+                detail::set_matcher<
+                    typename data_type::traits_type
+                  , typename ListSet<Char>::template impl<Expr, State, Data>::result_type
+                >
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                result_type set;
+                typedef typename impl::data data_type;
+                typename data_type::char_type *buffer = set.set_;
+                fill_list_set(buffer, expr, data.traits());
+                return set;
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            detail::set_matcher<
-                typename Visitor::traits_type
-              , typename ListSet<Char>::template result<void(Expr, State, Visitor)>::type
-            > set;
-            typename Visitor::char_type *buffer = set.set_;
-            fill_list_set(buffer, expr, visitor.traits());
-            return set;
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // merge_charset
     //
-    template<typename Grammar, typename CharSet, typename Visitor>
+    template<typename Grammar, typename CharSet, typename Data>
     struct merge_charset
     {
-        typedef typename Visitor::traits_type traits_type;
+        typedef typename Data::traits_type traits_type;
         typedef typename CharSet::char_type char_type;
         typedef typename CharSet::icase_type icase_type;
 
-        merge_charset(CharSet &charset, Visitor &visitor)
+        merge_charset(CharSet &charset, Data &data)
           : charset_(charset)
-          , visitor_(visitor)
+          , visitor_(data)
         {}
 
         template<typename Expr>
@@ -124,7 +125,13 @@ namespace boost { namespace xpressive { namespace grammar_detail
         template<typename Expr, typename Tag>
         void call_(Expr const &expr, Tag) const
         {
-            this->set_(Grammar()(expr, detail::end_xpression(), this->visitor_));
+            this->set_(
+                typename Grammar::template impl<Expr const &, detail::end_xpression, Data &>()(
+                    expr
+                  , detail::end_xpression()
+                  , this->visitor_
+                )
+            );
         }
 
         template<typename Expr>
@@ -166,46 +173,50 @@ namespace boost { namespace xpressive { namespace grammar_detail
         }
 
         CharSet &charset_;
-        Visitor &visitor_;
+        Data &visitor_;
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     //
-    template<typename Grammar>
-    struct as_set_matcher : proto::callable
+    template<typename Grammar, typename Callable = proto::callable>
+    struct as_set_matcher : proto::transform<as_set_matcher<Grammar, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename Visitor::char_type char_type;
+            typedef typename impl::data data_type;
+            typedef typename data_type::char_type char_type;
 
             // if sizeof(char_type)==1, merge everything into a basic_chset
             // BUGBUG this is not optimal.
-            typedef typename mpl::if_<
-                detail::is_narrow_char<char_type>
-              , detail::basic_chset<char_type>
-              , detail::compound_charset<typename Visitor::traits_type>
-            >::type charset_type;
+            typedef
+                typename mpl::if_c<
+                    detail::is_narrow_char<char_type>::value
+                  , detail::basic_chset<char_type>
+                  , detail::compound_charset<typename data_type::traits_type>
+                >::type
+            charset_type;
 
-            typedef detail::charset_matcher<
-                typename Visitor::traits_type
-              , typename Visitor::icase_type
-              , charset_type
-            > type;
+            typedef
+                detail::charset_matcher<
+                    typename data_type::traits_type
+                  , typename data_type::icase_type
+                  , charset_type
+                >
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                result_type matcher;
+                merge_charset<Grammar, result_type, typename impl::data> merge(matcher, data);
+                merge(expr); // Walks the tree and fills in the charset
+                return matcher;
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            typedef typename result<void(Expr, State, Visitor)>::type set_type;
-            set_type matcher;
-            merge_charset<Grammar, set_type, Visitor> merge(matcher, visitor);
-            merge(expr); // Walks the tree and fills in the charset
-            return matcher;
-        }
     };
 
 }}}

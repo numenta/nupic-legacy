@@ -1,6 +1,6 @@
 //
-//  Copyright (c) 2000-2002
-//  Joerg Walter, Mathias Koch
+//  Copyright (c) 2000-2010
+//  Joerg Walter, Mathias Koch, David Bellot
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -222,8 +222,24 @@ namespace boost { namespace numeric { namespace ublas {
     };
 
 #endif
-
-    // Array based hermitian matrix class
+    /** \brief A hermitian matrix of values of type \c T
+     *
+     * For a \f$(n \times n)\f$-dimensional matrix and \f$ 0 \leq i < n, 0 \leq j < n\f$, every element 
+     * \f$m_{i,j}\f$ is mapped to the \f$(i.n + j)\f$-th element of the container for row major orientation 
+     * or the \f$(i + j.m)\f$-th element of the container for column major orientation. And 
+     * \f$\forall i,j\f$, \f$m_{i,j} = \overline{m_{i,j}}\f$.
+     *
+     * Orientation and storage can also be specified, otherwise a row major and unbounded array are used. 
+     * It is \b not required by the storage to initialize elements of the matrix. 
+     * Moreover, only the given triangular matrix is stored and the storage of hermitian matrices is packed.
+     *
+     * See http://en.wikipedia.org/wiki/Hermitian_matrix for more details on hermitian matrices.
+     *
+     * \tparam T the type of object stored in the matrix (like double, float, complex, etc...)
+     * \tparam TRI the type of triangular matrix is either \c lower or \c upper. Default is \c lower
+     * \tparam L the storage organization. It is either \c row_major or \c column_major. Default is \c row_major
+     * \tparam A the type of Storage array. Default is \unbounded_array.
+     */
     template<class T, class TRI, class L, class A>
     class hermitian_matrix:
         public matrix_container<hermitian_matrix<T, TRI, L, A> > {
@@ -1127,8 +1143,15 @@ namespace boost { namespace numeric { namespace ublas {
         array_type data_;
     };
 
-
-    // Hermitian matrix adaptor class
+    /** \brief A Hermitian matrix adaptator: convert a any matrix into a Hermitian matrix expression
+     *
+     * For a \f$(m\times n)\f$-dimensional matrix, the \c hermitian_adaptor will provide a hermitian matrix.
+     * Storage and location are based on those of the underlying matrix. This is important because
+     * a \c hermitian_adaptor does not copy the matrix data to a new place. Therefore, modifying values
+     * in a \c hermitian_adaptor matrix will also modify the underlying matrix too.
+     *
+     * \tparam M the type of matrix used to generate a hermitian matrix
+     */
     template<class M, class TRI>
     class hermitian_adaptor:
         public matrix_expression<hermitian_adaptor<M, TRI> > {

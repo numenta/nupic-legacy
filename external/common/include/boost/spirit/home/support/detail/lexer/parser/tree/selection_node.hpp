@@ -1,5 +1,5 @@
 // selection_node.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -75,7 +75,7 @@ private:
 
             node *lhs_ = new_node_stack_.top ();
 
-            node_ptr_vector_->push_back (0);
+            node_ptr_vector_->push_back (static_cast<selection_node *>(0));
             node_ptr_vector_->back () = new selection_node (lhs_, rhs_);
             new_node_stack_.top () = node_ptr_vector_->back ();
         }

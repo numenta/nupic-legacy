@@ -182,8 +182,8 @@ T ellint_pi_imp(T v, T phi, T k, T vc, const Policy& pol)
     }
     else
     {
-       T rphi = boost::math::tools::fmod_workaround(fabs(phi), constants::pi<T>() / 2);
-       T m = 2 * (fabs(phi) - rphi) / constants::pi<T>();
+       T rphi = boost::math::tools::fmod_workaround(T(fabs(phi)), T(constants::pi<T>() / 2));
+       T m = floor((2 * fabs(phi)) / constants::pi<T>());
        int sign = 1;
        if(boost::math::tools::fmod_workaround(m, T(2)) > 0.5)
        {
@@ -191,17 +191,6 @@ T ellint_pi_imp(T v, T phi, T k, T vc, const Policy& pol)
           sign = -1;
           rphi = constants::pi<T>() / 2 - rphi;
        }
-
-       if((m > 0) && (v > 1))
-       {
-          //
-          // The region with v > 1 and phi outside [0, pi/2] is
-          // currently unsupported:
-          //
-          return policies::raise_domain_error<T>(
-            function,
-            "Got v = %1%, but this is only supported for 0 <= phi <= pi/2", v, pol);
-       }  
        T sinp = sin(rphi);
        T cosp = cos(rphi);
        x = cosp * cosp;
@@ -213,7 +202,7 @@ T ellint_pi_imp(T v, T phi, T k, T vc, const Policy& pol)
        else
            p = x + vc * t;
        value = sign * sinp * (ellint_rf_imp(x, y, z, pol) + v * t * ellint_rj_imp(x, y, z, p, pol) / 3);
-       if(m > 0)
+       if((m > 0) && (vc > 0))
          value += m * ellint_pi_imp(v, k, vc, pol);
     }
 

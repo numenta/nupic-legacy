@@ -1,7 +1,7 @@
 /*=============================================================================
     Copyright (c) 1999-2003 Jaakko Jarvi
     Copyright (c) 1999-2003 Jeremiah Willcock
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -35,7 +35,7 @@ namespace boost { namespace fusion { namespace detail
 
         template <typename IS>
         static void
-        read(IS& is, char const* delim, mpl::true_)
+        read(IS&, char const*, mpl::true_)
         {
         }
     };
@@ -44,7 +44,7 @@ namespace boost { namespace fusion { namespace detail
     {
         template <typename IS, typename First, typename Last>
         static void
-        call(IS& is, First const&, Last const&, mpl::true_)
+        call(IS&, First const&, Last const&, mpl::true_)
         {
         }
 

@@ -12,7 +12,7 @@
 # pragma once
 #endif              
 
-#include <cassert>
+#include <boost/assert.hpp>
 #include <cstddef>
 #include <typeinfo>
 #include <utility>                                 // pair.
@@ -29,6 +29,7 @@
 #include <boost/iostreams/operations.hpp>
 #include <boost/iostreams/positioning.hpp>
 #include <boost/iostreams/traits.hpp>
+#include <boost/throw_exception.hpp>
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp> // MSVC.
@@ -55,7 +56,8 @@ private:
                 char_type, traits_type
             )                                             streambuf_type;
 public: // stream needs access.
-    void open(const T& t, int buffer_size, int pback_size);
+    void open(const T& t, std::streamsize buffer_size, 
+              std::streamsize pback_size);
     bool is_open() const;
     void close();
     bool auto_close() const { return auto_close_; }
@@ -111,13 +113,15 @@ direct_streambuf<T, Tr>::direct_streambuf()
 { this->set_true_eof(true); }
 
 template<typename T, typename Tr>
-void direct_streambuf<T, Tr>::open(const T& t, int, int)
+void direct_streambuf<T, Tr>::open
+    (const T& t, std::streamsize, std::streamsize)
 {
     storage_.reset(t);
     init_input(category());
     init_output(category());
     setg(0, 0, 0);
     setp(0, 0);
+    this->set_needs_close();
 }
 
 template<typename T, typename Tr>
@@ -138,7 +142,7 @@ typename direct_streambuf<T, Tr>::int_type
 direct_streambuf<T, Tr>::underflow()
 {
     if (!ibeg_) 
-        throw cant_read();
+        boost::throw_exception(cant_read());
     if (!gptr()) 
         init_get_area();
     return gptr() != iend_ ? 
@@ -152,14 +156,14 @@ direct_streambuf<T, Tr>::pbackfail(int_type c)
 {
     using namespace std;
     if (!ibeg_) 
-        throw cant_read();
+        boost::throw_exception(cant_read());
     if (gptr() != 0 && gptr() != ibeg_) {
         gbump(-1);
         if (!traits_type::eq_int_type(c, traits_type::eof()))
             *gptr() = traits_type::to_char_type(c);
         return traits_type::not_eof(c);
     }
-    throw bad_putback();
+    boost::throw_exception(bad_putback());
 }
 
 template<typename T, typename Tr>
@@ -167,11 +171,14 @@ typename direct_streambuf<T, Tr>::int_type
 direct_streambuf<T, Tr>::overflow(int_type c)
 {
     using namespace std;
-    if (!obeg_) throw BOOST_IOSTREAMS_FAILURE("no write access");
+    if (!obeg_)
+        boost::throw_exception(BOOST_IOSTREAMS_FAILURE("no write access"));
     if (!pptr()) init_put_area();
     if (!traits_type::eq_int_type(c, traits_type::eof())) {
         if (pptr() == oend_)
-            throw BOOST_IOSTREAMS_FAILURE("write area exhausted");
+            boost::throw_exception(
+                BOOST_IOSTREAMS_FAILURE("write area exhausted")
+            );
         *pptr() = traits_type::to_char_type(c);
         pbump(1);
         return c;
@@ -215,22 +222,22 @@ typename direct_streambuf<T, Tr>::pos_type direct_streambuf<T, Tr>::seek_impl
     using namespace std;
     BOOST_IOS::openmode both = BOOST_IOS::in | BOOST_IOS::out;
     if (two_head() && (which & both) == both)
-        throw bad_seek();
+        boost::throw_exception(bad_seek());
     stream_offset result = -1;
     bool one = one_head();
     if (one && (pptr() != 0 || gptr()== 0))
         init_get_area(); // Switch to input mode, for code reuse.
-    if (one || (which & BOOST_IOS::in) != 0 && ibeg_ != 0) {
+    if (one || ((which & BOOST_IOS::in) != 0 && ibeg_ != 0)) {
         if (!gptr()) setg(ibeg_, ibeg_, iend_);
         ptrdiff_t next = 0;
         switch (way) {
         case BOOST_IOS::beg: next = off; break;
         case BOOST_IOS::cur: next = (gptr() - ibeg_) + off; break;
         case BOOST_IOS::end: next = (iend_ - ibeg_) + off; break;
-        default: assert(0);
+        default: BOOST_ASSERT(0);
         }
         if (next < 0 || next > (iend_ - ibeg_))
-            throw bad_seek();
+            boost::throw_exception(bad_seek());
         setg(ibeg_, ibeg_ + next, iend_);
         result = next;
     }
@@ -241,10 +248,10 @@ typename direct_streambuf<T, Tr>::pos_type direct_streambuf<T, Tr>::seek_impl
         case BOOST_IOS::beg: next = off; break;
         case BOOST_IOS::cur: next = (pptr() - obeg_) + off; break;
         case BOOST_IOS::end: next = (oend_ - obeg_) + off; break;
-        default: assert(0);
+        default: BOOST_ASSERT(0);
         }
         if (next < 0 || next > (oend_ - obeg_))
-            throw bad_seek();
+            boost::throw_exception(bad_seek());
         pbump(static_cast<int>(next - (pptr() - obeg_)));
         result = next;
     }
