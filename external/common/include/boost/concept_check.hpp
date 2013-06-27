@@ -1,5 +1,7 @@
 //
 // (C) Copyright Jeremy Siek 2000.
+// Copyright 2002 The Trustees of Indiana University.
+//
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
@@ -36,14 +38,14 @@ namespace boost
   //
   // Backward compatibility
   //
-  
+
   template <class Model>
   inline void function_requires(Model* = 0)
   {
       BOOST_CONCEPT_ASSERT((Model));
-  }    
+  }
   template <class T> inline void ignore_unused_variable_warning(T const&) {}
-  
+
 #  define BOOST_CLASS_REQUIRE(type_var, ns, concept)    \
     BOOST_CONCEPT_ASSERT((ns::concept<type_var>))
 
@@ -56,20 +58,21 @@ namespace boost
 #  define BOOST_CLASS_REQUIRE4(tv1, tv2, tv3, tv4, ns, concept) \
     BOOST_CONCEPT_ASSERT((ns::concept<tv1,tv2,tv3,tv4>))
 
-  
+
   //
   // Begin concept definitions
   //
   BOOST_concept(Integer, (T))
   {
       BOOST_CONCEPT_USAGE(Integer)
-        { 
+        {
             x.error_type_must_be_an_integer_type();
         }
    private:
       T x;
   };
 
+  template <> struct Integer<char> {};
   template <> struct Integer<signed char> {};
   template <> struct Integer<unsigned char> {};
   template <> struct Integer<short> {};
@@ -87,7 +90,7 @@ namespace boost
 # endif
 
   BOOST_concept(SignedInteger,(T)) {
-    BOOST_CONCEPT_USAGE(SignedInteger) { 
+    BOOST_CONCEPT_USAGE(SignedInteger) {
       x.error_type_must_be_a_signed_integer_type();
     }
    private:
@@ -101,16 +104,16 @@ namespace boost
   template <> struct SignedInteger< ::boost::long_long_type> {};
 # elif defined(BOOST_HAS_MS_INT64)
   template <> struct SignedInteger<__int64> {};
-# endif      
+# endif
 
   BOOST_concept(UnsignedInteger,(T)) {
-    BOOST_CONCEPT_USAGE(UnsignedInteger) { 
+    BOOST_CONCEPT_USAGE(UnsignedInteger) {
       x.error_type_must_be_an_unsigned_integer_type();
     }
    private:
     T x;
   };
-  
+
   template <> struct UnsignedInteger<unsigned char> {};
   template <> struct UnsignedInteger<unsigned short> {};
   template <> struct UnsignedInteger<unsigned int> {};
@@ -136,21 +139,24 @@ namespace boost
   {
     BOOST_CONCEPT_USAGE(Assignable) {
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
-      a = a;             // require assignment operator
+      a = b;             // require assignment operator
 #endif
-      const_constraints(a);
+      const_constraints(b);
     }
    private:
-    void const_constraints(const TT& b) {
+    void const_constraints(const TT& x) {
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
-      a = b;              // const required for argument to assignment
+      a = x;              // const required for argument to assignment
+#else
+      ignore_unused_variable_warning(x);
 #endif
     }
    private:
     TT a;
+    TT b;
   };
 
-  
+
   BOOST_concept(CopyConstructible,(TT))
   {
     BOOST_CONCEPT_USAGE(CopyConstructible) {
@@ -169,27 +175,36 @@ namespace boost
     TT b;
   };
 
+#if (defined _MSC_VER)
+# pragma warning( push )
+# pragma warning( disable : 4510 ) // default constructor could not be generated
+# pragma warning( disable : 4610 ) // object 'class' can never be instantiated - user-defined constructor required
+#endif
   // The SGI STL version of Assignable requires copy constructor and operator=
   BOOST_concept(SGIAssignable,(TT))
   {
     BOOST_CONCEPT_USAGE(SGIAssignable) {
-      TT b(a);
+      TT c(a);
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
-      a = a;              // require assignment operator
+      a = b;              // require assignment operator
 #endif
-      const_constraints(a);
-      ignore_unused_variable_warning(b);
+      const_constraints(b);
+      ignore_unused_variable_warning(c);
     }
    private:
-    void const_constraints(const TT& b) {
-      TT c(b);
+    void const_constraints(const TT& x) {
+      TT c(x);
 #if !defined(_ITERATOR_) // back_insert_iterator broken for VC++ STL
-      a = b;              // const required for argument to assignment
+      a = x;              // const required for argument to assignment
 #endif
       ignore_unused_variable_warning(c);
     }
     TT a;
+    TT b;
   };
+#if (defined _MSC_VER)
+# pragma warning( pop )
+#endif
 
   BOOST_concept(Convertible,(X)(Y))
   {
@@ -287,7 +302,7 @@ namespace boost
   BOOST_concept(Generator,(Func)(Return))
   {
       BOOST_CONCEPT_USAGE(Generator) { test(is_void<Return>()); }
-      
+
    private:
       void test(boost::mpl::false_)
       {
@@ -300,27 +315,36 @@ namespace boost
       {
           f();
       }
-      
+
       Func f;
   };
 
   BOOST_concept(UnaryFunction,(Func)(Return)(Arg))
   {
       BOOST_CONCEPT_USAGE(UnaryFunction) { test(is_void<Return>()); }
-      
+
    private:
       void test(boost::mpl::false_)
       {
           f(arg);               // "priming the pump" this way keeps msvc6 happy (ICE)
           Return r = f(arg);
-          ignore_unused_variable_warning(r); 
+          ignore_unused_variable_warning(r);
       }
-      
+
       void test(boost::mpl::true_)
       {
           f(arg);
       }
-      
+
+#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
+                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+      // Declare a dummy construktor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // (warning: non-static reference "const double& boost::UnaryFunction<YourClassHere>::arg"
+      // in class without a constructor [-Wuninitialized])
+      UnaryFunction();
+#endif
+
       Func f;
       Arg arg;
   };
@@ -335,12 +359,21 @@ namespace boost
           Return r = f(first, second); // require operator()
           (void)r;
       }
-      
+
       void test(boost::mpl::true_)
       {
           f(first,second);
       }
-      
+
+#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
+                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+      // Declare a dummy constructor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // (warning: non-static reference "const double& boost::BinaryFunction<YourClassHere>::arg"
+      // in class without a constructor [-Wuninitialized])
+      BinaryFunction();
+#endif
+
       Func f;
       First first;
       Second second;
@@ -352,6 +385,15 @@ namespace boost
       require_boolean_expr(f(arg)); // require operator() returning bool
     }
    private:
+#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
+                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+      // Declare a dummy constructor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // (warning: non-static reference "const double& boost::UnaryPredicate<YourClassHere>::arg"
+      // in class without a constructor [-Wuninitialized])
+      UnaryPredicate();
+#endif
+
     Func f;
     Arg arg;
   };
@@ -362,6 +404,14 @@ namespace boost
       require_boolean_expr(f(a, b)); // require operator() returning bool
     }
    private:
+#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
+                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+      // Declare a dummy constructor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // (warning: non-static reference "const double& boost::BinaryPredicate<YourClassHere>::arg"
+      // in class without a constructor [-Wuninitialized])
+      BinaryPredicate();
+#endif
     Func f;
     First a;
     Second b;
@@ -371,7 +421,7 @@ namespace boost
   BOOST_concept(Const_BinaryPredicate,(Func)(First)(Second))
     : BinaryPredicate<Func, First, Second>
   {
-    BOOST_CONCEPT_USAGE(Const_BinaryPredicate) { 
+    BOOST_CONCEPT_USAGE(Const_BinaryPredicate) {
       const_constraints(f);
     }
    private:
@@ -379,6 +429,15 @@ namespace boost
       // operator() must be a const member function
       require_boolean_expr(fun(a, b));
     }
+#if (BOOST_WORKAROUND(__GNUC__, BOOST_TESTED_AT(4) \
+                      && BOOST_WORKAROUND(__GNUC__, > 3)))
+      // Declare a dummy constructor to make gcc happy.
+      // It seems the compiler can not generate a sensible constructor when this is instantiated with a refence type.
+      // (warning: non-static reference "const double& boost::Const_BinaryPredicate<YourClassHere>::arg"
+      // in class without a constructor [-Wuninitialized])
+      Const_BinaryPredicate();
+#endif
+
     Func f;
     First a;
     Second b;
@@ -388,7 +447,7 @@ namespace boost
     : Generator<Func, typename Func::result_type>
   {
       typedef typename Func::result_type result_type;
-      
+
       BOOST_CONCEPT_USAGE(AdaptableGenerator)
       {
           BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
@@ -419,7 +478,7 @@ namespace boost
       typedef typename Func::first_argument_type first_argument_type;
       typedef typename Func::second_argument_type second_argument_type;
       typedef typename Func::result_type result_type;
-      
+
       ~AdaptableBinaryFunction()
       {
           BOOST_CONCEPT_ASSERT((Convertible<result_type, Return>));
@@ -457,7 +516,7 @@ namespace boost
       {
         BOOST_CONCEPT_ASSERT((SignedInteger<difference_type>));
         BOOST_CONCEPT_ASSERT((Convertible<iterator_category, std::input_iterator_tag>));
-        
+
         TT j(i);
         (void)*i;           // require dereference operator
         ++j;                // require preincrement operator
@@ -471,7 +530,7 @@ namespace boost
     : Assignable<TT>
   {
     BOOST_CONCEPT_USAGE(OutputIterator) {
-      
+
       ++i;                // require preincrement operator
       i++;                // require postincrement operator
       *i++ = t;           // require postincrement and assignment
@@ -490,11 +549,11 @@ namespace boost
               BOOST_DEDUCED_TYPENAME ForwardIterator::iterator_category
             , std::forward_iterator_tag
           >));
-          
+
           typename InputIterator<TT>::reference r = *i;
           ignore_unused_variable_warning(r);
       }
-      
+
    private:
       TT i;
   };
@@ -556,7 +615,7 @@ namespace boost
           n = i - j;                  // require difference operator
           (void)i[n];                 // require element access operator
       }
-      
+
    private:
     TT a, b;
     TT i, j;
@@ -594,7 +653,7 @@ namespace boost
           BOOST_CONCEPT_ASSERT((InputIterator<const_iterator>));
           const_constraints(c);
       }
-      
+
    private:
       void const_constraints(const C& cc) {
           i = cc.begin();
@@ -615,19 +674,19 @@ namespace boost
       typedef typename C::reference reference;
       typedef typename C::iterator iterator;
       typedef typename C::pointer pointer;
-    
+
       BOOST_CONCEPT_USAGE(Mutable_Container)
       {
           BOOST_CONCEPT_ASSERT((
                Assignable<typename Mutable_Container::value_type>));
-          
+
           BOOST_CONCEPT_ASSERT((InputIterator<iterator>));
-          
+
           i = c.begin();
           i = c.end();
           c.swap(c2);
       }
-      
+
    private:
       iterator i;
       C c, c2;
@@ -643,7 +702,7 @@ namespace boost
                     typename ForwardContainer::const_iterator
                >));
       }
-  };  
+  };
 
   BOOST_concept(Mutable_ForwardContainer,(C))
     : ForwardContainer<C>
@@ -656,7 +715,7 @@ namespace boost
                    typename Mutable_ForwardContainer::iterator
                >));
       }
-  };  
+  };
 
   BOOST_concept(ReversibleContainer,(C))
     : ForwardContainer<C>
@@ -670,9 +729,9 @@ namespace boost
           BOOST_CONCEPT_ASSERT((
               BidirectionalIterator<
                   typename ReversibleContainer::const_iterator>));
-          
+
           BOOST_CONCEPT_ASSERT((BidirectionalIterator<const_reverse_iterator>));
-          
+
           const_constraints(c);
       }
    private:
@@ -689,17 +748,17 @@ namespace boost
     , ReversibleContainer<C>
   {
       typedef typename C::reverse_iterator reverse_iterator;
-      
+
       BOOST_CONCEPT_USAGE(Mutable_ReversibleContainer)
       {
           typedef typename Mutable_ForwardContainer<C>::iterator iterator;
           BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<iterator>));
           BOOST_CONCEPT_ASSERT((Mutable_BidirectionalIterator<reverse_iterator>));
-          
+
           reverse_iterator i = c.rbegin();
           i = c.rend();
       }
-   private:  
+   private:
       C c;
   };
 
@@ -715,7 +774,7 @@ namespace boost
               RandomAccessIterator<
                   typename RandomAccessContainer::const_iterator
               >));
-          
+
           const_constraints(c);
       }
    private:
@@ -724,7 +783,7 @@ namespace boost
           const_reference r = cc[n];
           ignore_unused_variable_warning(r);
       }
-    
+
       C c;
       size_type n;
   };
@@ -740,11 +799,11 @@ namespace boost
       {
           BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::iterator>));
           BOOST_CONCEPT_ASSERT((Mutable_RandomAccessIterator<typename self::reverse_iterator>));
-          
+
           typename self::reference r = c[i];
           ignore_unused_variable_warning(r);
       }
-      
+
    private:
       typename Mutable_ReversibleContainer<C>::size_type i;
       C c;
@@ -760,7 +819,7 @@ namespace boost
   {
       BOOST_CONCEPT_USAGE(Sequence)
       {
-          S 
+          S
               c(n),
               c2(n, t),
               c3(first, last);
@@ -785,7 +844,7 @@ namespace boost
           typename Sequence::const_reference r = c.front();
           ignore_unused_variable_warning(r);
       }
-    
+
       typename S::value_type t;
       typename S::size_type n;
       typename S::value_type* first, *last;
@@ -844,11 +903,11 @@ namespace boost
           c.erase(r.first, r.second);
           const_constraints(c);
           BOOST_CONCEPT_ASSERT((BinaryPredicate<key_compare,key_type,key_type>));
-          
+
           typedef typename AssociativeContainer::value_type value_type_;
           BOOST_CONCEPT_ASSERT((BinaryPredicate<value_compare,value_type_,value_type_>));
       }
-      
+
       // Redundant with the base concept, but it helps below.
       typedef typename C::const_iterator const_iterator;
    private:
@@ -874,7 +933,7 @@ namespace boost
       BOOST_CONCEPT_USAGE(UniqueAssociativeContainer)
       {
           C c(first, last);
-      
+
           pos_flag = c.insert(t);
           c.insert(first, last);
 
@@ -892,7 +951,7 @@ namespace boost
       BOOST_CONCEPT_USAGE(MultipleAssociativeContainer)
       {
           C c(first, last);
-      
+
           pos = c.insert(t);
           c.insert(first, last);
 
@@ -935,7 +994,7 @@ namespace boost
   {
       BOOST_CONCEPT_USAGE(SortedAssociativeContainer)
       {
-          C 
+          C
               c(kc),
               c2(first, last),
               c3(first, last, kc);
@@ -943,15 +1002,15 @@ namespace boost
           p = c.upper_bound(k);
           p = c.lower_bound(k);
           r = c.equal_range(k);
-      
+
           c.insert(p, t);
-      
+
           ignore_unused_variable_warning(c);
           ignore_unused_variable_warning(c2);
           ignore_unused_variable_warning(c3);
           const_constraints(c);
       }
-      
+
       void const_constraints(const C& c)
       {
           kc = c.key_comp();
@@ -961,7 +1020,7 @@ namespace boost
           cp = c.lower_bound(k);
           cr = c.equal_range(k);
       }
-      
+
    private:
       typename C::key_compare kc;
       typename C::value_compare vc;
@@ -980,6 +1039,42 @@ namespace boost
 
   // HashedAssociativeContainer
 
+  BOOST_concept(Collection,(C))
+  {
+      BOOST_CONCEPT_USAGE(Collection)
+      {
+        boost::function_requires<boost::InputIteratorConcept<iterator> >();
+        boost::function_requires<boost::InputIteratorConcept<const_iterator> >();
+        boost::function_requires<boost::CopyConstructibleConcept<value_type> >();
+        const_constraints(c);
+        i = c.begin();
+        i = c.end();
+        c.swap(c);
+      }
+
+      void const_constraints(const C& cc) {
+        ci = cc.begin();
+        ci = cc.end();
+        n = cc.size();
+        b = cc.empty();
+      }
+
+    private:
+      typedef typename C::value_type value_type;
+      typedef typename C::iterator iterator;
+      typedef typename C::const_iterator const_iterator;
+      typedef typename C::reference reference;
+      typedef typename C::const_reference const_reference;
+      // typedef typename C::pointer pointer;
+      typedef typename C::difference_type difference_type;
+      typedef typename C::size_type size_type;
+
+      C c;
+      bool b;
+      iterator i;
+      const_iterator ci;
+      size_type n;
+  };
 } // namespace boost
 
 # include <boost/concept/detail/concept_undef.hpp>

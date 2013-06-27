@@ -185,6 +185,9 @@ namespace extract
 {
     extractor<tag::abstract_absolute_tail_variate_means> const tail_variate_means = {};
     extractor<tag::abstract_relative_tail_variate_means> const relative_tail_variate_means = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_variate_means)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(relative_tail_variate_means)
 }
 
 using extract::tail_variate_means;

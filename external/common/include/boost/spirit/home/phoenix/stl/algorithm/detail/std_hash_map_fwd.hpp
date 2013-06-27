@@ -19,10 +19,38 @@
 #ifndef STD_HASH_MAP_FWD_EN_16_12_2004
 #define STD_HASH_MAP_FWD_EN_16_12_2004
 
-namespace stdext
+#include <boost/config.hpp>
+
+#if defined(BOOST_HAS_HASH)
+
+namespace BOOST_STD_EXTENSION_NAMESPACE
 {
     template<
         class Kty
+      , class Ty
+      , class Hash
+      , class Cmp
+      , class Alloc
+    >
+    class hash_map;
+
+    template<
+        class Kty
+      , class Ty
+      , class Hash
+      , class Cmp
+      , class Alloc
+    >
+    class hash_multimap;
+}
+
+#elif defined(BOOST_DINKUMWARE_STDLIB)
+
+namespace BOOST_STD_EXTENSION_NAMESPACE
+{
+    template<
+        class Kty
+      , class Ty
       , class Tr
       , class Alloc
     >
@@ -30,10 +58,13 @@ namespace stdext
 
     template<
         class Kty
+      , class Ty
       , class Tr
       , class Alloc
     >
     class hash_multimap;
 }
+
+#endif
 
 #endif

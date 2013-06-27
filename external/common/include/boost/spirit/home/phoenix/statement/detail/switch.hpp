@@ -119,12 +119,7 @@ namespace boost { namespace phoenix
             type;
 
             static type
-            eval(Cases const& cases, mpl::false_)
-            {
-                actor<default_case<actor<null_actor> > > default_
-                    = default_case<actor<null_actor> >(nothing);
-                return fusion::push_front(cases, default_);
-            }
+            eval(Cases const& cases, mpl::false_);
 
             static type
             eval(Cases const& cases, mpl::true_)

@@ -464,6 +464,10 @@ namespace detail
         // for some reason Borland's command line compiler (version 0x560)
         // chokes over this unless we do the calculation for it:
         typedef value_type                   table_type[ 0x100 ];
+#elif defined(__GNUC__)
+        // old versions of GCC (before 4.0.2) choke on using byte_combos
+        // as a constant expression when compiling with -pedantic.
+        typedef value_type                   table_type[1ul << CHAR_BIT];
 #else
         typedef value_type                   table_type[ byte_combos ];
 #endif

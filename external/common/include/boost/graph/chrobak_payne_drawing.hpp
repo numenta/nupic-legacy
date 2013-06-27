@@ -11,10 +11,10 @@
 
 #include <vector>
 #include <list>
+#include <stack>
 #include <boost/config.hpp>
-#include <boost/utility.hpp>  //for next and prior
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 
 namespace boost
@@ -34,12 +34,22 @@ namespace boost
                             VertexToVertexMap left,
                             VertexToVertexMap right)
     {
-      if (v != graph_traits<Graph>::null_vertex())
-        {
+      typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
+      // Suggestion of explicit stack from Aaron Windsor to avoid system stack
+      // overflows.
+      typedef std::pair<vertex_descriptor, std::size_t> stack_entry;
+      std::stack<stack_entry> st;
+      st.push(stack_entry(v, offset));
+      while (!st.empty()) {
+        vertex_descriptor v = st.top().first;
+        std::size_t offset = st.top().second;
+        st.pop();
+        if (v != graph_traits<Graph>::null_vertex()) {
           x[v] += delta_x[v] + offset;
-          accumulate_offsets(left[v], x[v], g, x, delta_x, left, right);
-          accumulate_offsets(right[v], x[v], g, x, delta_x, left, right);
+          st.push(stack_entry(left[v], x[v]));
+          st.push(stack_entry(right[v], x[v]));
         }
+      }
     }
 
   } /*namespace detail*/ } /*namespace graph*/
@@ -193,8 +203,8 @@ namespace boost
             delta_p_q += delta_x[temp];
           }
 
-        delta_x[v] = (y[rightmost] - y[leftmost] + delta_p_q)/2;
-        y[v] = (y[rightmost] + y[leftmost] + delta_p_q)/2;
+        delta_x[v] = ((y[rightmost] + delta_p_q) - y[leftmost])/2;
+        y[v] = y[leftmost] + delta_x[v];
         delta_x[rightmost] = delta_p_q - delta_x[v];
         
         bool leftmost_and_rightmost_adjacent = right[leftmost] == rightmost;
@@ -230,7 +240,7 @@ namespace boost
       (*ordering_begin,0,g,x,delta_x,left,right);
 
     vertex_iterator_t vi, vi_end;
-    for(tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
+    for(boost::tie(vi,vi_end) = vertices(g); vi != vi_end; ++vi)
       {
         vertex_t v(*vi);
         drawing[v].x = x[v];

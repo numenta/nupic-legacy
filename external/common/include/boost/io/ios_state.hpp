@@ -128,6 +128,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_iostate_saver& operator=(const basic_ios_iostate_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -156,6 +157,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_exception_saver& operator=(const basic_ios_exception_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -180,6 +182,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_tie_saver& operator=(const basic_ios_tie_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -204,6 +207,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_rdbuf_saver& operator=(const basic_ios_rdbuf_saver&);
 };
 
 template < typename Ch, class Tr >
@@ -228,6 +232,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_fill_saver& operator=(const basic_ios_fill_saver&);
 };
 
 #ifndef BOOST_NO_STD_LOCALE
@@ -253,6 +258,7 @@ public:
 private:
     state_type &       s_save_;
     aspect_type const  a_save_;
+    basic_ios_locale_saver& operator=(const basic_ios_locale_saver&);
 };
 #endif
 
@@ -392,6 +398,8 @@ private:
     #ifndef BOOST_NO_STD_LOCALE
     ::std::locale const                     a9_save_;
     #endif
+
+    basic_ios_all_saver& operator=(const basic_ios_all_saver&);
 };
 
 class ios_all_word_saver

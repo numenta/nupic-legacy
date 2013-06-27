@@ -52,7 +52,9 @@ namespace boost {
                 find_format_store& operator=( FindResultT FindResult )
                 {
                     iterator_range<ForwardIteratorT>::operator=(FindResult);
-                    m_FormatResult=m_Formatter(FindResult);
+                    if( !this->empty() ) {
+                        m_FormatResult=m_Formatter(FindResult);
+                    }
                     
                     return *this;
                 }
@@ -67,6 +69,15 @@ namespace boost {
                 format_result_type m_FormatResult;
                 const formatter_type& m_Formatter;
             };
+
+            template<typename InputT, typename FindResultT>
+            bool check_find_result(InputT&, FindResultT& FindResult)
+            {
+                typedef BOOST_STRING_TYPENAME 
+                    range_const_iterator<InputT>::type input_iterator_type; 
+                iterator_range<input_iterator_type> ResultRange(FindResult);
+                return !ResultRange.empty();
+            }
 
 #if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
 #pragma warning(pop)

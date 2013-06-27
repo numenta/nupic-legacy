@@ -8,7 +8,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : argument usage printing helpers
 // ***************************************************************************
@@ -27,7 +27,7 @@
 #include <boost/lexical_cast.hpp>
 
 // STL
-// !! could we eliminate these includes?
+// !! can we eliminate these includes?
 #include <list>
 
 namespace boost {
@@ -66,7 +66,7 @@ argument_value_usage( format_stream& fs, int, std::list<T>* = 0 )
 inline void
 argument_value_usage( format_stream& fs,  int, bool* = 0 )
 {
-    fs << BOOST_RT_PARAM_CSTRING_LITERAL( "[yes|y|no|n]" );
+    fs << BOOST_RT_PARAM_CSTRING_LITERAL( "yes|y|no|n" );
 }
 
 //____________________________________________________________________________//

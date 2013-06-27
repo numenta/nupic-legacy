@@ -18,7 +18,7 @@
 
 #include <boost/config.hpp>
 
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <boost/bimap/unordered_set_of.hpp>
 #include <boost/bimap/support/data_type_by.hpp>
 #include <boost/bimap/support/key_type_by.hpp>

@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008, Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +10,7 @@
 #include <boost/spirit/home/support/iterators/detail/multi_pass.hpp>
 #include <boost/assert.hpp>
 
-namespace boost { namespace spirit { namespace multi_pass_policies
+namespace boost { namespace spirit { namespace iterator_policies
 {
     namespace is_valid_test_
     {
@@ -20,7 +20,7 @@ namespace boost { namespace spirit { namespace multi_pass_policies
             return true;
         }
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     //  class functor_input
     //  Implementation of the InputPolicy used by multi_pass
@@ -46,7 +46,7 @@ namespace boost { namespace spirit { namespace multi_pass_policies
 
             void swap(unique& x)
             {
-                spirit::detail::swap(ftor, x.ftor);
+                boost::swap(ftor, x.ftor);
             }
 
         public:
@@ -59,24 +59,32 @@ namespace boost { namespace spirit { namespace multi_pass_policies
         public:
             // get the next token
             template <typename MultiPass>
-            static void advance_input(MultiPass& mp, value_type& t)
+            static typename MultiPass::reference get_input(MultiPass& mp)
+            {
+                value_type& curtok = mp.shared()->curtok;
+                if (!input_is_valid(mp, curtok))
+                    curtok = mp.ftor();
+                return curtok;
+            }
+
+            template <typename MultiPass>
+            static void advance_input(MultiPass& mp)
             {
                 // if mp.shared is NULL then this instance of the multi_pass 
-                // represents a end iterator, so no advance functionality is 
-                // needed
-                if (0 != mp.shared) 
-                    t = mp.ftor();
+                // represents a end iterator
+                BOOST_ASSERT(0 != mp.shared());
+                mp.shared()->curtok = mp.ftor();
             }
 
             // test, whether we reached the end of the underlying stream
             template <typename MultiPass>
-            static bool input_at_eof(MultiPass const& mp, value_type const& t) 
+            static bool input_at_eof(MultiPass const& mp) 
             {
-                return t == mp.ftor.eof;
+                return mp.shared()->curtok == mp.ftor.eof;
             }
 
             template <typename MultiPass>
-            static bool input_is_valid(MultiPass const& mp, value_type const& t) 
+            static bool input_is_valid(MultiPass const&, value_type const& t) 
             {
                 using namespace is_valid_test_;
                 return token_is_valid(t);
@@ -95,9 +103,9 @@ namespace boost { namespace spirit { namespace multi_pass_policies
         template <typename Functor>
         struct shared
         {
-            explicit shared(Functor const& x) {}
+            explicit shared(Functor const&) : curtok(0) {}
 
-            // no shared data elements
+            typename Functor::result_type curtok;
         };
     };
 

@@ -63,7 +63,7 @@ namespace boost {
 
                 iterator_range<ForwardIterator1T> Result
                     =last_finder( 
-                        make_iterator_range(SubBegin, SubEnd),
+                        ::boost::make_iterator_range(SubBegin, SubEnd),
                         Comp)(Begin, End);
 
                 return !Result.empty() && Result.end()==End;

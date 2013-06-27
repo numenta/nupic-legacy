@@ -49,9 +49,9 @@ struct char_sink
 {
     typedef typename Traits::char_type char_type;
 
-    char_sink(hash_peek_bitset<char_type> &bset, Traits const &traits)
+    char_sink(hash_peek_bitset<char_type> &bset, Traits const &tr)
       : bset_(bset)
-      , traits_(traits)
+      , traits_(tr)
     {}
 
     void operator()(char_type ch) const
@@ -72,7 +72,7 @@ template<typename Char>
 struct xpression_peeker
 {
     template<typename Traits>
-    xpression_peeker(hash_peek_bitset<Char> &bset, Traits const &traits, bool has_backrefs = false)
+    xpression_peeker(hash_peek_bitset<Char> &bset, Traits const &tr, bool has_backrefs = false)
       : bset_(bset)
       , str_()
       , line_start_(false)
@@ -81,7 +81,7 @@ struct xpression_peeker
       , leading_simple_repeat_(0)
       , has_backrefs_(has_backrefs)
     {
-        this->set_traits(traits);
+        this->set_traits(tr);
     }
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -245,14 +245,14 @@ struct xpression_peeker
     }
 
     template<typename Traits>
-    void set_traits(Traits const &traits)
+    void set_traits(Traits const &tr)
     {
         if(0 == this->traits_)
         {
-            this->traits_ = &traits;
+            this->traits_ = &tr;
             this->traits_type_ = &typeid(Traits);
         }
-        else if(*this->traits_type_ != typeid(Traits) || this->get_traits_<Traits>() != traits)
+        else if(*this->traits_type_ != typeid(Traits) || this->get_traits_<Traits>() != tr)
         {
             this->fail(); // traits mis-match! set all and bail
         }

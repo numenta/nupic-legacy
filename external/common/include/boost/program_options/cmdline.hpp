@@ -26,7 +26,7 @@ namespace boost { namespace program_options { namespace command_line_style {
     enum style_t {
         /// Allow "--long_name" style
         allow_long = 1,
-        /// Alow "-<single character" style
+        /// Allow "-<single character" style
         allow_short = allow_long << 1,
         /// Allow "-" in short options
         allow_dash_for_short = allow_short << 1,
@@ -62,14 +62,19 @@ namespace boost { namespace program_options { namespace command_line_style {
             long option name if guessing is in effect.
         */
         allow_guessing = allow_sticky << 1,
-        /** Ignore the difference in case for options. 
-            @todo Should this apply to long options only?
+        /** Ignore the difference in case for long options.
         */            
-        case_insensitive = allow_guessing << 1,
+        long_case_insensitive = allow_guessing << 1,        
+        /** Ignore the difference in case for short options.
+        */            
+        short_case_insensitive = long_case_insensitive << 1,
+        /** Ignore the difference in case for all options.
+        */        
+        case_insensitive = (long_case_insensitive | short_case_insensitive),        
         /** Allow long options with single option starting character,
             e.g <tt>-foo=10</tt>
         */
-        allow_long_disguise = case_insensitive << 1,
+        allow_long_disguise = short_case_insensitive << 1,
         /** The more-or-less traditional unix style. */
         unix_style = (allow_short | short_allow_adjacent | short_allow_next
                       | allow_long | long_allow_adjacent | long_allow_next

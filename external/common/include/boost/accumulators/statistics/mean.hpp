@@ -145,6 +145,9 @@ namespace extract
     extractor<tag::mean> const mean = {};
     extractor<tag::mean_of_weights> const mean_of_weights = {};
     BOOST_ACCUMULATORS_DEFINE_EXTRACTOR(tag, mean_of_variates, (typename)(typename))
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(mean)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(mean_of_weights)
 }
 
 using extract::mean;

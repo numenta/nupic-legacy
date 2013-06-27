@@ -1,8 +1,8 @@
 //
-// descriptor_base.hpp
-// ~~~~~~~~~~~~~~~~~~~
+// posix/descriptor_base.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,15 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
-#include <boost/detail/workaround.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#if defined(BOOST_ASIO_HAS_POSIX_STREAM_DESCRIPTOR) \
+  || defined(GENERATING_DOCUMENTATION)
 
 #include <boost/asio/detail/io_control.hpp>
 #include <boost/asio/detail/socket_option.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -35,7 +35,8 @@ namespace posix {
 class descriptor_base
 {
 public:
-  /// IO control command to set the blocking mode of the descriptor.
+  /// (Deprecated: Use non_blocking().) IO control command to set the blocking
+  /// mode of the descriptor.
   /**
    * Implements the FIONBIO IO control command.
    *
@@ -91,5 +92,8 @@ protected:
 } // namespace boost
 
 #include <boost/asio/detail/pop_options.hpp>
+
+#endif // defined(BOOST_ASIO_HAS_POSIX_STREAM_DESCRIPTOR)
+       //   || defined(GENERATING_DOCUMENTATION)
 
 #endif // BOOST_ASIO_POSIX_DESCRIPTOR_BASE_HPP

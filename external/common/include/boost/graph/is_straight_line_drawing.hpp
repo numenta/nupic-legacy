@@ -9,16 +9,17 @@
 #define __IS_STRAIGHT_LINE_DRAWING_HPP__
 
 #include <boost/config.hpp>
-#include <boost/utility.hpp> //for next and prior
+#include <boost/next_prior.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/planar_detail/bucket_sort.hpp>
 
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <map>
 
 
 
@@ -34,12 +35,12 @@ namespace boost
   // defines how far away from the endpoints of s1 and s2 we want to consider
   // an intersection.
 
-  bool intersects(double x1, double y1,
-                  double x2, double y2,
-                  double a1, double b1,
-                  double a2, double b2,
-                  double epsilon = 0.000001
-                  )
+  inline bool intersects(double x1, double y1,
+                         double x2, double y2,
+                         double a1, double b1,
+                         double a2, double b2,
+                         double epsilon = 0.000001
+                         )
   {
 
     if (x1 - x2 == 0)
@@ -100,7 +101,7 @@ namespace boost
             >
   bool is_straight_line_drawing(const Graph& g, 
                                 GridPositionMap drawing, 
-                                VertexIndexMap vm
+                                VertexIndexMap
                                 )
   {
 
@@ -126,7 +127,7 @@ namespace boost
     active_map_t active_edges;
 
     edge_iterator_t ei, ei_end;
-    for(tie(ei,ei_end) = edges(g); ei != ei_end; ++ei)
+    for(boost::tie(ei,ei_end) = edges(g); ei != ei_end; ++ei)
       {
         edge_t e(*ei);
         vertex_t s(source(e,g));
@@ -164,7 +165,7 @@ namespace boost
         edge_t e(get<0>(*itr));
         vertex_t source_v(source(e,g));
         vertex_t target_v(target(e,g));
-        if (drawing[source_v].x > drawing[target_v].x)
+        if (drawing[source_v].y > drawing[target_v].y)
           std::swap(source_v, target_v);
 
         active_map_key_t key(get(drawing, source_v).y,
@@ -185,14 +186,34 @@ namespace boost
               before = active_edges.end();
             else
               before = prior(a_itr);
-            after = next(a_itr);
+            after = boost::next(a_itr);
 
-            if (after != active_edges.end() || before != active_edges.end())
+            if (before != active_edges.end())
               {
                 
-                edge_t f = after != active_edges.end() ? 
-                  after->second : before->second;
+                edge_t f = before->second;
+                vertex_t e_source(source(e,g));
+                vertex_t e_target(target(e,g));
+                vertex_t f_source(source(f,g));
+                vertex_t f_target(target(f,g));
 
+                if (intersects(drawing[e_source].x, 
+                               drawing[e_source].y,
+                               drawing[e_target].x,
+                               drawing[e_target].y,
+                               drawing[f_source].x, 
+                               drawing[f_source].y,
+                               drawing[f_target].x,
+                               drawing[f_target].y
+                               )
+                    )
+                  return false;
+              }
+
+            if (after != active_edges.end())
+              {
+                
+                edge_t f = after->second;
                 vertex_t e_source(source(e,g));
                 vertex_t e_target(target(e,g));
                 vertex_t f_source(source(f,g));

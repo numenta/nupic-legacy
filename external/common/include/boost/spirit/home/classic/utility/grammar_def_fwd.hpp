@@ -39,7 +39,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         typename T,
         BOOST_PP_ENUM_BINARY_PARAMS(
             BOOST_PP_DEC(BOOST_SPIRIT_GRAMMAR_STARTRULE_TYPE_LIMIT_A),
-            typename T, = phoenix::nil_t BOOST_PP_INTERCEPT
+            typename T, = ::phoenix::nil_t BOOST_PP_INTERCEPT
         )
     >
     class grammar_def;

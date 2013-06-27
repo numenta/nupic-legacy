@@ -124,6 +124,11 @@ struct actor_result {
 };
 
 //////////////////////////////////
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
 template <typename BaseT>
 struct actor : public BaseT {
 
@@ -270,6 +275,10 @@ struct actor : public BaseT {
     operator[](B const& b) const;
 };
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
+
 ///////////////////////////////////////////////////////////////////////////
 //
 //  as_actor
@@ -340,27 +349,27 @@ actor<BaseT>::operator()() const
 template <typename BaseT>
 template <typename A>
 inline typename actor_result<BaseT, tuple<A&> >::type
-actor<BaseT>::operator()(A& a) const
+actor<BaseT>::operator()(A& a_) const
 {
-    return BaseT::eval(tuple<A&>(a));
+    return BaseT::eval(tuple<A&>(a_));
 }
 
 //////////////////////////////////
 template <typename BaseT>
 template <typename A, typename B>
 inline typename actor_result<BaseT, tuple<A&, B&> >::type
-actor<BaseT>::operator()(A& a, B& b) const
+actor<BaseT>::operator()(A& a_, B& b_) const
 {
-    return BaseT::eval(tuple<A&, B&>(a, b));
+    return BaseT::eval(tuple<A&, B&>(a_, b_));
 }
 
 //////////////////////////////////
 template <typename BaseT>
 template <typename A, typename B, typename C>
 inline typename actor_result<BaseT, tuple<A&, B&, C&> >::type
-actor<BaseT>::operator()(A& a, B& b, C& c) const
+actor<BaseT>::operator()(A& a_, B& b_, C& c_) const
 {
-    return BaseT::eval(tuple<A&, B&, C&>(a, b, c));
+    return BaseT::eval(tuple<A&, B&, C&>(a_, b_, c_));
 }
 
 #if PHOENIX_LIMIT > 3
@@ -368,18 +377,18 @@ actor<BaseT>::operator()(A& a, B& b, C& c) const
 template <typename BaseT>
 template <typename A, typename B, typename C, typename D>
 inline typename actor_result<BaseT, tuple<A&, B&, C&, D&> >::type
-actor<BaseT>::operator()(A& a, B& b, C& c, D& d) const
+actor<BaseT>::operator()(A& a_, B& b_, C& c_, D& d_) const
 {
-    return BaseT::eval(tuple<A&, B&, C&, D&>(a, b, c, d));
+    return BaseT::eval(tuple<A&, B&, C&, D&>(a_, b_, c_, d_));
 }
 
 //////////////////////////////////
 template <typename BaseT>
 template <typename A, typename B, typename C, typename D, typename E>
 inline typename actor_result<BaseT, tuple<A&, B&, C&, D&, E&> >::type
-actor<BaseT>::operator()(A& a, B& b, C& c, D& d, E& e) const
+actor<BaseT>::operator()(A& a_, B& b_, C& c_, D& d_, E& e_) const
 {
-    return BaseT::eval(tuple<A&, B&, C&, D&, E&>(a, b, c, d, e));
+    return BaseT::eval(tuple<A&, B&, C&, D&, E&>(a_, b_, c_, d_, e_));
 }
 
 //////////////////////////////////
@@ -391,12 +400,12 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&>
-        (a, b, c, d, e, f)
+        (a_, b_, c_, d_, e_, f_)
     );
 }
 
@@ -410,12 +419,12 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&>
-        (a, b, c, d, e, f, g)
+        (a_, b_, c_, d_, e_, f_, g_)
     );
 }
 
@@ -428,12 +437,12 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&>
-        (a, b, c, d, e, f, g, h)
+        (a_, b_, c_, d_, e_, f_, g_, h_)
     );
 }
 
@@ -446,12 +455,12 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&>
-        (a, b, c, d, e, f, g, h, i)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_)
     );
 }
 
@@ -465,12 +474,12 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&>
-        (a, b, c, d, e, f, g, h, i, j)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_)
     );
 }
 
@@ -484,13 +493,13 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j,
-    K& k
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_,
+    K& k_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&>
-        (a, b, c, d, e, f, g, h, i, j, k)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_, k_)
     );
 }
 
@@ -504,13 +513,13 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j,
-    K& k, L& l
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_,
+    K& k_, L& l_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&>
-        (a, b, c, d, e, f, g, h, i, j, k, l)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_, k_, l_)
     );
 }
 
@@ -525,13 +534,13 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j,
-    K& k, L& l, M& m
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_,
+    K& k_, L& l_, M& m_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&>
-        (a, b, c, d, e, f, g, h, i, j, k, l, m)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_, k_, l_, m_)
     );
 }
 
@@ -545,13 +554,13 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&, N&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j,
-    K& k, L& l, M& m, N& n
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_,
+    K& k_, L& l_, M& m_, N& n_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&, N&>
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_, k_, l_, m_, n_)
     );
 }
 
@@ -565,13 +574,13 @@ inline typename actor_result<BaseT,
     tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&, N&, O&>
 >::type
 actor<BaseT>::operator()(
-    A& a, B& b, C& c, D& d, E& e, F& f, G& g, H& h, I& i, J& j,
-    K& k, L& l, M& m, N& n, O& o
+    A& a_, B& b_, C& c_, D& d_, E& e_, F& f_, G& g_, H& h_, I& i_, J& j_,
+    K& k_, L& l_, M& m_, N& n_, O& o_
 ) const
 {
     return BaseT::eval(
         tuple<A&, B&, C&, D&, E&, F&, G&, H&, I&, J&, K&, L&, M&, N&, O&>
-        (a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
+        (a_, b_, c_, d_, e_, f_, g_, h_, i_, j_, k_, l_, m_, n_, o_)
     );
 }
 

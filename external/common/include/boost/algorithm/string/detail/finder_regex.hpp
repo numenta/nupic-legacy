@@ -98,7 +98,7 @@ namespace boost {
                     // instantiate match result
                     match_results<input_iterator_type> result;
                     // search for a match
-                    if ( regex_search( Begin, End, result, m_Rx, m_MatchFlags ) )
+                    if ( ::boost::regex_search( Begin, End, result, m_Rx, m_MatchFlags ) )
                     {
                         // construct a result
                         return result_type( result );

@@ -48,6 +48,7 @@ namespace detail {
 #if ! defined( BOOST_NO_LOCALE_ISDIGIT )
         return fac.is(std::ctype<Ch>::digit, c);
 # else
+        (void) fac;     // remove "unused parameter" warning
         using namespace std;
         return isdigit(c); 
 #endif 

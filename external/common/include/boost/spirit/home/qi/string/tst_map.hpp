@@ -1,11 +1,15 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(BOOST_SPIRIT_TST_MAP_JUNE_03_2007_1143AM)
 #define BOOST_SPIRIT_TST_MAP_JUNE_03_2007_1143AM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/spirit/home/qi/string/detail/tst.hpp>
 #include <boost/unordered_map.hpp>
@@ -84,7 +88,8 @@ namespace boost { namespace spirit { namespace qi
 
                 if (first != last)
                 {
-                    return node::add(r.first->second.root, first, last, val, this);
+                    return node::add(r.first->second.root
+                      , first, last, val, this) ? true : false;
                 }
                 else
                 {

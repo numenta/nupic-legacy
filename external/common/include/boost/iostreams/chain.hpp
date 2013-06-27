@@ -12,7 +12,7 @@
 # pragma once
 #endif
 
-#include <cassert>
+#include <boost/assert.hpp>
 #include <exception>
 #include <functional>                           // unary_function.
 #include <iterator>                             // advance.
@@ -36,6 +36,7 @@
 #include <boost/next_prior.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type.hpp>
 #include <boost/iostreams/detail/execute.hpp>   // VC6.5 requires this
@@ -83,7 +84,7 @@ template<typename Chain> class chain_client;
 //
 // Concept name: Chain.
 // Description: Represents a chain of stream buffers which provides access
-//     to the first buffer in the chain and send notifications when the
+//     to the first buffer in the chain and sends notifications when the
 //     streambufs are added to or removed from chain.
 // Refines: Closable device with mode equal to typename Chain::mode.
 // Models: chain, converting_chain.
@@ -140,22 +141,29 @@ protected:
     chain_base(const chain_base& rhs): pimpl_(rhs.pimpl_) { }
 public:
 
+    // dual_use is a pseudo-mode to facilitate filter writing, 
+    // not a genuine mode.
+    BOOST_STATIC_ASSERT((!is_convertible<mode, dual_use>::value));
+
     //----------Buffer sizing-------------------------------------------------//
 
     // Sets the size of the buffer created for the devices to be added to this
     // chain. Does not affect the size of the buffer for devices already
     // added.
-    void set_device_buffer_size(int n) { pimpl_->device_buffer_size_ = n; }
+    void set_device_buffer_size(std::streamsize n) 
+        { pimpl_->device_buffer_size_ = n; }
 
     // Sets the size of the buffer created for the filters to be added
     // to this chain. Does not affect the size of the buffer for filters already
     // added.
-    void set_filter_buffer_size(int n) { pimpl_->filter_buffer_size_ = n; }
+    void set_filter_buffer_size(std::streamsize n) 
+        { pimpl_->filter_buffer_size_ = n; }
 
     // Sets the size of the putback buffer for filters and devices to be added
     // to this chain. Does not affect the size of the buffer for filters or
     // devices already added.
-    void set_pback_size(int n) { pimpl_->pback_size_ = n; }
+    void set_pback_size(std::streamsize n) 
+        { pimpl_->pback_size_ = n; }
 
     //----------Device interface----------------------------------------------//
 
@@ -168,7 +176,7 @@ public:
     const std::type_info& component_type(int n) const
     {
         if (static_cast<size_type>(n) >= size())
-            throw std::out_of_range("bad chain offset");
+            boost::throw_exception(std::out_of_range("bad chain offset"));
         return (*boost::next(list().begin(), n))->component_type();
     }
 
@@ -192,7 +200,7 @@ public:
     T* component(int n, boost::type<T>) const
     {
         if (static_cast<size_type>(n) >= size())
-            throw std::out_of_range("bad chain offset");
+            boost::throw_exception(std::out_of_range("bad chain offset"));
         streambuf_type* link = *boost::next(list().begin(), n);
         if (BOOST_IOSTREAMS_COMPARE_TYPE_ID(link->component_type(), typeid(T)))
             return static_cast<T*>(link->component_impl());
@@ -222,19 +230,20 @@ public:
     bool strict_sync();
 private:
     template<typename T>
-    void push_impl(const T& t, int buffer_size = -1, int pback_size = -1)
+    void push_impl(const T& t, std::streamsize buffer_size = -1, 
+                   std::streamsize pback_size = -1)
     {
         typedef typename iostreams::category_of<T>::type  category;
-        typedef typename unwrap_ios<T>::type              policy_type;
+        typedef typename unwrap_ios<T>::type              component_type;
         typedef stream_buffer<
-                    policy_type,
+                    component_type,
                     BOOST_IOSTREAMS_CHAR_TRAITS(char_type),
                     Alloc, Mode
                 >                                         streambuf_t;
         typedef typename list_type::iterator              iterator;
         BOOST_STATIC_ASSERT((is_convertible<category, Mode>::value));
         if (is_complete())
-            throw std::logic_error("chain complete");
+            boost::throw_exception(std::logic_error("chain complete"));
         streambuf_type* prev = !empty() ? list().back() : 0;
         buffer_size =
             buffer_size != -1 ?
@@ -248,7 +257,7 @@ private:
             buf(new streambuf_t(t, buffer_size, pback_size));
         list().push_back(buf.get());
         buf.release();
-        if (is_device<policy_type>::value) {
+        if (is_device<component_type>::value) {
             pimpl_->flags_ |= f_complete | f_open;
             for ( iterator first = list().begin(),
                            last = list().end();
@@ -305,7 +314,11 @@ private:
               pback_size_(default_pback_buffer_size),
               flags_(f_auto_close)
             { }
-        ~chain_impl() { try { close(); reset(); } catch (...) { } }
+        ~chain_impl()
+            {
+                try { close(); } catch (...) { }
+                try { reset(); } catch (...) { }
+            }
         void close()
             {
                 if ((flags_ & f_open) != 0) {
@@ -357,12 +370,12 @@ private:
                 flags_ &= ~f_complete;
                 flags_ &= ~f_open;
             }
-        list_type     links_;
-        client_type*  client_;
-        int           device_buffer_size_,
-                      filter_buffer_size_,
-                      pback_size_;
-        int           flags_;
+        list_type        links_;
+        client_type*     client_;
+        std::streamsize  device_buffer_size_,
+                         filter_buffer_size_,
+                         pback_size_;
+        int              flags_;
     };
     friend struct chain_impl;
 
@@ -408,7 +421,7 @@ private:
         typedef typename traits_type::int_type         int_type; \
         typedef typename traits_type::off_type         off_type; \
         name_() { } \
-        name_(const name_& rhs) { *this = rhs; } \
+        name_(const name_& rhs) : base_type(rhs) { } \
         name_& operator=(const name_& rhs) \
         { base_type::operator=(rhs); return *this; } \
     }; \
@@ -564,7 +577,7 @@ bool chain_base<Self, Ch, Tr, Alloc, Mode>::strict_sync()
 template<typename Self, typename Ch, typename Tr, typename Alloc, typename Mode>
 void chain_base<Self, Ch, Tr, Alloc, Mode>::pop()
 {
-    assert(!empty());
+    BOOST_ASSERT(!empty());
     if (auto_close())
         pimpl_->close();
     streambuf_type* buf = 0;

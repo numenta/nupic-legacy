@@ -20,10 +20,12 @@
 #include <string>
 #include <locale>
 #include <sstream>
+#include <climits>
 #include <boost/config.hpp>
 #include <boost/assert.hpp>
 #include <boost/integer.hpp>
 #include <boost/mpl/assert.hpp>
+#include <boost/static_assert.hpp>
 #include <boost/detail/workaround.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
@@ -81,7 +83,7 @@ namespace detail
 
     #ifndef BOOST_XPRESSIVE_BUGGY_CTYPE_FACET
     // an unsigned integer with the highest bit set
-    umaskex_t const highest_bit = 1 << (sizeof(umaskex_t) * CHAR_BIT - 1);
+    umaskex_t const highest_bit = static_cast<umaskex_t>(1) << (sizeof(umaskex_t) * CHAR_BIT - 1);
 
     ///////////////////////////////////////////////////////////////////////////////
     // unused_mask
@@ -89,7 +91,7 @@ namespace detail
     template<umaskex_t In, umaskex_t Out = highest_bit, bool Done = (0 == (Out & In))>
     struct unused_mask
     {
-        BOOST_MPL_ASSERT_RELATION(1, !=, Out);
+        BOOST_STATIC_ASSERT(1 != Out);
         BOOST_STATIC_CONSTANT(umaskex_t, value = (unused_mask<In, (Out >> 1)>::value));
     };
 
@@ -121,6 +123,8 @@ namespace detail
     umaskex_t const std_ctype_reserved = 0x8000;
     #elif defined(_CPPLIB_VER) && defined(BOOST_WINDOWS)
     umaskex_t const std_ctype_reserved = 0x8200;
+    #elif defined(_LIBCPP_VERSION)
+    umaskex_t const std_ctype_reserved = 0x8000;
     #else
     umaskex_t const std_ctype_reserved = 0;
     #endif
@@ -205,6 +209,16 @@ namespace detail
                 return true;
             }
 
+            // HACKHACK Cygwin and mingw have buggy ctype facets for wchar_t
+            #if defined(__CYGWIN__) || defined(__MINGW32_VERSION)
+            if (std::ctype_base::xdigit == ((std::ctype_base::mask)(umask_t)mask & std::ctype_base::xdigit))
+            {
+                typename std::char_traits<Char>::int_type i = std::char_traits<Char>::to_int_type(ch);
+                if(UCHAR_MAX >= i && std::isxdigit(static_cast<int>(i)))
+                    return true;
+            }
+            #endif
+
             #else
 
             umaskex_t tmp = mask & ~non_std_ctype_masks;
@@ -258,7 +272,7 @@ namespace detail
         {
             int i = 0;
             Char allchars[UCHAR_MAX + 1];
-            for(i = 0; i <= UCHAR_MAX; ++i)
+            for(i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
             {
                 allchars[i] = static_cast<Char>(i);
             }
@@ -266,7 +280,7 @@ namespace detail
             std::ctype<Char> const &ct = BOOST_USE_FACET(std::ctype<Char>, loc);
             std::ctype_base::mask tmp[UCHAR_MAX + 1];
             ct.is(allchars, allchars + UCHAR_MAX + 1, tmp);
-            for(i = 0; i <= UCHAR_MAX; ++i)
+            for(i = 0; i <= static_cast<int>(UCHAR_MAX); ++i)
             {
                 this->masks_[i] = static_cast<umask_t>(tmp[i]);
                 BOOST_ASSERT(0 == (this->masks_[i] & non_std_ctype_masks));
@@ -297,8 +311,8 @@ namespace detail
 ///////////////////////////////////////////////////////////////////////////////
 // cpp_regex_traits
 //
-/// \brief Encapsaulates a std::locale for use by the
-/// basic_regex\<\> class template.
+/// \brief Encapsaulates a \c std::locale for use by the
+/// \c basic_regex\<\> class template.
 template<typename Char>
 struct cpp_regex_traits
   : detail::cpp_regex_traits_base<Char>
@@ -390,12 +404,12 @@ struct cpp_regex_traits
         return this->ctype_->toupper(ch);
     }
 
-    /// Returns a string_type containing all the characters that compare equal
+    /// Returns a \c string_type containing all the characters that compare equal
     /// disregrarding case to the one passed in. This function can only be called
-    /// if has_fold_case\<cpp_regex_traits\<Char\> \>::value is true.
+    /// if <tt>has_fold_case\<cpp_regex_traits\<Char\> \>::value</tt> is \c true.
     ///
     /// \param ch The source character.
-    /// \return string_type containing all chars which are equal to ch when disregarding
+    /// \return \c string_type containing all chars which are equal to \c ch when disregarding
     ///     case
     string_type fold_case(char_type ch) const
     {
@@ -593,7 +607,7 @@ private:
     /// INTERNAL ONLY
     static char_class_pair const &char_class(std::size_t j)
     {
-        static char_class_pair const s_char_class_map[] =
+        static BOOST_CONSTEXPR_OR_CONST char_class_pair s_char_class_map[] =
         {
             { BOOST_XPR_CSTR_(char_type, "alnum"),  detail::std_ctype_alnum }
           , { BOOST_XPR_CSTR_(char_type, "alpha"),  detail::std_ctype_alpha }

@@ -251,7 +251,7 @@ struct no_next
 //
 inline int get_mark_number(basic_mark_tag const &mark)
 {
-    return proto::arg(mark).mark_number_;
+    return proto::value(mark).mark_number_;
 }
 
 }}} // namespace boost::xpressive::detail

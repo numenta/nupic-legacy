@@ -7,11 +7,12 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-13 12:10:23 -0800 (Thu, 13 Nov 2008) $
  */
 
-#include "boost/date_time/string_parse_tree.hpp"
-#include "boost/date_time/string_convert.hpp"
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/string_parse_tree.hpp>
+#include <boost/date_time/string_convert.hpp>
 
 
 namespace boost { namespace date_time {
@@ -32,7 +33,7 @@ namespace boost { namespace date_time {
    * where the date format is controlled by the date facet
    */
   template<class date_type, typename CharT>
-  class period_parser { 
+  class period_parser {
   public:
     typedef std::basic_string<CharT> string_type;
     typedef CharT                    char_type;
@@ -41,7 +42,7 @@ namespace boost { namespace date_time {
     typedef string_parse_tree<CharT> parse_tree_type;
     typedef typename parse_tree_type::parse_match_result_type match_results;
     typedef std::vector<std::basic_string<CharT> > collection_type;
-    
+
     static const char_type default_period_separator[2];
     static const char_type default_period_start_delimeter[2];
     static const char_type default_period_open_range_end_delimeter[2];
@@ -50,12 +51,12 @@ namespace boost { namespace date_time {
     enum period_range_option { AS_OPEN_RANGE, AS_CLOSED_RANGE };
 
     //! Constructor that sets up period parser options
-    period_parser(period_range_option range_option = AS_CLOSED_RANGE, 
-                  const char_type* const period_separator = default_period_separator, 
+    period_parser(period_range_option range_opt = AS_CLOSED_RANGE,
+                  const char_type* const period_separator = default_period_separator,
                   const char_type* const period_start_delimeter = default_period_start_delimeter,
                   const char_type* const period_open_range_end_delimeter = default_period_open_range_end_delimeter,
                   const char_type* const period_closed_range_end_delimeter = default_period_closed_range_end_delimeter)
-      : m_range_option(range_option)
+      : m_range_option(range_opt)
     {
       delimiters.push_back(string_type(period_separator));
       delimiters.push_back(string_type(period_start_delimeter));
@@ -119,13 +120,13 @@ namespace boost { namespace date_time {
     period_type get_period(stream_itr_type& sitr, 
                            stream_itr_type& stream_end,
                            std::ios_base& a_ios, 
-                           const period_type& p,
+                           const period_type& /* p */,
                            const duration_type& dur_unit,
                            const facet_type& facet) const 
     {
       // skip leading whitespace
       while(std::isspace(*sitr) && sitr != stream_end) { ++sitr; } 
-     
+
       typedef typename period_type::point_type point_type;
       point_type p1(not_a_date_time), p2(not_a_date_time);
 
@@ -144,14 +145,14 @@ namespace boost { namespace date_time {
       else {
         consume_delim(sitr, stream_end, delimiters[OPEN_END]);  // end delim
       }
-    
+
       return period_type(p1, p2);
     }
-      
+
   private:
     collection_type delimiters; 
-    period_range_option m_range_option;    
-    
+    period_range_option m_range_option;
+
     enum delim_ids { SEPARATOR, START, OPEN_END, CLOSED_END };
 
     //! throws ios_base::failure if delimiter and parsed data do not match
@@ -170,7 +171,8 @@ namespace boost { namespace date_time {
         ++sitr;
       }
       if(s != delim) {
-        throw std::ios_base::failure("Parse failed. Expected '" + convert_string_type<char_type,char>(delim) + "' but found '" + convert_string_type<char_type,char>(s) + "'");
+        boost::throw_exception(std::ios_base::failure("Parse failed. Expected '"
+          + convert_string_type<char_type,char>(delim) + "' but found '" + convert_string_type<char_type,char>(s) + "'"));
       }
     }
   };

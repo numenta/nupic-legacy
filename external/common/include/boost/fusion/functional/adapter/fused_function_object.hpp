@@ -10,9 +10,15 @@
 #define BOOST_FUSION_FUNCTIONAL_ADAPTER_FUSED_FUNCTION_OBJECT_HPP_INCLUDED
 
 #include <boost/type_traits/add_reference.hpp>
+#include <boost/config.hpp>
 
 #include <boost/fusion/functional/adapter/detail/access.hpp>
 #include <boost/fusion/functional/invocation/invoke_function_object.hpp>
+
+#if defined (BOOST_MSVC)
+#  pragma warning(push)
+#  pragma warning (disable: 4512) // assignment operator could not be generated.
+#endif
 
 namespace boost { namespace fusion
 {
@@ -85,6 +91,10 @@ namespace boost { namespace fusion
     };
 
 }}
+
+#if defined (BOOST_MSVC)
+#  pragma warning(pop)
+#endif
 
 #endif
 

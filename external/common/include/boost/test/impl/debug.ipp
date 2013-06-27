@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : debug interfaces implementation
 // ***************************************************************************
@@ -23,7 +23,7 @@
 #include <boost/test/debug.hpp>
 #include <boost/test/debug_config.hpp>
 
-// Implementation in windows
+// Implementation on Windows
 #if defined(_WIN32) && !defined(UNDER_CE) && !defined(BOOST_DISABLE_WIN32) // ******* WIN32
 
 #  define BOOST_WIN32_BASED_DEBUG
@@ -653,7 +653,7 @@ under_debugger()
         if( dbg_list.find( pi.binary_name() ) != const_string::npos )
             return true;
 
-        pid = pi.parent_pid();
+        pid = (pi.parent_pid() == pid ? 0 : pi.parent_pid());
     }
 
     return false;
@@ -834,8 +834,8 @@ attach_debugger( bool break_or_continue )
     bool created = !!::CreateProcessA(
         NULL,           // pointer to name of executable module; NULL - use the one in command line
         cmd_line,       // pointer to command line string
-        NULL,           // pointer to process security attributes; NULL - debugger's handle couldn't be inherited
-        NULL,           // pointer to thread security attributes; NULL - debugger's handle couldn't be inherited
+        NULL,           // pointer to process security attributes; NULL - debugger's handle can't be inherited
+        NULL,           // pointer to thread security attributes; NULL - debugger's handle can't be inherited
         true,           // debugger inherit opened handles
         0,              // priority flags; 0 - normal priority
         NULL,           // pointer to new environment block; NULL - use this process environment

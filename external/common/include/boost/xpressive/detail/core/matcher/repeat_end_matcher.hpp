@@ -33,8 +33,8 @@ namespace boost { namespace xpressive { namespace detail
         unsigned int min_, max_;
         mutable void const *back_;
 
-        repeat_end_matcher(int mark_number, unsigned int min, unsigned int max)
-          : mark_number_(mark_number)
+        repeat_end_matcher(int mark_nbr, unsigned int min, unsigned int max)
+          : mark_number_(mark_nbr)
           , min_(min)
           , max_(max)
           , back_(0)

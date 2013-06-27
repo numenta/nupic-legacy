@@ -19,8 +19,13 @@
 
 #include <boost/config.hpp>  // for BOOST_NESTED_TEMPLATE, etc.
 #include <boost/limits.hpp>  // for std::numeric_limits
+#include <climits>           // for CHAR_MIN
 #include <boost/detail/workaround.hpp>
 
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4127 4244)  // Conditional expression is constant
+#endif
 
 namespace boost
 {
@@ -78,8 +83,8 @@ namespace detail
     RingType
     gcd_euclidean
     (
-        RingType  a,
-        RingType  b
+        RingType a,
+        RingType b
     )
     {
         // Avoid repeated construction
@@ -116,7 +121,7 @@ namespace detail
         IntegerType const  zero = static_cast<IntegerType>( 0 );
         IntegerType const  result = gcd_euclidean( a, b );
 
-        return ( result < zero ) ? -result : result;
+        return ( result < zero ) ? static_cast<IntegerType>(-result) : result;
     }
 
     // Greatest common divisor for unsigned binary integers
@@ -212,7 +217,7 @@ namespace detail
         IntegerType const  zero = static_cast<IntegerType>( 0 );
         IntegerType const  result = lcm_euclidean( a, b );
 
-        return ( result < zero ) ? -result : result;
+        return ( result < zero ) ? static_cast<IntegerType>(-result) : result;
     }
 
     // Function objects to find the best way of computing GCD or LCM
@@ -312,6 +317,10 @@ namespace detail
     BOOST_PRIVATE_GCD_UF( unsigned __int64 );
 #endif
 
+#if CHAR_MIN == 0
+    BOOST_PRIVATE_GCD_UF( char ); // char is unsigned
+#endif
+
 #undef BOOST_PRIVATE_GCD_UF
 
 #define BOOST_PRIVATE_GCD_SF( St, Ut )                            \
@@ -326,7 +335,9 @@ namespace detail
     BOOST_PRIVATE_GCD_SF( int, unsigned );
     BOOST_PRIVATE_GCD_SF( long, unsigned long );
 
-    BOOST_PRIVATE_GCD_SF( char, unsigned char ); // should work even if unsigned
+#if CHAR_MIN < 0
+    BOOST_PRIVATE_GCD_SF( char, unsigned char ); // char is signed
+#endif
 
 #ifdef BOOST_HAS_LONG_LONG
     BOOST_PRIVATE_GCD_SF( boost::long_long_type, boost::ulong_long_type );
@@ -512,5 +523,8 @@ lcm
 }  // namespace math
 }  // namespace boost
 
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #endif  // BOOST_MATH_COMMON_FACTOR_RT_HPP

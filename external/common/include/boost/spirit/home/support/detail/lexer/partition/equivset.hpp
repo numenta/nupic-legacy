@@ -1,5 +1,5 @@
 // equivset.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -61,20 +61,10 @@ struct equivset
 
         if (!overlap_._index_vector.empty ())
         {
-            overlap_._id = _id;
-
-            // LHS abstemious transitions have priority.
-            if (_greedy < rhs_._greedy)
-            {
-                overlap_._greedy = _greedy;
-            }
-            else
-            {
-                overlap_._greedy = _greedy;
-            }
-
             // Note that the LHS takes priority in order to
             // respect rule ordering priority in the lex spec.
+            overlap_._id = _id;
+            overlap_._greedy = _greedy;
             overlap_._followpos = _followpos;
 
             node_vector::const_iterator overlap_begin_ =

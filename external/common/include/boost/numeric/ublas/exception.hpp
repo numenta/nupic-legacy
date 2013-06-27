@@ -26,10 +26,13 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
+    /** \brief Exception raised when a division by zero occurs
+     */
     struct divide_by_zero
 #if ! defined (BOOST_NO_EXCEPTIONS) && ! defined (BOOST_UBLAS_NO_EXCEPTIONS)
         // Inherit from standard exceptions as requested during review.
-        : public std::runtime_error {
+        : public std::runtime_error 
+	{
         explicit divide_by_zero (const char *s = "divide by zero") :
             std::runtime_error (s) {}
         void raise () {
@@ -47,6 +50,8 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
     };
 
+    /** \brief Expception raised when some interal errors occurs like computations errors, zeros values where you should not have zeros, etc...
+     */
     struct internal_logic
 #if ! defined (BOOST_NO_EXCEPTIONS) && ! defined (BOOST_UBLAS_NO_EXCEPTIONS)
         // Inherit from standard exceptions as requested during review.
@@ -113,6 +118,8 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
     };
 
+    /**
+     */
     struct bad_size
 #if ! defined (BOOST_NO_EXCEPTIONS) && ! defined (BOOST_UBLAS_NO_EXCEPTIONS)
         // Inherit from standard exceptions as requested during review.

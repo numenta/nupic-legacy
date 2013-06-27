@@ -1,7 +1,7 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(FUSION_ITERATOR_FACADE_09252006_1011)
@@ -9,6 +9,7 @@
 
 #include <boost/fusion/support/iterator_base.hpp>
 #include <boost/fusion/iterator/detail/advance.hpp>
+#include <boost/fusion/iterator/detail/distance.hpp>
 #include <boost/fusion/support/category_of.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/assert.hpp>
@@ -44,6 +45,12 @@ namespace boost { namespace fusion
         {
             BOOST_MPL_ASSERT_NOT((traits::is_random_access<Iterator>));
         };
+
+        // default implementation
+        template <typename First, typename Last>
+        struct distance :
+            distance_detail::linear_distance<First, Last>
+        {};
     };
 }}
 

@@ -106,10 +106,23 @@ namespace boost { namespace fusion
         template <typename Function, class Sequence>
         struct invoke_procedure_impl<Function,Sequence,N,false,true>
         {
+
+#if N > 0
+
             static inline void call(Function & f, Sequence & s)
             {
                 f(BOOST_PP_ENUM(N,M,~));
             }
+
+#else
+
+            static inline void call(Function & f, Sequence & /*s*/)
+            {
+                f();
+            }
+
+#endif
+
         };
 
 #if N > 0
@@ -135,15 +148,25 @@ namespace boost { namespace fusion
         template <typename Function, class Sequence>
         struct invoke_procedure_impl<Function,Sequence,N,false,false>
         {
+
+#if N > 0
+
             static inline void call(Function & f, Sequence & s)
             {
-#if N > 0
                 typedef typename result_of::begin<Sequence>::type I0;
                 I0 i0 = fusion::begin(s);
                 BOOST_PP_REPEAT_FROM_TO(1,N,M,~)
-#endif
                 f( BOOST_PP_ENUM_PARAMS(N,*i) );
             }
+
+#else
+            static inline void call(Function & f, Sequence & /*s*/)
+            {
+                f();
+            }
+
+#endif
+
         };
 
 #if N > 0

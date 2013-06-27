@@ -1,91 +1,116 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(BOOST_SPIRIT_CHAR_CLASS_APR_16_2006_1051AM)
-#define BOOST_SPIRIT_CHAR_CLASS_APR_16_2006_1051AM
+#if !defined(BOOST_SPIRIT_CHAR_CLASS_APRIL_16_2006_1051AM)
+#define BOOST_SPIRIT_CHAR_CLASS_APRIL_16_2006_1051AM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/spirit/home/qi/char/char_parser.hpp>
 #include <boost/spirit/home/qi/domain.hpp>
-#include <boost/spirit/home/support/modifier.hpp>
-#include <boost/spirit/home/support/iso8859_1.hpp>
-#include <boost/spirit/home/support/ascii.hpp>
-#include <boost/spirit/home/support/standard.hpp>
-#include <boost/spirit/home/support/standard_wide.hpp>
-#include <boost/fusion/include/cons.hpp>
+#include <boost/spirit/home/support/char_class.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/modify.hpp>
+#include <boost/spirit/home/support/detail/get_encoding.hpp>
+#include <boost/mpl/eval_if.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    // enables alnum, alpha, graph, etc.
+    template <typename CharClass, typename CharEncoding>
+    struct use_terminal<qi::domain, tag::char_code<CharClass, CharEncoding> >
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
+    // hoist the char classification namespaces into qi sub-namespaces of the
+    // same name
+    namespace ascii { using namespace boost::spirit::ascii; }
+    namespace iso8859_1 { using namespace boost::spirit::iso8859_1; }
+    namespace standard { using namespace boost::spirit::standard; }
+    namespace standard_wide { using namespace boost::spirit::standard_wide; }
+#if defined(BOOST_SPIRIT_UNICODE)
+    namespace unicode { using namespace boost::spirit::unicode; }
+#endif
+
+    // Import the standard namespace into the qi namespace. This allows
+    // for default handling of all character/string related operations if not
+    // prefixed with a character set namespace.
+    using namespace boost::spirit::standard;
+
+    // Import encoding
+    using spirit::encoding;
+
     ///////////////////////////////////////////////////////////////////////////
-    // generic isxxx parser (for alnum, alpha, graph, etc.)
+    // Generic char classification parser (for alnum, alpha, graph, etc.)
     ///////////////////////////////////////////////////////////////////////////
     template <typename Tag>
     struct char_class
-      : char_parser<char_class<Tag>, typename Tag::char_set::char_type>
+      : char_parser<char_class<Tag>, typename Tag::char_encoding::char_type>
     {
-        typedef typename Tag::char_set char_set;
-        typedef typename Tag::char_class char_class_;
+        typedef typename Tag::char_encoding char_encoding;
+        typedef typename Tag::char_class classification;
 
-        template <typename Component, typename CharParam, typename Context>
-        static bool test(Component const&, CharParam ch, Context&)
+        template <typename CharParam, typename Context>
+        bool test(CharParam ch, Context&) const
         {
             using spirit::char_class::classify;
-            return classify<char_set>::is(char_class_(), ch);
+            return traits::ischar<CharParam, char_encoding>::call(ch) &&
+                   classify<char_encoding>::is(classification(), ch);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& /*context*/) const
         {
-            typedef spirit::char_class::what<char_set> what_;
-            return what_::is(char_class_());
+            typedef spirit::char_class::what<char_encoding> what_;
+            return info(what_::is(classification()));
         }
     };
-}}}
 
-namespace boost { namespace spirit { namespace traits
-{
-    ///////////////////////////////////////////////////////////////////////////
-    // no_case char_class conversions
-    ///////////////////////////////////////////////////////////////////////////
     namespace detail
     {
-        using spirit::char_class::key;
-        using spirit::char_class::lower_case_tag;
-        using spirit::char_class::upper_case_tag;
-        using spirit::char_class::tag::alpha;
+        template <typename Tag, bool no_case = false>
+        struct make_char_class : mpl::identity<Tag> {};
 
-        template <typename Tag>
-        struct make_no_case_char_class :
-            mpl::identity<qi::char_class<Tag> > {};
+        template <>
+        struct make_char_class<tag::lower, true> : mpl::identity<tag::alpha> {};
 
-        template <typename CharSet>
-        struct make_no_case_char_class<lower_case_tag<CharSet> >
-          : mpl::identity<qi::char_class<key<CharSet, alpha> > > {};
-
-        template <typename CharSet>
-        struct make_no_case_char_class<upper_case_tag<CharSet> >
-          : mpl::identity<qi::char_class<key<CharSet, alpha> > > {};
+        template <>
+        struct make_char_class<tag::upper, true> : mpl::identity<tag::alpha> {};
     }
 
-    template <
-        typename Domain, typename Elements, typename Modifier, typename Tag
-    >
-    struct make_modified_component<
-        Domain, qi::char_class<Tag>, Elements, Modifier
-      , typename enable_if<
-            is_member_of_modifier<Modifier, spirit::char_class::no_case_base_tag>
-        >::type
-    >
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename CharClass, typename CharEncoding, typename Modifiers>
+    struct make_primitive<tag::char_code<CharClass, CharEncoding>, Modifiers>
     {
-        typedef typename detail::make_no_case_char_class<Tag>::type director;
-        typedef component<qi::domain, director, fusion::nil> type;
+        static bool const no_case =
+            has_modifier<Modifiers, tag::char_code_base<tag::no_case> >::value;
 
-        static type
-        call(Elements const&)
+        typedef typename
+            spirit::detail::get_encoding<Modifiers, CharEncoding>::type
+        char_encoding;
+
+        typedef tag::char_code<
+            typename detail::make_char_class<CharClass, no_case>::type
+          , char_encoding>
+        tag;
+
+        typedef char_class<tag> result_type;
+        result_type operator()(unused_type, unused_type) const
         {
-            return type(fusion::nil());
+            return result_type();
         }
     };
 }}}

@@ -55,14 +55,25 @@ namespace boost
         return true;
       }
       template <class RealType, class Policy>
-      inline bool check_dist(const char* function, const RealType& p, RealType* result, const Policy& /* pol */)
+      inline bool check_dist(const char* function, const RealType& p, RealType* result, const Policy& /* pol */, const mpl::true_&)
       {
         return check_success_fraction(function, p, result, Policy());
       }
       template <class RealType, class Policy>
+      inline bool check_dist(const char* , const RealType& , RealType* , const Policy& /* pol */, const mpl::false_&)
+      {
+         return true;
+      }
+      template <class RealType, class Policy>
+      inline bool check_dist(const char* function, const RealType& p, RealType* result, const Policy& /* pol */)
+      {
+         return check_dist(function, p, result, Policy(), typename policies::constructor_error_check<Policy>::type());
+      }
+
+      template <class RealType, class Policy>
       inline bool check_dist_and_k(const char* function, const RealType& p, RealType k, RealType* result, const Policy& pol)
       {
-        if(check_dist(function, p, result, Policy()) == false)
+        if(check_dist(function, p, result, Policy(), typename policies::method_error_check<Policy>::type()) == false)
         {
           return false;
         }
@@ -78,7 +89,7 @@ namespace boost
       template <class RealType, class Policy>
       inline bool check_dist_and_prob(const char* function, RealType p, RealType prob, RealType* result, const Policy& /* pol */)
       {
-        if(check_dist(function, p, result, Policy()) && detail::check_probability(function, prob, result, Policy()) == false)
+        if(check_dist(function, p, result, Policy(), typename policies::method_error_check<Policy>::type()) && detail::check_probability(function, prob, result, Policy()) == false)
         {
           return false;
         }
@@ -119,14 +130,14 @@ namespace boost
     inline const std::pair<RealType, RealType> range(const bernoulli_distribution<RealType, Policy>& /* dist */)
     { // Range of permissible values for random variable k = {0, 1}.
       using boost::math::tools::max_value;
-      return std::pair<RealType, RealType>(0, 1);
+      return std::pair<RealType, RealType>(static_cast<RealType>(0), static_cast<RealType>(1));
     }
 
     template <class RealType, class Policy>
     inline const std::pair<RealType, RealType> support(const bernoulli_distribution<RealType, Policy>& /* dist */)
     { // Range of supported values for random variable k = {0, 1}.
       // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
-      return std::pair<RealType, RealType>(0, 1);
+      return std::pair<RealType, RealType>(static_cast<RealType>(0), static_cast<RealType>(1));
     }
 
     template <class RealType, class Policy>
@@ -153,7 +164,7 @@ namespace boost
     { // Probability Density/Mass Function.
       BOOST_FPU_EXCEPTION_GUARD
       // Error check:
-      RealType result; // of checks.
+      RealType result = 0; // of checks.
       if(false == bernoulli_detail::check_dist_and_k(
         "boost::math::pdf(bernoulli_distribution<%1%>, %1%)",
         dist.success_fraction(), // 0 to 1
@@ -178,7 +189,7 @@ namespace boost
     { // Cumulative Distribution Function Bernoulli.
       RealType p = dist.success_fraction();
       // Error check:
-      RealType result;
+      RealType result = 0;
       if(false == bernoulli_detail::check_dist_and_k(
         "boost::math::cdf(bernoulli_distribution<%1%>, %1%)",
         p,
@@ -204,7 +215,7 @@ namespace boost
       bernoulli_distribution<RealType, Policy> const& dist = c.dist;
       RealType p = dist.success_fraction();
       // Error checks:
-      RealType result;
+      RealType result = 0;
       if(false == bernoulli_detail::check_dist_and_k(
         "boost::math::cdf(bernoulli_distribution<%1%>, %1%)",
         p,
@@ -229,7 +240,7 @@ namespace boost
       // Return the number of expected successes k either 0 or 1.
       // for a given probability p.
 
-      RealType result; // of error checks:
+      RealType result = 0; // of error checks:
       if(false == bernoulli_detail::check_dist_and_prob(
         "boost::math::quantile(bernoulli_distribution<%1%>, %1%)",
         dist.success_fraction(),
@@ -257,7 +268,7 @@ namespace boost
       // Error checks:
       RealType q = c.param;
       const bernoulli_distribution<RealType, Policy>& dist = c.dist;
-      RealType result;
+      RealType result = 0;
       if(false == bernoulli_detail::check_dist_and_prob(
         "boost::math::quantile(bernoulli_distribution<%1%>, %1%)",
         dist.success_fraction(),

@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -55,10 +55,10 @@ namespace boost { namespace fusion
         typedef Sequence2 sequence2_type;
         typedef F transform_type;
 
-        transform_view(Sequence1& seq1, Sequence2& seq2, F const& binop)
+        transform_view(Sequence1& in_seq1, Sequence2& in_seq2, F const& binop)
             : f(binop)
-            , seq1(seq1)
-            , seq2(seq2)
+            , seq1(in_seq1)
+            , seq2(in_seq2)
         {}
 
         first1_type first1() const { return fusion::begin(seq1); }
@@ -69,6 +69,10 @@ namespace boost { namespace fusion
         transform_type f;
         typename mpl::if_<traits::is_view<Sequence1>, Sequence1, Sequence1&>::type seq1;
         typename mpl::if_<traits::is_view<Sequence2>, Sequence2, Sequence2&>::type seq2;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        transform_view& operator= (transform_view const&);
     };
 
     // Unary Version
@@ -90,15 +94,19 @@ namespace boost { namespace fusion
         typedef Sequence sequence_type;
         typedef F transform_type;
 
-        transform_view(Sequence& seq, F const& f)
-            : seq(seq)
-            , f(f)
+        transform_view(Sequence& in_seq, F const& in_f)
+            : seq(in_seq)
+            , f(in_f)
         {}
 
         first_type first() const { return fusion::begin(seq); }
         last_type last() const { return fusion::end(seq); }
         typename mpl::if_<traits::is_view<Sequence>, Sequence, Sequence&>::type seq;
         transform_type f;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        transform_view& operator= (transform_view const&);
     };
 }}
 

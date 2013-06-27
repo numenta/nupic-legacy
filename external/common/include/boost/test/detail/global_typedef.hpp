@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : some trivial global typedefs
 // ***************************************************************************
@@ -32,11 +32,11 @@ typedef unsigned long   counter_t;
 
 //____________________________________________________________________________//
 
-enum report_level  { CONFIRMATION_REPORT, SHORT_REPORT, DETAILED_REPORT, NO_REPORT, INV_REPORT_LEVEL };
+enum report_level  { INV_REPORT_LEVEL, CONFIRMATION_REPORT, SHORT_REPORT, DETAILED_REPORT, NO_REPORT };
 
 //____________________________________________________________________________//
 
-enum output_format { CLF /* compiler log format */, XML /* XML */ };
+enum output_format { INV_OF, CLF /* compiler log format */, XML /* XML */ };
 
 //____________________________________________________________________________//
 
@@ -45,6 +45,7 @@ enum test_unit_type { tut_case = 0x01, tut_suite = 0x10, tut_any = 0x11 };
 //____________________________________________________________________________//
 
 typedef unsigned long   test_unit_id;
+
 const test_unit_id INV_TEST_UNIT_ID  = 0xFFFFFFFF;
 const test_unit_id MAX_TEST_CASE_ID  = 0xFFFFFFFE;
 const test_unit_id MIN_TEST_CASE_ID  = 0x00010000;
@@ -53,6 +54,8 @@ const test_unit_id MIN_TEST_SUITE_ID = 0x00000001;
 
 //____________________________________________________________________________//
 
+namespace ut_detail {
+
 inline test_unit_type
 test_id_2_unit_type( test_unit_id id )
 {
@@ -60,6 +63,19 @@ test_id_2_unit_type( test_unit_id id )
 }
 
 //____________________________________________________________________________//
+
+// helper templates to prevent ODR violations 
+template<class T> 
+struct static_constant { 
+    static T value; 
+}; 
+
+template<class T> 
+T static_constant<T>::value; 
+
+//____________________________________________________________________________// 
+
+} // namespace ut_detail
 
 } // namespace unit_test
 

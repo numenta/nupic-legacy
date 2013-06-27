@@ -23,11 +23,13 @@
 #define BOOST_GRAPH_JOHNSON_HPP
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
+#include <boost/property_map/shared_array_property_map.hpp>
 #include <boost/graph/bellman_ford_shortest_paths.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/type_traits/same_traits.hpp>
+#include <boost/concept/assert.hpp>
 
 namespace boost {
 
@@ -43,8 +45,8 @@ namespace boost {
   {
     typedef graph_traits<VertexAndEdgeListGraph> Traits1;
     typedef typename property_traits<Weight>::value_type DT;
-    function_requires< BasicMatrixConcept<DistanceMatrix,
-      typename Traits1::vertices_size_type, DT> >();
+    BOOST_CONCEPT_ASSERT(( BasicMatrixConcept<DistanceMatrix,
+      typename Traits1::vertices_size_type, DT> ));
 
     typedef typename Traits1::directed_category DirCat;
     bool is_undirected = is_same<DirCat, undirected_tag>::value;
@@ -73,33 +75,31 @@ namespace boost {
     {
       typename Traits1::vertex_iterator v, v_end;
       int i = 1;
-      for (tie(v, v_end) = vertices(g1); v != v_end; ++v, ++i) {
+      for (boost::tie(v, v_end) = vertices(g1); v != v_end; ++v, ++i) {
         typename Traits2::edge_descriptor e; bool z;
-        tie(e, z) = add_edge(s, get(id1, *v) + 1, g2);
+        boost::tie(e, z) = add_edge(s, get(id1, *v) + 1, g2);
         put(w, e, zero);
         verts1[i] = *v;
       }
       typename Traits1::edge_iterator e, e_end;
-      for (tie(e, e_end) = edges(g1); e != e_end; ++e) {
+      for (boost::tie(e, e_end) = edges(g1); e != e_end; ++e) {
         typename Traits2::edge_descriptor e2; bool z;
-        tie(e2, z) = add_edge(get(id1, source(*e, g1)) + 1, 
-                              get(id1, target(*e, g1)) + 1, g2);
+        boost::tie(e2, z) = add_edge(get(id1, source(*e, g1)) + 1, 
+                                     get(id1, target(*e, g1)) + 1, g2);
         put(w, e2, get(w1, *e));
         if (is_undirected) {
-          tie(e2, z) = add_edge(get(id1, target(*e, g1)) + 1, 
-                                get(id1, source(*e, g1)) + 1, g2);
+          boost::tie(e2, z) = add_edge(get(id1, target(*e, g1)) + 1, 
+                                       get(id1, source(*e, g1)) + 1, g2);
           put(w, e2, get(w1, *e));
         }
       }
     }
     typename Traits2::vertex_iterator v, v_end, u, u_end;
     typename Traits2::edge_iterator e, e_end;
-    std::vector<DT> h_vec(num_vertices(g2));
-    typedef typename std::vector<DT>::iterator iter_t;
-    iterator_property_map<iter_t,VertexID2,DT,DT&> h(h_vec.begin(), id2);
+    shared_array_property_map<DT,VertexID2> h(num_vertices(g2), id2);
 
-    for (tie(v, v_end) = vertices(g2); v != v_end; ++v)
-      d[*v] = inf;
+    for (boost::tie(v, v_end) = vertices(g2); v != v_end; ++v)
+      put(d, *v, inf);
 
     put(d, s, zero);
     // Using the non-named parameter versions of bellman_ford and
@@ -107,23 +107,21 @@ namespace boost {
     dummy_property_map pred; bellman_visitor<> bvis;
     if (bellman_ford_shortest_paths
         (g2, num_vertices(g2), w, pred, d, combine, compare, bvis)) {
-      for (tie(v, v_end) = vertices(g2); v != v_end; ++v)
+      for (boost::tie(v, v_end) = vertices(g2); v != v_end; ++v)
         put(h, *v, get(d, *v));
       // Reweight the edges to remove negatives
-      for (tie(e, e_end) = edges(g2); e != e_end; ++e) {
+      for (boost::tie(e, e_end) = edges(g2); e != e_end; ++e) {
         typename Traits2::vertex_descriptor a = source(*e, g2),
           b = target(*e, g2);
-        put(w_hat, *e, get(w, *e) + get(h, a) - get(h, b));
+        put(w_hat, *e, combine(get(w, *e), (get(h, a) - get(h, b))));
       }
-      for (tie(u, u_end) = vertices(g2); u != u_end; ++u) {
+      for (boost::tie(u, u_end) = vertices(g2); u != u_end; ++u) {
         dijkstra_visitor<> dvis;
         dijkstra_shortest_paths
           (g2, *u, pred, d, w_hat, id2, compare, combine, inf, zero,dvis);
-        for (tie(v, v_end) = vertices(g2); v != v_end; ++v) {
+        for (boost::tie(v, v_end) = vertices(g2); v != v_end; ++v) {
           if (*u != s && *v != s) {
-            typename Traits1::vertex_descriptor u1, v1;
-            u1 = verts1[id2[*u]]; v1 = verts1[id2[*v]];
-            D[id2[*u]-1][id2[*v]-1] = get(d, *v) + get(h, *v) - get(h, *u);
+            D[get(id2, *u)-1][get(id2, *v)-1] = combine(get(d, *v), (get(h, *v) - get(h, *u)));
           }
         }
       }

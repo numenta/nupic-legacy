@@ -60,7 +60,9 @@ inline
 object_operators<U>::operator bool_type() const
 {
     object_cref2 x = *static_cast<U const*>(this);
-    return PyObject_IsTrue(x.ptr()) ? &object::ptr : 0;
+    int is_true = PyObject_IsTrue(x.ptr());
+    if (is_true < 0) throw_error_already_set();
+    return is_true ? &object::ptr : 0;
 }
 
 template <class U>
@@ -68,7 +70,9 @@ inline bool
 object_operators<U>::operator!() const
 {
     object_cref2 x = *static_cast<U const*>(this);
-    return !PyObject_IsTrue(x.ptr());
+    int is_true = PyObject_IsTrue(x.ptr());
+    if (is_true < 0) throw_error_already_set();
+    return !is_true;
 }
 
 # define BOOST_PYTHON_COMPARE_OP(op, opid)                              \

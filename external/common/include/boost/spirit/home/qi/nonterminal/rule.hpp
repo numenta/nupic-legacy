@@ -1,21 +1,42 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(BOOST_SPIRIT_RULE_FEB_12_2007_1020AM)
-#define BOOST_SPIRIT_RULE_FEB_12_2007_1020AM
+#if !defined(BOOST_SPIRIT_RULE_FEBRUARY_12_2007_1020AM)
+#define BOOST_SPIRIT_RULE_FEBRUARY_12_2007_1020AM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <boost/assert.hpp>
+#include <boost/config.hpp>
+#include <boost/function.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/is_same.hpp>
+
+#include <boost/fusion/include/vector.hpp>
+#include <boost/fusion/include/size.hpp>
+#include <boost/fusion/include/make_vector.hpp>
+#include <boost/fusion/include/cons.hpp>
+#include <boost/fusion/include/as_list.hpp>
+#include <boost/fusion/include/as_vector.hpp>
 
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/qi/nonterminal/nonterminal.hpp>
-#include <boost/spirit/home/qi/nonterminal/grammar_fwd.hpp>
-#include <boost/spirit/home/qi/nonterminal/detail/rule.hpp>
-#include <boost/spirit/home/qi/nonterminal/detail/error_handler.hpp>
-#include <boost/spirit/home/qi/domain.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/is_convertible.hpp>
+#include <boost/spirit/home/support/argument.hpp>
+#include <boost/spirit/home/support/context.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
+#include <boost/spirit/home/support/nonterminal/extract_param.hpp>
+#include <boost/spirit/home/support/nonterminal/locals.hpp>
+#include <boost/spirit/home/qi/reference.hpp>
+#include <boost/spirit/home/qi/nonterminal/detail/parameterized.hpp>
+#include <boost/spirit/home/qi/nonterminal/detail/parser_binder.hpp>
+#include <boost/spirit/home/qi/nonterminal/nonterminal_fwd.hpp>
+#include <boost/spirit/home/qi/skip_over.hpp>
 
 #if defined(BOOST_MSVC)
 # pragma warning(push)
@@ -24,109 +45,163 @@
 
 namespace boost { namespace spirit { namespace qi
 {
-    namespace detail { struct rule_decorator; }
+    BOOST_PP_REPEAT(SPIRIT_ATTRIBUTES_LIMIT, SPIRIT_USING_ATTRIBUTE, _)
+
+    using spirit::_pass_type;
+    using spirit::_val_type;
+    using spirit::_a_type;
+    using spirit::_b_type;
+    using spirit::_c_type;
+    using spirit::_d_type;
+    using spirit::_e_type;
+    using spirit::_f_type;
+    using spirit::_g_type;
+    using spirit::_h_type;
+    using spirit::_i_type;
+    using spirit::_j_type;
+
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+
+    using spirit::_pass;
+    using spirit::_val;
+    using spirit::_a;
+    using spirit::_b;
+    using spirit::_c;
+    using spirit::_d;
+    using spirit::_e;
+    using spirit::_f;
+    using spirit::_g;
+    using spirit::_h;
+    using spirit::_i;
+    using spirit::_j;
+
+#endif
+
+    using spirit::info;
+    using spirit::locals;
 
     template <
-        typename Iterator
-      , typename T0 = unused_type
-      , typename T1 = unused_type
-      , typename T2 = unused_type
-    >
+        typename Iterator, typename T1, typename T2, typename T3
+      , typename T4>
     struct rule
-      : make_nonterminal<rule<Iterator, T0, T1, T2>, T0, T1, T2>::type
+      : proto::extends<
+            typename proto::terminal<
+                reference<rule<Iterator, T1, T2, T3, T4> const>
+            >::type
+          , rule<Iterator, T1, T2, T3, T4>
+        >
+      , parser<rule<Iterator, T1, T2, T3, T4> >
     {
-        typedef
-            make_nonterminal<rule<Iterator, T0, T1, T2>, T0, T1, T2>
-        make_nonterminal_;
-
-        typedef typename make_nonterminal_::skipper_type skipper_type;
-        typedef typename make_nonterminal_::type base_type;
         typedef Iterator iterator_type;
-        typedef rule<Iterator, T0, T1, T2> self_type;
+        typedef rule<Iterator, T1, T2, T3, T4> this_type;
+        typedef reference<this_type const> reference_;
+        typedef typename proto::terminal<reference_>::type terminal;
+        typedef proto::extends<terminal, this_type> base_type;
+        typedef mpl::vector<T1, T2, T3, T4> template_params;
 
-        typedef
-            virtual_component_base<
-                Iterator
-              , typename base_type::context_type
-              , skipper_type
-            >
-        virtual_component;
+        // The rule's locals_type: a sequence of types to be used as local variables
+        typedef typename
+            spirit::detail::extract_locals<template_params>::type
+        locals_type;
 
-        typedef intrusive_ptr<virtual_component> pointer_type;
+        // The rule's skip-parser type
+        typedef typename
+            spirit::detail::extract_component<
+                qi::domain, template_params>::type
+        skipper_type;
 
-        rule(std::string const& name_ = std::string())
-          : name_(name_) {}
+        // The rule's signature
+        typedef typename
+            spirit::detail::extract_sig<template_params>::type
+        sig_type;
 
-        ~rule() {}
+        // The rule's encoding type
+        typedef typename
+            spirit::detail::extract_encoding<template_params>::type
+        encoding_type;
+
+        // This is the rule's attribute type
+        typedef typename
+            spirit::detail::attr_from_sig<sig_type>::type
+        attr_type;
+        typedef typename add_reference<attr_type>::type attr_reference_type;
+
+        // parameter_types is a sequence of types passed as parameters to the rule
+        typedef typename
+            spirit::detail::params_from_sig<sig_type>::type
+        parameter_types;
+
+        static size_t const params_size =
+            fusion::result_of::size<parameter_types>::type::value;
+
+        typedef context<
+            fusion::cons<attr_reference_type, parameter_types>
+          , locals_type>
+        context_type;
+
+        typedef function<
+            bool(Iterator& first, Iterator const& last
+              , context_type& context
+              , skipper_type const& skipper
+            )>
+        function_type;
+
+        typedef typename
+            mpl::if_<
+                is_same<encoding_type, unused_type>
+              , unused_type
+              , tag::char_code<tag::encoding, encoding_type>
+            >::type
+        encoding_modifier_type;
+
+        explicit rule(std::string const& name_ = "unnamed-rule")
+          : base_type(terminal::make(reference_(*this)))
+          , name_(name_)
+        {
+        }
 
         rule(rule const& rhs)
-          : ptr(rhs.ptr)
+          : base_type(terminal::make(reference_(*this)))
           , name_(rhs.name_)
+          , f(rhs.f)
         {
+        }
+
+        template <typename Auto, typename Expr>
+        static void define(rule& lhs, Expr const& expr, mpl::false_)
+        {
+            // Report invalid expression error as early as possible.
+            // If you got an error_invalid_expression error message here,
+            // then the expression (expr) is not a valid spirit qi expression.
+            BOOST_SPIRIT_ASSERT_MATCH(qi::domain, Expr);
+        }
+
+        template <typename Auto, typename Expr>
+        static void define(rule& lhs, Expr const& expr, mpl::true_)
+        {
+            lhs.f = detail::bind_parser<Auto>(
+                compile<qi::domain>(expr, encoding_modifier_type()));
+        }
+
+        template <typename Expr>
+        rule(Expr const& expr, std::string const& name_ = "unnamed-rule")
+          : base_type(terminal::make(reference_(*this)))
+          , name_(name_)
+        {
+            define<mpl::false_>(*this, expr, traits::matches<qi::domain, Expr>());
         }
 
         rule& operator=(rule const& rhs)
         {
-            ptr = rhs.ptr;
+            // The following assertion fires when you try to initialize a rule
+            // from an uninitialized one. Did you mean to refer to the right
+            // hand side rule instead of assigning from it? In this case you
+            // should write lhs = rhs.alias();
+            BOOST_ASSERT(rhs.f && "Did you mean rhs.alias() instead of rhs?");
+
+            f = rhs.f;
             name_ = rhs.name_;
             return *this;
-        }
-
-        template <typename Expr>
-        rule& operator=(Expr const& xpr)
-        {
-            typedef spirit::traits::is_component<qi::domain, Expr> is_component;
-
-            // report invalid expression error as early as possible
-//             BOOST_MPL_ASSERT_MSG(
-//                 is_component::value,
-//                 xpr_is_not_convertible_to_a_parser, ());
-
-            // temp workaround for mpl problem
-            BOOST_STATIC_ASSERT(is_component::value);
-
-            define(xpr, mpl::false_());
-            return *this;
-        }
-
-        template <typename Expr>
-        friend rule& operator%=(rule& r, Expr const& xpr)
-        {
-            typedef spirit::traits::is_component<qi::domain, Expr> is_component;
-
-            // report invalid expression error as early as possible
-            //~ BOOST_MPL_ASSERT_MSG(
-                //~ is_component::value,
-                //~ xpr_is_not_convertible_to_a_parser, ());
-
-            // temp workaround for mpl problem
-            BOOST_STATIC_ASSERT(is_component::value);
-
-            r.define(xpr, mpl::true_());
-            return r;
-        }
-
-        self_type alias() const
-        {
-            self_type result;
-            result.define(*this, mpl::false_());
-            return result;
-        }
-
-        typename
-            make_nonterminal_holder<
-                nonterminal_object<self_type>
-              , self_type
-            >::type
-        copy() const
-        {
-            typename
-                make_nonterminal_holder<
-                    nonterminal_object<self_type>
-                  , self_type
-                >::type
-            result = {{*this}};
-            return result;
         }
 
         std::string const& name() const
@@ -139,227 +214,222 @@ namespace boost { namespace spirit { namespace qi
             name_ = str;
         }
 
-    private:
-
-        template <typename Iterator_, typename T0_, typename T1_, typename T2_>
-        friend struct grammar;
-
-        friend struct detail::rule_decorator;
-
-        template <typename Expr, typename Auto>
-        void define(Expr const& xpr, Auto)
+        template <typename Expr>
+        rule& operator=(Expr const& expr)
         {
-            typedef typename
-                result_of::as_component<qi::domain, Expr>::type
-            component;
-            typedef
-                detail::virtual_component<
-                    Iterator
-                  , component
-                  , typename base_type::context_type
-                  , skipper_type
-                  , Auto
-                >
-            virtual_component;
-            ptr = new virtual_component(spirit::as_component(qi::domain(), xpr));
+            define<mpl::false_>(*this, expr, traits::matches<qi::domain, Expr>());
+            return *this;
         }
 
-        template <typename Iterator_, typename Context, typename Skipper>
-        bool parse(
-            Iterator_& first, Iterator_ const& last
-          , Context& context, Skipper const& skipper) const
+// VC7.1 has problems to resolve 'rule' without explicit template parameters
+#if !BOOST_WORKAROUND(BOOST_MSVC, < 1400)
+        // g++ 3.3 barfs if this is a member function :(
+        template <typename Expr>
+        friend rule& operator%=(rule& r, Expr const& expr)
         {
-            // If the following line produces a compilation error stating the
-            // 4th parameter is not convertible to the expected type, then you
-            // are probably trying to use this rule instance with a skipper
-            // which is not compatible with the skipper type used while
-            // defining the type of this rule instance.
-            return ptr->parse(first, last, context, skipper);
+            define<mpl::true_>(r, expr, traits::matches<qi::domain, Expr>());
+            return r;
         }
 
-        std::string what() const
+#if defined(BOOST_NO_RVALUE_REFERENCES)
+        // non-const version needed to suppress proto's %= kicking in
+        template <typename Expr>
+        friend rule& operator%=(rule& r, Expr& expr)
         {
-            if (name_.empty())
+            return r %= static_cast<Expr const&>(expr);
+        }
+#else
+        // for rvalue references
+        template <typename Expr>
+        friend rule& operator%=(rule& r, Expr&& expr)
+        {
+            define<mpl::true_>(r, expr, traits::matches<qi::domain, Expr>());
+            return r;
+        }
+#endif
+
+#else
+        // both friend functions have to be defined out of class as VC7.1
+        // will complain otherwise
+        template <typename OutputIterator_, typename T1_, typename T2_
+          , typename T3_, typename T4_, typename Expr>
+        friend rule<OutputIterator_, T1_, T2_, T3_, T4_>& operator%=(
+            rule<OutputIterator_, T1_, T2_, T3_, T4_>& r, Expr const& expr);
+
+        // non-const version needed to suppress proto's %= kicking in
+        template <typename OutputIterator_, typename T1_, typename T2_
+          , typename T3_, typename T4_, typename Expr>
+        friend rule<OutputIterator_, T1_, T2_, T3_, T4_>& operator%=(
+            rule<OutputIterator_, T1_, T2_, T3_, T4_>& r, Expr& expr);
+#endif
+
+        template <typename Context, typename Iterator_>
+        struct attribute
+        {
+            typedef attr_type type;
+        };
+
+        template <typename Context, typename Skipper, typename Attribute>
+        bool parse(Iterator& first, Iterator const& last
+          , Context& /*context*/, Skipper const& skipper
+          , Attribute& attr) const
+        {
+            if (f)
             {
-                if (ptr)
+                // do a preskip if this is an implied lexeme
+                if (is_same<skipper_type, unused_type>::value)
+                    qi::skip_over(first, last, skipper);
+
+                typedef traits::make_attribute<attr_type, Attribute> make_attribute;
+
+                // do down-stream transformation, provides attribute for
+                // rhs parser
+                typedef traits::transform_attribute<
+                    typename make_attribute::type, attr_type, domain>
+                transform;
+
+                typename make_attribute::type made_attr = make_attribute::call(attr);
+                typename transform::type attr_ = transform::pre(made_attr);
+
+                // If you are seeing a compilation error here, you are probably
+                // trying to use a rule or a grammar which has inherited
+                // attributes, without passing values for them.
+                context_type context(attr_);
+
+                // If you are seeing a compilation error here stating that the
+                // fourth parameter can't be converted to a required target type
+                // then you are probably trying to use a rule or a grammar with
+                // an incompatible skipper type.
+                if (f(first, last, context, skipper))
                 {
-                    return "unnamed-rule";
+                    // do up-stream transformation, this integrates the results
+                    // back into the original attribute value, if appropriate
+                    traits::post_transform(attr, attr_);
+                    return true;
                 }
-                else
-                {
-                    return "empty-rule";
-                }
+
+                // inform attribute transformation of failed rhs
+                traits::fail_transform(attr, attr_);
             }
-            else
-            {
-                return name_;
-            }
+            return false;
         }
 
-        friend struct nonterminal_director;
-        pointer_type ptr;
+        template <typename Context, typename Skipper
+          , typename Attribute, typename Params>
+        bool parse(Iterator& first, Iterator const& last
+          , Context& caller_context, Skipper const& skipper
+          , Attribute& attr, Params const& params) const
+        {
+            if (f)
+            {
+                // do a preskip if this is an implied lexeme
+                if (is_same<skipper_type, unused_type>::value)
+                    qi::skip_over(first, last, skipper);
+
+                typedef traits::make_attribute<attr_type, Attribute> make_attribute;
+
+                // do down-stream transformation, provides attribute for
+                // rhs parser
+                typedef traits::transform_attribute<
+                    typename make_attribute::type, attr_type, domain>
+                transform;
+
+                typename make_attribute::type made_attr = make_attribute::call(attr);
+                typename transform::type attr_ = transform::pre(made_attr);
+
+                // If you are seeing a compilation error here, you are probably
+                // trying to use a rule or a grammar which has inherited
+                // attributes, passing values of incompatible types for them.
+                context_type context(attr_, params, caller_context);
+
+                // If you are seeing a compilation error here stating that the
+                // fourth parameter can't be converted to a required target type
+                // then you are probably trying to use a rule or a grammar with
+                // an incompatible skipper type.
+                if (f(first, last, context, skipper))
+                {
+                    // do up-stream transformation, this integrates the results
+                    // back into the original attribute value, if appropriate
+                    traits::post_transform(attr, attr_);
+                    return true;
+                }
+
+                // inform attribute transformation of failed rhs
+                traits::fail_transform(attr, attr_);
+            }
+            return false;
+        }
+
+        template <typename Context>
+        info what(Context& /*context*/) const
+        {
+            return info(name_);
+        }
+
+        reference_ alias() const
+        {
+            return reference_(*this);
+        }
+
+        typename proto::terminal<this_type>::type copy() const
+        {
+            typename proto::terminal<this_type>::type result = {*this};
+            return result;
+        }
+
+        // bring in the operator() overloads
+        rule const& get_parameterized_subject() const { return *this; }
+        typedef rule parameterized_subject_type;
+        #include <boost/spirit/home/qi/nonterminal/detail/fcall.hpp>
+
         std::string name_;
+        function_type f;
     };
 
-    // Decoration support: create a new virtual component and link it as
-    // first element in the chain of virtual components associated with this
-    // rule. Returns the previous topmost virtual component in the chain.
-    // We provide support from 1 to 5 arguments.
-
-    namespace detail
+#if BOOST_WORKAROUND(BOOST_MSVC, < 1400)
+    template <typename OutputIterator_, typename T1_, typename T2_
+      , typename T3_, typename T4_, typename Expr>
+    rule<OutputIterator_, T1_, T2_, T3_, T4_>& operator%=(
+        rule<OutputIterator_, T1_, T2_, T3_, T4_>& r, Expr const& expr)
     {
-        struct rule_decorator
-        {
-            template <typename Decorator, typename Rule, typename A1>
-            typename Rule::pointer_type
-            static call(Rule& r, A1 const& a1)
-            {
-                typename Rule::pointer_type old (r.ptr);
-                r.ptr.reset(new Decorator(r.ptr, a1));
-                return old;
-            }
+        // Report invalid expression error as early as possible.
+        // If you got an error_invalid_expression error message here,
+        // then the expression (expr) is not a valid spirit qi expression.
+        BOOST_SPIRIT_ASSERT_MATCH(qi::domain, Expr);
 
-            template <typename Decorator, typename Rule, typename A1, typename A2>
-            typename Rule::pointer_type
-            static call(Rule& r, A1 const& a1, A2 const& a2)
-            {
-                typename Rule::pointer_type old (r.ptr);
-                r.ptr.reset(new Decorator(r.ptr, a1, a2));
-                return old;
-            }
+        typedef typename
+            rule<OutputIterator_, T1_, T2_, T3_, T4_>::encoding_modifier_type
+        encoding_modifier_type;
 
-            template <typename Decorator, typename Rule
-              , typename A1, typename A2, typename A3
-            >
-            typename Rule::pointer_type
-            static call(Rule& r
-              , A1 const& a1, A2 const& a2, A3 const& a3)
-            {
-                typename Rule::pointer_type old (r.ptr);
-                r.ptr.reset(new Decorator(r.ptr, a1, a2, a3));
-                return old;
-            }
-
-            template <typename Decorator, typename Rule
-              , typename A1, typename A2, typename A3, typename A4
-            >
-            typename Rule::pointer_type
-            static call(Rule& r
-              , A1 const& a1, A2 const& a2
-              , A3 const& a3, A4 const& a4)
-            {
-                typename Rule::pointer_type old (r.ptr);
-                r.ptr.reset(new Decorator(r.ptr, a1, a2, a3, a4));
-                return old;
-            }
-
-            template <typename Decorator, typename Rule
-              , typename A1, typename A2, typename A3, typename A4, typename A5
-            >
-            typename Rule::pointer_type
-            static call(Rule& r
-              , A1 const& a1, A2 const& a2
-              , A3 const& a3, A4 const& a4, A5 const& a5)
-            {
-                typename Rule::pointer_type old (r.ptr);
-                r.ptr.reset(new Decorator(r.ptr, a1, a2, a3, a4, a5));
-                return old;
-            }
-        };
+        r.f = detail::bind_parser<mpl::true_>(
+            compile<qi::domain>(expr, encoding_modifier_type()));
+        return r;
     }
 
-    template <typename Decorator
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename A1>
-    typename rule<Iterator, T0, T1, T2>::pointer_type
-    decorate(rule<Iterator, T0, T1, T2>& r
-      , A1 const& a1)
+    template <typename Iterator_, typename T1_, typename T2_
+      , typename T3_, typename T4_, typename Expr>
+    rule<Iterator_, T1_, T2_, T3_, T4_>& operator%=(
+        rule<Iterator_, T1_, T2_, T3_, T4_>& r, Expr& expr)
     {
-        return detail::rule_decorator::
-            template call<Decorator>(r, a1);
+        return r %= static_cast<Expr const&>(expr);
     }
+#endif
+}}}
 
-    template <typename Decorator
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename A1, typename A2
-    >
-    typename rule<Iterator, T0, T1, T2>::pointer_type
-    decorate(rule<Iterator, T0, T1, T2>& r
-      , A1 const& a1, A2 const& a2)
-    {
-        return detail::rule_decorator::
-            template call<Decorator>(r, a1, a2);
-    }
-
-    template <typename Decorator
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename A1, typename A2, typename A3
-    >
-    typename rule<Iterator, T0, T1, T2>::pointer_type
-    decorate(rule<Iterator, T0, T1, T2>& r
-      , A1 const& a1, A2 const& a2, A3 const& a3)
-    {
-        return detail::rule_decorator::
-            template call<Decorator>(r, a1, a2, a3);
-    }
-
-    template <typename Decorator
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename A1, typename A2, typename A3, typename A4
-    >
-    typename rule<Iterator, T0, T1, T2>::pointer_type
-    decorate(rule<Iterator, T0, T1, T2>& r
-      , A1 const& a1, A2 const& a2
-      , A3 const& a3, A4 const& a4)
-    {
-        return detail::rule_decorator::
-            template call<Decorator>(r, a1, a2, a3, a4);
-    }
-
-    template <typename Decorator
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename A1, typename A2, typename A3, typename A4, typename A5
-    >
-    typename rule<Iterator, T0, T1, T2>::pointer_type
-    decorate(rule<Iterator, T0, T1, T2>& r
-      , A1 const& a1, A2 const& a2
-      , A3 const& a3, A4 const& a4, A5 const& a5)
-    {
-        return detail::rule_decorator::
-            template call<Decorator>(r, a1, a2, a3, a4, a5);
-    }
-
-    // Error handling support
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
     template <
-        error_handler_result action
-      , typename Iterator, typename T0, typename T1, typename T2
-      , typename F>
-    void on_error(rule<Iterator, T0, T1, T2>& r, F f)
-    {
-        typedef
-            rule<Iterator, T0, T1, T2>
-        rule_type;
-
-        typedef
-            detail::error_handler<
-                Iterator
-              , typename rule_type::base_type::context_type
-              , typename rule_type::skipper_type
-              , F
-              , action>
-        error_handler;
-        decorate<error_handler>(r, f);
-    }
-
-    // Error handling support when <action> is not
-    // specified. We will default to <fail>.
-    template <typename Iterator, typename T0, typename T1
-      , typename T2, typename F>
-    void on_error(rule<Iterator, T0, T1, T2>& r, F f)
-    {
-        on_error<fail>(r, f);
-    }
-
+        typename IteratorA, typename IteratorB, typename Attribute
+      , typename Context, typename T1, typename T2, typename T3, typename T4>
+    struct handles_container<
+        qi::rule<IteratorA, T1, T2, T3, T4>, Attribute, Context, IteratorB>
+      : traits::is_container<
+          typename attribute_of<
+              qi::rule<IteratorA, T1, T2, T3, T4>, Context, IteratorB
+          >::type
+        >
+    {};
 }}}
 
 #if defined(BOOST_MSVC)

@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga  2006-2007
+// (C) Copyright Ion Gaztanaga  2006-2012
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -14,6 +14,8 @@
 #define BOOST_INTRUSIVE_DERIVATION_VALUE_TRAITS_HPP
 
 #include <boost/intrusive/link_mode.hpp>
+#include <boost/pointer_cast.hpp>
+#include <boost/pointer_to_other.hpp>
 #include <iterator>
 
 namespace boost {
@@ -33,8 +35,10 @@ struct derivation_value_traits
    typedef typename node_traits::const_node_ptr                      const_node_ptr;
    typedef typename boost::pointer_to_other<node_ptr, T>::type       pointer;
    typedef typename boost::pointer_to_other<node_ptr, const T>::type const_pointer;
-   typedef typename std::iterator_traits<pointer>::reference         reference;
-   typedef typename std::iterator_traits<const_pointer>::reference   const_reference;
+   typedef typename boost::intrusive::
+      pointer_traits<pointer>::reference                             reference;
+   typedef typename boost::intrusive::
+      pointer_traits<const_pointer>::reference                       const_reference;
    static const link_mode_type link_mode = LinkMode;
 
    static node_ptr to_node_ptr(reference value)
@@ -43,14 +47,24 @@ struct derivation_value_traits
    static const_node_ptr to_node_ptr(const_reference value)
    { return node_ptr(&value); }
 
-   static pointer to_value_ptr(node_ptr n) 
-   {  return pointer(static_cast<T*>(detail::get_pointer(n))); }
+   static pointer to_value_ptr(const node_ptr &n)
+   {
+//      This still fails in gcc < 4.4 so forget about it
+//      using ::boost::static_pointer_cast;
+//      return static_pointer_cast<value_type>(n));
+      return pointer(&static_cast<value_type&>(*n));
+   }
 
-   static const_pointer to_value_ptr(const_node_ptr n)
-   {  return const_pointer(static_cast<T*>(detail::get_pointer(n))); }
+   static const_pointer to_value_ptr(const const_node_ptr &n)
+   {
+//      This still fails in gcc < 4.4 so forget about it
+//      using ::boost::static_pointer_cast;
+//      return static_pointer_cast<const value_type>(n));
+      return const_pointer(&static_cast<const value_type&>(*n));
+   }
 };
 
-} //namespace intrusive 
-} //namespace boost 
+} //namespace intrusive
+} //namespace boost
 
 #endif //BOOST_INTRUSIVE_DERIVATION_VALUE_TRAITS_HPP

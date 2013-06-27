@@ -198,6 +198,9 @@ namespace extract
 {
     extractor<tag::abstract_non_coherent_tail_mean> const non_coherent_tail_mean = {};
     extractor<tag::tail_mean> const coherent_tail_mean = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(non_coherent_tail_mean)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(coherent_tail_mean)
 }
 
 using extract::non_coherent_tail_mean;

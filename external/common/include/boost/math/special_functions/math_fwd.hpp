@@ -614,6 +614,54 @@ namespace boost
    template <class T>
    typename detail::bessel_traits<T, T, policies::policy<> >::result_type sph_neumann(unsigned v, T x);
 
+   template <class T1, class T2, class Policy>
+   std::complex<typename detail::bessel_traits<T1, T2, Policy>::result_type> cyl_hankel_1(T1 v, T2 x, const Policy& pol);
+
+   template <class T1, class T2>
+   std::complex<typename detail::bessel_traits<T1, T2, policies::policy<> >::result_type> cyl_hankel_1(T1 v, T2 x);
+
+   template <class T1, class T2, class Policy>
+   std::complex<typename detail::bessel_traits<T1, T2, Policy>::result_type> cyl_hankel_2(T1 v, T2 x, const Policy& pol);
+
+   template <class T1, class T2>
+   std::complex<typename detail::bessel_traits<T1, T2, policies::policy<> >::result_type> cyl_hankel_2(T1 v, T2 x);
+
+   template <class T1, class T2, class Policy>
+   std::complex<typename detail::bessel_traits<T1, T2, Policy>::result_type> sph_hankel_1(T1 v, T2 x, const Policy& pol);
+
+   template <class T1, class T2>
+   std::complex<typename detail::bessel_traits<T1, T2, policies::policy<> >::result_type> sph_hankel_1(T1 v, T2 x);
+
+   template <class T1, class T2, class Policy>
+   std::complex<typename detail::bessel_traits<T1, T2, Policy>::result_type> sph_hankel_2(T1 v, T2 x, const Policy& pol);
+
+   template <class T1, class T2>
+   std::complex<typename detail::bessel_traits<T1, T2, policies::policy<> >::result_type> sph_hankel_2(T1 v, T2 x);
+
+   template <class T, class Policy>
+   typename tools::promote_args<T>::type airy_ai(T x, const Policy&);
+
+   template <class T>
+   typename tools::promote_args<T>::type airy_ai(T x);
+
+   template <class T, class Policy>
+   typename tools::promote_args<T>::type airy_bi(T x, const Policy&);
+
+   template <class T>
+   typename tools::promote_args<T>::type airy_bi(T x);
+
+   template <class T, class Policy>
+   typename tools::promote_args<T>::type airy_ai_prime(T x, const Policy&);
+
+   template <class T>
+   typename tools::promote_args<T>::type airy_ai_prime(T x);
+
+   template <class T, class Policy>
+   typename tools::promote_args<T>::type airy_bi_prime(T x, const Policy&);
+
+   template <class T>
+   typename tools::promote_args<T>::type airy_bi_prime(T x);
+
    template <class T, class Policy>
    typename tools::promote_args<T>::type sin_pi(T x, const Policy&);
 
@@ -640,6 +688,18 @@ namespace boost
 
    template <class T>
    bool isnormal BOOST_NO_MACRO_EXPAND(T t);
+
+   template<class T> 
+   int signbit BOOST_NO_MACRO_EXPAND(T x);
+
+   template <class T>
+   int sign BOOST_NO_MACRO_EXPAND(const T& z);
+
+   template <class T>
+   T copysign BOOST_NO_MACRO_EXPAND(const T& x, const T& y);
+
+   template <class T>
+   T changesign BOOST_NO_MACRO_EXPAND(const T& z);
 
    // Exponential integrals:
    namespace detail{
@@ -668,6 +728,93 @@ namespace boost
    // Zeta:
    template <class T, class Policy>
    typename tools::promote_args<T>::type zeta(T s, const Policy&);
+
+   // Owen's T function:
+   template <class T1, class T2, class Policy>
+   typename tools::promote_args<T1, T2>::type owens_t(T1 h, T2 a, const Policy& pol);
+
+   template <class T1, class T2>
+   typename tools::promote_args<T1, T2>::type owens_t(T1 h, T2 a);
+
+   // Jacobi Functions:
+   template <class T, class Policy>
+   typename tools::promote_args<T>::type jacobi_elliptic(T k, T theta, T* pcn, T* pdn, const Policy&);
+
+   template <class T>
+   typename tools::promote_args<T>::type jacobi_elliptic(T k, T theta, T* pcn = 0, T* pdn = 0);
+
+   template <class U, class T, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_sn(U k, T theta, const Policy& pol);
+
+   template <class U, class T>
+   typename tools::promote_args<T, U>::type jacobi_sn(U k, T theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_cn(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_cn(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_dn(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_dn(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_cd(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_cd(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_dc(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_dc(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_ns(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_ns(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_sd(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_sd(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_ds(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_ds(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_nc(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_nc(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_nd(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_nd(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_sc(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_sc(T k, U theta);
+
+   template <class T, class U, class Policy>
+   typename tools::promote_args<T, U>::type jacobi_cs(T k, U theta, const Policy& pol);
+
+   template <class T, class U>
+   typename tools::promote_args<T, U>::type jacobi_cs(T k, U theta);
+
 
    template <class T>
    typename tools::promote_args<T>::type zeta(T s);
@@ -880,7 +1027,6 @@ namespace boost
    inline typename boost::math::tools::promote_args<RT>::type falling_factorial(RT x, unsigned n){ return boost::math::falling_factorial(x, n, Policy()); }\
    template <class RT>\
    inline typename boost::math::tools::promote_args<RT>::type rising_factorial(RT x, unsigned n){ return boost::math::rising_factorial(x, n, Policy()); }\
-   using boost::math::fpclassify;\
 \
    template <class RT>\
    inline typename boost::math::tools::promote_args<RT>::type tgamma(RT z){ return boost::math::tgamma(z, Policy()); }\
@@ -1003,6 +1149,10 @@ namespace boost
    using boost::math::isinf;\
    using boost::math::isnan;\
    using boost::math::isnormal;\
+   using boost::math::signbit;\
+   using boost::math::sign;\
+   using boost::math::copysign;\
+   using boost::math::changesign;\
    \
    template <class T, class U>\
    inline typename boost::math::tools::promote_args<T,U>::type expint(T const& z, U const& u)\
@@ -1048,6 +1198,98 @@ namespace boost
    template <class T> T float_next(const T& a){ return boost::math::float_next(a, Policy()); }\
    template <class T> T float_prior(const T& a){ return boost::math::float_prior(a, Policy()); }\
    template <class T> T float_distance(const T& a, const T& b){ return boost::math::float_distance(a, b, Policy()); }\
+   \
+   template <class RT1, class RT2>\
+   inline typename boost::math::tools::promote_args<RT1, RT2>::type owens_t(RT1 a, RT2 z){ return boost::math::owens_t(a, z, Policy()); }\
+   \
+   template <class T1, class T2>\
+   inline std::complex<typename boost::math::detail::bessel_traits<T1, T2, Policy >::result_type> cyl_hankel_1(T1 v, T2 x)\
+   {  return boost::math::cyl_hankel_1(v, x, Policy()); }\
+   \
+   template <class T1, class T2>\
+   inline std::complex<typename boost::math::detail::bessel_traits<T1, T2, Policy >::result_type> cyl_hankel_2(T1 v, T2 x)\
+   { return boost::math::cyl_hankel_2(v, x, Policy()); }\
+   \
+   template <class T1, class T2>\
+   inline std::complex<typename boost::math::detail::bessel_traits<T1, T2, Policy >::result_type> sph_hankel_1(T1 v, T2 x)\
+   { return boost::math::sph_hankel_1(v, x, Policy()); }\
+   \
+   template <class T1, class T2>\
+   inline std::complex<typename boost::math::detail::bessel_traits<T1, T2, Policy >::result_type> sph_hankel_2(T1 v, T2 x)\
+   { return boost::math::sph_hankel_2(v, x, Policy()); }\
+   \
+   template <class T>\
+   inline typename boost::math::tools::promote_args<T>::type jacobi_elliptic(T k, T theta, T* pcn, T* pdn)\
+   { return boost::math::jacobi_elliptic(k, theta, pcn, pdn, Policy()); }\
+   \
+   template <class U, class T>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_sn(U k, T theta)\
+   { return boost::math::jacobi_sn(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_cn(T k, U theta)\
+   { return boost::math::jacobi_cn(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_dn(T k, U theta)\
+   { return boost::math::jacobi_dn(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_cd(T k, U theta)\
+   { return boost::math::jacobi_cd(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_dc(T k, U theta)\
+   { return boost::math::jacobi_dc(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_ns(T k, U theta)\
+   { return boost::math::jacobi_ns(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_sd(T k, U theta)\
+   { return boost::math::jacobi_sd(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_ds(T k, U theta)\
+   { return boost::math::jacobi_ds(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_nc(T k, U theta)\
+   { return boost::math::jacobi_nc(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_nd(T k, U theta)\
+   { return boost::math::jacobi_nd(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_sc(T k, U theta)\
+   { return boost::math::jacobi_sc(k, theta, Policy()); }\
+   \
+   template <class T, class U>\
+   inline typename boost::math::tools::promote_args<T, U>::type jacobi_cs(T k, U theta)\
+   { return boost::math::jacobi_cs(k, theta, Policy()); }\
+   \
+   template <class T>\
+   inline typename boost::math::tools::promote_args<T>::type airy_ai(T x)\
+   {  return boost::math::airy_ai(x, Policy());  }\
+   \
+   template <class T>\
+   inline typename boost::math::tools::promote_args<T>::type airy_bi(T x)\
+   {  return boost::math::airy_bi(x, Policy());  }\
+   \
+   template <class T>\
+   inline typename boost::math::tools::promote_args<T>::type airy_ai_prime(T x)\
+   {  return boost::math::airy_ai_prime(x, Policy());  }\
+   \
+   template <class T>\
+   inline typename boost::math::tools::promote_args<T>::type airy_bi_prime(T x)\
+   {  return boost::math::airy_bi_prime(x, Policy());  }\
+   \
+
+
+
+
 
 #endif // BOOST_MATH_SPECIAL_MATH_FWD_HPP
 

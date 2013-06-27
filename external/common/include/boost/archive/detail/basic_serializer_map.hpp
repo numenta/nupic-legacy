@@ -1,5 +1,5 @@
-#ifndef  BOOST_TYPEINFO_EXTENDED_MAP_HPP
-#define BOOST_TYPEINFO_EXTENDED_MAP_HPP
+#ifndef  BOOST_SERIALIZER_MAP_HPP
+#define BOOST_SERIALIZER_MAP_HPP
 
 // MS compatible compilers support #pragma once
 #if defined(_MSC_VER) && (_MSC_VER >= 1020)
@@ -19,7 +19,7 @@
 #include <set>
 
 #include <boost/config.hpp>
-#include <boost/utility.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/archive/detail/auto_link_archive.hpp>
 
 #include <boost/archive/detail/abi_prefix.hpp> // must be the last header
@@ -30,30 +30,40 @@ namespace serialization {
 }
 
 namespace archive {
-namespace detail  {
+namespace detail {
 
-class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_serializer;
+class basic_serializer;
 
-bool operator<(const basic_serializer & lhs, const basic_serializer & rhs);
-
-struct BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) type_info_pointer_compare
+class BOOST_ARCHIVE_OR_WARCHIVE_DECL(BOOST_PP_EMPTY())
+basic_serializer_map : public
+    boost::noncopyable
 {
-    bool operator()(
-        const basic_serializer * lhs, const basic_serializer * rhs
-    ) const {
-        return *lhs < *rhs;
-    }
+    struct type_info_pointer_compare
+    {
+        bool operator()(
+            const basic_serializer * lhs, const basic_serializer * rhs
+        ) const ;
+    };
+    typedef std::set<
+        const basic_serializer *, 
+        type_info_pointer_compare
+    > map_type;
+    map_type m_map;
+public:
+    bool insert(const basic_serializer * bs);
+    void erase(const basic_serializer * bs);
+    const basic_serializer * find(
+        const boost::serialization::extended_type_info & type_
+    ) const;
+private:
+    // cw 8.3 requires this
+    basic_serializer_map& operator=(basic_serializer_map const&);
 };
 
-typedef BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) std::set<
-    const basic_serializer *, 
-    type_info_pointer_compare
-> basic_serializer_map;
- 
 } // namespace detail
 } // namespace archive
 } // namespace boost
 
-#include <boost/archive/detail/abi_suffix.hpp> // pops abi_suffix.hpp pragmas
+#include <boost/archive/detail/abi_suffix.hpp> // must be the last header
 
-#endif // BOOST_TYPEINFO_EXTENDED_MAP_HPP
+#endif // BOOST_SERIALIZER_MAP_HPP

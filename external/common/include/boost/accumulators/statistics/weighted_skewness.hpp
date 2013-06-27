@@ -59,11 +59,11 @@ namespace impl
         result_type result(Args const &args) const
         {
             return numeric::average(
-                        weighted_moment<3>(args)
-                        - 3. * weighted_moment<2>(args) * weighted_mean(args)
+                        accumulators::weighted_moment<3>(args)
+                        - 3. * accumulators::weighted_moment<2>(args) * weighted_mean(args)
                         + 2. * weighted_mean(args) * weighted_mean(args) * weighted_mean(args)
-                      , ( weighted_moment<2>(args) - weighted_mean(args) * weighted_mean(args) )
-                      * std::sqrt( weighted_moment<2>(args) - weighted_mean(args) * weighted_mean(args) )
+                      , ( accumulators::weighted_moment<2>(args) - weighted_mean(args) * weighted_mean(args) )
+                      * std::sqrt( accumulators::weighted_moment<2>(args) - weighted_mean(args) * weighted_mean(args) )
                    );
         }
     };
@@ -90,6 +90,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::weighted_skewness> const weighted_skewness = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_skewness)
 }
 
 using extract::weighted_skewness;
