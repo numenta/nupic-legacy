@@ -1,5 +1,5 @@
-//  Copyright (c) 2001, Daniel C. Nuffer
-//  Copyright (c) 2001-2008, Hartmut Kaiser
+//  Copyright (c) 2001 Daniel C. Nuffer
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -10,7 +10,7 @@
 #include <boost/spirit/home/support/iterators/multi_pass_fwd.hpp>
 #include <boost/spirit/home/support/iterators/detail/multi_pass.hpp>
 
-namespace boost { namespace spirit { namespace multi_pass_policies
+namespace boost { namespace spirit { namespace iterator_policies
 {
     ///////////////////////////////////////////////////////////////////////////
     //  class no_check
@@ -20,23 +20,10 @@ namespace boost { namespace spirit { namespace multi_pass_policies
     struct no_check
     {
         ///////////////////////////////////////////////////////////////////////
-        struct unique // : public detail::default_checking_policy
-        {
-            void swap(unique&) {}
-
-            template <typename MultiPass>
-            static void check(MultiPass const&) {}
-
-            template <typename MultiPass>
-            static void clear_queue(MultiPass&) {}
-
-            template <typename MultiPass>
-            static void destroy(MultiPass&) {}
-        };
+        struct unique : public detail::default_checking_policy {};
 
         ///////////////////////////////////////////////////////////////////////
-        struct shared 
-        {};
+        struct shared {};
     };
 
 }}}

@@ -176,7 +176,7 @@ inline typename tools::promote_args<T1, T2>::type
       detail::gamma_inva_imp(
          static_cast<value_type>(x), 
          static_cast<value_type>(p), 
-         1 - static_cast<value_type>(p), 
+         static_cast<value_type>(1 - static_cast<value_type>(p)), 
          pol), "boost::math::gamma_p_inva<%1%>(%1%, %1%)");
 }
 
@@ -205,7 +205,7 @@ inline typename tools::promote_args<T1, T2>::type
    return policies::checked_narrowing_cast<result_type, forwarding_policy>(
       detail::gamma_inva_imp(
          static_cast<value_type>(x), 
-         1 - static_cast<value_type>(q), 
+         static_cast<value_type>(1 - static_cast<value_type>(q)), 
          static_cast<value_type>(q), 
          pol), "boost::math::gamma_q_inva<%1%>(%1%, %1%)");
 }

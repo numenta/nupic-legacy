@@ -34,9 +34,15 @@
 # pragma once
 #endif 
 
-#include <cassert>
+#include <boost/assert.hpp>
+#include <boost/config.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/serialization/force_include.hpp>
+
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable : 4511 4512)
+#endif
 
 namespace boost { 
 namespace serialization { 
@@ -71,7 +77,8 @@ namespace serialization {
 // attempt to retieve a mutable instances while locked will
 // generate a assertion if compiled for debug.
 
-class singleton_module  : public boost::noncopyable
+class singleton_module : 
+    public boost::noncopyable
 {
 private:
     static bool & get_lock(){
@@ -106,7 +113,7 @@ public:
 };
 
 template<class T>
-bool detail::singleton_wrapper<T>::m_is_destroyed = false;
+bool detail::singleton_wrapper< T >::m_is_destroyed = false;
 
 } // detail
 
@@ -118,30 +125,34 @@ private:
     // include this to provoke instantiation at pre-execution time
     static void use(T const &) {}
     BOOST_DLLEXPORT static T & get_instance() {
-        static detail::singleton_wrapper<T> t;
+        static detail::singleton_wrapper< T > t;
         // refer to instance, causing it to be instantiated (and
         // initialized at startup on working compilers)
-        assert(! detail::singleton_wrapper<T>::m_is_destroyed);
+        BOOST_ASSERT(! detail::singleton_wrapper< T >::m_is_destroyed);
         use(instance);
         return static_cast<T &>(t);
     }
 public:
     BOOST_DLLEXPORT static T & get_mutable_instance(){
-        assert(! is_locked());
+        BOOST_ASSERT(! is_locked());
         return get_instance();
     }
     BOOST_DLLEXPORT static const T & get_const_instance(){
         return get_instance();
     }
     BOOST_DLLEXPORT static bool is_destroyed(){
-        return detail::singleton_wrapper<T>::m_is_destroyed;
+        return detail::singleton_wrapper< T >::m_is_destroyed;
     }
 };
 
 template<class T>
-BOOST_DLLEXPORT T & singleton<T>::instance = singleton<T>::get_instance();
+BOOST_DLLEXPORT T & singleton< T >::instance = singleton< T >::get_instance();
 
 } // namespace serialization
 } // namespace boost
+
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
 
 #endif // BOOST_SERIALIZATION_SINGLETON_HPP

@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines singleton class unit_test_log and all manipulators.
 //  unit_test_log has output stream like interface. It's implementation is
@@ -157,7 +157,7 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 #define BOOST_TEST_PASSPOINT()                                  \
     ::boost::unit_test::unit_test_log.set_checkpoint(           \
         BOOST_TEST_L(__FILE__),                                 \
-        (std::size_t)__LINE__ )                                 \
+        static_cast<std::size_t>(__LINE__) )                    \
 /**/
 
 //____________________________________________________________________________//
@@ -165,7 +165,7 @@ BOOST_TEST_SINGLETON_INST( unit_test_log )
 #define BOOST_TEST_CHECKPOINT( M )                              \
     ::boost::unit_test::unit_test_log.set_checkpoint(           \
         BOOST_TEST_L(__FILE__),                                 \
-        (std::size_t)__LINE__,                                  \
+        static_cast<std::size_t>(__LINE__),                     \
         (::boost::wrap_stringstream().ref() << M).str() )       \
 /**/
 

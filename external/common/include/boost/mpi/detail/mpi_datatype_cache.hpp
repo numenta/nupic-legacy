@@ -79,6 +79,8 @@ public:
 
     return datatype;
   }
+  
+  void clear(); 
 
 private:
   MPI_Datatype get(const std::type_info* t);
@@ -86,7 +88,7 @@ private:
 };
 
 /// Retrieve the MPI datatype cache
-mpi_datatype_map& mpi_datatype_cache();
+BOOST_MPI_DECL mpi_datatype_map& mpi_datatype_cache();
 
 } } } // end namespace boost::mpi::detail
 

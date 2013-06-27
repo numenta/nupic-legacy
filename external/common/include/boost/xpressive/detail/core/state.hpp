@@ -289,7 +289,7 @@ private:
         this->context_.results_ptr_ = &what;
         this->context_.traits_ = impl.traits_.get();
         this->mark_count_ = impl.mark_count_ + 1;
-        this->sub_matches_ = this->extras_->sub_match_stack_.push_sequence(total_mark_count);
+        this->sub_matches_ = this->extras_->sub_match_stack_.push_sequence(total_mark_count, sub_match_impl(begin_), detail::fill);
         this->sub_matches_ += impl.hidden_mark_count_;
 
         // initialize the match_results struct
@@ -329,7 +329,7 @@ inline memento<BidiIter> save_sub_matches(match_state<BidiIter> &state)
 {
     memento<BidiIter> mem =
     {
-        state.extras_->sub_match_stack_.push_sequence(state.mark_count_, no_fill)
+        state.extras_->sub_match_stack_.push_sequence(state.mark_count_, sub_match_impl<BidiIter>(state.begin_))
       , state.context_.results_ptr_->nested_results().size()
       , state.action_list_.next
       , state.action_list_tail_

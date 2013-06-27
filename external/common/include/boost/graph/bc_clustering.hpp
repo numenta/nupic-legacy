@@ -11,10 +11,11 @@
 
 #include <boost/graph/betweenness_centrality.hpp>
 #include <boost/graph/graph_traits.hpp>
+#include <boost/graph/graph_utility.hpp>
 #include <boost/pending/indirect_cmp.hpp>
 #include <algorithm>
 #include <vector>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 namespace boost {
 
@@ -116,7 +117,7 @@ betweenness_centrality_clustering(MutableGraph& g, Done done,
   typedef typename graph_traits<MutableGraph>::vertices_size_type
     vertices_size_type;
 
-  if (edges(g).first == edges(g).second) return;
+  if (has_no_edges(g)) return;
 
   // Function object that compares the centrality of edges
   indirect_cmp<EdgeCentralityMap, std::less<centrality_type> > 
@@ -127,10 +128,11 @@ betweenness_centrality_clustering(MutableGraph& g, Done done,
     brandes_betweenness_centrality(g, 
                                    edge_centrality_map(edge_centrality)
                                    .vertex_index_map(vertex_index));
-    edge_descriptor e = *max_element(edges(g).first, edges(g).second, cmp);
+    std::pair<edge_iterator, edge_iterator> edges_iters = edges(g);
+    edge_descriptor e = *max_element(edges_iters.first, edges_iters.second, cmp);
     is_done = done(get(edge_centrality, e), e, g);
     if (!is_done) remove_edge(e, g);
-  } while (!is_done && edges(g).first != edges(g).second);
+  } while (!is_done && !has_no_edges(g));
 }
 
 /**

@@ -1,5 +1,6 @@
 /*=============================================================================
     Copyright (c) 2003 Jonathan de Halleux (dehalleux@pelikhan.com)
+    Copyright (c) 2011 Bryce Lelbach
     http://spirit.sourceforge.net/
 
   Distributed under the Boost Software License, Version 1.0. (See accompanying
@@ -8,11 +9,18 @@
 #ifndef BOOST_SPIRIT_ACTOR_REF_VALUE_ACTOR_HPP
 #define BOOST_SPIRIT_ACTOR_REF_VALUE_ACTOR_HPP
 
+#include <boost/detail/workaround.hpp>
+
 #include <boost/spirit/home/classic/namespace.hpp>
 
 namespace boost { namespace spirit {
 
 BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
 
     ///////////////////////////////////////////////////////////////////////////
     //  Summary:
@@ -64,6 +72,10 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     };
 
 BOOST_SPIRIT_CLASSIC_NAMESPACE_END
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 }}
 

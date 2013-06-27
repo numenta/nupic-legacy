@@ -74,14 +74,14 @@ struct compound_charset
 
     ///////////////////////////////////////////////////////////////////////////////
     // set
-    void set_char(char_type ch, Traits const &traits, bool icase)
+    void set_char(char_type ch, Traits const &tr, bool icase)
     {
-        icase ? this->base_type::set(ch, traits) : this->base_type::set(ch);
+        icase ? this->base_type::set(ch, tr) : this->base_type::set(ch);
     }
 
-    void set_range(char_type from, char_type to, Traits const &traits, bool icase)
+    void set_range(char_type from, char_type to, Traits const &tr, bool icase)
     {
-        icase ? this->base_type::set(from, to, traits) : this->base_type::set(from, to);
+        icase ? this->base_type::set(from, to, tr) : this->base_type::set(from, to);
     }
 
     void set_class(char_class_type const &m, bool no)
@@ -101,11 +101,11 @@ struct compound_charset
     ///////////////////////////////////////////////////////////////////////////////
     // test
     template<typename ICase>
-    bool test(char_type ch, Traits const &traits, ICase) const
+    bool test(char_type ch, Traits const &tr, ICase) const
     {
         return this->complement_ !=
-            (this->base_type::test(ch, traits, ICase()) ||
-            (this->has_posix_ && this->test_posix(ch, traits)));
+            (this->base_type::test(ch, tr, ICase()) ||
+            (this->has_posix_ && this->test_posix(ch, tr)));
     }
 
 private:
@@ -125,10 +125,10 @@ private:
 
     ///////////////////////////////////////////////////////////////////////////////
     // test_posix
-    bool test_posix(char_type ch, Traits const &traits) const
+    bool test_posix(char_type ch, Traits const &tr) const
     {
-        not_posix_pred const pred = {ch, &traits};
-        return traits.isctype(ch, this->posix_yes_)
+        not_posix_pred const pred = {ch, &tr};
+        return tr.isctype(ch, this->posix_yes_)
             || any(this->posix_no_.begin(), this->posix_no_.end(), pred);
     }
 
@@ -142,15 +142,15 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 // helpers
 template<typename Char, typename Traits>
-inline void set_char(compound_charset<Traits> &chset, Char ch, Traits const &traits, bool icase)
+inline void set_char(compound_charset<Traits> &chset, Char ch, Traits const &tr, bool icase)
 {
-    chset.set_char(ch, traits, icase);
+    chset.set_char(ch, tr, icase);
 }
 
 template<typename Char, typename Traits>
-inline void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &traits, bool icase)
+inline void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &tr, bool icase)
 {
-    chset.set_range(from, to, traits, icase);
+    chset.set_range(from, to, tr, icase);
 }
 
 template<typename Traits>

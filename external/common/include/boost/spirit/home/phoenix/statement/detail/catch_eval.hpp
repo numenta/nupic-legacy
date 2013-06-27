@@ -16,7 +16,7 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/enum_binary_params.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
-#include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/dec.hpp>
 #include <boost/preprocessor/cat.hpp>
 #include <boost/mpl/void.hpp>
 
@@ -57,7 +57,7 @@ namespace boost { namespace phoenix {
             }
 
 #define BOOST_PP_ITERATION_PARAMS_2                                                                         \
-        (3, (0, BOOST_PP_SUB(PHOENIX_ITERATION, 1), "boost/spirit/home/phoenix/statement/detail/catch_eval.hpp"))
+        (3, (0, BOOST_PP_DEC(PHOENIX_ITERATION), "boost/spirit/home/phoenix/statement/detail/catch_eval.hpp"))
 
 #include BOOST_PP_ITERATE()
 

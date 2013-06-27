@@ -69,7 +69,7 @@ struct matchable_ex
 
     virtual void repeat(quant_spec const &, sequence<BidiIter> &) const
     {
-        boost::throw_exception(
+        BOOST_THROW_EXCEPTION(
             regex_error(regex_constants::error_badrepeat, "expression cannot be quantified")
         );
     }

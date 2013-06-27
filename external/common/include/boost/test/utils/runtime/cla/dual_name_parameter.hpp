@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines model of generic parameter with dual naming
 // ***************************************************************************
@@ -35,18 +35,26 @@ class dual_name_policy : public dual_id_policy<dual_name_policy,string_name_poli
 public:
     dual_name_policy();
 
-    // Accept modifer
+    // Accept modifier
     template<typename Modifier>
     void    accept_modifier( Modifier const& m )
     {
-        if( m.has( prefix ) )
+        if( m.has( prefix ) ) {
             set_prefix( m[prefix] );
+            m.erase( prefix );
+        }
 
-        if( m.has( name ) )
+        if( m.has( name ) ) {
             set_name( m[name] );
+            m.erase( name );
+        }
 
-        if( m.has( separator ) )
+        if( m.has( separator ) ) {
             set_separator( m[separator] );
+            m.erase( separator );
+        }
+
+        dual_id_policy<dual_name_policy,string_name_policy,char_name_policy>::accept_modifier( m );
     }
 private:
     void    set_prefix( cstring );

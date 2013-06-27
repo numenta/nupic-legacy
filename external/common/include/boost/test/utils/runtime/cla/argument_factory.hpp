@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : generic typed_argument_factory implementation
 // ***************************************************************************
@@ -135,42 +135,42 @@ typed_argument_factory<T>::produce_using( parameter& p, argv_traverser& tr )
             throw;
     }
 
-    argument_ptr arg = p.actual_argument();
+    argument_ptr actual_arg = p.actual_argument();
 
     BOOST_RT_CLA_VALIDATE_INPUT( !!value || p.p_optional_value, tr, 
         BOOST_RT_PARAM_LITERAL( "Argument value missing for parameter " ) << p.id_2_report() );
 
-    BOOST_RT_CLA_VALIDATE_INPUT( !arg || p.p_multiplicable, tr, 
+    BOOST_RT_CLA_VALIDATE_INPUT( !actual_arg || p.p_multiplicable, tr, 
         BOOST_RT_PARAM_LITERAL( "Unexpected repetition of the parameter " ) << p.id_2_report() );
 
     if( !!value && !!m_value_handler )
         m_value_handler( p, *value );
 
     if( !p.p_multiplicable )
-        arg.reset( p.p_optional_value 
-            ? (argument*)new typed_argument<boost::optional<T> >( p, value )
-            : (argument*)new typed_argument<T>( p, *value ) );
+        actual_arg.reset( p.p_optional_value && (rtti::type_id<T>() != rtti::type_id<bool>())
+            ? static_cast<argument*>(new typed_argument<boost::optional<T> >( p, value ))
+            : static_cast<argument*>(new typed_argument<T>( p, *value )) );
     else {
         typedef std::list<boost::optional<T> > optional_list;
 
-        if( !arg )
-            arg.reset( p.p_optional_value 
-                ? (argument*)new typed_argument<optional_list>( p )
-                : (argument*)new typed_argument<std::list<T> >( p ) );
+        if( !actual_arg )
+            actual_arg.reset( p.p_optional_value 
+                ? static_cast<argument*>(new typed_argument<optional_list>( p ))
+                : static_cast<argument*>(new typed_argument<std::list<T> >( p )) );
 
         if( p.p_optional_value ) {
-            optional_list& values = arg_value<optional_list>( *arg );
+            optional_list& values = arg_value<optional_list>( *actual_arg );
 
             values.push_back( value );
         }
         else {
-            std::list<T>& values = arg_value<std::list<T> >( *arg );
+            std::list<T>& values = arg_value<std::list<T> >( *actual_arg );
             
             values.push_back( *value );
         }
     }
 
-    return arg;
+    return actual_arg;
 }
 
 //____________________________________________________________________________//
@@ -179,23 +179,23 @@ template<typename T>
 inline argument_ptr 
 typed_argument_factory<T>::produce_using( parameter& p, parser const& pa )
 {
-    argument_ptr arg;
+    argument_ptr actual_arg;
 
     if( !m_value_generator )
-        return arg;
+        return actual_arg;
 
     boost::optional<T> value;
     m_value_generator( pa, value );
 
     if( !value )
-        return arg;
+        return actual_arg;
 
     if( !!m_value_handler )
         m_value_handler( p, *value );
 
-    arg.reset( new typed_argument<T>( p, *value ) );
+    actual_arg.reset( new typed_argument<T>( p, *value ) );
 
-    return arg;
+    return actual_arg;
 }
 
 //____________________________________________________________________________//
@@ -204,7 +204,7 @@ template<typename T>
 inline void
 typed_argument_factory<T>::argument_usage_info( format_stream& fs )
 {
-    rt_cla_detail::argument_value_usage( fs, 0, (T*)0 );
+    rt_cla_detail::argument_value_usage( fs, 0, reinterpret_cast<T*>(0) );
 }
 
 //____________________________________________________________________________//

@@ -1,10 +1,16 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
-//
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying
-//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+/*=============================================================================
+    Copyright (c) 2001-2011 Hartmut Kaiser
+    Copyright (c) 2001-2011 Joel de Guzman
 
-#if !defined(BOOST_SPIRIT_ANY_IF_MAR_30_2007_1220PM)
-#define BOOST_SPIRIT_ANY_IF_MAR_30_2007_1220PM
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+==============================================================================*/
+#if !defined(BOOST_SPIRIT_ANY_IF_MARCH_30_2007_1220PM)
+#define BOOST_SPIRIT_ANY_IF_MARCH_30_2007_1220PM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/fusion/include/equal_to.hpp>
 #include <boost/fusion/include/next.hpp>
@@ -14,54 +20,52 @@
 #include <boost/fusion/include/end.hpp>
 #include <boost/fusion/include/is_sequence.hpp>
 #include <boost/fusion/include/any.hpp>
-#include <boost/fusion/include/make_cons.hpp>
 #include <boost/spirit/home/support/unused.hpp>
 
 #include <boost/mpl/bool.hpp>
-#include <boost/mpl/print.hpp>
 #include <boost/mpl/apply.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/identity.hpp>
-#include <boost/utility/enable_if.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/not.hpp>
 
 namespace boost { namespace spirit
 {
     ///////////////////////////////////////////////////////////////////////////
-    //  This is a special version for a binary fusion::any. The predicate is
-    //  used to decide, whether to advance the second iterator or not.
+    //  This is a special version for a binary fusion::any. The predicate
+    //  is used to decide whether to advance the second iterator or not.
     //  This is needed for sequences containing components with unused
-    //  attributes.
-    //  The second iterator is advanced only if the attribute of the 
-    //  corresponding component iterator is not unused.
+    //  attributes. The second iterator is advanced only if the attribute
+    //  of the corresponding component iterator is not unused.
     ///////////////////////////////////////////////////////////////////////////
     namespace detail
     {
         ///////////////////////////////////////////////////////////////////////
         template <typename Iterator, typename Pred>
         struct apply_predicate
-        {
-            typedef typename
-                mpl::apply1<
-                    Pred,
-                    typename fusion::result_of::value_of<Iterator>::type
-                >::type
-            type;
-        };
+          : mpl::apply1<Pred, typename fusion::result_of::value_of<Iterator>::type>
+        {};
 
         ///////////////////////////////////////////////////////////////////////
         //  if the predicate is true, attribute_next returns next(Iterator2),
         //  otherwise Iterator2
         namespace result_of
         {
-            template <typename Iterator1, typename Iterator2, typename Pred>
+            template <
+                typename Iterator1, typename Iterator2, typename Last2
+              , typename Pred>
             struct attribute_next
             {
-                typedef typename apply_predicate<Iterator1, Pred>::type pred;
+                typedef mpl::and_<
+                    apply_predicate<Iterator1, Pred>
+                  , mpl::not_<fusion::result_of::equal_to<Iterator2, Last2> >
+                > pred;
+
                 typedef typename
                     mpl::eval_if<
-                        pred,
-                        fusion::result_of::next<Iterator2>,
-                        mpl::identity<Iterator2>
+                        pred
+                      , fusion::result_of::next<Iterator2>
+                      , mpl::identity<Iterator2>
                     >::type
                 type;
 
@@ -88,13 +92,16 @@ namespace boost { namespace spirit
             };
         }
 
-        template <typename Pred, typename Iterator1, typename Iterator2>
+        template <
+            typename Pred, typename Iterator1, typename Last2
+          , typename Iterator2>
         inline typename
-            result_of::attribute_next<Iterator1, Iterator2, Pred
+            result_of::attribute_next<Iterator1, Iterator2, Last2, Pred
         >::type const
         attribute_next(Iterator2 const& i)
         {
-            return result_of::attribute_next<Iterator1, Iterator2, Pred>::call(i);
+            return result_of::attribute_next<
+                Iterator1, Iterator2, Last2, Pred>::call(i);
         }
 
         ///////////////////////////////////////////////////////////////////////
@@ -102,15 +109,21 @@ namespace boost { namespace spirit
         //  otherwise unused
         namespace result_of
         {
-            template <typename Iterator1, typename Iterator2, typename Pred>
+            template <
+                typename Iterator1, typename Iterator2, typename Last2
+              , typename Pred>
             struct attribute_value
             {
-                typedef typename apply_predicate<Iterator1, Pred>::type pred;
+                typedef mpl::and_<
+                    apply_predicate<Iterator1, Pred>
+                  , mpl::not_<fusion::result_of::equal_to<Iterator2, Last2> >
+                > pred;
+
                 typedef typename
                     mpl::eval_if<
-                        pred,
-                        fusion::result_of::deref<Iterator2>,
-                        mpl::identity<unused_type const>
+                        pred
+                      , fusion::result_of::deref<Iterator2>
+                      , mpl::identity<unused_type const>
                     >::type
                 type;
 
@@ -137,71 +150,57 @@ namespace boost { namespace spirit
             };
         }
 
-        template <typename Pred, typename Iterator1, typename Iterator2>
+        template <
+            typename Pred, typename Iterator1, typename Last2
+          , typename Iterator2>
         inline typename
-            result_of::attribute_value<Iterator1, Iterator2, Pred
+            result_of::attribute_value<Iterator1, Iterator2, Last2, Pred
         >::type
         attribute_value(Iterator2 const& i)
         {
-            return result_of::attribute_value<Iterator1, Iterator2, Pred>::call(i);
+            return result_of::attribute_value<
+                Iterator1, Iterator2, Last2, Pred>::call(i);
         }
 
         ///////////////////////////////////////////////////////////////////////
         template <
-            typename Pred, typename First1, typename Last, typename First2,
-            typename F
-        >
+            typename Pred, typename First1, typename Last1, typename First2
+          , typename Last2, typename F>
         inline bool
-        any_if (First1 const&, First2 const&, Last const&, F const&, mpl::true_)
+        any_if (First1 const&, First2 const&, Last1 const&, Last2 const&
+          , F const&, mpl::true_)
         {
             return false;
         }
 
         template <
-            typename Pred, typename First1, typename Last, typename First2,
-            typename F
-        >
+            typename Pred, typename First1, typename Last1, typename First2
+          , typename Last2, typename F>
         inline bool
-        any_if (First1 const& first1, First2 const& first2, Last const& last,
-            F& f, mpl::false_)
+        any_if (First1 const& first1, First2 const& first2, Last1 const& last1
+          , Last2 const& last2, F& f, mpl::false_)
         {
-            return f(*first1, attribute_value<Pred, First1>(first2)) ||
+            typename result_of::attribute_value<First1, First2, Last2, Pred>::type
+                attribute = attribute_value<Pred, First1, Last2>(first2);
+
+            return f(*first1, attribute) ||
                 detail::any_if<Pred>(
                     fusion::next(first1)
-                  , attribute_next<Pred, First1>(first2)
-                  , last
+                  , attribute_next<Pred, First1, Last2>(first2)
+                  , last1, last2
                   , f
                   , fusion::result_of::equal_to<
-                        typename fusion::result_of::next<First1>::type, Last>());
+                        typename fusion::result_of::next<First1>::type, Last1>());
         }
     }
 
     template <typename Pred, typename Sequence1, typename Sequence2, typename F>
-    inline typename enable_if<fusion::traits::is_sequence<Sequence2>, bool>::type
+    inline bool
     any_if(Sequence1 const& seq1, Sequence2& seq2, F f, Pred)
     {
         return detail::any_if<Pred>(
-                fusion::begin(seq1)
-              , fusion::begin(seq2)
-              , fusion::end(seq1)
-              , f
-              , fusion::result_of::equal_to<
-                    typename fusion::result_of::begin<Sequence1>::type
-                  , typename fusion::result_of::end<Sequence1>::type>());
-    }
-
-    template <typename Pred, typename Sequence1, typename Attribute, typename F>
-    inline typename disable_if<fusion::traits::is_sequence<Attribute>, bool>::type
-    any_if(Sequence1 const& seq1, Attribute& attr, F f, Pred /*p*/)
-    {
-        typename
-            fusion::result_of::make_cons<Attribute&>::type
-        seq2(attr); // wrap attribute in a single element tuple
-
-        return detail::any_if<Pred>(
-                fusion::begin(seq1)
-              , fusion::begin(seq2)
-              , fusion::end(seq1)
+                fusion::begin(seq1), fusion::begin(seq2)
+              , fusion::end(seq1), fusion::end(seq2)
               , f
               , fusion::result_of::equal_to<
                     typename fusion::result_of::begin<Sequence1>::type

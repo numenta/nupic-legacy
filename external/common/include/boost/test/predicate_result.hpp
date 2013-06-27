@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : enhanced result for test predicate that include message explaining failure
 // ***************************************************************************
@@ -41,6 +41,9 @@ namespace test_tools {
 
 class BOOST_TEST_DECL predicate_result {
     typedef unit_test::const_string      const_string;
+    struct dummy { void nonnull() {}; };
+    typedef void (dummy::*safe_bool)();
+
 public:
     // Constructor
     predicate_result( bool pv_ ) 
@@ -50,8 +53,10 @@ public:
     template<typename BoolConvertable>
     predicate_result( BoolConvertable const& pv_ ) : p_predicate_value( !!pv_ ) {}
 
+    // Access methods
     bool                operator!() const           { return !p_predicate_value; }
     void                operator=( bool pv_ )       { p_predicate_value.value = pv_; }
+    operator            safe_bool() const           { return !!p_predicate_value ? &dummy::nonnull : 0; }
 
     // Public properties
     BOOST_READONLY_PROPERTY( bool, (predicate_result) ) p_predicate_value;

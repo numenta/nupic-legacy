@@ -18,7 +18,7 @@
 
 #include <cstdlib> // getenv
 #include <cstddef> // NULL
-#include <cassert>
+//#include <boost/assert.hpp>
 
 #include <boost/config.hpp>
 #ifdef BOOST_NO_STDC_NAMESPACE
@@ -30,15 +30,15 @@ namespace std {
 namespace boost {
 namespace archive {
 
-inline char * tmpdir(){
-    char *dirname;
+inline const char * tmpdir(){
+    const char *dirname;
     dirname = std::getenv("TMP");
     if(NULL == dirname)
         dirname = std::getenv("TMPDIR");
     if(NULL == dirname)
         dirname = std::getenv("TEMP");
     if(NULL == dirname){
-        //assert(false); // no temp directory found
+        //BOOST_ASSERT(false); // no temp directory found
         dirname = ".";
     }
     return dirname;

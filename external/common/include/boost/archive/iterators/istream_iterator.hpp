@@ -61,7 +61,7 @@ class istream_iterator :
 
     void increment(){
         if(NULL != m_istream){
-            m_current_value = m_istream->get();
+            m_current_value = static_cast<Elem>(m_istream->get());
             if(! m_istream->good()){
                 const_cast<this_t *>(this)->m_istream = NULL;
             }

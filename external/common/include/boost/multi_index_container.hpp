@@ -1,6 +1,6 @@
 /* Multiply indexed container.
  *
- * Copyright 2003-2008 Joaquin M Lopez Munoz.
+ * Copyright 2003-2011 Joaquin M Lopez Munoz.
  * Distributed under the Boost Software License, Version 1.0.
  * (See accompanying file LICENSE_1_0.txt or copy at
  * http://www.boost.org/LICENSE_1_0.txt)
@@ -44,8 +44,11 @@
 
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 #include <boost/multi_index/detail/archive_constructed.hpp>
+#include <boost/multi_index/detail/serialization_version.hpp>
+#include <boost/serialization/collection_size_type.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/serialization/version.hpp>
 #include <boost/throw_exception.hpp> 
 #endif
 
@@ -522,9 +525,9 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 
   void erase_(node_type* x)
   {
+    --node_count;
     super::erase_(x);
     deallocate_node(x);
-    --node_count;
   }
 
   void delete_node_(node_type* x)
@@ -630,11 +633,22 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
   template<class Archive>
   void save(Archive& ar,const unsigned int version)const
   {
-    const std::size_t s=size_();
+
+#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+    const serialization::collection_size_type       s(size_());
+    const detail::serialization_version<value_type> value_version;
     ar<<serialization::make_nvp("count",s);
+    ar<<serialization::make_nvp("value_version",value_version);
+#else
+    const std::size_t  s=size_();
+    const unsigned int value_version=0;
+    ar<<serialization::make_nvp("count",s);
+#endif
+
     index_saver_type sm(bfm_allocator::member,s);
 
     for(iterator it=super::begin(),it_end=super::end();it!=it_end;++it){
+      serialization::save_construct_data_adl(ar,&*it,value_version);
       ar<<serialization::make_nvp("item",*it);
       sm.add(it.get_node(),ar,version);
     }
@@ -650,12 +664,33 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 
     clear_(); 
 
-    std::size_t s;
+#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+    serialization::collection_size_type       s;
+    detail::serialization_version<value_type> value_version;
+    if(version<1){
+      std::size_t sz;
+      ar>>serialization::make_nvp("count",sz);
+      s=static_cast<serialization::collection_size_type>(sz);
+    }
+    else{
+      ar>>serialization::make_nvp("count",s);
+    }
+    if(version<2){
+      value_version=0;
+    }
+    else{
+      ar>>serialization::make_nvp("value_version",value_version);
+    }
+#else
+    std::size_t  s;
+    unsigned int value_version=0;
     ar>>serialization::make_nvp("count",s);
+#endif
+
     index_loader_type lm(bfm_allocator::member,s);
 
     for(std::size_t n=0;n<s;++n){
-      detail::archive_constructed<Value> value("item",ar,version);
+      detail::archive_constructed<Value> value("item",ar,value_version);
       std::pair<node_type*,bool> p=insert_(
         value.get(),super::end().get_node());
       if(!p.second)throw_exception(
@@ -1075,6 +1110,24 @@ void swap(
 }
 
 } /* namespace multi_index */
+
+#if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)&&\
+    !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+/* class version = 1 : we now serialize the size through
+ * boost::serialization::collection_size_type.
+ * class version = 2 : proper use of {save|load}_construct_data.
+ */
+
+namespace serialization {
+template<typename Value,typename IndexSpecifierList,typename Allocator>
+struct version<
+  boost::multi_index_container<Value,IndexSpecifierList,Allocator>
+>
+{
+  BOOST_STATIC_CONSTANT(int,value=2);
+};
+} /* namespace serialization */
+#endif
 
 /* Associated global functions are promoted to namespace boost, except
  * comparison operators and swap, which are meant to be Koenig looked-up.

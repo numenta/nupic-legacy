@@ -169,7 +169,7 @@ namespace boost { namespace xpressive { namespace detail
         // conditional rotation : the goal is to minimize the overall
         //     weighted path length of each binary search tree
         // 
-        bool const cond_rotation(bool left, node* const i, node* const j) const
+        bool cond_rotation(bool left, node* const i, node* const j) const
         {
             // don't rotate top node in binary search tree
             if (i == j)

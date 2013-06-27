@@ -1,8 +1,8 @@
 //
-// host_name.hpp
-// ~~~~~~~~~~~~~
+// ip/host_name.hpp
+// ~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,50 +15,30 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <string>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/system/error_code.hpp>
 
-#include <boost/asio/error.hpp>
-#include <boost/asio/detail/socket_ops.hpp>
-#include <boost/asio/detail/throw_error.hpp>
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
 namespace ip {
 
 /// Get the current host name.
-std::string host_name();
+BOOST_ASIO_DECL std::string host_name();
 
 /// Get the current host name.
-std::string host_name(boost::system::error_code& ec);
-
-inline std::string host_name()
-{
-  char name[1024];
-  boost::system::error_code ec;
-  if (boost::asio::detail::socket_ops::gethostname(name, sizeof(name), ec) != 0)
-  {
-    boost::asio::detail::throw_error(ec);
-    return std::string();
-  }
-  return std::string(name);
-}
-
-inline std::string host_name(boost::system::error_code& ec)
-{
-  char name[1024];
-  if (boost::asio::detail::socket_ops::gethostname(name, sizeof(name), ec) != 0)
-    return std::string();
-  return std::string(name);
-}
+BOOST_ASIO_DECL std::string host_name(boost::system::error_code& ec);
 
 } // namespace ip
 } // namespace asio
 } // namespace boost
 
 #include <boost/asio/detail/pop_options.hpp>
+
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/ip/impl/host_name.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
 
 #endif // BOOST_ASIO_IP_HOST_NAME_HPP

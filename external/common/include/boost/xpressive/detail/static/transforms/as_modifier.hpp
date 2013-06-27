@@ -16,7 +16,7 @@
 #include <boost/mpl/sizeof.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 #define UNCV(x) typename remove_const<x>::type
 #define UNREF(x) typename remove_reference<x>::type
@@ -36,28 +36,44 @@ namespace boost { namespace xpressive { namespace grammar_detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_modifier
-    template<typename Grammar>
-    struct as_modifier : proto::callable
+    template<typename Grammar, typename Callable = proto::callable>
+    struct as_modifier : proto::transform<as_modifier<Grammar, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename proto::result_of::arg<typename proto::result_of::left<Expr>::type>::type modifier_type;
-            typedef typename modifier_type::BOOST_NESTED_TEMPLATE apply<Visitor>::type visitor_type;
-            typedef typename Grammar::template result<void(typename proto::result_of::right<Expr>::type, State, visitor_type)>::type type;
+            typedef
+                typename proto::result_of::value<
+                    typename proto::result_of::left<typename impl::expr>::type
+                >::type
+            modifier_type;
+
+            typedef
+                typename modifier_type::template apply<typename impl::data>::type
+            visitor_type;
+
+            typedef
+                typename proto::result_of::right<Expr>::type
+            expr_type;
+
+            typedef
+                typename Grammar::template impl<expr_type, State, visitor_type &>::result_type
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param data
+            ) const
+            {
+                visitor_type new_visitor(proto::value(proto::left(expr)).call(data));
+                return typename Grammar::template impl<expr_type, State, visitor_type &>()(
+                    proto::right(expr)
+                  , state
+                  , new_visitor
+                );
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &state, Visitor &visitor) const
-        {
-            typedef result<void(Expr, State, Visitor)> result_;
-            typedef typename result_::visitor_type new_visitor_type;
-            new_visitor_type new_visitor(proto::arg(proto::left(expr)).call(visitor));
-            return Grammar()(proto::right(expr), state, new_visitor);
-        }
     };
 
 }}}

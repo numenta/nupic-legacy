@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,90 +6,92 @@
 #if !defined(SPIRIT_LEX_ACTION_NOV_18_2007_0743PM)
 #define SPIRIT_LEX_ACTION_NOV_18_2007_0743PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/lex/set_state.hpp>
+#include <boost/spirit/home/lex/meta_compiler.hpp>
+#include <boost/spirit/home/lex/lexer_type.hpp>
+#include <boost/spirit/home/lex/argument.hpp>
+#include <boost/spirit/home/lex/lexer/support_functions.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/remove_const.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace boost { namespace spirit { namespace lex
 {
     ///////////////////////////////////////////////////////////////////////////
-    namespace detail
+    template <typename Subject, typename Action>
+    struct action : unary_lexer<action<Subject, Action> >
     {
-        ///////////////////////////////////////////////////////////////////////
-        template <typename Char>
-        struct set_state_functor
-        {
-            set_state_functor (Char const* new_state_)
-              : new_state(new_state_)
-            {
-            }
-            
-            template <typename Range, typename LexerContext>
-            void operator()(Range const&, std::size_t, bool&, 
-                LexerContext& ctx) const
-            {
-                ctx.set_state_name(new_state);
-            }
-            
-            Char const* new_state;
-        };
-        
-        ///////////////////////////////////////////////////////////////////////
-        template <typename Char>
-        set_state_functor<Char> 
-        make_set_state(Char const* new_state)
-        {
-            return set_state_functor<Char>(new_state);
-        }
+        action(Subject const& subject, Action f)
+          : subject(subject), f(f) {}
 
-        template <typename Char, typename Traits, typename Alloc>
-        set_state_functor<Char> 
-        make_set_state(std::basic_string<Char, Traits, Alloc> const& new_state)
-        {
-            return set_state_functor<Char>(new_state.c_str());
-        }
-
-        ///////////////////////////////////////////////////////////////////////
-        template <typename LexerDef, typename F>
-        inline void add_action_helper(LexerDef& lexdef, std::size_t id, F act)
-        {
-            lexdef.add_action(id, act);
-        }
-        
         template <typename LexerDef, typename String>
-        inline void add_action_helper(LexerDef& lexdef, std::size_t id, 
-            spirit::tag::set_state_tag<String> t)
+        void collect(LexerDef& lexdef, String const& state
+          , String const& targetstate) const
         {
-            lexdef.add_action(id, make_set_state(t.name));
-        }
-    }
-    
-    ///////////////////////////////////////////////////////////////////////////
-    struct action
-    {
-        template <typename Component, typename LexerDef, typename String>
-        static void 
-        collect(Component const& component, LexerDef& lexdef, 
-            String const& state)
-        {
-            typedef typename
-                result_of::left<Component>::type::director
-            director;
-            
-            // first collect the token definition information for the token_def 
+            // collect the token definition information for the token_def 
             // this action is attached to
-            director::collect(spirit::left(component), lexdef, state);
+            subject.collect(lexdef, state, targetstate);
+        }
+
+        template <typename LexerDef>
+        void add_actions(LexerDef& lexdef) const
+        {
+            // call to add all actions attached further down the hierarchy 
+            subject.add_actions(lexdef);
 
             // retrieve the id of the associated token_def and register the 
             // given semantic action with the lexer instance
-            std::size_t id = director::id(spirit::left(component));
-            detail::add_action_helper(lexdef, id, spirit::right(component));
+            lexdef.add_action(subject.unique_id(), subject.state(), f);
+        }
+
+        Subject subject;
+        Action f;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        action& operator= (action const&);
+    };
+
+}}}
+
+///////////////////////////////////////////////////////////////////////////////
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Karma action meta-compiler
+    template <>
+    struct make_component<lex::domain, tag::action>
+    {
+        template <typename Sig>
+        struct result;
+
+        template <typename This, typename Elements, typename Modifiers>
+        struct result<This(Elements, Modifiers)>
+        {
+            typedef typename
+                remove_const<typename Elements::car_type>::type
+            subject_type;
+
+            typedef typename
+                remove_const<typename Elements::cdr_type::car_type>::type
+            action_type;
+
+            typedef lex::action<subject_type, action_type> type;
+        };
+
+        template <typename Elements>
+        typename result<make_component(Elements, unused_type)>::type
+        operator()(Elements const& elements, unused_type) const
+        {
+            typename result<make_component(Elements, unused_type)>::type
+                result(elements.car, elements.cdr.car);
+            return result;
         }
     };
-    
-}}} // namespace boost::spirit::lex
+}}
 
 #endif

@@ -1,7 +1,7 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(FUSION_AT_05042005_0722)
@@ -9,6 +9,7 @@
 
 #include <boost/mpl/int.hpp>
 #include <boost/type_traits/is_const.hpp>
+#include <boost/fusion/sequence/intrinsic_fwd.hpp>
 #include <boost/fusion/support/tag_of.hpp>
 #include <boost/fusion/support/detail/access.hpp>
 
@@ -17,9 +18,10 @@ namespace boost { namespace fusion
     // Special tags:
     struct sequence_facade_tag;
     struct boost_tuple_tag; // boost::tuples::tuple tag
-    struct array_tag; // boost::array tag
+    struct boost_array_tag; // boost::array tag
     struct mpl_sequence_tag; // mpl sequence tag
     struct std_pair_tag; // std::pair tag
+    struct std_tuple_tag; // std::tuple tag
 
     namespace extension
     {
@@ -41,19 +43,22 @@ namespace boost { namespace fusion
         struct at_impl<boost_tuple_tag>;
 
         template <>
-        struct at_impl<array_tag>;
+        struct at_impl<boost_array_tag>;
 
         template <>
         struct at_impl<mpl_sequence_tag>;
 
         template <>
         struct at_impl<std_pair_tag>;
+
+        template <>
+        struct at_impl<std_tuple_tag>;
     }
 
     namespace result_of
     {
         template <typename Sequence, typename N>
-        struct at 
+        struct at
             : extension::at_impl<typename detail::tag_of<Sequence>::type>::
                 template apply<Sequence, N>
         {};
@@ -66,7 +71,7 @@ namespace boost { namespace fusion
 
 
     template <typename N, typename Sequence>
-    inline typename 
+    inline typename
         lazy_disable_if<
             is_const<Sequence>
           , result_of::at<Sequence, N>
@@ -84,21 +89,21 @@ namespace boost { namespace fusion
     }
 
     template <int N, typename Sequence>
-    inline typename 
+    inline typename
         lazy_disable_if<
             is_const<Sequence>
           , result_of::at_c<Sequence, N>
         >::type
     at_c(Sequence& seq)
     {
-        return at<mpl::int_<N> >(seq);
+        return fusion::at<mpl::int_<N> >(seq);
     }
 
     template <int N, typename Sequence>
     inline typename result_of::at_c<Sequence const, N>::type
     at_c(Sequence const& seq)
     {
-        return at<mpl::int_<N> >(seq);
+        return fusion::at<mpl::int_<N> >(seq);
     }
 }}
 

@@ -5,6 +5,10 @@
 //  in all copies. This software is provided "as is" without express or
 //  implied warranty, and with no claim as to its suitability for any purpose.
 
+// boostinspect:nolicense (don't complain about the lack of a Boost license)
+// (Paul Moore hasn't been in contact for years, so there's no way to change the
+// license.)
+
 //  See http://www.boost.org/libs/rational for documentation.
 
 //  Credits:
@@ -51,7 +55,7 @@
 #define BOOST_RATIONAL_HPP
 
 #include <iostream>              // for std::istream and std::ostream
-#include <iomanip>               // for std::noskipws
+#include <ios>                   // for std::noskipws
 #include <stdexcept>             // for std::domain_error
 #include <string>                // for std::string implicit constructor
 #include <boost/operators.hpp>   // for boost::addable etc
@@ -437,11 +441,18 @@ bool rational<IntType>::operator< (const rational<IntType>& r) const
     }
     else
     {
+#ifdef BOOST_MSVC
+#pragma warning(push)
+#pragma warning(disable:4800)
+#endif
         // Exactly one of the remainders is zero, so all following c.f.
         // components of that variable are infinity, while the other variable
         // has a finite next c.f. component.  So that other variable has the
         // lesser value (modulo the reversal flag!).
         return ( ts.r != zero ) != static_cast<bool>( reverse );
+#ifdef BOOST_MSVC
+#pragma warning(pop)
+#endif
     }
 }
 

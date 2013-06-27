@@ -25,6 +25,7 @@
 #include <boost/bimap/relation/support/get_pair_functor.hpp>
 #include <boost/bimap/relation/detail/to_mutable_relation_functor.hpp>
 #include <boost/bimap/relation/mutant_relation.hpp>
+#include <boost/bimap/container_adaptor/support/iterator_facade_converters.hpp>
 
 namespace boost {
 namespace bimaps {
@@ -45,7 +46,7 @@ class set_view_key_to_base
 template< class MutantRelationStorage, class KeyToBase >
 class set_view_key_to_base<MutantRelationStorage,MutantRelationStorage,KeyToBase>
 {
-	typedef BOOST_DEDUCED_TYPENAME MutantRelationStorage::non_mutable_storage non_mutable_storage;
+    typedef BOOST_DEDUCED_TYPENAME MutantRelationStorage::non_mutable_storage non_mutable_storage;
     public:
     const MutantRelationStorage & operator()( const non_mutable_storage & k ) const
     {

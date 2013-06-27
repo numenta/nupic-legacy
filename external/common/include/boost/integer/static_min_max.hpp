@@ -12,39 +12,35 @@
 
 #include <boost/integer_fwd.hpp>  // self include
 
-#include <boost/config.hpp>  // for BOOST_STATIC_CONSTANT
-
-
 namespace boost
 {
-
 
 //  Compile-time extrema class declarations  ---------------------------------//
 //  Get the minimum or maximum of two values, signed or unsigned.
 
-template < long Value1, long Value2 >
+template <static_min_max_signed_type Value1, static_min_max_signed_type Value2>
 struct static_signed_min
 {
-    BOOST_STATIC_CONSTANT( long, value = (Value1 > Value2) ? Value2 : Value1 );
+    BOOST_STATIC_CONSTANT(static_min_max_signed_type, value = (Value1 > Value2) ? Value2 : Value1 );
 };
 
-template < long Value1, long Value2 >
+template <static_min_max_signed_type Value1, static_min_max_signed_type Value2>
 struct static_signed_max
 {
-    BOOST_STATIC_CONSTANT( long, value = (Value1 < Value2) ? Value2 : Value1 );
+    BOOST_STATIC_CONSTANT(static_min_max_signed_type, value = (Value1 < Value2) ? Value2 : Value1 );
 };
 
-template < unsigned long Value1, unsigned long Value2 >
+template <static_min_max_unsigned_type Value1, static_min_max_unsigned_type Value2>
 struct static_unsigned_min
 {
-    BOOST_STATIC_CONSTANT( unsigned long, value
+    BOOST_STATIC_CONSTANT(static_min_max_unsigned_type, value
      = (Value1 > Value2) ? Value2 : Value1 );
 };
 
-template < unsigned long Value1, unsigned long Value2 >
+template <static_min_max_unsigned_type Value1, static_min_max_unsigned_type Value2>
 struct static_unsigned_max
 {
-    BOOST_STATIC_CONSTANT( unsigned long, value
+    BOOST_STATIC_CONSTANT(static_min_max_unsigned_type, value
      = (Value1 < Value2) ? Value2 : Value1 );
 };
 

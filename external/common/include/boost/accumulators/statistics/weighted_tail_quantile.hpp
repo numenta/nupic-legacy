@@ -131,6 +131,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::quantile> const weighted_tail_quantile = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_tail_quantile)
 }
 
 using extract::weighted_tail_quantile;

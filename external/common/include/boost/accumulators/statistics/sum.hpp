@@ -107,6 +107,10 @@ namespace extract
     extractor<tag::sum> const sum = {};
     extractor<tag::sum_of_weights> const sum_of_weights = {};
     extractor<tag::abstract_sum_of_variates> const sum_of_variates = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(sum)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(sum_of_weights)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(sum_of_variates)
 }
 
 using extract::sum;

@@ -6,16 +6,20 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland 
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
  */
 
 /*! @file local_time_adjustor.hpp
   Time adjustment calculations for local times
 */
 
-#include "boost/date_time/date_generators.hpp"
-#include "boost/date_time/dst_rules.hpp"
 #include <stdexcept>
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/date_generators.hpp>
+#include <boost/date_time/dst_rules.hpp>
+#include <boost/date_time/time_defs.hpp> // boost::date_time::dst_flags
+#include <boost/date_time/special_defs.hpp> // not_a_date_time
 
 namespace boost {
   namespace date_time {
@@ -109,7 +113,7 @@ namespace boost {
         time_is_dst_result dst_flag = 
           dst_rules::local_is_dst(initial.date(), initial.time_of_day());
         switch(dst_flag) {
-    case is_in_dst:        return utc_offset_rules::utc_to_local_base_offset() + dst_rules::dst_offset();
+        case is_in_dst:        return utc_offset_rules::utc_to_local_base_offset() + dst_rules::dst_offset();
         case is_not_in_dst:    return utc_offset_rules::utc_to_local_base_offset();
         case invalid_time_label:return utc_offset_rules::utc_to_local_base_offset() + dst_rules::dst_offset();
         case ambiguous: {
@@ -125,15 +129,15 @@ namespace boost {
           }
         }
         }//case
-        //TODO  better excpetion type
-        throw std::out_of_range("Unreachable case");
-
+        //TODO  better exception type
+        boost::throw_exception(std::out_of_range("Unreachable case"));
+        BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(return time_duration_type(not_a_date_time)); // should never reach
       }
 
       //! Get the offset to UTC given a local time
       static time_duration_type local_to_utc_offset(const time_type& t, 
                                                     date_time::dst_flags dst=date_time::calculate) 
-      { 
+      {
         switch (dst) {
         case is_dst:
           return utc_offset_rules::local_to_utc_base_offset() - dst_rules::dst_offset();
@@ -146,13 +150,14 @@ namespace boost {
           case is_in_dst:      return utc_offset_rules::local_to_utc_base_offset() - dst_rules::dst_offset();
           case is_not_in_dst:      return utc_offset_rules::local_to_utc_base_offset();
           case ambiguous:          return utc_offset_rules::local_to_utc_base_offset();
-          case invalid_time_label: throw std::out_of_range("Time label invalid");
+          case invalid_time_label: break;
           }
-        }  
-        throw std::out_of_range("Time label invalid");
+        }
+        boost::throw_exception(std::out_of_range("Time label invalid"));
+        BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(return time_duration_type(not_a_date_time)); // should never reach
       }
 
-    
+
     private:
 
     };

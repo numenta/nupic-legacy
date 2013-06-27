@@ -37,16 +37,16 @@ inline const                                                                 \
 lambda_functor<                                                              \
   lambda_functor_base<                                                       \
     ACTION,                                                                  \
-    tuple<lambda_functor<Arg>, typename CONVERSION <CONSTB>::type>         \
+    tuple<lambda_functor<Arg>, typename const_copy_argument <CONSTB>::type>  \
   >                                                                          \
 >                                                                            \
 OPER_NAME (const lambda_functor<Arg>& a, CONSTB& b) {                      \
   return                                                                     \
     lambda_functor_base<                                                     \
       ACTION,                                                                \
-      tuple<lambda_functor<Arg>, typename CONVERSION <CONSTB>::type>       \
+      tuple<lambda_functor<Arg>, typename const_copy_argument <CONSTB>::type>\
     >                                                                        \
-   (tuple<lambda_functor<Arg>, typename CONVERSION <CONSTB>::type>(a, b)); \
+   (tuple<lambda_functor<Arg>, typename const_copy_argument <CONSTB>::type>(a, b)); \
 }
 
 
@@ -258,17 +258,17 @@ operator>>(const lambda_functor<Arg>& a, Ret(&b)(ManipArg))
 #error "Multiple defines of  BOOST_LAMBDA_PTR_ARITHMETIC_E1"
 #endif
 
-#define BOOST_LAMBDA_PTR_ARITHMETIC_E1(OPER_NAME, ACTION, CONSTB)            \
+#define BOOST_LAMBDA_PTR_ARITHMETIC_E1(OPER_NAME, ACTION, CONSTB)           \
 template<class Arg, int N, class B>                                         \
 inline const                                                                \
 lambda_functor<                                                             \
-  lambda_functor_base<ACTION, tuple<lambda_functor<Arg>, CONSTB(&)[N]> >   \
+  lambda_functor_base<ACTION, tuple<lambda_functor<Arg>, CONSTB(&)[N]> >    \
 >                                                                           \
-OPER_NAME (const lambda_functor<Arg>& a, CONSTB(&b)[N])                    \
+OPER_NAME (const lambda_functor<Arg>& a, CONSTB(&b)[N])                     \
 {                                                                           \
-  return lambda_functor<                                                    \
-    lambda_functor_base<ACTION, tuple<lambda_functor<Arg>, CONSTB(&)[N]> > \
-  >(tuple<lambda_functor<Arg>, CONSTB(&)[N]>(a, b));                       \
+  return                                                                    \
+    lambda_functor_base<ACTION, tuple<lambda_functor<Arg>, CONSTB(&)[N]> >  \
+  (tuple<lambda_functor<Arg>, CONSTB(&)[N]>(a, b));                         \
 }
 
 
@@ -276,15 +276,15 @@ OPER_NAME (const lambda_functor<Arg>& a, CONSTB(&b)[N])                    \
 #error "Multiple defines of  BOOST_LAMBDA_PTR_ARITHMETIC_E2"
 #endif
 
-#define BOOST_LAMBDA_PTR_ARITHMETIC_E2(OPER_NAME, ACTION, CONSTA)             \
-template<int N, class A, class Arg>                                          \
-inline const                                                                 \
-lambda_functor<                                                              \
+#define BOOST_LAMBDA_PTR_ARITHMETIC_E2(OPER_NAME, ACTION, CONSTA)           \
+template<int N, class A, class Arg>                                         \
+inline const                                                                \
+lambda_functor<                                                             \
   lambda_functor_base<ACTION, tuple<CONSTA(&)[N], lambda_functor<Arg> > >   \
->                                                                            \
+>                                                                           \
 OPER_NAME (CONSTA(&a)[N], const lambda_functor<Arg>& b)                     \
-{                                                                            \
-  return                                                                     \
+{                                                                           \
+  return                                                                    \
     lambda_functor_base<ACTION, tuple<CONSTA(&)[N], lambda_functor<Arg> > > \
     (tuple<CONSTA(&)[N], lambda_functor<Arg> >(a, b));                      \
 }

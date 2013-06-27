@@ -61,13 +61,19 @@ inline bool can_start(unsigned short c, const unsigned char* map, unsigned char 
 {
    return ((c >= (1 << CHAR_BIT)) ? true : map[c] & mask);
 }
-#if !defined(__hpux) // WCHAR_MIN not usable in pp-directives.
+#if !defined(__hpux) && !defined(__WINSCW__)// WCHAR_MIN not usable in pp-directives.
 #if defined(WCHAR_MIN) && (WCHAR_MIN == 0) && !defined(BOOST_NO_INTRINSIC_WCHAR_T)
 inline bool can_start(wchar_t c, const unsigned char* map, unsigned char mask)
 {
-   return ((c >= (1 << CHAR_BIT)) ? true : map[c] & mask);
+   return ((c >= static_cast<wchar_t>(1u << CHAR_BIT)) ? true : map[c] & mask);
 }
 #endif
+#endif
+#if !defined(BOOST_NO_INTRINSIC_WCHAR_T)
+inline bool can_start(unsigned int c, const unsigned char* map, unsigned char mask)
+{
+   return (((c >= static_cast<unsigned int>(1u << CHAR_BIT)) ? true : map[c] & mask));
+}
 #endif
 
 
@@ -271,15 +277,21 @@ public:
       else
       {
          repeater_count* p = next;
-         while(p->state_id != state_id)
+         while(p && (p->state_id != state_id))
             p = p->next;
-         count = p->count;
-         start_pos = p->start_pos;
+         if(p)
+         {
+            count = p->count;
+            start_pos = p->start_pos;
+         }
+         else
+            count = 0;
       }
    }
    ~repeater_count()
    {
-      *stack = next;
+      if(next)
+         *stack = next;
    }
    std::size_t get_count() { return count; }
    int get_id() { return state_id; }
@@ -319,9 +331,23 @@ enum saved_state_type
    saved_state_count = 14
 };
 
+template <class Results>
+struct recursion_info
+{
+   typedef typename Results::value_type value_type;
+   typedef typename value_type::iterator iterator;
+   int idx;
+   const re_syntax_base* preturn_address;
+   Results results;
+   repeater_count<iterator>* repeater_stack;
+};
+
 #ifdef BOOST_MSVC
 #pragma warning(push)
-#pragma warning(disable : 4251 4231 4660)
+#pragma warning(disable : 4251 4231)
+#  if BOOST_MSVC < 1600
+#     pragma warning(disable : 4660)
+#  endif
 #endif
 
 template <class BidiIterator, class Allocator, class traits>
@@ -334,6 +360,7 @@ public:
    typedef std::size_t traits_size_type;
    typedef typename is_byte<char_type>::width_type width_type;
    typedef typename regex_iterator_traits<BidiIterator>::difference_type difference_type;
+   typedef match_results<BidiIterator, Allocator> results_type;
 
    perl_matcher(BidiIterator first, BidiIterator end, 
       match_results<BidiIterator, Allocator>& what, 
@@ -397,12 +424,17 @@ private:
    bool match_char_repeat();
    bool match_dot_repeat_fast();
    bool match_dot_repeat_slow();
+   bool match_dot_repeat_dispatch()
+   {
+      return ::boost::is_random_access_iterator<BidiIterator>::value ? match_dot_repeat_fast() : match_dot_repeat_slow();
+   }
    bool match_backstep();
    bool match_assert_backref();
    bool match_toggle_case();
 #ifdef BOOST_REGEX_RECURSIVE
    bool backtrack_till_match(std::size_t count);
 #endif
+   bool match_recursion();
 
    // find procs stored in s_find_vtable:
    bool find_restart_any();
@@ -439,9 +471,9 @@ private:
    // matching flags in use:
    match_flag_type m_match_flags;
    // how many states we have examined so far:
-   boost::uintmax_t state_count;
+   std::ptrdiff_t state_count;
    // max number of states to examine before giving up:
-   boost::uintmax_t max_state_count;
+   std::ptrdiff_t max_state_count;
    // whether we should ignore case or not:
    bool icase;
    // set to true when (position == last), indicates that we may have a partial match:
@@ -458,6 +490,8 @@ private:
    typename traits::char_class_type m_word_mask;
    // the bitmask to use when determining whether a match_any matches a newline or not:
    unsigned char match_any_mask;
+   // recursion information:
+   std::vector<recursion_info<results_type> > recursion_stack;
 
 #ifdef BOOST_REGEX_NON_RECURSIVE
    //
@@ -481,6 +515,8 @@ private:
    bool unwind_short_set_repeat(bool);
    bool unwind_long_set_repeat(bool);
    bool unwind_non_greedy_repeat(bool);
+   bool unwind_recursion(bool);
+   bool unwind_recursion_pop(bool);
    void destroy_single_repeat();
    void push_matched_paren(int index, const sub_match<BidiIterator>& sub);
    void push_recursion_stopper();
@@ -489,7 +525,8 @@ private:
    void push_repeater_count(int i, repeater_count<BidiIterator>** s);
    void push_single_repeat(std::size_t c, const re_repeat* r, BidiIterator last_position, int state_id);
    void push_non_greedy_repeat(const re_syntax_base* ps);
-
+   void push_recursion(int idx, const re_syntax_base* p, results_type* presults);
+   void push_recursion_pop();
 
    // pointer to base of stack:
    saved_state* m_stack_base;

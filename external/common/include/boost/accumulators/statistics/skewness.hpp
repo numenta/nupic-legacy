@@ -58,11 +58,11 @@ namespace impl
         result_type result(Args const &args) const
         {
             return numeric::average(
-                        moment<3>(args)
-                        - 3. * moment<2>(args) * mean(args)
+                        accumulators::moment<3>(args)
+                        - 3. * accumulators::moment<2>(args) * mean(args)
                         + 2. * mean(args) * mean(args) * mean(args)
-                      , ( moment<2>(args) - mean(args) * mean(args) )
-                        * std::sqrt( moment<2>(args) - mean(args) * mean(args) )
+                      , ( accumulators::moment<2>(args) - mean(args) * mean(args) )
+                        * std::sqrt( accumulators::moment<2>(args) - mean(args) * mean(args) )
                    );
         }
     };
@@ -89,6 +89,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::skewness> const skewness = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(skewness)
 }
 
 using extract::skewness;

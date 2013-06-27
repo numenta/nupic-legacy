@@ -30,7 +30,7 @@ namespace registry
   BOOST_PYTHON_DECL void insert(to_python_function_t, type_info, PyTypeObject const* (*to_python_target_type)() = 0);
 
   // Insert an lvalue from_python converter
-  BOOST_PYTHON_DECL void insert(void* (*convert)(PyObject*), type_info, PyTypeObject const* (*expected_pytype)() = 0);
+  BOOST_PYTHON_DECL void insert(convertible_function, type_info, PyTypeObject const* (*expected_pytype)() = 0);
 
   // Insert an rvalue from_python converter
   BOOST_PYTHON_DECL void insert(

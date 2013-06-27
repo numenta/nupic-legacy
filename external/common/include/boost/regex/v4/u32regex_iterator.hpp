@@ -178,7 +178,7 @@ inline u32regex_iterator<typename std::basic_string<charT, Traits, Alloc>::const
    typedef typename std::basic_string<charT, Traits, Alloc>::const_iterator iter_type;
    return u32regex_iterator<iter_type>(p.begin(), p.end(), e, m);
 }
-inline u32regex_iterator<const UChar*> make_u32regex_iterator(const UnicodeString& s, const u32regex& e, regex_constants::match_flag_type m = regex_constants::match_default)
+inline u32regex_iterator<const UChar*> make_u32regex_iterator(const U_NAMESPACE_QUALIFIER UnicodeString& s, const u32regex& e, regex_constants::match_flag_type m = regex_constants::match_default)
 {
    return u32regex_iterator<const UChar*>(s.getBuffer(), s.getBuffer() + s.length(), e, m);
 }

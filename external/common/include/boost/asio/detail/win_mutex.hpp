@@ -1,8 +1,8 @@
 //
-// win_mutex.hpp
-// ~~~~~~~~~~~~~
+// detail/win_mutex.hpp
+// ~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,23 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
-#include <boost/system/system_error.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_WINDOWS)
 
-#include <boost/asio/error.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
-#include <boost/asio/detail/socket_types.hpp>
 #include <boost/asio/detail/scoped_lock.hpp>
+#include <boost/asio/detail/socket_types.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/asio/detail/pop_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -44,18 +36,7 @@ public:
   typedef boost::asio::detail::scoped_lock<win_mutex> scoped_lock;
 
   // Constructor.
-  win_mutex()
-  {
-    int error = do_init();
-    if (error != 0)
-    {
-      boost::system::system_error e(
-          boost::system::error_code(error,
-            boost::asio::error::get_system_category()),
-          "mutex");
-      boost::throw_exception(e);
-    }
-  }
+  BOOST_ASIO_DECL win_mutex();
 
   // Destructor.
   ~win_mutex()
@@ -66,15 +47,7 @@ public:
   // Lock the mutex.
   void lock()
   {
-    int error = do_lock();
-    if (error != 0)
-    {
-      boost::system::system_error e(
-          boost::system::error_code(error,
-            boost::asio::error::get_system_category()),
-          "mutex");
-      boost::throw_exception(e);
-    }
+    ::EnterCriticalSection(&crit_section_);
   }
 
   // Unlock the mutex.
@@ -87,55 +60,7 @@ private:
   // Initialisation must be performed in a separate function to the constructor
   // since the compiler does not support the use of structured exceptions and
   // C++ exceptions in the same function.
-  int do_init()
-  {
-#if defined(__MINGW32__)
-    // Not sure if MinGW supports structured exception handling, so for now
-    // we'll just call the Windows API and hope.
-    ::InitializeCriticalSection(&crit_section_);
-    return 0;
-#else
-    __try
-    {
-      ::InitializeCriticalSection(&crit_section_);
-    }
-    __except(GetExceptionCode() == STATUS_NO_MEMORY
-        ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-    {
-      return ERROR_OUTOFMEMORY;
-    }
-
-    return 0;
-#endif
-  }
-
-  // Locking must be performed in a separate function to lock() since the
-  // compiler does not support the use of structured exceptions and C++
-  // exceptions in the same function.
-  int do_lock()
-  {
-#if defined(__MINGW32__)
-    // Not sure if MinGW supports structured exception handling, so for now
-    // we'll just call the Windows API and hope.
-    ::EnterCriticalSection(&crit_section_);
-    return 0;
-#else
-    __try
-    {
-      ::EnterCriticalSection(&crit_section_);
-    }
-    __except(GetExceptionCode() == STATUS_INVALID_HANDLE
-        || GetExceptionCode() == STATUS_NO_MEMORY
-        ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-    {
-      if (GetExceptionCode() == STATUS_NO_MEMORY)
-        return ERROR_OUTOFMEMORY;
-      return ERROR_INVALID_HANDLE;
-    }
-
-    return 0;
-#endif
-  }
+  BOOST_ASIO_DECL int do_init();
 
   ::CRITICAL_SECTION crit_section_;
 };
@@ -144,8 +69,12 @@ private:
 } // namespace asio
 } // namespace boost
 
-#endif // defined(BOOST_WINDOWS)
-
 #include <boost/asio/detail/pop_options.hpp>
+
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/detail/impl/win_mutex.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
+
+#endif // defined(BOOST_WINDOWS)
 
 #endif // BOOST_ASIO_DETAIL_WIN_MUTEX_HPP

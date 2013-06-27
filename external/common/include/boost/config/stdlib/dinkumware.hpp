@@ -55,8 +55,10 @@
 #  define BOOST_HAS_MACRO_USE_FACET
 #  ifndef _CPPLIB_VER
       // Updated Dinkum library defines this, and provides
-      // its own min and max definitions.
-#     define BOOST_NO_STD_MIN_MAX
+      // its own min and max definitions, as does MTA version.
+#     ifndef __MTA__ 
+#        define BOOST_NO_STD_MIN_MAX
+#     endif
 #     define BOOST_NO_MS_INT64_NUMERIC_LIMITS
 #  endif
 #endif
@@ -83,6 +85,46 @@
 // this may be an overly restrictive define, but regex fails without it:
 #  define BOOST_NO_STD_LOCALE
 #endif
+
+#include <typeinfo>
+#if ( (!_HAS_EXCEPTIONS && !defined(__ghs__)) || (!_HAS_NAMESPACE && defined(__ghs__)) ) 
+#  define BOOST_NO_STD_TYPEINFO    
+#endif  
+
+//  C++0x headers implemented in 520 (as shipped by Microsoft)
+//
+#if !defined(_CPPLIB_VER) || _CPPLIB_VER < 520
+#  define BOOST_NO_CXX11_HDR_ARRAY
+#  define BOOST_NO_CXX11_HDR_CODECVT
+#  define BOOST_NO_CXX11_HDR_FORWARD_LIST
+#  define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#  define BOOST_NO_CXX11_HDR_RANDOM
+#  define BOOST_NO_CXX11_HDR_REGEX
+#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define BOOST_NO_CXX11_HDR_UNORDERED_SET
+#  define BOOST_NO_CXX11_HDR_TUPLE
+#  define BOOST_NO_CXX11_HDR_TYPEINDEX
+#  define BOOST_NO_CXX11_HDR_FUNCTIONAL
+#  define BOOST_NO_CXX11_NUMERIC_LIMITS
+#  define BOOST_NO_CXX11_SMART_PTR
+#endif
+
+#if (!defined(_HAS_TR1_IMPORTS) || (_HAS_TR1_IMPORTS+0 == 0)) && !defined(BOOST_NO_CXX11_HDR_TUPLE)
+#  define BOOST_NO_CXX11_HDR_TUPLE
+#endif
+//
+//  C++0x headers not yet (fully) implemented:
+//
+#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
+#  define BOOST_NO_CXX11_HDR_CHRONO
+#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define BOOST_NO_CXX11_HDR_FUTURE
+#  define BOOST_NO_CXX11_HDR_MUTEX
+#  define BOOST_NO_CXX11_HDR_RATIO
+#  define BOOST_NO_CXX11_HDR_THREAD
+#  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
 
 #ifdef _CPPLIB_VER
 #  define BOOST_DINKUMWARE_STDLIB _CPPLIB_VER

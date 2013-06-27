@@ -142,7 +142,7 @@ struct select_parser_gen {
     //
     //      template <typename ParserT0, ...>
     //      select_parser<
-    //          phoenix::tuple<
+    //          ::phoenix::tuple<
     //              typename impl::as_embedded_parser<ParserT0>::type,
     //              ...
     //          >,
@@ -154,7 +154,7 @@ struct select_parser_gen {
     //          typedef impl::as_embedded_parser<ParserT0> parser_t0;
     //          ...
     //
-    //          typedef phoenix::tuple< 
+    //          typedef ::phoenix::tuple< 
     //                  parser_t0::type,
     //                  ...
     //              > tuple_t; 
@@ -186,7 +186,7 @@ struct select_parser_gen {
             BOOST_PP_ENUM_PARAMS_Z(z, BOOST_PP_INC(N), typename ParserT)    \
         >                                                                   \
         select_parser<                                                      \
-            phoenix::tuple<                                                 \
+            ::phoenix::tuple<                                                 \
                 BOOST_PP_ENUM_ ## z(BOOST_PP_INC(N),                        \
                     BOOST_SPIRIT_SELECT_EMBEDDED, _)                        \
             >,                                                              \
@@ -201,7 +201,7 @@ struct select_parser_gen {
             BOOST_PP_REPEAT_ ## z(BOOST_PP_INC(N),                          \
                 BOOST_SPIRIT_SELECT_EMBEDDED_TYPEDEF, _)                    \
                                                                             \
-            typedef phoenix::tuple<                                         \
+            typedef ::phoenix::tuple<                                         \
                     BOOST_PP_ENUM_BINARY_PARAMS_Z(z, BOOST_PP_INC(N),       \
                         typename parser_t, ::type BOOST_PP_INTERCEPT)       \
                 > tuple_t;                                                  \

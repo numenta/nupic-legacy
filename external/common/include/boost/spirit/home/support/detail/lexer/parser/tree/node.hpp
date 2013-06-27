@@ -1,12 +1,12 @@
 // node.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 #ifndef BOOST_LEXER_NODE_HPP
 #define BOOST_LEXER_NODE_HPP
 
-#include <assert.h>
+#include <boost/assert.hpp>
 #include "../../containers/ptr_vector.hpp"
 #include "../../runtime_error.hpp"
 #include "../../size_t.hpp"
@@ -89,13 +89,14 @@ public:
             {
                 const node *top_ = node_stack_.top ();
 
-                top_->copy_node (node_ptr_vector_, new_node_stack_, perform_op_stack_, down_);
+                top_->copy_node (node_ptr_vector_, new_node_stack_,
+                    perform_op_stack_, down_);
 
                 if (!down_) node_stack_.pop ();
             }
         }
 
-        assert (new_node_stack_.size () == 1);
+        BOOST_ASSERT(new_node_stack_.size () == 1);
         new_root_ = new_node_stack_.top ();
         new_node_stack_.pop ();
         return new_root_;
@@ -130,6 +131,11 @@ public:
     virtual std::size_t id () const
     {
         throw runtime_error ("Internal error node::id()");
+    }
+
+    virtual std::size_t unique_id () const
+    {
+        throw runtime_error ("Internal error node::unique_id()");
     }
 
     virtual std::size_t lexer_state () const

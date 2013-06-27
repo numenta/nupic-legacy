@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -50,7 +50,7 @@ struct BOOST_WAVE_DECL expression_grammar_gen {
     typedef TokenT token_type;
     typedef std::list<token_type, boost::fast_pool_allocator<token_type> >
         token_sequence_type;
-        
+
     static bool evaluate(
         typename token_sequence_type::const_iterator const &first, 
         typename token_sequence_type::const_iterator const &last, 

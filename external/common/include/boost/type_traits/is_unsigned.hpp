@@ -24,13 +24,25 @@ namespace boost {
 
 namespace detail{
 
-#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238)
+#if !(defined(__EDG_VERSION__) && __EDG_VERSION__ <= 238) && !defined(BOOST_NO_INCLASS_MEMBER_INITIALIZATION)
+
+template <class T>
+struct is_unsigned_values
+{
+   //
+   // Note that we cannot use BOOST_STATIC_CONSTANT here, using enum's
+   // rather than "real" static constants simply doesn't work or give
+   // the correct answer.
+   //
+   typedef typename remove_cv<T>::type no_cv_t;
+   static const no_cv_t minus_one = (static_cast<no_cv_t>(-1));
+   static const no_cv_t zero = (static_cast<no_cv_t>(0));
+};
 
 template <class T>
 struct is_ununsigned_helper
 {
-   typedef typename remove_cv<T>::type no_cv_t;
-   BOOST_STATIC_CONSTANT(bool, value = (static_cast<no_cv_t>(-1) > 0));
+   BOOST_STATIC_CONSTANT(bool, value = (::boost::detail::is_unsigned_values<T>::minus_one > ::boost::detail::is_unsigned_values<T>::zero));
 };
 
 template <bool integral_type>
@@ -97,7 +109,7 @@ template <> struct is_unsigned_imp<const char> : public true_type{};
 template <> struct is_unsigned_imp<volatile char> : public true_type{};
 template <> struct is_unsigned_imp<const volatile char> : public true_type{};
 #endif
-#if defined(WCHAR_MIN) && (WCHAR_MIN == 0)
+#if defined(WCHAR_MIN) && (WCHAR_MIN == 0) && !defined(BOOST_NO_INTRINSIC_WCHAR_T)
 template <> struct is_unsigned_imp<wchar_t> : public true_type{};
 template <> struct is_unsigned_imp<const wchar_t> : public true_type{};
 template <> struct is_unsigned_imp<volatile wchar_t> : public true_type{};

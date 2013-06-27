@@ -68,7 +68,7 @@ namespace boost {
             for(;itBegin!=itEnd; ++itBegin)
             {
                 // Add separator
-                detail::insert(Result, ::boost::end(Result), as_literal(Separator));
+                detail::insert(Result, ::boost::end(Result), ::boost::as_literal(Separator));
                 // Add element
                 detail::insert(Result, ::boost::end(Result), *itBegin);
             }
@@ -123,7 +123,7 @@ namespace boost {
                 if(Pred(*itBegin))
                 {
                     // Add separator
-                    detail::insert(Result, ::boost::end(Result), as_literal(Separator));
+                    detail::insert(Result, ::boost::end(Result), ::boost::as_literal(Separator));
                     // Add element
                     detail::insert(Result, ::boost::end(Result), *itBegin);
                 }

@@ -27,8 +27,8 @@ bool is_unknown(width const &that);
 // width
 struct width
 {
-    width(std::size_t value = 0)
-      : value_(value)
+    width(std::size_t val = 0)
+      : value_(val)
     {
     }
 

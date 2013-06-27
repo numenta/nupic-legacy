@@ -20,6 +20,7 @@
 
 #include <boost/bimap/container_adaptor/list_adaptor.hpp>
 #include <boost/bimap/detail/set_view_base.hpp>
+#include <boost/bimap/detail/map_view_base.hpp>
 
 namespace boost {
 namespace bimaps {

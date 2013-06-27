@@ -1,8 +1,8 @@
 //
-// win_tss_ptr.hpp
-// ~~~~~~~~~~~~~~~
+// detail/win_tss_ptr.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,51 +15,31 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
-#include <boost/system/system_error.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_WINDOWS)
 
-#include <boost/asio/error.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
 #include <boost/asio/detail/socket_types.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/asio/detail/pop_options.hpp>
 
 namespace boost {
 namespace asio {
 namespace detail {
+
+// Helper function to create thread-specific storage.
+BOOST_ASIO_DECL DWORD win_tss_ptr_create();
 
 template <typename T>
 class win_tss_ptr
   : private noncopyable
 {
 public:
-#if defined(UNDER_CE)
-  enum { out_of_indexes = 0xFFFFFFFF };
-#else
-  enum { out_of_indexes = TLS_OUT_OF_INDEXES };
-#endif
-
   // Constructor.
   win_tss_ptr()
+    : tss_key_(win_tss_ptr_create())
   {
-    tss_key_ = ::TlsAlloc();
-    if (tss_key_ == out_of_indexes)
-    {
-      DWORD last_error = ::GetLastError();
-      boost::system::system_error e(
-          boost::system::error_code(last_error,
-            boost::asio::error::get_system_category()),
-          "tss");
-      boost::throw_exception(e);
-    }
   }
 
   // Destructor.
@@ -90,8 +70,12 @@ private:
 } // namespace asio
 } // namespace boost
 
-#endif // defined(BOOST_WINDOWS)
-
 #include <boost/asio/detail/pop_options.hpp>
+
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/detail/impl/win_tss_ptr.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
+
+#endif // defined(BOOST_WINDOWS)
 
 #endif // BOOST_ASIO_DETAIL_WIN_TSS_PTR_HPP

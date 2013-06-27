@@ -55,7 +55,7 @@ struct composite_mode
 //
 // Template name: composite_device.
 // Description: Provides a Device view of a Filter, Device pair.
-// Template paramters:
+// Template parameters:
 //      Filter - A model of Filter.
 //      Device - An indirect model of Device.
 //
@@ -74,6 +74,8 @@ private:
                 is_std_io<Device>,  Device&,
                 else_,              Device
             >::type                                         value_type;
+    BOOST_STATIC_ASSERT(is_filter<Filter>::value);
+    BOOST_STATIC_ASSERT(is_device<Device>::value);
 public:
     typedef typename char_type_of<Filter>::type             char_type;
     struct category
@@ -113,7 +115,7 @@ private:
 //
 // Template name: composite_device.
 // Description: Provides a Device view of a Filter, Device pair.
-// Template paramters:
+// Template parameters:
 //      Filter - A model of Filter.
 //      Device - An indirect model of Device.
 //
@@ -140,6 +142,8 @@ private:
         !(is_convertible<first_mode, output>::value) ||
          (is_convertible<first_mode, dual_use>::value)
     );
+    BOOST_STATIC_ASSERT(is_filter<Filter1>::value);
+    BOOST_STATIC_ASSERT(is_filter<Filter2>::value);
 public:
     typedef typename char_type_of<Filter1>::type  char_type;
     struct category

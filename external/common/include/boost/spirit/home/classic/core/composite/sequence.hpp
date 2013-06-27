@@ -36,6 +36,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     //////////////////////////////////////////////////////////////////////////
     struct sequence_parser_gen;
     
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
     template <typename A, typename B>
     struct sequence : public binary<A, B, parser<sequence<A, B> > >
     {
@@ -61,6 +66,10 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             return scan.no_match();
         }
     };
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
     
     struct sequence_parser_gen
     {

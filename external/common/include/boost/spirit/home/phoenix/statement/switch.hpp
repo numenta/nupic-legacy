@@ -146,6 +146,19 @@ namespace boost { namespace phoenix
         return detail::compose_case_b<Seq, D>::eval(
             seq, static_cast<D const&>(case_));
     }
+
+    // Implementation of routines in detail/switch.hpp that depend on
+    // the completeness of default_case.
+    namespace detail {
+        template <typename Cases>
+        typename ensure_default<Cases>::type
+        ensure_default<Cases>::eval(Cases const& cases, mpl::false_)
+        {
+            actor<default_case<actor<null_actor> > > default_
+              = default_case<actor<null_actor> >(nothing);
+            return fusion::push_front(cases, default_);
+        }
+    }
 }}
 
 #endif

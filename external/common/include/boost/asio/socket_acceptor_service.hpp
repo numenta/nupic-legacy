@@ -2,7 +2,7 @@
 // socket_acceptor_service.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,17 +15,18 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
+#include <boost/asio/detail/config.hpp>
 #include <boost/asio/basic_socket.hpp>
 #include <boost/asio/error.hpp>
 #include <boost/asio/io_service.hpp>
-#include <boost/asio/detail/epoll_reactor.hpp>
-#include <boost/asio/detail/kqueue_reactor.hpp>
-#include <boost/asio/detail/select_reactor.hpp>
-#include <boost/asio/detail/service_base.hpp>
-#include <boost/asio/detail/reactive_socket_service.hpp>
-#include <boost/asio/detail/win_iocp_socket_service.hpp>
+
+#if defined(BOOST_ASIO_HAS_IOCP)
+# include <boost/asio/detail/win_iocp_socket_service.hpp>
+#else
+# include <boost/asio/detail/reactive_socket_service.hpp>
+#endif
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -55,18 +56,8 @@ private:
   // The type of the platform-specific implementation.
 #if defined(BOOST_ASIO_HAS_IOCP)
   typedef detail::win_iocp_socket_service<Protocol> service_impl_type;
-#elif defined(BOOST_ASIO_HAS_EPOLL)
-  typedef detail::reactive_socket_service<
-      Protocol, detail::epoll_reactor<false> > service_impl_type;
-#elif defined(BOOST_ASIO_HAS_KQUEUE)
-  typedef detail::reactive_socket_service<
-      Protocol, detail::kqueue_reactor<false> > service_impl_type;
-#elif defined(BOOST_ASIO_HAS_DEV_POLL)
-  typedef detail::reactive_socket_service<
-      Protocol, detail::dev_poll_reactor<false> > service_impl_type;
 #else
-  typedef detail::reactive_socket_service<
-      Protocol, detail::select_reactor<false> > service_impl_type;
+  typedef detail::reactive_socket_service<Protocol> service_impl_type;
 #endif
 
 public:
@@ -77,23 +68,25 @@ public:
   typedef typename service_impl_type::implementation_type implementation_type;
 #endif
 
-  /// The native acceptor type.
+  /// (Deprecated: Use native_handle_type.) The native acceptor type.
 #if defined(GENERATING_DOCUMENTATION)
   typedef implementation_defined native_type;
 #else
-  typedef typename service_impl_type::native_type native_type;
+  typedef typename service_impl_type::native_handle_type native_type;
+#endif
+
+  /// The native acceptor type.
+#if defined(GENERATING_DOCUMENTATION)
+  typedef implementation_defined native_handle_type;
+#else
+  typedef typename service_impl_type::native_handle_type native_handle_type;
 #endif
 
   /// Construct a new socket acceptor service for the specified io_service.
   explicit socket_acceptor_service(boost::asio::io_service& io_service)
     : boost::asio::detail::service_base<
         socket_acceptor_service<Protocol> >(io_service),
-      service_impl_(boost::asio::use_service<service_impl_type>(io_service))
-  {
-  }
-
-  /// Destroy all user-defined handler objects owned by the service.
-  void shutdown_service()
+      service_impl_(io_service)
   {
   }
 
@@ -102,6 +95,23 @@ public:
   {
     service_impl_.construct(impl);
   }
+
+#if defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
+  /// Move-construct a new socket acceptor implementation.
+  void move_construct(implementation_type& impl,
+      implementation_type& other_impl)
+  {
+    service_impl_.move_construct(impl, other_impl);
+  }
+
+  /// Move-assign from another socket acceptor implementation.
+  void move_assign(implementation_type& impl,
+      socket_acceptor_service& other_service,
+      implementation_type& other_impl)
+  {
+    service_impl_.move_assign(impl, other_service.service_impl_, other_impl);
+  }
+#endif // defined(BOOST_ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
 
   /// Destroy a socket acceptor implementation.
   void destroy(implementation_type& impl)
@@ -118,7 +128,7 @@ public:
 
   /// Assign an existing native acceptor to a socket acceptor.
   boost::system::error_code assign(implementation_type& impl,
-      const protocol_type& protocol, const native_type& native_acceptor,
+      const protocol_type& protocol, const native_handle_type& native_acceptor,
       boost::system::error_code& ec)
   {
     return service_impl_.assign(impl, protocol, native_acceptor, ec);
@@ -159,10 +169,16 @@ public:
     return service_impl_.close(impl, ec);
   }
 
-  /// Get the native acceptor implementation.
+  /// (Deprecated: Use native_handle().) Get the native acceptor implementation.
   native_type native(implementation_type& impl)
   {
-    return service_impl_.native(impl);
+    return service_impl_.native_handle(impl);
+  }
+
+  /// Get the native acceptor implementation.
+  native_handle_type native_handle(implementation_type& impl)
+  {
+    return service_impl_.native_handle(impl);
   }
 
   /// Set a socket option.
@@ -189,6 +205,32 @@ public:
     return service_impl_.io_control(impl, command, ec);
   }
 
+  /// Gets the non-blocking mode of the acceptor.
+  bool non_blocking(const implementation_type& impl) const
+  {
+    return service_impl_.non_blocking(impl);
+  }
+
+  /// Sets the non-blocking mode of the acceptor.
+  boost::system::error_code non_blocking(implementation_type& impl,
+      bool mode, boost::system::error_code& ec)
+  {
+    return service_impl_.non_blocking(impl, mode, ec);
+  }
+
+  /// Gets the non-blocking mode of the native acceptor implementation.
+  bool native_non_blocking(const implementation_type& impl) const
+  {
+    return service_impl_.native_non_blocking(impl);
+  }
+
+  /// Sets the non-blocking mode of the native acceptor implementation.
+  boost::system::error_code native_non_blocking(implementation_type& impl,
+      bool mode, boost::system::error_code& ec)
+  {
+    return service_impl_.native_non_blocking(impl, mode, ec);
+  }
+
   /// Get the local endpoint.
   endpoint_type local_endpoint(const implementation_type& impl,
       boost::system::error_code& ec) const
@@ -209,14 +251,22 @@ public:
   template <typename SocketService, typename AcceptHandler>
   void async_accept(implementation_type& impl,
       basic_socket<protocol_type, SocketService>& peer,
-      endpoint_type* peer_endpoint, AcceptHandler handler)
+      endpoint_type* peer_endpoint,
+      BOOST_ASIO_MOVE_ARG(AcceptHandler) handler)
   {
-    service_impl_.async_accept(impl, peer, peer_endpoint, handler);
+    service_impl_.async_accept(impl, peer, peer_endpoint,
+        BOOST_ASIO_MOVE_CAST(AcceptHandler)(handler));
   }
 
 private:
-  // The service that provides the platform-specific implementation.
-  service_impl_type& service_impl_;
+  // Destroy all user-defined handler objects owned by the service.
+  void shutdown_service()
+  {
+    service_impl_.shutdown_service();
+  }
+
+  // The platform-specific implementation.
+  service_impl_type service_impl_;
 };
 
 } // namespace asio

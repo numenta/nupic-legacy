@@ -15,13 +15,15 @@
 # pragma once
 #endif
 
-#include <string>                          // file pathnames.
+#include <string>
 #include <boost/cstdint.hpp>               // intmax_t.
 #include <boost/iostreams/categories.hpp>  // tags.
 #include <boost/iostreams/detail/config/auto_link.hpp>
 #include <boost/iostreams/detail/config/dyn_link.hpp>
 #include <boost/iostreams/detail/config/windows_posix.hpp>
+#include <boost/iostreams/detail/file_handle.hpp>
 #include <boost/iostreams/detail/ios.hpp>  // openmode, seekdir, int types.
+#include <boost/iostreams/detail/path.hpp>
 #include <boost/iostreams/positioning.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -30,82 +32,119 @@
 
 namespace boost { namespace iostreams {
 
+// Forward declarations
+class file_descriptor_source;
+class file_descriptor_sink;
+namespace detail { struct file_descriptor_impl; }
+
+enum file_descriptor_flags
+{
+    never_close_handle = 0,
+    close_handle = 3
+};
+
 class BOOST_IOSTREAMS_DECL file_descriptor {
 public:
-#ifdef BOOST_IOSTREAMS_WINDOWS
-    typedef void*  handle_type;  // A.k.a HANDLE
-#else
-    typedef int    handle_type;
-#endif
-    typedef char   char_type;
+    friend class file_descriptor_source;
+    friend class file_descriptor_sink;
+    typedef detail::file_handle  handle_type;
+    typedef char                 char_type;
     struct category
         : seekable_device_tag,
           closable_tag
         { };
+
+    // Default constructor
     file_descriptor();
+
+    // Constructors taking file desciptors
+    file_descriptor(handle_type fd, file_descriptor_flags);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    file_descriptor(int fd, file_descriptor_flags);
+#endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // Constructors taking file desciptors
     explicit file_descriptor(handle_type fd, bool close_on_exit = false);
 #ifdef BOOST_IOSTREAMS_WINDOWS
     explicit file_descriptor(int fd, bool close_on_exit = false);
 #endif
+#endif
+
+    // Constructor taking a std:: string
     explicit file_descriptor( const std::string& path,
                               BOOST_IOS::openmode mode =
-                                  BOOST_IOS::in | BOOST_IOS::out,
-                              BOOST_IOS::openmode base_mode =
                                   BOOST_IOS::in | BOOST_IOS::out );
+
+    // Constructor taking a C-style string
     explicit file_descriptor( const char* path,
                               BOOST_IOS::openmode mode =
-                                  BOOST_IOS::in | BOOST_IOS::out,
-                              BOOST_IOS::openmode base_mode =
                                   BOOST_IOS::in | BOOST_IOS::out );
+
+    // Constructor taking a Boost.Filesystem path
+    template<typename Path>
+    explicit file_descriptor( const Path& path,
+                              BOOST_IOS::openmode mode =
+                                  BOOST_IOS::in | BOOST_IOS::out )
+    { 
+        init();
+        open(detail::path(path), mode); 
+    }
+
+    // Copy constructor
+    file_descriptor(const file_descriptor& other);
+
+    // open overloads taking file descriptors
+    void open(handle_type fd, file_descriptor_flags);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, file_descriptor_flags);
+#endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // open overloads taking file descriptors
+    void open(handle_type fd, bool close_on_exit = false);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, bool close_on_exit = false);
+#endif
+#endif
+
+    // open overload taking a std::string
     void open( const std::string& path,
-               BOOST_IOS::openmode =
-                   BOOST_IOS::in | BOOST_IOS::out,
-               BOOST_IOS::openmode base_mode =
+               BOOST_IOS::openmode mode =
                    BOOST_IOS::in | BOOST_IOS::out );
+
+    // open overload taking C-style string
     void open( const char* path,
-               BOOST_IOS::openmode =
-                   BOOST_IOS::in | BOOST_IOS::out,
-               BOOST_IOS::openmode base_mode =
+               BOOST_IOS::openmode mode =
                    BOOST_IOS::in | BOOST_IOS::out );
-    bool is_open() const { return pimpl_->flags_ != 0; }
+
+    // open overload taking a Boost.Filesystem path
+    template<typename Path>
+    void open( const Path& path,
+               BOOST_IOS::openmode mode =
+                   BOOST_IOS::in | BOOST_IOS::out )
+    { open(detail::path(path), mode); }
+
+    bool is_open() const;
+    void close();
     std::streamsize read(char_type* s, std::streamsize n);
     std::streamsize write(const char_type* s, std::streamsize n);
     std::streampos seek(stream_offset off, BOOST_IOS::seekdir way);
-    void close();
-    handle_type handle() const { return pimpl_->handle_; }
+    handle_type handle() const;
 private:
-    struct impl {
-        impl() : 
-            #ifdef BOOST_IOSTREAMS_WINDOWS
-                handle_(reinterpret_cast<handle_type>(-1)), 
-            #else
-                handle_(-1),
-            #endif
-                flags_(0) 
-            { }
-        impl(handle_type fd, bool close_on_exit)
-            : handle_(fd), flags_(0)
-        { if (close_on_exit) flags_ |= impl::close_on_exit; }
-        ~impl() 
-        { if (flags_ & close_on_exit) close_impl(*this); }
-        enum flags {
-            close_on_exit = 1,
-            append = 4
-        };
-        handle_type  handle_;
-        int          flags_;
-    };
-    friend struct impl;
+    void init();
 
-    static void close_impl(impl&);
-#ifdef BOOST_IOSTREAMS_WINDOWS
-    static handle_type int_to_handle(int fd);
-#endif
+    // open overload taking a detail::path
+    void open( const detail::path& path, 
+               BOOST_IOS::openmode, 
+               BOOST_IOS::openmode = BOOST_IOS::openmode(0) );
 
-    shared_ptr<impl> pimpl_;
+    typedef detail::file_descriptor_impl impl_type;
+    shared_ptr<impl_type> pimpl_;
 };
 
-struct file_descriptor_source : private file_descriptor {
+class BOOST_IOSTREAMS_DECL file_descriptor_source : private file_descriptor {
+public:
 #ifdef BOOST_IOSTREAMS_WINDOWS
     typedef void*  handle_type;  // A.k.a HANDLE
 #else
@@ -117,32 +156,77 @@ struct file_descriptor_source : private file_descriptor {
         device_tag,
         closable_tag
       { };
-    using file_descriptor::read;
-    using file_descriptor::seek;
-    using file_descriptor::open;
     using file_descriptor::is_open;
     using file_descriptor::close;
+    using file_descriptor::read;
+    using file_descriptor::seek;
     using file_descriptor::handle;
+
+    // Default constructor
     file_descriptor_source() { }
-    explicit file_descriptor_source(handle_type fd, bool close_on_exit = false)
-        : file_descriptor(fd, close_on_exit)
-        { }
+
+    // Constructors taking file desciptors
+    explicit file_descriptor_source(handle_type fd, file_descriptor_flags);
 #ifdef BOOST_IOSTREAMS_WINDOWS
-    explicit file_descriptor_source(int fd, bool close_on_exit = false)
-        : file_descriptor(fd, close_on_exit)
-        { }
+    explicit file_descriptor_source(int fd, file_descriptor_flags);
 #endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // Constructors taking file desciptors
+    explicit file_descriptor_source(handle_type fd, bool close_on_exit = false);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    explicit file_descriptor_source(int fd, bool close_on_exit = false);
+#endif
+#endif
+
+    // Constructor taking a std:: string
     explicit file_descriptor_source( const std::string& path,
-                                     BOOST_IOS::openmode m = BOOST_IOS::in )
-        : file_descriptor(path, m & ~BOOST_IOS::out, BOOST_IOS::in)
-        { }
+                                     BOOST_IOS::openmode mode = BOOST_IOS::in );
+
+    // Constructor taking a C-style string
     explicit file_descriptor_source( const char* path,
-                                     BOOST_IOS::openmode m = BOOST_IOS::in )
-        : file_descriptor(path, m & ~BOOST_IOS::out, BOOST_IOS::in)
-        { }
+                                     BOOST_IOS::openmode mode = BOOST_IOS::in );
+
+    // Constructor taking a Boost.Filesystem path
+    template<typename Path>
+    explicit file_descriptor_source( const Path& path,
+                                     BOOST_IOS::openmode mode = BOOST_IOS::in )
+    { open(detail::path(path), mode); }
+
+    // Copy constructor
+    file_descriptor_source(const file_descriptor_source& other);
+
+    // Constructors taking file desciptors
+    void open(handle_type fd, file_descriptor_flags);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, file_descriptor_flags);
+#endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // open overloads taking file descriptors
+    void open(handle_type fd, bool close_on_exit = false);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, bool close_on_exit = false);
+#endif
+#endif
+
+    // open overload taking a std::string
+    void open(const std::string& path, BOOST_IOS::openmode mode = BOOST_IOS::in);
+
+    // open overload taking C-style string
+    void open(const char* path, BOOST_IOS::openmode mode = BOOST_IOS::in);
+
+    // open overload taking a Boost.Filesystem path
+    template<typename Path>
+    void open(const Path& path, BOOST_IOS::openmode mode = BOOST_IOS::in);
+private:
+
+    // open overload taking a detail::path
+    void open(const detail::path& path, BOOST_IOS::openmode);
 };
 
-struct file_descriptor_sink : private file_descriptor {
+class BOOST_IOSTREAMS_DECL file_descriptor_sink : private file_descriptor {
+public:
 #ifdef BOOST_IOSTREAMS_WINDOWS
     typedef void*  handle_type;  // A.k.a HANDLE
 #else
@@ -154,29 +238,77 @@ struct file_descriptor_sink : private file_descriptor {
         device_tag,
         closable_tag
       { };
-    using file_descriptor::write;
-    using file_descriptor::seek;
-    using file_descriptor::open;
     using file_descriptor::is_open;
     using file_descriptor::close;
+    using file_descriptor::write;
+    using file_descriptor::seek;
     using file_descriptor::handle;
+
+    // Default constructor
     file_descriptor_sink() { }
-    explicit file_descriptor_sink(handle_type fd, bool close_on_exit = false)
-        : file_descriptor(fd, close_on_exit)
-        { }
+
+    // Constructors taking file desciptors
+    file_descriptor_sink(handle_type fd, file_descriptor_flags);
 #ifdef BOOST_IOSTREAMS_WINDOWS
-    explicit file_descriptor_sink(int fd, bool close_on_exit = false)
-        : file_descriptor(fd, close_on_exit)
-        { }
+    file_descriptor_sink(int fd, file_descriptor_flags);
 #endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // Constructors taking file desciptors
+    explicit file_descriptor_sink(handle_type fd, bool close_on_exit = false);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    explicit file_descriptor_sink(int fd, bool close_on_exit = false);
+#endif
+#endif
+
+    // Constructor taking a std:: string
     explicit file_descriptor_sink( const std::string& path,
-                                   BOOST_IOS::openmode m = BOOST_IOS::out )
-        : file_descriptor(path, m & ~BOOST_IOS::in, BOOST_IOS::out)
-        { }
+                                   BOOST_IOS::openmode mode = BOOST_IOS::out );
+
+    // Constructor taking a C-style string
     explicit file_descriptor_sink( const char* path,
-                                   BOOST_IOS::openmode m = BOOST_IOS::out )
-        : file_descriptor(path, m & ~BOOST_IOS::in, BOOST_IOS::out)
-        { }
+                                   BOOST_IOS::openmode mode = BOOST_IOS::out );
+
+    // Constructor taking a Boost.Filesystem path
+    template<typename Path>
+    explicit file_descriptor_sink( const Path& path,
+                                   BOOST_IOS::openmode mode = BOOST_IOS::out )
+    { open(detail::path(path), mode); }
+
+    // Copy constructor
+    file_descriptor_sink(const file_descriptor_sink& other);
+
+    // open overloads taking file descriptors
+    void open(handle_type fd, file_descriptor_flags);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, file_descriptor_flags);
+#endif
+
+#if defined(BOOST_IOSTREAMS_USE_DEPRECATED)
+    // open overloads taking file descriptors
+    void open(handle_type fd, bool close_on_exit = false);
+#ifdef BOOST_IOSTREAMS_WINDOWS
+    void open(int fd, bool close_on_exit = false);
+#endif
+#endif
+
+    // open overload taking a std::string
+    void open( const std::string& path, 
+               BOOST_IOS::openmode mode = BOOST_IOS::out );
+
+    // open overload taking C-style string
+    void open( const char* path, 
+               BOOST_IOS::openmode mode = BOOST_IOS::out );
+
+    // open overload taking a Boost.Filesystem path
+    template<typename Path>
+    void open( const Path& path, 
+               BOOST_IOS::openmode mode = BOOST_IOS::out )
+    { open(detail::path(path), mode); }
+private:
+
+    // open overload taking a detail::path
+    void open(const detail::path& path, BOOST_IOS::openmode);
 };
 
 } } // End namespaces iostreams, boost.

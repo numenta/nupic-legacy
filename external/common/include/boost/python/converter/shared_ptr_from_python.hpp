@@ -45,10 +45,14 @@ struct shared_ptr_from_python
         if (data->convertible == source)
             new (storage) shared_ptr<T>();
         else
+        {
+            boost::shared_ptr<void> hold_convertible_ref_count(
+              (void*)0, shared_ptr_deleter(handle<>(borrowed(source))) );
+            // use aliasing constructor
             new (storage) shared_ptr<T>(
-                static_cast<T*>(data->convertible),
-                shared_ptr_deleter(handle<>(borrowed(source)))
-                );
+                hold_convertible_ref_count,
+                static_cast<T*>(data->convertible));
+        }
         
         data->convertible = storage;
     }

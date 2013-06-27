@@ -55,8 +55,8 @@ inline decorated_type_info::decorated_type_info(type_info base_t, decoration dec
 inline bool decorated_type_info::operator<(decorated_type_info const& rhs) const
 {
     return m_decoration < rhs.m_decoration
-        || m_decoration == rhs.m_decoration
-           && m_base_type < rhs.m_base_type;
+      || (m_decoration == rhs.m_decoration
+          && m_base_type < rhs.m_base_type);
 }
 
 inline bool decorated_type_info::operator==(decorated_type_info const& rhs) const

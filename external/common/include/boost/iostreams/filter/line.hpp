@@ -13,11 +13,12 @@
 #endif
 
 #include <algorithm>                               // min.
-#include <cassert>
+#include <boost/assert.hpp>
 #include <memory>                                  // allocator.
 #include <string>
 #include <boost/config.hpp>                        // BOOST_STATIC_CONSTANT.
 #include <boost/iostreams/categories.hpp>
+#include <boost/iostreams/checked_operations.hpp>
 #include <boost/iostreams/detail/ios.hpp>          // openmode, streamsize.
 #include <boost/iostreams/read.hpp>                // check_eof 
 #include <boost/iostreams/pipeline.hpp>
@@ -30,7 +31,7 @@ namespace boost { namespace iostreams {
 
 //
 // Template name: line_filter.
-// Template paramters:
+// Template parameters:
 //      Ch - The character type.
 //      Alloc - The allocator type.
 // Description: Filter which processes data one line at a time.
@@ -61,7 +62,10 @@ public:
           closable_tag
         { };
 protected:
-    basic_line_filter() : pos_(string_type::npos), state_(0) { }
+    basic_line_filter(bool suppress_newlines = false) 
+        : pos_(string_type::npos), 
+          flags_(suppress_newlines ? f_suppress : 0) 
+        { }
 public:
     virtual ~basic_line_filter() { }
 
@@ -69,8 +73,8 @@ public:
     std::streamsize read(Source& src, char_type* s, std::streamsize n)
     {
         using namespace std;
-        assert(!(state_ & f_write));
-        state_ |= f_read;
+        BOOST_ASSERT(!(flags_ & f_write));
+        flags_ |= f_read;
 
         // Handle unfinished business.
         std::streamsize result = 0;
@@ -80,7 +84,7 @@ public:
         typename traits_type::int_type status = traits_type::good();
         while (result < n && !traits_type::is_eof(status)) {
 
-            // Call next_line() to retrieve a line of filtered test, and
+            // Call next_line() to retrieve a line of filtered text, and
             // read_line() to copy it into buffer s.
             if (traits_type::would_block(status = next_line(src)))
                 return result;
@@ -94,8 +98,8 @@ public:
     std::streamsize write(Sink& snk, const char_type* s, std::streamsize n)
     {
         using namespace std;
-        assert(!(state_ & f_read));
-        state_ |= f_write;
+        BOOST_ASSERT(!(flags_ & f_read));
+        flags_ |= f_write;
 
         // Handle unfinished business.
         if (pos_ != string_type::npos && !write_line(snk))
@@ -122,10 +126,10 @@ public:
     template<typename Sink>
     void close(Sink& snk, BOOST_IOS::openmode which)
     {
-        if ((state_ & f_read) && which == BOOST_IOS::in)
+        if ((flags_ & f_read) && which == BOOST_IOS::in)
             close_impl();
 
-        if ((state_ & f_write) && which == BOOST_IOS::out) {
+        if ((flags_ & f_write) && which == BOOST_IOS::out) {
             try {
                 if (!cur_line_.empty())
                     write_line(snk);
@@ -168,7 +172,7 @@ private:
         if (!traits_type::would_block(c)) {
             if (!cur_line_.empty() || c == traits_type::newline())
                 cur_line_ = do_filter(cur_line_);
-            if (c == traits_type::newline())
+            if (c == traits_type::newline() && (flags_ & f_suppress) == 0)
                 cur_line_ += c;
         }
         return c; // status indicator.
@@ -179,9 +183,11 @@ private:
     template<typename Sink>
     bool write_line(Sink& snk)
     {
-        string_type line = do_filter(cur_line_) + traits_type::newline();
+        string_type line = do_filter(cur_line_);
+        if ((flags_ & f_suppress) == 0)
+            line += traits_type::newline();
         std::streamsize amt = static_cast<std::streamsize>(line.size());
-        bool result = iostreams::write(snk, line.data(), amt) == amt;
+        bool result = iostreams::write_if(snk, line.data(), amt) == amt;
         if (result)
             clear();
         return result;
@@ -190,7 +196,7 @@ private:
     void close_impl()
     {
         clear();
-        state_ = 0;
+        flags_ &= f_suppress;
     }
 
     void clear()
@@ -200,13 +206,14 @@ private:
     }
 
     enum flag_type {
-        f_read   = 1,
-        f_write  = f_read << 1
+        f_read      = 1,
+        f_write     = f_read << 1,
+        f_suppress  = f_write << 1
     };
 
     string_type                      cur_line_;
     typename string_type::size_type  pos_;
-    int                              state_;
+    int                              flags_;
 };
 BOOST_IOSTREAMS_PIPABLE(basic_line_filter, 2)
 

@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : contains definition for all test tools in test toolbox
 // ***************************************************************************
@@ -78,7 +78,7 @@
         P,                                                              \
         ::boost::unit_test::lazy_ostream::instance() << check_descr,    \
         BOOST_TEST_L(__FILE__),                                         \
-        (std::size_t)__LINE__,                                          \
+        static_cast<std::size_t>(__LINE__),                             \
         ::boost::test_tools::tt_detail::TL,                             \
         ::boost::test_tools::tt_detail::CT                              \
 /**/
@@ -306,7 +306,7 @@ namespace test_tools {
 
 typedef unit_test::const_string      const_string;
 
-namespace { bool const dummy_cond = false; }
+namespace { bool dummy_cond = false; }
 
 // ************************************************************************** //
 // **************                print_log_value               ************** //
@@ -319,9 +319,9 @@ struct print_log_value {
         // avoid warning: 'boost::test_tools::<unnamed>::dummy_cond' defined but not used 
         if (::boost::test_tools::dummy_cond) {}
 
-        typedef typename mpl::or_<is_array<T>,is_function<T>,is_abstract<T> >::type couldnt_use_nl;
+        typedef typename mpl::or_<is_array<T>,is_function<T>,is_abstract<T> >::type cant_use_nl;
 
-        set_precision( ostr, couldnt_use_nl() );
+        set_precision( ostr, cant_use_nl() );
 
         ostr << t; // by default print the value
     }
@@ -485,15 +485,15 @@ bool check_impl( predicate_result const& pr, ::boost::unit_test::lazy_ostream co
 
 #define TEMPL_PARAMS( z, m, dummy ) , typename BOOST_JOIN( Arg, m )
 #define FUNC_PARAMS( z, m, dummy )                                                  \
-    , BOOST_JOIN( Arg, m ) const& BOOST_JOIN( arg, m )                              \
-    , char const* BOOST_JOIN( BOOST_JOIN( arg, m ), _descr )                        \
+ , BOOST_JOIN( Arg, m ) const& BOOST_JOIN( arg, m )                                 \
+ , char const* BOOST_JOIN( BOOST_JOIN( arg, m ), _descr )                           \
 /**/
 
 #define PRED_PARAMS( z, m, dummy ) BOOST_PP_COMMA_IF( m ) BOOST_JOIN( arg, m ) 
 
 #define ARG_INFO( z, m, dummy )                                                     \
-    , BOOST_JOIN( BOOST_JOIN( arg, m ), _descr )                                    \
-    , &(const unit_test::lazy_ostream&)(unit_test::lazy_ostream::instance()         \
+ , BOOST_JOIN( BOOST_JOIN( arg, m ), _descr )                                       \
+ , &static_cast<const unit_test::lazy_ostream&>(unit_test::lazy_ostream::instance() \
         << ::boost::test_tools::tt_detail::print_helper( BOOST_JOIN( arg, m ) ))    \
 /**/
 
@@ -539,15 +539,15 @@ predicate_result equal_impl( Left const& left, Right const& right )
 //____________________________________________________________________________//
 
 predicate_result        BOOST_TEST_DECL equal_impl( char const* left, char const* right );
-inline predicate_result equal_impl( char* left, char const* right ) { return equal_impl( (char const*)left, (char const*)right ); }
-inline predicate_result equal_impl( char const* left, char* right ) { return equal_impl( (char const*)left, (char const*)right ); }
-inline predicate_result equal_impl( char* left, char* right )       { return equal_impl( (char const*)left, (char const*)right ); }
+inline predicate_result equal_impl( char* left, char const* right ) { return equal_impl( static_cast<char const*>(left), static_cast<char const*>(right) ); }
+inline predicate_result equal_impl( char const* left, char* right ) { return equal_impl( static_cast<char const*>(left), static_cast<char const*>(right) ); }
+inline predicate_result equal_impl( char* left, char* right )       { return equal_impl( static_cast<char const*>(left), static_cast<char const*>(right) ); }
 
 #if !defined( BOOST_NO_CWCHAR )
 predicate_result        BOOST_TEST_DECL equal_impl( wchar_t const* left, wchar_t const* right );
-inline predicate_result equal_impl( wchar_t* left, wchar_t const* right ) { return equal_impl( (wchar_t const*)left, (wchar_t const*)right ); }
-inline predicate_result equal_impl( wchar_t const* left, wchar_t* right ) { return equal_impl( (wchar_t const*)left, (wchar_t const*)right ); }
-inline predicate_result equal_impl( wchar_t* left, wchar_t* right )       { return equal_impl( (wchar_t const*)left, (wchar_t const*)right ); }
+inline predicate_result equal_impl( wchar_t* left, wchar_t const* right ) { return equal_impl( static_cast<wchar_t const*>(left), static_cast<wchar_t const*>(right) ); }
+inline predicate_result equal_impl( wchar_t const* left, wchar_t* right ) { return equal_impl( static_cast<wchar_t const*>(left), static_cast<wchar_t const*>(right) ); }
+inline predicate_result equal_impl( wchar_t* left, wchar_t* right )       { return equal_impl( static_cast<wchar_t const*>(left), static_cast<wchar_t const*>(right) ); }
 #endif
 
 //____________________________________________________________________________//
