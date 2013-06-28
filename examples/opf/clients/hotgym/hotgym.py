@@ -78,12 +78,13 @@ def runHotgym():
           modelInput["timestamp"], "%m/%d/%y %H:%M")
       result = model.run(modelInput)
       result.metrics = metricsManager.update(result)
-      if i % 100 == 0:
+      isLast = i == _NUM_RECORDS
+      if i % 100 == 0 or isLast:
         _LOGGER.info("After %i records, 1-step altMAPE=%f", i,
                     result.metrics["multiStepBestPredictions:multiStep:"
                                    "errorMetric='altMAPE':steps=1:window=1000:"
                                    "field=consumption"])
-      if i == _NUM_RECORDS:
+      if isLast:
         break
 
 
