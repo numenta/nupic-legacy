@@ -1,5 +1,5 @@
 (function() {
-    var csvUrl = '../../resources/contributors.csv';
+    var csvUrl = '../resources/contributors.csv';
     var headers = ['Name', 'Github', 'Committer', 'Reviewer'];
     var html = '<table>\n<tr>';
     headers.forEach(function(header) {

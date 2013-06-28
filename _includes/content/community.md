@@ -14,7 +14,7 @@
 
 We believe the technology behind [NuPIC]({{ site.baseurl }}/nupic.html) is an important advance in machine learning and will be a critical component of machine intelligence.  We want to share it with everyone and support research and further development of these algorithms. There are many directions the algorithms within NuPIC could take, and we encourage you to get involved. Please read below to find out how you can interact with our development team and existing community members to push this technology into the future.
 
-Before your [pull requests](https://help.github.com/articles/using-pull-requests) will be reviewed by our team of committers, you'll need to sign our [Contributor License]({{ site.baseurl }}/licenses/cl/). You can see the current list of contributors who've signed our CL [here]( {{site.baseurl }}/licenses/cl/contributors.html).
+Before your [pull requests](https://help.github.com/articles/using-pull-requests) will be reviewed by our team of committers, you'll need to sign our [Contributor License]({{ site.baseurl }}/licenses/cl/). You can see the current list of contributors who've signed our CL [here]( {{site.baseurl }}/tools/contributors.html).
 
 ## Issue Tracker
 
