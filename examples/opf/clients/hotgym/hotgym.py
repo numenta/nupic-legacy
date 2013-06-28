@@ -71,21 +71,19 @@ def runHotgym():
     headers = reader.next()
     reader.next()
     reader.next()
-    n = 0
-    for record in reader:
+    for i, record in enumerate(reader, start=1):
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
           modelInput["timestamp"], "%m/%d/%y %H:%M")
       result = model.run(modelInput)
       result.metrics = metricsManager.update(result)
-      n += 1
-      if n % 100 == 0:
-        LOGGER.info("After %i records, 1-step altMAPE=%f", n,
+      if i % 100 == 0:
+        LOGGER.info("After %i records, 1-step altMAPE=%f", i,
                     result.metrics["multiStepBestPredictions:multiStep:"
                                    "errorMetric='altMAPE':steps=1:window=1000:"
                                    "field=consumption"])
-      if n == NUM_RECORDS:
+      if i == NUM_RECORDS:
         break
 
 
