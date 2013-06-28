@@ -95,29 +95,36 @@ def updateLibs(trunkdir):
         c = c + 1
   log.info("Updated %d libraries in arch %s" % (c, arch))
 
-    
-def clean(trunkdir):
-  """Remove all auto-generated Makefile.am's. Useful for debugging this script"""
-  for (path, dirs, files) in os.walk(trunkdir, topdown=True):
+
+def clean(path):
+  """Remove all auto-generated Makefile.am's. Useful for debugging this script.
+
+  Args:
+    path: path to the root of the repo to clean
+  """
+  for (path, dirs, files) in os.walk(path, topdown=True):
+    # Remove generated files.
     for f in copyList:
       if f in files:
         log.info("Removing %s in %s" % (f, path))
         os.remove(os.path.join(path, f))
         files.remove(f)
-    for file in files:
-      if file.endswith(".vcproj"):
-        log.info("Removing %s in %s" % (file, path))
-        os.remove(os.path.join(path, file))
+    # Remove vcproj files.
+    for f in files:
+      if f.endswith(".vcproj"):
+        log.info("Removing %s in %s" % (f, path))
+        os.remove(os.path.join(path, f))
+    # Skip directories in ignore list or with ignore dotfile.
+    for d in list(dirs):
+      if (os.path.exists(os.path.join(path, d, ".build_system_ignore")) or
+          d in ignoreList):
+        dirs.remove(d)
 
-    for dir in dirs:
-      if os.path.exists(os.path.join(path, dir, ".build_system_ignore")):
-        dirs.remove(dir)
-      elif dir in ignoreList:
-        dirs.remove(dir)
-  configureFile = os.path.join(trunkdir, "configure.ac")
+  # Remove the top-level configure.ac.
+  configureFile = os.path.join(path, "configure.ac")
   if os.path.exists(configureFile):
     os.remove(configureFile)
-  
+
 
 def usage():
   print """
