@@ -109,7 +109,7 @@ def clean(trunkdir):
         log.info("Removing %s in %s" % (file, path))
         os.remove(os.path.join(path, file))
 
-    for dir in dirs:
+    for dir in list(dirs):
       if os.path.exists(os.path.join(path, dir, ".build_system_ignore")):
         dirs.remove(dir)
       elif dir in ignoreList:
