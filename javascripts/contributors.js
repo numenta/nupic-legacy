@@ -1,11 +1,7 @@
 (function() {
-    var csvUrl = '../../resources/contributors.csv';
-    var headers = ['Name', 'Github', 'Committer', 'Reviewer'];
-    var html = '<table>\n<tr>';
-    headers.forEach(function(header) {
-        html += '<th>' + header + '</th>';
-    });
-    html += '</tr>\n';
+    var csvUrl = '../resources/contributors.csv';
+    var headings = ['Name', 'Github', 'Committer', 'Reviewer'];
+    var tmpl = Handlebars.compile($("#contributor-table").html());
 
     function csvToJson(csv) {
         var contributors = [],
@@ -15,8 +11,10 @@
             var obj = {},
                 person = line.split(',');
             header.forEach(function(key, i) {
-                if (person[i] == '0' || person[i] == '1') {
-                    obj[key] = parseInt(person[i]);
+                if (person[i] == '0') {
+                    obj[key] = '';
+                } else if (person[i] == '1') {
+                    obj[key] = '✔';
                 } else {
                     obj[key] = person[i];
                 }
@@ -27,23 +25,8 @@
     }
 
     $.ajax(csvUrl).done(function(csv) {
-        csvToJson(csv).forEach(function(person) {
-            html += '<tr>';
-            headers.forEach(function(header) {
-                var value = person[header];
-                if (value == 1) {
-                    value = '✔';
-                } else if (value == 0) {
-                    value = '';
-                } else if (header === 'Github') {
-                    value = '<a href="https://github.com/' + value + '">' + value + '</a>';
-                }
-                html += '<td>' + value + '</td>';
-            });
-            html += '</tr>\n';
-        });
-        html += '</table>\n';
-        $('#contributors').html(html);
+        var contribs = csvToJson(csv);
+        $('#contributors').html(tmpl({headings: headings, contributors: contribs}));
     });
 
 }());
