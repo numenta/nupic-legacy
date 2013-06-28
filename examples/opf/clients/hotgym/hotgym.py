@@ -24,6 +24,7 @@
 
 import csv
 import datetime
+import logging
 
 from nupic.data.datasethelpers import findDataset
 from nupic.frameworks.opf.metrics import MetricSpec
@@ -32,7 +33,9 @@ from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import model_params
 
-DATA_PATH = "extra/hotgym/hotgym.csv"
+LOGGER = logging.getLogger(__name__)
+
+DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
 
 METRIC_SPECS = (
     MetricSpec(field='consumption', metric='multiStep',
@@ -48,6 +51,8 @@ METRIC_SPECS = (
                inferenceElement='prediction',
                params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
 )
+
+NUM_RECORDS = 1000
 
 
 
@@ -66,16 +71,25 @@ def runHotgym():
     headers = reader.next()
     reader.next()
     reader.next()
+    n = 0
     for record in reader:
       modelInput = dict(zip(headers, record))
       modelInput["consumption"] = float(modelInput["consumption"])
       modelInput["timestamp"] = datetime.datetime.strptime(
-          modelInput["timestamp"], "%Y-%m-%d %H:%M:%S.%f")
+          modelInput["timestamp"], "%m/%d/%y %H:%M")
       result = model.run(modelInput)
       result.metrics = metricsManager.update(result)
-      print result
+      n += 1
+      if n % 100 == 0:
+        LOGGER.info("After %i records, 1-step altMAPE=%f", n,
+                    result.metrics["multiStepBestPredictions:multiStep:"
+                                   "errorMetric='altMAPE':steps=1:window=1000:"
+                                   "field=consumption"])
+      if n == NUM_RECORDS:
+        break
 
 
 
 if __name__ == "__main__":
+  logging.basicConfig(level=logging.INFO)
   runHotgym()
