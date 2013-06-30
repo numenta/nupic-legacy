@@ -7,7 +7,7 @@ NuPIC is a library that provides the building blocks for online prediction syste
 
 For more information, see [numenta.org](http://numenta.org).
 
-Issue tracker at [issues.numenta.org](https://issues.numenta.org/browse/NPC).
+Issue tracker at [issues.numenta.org](http://issues.numenta.org/browse/NPC).
 
 OPF Basics
 ----------
