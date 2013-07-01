@@ -27,3 +27,5 @@ And I welcome you to NuPIC, our new, open source community.  I know that this is
 > Donna Dubinsky<br/>
 > Board Chair, Grok Solutions<br/>
 > Co-Founder, Numenta Inc.
+
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1hfo0k/nupic_patent_position/)
