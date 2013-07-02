@@ -173,6 +173,17 @@ class unwrap_reference
 
 # endif // BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 
+template <class T> inline typename unwrap_reference<T>::type&
+unwrap_ref(T& t)
+{
+    return t;
+}
+
+template<class T> inline T* get_pointer( reference_wrapper<T> const & r )
+{
+    return r.get_pointer();
+}
+
 } // namespace boost
 
 #endif // #ifndef BOOST_REF_HPP_INCLUDED

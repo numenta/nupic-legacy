@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2005 Eric Niebler
     Copyright (c) 2007 Dan Marsden
 
@@ -109,7 +109,7 @@ namespace detail
     struct unrolled_any<0>
     {
         template <typename It, typename F>
-        static bool call(It const& it, F f)
+        static bool call(It const&, F)
         {
             return false;
         }

@@ -5,20 +5,22 @@
  * Subject to the Boost Software License, Version 1.0. 
  * (See accompanying file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2012-09-22 09:04:10 -0700 (Sat, 22 Sep 2012) $
  */
 
-#include "boost/shared_ptr.hpp"
-#include "boost/date_time/time_zone_names.hpp"
-#include "boost/date_time/time_zone_base.hpp"
-#include "boost/date_time/time_parsing.hpp"
-#include "boost/tokenizer.hpp"
-#include <string>
-#include <sstream>
 #include <map>
 #include <vector>
-#include <stdexcept>
+#include <string>
+#include <sstream>
 #include <fstream>
+#include <stdexcept>
+#include <boost/tokenizer.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/time_zone_names.hpp>
+#include <boost/date_time/time_zone_base.hpp>
+#include <boost/date_time/time_parsing.hpp>
 
 namespace boost {
   namespace date_time {
@@ -158,11 +160,21 @@ namespace boost {
       typedef typename time_zone_type::base_type time_zone_base_type;
       typedef typename time_zone_type::time_duration_type time_duration_type;
       typedef time_zone_names_base<char_type> time_zone_names;
-      typedef dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
+      typedef boost::date_time::dst_adjustment_offsets<time_duration_type> dst_adjustment_offsets;
       typedef std::basic_string<char_type> string_type;
 
       //! Constructs an empty database
       tz_db_base() {}
+
+      //! Process csv data file, may throw exceptions
+      /*! May throw bad_field_count exceptions */
+      void load_from_stream(std::istream &in)
+      {
+        std::string  buff;
+        while( std::getline(in, buff)) {
+          parse_string(buff);
+        }
+      }
 
       //! Process csv data file, may throw exceptions
       /*! May throw data_not_accessible, or bad_field_count exceptions */
@@ -173,23 +185,20 @@ namespace boost {
         
         std::ifstream ifs(pathspec.c_str());
         if(!ifs){
-          throw data_not_accessible(pathspec);
+          boost::throw_exception(data_not_accessible(pathspec));
         }
         std::getline(ifs, buff); // first line is column headings
-
-        while( std::getline(ifs, buff)) {
-          parse_string(buff);
-        }
+        this->load_from_stream(ifs);
       }
 
       //! returns true if record successfully added to map
-      /*! Takes an id string in the form of "America/Phoenix", and a 
+      /*! Takes a region name in the form of "America/Phoenix", and a 
        * time_zone object for that region. The id string must be a unique 
        * name that does not already exist in the database. */
-      bool add_record(const string_type& id, 
+      bool add_record(const string_type& region, 
                       boost::shared_ptr<time_zone_base_type> tz)
       {
-        typename map_type::value_type p(id, tz); 
+        typename map_type::value_type p(region, tz); 
         return (m_zone_map.insert(p)).second;
       }
 
@@ -307,7 +316,6 @@ namespace boost {
        * zone_spec successfully added to database */
       bool parse_string(string_type& s)
       {
-        
         std::vector<string_type> result;
         typedef boost::token_iterator_generator<boost::escaped_list_separator<char_type>, string_type::const_iterator, string_type >::type token_iter_type;
 
@@ -326,10 +334,11 @@ namespace boost {
         //take a shot at fixing gcc 4.x error
         const unsigned int expected_fields = static_cast<unsigned int>(FIELD_COUNT);
         if (result.size() != expected_fields) { 
-          std::stringstream msg;
+          std::ostringstream msg;
           msg << "Expecting " << FIELD_COUNT << " fields, got " 
             << result.size() << " fields in line: " << s;
-          throw bad_field_count(msg.str());
+          boost::throw_exception(bad_field_count(msg.str()));
+          BOOST_DATE_TIME_UNREACHABLE_EXPRESSION(return false); // should never reach
         }
 
         // initializations

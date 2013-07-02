@@ -36,7 +36,7 @@ inline T spherical_harmonic_prefix(unsigned n, unsigned m, T theta, const Policy
    T sin_theta = sin(theta);
    T x = cos(theta);
 
-   T leg = detail::legendre_p_imp(n, m, x, pow(fabs(sin_theta), T(m)), pol);
+   T leg = detail::legendre_p_imp(n, m, x, static_cast<T>(pow(fabs(sin_theta), T(m))), pol);
    
    T prefix = boost::math::tgamma_delta_ratio(static_cast<T>(n - m + 1), static_cast<T>(2 * m), pol);
    prefix *= (2 * n + 1) / (4 * constants::pi<T>());
@@ -61,7 +61,7 @@ T spherical_harmonic_r(unsigned n, int m, T theta, T phi, const Policy& pol)
    if(m&1)
    {
       // Check phase if theta is outside [0, PI]:
-      T mod = boost::math::tools::fmod_workaround(theta, 2 * constants::pi<T>());
+      T mod = boost::math::tools::fmod_workaround(theta, T(2 * constants::pi<T>()));
       if(mod < 0)
          mod += 2 * constants::pi<T>();
       if(mod > constants::pi<T>())
@@ -70,7 +70,7 @@ T spherical_harmonic_r(unsigned n, int m, T theta, T phi, const Policy& pol)
    // Get the value and adjust sign as required:
    T prefix = spherical_harmonic_prefix(n, m, theta, pol);
    prefix *= cos(m * phi);
-   return sign ? -prefix : prefix;
+   return sign ? T(-prefix) : prefix;
 }
 
 template <class T, class Policy>
@@ -88,7 +88,7 @@ T spherical_harmonic_i(unsigned n, int m, T theta, T phi, const Policy& pol)
    if(m&1)
    {
       // Check phase if theta is outside [0, PI]:
-      T mod = boost::math::tools::fmod_workaround(theta, 2 * constants::pi<T>());
+      T mod = boost::math::tools::fmod_workaround(theta, T(2 * constants::pi<T>()));
       if(mod < 0)
          mod += 2 * constants::pi<T>();
       if(mod > constants::pi<T>())
@@ -97,7 +97,7 @@ T spherical_harmonic_i(unsigned n, int m, T theta, T phi, const Policy& pol)
    // Get the value and adjust sign as required:
    T prefix = spherical_harmonic_prefix(n, m, theta, pol);
    prefix *= sin(m * phi);
-   return sign ? -prefix : prefix;
+   return sign ? T(-prefix) : prefix;
 }
 
 template <class T, class U, class Policy>

@@ -2,7 +2,7 @@
 // buffers_iterator.hpp
 // ~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,19 +15,16 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
+#include <iterator>
 #include <boost/assert.hpp>
-#include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/add_const.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/buffer.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -76,19 +73,47 @@ namespace detail
 /// A random access iterator over the bytes in a buffer sequence.
 template <typename BufferSequence, typename ByteType = char>
 class buffers_iterator
-  : public boost::iterator_facade<
-        buffers_iterator<BufferSequence, ByteType>,
-        typename detail::buffers_iterator_types<
-          BufferSequence, ByteType>::byte_type,
-        boost::random_access_traversal_tag>
 {
 private:
   typedef typename detail::buffers_iterator_types<
       BufferSequence, ByteType>::buffer_type buffer_type;
-  typedef typename detail::buffers_iterator_types<
-      BufferSequence, ByteType>::byte_type byte_type;
 
 public:
+  /// The type used for the distance between two iterators.
+  typedef std::ptrdiff_t difference_type;
+
+  /// The type of the value pointed to by the iterator.
+  typedef ByteType value_type;
+
+#if defined(GENERATING_DOCUMENTATION)
+  /// The type of the result of applying operator->() to the iterator.
+  /**
+   * If the buffer sequence stores buffer objects that are convertible to
+   * mutable_buffer, this is a pointer to a non-const ByteType. Otherwise, a
+   * pointer to a const ByteType.
+   */
+  typedef const_or_non_const_ByteType* pointer;
+#else // defined(GENERATING_DOCUMENTATION)
+  typedef typename detail::buffers_iterator_types<
+      BufferSequence, ByteType>::byte_type* pointer;
+#endif // defined(GENERATING_DOCUMENTATION)
+
+#if defined(GENERATING_DOCUMENTATION)
+  /// The type of the result of applying operator*() to the iterator.
+  /**
+   * If the buffer sequence stores buffer objects that are convertible to
+   * mutable_buffer, this is a reference to a non-const ByteType. Otherwise, a
+   * reference to a const ByteType.
+   */
+  typedef const_or_non_const_ByteType& reference;
+#else // defined(GENERATING_DOCUMENTATION)
+  typedef typename detail::buffers_iterator_types<
+      BufferSequence, ByteType>::byte_type& reference;
+#endif // defined(GENERATING_DOCUMENTATION)
+
+  /// The iterator category.
+  typedef std::random_access_iterator_tag iterator_category;
+
   /// Default constructor. Creates an iterator in an undefined state.
   buffers_iterator()
     : current_buffer_(),
@@ -103,7 +128,7 @@ public:
   /// Construct an iterator representing the beginning of the buffers' data.
   static buffers_iterator begin(const BufferSequence& buffers)
 #if BOOST_WORKAROUND(__GNUC__, == 4) && BOOST_WORKAROUND(__GNUC_MINOR__, == 3)
-    __attribute__ ((noinline))
+    __attribute__ ((__noinline__))
 #endif
   {
     buffers_iterator new_iter;
@@ -123,7 +148,7 @@ public:
   /// Construct an iterator representing the end of the buffers' data.
   static buffers_iterator end(const BufferSequence& buffers)
 #if BOOST_WORKAROUND(__GNUC__, == 4) && BOOST_WORKAROUND(__GNUC_MINOR__, == 3)
-    __attribute__ ((noinline))
+    __attribute__ ((__noinline__))
 #endif
   {
     buffers_iterator new_iter;
@@ -139,13 +164,145 @@ public:
     return new_iter;
   }
 
-private:
-  friend class boost::iterator_core_access;
-
-  // Dereference the iterator.
-  byte_type& dereference() const
+  /// Dereference an iterator.
+  reference operator*() const
   {
-    return buffer_cast<byte_type*>(current_buffer_)[current_buffer_position_];
+    return dereference();
+  }
+
+  /// Dereference an iterator.
+  pointer operator->() const
+  {
+    return &dereference();
+  }
+
+  /// Access an individual element.
+  reference operator[](std::ptrdiff_t difference) const
+  {
+    buffers_iterator tmp(*this);
+    tmp.advance(difference);
+    return *tmp;
+  }
+
+  /// Increment operator (prefix).
+  buffers_iterator& operator++()
+  {
+    increment();
+    return *this;
+  }
+
+  /// Increment operator (postfix).
+  buffers_iterator operator++(int)
+  {
+    buffers_iterator tmp(*this);
+    ++*this;
+    return tmp;
+  }
+
+  /// Decrement operator (prefix).
+  buffers_iterator& operator--()
+  {
+    decrement();
+    return *this;
+  }
+
+  /// Decrement operator (postfix).
+  buffers_iterator operator--(int)
+  {
+    buffers_iterator tmp(*this);
+    --*this;
+    return tmp;
+  }
+
+  /// Addition operator.
+  buffers_iterator& operator+=(std::ptrdiff_t difference)
+  {
+    advance(difference);
+    return *this;
+  }
+
+  /// Subtraction operator.
+  buffers_iterator& operator-=(std::ptrdiff_t difference)
+  {
+    advance(-difference);
+    return *this;
+  }
+
+  /// Addition operator.
+  friend buffers_iterator operator+(const buffers_iterator& iter,
+      std::ptrdiff_t difference)
+  {
+    buffers_iterator tmp(iter);
+    tmp.advance(difference);
+    return tmp;
+  }
+
+  /// Addition operator.
+  friend buffers_iterator operator+(std::ptrdiff_t difference,
+      const buffers_iterator& iter)
+  {
+    buffers_iterator tmp(iter);
+    tmp.advance(difference);
+    return tmp;
+  }
+
+  /// Subtraction operator.
+  friend buffers_iterator operator-(const buffers_iterator& iter,
+      std::ptrdiff_t difference)
+  {
+    buffers_iterator tmp(iter);
+    tmp.advance(-difference);
+    return tmp;
+  }
+
+  /// Subtraction operator.
+  friend std::ptrdiff_t operator-(const buffers_iterator& a,
+      const buffers_iterator& b)
+  {
+    return b.distance_to(a);
+  }
+
+  /// Test two iterators for equality.
+  friend bool operator==(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return a.equal(b);
+  }
+
+  /// Test two iterators for inequality.
+  friend bool operator!=(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return !a.equal(b);
+  }
+
+  /// Compare two iterators.
+  friend bool operator<(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return a.distance_to(b) > 0;
+  }
+
+  /// Compare two iterators.
+  friend bool operator<=(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return !(b < a);
+  }
+
+  /// Compare two iterators.
+  friend bool operator>(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return b < a;
+  }
+
+  /// Compare two iterators.
+  friend bool operator>=(const buffers_iterator& a, const buffers_iterator& b)
+  {
+    return !(a < b);
+  }
+
+private:
+  // Dereference the iterator.
+  reference dereference() const
+  {
+    return buffer_cast<pointer>(current_buffer_)[current_buffer_position_];
   }
 
   // Compare two iterators for equality.

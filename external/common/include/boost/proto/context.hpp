@@ -9,10 +9,8 @@
 #ifndef BOOST_PROTO_CONTEXT_HPP_EAN_06_23_2007
 #define BOOST_PROTO_CONTEXT_HPP_EAN_06_23_2007
 
-#include <boost/proto/detail/prefix.hpp> // must be first include
 #include <boost/proto/context/null.hpp>
 #include <boost/proto/context/default.hpp>
 #include <boost/proto/context/callable.hpp>
-#include <boost/proto/detail/suffix.hpp> // must be last include
 
 #endif

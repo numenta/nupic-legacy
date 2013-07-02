@@ -1,1488 +1,758 @@
-//  boost/filesystem/path.hpp  -----------------------------------------------//
+//  filesystem path.hpp  ---------------------------------------------------------------//
 
-//  Copyright Beman Dawes 2002-2005
+//  Copyright Beman Dawes 2002-2005, 2009
 //  Copyright Vladimir Prus 2002
 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying
-//  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+//  Distributed under the Boost Software License, Version 1.0.
+//  See http://www.boost.org/LICENSE_1_0.txt
 
-//  See library home page at http://www.boost.org/libs/filesystem
+//  Library home page: http://www.boost.org/libs/filesystem
 
-//  basic_path's stem(), extension(), and replace_extension() are based on
+//  path::stem(), extension(), and replace_extension() are based on
 //  basename(), extension(), and change_extension() from the original
 //  filesystem/convenience.hpp header by Vladimir Prus.
-
-//----------------------------------------------------------------------------// 
 
 #ifndef BOOST_FILESYSTEM_PATH_HPP
 #define BOOST_FILESYSTEM_PATH_HPP
 
+#include <boost/config.hpp>
+
+# if defined( BOOST_NO_STD_WSTRING )
+#   error Configuration not supported: Boost.Filesystem V3 and later requires std::wstring support
+# endif
+
 #include <boost/filesystem/config.hpp>
+#include <boost/filesystem/path_traits.hpp>  // includes <cwchar>
+#include <boost/system/error_code.hpp>
 #include <boost/system/system_error.hpp>
 #include <boost/iterator/iterator_facade.hpp>
-#include <boost/throw_exception.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/type_traits/is_same.hpp>
+#include <boost/io/detail/quoted_manip.hpp>
 #include <boost/static_assert.hpp>
-
+#include <boost/functional/hash_fwd.hpp>
+#include <boost/type_traits/is_integral.hpp>
 #include <string>
-#include <algorithm> // for lexicographical_compare
-#include <iosfwd>    // needed by basic_path inserter and extractor
+#include <iterator>
+#include <cstring>
+#include <iosfwd>
 #include <stdexcept>
 #include <cassert>
-
-# ifndef BOOST_FILESYSTEM_NARROW_ONLY
-#   include <locale>
-# endif
+#include <locale>
+#include <algorithm>
 
 #include <boost/config/abi_prefix.hpp> // must be the last #include
 
-//----------------------------------------------------------------------------//
-
 namespace boost
 {
-  namespace BOOST_FILESYSTEM_NAMESPACE
+namespace filesystem
+{
+  //------------------------------------------------------------------------------------//
+  //                                                                                    //
+  //                                    class path                                      //
+  //                                                                                    //
+  //------------------------------------------------------------------------------------//
+
+  class BOOST_FILESYSTEM_DECL path
   {
-    template<class String, class Traits> class basic_path;
+  public:
 
-    struct path_traits;
-    typedef basic_path< std::string, path_traits > path;
+    //  value_type is the character type used by the operating system API to
+    //  represent paths.
 
-    struct path_traits
-    {
-      typedef std::string internal_string_type;
-      typedef std::string external_string_type;
-      static external_string_type to_external( const path &,
-        const internal_string_type & src ) { return src; }
-      static internal_string_type to_internal(
-        const external_string_type & src ) { return src; }
-    };
-
-# ifndef BOOST_FILESYSTEM_NARROW_ONLY
-
-    struct BOOST_FILESYSTEM_DECL wpath_traits;
-    
-    typedef basic_path< std::wstring, wpath_traits > wpath;
-
-    struct BOOST_FILESYSTEM_DECL wpath_traits
-    {
-      typedef std::wstring internal_string_type;
 # ifdef BOOST_WINDOWS_API
-      typedef std::wstring external_string_type;
-      static external_string_type to_external( const wpath &,
-        const internal_string_type & src ) { return src; }
-      static internal_string_type to_internal(
-        const external_string_type & src ) { return src; }
-# else
-      typedef std::string external_string_type;
-      static external_string_type to_external( const wpath & ph,
-        const internal_string_type & src );
-      static internal_string_type to_internal(
-        const external_string_type & src );
+    typedef wchar_t                        value_type;
+    BOOST_STATIC_CONSTEXPR value_type      preferred_separator = L'\\';
+# else 
+    typedef char                           value_type;
+    BOOST_STATIC_CONSTEXPR value_type      preferred_separator = '/';
 # endif
-      static void imbue( const std::locale & loc );
-      static bool imbue( const std::locale & loc, const std::nothrow_t & );
-    };
+    typedef std::basic_string<value_type>  string_type;  
+    typedef std::codecvt<wchar_t, char,
+                         std::mbstate_t>   codecvt_type;
 
-# endif // ifndef BOOST_FILESYSTEM_NARROW_ONLY
 
-    //  path traits  ---------------------------------------------------------//
+    //  ----- character encoding conversions -----
 
-    template<class Path> struct is_basic_path
-      { BOOST_STATIC_CONSTANT( bool, value = false ); };
-    template<> struct is_basic_path<path>
-      { BOOST_STATIC_CONSTANT( bool, value = true ); };
-# ifndef BOOST_FILESYSTEM_NARROW_ONLY
-    template<> struct is_basic_path<wpath>
-      { BOOST_STATIC_CONSTANT( bool, value = true ); };
-# endif
+    //  Following the principle of least astonishment, path input arguments
+    //  passed to or obtained from the operating system via objects of
+    //  class path behave as if they were directly passed to or
+    //  obtained from the O/S API, unless conversion is explicitly requested.
+    //
+    //  POSIX specfies that path strings are passed unchanged to and from the
+    //  API. Note that this is different from the POSIX command line utilities,
+    //  which convert according to a locale.
+    //
+    //  Thus for POSIX, char strings do not undergo conversion.  wchar_t strings
+    //  are converted to/from char using the path locale or, if a conversion
+    //  argument is given, using a conversion object modeled on
+    //  std::wstring_convert.
+    //
+    //  The path locale, which is global to the thread, can be changed by the
+    //  imbue() function. It is initialized to an implementation defined locale.
+    //  
+    //  For Windows, wchar_t strings do not undergo conversion. char strings
+    //  are converted using the "ANSI" or "OEM" code pages, as determined by
+    //  the AreFileApisANSI() function, or, if a conversion argument is given,
+    //  using a conversion object modeled on std::wstring_convert.
+    //
+    //  See m_pathname comments for further important rationale.
 
-    // these only have to be specialized if Path::string_type::value_type
-    // is not convertible from char
-    template<class Path> struct slash
-      { BOOST_STATIC_CONSTANT( char, value = '/' ); };
+    //  TODO: rules needed for operating systems that use / or .
+    //  differently, or format directory paths differently from file paths. 
+    //
+    //  **********************************************************************************
+    //
+    //  More work needed: How to handle an operating system that may have
+    //  slash characters or dot characters in valid filenames, either because
+    //  it doesn't follow the POSIX standard, or because it allows MBCS
+    //  filename encodings that may contain slash or dot characters. For
+    //  example, ISO/IEC 2022 (JIS) encoding which allows switching to
+    //  JIS x0208-1983 encoding. A valid filename in this set of encodings is
+    //  0x1B 0x24 0x42 [switch to X0208-1983] 0x24 0x2F [U+304F Kiragana letter KU]
+    //                                             ^^^^
+    //  Note that 0x2F is the ASCII slash character
+    //
+    //  **********************************************************************************
 
-    template<class Path> struct dot
-      { BOOST_STATIC_CONSTANT( char, value = '.' ); };
+    //  Supported source arguments: half-open iterator range, container, c-array,
+    //  and single pointer to null terminated string.
 
-    template<class Path> struct colon
-      { BOOST_STATIC_CONSTANT( char, value = ':' ); };
+    //  All source arguments except pointers to null terminated byte strings support
+    //  multi-byte character strings which may have embedded nulls. Embedded null
+    //  support is required for some Asian languages on Windows.
 
-# ifdef BOOST_WINDOWS_PATH
-    template<class Path> struct path_alt_separator
-      { BOOST_STATIC_CONSTANT( char, value = '\\' ); };
-# endif
+    //  [defaults] "const codecvt_type& cvt=codecvt()" default arguments are not used
+    //  because some compilers, such as Microsoft prior to VC++ 10, do not handle defaults
+    //  correctly in templates.
 
-    //  workaround for VC++ 7.0 and earlier issues with nested classes
-    namespace detail
+    //  -----  constructors  -----
+
+    path(){}                                          
+
+    path(const path& p) : m_pathname(p.m_pathname) {}
+
+    template <class Source>
+    path(Source const& source,
+      typename boost::enable_if<path_traits::is_pathable<
+        typename boost::decay<Source>::type> >::type* =0)
     {
-      template<class Path>
-      class iterator_helper
-      {
-      public:
-        typedef typename Path::iterator iterator;
-        static void do_increment( iterator & ph );
-        static void do_decrement( iterator & ph );
-      };
+      path_traits::dispatch(source, m_pathname, codecvt());
     }
 
-    //  basic_path  ----------------------------------------------------------//
-  
-    template<class String, class Traits>
-    class basic_path
+    //  Overloads for the operating system API's native character type. Rationale:
+    //    - Avoids use of codecvt() for native value_type strings. This limits the
+    //      impact of locale("") initialization failures on POSIX systems to programs
+    //      that actually depend on locale(""). It further ensures that exceptions thrown
+    //      as a result of such failues occur after main() has started, so can be caught.
+    //      This is a partial resolution of tickets 4688, 5100, and 5289.
+    //    - A slight optimization for a common use case, particularly on POSIX since
+    //      value_type is char and that is the most common useage.
+    path(const value_type* s) : m_pathname(s) {}
+    path(const std::basic_string<value_type>& s) : m_pathname(s) {}
+
+    template <class Source>
+    path(Source const& source, const codecvt_type& cvt)
+    //  see [defaults] note above explaining why codecvt() default arguments are not used
     {
-    // invariant: m_path valid according to the portable generic path grammar
-
-      // validate template arguments
-// TODO: get these working
-//      BOOST_STATIC_ASSERT( ::boost::is_same<String,typename Traits::internal_string_type>::value );
-//      BOOST_STATIC_ASSERT( ::boost::is_same<typename Traits::external_string_type,std::string>::value || ::boost::is_same<typename Traits::external_string_type,std::wstring>::value );
-
-    public:
-      // compiler generates copy constructor and copy assignment
-
-      typedef basic_path<String, Traits> path_type;
-      typedef String string_type;
-      typedef typename String::value_type value_type;
-      typedef Traits traits_type;
-      typedef typename Traits::external_string_type external_string_type; 
-
-      // constructors/destructor
-      basic_path() {}
-      basic_path( const string_type & s ) { operator/=( s ); }
-      basic_path( const value_type * s )  { operator/=( s ); }
-#     ifndef BOOST_NO_MEMBER_TEMPLATES
-        template <class InputIterator>
-          basic_path( InputIterator first, InputIterator last )
-            { append( first, last ); }
-#     endif
-     ~basic_path() {}
-
-      // assignments
-      basic_path & operator=( const string_type & s )
-      {
-#     if BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, >= 310)
-        m_path.clear();
-#     else
-        m_path.erase( m_path.begin(), m_path.end() );
-#     endif
-        operator/=( s ); 
-        return *this;
-      }
-      basic_path & operator=( const value_type * s )
-      { 
-#     if BOOST_WORKAROUND(BOOST_DINKUMWARE_STDLIB, >= 310)
-        m_path.clear();
-#     else
-        m_path.erase( m_path.begin(), m_path.end() );
-#     endif
-        operator/=( s ); 
-        return *this;
-      }
-#     ifndef BOOST_NO_MEMBER_TEMPLATES
-        template <class InputIterator>
-          basic_path & assign( InputIterator first, InputIterator last )
-            { m_path.clear(); append( first, last ); return *this; }
-#     endif
-
-      // modifiers
-      basic_path & operator/=( const basic_path & rhs )  { return operator /=( rhs.string().c_str() ); }
-      basic_path & operator/=( const string_type & rhs ) { return operator /=( rhs.c_str() ); }
-      basic_path & operator/=( const value_type * s );
-#     ifndef BOOST_NO_MEMBER_TEMPLATES
-        template <class InputIterator>
-          basic_path & append( InputIterator first, InputIterator last );
-#     endif
-      
-      void swap( basic_path & rhs )
-      {
-        m_path.swap( rhs.m_path );
-#       ifdef BOOST_CYGWIN_PATH
-          std::swap( m_cygwin_root, rhs.m_cygwin_root );
-#       endif
-      }
-
-      basic_path & remove_filename();
-      basic_path & replace_extension( const string_type & new_extension = string_type() );
-
-# ifndef BOOST_FILESYSTEM_NO_DEPRECATED
-      basic_path & remove_leaf() { return remove_filename(); }
-# endif
-
-      // observers
-      const string_type & string() const         { return m_path; }
-      const string_type file_string() const;
-      const string_type directory_string() const { return file_string(); }
-
-      const external_string_type external_file_string() const { return Traits::to_external( *this, file_string() ); }
-      const external_string_type external_directory_string() const { return Traits::to_external( *this, directory_string() ); }
-
-      basic_path   root_path() const;
-      string_type  root_name() const;
-      string_type  root_directory() const;
-      basic_path   relative_path() const;
-      basic_path   parent_path() const;
-      string_type  filename() const;
-      string_type  stem() const;
-      string_type  extension() const;
-
-# ifndef BOOST_FILESYSTEM_NO_DEPRECATED
-      string_type  leaf() const            { return filename(); }
-      basic_path   branch_path() const     { return parent_path(); }
-      bool         has_leaf() const        { return !m_path.empty(); }
-      bool         has_branch_path() const { return !parent_path().empty(); }
-# endif
-
-      bool empty() const               { return m_path.empty(); } // name consistent with std containers
-      bool is_complete() const;
-      bool has_root_path() const;
-      bool has_root_name() const;
-      bool has_root_directory() const;
-      bool has_relative_path() const   { return !relative_path().empty(); }
-      bool has_filename() const        { return !m_path.empty(); }
-      bool has_parent_path() const     { return !parent_path().empty(); }
-
-      // iterators
-      class iterator : public boost::iterator_facade<
-        iterator,
-        string_type const,
-        boost::bidirectional_traversal_tag >
-      {
-      private:
-        friend class boost::iterator_core_access;
-        friend class boost::BOOST_FILESYSTEM_NAMESPACE::basic_path<String, Traits>;
-
-        const string_type & dereference() const
-          { return m_name; }
-        bool equal( const iterator & rhs ) const
-          { return m_path_ptr == rhs.m_path_ptr && m_pos == rhs.m_pos; }
-
-        friend class boost::BOOST_FILESYSTEM_NAMESPACE::detail::iterator_helper<path_type>;
-
-        void increment()
-        { 
-          boost::BOOST_FILESYSTEM_NAMESPACE::detail::iterator_helper<path_type>::do_increment(
-            *this );
-        }
-        void decrement()
-        { 
-          boost::BOOST_FILESYSTEM_NAMESPACE::detail::iterator_helper<path_type>::do_decrement(
-            *this );
-        }
-
-        string_type             m_name;     // current element
-        const basic_path *      m_path_ptr; // path being iterated over
-        typename string_type::size_type  m_pos;  // position of name in
-                                            // path_ptr->string(). The
-                                            // end() iterator is indicated by 
-                                            // pos == path_ptr->m_path.size()
-      }; // iterator
-
-      typedef iterator const_iterator;
-
-      iterator begin() const;
-      iterator end() const;
-
-    private:
-      // Note: This is an implementation for POSIX and Windows, where there
-      // are only minor differences between generic and native path grammars.
-      // Private members might be quite different in other implementations,
-      // particularly where there were wide differences between portable and
-      // native path formats, or between file_string() and
-      // directory_string() formats, or simply that the implementation
-      // was willing expend additional memory to achieve greater speed for
-      // some operations at the expense of other operations.
-
-      string_type  m_path; // invariant: portable path grammar
-                           // on Windows, backslashes converted to slashes
-
-#   ifdef BOOST_CYGWIN_PATH
-      bool m_cygwin_root; // if present, m_path[0] was slash. note: initialization
-                          // done by append
-#   endif  
-
-      void m_append_separator_if_needed();
-      void m_append( value_type value ); // converts Windows alt_separator
-
-      // Was qualified; como433beta8 reports:
-      //    warning #427-D: qualified name is not allowed in member declaration 
-      friend class iterator;
-      friend class boost::BOOST_FILESYSTEM_NAMESPACE::detail::iterator_helper<path_type>;
-
-      // Deprecated features ease transition for existing code. Don't use these
-      // in new code.
-# ifndef BOOST_FILESYSTEM_NO_DEPRECATED
-    public:
-      typedef bool (*name_check)( const std::string & name );
-      basic_path( const string_type & str, name_check ) { operator/=( str ); }
-      basic_path( const typename string_type::value_type * s, name_check )
-        { operator/=( s );}
-      string_type native_file_string() const { return file_string(); }
-      string_type native_directory_string() const { return directory_string(); }
-      static bool default_name_check_writable() { return false; } 
-      static void default_name_check( name_check ) {}
-      static name_check default_name_check() { return 0; }
-      basic_path & canonize();
-      basic_path & normalize();
-# endif
-    };
-
-  //  basic_path non-member functions  ---------------------------------------//
-
-    template< class String, class Traits >
-    inline void swap( basic_path<String, Traits> & lhs,
-               basic_path<String, Traits> & rhs ) { lhs.swap( rhs ); }
-
-    template< class String, class Traits >
-    bool operator<( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs )
-    {
-      return std::lexicographical_compare(
-        lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );
+      path_traits::dispatch(source, m_pathname, cvt);
     }
 
-    template< class String, class Traits >
-    bool operator<( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs )
-    {
-      basic_path<String, Traits> tmp( lhs );
-      return std::lexicographical_compare(
-        tmp.begin(), tmp.end(), rhs.begin(), rhs.end() );
-    }
-
-    template< class String, class Traits >
-    bool operator<( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs )
-    {
-      basic_path<String, Traits> tmp( lhs );
-      return std::lexicographical_compare(
-        tmp.begin(), tmp.end(), rhs.begin(), rhs.end() );
-    }
-
-    template< class String, class Traits >
-    bool operator<( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-    {
-      basic_path<String, Traits> tmp( rhs );
-      return std::lexicographical_compare(
-        lhs.begin(), lhs.end(), tmp.begin(), tmp.end() );
-    }
-
-    template< class String, class Traits >
-    bool operator<( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-    {
-      basic_path<String, Traits> tmp( rhs );
-      return std::lexicographical_compare(
-        lhs.begin(), lhs.end(), tmp.begin(), tmp.end() );
-    }
-
-    template< class String, class Traits >
-    inline bool operator==( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs )
+    template <class InputIterator>
+    path(InputIterator begin, InputIterator end)
     { 
-      return !(lhs < rhs) && !(rhs < lhs);
+      if (begin != end)
+      {
+        std::basic_string<typename std::iterator_traits<InputIterator>::value_type>
+          s(begin, end);
+        path_traits::convert(s.c_str(), s.c_str()+s.size(), m_pathname, codecvt());
+      }
     }
 
-    template< class String, class Traits >
-    inline bool operator==( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs )
+    template <class InputIterator>
+    path(InputIterator begin, InputIterator end, const codecvt_type& cvt)
+    { 
+      if (begin != end)
+      {
+        std::basic_string<typename std::iterator_traits<InputIterator>::value_type>
+          s(begin, end);
+        path_traits::convert(s.c_str(), s.c_str()+s.size(), m_pathname, cvt);
+      }
+    }
+
+    //  -----  assignments  -----
+
+    path& operator=(const path& p)
     {
-      basic_path<String, Traits> tmp( lhs );
-      return !(tmp < rhs) && !(rhs < tmp);
+      m_pathname = p.m_pathname;
+      return *this;
     }
 
-    template< class String, class Traits >
-    inline bool operator==( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs )
+    path& operator=(const value_type* ptr)  // required in case ptr overlaps *this
     {
-      basic_path<String, Traits> tmp( lhs );
-      return !(tmp < rhs) && !(rhs < tmp);
+      m_pathname = ptr;
+      return *this;
     }
 
-    template< class String, class Traits >
-    inline bool operator==( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
+    template <class Source>
+      typename boost::enable_if<path_traits::is_pathable<
+        typename boost::decay<Source>::type>, path&>::type
+    operator=(Source const& source)
     {
-      basic_path<String, Traits> tmp( rhs );
-      return !(lhs < tmp) && !(tmp < lhs);
+      m_pathname.clear();
+      path_traits::dispatch(source, m_pathname, codecvt());
+      return *this;
     }
 
-    template< class String, class Traits >
-    inline bool operator==( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
+    path& assign(const value_type* ptr, const codecvt_type&)  // required in case ptr overlaps *this
     {
-      basic_path<String, Traits> tmp( rhs );
-      return !(lhs < tmp) && !(tmp < lhs);
+      m_pathname = ptr;
+      return *this;
     }
 
-    template< class String, class Traits >
-    inline bool operator!=( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return !(lhs == rhs); }
+    template <class Source>
+    path& assign(Source const& source, const codecvt_type& cvt)
+    {
+      m_pathname.clear();
+      path_traits::dispatch(source, m_pathname, cvt);
+      return *this;
+    }
+
+    template <class InputIterator>
+    path& assign(InputIterator begin, InputIterator end)
+    {
+      return assign(begin, end, codecvt());
+    }
+
+    template <class InputIterator>
+    path& assign(InputIterator begin, InputIterator end, const codecvt_type& cvt)
+    { 
+      m_pathname.clear();
+      if (begin != end)
+      {
+        std::basic_string<typename std::iterator_traits<InputIterator>::value_type>
+          s(begin, end);
+        path_traits::convert(s.c_str(), s.c_str()+s.size(), m_pathname, cvt);
+      }
+      return *this;
+    }
+
+    //  -----  concatenation  -----
+
+    path& operator+=(const path& p)         {m_pathname += p.m_pathname; return *this;}
+    path& operator+=(const string_type& s)  {m_pathname += s; return *this;}
+    path& operator+=(const value_type* ptr) {m_pathname += ptr; return *this;}
+    path& operator+=(value_type c)          {m_pathname += c; return *this;}
+
+    template <class Source>
+      typename boost::enable_if<path_traits::is_pathable<
+        typename boost::decay<Source>::type>, path&>::type
+    operator+=(Source const& source)
+    {
+      return concat(source, codecvt());
+    }
+
+    template <class CharT>
+      typename boost::enable_if<is_integral<CharT>, path&>::type
+    operator+=(CharT c)
+    {
+      CharT tmp[2];
+      tmp[0] = c;
+      tmp[1] = 0;
+      return concat(tmp, codecvt());
+    }
+
+    template <class Source>
+    path& concat(Source const& source, const codecvt_type& cvt)
+    {
+      path_traits::dispatch(source, m_pathname, cvt);
+      return *this;
+    }
+
+    template <class InputIterator>
+    path& concat(InputIterator begin, InputIterator end)
+    { 
+      return concat(begin, end, codecvt());
+    }
+
+    template <class InputIterator>
+    path& concat(InputIterator begin, InputIterator end, const codecvt_type& cvt)
+    { 
+      if (begin == end)
+        return *this;
+      std::basic_string<typename std::iterator_traits<InputIterator>::value_type>
+        s(begin, end);
+      path_traits::convert(s.c_str(), s.c_str()+s.size(), m_pathname, cvt);
+      return *this;
+    }
+
+    //  -----  appends  -----
+
+    //  if a separator is added, it is the preferred separator for the platform;
+    //  slash for POSIX, backslash for Windows
+
+    path& operator/=(const path& p);
+
+    path& operator/=(const value_type* ptr);
+
+    template <class Source>
+      typename boost::enable_if<path_traits::is_pathable<
+        typename boost::decay<Source>::type>, path&>::type
+    operator/=(Source const& source)
+    {
+      return append(source, codecvt());
+    }
+
+    path& append(const value_type* ptr, const codecvt_type&)  // required in case ptr overlaps *this
+    {
+      this->operator/=(ptr);
+      return *this;
+    }
+
+    template <class Source>
+    path& append(Source const& source, const codecvt_type& cvt);
+
+    template <class InputIterator>
+    path& append(InputIterator begin, InputIterator end)
+    { 
+      return append(begin, end, codecvt());
+    }
+
+    template <class InputIterator>
+    path& append(InputIterator begin, InputIterator end, const codecvt_type& cvt);
+
+    //  -----  modifiers  -----
+
+    void   clear()             { m_pathname.clear(); }
+    path&  make_preferred()
+#   ifdef BOOST_POSIX_API
+      { return *this; }  // POSIX no effect
+#   else // BOOST_WINDOWS_API
+      ;  // change slashes to backslashes
+#   endif
+    path&  remove_filename();
+    path&  replace_extension(const path& new_extension = path());
+    void   swap(path& rhs)     { m_pathname.swap(rhs.m_pathname); }
+
+    //  -----  observers  -----
+  
+    //  For operating systems that format file paths differently than directory
+    //  paths, return values from observers are formatted as file names unless there
+    //  is a trailing separator, in which case returns are formatted as directory
+    //  paths. POSIX and Windows make no such distinction.
+
+    //  Implementations are permitted to return const values or const references.
+
+    //  The string or path returned by an observer are specified as being formatted
+    //  as "native" or "generic".
+    //
+    //  For POSIX, these are all the same format; slashes and backslashes are as input and
+    //  are not modified.
+    //
+    //  For Windows,   native:    as input; slashes and backslashes are not modified;
+    //                            this is the format of the internally stored string.
+    //                 generic:   backslashes are converted to slashes
+
+    //  -----  native format observers  -----
+
+    const string_type&  native() const { return m_pathname; }          // Throws: nothing
+    const value_type*   c_str() const  { return m_pathname.c_str(); }  // Throws: nothing
+
+    template <class String>
+    String string() const;
+
+    template <class String>
+    String string(const codecvt_type& cvt) const;
+
+#   ifdef BOOST_WINDOWS_API
+    const std::string string() const { return string(codecvt()); } 
+    const std::string string(const codecvt_type& cvt) const
+    { 
+      std::string tmp;
+      if (!m_pathname.empty())
+        path_traits::convert(&*m_pathname.begin(), &*m_pathname.begin()+m_pathname.size(),
+          tmp, cvt);
+      return tmp;
+    }
     
-    template< class String, class Traits >
-    inline bool operator!=( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(basic_path<String, Traits>(lhs) == rhs); }
+    //  string_type is std::wstring, so there is no conversion
+    const std::wstring&  wstring() const { return m_pathname; }
+    const std::wstring&  wstring(const codecvt_type&) const { return m_pathname; }
 
-    template< class String, class Traits >
-    inline bool operator!=( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(basic_path<String, Traits>(lhs) == rhs); }
+#   else   // BOOST_POSIX_API
+    //  string_type is std::string, so there is no conversion
+    const std::string&  string() const { return m_pathname; }
+    const std::string&  string(const codecvt_type&) const { return m_pathname; }
 
-    template< class String, class Traits >
-    inline bool operator!=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-                    { return !(lhs == basic_path<String, Traits>(rhs)); }
-
-    template< class String, class Traits >
-    inline bool operator!=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-                    { return !(lhs == basic_path<String, Traits>(rhs)); }
-
-    template< class String, class Traits >
-    inline bool operator>( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return rhs < lhs; }
-    
-    template< class String, class Traits >
-    inline bool operator>( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs ) { return rhs < basic_path<String, Traits>(lhs); }
-
-    template< class String, class Traits >
-    inline bool operator>( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs ) { return rhs < basic_path<String, Traits>(lhs); }
-
-    template< class String, class Traits >
-    inline bool operator>( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-                    { return basic_path<String, Traits>(rhs) < lhs; }
-
-    template< class String, class Traits >
-    inline bool operator>( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-                    { return basic_path<String, Traits>(rhs) < lhs; }
-
-    template< class String, class Traits >
-    inline bool operator<=( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return !(rhs < lhs); }
-    
-    template< class String, class Traits >
-    inline bool operator<=( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(rhs < basic_path<String, Traits>(lhs)); }
-
-    template< class String, class Traits >
-    inline bool operator<=( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(rhs < basic_path<String, Traits>(lhs)); }
-
-    template< class String, class Traits >
-    inline bool operator<=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-                    { return !(basic_path<String, Traits>(rhs) < lhs); }
-
-    template< class String, class Traits >
-    inline bool operator<=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-                    { return !(basic_path<String, Traits>(rhs) < lhs); }
-
-    template< class String, class Traits >
-    inline bool operator>=( const basic_path<String, Traits> & lhs, const basic_path<String, Traits> & rhs ) { return !(lhs < rhs); }
-    
-    template< class String, class Traits >
-    inline bool operator>=( const typename basic_path<String, Traits>::string_type::value_type * lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(lhs < basic_path<String, Traits>(rhs)); }
-
-    template< class String, class Traits >
-    inline bool operator>=( const typename basic_path<String, Traits>::string_type & lhs,
-                    const basic_path<String, Traits> & rhs ) { return !(lhs < basic_path<String, Traits>(rhs)); }
-
-    template< class String, class Traits >
-    inline bool operator>=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type::value_type * rhs )
-                    { return !(basic_path<String, Traits>(lhs) < rhs); }
-
-    template< class String, class Traits >
-    inline bool operator>=( const basic_path<String, Traits> & lhs,
-                    const typename basic_path<String, Traits>::string_type & rhs )
-                    { return !(basic_path<String, Traits>(lhs) < rhs); }
-
-    // operator /
-
-    template< class String, class Traits >
-    inline basic_path<String, Traits> operator/( 
-      const basic_path<String, Traits> & lhs,
-      const basic_path<String, Traits> & rhs )
-      { return basic_path<String, Traits>( lhs ) /= rhs; }
-
-    template< class String, class Traits >
-    inline basic_path<String, Traits> operator/( 
-      const basic_path<String, Traits> & lhs,
-      const typename String::value_type * rhs )
-      { return basic_path<String, Traits>( lhs ) /=
-          basic_path<String, Traits>( rhs ); }
-
-    template< class String, class Traits >
-    inline basic_path<String, Traits> operator/( 
-      const basic_path<String, Traits> & lhs, const String & rhs )
-      { return basic_path<String, Traits>( lhs ) /=
-          basic_path<String, Traits>( rhs ); }
-
-    template< class String, class Traits >
-    inline basic_path<String, Traits> operator/( 
-      const typename String::value_type * lhs,
-      const basic_path<String, Traits> & rhs )
-      { return basic_path<String, Traits>( lhs ) /= rhs; }
-
-    template< class String, class Traits >
-    inline basic_path<String, Traits> operator/(
-      const String & lhs, const basic_path<String, Traits> & rhs )
-      { return basic_path<String, Traits>( lhs ) /= rhs; }
-   
-    //  inserters and extractors  --------------------------------------------//
-
-// bypass VC++ 7.0 and earlier, and broken Borland compilers
-# if !BOOST_WORKAROUND(BOOST_MSVC, <= 1300) && !BOOST_WORKAROUND(__BORLANDC__, < 0x610)
-    template< class Path >
-    std::basic_ostream< typename Path::string_type::value_type,
-      typename Path::string_type::traits_type > &
-      operator<<
-      ( std::basic_ostream< typename Path::string_type::value_type,
-      typename Path::string_type::traits_type >& os, const Path & ph )
-    {
-      os << ph.string();
-      return os;
+    const std::wstring  wstring() const { return wstring(codecvt()); }
+    const std::wstring  wstring(const codecvt_type& cvt) const
+    { 
+      std::wstring tmp;
+      if (!m_pathname.empty())
+        path_traits::convert(&*m_pathname.begin(), &*m_pathname.begin()+m_pathname.size(),
+          tmp, cvt);
+      return tmp;
     }
 
-    template< class Path >
-    std::basic_istream< typename Path::string_type::value_type,
-      typename Path::string_type::traits_type > &
-      operator>>
-      ( std::basic_istream< typename Path::string_type::value_type,
-      typename Path::string_type::traits_type >& is, Path & ph )
+#   endif
+
+    //  -----  generic format observers  -----
+
+    template <class String>
+    String generic_string() const;
+
+    template <class String>
+    String generic_string(const codecvt_type& cvt) const;
+
+#   ifdef BOOST_WINDOWS_API
+    const std::string   generic_string() const { return generic_string(codecvt()); } 
+    const std::string   generic_string(const codecvt_type& cvt) const; 
+    const std::wstring  generic_wstring() const;
+    const std::wstring  generic_wstring(const codecvt_type&) const { return generic_wstring(); };
+
+#   else // BOOST_POSIX_API
+    //  On POSIX-like systems, the generic format is the same as the native format
+    const std::string&  generic_string() const  { return m_pathname; }
+    const std::string&  generic_string(const codecvt_type&) const  { return m_pathname; }
+    const std::wstring  generic_wstring() const { return wstring(codecvt()); }
+    const std::wstring  generic_wstring(const codecvt_type& cvt) const { return wstring(cvt); }
+
+#   endif
+
+    //  -----  compare  -----
+
+    int compare(const path& p) const BOOST_NOEXCEPT;  // generic, lexicographical
+    int compare(const std::string& s) const { return compare(path(s)); }
+    int compare(const value_type* s) const  { return compare(path(s)); }
+
+    //  -----  decomposition  -----
+
+    path  root_path() const; 
+    path  root_name() const;         // returns 0 or 1 element path
+                                     // even on POSIX, root_name() is non-empty() for network paths
+    path  root_directory() const;    // returns 0 or 1 element path
+    path  relative_path() const;
+    path  parent_path() const;
+    path  filename() const;          // returns 0 or 1 element path
+    path  stem() const;              // returns 0 or 1 element path
+    path  extension() const;         // returns 0 or 1 element path
+
+    //  -----  query  -----
+
+    bool empty() const               { return m_pathname.empty(); } // name consistent with std containers
+    bool has_root_path() const       { return has_root_directory() || has_root_name(); }
+    bool has_root_name() const       { return !root_name().empty(); }
+    bool has_root_directory() const  { return !root_directory().empty(); }
+    bool has_relative_path() const   { return !relative_path().empty(); }
+    bool has_parent_path() const     { return !parent_path().empty(); }
+    bool has_filename() const        { return !m_pathname.empty(); }
+    bool has_stem() const            { return !stem().empty(); }
+    bool has_extension() const       { return !extension().empty(); }
+    bool is_absolute() const
     {
-      typename Path::string_type str;
-      is >> str;
-      ph = str;
-      return is;
-    }
-# elif BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-    template< class String, class Traits >
-    std::basic_ostream< BOOST_DEDUCED_TYPENAME String::value_type,
-      BOOST_DEDUCED_TYPENAME String::traits_type > &
-      operator<<
-      ( std::basic_ostream< BOOST_DEDUCED_TYPENAME String::value_type,
-          BOOST_DEDUCED_TYPENAME String::traits_type >& os, 
-        const basic_path< String, Traits > & ph )
-    {
-      os << ph.string();
-      return os;
-    }
-
-    template< class String, class Traits >
-    std::basic_istream< BOOST_DEDUCED_TYPENAME String::value_type, 
-      BOOST_DEDUCED_TYPENAME String::traits_type > &
-      operator>>
-      ( std::basic_istream< BOOST_DEDUCED_TYPENAME String::value_type,
-          BOOST_DEDUCED_TYPENAME String::traits_type> & is,
-        basic_path< String, Traits > & ph )
-    {
-      String str;
-      is >> str;
-      ph = str;
-      return is;
-    }
-# endif
-
-    //  basic_filesystem_error helpers  --------------------------------------//
-
-    //  Originally choice of implementation was done via specialization of
-    //  basic_filesystem_error::what(). Several compilers (GCC, aCC, etc.)
-    //  couldn't handle that, so the choice is now accomplished by overloading.
-
-    namespace detail
-    {
-      // BOOST_FILESYSTEM_DECL version works for VC++ but not GCC. Go figure!
-      inline
-      const char * what( const char * sys_err_what,
-        const path & path1_arg, const path & path2_arg, std::string & target )
-      {
-        try
-        {
-          if ( target.empty() )
-          {
-            target = sys_err_what;
-            if ( !path1_arg.empty() )
-            {
-              target += ": \"";
-              target += path1_arg.file_string();
-              target += "\"";
-            }
-            if ( !path2_arg.empty() )
-            {
-              target += ", \"";
-              target += path2_arg.file_string();
-              target += "\"";
-            }
-          }
-          return target.c_str();
-        }
-        catch (...)
-        {
-          return sys_err_what;
-        }
-      }
-
-      template<class Path>
-      const char * what( const char * sys_err_what,
-        const Path & /*path1_arg*/, const Path & /*path2_arg*/, std::string & /*target*/ )
-      {
-        return sys_err_what;
-      }
-    }
-
-    //  basic_filesystem_error  ----------------------------------------------//
-
-    template<class Path>
-    class basic_filesystem_error : public system::system_error
-    {
-    // see http://www.boost.org/more/error_handling.html for design rationale
-    public:
-      // compiler generates copy constructor and copy assignment
-
-      typedef Path path_type;
-
-      basic_filesystem_error( const std::string & what_arg,
-        system::error_code ec );
-
-      basic_filesystem_error( const std::string & what_arg,
-        const path_type & path1_arg, system::error_code ec );
-
-      basic_filesystem_error( const std::string & what_arg, const path_type & path1_arg,
-        const path_type & path2_arg, system::error_code ec );
-
-      ~basic_filesystem_error() throw() {}
-
-      const path_type & path1() const
-      {
-        static const path_type empty_path;
-        return m_imp_ptr.get() ? m_imp_ptr->m_path1 : empty_path ;
-      }
-      const path_type & path2() const
-      {
-        static const path_type empty_path;
-        return m_imp_ptr.get() ? m_imp_ptr->m_path2 : empty_path ;
-      }
-
-      const char * what() const throw()
-      { 
-        if ( !m_imp_ptr.get() )
-          return system::system_error::what();
-        return detail::what( system::system_error::what(), m_imp_ptr->m_path1,
-          m_imp_ptr->m_path2, m_imp_ptr->m_what );  
-      }
-
-    private:
-      struct m_imp
-      {
-        path_type                 m_path1; // may be empty()
-        path_type                 m_path2; // may be empty()
-        std::string               m_what;  // not built until needed
-      };
-      boost::shared_ptr<m_imp> m_imp_ptr;
-    };
-
-    typedef basic_filesystem_error<path> filesystem_error;
-
-# ifndef BOOST_FILESYSTEM_NARROW_ONLY
-    typedef basic_filesystem_error<wpath> wfilesystem_error;
-# endif
-
-  //  path::name_checks  -----------------------------------------------------//
-
-    BOOST_FILESYSTEM_DECL bool portable_posix_name( const std::string & name );
-    BOOST_FILESYSTEM_DECL bool windows_name( const std::string & name );
-    BOOST_FILESYSTEM_DECL bool portable_name( const std::string & name );
-    BOOST_FILESYSTEM_DECL bool portable_directory_name( const std::string & name );
-    BOOST_FILESYSTEM_DECL bool portable_file_name( const std::string & name );
-    BOOST_FILESYSTEM_DECL bool native( const std::string & name );
-    inline bool no_check( const std::string & )
-      { return true; }
-
-// implementation  -----------------------------------------------------------//
-
-    namespace detail
-    {
-
-      //  is_separator helper ------------------------------------------------//
-
-      template<class Path>
-      inline  bool is_separator( typename Path::string_type::value_type c )
-      {
-        return c == slash<Path>::value
-#     ifdef BOOST_WINDOWS_PATH
-          || c == path_alt_separator<Path>::value
-#     endif
-          ;
-      }
-
-      // filename_pos helper  ----------------------------------------------------//
-
-      template<class String, class Traits>
-      typename String::size_type filename_pos(
-        const String & str, // precondition: portable generic path grammar
-        typename String::size_type end_pos ) // end_pos is past-the-end position
-      // return 0 if str itself is filename (or empty)
-      {
-        typedef typename
-          boost::BOOST_FILESYSTEM_NAMESPACE::basic_path<String, Traits> path_type;
-
-        // case: "//"
-        if ( end_pos == 2 
-          && str[0] == slash<path_type>::value
-          && str[1] == slash<path_type>::value ) return 0;
-
-        // case: ends in "/"
-        if ( end_pos && str[end_pos-1] == slash<path_type>::value )
-          return end_pos-1;
-        
-        // set pos to start of last element
-        typename String::size_type pos(
-          str.find_last_of( slash<path_type>::value, end_pos-1 ) );
-#       ifdef BOOST_WINDOWS_PATH
-        if ( pos == String::npos )
-          pos = str.find_last_of( path_alt_separator<path_type>::value, end_pos-1 );
-        if ( pos == String::npos )
-          pos = str.find_last_of( colon<path_type>::value, end_pos-2 );
-#       endif
-
-        return ( pos == String::npos // path itself must be a filename (or empty)
-          || (pos == 1 && str[0] == slash<path_type>::value) ) // or net
-            ? 0 // so filename is entire string
-            : pos + 1; // or starts after delimiter
-      }
-
-      // first_element helper  -----------------------------------------------//
-      //   sets pos and len of first element, excluding extra separators
-      //   if src.empty(), sets pos,len, to 0,0.
-
-      template<class String, class Traits>
-        void first_element(
-          const String & src, // precondition: portable generic path grammar
-          typename String::size_type & element_pos,
-          typename String::size_type & element_size,
-#       if !BOOST_WORKAROUND( BOOST_MSVC, <= 1310 ) // VC++ 7.1
-          typename String::size_type size = String::npos
-#       else
-          typename String::size_type size = -1
-#       endif
-          )
-      {
-        if ( size == String::npos ) size = src.size();
-        element_pos = 0;
-        element_size = 0;
-        if ( src.empty() ) return;
-
-        typedef typename boost::BOOST_FILESYSTEM_NAMESPACE::basic_path<String, Traits> path_type;
-
-        typename String::size_type cur(0);
-        
-        // deal with // [network]
-        if ( size >= 2 && src[0] == slash<path_type>::value
-          && src[1] == slash<path_type>::value
-          && (size == 2
-            || src[2] != slash<path_type>::value) )
-        { 
-          cur += 2;
-          element_size += 2;
-        }
-
-        // leading (not non-network) separator
-        else if ( src[0] == slash<path_type>::value )
-        {
-          ++element_size;
-          // bypass extra leading separators
-          while ( cur+1 < size
-            && src[cur+1] == slash<path_type>::value )
-          {
-            ++cur;
-            ++element_pos;
-          }
-          return;
-        }
-
-        // at this point, we have either a plain name, a network name,
-        // or (on Windows only) a device name
-
-        // find the end
-        while ( cur < size
-#         ifdef BOOST_WINDOWS_PATH
-          && src[cur] != colon<path_type>::value
-#         endif
-          && src[cur] != slash<path_type>::value )
-        {
-          ++cur;
-          ++element_size;
-        }
-
-#       ifdef BOOST_WINDOWS_PATH
-        if ( cur == size ) return;
-        // include device delimiter
-        if ( src[cur] == colon<path_type>::value )
-          { ++element_size; }
-#       endif
-
-        return;
-      }
-
-      // root_directory_start helper  ----------------------------------------//
-
-      template<class String, class Traits>
-      typename String::size_type root_directory_start(
-        const String & s, // precondition: portable generic path grammar
-        typename String::size_type size )
-      // return npos if no root_directory found
-      {
-        typedef typename boost::BOOST_FILESYSTEM_NAMESPACE::basic_path<String, Traits> path_type;
-
-#     ifdef BOOST_WINDOWS_PATH
-        // case "c:/"
-        if ( size > 2
-          && s[1] == colon<path_type>::value
-          && s[2] == slash<path_type>::value ) return 2;
-#     endif
-
-        // case "//"
-        if ( size == 2
-          && s[0] == slash<path_type>::value
-          && s[1] == slash<path_type>::value ) return String::npos;
-
-        // case "//net {/}"
-        if ( size > 3
-          && s[0] == slash<path_type>::value
-          && s[1] == slash<path_type>::value
-          && s[2] != slash<path_type>::value )
-        {
-          typename String::size_type pos(
-            s.find( slash<path_type>::value, 2 ) );
-          return pos < size ? pos : String::npos;
-        }
-        
-        // case "/"
-        if ( size > 0 && s[0] == slash<path_type>::value ) return 0;
-
-        return String::npos;
-      }
-
-      // is_non_root_slash helper  -------------------------------------------//
-
-      template<class String, class Traits>
-      bool is_non_root_slash( const String & str,
-        typename String::size_type pos ) // pos is position of the slash
-      {
-        typedef typename
-          boost::BOOST_FILESYSTEM_NAMESPACE::basic_path<String, Traits>
-            path_type;
-
-        assert( !str.empty() && str[pos] == slash<path_type>::value
-          && "precondition violation" );
-
-        // subsequent logic expects pos to be for leftmost slash of a set
-        while ( pos > 0 && str[pos-1] == slash<path_type>::value )
-          --pos;
-
-        return  pos != 0
-          && (pos <= 2 || str[1] != slash<path_type>::value
-            || str.find( slash<path_type>::value, 2 ) != pos)
-#       ifdef BOOST_WINDOWS_PATH
-          && (pos !=2 || str[1] != colon<path_type>::value)
-#       endif
-            ;
-      }
-    } // namespace detail
-
-    // decomposition functions  ----------------------------------------------//
-
-    template<class String, class Traits>
-    String basic_path<String, Traits>::filename() const
-    {
-      typename String::size_type end_pos(
-        detail::filename_pos<String, Traits>( m_path, m_path.size() ) );
-      return (m_path.size()
-                && end_pos
-                && m_path[end_pos] == slash<path_type>::value
-                && detail::is_non_root_slash< String, Traits >(m_path, end_pos))
-        ? String( 1, dot<path_type>::value )
-        : m_path.substr( end_pos );
-    }
-
-    template<class String, class Traits>
-    String basic_path<String, Traits>::stem() const
-    {
-      string_type name = filename();
-      typename string_type::size_type n = name.rfind('.');
-      return name.substr(0, n);
-    }
-
-    template<class String, class Traits>
-    String basic_path<String, Traits>::extension() const
-    {
-      string_type name = filename();
-      typename string_type::size_type n = name.rfind('.');
-      if (n != string_type::npos)
-        return name.substr(n);
-      else
-        return string_type();
-    }
-
-    template<class String, class Traits>
-    basic_path<String, Traits> basic_path<String, Traits>::parent_path() const
-    {
-      typename String::size_type end_pos(
-        detail::filename_pos<String, Traits>( m_path, m_path.size() ) );
-
-      bool filename_was_separator( m_path.size()
-        && m_path[end_pos] == slash<path_type>::value );
-
-      // skip separators unless root directory
-      typename string_type::size_type root_dir_pos( detail::root_directory_start
-        <string_type, traits_type>( m_path, end_pos ) );
-      for ( ; 
-        end_pos > 0
-        && (end_pos-1) != root_dir_pos
-        && m_path[end_pos-1] == slash<path_type>::value
-        ;
-        --end_pos ) {}
-
-     return (end_pos == 1 && root_dir_pos == 0 && filename_was_separator)
-       ? path_type()
-       : path_type( m_path.substr( 0, end_pos ) );
-    }
-
-    template<class String, class Traits>
-    basic_path<String, Traits> basic_path<String, Traits>::relative_path() const
-    {
-      iterator itr( begin() );
-      for ( ; itr.m_pos != m_path.size()
-          && (itr.m_name[0] == slash<path_type>::value
-#     ifdef BOOST_WINDOWS_PATH
-          || itr.m_name[itr.m_name.size()-1]
-            == colon<path_type>::value
-#     endif
-             ); ++itr ) {}
-
-      return basic_path<String, Traits>( m_path.substr( itr.m_pos ) );
-    }
-
-    template<class String, class Traits>
-    String basic_path<String, Traits>::root_name() const
-    {
-      iterator itr( begin() );
-
-      return ( itr.m_pos != m_path.size()
-        && (
-            ( itr.m_name.size() > 1
-              && itr.m_name[0] == slash<path_type>::value
-              && itr.m_name[1] == slash<path_type>::value
-            )
-#     ifdef BOOST_WINDOWS_PATH
-          || itr.m_name[itr.m_name.size()-1]
-            == colon<path_type>::value
-#     endif
-           ) )
-        ? *itr
-        : String();
-    }
-
-    template<class String, class Traits>
-    String basic_path<String, Traits>::root_directory() const
-    {
-      typename string_type::size_type start(
-        detail::root_directory_start<String, Traits>( m_path, m_path.size() ) );
-
-      return start == string_type::npos
-        ? string_type()
-        : m_path.substr( start, 1 );
-    }
-
-    template<class String, class Traits>
-    basic_path<String, Traits> basic_path<String, Traits>::root_path() const
-    {
-      // even on POSIX, root_name() is non-empty() on network paths
-      return basic_path<String, Traits>( root_name() ) /= root_directory();
-    }
-
-    // path query functions  -------------------------------------------------//
-
-    template<class String, class Traits>
-    inline bool basic_path<String, Traits>::is_complete() const
-    {
-#   ifdef BOOST_WINDOWS_PATH
+#     ifdef BOOST_WINDOWS_API
       return has_root_name() && has_root_directory();
-#   else
+#     else
       return has_root_directory();
-#   endif
+#     endif
     }
+    bool is_relative() const         { return !is_absolute(); } 
 
-    template<class String, class Traits>
-    inline bool basic_path<String, Traits>::has_root_path() const
-    {
-      return !root_path().empty();
-    }
+    //  -----  iterators  -----
 
-    template<class String, class Traits>
-    inline bool basic_path<String, Traits>::has_root_name() const
-    {
-      return !root_name().empty();
-    }
+    class iterator;
+    typedef iterator const_iterator;
 
-    template<class String, class Traits>
-    inline bool basic_path<String, Traits>::has_root_directory() const
-    {
-      return !root_directory().empty();
-    }
+    iterator begin() const;
+    iterator end() const;
 
-    // append  ---------------------------------------------------------------//
+    //  -----  static member functions  -----
 
-    template<class String, class Traits>
-    void basic_path<String, Traits>::m_append_separator_if_needed()
-    // requires: !empty()
-    {
-      if (
-#       ifdef BOOST_WINDOWS_PATH
-        *(m_path.end()-1) != colon<path_type>::value && 
-#       endif
-        *(m_path.end()-1) != slash<path_type>::value )
-      {
-        m_path += slash<path_type>::value;
-      }
-    }
-      
-    template<class String, class Traits>
-    void basic_path<String, Traits>::m_append( value_type value )
-    {
-#   ifdef BOOST_CYGWIN_PATH
-      if ( m_path.empty() ) m_cygwin_root = (value == slash<path_type>::value);
-#   endif
+    static std::locale  imbue(const std::locale& loc);
+    static const        codecvt_type& codecvt();
 
-#   ifdef BOOST_WINDOWS_PATH
-      // for BOOST_WINDOWS_PATH, convert alt_separator ('\') to separator ('/')
-      m_path += ( value == path_alt_separator<path_type>::value
-        ? slash<path_type>::value
-        : value );
-#   else
-      m_path += value;
-#   endif
-    }
-    
-    // except that it wouldn't work for BOOST_NO_MEMBER_TEMPLATES compilers,
-    // the append() member template could replace this code.
-    template<class String, class Traits>
-    basic_path<String, Traits> & basic_path<String, Traits>::operator /=
-      ( const value_type * next_p )
-    {
-      // ignore escape sequence on POSIX or Windows
-      if ( *next_p == slash<path_type>::value
-        && *(next_p+1) == slash<path_type>::value
-        && *(next_p+2) == colon<path_type>::value ) next_p += 3;
-      
-      // append slash<path_type>::value if needed
-      if ( !empty() && *next_p != 0
-        && !detail::is_separator<path_type>( *next_p ) )
-      { m_append_separator_if_needed(); }
+    //  -----  deprecated functions  -----
 
-      for ( ; *next_p != 0; ++next_p ) m_append( *next_p );
-      return *this;
-    }
-
-# ifndef BOOST_NO_MEMBER_TEMPLATES
-    template<class String, class Traits> template <class InputIterator>
-      basic_path<String, Traits> & basic_path<String, Traits>::append(
-        InputIterator first, InputIterator last )
-    {
-      // append slash<path_type>::value if needed
-      if ( !empty() && first != last
-        && !detail::is_separator<path_type>( *first ) )
-      { m_append_separator_if_needed(); }
-
-      // song-and-dance to avoid violating InputIterator requirements
-      // (which prohibit lookahead) in detecting a possible escape sequence
-      // (escape sequences are simply ignored on POSIX and Windows)
-      bool was_escape_sequence(true);
-      std::size_t append_count(0);
-      typename String::size_type initial_pos( m_path.size() );
-
-      for ( ; first != last && *first; ++first )
-      {
-        if ( append_count == 0 && *first != slash<path_type>::value )
-          was_escape_sequence = false;
-        if ( append_count == 1 && *first != slash<path_type>::value )
-          was_escape_sequence = false;
-        if ( append_count == 2 && *first != colon<path_type>::value )
-          was_escape_sequence = false;
-        m_append( *first );
-        ++append_count;
-      }
-
-      // erase escape sequence if any
-      if ( was_escape_sequence && append_count >= 3 )
-        m_path.erase( initial_pos, 3 );
-
-      return *this;
-    }
+# if defined(BOOST_FILESYSTEM_DEPRECATED) && defined(BOOST_FILESYSTEM_NO_DEPRECATED)
+#   error both BOOST_FILESYSTEM_DEPRECATED and BOOST_FILESYSTEM_NO_DEPRECATED are defined
 # endif
+
+# if !defined(BOOST_FILESYSTEM_NO_DEPRECATED)
+    //  recently deprecated functions supplied by default
+    path&  normalize()              { return m_normalize(); }
+    path&  remove_leaf()            { return remove_filename(); }
+    path   leaf() const             { return filename(); }
+    path   branch_path() const      { return parent_path(); }
+    bool   has_leaf() const         { return !m_pathname.empty(); }
+    bool   has_branch_path() const  { return !parent_path().empty(); }
+    bool   is_complete() const      { return is_absolute(); }
+# endif
+
+# if defined(BOOST_FILESYSTEM_DEPRECATED)
+    //  deprecated functions with enough signature or semantic changes that they are
+    //  not supplied by default 
+    const std::string file_string() const               { return string(); }
+    const std::string directory_string() const          { return string(); }
+    const std::string native_file_string() const        { return string(); }
+    const std::string native_directory_string() const   { return string(); }
+    const string_type external_file_string() const      { return native(); }
+    const string_type external_directory_string() const { return native(); }
+
+    //  older functions no longer supported
+    //typedef bool (*name_check)(const std::string & name);
+    //basic_path(const string_type& str, name_check) { operator/=(str); }
+    //basic_path(const typename string_type::value_type* s, name_check)
+    //  { operator/=(s);}
+    //static bool default_name_check_writable() { return false; } 
+    //static void default_name_check(name_check) {}
+    //static name_check default_name_check() { return 0; }
+    //basic_path& canonize();
+# endif
+
+//--------------------------------------------------------------------------------------//
+//                            class path private members                                //
+//--------------------------------------------------------------------------------------//
+
+  private:
+#   if defined(_MSC_VER)
+#     pragma warning(push) // Save warning settings
+#     pragma warning(disable : 4251) // disable warning: class 'std::basic_string<_Elem,_Traits,_Ax>'
+#   endif                            // needs to have dll-interface...
+/*
+      m_pathname has the type, encoding, and format required by the native
+      operating system. Thus for POSIX and Windows there is no conversion for
+      passing m_pathname.c_str() to the O/S API or when obtaining a path from the
+      O/S API. POSIX encoding is unspecified other than for dot and slash
+      characters; POSIX just treats paths as a sequence of bytes. Windows
+      encoding is UCS-2 or UTF-16 depending on the version.
+*/
+    string_type  m_pathname;  // Windows: as input; backslashes NOT converted to slashes,
+                              // slashes NOT converted to backslashes
+#   if defined(_MSC_VER)
+#     pragma warning(pop) // restore warning settings.
+#   endif 
+
+    string_type::size_type m_append_separator_if_needed();
+    //  Returns: If separator is to be appended, m_pathname.size() before append. Otherwise 0.
+    //  Note: An append is never performed if size()==0, so a returned 0 is unambiguous.
+
+    void m_erase_redundant_separator(string_type::size_type sep_pos);
+    string_type::size_type m_parent_path_end() const;
+
+    path& m_normalize();
+
+    // Was qualified; como433beta8 reports:
+    //    warning #427-D: qualified name is not allowed in member declaration 
+    friend class iterator;
+    friend bool operator<(const path& lhs, const path& rhs);
+
+    // see path::iterator::increment/decrement comment below
+    static void m_path_iterator_increment(path::iterator & it);
+    static void m_path_iterator_decrement(path::iterator & it);
+
+  };  // class path
+
+  namespace detail
+  {
+    BOOST_FILESYSTEM_DECL
+      int lex_compare(path::iterator first1, path::iterator last1,
+        path::iterator first2, path::iterator last2);
+  }
 
 # ifndef BOOST_FILESYSTEM_NO_DEPRECATED
-
-    // canonize  ------------------------------------------------------------//
-
-    template<class String, class Traits>
-    basic_path<String, Traits> & basic_path<String, Traits>::canonize()
-    {
-      static const typename string_type::value_type dot_str[]
-        = { dot<path_type>::value, 0 };
-
-      if ( m_path.empty() ) return *this;
-        
-      path_type temp;
-
-      for ( iterator itr( begin() ); itr != end(); ++itr )
-      {
-        temp /= *itr;
-      };
-
-      if ( temp.empty() ) temp /= dot_str;
-      m_path = temp.m_path;
-      return *this;
-    }
-
-    // normalize  ------------------------------------------------------------//
-
-    template<class String, class Traits>
-    basic_path<String, Traits> & basic_path<String, Traits>::normalize()
-    {
-      static const typename string_type::value_type dot_str[]
-        = { dot<path_type>::value, 0 };
-
-      if ( m_path.empty() ) return *this;
-        
-      path_type temp;
-      iterator start( begin() );
-      iterator last( end() );
-      iterator stop( last-- );
-      for ( iterator itr( start ); itr != stop; ++itr )
-      {
-        // ignore "." except at start and last
-        if ( itr->size() == 1
-          && (*itr)[0] == dot<path_type>::value
-          && itr != start
-          && itr != last ) continue;
-
-        // ignore a name and following ".."
-        if ( !temp.empty()
-          && itr->size() == 2
-          && (*itr)[0] == dot<path_type>::value
-          && (*itr)[1] == dot<path_type>::value ) // dot dot
-        {
-          string_type lf( temp.filename() );  
-          if ( lf.size() > 0  
-            && (lf.size() != 1
-              || (lf[0] != dot<path_type>::value
-                && lf[0] != slash<path_type>::value))
-            && (lf.size() != 2 
-              || (lf[0] != dot<path_type>::value
-                && lf[1] != dot<path_type>::value
-#             ifdef BOOST_WINDOWS_PATH
-                && lf[1] != colon<path_type>::value
-#             endif
-                 )
-               )
-            )
-          {
-            temp.remove_filename();
-            // if not root directory, must also remove "/" if any
-            if ( temp.m_path.size() > 0
-              && temp.m_path[temp.m_path.size()-1]
-                == slash<path_type>::value )
-            {
-              typename string_type::size_type rds(
-                detail::root_directory_start<String,Traits>( temp.m_path,
-                  temp.m_path.size() ) );
-              if ( rds == string_type::npos
-                || rds != temp.m_path.size()-1 ) 
-                { temp.m_path.erase( temp.m_path.size()-1 ); }
-            }
-
-            iterator next( itr );
-            if ( temp.empty() && ++next != stop
-              && next == last && *last == dot_str ) temp /= dot_str;
-            continue;
-          }
-        }
-
-        temp /= *itr;
-      };
-
-      if ( temp.empty() ) temp /= dot_str;
-      m_path = temp.m_path;
-      return *this;
-    }
-
+  typedef path wpath;
 # endif
 
-    // modifiers  ------------------------------------------------------------//
+  //------------------------------------------------------------------------------------//
+  //                             class path::iterator                                   //
+  //------------------------------------------------------------------------------------//
+ 
+  class path::iterator
+    : public boost::iterator_facade<
+      path::iterator,
+      path const,
+      boost::bidirectional_traversal_tag >
+  {
+  private:
+    friend class boost::iterator_core_access;
+    friend class boost::filesystem::path;
+    friend void m_path_iterator_increment(path::iterator & it);
+    friend void m_path_iterator_decrement(path::iterator & it);
 
-    template<class String, class Traits>
-    basic_path<String, Traits> & basic_path<String, Traits>::remove_filename()
+    const path& dereference() const { return m_element; }
+
+    bool equal(const iterator & rhs) const
     {
-      m_path.erase(
-        detail::filename_pos<String, Traits>( m_path, m_path.size() ) );
+      return m_path_ptr == rhs.m_path_ptr && m_pos == rhs.m_pos;
+    }
+
+    // iterator_facade derived classes don't seem to like implementations in
+    // separate translation unit dll's, so forward to class path static members
+    void increment() { m_path_iterator_increment(*this); }
+    void decrement() { m_path_iterator_decrement(*this); }
+
+    path                    m_element;   // current element
+    const path*             m_path_ptr;  // path being iterated over
+    string_type::size_type  m_pos;       // position of m_element in
+                                         // m_path_ptr->m_pathname.
+                                         // if m_element is implicit dot, m_pos is the
+                                         // position of the last separator in the path.
+                                         // end() iterator is indicated by 
+                                         // m_pos == m_path_ptr->m_pathname.size()
+  }; // path::iterator
+
+  //------------------------------------------------------------------------------------//
+  //                                                                                    //
+  //                              non-member functions                                  //
+  //                                                                                    //
+  //------------------------------------------------------------------------------------//
+
+  //  std::lexicographical_compare would infinately recurse because path iterators
+  //  yield paths, so provide a path aware version
+  inline bool lexicographical_compare(path::iterator first1, path::iterator last1,
+    path::iterator first2, path::iterator last2)
+    { return detail::lex_compare(first1, last1, first2, last2) < 0; }
+  
+  inline bool operator==(const path& lhs, const path& rhs)              {return lhs.compare(rhs) == 0;}
+  inline bool operator==(const path& lhs, const path::string_type& rhs) {return lhs.compare(rhs) == 0;} 
+  inline bool operator==(const path::string_type& lhs, const path& rhs) {return rhs.compare(lhs) == 0;}
+  inline bool operator==(const path& lhs, const path::value_type* rhs)  {return lhs.compare(rhs) == 0;}
+  inline bool operator==(const path::value_type* lhs, const path& rhs)  {return rhs.compare(lhs) == 0;}
+  
+  inline bool operator!=(const path& lhs, const path& rhs)              {return lhs.compare(rhs) != 0;}
+  inline bool operator!=(const path& lhs, const path::string_type& rhs) {return lhs.compare(rhs) != 0;} 
+  inline bool operator!=(const path::string_type& lhs, const path& rhs) {return rhs.compare(lhs) != 0;}
+  inline bool operator!=(const path& lhs, const path::value_type* rhs)  {return lhs.compare(rhs) != 0;}
+  inline bool operator!=(const path::value_type* lhs, const path& rhs)  {return rhs.compare(lhs) != 0;}
+
+  // TODO: why do == and != have additional overloads, but the others don't?
+
+  inline bool operator<(const path& lhs, const path& rhs)  {return lhs.compare(rhs) < 0;}
+  inline bool operator<=(const path& lhs, const path& rhs) {return !(rhs < lhs);}
+  inline bool operator> (const path& lhs, const path& rhs) {return rhs < lhs;}
+  inline bool operator>=(const path& lhs, const path& rhs) {return !(lhs < rhs);}
+
+  inline std::size_t hash_value(const path& x)
+  {
+# ifdef BOOST_WINDOWS_API
+    std::size_t seed = 0;
+    for(const path::value_type* it = x.c_str(); *it; ++it)
+      hash_combine(seed, *it == '/' ? L'\\' : *it);
+    return seed;
+# else   // BOOST_POSIX_API
+    return hash_range(x.native().begin(), x.native().end());
+# endif
+  }
+
+  inline void swap(path& lhs, path& rhs)                   { lhs.swap(rhs); }
+
+  inline path operator/(const path& lhs, const path& rhs)  { return path(lhs) /= rhs; }
+
+  //  inserters and extractors
+  //    use boost::io::quoted() to handle spaces in paths
+  //    use '&' as escape character to ease use for Windows paths
+
+  template <class Char, class Traits>
+  inline std::basic_ostream<Char, Traits>&
+  operator<<(std::basic_ostream<Char, Traits>& os, const path& p)
+  {
+    return os
+      << boost::io::quoted(p.template string<std::basic_string<Char> >(), static_cast<Char>('&'));
+  }
+  
+  template <class Char, class Traits>
+  inline std::basic_istream<Char, Traits>&
+  operator>>(std::basic_istream<Char, Traits>& is, path& p)
+  {
+    std::basic_string<Char> str;
+    is >> boost::io::quoted(str, static_cast<Char>('&'));
+    p = str;
+    return is;
+  }
+  
+  //  name_checks
+
+  //  These functions are holdovers from version 1. It isn't clear they have much
+  //  usefulness, or how to generalize them for later versions.
+
+  BOOST_FILESYSTEM_DECL bool portable_posix_name(const std::string & name);
+  BOOST_FILESYSTEM_DECL bool windows_name(const std::string & name);
+  BOOST_FILESYSTEM_DECL bool portable_name(const std::string & name);
+  BOOST_FILESYSTEM_DECL bool portable_directory_name(const std::string & name);
+  BOOST_FILESYSTEM_DECL bool portable_file_name(const std::string & name);
+  BOOST_FILESYSTEM_DECL bool native(const std::string & name);
+ 
+//--------------------------------------------------------------------------------------//
+//                     class path member template implementation                        //
+//--------------------------------------------------------------------------------------//
+
+  template <class InputIterator>
+  path& path::append(InputIterator begin, InputIterator end, const codecvt_type& cvt)
+  { 
+    if (begin == end)
       return *this;
-    }
+    string_type::size_type sep_pos(m_append_separator_if_needed());
+    std::basic_string<typename std::iterator_traits<InputIterator>::value_type>
+      s(begin, end);
+    path_traits::convert(s.c_str(), s.c_str()+s.size(), m_pathname, cvt);
+    if (sep_pos)
+      m_erase_redundant_separator(sep_pos);
+    return *this;
+  }
 
-    template<class String, class Traits>
-    basic_path<String, Traits> &
-    basic_path<String, Traits>::replace_extension( const string_type & new_ext )
-    {
-      // erase existing extension if any
-      string_type old_ext = extension();
-      if ( !old_ext.empty() )
-        m_path.erase( m_path.size() - old_ext.size() );
-
-      if ( !new_ext.empty() && new_ext[0] != dot<path_type>::value )
-        m_path += dot<path_type>::value;
-
-      m_path += new_ext;
-
+  template <class Source>
+  path& path::append(Source const& source, const codecvt_type& cvt)
+  {
+    if (path_traits::empty(source))
       return *this;
-    }
+    string_type::size_type sep_pos(m_append_separator_if_needed());
+    path_traits::dispatch(source, m_pathname, cvt);
+    if (sep_pos)
+      m_erase_redundant_separator(sep_pos);
+    return *this;
+  }
+
+//--------------------------------------------------------------------------------------//
+//                     class path member template specializations                       //
+//--------------------------------------------------------------------------------------//
+
+  template <> inline
+  std::string path::string<std::string>() const
+    { return string(); }
+
+  template <> inline
+  std::wstring path::string<std::wstring>() const
+    { return wstring(); }
+
+  template <> inline
+  std::string path::string<std::string>(const codecvt_type& cvt) const
+    { return string(cvt); }
+
+  template <> inline
+  std::wstring path::string<std::wstring>(const codecvt_type& cvt) const
+    { return wstring(cvt); }
+
+  template <> inline
+  std::string path::generic_string<std::string>() const
+    { return generic_string(); }
+
+  template <> inline
+  std::wstring path::generic_string<std::wstring>() const
+    { return generic_wstring(); }
+
+  template <> inline
+  std::string path::generic_string<std::string>(const codecvt_type& cvt) const
+    { return generic_string(cvt); }
+
+  template <> inline
+  std::wstring path::generic_string<std::wstring>(const codecvt_type& cvt) const
+    { return generic_wstring(cvt); }
 
 
-    // path conversion functions  --------------------------------------------//
+}  // namespace filesystem
+}  // namespace boost
 
-    template<class String, class Traits>
-    const String
-    basic_path<String, Traits>::file_string() const
-    {
-#   ifdef BOOST_WINDOWS_PATH
-      // for Windows, use the alternate separator, and bypass extra 
-      // root separators
-
-      typename string_type::size_type root_dir_start(
-        detail::root_directory_start<String, Traits>( m_path, m_path.size() ) );
-      bool in_root( root_dir_start != string_type::npos );
-      String s;
-      for ( typename string_type::size_type pos( 0 );
-        pos != m_path.size(); ++pos )
-      {
-        // special case // [net]
-        if ( pos == 0 && m_path.size() > 1
-          && m_path[0] == slash<path_type>::value
-          && m_path[1] == slash<path_type>::value
-          && ( m_path.size() == 2 
-            || !detail::is_separator<path_type>( m_path[2] )
-             ) )
-        {
-          ++pos;
-          s += path_alt_separator<path_type>::value;
-          s += path_alt_separator<path_type>::value;
-          continue;
-        }   
-
-        // bypass extra root separators
-        if ( in_root )
-        { 
-          if ( s.size() > 0
-            && s[s.size()-1] == path_alt_separator<path_type>::value
-            && m_path[pos] == slash<path_type>::value
-            ) continue;
-        }
-
-        if ( m_path[pos] == slash<path_type>::value )
-          s += path_alt_separator<path_type>::value;
-        else
-          s += m_path[pos];
-
-        if ( pos > root_dir_start
-          && m_path[pos] == slash<path_type>::value )
-          { in_root = false; }
-      }
-#   ifdef BOOST_CYGWIN_PATH
-      if ( m_cygwin_root ) s[0] = slash<path_type>::value;
-#   endif
-      return s;
-#   else
-      return m_path;
-#   endif
-    }
-
-    // iterator functions  ---------------------------------------------------//
-
-    template<class String, class Traits>
-    typename basic_path<String, Traits>::iterator basic_path<String, Traits>::begin() const
-    {
-      iterator itr;
-      itr.m_path_ptr = this;
-      typename string_type::size_type element_size;
-      detail::first_element<String, Traits>( m_path, itr.m_pos, element_size );
-      itr.m_name = m_path.substr( itr.m_pos, element_size );
-      return itr;
-    }
-
-    template<class String, class Traits>
-    typename basic_path<String, Traits>::iterator basic_path<String, Traits>::end() const
-      {
-        iterator itr;
-        itr.m_path_ptr = this;
-        itr.m_pos = m_path.size();
-        return itr;
-      }
-
-    namespace detail
-    {
-      //  do_increment  ------------------------------------------------------//
-
-      template<class Path>
-      void iterator_helper<Path>::do_increment( iterator & itr )
-      {
-        typedef typename Path::string_type string_type;
-        typedef typename Path::traits_type traits_type;
-
-        assert( itr.m_pos < itr.m_path_ptr->m_path.size() && "basic_path::iterator increment past end()" );
-
-        bool was_net( itr.m_name.size() > 2
-          && itr.m_name[0] == slash<Path>::value
-          && itr.m_name[1] == slash<Path>::value
-          && itr.m_name[2] != slash<Path>::value );
-
-        // increment to position past current element
-        itr.m_pos += itr.m_name.size();
-
-        // if end reached, create end iterator
-        if ( itr.m_pos == itr.m_path_ptr->m_path.size() )
-        {
-          itr.m_name.erase( itr.m_name.begin(), itr.m_name.end() ); // VC++ 6.0 lib didn't supply clear() 
-          return;
-        }
-
-        // process separator (Windows drive spec is only case not a separator)
-        if ( itr.m_path_ptr->m_path[itr.m_pos] == slash<Path>::value )
-        {
-          // detect root directory
-          if ( was_net
-  #       ifdef BOOST_WINDOWS_PATH
-            // case "c:/"
-            || itr.m_name[itr.m_name.size()-1] == colon<Path>::value
-  #       endif
-             )
-          {
-            itr.m_name = slash<Path>::value;
-            return;
-          }
-
-          // bypass separators
-          while ( itr.m_pos != itr.m_path_ptr->m_path.size()
-            && itr.m_path_ptr->m_path[itr.m_pos] == slash<Path>::value )
-            { ++itr.m_pos; }
-
-          // detect trailing separator, and treat it as ".", per POSIX spec
-          if ( itr.m_pos == itr.m_path_ptr->m_path.size()
-            && detail::is_non_root_slash< string_type, traits_type >(
-                itr.m_path_ptr->m_path, itr.m_pos-1 ) ) 
-          {
-            --itr.m_pos;
-            itr.m_name = dot<Path>::value;
-            return;
-          }
-        }
-
-        // get next element
-        typename string_type::size_type end_pos(
-          itr.m_path_ptr->m_path.find( slash<Path>::value, itr.m_pos ) );
-        itr.m_name = itr.m_path_ptr->m_path.substr( itr.m_pos, end_pos - itr.m_pos );
-      } 
-
-      //  do_decrement  ------------------------------------------------------//
-
-      template<class Path>
-      void iterator_helper<Path>::do_decrement( iterator & itr )
-      {                                                                                
-        assert( itr.m_pos && "basic_path::iterator decrement past begin()"  );
-
-        typedef typename Path::string_type string_type;
-        typedef typename Path::traits_type traits_type;
-
-        typename string_type::size_type end_pos( itr.m_pos );
-
-        typename string_type::size_type root_dir_pos(
-          detail::root_directory_start<string_type, traits_type>(
-            itr.m_path_ptr->m_path, end_pos ) );
-
-        // if at end and there was a trailing non-root '/', return "."
-        if ( itr.m_pos == itr.m_path_ptr->m_path.size()
-          && itr.m_path_ptr->m_path.size() > 1
-          && itr.m_path_ptr->m_path[itr.m_pos-1] == slash<Path>::value
-          && detail::is_non_root_slash< string_type, traits_type >(
-               itr.m_path_ptr->m_path, itr.m_pos-1 ) 
-           )
-        {
-          --itr.m_pos;
-            itr.m_name = dot<Path>::value;
-            return;
-        }
-
-        // skip separators unless root directory
-        for ( 
-          ; 
-          end_pos > 0
-          && (end_pos-1) != root_dir_pos
-          && itr.m_path_ptr->m_path[end_pos-1] == slash<Path>::value
-          ;
-          --end_pos ) {}
-
-        itr.m_pos = detail::filename_pos<string_type, traits_type>
-            ( itr.m_path_ptr->m_path, end_pos );
-        itr.m_name = itr.m_path_ptr->m_path.substr( itr.m_pos, end_pos - itr.m_pos );
-      }
-    } // namespace detail
-
-    //  basic_filesystem_error implementation --------------------------------//
-
-    template<class Path>
-    basic_filesystem_error<Path>::basic_filesystem_error(
-      const std::string & what_arg, system::error_code ec )
-      : system::system_error(ec, what_arg)
-    {
-      try
-      {
-        m_imp_ptr.reset( new m_imp );
-      }
-      catch (...) { m_imp_ptr.reset(); }
-    }
-
-    template<class Path>
-    basic_filesystem_error<Path>::basic_filesystem_error(
-      const std::string & what_arg, const path_type & path1_arg,
-      system::error_code ec )
-      : system::system_error(ec, what_arg)
-    {
-      try
-      {
-        m_imp_ptr.reset( new m_imp );
-        m_imp_ptr->m_path1 = path1_arg;
-      }
-      catch (...) { m_imp_ptr.reset(); }
-    }
-
-    template<class Path>
-    basic_filesystem_error<Path>::basic_filesystem_error(
-      const std::string & what_arg, const path_type & path1_arg,
-      const path_type & path2_arg, system::error_code ec )
-      : system::system_error(ec, what_arg)
-    {
-      try
-      {
-        m_imp_ptr.reset( new m_imp );
-        m_imp_ptr->m_path1 = path1_arg;
-        m_imp_ptr->m_path2 = path2_arg;
-      }
-      catch (...) { m_imp_ptr.reset(); }
-    }
-
-  } // namespace BOOST_FILESYSTEM_NAMESPACE
-} // namespace boost
+//----------------------------------------------------------------------------//
 
 #include <boost/config/abi_suffix.hpp> // pops abi_prefix.hpp pragmas
 
-#endif // BOOST_FILESYSTEM_PATH_HPP
+#endif  // BOOST_FILESYSTEM_PATH_HPP

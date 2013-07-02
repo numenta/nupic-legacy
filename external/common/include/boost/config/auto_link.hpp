@@ -25,6 +25,9 @@ BOOST_LIB_DIAGNOSTIC:     Optional: when set the header will print out the name
                           of the library selected (useful for debugging).
 BOOST_AUTO_LINK_NOMANGLE: Specifies that we should link to BOOST_LIB_NAME.lib,
                           rather than a mangled-name version.
+BOOST_AUTO_LINK_TAGGED:   Specifies that we link to libraries built with the --layout=tagged option.
+                          This is essentially the same as the default name-mangled version, but without
+                          the compiler name and version, or the Boost version.  Just the build options.
 
 These macros will be undef'ed at the end of the header, further this header
 has no include guards - so be sure to include it only once from your library!
@@ -60,6 +63,8 @@ BOOST_LIB_RT_OPT:     A suffix that indicates the runtime library used,
                       a hiphen:
 
                       s      static runtime (dynamic if not present).
+                      g      debug/diagnostic runtime (release if not present).
+                      y      Python debug/diagnostic runtime (release if not present).
                       d      debug build (release if not present).
                       g      debug/diagnostic runtime (release if not present).
                       p      STLPort Build.
@@ -135,10 +140,20 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
    // vc80:
 #  define BOOST_LIB_TOOLSET "vc80"
 
-#elif defined(BOOST_MSVC) && (BOOST_MSVC >= 1500)
+#elif defined(BOOST_MSVC) && (BOOST_MSVC == 1500)
 
    // vc90:
 #  define BOOST_LIB_TOOLSET "vc90"
+
+#elif defined(BOOST_MSVC) && (BOOST_MSVC == 1600)
+
+   // vc10:
+#  define BOOST_LIB_TOOLSET "vc100"
+
+#elif defined(BOOST_MSVC) && (BOOST_MSVC >= 1700)
+
+   // vc11:
+#  define BOOST_LIB_TOOLSET "vc110"
 
 #elif defined(__BORLANDC__)
 
@@ -178,8 +193,16 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
-#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
+#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-gydp"
+#        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #            define BOOST_LIB_RT_OPT "-gdp"
+#        elif defined(_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-gydp"
+#            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
+#            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
 #            define BOOST_LIB_RT_OPT "-gdp"
 #            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
@@ -190,8 +213,16 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     elif defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
 
-#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
+#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-gydpn"
+#        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #            define BOOST_LIB_RT_OPT "-gdpn"
+#        elif defined(_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-gydpn"
+#            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
+#            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
 #            define BOOST_LIB_RT_OPT "-gdpn"
 #            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
@@ -202,7 +233,9 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     else
 
-#        if defined(_DEBUG)
+#        if defined(_DEBUG) && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-gyd"
+#        elif defined(_DEBUG)
 #            define BOOST_LIB_RT_OPT "-gd"
 #        else
 #            define BOOST_LIB_RT_OPT
@@ -214,8 +247,16 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     if (defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)) && (defined(_STLP_OWN_IOSTREAMS) || defined(__STL_OWN_IOSTREAMS))
 
-#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
+#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-sgydp"
+#        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #            define BOOST_LIB_RT_OPT "-sgdp"
+#        elif defined(_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#             define BOOST_LIB_RT_OPT "-sgydp"
+#            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
+#            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
 #             define BOOST_LIB_RT_OPT "-sgdp"
 #            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
@@ -226,8 +267,16 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     elif defined(__SGI_STL_PORT) || defined(_STLPORT_VERSION)
 
-#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
+#        if defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#            define BOOST_LIB_RT_OPT "-sgydpn"
+#        elif defined(_DEBUG) && (defined(__STL_DEBUG) || defined(_STLP_DEBUG))
 #            define BOOST_LIB_RT_OPT "-sgdpn"
+#        elif defined(_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#             define BOOST_LIB_RT_OPT "-sgydpn"
+#            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
+#            error "Build options aren't compatible with pre-built libraries"
 #        elif defined(_DEBUG)
 #             define BOOST_LIB_RT_OPT "-sgdpn"
 #            pragma message("warning: STLPort debug versions are built with /D_STLP_DEBUG=1")
@@ -238,7 +287,10 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #     else
 
-#        if defined(_DEBUG)
+#        if defined(_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#             define BOOST_LIB_RT_OPT "-sgyd"
+#        elif defined(_DEBUG)
 #             define BOOST_LIB_RT_OPT "-sgd"
 #        else
 #            define BOOST_LIB_RT_OPT "-s"
@@ -265,16 +317,26 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 
 #  ifdef _RTLDLL
 
-#     ifdef BOOST_BORLAND_DEBUG
+#     if defined(BOOST_BORLAND_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#         define BOOST_LIB_RT_OPT "-yd"
+#     elif defined(BOOST_BORLAND_DEBUG)
 #         define BOOST_LIB_RT_OPT "-d"
+#     elif defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#         define BOOST_LIB_RT_OPT -y
 #     else
 #         define BOOST_LIB_RT_OPT
 #     endif
 
 #  else
 
-#     ifdef BOOST_BORLAND_DEBUG
+#     if defined(BOOST_BORLAND_DEBUG)\
+               && defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#         define BOOST_LIB_RT_OPT "-syd"
+#     elif defined(BOOST_BORLAND_DEBUG)
 #         define BOOST_LIB_RT_OPT "-sd"
+#     elif defined(BOOST_DEBUG_PYTHON) && defined(BOOST_LINKING_PYTHON)
+#         define BOOST_LIB_RT_OPT "-sy"
 #     else
 #         define BOOST_LIB_RT_OPT "-s"
 #     endif
@@ -304,15 +366,20 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
       && defined(BOOST_LIB_RT_OPT) \
       && defined(BOOST_LIB_VERSION)
 
-#ifndef BOOST_AUTO_LINK_NOMANGLE
-#  pragma comment(lib, BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
+#ifdef BOOST_AUTO_LINK_TAGGED
+#  pragma comment(lib, BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT ".lib")
 #  ifdef BOOST_LIB_DIAGNOSTIC
-#     pragma message ("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
+#     pragma message ("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT ".lib")
 #  endif
-#else
+#elif defined(BOOST_AUTO_LINK_NOMANGLE)
 #  pragma comment(lib, BOOST_STRINGIZE(BOOST_LIB_NAME) ".lib")
 #  ifdef BOOST_LIB_DIAGNOSTIC
 #     pragma message ("Linking to lib file: " BOOST_STRINGIZE(BOOST_LIB_NAME) ".lib")
+#  endif
+#else
+#  pragma comment(lib, BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
+#  ifdef BOOST_LIB_DIAGNOSTIC
+#     pragma message ("Linking to lib file: " BOOST_LIB_PREFIX BOOST_STRINGIZE(BOOST_LIB_NAME) "-" BOOST_LIB_TOOLSET BOOST_LIB_THREAD_OPT BOOST_LIB_RT_OPT "-" BOOST_LIB_VERSION ".lib")
 #  endif
 #endif
 
@@ -352,17 +419,4 @@ BOOST_LIB_VERSION:    The Boost version, in the form x_y, for Boost version x.y.
 #if defined(BOOST_DYN_LINK)
 #  undef BOOST_DYN_LINK
 #endif
-#if defined(BOOST_AUTO_LINK_NOMANGLE)
-#  undef BOOST_AUTO_LINK_NOMANGLE
-#endif
-
-
-
-
-
-
-
-
-
-
 

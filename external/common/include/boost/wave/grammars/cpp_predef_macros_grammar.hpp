@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -76,10 +76,12 @@ struct predefined_macros_grammar :
         // make it possible to reuse the parse tree traversal code
             plain_define
                 =   (   ch_p(T_IDENTIFIER)
-                    |   pattern_p(KeywordTokenType, TokenTypeMask)
+                    |   pattern_p(KeywordTokenType, 
+                            TokenTypeMask|PPTokenFlag)
                     |   pattern_p(OperatorTokenType|AltExtTokenType, 
-                            ExtTokenTypeMask)   // and, bit_and etc.
-                    |   pattern_p(BoolLiteralTokenType, TokenTypeMask)  // true/false
+                            ExtTokenTypeMask|PPTokenFlag)   // and, bit_and etc.
+                    |   pattern_p(BoolLiteralTokenType, 
+                            TokenTypeMask|PPTokenFlag)  // true/false
                     )
                     >>  !macro_parameters
                     >>  !macro_definition
@@ -91,10 +93,12 @@ struct predefined_macros_grammar :
                         no_node_d[ch_p(T_LEFTPAREN) >> *ch_p(T_SPACE)],
                        !list_p(
                             (   ch_p(T_IDENTIFIER)
-                            |   pattern_p(KeywordTokenType, TokenTypeMask)
+                            |   pattern_p(KeywordTokenType, 
+                                    TokenTypeMask|PPTokenFlag)
                             |   pattern_p(OperatorTokenType|AltExtTokenType, 
-                                    ExtTokenTypeMask)   // and, bit_and etc.
-                            |   pattern_p(BoolLiteralTokenType, TokenTypeMask)  // true/false
+                                    ExtTokenTypeMask|PPTokenFlag)   // and, bit_and etc.
+                            |   pattern_p(BoolLiteralTokenType, 
+                                    TokenTypeMask|PPTokenFlag)  // true/false
 #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0
                             |   ch_p(T_ELLIPSIS)
 #endif

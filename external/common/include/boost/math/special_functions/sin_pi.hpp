@@ -46,7 +46,7 @@ T sin_pi_imp(T x, const Policy& pol)
       return static_cast<T>(invert ? -1 : 1);
    
    rem = sin(constants::pi<T>() * rem);
-   return invert ? -rem : rem;
+   return invert ? T(-rem) : rem;
 }
 
 } // namespace detail

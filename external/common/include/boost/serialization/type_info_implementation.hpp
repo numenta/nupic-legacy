@@ -42,10 +42,10 @@ struct type_info_implementation {
     typedef 
         BOOST_DEDUCED_TYPENAME mpl::eval_if<
             is_base_and_derived<boost::serialization::basic_traits, T>,
-            traits_class_typeinfo_implementation<T>,
+            traits_class_typeinfo_implementation< T >,
         //else
             mpl::identity<
-                BOOST_DEDUCED_TYPENAME extended_type_info_impl<T>::type
+                BOOST_DEDUCED_TYPENAME extended_type_info_impl< T >::type
             >
         >::type type;
 };

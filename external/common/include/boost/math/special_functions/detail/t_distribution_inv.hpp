@@ -118,7 +118,7 @@ T inverse_students_t_tail_series(T df, T v, const Policy& pol)
    T rn = sqrt(df);
    T div = pow(rn * w, 1 / df);
    T power = div * div;
-   T result = tools::evaluate_polynomial(d, power);
+   T result = tools::evaluate_polynomial<7, T, T>(d, power);
    result *= rn;
    result /= div;
    return -result;
@@ -143,39 +143,64 @@ T inverse_students_t_body_series(T df, T u, const Policy& pol)
    // Figure out what the coefficients are, note these depend
    // only on the degrees of freedom (Eq 57 of Shaw):
    //
-   c[2] = T(1) / 6 + T(1) / (6 * df);
    T in = 1 / df;
-   c[3] = (((T(1) / 120) * in) + (T(1) / 15)) * in + (T(7) / 120);
-   c[4] = ((((T(1) / 5040) * in + (T(1) / 560)) * in + (T(3) / 112)) * in + T(127) / 5040);
-   c[5] = ((((T(1) / 362880) * in + (T(17) / 45360)) * in + (T(67) / 60480)) * in + (T(479) / 45360)) * in + (T(4369) / 362880);
-   c[6] = ((((((T(1) / 39916800) * in + (T(2503) / 39916800)) * in + (T(11867) / 19958400)) * in + (T(1285) / 798336)) * in + (T(153161) / 39916800)) * in + (T(34807) / 5702400));
-   c[7] = (((((((T(1) / 6227020800LL) * in + (T(37) / 2402400)) * in +
-      (T(339929) / 2075673600LL)) * in + (T(67217) / 97297200)) * in +
-      (T(870341) / 691891200LL)) * in + (T(70691) / 64864800LL)) * in +
-      (T(20036983LL) / 6227020800LL));
-   c[8] = (((((((T(1) / 1307674368000LL) * in + (T(1042243LL) / 261534873600LL)) * in +
-            (T(21470159) / 435891456000LL)) * in + (T(326228899LL) / 1307674368000LL)) * in +
-            (T(843620579) / 1307674368000LL)) * in + (T(332346031LL) / 435891456000LL)) * in +
-            (T(43847599) / 1307674368000LL)) * in + (T(2280356863LL) / 1307674368000LL);
-   c[9] = (((((((((T(1) / 355687428096000LL)) * in + (T(24262727LL) / 22230464256000LL)) * in +
-            (T(123706507LL) / 8083805184000LL)) * in + (T(404003599LL) / 4446092851200LL)) * in +
-            (T(51811946317LL) / 177843714048000LL)) * in + (T(91423417LL) / 177843714048LL)) * in +
-            (T(32285445833LL) / 88921857024000LL)) * in + (T(531839683LL) / 1710035712000LL)) * in +
-            (T(49020204823LL) / 50812489728000LL);
-   c[10] = (((((((((T(1) / 121645100408832000LL) * in +
-            (T(4222378423LL) / 13516122267648000LL)) * in +
-            (T(49573465457LL) / 10137091700736000LL)) * in +
-            (T(176126809LL) / 5304600576000LL)) * in +
-            (T(44978231873LL) / 355687428096000LL)) * in +
-            (T(5816850595639LL) / 20274183401472000LL)) * in +
-            (T(73989712601LL) / 206879422464000LL)) * in +
-            (T(26591354017LL) / 259925428224000LL)) * in +
-            (T(14979648446341LL) / 40548366802944000LL)) * in +
-            (T(65967241200001LL) / 121645100408832000LL);
+   c[2] = 0.16666666666666666667 + 0.16666666666666666667 * in;
+   c[3] = (0.0083333333333333333333 * in 
+      + 0.066666666666666666667) * in 
+      + 0.058333333333333333333;
+   c[4] = ((0.00019841269841269841270 * in 
+      + 0.0017857142857142857143) * in 
+      + 0.026785714285714285714) * in 
+      + 0.025198412698412698413;
+   c[5] = (((2.7557319223985890653e-6 * in 
+      + 0.00037477954144620811287) * in 
+      - 0.0011078042328042328042) * in 
+      + 0.010559964726631393298) * in 
+      + 0.012039792768959435626;
+   c[6] = ((((2.5052108385441718775e-8 * in 
+      - 0.000062705427288760622094) * in 
+      + 0.00059458674042007375341) * in 
+      - 0.0016095979637646304313) * in 
+      + 0.0061039211560044893378) * in 
+      + 0.0038370059724226390893;
+   c[7] = (((((1.6059043836821614599e-10 * in 
+      + 0.000015401265401265401265) * in 
+      - 0.00016376804137220803887) * in
+      + 0.00069084207973096861986) * in 
+      - 0.0012579159844784844785) * in 
+      + 0.0010898206731540064873) * in 
+      + 0.0032177478835464946576;
+   c[8] = ((((((7.6471637318198164759e-13 * in
+      - 3.9851014346715404916e-6) * in
+      + 0.000049255746366361445727) * in
+      - 0.00024947258047043099953) * in 
+      + 0.00064513046951456342991) * in
+      - 0.00076245135440323932387) * in
+      + 0.000033530976880017885309) * in 
+      + 0.0017438262298340009980;
+   c[9] = (((((((2.8114572543455207632e-15 * in
+      + 1.0914179173496789432e-6) * in
+      - 0.000015303004486655377567) * in
+      + 0.000090867107935219902229) * in
+      - 0.00029133414466938067350) * in
+      + 0.00051406605788341121363) * in
+      - 0.00036307660358786885787) * in
+      - 0.00031101086326318780412) * in 
+      + 0.00096472747321388644237;
+   c[10] = ((((((((8.2206352466243297170e-18 * in
+      - 3.1239569599829868045e-7) * in
+      + 4.8903045291975346210e-6) * in
+      - 0.000033202652391372058698) * in
+      + 0.00012645437628698076975) * in
+      - 0.00028690924218514613987) * in
+      + 0.00035764655430568632777) * in
+      - 0.00010230378073700412687) * in
+      - 0.00036942667800009661203) * in
+      + 0.00054229262813129686486;
    //
    // The result is then a polynomial in v (see Eq 56 of Shaw):
    //
-   return tools::evaluate_odd_polynomial(c, v);
+   return tools::evaluate_odd_polynomial<11, T, T>(c, v);
 }
 
 template <class T, class Policy>
@@ -241,7 +266,7 @@ T inverse_students_t(T df, T u, T v, const Policy& pol, bool* pexact = 0)
             T root_alpha = sqrt(alpha);
             T r = 4 * cos(acos(root_alpha) / 3) / root_alpha;
             T x = sqrt(r - 4);
-            result = u - 0.5f < 0 ? -x : x;
+            result = u - 0.5f < 0 ? (T)-x : x;
             if(pexact)
                *pexact = true;
             break;
@@ -260,7 +285,7 @@ T inverse_students_t(T df, T u, T v, const Policy& pol, bool* pexact = 0)
             //
             T a = 4 * (u - u * u);//1 - 4 * (u - 0.5f) * (u - 0.5f);
             T b = boost::math::cbrt(a);
-            static const T c = 0.85498797333834849467655443627193L;
+            static const T c = 0.85498797333834849467655443627193;
             T p = 6 * (1 + c * (1 / b - 1));
             T p0;
             do{
@@ -275,7 +300,7 @@ T inverse_students_t(T df, T u, T v, const Policy& pol, bool* pexact = 0)
             // Use Eq 45 to extract the result:
             //
             p = sqrt(p - df);
-            result = (u - 0.5f) < 0 ? -p : p;
+            result = (u - 0.5f) < 0 ? (T)-p : p;
             break;
          }
 #if 0
@@ -370,7 +395,7 @@ calculate_real:
          // where we use Shaw's tail series.
          // The crossover point is roughly exponential in -df:
          //
-         T crossover = ldexp(1.0f, iround(df / -0.654f, pol));
+         T crossover = ldexp(1.0f, iround(T(df / -0.654f), pol));
          if(u > crossover)
          {
             result = boost::math::detail::inverse_students_t_hill(df, u, pol);
@@ -381,13 +406,13 @@ calculate_real:
          }
       }
    }
-   return invert ? -result : result;
+   return invert ? (T)-result : result;
 }
 
 template <class T, class Policy>
 inline T find_ibeta_inv_from_t_dist(T a, T p, T q, T* py, const Policy& pol)
 {
-   T u = (p > q) ? 0.5f - q / 2 : p / 2;
+   T u = (p > q) ? T(0.5f - q) / T(2) : T(p / 2);
    T v = 1 - u; // u < 0.5 so no cancellation error
    T df = a * 2;
    T t = boost::math::detail::inverse_students_t(df, u, v, pol);
@@ -405,7 +430,7 @@ inline T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const mpl::f
    // required precision so not so fast:
    //
    T probability = (p > 0.5) ? 1 - p : p;
-   T t, x, y;
+   T t, x, y(0);
    x = ibeta_inv(df / 2, T(0.5), 2 * probability, &y, pol);
    if(df * y > tools::max_value<T>() * x)
       t = policies::raise_overflow_error<T>("boost::math::students_t_quantile<%1%>(%1%,%1%)", 0, pol);
@@ -435,7 +460,7 @@ T fast_students_t_quantile_imp(T df, T p, const Policy& pol, const mpl::true_*)
    // Get an estimate of the result:
    //
    bool exact;
-   T t = inverse_students_t(df, p, 1-p, pol, &exact);
+   T t = inverse_students_t(df, p, T(1-p), pol, &exact);
    if((t == 0) || exact)
       return invert ? -t : t; // can't do better!
    //
@@ -504,7 +529,10 @@ inline T fast_students_t_quantile(T df, T p, const Policy& pol)
    typedef mpl::bool_<
       (std::numeric_limits<T>::digits <= 53)
        &&
-      (std::numeric_limits<T>::is_specialized)> tag_type;
+      (std::numeric_limits<T>::is_specialized)
+       &&
+      (std::numeric_limits<T>::radix == 2)
+   > tag_type;
    return policies::checked_narrowing_cast<T, forwarding_policy>(fast_students_t_quantile_imp(static_cast<value_type>(df), static_cast<value_type>(p), pol, static_cast<tag_type*>(0)), "boost::math::students_t_quantile<%1%>(%1%,%1%,%1%)");
 }
 

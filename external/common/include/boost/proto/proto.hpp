@@ -9,11 +9,10 @@
 #ifndef BOOST_PROTO_HPP_EAN_04_01_2005
 #define BOOST_PROTO_HPP_EAN_04_01_2005
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/proto/core.hpp>
 #include <boost/proto/debug.hpp>
 #include <boost/proto/context.hpp>
 #include <boost/proto/transform.hpp>
-#include <boost/proto/detail/suffix.hpp>
+#include <boost/proto/functional.hpp>
 
 #endif

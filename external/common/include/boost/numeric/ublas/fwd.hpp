@@ -1,6 +1,6 @@
 //
-//  Copyright (c) 2000-2002
-//  Joerg Walter, Mathias Koch
+//  Copyright (c) 2000-2010
+//  Joerg Walter, Mathias Koch, David Bellot
 //
 //  Distributed under the Boost Software License, Version 1.0. (See
 //  accompanying file LICENSE_1_0.txt or copy at
@@ -9,6 +9,8 @@
 //  The authors gratefully acknowledge the support of
 //  GeNeSys mbH & Co. KG in producing this work.
 //
+
+/// \file fwd.hpp is essentially used to forward declare the main types
 
 #ifndef BOOST_UBLAS_FWD_H
 #define BOOST_UBLAS_FWD_H
@@ -138,6 +140,9 @@ namespace boost { namespace numeric { namespace ublas {
 
     template<class T, class L = row_major, class A = unbounded_array<unbounded_array<T> > >
     class vector_of_vector;
+
+    template<class T, class L = row_major, class A = vector<compressed_vector<T> > >
+    class generalized_vector_of_vector;
 
     // Triangular matrix type
     struct lower_tag {};

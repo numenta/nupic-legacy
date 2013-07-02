@@ -88,6 +88,18 @@ namespace boost { namespace fusion { namespace traits
     // Keep references on arrays, even if const
 
     template <typename T, int N>
+    struct deduce<T(&)[N]>
+    {
+        typedef T(&type)[N];
+    };
+
+    template <typename T, int N>
+    struct deduce<volatile T(&)[N]>
+    {
+        typedef volatile T(&type)[N]; 
+    };
+
+    template <typename T, int N>
     struct deduce<const T(&)[N]>
     {
         typedef const T(&type)[N];

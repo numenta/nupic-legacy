@@ -110,16 +110,16 @@ template
 <
     class KeyType,
     class KeyCompare = std::less< BOOST_DEDUCED_TYPENAME 
-		::boost::bimaps::tags::support::value_type_of<KeyType>::type >
+        ::boost::bimaps::tags::support::value_type_of<KeyType>::type >
 >
 struct set_of : public ::boost::bimaps::detail::set_type_of_tag
 {
-	/// User type, can be tagged
+    /// User type, can be tagged
     typedef KeyType user_type;
 
     /// Type of the object that will be stored in the set
-	typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
-		value_type_of<user_type>::type value_type;
+    typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
+        value_type_of<user_type>::type value_type;
 
     /// Functor that compare two keys
     typedef KeyCompare key_compare;

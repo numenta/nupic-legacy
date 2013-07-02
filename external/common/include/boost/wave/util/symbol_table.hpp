@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -57,11 +57,11 @@ struct symbol_table
 #endif
     typedef typename base_type::iterator iterator_type;
     typedef typename base_type::const_iterator const_iterator_type;
-    
+
     symbol_table(long uid_ = 0) 
     {}
-    
-#if BOOST_WAVE_SERIALIZATION != 0    
+
+#if BOOST_WAVE_SERIALIZATION != 0
 private:
     friend class boost::serialization::access;
     template<typename Archive>

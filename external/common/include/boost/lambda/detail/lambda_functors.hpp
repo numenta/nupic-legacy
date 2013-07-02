@@ -13,6 +13,30 @@
 #ifndef BOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
 #define BOOST_LAMBDA_LAMBDA_FUNCTORS_HPP
 
+#include <boost/config.hpp>
+#include <boost/detail/workaround.hpp>
+
+#if BOOST_WORKAROUND(BOOST_MSVC, == 1310)
+
+#include <boost/mpl/or.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_array.hpp>
+
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1)\
+  typename lazy_disable_if<is_array<A1>, typename R1 >::type
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) \
+  typename lazy_disable_if<mpl::or_<is_array<A1>, is_array<A2> >, typename R1, R2 >::type
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) \
+  typename lazy_disable_if<mpl::or_<is_array<A1>, is_array<A2>, is_array<A3> >, typename R1, R2, R3 >::type
+
+#else
+
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY1(A1, R1) typename R1::type
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY2(A1, A2, R1, R2) typename R1, R2::type
+#define BOOST_LAMBDA_DISABLE_IF_ARRAY3(A1, A2, A3, R1, R2, R3) typename R1, R2, R3::type
+
+#endif
+
 namespace boost { 
 namespace lambda {
 
@@ -105,7 +129,10 @@ typedef const lambda_functor<placeholder<THIRD> >  placeholder3_type;
 // other lambda_functors.
 // -------------------------------------------------------------------
 
-
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
 
 // -- lambda_functor NONE ------------------------------------------------
 template <class T>
@@ -134,6 +161,25 @@ public:
     inherited::template sig<null_type>::type
       nullary_return_type;
 
+  // Support for boost::result_of.
+  template <class Sig> struct result;
+  template <class F>
+  struct result<F()> {
+    typedef nullary_return_type type;
+  };
+  template <class F, class A>
+  struct result<F(A)> {
+    typedef typename sig<tuple<F, A> >::type type;
+  };
+  template <class F, class A, class B>
+  struct result<F(A, B)> {
+    typedef typename sig<tuple<F, A, B> >::type type;
+  };
+  template <class F, class A, class B, class C>
+  struct result<F(A, B, C)> {
+    typedef typename sig<tuple<F, A, B, C> >::type type;
+  };
+
   nullary_return_type operator()() const { 
     return inherited::template 
       call<nullary_return_type>
@@ -149,7 +195,7 @@ public:
   }
 
   template<class A>
-  typename inherited::template sig<tuple<A const&> >::type
+  BOOST_LAMBDA_DISABLE_IF_ARRAY1(A, inherited::template sig<tuple<A const&> >)
   operator()(A const& a) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&> >::type
@@ -165,7 +211,7 @@ public:
   }
 
   template<class A, class B>
-  typename inherited::template sig<tuple<A const&, B&> >::type
+  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B&> >)
   operator()(A const& a, B& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&, B&> >::type
@@ -173,7 +219,7 @@ public:
   }
 
   template<class A, class B>
-  typename inherited::template sig<tuple<A&, B const&> >::type
+  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A&, B const&> >)
   operator()(A& a, B const& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A&, B const&> >::type
@@ -181,7 +227,7 @@ public:
   }
 
   template<class A, class B>
-  typename inherited::template sig<tuple<A const&, B const&> >::type
+  BOOST_LAMBDA_DISABLE_IF_ARRAY2(A, B, inherited::template sig<tuple<A const&, B const&> >)
   operator()(A const& a, B const& b) const { 
     return inherited::template call<
       typename inherited::template sig<tuple<A const&, B const&> >::type
@@ -198,7 +244,7 @@ public:
   }
 
   template<class A, class B, class C>
-  typename inherited::template sig<tuple<A const&, B const&, C const&> >::type
+  BOOST_LAMBDA_DISABLE_IF_ARRAY3(A, B, C, inherited::template sig<tuple<A const&, B const&, C const&> >)
   operator()(A const& a, B const& b, C const& c) const
   { 
     return inherited::template call<
@@ -244,6 +290,9 @@ public:
   } 
 };
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 } // namespace lambda
 } // namespace boost

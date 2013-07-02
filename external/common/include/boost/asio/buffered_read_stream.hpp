@@ -2,7 +2,7 @@
 // buffered_read_stream.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,23 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
-#include <cstring>
-#include <boost/config.hpp>
-#include <boost/type_traits.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
+#include <boost/type_traits/remove_reference.hpp>
 #include <boost/asio/buffered_read_stream_fwd.hpp>
 #include <boost/asio/buffer.hpp>
-#include <boost/asio/error.hpp>
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/bind_handler.hpp>
 #include <boost/asio/detail/buffer_resize_guard.hpp>
 #include <boost/asio/detail/buffered_stream_storage.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/asio/io_service.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -98,13 +94,6 @@ public:
   const lowest_layer_type& lowest_layer() const
   {
     return next_layer_.lowest_layer();
-  }
-
-  /// (Deprecated: use get_io_service().) Get the io_service associated with
-  /// the object.
-  boost::asio::io_service& io_service()
-  {
-    return next_layer_.get_io_service();
   }
 
   /// Get the io_service associated with the object.
@@ -230,8 +219,12 @@ public:
   template <typename MutableBufferSequence>
   std::size_t read_some(const MutableBufferSequence& buffers)
   {
+    if (boost::asio::buffer_size(buffers) == 0)
+      return 0;
+
     if (storage_.empty())
       fill();
+
     return copy(buffers);
   }
 
@@ -242,8 +235,13 @@ public:
       boost::system::error_code& ec)
   {
     ec = boost::system::error_code();
+
+    if (boost::asio::buffer_size(buffers) == 0)
+      return 0;
+
     if (storage_.empty() && !fill(ec))
       return 0;
+
     return copy(buffers);
   }
 
@@ -270,24 +268,8 @@ public:
       }
       else
       {
-        using namespace std; // For memcpy.
-
-        std::size_t bytes_avail = storage_.size();
-        std::size_t bytes_copied = 0;
-
-        typename MutableBufferSequence::const_iterator iter = buffers_.begin();
-        typename MutableBufferSequence::const_iterator end = buffers_.end();
-        for (; iter != end && bytes_avail > 0; ++iter)
-        {
-          std::size_t max_length = buffer_size(*iter);
-          std::size_t length = (max_length < bytes_avail)
-            ? max_length : bytes_avail;
-          memcpy(buffer_cast<void*>(*iter),
-              storage_.data() + bytes_copied, length);
-          bytes_copied += length;
-          bytes_avail -= length;
-        }
-
+        std::size_t bytes_copied = boost::asio::buffer_copy(
+            buffers_, storage_.data(), storage_.size());
         storage_.consume(bytes_copied);
         io_service_.dispatch(detail::bind_handler(handler_, ec, bytes_copied));
       }
@@ -306,7 +288,12 @@ public:
   void async_read_some(const MutableBufferSequence& buffers,
       ReadHandler handler)
   {
-    if (storage_.empty())
+    if (boost::asio::buffer_size(buffers) == 0)
+    {
+      get_io_service().post(detail::bind_handler(
+            handler, boost::system::error_code(), 0));
+    }
+    else if (storage_.empty())
     {
       async_fill(read_some_handler<MutableBufferSequence, ReadHandler>(
             get_io_service(), storage_, buffers, handler));
@@ -360,23 +347,8 @@ private:
   template <typename MutableBufferSequence>
   std::size_t copy(const MutableBufferSequence& buffers)
   {
-    using namespace std; // For memcpy.
-
-    std::size_t bytes_avail = storage_.size();
-    std::size_t bytes_copied = 0;
-
-    typename MutableBufferSequence::const_iterator iter = buffers.begin();
-    typename MutableBufferSequence::const_iterator end = buffers.end();
-    for (; iter != end && bytes_avail > 0; ++iter)
-    {
-      std::size_t max_length = buffer_size(*iter);
-      std::size_t length = (max_length < bytes_avail)
-        ? max_length : bytes_avail;
-      memcpy(buffer_cast<void*>(*iter), storage_.data() + bytes_copied, length);
-      bytes_copied += length;
-      bytes_avail -= length;
-    }
-
+    std::size_t bytes_copied = boost::asio::buffer_copy(
+        buffers, storage_.data(), storage_.size());
     storage_.consume(bytes_copied);
     return bytes_copied;
   }
@@ -387,24 +359,7 @@ private:
   template <typename MutableBufferSequence>
   std::size_t peek_copy(const MutableBufferSequence& buffers)
   {
-    using namespace std; // For memcpy.
-
-    std::size_t bytes_avail = storage_.size();
-    std::size_t bytes_copied = 0;
-
-    typename MutableBufferSequence::const_iterator iter = buffers.begin();
-    typename MutableBufferSequence::const_iterator end = buffers.end();
-    for (; iter != end && bytes_avail > 0; ++iter)
-    {
-      std::size_t max_length = buffer_size(*iter);
-      std::size_t length = (max_length < bytes_avail)
-        ? max_length : bytes_avail;
-      memcpy(buffer_cast<void*>(*iter), storage_.data() + bytes_copied, length);
-      bytes_copied += length;
-      bytes_avail -= length;
-    }
-
-    return bytes_copied;
+    return boost::asio::buffer_copy(buffers, storage_.data(), storage_.size());
   }
 
   /// The next layer.

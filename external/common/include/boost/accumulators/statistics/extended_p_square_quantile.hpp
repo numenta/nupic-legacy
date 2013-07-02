@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <functional>
+#include <boost/throw_exception.hpp>
 #include <boost/range/begin.hpp>
 #include <boost/range/end.hpp>
 #include <boost/range/iterator_range.hpp>
@@ -124,7 +125,7 @@ namespace impl
             }
             else
             {
-                result_type result;
+                result_type res;
 
                 if (is_same<Impl2, linear>::value)
                 {
@@ -139,7 +140,7 @@ namespace impl
                     float_type a = numeric::average(h1 - h0, p1 - p0);
                     float_type b = h1 - p1 * a;
 
-                    result = a * this->probability + b;
+                    res = a * this->probability + b;
                 }
                 else
                 {
@@ -177,10 +178,10 @@ namespace impl
                     float_type b = hp21 - a * p21;
                     float_type c = h2 - a * p2 * p2 - b * p2;
 
-                    result = a * this->probability * this-> probability + b * this->probability + c;
+                    res = a * this->probability * this-> probability + b * this->probability + c;
                 }
 
-                return result;
+                return res;
             }
 
         }
@@ -230,6 +231,11 @@ namespace extract
     extractor<tag::extended_p_square_quantile_quadratic> const extended_p_square_quantile_quadratic = {};
     extractor<tag::weighted_extended_p_square_quantile> const weighted_extended_p_square_quantile = {};
     extractor<tag::weighted_extended_p_square_quantile_quadratic> const weighted_extended_p_square_quantile_quadratic = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(extended_p_square_quantile)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(extended_p_square_quantile_quadratic)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_extended_p_square_quantile)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_extended_p_square_quantile_quadratic)
 }
 
 using extract::extended_p_square_quantile;

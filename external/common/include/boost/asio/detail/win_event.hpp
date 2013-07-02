@@ -1,8 +1,8 @@
 //
-// win_event.hpp
-// ~~~~~~~~~~~~~
+// detail/win_event.hpp
+// ~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,23 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <boost/config.hpp>
-#include <boost/system/system_error.hpp>
-#include <boost/asio/detail/pop_options.hpp>
+#include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_WINDOWS)
 
-#include <boost/asio/error.hpp>
+#include <boost/assert.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
 #include <boost/asio/detail/socket_types.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
-#include <boost/assert.hpp>
-#include <boost/throw_exception.hpp>
-#include <boost/asio/detail/pop_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -42,19 +34,7 @@ class win_event
 {
 public:
   // Constructor.
-  win_event()
-    : event_(::CreateEvent(0, true, false, 0))
-  {
-    if (!event_)
-    {
-      DWORD last_error = ::GetLastError();
-      boost::system::system_error e(
-          boost::system::error_code(last_error,
-            boost::asio::error::get_system_category()),
-          "event");
-      boost::throw_exception(e);
-    }
-  }
+  BOOST_ASIO_DECL win_event();
 
   // Destructor.
   ~win_event()
@@ -68,6 +48,15 @@ public:
   {
     BOOST_ASSERT(lock.locked());
     (void)lock;
+    ::SetEvent(event_);
+  }
+
+  // Signal the event and unlock the mutex.
+  template <typename Lock>
+  void signal_and_unlock(Lock& lock)
+  {
+    BOOST_ASSERT(lock.locked());
+    lock.unlock();
     ::SetEvent(event_);
   }
 
@@ -98,8 +87,12 @@ private:
 } // namespace asio
 } // namespace boost
 
-#endif // defined(BOOST_WINDOWS)
-
 #include <boost/asio/detail/pop_options.hpp>
+
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/detail/impl/win_event.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
+
+#endif // defined(BOOST_WINDOWS)
 
 #endif // BOOST_ASIO_DETAIL_WIN_EVENT_HPP

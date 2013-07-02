@@ -13,7 +13,7 @@
 #endif                    
 
 #define BOOST_IOSTREAMS_PUSH_PARAMS() \
-    , int buffer_size = -1 , int pback_size = -1 \
+    , std::streamsize buffer_size = -1 , std::streamsize pback_size = -1 \
     /**/
 
 #define BOOST_IOSTREAMS_PUSH_ARGS() , buffer_size, pback_size     

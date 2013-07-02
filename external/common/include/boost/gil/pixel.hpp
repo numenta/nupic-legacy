@@ -47,6 +47,8 @@ template <typename PixelBased> struct is_planar;
 template <typename PixelBased> struct color_space_type<const PixelBased> : public color_space_type<PixelBased> {};
 template <typename PixelBased> struct channel_mapping_type<const PixelBased> : public channel_mapping_type<PixelBased> {};
 template <typename PixelBased> struct channel_type<const PixelBased> : public channel_type<PixelBased> {};
+
+template <typename PixelBased> struct is_planar : mpl::false_ {};
 template <typename PixelBased> struct is_planar<const PixelBased> : public is_planar<PixelBased> {};
 
 
@@ -143,11 +145,11 @@ private:
 
 private:
     static void check_gray() {  BOOST_STATIC_ASSERT((is_same<typename Layout::color_space_t, gray_t>::value)); }
-    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); at_c<0>(*this)=chan; }
-    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return at_c<0>(*this)==chan; }
+    template <typename Channel> void assign(const Channel& chan, mpl::false_)       { check_gray(); gil::at_c<0>(*this)=chan; }
+    template <typename Channel> bool equal (const Channel& chan, mpl::false_) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 public:
-    pixel&  operator= (channel_t chan)       { check_gray(); at_c<0>(*this)=chan; return *this; }
-    bool    operator==(channel_t chan) const { check_gray(); return at_c<0>(*this)==chan; }
+    pixel&  operator= (channel_t chan)       { check_gray(); gil::at_c<0>(*this)=chan; return *this; }
+    bool    operator==(channel_t chan) const { check_gray(); return gil::at_c<0>(*this)==chan; }
 };
 
 /////////////////////////////

@@ -8,10 +8,6 @@
 #ifndef PHOENIX_SCOPE_DYNAMIC_HPP
 #define PHOENIX_SCOPE_DYNAMIC_HPP
 
-#if !defined(PHOENIX_DYNAMIC_LIMIT)
-# define PHOENIX_DYNAMIC_LIMIT PHOENIX_LIMIT
-#endif
-
 #include <boost/spirit/home/phoenix/core/limits.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/fusion/include/vector.hpp>
@@ -102,17 +98,17 @@ namespace boost { namespace phoenix
         DynamicScope const& scope;
     };
 
-    template <BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(PHOENIX_LIMIT, typename T, void_)>
+    template <BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(PHOENIX_DYNAMIC_LIMIT, typename T, void_)>
     struct dynamic : noncopyable
     {
-        typedef fusion::vector<BOOST_PP_ENUM_PARAMS(PHOENIX_LIMIT, T)> tuple_type;
-        typedef dynamic<BOOST_PP_ENUM_PARAMS(PHOENIX_LIMIT, T)> self_type;
+        typedef fusion::vector<BOOST_PP_ENUM_PARAMS(PHOENIX_DYNAMIC_LIMIT, T)> tuple_type;
+        typedef dynamic<BOOST_PP_ENUM_PARAMS(PHOENIX_DYNAMIC_LIMIT, T)> self_type;
         typedef dynamic_frame<self_type> dynamic_frame_type;
 
         dynamic()
             : frame(0) {}
 
-        BOOST_PP_REPEAT(PHOENIX_LIMIT, PHOENIX_DYNAMIC_MEMBER, _)
+        BOOST_PP_REPEAT(PHOENIX_DYNAMIC_LIMIT, PHOENIX_DYNAMIC_MEMBER, _)
 
     private:
 

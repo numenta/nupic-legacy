@@ -79,7 +79,8 @@ public:
       save_impl(&t, sizeof(T));
     }
 
-    void save(const std::string &s)
+    template<class CharType>
+    void save(const std::basic_string<CharType> &s)
     {
       unsigned int l = static_cast<unsigned int>(s.size());
       save(l);

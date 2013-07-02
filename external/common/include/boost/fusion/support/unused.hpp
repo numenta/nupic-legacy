@@ -1,11 +1,13 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(BOOST_FUSION_SUPPORT_UNUSED_20070305_1038)
 #define BOOST_FUSION_SUPPORT_UNUSED_20070305_1038
+
+#include <iosfwd>
 
 #include <boost/config.hpp>
 #if defined(BOOST_MSVC)
@@ -13,7 +15,10 @@
 # pragma warning(disable: 4522) // multiple assignment operators specified warning
 #endif
 
-namespace boost { namespace fusion {
+#define BOOST_FUSION_UNUSED_HAS_IO
+
+namespace boost { namespace fusion
+{
     struct unused_type
     {
         unused_type()
@@ -53,6 +58,24 @@ namespace boost { namespace fusion {
     };
 
     unused_type const unused = unused_type();
+
+    namespace detail
+    {
+        struct unused_only
+        {
+            unused_only(unused_type const&) {}
+        };
+    }
+
+    inline std::ostream& operator<<(std::ostream& out, detail::unused_only const&)
+    {
+        return out;
+    }
+
+    inline std::istream& operator>>(std::istream& in, unused_type&)
+    {
+        return in;
+    }
 }}
 
 #if defined(BOOST_MSVC)

@@ -10,9 +10,9 @@
 //
 // See http://www.boost.org/libs/mpl for documentation.
 
-// $Id: push_front_impl.hpp 49267 2008-10-11 06:19:02Z agurtovoy $
-// $Date: 2008-10-11 02:19:02 -0400 (Sat, 11 Oct 2008) $
-// $Revision: 49267 $
+// $Id: push_front_impl.hpp 55679 2009-08-20 07:50:16Z agurtovoy $
+// $Date: 2009-08-20 00:50:16 -0700 (Thu, 20 Aug 2009) $
+// $Revision: 55679 $
 
 #include <boost/mpl/push_front_fwd.hpp>
 #include <boost/mpl/assert.hpp>
@@ -25,8 +25,7 @@
 
 namespace boost { namespace mpl {
 
-template< typename Tag >
-struct has_push_front_impl;
+struct has_push_front_arg {};
 
 // agurt 05/feb/04: no default implementation; the stub definition is needed 
 // to enable the default 'has_push_front' implementation below
@@ -40,7 +39,7 @@ struct push_front_impl
         // if you've got an assert here, you are requesting a 'push_front' 
         // specialization that doesn't exist.
         BOOST_MPL_ASSERT_MSG(
-              ( boost::is_same< T, has_push_front_impl<T> >::value )
+              ( boost::is_same< T, has_push_front_arg >::value )
             , REQUESTED_PUSH_FRONT_SPECIALIZATION_FOR_SEQUENCE_DOES_NOT_EXIST
             , ( Sequence )
             );
@@ -52,13 +51,13 @@ struct has_push_front_impl
 {
     template< typename Seq > struct apply
 #if !defined(BOOST_MPL_CFG_NO_NESTED_FORWARDING)
-        : aux::has_type< push_front< Seq, has_push_front_impl<Tag> > >
+        : aux::has_type< push_front< Seq, has_push_front_arg > >
     {
 #else
     {
-        typedef aux::has_type< push_front< Seq, has_push_front_impl<Tag> > > type;
+        typedef aux::has_type< push_front< Seq, has_push_front_arg > > type;
         BOOST_STATIC_CONSTANT(bool, value = 
-              (aux::has_type< push_front< Seq, has_push_front_impl<Tag> > >::value)
+              (aux::has_type< push_front< Seq, has_push_front_arg > >::value)
             );
 #endif
     };

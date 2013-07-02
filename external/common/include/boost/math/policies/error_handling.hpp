@@ -12,6 +12,7 @@
 #include <iomanip>
 #include <string>
 #include <cerrno>
+#include <complex>
 #include <boost/config/no_tr1/cmath.hpp>
 #include <stdexcept>
 #include <boost/math/tools/config.hpp>
@@ -60,8 +61,8 @@ template <class T>
 T user_denorm_error(const char* function, const char* message, const T& val);
 template <class T>
 T user_evaluation_error(const char* function, const char* message, const T& val);
-template <class T>
-T user_rounding_error(const char* function, const char* message, const T& val);
+template <class T, class TargetType>
+T user_rounding_error(const char* function, const char* message, const T& val, const TargetType& t);
 template <class T>
 T user_indeterminate_result_error(const char* function, const char* message, const T& val);
 
@@ -381,11 +382,12 @@ inline T raise_evaluation_error(
    return user_evaluation_error(function, message, val);
 }
 
-template <class T>
+template <class T, class TargetType>
 inline T raise_rounding_error(
            const char* function, 
            const char* message, 
            const T& val, 
+           const TargetType&,
            const  ::boost::math::policies::rounding_error< ::boost::math::policies::throw_on_error>&)
 {
    raise_error<boost::math::rounding_error, T>(function, message, val);
@@ -393,39 +395,42 @@ inline T raise_rounding_error(
    return T(0);
 }
 
-template <class T>
+template <class T, class TargetType>
 inline T raise_rounding_error(
            const char* , 
            const char* , 
            const T& val, 
+           const TargetType&,
            const  ::boost::math::policies::rounding_error< ::boost::math::policies::ignore_error>&)
 {
    // This may or may not do the right thing, but the user asked for the error
    // to be ignored so here we go anyway:
-   return val;
+   return std::numeric_limits<T>::is_specialized ? (val > 0 ? (std::numeric_limits<T>::max)() : -(std::numeric_limits<T>::max)()): val;
 }
 
-template <class T>
+template <class T, class TargetType>
 inline T raise_rounding_error(
            const char* , 
            const char* , 
            const T& val, 
+           const TargetType&,
            const  ::boost::math::policies::rounding_error< ::boost::math::policies::errno_on_error>&)
 {
    errno = ERANGE;
    // This may or may not do the right thing, but the user asked for the error
    // to be silent so here we go anyway:
-   return val;
+   return std::numeric_limits<T>::is_specialized ? (val > 0 ? (std::numeric_limits<T>::max)() : -(std::numeric_limits<T>::max)()): val;
 }
 
-template <class T>
+template <class T, class TargetType>
 inline T raise_rounding_error(
            const char* function, 
            const char* message, 
            const T& val, 
+           const TargetType& t,
            const  ::boost::math::policies::rounding_error< ::boost::math::policies::user_error>&)
 {
-   return user_rounding_error(function, message, val);
+   return user_rounding_error(function, message, val, t);
 }
 
 template <class T, class R>
@@ -536,13 +541,13 @@ inline T raise_evaluation_error(const char* function, const char* message, const
       val, policy_type());
 }
 
-template <class T, class Policy>
-inline T raise_rounding_error(const char* function, const char* message, const T& val, const Policy&)
+template <class T, class TargetType, class Policy>
+inline T raise_rounding_error(const char* function, const char* message, const T& val, const TargetType& t, const Policy&)
 {
    typedef typename Policy::rounding_error_type policy_type;
    return detail::raise_rounding_error(
       function, message ? message : "Value %1% can not be represented in the target integer type.", 
-      val, policy_type());
+      val, t, policy_type());
 }
 
 template <class T, class R, class Policy>
@@ -572,6 +577,15 @@ inline bool check_overflow(T val, R* result, const char* function, const Policy&
    return false;
 }
 template <class R, class T, class Policy>
+inline bool check_overflow(std::complex<T> val, R* result, const char* function, const Policy& pol)
+{
+   typedef typename R::value_type r_type;
+   r_type re, im;
+   bool r = check_overflow<r_type>(val.real(), &re, function, pol) || check_overflow<r_type>(val.imag(), &im, function, pol);
+   *result = R(re, im);
+   return r;
+}
+template <class R, class T, class Policy>
 inline bool check_underflow(T val, R* result, const char* function, const Policy& pol)
 {
    if((val != 0) && (static_cast<R>(val) == 0))
@@ -580,6 +594,15 @@ inline bool check_underflow(T val, R* result, const char* function, const Policy
       return true;
    }
    return false;
+}
+template <class R, class T, class Policy>
+inline bool check_underflow(std::complex<T> val, R* result, const char* function, const Policy& pol)
+{
+   typedef typename R::value_type r_type;
+   r_type re, im;
+   bool r = check_underflow<r_type>(val.real(), &re, function, pol) || check_underflow<r_type>(val.imag(), &im, function, pol);
+   *result = R(re, im);
+   return r;
 }
 template <class R, class T, class Policy>
 inline bool check_denorm(T val, R* result, const char* function, const Policy& pol)
@@ -592,14 +615,29 @@ inline bool check_denorm(T val, R* result, const char* function, const Policy& p
    }
    return false;
 }
+template <class R, class T, class Policy>
+inline bool check_denorm(std::complex<T> val, R* result, const char* function, const Policy& pol)
+{
+   typedef typename R::value_type r_type;
+   r_type re, im;
+   bool r = check_denorm<r_type>(val.real(), &re, function, pol) || check_denorm<r_type>(val.imag(), &im, function, pol);
+   *result = R(re, im);
+   return r;
+}
 
 // Default instantiations with ignore_error policy.
 template <class R, class T>
 inline bool check_overflow(T /* val */, R* /* result */, const char* /* function */, const overflow_error<ignore_error>&){ return false; }
 template <class R, class T>
+inline bool check_overflow(std::complex<T> /* val */, R* /* result */, const char* /* function */, const overflow_error<ignore_error>&){ return false; }
+template <class R, class T>
 inline bool check_underflow(T /* val */, R* /* result */, const char* /* function */, const underflow_error<ignore_error>&){ return false; }
 template <class R, class T>
+inline bool check_underflow(std::complex<T> /* val */, R* /* result */, const char* /* function */, const underflow_error<ignore_error>&){ return false; }
+template <class R, class T>
 inline bool check_denorm(T /* val */, R* /* result*/, const char* /* function */, const denorm_error<ignore_error>&){ return false; }
+template <class R, class T>
+inline bool check_denorm(std::complex<T> /* val */, R* /* result*/, const char* /* function */, const denorm_error<ignore_error>&){ return false; }
 
 } // namespace detail
 
@@ -612,7 +650,7 @@ inline R checked_narrowing_cast(T val, const char* function)
    //
    // Most of what follows will evaluate to a no-op:
    //
-   R result;
+   R result = 0;
    if(detail::check_overflow<R>(val, &result, function, overflow_type()))
       return result;
    if(detail::check_underflow<R>(val, &result, function, underflow_type()))
@@ -623,13 +661,22 @@ inline R checked_narrowing_cast(T val, const char* function)
    return static_cast<R>(val);
 }
 
-template <class Policy>
+template <class T, class Policy>
 inline void check_series_iterations(const char* function, boost::uintmax_t max_iter, const Policy& pol)
 {
    if(max_iter >= policies::get_max_series_iterations<Policy>())
-      raise_evaluation_error<boost::uintmax_t>(
+      raise_evaluation_error<T>(
          function,
-         "Series evaluation exceeded %1% iterations, giving up now.", max_iter, pol);
+         "Series evaluation exceeded %1% iterations, giving up now.", static_cast<T>(static_cast<double>(max_iter)), pol);
+}
+
+template <class T, class Policy>
+inline void check_root_iterations(const char* function, boost::uintmax_t max_iter, const Policy& pol)
+{
+   if(max_iter >= policies::get_max_root_iterations<Policy>())
+      raise_evaluation_error<T>(
+         function,
+         "Root finding evaluation exceeded %1% iterations, giving up now.", static_cast<T>(static_cast<double>(max_iter)), pol);
 }
 
 } //namespace policies

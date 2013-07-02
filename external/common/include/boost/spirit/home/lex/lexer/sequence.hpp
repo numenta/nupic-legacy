@@ -1,4 +1,4 @@
-//  Copyright (c) 2001-2008 Hartmut Kaiser
+//  Copyright (c) 2001-2011 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -6,27 +6,67 @@
 #if !defined(SPIRIT_LEX_SEQUENCE_MAR_28_2007_0610PM)
 #define SPIRIT_LEX_SEQUENCE_MAR_28_2007_0610PM
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1020)
-#pragma once      // MS compatible compilers support #pragma once
+#if defined(_MSC_VER)
+#pragma once
 #endif
 
-#include <boost/spirit/home/lex/lexer/detail/sequence.hpp>
+#include <boost/spirit/home/lex/domain.hpp>
+#include <boost/spirit/home/lex/lexer_type.hpp>
+#include <boost/spirit/home/lex/meta_compiler.hpp>
+#include <boost/spirit/home/lex/detail/sequence_function.hpp>
 #include <boost/fusion/include/any.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_operator<lex::domain, proto::tag::bitwise_or>  // enables |
+      : mpl::true_ {};
+
+    template <>
+    struct flatten_tree<lex::domain, proto::tag::bitwise_or>  // flattens |
+      : mpl::true_ {};
+
+}}
 
 namespace boost { namespace spirit { namespace lex
 {
-    struct sequence
+    template <typename Elements>
+    struct sequence : nary_lexer<sequence<Elements> >
     {
-        template <typename Component, typename LexerDef, typename String>
-        static void 
-        collect(Component const& component, LexerDef& lexdef, 
-            String const& state)
+        sequence(Elements const& elements)
+          : elements(elements) {}
+
+        template <typename LexerDef, typename String>
+        void collect(LexerDef& lexdef, String const& state
+          , String const& targetstate) const
         {
-            detail::sequence_collect<LexerDef, String> f (lexdef, state);
-            fusion::any(component.elements, f);
+            typedef detail::sequence_collect_function<LexerDef, String>
+                collect_function_type;
+            collect_function_type f (lexdef, state, targetstate);
+            fusion::any(elements, f);
         }
+
+        template <typename LexerDef>
+        void add_actions(LexerDef& lexdef) const 
+        {
+            detail::sequence_add_actions_function<LexerDef> f (lexdef);
+            fusion::any(elements, f);
+        }
+
+        Elements elements;
     };
-    
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Lexer generator: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements, typename Modifiers>
+    struct make_composite<proto::tag::bitwise_or, Elements, Modifiers>
+      : make_nary_composite<Elements, sequence>
+    {};
+
 }}} // namespace boost::spirit::lex
 
 #endif

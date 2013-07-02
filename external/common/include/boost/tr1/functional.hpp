@@ -14,7 +14,7 @@
    || defined(BOOST_HAS_TR1_BIND)\
    || defined(BOOST_HAS_TR1_FUNCTION)\
    || defined(BOOST_HAS_TR1_HASH)
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next BOOST_TR1_HEADER(functional)
 #  else
 #     include <boost/tr1/detail/config_all.hpp>
@@ -48,7 +48,10 @@ namespace std{ namespace tr1{
 
 namespace std{ namespace tr1{
 
-   using ::boost::result_of;
+   template<class F>
+   struct result_of
+     : ::boost::tr1_result_of<F>
+   {};
 
 } }
 
@@ -125,7 +128,12 @@ template <class T> struct hash;
 }
 
 namespace std{ namespace tr1{
-   using ::boost::hash;
+   //using ::boost::hash;
+
+   template <class T>
+   struct hash : public boost::hash<T>
+   {
+   };
 
 }}
 

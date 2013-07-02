@@ -1,5 +1,5 @@
 // leaf_node.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -95,7 +95,7 @@ private:
         node_stack &new_node_stack_, bool_stack &/*perform_op_stack_*/,
         bool &/*down_*/) const
     {
-        node_ptr_vector_->push_back (0);
+        node_ptr_vector_->push_back (static_cast<leaf_node *>(0));
         node_ptr_vector_->back () = new leaf_node (_token, _greedy);
         new_node_stack_.push (node_ptr_vector_->back ());
     }

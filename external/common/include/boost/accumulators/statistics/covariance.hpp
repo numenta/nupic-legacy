@@ -190,6 +190,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::abstract_covariance> const covariance = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(covariance)
 }
 
 using extract::covariance;

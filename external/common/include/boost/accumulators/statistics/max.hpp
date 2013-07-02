@@ -74,6 +74,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::max> const max = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(max)
 }
 
 using extract::max;

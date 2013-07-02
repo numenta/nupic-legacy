@@ -2,43 +2,43 @@
 #define DATE_TIME_DATE_HPP___
 
 /* Copyright (c) 2002,2003 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2012-09-22 15:33:33 -0700 (Sat, 22 Sep 2012) $
  */
 
-#include "boost/date_time/year_month_day.hpp"
-#include "boost/date_time/special_defs.hpp"
-#include "boost/operators.hpp"
+#include <boost/operators.hpp>
+#include <boost/date_time/year_month_day.hpp>
+#include <boost/date_time/special_defs.hpp>
 
 namespace boost {
 namespace date_time {
 
   //!Representation of timepoint at the one day level resolution.
-  /*! 
+  /*!
     The date template represents an interface shell for a date class
     that is based on a year-month-day system such as the gregorian
     or iso systems.  It provides basic operations to enable calculation
-    and comparisons.  
+    and comparisons.
 
     <b>Theory</b>
 
-    This date representation fundamentally departs from the C tm struct 
+    This date representation fundamentally departs from the C tm struct
     approach.  The goal for this type is to provide efficient date
     operations (add, subtract) and storage (minimize space to represent)
     in a concrete class.  Thus, the date uses a count internally to
-    represent a particular date.  The calendar parameter defines 
+    represent a particular date.  The calendar parameter defines
     the policies for converting the the year-month-day and internal
     counted form here.  Applications that need to perform heavy
     formatting of the same date repeatedly will perform better
     by using the year-month-day representation.
-    
+
     Internally the date uses a day number to represent the date.
-    This is a monotonic time representation. This representation 
+    This is a monotonic time representation. This representation
     allows for fast comparison as well as simplifying
-    the creation of writing numeric operations.  Essentially, the 
+    the creation of writing numeric operations.  Essentially, the
     internal day number is like adjusted julian day.  The adjustment
     is determined by the Epoch date which is represented as day 1 of
     the calendar.  Day 0 is reserved for negative infinity so that
@@ -48,11 +48,11 @@ namespace date_time {
     day representations.
   */
 
-  
-  template<class T, class calendar, class duration_type_> 
-  class date : private 
-       boost::less_than_comparable<T 
-     , boost::equality_comparable<T 
+
+  template<class T, class calendar, class duration_type_>
+  class date : private
+       boost::less_than_comparable<T
+     , boost::equality_comparable<T
     > >
   {
   public:
@@ -67,26 +67,26 @@ namespace date_time {
     typedef typename calendar::date_rep_type date_rep_type;
     typedef typename calendar::date_int_type date_int_type;
     typedef typename calendar::day_of_week_type day_of_week_type;
-    date(year_type y, month_type m, day_type d) 
+    date(year_type y, month_type m, day_type d)
       : days_(calendar::day_number(ymd_type(y, m, d)))
     {}
-    date(const ymd_type& ymd) 
+    date(const ymd_type& ymd)
       : days_(calendar::day_number(ymd))
-      {}
+    {}
     //let the compiler write copy, assignment, and destructor
     year_type        year() const
     {
-      ymd_type ymd = calendar::from_day_number(days_); 
+      ymd_type ymd = calendar::from_day_number(days_);
       return ymd.year;
     }
     month_type       month() const
     {
-      ymd_type ymd = calendar::from_day_number(days_); 
+      ymd_type ymd = calendar::from_day_number(days_);
       return ymd.month;
     }
     day_type         day() const
     {
-      ymd_type ymd = calendar::from_day_number(days_); 
+      ymd_type ymd = calendar::from_day_number(days_);
       return ymd.day;
     }
     day_of_week_type day_of_week() const
@@ -138,10 +138,21 @@ namespace date_time {
     }
     duration_type operator-(const date_type& d) const
     {
-      date_rep_type val = date_rep_type(days_) - date_rep_type(d.days_);
-      return duration_type(val.as_number());
+      if (!this->is_special() && !d.is_special())
+      {
+        // The duration underlying type may be wider than the date underlying type.
+        // Thus we calculate the difference in terms of two durations from some common fixed base date.
+        typedef typename duration_type::duration_rep_type duration_rep_type;
+        return duration_type(static_cast< duration_rep_type >(days_) - static_cast< duration_rep_type >(d.days_));
+      }
+      else
+      {
+        // In this case the difference will be a special value, too
+        date_rep_type val = date_rep_type(days_) - date_rep_type(d.days_);
+        return duration_type(val.as_special());
+      }
     }
-    
+
     date_type operator-(const duration_type& dd) const
     {
       if(dd.is_special())
@@ -155,10 +166,10 @@ namespace date_time {
       *this = *this - dd;
       return date_type(days_);
     }
-    date_rep_type day_count() const 
+    date_rep_type day_count() const
     {
       return days_;
-    };
+    }
     //allow internal access from operators
     date_type operator+(const duration_type& dd) const
     {
@@ -170,25 +181,25 @@ namespace date_time {
     }
     date_type operator+=(const duration_type& dd)
     {
-      *this = *this + dd; 
+      *this = *this + dd;
       return date_type(days_);
     }
 
     //see reference
   protected:
-    /*! This is a private constructor which allows for the creation of new 
-      dates.  It is not exposed to users since that would require class 
+    /*! This is a private constructor which allows for the creation of new
+      dates.  It is not exposed to users since that would require class
       users to understand the inner workings of the date class.
     */
-    explicit date(date_int_type days) : days_(days) {};
-    explicit date(date_rep_type days) : days_(days.as_number()) {};
+    explicit date(date_int_type days) : days_(days) {}
+    explicit date(date_rep_type days) : days_(days.as_number()) {}
     date_int_type days_;
-    
+
   };
 
 
 
-  
+
 } } // namespace date_time
 
 

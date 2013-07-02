@@ -33,7 +33,7 @@ namespace detail
 {
     inline void ignore_unused_icase()
     {
-        ignore_unused(icase);
+        detail::ignore_unused(icase);
     }
 }
 

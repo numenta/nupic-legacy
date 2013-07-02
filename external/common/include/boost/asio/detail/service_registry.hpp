@@ -1,8 +1,8 @@
 //
-// service_registry.hpp
-// ~~~~~~~~~~~~~~~~~~~~
+// detail/service_registry.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,23 +15,19 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <memory>
+#include <boost/asio/detail/config.hpp>
 #include <typeinfo>
-#include <boost/asio/detail/pop_options.hpp>
-
-#include <boost/asio/io_service.hpp>
 #include <boost/asio/detail/mutex.hpp>
 #include <boost/asio/detail/noncopyable.hpp>
-#include <boost/asio/detail/service_id.hpp>
+#include <boost/asio/io_service.hpp>
 
 #if defined(BOOST_NO_TYPEID)
 # if !defined(BOOST_ASIO_NO_TYPEID)
 #  define BOOST_ASIO_NO_TYPEID
 # endif // !defined(BOOST_ASIO_NO_TYPEID)
 #endif // defined(BOOST_NO_TYPEID)
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -56,158 +52,93 @@ class service_registry
   : private noncopyable
 {
 public:
-  // Constructor.
-  service_registry(boost::asio::io_service& o)
-    : owner_(o),
-      first_service_(0)
-  {
-  }
+  // Constructor. Adds the initial service.
+  template <typename Service, typename Arg>
+  service_registry(boost::asio::io_service& o,
+      Service* initial_service, Arg arg);
 
   // Destructor.
-  ~service_registry()
-  {
-    // Shutdown all services. This must be done in a separate loop before the
-    // services are destroyed since the destructors of user-defined handler
-    // objects may try to access other service objects.
-    boost::asio::io_service::service* service = first_service_;
-    while (service)
-    {
-      service->shutdown_service();
-      service = service->next_;
-    }
+  BOOST_ASIO_DECL ~service_registry();
 
-    // Destroy all services.
-    while (first_service_)
-    {
-      boost::asio::io_service::service* next_service = first_service_->next_;
-      delete first_service_;
-      first_service_ = next_service;
-    }
-  }
+  // Notify all services of a fork event.
+  BOOST_ASIO_DECL void notify_fork(boost::asio::io_service::fork_event fork_ev);
+
+  // Get the first service object cast to the specified type. Called during
+  // io_service construction and so performs no locking or type checking.
+  template <typename Service>
+  Service& first_service();
 
   // Get the service object corresponding to the specified service type. Will
   // create a new service object automatically if no such object already
   // exists. Ownership of the service object is not transferred to the caller.
   template <typename Service>
-  Service& use_service()
-  {
-    boost::asio::detail::mutex::scoped_lock lock(mutex_);
+  Service& use_service();
 
-    // First see if there is an existing service object for the given type.
-    boost::asio::io_service::service* service = first_service_;
-    while (service)
-    {
-      if (service_id_matches(*service, Service::id))
-        return *static_cast<Service*>(service);
-      service = service->next_;
-    }
-
-    // Create a new service object. The service registry's mutex is not locked
-    // at this time to allow for nested calls into this function from the new
-    // service's constructor.
-    lock.unlock();
-    std::auto_ptr<Service> new_service(new Service(owner_));
-    init_service_id(*new_service, Service::id);
-    Service& new_service_ref = *new_service;
-    lock.lock();
-
-    // Check that nobody else created another service object of the same type
-    // while the lock was released.
-    service = first_service_;
-    while (service)
-    {
-      if (service_id_matches(*service, Service::id))
-        return *static_cast<Service*>(service);
-      service = service->next_;
-    }
-
-    // Service was successfully initialised, pass ownership to registry.
-    new_service->next_ = first_service_;
-    first_service_ = new_service.release();
-
-    return new_service_ref;
-  }
-
-  // Add a service object. Returns false on error, in which case ownership of
-  // the object is retained by the caller.
+  // Add a service object. Throws on error, in which case ownership of the
+  // object is retained by the caller.
   template <typename Service>
-  bool add_service(Service* new_service)
-  {
-    boost::asio::detail::mutex::scoped_lock lock(mutex_);
-
-    // Check if there is an existing service object for the given type.
-    boost::asio::io_service::service* service = first_service_;
-    while (service)
-    {
-      if (service_id_matches(*service, Service::id))
-        return false;
-      service = service->next_;
-    }
-
-    // Take ownership of the service object.
-    init_service_id(*new_service, Service::id);
-    new_service->next_ = first_service_;
-    first_service_ = new_service;
-
-    return true;
-  }
+  void add_service(Service* new_service);
 
   // Check whether a service object of the specified type already exists.
   template <typename Service>
-  bool has_service() const
-  {
-    boost::asio::detail::mutex::scoped_lock lock(mutex_);
-
-    boost::asio::io_service::service* service = first_service_;
-    while (service)
-    {
-      if (service_id_matches(*service, Service::id))
-        return true;
-      service = service->next_;
-    }
-
-    return false;
-  }
+  bool has_service() const;
 
 private:
-  // Set a service's id.
-  void init_service_id(boost::asio::io_service::service& service,
-      const boost::asio::io_service::id& id)
-  {
-    service.type_info_ = 0;
-    service.id_ = &id;
-  }
+  // Initialise a service's key based on its id.
+  BOOST_ASIO_DECL static void init_key(
+      boost::asio::io_service::service::key& key,
+      const boost::asio::io_service::id& id);
 
 #if !defined(BOOST_ASIO_NO_TYPEID)
-  // Set a service's id.
+  // Initialise a service's key based on its id.
   template <typename Service>
-  void init_service_id(boost::asio::io_service::service& service,
-      const boost::asio::detail::service_id<Service>& /*id*/)
-  {
-    service.type_info_ = &typeid(typeid_wrapper<Service>);
-    service.id_ = 0;
-  }
+  static void init_key(boost::asio::io_service::service::key& key,
+      const boost::asio::detail::service_id<Service>& /*id*/);
 #endif // !defined(BOOST_ASIO_NO_TYPEID)
 
   // Check if a service matches the given id.
-  static bool service_id_matches(
-      const boost::asio::io_service::service& service,
-      const boost::asio::io_service::id& id)
-  {
-    return service.id_ == &id;
-  }
+  BOOST_ASIO_DECL static bool keys_match(
+      const boost::asio::io_service::service::key& key1,
+      const boost::asio::io_service::service::key& key2);
 
-#if !defined(BOOST_ASIO_NO_TYPEID)
-  // Check if a service matches the given id.
+  // The type of a factory function used for creating a service instance.
+  typedef boost::asio::io_service::service*
+    (*factory_type)(boost::asio::io_service&);
+
+  // Factory function for creating a service instance.
   template <typename Service>
-  static bool service_id_matches(
-      const boost::asio::io_service::service& service,
-      const boost::asio::detail::service_id<Service>& /*id*/)
+  static boost::asio::io_service::service* create(
+      boost::asio::io_service& owner);
+
+  // Destroy a service instance.
+  BOOST_ASIO_DECL static void destroy(
+      boost::asio::io_service::service* service);
+
+  // Helper class to manage service pointers.
+  struct auto_service_ptr;
+  friend struct auto_service_ptr;
+  struct auto_service_ptr
   {
-    return service.type_info_ != 0
-      && *service.type_info_ == typeid(typeid_wrapper<Service>);
-  }
-#endif // !defined(BOOST_ASIO_NO_TYPEID)
+    boost::asio::io_service::service* ptr_;
+    ~auto_service_ptr() { destroy(ptr_); }
+  };
+
+  // Get the service object corresponding to the specified service key. Will
+  // create a new service object automatically if no such object already
+  // exists. Ownership of the service object is not transferred to the caller.
+  BOOST_ASIO_DECL boost::asio::io_service::service* do_use_service(
+      const boost::asio::io_service::service::key& key,
+      factory_type factory);
+
+  // Add a service object. Throws on error, in which case ownership of the
+  // object is retained by the caller.
+  BOOST_ASIO_DECL void do_add_service(
+      const boost::asio::io_service::service::key& key,
+      boost::asio::io_service::service* new_service);
+
+  // Check whether a service object with the specified key already exists.
+  BOOST_ASIO_DECL bool do_has_service(
+      const boost::asio::io_service::service::key& key) const;
 
   // Mutex to protect access to internal data.
   mutable boost::asio::detail::mutex mutex_;
@@ -224,5 +155,10 @@ private:
 } // namespace boost
 
 #include <boost/asio/detail/pop_options.hpp>
+
+#include <boost/asio/detail/impl/service_registry.hpp>
+#if defined(BOOST_ASIO_HEADER_ONLY)
+# include <boost/asio/detail/impl/service_registry.ipp>
+#endif // defined(BOOST_ASIO_HEADER_ONLY)
 
 #endif // BOOST_ASIO_DETAIL_SERVICE_REGISTRY_HPP

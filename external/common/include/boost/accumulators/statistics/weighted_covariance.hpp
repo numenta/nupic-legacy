@@ -122,6 +122,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::abstract_covariance> const weighted_covariance = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_covariance)
 }
 
 using extract::weighted_covariance;

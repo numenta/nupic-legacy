@@ -1,90 +1,136 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
-    Copyright (c) 2001-2008 Hartmut Kaiser
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2011 Hartmut Kaiser
     http://spirit.sourceforge.net/
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#if !defined(SPIRIT_REAL_IMPL_APR_18_2006_0901AM)
-#define SPIRIT_REAL_IMPL_APR_18_2006_0901AM
+#if !defined(SPIRIT_REAL_IMPL_APRIL_18_2006_0901AM)
+#define SPIRIT_REAL_IMPL_APRIL_18_2006_0901AM
 
-#include <boost/config/no_tr1/cmath.hpp>
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <cmath>
+#include <boost/limits.hpp>
 #include <boost/type_traits/is_same.hpp>
 #include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
+#include <boost/spirit/home/support/detail/pow10.hpp>
+#include <boost/spirit/home/support/detail/sign.hpp>
+#include <boost/assert.hpp>
 
-namespace boost { namespace spirit { namespace qi  { namespace detail
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+# pragma warning(push)
+# pragma warning(disable: 4100)   // 'p': unreferenced formal parameter
+# pragma warning(disable: 4127)   // conditional expression is constant
+#endif
+
+namespace boost { namespace spirit { namespace traits
 {
-    namespace
+    using spirit::traits::pow10;
+
+    template <typename T>
+    inline void
+    scale(int exp, T& n)
     {
-        template <typename T>
-        inline void
-        scale_number(T const& exp, T& n)
+        if (exp >= 0)
         {
-            using namespace std;    // allow for ADL to find the correct overload
-            n *= pow(T(10), exp);
+            // $$$ Why is this failing for boost.math.concepts ? $$$
+            //~ int nn = std::numeric_limits<T>::max_exponent10;
+            //~ BOOST_ASSERT(exp <= std::numeric_limits<T>::max_exponent10);
+            n *= pow10<T>(exp);
         }
-
-        inline void
-        scale_number(unused_type /*exp*/, unused_type /*n*/)
+        else
         {
-            // no-op for unused_type
-        }
-
-        template <typename T>
-        inline void
-        scale_number(T const& exp, int frac, T& n)
-        {
-            scale_number(exp - T(frac), n);
-        }
-
-        inline void
-        scale_number(unused_type /*exp*/, int /*frac*/, unused_type /*n*/)
-        {
-            // no-op for unused_type
-        }
-
-        template <typename T>
-        inline T
-        negate_number(bool neg, T const& n)
-        {
-            return neg ? -n : n;
-        }
-
-        inline unused_type
-        negate_number(bool /*neg*/, unused_type n)
-        {
-            // no-op for unused_type
-            return n;
-        }
-        
-        template <typename T>
-        inline bool
-        number_equal_to_one(T const& value)
-        {
-            return value == 1.0;
-        }
-
-        inline bool
-        number_equal_to_one(unused_type)
-        {
-            // no-op for unused_type
-            return false;
+            if (exp < std::numeric_limits<T>::min_exponent10)
+            {
+                n /= pow10<T>(-std::numeric_limits<T>::min_exponent10);
+                n /= pow10<T>(-exp + std::numeric_limits<T>::min_exponent10);
+            }
+            else
+            {
+                n /= pow10<T>(-exp);
+            }
         }
     }
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
-# pragma warning(push)  
-# pragma warning(disable: 4100)   // 'p': unreferenced formal parameter  
-# pragma warning(disable: 4127)   // conditional expression is constant
-#endif 
+    inline void
+    scale(int /*exp*/, unused_type /*n*/)
+    {
+        // no-op for unused_type
+    }
 
+    template <typename T>
+    inline void
+    scale(int exp, int frac, T& n)
+    {
+        scale(exp - frac, n);
+    }
+
+    inline void
+    scale(int /*exp*/, int /*frac*/, unused_type /*n*/)
+    {
+        // no-op for unused_type
+    }
+
+    inline float
+    negate(bool neg, float n)
+    {
+        return neg ? spirit::detail::changesign(n) : n;
+    }
+
+    inline double
+    negate(bool neg, double n)
+    {
+        return neg ? spirit::detail::changesign(n) : n;
+    }
+
+    inline long double
+    negate(bool neg, long double n)
+    {
+        return neg ? spirit::detail::changesign(n) : n;
+    }
+
+    template <typename T>
+    inline T
+    negate(bool neg, T const& n)
+    {
+        return neg ? -n : n;
+    }
+
+    inline unused_type
+    negate(bool /*neg*/, unused_type n)
+    {
+        // no-op for unused_type
+        return n;
+    }
+
+    template <typename T>
+    inline bool
+    is_equal_to_one(T const& value)
+    {
+        return value == 1.0;
+    }
+
+    inline bool
+    is_equal_to_one(unused_type)
+    {
+        // no-op for unused_type
+        return false;
+    }
+}}}
+
+namespace boost { namespace spirit { namespace qi  { namespace detail
+{
     template <typename T, typename RealPolicies>
     struct real_impl
     {
         template <typename Iterator, typename Attribute>
         static bool
-        parse(Iterator& first, Iterator const& last, Attribute& attr, 
+        parse(Iterator& first, Iterator const& last, Attribute& attr,
             RealPolicies const& p)
         {
             if (first == last)
@@ -96,22 +142,22 @@ namespace boost { namespace spirit { namespace qi  { namespace detail
             bool neg = p.parse_sign(first, last);
 
             // Now attempt to parse an integer
-            Attribute n = 0;
+            T n = 0;
             bool got_a_number = p.parse_n(first, last, n);
 
-            // If we did not get a number it might be a NaN, Inf or a leading 
+            // If we did not get a number it might be a NaN, Inf or a leading
             // dot.
             if (!got_a_number)
             {
                 // Check whether the number to parse is a NaN or Inf
-                if (p.parse_nan(first, last, attr) ||
-                    p.parse_inf(first, last, attr))
+                if (p.parse_nan(first, last, n) ||
+                    p.parse_inf(first, last, n))
                 {
                     // If we got a negative sign, negate the number
-                    attr = negate_number(neg, attr);
+                    traits::assign_to(traits::negate(neg, n), attr);
                     return true;    // got a NaN or Inf, return early
                 }
-                
+
                 // If we did not get a number and our policies do not
                 // allow a leading dot, fail and return early (no-match)
                 if (!p.allow_leading_dot)
@@ -120,7 +166,7 @@ namespace boost { namespace spirit { namespace qi  { namespace detail
                     return false;
                 }
             }
-            
+
             bool e_hit = false;
             int frac_digits = 0;
 
@@ -136,7 +182,7 @@ namespace boost { namespace spirit { namespace qi  { namespace detail
                     // Optimization note: don't compute frac_digits if T is
                     // an unused_type. This should be optimized away by the compiler.
                     if (!is_same<T, unused_type>::value)
-                        frac_digits = 
+                        frac_digits =
                             static_cast<int>(std::distance(savef, first));
                 }
                 else if (!got_a_number || !p.allow_trailing_dot)
@@ -174,12 +220,12 @@ namespace boost { namespace spirit { namespace qi  { namespace detail
             {
                 // We got the exponent prefix. Now we will try to parse the
                 // actual exponent. It is an error if it is not there.
-                Attribute exp = 0;
+                int exp = 0;
                 if (p.parse_exp_n(first, last, exp))
                 {
                     // Got the exponent value. Scale the number by
                     // exp-frac_digits.
-                    scale_number(exp, frac_digits, n);
+                    traits::scale(exp, frac_digits, n);
                 }
                 else
                 {
@@ -191,34 +237,34 @@ namespace boost { namespace spirit { namespace qi  { namespace detail
             else if (frac_digits)
             {
                 // No exponent found. Scale the number by -frac_digits.
-                scale_number(Attribute(-frac_digits), n);
+                traits::scale(-frac_digits, n);
             }
-            else if (number_equal_to_one(n))
+            else if (traits::is_equal_to_one(n))
             {
-                // There is a chance of having to parse one of the 1.0#... 
+                // There is a chance of having to parse one of the 1.0#...
                 // styles some implementations use for representing NaN or Inf.
 
                 // Check whether the number to parse is a NaN or Inf
-                if (p.parse_nan(first, last, attr) ||
-                    p.parse_inf(first, last, attr))
+                if (p.parse_nan(first, last, n) ||
+                    p.parse_inf(first, last, n))
                 {
                     // If we got a negative sign, negate the number
-                    attr = negate_number(neg, attr);
+                    traits::assign_to(traits::negate(neg, n), attr);
                     return true;    // got a NaN or Inf, return immediately
                 }
             }
-            
+
             // If we got a negative sign, negate the number
-            attr = negate_number(neg, n);
+            traits::assign_to(traits::negate(neg, n), attr);
 
             // Success!!!
             return true;
         }
     };
 
-#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)  
-# pragma warning(pop)  
-#endif 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+# pragma warning(pop)
+#endif
 
 }}}}
 

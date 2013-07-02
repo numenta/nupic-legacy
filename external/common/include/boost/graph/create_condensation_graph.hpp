@@ -11,7 +11,7 @@
 #define BOOST_CREATE_CONDENSATION_GRAPH_HPP
 
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 namespace boost {
 
@@ -38,7 +38,7 @@ namespace boost {
       for (size_type i = 0; i < components[si].size(); ++i) {
         vertex u = components[s][i];
         typename graph_traits<Graph>::adjacency_iterator v, v_end;
-        for (tie(v, v_end) = adjacent_vertices(u, g); v != v_end; ++v) {
+        for (boost::tie(v, v_end) = adjacent_vertices(u, g); v != v_end; ++v) {
           cg_vertex t = to_cg_vertex[component_number[*v]];
           if (s != t) // Avoid loops in the condensation graph
             adj.push_back(t);
@@ -50,7 +50,7 @@ namespace boost {
         cg_vertex t = adj[i];
         typename graph_traits<CondensationGraph>::edge_descriptor e;
         bool inserted;
-        tie(e, inserted) = add_edge(s, t, cg);
+        boost::tie(e, inserted) = add_edge(s, t, cg);
         put(edge_mult_map, e, 1);
         ++i;
         while (i < adj.size()) {
@@ -58,7 +58,7 @@ namespace boost {
             put(edge_mult_map, e, get(edge_mult_map, e) + 1);
           else {
             t = adj[i];
-            tie(e, inserted) = add_edge(s, t, cg);
+            boost::tie(e, inserted) = add_edge(s, t, cg);
             put(edge_mult_map, e, 1);
           }
           ++i;

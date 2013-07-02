@@ -1,4 +1,4 @@
-// Copyright 2004 The Trustees of Indiana University.
+// Copyright 2004-2006 The Trustees of Indiana University.
 
 // Distributed under the Boost Software License, Version 1.0.
 // (See accompanying file LICENSE_1_0.txt or copy at
@@ -17,27 +17,112 @@
 #include <vector>
 #include <map>
 #include <boost/config/no_tr1/cmath.hpp>
+#include <boost/mpl/if.hpp>
 
 namespace boost {
+  template<typename RandomGenerator>
+  class out_directed_plod_iterator 
+  {
+  public:
+    typedef std::forward_iterator_tag            iterator_category;
+    typedef std::pair<std::size_t, std::size_t>  value_type;
+    typedef const value_type&                    reference;
+    typedef const value_type*                    pointer;
+    typedef std::ptrdiff_t                       difference_type;
 
-  template<typename RandomGenerator, typename Graph>
-  class plod_iterator
+    out_directed_plod_iterator() : gen(0), at_end(true) { }
+
+    out_directed_plod_iterator(RandomGenerator& gen, std::size_t n,  
+                               double alpha, double beta, 
+                               bool allow_self_loops)
+      : gen(&gen), n(n), alpha(alpha), beta(beta), 
+        allow_self_loops(allow_self_loops), at_end(false), degree(0),
+        current(0, 0)
+    {
+      using std::pow;
+
+      uniform_int<std::size_t> x(0, n-1);
+      std::size_t xv = x(gen);
+      degree = (xv == 0? 0 : std::size_t(beta * pow(xv, -alpha)));
+    }
+
+    reference operator*() const { return current; }
+    pointer operator->() const { return &current; }
+
+    out_directed_plod_iterator& operator++()
+    { 
+      using std::pow;
+
+      uniform_int<std::size_t> x(0, n-1);
+
+      // Continue stepping through source nodes until the
+      // (out)degree is > 0
+      while (degree == 0) {
+        // Step to the next source node. If we've gone past the
+        // number of nodes we're responsible for, we're done.
+        if (++current.first >= n) {
+          at_end = true;
+          return *this;
+        }
+
+        std::size_t xv = x(*gen);
+        degree = (xv == 0? 0 : std::size_t(beta * pow(xv, -alpha)));      
+      }
+
+      do {
+        current.second = x(*gen);
+      } while (current.first == current.second && !allow_self_loops);
+      --degree;
+
+      return *this;
+    }
+
+    out_directed_plod_iterator operator++(int)
+    {
+      out_directed_plod_iterator temp(*this);
+      ++(*this);
+      return temp;
+    }
+
+    bool operator==(const out_directed_plod_iterator& other) const
+    { 
+      return at_end == other.at_end; 
+    }
+
+    bool operator!=(const out_directed_plod_iterator& other) const
+    { 
+      return !(*this == other); 
+    }
+
+  private:    
+    RandomGenerator* gen;
+    std::size_t n;
+    double alpha;
+    double beta;
+    bool allow_self_loops;
+    bool at_end;
+    std::size_t degree;
+    value_type current;
+  };
+
+  template<typename RandomGenerator>
+  class undirected_plod_iterator 
   {
     typedef std::vector<std::pair<std::size_t, std::size_t> > out_degrees_t;
-    typedef typename graph_traits<Graph>::directed_category directed_category;
 
   public:
-    typedef std::input_iterator_tag iterator_category;
-    typedef std::pair<std::size_t, std::size_t> value_type;
-    typedef const value_type& reference;
-    typedef const value_type* pointer;
-    typedef void difference_type;
+    typedef std::input_iterator_tag              iterator_category;
+    typedef std::pair<std::size_t, std::size_t>  value_type;
+    typedef const value_type&                    reference;
+    typedef const value_type*                    pointer;
+    typedef std::ptrdiff_t                       difference_type;
 
-    plod_iterator() 
+    undirected_plod_iterator() 
       : gen(0), out_degrees(), degrees_left(0), allow_self_loops(false) { }
 
-    plod_iterator(RandomGenerator& gen, std::size_t n,  
-                  double alpha, double beta, bool allow_self_loops = false)
+    undirected_plod_iterator(RandomGenerator& gen, std::size_t n,  
+                             double alpha, double beta, 
+                             bool allow_self_loops = false)
       : gen(&gen), n(n), out_degrees(new out_degrees_t),
         degrees_left(0), allow_self_loops(allow_self_loops)
     {
@@ -46,60 +131,42 @@ namespace boost {
       uniform_int<std::size_t> x(0, n-1);
       for (std::size_t i = 0; i != n; ++i) {
         std::size_t xv = x(gen);
-    std::size_t degree = (xv == 0? 0 : std::size_t(beta * pow(xv, -alpha)));
-    if (degree != 0) {
-      out_degrees->push_back(std::make_pair(i, degree));
-    }
+        std::size_t degree = (xv == 0? 0 : std::size_t(beta * pow(xv, -alpha)));
+        if (degree == 0) degree = 1;
+        else if (degree >= n) degree = n-1;
+        out_degrees->push_back(std::make_pair(i, degree));
         degrees_left += degree;
       }
 
-      next(directed_category());
+      next();
     }
 
     reference operator*() const { return current; }
     pointer operator->() const { return &current; }
-    
-    plod_iterator& operator++()
+
+    undirected_plod_iterator& operator++()
     { 
-      next(directed_category());
+      next();
       return *this;
     }
 
-    plod_iterator operator++(int)
+    undirected_plod_iterator operator++(int)
     {
-      plod_iterator temp(*this);
+      undirected_plod_iterator temp(*this);
       ++(*this);
       return temp;
     }
 
-    bool operator==(const plod_iterator& other) const
+    bool operator==(const undirected_plod_iterator& other) const
     { 
       return degrees_left == other.degrees_left; 
     }
 
-    bool operator!=(const plod_iterator& other) const
+    bool operator!=(const undirected_plod_iterator& other) const
     { return !(*this == other); }
 
   private:
-    void next(directed_tag)
-    {
-      uniform_int<std::size_t> x(0, out_degrees->size()-1);
-      std::size_t source;
-      do {
-        source = x(*gen);
-      } while ((*out_degrees)[source].second == 0);
-      current.first = (*out_degrees)[source].first;
-      do {
-        current.second = x(*gen);
-      } while (current.first == current.second && !allow_self_loops);
-      --degrees_left;
-      if (--(*out_degrees)[source].second == 0) {
-        (*out_degrees)[source] = out_degrees->back();
-        out_degrees->pop_back();
-      }
-    }
-
-    void next(undirected_tag)
+    void next()
     {
       std::size_t source, target;
       while (true) {
@@ -107,7 +174,7 @@ namespace boost {
            new edges, so we just add some random edge and set the
            degrees left = 0 to signal termination. */
         if (out_degrees->size() < 2) {
-          uniform_int<std::size_t> x(0, n);
+          uniform_int<std::size_t> x(0, n-1);
           current.first  = x(*gen);
           do {
             current.second = x(*gen);
@@ -154,6 +221,31 @@ namespace boost {
     std::size_t degrees_left;
     bool allow_self_loops;
     value_type current;
+  };
+
+
+  template<typename RandomGenerator, typename Graph>
+  class plod_iterator
+    : public mpl::if_<is_convertible<
+                        typename graph_traits<Graph>::directed_category,
+                        directed_tag>,
+                      out_directed_plod_iterator<RandomGenerator>,
+                      undirected_plod_iterator<RandomGenerator> >::type
+  {
+    typedef typename mpl::if_<
+                       is_convertible<
+                         typename graph_traits<Graph>::directed_category,
+                         directed_tag>,
+                        out_directed_plod_iterator<RandomGenerator>,
+                        undirected_plod_iterator<RandomGenerator> >::type
+      inherited;
+
+  public:
+    plod_iterator() : inherited() { }
+
+    plod_iterator(RandomGenerator& gen, std::size_t n,  
+                  double alpha, double beta, bool allow_self_loops = false)
+      : inherited(gen, n, alpha, beta, allow_self_loops) { }
   };
 
 } // end namespace boost

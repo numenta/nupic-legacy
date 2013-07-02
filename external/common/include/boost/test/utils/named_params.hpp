@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : facilities for named function parameters support
 // ***************************************************************************
@@ -22,6 +22,8 @@
 // Boost.Test
 #include <boost/test/utils/rtti.hpp>
 #include <boost/test/utils/assign_op.hpp>
+
+#include <boost/type_traits/remove_reference.hpp>
 
 #include <boost/test/detail/suppress_warnings.hpp>
 
@@ -64,8 +66,16 @@ report_access_to_invalid_parameter()
 
 struct nil {
     template<typename T>
+#if defined(__GNUC__) || defined(__HP_aCC) || defined(__EDG__) || defined(__SUNPRO_CC)
     operator T() const
+#else
+    operator T const&() const
+#endif
     { report_access_to_invalid_parameter(); static T* v = 0; return *v; }
+
+    template<typename T>
+    T any_cast() const
+    { report_access_to_invalid_parameter(); static typename remove_reference<T>::type* v = 0; return *v; }
 
     template<typename Arg1>
     nil operator()( Arg1 const& )
@@ -82,6 +92,10 @@ struct nil {
     // Visitation support
     template<typename Visitor>
     void            apply_to( Visitor& V ) const {}
+
+    static nil&     inst() { static nil s_inst; return s_inst; }
+private:
+    nil() {}
 };
     
 // ************************************************************************** //
@@ -102,23 +116,31 @@ struct named_parameter_base {
 // ************************************************************************** //
 
 template<typename NP, typename Rest = nil>
-struct named_parameter_combine : Rest, named_parameter_base<named_parameter_combine<NP,Rest> > {
+struct named_parameter_combine 
+: Rest
+, named_parameter_base<named_parameter_combine<NP,Rest> > {
     typedef typename NP::ref_type  res_type;
     typedef named_parameter_combine<NP,Rest> self_type;
 
     // Constructor
     named_parameter_combine( NP const& np, Rest const& r )
-    : Rest( r ), m_param( np ) {}
+    : Rest( r )
+    , m_param( np )
+    {}
 
     // Access methods
     res_type    operator[]( keyword<typename NP::id,true> kw ) const    { return m_param[kw]; }
     res_type    operator[]( keyword<typename NP::id,false> kw ) const   { return m_param[kw]; }
     using       Rest::operator[];
 
-    bool        has( keyword<typename NP::id,false> ) const             { return true; }
+    bool        has( keyword<typename NP::id,false> kw ) const          { return m_param.has( kw ); }
     using       Rest::has;
 
-#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206))
+    void        erase( keyword<typename NP::id,false> kw ) const        { m_param.erase( kw ); }
+    using       Rest::erase;
+
+#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3206)) || \
+    BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x0610))
     template<typename NP>
     named_parameter_combine<NP,self_type> operator,( NP const& np ) const
     { return named_parameter_combine<NP,self_type>( np, *this ); }
@@ -142,29 +164,41 @@ private:
 } // namespace nfp_detail
 
 // ************************************************************************** //
-// **************             named_parameter_combine          ************** //
+// **************                 named_parameter              ************** //
 // ************************************************************************** //
 
 template<typename T, typename unique_id,typename ReferenceType=T&>
 struct named_parameter
 : nfp_detail::named_parameter_base<named_parameter<T, unique_id,ReferenceType> >
 {
+    typedef nfp_detail::nil nil_t;
     typedef T               data_type;
     typedef ReferenceType   ref_type;
     typedef unique_id       id;
 
     // Constructor
-    explicit        named_parameter( ref_type v ) : m_value( v ) {}
+    explicit        named_parameter( ref_type v ) 
+    : m_value( v )
+    , m_erased( false )
+    {}
+    named_parameter( named_parameter const& np )
+    : m_value( np.m_value )
+    , m_erased( np.m_erased )
+    {}
 
     // Access methods
-    ref_type        operator[]( keyword<unique_id,true> ) const     { return m_value; }
-    ref_type        operator[]( keyword<unique_id,false> ) const    { return m_value; }
+    ref_type        operator[]( keyword<unique_id,true> ) const     { return m_erased ? nil_t::inst().template any_cast<ref_type>() :  m_value; }
+    ref_type        operator[]( keyword<unique_id,false> ) const    { return m_erased ? nil_t::inst().template any_cast<ref_type>() :  m_value; }
     template<typename UnknownId>
-    nfp_detail::nil  operator[]( keyword<UnknownId,false> ) const   { return nfp_detail::nil(); }
+    nil_t           operator[]( keyword<UnknownId,false> ) const    { return nil_t::inst(); }
 
-    bool            has( keyword<unique_id,false> ) const           { return true; }
+    bool            has( keyword<unique_id,false> ) const           { return !m_erased; }
     template<typename UnknownId>
     bool            has( keyword<UnknownId,false> ) const           { return false; }
+
+    void            erase( keyword<unique_id,false> ) const         { m_erased = true; }
+    template<typename UnknownId>
+    void            erase( keyword<UnknownId,false> ) const         {}
 
     // Visitation support
     template<typename Visitor>
@@ -176,6 +210,7 @@ struct named_parameter
 private:
     // Data members
     ref_type        m_value;
+    mutable bool    m_erased;
 };
 
 //____________________________________________________________________________//
@@ -186,7 +221,7 @@ private:
 
 namespace nfp_detail {
 typedef named_parameter<char, struct no_params_type_t,char> no_params_type;
-}
+} // namespace nfp_detail
 
 namespace {
 nfp_detail::no_params_type no_params( '\0' );
@@ -269,7 +304,7 @@ optionally_assign( T& target, Source const& src )
 {
     using namespace unit_test;
 
-    assign_op( target, src, 0 );
+    assign_op( target, src, static_cast<int>(0) );
 }
 
 //____________________________________________________________________________//

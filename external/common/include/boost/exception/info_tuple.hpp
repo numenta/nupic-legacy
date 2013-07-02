@@ -1,10 +1,16 @@
-//Copyright (c) 2006-2008 Emil Dotchevski and Reverge Studios, Inc.
+//Copyright (c) 2006-2009 Emil Dotchevski and Reverge Studios, Inc.
 
 //Distributed under the Boost Software License, Version 1.0. (See accompanying
 //file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef UUID_63EE924290FB11DC87BB856555D89593
 #define UUID_63EE924290FB11DC87BB856555D89593
+#if defined(__GNUC__) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma GCC system_header
+#endif
+#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma warning(push,1)
+#endif
 
 #include <boost/exception/info.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -12,6 +18,30 @@
 namespace
 boost
     {
+    template <
+        class E >
+    inline
+    E const &
+    operator<<(
+        E const & x,
+        tuple< > const & v )
+        {
+        return x;
+        }
+
+    template <
+        class E,
+        class Tag1,class T1 >
+    inline
+    E const &
+    operator<<(
+        E const & x,
+        tuple<
+            error_info<Tag1,T1> > const & v )
+        {
+        return x << v.template get<0>();
+        }
+
     template <
         class E,
         class Tag1,class T1,
@@ -64,4 +94,7 @@ boost
         }
     }
 
+#if defined(_MSC_VER) && !defined(BOOST_EXCEPTION_ENABLE_WARNINGS)
+#pragma warning(pop)
+#endif
 #endif

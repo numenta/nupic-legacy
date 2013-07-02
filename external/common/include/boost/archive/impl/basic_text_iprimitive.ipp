@@ -39,13 +39,13 @@ namespace {
 
     template<>
     bool is_whitespace(char t){
-        return std::isspace(t);
+        return 0 != std::isspace(t);
     }
 
     #ifndef BOOST_NO_CWCHAR
     template<>
     bool is_whitespace(wchar_t t){
-        return std::iswspace(t);
+        return 0 != std::iswspace(t);
     }
     #endif
 }
@@ -63,14 +63,14 @@ basic_text_iprimitive<IStream>::load_binary(
     if(0 == count)
         return;
         
-    assert(
+    BOOST_ASSERT(
         static_cast<std::size_t>((std::numeric_limits<std::streamsize>::max)())
         > (count + sizeof(CharType) - 1)/sizeof(CharType)
     );
         
     if(is.fail())
         boost::serialization::throw_exception(
-            archive_exception(archive_exception::stream_error)
+            archive_exception(archive_exception::input_stream_error)
         );
     // convert from base64 to binary
     typedef BOOST_DEDUCED_TYPENAME
@@ -104,11 +104,11 @@ basic_text_iprimitive<IStream>::load_binary(
     
     iterators::istream_iterator<CharType> i;
     for(;;){
-        CharType c;
-        c = is.get();
+        BOOST_DEDUCED_TYPENAME IStream::int_type r;
+        r = is.get();
         if(is.eof())
             break;
-        if(is_whitespace(c))
+        if(is_whitespace(static_cast<CharType>(r)))
             break;
     }
 }
@@ -124,7 +124,7 @@ basic_text_iprimitive<IStream>::basic_text_iprimitive(
     flags_saver(is_),
     precision_saver(is_),
     archive_locale(NULL),
-    locale_saver(is_)
+    locale_saver(* is_.rdbuf())
 {
     if(! no_codecvt){
         archive_locale.reset(

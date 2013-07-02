@@ -97,6 +97,9 @@ namespace extract
 {
     extractor<tag::weighted_sum> const weighted_sum = {};
     extractor<tag::abstract_weighted_sum_of_variates> const weighted_sum_of_variates = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_sum)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_sum_of_variates)
 }
 
 using extract::weighted_sum;

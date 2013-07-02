@@ -15,8 +15,9 @@
 #include <boost/graph/depth_first_search.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/graph/graph_concepts.hpp>
-
+#include <boost/graph/overloading.hpp>
 #include <boost/static_assert.hpp>
+#include <boost/concept/assert.hpp>
 
 namespace boost {
 
@@ -58,12 +59,13 @@ namespace boost {
   template <class Graph, class ComponentMap, class P, class T, class R>
   inline typename property_traits<ComponentMap>::value_type
   connected_components(const Graph& g, ComponentMap c, 
-                       const bgl_named_params<P, T, R>& params)
+                       const bgl_named_params<P, T, R>& params
+                       BOOST_GRAPH_ENABLE_IF_MODELS_PARM(Graph, vertex_list_graph_tag))
   {
     if (num_vertices(g) == 0) return 0;
 
     typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-    function_requires< WritablePropertyMapConcept<ComponentMap, Vertex> >();
+    BOOST_CONCEPT_ASSERT(( WritablePropertyMapConcept<ComponentMap, Vertex> ));
     typedef typename boost::graph_traits<Graph>::directed_category directed;
     BOOST_STATIC_ASSERT((boost::is_same<directed, undirected_tag>::value));
 
@@ -77,14 +79,15 @@ namespace boost {
 
   template <class Graph, class ComponentMap>
   inline typename property_traits<ComponentMap>::value_type
-  connected_components(const Graph& g, ComponentMap c)
+  connected_components(const Graph& g, ComponentMap c
+                       BOOST_GRAPH_ENABLE_IF_MODELS_PARM(Graph, vertex_list_graph_tag))
   {
     if (num_vertices(g) == 0) return 0;
 
     typedef typename graph_traits<Graph>::vertex_descriptor Vertex;
-    function_requires< WritablePropertyMapConcept<ComponentMap, Vertex> >();
+    BOOST_CONCEPT_ASSERT(( WritablePropertyMapConcept<ComponentMap, Vertex> ));
     typedef typename boost::graph_traits<Graph>::directed_category directed;
-    BOOST_STATIC_ASSERT((boost::is_same<directed, undirected_tag>::value));
+    // BOOST_STATIC_ASSERT((boost::is_same<directed, undirected_tag>::value));
 
     typedef typename property_traits<ComponentMap>::value_type comp_type;
     // c_count initialized to "nil" (with nil represented by (max)())
@@ -97,5 +100,8 @@ namespace boost {
   
 } // namespace boost
 
+#ifdef BOOST_GRAPH_USE_MPI
+#  include <boost/graph/distributed/connected_components.hpp>
+#endif
 
 #endif // BOOST_GRAPH_CONNECTED_COMPONENTS_HPP

@@ -108,8 +108,8 @@ See also multiset_of_relation.
 template
 <
     class KeyType,
-    class KeyCompare = std::less< BOOST_DEDUCED_TYPENAME 
-		::boost::bimaps::tags::support::value_type_of<KeyType>::type >
+    class KeyCompare = std::less< BOOST_DEDUCED_TYPENAME
+        ::boost::bimaps::tags::support::value_type_of<KeyType>::type >
 >
 struct multiset_of : public ::boost::bimaps::detail::set_type_of_tag
 {
@@ -117,8 +117,8 @@ struct multiset_of : public ::boost::bimaps::detail::set_type_of_tag
     typedef KeyType user_type;
 
     /// Type of the object that will be stored in the multiset
-	typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
-		value_type_of<user_type>::type value_type;
+    typedef BOOST_DEDUCED_TYPENAME ::boost::bimaps::tags::support::
+        value_type_of<user_type>::type value_type;
 
     /// Functor that compare two keys
     typedef KeyCompare key_compare;

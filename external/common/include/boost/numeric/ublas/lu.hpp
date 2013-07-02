@@ -23,6 +23,11 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
+    /** \brief
+     *
+     * \tparam T
+     * \tparam A
+     */
     template<class T = std::size_t, class A = unbounded_array<T> >
     class permutation_matrix:
         public vector<T, A> {
@@ -32,11 +37,17 @@ namespace boost { namespace numeric { namespace ublas {
 
         // Construction and destruction
         BOOST_UBLAS_INLINE
+        explicit
         permutation_matrix (size_type size):
             vector<T, A> (size) {
             for (size_type i = 0; i < size; ++ i)
                 (*this) (i) = i;
         }
+        BOOST_UBLAS_INLINE
+        explicit
+        permutation_matrix (const vector_type & init) 
+            : vector_type(init)
+        { }
         BOOST_UBLAS_INLINE
         ~permutation_matrix () {}
 
@@ -89,7 +100,7 @@ namespace boost { namespace numeric { namespace ublas {
 #if BOOST_UBLAS_TYPE_CHECK
         matrix_type cm (m);
 #endif
-        int singular = 0;
+        size_type singular = 0;
         size_type size1 = m.size1 ();
         size_type size2 = m.size2 ();
         size_type size = (std::min) (size1, size2);
@@ -125,7 +136,7 @@ namespace boost { namespace numeric { namespace ublas {
 #if BOOST_UBLAS_TYPE_CHECK
         matrix_type cm (m);
 #endif
-        int singular = 0;
+        size_type singular = 0;
         size_type size1 = m.size1 ();
         size_type size2 = m.size2 ();
         size_type size = (std::min) (size1, size2);
@@ -169,7 +180,7 @@ namespace boost { namespace numeric { namespace ublas {
 #if BOOST_UBLAS_TYPE_CHECK
         matrix_type cm (m);
 #endif
-        int singular = 0;
+        size_type singular = 0;
         size_type size1 = m.size1 ();
         size_type size2 = m.size2 ();
         size_type size = (std::min) (size1, size2);
