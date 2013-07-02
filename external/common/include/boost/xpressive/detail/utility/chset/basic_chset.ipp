@@ -53,9 +53,9 @@ inline bool basic_chset<Char>::test(Char v, Traits const &, mpl::false_) const /
 //////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline bool basic_chset<Char>::test(Char v, Traits const &traits, mpl::true_) const // case-insensitive
+inline bool basic_chset<Char>::test(Char v, Traits const &tr, mpl::true_) const // case-insensitive
 {
-    return this->rr_.test(v, traits);
+    return this->rr_.test(v, tr);
 }
 
 //////////////////////////////////
@@ -230,9 +230,9 @@ inline bool basic_chset_8bit<Char>::test(Char v, Traits const &, mpl::false_) co
 /////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline bool basic_chset_8bit<Char>::test(Char v, Traits const &traits, mpl::true_) const // case-insensitive
+inline bool basic_chset_8bit<Char>::test(Char v, Traits const &tr, mpl::true_) const // case-insensitive
 {
-    return this->bset_.test((unsigned char)traits.translate_nocase(v));
+    return this->bset_.test((unsigned char)tr.translate_nocase(v));
 }
 
 /////////////////////////////////
@@ -248,11 +248,11 @@ inline void basic_chset_8bit<Char>::set(Char from, Char to)
 /////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline void basic_chset_8bit<Char>::set(Char from, Char to, Traits const &traits)
+inline void basic_chset_8bit<Char>::set(Char from, Char to, Traits const &tr)
 {
     for(int i = from; i <= to; ++i)
     {
-        this->bset_.set((unsigned char)traits.translate_nocase((Char)i));
+        this->bset_.set((unsigned char)tr.translate_nocase((Char)i));
     }
 }
 
@@ -266,9 +266,9 @@ inline void basic_chset_8bit<Char>::set(Char c)
 /////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline void basic_chset_8bit<Char>::set(Char c, Traits const &traits)
+inline void basic_chset_8bit<Char>::set(Char c, Traits const &tr)
 {
-    this->bset_.set((unsigned char)traits.translate_nocase(c));
+    this->bset_.set((unsigned char)tr.translate_nocase(c));
 }
 
 /////////////////////////////////
@@ -284,11 +284,11 @@ inline void basic_chset_8bit<Char>::clear(Char from, Char to)
 /////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline void basic_chset_8bit<Char>::clear(Char from, Char to, Traits const &traits)
+inline void basic_chset_8bit<Char>::clear(Char from, Char to, Traits const &tr)
 {
     for(int i = from; i <= to; ++i)
     {
-        this->bset_.reset((unsigned char)traits.translate_nocase((Char)i));
+        this->bset_.reset((unsigned char)tr.translate_nocase((Char)i));
     }
 }
 
@@ -302,9 +302,9 @@ inline void basic_chset_8bit<Char>::clear(Char c)
 /////////////////////////////////
 template<typename Char>
 template<typename Traits>
-inline void basic_chset_8bit<Char>::clear(Char c, Traits const &traits)
+inline void basic_chset_8bit<Char>::clear(Char c, Traits const &tr)
 {
-    this->bset_.reset((unsigned char)traits.tranlsate_nocase(c));
+    this->bset_.reset((unsigned char)tr.tranlsate_nocase(c));
 }
 
 /////////////////////////////////
@@ -377,26 +377,26 @@ basic_chset_8bit<Char>::base() const
 ///////////////////////////////////////////////////////////////////////////////
 // helpers
 template<typename Char, typename Traits>
-inline void set_char(basic_chset<Char> &chset, Char ch, Traits const &traits, bool icase)
+inline void set_char(basic_chset<Char> &chset, Char ch, Traits const &tr, bool icase)
 {
-    icase ? chset.set(ch, traits) : chset.set(ch);
+    icase ? chset.set(ch, tr) : chset.set(ch);
 }
 
 template<typename Char, typename Traits>
-inline void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &traits, bool icase)
+inline void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &tr, bool icase)
 {
-    icase ? chset.set(from, to, traits) : chset.set(from, to);
+    icase ? chset.set(from, to, tr) : chset.set(from, to);
 }
 
 template<typename Char, typename Traits>
-inline void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits)
+inline void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr)
 {
     BOOST_MPL_ASSERT_RELATION(1, ==, sizeof(Char));
     for(std::size_t i = 0; i <= UCHAR_MAX; ++i)
     {
         typedef typename std::char_traits<Char>::int_type int_type;
         Char ch = std::char_traits<Char>::to_char_type(static_cast<int_type>(i));
-        if(no != traits.isctype(ch, char_class))
+        if(no != tr.isctype(ch, char_class))
         {
             chset.set(ch);
         }

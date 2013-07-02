@@ -1457,59 +1457,6 @@ namespace nta {
 
   //--------------------------------------------------------------------------------
   /**
-   * Fills the container with a range of values.
-   */
-  template <typename T>
-  inline void generate_range(T& t,
-                             typename T::value_type start,
-                             typename T::value_type end,
-                             typename T::value_type increment =1)
-  {
-    std::insert_iterator<T> it(t, t.begin());
-
-    for (typename T::value_type i = start; i < end; i += increment, ++it)
-      *it = i;
-  }
-
-  //--------------------------------------------------------------------------------
-  /**
-   * Initializes a range with the uniform distribution.
-   *
-   * @param begin beginning of the range
-   * @param end one past the end of the range
-   * @param val the value to which the sum of the range will be equal to
-   */
-  template <typename It>
-  inline void
-  uniform_range(It begin, It end,
-                typename std::iterator_traits<It>::value_type val =1)
-  {
-    {
-      NTA_ASSERT(begin <= end)
-        << "uniform_range: Invalid input range";
-    }
-
-    typedef typename std::iterator_traits<It>::value_type value_type;
-
-    std::fill(begin, end, (value_type) 1);
-    normalize(begin, end, val);
-  }
-
-  //--------------------------------------------------------------------------------
-  /**
-   * Initializes a container with the uniform distribution.
-   *
-   * @param a the container
-   * @param val the value for normalization
-   */
-  template <typename C>
-  inline void uniform_range(C& a, typename C::value_type val =1)
-  {
-    uniform_range(a.begin(), a.end(), val);
-  }
-
-  //--------------------------------------------------------------------------------
-  /**
    * Sets a range to 0, except for a single value at pos, which will be equal to val.
    *
    * @param pos the position of the single non-zero value
@@ -3173,6 +3120,59 @@ namespace nta {
   inline void normalize_max(std::vector<value_type>& x, const value_type& n = 1.0)
   {
     normalize_max(x.begin(), x.end(), n);
+  }
+  
+  //--------------------------------------------------------------------------------
+  /**
+   * Fills the container with a range of values.
+   */
+  template <typename T>
+  inline void generate_range(T& t,
+                             typename T::value_type start,
+                             typename T::value_type end,
+                             typename T::value_type increment =1)
+  {
+    std::insert_iterator<T> it(t, t.begin());
+
+    for (typename T::value_type i = start; i < end; i += increment, ++it)
+      *it = i;
+  }
+
+  //--------------------------------------------------------------------------------
+  /**
+   * Initializes a range with the uniform distribution.
+   *
+   * @param begin beginning of the range
+   * @param end one past the end of the range
+   * @param val the value to which the sum of the range will be equal to
+   */
+  template <typename It>
+  inline void
+  uniform_range(It begin, It end,
+                typename std::iterator_traits<It>::value_type val =1)
+  {
+    {
+      NTA_ASSERT(begin <= end)
+        << "uniform_range: Invalid input range";
+    }
+
+    typedef typename std::iterator_traits<It>::value_type value_type;
+
+    std::fill(begin, end, (value_type) 1);
+    normalize(begin, end, val);
+  }
+
+  //--------------------------------------------------------------------------------
+  /**
+   * Initializes a container with the uniform distribution.
+   *
+   * @param a the container
+   * @param val the value for normalization
+   */
+  template <typename C>
+  inline void uniform_range(C& a, typename C::value_type val =1)
+  {
+    uniform_range(a.begin(), a.end(), val);
   }
 
   //--------------------------------------------------------------------------------

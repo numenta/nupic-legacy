@@ -91,7 +91,7 @@ template<class T>
 struct make_solve_list_internal_zero {
     template<class Next, class X>
     struct apply {
-        typedef solve_normal<X, T, Next> type;
+        typedef solve_normal<T, X, Next> type;
     };
 };
 

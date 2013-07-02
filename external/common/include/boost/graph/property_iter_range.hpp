@@ -1,5 +1,5 @@
 
-// (C) Copyright François Faure, iMAGIS-GRAVIR / UJF, 2001.
+// (C) Copyright Francois Faure, iMAGIS-GRAVIR / UJF, 2001.
 //
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE_1_0.txt or copy at
@@ -12,13 +12,13 @@
 //      differentiate between const/mutable graphs and
 //      added a workaround to avoid partial specialization.
 
-// 02 May 2001   François Faure
+// 02 May 2001   Francois Faure
 //     Initial version.
 
 #ifndef BOOST_GRAPH_PROPERTY_ITER_RANGE_HPP
 #define BOOST_GRAPH_PROPERTY_ITER_RANGE_HPP
 
-#include <boost/property_map_iterator.hpp>
+#include <boost/property_map/property_map_iterator.hpp>
 #include <boost/graph/properties.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/same_traits.hpp>

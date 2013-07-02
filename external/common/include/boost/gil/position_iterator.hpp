@@ -39,12 +39,12 @@ template <typename Deref, // A function object that given a point returns a pixe
           int Dim>        // the dimension to advance along
 struct position_iterator : public iterator_facade<position_iterator<Deref,Dim>,
                                                   typename Deref::value_type,
-                                                  random_access_traversal_tag,
+                                                  std::random_access_iterator_tag,
                                                   typename Deref::reference,
                                                   typename Deref::argument_type::template axis<Dim>::coord_t> {
     typedef iterator_facade<position_iterator<Deref,Dim>,
                             typename Deref::value_type,
-                            random_access_traversal_tag,
+                            std::random_access_iterator_tag,
                             typename Deref::reference,
                             typename Deref::argument_type::template axis<Dim>::coord_t> parent_t;
     typedef typename parent_t::difference_type difference_type;

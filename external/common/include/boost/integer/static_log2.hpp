@@ -16,7 +16,7 @@
 #ifndef BOOST_INTEGER_STATIC_LOG2_HPP
 #define BOOST_INTEGER_STATIC_LOG2_HPP
 
-#include "boost/config.hpp" // for BOOST_STATIC_CONSTANT
+#include "boost/integer_fwd.hpp" // for boost::intmax_t
 
 namespace boost {
 
@@ -41,14 +41,13 @@ namespace boost {
      // terminates with x = 1 and n = 0 (see the algorithm's
      // invariant).
 
-     typedef unsigned long argument_type;
-     typedef          int  result_type;
-
+     typedef boost::static_log2_argument_type argument_type;
+     typedef boost::static_log2_result_type result_type;
 
      template <result_type n>
      struct choose_initial_n {
 
-         enum { c = (argument_type(1) << n << n) != 0 };
+         BOOST_STATIC_CONSTANT(bool, c = (argument_type(1) << n << n) != 0);
          BOOST_STATIC_CONSTANT(
              result_type,
              value = !c*n + choose_initial_n<2*c*n>::value
@@ -85,7 +84,7 @@ namespace boost {
      template <argument_type x, result_type n = initial_n>
      struct static_log2_impl {
 
-         enum { c = (x >> n) > 0 }; // x >= 2**n ?
+         BOOST_STATIC_CONSTANT(bool, c = (x >> n) > 0); // x >= 2**n ?
          BOOST_STATIC_CONSTANT(
              result_type,
              value = c*n + (static_log2_impl< (x>>c*n), n/2 >::value)
@@ -106,10 +105,6 @@ namespace boost {
  // --------------------------------------
  // static_log2<x>
  // ----------------------------------------
-
- typedef detail::static_log2_impl::argument_type static_log2_argument_type;
- typedef detail::static_log2_impl::result_type   static_log2_result_type;
-
 
  template <static_log2_argument_type x>
  struct static_log2 {

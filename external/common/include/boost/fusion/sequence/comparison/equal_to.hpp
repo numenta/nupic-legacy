@@ -1,8 +1,8 @@
 /*=============================================================================
     Copyright (c) 1999-2003 Jaakko Jarvi
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #if !defined(FUSION_EQUAL_TO_05052005_0431)
@@ -12,7 +12,13 @@
 #include <boost/fusion/sequence/intrinsic/end.hpp>
 #include <boost/fusion/sequence/intrinsic/size.hpp>
 #include <boost/fusion/sequence/comparison/detail/equal_to.hpp>
-#include <boost/fusion/sequence/comparison/detail/enable_comparison.hpp>
+#include <boost/fusion/sequence/comparison/enable_comparison.hpp>
+#include <boost/config.hpp>
+
+#if defined (BOOST_MSVC)
+#  pragma warning(push)
+#  pragma warning (disable: 4100) // unreferenced formal parameter
+#endif
 
 namespace boost { namespace fusion
 {
@@ -31,8 +37,8 @@ namespace boost { namespace fusion
     {
         template <typename Seq1, typename Seq2>
         inline typename
-            enable_if<
-                detail::enable_equality<Seq1, Seq2>
+            boost::enable_if<
+                traits::enable_equality<Seq1, Seq2>
               , bool
             >::type
         operator==(Seq1 const& a, Seq2 const& b)
@@ -42,5 +48,9 @@ namespace boost { namespace fusion
     }
     using operators::operator==;
 }}
+
+#if defined (BOOST_MSVC)
+#  pragma warning(pop)
+#endif
 
 #endif

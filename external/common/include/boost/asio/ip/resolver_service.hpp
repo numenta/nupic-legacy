@@ -1,8 +1,8 @@
 //
-// resolver_service.hpp
-// ~~~~~~~~~~~~~~~~~~~~
+// ip/resolver_service.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,12 +15,14 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/error.hpp>
-#include <boost/asio/io_service.hpp>
+#include <boost/asio/detail/config.hpp>
+#include <boost/system/error_code.hpp>
 #include <boost/asio/detail/resolver_service.hpp>
-#include <boost/asio/detail/service_base.hpp>
+#include <boost/asio/io_service.hpp>
+#include <boost/asio/ip/basic_resolver_iterator.hpp>
+#include <boost/asio/ip/basic_resolver_query.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -49,10 +51,10 @@ public:
   typedef typename InternetProtocol::endpoint endpoint_type;
 
   /// The query type.
-  typedef typename InternetProtocol::resolver_query query_type;
+  typedef basic_resolver_query<InternetProtocol> query_type;
 
   /// The iterator type.
-  typedef typename InternetProtocol::resolver_iterator iterator_type;
+  typedef basic_resolver_iterator<InternetProtocol> iterator_type;
 
 private:
   // The type of the platform-specific implementation.
@@ -71,12 +73,7 @@ public:
   explicit resolver_service(boost::asio::io_service& io_service)
     : boost::asio::detail::service_base<
         resolver_service<InternetProtocol> >(io_service),
-      service_impl_(boost::asio::use_service<service_impl_type>(io_service))
-  {
-  }
-
-  /// Destroy all user-defined handler objects owned by the service.
-  void shutdown_service()
+      service_impl_(io_service)
   {
   }
 
@@ -106,11 +103,12 @@ public:
   }
 
   /// Asynchronously resolve a query to a list of entries.
-  template <typename Handler>
+  template <typename ResolveHandler>
   void async_resolve(implementation_type& impl, const query_type& query,
-      Handler handler)
+      BOOST_ASIO_MOVE_ARG(ResolveHandler) handler)
   {
-    service_impl_.async_resolve(impl, query, handler);
+    service_impl_.async_resolve(impl, query,
+        BOOST_ASIO_MOVE_CAST(ResolveHandler)(handler));
   }
 
   /// Resolve an endpoint to a list of entries.
@@ -123,14 +121,27 @@ public:
   /// Asynchronously resolve an endpoint to a list of entries.
   template <typename ResolveHandler>
   void async_resolve(implementation_type& impl, const endpoint_type& endpoint,
-      ResolveHandler handler)
+      BOOST_ASIO_MOVE_ARG(ResolveHandler) handler)
   {
-    return service_impl_.async_resolve(impl, endpoint, handler);
+    return service_impl_.async_resolve(impl, endpoint,
+        BOOST_ASIO_MOVE_CAST(ResolveHandler)(handler));
   }
 
 private:
-  // The service that provides the platform-specific implementation.
-  service_impl_type& service_impl_;
+  // Destroy all user-defined handler objects owned by the service.
+  void shutdown_service()
+  {
+    service_impl_.shutdown_service();
+  }
+
+  // Perform any fork-related housekeeping.
+  void fork_service(boost::asio::io_service::fork_event event)
+  {
+    service_impl_.fork_service(event);
+  }
+
+  // The platform-specific implementation.
+  service_impl_type service_impl_;
 };
 
 } // namespace ip

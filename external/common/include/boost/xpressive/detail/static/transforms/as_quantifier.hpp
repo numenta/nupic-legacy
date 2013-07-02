@@ -17,7 +17,7 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 #include <boost/xpressive/detail/static/static.hpp>
-#include <boost/xpressive/proto/proto.hpp>
+#include <boost/proto/core.hpp>
 
 namespace boost { namespace xpressive { namespace detail
 {
@@ -41,7 +41,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
     struct min_type : Tag::min_type {};
 
     template<>
-    struct min_type<proto::tag::posit> : mpl::integral_c<uint_t, 1> {};
+    struct min_type<proto::tag::unary_plus> : mpl::integral_c<uint_t, 1> {};
 
     template<>
     struct min_type<proto::tag::dereference> : mpl::integral_c<uint_t, 0> {};
@@ -53,7 +53,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
     struct max_type : Tag::max_type {};
 
     template<>
-    struct max_type<proto::tag::posit> : mpl::integral_c<uint_t, UINT_MAX-1> {};
+    struct max_type<proto::tag::unary_plus> : mpl::integral_c<uint_t, UINT_MAX-1> {};
 
     template<>
     struct max_type<proto::tag::dereference> : mpl::integral_c<uint_t, UINT_MAX-1> {};
@@ -63,45 +63,61 @@ namespace boost { namespace xpressive { namespace grammar_detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_simple_quantifier
-    template<typename Grammar, typename Greedy>
-    struct as_simple_quantifier : proto::callable
+    template<typename Grammar, typename Greedy, typename Callable = proto::callable>
+    struct as_simple_quantifier : proto::transform<as_simple_quantifier<Grammar, Greedy, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename proto::result_of::arg<Expr>::type arg_type;
-            typedef typename Grammar::template result<void(arg_type, detail::true_xpression, Visitor)>::type xpr_type;
-            typedef detail::simple_repeat_matcher<xpr_type, Greedy> matcher_type;
-            typedef typename proto::terminal<matcher_type>::type type;
+            typedef
+                typename proto::result_of::child<Expr>::type
+            arg_type;
+
+            typedef
+                typename Grammar::template impl<arg_type, detail::true_xpression, Data>::result_type
+            xpr_type;
+
+            typedef
+                detail::simple_repeat_matcher<xpr_type, Greedy>
+            matcher_type;
+
+            typedef
+                typename proto::terminal<matcher_type>::type
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                xpr_type xpr = typename Grammar::template impl<arg_type, detail::true_xpression, Data>()(
+                    proto::child(expr)
+                  , detail::true_xpression()
+                  , data
+                );
+
+                typedef typename impl::expr expr_type;
+                matcher_type matcher(
+                    xpr
+                  , (uint_t)min_type<typename expr_type::proto_tag>::value
+                  , (uint_t)max_type<typename expr_type::proto_tag>::value
+                  , xpr.get_width().value()
+                );
+
+                return result_type::make(matcher);
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            typedef result<void(Expr, State, Visitor)> result_;
-            typedef typename result_::arg_type arg_type;
-            typedef typename result_::xpr_type xpr_type;
-            typedef typename result_::matcher_type matcher_type;
-            typedef typename Expr::proto_tag tag;
-
-            xpr_type const &xpr = Grammar()(proto::arg(expr), detail::true_xpression(), visitor);
-            matcher_type matcher(xpr, (uint_t)min_type<tag>(), (uint_t)max_type<tag>(), xpr.get_width().value());
-            return proto::terminal<matcher_type>::type::make(matcher);
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // add_hidden_mark
-    struct add_hidden_mark : proto::callable
+    struct add_hidden_mark : proto::transform<add_hidden_mark>
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
+            typedef typename impl::expr expr_type;
             typedef
                 typename shift_right<
                     terminal<detail::mark_begin_matcher>::type
@@ -110,22 +126,23 @@ namespace boost { namespace xpressive { namespace grammar_detail
                       , terminal<detail::mark_end_matcher>::type
                     >::type
                 >::type
-            type;
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                // we're inserting a hidden mark ... so grab the next hidden mark number.
+                int mark_nbr = data.get_hidden_mark();
+                detail::mark_begin_matcher begin(mark_nbr);
+                detail::mark_end_matcher end(mark_nbr);
+
+                result_type that = {{begin}, {expr, {end}}};
+                return that;
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            // we're inserting a hidden mark ... so grab the next hidden mark number.
-            int mark_nbr = visitor.get_hidden_mark();
-            detail::mark_begin_matcher begin(mark_nbr);
-            detail::mark_end_matcher end(mark_nbr);
-
-            typename result<void(Expr, State, Visitor)>::type that
-                = {{begin}, {expr, {end}}};
-            return that;
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -140,15 +157,17 @@ namespace boost { namespace xpressive { namespace grammar_detail
     ///////////////////////////////////////////////////////////////////////////////
     // as_default_quantifier_impl
     template<typename Greedy, uint_t Min, uint_t Max>
-    struct as_default_quantifier_impl : proto::callable
+    struct as_default_quantifier_impl : proto::transform<as_default_quantifier_impl<Greedy, Min, Max> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
             typedef
-                typename InsertMark::template result<void(typename proto::result_of::arg<Expr>::type, State, Visitor)>::type
+                typename proto::result_of::child<Expr>::type
+            xpr_type;
+
+            typedef
+                typename InsertMark::impl<xpr_type, State, Data>::result_type
             marked_sub_type;
 
             typedef
@@ -159,31 +178,33 @@ namespace boost { namespace xpressive { namespace grammar_detail
                       , typename terminal<detail::repeat_end_matcher<Greedy> >::type
                     >::type
                 >::type
-            type;
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param data
+            ) const
+            {
+                // Ensure this sub-expression is book-ended with mark matchers
+                marked_sub_type marked_sub =
+                    InsertMark::impl<xpr_type, State, Data>()(proto::child(expr), state, data);
+
+                // Get the mark_number from the begin_mark_matcher
+                int mark_number = proto::value(proto::left(marked_sub)).mark_number_;
+                BOOST_ASSERT(0 != mark_number);
+
+                typedef typename impl::expr expr_type;
+                uint_t min_ = (uint_t)min_type<typename expr_type::proto_tag>();
+                uint_t max_ = (uint_t)max_type<typename expr_type::proto_tag>();
+
+                detail::repeat_begin_matcher begin(mark_number);
+                detail::repeat_end_matcher<Greedy> end(mark_number, min_, max_);
+
+                result_type that = {{begin}, {marked_sub, {end}}};
+                return that;
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &state, Visitor &visitor) const
-        {
-            // Ensure this sub-expression is book-ended with mark matchers
-            typename result<void(Expr, State, Visitor)>::marked_sub_type const &
-                marked_sub = InsertMark()(proto::arg(expr), state, visitor);
-
-            // Get the mark_number from the begin_mark_matcher
-            int mark_number = proto::arg(proto::left(marked_sub)).mark_number_;
-            BOOST_ASSERT(0 != mark_number);
-
-            uint_t min_ = (uint_t)min_type<typename Expr::proto_tag>();
-            uint_t max_ = (uint_t)max_type<typename Expr::proto_tag>();
-
-            detail::repeat_begin_matcher begin(mark_number);
-            detail::repeat_end_matcher<Greedy> end(mark_number, min_, max_);
-
-            typename result<void(Expr, State, Visitor)>::type that
-                = {{begin}, {marked_sub, {end}}};
-            return that;
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -194,56 +215,69 @@ namespace boost { namespace xpressive { namespace grammar_detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_default_optional
-    template<typename Grammar, typename Greedy>
-    struct as_default_optional : proto::callable
+    template<typename Grammar, typename Greedy, typename Callable = proto::callable>
+    struct as_default_optional : proto::transform<as_default_optional<Grammar, Greedy, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef detail::optional_matcher<
-                typename Grammar::template result<void(Expr, detail::alternate_end_xpression, Visitor)>::type
-              , Greedy
-            > type;
+            typedef
+                detail::alternate_end_xpression
+            end_xpr;
+
+            typedef
+                detail::optional_matcher<
+                    typename Grammar::template impl<Expr, end_xpr, Data>::result_type
+                  , Greedy
+                >
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                return result_type(
+                    typename Grammar::template impl<Expr, end_xpr, Data>()(expr, end_xpr(), data)
+                );
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            return typename result<void(Expr, State, Visitor)>::type(
-                Grammar()(expr, detail::alternate_end_xpression(), visitor)
-            );
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_mark_optional
-    template<typename Grammar, typename Greedy>
-    struct as_mark_optional : proto::callable
+    template<typename Grammar, typename Greedy, typename Callable = proto::callable>
+    struct as_mark_optional : proto::transform<as_mark_optional<Grammar, Greedy, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef detail::optional_mark_matcher<
-                typename Grammar::template result<void(Expr, detail::alternate_end_xpression, Visitor)>::type
-              , Greedy
-            > type;
+            typedef
+                detail::alternate_end_xpression
+            end_xpr;
+
+            typedef
+                detail::optional_mark_matcher<
+                    typename Grammar::template impl<Expr, end_xpr, Data>::result_type
+                  , Greedy
+                >
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param data
+            ) const
+            {
+                int mark_number = proto::value(proto::left(expr)).mark_number_;
+
+                return result_type(
+                    typename Grammar::template impl<Expr, end_xpr, Data>()(expr, end_xpr(), data)
+                  , mark_number
+                );
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &, Visitor &visitor) const
-        {
-            int mark_number = proto::arg(proto::left(expr)).mark_number_;
-            return typename result<void(Expr, State, Visitor)>::type(
-                Grammar()(expr, detail::alternate_end_xpression(), visitor)
-              , mark_number
-            );
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -267,24 +301,30 @@ namespace boost { namespace xpressive { namespace grammar_detail
 
     ///////////////////////////////////////////////////////////////////////////////
     // make_optional_
-    template<typename Greedy>
-    struct make_optional_ : proto::callable
+    template<typename Greedy, typename Callable = proto::callable>
+    struct make_optional_ : proto::transform<make_optional_<Greedy, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
-            typedef typename unary_expr<optional_tag<Greedy>, Expr>::type type;
+            typedef typename impl::expr expr_type;
+            typedef
+                typename unary_expr<
+                    optional_tag<Greedy>
+                  , Expr
+                >::type
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param
+              , typename impl::data_param
+            ) const
+            {
+                result_type that = {expr};
+                return that;
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename unary_expr<optional_tag<Greedy>, Expr>::type
-        operator ()(Expr const &expr, State const &, Visitor &) const
-        {
-            typename unary_expr<optional_tag<Greedy>, Expr>::type that = {expr};
-            return that;
-        }
     };
 
     ///////////////////////////////////////////////////////////////////////////////
@@ -298,40 +338,39 @@ namespace boost { namespace xpressive { namespace grammar_detail
     // as_default_quantifier_impl
     template<typename Greedy>
     struct as_default_quantifier_impl<Greedy, 0, 1>
-      : call<make_optional_<Greedy>(_arg)>
+      : call<make_optional_<Greedy>(_child)>
     {};
 
     ///////////////////////////////////////////////////////////////////////////////
     // as_default_quantifier
-    template<typename Greedy>
-    struct as_default_quantifier : proto::callable
+    template<typename Greedy, typename Callable = proto::callable>
+    struct as_default_quantifier : proto::transform<as_default_quantifier<Greedy, Callable> >
     {
-        template<typename Sig> struct result {};
-
-        template<typename This, typename Expr, typename State, typename Visitor>
-        struct result<This(Expr, State, Visitor)>
+        template<typename Expr, typename State, typename Data>
+        struct impl : proto::transform_impl<Expr, State, Data>
         {
+            typedef typename impl::expr expr_type;
             typedef
                 as_default_quantifier_impl<
                     Greedy
-                  , min_type<typename Expr::proto_tag>::value
-                  , max_type<typename Expr::proto_tag>::value
+                  , min_type<typename expr_type::proto_tag>::value
+                  , max_type<typename expr_type::proto_tag>::value
                 >
-            impl;
+            other;
 
-            typedef typename impl::template result<void(Expr, State, Visitor)>::type type;
+            typedef
+                typename other::template impl<Expr, State, Data>::result_type
+            result_type;
+
+            result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param data
+            ) const
+            {
+                return typename other::template impl<Expr, State, Data>()(expr, state, data);
+            }
         };
-
-        template<typename Expr, typename State, typename Visitor>
-        typename result<void(Expr, State, Visitor)>::type
-        operator ()(Expr const &expr, State const &state, Visitor &visitor) const
-        {
-            return as_default_quantifier_impl<
-                Greedy
-              , min_type<typename Expr::proto_tag>::value
-              , max_type<typename Expr::proto_tag>::value
-            >()(expr, state, visitor);
-        }
     };
 
 }}}

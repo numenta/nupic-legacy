@@ -31,6 +31,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::quantile> const quantile = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(quantile)
 }
 using extract::quantile;
 
@@ -47,6 +49,8 @@ namespace tag
 namespace extract
 {
     extractor<tag::tail_mean> const tail_mean = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(tail_mean)
 }
 using extract::tail_mean;
 
@@ -105,6 +109,10 @@ namespace tag
     struct sum_of_weights;
     template<typename VariateType, typename VariateTag>
     struct sum_of_variates;
+    struct sum_kahan;
+    struct sum_of_weights_kahan;
+    template<typename VariateType, typename VariateTag>
+    struct sum_of_variates_kahan;
     template<typename LeftRight>
     struct tail;
     template<typename LeftRight>
@@ -180,6 +188,11 @@ namespace tag
     struct weighted_sum;
     template<typename VariateType, typename VariateTag>
     struct weighted_sum_of_variates;
+    struct rolling_window_plus1;
+    struct rolling_window;
+    struct rolling_sum;
+    struct rolling_count;
+    struct rolling_mean;
 } // namespace tag
 
 namespace impl
@@ -253,6 +266,9 @@ namespace impl
 
     template<typename Sample, typename Tag = tag::sample>
     struct sum_impl;
+
+    template<typename Sample, typename Tag>
+    struct sum_kahan_impl;
 
     template<typename Sample, typename LeftRight>
     struct tail_impl;
@@ -329,6 +345,9 @@ namespace impl
     template<typename Sample, typename Weight, typename Tag>
     struct weighted_sum_impl;
 
+    template<typename Sample, typename Weight, typename Tag>
+    struct weighted_sum_kahan_impl;
+
     template<typename Sample, typename Weight, typename LeftRight>
     struct non_coherent_weighted_tail_mean_impl;
 
@@ -344,7 +363,20 @@ namespace impl
     template<typename Sample, typename Weight, typename MeanFeature, typename Tag>
     struct weighted_variance_impl;
 
+    template<typename Sample>
+    struct rolling_window_plus1_impl;
 
+    template<typename Sample>
+    struct rolling_window_impl;
+
+    template<typename Sample>
+    struct rolling_sum_impl;
+
+    template<typename Sample>
+    struct rolling_count_impl;
+
+    template<typename Sample>
+    struct rolling_mean_impl;
 } // namespace impl
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -391,6 +423,9 @@ struct quadratic {};
 // modifiers for p_square_quantile
 struct regular {};
 struct for_median {};
+
+// modifier for sum_kahan, sum_of_weights_kahan, sum_of_variates_kahan, weighted_sum_kahan
+struct kahan {};
 
 }} // namespace boost::accumulators
 

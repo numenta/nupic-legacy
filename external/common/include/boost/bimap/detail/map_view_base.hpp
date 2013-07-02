@@ -21,6 +21,7 @@
 #include <stdexcept>
 #include <utility>
 
+#include <boost/throw_exception.hpp>
 #include <boost/type_traits/is_const.hpp>
 #include <boost/mpl/if.hpp>
 
@@ -354,7 +355,7 @@ class non_mutable_data_unique_map_view_access
     }
 
     template< class CompatibleKey >
-    data_type_ & operator[](const CompatibleKey& k)
+    data_type_ & operator[](const CompatibleKey&)
     {
         BOOST_BIMAP_STATIC_ERROR( OPERATOR_BRACKET_IS_NOT_SUPPORTED, (Derived));
     }

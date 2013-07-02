@@ -1,97 +1,118 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
-    Copyright (c) 2001-2008 Hartmut Kaiser
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2001-2011 Hartmut Kaiser
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
-#if !defined(SPIRIT_ALTERNATIVE_FEB_05_2007_1153AM)
-#define SPIRIT_ALTERNATIVE_FEB_05_2007_1153AM
+#if !defined(SPIRIT_ALTERNATIVE_FEBRUARY_05_2007_1153AM)
+#define SPIRIT_ALTERNATIVE_FEBRUARY_05_2007_1153AM
+
+#if defined(_MSC_VER)
+#pragma once
+#endif
 
 #include <boost/spirit/home/qi/detail/alternative_function.hpp>
-#include <boost/spirit/home/support/attribute_transform.hpp>
+#include <boost/spirit/home/qi/meta_compiler.hpp>
+#include <boost/spirit/home/qi/parser.hpp>
+#include <boost/spirit/home/qi/detail/attributes.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
 #include <boost/spirit/home/support/detail/what_function.hpp>
 #include <boost/spirit/home/support/unused.hpp>
-#include <boost/spirit/home/support/as_variant.hpp>
+#include <boost/spirit/home/support/info.hpp>
 #include <boost/fusion/include/any.hpp>
-#include <boost/fusion/include/vector.hpp>
 #include <boost/fusion/include/mpl.hpp>
 #include <boost/fusion/include/for_each.hpp>
-#include <boost/fusion/include/push_front.hpp>
-#include <boost/variant.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/mpl/end.hpp>
-#include <boost/mpl/find_if.hpp>
-#include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/identity.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_operator<qi::domain, proto::tag::bitwise_or> // enables |
+      : mpl::true_ {};
+
+    template <>
+    struct flatten_tree<qi::domain, proto::tag::bitwise_or> // flattens |
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
-    struct alternative
+    template <typename Elements>
+    struct alternative : nary_parser<alternative<Elements> >
     {
-        template <typename T>
-        struct transform_child : mpl::identity<T> {};
-
-        template <typename All, typename Filtered>
-        struct build_container
+        template <typename Context, typename Iterator>
+        struct attribute
         {
-            // if the original attribute list does not contain any unused
-            // attributes it is used, otherwise a single unused_type is
-            // pushed to the front the list. This is to make sure that if
-            // there is an unused in the list it is the first one.
-            typedef typename
-                mpl::find_if<All, is_same<mpl::_, unused_type> >::type
-            unused_;
+            // Put all the element attributes in a tuple
+            typedef typename traits::build_attribute_sequence<
+                Elements, Context, traits::alternative_attribute_transform
+              , Iterator, qi::domain
+            >::type all_attributes;
 
+            // Ok, now make a variant over the attribute sequence. Note that
+            // build_variant makes sure that 1) all attributes in the variant
+            // are unique 2) puts the unused attribute, if there is any, to
+            // the front and 3) collapses single element variants, variant<T>
+            // to T.
             typedef typename
-                mpl::eval_if<
-                    is_same<unused_, typename mpl::end<All>::type>,
-                    mpl::identity<All>,
-                    fusion::result_of::push_front<Filtered, unused_type>
-                >::type
-            attribute_sequence;
-
-            // Ok, now make a variant over the attribute_sequence. It's
-            // a pity that make_variant_over does not support forward MPL
-            // sequences. We use our own conversion metaprogram (as_variant).
-            typedef typename
-                as_variant<attribute_sequence>::type
+                traits::build_variant<all_attributes>::type
             type;
         };
 
-        template <typename Component, typename Context, typename Iterator>
-        struct attribute :
-            build_fusion_sequence<alternative, Component, Iterator, Context>
-        {
-        };
+        alternative(Elements const& elements)
+          : elements(elements) {}
 
-        template <
-            typename Component
-          , typename Iterator, typename Context
+        template <typename Iterator, typename Context
           , typename Skipper, typename Attribute>
-        static bool parse(
-            Component const& component
-          , Iterator& first, Iterator const& last
+        bool parse(Iterator& first, Iterator const& last
           , Context& context, Skipper const& skipper
-          , Attribute& attr)
+          , Attribute& attr) const
         {
             detail::alternative_function<Iterator, Context, Skipper, Attribute>
                 f(first, last, context, skipper, attr);
 
             // return true if *any* of the parsers succeed
-            return fusion::any(component.elements, f);
+            return fusion::any(elements, f);
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "alternatives[";
-            fusion::for_each(component.elements,
-                spirit::detail::what_function<Context>(result, ctx));
-            result += "]";
+            info result("alternative");
+            fusion::for_each(elements,
+                spirit::detail::what_function<Context>(result, context));
             return result;
         }
+
+        Elements elements;
     };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements, typename Modifiers>
+    struct make_composite<proto::tag::bitwise_or, Elements, Modifiers>
+      : make_nary_composite<Elements, alternative>
+    {};
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements>
+    struct has_semantic_action<qi::alternative<Elements> >
+      : nary_has_semantic_action<Elements> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Elements, typename Attribute, typename Context
+      , typename Iterator>
+    struct handles_container<qi::alternative<Elements>, Attribute, Context
+      , Iterator>
+      : nary_handles_container<Elements, Attribute, Context, Iterator> {};
 }}}
 
 #endif

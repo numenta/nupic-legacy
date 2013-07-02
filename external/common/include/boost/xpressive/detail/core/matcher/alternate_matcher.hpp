@@ -121,9 +121,9 @@ namespace boost { namespace xpressive { namespace detail
     private:
         alternate_matcher &operator =(alternate_matcher const &);
 
-        bool can_match_(char_type ch, Traits const &traits) const
+        bool can_match_(char_type ch, Traits const &tr) const
         {
-            return this->bset_.test(ch, traits);
+            return this->bset_.test(ch, tr);
         }
     };
 

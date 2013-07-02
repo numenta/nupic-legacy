@@ -20,7 +20,6 @@ namespace std{
 } // namespace std
 #endif
 
-
 #ifndef BOOST_NO_CWCHAR
 #include <cwchar>
 #ifdef BOOST_NO_STDC_NAMESPACE
@@ -30,9 +29,6 @@ namespace std{ using ::wcslen; }
 
 #include <boost/detail/workaround.hpp>
 
-#include <boost/serialization/throw_exception.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/archive/archive_exception.hpp>
 #include <boost/archive/add_facet.hpp>
 #include <boost/archive/codecvt_null.hpp>
 
@@ -71,7 +67,7 @@ template<class Archive, class Elem, class Tr>
 BOOST_ARCHIVE_OR_WARCHIVE_DECL(void)
 basic_binary_oprimitive<Archive, Elem, Tr>::save(const std::string &s)
 {
-    std::size_t l = static_cast<unsigned int>(s.size());
+    std::size_t l = static_cast<std::size_t>(s.size());
     this->This()->save(l);
     save_binary(s.data(), l);
 }
@@ -85,6 +81,7 @@ basic_binary_oprimitive<Archive, Elem, Tr>::save(const wchar_t * ws)
     this->This()->save(l);
     save_binary(ws, l * sizeof(wchar_t) / sizeof(char));
 }
+#endif
 
 #ifndef BOOST_NO_STD_WSTRING
 template<class Archive, class Elem, class Tr>
@@ -95,7 +92,6 @@ basic_binary_oprimitive<Archive, Elem, Tr>::save(const std::wstring &ws)
     this->This()->save(l);
     save_binary(ws.data(), l * sizeof(wchar_t) / sizeof(char));
 }
-#endif
 #endif
 
 template<class Archive, class Elem, class Tr>
@@ -152,15 +148,12 @@ template<class Archive, class Elem, class Tr>
 BOOST_ARCHIVE_OR_WARCHIVE_DECL(BOOST_PP_EMPTY())
 basic_binary_oprimitive<Archive, Elem, Tr>::~basic_binary_oprimitive(){
     // flush buffer
-    int result = static_cast<detail::output_streambuf_access<Elem, Tr> &>(
-        m_sb
-    ).sync();
     //destructor can't throw
-    //if(0 != result){ 
-    //    boost::serialization::throw_exception(
-    //        archive_exception(archive_exception::stream_error)
-    //    );
-    //}
+    try{
+        static_cast<detail::output_streambuf_access<Elem, Tr> &>(m_sb).sync();
+    }
+    catch(...){
+    }
 }
 
 } // namespace archive

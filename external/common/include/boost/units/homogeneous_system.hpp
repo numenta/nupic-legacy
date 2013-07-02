@@ -18,7 +18,7 @@
 
 #ifdef BOOST_UNITS_CHECK_HOMOGENEOUS_UNITS
 
-#include <boost/is_same.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/mpl/not.hpp>
 
 #include <boost/units/detail/linear_algebra.hpp>

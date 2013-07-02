@@ -6,18 +6,21 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-23 03:13:35 -0800 (Sun, 23 Nov 2008) $
  */
 
 #include "boost/date_time/gregorian/gregorian_types.hpp"
 #include "boost/date_time/date_formatting_locales.hpp" // sets BOOST_DATE_TIME_NO_LOCALE
 #include "boost/date_time/gregorian/parsers.hpp"
-#include <string>
-#include <exception>
 
 //This file is basically commented out if locales are not supported
 #ifndef BOOST_DATE_TIME_NO_LOCALE
 
+#include <string>
+#include <memory>
+#include <locale>
+#include <iostream>
+#include <exception>
 
 namespace boost {
 namespace gregorian {
@@ -281,22 +284,22 @@ namespace gregorian {
       const facet_def& f = std::use_facet<facet_def>(is.getloc());
       num = date_time::find_match(f.get_short_month_names(), 
                                   f.get_long_month_names(), 
-                                  (greg_month::max)(), s); 
+                                  (greg_month::max)(), s); // greg_month spans 1..12, so max returns the array size,
+                                                           // which is needed by find_match
     }
     /* bad_cast will be thrown if the desired facet is not accessible
      * so we can generate the facet. This has the drawback of using english
      * names as a default. */
-    catch(std::bad_cast bc){
-      std::cout << "Month exception caught" << std::endl;
+    catch(std::bad_cast&){
       charT a = '\0';
-      const facet_def* f = create_facet_def(a);
+      std::auto_ptr< const facet_def > f(create_facet_def(a));
       num = date_time::find_match(f->get_short_month_names(), 
                                   f->get_long_month_names(), 
-                                  (greg_month::max)(), s); 
-      delete(f);
+                                  (greg_month::max)(), s); // greg_month spans 1..12, so max returns the array size,
+                                                           // which is needed by find_match
     }
     
-    num += 1; // months numbered 1-12
+    ++num; // months numbered 1-12
     m = greg_month(num); 
 
     return is;
@@ -323,19 +326,19 @@ namespace gregorian {
       const facet_def& f = std::use_facet<facet_def>(is.getloc());
       num = date_time::find_match(f.get_short_weekday_names(), 
                                   f.get_long_weekday_names(), 
-                                  (greg_weekday::max)(), s); 
+                                  (greg_weekday::max)() + 1, s); // greg_weekday spans 0..6, so increment is needed
+                                                                 // to form the array size which is needed by find_match
     }
     /* bad_cast will be thrown if the desired facet is not accessible
      * so we can generate the facet. This has the drawback of using english
      * names as a default. */
-    catch(std::bad_cast bc){
-      //std::cout << "Weekday exception caught" << std::endl;
+    catch(std::bad_cast&){
       charT a = '\0';
-      const facet_def* f = create_facet_def(a);
+      std::auto_ptr< const facet_def > f(create_facet_def(a));
       num = date_time::find_match(f->get_short_weekday_names(), 
                                   f->get_long_weekday_names(), 
-                                  (greg_weekday::max)(), s); 
-      delete(f);
+                                  (greg_weekday::max)() + 1, s); // greg_weekday spans 0..6, so increment is needed
+                                                                 // to form the array size which is needed by find_match
     }
    
     wd = greg_weekday(num); // weekdays numbered 0-6

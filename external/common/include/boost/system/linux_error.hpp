@@ -23,7 +23,7 @@ namespace boost
   {
     //  To construct an error_code after a API error:
     //
-    //      error_code( errno, system_category )
+    //      error_code( errno, system_category() )
 
     //  User code should use the portable "posix" enums for POSIX errors; this
     //  allows such code to be portable to non-POSIX systems. For the non-POSIX
@@ -99,7 +99,7 @@ namespace boost
     namespace linux_error
     {
       inline error_code make_error_code( linux_errno e )
-        { return error_code( e, get_system_category() ); }
+        { return error_code( e, system_category() ); }
     }
 
   }  // namespace system

@@ -13,6 +13,7 @@
 
 #include <boost/config.hpp>
 #include <boost/graph/detail/sparse_ordering.hpp>
+#include <boost/graph/graph_utility.hpp>
 #include <algorithm>
 
 
@@ -91,7 +92,7 @@ namespace boost {
 
     // Copy degree to pseudo_degree
     // initialize the color map
-    for (tie(ui, ui_end) = vertices(g); ui != ui_end; ++ui){
+    for (boost::tie(ui, ui_end) = vertices(g); ui != ui_end; ++ui){
       put(color, *ui, Color::white());
     }
 
@@ -132,7 +133,7 @@ namespace boost {
   cuthill_mckee_ordering(const Graph& G, OutputIterator permutation, 
                          ColorMap color, DegreeMap degree)
   {
-    if (vertices(G).first == vertices(G).second)
+    if (boost::graph::has_no_vertices(G))
       return permutation;
 
     typedef typename boost::graph_traits<Graph>::vertex_descriptor Vertex;
@@ -168,7 +169,7 @@ namespace boost {
   cuthill_mckee_ordering(const Graph& G, OutputIterator permutation, 
                          VertexIndexMap index_map)
   {
-    if (vertices(G).first == vertices(G).second)
+    if (boost::graph::has_no_vertices(G))
       return permutation;
     
     typedef out_degree_property_map<Graph> DegreeMap;

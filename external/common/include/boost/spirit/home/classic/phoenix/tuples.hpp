@@ -60,6 +60,11 @@ namespace phoenix { namespace borland_only
 #include <boost/call_traits.hpp>
 #include <boost/type_traits/remove_reference.hpp>
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace phoenix {
 
@@ -1321,6 +1326,10 @@ struct tuple<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, nil_t>
 #endif
 #endif
 #endif
+#endif
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -48,7 +48,7 @@ struct macro_definition {
 
     typedef std::vector<TokenT> parameter_container_type;
     typedef ContainerT          definition_container_type;
-    
+
     typedef typename parameter_container_type::const_iterator 
         const_parameter_iterator_t;
     typedef typename definition_container_type::const_iterator 
@@ -76,14 +76,14 @@ struct macro_definition {
     void replace_parameters()
     {
         using namespace boost::wave;
-        
+
         if (!replaced_parameters) {
         typename definition_container_type::iterator end = macrodefinition.end();
         typename definition_container_type::iterator it = macrodefinition.begin(); 
 
             for (/**/; it != end; ++it) {
             token_id id = *it;
-            
+
                 if (T_IDENTIFIER == id || 
                     IS_CATEGORY(id, KeywordTokenType) ||
                     IS_EXTCATEGORY(id, OperatorTokenType|AltExtTokenType) ||
@@ -111,7 +111,7 @@ struct macro_definition {
                     }
                 }
             }
-            
+
 #if BOOST_WAVE_SUPPORT_VARIADICS_PLACEMARKERS != 0 
         // we need to know, if the last of the formal arguments is an ellipsis
             if (macroparameters.size() > 0 &&

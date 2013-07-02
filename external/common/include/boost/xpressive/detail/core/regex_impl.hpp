@@ -72,8 +72,8 @@ struct traits_holder
 {
     typedef typename Traits::char_type char_type;
 
-    explicit traits_holder(Traits const &traits)
-      : traits_(traits)
+    explicit traits_holder(Traits const &tr)
+      : traits_(tr)
     {
     }
 

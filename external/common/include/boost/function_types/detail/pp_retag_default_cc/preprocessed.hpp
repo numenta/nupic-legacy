@@ -15,8 +15,8 @@ namespace detail
 template<class Tag, class RefTag> struct selector_bits
 {
 BOOST_STATIC_CONSTANT(bits_t, value = (
-::boost::function_types::detail::bits<Tag> ::value & 0x00008000 
-| ::boost::function_types::detail::bits<RefTag> ::value & 802
+(::boost::function_types::detail::bits<Tag> ::value & 0x00008000) 
+| (::boost::function_types::detail::bits<RefTag> ::value & 802)
 ));
 };
 template<bits_t SelectorBits> struct default_cc_tag; 

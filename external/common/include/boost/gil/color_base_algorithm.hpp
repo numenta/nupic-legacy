@@ -101,7 +101,7 @@ template <typename ColorBase, int K> struct kth_semantic_element_type {
 template <typename ColorBase, int K> struct kth_semantic_element_reference_type {
     BOOST_STATIC_CONSTANT(int, semantic_index = (mpl::at_c<typename ColorBase::layout_t::channel_mapping_t,K>::type::value));
     typedef typename kth_element_reference_type<ColorBase,semantic_index>::type type;
-    static type       get(ColorBase& cb) { return at_c<semantic_index>(cb); }
+    static type       get(ColorBase& cb) { return gil::at_c<semantic_index>(cb); }
 };
 
 /// \brief Specifies the return type of the constant semantic_at_c<K>(color_base);
@@ -109,7 +109,7 @@ template <typename ColorBase, int K> struct kth_semantic_element_reference_type 
 template <typename ColorBase, int K> struct kth_semantic_element_const_reference_type {
     BOOST_STATIC_CONSTANT(int, semantic_index = (mpl::at_c<typename ColorBase::layout_t::channel_mapping_t,K>::type::value));
     typedef typename kth_element_const_reference_type<ColorBase,semantic_index>::type type;
-    static type       get(const ColorBase& cb) { return at_c<semantic_index>(cb); }
+    static type       get(const ColorBase& cb) { return gil::at_c<semantic_index>(cb); }
 };
 
 /// \brief A mutable accessor to the K-th semantic element of a color base

@@ -2,24 +2,24 @@
 #define POSIXTIME_FORMATTERS_HPP___
 
 /* Copyright (c) 2002-2004 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2010-01-10 11:17:23 -0800 (Sun, 10 Jan 2010) $
  */
 
-#include "boost/date_time/gregorian/gregorian.hpp"
-#include "boost/date_time/compiler_config.hpp"
-#include "boost/date_time/iso_format.hpp"
-#include "boost/date_time/date_format_simple.hpp"
-#include "boost/date_time/posix_time/posix_time_types.hpp"
-#include "boost/date_time/time_formatting_streams.hpp"
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/compiler_config.hpp>
+#include <boost/date_time/iso_format.hpp>
+#include <boost/date_time/date_format_simple.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/date_time/time_formatting_streams.hpp>
+#include <boost/date_time/time_resolution_traits.hpp> // absolute_value
+#include <boost/date_time/time_parsing.hpp>
 
-#include "boost/date_time/time_parsing.hpp"
-
-/* NOTE: The "to_*_string" code for older compilers, ones that define 
- * BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS, is located in 
+/* NOTE: The "to_*_string" code for older compilers, ones that define
+ * BOOST_DATE_TIME_INCLUDE_LIMITED_HEADERS, is located in
  * formatters_limited.hpp
  */
 
@@ -57,27 +57,27 @@ namespace posix_time {
       if(td.is_negative()) {
         ss << '-';
       }
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.hours()) << ":";
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.minutes()) << ":";
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.seconds());
       //TODO the following is totally non-generic, yelling FIXME
 #if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-      boost::int64_t frac_sec = 
+      boost::int64_t frac_sec =
         date_time::absolute_value(td.fractional_seconds());
       // JDG [7/6/02 VC++ compatibility]
       charT buff[32];
       _i64toa(frac_sec, buff, 10);
 #else
-      time_duration::fractional_seconds_type frac_sec = 
+      time_duration::fractional_seconds_type frac_sec =
         date_time::absolute_value(td.fractional_seconds());
 #endif
       if (frac_sec != 0) {
         ss  << "." << std::setw(time_duration::num_fractional_digits())
             << std::setfill(fill_char)
-          
+
           // JDG [7/6/02 VC++ compatibility]
 #if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
             << buff;
@@ -99,7 +99,7 @@ namespace posix_time {
   // template function called by wrapper functions:
   // to_*_string(time_duration) & to_*_wstring(time_duration)
   template<class charT>
-  inline std::basic_string<charT> to_iso_string_type(time_duration td) 
+  inline std::basic_string<charT> to_iso_string_type(time_duration td)
   {
     std::basic_ostringstream<charT> ss;
     if(td.is_special()) {
@@ -126,27 +126,27 @@ namespace posix_time {
       if(td.is_negative()) {
         ss << '-';
       }
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.hours());
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.minutes());
-      ss  << std::setw(2) << std::setfill(fill_char) 
+      ss  << std::setw(2) << std::setfill(fill_char)
           << date_time::absolute_value(td.seconds());
       //TODO the following is totally non-generic, yelling FIXME
 #if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
-      boost::int64_t frac_sec = 
+      boost::int64_t frac_sec =
         date_time::absolute_value(td.fractional_seconds());
       // JDG [7/6/02 VC++ compatibility]
       charT buff[32];
       _i64toa(frac_sec, buff, 10);
 #else
-      time_duration::fractional_seconds_type frac_sec = 
+      time_duration::fractional_seconds_type frac_sec =
         date_time::absolute_value(td.fractional_seconds());
 #endif
       if (frac_sec != 0) {
         ss  << "." << std::setw(time_duration::num_fractional_digits())
             << std::setfill(fill_char)
-          
+
           // JDG [7/6/02 VC++ compatibility]
 #if (defined(BOOST_MSVC) && (_MSC_VER < 1300))
             << buff;
@@ -168,7 +168,7 @@ namespace posix_time {
   /*!\ingroup time_format
    */
   template<class charT>
-  inline std::basic_string<charT> to_simple_string_type(ptime t) 
+  inline std::basic_string<charT> to_simple_string_type(ptime t)
   {
     // can't use this w/gcc295, no to_simple_string_type<>(td) available
     std::basic_string<charT> ts = gregorian::to_simple_string_type<charT>(t.date());// + " ";
@@ -184,10 +184,10 @@ namespace posix_time {
     return to_simple_string_type<char>(t);
   }
 
-  // function called by wrapper functions to_*_string(time_period) 
+  // function called by wrapper functions to_*_string(time_period)
   // & to_*_wstring(time_period)
   template<class charT>
-  inline std::basic_string<charT> to_simple_string_type(time_period tp) 
+  inline std::basic_string<charT> to_simple_string_type(time_period tp)
   {
     charT beg = '[', mid = '/', end = ']';
     std::basic_string<charT> d1(to_simple_string_type<charT>(tp.begin()));
@@ -201,10 +201,10 @@ namespace posix_time {
     return to_simple_string_type<char>(tp);
   }
 
-  // function called by wrapper functions to_*_string(time_period) 
+  // function called by wrapper functions to_*_string(time_period)
   // & to_*_wstring(time_period)
   template<class charT>
-  inline std::basic_string<charT> to_iso_string_type(ptime t) 
+  inline std::basic_string<charT> to_iso_string_type(ptime t)
   {
     std::basic_string<charT> ts = gregorian::to_iso_string_type<charT>(t.date());// + "T";
     if(!t.time_of_day().is_special()) {
@@ -223,10 +223,10 @@ namespace posix_time {
   }
 
 
-  // function called by wrapper functions to_*_string(time_period) 
+  // function called by wrapper functions to_*_string(time_period)
   // & to_*_wstring(time_period)
   template<class charT>
-  inline std::basic_string<charT> to_iso_extended_string_type(ptime t) 
+  inline std::basic_string<charT> to_iso_extended_string_type(ptime t)
   {
     std::basic_string<charT> ts = gregorian::to_iso_extended_string_type<charT>(t.date());// + "T";
     if(!t.time_of_day().is_special()) {

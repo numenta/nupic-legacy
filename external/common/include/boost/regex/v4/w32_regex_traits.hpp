@@ -294,6 +294,8 @@ public:
    typedef typename w32_regex_traits<charT>::char_class_type char_class_type;
    BOOST_STATIC_CONSTANT(char_class_type, mask_word = 0x0400); // must be C1_DEFINED << 1
    BOOST_STATIC_CONSTANT(char_class_type, mask_unicode = 0x0800); // must be C1_DEFINED << 2
+   BOOST_STATIC_CONSTANT(char_class_type, mask_horizontal = 0x1000); // must be C1_DEFINED << 3
+   BOOST_STATIC_CONSTANT(char_class_type, mask_vertical = 0x2000); // must be C1_DEFINED << 4
    BOOST_STATIC_CONSTANT(char_class_type, mask_base = 0x3ff);  // all the masks used by the CT_CTYPE1 group
 
    typedef std::basic_string<charT> string_type;
@@ -510,7 +512,7 @@ template <class charT>
 typename w32_regex_traits_implementation<charT>::char_class_type 
    w32_regex_traits_implementation<charT>::lookup_classname_imp(const charT* p1, const charT* p2) const
 {
-   static const char_class_type masks[20] = 
+   static const char_class_type masks[22] = 
    {
       0,
       0x0104u, // C1_ALPHA | C1_DIGIT
@@ -520,6 +522,7 @@ typename w32_regex_traits_implementation<charT>::char_class_type
       0x0004u, // C1_DIGIT
       0x0004u, // C1_DIGIT
       (~(0x0020u|0x0008u|0x0040) & 0x01ffu) | 0x0400u, // not C1_CNTRL or C1_SPACE or C1_BLANK
+      w32_regex_traits_implementation<charT>::mask_horizontal, 
       0x0002u, // C1_LOWER
       0x0002u, // C1_LOWER
       (~0x0020u & 0x01ffu) | 0x0400, // not C1_CNTRL
@@ -529,6 +532,7 @@ typename w32_regex_traits_implementation<charT>::char_class_type
       0x0001u, // C1_UPPER
       w32_regex_traits_implementation<charT>::mask_unicode,
       0x0001u, // C1_UPPER
+      w32_regex_traits_implementation<charT>::mask_vertical, 
       0x0104u | w32_regex_traits_implementation<charT>::mask_word, 
       0x0104u | w32_regex_traits_implementation<charT>::mask_word, 
       0x0080u, // C1_XDIGIT
@@ -627,6 +631,12 @@ public:
       else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_unicode) && re_detail::is_extended(c))
          return true;
       else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_word) && (c == '_'))
+         return true;
+      else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_vertical)
+         && (::boost::re_detail::is_separator(c) || (c == '\v')))
+         return true;
+      else if((f & re_detail::w32_regex_traits_implementation<charT>::mask_horizontal) 
+         && this->isctype(c, 0x0008u) && !this->isctype(c, re_detail::w32_regex_traits_implementation<charT>::mask_vertical))
          return true;
       return false;
    }

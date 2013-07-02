@@ -11,6 +11,9 @@
 #ifndef BOOST_UNITS_CONVERSION_HPP
 #define BOOST_UNITS_CONVERSION_HPP
 
+/// \file
+/// \brief Template for defining conversions between quantities.
+
 #include <boost/units/detail/conversion_impl.hpp>
 
 namespace boost {
@@ -41,6 +44,10 @@ struct conversion_helper;
 /// }
 /// }
 /// @endcode
+///
+/// In most cases, the predefined specializations for @c unit
+/// and @c absolute should be sufficient, so users should rarely
+/// need to use this.
 template<class From, class To>
 struct conversion_helper
 {
@@ -54,7 +61,7 @@ struct conversion_helper
 /// of this macro must appear at global scope.
 /// If the destination unit is a base unit or a unit that contains
 /// only one base unit which is raised to the first power (e.g. feet->meters)
-/// the reverse (meters->feet in this example) need not be defined.
+/// the reverse (meters->feet in this example) need not be defined explicitly.
 #define BOOST_UNITS_DEFINE_CONVERSION_FACTOR(Source, Destination, type_, value_)    \
     namespace boost {                                                       \
     namespace units {                                                       \
@@ -115,7 +122,7 @@ struct conversion_helper
     struct unscaled_get_default_conversion<unscale<Source>::type>   \
     {                                                               \
         static const bool is_defined = true;                        \
-        typedef Dest type;                                          \
+        typedef Dest::unit_type type;                               \
     };                                                              \
     }                                                               \
     }                                                               \
@@ -134,7 +141,7 @@ struct conversion_helper
     struct unscaled_get_default_conversion<Source>                      \
     {                                                                   \
         static const bool is_defined = true;                            \
-        typedef Dest type;                                              \
+        typedef typename Dest::unit_type type;                          \
     };                                                                  \
     }                                                                   \
     }                                                                   \
@@ -163,10 +170,12 @@ BOOST_UNITS_DEFAULT_CONVERSION(namespace_::name_ ## _base_unit, unit)
 /// Find the conversion factor between two units.
 template<class FromUnit,class ToUnit>
 inline
-typename detail::conversion_factor_helper<FromUnit, ToUnit>::type
+typename one_to_double_type<
+    typename detail::conversion_factor_helper<FromUnit, ToUnit>::type
+>::type
 conversion_factor(const FromUnit&,const ToUnit&)
 {
-    return(detail::conversion_factor_helper<FromUnit, ToUnit>::value());
+    return(one_to_double(detail::conversion_factor_helper<FromUnit, ToUnit>::value()));
 }
 
 } // namespace units

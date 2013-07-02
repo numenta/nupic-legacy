@@ -1,51 +1,64 @@
-#ifndef BOOST_PP_IS_ITERATING
-    ///////////////////////////////////////////////////////////////////////////////
-    /// \file default.hpp
-    /// Contains definition of the _default transform, which gives operators their
-    /// usual C++ meanings and uses Boost.Typeof to deduce return types.
-    //
-    //  Copyright 2008 Eric Niebler. Distributed under the Boost
-    //  Software License, Version 1.0. (See accompanying file
-    //  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+///////////////////////////////////////////////////////////////////////////////
+/// \file default.hpp
+/// Contains definition of the _default transform, which gives operators their
+/// usual C++ meanings and uses Boost.Typeof to deduce return types.
+//
+//  Copyright 2008 Eric Niebler. Distributed under the Boost
+//  Software License, Version 1.0. (See accompanying file
+//  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-    #ifndef BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
-    #define BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
+#ifndef BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
+#define BOOST_PROTO_TRANSFORM_DEFAULT_HPP_EAN_04_04_2008
 
-    #include <boost/proto/detail/prefix.hpp>
-    #include <boost/preprocessor/iteration/iterate.hpp>
-    #include <boost/preprocessor/repetition/repeat.hpp>
-    #include <boost/preprocessor/repetition/enum_shifted.hpp>
-    #include <boost/preprocessor/repetition/enum_shifted_params.hpp>
-    #include <boost/ref.hpp>
-    #include <boost/get_pointer.hpp>
-    #include <boost/utility/enable_if.hpp>
-    #include <boost/type_traits/is_member_pointer.hpp>
-    #include <boost/type_traits/is_member_object_pointer.hpp>
-    #include <boost/type_traits/is_member_function_pointer.hpp>
-    #include <boost/proto/proto_fwd.hpp>
-    #include <boost/proto/traits.hpp>
-    #include <boost/proto/transform/impl.hpp>
-    #include <boost/proto/transform/arg.hpp>
-    #include <boost/proto/detail/decltype.hpp>
-    #include <boost/proto/detail/suffix.hpp>
+#include <boost/preprocessor/iteration/iterate.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/arithmetic/add.hpp>
+#include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/repetition/enum.hpp>
+#include <boost/preprocessor/repetition/enum_shifted.hpp>
+#include <boost/preprocessor/repetition/enum_shifted_params.hpp>
+#include <boost/ref.hpp>
+#include <boost/get_pointer.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/type_traits/is_member_pointer.hpp>
+#include <boost/type_traits/is_member_object_pointer.hpp>
+#include <boost/type_traits/is_member_function_pointer.hpp>
+#include <boost/proto/proto_fwd.hpp>
+#include <boost/proto/traits.hpp>
+#include <boost/proto/transform/impl.hpp>
+#include <boost/proto/transform/arg.hpp>
+#include <boost/proto/detail/decltype.hpp>
 
-    namespace boost { namespace proto
+namespace boost { namespace proto
+{
+    namespace detail
     {
+        template<typename Grammar, typename Tag>
+        struct default_case
+          : not_<_>
+        {};
+
         template<typename Grammar>
-        struct _default
-          : transform<_default<Grammar> >
+        struct default_case<Grammar, tag::terminal>
+          : when<terminal<_>, _value>
+        {};
+
+        template<typename Grammar>
+        struct default_cases
         {
-            template<typename Expr, typename State, typename Data, typename Tag, long Arity>
-            struct impl2;
-
-            template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::terminal, 0>
-              : _value::impl<Expr, State, Data>
+            template<typename Tag>
+            struct case_
+              : default_case<Grammar, Tag>
             {};
+        };
 
-            #define BOOST_PROTO_UNARY_OP_RESULT(OP, TAG, MAKE)                                      \
+        #define BOOST_PROTO_UNARY_DEFAULT_EVAL(OP, TAG, MAKE)                                       \
+        template<typename Grammar>                                                                  \
+        struct BOOST_PP_CAT(default_, TAG)                                                          \
+          : transform<BOOST_PP_CAT(default_, TAG)<Grammar> >                                        \
+        {                                                                                           \
             template<typename Expr, typename State, typename Data>                                  \
-            struct impl2<Expr, State, Data, TAG, 1>                                                 \
+            struct impl                                                                             \
               : transform_impl<Expr, State, Data>                                                   \
             {                                                                                       \
             private:                                                                                \
@@ -54,20 +67,30 @@
             public:                                                                                 \
                 BOOST_PROTO_DECLTYPE_(OP proto::detail::MAKE<r0>(), result_type)                    \
                 result_type operator ()(                                                            \
-                    typename impl2::expr_param expr                                                 \
-                  , typename impl2::state_param state                                               \
-                  , typename impl2::data_param data                                                 \
+                    typename impl::expr_param e                                                     \
+                  , typename impl::state_param s                                                    \
+                  , typename impl::data_param d                                                     \
                 ) const                                                                             \
                 {                                                                                   \
                     typename Grammar::template impl<e0, State, Data> t0;                            \
-                    return OP t0(proto::child_c<0>(expr), state, data);                             \
+                    return OP t0(proto::child_c<0>(e), s, d);                                       \
                 }                                                                                   \
             };                                                                                      \
-            /**/
+        };                                                                                          \
+                                                                                                    \
+        template<typename Grammar>                                                                  \
+        struct default_case<Grammar, tag::TAG>                                                      \
+          : when<unary_expr<tag::TAG, Grammar>, BOOST_PP_CAT(default_, TAG)<Grammar> >              \
+        {};                                                                                         \
+        /**/
 
-            #define BOOST_PROTO_BINARY_OP_RESULT(OP, TAG, LMAKE, RMAKE)                             \
+        #define BOOST_PROTO_BINARY_DEFAULT_EVAL(OP, TAG, LMAKE, RMAKE)                              \
+        template<typename Grammar>                                                                  \
+        struct BOOST_PP_CAT(default_, TAG)                                                          \
+          : transform<BOOST_PP_CAT(default_, TAG)<Grammar> >                                        \
+        {                                                                                           \
             template<typename Expr, typename State, typename Data>                                  \
-            struct impl2<Expr, State, Data, TAG, 2>                                                 \
+            struct impl                                                                             \
               : transform_impl<Expr, State, Data>                                                   \
             {                                                                                       \
             private:                                                                                \
@@ -81,134 +104,163 @@
                   , result_type                                                                     \
                 )                                                                                   \
                 result_type operator ()(                                                            \
-                    typename impl2::expr_param expr                                                 \
-                  , typename impl2::state_param state                                               \
-                  , typename impl2::data_param data                                                 \
+                    typename impl::expr_param e                                                     \
+                  , typename impl::state_param s                                                    \
+                  , typename impl::data_param d                                                     \
                 ) const                                                                             \
                 {                                                                                   \
                     typename Grammar::template impl<e0, State, Data> t0;                            \
                     typename Grammar::template impl<e1, State, Data> t1;                            \
-                    return t0(proto::child_c<0>(expr), state, data)                                 \
-                        OP t1(proto::child_c<1>(expr), state, data);                                \
+                    return t0(proto::child_c<0>(e), s, d)                                           \
+                        OP t1(proto::child_c<1>(e), s, d);                                          \
                 }                                                                                   \
             };                                                                                      \
-            /**/
+        };                                                                                          \
+                                                                                                    \
+        template<typename Grammar>                                                                  \
+        struct default_case<Grammar, tag::TAG>                                                      \
+          : when<binary_expr<tag::TAG, Grammar, Grammar>, BOOST_PP_CAT(default_, TAG)<Grammar> >    \
+        {};                                                                                         \
+        /**/
 
-            BOOST_PROTO_UNARY_OP_RESULT(+, tag::unary_plus, make)
-            BOOST_PROTO_UNARY_OP_RESULT(-, tag::negate, make)
-            BOOST_PROTO_UNARY_OP_RESULT(*, tag::dereference, make)
-            BOOST_PROTO_UNARY_OP_RESULT(~, tag::complement, make)
-            BOOST_PROTO_UNARY_OP_RESULT(&, tag::address_of, make)
-            BOOST_PROTO_UNARY_OP_RESULT(!, tag::logical_not, make)
-            BOOST_PROTO_UNARY_OP_RESULT(++, tag::pre_inc, make_mutable)
-            BOOST_PROTO_UNARY_OP_RESULT(--, tag::pre_dec, make_mutable)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(+, unary_plus, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(-, negate, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(*, dereference, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(~, complement, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(&, address_of, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(!, logical_not, make)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(++, pre_inc, make_mutable)
+        BOOST_PROTO_UNARY_DEFAULT_EVAL(--, pre_dec, make_mutable)
 
-            BOOST_PROTO_BINARY_OP_RESULT(<<, tag::shift_left, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(>>, tag::shift_right, make_mutable, make_mutable)
-            BOOST_PROTO_BINARY_OP_RESULT(*, tag::multiplies, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(/, tag::divides, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(%, tag::modulus, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(+, tag::plus, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(-, tag::minus, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(<, tag::less, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(>, tag::greater, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(<=, tag::less_equal, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(>=, tag::greater_equal, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(==, tag::equal_to, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(!=, tag::not_equal_to, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(||, tag::logical_or, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(&&, tag::logical_and, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(&, tag::bitwise_and, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(|, tag::bitwise_or, make, make)
-            BOOST_PROTO_BINARY_OP_RESULT(^, tag::bitwise_xor, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(<<, shift_left, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(>>, shift_right, make_mutable, make_mutable)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(*, multiplies, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(/, divides, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(%, modulus, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(+, plus, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(-, minus, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(<, less, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(>, greater, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(<=, less_equal, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(>=, greater_equal, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(==, equal_to, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(!=, not_equal_to, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(||, logical_or, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(&&, logical_and, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(&, bitwise_and, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(|, bitwise_or, make, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(^, bitwise_xor, make, make)
 
-            BOOST_PROTO_BINARY_OP_RESULT(=, tag::assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(<<=, tag::shift_left_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(>>=, tag::shift_right_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(*=, tag::multiplies_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(/=, tag::divides_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(%=, tag::modulus_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(+=, tag::plus_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(-=, tag::minus_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(&=, tag::bitwise_and_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(|=, tag::bitwise_or_assign, make_mutable, make)
-            BOOST_PROTO_BINARY_OP_RESULT(^=, tag::bitwise_xor_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(=, assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(<<=, shift_left_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(>>=, shift_right_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(*=, multiplies_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(/=, divides_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(%=, modulus_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(+=, plus_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(-=, minus_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(&=, bitwise_and_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(|=, bitwise_or_assign, make_mutable, make)
+        BOOST_PROTO_BINARY_DEFAULT_EVAL(^=, bitwise_xor_assign, make_mutable, make)
 
-            #undef BOOST_PROTO_UNARY_OP_RESULT
-            #undef BOOST_PROTO_BINARY_OP_RESULT
+        #undef BOOST_PROTO_UNARY_DEFAULT_EVAL
+        #undef BOOST_PROTO_BINARY_DEFAULT_EVAL
 
-            /// INTERNAL ONLY
-            template<typename Expr, typename State, typename Data>
-            struct is_member_function_invocation
+        /// INTERNAL ONLY
+        template<typename Grammar, typename Expr, typename State, typename Data>
+        struct is_member_function_invocation
+          : is_member_function_pointer<
+                typename uncvref<
+                    typename Grammar::template impl<
+                        typename result_of::child_c<Expr, 1>::type
+                      , State
+                      , Data
+                    >::result_type
+                >::type
+            >
+        {};
+
+        /// INTERNAL ONLY
+        template<typename Grammar, typename Expr, typename State, typename Data, bool IsMemFunCall>
+        struct default_mem_ptr_impl
+          : transform_impl<Expr, State, Data>
+        {
+        private:
+            typedef typename result_of::child_c<Expr, 0>::type e0;
+            typedef typename result_of::child_c<Expr, 1>::type e1;
+            typedef typename Grammar::template impl<e0, State, Data>::result_type r0;
+            typedef typename Grammar::template impl<e1, State, Data>::result_type r1;
+        public:
+            typedef typename detail::mem_ptr_fun<r0, r1>::result_type result_type;
+            result_type operator ()(
+                typename default_mem_ptr_impl::expr_param e
+              , typename default_mem_ptr_impl::state_param s
+              , typename default_mem_ptr_impl::data_param d
+            ) const
             {
-                typedef typename result_of::child_c<Expr, 1>::type e1;
-                typedef typename Grammar::template impl<e1, State, Data>::result_type r1;
-                typedef typename remove_const<typename remove_reference<r1>::type>::type uncvref_r1;
-                typedef typename is_member_function_pointer<uncvref_r1>::type type;
-                BOOST_STATIC_CONSTANT(bool, value = type::value);
-            };
+                typename Grammar::template impl<e0, State, Data> t0;
+                typename Grammar::template impl<e1, State, Data> t1;
+                return detail::mem_ptr_fun<r0, r1>()(
+                    t0(proto::child_c<0>(e), s, d)
+                  , t1(proto::child_c<1>(e), s, d)
+                );
+            }
+        };
 
-            /// INTERNAL ONLY
-            template<typename Expr, typename State, typename Data, bool IsMemFunCall>
-            struct memfun_impl
-              : transform_impl<Expr, State, Data>
+        /// INTERNAL ONLY
+        template<typename Grammar, typename Expr, typename State, typename Data>
+        struct default_mem_ptr_impl<Grammar, Expr, State, Data, true>
+          : transform_impl<Expr, State, Data>
+        {
+        private:
+            typedef typename result_of::child_c<Expr, 0>::type e0;
+            typedef typename result_of::child_c<Expr, 1>::type e1;
+            typedef typename Grammar::template impl<e0, State, Data>::result_type r0;
+            typedef typename Grammar::template impl<e1, State, Data>::result_type r1;
+        public:
+            typedef detail::memfun<r0, r1> result_type;
+            result_type const operator ()(
+                typename default_mem_ptr_impl::expr_param e
+              , typename default_mem_ptr_impl::state_param s
+              , typename default_mem_ptr_impl::data_param d
+            ) const
             {
-            private:
-                typedef typename result_of::child_c<Expr, 0>::type e0;
-                typedef typename result_of::child_c<Expr, 1>::type e1;
-                typedef typename Grammar::template impl<e0, State, Data>::result_type r0;
-                typedef typename Grammar::template impl<e1, State, Data>::result_type r1;
-            public:
-                typedef typename detail::mem_ptr_fun<r0, r1>::result_type result_type;
-                result_type operator ()(
-                    typename memfun_impl::expr_param expr
-                  , typename memfun_impl::state_param state
-                  , typename memfun_impl::data_param data
-                ) const
-                {
-                    typename Grammar::template impl<e0, State, Data> t0;
-                    typename Grammar::template impl<e1, State, Data> t1;
-                    return detail::mem_ptr_fun<r0, r1>()(
-                        t0(proto::child_c<0>(expr), state, data)
-                      , t1(proto::child_c<1>(expr), state, data)
-                    );
-                }
-            };
+                typename Grammar::template impl<e0, State, Data> t0;
+                typename Grammar::template impl<e1, State, Data> t1;
+                return detail::memfun<r0, r1>(
+                    t0(proto::child_c<0>(e), s, d)
+                  , t1(proto::child_c<1>(e), s, d)
+                );
+            }
+        };
 
-            /// INTERNAL ONLY
+        template<typename Grammar>
+        struct default_mem_ptr
+          : transform<default_mem_ptr<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
-            struct memfun_impl<Expr, State, Data, true>
-              : transform_impl<Expr, State, Data>
-            {
-            private:
-                typedef typename result_of::child_c<Expr, 0>::type e0;
-                typedef typename result_of::child_c<Expr, 1>::type e1;
-                typedef typename Grammar::template impl<e0, State, Data>::result_type r0;
-                typedef typename Grammar::template impl<e1, State, Data>::result_type r1;
-            public:
-                typedef detail::memfun<r0, r1> result_type;
-                result_type const operator ()(
-                    typename memfun_impl::expr_param expr
-                  , typename memfun_impl::state_param state
-                  , typename memfun_impl::data_param data
-                ) const
-                {
-                    typename Grammar::template impl<e0, State, Data> t0;
-                    typename Grammar::template impl<e1, State, Data> t1;
-                    return detail::memfun<r0, r1>(
-                        t0(proto::child_c<0>(expr), state, data)
-                      , t1(proto::child_c<1>(expr), state, data)
-                    );
-                }
-            };
-
-            template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::mem_ptr, 2>
-              : memfun_impl<Expr, State, Data, is_member_function_invocation<Expr, State, Data>::value>
+            struct impl
+              : default_mem_ptr_impl<
+                    Grammar
+                  , Expr
+                  , State
+                  , Data
+                  , is_member_function_invocation<Grammar, Expr, State, Data>::value
+                >
             {};
+        };
 
+        template<typename Grammar>
+        struct default_case<Grammar, tag::mem_ptr>
+          : when<mem_ptr<Grammar, Grammar>, default_mem_ptr<Grammar> >
+        {};
+
+        template<typename Grammar>
+        struct default_post_inc
+          : transform<default_post_inc<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::post_inc, 1>
+            struct impl
               : transform_impl<Expr, State, Data>
             {
             private:
@@ -217,18 +269,28 @@
             public:
                 BOOST_PROTO_DECLTYPE_(proto::detail::make_mutable<r0>() ++, result_type)
                 result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
+                    typename impl::expr_param e
+                  , typename impl::state_param s
+                  , typename impl::data_param d
                 ) const
                 {
                     typename Grammar::template impl<e0, State, Data> t0;
-                    return t0(proto::child_c<0>(expr), state, data) ++;
+                    return t0(proto::child_c<0>(e), s, d) ++;
                 }
             };
+        };
 
+        template<typename Grammar>
+        struct default_case<Grammar, tag::post_inc>
+          : when<post_inc<Grammar>, default_post_inc<Grammar> >
+        {};
+
+        template<typename Grammar>
+        struct default_post_dec
+          : transform<default_post_dec<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::post_dec, 1>
+            struct impl
               : transform_impl<Expr, State, Data>
             {
             private:
@@ -237,18 +299,28 @@
             public:
                 BOOST_PROTO_DECLTYPE_(proto::detail::make_mutable<r0>() --, result_type)
                 result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
+                    typename impl::expr_param e
+                  , typename impl::state_param s
+                  , typename impl::data_param d
                 ) const
                 {
                     typename Grammar::template impl<e0, State, Data> t0;
-                    return t0(proto::child_c<0>(expr), state, data) --;
+                    return t0(proto::child_c<0>(e), s, d) --;
                 }
             };
+        };
 
+        template<typename Grammar>
+        struct default_case<Grammar, tag::post_dec>
+          : when<post_dec<Grammar>, default_post_dec<Grammar> >
+        {};
+
+        template<typename Grammar>
+        struct default_subscript
+          : transform<default_subscript<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::subscript, 2>
+            struct impl
               : transform_impl<Expr, State, Data>
             {
             private:
@@ -262,20 +334,29 @@
                   , result_type
                 )
                 result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
+                    typename impl::expr_param e
+                  , typename impl::state_param s
+                  , typename impl::data_param d
                 ) const
                 {
                     typename Grammar::template impl<e0, State, Data> t0;
                     typename Grammar::template impl<e1, State, Data> t1;
-                    return t0(proto::child_c<0>(expr), state, data) [
-                           t1(proto::child_c<1>(expr), state, data) ];
+                    return t0(proto::child_c<0>(e), s, d) [
+                            t1(proto::child_c<1>(e), s, d) ];
                 }
             };
+        };
 
+        template<typename Grammar>
+        struct default_case<Grammar, tag::subscript>
+          : when<subscript<Grammar, Grammar>, default_subscript<Grammar> >
+        {};
+
+        template<typename Grammar>
+        struct default_if_else_
+        {
             template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::if_else_, 3>
+            struct impl
               : transform_impl<Expr, State, Data>
             {
             private:
@@ -293,22 +374,32 @@
                   , result_type
                 )
                 result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
+                    typename impl::expr_param e
+                  , typename impl::state_param s
+                  , typename impl::data_param d
                 ) const
                 {
                     typename Grammar::template impl<e0, State, Data> t0;
                     typename Grammar::template impl<e1, State, Data> t1;
                     typename Grammar::template impl<e2, State, Data> t2;
-                    return t0(proto::child_c<0>(expr), state, data)
-                         ? t1(proto::child_c<1>(expr), state, data)
-                         : t2(proto::child_c<2>(expr), state, data);
+                    return t0(proto::child_c<0>(e), s, d)
+                          ? t1(proto::child_c<1>(e), s, d)
+                          : t2(proto::child_c<2>(e), s, d);
                 }
             };
+        };
 
+        template<typename Grammar>
+        struct default_case<Grammar, tag::if_else_>
+          : when<if_else_<Grammar, Grammar, Grammar>, default_if_else_<Grammar> >
+        {};
+
+        template<typename Grammar>
+        struct default_comma
+          : transform<default_comma<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::comma, 2>
+            struct impl
               : transform_impl<Expr, State, Data>
             {
             private:
@@ -319,207 +410,189 @@
             public:
                 typedef typename proto::detail::comma_result<r0, r1>::type result_type;
                 result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
+                    typename impl::expr_param e
+                  , typename impl::state_param s
+                  , typename impl::data_param d
                 ) const
                 {
                     typename Grammar::template impl<e0, State, Data> t0;
                     typename Grammar::template impl<e1, State, Data> t1;
-                    return t0(proto::child_c<0>(expr), state, data)
-                         , t1(proto::child_c<1>(expr), state, data);
+                    return t0(proto::child_c<0>(e), s, d)
+                          , t1(proto::child_c<1>(e), s, d);
                 }
             };
+        };
 
-            #define EVAL_TYPE(Z, N, DATA)                                                           \
-                typedef                                                                             \
-                    typename result_of::child_c<DATA, N>::type                                      \
-                BOOST_PP_CAT(e, N);                                                                 \
-                typedef                                                                             \
-                    typename Grammar::template impl<BOOST_PP_CAT(e, N), State, Data>::result_type   \
-                BOOST_PP_CAT(r, N);                                                                 \
-                /**/
+        template<typename Grammar>
+        struct default_case<Grammar, tag::comma>
+          : when<comma<Grammar, Grammar>, default_comma<Grammar> >
+        {};
 
-            #define EVAL(Z, N, DATA)                                                                \
-                typename Grammar::template impl<BOOST_PP_CAT(e, N), State, Data>()(                 \
-                    proto::child_c<N>(DATA), state, data                                            \
-                )                                                                                   \
-                /**/
+        template<typename Grammar, typename Expr, typename State, typename Data, long Arity>
+        struct default_function_impl;
 
-            template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::function, 1>
-              : transform_impl<Expr, State, Data>
-            {
-                EVAL_TYPE(~, 0, Expr)
-
-                typedef
-                    typename proto::detail::result_of_fixup<r0>::type
-                function_type;
-
-                typedef
-                    typename boost::result_of<function_type()>::type
-                result_type;
-
-                result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
-                ) const
-                {
-                    return EVAL(~, 0, expr)();
-                }
-            };
-
-            template<typename Expr, typename State, typename Data>
-            struct impl2<Expr, State, Data, tag::function, 2>
-              : transform_impl<Expr, State, Data>
-            {
-                EVAL_TYPE(~, 0, Expr)
-                EVAL_TYPE(~, 1, Expr)
-
-                typedef
-                    typename proto::detail::result_of_fixup<r0>::type
-                function_type;
-
-                typedef
-                    typename detail::result_of_<function_type(r1)>::type
-                result_type;
-
-                result_type operator ()(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
-                ) const
-                {
-                    return this->invoke(
-                        expr
-                      , state
-                      , data
-                      , is_member_function_pointer<function_type>()
-                      , is_member_object_pointer<function_type>()
-                    );
-                }
-
-            private:
-                result_type invoke(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
-                  , mpl::false_
-                  , mpl::false_
-                ) const
-                {
-                    return EVAL(~, 0, expr)(EVAL(~, 1, expr));
-                }
-
-                result_type invoke(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
-                  , mpl::true_
-                  , mpl::false_
-                ) const
-                {
-                    using namespace detail::get_pointer_;
-                    return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))();
-                }
-
-                result_type invoke(
-                    typename impl2::expr_param expr
-                  , typename impl2::state_param state
-                  , typename impl2::data_param data
-                  , mpl::false_
-                  , mpl::true_
-                ) const
-                {
-                    using namespace detail::get_pointer_;
-                    return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr));
-                }
-            };
-
-            #define BOOST_PP_ITERATION_PARAMS_1 (3, (3, BOOST_PROTO_MAX_ARITY, <boost/proto/transform/default.hpp>))
-            #include BOOST_PP_ITERATE()
-
-            #undef EVAL_TYPE
-            #undef EVAL
-
+        template<typename Grammar>
+        struct default_function
+          : transform<default_function<Grammar> >
+        {
             template<typename Expr, typename State, typename Data>
             struct impl
-              : impl2<
-                    Expr
+              : default_function_impl<
+                    Grammar
+                  , Expr
                   , State
                   , Data
-                  , typename transform_impl<Expr, State, Data>::expr::proto_tag
-                  , transform_impl<Expr, State, Data>::expr::proto_arity::value
+                  , transform_impl<Expr, State, Data>::expr::proto_arity_c
                 >
             {};
         };
 
         template<typename Grammar>
-        struct is_callable<_default<Grammar> >
-          : mpl::true_
+        struct default_case<Grammar, tag::function>
+          : when<function<Grammar, vararg<Grammar> >, default_function<Grammar> >
         {};
 
-    }}
+        #define BOOST_PROTO_DEFAULT_EVAL_TYPE(Z, N, DATA)                                       \
+            typedef                                                                             \
+                typename result_of::child_c<DATA, N>::type                                      \
+            BOOST_PP_CAT(e, N);                                                                 \
+                                                                                                \
+            typedef                                                                             \
+                typename Grammar::template impl<BOOST_PP_CAT(e, N), State, Data>::result_type   \
+            BOOST_PP_CAT(r, N);                                                                 \
+            /**/
 
-    #endif
+        #define BOOST_PROTO_DEFAULT_EVAL(Z, N, DATA)                                            \
+            typename Grammar::template impl<BOOST_PP_CAT(e, N), State, Data>()(                 \
+                proto::child_c<N>(DATA), s, d                                                   \
+            )                                                                                   \
+            /**/
 
-#else
-
-    #define N BOOST_PP_ITERATION()
-
-        template<typename Expr, typename State, typename Data>
-        struct impl2<Expr, State, Data, tag::function, N>
+        template<typename Grammar, typename Expr, typename State, typename Data>
+        struct default_function_impl<Grammar, Expr, State, Data, 1>
           : transform_impl<Expr, State, Data>
         {
-            BOOST_PP_REPEAT(N, EVAL_TYPE, Expr)
+            BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 0, Expr)
 
             typedef
                 typename proto::detail::result_of_fixup<r0>::type
             function_type;
 
             typedef
-                typename boost::result_of<
-                    function_type(BOOST_PP_ENUM_SHIFTED_PARAMS(N, r))
-                >::type
+                typename BOOST_PROTO_RESULT_OF<function_type()>::type
             result_type;
 
             result_type operator ()(
-                typename impl2::expr_param expr
-              , typename impl2::state_param state
-              , typename impl2::data_param data
+                typename default_function_impl::expr_param e
+              , typename default_function_impl::state_param s
+              , typename default_function_impl::data_param d
             ) const
             {
-                return this->invoke(expr, state, data, is_member_function_pointer<function_type>());
+                return BOOST_PROTO_DEFAULT_EVAL(~, 0, e)();
+            }
+        };
+
+        template<typename Grammar, typename Expr, typename State, typename Data>
+        struct default_function_impl<Grammar, Expr, State, Data, 2>
+          : transform_impl<Expr, State, Data>
+        {
+            BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 0, Expr)
+            BOOST_PROTO_DEFAULT_EVAL_TYPE(~, 1, Expr)
+
+            typedef
+                typename proto::detail::result_of_fixup<r0>::type
+            function_type;
+
+            typedef
+                typename detail::result_of_<function_type(r1)>::type
+            result_type;
+
+            result_type operator ()(
+                typename default_function_impl::expr_param e
+              , typename default_function_impl::state_param s
+              , typename default_function_impl::data_param d
+            ) const
+            {
+                return this->invoke(
+                    e
+                  , s
+                  , d
+                  , is_member_function_pointer<function_type>()
+                  , is_member_object_pointer<function_type>()
+                );
             }
 
         private:
             result_type invoke(
-                typename impl2::expr_param expr
-              , typename impl2::state_param state
-              , typename impl2::data_param data
+                typename default_function_impl::expr_param e
+              , typename default_function_impl::state_param s
+              , typename default_function_impl::data_param d
+              , mpl::false_
               , mpl::false_
             ) const
             {
-                return EVAL(~, 0, expr)(BOOST_PP_ENUM_SHIFTED(N, EVAL, expr));
+                return BOOST_PROTO_DEFAULT_EVAL(~, 0, e)(BOOST_PROTO_DEFAULT_EVAL(~, 1, e));
             }
 
             result_type invoke(
-                typename impl2::expr_param expr
-              , typename impl2::state_param state
-              , typename impl2::data_param data
+                typename default_function_impl::expr_param e
+              , typename default_function_impl::state_param s
+              , typename default_function_impl::data_param d
+              , mpl::true_
+              , mpl::false_
+            ) const
+            {
+                BOOST_PROTO_USE_GET_POINTER();
+                typedef typename detail::class_member_traits<function_type>::class_type class_type;
+                return (
+                    BOOST_PROTO_GET_POINTER(class_type, (BOOST_PROTO_DEFAULT_EVAL(~, 1, e))) ->* 
+                    BOOST_PROTO_DEFAULT_EVAL(~, 0, e)
+                )();
+            }
+
+            result_type invoke(
+                typename default_function_impl::expr_param e
+              , typename default_function_impl::state_param s
+              , typename default_function_impl::data_param d
+              , mpl::false_
               , mpl::true_
             ) const
             {
-                #define M0(Z, M, expr) BOOST_PP_COMMA_IF(BOOST_PP_SUB(M, 2)) EVAL(Z, M, expr)
-                using namespace detail::get_pointer_;
-                return (get_pointer(EVAL(~, 1, expr)) ->* EVAL(~, 0, expr))(
-                    BOOST_PP_REPEAT_FROM_TO(2, N, M0, expr)
+                BOOST_PROTO_USE_GET_POINTER();
+                typedef typename detail::class_member_traits<function_type>::class_type class_type;
+                return (
+                    BOOST_PROTO_GET_POINTER(class_type, (BOOST_PROTO_DEFAULT_EVAL(~, 1, e))) ->*
+                    BOOST_PROTO_DEFAULT_EVAL(~, 0, e)
                 );
-                #undef M0
             }
         };
 
-    #undef N
+        #include <boost/proto/transform/detail/default_function_impl.hpp>
+
+        #undef BOOST_PROTO_DEFAULT_EVAL_TYPE
+        #undef BOOST_PROTO_DEFAULT_EVAL
+    }
+
+    template<typename Grammar /*= detail::_default*/>
+    struct _default
+      : switch_<detail::default_cases<Grammar> >
+    {};
+
+    template<typename Grammar>
+    struct is_callable<_default<Grammar> >
+      : mpl::true_
+    {};
+
+    namespace detail
+    {
+        // Loopy indirection that allows proto::_default<> to be
+        // used without specifying a Grammar argument.
+        struct _default
+          : proto::_default<>
+        {};
+    }
+
+}}
 
 #endif
+

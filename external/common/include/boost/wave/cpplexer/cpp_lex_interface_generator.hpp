@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -48,14 +48,15 @@ namespace cpplexer {
 ///////////////////////////////////////////////////////////////////////////////
 template <
     typename IteratorT, 
-    typename PositionT = boost::wave::util::file_position_type
+    typename PositionT = boost::wave::util::file_position_type,
+    typename TokenT = lex_token<PositionT> 
 >
 struct BOOST_WAVE_NEW_LEXER_DECL new_lexer_gen
 {
 //  The NewLexer function allows the opaque generation of a new lexer object.
 //  It is coupled to the token type to allow to decouple the lexer/token 
 //  configurations at compile time.
-    static lex_input_interface<lex_token<PositionT> > *
+    static lex_input_interface<TokenT> *
     new_lexer(IteratorT const &first, IteratorT const &last, 
         PositionT const &pos, boost::wave::language_support language);
 };
@@ -75,10 +76,10 @@ struct lex_input_interface_generator
 :   lex_input_interface<TokenT>
 {
     typedef typename lex_input_interface<TokenT>::position_type position_type;
-    
+
     lex_input_interface_generator() {}
     ~lex_input_interface_generator() {}
-    
+
 //  The new_lexer function allows the opaque generation of a new lexer object.
 //  It is coupled to the token type to allow to distinguish different 
 //  lexer/token configurations at compile time.
@@ -87,8 +88,8 @@ struct lex_input_interface_generator
     new_lexer(IteratorT const &first, IteratorT const &last, 
         position_type const &pos, boost::wave::language_support language)
     { 
-        return new_lexer_gen<IteratorT, position_type>::new_lexer (first, last, 
-            pos, language); 
+        return new_lexer_gen<IteratorT, position_type, TokenT>::new_lexer (
+            first, last, pos, language); 
     }
 };
 

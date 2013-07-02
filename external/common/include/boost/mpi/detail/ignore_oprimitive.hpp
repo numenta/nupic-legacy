@@ -31,8 +31,8 @@ public:
 
         /// don't do anything when saving binary data
     void save_binary(const void *, std::size_t )
-        {
-        }
+    {
+    }
 
         /// don't do anything when saving arrays
     template<class T>

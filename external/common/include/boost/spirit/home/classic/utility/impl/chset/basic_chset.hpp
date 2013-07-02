@@ -11,6 +11,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 #include <bitset>
+#include <climits>
 #include <boost/spirit/home/classic/utility/impl/chset/range_run.hpp>
 #include <boost/spirit/home/classic/namespace.hpp>
 

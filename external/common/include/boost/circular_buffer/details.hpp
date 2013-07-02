@@ -146,9 +146,9 @@ class capacity_control {
 public:
 
     //! Constructor.
-    capacity_control(Size capacity, Size min_capacity = 0)
-    : m_capacity(capacity), m_min_capacity(min_capacity) {
-        BOOST_CB_ASSERT(capacity >= min_capacity); // check for capacity lower than min_capacity
+    capacity_control(Size buffer_capacity, Size min_buffer_capacity = 0)
+    : m_capacity(buffer_capacity), m_min_capacity(min_buffer_capacity) {
+        BOOST_CB_ASSERT(buffer_capacity >= min_buffer_capacity); // check for capacity lower than min_capacity
     }
 
     // Default copy constructor.

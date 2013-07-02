@@ -20,9 +20,13 @@
 
 #include <boost/mpi/datatype.hpp>
 #include <boost/archive/detail/auto_link_archive.hpp>
-#include <boost/archive/basic_binary_oarchive.hpp>
+#include <boost/archive/detail/common_oarchive.hpp>
+#include <boost/archive/shared_ptr_helper.hpp>
 #include <boost/mpi/detail/packed_oprimitive.hpp>
 #include <boost/mpi/detail/binary_buffer_oprimitive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/collection_size_type.hpp>
+#include <boost/serialization/item_version_type.hpp>
 
 namespace boost { namespace mpi {
 
@@ -42,8 +46,9 @@ namespace boost { namespace mpi {
  */
   
 class BOOST_MPI_DECL packed_oarchive
-  : public oprimitive,
-    public archive::basic_binary_oarchive<packed_oarchive>
+  : public oprimitive
+  , public archive::detail::common_oarchive<packed_oarchive>
+  , public archive::detail::shared_ptr_helper
 {
 public:
   /**
@@ -62,7 +67,7 @@ public:
    */
   packed_oarchive( MPI_Comm const & comm, buffer_type & b, unsigned int flags = boost::archive::no_header)
          : oprimitive(b,comm),
-           archive::basic_binary_oarchive<packed_oarchive>(flags)
+           archive::detail::common_oarchive<packed_oarchive>(flags)
         {}
 
   /**
@@ -78,14 +83,14 @@ public:
    */
   packed_oarchive ( MPI_Comm const & comm, unsigned int flags =  boost::archive::no_header)
          : oprimitive(internal_buffer_,comm),
-           archive::basic_binary_oarchive<packed_oarchive>(flags)
+           archive::detail::common_oarchive<packed_oarchive>(flags)
         {}
 
   // Save everything else in the usual way, forwarding on to the Base class
   template<class T>
   void save_override(T const& x, int version, mpl::false_)
   {
-    archive::basic_binary_oarchive<packed_oarchive>::save_override(x,version);
+    archive::detail::common_oarchive<packed_oarchive>::save_override(x,version);
   }
 
   // Save it directly using the primnivites
@@ -101,6 +106,15 @@ public:
   {
     typedef typename mpl::apply1<use_array_optimization,T>::type use_optimized;
     save_override(x, version, use_optimized());
+  }
+
+  // input archives need to ignore  the optional information 
+  void save_override(const archive::class_id_optional_type & /*t*/, int){}
+
+  // explicitly convert to char * to avoid compile ambiguities
+  void save_override(const archive::class_name_type & t, int){
+      const std::string s(t);
+      * this->This() << s;
   }
 
 private:

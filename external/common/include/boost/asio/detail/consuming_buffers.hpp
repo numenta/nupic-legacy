@@ -1,8 +1,8 @@
 //
-// consuming_buffers.hpp
-// ~~~~~~~~~~~~~~~~~~~~~
+// detail/consuming_buffers.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,18 +15,13 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
-#include <algorithm>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
-#include <limits>
-#include <boost/config.hpp>
-#include <boost/iterator/iterator_facade.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
+#include <boost/iterator.hpp>
+#include <boost/limits.hpp>
 #include <boost/asio/buffer.hpp>
-#include <boost/asio/completion_condition.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -35,9 +30,7 @@ namespace detail {
 // A proxy iterator for a sub-range in a list of buffers.
 template <typename Buffer, typename Buffer_Iterator>
 class consuming_buffers_iterator
-  : public boost::iterator_facade<
-        consuming_buffers_iterator<Buffer, Buffer_Iterator>,
-        const Buffer, boost::forward_traversal_tag>
+  : public boost::iterator<std::forward_iterator_tag, const Buffer>
 {
 public:
   // Default constructor creates an end iterator.
@@ -60,9 +53,48 @@ public:
   {
   }
 
-private:
-  friend class boost::iterator_core_access;
+  // Dereference an iterator.
+  const Buffer& operator*() const
+  {
+    return dereference();
+  }
 
+  // Dereference an iterator.
+  const Buffer* operator->() const
+  {
+    return &dereference();
+  }
+
+  // Increment operator (prefix).
+  consuming_buffers_iterator& operator++()
+  {
+    increment();
+    return *this;
+  }
+
+  // Increment operator (postfix).
+  consuming_buffers_iterator operator++(int)
+  {
+    consuming_buffers_iterator tmp(*this);
+    ++*this;
+    return tmp;
+  }
+
+  // Test two iterators for equality.
+  friend bool operator==(const consuming_buffers_iterator& a,
+      const consuming_buffers_iterator& b)
+  {
+    return a.equal(b);
+  }
+
+  // Test two iterators for inequality.
+  friend bool operator!=(const consuming_buffers_iterator& a,
+      const consuming_buffers_iterator& b)
+  {
+    return !a.equal(b);
+  }
+
+private:
   void increment()
   {
     if (!at_end_)
@@ -121,12 +153,14 @@ public:
   consuming_buffers(const Buffers& buffers)
     : buffers_(buffers),
       at_end_(buffers_.begin() == buffers_.end()),
-      first_(*buffers_.begin()),
       begin_remainder_(buffers_.begin()),
       max_size_((std::numeric_limits<std::size_t>::max)())
   {
     if (!at_end_)
+    {
+      first_ = *buffers_.begin();
       ++begin_remainder_;
+    }
   }
 
   // Copy constructor.
@@ -170,7 +204,7 @@ public:
   }
 
   // Set the maximum size for a single transfer.
-  void set_max_size(std::size_t max_size)
+  void prepare(std::size_t max_size)
   {
     max_size_ = max_size;
   }
@@ -226,7 +260,7 @@ public:
     // No-op.
   }
 
-  void set_max_size(std::size_t)
+  void prepare(std::size_t)
   {
     // No-op.
   }

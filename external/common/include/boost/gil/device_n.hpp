@@ -18,11 +18,13 @@
 /// \brief Support for color space of N channels and variants
 /// \author Lubomir Bourdev and Hailin Jin \n
 ///         Adobe Systems Incorporated
-/// \date 2005-2007 \n Last updated on October 10, 2007
+/// \date 2005-2009 \n Last updated on February 20, 2009
 ////////////////////////////////////////////////////////////////////////////////////////
 
 #include <cstddef>
 #include "gil_config.hpp"
+#include "utilities.hpp"
+#include "metafunctions.hpp"
 #include <boost/type_traits.hpp>
 #include <boost/mpl/range_c.hpp>
 #include <boost/mpl/vector_c.hpp>

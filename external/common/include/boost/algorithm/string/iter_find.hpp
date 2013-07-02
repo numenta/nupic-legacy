@@ -60,7 +60,7 @@ namespace boost {
                 a match).
             \param Input A container which will be searched.
             \param Finder A Finder object used for searching
-            \return A reference the result
+            \return A reference to the result
 
             \note Prior content of the result will be overwritten.
         */
@@ -74,11 +74,13 @@ namespace boost {
             RangeT& Input,
             FinderT Finder )
         {
-            function_requires< 
-                FinderConcept<FinderT,
-                BOOST_STRING_TYPENAME range_iterator<RangeT>::type> >();
+            BOOST_CONCEPT_ASSERT((
+                FinderConcept<
+                    FinderT,
+                    BOOST_STRING_TYPENAME range_iterator<RangeT>::type>
+                ));
 
-            iterator_range<BOOST_STRING_TYPENAME range_iterator<RangeT>::type> lit_input(as_literal(Input));
+            iterator_range<BOOST_STRING_TYPENAME range_iterator<RangeT>::type> lit_input(::boost::as_literal(Input));
 
             typedef BOOST_STRING_TYPENAME 
                 range_iterator<RangeT>::type input_iterator_type;
@@ -94,12 +96,12 @@ namespace boost {
                 transform_iter_type;
     
             transform_iter_type itBegin=
-                make_transform_iterator( 
+                ::boost::make_transform_iterator( 
                     find_iterator_type( ::boost::begin(lit_input), InputEnd, Finder ),
                     copy_range_type());
             
             transform_iter_type itEnd=
-                make_transform_iterator( 
+                ::boost::make_transform_iterator( 
                     find_iterator_type(),
                     copy_range_type());
 
@@ -120,7 +122,7 @@ namespace boost {
             Each match is used as a separator of segments. These segments are then
             returned in the result.
 
-            \param Result A 'container container' to container the result of search.
+            \param Result A 'container container' to contain the result of search.
                 Both outer and inner container must have constructor taking a pair
                 of iterators as an argument.
                 Typical type of the result is 
@@ -129,7 +131,7 @@ namespace boost {
                 a match).
             \param Input A container which will be searched.
             \param Finder A finder object used for searching
-            \return A reference the result
+            \return A reference to the result
 
             \note Prior content of the result will be overwritten.
         */
@@ -143,11 +145,12 @@ namespace boost {
             RangeT& Input,
             FinderT Finder )
         {
-            function_requires< 
+            BOOST_CONCEPT_ASSERT((
                 FinderConcept<FinderT,
-                BOOST_STRING_TYPENAME range_iterator<RangeT>::type> >();
+                BOOST_STRING_TYPENAME range_iterator<RangeT>::type>
+                ));
 
-            iterator_range<BOOST_STRING_TYPENAME range_iterator<RangeT>::type> lit_input(as_literal(Input));
+            iterator_range<BOOST_STRING_TYPENAME range_iterator<RangeT>::type> lit_input(::boost::as_literal(Input));
 
             typedef BOOST_STRING_TYPENAME 
                 range_iterator<RangeT>::type input_iterator_type;
@@ -163,12 +166,12 @@ namespace boost {
                 transform_iter_type;
     
             transform_iter_type itBegin=
-                make_transform_iterator( 
+                ::boost::make_transform_iterator( 
                     find_iterator_type( ::boost::begin(lit_input), InputEnd, Finder ),
                     copy_range_type() );
 
             transform_iter_type itEnd=
-                make_transform_iterator( 
+                ::boost::make_transform_iterator( 
                     find_iterator_type(),
                     copy_range_type() );
             

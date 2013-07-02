@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : common code used by any agent serving as XML printer
 // ***************************************************************************
@@ -20,6 +20,7 @@
 #include <boost/test/utils/fixed_mapping.hpp>
 #include <boost/test/utils/custom_manip.hpp>
 #include <boost/test/utils/foreach.hpp>
+#include <boost/test/utils/basic_cstring/io.hpp>
 
 // Boost
 #include <boost/config.hpp>
@@ -96,14 +97,12 @@ operator<<( custom_printer<attr_value> const& p, T const& value )
 
 //____________________________________________________________________________//
 
-typedef custom_manip<struct pcdata_t> pcdata;
+typedef custom_manip<struct cdata_t> cdata;
 
 inline std::ostream&
-operator<<( custom_printer<pcdata> const& p, const_string value )
+operator<<( custom_printer<cdata> const& p, const_string value )
 {
-    print_escaped( *p, value );
-
-    return *p;
+    return *p << BOOST_TEST_L( "<![CDATA[" ) << value << BOOST_TEST_L( "]]>" );
 }
 
 //____________________________________________________________________________//

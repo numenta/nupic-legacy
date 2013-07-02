@@ -178,7 +178,7 @@ class associative_container_adaptor :
     }
 
     template< class CompatibleKey >
-    BOOST_DEDUCED_TYPENAME base_::size_type count(const CompatibleKey & k)
+    BOOST_DEDUCED_TYPENAME base_::size_type count(const CompatibleKey & k) const
     {
         return this->base().count(
             this->template functor<key_to_base>()(k)

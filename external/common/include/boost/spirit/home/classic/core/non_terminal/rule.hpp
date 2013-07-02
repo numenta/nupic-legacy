@@ -159,11 +159,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             return ptr.get();
         }
 
-        rule(abstract_parser_t* ptr)
-        : ptr(ptr) {}
+        rule(abstract_parser_t* ptr_)
+        : ptr(ptr_) {}
 
-        rule(abstract_parser_t const* ptr)
-        : ptr(ptr) {}
+        rule(abstract_parser_t const* ptr_)
+        : ptr(ptr_) {}
 
         scoped_ptr<abstract_parser_t> ptr;
     };

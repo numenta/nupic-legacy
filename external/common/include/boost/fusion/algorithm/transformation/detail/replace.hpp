@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -41,8 +41,8 @@ namespace boost { namespace fusion { namespace detail
     template <typename T>
     struct replacer
     {
-        replacer(T const& old_value, T const& new_value)
-            : old_value(old_value), new_value(new_value) {}
+        replacer(T const& in_old_value, T const& in_new_value)
+            : old_value(in_old_value), new_value(in_new_value) {}
 
         template<typename Sig>
         struct result;

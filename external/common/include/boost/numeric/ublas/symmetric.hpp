@@ -1142,7 +1142,7 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         iterator1 find1 (int rank, size_type i, size_type j) {
             if (rank == 1)
-                i = triangular_type::mutable_restrict1 (i, j);
+                i = triangular_type::mutable_restrict1 (i, j, size1(), size2());
             return iterator1 (*this, data ().find1 (rank, i, j));
         }
         BOOST_UBLAS_INLINE
@@ -1172,7 +1172,7 @@ namespace boost { namespace numeric { namespace ublas {
         BOOST_UBLAS_INLINE
         iterator2 find2 (int rank, size_type i, size_type j) {
             if (rank == 1)
-                j = triangular_type::mutable_restrict2 (i, j);
+                j = triangular_type::mutable_restrict2 (i, j, size1(), size2());
             return iterator2 (*this, data ().find2 (rank, i, j));
         }
 

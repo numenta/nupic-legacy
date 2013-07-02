@@ -77,6 +77,10 @@ namespace boost { namespace phoenix
         }
 
         if_composite<Cond, Then> const& source;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        else_gen& operator= (else_gen const&);
     };
 
     template <typename Cond, typename Then>
@@ -87,6 +91,10 @@ namespace boost { namespace phoenix
             , else_(*this) {}
 
         else_gen<Cond, Then> else_;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        if_composite& operator= (if_composite const&);
     };
 
     template <typename Cond>

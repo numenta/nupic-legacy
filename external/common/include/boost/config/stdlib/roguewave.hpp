@@ -10,6 +10,8 @@
 
 //  Rogue Wave std lib:
 
+#define BOOST_RW_STDLIB 1 
+
 #if !defined(__STD_RWCOMPILER_H__) && !defined(_RWSTD_VER)
 #  include <boost/config/no_tr1/utility.hpp>
 #  if !defined(__STD_RWCOMPILER_H__) && !defined(_RWSTD_VER)
@@ -151,3 +153,34 @@
 #    define _HP_INSTANTIATE_STD2_VL
 #  endif
 #endif
+
+#if _RWSTD_VER < 0x05000000
+#  define BOOST_NO_CXX11_HDR_ARRAY
+#endif
+// type_traits header is incomplete:
+#  define BOOST_NO_CXX11_HDR_TYPE_TRAITS
+//
+//  C++0x headers not yet implemented
+//
+#  define BOOST_NO_CXX11_HDR_CHRONO
+#  define BOOST_NO_CXX11_HDR_CODECVT
+#  define BOOST_NO_CXX11_HDR_CONDITION_VARIABLE
+#  define BOOST_NO_CXX11_HDR_FORWARD_LIST
+#  define BOOST_NO_CXX11_HDR_FUTURE
+#  define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#  define BOOST_NO_CXX11_HDR_MUTEX
+#  define BOOST_NO_CXX11_HDR_RANDOM
+#  define BOOST_NO_CXX11_HDR_RATIO
+#  define BOOST_NO_CXX11_HDR_REGEX
+#  define BOOST_NO_CXX11_HDR_SYSTEM_ERROR
+#  define BOOST_NO_CXX11_HDR_THREAD
+#  define BOOST_NO_CXX11_HDR_TUPLE
+#  define BOOST_NO_CXX11_HDR_TYPEINDEX
+#  define BOOST_NO_CXX11_HDR_UNORDERED_MAP
+#  define BOOST_NO_CXX11_HDR_UNORDERED_SET
+#  define BOOST_NO_CXX11_NUMERIC_LIMITS
+#  define BOOST_NO_CXX11_ALLOCATOR
+#  define BOOST_NO_CXX11_ATOMIC_SMART_PTR
+#  define BOOST_NO_CXX11_SMART_PTR
+#  define BOOST_NO_CXX11_HDR_FUNCTIONAL
+

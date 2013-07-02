@@ -23,6 +23,9 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
+# Terminate on first failure.
+set -e
+
 # Set sane defaults
 [[ -z $NUPIC ]] && NUPIC=$PWD
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild

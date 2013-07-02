@@ -448,7 +448,7 @@ void destruct_range_impl(It first, It last, mpl::true_) {
     }
 }
 template <typename It> GIL_FORCEINLINE
-void destruct_range_impl(It first, It last, mpl::false_) {}
+void destruct_range_impl(It, It, mpl::false_) {}
 
 template <typename It> GIL_FORCEINLINE
 void destruct_range(It first, It last) {
@@ -583,7 +583,7 @@ void default_construct_range_impl(It first, It last, mpl::true_) {
 }
 
 template <typename It> GIL_FORCEINLINE 
-void default_construct_range_impl(It first, It last, mpl::false_) {}
+void default_construct_range_impl(It, It, mpl::false_) {}
 
 template <typename It> GIL_FORCEINLINE 
 void default_construct_range(It first, It last) { default_construct_range_impl(first, last, typename is_pointer<It>::type()); }

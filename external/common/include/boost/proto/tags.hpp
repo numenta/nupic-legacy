@@ -9,11 +9,9 @@
 #ifndef BOOST_PROTO_TAGS_HPP_EAN_04_01_2005
 #define BOOST_PROTO_TAGS_HPP_EAN_04_01_2005
 
-#include <boost/proto/detail/prefix.hpp>
 #include <boost/proto/proto_fwd.hpp>
-#include <boost/proto/detail/suffix.hpp>
 
-namespace boost { namespace proto { namespace tag
+namespace boost { namespace proto { namespace tagns_ { namespace tag
 {
 
     /// Tag type for terminals; aka, leaves in the expression tree.
@@ -154,6 +152,6 @@ namespace boost { namespace proto { namespace tag
     /// Tag type for the n-ary function call operator.
     struct function {};
 
-}}}
+}}}}
 
 #endif

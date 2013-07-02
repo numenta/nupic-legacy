@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2006 Dan Marsden
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -70,7 +70,7 @@ namespace boost { namespace fusion {
                 : detail::zip_view_iterator_distance<It1, It2>::type
             {
                 static typename detail::zip_view_iterator_distance<It1, It2>::type
-                call(It1 const& it1, It2 const& it2)
+                call(It1 const& /*it1*/, It2 const& /*it2*/)
                 {
                     return typename detail::zip_view_iterator_distance<It1, It2>::type();
                 }                
