@@ -20,15 +20,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""A simple client to create a CLA model for hotgym."""
+"""A simple client to create a CLA anomaly detection model for hotgym.
+   The script prints out all records that have an abnoramlly high anomaly
+   score.
+"""
 
-import sys
 import csv
 import datetime
 import logging
+import sys
 
 from nupic.data.datasethelpers import findDataset
-from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
@@ -38,35 +40,16 @@ _LOGGER = logging.getLogger(__name__)
 
 _DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
 
-_METRIC_SPECS = (
-    MetricSpec(field='consumption', metric='multiStep',
-               inferenceElement='multiStepBestPredictions',
-               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='trivial',
-               inferenceElement='prediction',
-               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='multiStep',
-               inferenceElement='multiStepBestPredictions',
-               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
-    MetricSpec(field='consumption', metric='trivial',
-               inferenceElement='prediction',
-               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
-)
-
-_NUM_RECORDS = 1000
-
-
+_ANOMALY_THRESHOLD = 0.8
 
 def createModel():
   return ModelFactory.create(model_params.MODEL_PARAMS)
 
 
 
-def runHotgymAnomaly(anomalyThreshold):
+def runHotgymAnomaly():
   model = createModel()
   model.enableInference({'predictedField': 'consumption'})
-  metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
-                                  model.getInferenceType())
   with open (findDataset(_DATA_PATH)) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
@@ -79,12 +62,12 @@ def runHotgymAnomaly(anomalyThreshold):
           modelInput["timestamp"], "%m/%d/%y %H:%M")
       result = model.run(modelInput)
       anomalyScore = result.inferences['anomalyScore']
-      if anomalyScore > anomalyThreshold:
-        print "Anomaly detected at step % d. Anomaly score: %f." % (i, anomalyScore)
+      if anomalyScore > _ANOMALY_THRESHOLD:
+        _LOGGER.info("Anomaly detected at [%s]. Anomaly score: %f.",
+          result.rawInput["timestamp"], anomalyScore)
 
 
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
-  anomalyThreshold = (sys.argv[1] if len(sys.argv) > 1 else 0.5)
-  runHotgymAnomaly(anomalyThreshold)
+  runHotgymAnomaly()

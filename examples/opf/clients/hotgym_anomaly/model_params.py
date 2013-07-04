@@ -28,8 +28,8 @@ MODEL_PARAMS = {
 
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
-    'aggregationInfo': {   'days': 0,
-        'fields': [('consumption', 'sum')],
+    'aggregationInfo': {  'days': 0,
+        'fields': [(u'c1', 'sum'), (u'c0', 'first')],
         'hours': 1,
         'microseconds': 0,
         'milliseconds': 0,
@@ -59,24 +59,20 @@ MODEL_PARAMS = {
             #     ],
             #
             # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   'consumption': {   'clipInput': True,
-                                   'fieldname': u'consumption',
-                                   'n': 100,
-                                   'name': u'consumption',
-                                   'type': 'AdaptiveScalarEncoder',
-                                   'w': 21},
-                'timestamp_dayOfWeek': {   'dayOfWeek': (21, 1),
-                                           'fieldname': u'timestamp',
-                                           'name': u'timestamp_dayOfWeek',
-                                           'type': 'DateEncoder'},
-                'timestamp_timeOfDay': {   'fieldname': u'timestamp',
-                                           'name': u'timestamp_timeOfDay',
-                                           'timeOfDay': (21, 1),
-                                           'type': 'DateEncoder'},
-                'timestamp_weekend': {   'fieldname': u'timestamp',
-                                         'name': u'timestamp_weekend',
-                                         'type': 'DateEncoder',
-                                         'weekend': 21}},
+            'encoders': {   u'timestamp_timeOfDay':    {   'fieldname': u'timestamp',
+                                'name': u'timestamp_timeOfDay',
+                                'timeOfDay': (21, 0.5),
+                                'type': 'DateEncoder'},
+                u'timestamp_dayOfWeek': None,
+                u'timestamp_weekend': None,
+                u'consumption':    {  'clipInput': True,
+                    'fieldname': u'consumption',
+                    'maxval': 100.0,
+                    'minval': 0.0,
+                    'n': 50,
+                    'name': u'c1',
+                    'type': 'ScalarEncoder',
+                    'w': 21},},
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -84,7 +80,7 @@ MODEL_PARAMS = {
             # None = disable automatically-generated resets (also disabled if
             # all of the specified values evaluate to 0).
             # Valid keys is the desired combination of the following:
-            #   days, hours, minutes, seconds, milliseconds, microseconds, weeks
+            #  days, hours, minutes, seconds, milliseconds, microseconds, weeks
             #
             # Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),
             #
@@ -92,7 +88,7 @@ MODEL_PARAMS = {
             'sensorAutoReset' : None,
         },
 
-        'spEnable': False,
+        'spEnable': True,
 
         'spParams': {
             # SP diagnostic output verbosity control;
@@ -134,9 +130,9 @@ MODEL_PARAMS = {
 
             'synPermActiveInc': 0.1,
 
-            'synPermInactiveDec': 0.01,
+            'synPermInactiveDec': 0.005,
 
-            'randomSP': 1
+            'randomSP': 1,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -211,14 +207,14 @@ MODEL_PARAMS = {
             # during search for the best-matching segments.
             # None=use default
             # Replaces: tpMinThreshold
-            'minThreshold': 12,
+            'minThreshold': 9,
 
             # Segment activation threshold.
             # A segment is active if it has >= tpSegmentActivationThreshold
             # connected synapses that are active due to infActiveState
             # None=use default
             # Replaces: tpActivationThreshold
-            'activationThreshold': 16,
+            'activationThreshold': 12,
 
             'outputType': 'normal',
 
@@ -231,6 +227,8 @@ MODEL_PARAMS = {
 
         'clParams': {
             'regionName' : 'CLAClassifierRegion',
+            
+            
 
             # Classifier diagnostic output verbosity control;
             # 0: silent; [1..6]: increasing levels of verbosity
@@ -238,16 +236,17 @@ MODEL_PARAMS = {
 
             # This controls how fast the classifier learns/forgets. Higher values
             # make it adapt faster and forget older patterns faster.
-            'alpha': 0.0001,
+            'alpha': 0.005,
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
-            'steps': '1,5',
-
-
+            'steps': '1',
         },
+
+        'anomalyParams': {  u'anomalyCacheRecords': None,
+    u'autoDetectThreshold': None,
+    u'autoDetectWaitRecords': 2184},
 
         'trainSPNetOnlyIfRequested': False,
     },
-  }
-
+}
