@@ -13,7 +13,9 @@ CLA model to output anomaly scores set the inference type of the model:
 Below you can see what the anomaly score looks like for this example, which uses
 hourly HotGym energy meter dataset.
 
-<img src="img/hotgym_anomaly1.png" width="60%" height="60%" style="margin: auto auto auto auto;"/>
+<p aligh="center">
+<img src="img/hotgym_anomaly1.png" width="60%" height="60%"/>
+</p>
 
 
 * Initially, the anomaly score is very high. This is expected. It happens becuase the model is
@@ -21,20 +23,20 @@ still learning the patterns in the dataset. Prior to learning the patterns in th
 data, everything seems unfamilar to the model which leads it to output a high 
 anomaly score. 
 
-![Anomaly Score High During Learning](img/hotgym_anomaly2.png)
+<img src="img/hotgym_anomaly2.png" />
 
 
 * After the familiarizing itself with the patterns in the data, new and unseen
 patterns will trigger a high anomaly score.
 
-![Detecting Unseen Patterns](img/hotgym_anomaly3.png)
+<img src="img/hotgym_anomaly3.png" />
 
 * Changes in magnitude, such as unusually high or low activity will also cause the
 anomaly score to rise.
 
-![Detecting Unusually Low Activity](img/hotgym_anomaly4.png)
+<img src="img/hotgym_anomaly4.png" />
 
-![Detecting Unusually High Activity](img/hotgym_anomaly5.png)
+<img src="img/hotgym_anomaly5.png" />
 
 
 
