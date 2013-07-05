@@ -13,7 +13,7 @@ CLA model to output anomaly scores set the inference type of the model:
 Below you can see what the anomaly score looks like for this example, which uses
 hourly HotGym energy meter dataset.
 
-<img src="img/hotgym_anomaly1.png" width="60%" height="60%" />
+<img src="img/hotgym_anomaly1.png" width="60%" height="60%" style="margin: auto auto auto auto;"/>
 
 
 * Initially, the anomaly score is very high. This is expected. It happens becuase the model is
