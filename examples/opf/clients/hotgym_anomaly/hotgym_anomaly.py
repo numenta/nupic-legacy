@@ -20,9 +20,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""A simple client to create a CLA anomaly detection model for hotgym.
-   The script prints out all records that have an abnoramlly high anomaly
-   score.
+"""
+A simple client to create a CLA anomaly detection model for hotgym.
+The script prints out all records that have an abnoramlly high anomaly
+score.
 """
 
 import csv
@@ -42,8 +43,10 @@ _DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
 
 _ANOMALY_THRESHOLD = 0.8
 
+
 def createModel():
   return ModelFactory.create(model_params.MODEL_PARAMS)
+
 
 def runHotgymAnomaly():
   model = createModel()
@@ -68,4 +71,4 @@ def runHotgymAnomaly():
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
   runHotgymAnomaly()
-
+  
