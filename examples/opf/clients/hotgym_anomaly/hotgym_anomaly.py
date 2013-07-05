@@ -45,8 +45,6 @@ _ANOMALY_THRESHOLD = 0.8
 def createModel():
   return ModelFactory.create(model_params.MODEL_PARAMS)
 
-
-
 def runHotgymAnomaly():
   model = createModel()
   model.enableInference({'predictedField': 'consumption'})
@@ -67,7 +65,7 @@ def runHotgymAnomaly():
           result.rawInput["timestamp"], anomalyScore)
 
 
-
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
   runHotgymAnomaly()
+
