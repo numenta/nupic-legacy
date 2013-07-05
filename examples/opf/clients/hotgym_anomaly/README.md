@@ -1,4 +1,3 @@
-
 # Anomaly Client Example
 
 This custom client demonstrates how to configure an OPF client with a Numenta's
@@ -17,36 +16,22 @@ hourly HotGym energy meter dataset.
 ![HotGym Anomaly Score](img/hotgym_anomaly1.jpg "Hotgym Anomaly Score")
 
 
-Initially, the anomaly score is very high. This is expected. It happens becuase the model is
+* Initially, the anomaly score is very high. This is expected. It happens becuase the model is
 still learning the patterns in the dataset. Prior to learning the patterns in the
 data, everything seems unfamilar to the model which leads it to output a high 
 anomaly score. 
-
 ![Anomaly Score High During Learning](img/hotgym_anomaly2.jpg "Anomaly Score High During Learning")
 
-To avoid such "false alarms" that occur during the initial learning phase, it is
-possible to configure the CLA model not to produce an anomaly score for the 
-first batch of input records. this can be achieved by setting the 
-'autoDetectWaitRecords' model parameters. For example,
 
-
-	autoDetectWaitRecords: 2000
-
-will configure the model not to produce anomaly scores for the first 2000 input 
-records.
-
-
-After the familiarizing itself with the patterns in the data, new and unseen
+* After the familiarizing itself with the patterns in the data, new and unseen
 patterns will trigger a high anomaly score.
-
 ![Detecting Unseen Patterns](img/hotgym_anomaly3.jpg "Detecting Unseen Patterns")
 
-Changes in magnitude, such as unusually high or low activity will also cause the
+* Changes in magnitude, such as unusually high or low activity will also cause the
 anomaly score to rise.
-
 ![Detecting Unusually Low Activity](img/hotgym_anomaly4.jpg "Detecting Unusually Low Activity")
-
 ![Detecting Unusually High Activity](img/hotgym_anomaly5.jpg "Detecting Unusually High Activity")
+
 
 
 An anomaly score above 0.8 is a good indication that an unusual pattern has been
