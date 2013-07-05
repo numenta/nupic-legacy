@@ -65,10 +65,10 @@ def runHotgymAnomaly():
       anomalyScore = result.inferences['anomalyScore']
       if anomalyScore > _ANOMALY_THRESHOLD:
         _LOGGER.info("Anomaly detected at [%s]. Anomaly score: %f.",
-          result.rawInput["timestamp"], anomalyScore)
+                      result.rawInput["timestamp"], anomalyScore)
+
 
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)
   runHotgymAnomaly()
-  
