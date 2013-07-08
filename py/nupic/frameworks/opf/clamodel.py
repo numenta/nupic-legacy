@@ -190,7 +190,7 @@ class CLAModel(Model):
     self._hasSP = spEnable
     self._hasTP = tpEnable
     
-    self._predictedFieldEncoder = None
+    self._classifierInputEncoder = None
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
@@ -694,38 +694,50 @@ class CLAModel(Model):
     inferences = {}
     predictedFieldName = inferenceArgs.get('predictedField', None)
 
-
-    # Get the predicted field encoder, if we don't have it already
-    if self._predictedFieldEncoder is None:
-      self._predictedFieldName = predictedFieldName
-      encoderList = sensor.getSelf().encoder.getEncoderList()
-      fieldNames = sensor.getSelf().encoder.getScalarNames()
-      self._numFields = len(encoderList)
+    # Get the classifier input encoder, if we don't have it already
+    if self._classifierInputEncoder is None:
       if predictedFieldName is None:
         raise RuntimeError("This experiment description is missing "
               "the 'predictedField' in its config, which is required "
               "for multi-step prediction inference.")
+      self._predictedFieldName = predictedFieldName
+      encoderList = sensor.getSelf().encoder.getEncoderList()
+      self._numFields = len(encoderList)
+      fieldNames = sensor.getSelf().encoder.getScalarNames()
       if predictedFieldName in fieldNames:
         self._predictedFieldIdx = fieldNames.index(predictedFieldName)
-        self._predictedFieldEncoder = encoderList[self._predictedFieldIdx]
       else:
         # Predicted field was not fed into the network, only to the classifier
         self._predictedFieldIdx = None
+      
+      # In a multi-step model, the classifier input encoder is separate from 
+      #  the other encoders and always disabled from going into the bottom of 
+      # the network.
+      if sensor.getSelf().disabledEncoder is not None:
         encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
+      else:
+        encoderList = []
+      if len(encoderList) >= 1:
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
-        self._predictedFieldEncoder = encoderList[fieldNames.index(
+        self._classifierInputEncoder = encoderList[fieldNames.index(
                                                         predictedFieldName)]
+      else:
+        # Legacy multi-step networks don't have a separate encoder for the
+        #  classifier, so use the one that goes into the bottom of the network
+        encoderList = sensor.getSelf().encoder.getEncoderList()
+        self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
+        
         
 
     # Get the actual value and the bucket index for this sample. The
     #  predicted field may not be enabled for input to the network, so we
     #  explicitly encode it outside of the sensor
     absoluteValue = rawInput[predictedFieldName]
-    bucketIdx = self._predictedFieldEncoder.getBucketIndices(absoluteValue)[0]
+    bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
     
     # Convert the absolute values to deltas if necessary
     # The bucket index should be handled correctly by the underlying delta encoder
-    if self._predictedFieldEncoder.isDelta():
+    if self._classifierInputEncoder.isDelta():
       # Make the delta before any values have been seen 0 so that we do not mess up the
       # range for the adaptive scalar encoder.
       if not hasattr(self,"_ms_prevVal"):
@@ -808,7 +820,7 @@ class CLAModel(Model):
       #   prediction and encodings
       if steps == 1:
         # predictionRow and predictionFieldEncodings are expected to be
-        #  lists of items, one for each encoder. The CLAClassifier only
+        #  lists of items, one item for each encoder. The CLAClassifier only
         #  computes one field, the predicted field, so create an array with
         #  place holders for the other fields
         bestBucketIdx = likelihoodsVec.argmax()
@@ -820,9 +832,10 @@ class CLAModel(Model):
 
         predictionFieldEncodings = [None] * self._numFields
         if self._predictedFieldIdx is not None:
-          bucketInfo = self._predictedFieldEncoder.getBucketInfo(
+          bucketInfo = self._classifierInputEncoder.getBucketInfo(
                                                     [bestBucketIdx])[0]
-          predictionFieldEncodings[self._predictedFieldIdx] = bucketInfo.encoding
+          predictionFieldEncodings[self._predictedFieldIdx] = \
+                                                    bucketInfo.encoding
         inferences[InferenceElement.encodings] = predictionFieldEncodings
 
 
@@ -830,7 +843,7 @@ class CLAModel(Model):
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
       #  by the sum of the deltas
-      if self._predictedFieldEncoder.isDelta():
+      if self._classifierInputEncoder.isDelta():
         # Get the prediction history for this number of timesteps.
         # The prediction history is a store of the previous best predicted values.
         # This is used to get the final shift from the current absolute value.
@@ -1167,7 +1180,7 @@ class CLAModel(Model):
       clRegionName = clParams.pop('regionName')
       self.__logger.debug("Adding %s; clParams: %r" % (clRegionName,
                                                       clParams))
-      n.addRegion("Classifier", "py.%s" % (clRegionName), json.dumps(clParams))
+      n.addRegion("Classifier", "py.%s" % str(clRegionName), json.dumps(clParams))
 
       n.link("sensor", "Classifier", "UniformLink", "", srcOutput="categoryOut",
              destInput="categoryIn")
@@ -1298,7 +1311,7 @@ class CLAModel(Model):
 
     # This gets filled in during the first infer because it can only be
     #  determined at run-time
-    self._predictedFieldEncoder = None
+    self._classifierInputEncoder = None
 
     if not hasattr(self, '_minLikelihoodThreshold'):
       self._minLikelihoodThreshold = DEFAULT_LIKELIHOOD_THRESHOLD
