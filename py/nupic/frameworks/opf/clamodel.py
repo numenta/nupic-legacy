@@ -1167,7 +1167,7 @@ class CLAModel(Model):
       clRegionName = clParams.pop('regionName')
       self.__logger.debug("Adding %s; clParams: %r" % (clRegionName,
                                                       clParams))
-      n.addRegion("Classifier", "py.%s" % (clRegionName), json.dumps(clParams))
+      n.addRegion("Classifier", "py.%s" % str(clRegionName), json.dumps(clParams))
 
       n.link("sensor", "Classifier", "UniformLink", "", srcOutput="categoryOut",
              destInput="categoryIn")
