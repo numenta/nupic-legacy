@@ -97,6 +97,7 @@ The demonstrations in their entirety are [here](http://www.youtube.com/watch?v=_
         <th id="tom">
             <a href="#tom">Tom Kaitchuck</a><br/><br/>
             Tic Tac Toe<br/>
+            <a href="https://github.com/tkaitchuck/nupic">source code</a>
         </th>
         <td>
             <iframe class="youtube-player" type="text/html" width="400" height="285" src="http://www.youtube.com/embed/_bFmvlLmvcY?start=3854" allowfullscreen="allowfullscreen" frameborder="0">
