@@ -11,31 +11,31 @@ category: news
 
 On April 24, 2013 Numenta hosted their first hackathon, a private event commemorating the recent release of NuPIC (Numenta Platform for Intelligent Computing) to the OSS world. 
 
-You can find the project on [github](http://github.com/numenta/nupic), and more information on the the [main page of this site](http://numenta.org).
+You can find the project on [Github](http://github.com/numenta/nupic), and more information on the the [main page of this site](http://numenta.org).
 
 One could not begin to describe my initial excitement at receiving an invitation to attend. I've been inspired by Jeff Hawkin's work since I stumbled across his [2007 TED talk](http://www.ted.com/talks/jeff_hawkins_on_how_brain_science_will_change_computing.html), and later reading his book [On Intelligence](http://www.amazon.com/Jeff-Hawkins/e/B001KHNZ7C/ref=sr_ntt_srch_lnk_1?qid=1373225752&sr=8-1).
 
 This being my first hackathon, I decided to just assume it was going to be like a typical crunch time day. Introduction pow wow and problem scoping, each person swarms or picks up their piece of the puzzle, and we go about the process of turning `b1p2` (1 beer to 2 pizza slices) into code. 
 
-This pretty much took place in fits and starts, as this is the first initial offering of NuPIC we were working with. Documentation was (still is) sparse, and there were no community established workflows for getting new **OPF clients** off the ground. Up until just a few weeks prior, all the code we were working with was in use only for Grok Solutions' clients. 
+This pretty much took place in fits and starts, as this is the initial offering of NuPIC we were working with. Documentation was (still is) sparse, and there were no community established workflows for getting new **OPF clients** off the ground. Up until just a few weeks prior, all the code we were working with was in use only for Grok Solutions' clients. 
 
 Strangers in a strange land, we were.
 
-There was a lot of confusion on just how to use the software. Numenta provided a [VM with pre-baked environments](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine) using Vagrant and Virtual Box. A few successfully built the software on their own platform of choice. The static binding of certain libs and some of the build steps had a propensity to make porting difficult, as well as the reliance on Python 2.6.8.
+There was a lot of confusion on just how to use the software. Numenta provided a [VM with pre-baked environments](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine) using Vagrant and Virtual Box. A few successfully built the software on their own platform of choice. The static binding of certain libs and some of the build steps had a propensity to make porting difficult, as well as the reliance on Python 2.6.
 
 Once building was no longer an issue (in general), the next part was getting all of the tests and experiments running. Environment issues played the lead gremlin in this instance, but once the proper library paths were exported we were victorious! 
 
 #### The OPF
 
-The [Open Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) ties together all the desperate parts of the CLA functions and HTM regions. To break it down, you're working with a data stream and its subsequent encoding. A data stream can be (and often is for pre-training) a CSV file, live streaming data, a generator, etc.. the OPF client doesn't care as long as it's iterable and returns a `sensorRecord` object.
+The [Open Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) ties together all the disparate parts of the CLA functions and HTM regions. To break it down, you're working with a data stream and its subsequent encoding. A data stream can be (and often is for pre-training) a CSV file, live streaming data, a generator, etc.
 
-A client takes the data stream, and feeds it to an instance of a model, one record at a time, which then returns your prediction result for the next N steps (depending on your model configuration). This result and a bunch of meta is stored for you in a dict known as a `modelResult`.
+A client takes the data stream, and feeds it to an instance of a model, one record at a time, which then returns your prediction result for the next N steps (depending on your model configuration). This result and a bunch of meta is stored for you in a dict known as a `ModelResult`.
 
-*Steps* here mean the feeding of 1 record into a model and its return of the `modelResult` object, not necessarily tied to clock time. Models can either be pre-trained and loaded from disk, or an instance of a new model.
+*Steps* here mean the feeding of 1 record into a model and its return of the `ModelResult` object, not necessarily tied to clock time. Models can either be pre-trained and loaded from disk, or an instance of a new model.
 
 #### Data and Encoders
 
-A lot of us spent the majority of our time trying to figure the best encoding schema for our data, once we managed to wrap our heads around the OPF. This has remained true for all of my current projects with the OPF, and I suspect will be the stickiest point for other novices.
+A lot of us spent the majority of our time trying to figure out the best encoding schema for our data, once we managed to wrap our heads around the OPF. This has remained true for all of my current projects with the OPF, and I suspect will be the stickiest point for other novices.
 
 One has to be able to conceptualize your problem as a sequence, temporal or otherwise, and then piecemeal that sequence into individual parts, associative in some way to the inference you're looking for. For my demo, *[predepic](https://github.com/ravaa/nupic/tree/master/predipic)*, it turned out to be a simple classification problem: Which sensor shows the most activity, and thus indicates my position?
 
@@ -58,7 +58,7 @@ Here's mine:
 
 One key thing that jumped out at me, is the different types of data we were able to feed to NuPIC models, and achieve high value results. With the only real project-specific work being contained in model parameters! 
 
-Everything from midi file data to record classification strings, and NuPIC munched on them all. All one needs is an encoder to handle the record types, and you can go far with the encoders provided by the OPF.
+Everything from MIDI file data to record classification strings, and NuPIC munched on them all. All one needs is an encoder to handle the data types, and you can go far with the encoders provided by the OPF.
 
 ### Concluding Thoughts, and What I'm Up To
 
@@ -66,10 +66,10 @@ The immensely gracious hosting and helpfulness of the Numenta staff cannot be ov
 
 Special shout out to:
 * [Ian](http://nupic.markmail.org/search/?q=from%3Aidanforth%40embodiedai.com), for lending me your parts and helping me refine my project! 
-* [Matt](http://nupic.markmail.org/search/from:matt%40numenta.org), you're tireless work in the community is awesome man. Do you not sleep?
-* [Jeff](http://nupic.markmail.org/search/from:jhawkins%40numenta.org), your efforts continue to inspire! Thank you, for opening this project to the community. 
+* [Matt](http://nupic.markmail.org/search/from:matt%40numenta.org), your tireless work in the community is awesome man. Do you not sleep?
+* [Jeff](http://nupic.markmail.org/search/from:jhawkins%40numenta.org), your efforts continue to inspire! Thank you for opening this project to the community. 
 * [Subutai](http://nupic.markmail.org/search/from:subutai%40numenta.org), for your conversations and explanations.
-* [Scott](http://nupic.markmail.org/search/from:scott%40numenta.org), I'm not sure many of our projects would have gotten off the grown without your help and quick production of simple examples.
+* [Scott](http://nupic.markmail.org/search/from:scott%40numenta.org), I'm not sure many of our projects would have gotten off the ground without your help and quick production of simple examples.
 * Office Management Staff, for keeping us alive and making everyone feel at home!
 * Pete, for not laughing at my lame html and javascript skills while simultaneously making my web console not suck.
 * Winfried, for the fascinating discussions. I'm nerding out on the implications of your work!
