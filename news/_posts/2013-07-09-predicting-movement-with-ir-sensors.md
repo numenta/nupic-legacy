@@ -91,4 +91,4 @@ Also, here is [my personal fork of NuPIC](http://github.com/ravaa/nupic) (it's a
 > Erik Blas <br/>
 > [Google+](https://plus.google.com/u/0/114228187192137856927/posts)
 
-[Comments on Reddit]()
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1hysgs/predicting_movement_with_ir_sensors_my_experience/)
