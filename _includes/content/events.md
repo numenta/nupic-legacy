@@ -44,15 +44,15 @@ Upcoming Events
 
 <div id="intelligent_computing_bof" class="event">
     <div class="sub-event">
-        <h3><a href="https://www.facebook.com/events/567973713245620/">Intelligent Computing BoF</a></h3>
-
+        <h3><a href="http://www.oscon.com/oscon2013/public/schedule/detail/31468">Intelligent Computing BoF</a></h3>
+        
         <p>During OSCON, we'll be hosting an informal <a href="http://en.wikipedia.org/wiki/Birds_of_a_Feather_(computing)"><em>Birds of a Feather</em></a> session <strong>open to the public</strong>. It will be at the same venue as OSCON, but you don't need OSCON access to attend.</p>
 
         <dl>
             <dt>What</dt>
                 <dd>Intelligent Computing BoF</dd>
             <dt>Where</dt>
-                <dd>Oregon Convention Center, Portland Oregon (room, TBA)</dd>
+                <dd>Oregon Convention Center (room E144), Portland Oregon</dd>
             <dt>When</dt>
                 <dd>7PM, 24 July 2013</dd>
             <dt>Hosts</dt>
