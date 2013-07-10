@@ -95,3 +95,18 @@ h5 {
 }
 .pending {
     background-color: #ccc;
+}
+
+div.event {
+    background-color: #ddd;
+    padding: 30px;
+    border-radius: 10px;
+    border: solid 1px #aaa;
+    margin-bottom: 20px;
+}
+div.sub-event {
+    margin: 30px 0;
+}
+div.event .author {
+    text-align: right;
+}

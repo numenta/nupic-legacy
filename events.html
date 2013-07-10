@@ -1,0 +1,11 @@
+---
+layout: default
+title: Upcoming Events
+---
+
+<section>
+  {% capture events %}
+  {% include content/events.md %}
+  {% endcapture %}
+  {{ events | markdownify }}
+</section>
