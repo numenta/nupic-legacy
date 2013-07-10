@@ -96,7 +96,7 @@ img {
 }
 
 nav {
-    margin-bottom: 1em;
+  margin-bottom: 1em;
 }
 
 header {
@@ -181,10 +181,10 @@ hr {
 }
 
 footer {
-  width:300px;
-  float:left;
-  position:fixed;
-  bottom:50px;
+  float: left;
+  clear: both;
+  width: 100%;
+  text-align: center;
 }
 
 @media print, screen and (max-width: 960px) {
