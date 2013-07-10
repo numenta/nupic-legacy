@@ -56,7 +56,7 @@ Upcoming Events
             <dt>When</dt>
                 <dd>7PM, 24 July 2013</dd>
             <dt>Hosts</dt>
-                <dd>Jeff Hawkins, Matt Taylor, Scott Purdy</dd>
+                <dd>Jeff Hawkins, Subutai Ahmad, Scott Purdy</dd>
 
         </dl>
     </div>
