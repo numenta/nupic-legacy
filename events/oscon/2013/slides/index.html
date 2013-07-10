@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>Introducing the Numenta Platform for Intelligent Computing (NuPIC)</title>
+
+        <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+        <meta name="author" content="Hakim El Hattab">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="../../../../lib/reveal.js/css/reveal.min.css">
+        <link rel="stylesheet" href="../../../../lib/reveal.js/css/theme/night.css" id="theme">
+        
+        <!-- my stuff -->
+        <link rel="stylesheet" href="custom.css">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="../../../../lib/reveal.js/lib/css/zenburn.css">
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+
+                <!-- Title Slide -->
+                <section>
+                    <h4>Introducing the</h4>
+                    <h1><span class="em">Nu</span>menta <span class="em">P</span>latform for <span class="em">I</span>ntelligent <span class="em">C</span>omputing</h1>
+                    <h3>(<span class="em">NuPIC</span>)</h3>
+                </section>
+
+                <!-- Introductions -->
+                <section>
+                    <h1>Introductions</h1>
+                    <br/>
+                    <table id="introductions">
+                    <tbody>
+                    <tr>
+                        <td>
+                            <h2>Matt Taylor</h2>
+                            <h3><span class="em">OS Community <span style="white-space:nowrap">Flag-Bearer</span></span></h3>
+                            <ul>
+                                <li>Groovy / Grails</li>
+                                <li>Yahoo! / Mojito</li>
+                                <li>github.com/<span class="em">rhyolight</span></li>
+                                <li>twitter.com/<span class="em">rhyolight</span></li>
+                            </ul>
+                        </td>
+                        <td>
+                            <h2 style="white-space:nowrap">Scott Purdy</h2>
+                            <h3><span class="em">Engineer</span></h3>
+                            <marquee>Hey Scott, fill this in!</marquee>
+                        </td>
+                    </tr>
+                    </tbody>
+                    </table>
+                </section>
+
+                <!-- Resources -->
+                <section>
+                    <h1><span class="em">numenta.org</span></h1>
+                    <h3 class="fragment">http://github.com/numenta/nupic</h3>
+                    <h3 class="fragment">mailing list / irc</h3>
+                    <h3 class="fragment">development process</h3>
+                    <h3 class="fragment">upcoming events</h3>
+                    <h3 class="fragment">these slides</h3>
+                </section>
+
+                <!-- Different -->
+                <section>
+                    <h1>Why NuPIC is <span class="em">Different</span></h1>
+                </section>
+
+                <!-- Different 1 -->
+                <section>
+                    <section>
+                        <h1>Reason #1</h1>
+                        <div class="fragment">
+                            <h2>This is our <span class="em">CORE</span></h2>
+                            <img src="./images/assembly.jpg"/>
+                        </div>
+                    </section>
+                    <section>
+                        <h2>Why open source the <span class="em">handle</span></h2>
+                        <img src="./images/handle.jpg"/>
+                    </section>
+                    <section>
+                        <h2>When you can open source the <span class="em">ENGINE</span></h2>
+                        <img src="./images/engine.jpg"/>
+                    </section>
+                </section>
+
+                <!-- Different 2 -->
+                <section>
+                    <section>
+                        <h1>Reason #2</h1>
+                        <div class="fragment">
+                            <h2>NuPIC is <span class="em">biologically-inspired</span></h2>
+                            <img src="./images/neurons.jpg"/>
+                        </div>
+                    </section>
+                    <section>
+                        <h2>NuPIC stores <span class="em">memories</span></h2>
+                        <img class="fragment" src="./images/sdr.png"/>
+                        <img class="fragment" src="./images/brain-zoom.png"/>
+                    </section>
+                </section>
+
+                <!-- What is NuPIC -->
+                <section>
+                    <h1>What NuPIC <span class="em">does</span></h1>
+                        <h3 class="fragment">accepts fast temporal data</h3>
+                        <h3 class="fragment">learns patterns</h3>
+                        <h3 class="fragment">returns inferences</h3>
+                        <ul class="fragment">
+                            <li>predictions</li>
+                            <li>anomoly scores</li>
+                        </ul>
+                </section>
+
+                <!--  -->
+                <section>
+                </section>
+
+                <!--  -->
+                <section>
+                </section>
+
+                <!--  -->
+                <section>
+                </section>
+
+                <!--  -->
+                <section>
+                </section>
+
+            </div>
+
+        </div>
+
+        <script src="../../../../lib/reveal.js/lib/js/head.min.js"></script>
+        <script src="../../../../lib/reveal.js/js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: '../../../../lib/reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: '../../../../lib/reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: '../../../../lib/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: '../../../../lib/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    // { src: '../../../lib/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    // { src: '../../../lib/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                    // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
+                    // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>

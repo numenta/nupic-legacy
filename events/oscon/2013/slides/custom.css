@@ -1,0 +1,22 @@
+h1, h2 {
+    line-height: 1.2em !important;
+}
+
+.no-border {
+    border: none !important;
+    background-color: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+span.em {
+    color: #4AA0E2;
+}
+
+table#introductions {
+    width: 100%;
+    /*border: 1px solid white;*/
+}
+table#introductions td {
+    /*border: 1px dotted white;*/
+    text-align: center;
+}
