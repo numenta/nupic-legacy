@@ -21,15 +21,15 @@ This pretty much took place in fits and starts, as this is the initial offering 
 
 Strangers in a strange land, we were.
 
-There was a lot of confusion on just how to use the software. Numenta provided a [VM with pre-baked environments](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine) using Vagrant and Virtual Box. A few successfully built the software on their own platform of choice. The static binding of certain libs and some of the build steps had a propensity to make porting difficult, as well as the reliance on Python 2.6.
+There was a lot of confusion on just how to use the software. Numenta provided a [VM with pre-baked environments](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine) using [Vagrant](http://www.vagrantup.com/) and [Virtual Box](https://www.virtualbox.org/). A few successfully built the software on their own platform of choice. The static binding of certain libs and some of the build steps had a propensity to make porting difficult, as well as the reliance on Python 2.6.
 
 Once building was no longer an issue (in general), the next part was getting all of the tests and experiments running. Environment issues played the lead gremlin in this instance, but once the proper library paths were exported we were victorious! 
 
 #### The OPF
 
-The [Open Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) ties together all the disparate parts of the CLA functions and HTM regions. To break it down, you're working with a data stream and its subsequent encoding. A data stream can be (and often is for pre-training) a CSV file, live streaming data, a generator, etc.
+The [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) ties together all the disparate parts of the CLA functions and HTM regions. To break it down, you're working with a data stream and its subsequent encoding. A data stream can be (and often is for pre-training) a CSV file, live streaming data, a generator, etc.
 
-A client takes the data stream, and feeds it to an instance of a model, one record at a time, which then returns your prediction result for the next N steps (depending on your model configuration). This result and a bunch of meta is stored for you in a dict known as a `ModelResult`.
+A client takes the data stream, and feeds it to an instance of a model, one record at a time, which then returns your prediction result for the next N steps (depending on your model configuration). This result and a bunch of meta is stored for you in a `ModelResult` object.
 
 *Steps* here mean the feeding of 1 record into a model and its return of the `ModelResult` object, not necessarily tied to clock time. Models can either be pre-trained and loaded from disk, or an instance of a new model.
 
