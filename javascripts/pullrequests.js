@@ -1,5 +1,5 @@
 (function() {
-    var dataUrl = 'http://issues.numenta.org:8081/prStatus.json?callback=?';
+    var dataUrl = 'http://issues.numenta.org:8081/prStatus.json?repo=numenta/nupic&callback=?';
     var prTemplate = Handlebars.compile($("#pr-template").html());
     var emptyPrTemplate = Handlebars.compile($("#empty-pr-template").html());
     var $pr = $('#pullrequests');
