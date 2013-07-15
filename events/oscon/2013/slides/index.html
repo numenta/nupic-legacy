@@ -61,8 +61,11 @@
                         </td>
                         <td>
                             <h2 style="white-space:nowrap">Scott Purdy</h2>
-                            <h3><span class="em">Engineer</span></h3>
-                            <marquee>Hey Scott, fill this in!</marquee>
+                            <h3><span class="em">NuPIC Engineer</span></h3>
+                            <ul>
+                                <li>github.com/<span class="em">scottpurdy</span></li>
+                                <li>twitter.com/<span class="em">scott<b>m</b>purdy</span></li>
+                            </ul>
                         </td>
                     </tr>
                     </tbody>
@@ -79,64 +82,225 @@
                     <h3 class="fragment">these slides</h3>
                 </section>
 
-                <!-- Different -->
+                <!-- History -->
                 <section>
-                    <h1>Why NuPIC is <span class="em">Different</span></h1>
+                    <h1><span class="em">Grok / Numenta History</span></h1>
+                    <h3>Redwood Neuroscience Institute (2002)</h3>
+                    <h3>On Intelligence and Numenta (2005)</h3>
+                    <h3>NuPIC, Zeta 1 and 2 (2005-2009)</h3>
+                    <h3>CLA white paper (2009)</h3>
+                    <h3>Grok (2012)</h3>
+                    <h3>Open source NuPIC (2013)</h3>
                 </section>
 
-                <!-- Different 1 -->
+                <!-- Neuro theory -->
                 <section>
-                    <section>
-                        <h1>Reason #1</h1>
-                        <div class="fragment">
-                            <h2>This is our <span class="em">CORE</span></h2>
-                            <img src="./images/assembly.jpg"/>
-                        </div>
-                    </section>
-                    <section>
-                        <h2>Why open source the <span class="em">handle</span></h2>
-                        <img src="./images/handle.jpg"/>
-                    </section>
-                    <section>
-                        <h2>When you can open source the <span class="em">ENGINE</span></h2>
-                        <img src="./images/engine.jpg"/>
-                    </section>
+                    <h1>Neuro theory</h1>
+                    <h3 class="fragment"><span class="em">On-line learning from streaming data</span></h3>
+                    <h3 class="fragment">Hierarchy of memory regions</h3>
+                    <h3 class="fragment"><span class="em">Sequence memory</span></h3>
+                    <h3 class="fragment"><span class="em">Sparse distributed representations</span></h3>
+                    <h3 class="fragment">All regions are sensory and motor</h3>
+                    <h3 class="fragment">Attention</h3>
+                    <h4 class="fragment">**Necessary and sufficient for biological and machine intelligence.</h4>
                 </section>
 
-                <!-- Different 2 -->
+                <!-- SDRs -->
                 <section>
                     <section>
-                        <h1>Reason #2</h1>
-                        <div class="fragment">
-                            <h2>NuPIC is <span class="em">biologically-inspired</span></h2>
-                            <img src="./images/neurons.jpg"/>
-                        </div>
+                        <h1>Sparse Distributed Representations</h1>
                     </section>
                     <section>
-                        <h2>NuPIC stores <span class="em">memories</span></h2>
-                        <img class="fragment" src="./images/sdr.png"/>
-                        <img class="fragment" src="./images/brain-zoom.png"/>
-                    </section>
-                </section>
-
-                <!-- What is NuPIC -->
-                <section>
-                    <h1>What NuPIC <span class="em">does</span></h1>
-                        <h3 class="fragment">accepts fast temporal data</h3>
-                        <h3 class="fragment">learns patterns</h3>
-                        <h3 class="fragment">returns inferences</h3>
-                        <ul class="fragment">
-                            <li>predictions</li>
-                            <li>anomoly scores</li>
+                        <h2>Dense representations</h2>
+                        <ul>
+                            <li>Few bits (8 to 128)</li>
+                            <li>All combinations of 1's and 0's</li>
+                            <li>Example: 8 bit ASCII, m = 01101101</li>
+                            <li>Individual bits have no inherent meaning</li>
+                            <li>Representation is assigned by programmer</li>
                         </ul>
+                    </section>
+                    <section>
+                        <h2>Sparse Distributed Representations (SDRs)</h2>
+                        <ul>
+                            <li>Many bits (thousands)</li>
+                            <li>Few 1's mostly 0's</li>
+                            <li>
+                                Example: 2000 bits, 2% active<br />
+                                01000000000000000001000000000000000000000000000000000010000........01000
+                            </li>
+                            <li>Each bit has semantic meaning</li>
+                            <li>Meaning of each bit is learned, not assigned</li>
+                        </ul>
+                    </section>
                 </section>
 
-                <!-- Scott's content starts here -->
+                <!-- Sequence memory -->
                 <section>
-                    <h1>Scott's Content starts here</h1>
+                    <section>
+                        <h2>Sequence Memory</h2>
+                    </section>
+                    <section style="background-color: white;">
+                        <img src="./images/sequence-memory.png"/>
+                    </section>
+                    <section>
+                        <img src="./images/sequence-memory-1.png"/>
+                        <h3 class="fragment">2000 choose 40 = 9.1 * 10<sup>83</sup></h3>
+                    </section>
+                    <section>
+                        <img src="./images/sequence-memory-4.png"/>
+                        <h3>Multiple predictions per cell</h3>
+                        <h3 class="fragment">First-order memory</h3>
+                    </section>
+                    <section>
+                        <img src="./images/sequence-memory-5.png"/>
+                        <h3 class="fragment">40 active columns, 10 cells per column = 10<sup>40</sup></h3>
+                    </section>
+                    <section>
+                        <img src="./images/sequence-memory-6.png"/>
+                        <h3>Variable order sequence memory</h3>
+                    </section>
                 </section>
 
-                
+                <!-- CLA -->
+                <section>
+                    <section>
+                        <h2>Cortical Learning Algorithm</h2>
+                        <ul>
+                            <li>Encoders</li>
+                            <li>Spatial Pooler</li>
+                            <li><span class="em">Temporal Pooler</span></li>
+                            <li>CLA Classifier</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <!-- Hotgym example -->
+                <section>
+                    <section>
+                        <h2>Hotgym Example</h2>
+                    </section>
+                    <section>
+                        Show a chart of the data.
+                    </section>
+                    <section>
+                        <pre><code data-trim contenteditable>
+model = ModelFactory.create(model_params.MODEL_PARAMS)
+model.enableInference({'predictedField': 'consumption'})
+metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
+                                model.getInferenceType())
+with open (findDataset(_DATA_PATH)) as fin:
+  reader = csv.reader(fin)
+  headers = reader.next()
+  for i, record in enumerate(reader, start=1):
+    modelInput = dict(zip(headers, record))
+    modelInput["consumption"] = float(modelInput["consumption"])
+    modelInput["timestamp"] = datetime.datetime.strptime(
+        modelInput["timestamp"], "%m/%d/%y %H:%M")
+    result = model.run(modelInput)
+    result.metrics = metricsManager.update(result)
+                        </code></pre>
+                    </section>
+                    <section>
+                        <pre><code data-trim contenteditable>
+'sensorParams': {
+    'encoders': {
+        'consumption': {
+            'type': 'AdaptiveScalarEncoder',
+            'n': 100,
+            'w': 21
+        },
+    },
+},
+
+'tpParams': {
+    'columnCount': 2048,
+    'cellsPerColumn': 32,
+
+    'permanenceInc': 0.1,
+    'permanenceDec' : 0.1,
+},
+
+'clParams': {
+    'steps': '1,5',
+},
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Creating the model</h3>
+                        <pre><code data-trim contenteditable>
+model = ModelFactory.create(model_params.MODEL_PARAMS)
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Making predictions</h3>
+                        <pre><code data-trim contenteditable>
+for i, record in enumerate(reader, start=1):
+  modelInput = dict(zip(headers, record))
+  modelInput["consumption"] = float(modelInput["consumption"])
+  modelInput["timestamp"] = datetime.datetime.strptime(
+      modelInput["timestamp"], "%m/%d/%y %H:%M")
+  result = model.run(modelInput)
+                        </code></pre>
+                    </section>
+                    <section>
+                        <pre><code data-trim contenteditable>
+ModelResult(
+    predictionNumber=99
+    rawInput={'timestamp': datetime.datetime(2010, 7, 6, 3, 0), 'consumption': 4.5999999999999996}
+    sensorInput=SensorInput(dataRow=(4.5999999999999996, 1, 3.0, 0)
+                            dataDict={'timestamp': datetime.datetime(2010, 7, 6, 3, 0),
+                                      'consumption': 4.5999999999999996}
+                            dataEncodings=[array([1., 1., 1., 1., 1., ...]), ...]
+                            sequenceReset=0.0
+                            category=0
+    )
+    inferences={
+        'multiStepPredictions': {
+            1: {
+                5.2825868514199987: 0.69999516634971859,
+                10.699999999999999: 0.07601257054965195,
+                22.100000000000001: 0.055294648127235196,
+                22.899999999999999: 0.052690624183750749,
+            },
+            5: {
+                38.188079999999999: 0.2275438176777452,
+                47.359999999999992: 0.19538808382423584,
+                37.399999999999999: 0.12597931862094047,
+                45.399999999999999: 0.099123261272031596,
+                37.089999999999996: 0.082913215936932752,
+                39.280000000000001: 0.077935781935515161,
+                43.629999999999995: 0.076405289164189288
+            }
+        },
+        'multiStepBestPredictions': {1: 5.2825868514199987, 5: 38.188079999999999},
+        'prediction': [5.2825868514199987, None, None, None],
+        'encodings': [array([ 1.,  1.,  1.,  1.,  1., ...], dtype=float32), None, None, None]
+    }
+    metrics={...}
+    predictedFieldIdx=0
+    predictedFieldName=consumption
+)
+                        </code></pre>
+                    </section>
+                    <section>
+                        Show a chart of the results.
+                    </section>
+                </section>
+
+                <!-- Demos -->
+                <section>
+                    <section>
+                        <h1>Demos?</h1>
+                    </section>
+                </section>
+
+                <!-- QA -->
+                <section>
+                    <section>
+                        <h1>Q/A</h1>
+                    </section>
+                </section>
 
             </div>
 
