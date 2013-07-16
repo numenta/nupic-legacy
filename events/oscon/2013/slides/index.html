@@ -80,6 +80,10 @@
                     <h3 class="fragment">development process</h3>
                     <h3 class="fragment">upcoming events</h3>
                     <h3 class="fragment">these slides</h3>
+
+                    <aside class="notes">
+                        Matt
+                    </aside>
                 </section>
 
                 <!-- History -->
@@ -91,6 +95,11 @@
                     <h3>CLA white paper (2009)</h3>
                     <h3>Grok (2012)</h3>
                     <h3>Open source NuPIC (2013)</h3>
+
+                    <aside class="notes">
+                        Scott
+                    </aside>
+
                 </section>
 
                 <!-- Neuro theory -->
@@ -103,12 +112,20 @@
                     <h3 class="fragment">All regions are sensory and motor</h3>
                     <h3 class="fragment">Attention</h3>
                     <h4 class="fragment">**Necessary and sufficient for biological and machine intelligence.</h4>
+
+                    <aside class="notes">
+                        Scott
+                    </aside>
+
                 </section>
 
                 <!-- SDRs -->
                 <section>
                     <section>
                         <h1>Sparse Distributed Representations</h1>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <h2>Dense representations</h2>
@@ -119,6 +136,9 @@
                             <li>Individual bits have no inherent meaning</li>
                             <li>Representation is assigned by programmer</li>
                         </ul>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <h2>Sparse Distributed Representations (SDRs)</h2>
@@ -132,56 +152,86 @@
                             <li>Each bit has semantic meaning</li>
                             <li>Meaning of each bit is learned, not assigned</li>
                         </ul>
+
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
+
                 </section>
 
                 <!-- Sequence memory -->
                 <section>
                     <section>
                         <h2>Sequence Memory</h2>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section style="background-color: white;">
                         <img src="./images/sequence-memory.png"/>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <img src="./images/sequence-memory-1.png"/>
                         <h3 class="fragment">2000 choose 40 = 9.1 * 10<sup>83</sup></h3>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <img src="./images/sequence-memory-4.png"/>
                         <h3>Multiple predictions per cell</h3>
                         <h3 class="fragment">First-order memory</h3>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <img src="./images/sequence-memory-5.png"/>
                         <h3 class="fragment">40 active columns, 10 cells per column = 10<sup>40</sup></h3>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <img src="./images/sequence-memory-6.png"/>
                         <h3>Variable order sequence memory</h3>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                 </section>
 
                 <!-- CLA -->
                 <section>
-                    <section>
-                        <h2>Cortical Learning Algorithm</h2>
-                        <ul>
-                            <li>Encoders</li>
-                            <li>Spatial Pooler</li>
-                            <li><span class="em">Temporal Pooler</span></li>
-                            <li>CLA Classifier</li>
-                        </ul>
-                    </section>
+                    <h2>Cortical Learning Algorithm</h2>
+                    <ul>
+                        <li>Encoders</li>
+                        <li>Spatial Pooler</li>
+                        <li><span class="em">Temporal Pooler</span></li>
+                        <li>CLA Classifier</li>
+                    </ul>
+                    <aside class="notes">
+                        Scott
+                    </aside>
                 </section>
 
                 <!-- Hotgym example -->
                 <section>
                     <section>
                         <h2>Hotgym Example</h2>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         Show a chart of the data.
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <pre><code data-trim contenteditable>
@@ -200,6 +250,9 @@ with open (findDataset(_DATA_PATH)) as fin:
     result = model.run(modelInput)
     result.metrics = metricsManager.update(result)
                         </code></pre>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <pre><code data-trim contenteditable>
@@ -225,12 +278,18 @@ with open (findDataset(_DATA_PATH)) as fin:
     'steps': '1,5',
 },
                         </code></pre>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <h3>Creating the model</h3>
-                        <pre><code data-trim contenteditable>
+                        <pre><code class="big" data-trim contenteditable>
 model = ModelFactory.create(model_params.MODEL_PARAMS)
                         </code></pre>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <h3>Making predictions</h3>
@@ -242,6 +301,9 @@ for i, record in enumerate(reader, start=1):
       modelInput["timestamp"], "%m/%d/%y %H:%M")
   result = model.run(modelInput)
                         </code></pre>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         <pre><code data-trim contenteditable>
@@ -282,24 +344,29 @@ ModelResult(
     predictedFieldName=consumption
 )
                         </code></pre>
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                     <section>
                         Show a chart of the results.
+                        <aside class="notes">
+                            Scott
+                        </aside>
                     </section>
                 </section>
 
                 <!-- Demos -->
                 <section>
-                    <section>
-                        <h1>Demos?</h1>
-                    </section>
+                    <h1>Demos?</h1>
+                    <aside class="notes">
+                        Scott
+                    </aside>
                 </section>
 
                 <!-- QA -->
                 <section>
-                    <section>
-                        <h1>Q/A</h1>
-                    </section>
+                    <h1>Q/A</h1>
                 </section>
 
             </div>
@@ -329,7 +396,7 @@ ModelResult(
                     { src: '../../../../lib/reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
                     { src: '../../../../lib/reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
                     // { src: '../../../lib/reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
-                    // { src: '../../../lib/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                    { src: '../../../../lib/reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
                     // { src: 'plugin/search/search.js', async: true, condition: function() { return !!document.body.classList; } }
                     // { src: 'plugin/remotes/remotes.js', async: true, condition: function() { return !!document.body.classList; } }
                 ]
