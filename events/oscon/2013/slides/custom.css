@@ -20,3 +20,12 @@ table#introductions td {
     /*border: 1px dotted white;*/
     text-align: center;
 }
+
+.reveal code {
+    font-size: 16pt;
+    line-height: 1em;
+}
+.reveal code.big {
+    font-size: 21pt;
+    width: 110%;
+}
