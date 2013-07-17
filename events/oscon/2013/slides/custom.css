@@ -12,11 +12,11 @@ span.em {
     color: #4AA0E2;
 }
 
-table#introductions {
+table {
     width: 100%;
     /*border: 1px solid white;*/
 }
-table#introductions td {
+table td {
     /*border: 1px dotted white;*/
     text-align: center;
 }
