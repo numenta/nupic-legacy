@@ -29,3 +29,7 @@ table td {
     font-size: 21pt;
     width: 110%;
 }
+
+.reveal sup {
+    font-size: 22pt;
+}
