@@ -38,8 +38,24 @@
                 <!-- Title Slide -->
                 <section>
                     <h4>Introducing the</h4>
-                    <h1><span class="em">Nu</span>menta <span class="em">P</span>latform for <span class="em">I</span>ntelligent <span class="em">C</span>omputing</h1>
-                    <h3>(<span class="em">NuPIC</span>)</h3>
+                    <h2><span class="em">
+                        Nu</span>menta <span class="em">P</span>latform for <span class="em">I</span>ntelligent <span class="em">C</span>omputing
+                        (<span class="em">NuPIC</span>)
+                    </h2>
+                    <div style="width: 100%;">
+                        <div style="width: 50%; float: left;">
+                            <h3>numenta.org</h3>
+                            <p>@numenta</p>
+                        </div>
+                        <div style="width: 50%; float: left;">
+                            <h3>Matt Taylor</h3>
+                            <p>matt@numenta.org</p>
+                            <p>@rhyolight</p>
+                            <h3>Scott Purdy</h3>
+                            <p>scott@numenta.org</p>
+                            <p>@scottmpurdy</p>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Introductions -->
@@ -72,26 +88,11 @@
                     </table>
                 </section>
 
-                <!-- Resources -->
-                <section>
-                    <h1><span class="em">numenta.org</span></h1>
-                    <h3 class="fragment">http://github.com/numenta/nupic</h3>
-                    <h3 class="fragment">mailing list / irc</h3>
-                    <h3 class="fragment">development process</h3>
-                    <h3 class="fragment">upcoming events</h3>
-                    <h3 class="fragment">these slides</h3>
-
-                    <aside class="notes">
-                        Matt
-                    </aside>
-                </section>
-
                 <!-- History -->
                 <section>
                     <h1><span class="em">Grok / Numenta History</span></h1>
                     <h3>Redwood Neuroscience Institute (2002)</h3>
                     <h3>On Intelligence and Numenta (2005)</h3>
-                    <h3>NuPIC (2005-2009)</h3>
                     <h3>CLA white paper (2009)</h3>
                     <h3>Grok (2012)</h3>
                     <h3>Open source NuPIC (2013)</h3>
@@ -119,18 +120,11 @@
                         <h2>When you can open source the <span class="em">ENGINE</span></h2>
                         <img src="./images/engine.jpg"/>
                     </section>
-                </section>                
+                </section>
 
                 <!-- Neuro theory -->
                 <section>
                     <h1>Neuro theory</h1>
-                    <h3 class="fragment"><span class="em">On-line learning from streaming data</span></h3>
-                    <h3 class="fragment">Hierarchy of memory regions</h3>
-                    <h3 class="fragment"><span class="em">Sequence memory</span></h3>
-                    <h3 class="fragment"><span class="em">Sparse distributed representations</span></h3>
-                    <h3 class="fragment">All regions are sensory and motor</h3>
-                    <h3 class="fragment">Attention</h3>
-                    <h4 class="fragment">**Necessary and sufficient for biological and machine intelligence.</h4>
 
                     <aside class="notes">
                         Scott
@@ -209,62 +203,24 @@
 
                 </section>
 
-                <!-- Sequence memory -->
-                <section>
-                    <section>
-                        <h2>Sequence Memory</h2>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                    <section style="background-color: white;">
-                        <img src="./images/sequence-memory.png"/>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                    <section>
-                        <img src="./images/sequence-memory-1.png"/>
-                        <h3 class="fragment">2000 choose 40 = 9.1 * 10<sup>83</sup></h3>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                    <section>
-                        <img src="./images/sequence-memory-4.png"/>
-                        <h3>Multiple predictions per cell</h3>
-                        <h3 class="fragment">First-order memory</h3>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                    <section>
-                        <img src="./images/sequence-memory-5.png"/>
-                        <h3 class="fragment">40 active columns, 10 cells per column = 10<sup>40</sup></h3>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                    <section>
-                        <img src="./images/sequence-memory-6.png"/>
-                        <h3>Variable order sequence memory</h3>
-                        <aside class="notes">
-                            Scott
-                        </aside>
-                    </section>
-                </section>
 
-                <!-- CLA -->
+                <!-- Nuts and Bolts -->
+
+
+                <!-- Overview -->
                 <section>
-                    <h2>Cortical Learning Algorithm</h2>
+                    <h2>NuPIC</h2>
                     <ul>
-                        <li>Encoders</li>
-                        <li>Spatial Pooler</li>
-                        <li><span class="em">Temporal Pooler</span></li>
-                        <li>CLA Classifier</li>
+                        <li>Python API with some components in C++ (SWIG)</li>
+                        <li>Code hosted on Github</li>
+                        <li>GPL v3</li>
+                        <li>Single repo - production is built off Github</li>
+                        <li>Continuous integration (mention this here?)</li>
+                        <li>JIRA for bugs/features (issues.numenta.org)</li>
+                        <li>Github wiki</li>
                     </ul>
                     <aside class="notes">
-                        Scott
+                        Matt
                     </aside>
                 </section>
 
@@ -284,20 +240,24 @@
                     </section>
                     <section>
                         <pre><code data-trim contenteditable>
+# Create a model
 model = ModelFactory.create(model_params.MODEL_PARAMS)
 model.enableInference({'predictedField': 'consumption'})
-metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
-                                model.getInferenceType())
-with open (findDataset(_DATA_PATH)) as fin:
+
+with open findDataset(_DATA_PATH) as fin:
   reader = csv.reader(fin)
   headers = reader.next()
+
+  # Iterate over the data file
   for i, record in enumerate(reader, start=1):
+    # Create a dictionary to pass in to the model
     modelInput = dict(zip(headers, record))
     modelInput["consumption"] = float(modelInput["consumption"])
     modelInput["timestamp"] = datetime.datetime.strptime(
         modelInput["timestamp"], "%m/%d/%y %H:%M")
+
+    # Run the model on a single record and retrieve the result
     result = model.run(modelInput)
-    result.metrics = metricsManager.update(result)
                         </code></pre>
                         <aside class="notes">
                             Scott
@@ -334,7 +294,9 @@ with open (findDataset(_DATA_PATH)) as fin:
                     <section>
                         <h3>Creating the model</h3>
                         <pre><code class="big" data-trim contenteditable>
+# Create a model
 model = ModelFactory.create(model_params.MODEL_PARAMS)
+model.enableInference({'predictedField': 'consumption'})
                         </code></pre>
                         <aside class="notes">
                             Scott
@@ -343,12 +305,24 @@ model = ModelFactory.create(model_params.MODEL_PARAMS)
                     <section>
                         <h3>Making predictions</h3>
                         <pre><code data-trim contenteditable>
-for i, record in enumerate(reader, start=1):
-  modelInput = dict(zip(headers, record))
-  modelInput["consumption"] = float(modelInput["consumption"])
-  modelInput["timestamp"] = datetime.datetime.strptime(
-      modelInput["timestamp"], "%m/%d/%y %H:%M")
-  result = model.run(modelInput)
+# Create a model
+model = ModelFactory.create(model_params.MODEL_PARAMS)
+model.enableInference({'predictedField': 'consumption'})
+
+with open findDataset(_DATA_PATH) as fin:
+  reader = csv.reader(fin)
+  headers = reader.next()
+
+  # Iterate over the data file
+  for i, record in enumerate(reader, start=1):
+    # Create a dictionary to pass in to the model
+    modelInput = dict(zip(headers, record))
+    modelInput["consumption"] = float(modelInput["consumption"])
+    modelInput["timestamp"] = datetime.datetime.strptime(
+        modelInput["timestamp"], "%m/%d/%y %H:%M")
+
+    # Run the model on a single record and retrieve the result
+    result = model.run(modelInput)
                         </code></pre>
                         <aside class="notes">
                             Scott
@@ -398,6 +372,7 @@ ModelResult(
                         </aside>
                     </section>
                     <section>
+                        <h3>Demo - need to add serialized model version</h3>
                         <img src="./images/hotgym_with_predictions.png"/>
                         <aside class="notes">
                             Scott
@@ -405,16 +380,25 @@ ModelResult(
                     </section>
                 </section>
 
-                <!-- Demos -->
+                <!-- Anomaly example -->
                 <section>
-                    <h1>Demos</h1>
+                </section>
+
+                <!-- Resources -->
+                <section>
+                    <h1><span class="em">numenta.org</span></h1>
+                    <h3 class="fragment">http://github.com/numenta/nupic</h3>
+                    <h3 class="fragment">mailing list / irc</h3>
+                    <h3 class="fragment">development process</h3>
+                    <h3 class="fragment">upcoming events</h3>
+                    <h3 class="fragment">these slides</h3>
+
                     <aside class="notes">
-                        Scott
+                        Matt
                     </aside>
                 </section>
 
                 <!-- Hackathons -->
-
                 <section>
                     <h1>Hackathons</h1>
                     <table id="hackathons">
