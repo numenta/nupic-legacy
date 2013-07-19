@@ -42,8 +42,6 @@ from mock import Mock, patch, ANY, call
 import nupic.frameworks.opf.opfhelpers as opfhelpers
 from subprocess import Popen, PIPE, check_call, CalledProcessError
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from grokengine.cluster.model_checkpoint.ModelCheckpointHelper import \
-    ModelCheckpointHelper
 from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser,
                                                         TestCaseBase)
