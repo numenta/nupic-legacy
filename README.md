@@ -55,8 +55,16 @@ Run the C++ tests:
     $NTA/bin/htmtest
     $NTA/bin/testeverything
 
+Run the Python unit tests:
+
+    cd $NTA
+    ./bin/run_tests.sh
+
 You can run the examples using the OpfRunExperiment OPF client:
 
     python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
 
-If you want to write your own clients, take a look at the examples in `$NUPIC/examples/opf/clients/`.
+There are also some sample OPF clients. You can modify these to run your own
+data sets. One example is the hotgym prediction client:
+
+    python $NUPIC/examples/opf/clients/hotgym/hotgym.py
