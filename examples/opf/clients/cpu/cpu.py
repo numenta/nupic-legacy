@@ -29,22 +29,12 @@ import psutil
 from matplotlib.pylab import draw, plot
 
 from nupic.data.inference_shifter import InferenceShifter
-from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import model_params
 
 SECONDS_PER_STEP = 2
 WINDOW = 60
-
-METRIC_SPECS = (
-    # This metric computes average absolute error for 5-step predictions over
-    # the last 60 steps
-    MetricSpec(field='cpu', metric='multiStep',
-               inferenceElement='multiStepBestPredictions',
-               params={'errorMetric': 'aae', 'window': 60, 'steps': 5}),
-)
 
 
 
@@ -53,9 +43,6 @@ def runCPU():
   # Create the model for predicting CPU usage.
   model = ModelFactory.create(model_params.MODEL_PARAMS)
   model.enableInference({'predictedField': 'cpu'})
-  # Create a metrics manager for computing an error metric.
-  metricsManager = MetricsManager(METRIC_SPECS, model.getFieldInfo(),
-                                  model.getInferenceType())
   # The shifter will align prediction and actual values.
   shifter = InferenceShifter()
   # Keep the last WINDOW predicted and actual values for plotting.
@@ -78,9 +65,6 @@ def runCPU():
     # Run the input through the model and shift the resulting prediction.
     modelInput = {'cpu': cpu}
     result = shifter.shift(model.run(modelInput))
-
-    # Compute an error metric (not currently used).
-    result.metrics = metricsManager.update(result)
 
     # Update the trailing predicted and actual value deques.
     inference = result.inferences['multiStepBestPredictions'][5]
