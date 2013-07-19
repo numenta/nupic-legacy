@@ -47,7 +47,6 @@ from grokengine.cluster.model_checkpoint.ModelCheckpointHelper import \
 from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser,
                                                         TestCaseBase)
-from nupic.frameworks.opf.expGenerator.ExpGenerator import (expGenerator)
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 
