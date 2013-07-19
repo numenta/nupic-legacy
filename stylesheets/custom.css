@@ -110,3 +110,15 @@ div.sub-event {
 div.event .author {
     text-align: right;
 }
+
+section.media img {
+    border: 1px solid black;
+}
+section.media h2 {
+    margin-top: 50px;
+}
+section.media h3 {
+    text-align: right;
+    margin: 0 40px 10px 0;
+    padding: 0;
+}

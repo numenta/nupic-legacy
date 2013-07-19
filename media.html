@@ -1,0 +1,11 @@
+---
+layout: default
+title: NuPIC Media
+---
+
+<section class="media">
+  {% capture media %}
+  {% include content/media.md %}
+  {% endcapture %}
+  {{ media | markdownify }}
+</section>
