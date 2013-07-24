@@ -115,7 +115,7 @@ class Column(object):
     assert(inputVector.dtype == 'float32')
     connectedCountWrapper = numpy.zeros(1,dtype='float32')
     self._connectedSynapses.rightVecSumAtNZ_fast(
-      numpy.ones(self._numInputs, dtype='float32'), 
+      numpy.ones(inputVector.size, dtype='float32'), 
       connectedCountWrapper)
     connectedCount = connectedCountWrapper[0]
 
@@ -125,6 +125,19 @@ class Column(object):
 
     self._overlapPct = self._overlap / connectedCount
     return self._overlap, self._overlapPct
+
+  @staticmethod
+  def _updateDutyCycle(dutyCycle,newInput,period,maxPeriod = -1):
+    """
+    Updates a duty cycle estimate with a new value. This is a helper
+    function that is used to update several duty cycle variables in 
+    the Column class, such as: overlapDutyCucle, activeDutyCycle,
+    minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
+    the updated duty cycle
+    """
+    if (maxPeriod is not -1):
+      period = min(period,maxPeriod)
+    return (dutyCycle * (period -1.0) + newInput) / period
 
 
 class SpatialPooler(object):
@@ -287,19 +300,15 @@ class SpatialPooler(object):
     return indices
 
 
-  def doTimeStep(self,flatInput, learn=True, infer=True):
+  def compute(self,inputVector, learn=True, infer=True):
 
     assert (learn or infer)
-    assert (numpy.size(flatInput) == self._numInputs)
+    assert (numpy.size(inputVector) == self._numInputs)
 
-    inputOnBitIndices = flatInput.nonzero()[0]
-    self._computeOverlap(inputOnBitIndices)
-    # after this self._overlaps is filled.
-    # save overlap for anomaly detection????
-    # self._anomalyScores[:] = self._overlaps[:]
+    inputOnBitIndices = inputVector.nonzero()[0]
 
-    if computeAnomaly:
-      self._anomalyScores[:] = self._overlaps[:]
+    overlaps, overlapsPct = \
+      zip(*[col.computeOverlap(inputVector) for col in self._columns])
   
     self._boostColumns()
     self._inhibitColumns()
@@ -398,27 +407,6 @@ class SpatialPooler(object):
     numColumnsPerInhArea = min(numColumnsPerInhArea, self._numColumns)
     return min(float(self.numActiveColumnsPerInhArea) / numColumnsPerInhArea, 
                0.5)
-
-  def _boostColumns(self):
-    self._overlaps += self._boost
-
-
-  def _updateOverlapDutyCycle(self,effectiveDutyCyclePeriod):
-    self._overlapDutyCycle = (self._overlapDutyCycle * 
-      (effectiveDutyCyclePeriod -1) + self._overlaps) / \
-      effectiveDutyCyclePeriod
-
-
-  def _updateActiveDutyCycle(self,effectiveDutyCyclePeriod):
-    self._overlapDutyCycle = (self._activeDutyCycle * 
-      (effectiveDutyCyclePeriod -1) + self._activeColumns) / \
-      effectiveDutyCyclePeriod
-
-
-  def _computeOverlap(self,inputOnBitIndices):
-    #assume the input vector is a numpy array
-    self._connectedSynapses.rightVecSumAtNZ_fast(inputArray,self._overlaps)
-    #self._overlapsNoBoost = self._overlaps.copy()
 
 
   def _updatePermanences(self):
