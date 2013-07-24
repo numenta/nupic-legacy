@@ -1,2 +1,2 @@
 #!/bin/sh
-python run_tests.py $@
+python bin/run_tests.py $@
