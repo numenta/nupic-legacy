@@ -195,6 +195,60 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual((perm[list(connMask)]).all() ,True)
 		self.assertEqual((perm[list(unconnMask)]).any(), False)
 
+	def test_initPermanence3(self):
+		"""
+		TODO: implement tests for region-wide permanence initialization
+		"""
+		pass
+
+	def test_dutyCycle1(self):
+		"""
+		tests that duty cycles are updated properly according
+		to the mathematical formula. also check the effects of
+		supplying a maxPeriod to the function.
+		"""
+		dc = 1000.0
+		period = 1000
+		maxperiod = -1
+		newval = 0
+		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
+		self.assertEqual(dc,999)
+
+		dc = 1000.0
+		period = 1000
+		maxperiod = -1
+		newval = 1000
+		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
+		self.assertEqual(dc,1000)
+
+		dc = 1000.0
+		period = 1000
+		maxperiod = -1
+		newval = 2000
+		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
+		self.assertEqual(dc,1001)
+
+		#test effeects of max period
+		dc = 1000.0
+		period = 1000
+		maxperiod = 2
+		newval = 500
+		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
+		self.assertEqual(dc,750)
+
+		dc = 1000.0
+		period = 1000
+		maxperiod = 10
+		newval = 500
+		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
+		self.assertEqual(dc,950)				
+
+	def test_compute1(self):
+		sp = self._sp
+		inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('float32')
+		cols = sp.compute(inputVector,True,True)
+		self.assertEqual(cols,5)
+
 
 if __name__ == '__main__':
   unittest.main()
