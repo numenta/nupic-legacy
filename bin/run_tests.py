@@ -93,7 +93,7 @@ def main(parser, parse_args):
 
   # Translate spec args to py.test args
 
-  args = ["--boxed"]
+  args = ["--boxed", "--verbose"]
 
   root = "tests"
 
