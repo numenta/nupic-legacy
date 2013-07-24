@@ -40,7 +40,7 @@ sys.path.append(testPath)
 
 # Don't import the CLAClassifierTest directly or the unittest.main() will pick
 # it up and run it.
-from py.nupic.algorithms import cla_classifier_test
+from py2.nupic.algorithms import cla_classifier_test
 
 
 
