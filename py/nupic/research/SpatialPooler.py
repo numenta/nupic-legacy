@@ -99,8 +99,8 @@ class Column(object):
 
      # not sure what this is for
     _dutyCycleBeforeInh = 0
-    _minDutyCycleBeforeInh = 0
     _dutyCycleAfterInh = 0
+    _minDutyCycleBeforeInh = 0
     _minDutyCycleAfterInh = 0
 
   def computeOverlap(self,inputVector):
@@ -113,18 +113,53 @@ class Column(object):
     bits the column is connected to
     """
     assert(inputVector.dtype == 'float32')
-    connectedCountWrapper = numpy.zeros(1,dtype='float32')
-    self._connectedSynapses.rightVecSumAtNZ_fast(
-      numpy.ones(inputVector.size, dtype='float32'), 
-      connectedCountWrapper)
-    connectedCount = connectedCountWrapper[0]
+
+    # This following code segment computes the overlap score. 
+    # It essentially computes the dot product of the input vector
+    # and the connected synapse vector which represents a connected
+    # synapse by a '1' and an unconnected synapse as a '0'. The 
+    # operation is performed via a C++ 'SparseBinaryMatrix' class method
+    # called 'rightVecSumAtNZ_fast' for efficiency purposes. The 3rd 
+    # argument to the 'rightVecSumAtNZ' function must be a list, therefore 
+    # some wrapping/unwrapping is necessary. The code that gets executed
+    # is functionally equivalent to the following one line of python:
+    #
+    # overlap = np.dot(self._connectedSynapses,inputVector)
 
     overlapWrapper = numpy.zeros(1,dtype='float32')
     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlapWrapper)
     self._overlap = overlapWrapper[0]
 
+    # The following code segment computes the total number of connected
+    # synapses for the column. It does so by leveraging the same
+    # 'rightVecSumAtNZ_fast' C++ method as above, by computing the dot
+    # product of a vector filled with ones. Since the entries of the 
+    # 'connectedSynapses' array are either 0's or 1's, This code will 
+    # compute the count of the number of connected synapses. The code that 
+    # gets executed is functionally equivalent to the following one line 
+    # of python:
+    #
+    # connectedCount = self._connectedSynapses.sum()
+
+    connectedCountWrapper = numpy.zeros(1,dtype='float32')
+    self._connectedSynapses.rightVecSumAtNZ_fast(
+      numpy.ones(inputVector.size, dtype='float32'), 
+      connectedCountWrapper)
+    connectedCount = connectedCountWrapper[0]
+    
+    # compute the overlap percent: what is the fraction of bits that
+    # overlapped with the pattern? this is a measure of how well did
+    # the column fit the pattern.
+
     self._overlapPct = self._overlap / connectedCount
+
     return self._overlap, self._overlapPct
+
+
+  def getConnectedSynapses():
+    readOnlyCopy = self._connectedSynapses.view()
+    readOnlyCopy.setflags(write=False)
+    return readOnlyCopy
 
   @staticmethod
   def _updateDutyCycle(dutyCycle,newInput,period,maxPeriod = -1):
@@ -133,8 +168,9 @@ class Column(object):
     function that is used to update several duty cycle variables in 
     the Column class, such as: overlapDutyCucle, activeDutyCycle,
     minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
-    the updated duty cycle
+    the updated duty cycle.
     """
+    assert(period >= 1)
     if (maxPeriod is not -1):
       period = min(period,maxPeriod)
     return (dutyCycle * (period -1.0) + newInput) / period
@@ -201,14 +237,14 @@ class SpatialPooler(object):
     self._numActiveColumnsPerInhArea = numActiveColumnsPerInhArea
     self._localAreaDensity = localAreaDensity
 
-    # data structures pre-allocated for internal use
-    self._columnOverlaps = numpy.zeros(numColumns)
-    self._pctOverlap = numpy.zeros(numColumns)
-    self._columns = numpy.zeros(numColumns)
+    # internal state
+    self._inhibitionRadius = 5
+
+    self._columnDimensions = [numColumns]
 
     # bookeeping variables
-    self._iteration = 0
-    self._learningIteration = 0
+    self._iterationNum = 0
+    self._learningIterationNum = 0
 
     #initializeColumns
     self._columns = numpy.array([Column(numInputs, 
@@ -216,7 +252,7 @@ class SpatialPooler(object):
                                         self._initPermanence(i),
                                         self._mapRF(i)) \
                                 for i in range(numColumns)])
-    self._seed(seed)
+    #self._seed(seed)
     
 
 
@@ -232,7 +268,7 @@ class SpatialPooler(object):
     # to the inputs. Initially a subset of the input bits in a 
     # column's receptive field will be connected. This number is
     # given by the parameter "receptiveFieldPctPotential"
-    rand = numpy.random.random(self._receptiveFieldRadius)
+    rand = numpy.random.random(2*self._receptiveFieldRadius+1)
     threshold = 1-self._receptiveFieldPctPotential
     connectedSynapses = rand > threshold
     unconnectedSynpases = numpy.logical_not(connectedSynapses)
@@ -254,7 +290,7 @@ class SpatialPooler(object):
     # Create a vector to contain only the permanence values inside
     # a column's local receptive field, and fill it with random values
     # from the aforementioned distributions
-    permRF = numpy.zeros(self._receptiveFieldRadius)
+    permRF = numpy.zeros(2*self._receptiveFieldRadius+1)
     permRF[connectedSynapses] = numpy.random.random(len(connectedSynapses)) \
       * connectedPermRange + connectedPermOffset
     permRF[unconnectedSynpases] = numpy.random.random(len(unconnectedSynpases)) \
@@ -293,9 +329,9 @@ class SpatialPooler(object):
       is 5, the method should return an array containing 25 '1's, where the exact 
       indices are to be determined by the mapping from 1-D index to 2-D position.
     """
-    indices = numpy.array(range(self._receptiveFieldRadius))
+    indices = numpy.array(range(2*self._receptiveFieldRadius+1))
     indices += index
-    indices -= self._receptiveFieldRadius/2
+    indices -= self._receptiveFieldRadius
     indices %= self._numInputs
     return indices
 
@@ -305,63 +341,118 @@ class SpatialPooler(object):
     assert (learn or infer)
     assert (numpy.size(inputVector) == self._numInputs)
 
-    inputOnBitIndices = inputVector.nonzero()[0]
-
-    overlaps, overlapsPct = \
+    overlaps, _ = \
       zip(*[col.computeOverlap(inputVector) for col in self._columns])
   
-    self._boostColumns()
-    self._inhibitColumns()
+    #boosting here... only if still learning!
 
-    if learn:
-      effectiveDutyCyclePeriod = min(self._dutyCyclePeriod, 
-                                   self._iterationNum + 1)
-      self._updateOverlapDutyCycle(effectiveDutyCyclePeriod)
-      self._updateActiveDutyCycle(effectiveDutyCyclePeriod)
-      self._updatePermanences()
-      
-    self._updateInhibitionRadius()
+    #vip selection here....
+
+    activeColumns = self._inhibitColumns(overlaps)
+
+    # compute anomaly scores
+
+    # find orphans
+
+    # find shared inputs
+
+    # adapt synapses per column
+
+    # update boost factors per column
+
+    # update duty cycles
+
+    # update inhibition radius
+
     self._iterationNum += 1
 
 
+  def _inhibitColumns(self,overlaps):
+    # determine how many columns should be selected
+    # in the inhibition phase given the number of values
+    if (numActiveColumnsPerInhArea > 0):
+      numActive = numActiveColumnsPerInhArea
+    else:
+      numActive = localAreaDensity * self._inhibitionRadius
+
+    # Add a little bit of random noise to the scores to help break
+    # ties.
+    tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+    overlaps += tieBreaker
+
+    if self._globalInhibition or self._inhibitionRadius > self._numInputs:
+      return self._inhibitColumnsGlobal(overlaps)
+    else:
+      return self._inhibitColumns1D(overlaps)
+    pass
+
+  
+  def _inhibitColumnsGlobal(self,overlaps, numActive):
+    #calculate num active per inhibition area
+    activeColumns = numpy.zeros(self._numColumns)
+    winners = sorted(range(overlaps.size), 
+                     key=lambda k: overlaps[k], 
+                     reverse=True)[0:numActive]
+    activeColumns[winners] = 1
+    return activeColumns
+
+
+  def _inhibitColumnsLocal(self,overlaps,numActive):
+    activeColumns = numpy.zeros(self._numColumns)
+    addToWinners = max(overlaps)/1000.0   
+    # import pdb; pdb.set_trace()
+    overlaps = numpy.array(overlaps,dtype='float32').reshape(self._columnDimensions)
+    for i in range(self._numColumns):
+      maskNeighbors = self._getNeighbors(i,self._columnDimensions,
+        self._inhibitionRadius)
+      overlapSlice = overlaps[maskNeighbors]
+      kthLargestValue = sorted(overlapSlice,
+                               reverse=True)[numActive-1]
+      if overlaps[i] >= kthLargestValue:
+        activeColumns[i] = 1
+        overlaps[i] += addToWinners
+    return activeColumns
+
+
+  @staticmethod
+  def _getNeighbors(columnIndex, dimensions, radius):
+    """
+    This is for 1D
+    """
+
+    ncols = dimensions[0]
+    neighbors = numpy.array(
+      range(columnIndex-radius,columnIndex+radius+1)) % ncols
+    neighbors = list(set(neighbors) - set([columnIndex])) 
+    return neighbors
+
+  @staticmethod
+  def _getNeighbors2D(columnIndex, dimensions, radius):
+    """
+    This is for 2D
+    """
+
+    nrows = dimensions[0]
+    ncols = dimensions[1]
+
+    toRow = lambda index: index / ncols
+    toCol = lambda index: index % ncols
+    toIndex = lambda row,col: row * ncols + col
+
+    row = toRow(columnIndex)
+    col = toCol(columnIndex)
+
+    colRange = numpy.array(range(row-radius,row+radius+1)) % nrows
+    rowRange = numpy.array(range(col-radius,col+radius+1)) % ncols
+
+    neighbors2D = list(itertools.product(colRange,rowRange))
+    neighbors = [toIndex(r,c) for (r,c) in neighbors2D]
+    neighbors = list(set(neighbors) - set([columnIndex]))
+    return neighbors
+        
+
   def _isUpdateRound(self):
     return ((self._iterationNum + 1) % 50) == 0
-
-
-  def _updateInhibitionRadius(self):
-    if not self._isUpdateRound():
-      return
-
-    maxDimension = max(self._columnShape)
-    if self._globalInhibition:
-      inhibitionRadius = maxDimension
-    else:
-      inhibitionRadius = min(maxDimension, 
-                         self._averageConnectedReceptiveField())
-
-    localAreaDensity = self._calculateLocalAreaDensity(inhibitionRadius)
-    if self._inhibitionObj is None \
-       or self._inhibitionObj.getInhibitionRadius() != inhibitionRadius:
-       #restricted to 2D topology right now
-      self._inhibitionObj = Inhibition(self._columnShape[0], # height
-                                       self._columnShape[1], # width
-                                       inhibitionRadius, # inhRadius
-                                       localAreaDensity)
-
-
-  def _inhibitColumns(self):
-    activeColumnIndices = []
-    #what is learnedCellsOverlaps??
-    numActiveColumns = self._inhibitionObj.compute(
-                        learnedCellsOverlaps,
-                        activeColumnIndices, 
-                        self._stimulusThreshold,
-                        max(learnedCellsOverlaps)/1000.0, # addToWinners
-            )
-    self._activeColums.fill(0)
-    if numActiveColumns > 0:
-      activeColumnIndices = activeColumnIndices[0:numActiveColumns]
-      self._activeColumns[activeColumnIndices] = 1
 
 
   def _averageConnectedReceptiveField(self):
@@ -374,58 +465,78 @@ class SpatialPooler(object):
     return int(round(avgConnectedRF))
 
     
+  # def _averageConnectedSpan(self):
+  #   totalAvgSpan = 0
+  #   for column in self._numColumns:
+  #     connectedSynapseIndices = \
+  #       numpy.nonzero(self._connectedSynapses.getRow(). \
+  #         reshape(self._inputShape))
+  #     avgSpan = 0
+  #     for dim in range(len(connectedSynapseIndices)):
+  #       span = max(connectedSynapseIndices[dim]) - \
+  #                  min(connectedSynapseIndices[dim])
+  #       avgSpan += max(span,1)
+  #       avgSpan /= len(connectedSynapseIndices)
+  #     totalAvgSpan += avgSpan
+  #   return totalAvgSpan / self._numColumns
+
+  # def _averageColumnsPerInput(self):
+  #   columnsPerInput = 0
+  #   for dim in range(len(self._columnShape)):
+  #     columnsPerInput += float(self._columShape[dim] \
+  #                               / self._inputShape[dim] - 2*self._inputBorder)
+  #   return columnsPerInput / self._numColumns
 
 
-  def _averageConnectedSpan(self):
-    totalAvgSpan = 0
-    for column in self._numColumns:
-      connectedSynapseIndices = \
-        numpy.nonzero(self._connectedSynapses.getRow(). \
-          reshape(self._inputShape))
-      avgSpan = 0
-      for dim in range(len(connectedSynapseIndices)):
-        span = max(connectedSynapseIndices[dim]) - \
-                   min(connectedSynapseIndices[dim])
-        avgSpan += max(span,1)
-        avgSpan /= len(connectedSynapseIndices)
-      totalAvgSpan += avgSpan
-    return totalAvgSpan / self._numColumns
-
-  def _averageColumnsPerInput(self):
-    columnsPerInput = 0
-    for dim in range(len(self._columnShape)):
-      columnsPerInput += float(self._columShape[dim] \
-                                / self._inputShape[dim] - 2*self._inputBorder)
-    return columnsPerInput / self._numColumns
-
-
-  def _calculateLocalAreaDensity(self,inhibitionRadius):
-    if (self._localAreaDensity > 0):
-      return self._localAreaDensity
+  # def _calculateLocalAreaDensity(self,inhibitionRadius):
+  #   if (self._localAreaDensity > 0):
+  #     return self._localAreaDensity
     
-    numColumnsPerInhArea = (inhibitionRadius * 2.0 + 1) ** 2
-    numColumnsPerInhArea = min(numColumnsPerInhArea, self._numColumns)
-    return min(float(self.numActiveColumnsPerInhArea) / numColumnsPerInhArea, 
-               0.5)
+  #   numColumnsPerInhArea = (inhibitionRadius * 2.0 + 1) ** 2
+  #   numColumnsPerInhArea = min(numColumnsPerInhArea, self._numColumns)
+  #   return min(float(self.numActiveColumnsPerInhArea) / numColumnsPerInhArea, 
+  #              0.5)
 
 
-  def _updatePermanences(self):
-    pass
 
-  def _updateConnectedSynapses(self):
-    self._connectedSynapses
+    # OBSOLETE CODE
+  # def _inhibitColumns1D(self, overlaps, numActive):
+  #     overlaps = numpy.array(overlaps,dtype='float32')
+  #     activeColumns = numpy.zeros(self._numColumns)
+  #     addToWinners = max(overlaps)/1000.0
+  #     for i in range(self._numColumns):
+  #       maskInh = range(2*self._inhibitionRadius+1)
+  #       maskInh = numpy.delete(maskInh,self._inhibitionRadius)
+  #       maskInh += i
+  #       maskInh -= self._inhibitionRadius
+  #       maskInh %= self._numColumns
+  #       overlapSlice = overlaps[maskInh]
+  #       kthLargestValue = sorted(overlapSlice,
+  #                                reverse=True)[numActive-1]
+  #       if overlaps[i] >= kthLargestValue:
+  #         activeColumns[i] = 1
+  #         overlaps[i] += addToWinners
 
-  def _seed(self, seed=-1):
-    """
-    Initialize the random seed
-    """
-    pass; return
-    if seed != -1:
-      self.random = NupicRandom(seed)
-      random.seed(seed)
-      numpy.random.seed(seed)
-    else:
-      self.random = NupicRandom()
+  #     return activeColumns
+  
+
+  # def _updatePermanences(self):
+  #   pass
+
+  # def _updateConnectedSynapses(self):
+  #   self._connectedSynapses
+
+  # def _seed(self, seed=-1):
+  #   """
+  #   Initialize the random seed
+  #   """
+  #   pass; return
+  #   if seed != -1:
+  #     self.random = NupicRandom(seed)
+  #     random.seed(seed)
+  #     numpy.random.seed(seed)
+  #   else:
+  #     self.random = NupicRandom()
     
  
 
