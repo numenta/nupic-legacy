@@ -110,7 +110,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 		sp = self._sp
 		cp = sp._columnParams
-		sp._receptiveFieldRadius = 5
+		sp._receptiveFieldRadius = 2
 		sp._receptiveFieldPctPotential = 1
 		perm = sp._initPermanence(0)
 		connected = (perm > cp.synPermConnected).astype(int)
@@ -150,7 +150,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		cp = sp._columnParams
 
 		sp._numInputs = 10
-		sp._receptiveFieldRadius = 3
+		sp._receptiveFieldRadius = 1
 		index = 0
 		sp._receptiveFieldPctPotential = 1
 		perm = sp._initPermanence(index)
@@ -161,7 +161,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual((perm[list(connMask)]).all() ,True)
 		self.assertEqual((perm[list(unconnMask)]).any(), False)
 
-		sp._receptiveFieldRadius = 3
+		sp._receptiveFieldRadius = 1
 		sp._receptiveFieldPctPotential = 1
 		index = 5
 		perm = sp._initPermanence(index)
@@ -173,7 +173,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual((perm[list(unconnMask)]).any(), False)
 
 
-		sp._receptiveFieldRadius = 3
+		sp._receptiveFieldRadius = 1
 		sp._receptiveFieldPctPotential = 1
 		index = 9
 		perm = sp._initPermanence(index)
@@ -184,7 +184,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual((perm[list(connMask)]).all() ,True)
 		self.assertEqual((perm[list(unconnMask)]).any(), False)
 
-		sp._receptiveFieldRadius = 9
+		sp._receptiveFieldRadius = 4
 		sp._receptiveFieldPctPotential = 1
 		index = 2
 		perm = sp._initPermanence(index)
@@ -243,11 +243,200 @@ class SpatialPoolerTest(unittest.TestCase):
 		dc = Column._updateDutyCycle(dc, newval, period, maxperiod)
 		self.assertEqual(dc,950)				
 
-	def test_compute1(self):
+	# def test_compute1(self):
+	# 	sp = self._sp
+	# 	inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('float32')
+	# 	cols = sp.compute(inputVector,True,True)
+	# 	self.assertEqual(cols,5)
+
+	def test_inhibitColumnsGlobal(self):
+		"""
+		tests that global inhibition correctly picks the 
+		correct top number of overlap scores as winning columns
+		"""
 		sp = self._sp
-		inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('float32')
-		cols = sp.compute(inputVector,True,True)
-		self.assertEqual(cols,5)
+		numActive = 3
+		sp._numColumns = 10
+		overlaps = numpy.array([1,2,1,4,8,3,12,5,4,1])
+		active = sp._inhibitColumnsGlobal(overlaps,numActive)
+		winnerMask = set([4,6,7])
+		loserMask = set(range(sp._numColumns)) - winnerMask
+		self.assertEqual(active[list(winnerMask)].all(), True)
+		self.assertEqual(active[list(loserMask)].any(), False)
+
+		numActive = 5
+		sp._numColumns = 10
+		overlaps = numpy.array(range(10))
+		active = sp._inhibitColumnsGlobal(overlaps,numActive)
+		winnerMask = set(range(5,10))
+		loserMask = set(range(sp._numColumns)) - winnerMask
+		self.assertEqual(active[list(winnerMask)].all(), True)
+		self.assertEqual(active[list(loserMask)].any(), False)
+
+
+	def test_inhibitColumnsLocal(self):
+		sp = self._sp
+		numActive = 2
+		sp._numColumns = 10
+		sp._columnDimensions = [sp._numColumns]
+		sp._inhibitionRadius = 1
+		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
+							#   L W W L W W W  L  W   W
+		active = sp._inhibitColumnsLocal(overlaps,numActive)
+		loserMask = set([0,3,7])
+		winnerMask = set(range(sp._numColumns)) - loserMask
+		self.assertEqual(active[list(winnerMask)].all(), True)
+		self.assertEqual(active[list(loserMask)].any(), False)
+
+
+		numActive = 2
+		sp._numColumns = 10
+		sp._columnDimensions = [sp._numColumns]
+		sp._inhibitionRadius = 2
+		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
+							#   L W W L L W W  L  L   W
+		active = sp._inhibitColumnsLocal(overlaps,numActive)
+		winnerMask = set([1,2,5,6,9])
+		loserMask = set(range(sp._numColumns)) - winnerMask
+		self.assertEqual(active[list(winnerMask)].all(), True)
+		self.assertEqual(active[list(loserMask)].any(), False)
+
+		# test add to winners
+		numActive = 2
+		sp._numColumns = 10
+		sp._columnDimensions = [sp._numColumns]
+		sp._inhibitionRadius = 3
+		overlaps = numpy.array([1,1,1,1,1,1,1,1,1,1])
+							#   W W L L W W L L L L
+		active = sp._inhibitColumnsLocal(overlaps,numActive)
+		winnerMask = set([0,1,4,5])
+		loserMask = set(range(sp._numColumns)) - winnerMask
+		self.assertEqual(active[list(winnerMask)].all(), True)
+		self.assertEqual(active[list(loserMask)].any(), False)
+
+
+	def test_getNeighbors1D(self):
+		"""
+		Test that _getNeighbors static method correctly computes
+		the neighbors of a column
+		"""
+		sp = self._sp
+
+		layout = numpy.array([0, 0, 1, 0, 1, 0, 0,  0])
+		layout1D = layout.reshape(-1)
+		columnIndex = 3
+		dimensions = numpy.array([8])
+		radius = 1
+		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		layout = numpy.array([0, 1, 1, 0, 1, 1, 0,  0])
+		layout1D = layout.reshape(-1)
+		columnIndex = 3
+		dimensions = numpy.array([8])
+		radius = 2
+		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		#wrap around
+		layout = numpy.array([0, 1, 1, 0, 0, 0, 1,  1])
+		layout1D = layout.reshape(-1)
+		columnIndex = 0
+		dimensions = numpy.array([8])
+		radius = 2
+		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		#import pdb; pdb.set_trace()
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		#radius to big
+		layout = numpy.array([1, 1, 1, 1, 1, 1, 0,  1])
+		layout1D = layout.reshape(-1)
+		columnIndex = 6
+		dimensions = numpy.array([8])
+		radius = 20
+		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+	def test_getNeighbors2D(self):
+		"""
+		Test that _getNeighbors static method correctly computes
+		the neighbors of a column and maps them from 2D back to 1D
+		"""
+		sp = self._sp
+
+		layout = numpy.array([[0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 1, 1, 1, 0],
+		    	  			  [0, 1, 0, 1, 0],
+		    	  			  [0, 1, 1, 1, 0],
+		    	  			  [0, 0, 0, 0, 0]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 1
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		layout = numpy.array([[0, 0, 0, 0, 0],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 0, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 2
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		# radius to big
+		layout = numpy.array([[1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 0, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 7
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		# wrap-around
+		layout = numpy.array([[1, 0, 0, 1, 1],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [1, 0, 0, 1, 1],
+		    	  			  [1, 0, 0, 1, 0]])
+
+		layout1D = layout.reshape(-1)
+		dimensions = numpy.array([6, 5])
+		columnIndex = dimensions.prod() -1 
+		radius = 1
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
 
 
 if __name__ == '__main__':
