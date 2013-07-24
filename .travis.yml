@@ -11,12 +11,6 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
 
-notifications:
-  irc: 
-    channels: 
-      - "irc.freenode.net#nupic"
-  webhooks: http://issues.numenta.org:8081/travis
-
 before_install:
   - "source $NUPIC/env.sh"
 
