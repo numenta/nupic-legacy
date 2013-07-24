@@ -11,12 +11,6 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
 
-notifications:
-  irc: 
-    channels: 
-      - "irc.freenode.net#nupic"
-  webhooks: http://issues.numenta.org:8081/travis
-
 before_install:
   - "source $NUPIC/env.sh"
 
@@ -28,8 +22,8 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  - "$NUPIC/run_tests.sh"
-  
+  - "$NUPIC/run_tests.sh -c"
+
   # run all example files
     # examples/bindings
   - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py" 
