@@ -55,6 +55,7 @@ function prepDirectories {
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
     PATH=$NUPIC_INSTALL:$PATH pip install --target=$NUPIC_INSTALL/lib/python2.6/site-packages -r $NUPIC/external/common/requirements.txt
+    echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python2.6/site-packages/init_cov_core.pth
     exitOnError $?
 }
 
