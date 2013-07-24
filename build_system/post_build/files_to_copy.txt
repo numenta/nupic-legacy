@@ -60,6 +60,7 @@ examples/opf share/opf
 qa/shared_data      share/test/data
 tests tests
 run_tests.sh bin/run_tests.sh
+bin/run_tests.py bin/run_tests.py
 
 # miscellaneous files
 external/licenses               share/doc/licenses
