@@ -54,6 +54,7 @@ function prepDirectories {
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
+    PATH=$NUPIC_INSTALL:$PATH pip install --target=$NUPIC_INSTALL/lib/python2.6/site-packages -r $NUPIC/requirements.txt
     exitOnError $?
 }
 
