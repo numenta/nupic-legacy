@@ -254,19 +254,21 @@ class SpatialPooler(object):
     self._seed(seed)
   
 
-  def _adaptSynapses(self,inputVector,sharedInputs,activeColumns,orphanColumns):
+  def _adaptSynapses(self,inputVector,sharedInputs,orphanColumns):
     inputIndices = numpy.where(inputVector > 0)[0]
+    orphanSet = set(orphanColumns)
     permChanges = numpy.zeros(self._numInputs)
+    # import pdb; pdb.set_trace()
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     permChanges[sharedInputs] -= self._synPermActiveSharedDec
     for i in xrange(self._numColumns):
-      perm = self._permanenecs.getRow(i)
+      perm = self._permanences.getRow(i)
       maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
       perm[maskRF] += permChanges[maskRF]
-      if self._isOrphanColumn(i):
+      if i in orphanSet:
         perm[maskRF] -= self._synPermOrphanDec
-      self._permanenecs.replaceSparseRow(i,perm)
+      self._permanences.setRowFromDense(i,perm)
     self._updateConnectedSynapses()
       
 
@@ -393,14 +395,14 @@ class SpatialPooler(object):
 
     # compute anomaly scores 
 
-    # find orphans
+    #v find orphans
     orphanColumns = self._calculateOrphanColumns(activeColumns,overlapsPct)
 
     #v find shared inputs
     sharedInputs = self._calculateSharedInputs(inputVector,activeColumns)
 
     #v adapt synapses per column
-    self._adaptSynapses(inputVector,sharedInputs,activeColumns,orphanColumns)
+    self._adaptSynapses(inputVector,sharedInputs,orphanColumns)
 
     #v raise permanences to stimulus threshold connections
     self._raisePermanenceToThreshold()
