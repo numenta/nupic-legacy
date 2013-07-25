@@ -10,7 +10,6 @@ class SpatialPoolerTest(unittest.TestCase):
 	"""Unit Tests for SpatialPooler class"""
 
 	def setUp(self):
-		print "set up called"
 		self._sp = SpatialPooler(numInputs = 5,
                numColumns = 5,
                receptiveFieldRadius = 3,
@@ -55,6 +54,97 @@ class SpatialPoolerTest(unittest.TestCase):
             	initialPermanence = [ 0.095, 0.015,0.1,0.95,0.95],
             	receptiveField = range(5)
 			)
+
+
+	def test_orphan(self):
+		c = self._column
+		c._active = True
+		c._overlapPct = 0.2
+		self.assertEqual(c.isOrphan(),False)
+
+		c._active = True
+		c._overlapPct = 1
+		self.assertEqual(c.isOrphan(),False)
+
+		c._active = False
+		c._overlapPct = 0.2
+		self.assertEqual(c.isOrphan(),False)
+
+		c._active = False
+		c._overlapPct = 1
+		self.assertEqual(c.isOrphan(),True)
+
+
+	def test_calculateSharedInputs(self):
+		sp = SpatialPooler(numInputs = 8, numColumns=5)
+		for c in sp._columns:
+			c._connectedSynapses = SparseBinaryMatrix([numpy.zeros(sp._numInputs)])
+		sp._columns[0]._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1]])
+		sp._columns[1]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 1, 0, 0, 0, 1]])
+		sp._columns[2]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 0, 0, 0, 1, 0]])
+		sp._columns[3]._connectedSynapses = SparseBinaryMatrix([[0, 0, 1, 0, 0, 0, 1, 0]])
+		sp._columns[4]._connectedSynapses = SparseBinaryMatrix([[1, 0, 0, 0, 1, 0, 0, 0]])
+		inputVector =					   [1, 1, 1, 1, 0, 0, 0, 0]
+		activeColumns = range(5)
+		sharedTrue = set([3])
+		shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
+		self.assertSetEqual(shared, sharedTrue)
+
+		for c in sp._columns:
+			c._connectedSynapses = SparseBinaryMatrix([numpy.zeros(sp._numInputs)])
+		sp._columns[0]._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1]])
+		sp._columns[1]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 1, 0, 0, 0, 1]])
+		sp._columns[2]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 0, 0, 0, 1, 0]])
+		sp._columns[3]._connectedSynapses = SparseBinaryMatrix([[0, 0, 1, 0, 0, 0, 1, 0]])
+		sp._columns[4]._connectedSynapses = SparseBinaryMatrix([[1, 0, 0, 0, 1, 0, 0, 0]])
+		inputVector =					   [1, 1, 1, 0, 1, 1, 1, 1]
+		activeColumns = range(5)
+		sharedTrue = set([6,7])
+		shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
+		self.assertSetEqual(shared, sharedTrue)
+
+		for c in sp._columns:
+			c._connectedSynapses = SparseBinaryMatrix([numpy.zeros(sp._numInputs)])
+		sp._columns[0]._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1]])
+		sp._columns[1]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 1, 0, 0, 0, 1]])
+		sp._columns[2]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 0, 0, 0, 1, 0]])
+		sp._columns[3]._connectedSynapses = SparseBinaryMatrix([[0, 0, 1, 0, 0, 0, 1, 0]])
+		sp._columns[4]._connectedSynapses = SparseBinaryMatrix([[1, 0, 0, 0, 1, 0, 0, 0]])
+		inputVector =					   [0, 0, 0, 0, 0, 0, 0, 0]
+		activeColumns = range(5)
+		sharedTrue = set([])
+		shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
+		self.assertSetEqual(shared, sharedTrue)
+
+
+		for c in sp._columns:
+			c._connectedSynapses = SparseBinaryMatrix([numpy.zeros(sp._numInputs)])
+		sp._columns[0]._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1]])
+		sp._columns[1]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 1, 0, 0, 0, 1]])
+		sp._columns[2]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 0, 0, 0, 1, 0]])
+		sp._columns[3]._connectedSynapses = SparseBinaryMatrix([[0, 0, 1, 0, 0, 0, 1, 0]])
+		sp._columns[4]._connectedSynapses = SparseBinaryMatrix([[1, 0, 0, 0, 1, 0, 0, 0]])
+		inputVector =					   [1, 0, 1, 0, 1, 1, 1, 0]
+		activeColumns = [1,2,3]
+		sharedTrue = set([6])
+		shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
+		self.assertSetEqual(shared, sharedTrue)
+		
+		for c in sp._columns:
+			c._connectedSynapses = SparseBinaryMatrix([numpy.zeros(sp._numInputs)])
+		sp._columns[0]._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1]])
+		sp._columns[1]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 1, 0, 0, 0, 1]])
+		sp._columns[2]._connectedSynapses = SparseBinaryMatrix([[0, 0, 0, 0, 0, 0, 1, 0]])
+		sp._columns[3]._connectedSynapses = SparseBinaryMatrix([[0, 0, 1, 0, 0, 0, 1, 0]])
+		sp._columns[4]._connectedSynapses = SparseBinaryMatrix([[1, 0, 0, 0, 1, 0, 0, 0]])
+		inputVector =					   [1, 0, 1, 1, 1, 1, 1, 1]
+		activeColumns = [0,1,3,4]
+		sharedTrue = set([3,7])
+		shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
+		self.assertSetEqual(shared, sharedTrue)
+		#import pdb; pdb.set_trace()
+
+
 
 	def test_computeOverlap(self):
 		"""
