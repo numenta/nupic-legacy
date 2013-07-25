@@ -55,12 +55,30 @@ class SpatialPoolerTest(unittest.TestCase):
 
 	def test_calculateOrpanColumns(self):
 		sp = self._sp
+		
+		activeColumns = numpy.array([])
+		overlapsPct = numpy.array([1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1])
+		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
+		trueOrphanColumns = []
+		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
+
+		activeColumns = numpy.array(range(10))
+		overlapsPct = numpy.array([0.98, 0.12, 0.15, 0.92, 0.4, 0.41, 0.61, 0.88, 0.01, 0.1])
+		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
+		trueOrphanColumns = []
+		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
+
 		activeColumns = numpy.array([5,6,7])
 		overlapsPct = numpy.array([1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1])
 		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
 		trueOrphanColumns = [5,6]
 		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
 
+		activeColumns = numpy.array([1,2,3,6,7])
+		overlapsPct = numpy.array([1, 0.12, 1, 0.92, 1, 0.4, 1, 0.88, 1, 0.1])
+		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
+		trueOrphanColumns = [2,6]
+		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
 
 	def test_raisePermanenceThreshold(self):
 		sp = SpatialPooler(numInputs = 5, 
