@@ -44,141 +44,130 @@ from operator import itemgetter
 import nupic.research.fdrutilities as fdru
 
 
-class ColumnParams(object):
-  """
-  This class is a storage depot for paramaeters that
-  are shared among all columns in the spatial pooler
-  """
+# class ColumnParams(object):
+#   """
+#   This class is a storage depot for paramaeters that
+#   are shared among all columns in the spatial pooler
+#   """
 
-  def __init__(self,
-               stimulusThreshold = 0,
-               synPermInactiveDec = 0.01,
-               synPermActiveInc = 0.1,
-               synPermActiveSharedDec = 0.0,
-               synPermBelowStimulusInc = 0.01,
-               synPermOrphanDec = 0.0,
-               synPermConnected = 0.10,
-               minPctDutyCycleBeforeInh = 0.001,
-               minPctDutyCycleAfterInh = 0.001,
-               dutyCyclePeriod = 1000,
-               maxFiringBoost = 10.0,
-               maxSSFiringBoost = 2.0,
-               maxSynPermBoost = 10.0):
-    self.stimulusThreshold = stimulusThreshold
-    self.synPermInactiveDec = synPermInactiveDec
-    self.synPermActiveInc = synPermActiveInc
-    self.synPermActiveSharedDec = synPermActiveSharedDec
-    self.synPermOrphanDec = synPermOrphanDec
-    self.synPermConnected = synPermConnected
-    self.minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
-    self.minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
-    self.dutyCyclePeriod = dutyCyclePeriod
-    self.maxFiringBoost = maxFiringBoost
-    self.maxSSFiringBoost = maxSSFiringBoost
-    self.maxSynPermBoost = maxSynPermBoost
+#   def __init__(self,
+#                stimulusThreshold = 0,
+#                synPermInactiveDec = 0.01,
+#                synPermActiveInc = 0.1,
+#                synPermActiveSharedDec = 0.0,
+#                synPermBelowStimulusInc = 0.01,
+#                synPermOrphanDec = 0.0,
+#                synPermConnected = 0.10,
+#                minPctDutyCycleBeforeInh = 0.001,
+#                minPctDutyCycleAfterInh = 0.001,
+#                dutyCyclePeriod = 1000,
+#                maxFiringBoost = 10.0,
+#                maxSSFiringBoost = 2.0,
+#                maxSynPermBoost = 10.0):
+#     self.stimulusThreshold = stimulusThreshold
+#     self.synPermInactiveDec = synPermInactiveDec
+#     self.synPermActiveInc = synPermActiveInc
+#     self.synPermActiveSharedDec = synPermActiveSharedDec
+#     self.synPermOrphanDec = synPermOrphanDec
+#     self.synPermConnected = synPermConnected
+#     self.minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
+#     self.minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
+#     self.dutyCyclePeriod = dutyCyclePeriod
+#     self.maxFiringBoost = maxFiringBoost
+#     self.maxSSFiringBoost = maxSSFiringBoost
+#     self.maxSynPermBoost = maxSynPermBoost
 
 
-class Column(object):
+# class Column(object):
 
-  def __init__(self,
-               numInputs,
-               columnParams,
-               initialPermanence,
-               receptiveField):
-    self._columnParams = columnParams
-    self._permanence = SparseMatrix([initialPermanence])
-    connectedSynapses = [(numpy.array(initialPermanence) > columnParams.synPermConnected).tolist()]
-    self._connectedSynapses = SparseBinaryMatrix(connectedSynapses)
-    self._receptiveField = SparseMatrix([receptiveField])
-    self._overlap = 0
-    self._overlapPct = 0
-    self._overlapDutyCycle = 0.0
-    self._activeDutyCycle = 0.0
-    self._boost = 1.0
+#   def __init__(self,
+#                numInputs,
+#                columnParams,
+#                initialPermanence,
+#                receptiveField):
+#     self._columnParams = columnParams
+#     
 
-     # not sure what this is for
-    _dutyCycleBeforeInh = 0
-    _dutyCycleAfterInh = 0
-    _minDutyCycleBeforeInh = 0
-    _minDutyCycleAfterInh = 0
+#   def computeOverlap(self,inputVector):
+#     """
+#     Computes the overlap with a new input. The overlap is the number of
+#     active inputs to which the column is "connected" to. Being connected
+#     to an input bit entails having an permanence value above "synPermConnected".
+#     This method also computes the percent overlap, which is defined as the
+#     ratio between the overlap (as defined above) and the total number of
+#     bits the column is connected to
+#     """
+#     assert(inputVector.dtype == 'float32')
 
-  def computeOverlap(self,inputVector):
-    """
-    Computes the overlap with a new input. The overlap is the number of
-    active inputs to which the column is "connected" to. Being connected
-    to an input bit entails having an permanence value above "synPermConnected".
-    This method also computes the percent overlap, which is defined as the
-    ratio between the overlap (as defined above) and the total number of
-    bits the column is connected to
-    """
-    assert(inputVector.dtype == 'float32')
+#     # This following code segment computes the overlap score. 
+#     # It essentially computes the dot product of the input vector
+#     # and the connected synapse vector which represents a connected
+#     # synapse by a '1' and an unconnected synapse as a '0'. The 
+#     # operation is performed via a C++ 'SparseBinaryMatrix' class method
+#     # called 'rightVecSumAtNZ_fast' for efficiency purposes. The 3rd 
+#     # argument to the 'rightVecSumAtNZ' function must be a list, therefore 
+#     # some wrapping/unwrapping is necessary. The code that gets executed
+#     # is functionally equivalent to the following one line of python:
+#     #
+#     # overlap = np.dot(self._connectedSynapses,inputVector)
 
-    # This following code segment computes the overlap score. 
-    # It essentially computes the dot product of the input vector
-    # and the connected synapse vector which represents a connected
-    # synapse by a '1' and an unconnected synapse as a '0'. The 
-    # operation is performed via a C++ 'SparseBinaryMatrix' class method
-    # called 'rightVecSumAtNZ_fast' for efficiency purposes. The 3rd 
-    # argument to the 'rightVecSumAtNZ' function must be a list, therefore 
-    # some wrapping/unwrapping is necessary. The code that gets executed
-    # is functionally equivalent to the following one line of python:
-    #
-    # overlap = np.dot(self._connectedSynapses,inputVector)
+#     overlapWrapper = numpy.zeros(1,dtype='float32')
+#     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlapWrapper)
+#     self._overlap = overlapWrapper[0]
 
-    overlapWrapper = numpy.zeros(1,dtype='float32')
-    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlapWrapper)
-    self._overlap = overlapWrapper[0]
+#     # The following code segment computes the total number of connected
+#     # synapses for the column. It does so by leveraging the same
+#     # 'rightVecSumAtNZ_fast' C++ method as above, by computing the dot
+#     # product of a vector filled with ones. Since the entries of the 
+#     # 'connectedSynapses' array are either 0's or 1's, This code will 
+#     # compute the count of the number of connected synapses. The code that 
+#     # gets executed is functionally equivalent to the following one line 
+#     # of python:
+#     #
+#     # connectedCount = self._connectedSynapses.sum()
 
-    # The following code segment computes the total number of connected
-    # synapses for the column. It does so by leveraging the same
-    # 'rightVecSumAtNZ_fast' C++ method as above, by computing the dot
-    # product of a vector filled with ones. Since the entries of the 
-    # 'connectedSynapses' array are either 0's or 1's, This code will 
-    # compute the count of the number of connected synapses. The code that 
-    # gets executed is functionally equivalent to the following one line 
-    # of python:
-    #
-    # connectedCount = self._connectedSynapses.sum()
-
-    connectedCountWrapper = numpy.zeros(1,dtype='float32')
-    self._connectedSynapses.rightVecSumAtNZ_fast(
-      numpy.ones(inputVector.size, dtype='float32'), 
-      connectedCountWrapper)
-    connectedCount = connectedCountWrapper[0]
+#     connectedCountWrapper = numpy.zeros(1,dtype='float32')
+#     self._connectedSynapses.rightVecSumAtNZ_fast(
+#       numpy.ones(inputVector.size, dtype='float32'), 
+#       connectedCountWrapper)
+#     connectedCount = connectedCountWrapper[0]
     
-    # compute the overlap percent: what is the fraction of bits that
-    # overlapped with the pattern? this is a measure of how well did
-    # the column fit the pattern.
+#     # compute the overlap percent: what is the fraction of bits that
+#     # overlapped with the pattern? this is a measure of how well did
+#     # the column fit the pattern.
 
-    self._overlapPct = self._overlap / connectedCount
+#     self._overlapPct = self._overlap / connectedCount
 
-    return self._overlap, self._overlapPct
-
-
-  def isOrphan(self):
-    return self._overlapPct >=1 and not self._active 
+#     return self._overlap, self._overlapPct
 
 
-  def getConnectedSynapses(self):
-    readOnlyCopy = self._connectedSynapses
-    readOnlyCopy = readOnlyCopy.toDense().view()
-    readOnlyCopy.setflags(write=False)
-    return readOnlyCopy
+#   def adaptSynapses(self,inputVector,sharedInputs):
 
-  @staticmethod
-  def _updateDutyCycle(dutyCycle,newInput,period,maxPeriod = -1):
-    """
-    Updates a duty cycle estimate with a new value. This is a helper
-    function that is used to update several duty cycle variables in 
-    the Column class, such as: overlapDutyCucle, activeDutyCycle,
-    minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
-    the updated duty cycle.
-    """
-    assert(period >= 1)
-    if (maxPeriod is not -1):
-      period = min(period,maxPeriod)
-    return (dutyCycle * (period -1.0) + newInput) / period
+#     inputSlice = inputVector[self._receptiveField]
 
+#     permChanges = numpy.empty(self._numInputs)
+#     permChanges.fill(-1 * synPermInactiveDec)
+#     permChanges[inputVector] = 
+
+
+
+#   def setActive(self,activeState):
+#     self._active = activeState
+
+
+#   def isActive(self):
+#     return self._active
+
+
+#   def isOrphan(self):
+#     return self._overlapPct >=1 and not self._active 
+
+
+#   def getConnectedSynapses(self):
+#     readOnlyCopy = self._connectedSynapses
+#     readOnlyCopy = readOnlyCopy.toDense().view()
+#     readOnlyCopy.setflags(write=False)
+#     return readOnlyCopy
 
 class SpatialPooler(object):
   """"
@@ -217,21 +206,6 @@ class SpatialPooler(object):
             (localAreaDensity >0 and localAreaDensity < 1))
 
 
-
-    self._columnParams = ColumnParams(stimulusThreshold,
-                                      synPermInactiveDec,
-                                      synPermActiveInc,
-                                      synPermActiveSharedDec,
-                                      synPermConnected / 10.0,
-                                      synPermOrphanDec,
-                                      synPermConnected,
-                                      minPctDutyCycleBeforeInh,
-                                      minPctDutyCycleAfterInh,
-                                      dutyCyclePeriod,
-                                      maxFiringBoost,
-                                      maxSSFiringBoost,
-                                      maxSynPermBoost)
-
     # save arguments
     self._numInputs = numInputs
     self._numColumns = numColumns
@@ -240,24 +214,61 @@ class SpatialPooler(object):
     self._globalInhibition = globalInhibition
     self._numActiveColumnsPerInhArea = numActiveColumnsPerInhArea
     self._localAreaDensity = localAreaDensity
+    self._stimulusThreshold = stimulusThreshold
+    self._synPermInactiveDec = synPermInactiveDec
+    self._synPermActiveInc = synPermActiveInc
+    self._synPermActiveSharedDec = synPermActiveSharedDec
+    self._synPermBelowStimulusInc = synPermConnected / 10.0
+    self._synPermOrphanDec = synPermOrphanDec
+    self._synPermConnected = synPermConnected
+    self._minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
+    self._minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
+    self._dutyCyclePeriod = dutyCyclePeriod
+    self._maxFiringBoost = maxFiringBoost
+    self._maxSSFiringBoost = maxSSFiringBoost
+    self._maxSynPermBoost = maxSynPermBoost
 
     # internal state
-    self._inhibitionRadius = 5
-
     self._columnDimensions = [numColumns]
+    self._inputDimensions = [numInputs]
+    self._inhibitionRadius = 5  #TODO: Update this
 
-    # bookeeping variables
+
     self._iterationNum = 0
     self._learningIterationNum = 0
 
-    #initializeColumns
-    self._columns = numpy.array([Column(numInputs, 
-                                        self._columnParams,
-                                        self._initPermanence(i),
-                                        self._mapRF(i)) \
-                                for i in range(numColumns)])
-    #self._seed(seed)
+    receptiveFields = [self._mapRF(i) for i in xrange(numColumns)]
+    self._receptiveFields = SparseBinaryMatrix(receptiveFields)
+    initialPermanences = [self._initPermanence(i) for i in xrange(numColumns)]
+    self._permanences = SparseMatrix(initialPermanences)
+    self._connectedSynapses = SparseBinaryMatrix(numInputs)
+    self._connectedSynapses.resize(numColumns,numInputs)
+    self._connectedCounts = numpy.zeros(numColumns)
+    self._updateConnectedSynapses()
+
+    self._overlapDutyCycle = numpy.zeros(numColumns)
+    self._activeDutyCycle = numpy.zeros(numColumns)
+#      # not sure what this is for
+#     _dutyCycleBeforeInh = 0
+#     _dutyCycleAfterInh = 0
+#     _minDutyCycleBeforeInh = 0
+#     _minDutyCycleAfterInh = 0
+    self._boostFactors = numpy.zeros(numColumns)
+    self._overlaps = numpy.zeros(numColumns, dtype='float32')
+    self._overlapsPct = numpy.zeros(numColumns, dtype='float32')
+
+    self._seed(seed)
     
+
+  #TODO: write tests for this method
+  #TODO: implement fast C++ function for this
+  def _updateConnectedSynapses(self):
+    for i in xrange(self._numColumns):
+      newConnected = \
+        numpy.where(self._permanences.getRow(i) > self._synPermConnected)[0]
+      self._connectedSynapses.replaceSparseRow(i, newConnected)
+      self._connectedCounts[i] = newConnected.size
+
 
   def _initPermanence(self,index):
     """
@@ -273,21 +284,20 @@ class SpatialPooler(object):
     # given by the parameter "receptiveFieldPctPotential"
     rand = numpy.random.random(2*self._receptiveFieldRadius+1)
     threshold = 1-self._receptiveFieldPctPotential
-    connectedSynapses = rand > threshold
-    unconnectedSynpases = numpy.logical_not(connectedSynapses)
-
-    
-    maxPermValue = min(1.0, self._columnParams.synPermConnected + \
-                self._columnParams.synPermInactiveDec)
+    connectedSynapses = numpy.where(rand > threshold)[0]
+    unconnectedSynpases = list(set(range(self._receptiveFieldRadius)) - \
+      set(connectedSynapses))
+    maxPermValue = min(1.0, self._synPermConnected + \
+                self._synPermInactiveDec)
 
     # All connected synapses are to have a permanence value between
     # synPermConnected and synPermActiveInc/4
-    connectedPermRange = self._columnParams.synPermActiveInc / 4
-    connectedPermOffset = self._columnParams.synPermConnected
+    connectedPermRange = self._synPermActiveInc / 4
+    connectedPermOffset = self._synPermConnected
 
     # All unconnected synapses are to have a permanence value 
     # between 0 and synPermConnected
-    unconnectedPermRange = self._columnParams.synPermConnected
+    unconnectedPermRange = self._synPermConnected
     unconnectedPermOffset = 0
 
     # Create a vector to contain only the permanence values inside
@@ -302,11 +312,11 @@ class SpatialPooler(object):
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
-    permRF[permRF < (self._columnParams.synPermActiveInc / 2.0)] = 0
+    permRF[permRF < (self._synPermActiveInc / 2.0)] = 0
 
     # Create a full vector the size of the entire input and fill in
     # the permanence values we just computed at the correct indices
-    maskRF = self._mapRF(index)
+    maskRF = numpy.where(self._mapRF(index) > 0)[0]
     permanences = numpy.zeros(self._numInputs)
     permanences[maskRF] = permRF
 
@@ -336,7 +346,10 @@ class SpatialPooler(object):
     indices += index
     indices -= self._receptiveFieldRadius
     indices %= self._numInputs
-    return indices
+    indices = list(set(indices))
+    mask = numpy.zeros(self._numInputs)
+    mask[indices] = 1
+    return mask
 
 
   def compute(self,inputVector, learn=True, infer=True):
@@ -350,32 +363,35 @@ class SpatialPooler(object):
     #boosting here... only if still learning!
 
     #vip selection here....
-
     activeColumns = self._inhibitColumns(inputVector, overlaps)
 
     #v compute anomaly scores 
 
     #v find orphans
 
-    # find shared inputs
+    #v find shared inputs
 
     # adapt synapses per column
 
     # update boost factors per column
 
-    # update duty cycles
+    # update duty cycles per column
 
     # update inhibition radius
 
     self._iterationNum += 1
 
+
+  def _calculateOverlap(self,inputVector):
+    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, self._overlaps)
+    self._overlapsPct = self._overlaps.astype('float32') / self._connectedCounts
+
+
   def _calculateSharedInputs(self,inputVector,activeColumns):
-    inputVector = numpy.array(inputVector)
-    shared = numpy.zeros(self._numInputs)
-    #import pdb; pdb.set_trace()
-    for c in self._columns[activeColumns]:
-      shared += c.getConnectedSynapses()[0]
-    return numpy.where(numpy.logical_and(shared > 1,inputVector > 0))[0]
+    connectedSynapses = SparseMatrix(self._connectedSynapses)
+    inputCoverage = connectedSynapses.addListOfRows(activeColumns)
+    sharedInputs = numpy.where(numpy.logical_and(inputCoverage > 1,inputVector > 0))[0]
+    return sharedInputs
 
 
   def _inhibitColumns(self,overlaps):
@@ -411,9 +427,8 @@ class SpatialPooler(object):
   def _inhibitColumnsLocal(self,overlaps,numActive):
     activeColumns = numpy.zeros(self._numColumns)
     addToWinners = max(overlaps)/1000.0   
-    # import pdb; pdb.set_trace()
     overlaps = numpy.array(overlaps,dtype='float32').reshape(self._columnDimensions)
-    for i in range(self._numColumns):
+    for i in xrange(self._numColumns):
       maskNeighbors = self._getNeighbors(i,self._columnDimensions,
         self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
@@ -475,6 +490,31 @@ class SpatialPooler(object):
     avgConnectedRF = min(maxDimension,avgConnectedRF)
     return int(round(avgConnectedRF))
 
+
+  @staticmethod
+  def _updateDutyCycle(dutyCycle,newInput,period):
+    """
+    Updates a duty cycle estimate with a new value. This is a helper
+    function that is used to update several duty cycle variables in 
+    the Column class, such as: overlapDutyCucle, activeDutyCycle,
+    minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
+    the updated duty cycle.
+    """
+    assert(period >= 1)
+    return (dutyCycle * (period -1.0) + newInput) / period
+
+
+  def _seed(self, seed=-1):
+    """
+    Initialize the random seed
+    """
+
+    if seed != -1:
+      self.random = NupicRandom(seed)
+      random.seed(seed)
+      numpy.random.seed(seed)
+    else:
+      self.random = NupicRandom()
     
   # def _averageConnectedSpan(self):
   #   totalAvgSpan = 0
