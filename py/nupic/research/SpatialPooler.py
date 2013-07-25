@@ -90,7 +90,6 @@ class Column(object):
     connectedSynapses = [(numpy.array(initialPermanence) > columnParams.synPermConnected).tolist()]
     self._connectedSynapses = SparseBinaryMatrix(connectedSynapses)
     self._receptiveField = SparseMatrix([receptiveField])
-
     self._overlap = 0
     self._overlapPct = 0
     self._overlapDutyCycle = 0.0
@@ -156,8 +155,13 @@ class Column(object):
     return self._overlap, self._overlapPct
 
 
-  def getConnectedSynapses():
-    readOnlyCopy = self._connectedSynapses.view()
+  def isOrphan(self):
+    return self._overlapPct >=1 and not self._active 
+
+
+  def getConnectedSynapses(self):
+    readOnlyCopy = self._connectedSynapses
+    readOnlyCopy = readOnlyCopy.toDense().view()
     readOnlyCopy.setflags(write=False)
     return readOnlyCopy
 
@@ -255,7 +259,6 @@ class SpatialPooler(object):
     #self._seed(seed)
     
 
-
   def _initPermanence(self,index):
     """
     Initializes the permanences of a column. The method
@@ -348,11 +351,11 @@ class SpatialPooler(object):
 
     #vip selection here....
 
-    activeColumns = self._inhibitColumns(overlaps)
+    activeColumns = self._inhibitColumns(inputVector, overlaps)
 
-    # compute anomaly scores
+    #v compute anomaly scores 
 
-    # find orphans
+    #v find orphans
 
     # find shared inputs
 
@@ -365,6 +368,14 @@ class SpatialPooler(object):
     # update inhibition radius
 
     self._iterationNum += 1
+
+  def _calculateSharedInputs(self,inputVector,activeColumns):
+    inputVector = numpy.array(inputVector)
+    shared = numpy.zeros(self._numInputs)
+    #import pdb; pdb.set_trace()
+    for c in self._columns[activeColumns]:
+      shared += c.getConnectedSynapses()[0]
+    return numpy.where(numpy.logical_and(shared > 1,inputVector > 0))[0]
 
 
   def _inhibitColumns(self,overlaps):
