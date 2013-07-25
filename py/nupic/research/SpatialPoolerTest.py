@@ -53,8 +53,74 @@ class SpatialPoolerTest(unittest.TestCase):
 	# 	c._overlapPct = 1
 	# 	self.assertEqual(c.isOrphan(),True)
 
+	def test_calculateOrpanColumns(self):
+		sp = self._sp
+		activeColumns = numpy.array([5,6,7])
+		overlapsPct = numpy.array([1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1])
+		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
+		trueOrphanColumns = [5,6]
+		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
+
+
+	def test_raisePermanenceThreshold(self):
+		sp = SpatialPooler(numInputs = 5, 
+						   numColumns=5, 
+						   synPermConnected=0.1,
+						   stimulusThreshold=3)
+		sp._synPermBelowStimulusInc = 0.01
+		sp._permanences = \
+		SparseMatrix([[0.0, 0.11, 0.095, 0.092, 0.01],
+					  [0.12, 0.15, 0.02, 0.12, 0.09],
+	    			  [0.51, 0.081, 0.025, 0.089, 0.31],
+			   		  [0.18, 0.0601, 0.11, 0.011, 0.03],
+			   		  [0.011, 0.011, 0.011, 0.011, 0.011]])
+		sp._connectedCounts = numpy.array([1, 3, 2, 2, 0])
+
+
+		truePermanences = \
+					[[0.0, 0.12, 0.105, 0.102, 0.0],		# incremented once
+					 [0.12, 0.15, 0.02, 0.12, 0.09],		# no change
+	    			 [0.53, 0.101, 0.0, 0.109, 0.33],		# increment twice 
+			   		 [0.22, 0.1001, 0.15, 0.051, 0.07],		# increment four times
+			   		 [0.101, 0.101, 0.101, 0.101, 0.101]]	#increment 9 times
+
+
+		trueConnectedSynapses = [[0, 1, 1, 1, 0],
+						  		 [1, 1, 0, 1, 0],
+								 [1, 1, 0, 1, 1],
+								 [1, 1, 1, 0, 0],
+								 [1, 1, 1, 1, 1]]
+
+		trueConnectedCounts = [3, 3, 4, 3, 5]
+		sp._raisePermanenceToThreshold()
+		for i in xrange(sp._numColumns):
+			perm = list(sp._permanences.getRow(i))
+			for j in xrange(sp._numInputs):
+				self.assertAlmostEqual(truePermanences[i][j],perm[j])
+			self.assertListEqual(trueConnectedSynapses[i],list(sp._connectedSynapses.getRow(i)))
+			self.assertEqual(trueConnectedCounts[i],sp._connectedCounts[i])
+
+
+
 	def test_updateConnectedSynapses(self):
-		pass
+		sp = SpatialPooler(numInputs = 5, numColumns=5, synPermConnected=0.1)
+		sp._permanences = SparseMatrix([[0.0, 0.5, 0.4, 0.01, 0.02],
+										[0.3, 0.01, 0.02, 0.12, 0.09],
+										[0.07, 0.05, 0.03, 0.19, 0.06],
+										[0.18, 0.09, 0.11, 0.01, 0.03],
+										[0.20, 0.1001, 0.05, 0.09, 1]])
+		trueConnectedSynapses = [[0, 1, 1, 0, 0],
+						  		[1, 0, 0, 1, 0],
+								[0, 0, 0, 1, 0],
+								[1, 0, 1, 0, 0],
+								[1, 1, 0, 0, 1]]
+		trueConnectedCounts = [2,2,1,2,3]
+		sp._updateConnectedSynapses()
+		for i in xrange(sp._numColumns):
+			self.assertListEqual(trueConnectedSynapses[i],list(sp._connectedSynapses.getRow(i)))
+		self.assertListEqual(trueConnectedCounts, list(sp._connectedCounts))
+
+		
 
 	def test_calculateSharedInputs(self):
 		sp = SpatialPooler(numInputs = 8, numColumns=5)
@@ -129,13 +195,11 @@ class SpatialPoolerTest(unittest.TestCase):
 								[0, 0, 0, 0, 0, 0, 0, 0, 1, 1]])
 		sp._connectedCounts = numpy.array([10.0, 8.0, 6.0, 4.0, 2.0])
 		inputVector = numpy.zeros(sp._numInputs, dtype='float32')
-		sp._calculateOverlap(inputVector)
+		overlaps, overlapsPct = sp._calculateOverlap(inputVector)
 		trueOverlaps = list(numpy.array([0, 0, 0, 0, 0]))
 		trueOverlapsPct = list(numpy.array([0, 0, 0, 0, 0]))
-		overlaps = list(sp._overlaps)
-		overlapsPct = list(sp._overlapsPct)
-		self.assertListEqual(overlaps,trueOverlaps)
-		self.assertListEqual(overlapsPct,trueOverlapsPct)
+		self.assertListEqual(list(overlaps),trueOverlaps)
+		self.assertListEqual(list(overlapsPct),trueOverlapsPct)
 
 		sp._connectedSynapses = \
 			SparseBinaryMatrix([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -145,13 +209,11 @@ class SpatialPoolerTest(unittest.TestCase):
 								[0, 0, 0, 0, 0, 0, 0, 0, 1, 1]])
 		sp._connectedCounts = numpy.array([10.0, 8.0, 6.0, 4.0, 2.0])
 		inputVector = numpy.ones(sp._numInputs, dtype='float32')
-		sp._calculateOverlap(inputVector)
+		overlaps, overlapsPct = sp._calculateOverlap(inputVector)
 		trueOverlaps = list(numpy.array([10, 8, 6, 4, 2]))
 		trueOverlapsPct = list(numpy.array([1, 1, 1, 1, 1]))
-		overlaps = list(sp._overlaps)
-		overlapsPct = list(sp._overlapsPct)
-		self.assertListEqual(overlaps,trueOverlaps)
-		self.assertListEqual(overlapsPct,trueOverlapsPct)
+		self.assertListEqual(list(overlaps),trueOverlaps)
+		self.assertListEqual(list(overlapsPct),trueOverlapsPct)
 
 		sp._connectedSynapses = \
 			SparseBinaryMatrix([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -162,13 +224,11 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._connectedCounts = numpy.array([10.0, 8.0, 6.0, 4.0, 2.0])
 		inputVector = numpy.zeros(sp._numInputs, dtype='float32')
 		inputVector[9] = 1
-		sp._calculateOverlap(inputVector)
+		overlaps, overlapsPct = sp._calculateOverlap(inputVector)
 		trueOverlaps = list(numpy.array([1, 1, 1, 1, 1]))
 		trueOverlapsPct = list(numpy.array([0.1, 0.125, 1.0/6, 0.25, 0.5]))
-		overlaps = list(sp._overlaps)
-		overlapsPct = list(sp._overlapsPct)
-		self.assertListEqual(overlaps,trueOverlaps)
-		self.assertListEqual(overlapsPct,trueOverlapsPct)
+		self.assertListEqual(list(overlaps),trueOverlaps)
+		self.assertListEqual(list(overlapsPct),trueOverlapsPct)
 
 		#zig-zag
 		sp._connectedSynapses = \
@@ -180,13 +240,11 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._connectedCounts = numpy.array([2.0, 2.0, 2.0, 2.0, 2.0])
 		inputVector = numpy.zeros(sp._numInputs, dtype='float32')
 		inputVector[range(0,10,2)] = 1
-		sp._calculateOverlap(inputVector)
+		overlaps, overlapsPct = sp._calculateOverlap(inputVector)
 		trueOverlaps = list(numpy.array([1, 1, 1, 1, 1]))
 		trueOverlapsPct = list(numpy.array([0.5, 0.5, 0.5, 0.5, 0.5]))
-		overlaps = list(sp._overlaps)
-		overlapsPct = list(sp._overlapsPct)
-		self.assertListEqual(overlaps,trueOverlaps)
-		self.assertListEqual(overlapsPct,trueOverlapsPct)
+		self.assertListEqual(list(overlaps),trueOverlaps)
+		self.assertListEqual(list(overlapsPct),trueOverlapsPct)
 
 
 	def test_initPermanence1(self):
@@ -329,20 +387,20 @@ class SpatialPoolerTest(unittest.TestCase):
 		numActive = 3
 		sp._numColumns = 10
 		overlaps = numpy.array([1,2,1,4,8,3,12,5,4,1])
-		active = sp._inhibitColumnsGlobal(overlaps,numActive)
-		winnerMask = set([4,6,7])
-		loserMask = set(range(sp._numColumns)) - winnerMask
-		self.assertEqual(active[list(winnerMask)].all(), True)
-		self.assertEqual(active[list(loserMask)].any(), False)
+		active = list(sp._inhibitColumnsGlobal(overlaps,numActive))
+		trueActive = numpy.zeros(sp._numColumns)
+		winnerMask = [4,6,7]
+		trueActive[winnerMask] = 1
+		self.assertListEqual(list(trueActive), active)
 
 		numActive = 5
 		sp._numColumns = 10
 		overlaps = numpy.array(range(10))
-		active = sp._inhibitColumnsGlobal(overlaps,numActive)
-		winnerMask = set(range(5,10))
-		loserMask = set(range(sp._numColumns)) - winnerMask
-		self.assertEqual(active[list(winnerMask)].all(), True)
-		self.assertEqual(active[list(loserMask)].any(), False)
+		active = list(sp._inhibitColumnsGlobal(overlaps,numActive))
+		trueActive = numpy.zeros(sp._numColumns)
+		winnerMask = range(5,10)
+		trueActive[winnerMask] = 1
+		self.assertListEqual(list(trueActive), active)
 
 
 	def test_inhibitColumnsLocal(self):
@@ -353,11 +411,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._inhibitionRadius = 1
 		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
 							#   L W W L W W W  L  W   W
-		active = sp._inhibitColumnsLocal(overlaps,numActive)
-		loserMask = set([0,3,7])
-		winnerMask = set(range(sp._numColumns)) - loserMask
-		self.assertEqual(active[list(winnerMask)].all(), True)
-		self.assertEqual(active[list(loserMask)].any(), False)
+		trueActive = [1,2,4,5,6,8,9]
+		active = list(sp._inhibitColumnsLocal(overlaps,numActive))
+		self.assertListEqual(trueActive, active)
 
 
 		numActive = 2
@@ -366,11 +422,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._inhibitionRadius = 2
 		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
 							#   L W W L L W W  L  L   W
-		active = sp._inhibitColumnsLocal(overlaps,numActive)
-		winnerMask = set([1,2,5,6,9])
-		loserMask = set(range(sp._numColumns)) - winnerMask
-		self.assertEqual(active[list(winnerMask)].all(), True)
-		self.assertEqual(active[list(loserMask)].any(), False)
+		trueActive = [1,2,5,6,9]
+		active = list(sp._inhibitColumnsLocal(overlaps,numActive))
+		self.assertListEqual(trueActive, active)
 
 		# test add to winners
 		numActive = 2
@@ -379,11 +433,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._inhibitionRadius = 3
 		overlaps = numpy.array([1,1,1,1,1,1,1,1,1,1])
 							#   W W L L W W L L L L
-		active = sp._inhibitColumnsLocal(overlaps,numActive)
-		winnerMask = set([0,1,4,5])
-		loserMask = set(range(sp._numColumns)) - winnerMask
-		self.assertEqual(active[list(winnerMask)].all(), True)
-		self.assertEqual(active[list(loserMask)].any(), False)
+		trueActive = 		   [0,1,4,5]
+		active = list(sp._inhibitColumnsLocal(overlaps,numActive))
+		self.assertListEqual(trueActive, active)
 
 
 	def test_getNeighbors1D(self):
