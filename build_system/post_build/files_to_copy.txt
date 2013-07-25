@@ -9,7 +9,6 @@ external/${arch}/lib/python${PythonVersion}/site-packages/pylab.py   lib/python$
 @darwin external/${arch}/lib/python${PythonVersion}/site-packages/Crypto   lib/python${PythonVersion}/site-packages/Crypto
 
 @linux64 external/${arch}/lib/python${PythonVersion}/site-packages/tweepy   lib/python${PythonVersion}/site-packages/tweepy
-external/${arch}/lib/python${PythonVersion}/site-packages/PIL   lib/python${PythonVersion}/site-packages/PIL
 external/${arch}/lib/python${PythonVersion}/site-packages/psutil   lib/python${PythonVersion}/site-packages/psutil
 external/${arch}/lib/python${PythonVersion}/site-packages/simplejson   lib/python${PythonVersion}/site-packages/simplejson
 @darwin external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_osx.so lib/python${PythonVersion}/site-packages/_psutil_osx.so
