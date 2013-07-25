@@ -98,8 +98,8 @@ AC_SUBST(PYTHON_SYS_INCLUDE)
 ### Check for Python modules ###
 
 # pip is used for python modules
-AC_CHECK_PROG(HAVE_PIP,pip,yes)
-AC_SUBST(HAVE_PIP)
+AC_CHECK_PROG(havepip,pip,yes,no)
+AM_CONDITIONAL(HAVE_PIP, [test x$havepip = xyes])
 AM_COND_IF(HAVE_PIP, ,AC_MSG_ERROR([Error: pip is needed for Python dependencies.]))
 
 
