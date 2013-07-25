@@ -43,6 +43,8 @@ from nupic.math.cross import cross
 from operator import itemgetter
 import nupic.research.fdrutilities as fdru
 
+realDType = GetNTAReal()
+
 
 # class ColumnParams(object):
 #   """
@@ -97,7 +99,7 @@ import nupic.research.fdrutilities as fdru
 #     ratio between the overlap (as defined above) and the total number of
 #     bits the column is connected to
 #     """
-#     assert(inputVector.dtype == 'float32')
+#     assert(inputVector.dtype == realDType)
 
 #     # This following code segment computes the overlap score. 
 #     # It essentially computes the dot product of the input vector
@@ -111,7 +113,7 @@ import nupic.research.fdrutilities as fdru
 #     #
 #     # overlap = np.dot(self._connectedSynapses,inputVector)
 
-#     overlapWrapper = numpy.zeros(1,dtype='float32')
+#     overlapWrapper = numpy.zeros(1,dtype=realDType)
 #     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlapWrapper)
 #     self._overlap = overlapWrapper[0]
 
@@ -126,9 +128,9 @@ import nupic.research.fdrutilities as fdru
 #     #
 #     # connectedCount = self._connectedSynapses.sum()
 
-#     connectedCountWrapper = numpy.zeros(1,dtype='float32')
+#     connectedCountWrapper = numpy.zeros(1,dtype=realDType)
 #     self._connectedSynapses.rightVecSumAtNZ_fast(
-#       numpy.ones(inputVector.size, dtype='float32'), 
+#       numpy.ones(inputVector.size, dtype=realDType), 
 #       connectedCountWrapper)
 #     connectedCount = connectedCountWrapper[0]
     
@@ -139,15 +141,6 @@ import nupic.research.fdrutilities as fdru
 #     self._overlapPct = self._overlap / connectedCount
 
 #     return self._overlap, self._overlapPct
-
-
-#   def adaptSynapses(self,inputVector,sharedInputs):
-
-#     inputSlice = inputVector[self._receptiveField]
-
-#     permChanges = numpy.empty(self._numInputs)
-#     permChanges.fill(-1 * synPermInactiveDec)
-#     permChanges[inputVector] = 
 
 
 
@@ -229,6 +222,7 @@ class SpatialPooler(object):
     self._maxSynPermBoost = maxSynPermBoost
 
     # internal state
+    self._version = 1.0
     self._columnDimensions = [numColumns]
     self._inputDimensions = [numInputs]
     self._inhibitionRadius = 5  #TODO: Update this
@@ -254,14 +248,45 @@ class SpatialPooler(object):
 #     _minDutyCycleBeforeInh = 0
 #     _minDutyCycleAfterInh = 0
     self._boostFactors = numpy.zeros(numColumns)
-    self._overlaps = numpy.zeros(numColumns, dtype='float32')
-    self._overlapsPct = numpy.zeros(numColumns, dtype='float32')
+    self._overlaps = numpy.zeros(numColumns, dtype=realDType)
+    self._overlapsPct = numpy.zeros(numColumns, dtype=realDType)
 
     self._seed(seed)
-    
+  
 
-  #TODO: write tests for this method
-  #TODO: implement fast C++ function for this
+  def _adaptSynapses(self,inputVector,sharedInputs,activeColumns,orphanColumns):
+    inputIndices = numpy.where(inputVector > 0)[0]
+    permChanges = numpy.zeros(self._numInputs)
+    permChanges.fill(-1 * self._synPermInactiveDec)
+    permChanges[inputIndices] = self._synPermActiveInc
+    permChanges[sharedInputs] -= self._synPermActiveSharedDec
+    for i in xrange(self._numColumns):
+      perm = self._permanenecs.getRow(i)
+      maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
+      perm[maskRF] += permChanges[maskRF]
+      if self._isOrphanColumn(i):
+        perm[maskRF] -= self._synPermOrphanDec
+      self._permanenecs.replaceSparseRow(i,perm)
+    self._updateConnectedSynapses()
+      
+
+  def _raisePermanenceToThreshold(self):
+    trimThreshold = self._synPermActiveInc / 2.0
+    belowThreshold = numpy.where(
+      self._connectedCounts < self._stimulusThreshold)[0]
+    for i in belowThreshold:
+      perm = self._permanences.getRow(i).astype(realDType)
+      permChange = self._receptiveFields.getRow(i).astype(realDType)
+      while True:
+        perm += self._synPermBelowStimulusInc
+        numConnected = count_gte(perm, self._synPermConnected)
+        if numConnected >= self._stimulusThreshold:
+          break
+      self._permanences.setRowFromDense(i,perm)
+      self._permanences.thresholdRow(i,trimThreshold)
+    self._updateConnectedSynapses()
+
+
   def _updateConnectedSynapses(self):
     for i in xrange(self._numColumns):
       newConnected = \
@@ -357,34 +382,56 @@ class SpatialPooler(object):
     assert (learn or infer)
     assert (numpy.size(inputVector) == self._numInputs)
 
-    overlaps, _ = \
-      zip(*[col.computeOverlap(inputVector) for col in self._columns])
   
     #boosting here... only if still learning!
 
     #vip selection here....
-    activeColumns = self._inhibitColumns(inputVector, overlaps)
+    overlaps, overlapsPct = self._calculateOverlap(inputVector)
 
-    #v compute anomaly scores 
+    #v inhibition
+    activeColumns = self._inhibitColumns(overlap)
 
-    #v find orphans
+    # compute anomaly scores 
+
+    # find orphans
+    orphanColumns = self._calculateOrphanColumns(activeColumns,overlapsPct)
 
     #v find shared inputs
+    sharedInputs = self._calculateSharedInputs(inputVector,activeColumns)
 
-    # adapt synapses per column
+    #v adapt synapses per column
+    self._adaptSynapses(inputVector,sharedInputs,activeColumns,orphanColumns)
+
+    #v raise permanences to stimulus threshold connections
+    self._raisePermanenceToThreshold()
 
     # update boost factors per column
+    self._updateBoostFactors()
 
     # update duty cycles per column
+    self._updateDutyCycle()
 
     # update inhibition radius
+    self._updateInhibitionRadius()
 
+    self._updateBookeeping(learn,infer)
+
+  def _updateBooking(self,learn,infer):
     self._iterationNum += 1
+    if learn:
+      self._iterationLearnNum += 1
 
 
   def _calculateOverlap(self,inputVector):
-    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, self._overlaps)
-    self._overlapsPct = self._overlaps.astype('float32') / self._connectedCounts
+    overlaps = numpy.zeros(self._numColumns).astype(realDType)
+    self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)
+    overlapsPct = overlaps.astype(realDType) / self._connectedCounts
+    return overlaps, overlapsPct
+
+
+  def _calculateOrphanColumns(self,activeColumns, overlapsPct):
+    perfectOverlaps = set(numpy.where(overlapsPct >= 1)[0])
+    return list(perfectOverlaps.intersection(set(activeColumns)))
 
 
   def _calculateSharedInputs(self,inputVector,activeColumns):
@@ -427,7 +474,7 @@ class SpatialPooler(object):
   def _inhibitColumnsLocal(self,overlaps,numActive):
     activeColumns = numpy.zeros(self._numColumns)
     addToWinners = max(overlaps)/1000.0   
-    overlaps = numpy.array(overlaps,dtype='float32').reshape(self._columnDimensions)
+    overlaps = numpy.array(overlaps,dtype=realDType).reshape(self._columnDimensions)
     for i in xrange(self._numColumns):
       maskNeighbors = self._getNeighbors(i,self._columnDimensions,
         self._inhibitionRadius)
@@ -437,7 +484,7 @@ class SpatialPooler(object):
       if overlaps[i] >= kthLargestValue:
         activeColumns[i] = 1
         overlaps[i] += addToWinners
-    return activeColumns
+    return numpy.where(activeColumns > 0)[0]
 
 
   @staticmethod
@@ -552,7 +599,7 @@ class SpatialPooler(object):
 
     # OBSOLETE CODE
   # def _inhibitColumns1D(self, overlaps, numActive):
-  #     overlaps = numpy.array(overlaps,dtype='float32')
+  #     overlaps = numpy.array(overlaps,dtype=realDType)
   #     activeColumns = numpy.zeros(self._numColumns)
   #     addToWinners = max(overlaps)/1000.0
   #     for i in range(self._numColumns):
