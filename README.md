@@ -28,14 +28,13 @@ Installation
 Currently supported platforms: 
  * Linux
  * Mac OSX 
- * VM images ([vangrand](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)) 
+ * VM images ([vangrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)) 
 
 Dependencies:  
  * Python (2.6-2.7) (with development headers) 
  * GCC (4.6-4.8)  
  * Make
- * pip
- * [python modules](https://github.com/numenta/nupic/wiki/Installing-modules,-dependencies,-in-Python)
+ * [pip](http://www.pip-installer.org/en/latest/installing.html)
 
 Add the following to your .bashrc file. Change the paths as needed.
 
