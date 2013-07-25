@@ -25,14 +25,14 @@ __Clients__ take input data and feed it through encoders, models, and metrics an
 Installation
 ------------
 
-Currently supported platforms: 
+Currently supported platforms:
  * Linux
- * Mac OSX 
- * VM images ([vangrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)) 
+ * Mac OSX
+ * VM images ([vagrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine))
 
-Dependencies:  
- * Python (2.6-2.7) (with development headers) 
- * GCC (4.6-4.8)  
+Dependencies:
+ * Python (2.6-2.7) (with development headers)
+ * GCC (4.6-4.8)
  * Make
  * [pip](http://www.pip-installer.org/en/latest/installing.html)
 
