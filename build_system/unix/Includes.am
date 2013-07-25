@@ -175,7 +175,7 @@ if NTA_PYTHON_SUPPORT
   # NTA_CXXFLAGS_BASE += -I$(NUMPY_SYS_INCLUDE)
 
   # Otherwise, pick up the version of Numpy installed in external.
-  NTA_CXXFLAGS_BASE += -I$(top_srcdir)/external/@nta_platform@/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
+  NTA_CXXFLAGS_BASE += -I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
 
 else
   NTA_PYEMBEDFLAGS =
