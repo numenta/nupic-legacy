@@ -34,24 +34,86 @@ class SpatialPoolerTest(unittest.TestCase):
 			)
 
 
+	def test_adaptSynapses(self):
+		sp = SpatialPooler(numInputs = 8,
+						   numColumns = 4,
+               			   synPermInactiveDec=0.01,
+               			   synPermActiveInc = 0.1,
+               			   synPermActiveSharedDec = 0.02,
+               			   synPermOrphanDec = 0.03)
 
-	# def test_orphan(self):
-	# 	c = self._column
-	# 	c._active = True
-	# 	c._overlapPct = 0.2
-	# 	self.assertEqual(c.isOrphan(),False)
+		sp._receptiveFields = \
+			SparseBinaryMatrix([[1, 1, 1, 1, 0, 0, 0, 0],
+								[1, 0, 0, 0, 1, 1, 0, 1],
+								[0, 0, 1, 0, 0, 0, 1, 0],
+								[1, 0, 0, 0, 0, 0, 1, 0]])
 
-	# 	c._active = True
-	# 	c._overlapPct = 1
-	# 	self.assertEqual(c.isOrphan(),False)
+		inputVector = numpy.array( \
+								[1, 0, 0, 1, 1, 0, 1, 0])
+		sharedInputs = numpy.where(numpy.array(
+								[1, 0, 0, 0, 0, 0, 1, 0]) > 0)[0]
+		orphanColumns = numpy.array([])
 
-	# 	c._active = False
-	# 	c._overlapPct = 0.2
-	# 	self.assertEqual(c.isOrphan(),False)
+		sp._permanences = \
+			SparseMatrix([[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],
+					 	  [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450],
+	    			  	  [0.000, 0.000, 0.014, 0.000, 0.000, 0.000, 0.110, 0.000],
+	    			  	  [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]])
 
-	# 	c._active = False
-	# 	c._overlapPct = 1
-	# 	self.assertEqual(c.isOrphan(),True)
+		truePermanences = \
+						 [[0.280, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
+						#  Inc/Sh 	Dec	   Dec 	 Inc	 -		-		-		-
+					 	  [0.230, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
+					 	#  Inc/Sh 	 -		-	   -	Inc    Dec 	   -      Dec	
+	    			  	  [0.000, 0.000, 0.004, 0.000, 0.000, 0.000, 0.190, 0.000],
+	    			  	#   -  		- 	  Dec 	  -		 - 		-	  Inc/Sh 	  - 
+			   		  	  [0.120, 0.000, 0.000, 0.000, 0.000, 0.000, 0.258, 0.000]]
+						#  Inc/Sh 	- 	   -	  -		  -		-	  Inc/Sh   -	
+
+		sp._adaptSynapses(inputVector,sharedInputs,orphanColumns)
+		for i in xrange(sp._numColumns):
+			perm = list(sp._permanences.getRow(i))
+			for j in xrange(sp._numInputs):
+				self.assertAlmostEqual(truePermanences[i][j],perm[j])
+
+		# test orphan columns
+		sp._receptiveFields = \
+			SparseBinaryMatrix([[1, 1, 1, 0, 0, 0, 0, 0],
+								[0, 1, 1, 1, 0, 0, 0, 0],
+								[0, 0, 1, 1, 1, 0, 0, 0],
+								[1, 0, 0, 0, 0, 0, 1, 0]])
+
+		inputVector = numpy.array( \
+								[1, 0, 0, 1, 1, 0, 1, 0])
+		sharedInputs = numpy.where(numpy.array(
+								[1, 0, 0, 1, 0, 0, 0, 0]) > 0)[0]
+		orphanColumns = numpy.array([3])
+
+		sp._permanences = \
+			SparseMatrix([[0.200, 0.120, 0.090, 0.000, 0.000, 0.000, 0.000, 0.000],
+					 	  [0.000, 0.017, 0.232, 0.400, 0.000, 0.000, 0.000, 0.000],
+	    			  	  [0.000, 0.000, 0.014, 0.051, 0.730, 0.000, 0.000, 0.000],
+	    			  	  [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]])
+
+		truePermanences = \
+						 [[0.280, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000],
+						#  Inc/Sh  	Dec	   Dec 	  -	     -		-		-		-
+					 	  [0.000, 0.007, 0.222, 0.480, 0.000, 0.000, 0.000, 0.000],
+					 	#  	 - 	 	Dec	   Dec	Inc/Sh	 -     	- 	   -      -	
+	    			  	  [0.000, 0.000, 0.004, 0.131, 0.830, 0.000, 0.000, 0.000],
+	    			  	#   -  		- 	   Dec 	Inc/Sh	Inc	 	- 		-	   - 
+			   		  	  [0.220, 0.000, 0.000, 0.000, 0.000, 0.000, 0.450, 0.000]]
+					#	Inc/Sh/Orph	- 	   -	  -		  -		-	Inc/Orph   -	
+
+		sp._adaptSynapses(inputVector,sharedInputs,orphanColumns)
+		for i in xrange(sp._numColumns):
+			perm = list(sp._permanences.getRow(i))
+			for j in xrange(sp._numInputs):
+				self.assertAlmostEqual(truePermanences[i][j],perm[j])
+
+
+	def test_calculateSharedInputs(self):
+		pass
 
 	def test_calculateOrpanColumns(self):
 		sp = self._sp
