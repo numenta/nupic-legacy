@@ -37,6 +37,8 @@ elif [[ ! -z $NTA ]] ; then
 else
     NUPIC_INSTALL=$HOME/nta/eng
 fi
+# location of compiled runable binary
+export NUPIC_INSTALL 
 
 function exitOnError {
     if [[ !( "$1" == 0 ) ]] ; then
