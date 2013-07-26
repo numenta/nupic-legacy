@@ -1,5 +1,7 @@
 
+
 import unittest2 as unittest
+from mock import Mock, patch, ANY, call
 from SpatialPooler import SpatialPooler
 from nupic.bindings.math import SM32 as SparseMatrix, \
                                 SM_01_32_32 as SparseBinaryMatrix, \
@@ -26,13 +28,172 @@ class SpatialPoolerTest(unittest.TestCase):
                minPctOverlapDutyCycle = 0.1,
                minPctActiveDutyCycle = 0.1,
                dutyCyclePeriod = 10,
-               maxFiringBoost = 10.0,
-               maxSSFiringBoost = 2.0,
-               maxSynPermBoost = 10.0,
+               maxBoost = 10.0,
                seed = -1,
                verbosityLevel = 0,
 			)
 
+	# def test_updateBoostFactors(self):
+	# 	self.assertEqual(True,False)
+
+
+	def test_updateMinDutyCycleLocal(self):
+		sp = self._sp
+
+		#replace the get neighbors function with
+		#a mock to know exactly the neighbors 
+		#of each column
+		sp._numColumns = 5
+		sp._getNeighbors = Mock(side_effect= \
+			[[0,1,2],
+			 [1,2,3],
+			 [2,3,4],
+			 [0,2,4],
+			 [0,1,3]])
+
+		sp._minPctOverlapDutyCycles = 0.04
+		sp._overlapDutyCycles = numpy.array([1.4, 0.5, 1.2, 0.8, 0.1])
+		trueMinOverlapDutyCycles = [0.04*1.4, 0.04*1.2, 0.04*1.2, 0.04*1.4, 0.04*1.4]
+
+		sp._minPctActiveDutyCycles = 0.02
+		sp._activeDutyCycles = numpy.array([0.4, 0.5, 0.2, 0.18, 0.1])
+		trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4, 0.02*0.5]
+
+		sp._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
+		sp._minActiveDutyCycles = numpy.zeros(sp._numColumns)
+		sp._updateMinDutyCyclesLocal()
+		self.assertListEqual(trueMinOverlapDutyCycles, \
+							list(sp._minOverlapDutyCycles))
+		self.assertListEqual(trueMinActiveDutyCycles, \
+							list(sp._minActiveDutyCycles))
+
+
+		sp._numColumns = 8
+		sp._getNeighbors = Mock(side_effect= \
+			[[0,1,2,3,4],
+			 [1,2,3,4,5],
+			 [2,3,4,6,7],
+			 [0,2,4,6],
+			 [1,6],
+			 [3,5,7],
+			 [1,4,5,6],
+			 [2,3,6,7]])
+
+		sp._minPctOverlapDutyCycles = 0.01
+		sp._overlapDutyCycles = numpy.array( \
+			[1.2, 2.7, 0.9, 1.1, 4.3, 7.1, 2.3, 0.0])
+		trueMinOverlapDutyCycles = \
+			[0.01*4.3, 0.01*7.1, 0.01*4.3, 0.01*4.3, 0.01*2.7, \
+			 0.01*7.1, 0.01*7.1, 0.01*2.3]
+
+		sp._minPctActiveDutyCycles = 0.03
+		sp._activeDutyCycles = numpy.array( \
+			[0.14, 0.25, 0.125, 0.33, 0.27, 0.11, 0.76, 0.31])
+		trueMinActiveDutyCycles = \
+			[0.03*0.33, 0.03*0.33, 0.03*0.76, 0.03*0.76, 0.03*0.76, \
+			 0.03*0.33, 0.03*0.76, 0.03*0.76]
+		sp._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
+		sp._minActiveDutyCycles = numpy.zeros(sp._numColumns)
+		sp._updateMinDutyCyclesLocal()
+		self.assertListEqual(trueMinOverlapDutyCycles, \
+							list(sp._minOverlapDutyCycles))
+		self.assertListEqual(trueMinActiveDutyCycles, \
+							list(sp._minActiveDutyCycles))
+
+
+	def test_updateMinDutyCyclesGlobal(self):
+		sp = self._sp
+		sp._minPctOverlapDutyCycles = 0.01
+		sp._minPctActiveDutyCycles = 0.02
+		sp._numColumns = 5
+		sp._overlapDutyCycles = numpy.array([0.06, 1, 3, 6, 0.5])
+		sp._activeDutyCycles = numpy.array([0.6, 0.07, 0.5, 0.4, 0.3])
+		sp._updateMinDutyCyclesGlobal()
+		trueMinActiveDutyCycles = sp._numColumns*[0.02*0.6]
+		trueMinOverlapDutyCycles = sp._numColumns*[0.01*6]
+		self.assertListEqual(trueMinActiveDutyCycles,
+							 list(sp._minActiveDutyCycles))
+		self.assertListEqual(trueMinOverlapDutyCycles,
+							 list(sp._minOverlapDutyCycles))
+
+		sp._minPctOverlapDutyCycles = 0.015
+		sp._minPctActiveDutyCycles = 0.03
+		sp._numColumns = 5
+		sp._overlapDutyCycles = numpy.array([0.86, 2.4, 0.03, 1.6, 1.5])
+		sp._activeDutyCycles = numpy.array([0.16, 0.007, 0.15, 0.54, 0.13])
+		sp._updateMinDutyCyclesGlobal()
+		trueMinOverlapDutyCycles = sp._numColumns*[0.015*2.4]
+		trueMinActiveDutyCycles = sp._numColumns*[0.03*0.54]
+		self.assertListEqual(trueMinOverlapDutyCycles,
+							 list(sp._minOverlapDutyCycles))
+		self.assertListEqual(trueMinActiveDutyCycles,
+							 list(sp._minActiveDutyCycles))
+
+		sp._minPctOverlapDutyCycles = 0.015
+		sp._minPctActiveDutyCycles= 0.03
+		sp._numColumns = 5
+		sp._overlapDutyCycles = numpy.zeros(5)
+		sp._activeDutyCycles = numpy.zeros(5)
+		sp._updateMinDutyCyclesGlobal()
+		trueMinOverlapDutyCycles = sp._numColumns*[0]
+		trueMinActiveDutyCycles = sp._numColumns*[0]
+		self.assertListEqual(trueMinOverlapDutyCycles,
+							 list(sp._minOverlapDutyCycles))
+		self.assertListEqual(trueMinActiveDutyCycles,
+							 list(sp._minActiveDutyCycles))
+
+
+	def test_isUpdateRound(self):
+		sp = self._sp
+		sp._updatePeriod = 50
+		sp._iterationNum = 0
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 39
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 49
+		self.assertEqual(sp._isUpdateRound(),True)
+		sp._iterationNum = 1009
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 1249
+		self.assertEqual(sp._isUpdateRound(),True)
+
+		sp._updatePeriod = 125
+		sp._iterationNum = 0
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 200
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 249
+		self.assertEqual(sp._isUpdateRound(),True)
+		sp._iterationNum = 1330
+		self.assertEqual(sp._isUpdateRound(),False)
+		sp._iterationNum = 1249
+		self.assertEqual(sp._isUpdateRound(),True)
+		sp._iterationNum = 1374
+		self.assertEqual(sp._isUpdateRound(),True)
+
+
+	def test_calculateAnomalyScore(self):
+		sp = self._sp
+		overlaps = numpy.array([5, 4, 3, 2, 1])
+		activeColumns = numpy.array([0,2,3,4])
+		sp._activeDutyCycles = numpy.array([50, 40, 30, 20, 10])
+		anomalyScore = sp._calculateAnomalyScore(overlaps,activeColumns)
+		trueAnomalyScore = 1.0/(5*50 + 3*30 + 2*20 + 10 + 1)
+		self.assertEqual(trueAnomalyScore,anomalyScore)
+
+		overlaps = numpy.array([5, 4, 3, 2, 1])
+		activeColumns = numpy.array([0])
+		sp._activeDutyCycles = numpy.array([50, 40, 30, 20, 10])
+		anomalyScore = sp._calculateAnomalyScore(overlaps,activeColumns)
+		trueAnomalyScore = 1.0/(5*50 + 1)
+		self.assertEqual(trueAnomalyScore,anomalyScore)
+
+		overlaps = numpy.array([5, 4, 3, 2, 1])
+		activeColumns = numpy.array([])
+		sp._activeDutyCycles = numpy.array([50, 40, 30, 20, 10])
+		anomalyScore = sp._calculateAnomalyScore(overlaps,activeColumns)
+		trueAnomalyScore = 1.0
+		self.assertEqual(trueAnomalyScore,anomalyScore)
 
 	def test_adaptSynapses(self):
 		sp = SpatialPooler(numInputs = 8,
@@ -415,7 +576,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		"""
 		pass
 
-	def test_dutyCycle1(self):
+	def test_updateDutyCycleHelper(self):
 		"""
 		tests that duty cycles are updated properly according
 		to the mathematical formula. also check the effects of
@@ -425,7 +586,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		dc = numpy.array([1000.0, 1000.0, 1000.0, 1000.0, 1000.0])
 		period = 1000
 		newvals = numpy.zeros(5)
-		newDc = SpatialPooler._updateDutyCycle(dc, newvals, period)
+		newDc = SpatialPooler._updateDutyCyclesHelper(dc, newvals, period)
 		trueNewDc = [999, 999, 999, 999, 999]
 		self.assertListEqual(list(newDc),trueNewDc)
 
@@ -433,21 +594,21 @@ class SpatialPoolerTest(unittest.TestCase):
 		period = 1000
 		newvals = numpy.zeros(5)
 		newvals.fill(1000)
-		newDc = SpatialPooler._updateDutyCycle(dc, newvals, period)
+		newDc = SpatialPooler._updateDutyCyclesHelper(dc, newvals, period)
 		trueNewDc = list(dc)
 		self.assertListEqual(list(newDc),trueNewDc)
 
 		dc = numpy.array([1000, 1000, 1000, 1000, 1000])
 		newvals = numpy.array([2000, 4000, 5000, 6000, 7000])
 		period = 1000
-		newDc = SpatialPooler._updateDutyCycle(dc, newvals, period)
+		newDc = SpatialPooler._updateDutyCyclesHelper(dc, newvals, period)
 		trueNewDc = [1001, 1003, 1004, 1005, 1006]
 		self.assertListEqual(list(newDc),trueNewDc)
 
 		dc = numpy.array([1000, 800, 600, 400, 2000])
 		newvals = numpy.zeros(5)
 		period = 2
-		newDc = SpatialPooler._updateDutyCycle(dc, newvals, period)
+		newDc = SpatialPooler._updateDutyCyclesHelper(dc, newvals, period)
 		trueNewDc = [500, 400, 300, 200, 1000]
 		self.assertListEqual(list(newDc),trueNewDc)
 		
@@ -487,7 +648,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp = self._sp
 		numActive = 2
 		sp._numColumns = 10
-		sp._columnDimensions = [sp._numColumns]
+		sp._columnDimensions = numpy.array([sp._numColumns])
 		sp._inhibitionRadius = 1
 		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
 							#   L W W L W W W  L  W   W
@@ -498,7 +659,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 		numActive = 2
 		sp._numColumns = 10
-		sp._columnDimensions = [sp._numColumns]
+		sp._columnDimensions = numpy.array([sp._numColumns])
 		sp._inhibitionRadius = 2
 		overlaps = numpy.array([1,2,7,0,3,4,16,1,1.5,1.7])
 							#   L W W L L W W  L  L   W
@@ -509,7 +670,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		# test add to winners
 		numActive = 2
 		sp._numColumns = 10
-		sp._columnDimensions = [sp._numColumns]
+		sp._columnDimensions = numpy.array([sp._numColumns])
 		sp._inhibitionRadius = 3
 		overlaps = numpy.array([1,1,1,1,1,1,1,1,1,1])
 							#   W W L L W W L L L L
@@ -574,7 +735,6 @@ class SpatialPoolerTest(unittest.TestCase):
 		the neighbors of a column and maps them from 2D back to 1D
 		"""
 		sp = self._sp
-
 		layout = numpy.array([[0, 0, 0, 0, 0],
 		    	  			  [0, 0, 0, 0, 0],
 		    	  			  [0, 1, 1, 1, 0],
@@ -586,7 +746,154 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3*5+ 2
 		dimensions = numpy.array([6, 5])
 		radius = 1
-		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		layout = numpy.array([[0, 0, 0, 0, 0],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 0, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 2
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		# radius to big
+		layout = numpy.array([[1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 0, 1, 1],
+		    	  			  [1, 1, 1, 1, 1],
+		    	  			  [1, 1, 1, 1, 1]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 7
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		# wrap-around
+		layout = numpy.array([[1, 0, 0, 1, 1],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [1, 0, 0, 1, 1],
+		    	  			  [1, 0, 0, 1, 0]])
+
+		layout1D = layout.reshape(-1)
+		dimensions = numpy.array([6, 5])
+		columnIndex = dimensions.prod() -1 
+		radius = 1
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+
+	def test_getNeighborsND(self):
+		sp = self._sp
+
+		dimensions = numpy.array([5, 7, 2])
+		layout1D = numpy.array(range(numpy.prod(dimensions)))
+		layout = numpy.reshape(layout1D,dimensions)
+		radius = 1
+		x = 1
+		y = 3
+		z = 2
+		columnIndex = layout[z][y][x]
+		neighbors = sp._getNeighborsND(columnIndex, dimensions, radius)
+		trueNeighbors = set()
+		for i in range(-radius,radius+1):
+			for j in range(-radius,radius+1):
+				for k in range(-radius,radius+1):
+					zprime = (z + i) % dimensions[0]
+					yprime = (y + j) % dimensions[1]
+					xprime = (x + k) % dimensions[2]
+					trueNeighbors.add( \
+						layout[zprime][yprime][xprime]
+					)
+		trueNeighbors.remove(columnIndex)
+		self.assertListEqual(sorted(list(trueNeighbors)), \
+							 sorted(list(neighbors)))
+
+		dimensions = numpy.array([5, 7, 9])
+		layout1D = numpy.array(range(numpy.prod(dimensions)))
+		layout = numpy.reshape(layout1D,dimensions)
+		radius = 3
+		x = 0
+		y = 0
+		z = 3
+		columnIndex = layout[z][y][x]
+		neighbors = sp._getNeighborsND(columnIndex, dimensions, radius)
+		trueNeighbors = set()
+		for i in range(-radius,radius+1):
+			for j in range(-radius,radius+1):
+				for k in range(-radius,radius+1):
+					zprime = (z + i) % dimensions[0]
+					yprime = (y + j) % dimensions[1]
+					xprime = (x + k) % dimensions[2]
+					trueNeighbors.add( \
+						layout[zprime][yprime][xprime]
+					)
+		trueNeighbors.remove(columnIndex)
+		self.assertListEqual(sorted(list(trueNeighbors)), \
+							 sorted(list(neighbors)))
+
+		dimensions = numpy.array([5, 10, 7, 6])
+		layout1D = numpy.array(range(numpy.prod(dimensions)))
+		layout = numpy.reshape(layout1D,dimensions)
+		radius = 4
+		w = 2
+		x = 5
+		y = 6
+		z = 2
+		columnIndex = layout[z][y][x][w]
+		neighbors = sp._getNeighborsND(columnIndex, dimensions, radius)
+		trueNeighbors = set()
+		for i in range(-radius,radius+1):
+			for j in range(-radius,radius+1):
+				for k in range(-radius,radius+1):
+					for m in range(-radius,radius+1):
+						zprime = (z + i) % dimensions[0]
+						yprime = (y + j) % dimensions[1]
+						xprime = (x + k) % dimensions[2]
+						wprime = (w + m) % dimensions[3]
+						trueNeighbors.add( \
+							layout[zprime][yprime][xprime][wprime]
+						)
+		trueNeighbors.remove(columnIndex)
+		#import pdb; pdb.set_trace()
+		self.assertListEqual(sorted(list(trueNeighbors)), \
+							 sorted(list(neighbors)))
+		
+
+
+
+		#these are all the same tests from 2D
+		layout = numpy.array([[0, 0, 0, 0, 0],
+		    	  			  [0, 0, 0, 0, 0],
+		    	  			  [0, 1, 1, 1, 0],
+		    	  			  [0, 1, 0, 1, 0],
+		    	  			  [0, 1, 1, 1, 0],
+		    	  			  [0, 0, 0, 0, 0]])
+
+		layout1D = layout.reshape(-1)
+		columnIndex = 3*5+ 2
+		dimensions = numpy.array([6, 5])
+		radius = 1
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -619,7 +926,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3*5+ 2
 		dimensions = numpy.array([6, 5])
 		radius = 7
-		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -636,10 +943,12 @@ class SpatialPoolerTest(unittest.TestCase):
 		dimensions = numpy.array([6, 5])
 		columnIndex = dimensions.prod() -1 
 		radius = 1
-		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
+
+
 
 
 if __name__ == '__main__':
