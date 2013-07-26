@@ -54,7 +54,7 @@ function prepDirectories {
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python2.6/site-packages -r $NUPIC/external/common/requirements.txt
+    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python2.6/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
     #cov-core may fail to install properly, reporting something to the effect of:
     #
     #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
