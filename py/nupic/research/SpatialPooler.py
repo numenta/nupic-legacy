@@ -46,122 +46,6 @@ import nupic.research.fdrutilities as fdru
 realDType = GetNTAReal()
 
 
-# class ColumnParams(object):
-#   """
-#   This class is a storage depot for paramaeters that
-#   are shared among all columns in the spatial pooler
-#   """
-
-#   def __init__(self,
-#                stimulusThreshold = 0,
-#                synPermInactiveDec = 0.01,
-#                synPermActiveInc = 0.1,
-#                synPermActiveSharedDec = 0.0,
-#                synPermBelowStimulusInc = 0.01,
-#                synPermOrphanDec = 0.0,
-#                synPermConnected = 0.10,
-#                minPctDutyCycleBeforeInh = 0.001,
-#                minPctDutyCycleAfterInh = 0.001,
-#                dutyCyclePeriod = 1000,
-#                maxFiringBoost = 10.0,
-#                maxSSFiringBoost = 2.0,
-#                maxSynPermBoost = 10.0):
-#     self.stimulusThreshold = stimulusThreshold
-#     self.synPermInactiveDec = synPermInactiveDec
-#     self.synPermActiveInc = synPermActiveInc
-#     self.synPermActiveSharedDec = synPermActiveSharedDec
-#     self.synPermOrphanDec = synPermOrphanDec
-#     self.synPermConnected = synPermConnected
-#     self.minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
-#     self.minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
-#     self.dutyCyclePeriod = dutyCyclePeriod
-#     self.maxFiringBoost = maxFiringBoost
-#     self.maxSSFiringBoost = maxSSFiringBoost
-#     self.maxSynPermBoost = maxSynPermBoost
-
-
-# class Column(object):
-
-#   def __init__(self,
-#                numInputs,
-#                columnParams,
-#                initialPermanence,
-#                receptiveField):
-#     self._columnParams = columnParams
-#     
-
-#   def computeOverlap(self,inputVector):
-#     """
-#     Computes the overlap with a new input. The overlap is the number of
-#     active inputs to which the column is "connected" to. Being connected
-#     to an input bit entails having an permanence value above "synPermConnected".
-#     This method also computes the percent overlap, which is defined as the
-#     ratio between the overlap (as defined above) and the total number of
-#     bits the column is connected to
-#     """
-#     assert(inputVector.dtype == realDType)
-
-#     # This following code segment computes the overlap score. 
-#     # It essentially computes the dot product of the input vector
-#     # and the connected synapse vector which represents a connected
-#     # synapse by a '1' and an unconnected synapse as a '0'. The 
-#     # operation is performed via a C++ 'SparseBinaryMatrix' class method
-#     # called 'rightVecSumAtNZ_fast' for efficiency purposes. The 3rd 
-#     # argument to the 'rightVecSumAtNZ' function must be a list, therefore 
-#     # some wrapping/unwrapping is necessary. The code that gets executed
-#     # is functionally equivalent to the following one line of python:
-#     #
-#     # overlap = np.dot(self._connectedSynapses,inputVector)
-
-#     overlapWrapper = numpy.zeros(1,dtype=realDType)
-#     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlapWrapper)
-#     self._overlap = overlapWrapper[0]
-
-#     # The following code segment computes the total number of connected
-#     # synapses for the column. It does so by leveraging the same
-#     # 'rightVecSumAtNZ_fast' C++ method as above, by computing the dot
-#     # product of a vector filled with ones. Since the entries of the 
-#     # 'connectedSynapses' array are either 0's or 1's, This code will 
-#     # compute the count of the number of connected synapses. The code that 
-#     # gets executed is functionally equivalent to the following one line 
-#     # of python:
-#     #
-#     # connectedCount = self._connectedSynapses.sum()
-
-#     connectedCountWrapper = numpy.zeros(1,dtype=realDType)
-#     self._connectedSynapses.rightVecSumAtNZ_fast(
-#       numpy.ones(inputVector.size, dtype=realDType), 
-#       connectedCountWrapper)
-#     connectedCount = connectedCountWrapper[0]
-    
-#     # compute the overlap percent: what is the fraction of bits that
-#     # overlapped with the pattern? this is a measure of how well did
-#     # the column fit the pattern.
-
-#     self._overlapPct = self._overlap / connectedCount
-
-#     return self._overlap, self._overlapPct
-
-
-
-#   def setActive(self,activeState):
-#     self._active = activeState
-
-
-#   def isActive(self):
-#     return self._active
-
-
-#   def isOrphan(self):
-#     return self._overlapPct >=1 and not self._active 
-
-
-#   def getConnectedSynapses(self):
-#     readOnlyCopy = self._connectedSynapses
-#     readOnlyCopy = readOnlyCopy.toDense().view()
-#     readOnlyCopy.setflags(write=False)
-#     return readOnlyCopy
-
 class SpatialPooler(object):
   """"
   This class implements a cortical region. It provides an object oriented
@@ -183,12 +67,8 @@ class SpatialPooler(object):
                synPermConnected = 0.10,
                minPctOverlapDutyCycle = 0.001,
                minPctActiveDutyCycle = 0.001,
-               minPctDutyCycleBeforeInh = 0.001,
-               minPctDutyCycleAfterInh = 0.001,
                dutyCyclePeriod = 1000,
-               maxFiringBoost = 10.0,
-               maxSSFiringBoost = 2.0,
-               maxSynPermBoost = 10.0,
+               maxBoost = 10.0,
                seed = -1,
                verbosityLevel = 0
                ):
@@ -214,20 +94,21 @@ class SpatialPooler(object):
     self._synPermBelowStimulusInc = synPermConnected / 10.0
     self._synPermOrphanDec = synPermOrphanDec
     self._synPermConnected = synPermConnected
-    self._minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
-    self._minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
+    self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
+    self._minPctActiveDutyCycles = minPctActiveDutyCycle
     self._dutyCyclePeriod = dutyCyclePeriod
-    self._maxFiringBoost = maxFiringBoost
-    self._maxSSFiringBoost = maxSSFiringBoost
-    self._maxSynPermBoost = maxSynPermBoost
+    self._maxBoost = maxBoost
+
+    #extra parameter settings
+    self._synPermMin = 0.0
+    self._synPermMax = 1.0
+    self._updatePeriod = 50
 
     # internal state
     self._version = 1.0
-    self._columnDimensions = [numColumns]
-    self._inputDimensions = [numInputs]
+    self._columnDimensions = numpy.array([numColumns])
+    self._inputDimensions = numpy.array([numInputs])
     self._inhibitionRadius = 5  #TODO: Update this
-
-
     self._iterationNum = 0
     self._learningIterationNum = 0
 
@@ -240,16 +121,11 @@ class SpatialPooler(object):
     self._connectedCounts = numpy.zeros(numColumns)
     self._updateConnectedSynapses()
 
-    self._overlapDutyCycle = numpy.zeros(numColumns)
-    self._activeDutyCycle = numpy.zeros(numColumns)
-#      # not sure what this is for
-#     _dutyCycleBeforeInh = 0
-#     _dutyCycleAfterInh = 0
-#     _minDutyCycleBeforeInh = 0
-#     _minDutyCycleAfterInh = 0
+    self._overlapDutyCycles = numpy.zeros(numColumns)
+    self._activeDutyCycles = numpy.zeros(numColumns)
+    self._minOverlapDutyCycles = numpy.zeros(numColumns)
+    self._minActiveDutyCycles = numpy.zeros(numColumns)
     self._boostFactors = numpy.zeros(numColumns)
-    self._overlaps = numpy.zeros(numColumns, dtype=realDType)
-    self._overlapsPct = numpy.zeros(numColumns, dtype=realDType)
 
     self._seed(seed)
   
@@ -258,12 +134,12 @@ class SpatialPooler(object):
     inputIndices = numpy.where(inputVector > 0)[0]
     orphanSet = set(orphanColumns)
     permChanges = numpy.zeros(self._numInputs)
-    # import pdb; pdb.set_trace()
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     permChanges[sharedInputs] -= self._synPermActiveSharedDec
     for i in xrange(self._numColumns):
       perm = self._permanences.getRow(i)
+      numpy.clip(perm,self._synPermMin,self._synPermMax,out=perm)
       maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
       perm[maskRF] += permChanges[maskRF]
       if i in orphanSet:
@@ -384,22 +260,26 @@ class SpatialPooler(object):
     assert (learn or infer)
     assert (numpy.size(inputVector) == self._numInputs)
 
-  
-    #boosting here... only if still learning!
-
-    #vip selection here....
+    # (vip selection here....)
     overlaps, overlapsPct = self._calculateOverlap(inputVector)
 
-    #v inhibition
-    activeColumns = self._inhibitColumns(overlap)
+    #v boosting here... only if still learning!
+    if learn:
+      boostedOverlaps = self._boostFactors * overlaps
+    else:
+      boostedOverlaps = overlaps
 
-    # compute anomaly scores 
+    #v inhibition
+    activeColumns = self._inhibitColumns(boostedOverlaps)
 
     #v find orphans
     orphanColumns = self._calculateOrphanColumns(activeColumns,overlapsPct)
 
     #v find shared inputs
     sharedInputs = self._calculateSharedInputs(inputVector,activeColumns)
+    
+    #v compute anomaly scores 
+    anomalyScore = _calculateAnomalyScore(overlaps,activeColumns)
 
     #v adapt synapses per column
     self._adaptSynapses(inputVector,sharedInputs,orphanColumns)
@@ -407,21 +287,125 @@ class SpatialPooler(object):
     #v raise permanences to stimulus threshold connections
     self._raisePermanenceToThreshold()
 
-    # update boost factors per column
+    # bump up weak columns / boosting?
+    self._bumpUpWeak() # raisePermanence only once!!
+
+    #v update boost factors per column
     self._updateBoostFactors()
 
-    # update duty cycles per column
-    self._updateDutyCycle()
+    #v update duty cycles per column
+    self._updateDutyCycles(overlaps,activeColumns)
+
+    #v update the min duty cycles
+    self._updateMinDutyCycles()
 
     # update inhibition radius
     self._updateInhibitionRadius()
 
+    #v update bookeeping
     self._updateBookeeping(learn,infer)
 
-  def _updateBooking(self,learn,infer):
+
+  def _calculateAnomalyScore(self, overlaps, activeColumns):
+    if activeColumns.size == 0:
+      return 1.0
+
+    anomalyScores = overlaps[activeColumns]
+    anomalyScores *= self._activeDutyCycles[activeColumns]
+    return 1.0 / (numpy.sum(anomalyScores) + 1)
+
+
+  def _updateMinDutyCycles(self):
+    if self._isUpdateRound():
+      if self._globalInhibition or self._inhibitionRadius > self._numInputs:
+        self._updateMinDutyCyclesGlobal()
+      else:
+        self._updateMinDutyCyclesLocal()
+
+
+  def _updateMinDutyCyclesGlobal(self):
+    self._minOverlapDutyCycles.fill(
+        self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
+      )
+    self._minActiveDutyCycles.fill(
+        self._minPctActiveDutyCycles * self._activeDutyCycles.max()
+      )
+
+
+  def _updateMinDutyCyclesLocal(self):
+    for i in xrange(self._numColumns):
+      maskNeighbors = self._getNeighbors(i,self._columnDimensions,
+        self._inhibitionRadius)
+      self._minOverlapDutyCycles[i] = \
+        self._overlapDutyCycles[maskNeighbors].max() * self._minPctOverlapDutyCycles
+      self._minActiveDutyCycles[i] = \
+        self._activeDutyCycles[maskNeighbors].max() * self._minPctActiveDutyCycles
+
+
+  def _updateDutyCycles(overlaps,activeColumns):
+    activeArray = numpy.zeros()
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+    period = self._dutyCyclePeriod
+    if (period < self._iterationNum):
+      period = self._iterationNum
+
+    self._overlapDutyCycles = \
+    self._updateDutyCyclesHelper(self._overlapDutyCycles, 
+                                overlaps, 
+                                period)
+
+    self._activeDutyCycles = \
+    self._updateDutyCyclesHelper(self._activeDutyCycles, 
+                                activeArray,
+                                period)
+
+
+  @staticmethod
+  def _updateDutyCyclesHelper(dutyCycles,newInput,period):
+    """
+    Updates a duty cycle estimate with a new value. This is a helper
+    function that is used to update several duty cycle variables in 
+    the Column class, such as: overlapDutyCucle, activeDutyCycle,
+    minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
+    the updated duty cycle.
+    """
+    assert(period >= 1)
+    return (dutyCycles * (period -1.0) + newInput) / period
+
+
+  def _updateBoostFactors(self):
+    """
+    Update the boost factors. The boost factors is linearly interpolated
+    between the points (dutyCycle:0, boost:maxFiringBoost) and
+    (dutyCycle:minDuty, boost:1.0). This is a line defined as: y = mx + b
+    boost = (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost
+
+            boostFactor
+                ^
+    maxBoost _  |
+                |\
+                | \
+          1  _  |  \ _ _ _ _ _ _ _
+                |   
+                +--------------------> dutyCycle
+                   |
+                 minDuty
+    """
+    
+    self._boostFactors = (1 - self._maxBoost) \
+     / self._minActiveDutyCycles * self._activeDutyCycles \
+      + self.maxFiringBoost
+
+    self._boostFactors[self._activeDutyCycles > self._minActiveDutyCycles] = 1.0
+
+
+  def _updateBookeeping(self,learn,infer):
     self._iterationNum += 1
     if learn:
       self._iterationLearnNum += 1
+    if infer:
+      self._iterationInferNum += 1
 
 
   def _calculateOverlap(self,inputVector):
@@ -446,6 +430,7 @@ class SpatialPooler(object):
   def _inhibitColumns(self,overlaps):
     # determine how many columns should be selected
     # in the inhibition phase given the number of values
+    overlaps = overlaps.copy()
     if (numActiveColumnsPerInhArea > 0):
       numActive = numActiveColumnsPerInhArea
     else:
@@ -494,19 +479,21 @@ class SpatialPooler(object):
     """
     This is for 1D
     """
-
+    assert(dimensions.size == 1)
     ncols = dimensions[0]
     neighbors = numpy.array(
       range(columnIndex-radius,columnIndex+radius+1)) % ncols
     neighbors = list(set(neighbors) - set([columnIndex])) 
+    assert(neighbors)
     return neighbors
+
 
   @staticmethod
   def _getNeighbors2D(columnIndex, dimensions, radius):
     """
     This is for 2D
     """
-
+    assert(dimensions.size == 2)
     nrows = dimensions[0]
     ncols = dimensions[1]
 
@@ -520,14 +507,41 @@ class SpatialPooler(object):
     colRange = numpy.array(range(row-radius,row+radius+1)) % nrows
     rowRange = numpy.array(range(col-radius,col+radius+1)) % ncols
 
-    neighbors2D = list(itertools.product(colRange,rowRange))
-    neighbors = [toIndex(r,c) for (r,c) in neighbors2D]
+    neighbors = [toIndex(r,c) for (r,c) in itertools.product(colRange,rowRange)]
     neighbors = list(set(neighbors) - set([columnIndex]))
+    assert(neighbors)
     return neighbors
-        
+     
+
+  @staticmethod
+  def _getNeighborsND(columnIndex, dimensions, radius):
+    """
+    This is for arbitrary dimensions (N-dimension).
+    """
+    assert(dimensions.size > 0)
+    bounds = numpy.cumprod(numpy.append([1],dimensions[::-1][:-1]))[::-1]
+
+    def toCoords(index):
+      return (index / bounds) % dimensions
+
+    def toIndex(coords):
+      return numpy.dot(bounds,coords)
+
+    columnCoords = toCoords(columnIndex)
+    rangeND = []
+    for i in xrange(dimensions.size):
+      curRange = numpy.array(range(columnCoords[i]-radius, \
+                                   columnCoords[i]+radius+1)) % dimensions[i]
+      rangeND.append(curRange)
+
+    neighbors = [toIndex(numpy.array(coord)) for coord in itertools.product(*rangeND)]
+    neighbors = list(set(neighbors) - set([columnIndex]))
+    assert(neighbors)
+    return neighbors
+
 
   def _isUpdateRound(self):
-    return ((self._iterationNum + 1) % 50) == 0
+    return ((self._iterationNum + 1) % self._updatePeriod) == 0
 
 
   def _averageConnectedReceptiveField(self):
@@ -538,19 +552,6 @@ class SpatialPooler(object):
     maxDimension = max(self._columnShape)
     avgConnectedRF = min(maxDimension,avgConnectedRF)
     return int(round(avgConnectedRF))
-
-
-  @staticmethod
-  def _updateDutyCycle(dutyCycle,newInput,period):
-    """
-    Updates a duty cycle estimate with a new value. This is a helper
-    function that is used to update several duty cycle variables in 
-    the Column class, such as: overlapDutyCucle, activeDutyCycle,
-    minPctDutyCycleBeforeInh, minPctDutyCycleAfterInh, etc. returns
-    the updated duty cycle.
-    """
-    assert(period >= 1)
-    return (dutyCycle * (period -1.0) + newInput) / period
 
 
   def _seed(self, seed=-1):
@@ -598,45 +599,13 @@ class SpatialPooler(object):
   #              0.5)
 
 
+  def __get_state__(self):
+    pass
 
-    # OBSOLETE CODE
-  # def _inhibitColumns1D(self, overlaps, numActive):
-  #     overlaps = numpy.array(overlaps,dtype=realDType)
-  #     activeColumns = numpy.zeros(self._numColumns)
-  #     addToWinners = max(overlaps)/1000.0
-  #     for i in range(self._numColumns):
-  #       maskInh = range(2*self._inhibitionRadius+1)
-  #       maskInh = numpy.delete(maskInh,self._inhibitionRadius)
-  #       maskInh += i
-  #       maskInh -= self._inhibitionRadius
-  #       maskInh %= self._numColumns
-  #       overlapSlice = overlaps[maskInh]
-  #       kthLargestValue = sorted(overlapSlice,
-  #                                reverse=True)[numActive-1]
-  #       if overlaps[i] >= kthLargestValue:
-  #         activeColumns[i] = 1
-  #         overlaps[i] += addToWinners
+  def __set_state__(self):
+    pass
 
-  #     return activeColumns
-  
 
-  # def _updatePermanences(self):
-  #   pass
 
-  # def _updateConnectedSynapses(self):
-  #   self._connectedSynapses
 
-  # def _seed(self, seed=-1):
-  #   """
-  #   Initialize the random seed
-  #   """
-  #   pass; return
-  #   if seed != -1:
-  #     self.random = NupicRandom(seed)
-  #     random.seed(seed)
-  #     numpy.random.seed(seed)
-  #   else:
-  #     self.random = NupicRandom()
-    
- 
 
