@@ -102,6 +102,7 @@ class SpatialPooler(object):
     #extra parameter settings
     self._synPermMin = 0.0
     self._synPermMax = 1.0
+    self._synPermTrimThreshold = synPermActiveInc / 2.0
     self._updatePeriod = 50
 
     # internal state
@@ -114,12 +115,13 @@ class SpatialPooler(object):
 
     receptiveFields = [self._mapRF(i) for i in xrange(numColumns)]
     self._receptiveFields = SparseBinaryMatrix(receptiveFields)
-    initialPermanences = [self._initPermanence(i) for i in xrange(numColumns)]
-    self._permanences = SparseMatrix(initialPermanences)
+
+    self._permanences = SparseMatrix(numColumns,numInputs)
     self._connectedSynapses = SparseBinaryMatrix(numInputs)
     self._connectedSynapses.resize(numColumns,numInputs)
     self._connectedCounts = numpy.zeros(numColumns)
-    self._updateConnectedSynapses()
+    [self._updatePermanencesForColumn(self._initPermanence(i),i) \
+      for i in xrange(numColumns)]
 
     self._overlapDutyCycles = numpy.zeros(numColumns)
     self._activeDutyCycles = numpy.zeros(numColumns)
@@ -139,38 +141,45 @@ class SpatialPooler(object):
     permChanges[sharedInputs] -= self._synPermActiveSharedDec
     for i in xrange(self._numColumns):
       perm = self._permanences.getRow(i)
-      numpy.clip(perm,self._synPermMin,self._synPermMax,out=perm)
       maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
       perm[maskRF] += permChanges[maskRF]
       if i in orphanSet:
         perm[maskRF] -= self._synPermOrphanDec
-      self._permanences.setRowFromDense(i,perm)
-    self._updateConnectedSynapses()
-      
+      self._updatePermanencesForColumn(perm,i)
+
+
+  def _bumpUpWeakColumns(self):
+    weakColumns = numpy.where(self._overlapDutyCycles \
+                                < self._minOverlapDutyCycles)[0]   
+    for i in weakColumns:
+      perm = self._permanences.getRow(i).astype(realDType)
+      maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
+      perm[maskRF] += self._synPermBelowStimulusInc
+      self._updatePermanencesForColumn(perm,i)
+   
 
   def _raisePermanenceToThreshold(self):
-    trimThreshold = self._synPermActiveInc / 2.0
     belowThreshold = numpy.where(
       self._connectedCounts < self._stimulusThreshold)[0]
     for i in belowThreshold:
       perm = self._permanences.getRow(i).astype(realDType)
-      permChange = self._receptiveFields.getRow(i).astype(realDType)
+      maskRF = numpy.where(self._receptiveFields.getRow(i) > 0)[0]
       while True:
-        perm += self._synPermBelowStimulusInc
+        perm[maskRF] += self._synPermBelowStimulusInc
         numConnected = count_gte(perm, self._synPermConnected)
         if numConnected >= self._stimulusThreshold:
           break
-      self._permanences.setRowFromDense(i,perm)
-      self._permanences.thresholdRow(i,trimThreshold)
-    self._updateConnectedSynapses()
+      self._updatePermanencesForColumn(perm,i)
 
 
-  def _updateConnectedSynapses(self):
-    for i in xrange(self._numColumns):
-      newConnected = \
-        numpy.where(self._permanences.getRow(i) > self._synPermConnected)[0]
-      self._connectedSynapses.replaceSparseRow(i, newConnected)
-      self._connectedCounts[i] = newConnected.size
+  def _updatePermanencesForColumn(self,perm,index):
+    numpy.clip(perm,self._synPermMin,self._synPermMax,out=perm)
+    perm[perm < self._synPermTrimThreshold] = 0
+    newConnected = \
+      numpy.where(perm > self._synPermConnected)[0]
+    self._permanences.setRowFromDense(index,perm)
+    self._connectedSynapses.replaceSparseRow(index, newConnected)
+    self._connectedCounts[index] = newConnected.size
 
 
   def _initPermanence(self,index):
@@ -215,7 +224,7 @@ class SpatialPooler(object):
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
-    permRF[permRF < (self._synPermActiveInc / 2.0)] = 0
+    permRF[permRF < self._synPermTrimThreshold] = 0
 
     # Create a full vector the size of the entire input and fill in
     # the permanence values we just computed at the correct indices
@@ -287,8 +296,8 @@ class SpatialPooler(object):
     #v raise permanences to stimulus threshold connections
     self._raisePermanenceToThreshold()
 
-    # bump up weak columns / boosting?
-    self._bumpUpWeak() # raisePermanence only once!!
+    #v bump up weak columns / boosting?
+    self._bumpUpWeakColumns() # raisePermanence only once!!
 
     #v update boost factors per column
     self._updateBoostFactors()
@@ -304,6 +313,8 @@ class SpatialPooler(object):
 
     #v update bookeeping
     self._updateBookeeping(learn,infer)
+
+    return activeColumns, anomalyScore
 
 
   def _calculateAnomalyScore(self, overlaps, activeColumns):
