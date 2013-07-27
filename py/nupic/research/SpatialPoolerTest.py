@@ -33,7 +33,147 @@ class SpatialPoolerTest(unittest.TestCase):
                verbosityLevel = 0,
 			)
 
+	def test_compute(self):
+		return
+		sp = self._sp
+		inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('int')
+		sp.compute(inputVector,True)
+
+
+	def test_updateInhibitionRadius(self):
+		sp = self._sp
+		sp._globalInhibition = False
+		sp._updateInhibitionRadius()
+		# FINISH HIM!
+
+
+	def test_avgConnectedSpanForColumn1D(self):
+		sp = self._sp
+		sp._numColumns = 9
+		sp._columnDimensions = [9]
+		sp._inputDimensions = [12]
+		sp._connectedSynapses = \
+			SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
+								[0, 0, 0, 1, 0, 0, 0, 1],
+								[0, 0, 0, 0, 0, 0, 1, 0],
+								[0, 0, 1, 0, 0, 0, 1, 0],
+								[0, 0, 0, 0, 0, 0, 0, 0],
+								[0, 1, 1, 0, 0, 0, 0, 0],
+								[0, 0, 1, 1, 1, 0, 0, 0],
+								[0, 0, 1, 0, 1, 0, 0, 0],
+								[1, 1, 1, 1, 1, 1, 1, 1]])
+		
+		trueAvgConnectedSpan = [6, 4, 0, 4, 0, 1, 2, 2, 7]
+		for i in xrange(sp._numColumns):
+			connectedSpan = sp._avgConnectedSpanForColumn1D(i)
+			self.assertEqual(trueAvgConnectedSpan[i],connectedSpan)
+
+
+	def test_avgConnectedSpanForColumn2D(self):
+		sp = self._sp
+		sp._numColumns = 9
+		sp._columnDimensions = [9]
+		sp._numInpts = 8
+		sp._inputDimensions = [8]
+		sp._connectedSynapses = \
+			SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
+								[0, 0, 0, 1, 0, 0, 0, 1],
+								[0, 0, 0, 0, 0, 0, 1, 0],
+								[0, 0, 1, 0, 0, 0, 1, 0],
+								[0, 0, 0, 0, 0, 0, 0, 0],
+								[0, 1, 1, 0, 0, 0, 0, 0],
+								[0, 0, 1, 1, 1, 0, 0, 0],
+								[0, 0, 1, 0, 1, 0, 0, 0],
+								[1, 1, 1, 1, 1, 1, 1, 1]])
+		
+		trueAvgConnectedSpan = [6, 4, 0, 4, 0, 1, 2, 2, 7]
+		for i in xrange(sp._numColumns):
+			connectedSpan = sp._avgConnectedSpanForColumn1D(i)
+			self.assertEqual(trueAvgConnectedSpan[i],connectedSpan)
+
+
+	def test_avgConnectedSpanForColumn2D(self):
+		sp = self._sp
+		sp._numColumns = 7
+		sp._columnDimensions = [7]
+		sp._numInputs = 20
+		sp._inputDimensions = [5, 4]
+		sp._connectedSynapses = SparseBinaryMatrix(sp._numInputs)
+		sp._connectedSynapses.resize(sp._numColumns,sp._numInputs)
+
+		connected = numpy.array([
+					 [[0, 1, 1, 1],
+					  [0, 1, 1, 1],
+					  [0, 1, 1, 1],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0]],
+					  # rowspan = 2, colspan = 2, avg = 2
+
+					 [[1, 1, 1, 1],
+					  [0, 0, 1, 1],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0]],
+					 #rowspan = 1 colspan = 3, avg = 2
+
+					 [[1, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 1]],
+					 #row span = 4, colspan = 3, avg = 3.5
+
+					 [[0, 1, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 1, 0, 0],
+					  [0, 1, 0, 0]],
+					 #rowspan = 4, colspan = 0, avg = 2
+
+					 [[0, 0, 0, 0],
+					  [1, 0, 0, 1],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0]],
+					 #rowspan = 0, colspan = 3, avg = 1.5
+
+					 [[0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 1, 0],
+					  [0, 0, 0, 1]],
+					#rowspan = 1, colspan = 1, avg = 1
+
+					 [[0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0],
+					  [0, 0, 0, 0]]
+					#rowspan = 0, colspan = 0, avg = 0
+
+					 ])
+
+		trueAvgConnectedSpan = [2, 2, 3.5, 2, 1.5, 1, 0]
+		for i in xrange(sp._numColumns):
+			sp._connectedSynapses.replaceSparseRow(i,connected[i].reshape(-1).nonzero()[0])
+
+		for i in xrange(sp._numColumns):
+			connectedSpan = sp._avgConnectedSpanForColumn2D(i)
+			#import pdb; pdb.set_trace()
+			self.assertEqual(trueAvgConnectedSpan[i],connectedSpan)		 
+
+
+	def test_avgConnectedSpanForColumnND(self):
+		pass
+
+	def test_inhibitColumns(self):
+		#with local area density
+		pass
+
 	def test_updateBoostFactors(self):
+		pass
+
+	def _inhibitColumns(self):
 		pass
 
 	def test_bumpUpWeakColumns(self):
@@ -940,6 +1080,50 @@ class SpatialPoolerTest(unittest.TestCase):
 							 sorted(list(neighbors)))
 		
 
+
+		#these are all the same tests from 1D
+		layout = numpy.array([0, 0, 1, 0, 1, 0, 0,  0])
+		layout1D = layout.reshape(-1)
+		columnIndex = 3
+		dimensions = numpy.array([8])
+		radius = 1
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		layout = numpy.array([0, 1, 1, 0, 1, 1, 0,  0])
+		layout1D = layout.reshape(-1)
+		columnIndex = 3
+		dimensions = numpy.array([8])
+		radius = 2
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		#wrap around
+		layout = numpy.array([0, 1, 1, 0, 0, 0, 1,  1])
+		layout1D = layout.reshape(-1)
+		columnIndex = 0
+		dimensions = numpy.array([8])
+		radius = 2
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		#import pdb; pdb.set_trace()
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
+
+		#radius to big
+		layout = numpy.array([1, 1, 1, 1, 1, 1, 0,  1])
+		layout1D = layout.reshape(-1)
+		columnIndex = 6
+		dimensions = numpy.array([8])
+		radius = 20
+		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		negative = set(range(dimensions.prod())) - set(mask)
+		self.assertEqual(layout1D[mask].all(), True)
+		self.assertEqual(layout1D[list(negative)].any(),False)
 
 
 		#these are all the same tests from 2D
