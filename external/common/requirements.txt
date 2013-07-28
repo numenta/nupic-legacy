@@ -8,5 +8,9 @@ python-dateutil==2.1
 six==1.3
 mock==1.0.1
 validictory==0.9.1
+# dependencies for pylint:
 unittest2==0.5.1
+logilab-common==0.59.1
+logilab-astng==0.24.3
 pylint==0.28.0
+ordereddict==1.1
