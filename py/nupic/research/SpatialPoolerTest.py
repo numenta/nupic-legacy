@@ -40,6 +40,10 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp.compute(inputVector,True)
 
 
+	def test_mapRF(self):
+		pass
+
+
 	def test_inhibitColumns(self):
 		sp = self._sp
 		sp._inhibitColumnsGlobal = Mock(return_value = 1)
