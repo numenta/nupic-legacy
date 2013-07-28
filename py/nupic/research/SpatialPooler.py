@@ -130,17 +130,18 @@ class SpatialPooler(object):
     self._activeDutyCycles = numpy.zeros(numColumns)
     self._minOverlapDutyCycles = numpy.zeros(numColumns) + 1e-6
     self._minActiveDutyCycles = numpy.zeros(numColumns) + 1e-6
-    self._boostFactors = numpy.zeros(numColumns)
+    self._boostFactors = numpy.ones(numColumns)
     self._inhibitionRadius = 0
     self._updateInhibitionRadius()
 
     self._seed(seed)
   
-  
+
   def compute(self,inputVector, learn=True):
 
     assert (learn or infer)
     assert (numpy.size(inputVector) == self._numInputs)
+    inputVector = numpy.array(inputVector, dtype=realDType)
 
     # (vip selection here....)
     overlaps, overlapsPct = self._calculateOverlap(inputVector)
@@ -168,9 +169,9 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateMinDutyCycles()
 
-    self._updateBookeeping(learn,infer)
+    self._updateBookeeping(learn)
 
-    return activeColumns, anomalyScore
+    return numpy.array(activeColumns), anomalyScore
 
 
   def _calculateAnomalyScore(self, overlaps, activeColumns):
@@ -459,12 +460,10 @@ class SpatialPooler(object):
     self._boostFactors[self._activeDutyCycles > self._minActiveDutyCycles] = 1.0
 
 
-  def _updateBookeeping(self,learn,infer):
+  def _updateBookeeping(self,learn):
     self._iterationNum += 1
     if learn:
       self._iterationLearnNum += 1
-    if infer:
-      self._iterationInferNum += 1
 
 
   def _calculateOverlap(self,inputVector):
@@ -493,7 +492,10 @@ class SpatialPooler(object):
     if (self._numActiveColumnsPerInhArea > 0):
       numActive = self._numActiveColumnsPerInhArea
     else:
-      numActive = self._localAreaDensity * (self._inhibitionRadius + 1) ** 2
+      inhibitionArea = (self._inhibitionRadius + 1) ** 2
+      inhibitionArea = min(self._numColumns,inhibitionArea)
+      numActive = int(round(self._localAreaDensity * inhibitionArea))
+
 
     # Add a little bit of random noise to the scores to help break
     # ties.
@@ -623,6 +625,7 @@ class SpatialPooler(object):
     
 
   def __get_state__(self):
+    if (self.)
     pass
 
   def __set_state__(self):
