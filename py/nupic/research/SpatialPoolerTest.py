@@ -40,18 +40,177 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp.compute(inputVector,True)
 
 
+	def test_inhibitColumns(self):
+		sp = self._sp
+		sp._inhibitColumnsGlobal = Mock(return_value = 1)
+		sp._inhibitColumnsLocal = Mock(return_value = 2)
+		overlaps = numpy.random.rand(sp._numColumns)
+		numpy.random.rand = Mock(return_value = 0)
+		sp._numColumns = 5
+		sp._inhibitionRadius = 10
+		sp._columnDimensions = [32, 64]
+
+		sp._inhibitColumnsGlobal.reset_mock()
+		sp._inhibitColumnsLocal.reset_mock()
+		sp._numActiveColumnsPerInhArea = 5
+		sp._localAreaDensity = 0.1
+		sp._globalInhibition = True
+		sp._inhibitionRadius = 5
+		trueNumActive = sp._numActiveColumnsPerInhArea
+		sp._inhibitColumns(overlaps)
+		self.assertEqual(True,sp._inhibitColumnsGlobal.called)
+		self.assertEqual(False,sp._inhibitColumnsLocal.called)		
+		numActive = sp._inhibitColumnsGlobal.call_args[0][1]
+		self.assertEqual(trueNumActive,numActive)
+		
+
+		sp._inhibitColumnsGlobal.reset_mock()
+		sp._inhibitColumnsLocal.reset_mock()
+		sp._numActiveColumnsPerInhArea = -1
+		sp._localAreaDensity = 0.1
+		sp._globalInhibition = False
+		sp._inhibitionRadius = 19
+		# 0.1 * (19+1)**2
+		trueNumActive = 40 
+		sp._inhibitColumns(overlaps)
+		self.assertEqual(False,sp._inhibitColumnsGlobal.called)
+		self.assertEqual(True,sp._inhibitColumnsLocal.called)		
+		numActive = sp._inhibitColumnsLocal.call_args[0][1]
+		self.assertEqual(trueNumActive,numActive)
+
+		#test inhibition radius too big leads to global inhibition
+		sp._inhibitColumnsGlobal.reset_mock()
+		sp._inhibitColumnsLocal.reset_mock()
+		sp._numActiveColumnsPerInhArea = 11
+		sp._localAreaDensity = 0.1
+		sp._globalInhibition = False
+		sp._inhibitionRadius = 70
+		trueNumActive = 11 
+		sp._inhibitColumns(overlaps)
+		self.assertEqual(True,sp._inhibitColumnsGlobal.called)
+		self.assertEqual(False,sp._inhibitColumnsLocal.called)		
+		numActive = sp._inhibitColumnsGlobal.call_args[0][1]
+		self.assertEqual(trueNumActive,numActive)
+
+
+
+	def test_updateBoostFactors(self):
+		sp = self._sp
+		sp._maxBoost = 10.0
+		sp._numColumns = 6
+		sp._minActiveDutyCycles = numpy.zeros(sp._numColumns) + 1e-6
+		sp._activeDutyCycles = \
+			numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+		trueBoostFactors = [1, 1, 1, 1, 1, 1]
+		sp._updateBoostFactors()
+		self.assertListEqual(trueBoostFactors,list(sp._boostFactors))
+
+		sp._maxBoost = 10.0
+		sp._numColumns = 6
+		sp._minActiveDutyCycles = \
+			numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+		sp._activeDutyCycles = \
+			numpy.array([0.1, 0.3, 0.02, 0.04, 0.7, 0.12])
+		trueBoostFactors = [1, 1, 1, 1, 1, 1]
+		sp._updateBoostFactors()
+		self.assertListEqual(trueBoostFactors,list(sp._boostFactors))
+
+		sp._maxBoost = 10.0
+		sp._numColumns = 6
+		sp._minActiveDutyCycles = \
+			numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
+		sp._activeDutyCycles = \
+			numpy.array([0.01, 0.02, 0.002, 0.003, 0.07, 0.012])
+		trueBoostFactors = [9.1, 9.1, 9.1, 9.1, 9.1, 9.1]
+		sp._updateBoostFactors()
+		self.assertListEqual(trueBoostFactors,list(sp._boostFactors))
+
+		sp._maxBoost = 10.0
+		sp._numColumns = 6
+		sp._minActiveDutyCycles = \
+			numpy.array([0.1, 0.2, 0.02, 0.03, 0.7, 0.12])
+		sp._activeDutyCycles = \
+			numpy.zeros(sp._numColumns)
+		trueBoostFactors = 6*[sp._maxBoost]
+		sp._updateBoostFactors()
+		self.assertListEqual(trueBoostFactors,list(sp._boostFactors))
+
+
 	def test_updateInhibitionRadius(self):
 		sp = self._sp
-		sp._globalInhibition = False
+
+		# test global inhibition case
+		sp._globalInhibition = True
+		sp._numColumns = 57
 		sp._updateInhibitionRadius()
-		# FINISH HIM!
+		self.assertEqual(sp._inhibitionRadius,sp._numColumns)
+
+		sp._globalInhibition = False
+		sp._avgConnectedSpanForColumn1D = Mock(return_value = 3)
+		sp._avgColumnsPerInput = Mock(return_value = 4)
+		trueInhibitionRadius = 12
+		sp._updateInhibitionRadius()
+		self.assertEqual(trueInhibitionRadius,sp._inhibitionRadius)
+
+		# test clipping at 1.0
+		sp._globalInhibition = False
+		sp._avgConnectedSpanForColumn1D = Mock(return_value = 0.5)
+		sp._avgColumnsPerInput = Mock(return_value = 1.2)
+		trueInhibitionRadius = 1
+		sp._updateInhibitionRadius()
+		self.assertEqual(trueInhibitionRadius,sp._inhibitionRadius)
+
+		#test rounding up
+		sp._globalInhibition = False
+		sp._avgConnectedSpanForColumn1D = Mock(return_value = 2.4)
+		sp._avgColumnsPerInput = Mock(return_value = 2)
+		trueInhibitionRadius = 5
+		sp._updateInhibitionRadius()
+		self.assertEqual(trueInhibitionRadius,sp._inhibitionRadius)
+
+
+	def test_avgColumnsPerInput(self):
+		sp = self._sp
+		sp._columnDimensions = numpy.array([2,2,2,2])
+		sp._inputDimensions = numpy.array([4,4,4,4])
+		self.assertEqual(sp._avgColumnsPerInput(),0.5)
+
+		sp._columnDimensions = numpy.array([2, 2, 2, 2])
+		sp._inputDimensions = numpy.array( [7, 5, 1, 3])
+										#  2/7 0.4 2 0.666  
+		trueAvgColumnPerInput = (2.0/7 + 2.0/5 + 2.0/1 + 2/3.0) / 4
+		self.assertEqual(sp._avgColumnsPerInput(),trueAvgColumnPerInput)
+
+		sp._columnDimensions = numpy.array([3, 3])
+		sp._inputDimensions = numpy.array( [3, 3])
+										#   1  1
+		trueAvgColumnPerInput = 1
+		self.assertEqual(sp._avgColumnsPerInput(),trueAvgColumnPerInput)				
+
+		sp._columnDimensions = numpy.array([25])
+		sp._inputDimensions = numpy.array( [5])
+										#   5
+		trueAvgColumnPerInput = 5
+		self.assertEqual(sp._avgColumnsPerInput(),trueAvgColumnPerInput)
+
+		sp._columnDimensions = numpy.array([3, 3, 3, 5, 5, 6, 6])
+		sp._inputDimensions = numpy.array( [3, 3, 3, 5, 5, 6, 6])
+										#   1  1  1  1  1  1  1
+		trueAvgColumnPerInput = 1
+		self.assertEqual(sp._avgColumnsPerInput(),trueAvgColumnPerInput)
+
+		sp._columnDimensions = numpy.array([3, 6, 9, 12])
+		sp._inputDimensions = numpy.array( [3, 3, 3 , 3])
+										#   1  2  3   4
+		trueAvgColumnPerInput = 2.5
+		self.assertEqual(sp._avgColumnsPerInput(),trueAvgColumnPerInput)
 
 
 	def test_avgConnectedSpanForColumn1D(self):
 		sp = self._sp
 		sp._numColumns = 9
-		sp._columnDimensions = [9]
-		sp._inputDimensions = [12]
+		sp._columnDimensions = numpy.array([9])
+		sp._inputDimensions = numpy.array([12])
 		sp._connectedSynapses = \
 			SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
 								[0, 0, 0, 1, 0, 0, 0, 1],
@@ -72,9 +231,9 @@ class SpatialPoolerTest(unittest.TestCase):
 	def test_avgConnectedSpanForColumn2D(self):
 		sp = self._sp
 		sp._numColumns = 9
-		sp._columnDimensions = [9]
+		sp._columnDimensions = numpy.array([9])
 		sp._numInpts = 8
-		sp._inputDimensions = [8]
+		sp._inputDimensions = numpy.array([8])
 		sp._connectedSynapses = \
 			SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
 								[0, 0, 0, 1, 0, 0, 0, 1],
@@ -95,9 +254,9 @@ class SpatialPoolerTest(unittest.TestCase):
 	def test_avgConnectedSpanForColumn2D(self):
 		sp = self._sp
 		sp._numColumns = 7
-		sp._columnDimensions = [7]
+		sp._columnDimensions = numpy.array([7])
 		sp._numInputs = 20
-		sp._inputDimensions = [5, 4]
+		sp._inputDimensions = numpy.array([5, 4])
 		sp._connectedSynapses = SparseBinaryMatrix(sp._numInputs)
 		sp._connectedSynapses.resize(sp._numColumns,sp._numInputs)
 
@@ -164,17 +323,60 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 	def test_avgConnectedSpanForColumnND(self):
-		pass
+		sp = self._sp
+		sp._inputDimensions = numpy.array([4,4,2,5])
+		sp._numInputs = numpy.prod(sp._inputDimensions)
+		sp._numColumns = 5
+		sp._columnDimensions = numpy.array([5])
+		sp._connectedSynapses = SparseBinaryMatrix(sp._numInputs)
+		sp._connectedSynapses.resize(sp._numColumns,sp._numInputs)
 
-	def test_inhibitColumns(self):
-		#with local area density
-		pass
+		
+		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+		connected[1][0][1][0] = 1
+		connected[1][0][1][1] = 1
+		connected[3][2][1][0] = 1
+		connected[3][0][1][0] = 1
+		connected[1][0][1][3] = 1
+		connected[2][2][1][0] = 1
+		# span:   2  2  0  3, avg = 7/4
+		sp._connectedSynapses.replaceSparseRow(0,connected.reshape(-1).nonzero()[0])
 
-	def test_updateBoostFactors(self):
-		pass
+		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+		connected[2][0][1][0] = 1
+		connected[2][0][0][0] = 1
+		connected[3][0][0][0] = 1
+		connected[3][0][1][0] = 1
+		# span:   1  0  1  0, avg = 2/4
+		sp._connectedSynapses.replaceSparseRow(1,connected.reshape(-1).nonzero()[0])		
 
-	def _inhibitColumns(self):
-		pass
+		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+		connected[0][0][1][4] = 1
+		connected[0][0][0][3] = 1
+		connected[0][0][0][1] = 1
+		connected[1][0][0][2] = 1
+		connected[0][0][1][1] = 1
+		connected[3][3][1][1] = 1
+		# span:   3  3  1  3, avg = 10/4
+		sp._connectedSynapses.replaceSparseRow(2,connected.reshape(-1).nonzero()[0])		
+
+		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+		connected[3][3][1][4] = 1
+		connected[0][0][0][0] = 1
+		# span:   3  3  1  4, avg = 11/4
+		sp._connectedSynapses.replaceSparseRow(3,connected.reshape(-1).nonzero()[0])		
+
+		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
+		# span:   0  0  0  0, avg = 0
+		sp._connectedSynapses.replaceSparseRow(4,connected.reshape(-1).nonzero()[0])		
+
+		trueAvgConnectedSpan = [7.0/4, 2.0/4, 10.0/4, 11.0/4, 0]			
+
+
+		for i in xrange(sp._numColumns):
+			connectedSpan = sp._avgConnectedSpanForColumnND(i)
+			self.assertAlmostEqual(trueAvgConnectedSpan[i],connectedSpan)
+
 
 	def test_bumpUpWeakColumns(self):
 	 	sp = SpatialPooler(numInputs = 8,
