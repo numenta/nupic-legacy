@@ -64,7 +64,7 @@ contents using a for loop:
 import os
 import csv
 import copy
-import simplejson as json
+import json
 
 from nupic.data.fieldmeta import FieldMetaInfo
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
