@@ -79,6 +79,7 @@ class SpatialPooler(object):
     assert (numActiveColumnsPerInhArea > 0 or localAreaDensity > 0)
     assert (localAreaDensity == -1 or 
             (localAreaDensity >0 and localAreaDensity < 1))
+    #       (localAreaDensity >0 and localAreaDensity < 0.5))
 
 
     # save arguments
@@ -127,49 +128,138 @@ class SpatialPooler(object):
 
     self._overlapDutyCycles = numpy.zeros(numColumns)
     self._activeDutyCycles = numpy.zeros(numColumns)
-    self._minOverlapDutyCycles = numpy.zeros(numColumns)
-    self._minActiveDutyCycles = numpy.zeros(numColumns)
+    self._minOverlapDutyCycles = numpy.zeros(numColumns) + 1e-6
+    self._minActiveDutyCycles = numpy.zeros(numColumns) + 1e-6
     self._boostFactors = numpy.zeros(numColumns)
     self._inhibitionRadius = 0
-    # self._updateInhibitionRadius()
+    self._updateInhibitionRadius()
 
     self._seed(seed)
   
+  
+  def compute(self,inputVector, learn=True):
+
+    assert (learn or infer)
+    assert (numpy.size(inputVector) == self._numInputs)
+
+    # (vip selection here....)
+    overlaps, overlapsPct = self._calculateOverlap(inputVector)
+
+    if learn:
+      boostedOverlaps = self._boostFactors * overlaps
+    else:
+      boostedOverlaps = overlaps
+
+    activeColumns = self._inhibitColumns(boostedOverlaps)
+    anomalyScore = self._calculateAnomalyScore(overlaps,activeColumns)
+
+    # if not learn: - don't let columns that never learned win!
+
+    if learn:
+      orphanColumns = self._calculateOrphanColumns(activeColumns,overlapsPct)
+      sharedInputs = self._calculateSharedInputs(inputVector,activeColumns)
+      self._adaptSynapses(inputVector,sharedInputs,orphanColumns)
+      self._raisePermanenceToThreshold()
+      self._bumpUpWeakColumns() 
+      self._updateBoostFactors()
+      self._updateDutyCycles(overlaps,activeColumns)
+      self._updateInhibitionRadius()
+
+      if self._isUpdateRound():
+        self._updateMinDutyCycles()
+
+    self._updateBookeeping(learn,infer)
+
+    return activeColumns, anomalyScore
+
+
+  def _calculateAnomalyScore(self, overlaps, activeColumns):
+    if activeColumns.size == 0:
+      return 1.0
+
+    anomalyScores = overlaps[activeColumns]
+    anomalyScores *= self._activeDutyCycles[activeColumns]
+    return 1.0 / (numpy.sum(anomalyScores) + 1)
+
+
+  def _updateMinDutyCycles(self):
+    if self._globalInhibition or self._inhibitionRadius > self._numInputs:
+      self._updateMinDutyCyclesGlobal()
+    else:
+      self._updateMinDutyCyclesLocal()
+
+
+  def _updateMinDutyCyclesGlobal(self):
+    self._minOverlapDutyCycles.fill(
+        self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
+      )
+    self._minActiveDutyCycles.fill(
+        self._minPctActiveDutyCycles * self._activeDutyCycles.max()
+      )
+
+
+  def _updateMinDutyCyclesLocal(self):
+    for i in xrange(self._numColumns):
+      maskNeighbors = self._getNeighbors(i,self._columnDimensions,
+        self._inhibitionRadius)
+      self._minOverlapDutyCycles[i] = \
+        self._overlapDutyCycles[maskNeighbors].max() * self._minPctOverlapDutyCycles
+      self._minActiveDutyCycles[i] = \
+        self._activeDutyCycles[maskNeighbors].max() * self._minPctActiveDutyCycles
+
+
+  def _updateDutyCycles(self,overlaps,activeColumns):
+    activeArray = numpy.zeros(self._numColumns)
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+    period = self._dutyCyclePeriod
+    if (period < self._iterationNum):
+      period = self._iterationNum
+
+    self._overlapDutyCycles = \
+    self._updateDutyCyclesHelper(self._overlapDutyCycles, 
+                                overlaps, 
+                                period)
+
+    self._activeDutyCycles = \
+    self._updateDutyCyclesHelper(self._activeDutyCycles, 
+                                activeArray,
+                                period)
+
+
 
   def _updateInhibitionRadius(self):
     if self._globalInhibition:
       self._inhibitionRadius = self._numColumns
       return
-
     avgConnectedSpan = numpy.average([ \
       self._avgConnectedSpanForColumn1D(i) \
        for i in xrange(self._numColumns)])
-
-
-    columnsPerInput = numpy.average([ \
-      self._columnDimensions.astype(realDType) / \
-        self._inputDimensions
-        # (self._inputDimensions - self._inputBorder)
-      ])
-
+    columnsPerInput = self._avgColumnsPerInput()
     newInhibitionRadius = avgConnectedSpan * columnsPerInput
     newInhibitionRadius = max(1.0,newInhibitionRadius)
     self._inhibitionRadius = int(round(newInhibitionRadius))
 
 
   def _avgColumnsPerInput(self):
-    pass
+    columnsPerInput = self._columnDimensions.astype(realDType) / \
+        self._inputDimensions
+         # (self._inputDimensions - self._inputBorder)
+    return numpy.average(columnsPerInput)
 
 
   def _avgConnectedSpanForColumn1D(self,index):
+
+    assert(self._inputDimensions.size == 1)
     connected = self._connectedSynapses.getRow(index).nonzero()[0]
-    if connected.size > 0:
-      return max(connected) - min(connected)
-    else:
+    if connected.size == 0:
       return 0
+    else:
+      return max(connected) - min(connected)
 
 
   def _avgConnectedSpanForColumn2D(self,index):
+    assert(self._inputDimensions.size == 2)
     connected = self._connectedSynapses.getRow(index)
     (rows, cols) = connected.reshape(self._inputDimensions).nonzero()
     if  rows.size == 0 and cols.size == 0:
@@ -180,14 +270,18 @@ class SpatialPooler(object):
 
 
   def _avgConnectedSpanForColumnND(self,index):
-    bounds = numpy.cumprod(numpy.append([1],self._columnDimensions[::-1][:-1]))[::-1]
+    dimensions = self._inputDimensions
+    bounds = numpy.cumprod(numpy.append([1],dimensions[::-1][:-1]))[::-1]
     def toCoords(index):
       return (index / bounds) % dimensions
+
     connected = self._connectedSynapses.getRow(index).nonzero()[0]
-    maxCoord = numpy.empty(self._columnDimensions.size)
-    minCoord = numpy.empty(self._columnDimensions.size)
-    maxCoord = numpy.fill(-1)
-    minCoord = numpy.fill(max(self._columnDimensions))
+    if connected.size == 0:
+      return 0
+    maxCoord = numpy.empty(self._inputDimensions.size)
+    minCoord = numpy.empty(self._inputDimensions.size)
+    maxCoord.fill(-1)
+    minCoord.fill(max(self._inputDimensions))
     for i in connected:
       maxCoord = numpy.maximum(maxCoord,toCoords(i))
       minCoord = numpy.minimum(minCoord,toCoords(i))
@@ -326,96 +420,6 @@ class SpatialPooler(object):
     return mask
 
 
-  def compute(self,inputVector, learn=True):
-
-    assert (learn or infer)
-    assert (numpy.size(inputVector) == self._numInputs)
-
-    # (vip selection here....)
-    overlaps, overlapsPct = self._calculateOverlap(inputVector)
-
-    if learn:
-      boostedOverlaps = self._boostFactors * overlaps
-    else:
-      boostedOverlaps = overlaps
-
-    activeColumns = self._inhibitColumns(boostedOverlaps)
-    anomalyScore = self._calculateAnomalyScore(overlaps,activeColumns)
-
-    # if not learn: - don't let columns that never learned win!
-
-    if learn:
-      orphanColumns = self._calculateOrphanColumns(activeColumns,overlapsPct)
-      sharedInputs = self._calculateSharedInputs(inputVector,activeColumns)
-      self._adaptSynapses(inputVector,sharedInputs,orphanColumns)
-      self._raisePermanenceToThreshold()
-      self._bumpUpWeakColumns() 
-      self._updateBoostFactors()
-      self._updateDutyCycles(overlaps,activeColumns)
-      self._updateInhibitionRadius()
-
-      if self._isUpdateRound():
-        self._updateMinDutyCycles()
-
-    self._updateBookeeping(learn,infer)
-
-    return activeColumns, anomalyScore
-
-
-  def _calculateAnomalyScore(self, overlaps, activeColumns):
-    if activeColumns.size == 0:
-      return 1.0
-
-    anomalyScores = overlaps[activeColumns]
-    anomalyScores *= self._activeDutyCycles[activeColumns]
-    return 1.0 / (numpy.sum(anomalyScores) + 1)
-
-
-  def _updateMinDutyCycles(self):
-    if self._globalInhibition or self._inhibitionRadius > self._numInputs:
-      self._updateMinDutyCyclesGlobal()
-    else:
-      self._updateMinDutyCyclesLocal()
-
-
-  def _updateMinDutyCyclesGlobal(self):
-    self._minOverlapDutyCycles.fill(
-        self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
-      )
-    self._minActiveDutyCycles.fill(
-        self._minPctActiveDutyCycles * self._activeDutyCycles.max()
-      )
-
-
-  def _updateMinDutyCyclesLocal(self):
-    for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighbors(i,self._columnDimensions,
-        self._inhibitionRadius)
-      self._minOverlapDutyCycles[i] = \
-        self._overlapDutyCycles[maskNeighbors].max() * self._minPctOverlapDutyCycles
-      self._minActiveDutyCycles[i] = \
-        self._activeDutyCycles[maskNeighbors].max() * self._minPctActiveDutyCycles
-
-
-  def _updateDutyCycles(self,overlaps,activeColumns):
-    activeArray = numpy.zeros(self._numColumns)
-    if activeColumns.size > 0:
-      activeArray[activeColumns] = 1
-    period = self._dutyCyclePeriod
-    if (period < self._iterationNum):
-      period = self._iterationNum
-
-    self._overlapDutyCycles = \
-    self._updateDutyCyclesHelper(self._overlapDutyCycles, 
-                                overlaps, 
-                                period)
-
-    self._activeDutyCycles = \
-    self._updateDutyCyclesHelper(self._activeDutyCycles, 
-                                activeArray,
-                                period)
-
-
   @staticmethod
   def _updateDutyCyclesHelper(dutyCycles,newInput,period):
     """
@@ -443,9 +447,9 @@ class SpatialPooler(object):
                 | \
           1  _  |  \ _ _ _ _ _ _ _
                 |   
-                +--------------------> dutyCycle
+                +--------------------> activeDutyCycle
                    |
-                 minDuty
+            minActiceDutyCucle
     """
     
     self._boostFactors = (1 - self._maxBoost) \
@@ -489,14 +493,15 @@ class SpatialPooler(object):
     if (self._numActiveColumnsPerInhArea > 0):
       numActive = self._numActiveColumnsPerInhArea
     else:
-      numActive = localAreaDensity * (self._inhibitionRadius + 1) ** 2
+      numActive = self._localAreaDensity * (self._inhibitionRadius + 1) ** 2
 
     # Add a little bit of random noise to the scores to help break
     # ties.
     tieBreaker = 0.1*numpy.random.rand(self._numColumns)
     overlaps += tieBreaker
 
-    if self._globalInhibition or self._inhibitionRadius > self._numInputs:
+    if self._globalInhibition or \
+                        self._inhibitionRadius > max(self._columnDimensions):
       return self._inhibitColumnsGlobal(overlaps, numActive)
     else:
       return self._inhibitColumnsLocal(overlaps, numActive)
