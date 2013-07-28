@@ -18,7 +18,6 @@ external/${arch}/lib/python${PythonVersion}/site-packages/simplejson   lib/pytho
 @win32 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd
 
 # Platform independent python libraries
-external/common/lib/python${PythonVersion}/site-packages/dateutil   lib/python${PythonVersion}/site-packages/dateutil
 external/common/lib/python${PythonVersion}/site-packages/mock       lib/python${PythonVersion}/site-packages/mock
 external/common/lib/python${PythonVersion}/site-packages/unittest2  lib/python${PythonVersion}/site-packages/unittest2
 external/common/lib/python${PythonVersion}/site-packages/pylint     lib/python${PythonVersion}/site-packages/pylint
