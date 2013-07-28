@@ -5,3 +5,4 @@ pytest-cov==1.6
 pytest-xdist==1.8
 asteval==0.9
 python-dateutil==2.1
+six==1.3
