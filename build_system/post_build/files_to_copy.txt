@@ -18,7 +18,6 @@ external/${arch}/lib/python${PythonVersion}/site-packages/simplejson   lib/pytho
 @win32 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd
 
 # Platform independent python libraries
-external/common/lib/python${PythonVersion}/site-packages/unittest2  lib/python${PythonVersion}/site-packages/unittest2
 external/common/lib/python${PythonVersion}/site-packages/pylint     lib/python${PythonVersion}/site-packages/pylint
 external/common/lib/python${PythonVersion}/site-packages/logilab    lib/python${PythonVersion}/site-packages/logilab
 external/common/lib/python${PythonVersion}/site-packages/ordereddict.py   lib/python${PythonVersion}/site-packages/ordereddict.py
