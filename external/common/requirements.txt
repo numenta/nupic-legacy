@@ -9,3 +9,4 @@ six==1.3
 mock==1.0.1
 validictory==0.9.1
 unittest2==0.5.1
+pylint==0.28.0
