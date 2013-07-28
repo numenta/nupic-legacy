@@ -6,3 +6,4 @@ pytest-xdist==1.8
 asteval==0.9
 python-dateutil==2.1
 six==1.3
+mock==1.0.1
