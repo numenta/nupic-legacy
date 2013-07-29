@@ -1,5 +1,12 @@
 #External python dependencies installed by pip in $NUPIC/build.sh
 #See http://www.pip-installer.org/en/latest/requirements.html for details
+asteval==0.9
+mock==1.0.1
+ordereddict==1.1
+pylint==0.28.0
 pytest==2.4.0.dev8
 pytest-cov==1.6
 pytest-xdist==1.8
+python-dateutil==2.1
+unittest2==0.5.1
+validictory==0.9.1
