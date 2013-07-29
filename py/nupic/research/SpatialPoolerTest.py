@@ -2,7 +2,7 @@
 
 import unittest2 as unittest
 from mock import Mock, patch, ANY, call
-from SpatialPooler import SpatialPooler
+from SpatialPooler import SpatialPooler, GrokSpatialPooler
 from nupic.bindings.math import SM32 as SparseMatrix, \
                                 SM_01_32_32 as SparseBinaryMatrix, \
                                 count_gte, GetNTAReal
@@ -30,7 +30,7 @@ class SpatialPoolerTest(unittest.TestCase):
                dutyCyclePeriod = 10,
                maxBoost = 10.0,
                seed = -1,
-               verbosityLevel = 0,
+               spVerbosity = 0,
 			)
 
 	def test_compute(self):
@@ -40,6 +40,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp.compute(inputVector,True)
 
 
+	#test this and initPermanence with too big of a radius
 	def test_mapRF(self):
 		pass
 
@@ -70,6 +71,8 @@ class SpatialPoolerTest(unittest.TestCase):
 
 		sp._inhibitColumnsGlobal.reset_mock()
 		sp._inhibitColumnsLocal.reset_mock()
+		sp._numColumns = 500
+		sp._columnDimensions = numpy.array([50, 10])
 		sp._numActiveColumnsPerInhArea = -1
 		sp._localAreaDensity = 0.1
 		sp._globalInhibition = False
@@ -1037,8 +1040,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		overlaps = numpy.array([1,2,1,4,8,3,12,5,4,1])
 		active = list(sp._inhibitColumnsGlobal(overlaps,numActive))
 		trueActive = numpy.zeros(sp._numColumns)
-		winnerMask = [4,6,7]
-		trueActive[winnerMask] = 1
+		trueActive = [4,6,7]
 		self.assertListEqual(list(trueActive), active)
 
 		numActive = 5
@@ -1046,9 +1048,8 @@ class SpatialPoolerTest(unittest.TestCase):
 		overlaps = numpy.array(range(10))
 		active = list(sp._inhibitColumnsGlobal(overlaps,numActive))
 		trueActive = numpy.zeros(sp._numColumns)
-		winnerMask = range(5,10)
-		trueActive[winnerMask] = 1
-		self.assertListEqual(list(trueActive), active)
+		trueActive = range(5,10)
+		self.assertListEqual(trueActive, active)
 
 
 	def test_inhibitColumnsLocal(self):
@@ -1400,8 +1401,62 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual(layout1D[list(negative)].any(),False)
 
 
+class GrokSpatialPoolerTest(unittest.TestCase):
+
+	def setUp(self):
+		self._sp = GrokSpatialPooler(
+			   numInputs = 5,
+               numColumns = 5,
+               localAreaDensity = 0.1,
+               numActiveColumnsPerInhArea = -1,
+               stimulusThreshold=1,
+               minDistance = 0.0,
+               seed = -1,
+               spVerbosity = 0,
+			)
+
+	def test_selectVIPColumns(self):
+		sp = self._sp
+		sp._numColumns = 7
+		sp._minDistance = 0.0
+		sp._overlapsPct = numpy.array([1.0, 0.7, 0.8, 0.1, 1.0, 0.3, 0.1])
+		vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+		trueVIPColumns = [0, 4]
+		self.assertListEqual(trueVIPColumns, list(vipColumns))
+
+		sp._numColumns = 7
+		sp._minDistance = 0.1
+		sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
+		vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+		trueVIPColumns = [1, 3, 4]
+		self.assertListEqual(trueVIPColumns, list(vipColumns))
+
+		sp._numColumns = 7
+		sp._minDistance = 0.15
+		sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
+		vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+		trueVIPColumns = [1, 2, 3, 4, 6]
+		self.assertListEqual(trueVIPColumns, list(vipColumns))
+
+		sp._numColumns = 7
+		sp._minDistance = 1.0
+		sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
+		vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+		trueVIPColumns = range(7)
+		self.assertListEqual(trueVIPColumns, list(vipColumns))
+
+		sp._numColumns = 7
+		sp._minDistance = 0.99
+		sp._overlapsPct = numpy.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+		vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+		trueVIPColumns = []
+		self.assertListEqual(trueVIPColumns, list(vipColumns))
 
 
 if __name__ == '__main__':
   unittest.main()
+
+
+
+
 
