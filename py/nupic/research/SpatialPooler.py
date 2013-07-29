@@ -24,6 +24,7 @@ import sys
 import os
 import numpy
 import numpy.random
+import pdb
 import random
 import itertools
 import time
@@ -70,7 +71,7 @@ class SpatialPooler(object):
                dutyCyclePeriod = 1000,
                maxBoost = 10.0,
                seed = -1,
-               verbosityLevel = 0
+               spVerbosity = 0
                ):
 
     #verify input is valid
@@ -101,8 +102,9 @@ class SpatialPooler(object):
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
     self._dutyCyclePeriod = dutyCyclePeriod
     self._maxBoost = maxBoost
+    self._spVerbosity = spVerbosity
 
-    #extra parameter settings
+    # extra parameter settings
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
@@ -114,7 +116,6 @@ class SpatialPooler(object):
     self._inputDimensions = numpy.array([numInputs])
     self._iterationNum = 0
     self._iterationLearnNum = 0
-    self._iterationInferNum = 0
 
     receptiveFields = [self._mapRF(i) for i in xrange(numColumns)]
     self._receptiveFields = SparseBinaryMatrix(receptiveFields)
@@ -125,6 +126,8 @@ class SpatialPooler(object):
     self._connectedCounts = numpy.zeros(numColumns)
     [self._updatePermanencesForColumn(self._initPermanence(i),i) \
       for i in xrange(numColumns)]
+    #make sure columns have a chance
+    self._raisePermanenceToThreshold()
 
     self._overlapDutyCycles = numpy.zeros(numColumns)
     self._activeDutyCycles = numpy.zeros(numColumns)
@@ -139,7 +142,6 @@ class SpatialPooler(object):
 
   def compute(self,inputVector, learn=True):
 
-    assert (learn or infer)
     assert (numpy.size(inputVector) == self._numInputs)
     inputVector = numpy.array(inputVector, dtype=realDType)
 
@@ -517,7 +519,7 @@ class SpatialPooler(object):
                      key=lambda k: overlaps[k], 
                      reverse=True)[0:numActive]
     activeColumns[winners] = 1
-    return activeColumns
+    return numpy.where(activeColumns > 0)[0]
 
 
   def _inhibitColumnsLocal(self,overlaps,numActive):
@@ -615,21 +617,95 @@ class SpatialPooler(object):
     """
     Initialize the random seed
     """
-
     if seed != -1:
-      self.random = NupicRandom(seed)
+      self._random = NupicRandom(seed)
       random.seed(seed)
       numpy.random.seed(seed)
     else:
-      self.random = NupicRandom()
+      self._random = NupicRandom()
     
 
   def __get_state__(self):
-    if (self.)
-    pass
+    if not hasattr(self,"_version"):
+      pass
 
   def __set_state__(self):
     pass
+
+
+
+class GrokSpatialPooler(SpatialPooler):
+
+  def __init__(self,
+               numInputs,
+               numColumns,
+               localAreaDensity = 0.1,
+               numActiveColumnsPerInhArea = -1,
+               stimulusThreshold = 0,
+               minDistance = 0.0,
+               seed = -1,
+               spVerbosity = 0,
+               ):
+
+    pdb.set_trace()
+    super(GrokSpatialPooler,self).__init__(
+        numInputs = numInputs,
+        numColumns = numColumns,
+        receptiveFieldRadius = numInputs,
+        receptiveFieldPctPotential = 0.5,
+        globalInhibition = True,
+        localAreaDensity = localAreaDensity,
+        numActiveColumnsPerInhArea = numActiveColumnsPerInhArea,
+        stimulusThreshold = stimulusThreshold,
+        seed = seed
+      )
+
+    #verify input is valid
+    assert(numColumns > 0)
+    assert(numInputs > 0)
+
+    # save arguments
+    self._numInputs = numInputs
+    self._numColumns = numColumns
+    self._minDistance = minDistance
+
+    #set active duty cycles to ones, because they set anomaly scores to 0
+    self._activeDutyCycles = numpy.ones(self._numColumns)
+
+    # set of columns to be 'hungry' for learning
+    self._boostFactors *= maxFiringBoost
+  
+
+  def compute(self, inputVector, learn=True):
+    pdb.set_trace()
+    assert (numpy.size(inputVector) == self._numInputs)
+    inputVector = numpy.array(inputVector, dtype=realDType)
+
+    overlaps, overlapsPct = self._calculateOverlap(inputVector)
+    vipColumns = self._selectVIPColumns(overlapsPct)
+    vipOverlaps = overlaps.copy()
+    vipOverlaps[vipColumns] = max(overlaps) + 1.0
+    activeColumns = self._inhibitColumns(vipOverlaps)
+    anomalyScore = self._calculateAnomalyScore(overlaps,activeColumns)
+
+    # if not learn: - don't let columns that never learned win! ???
+    if self._isUpdateRound():
+      self._updateMinDutyCycles()
+
+    self._updateBookeeping(learn)
+
+    return numpy.array(activeColumns), anomalyScore
+
+
+  def _selectVIPColumns(self,overlapsPct):
+    return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+
+
+
+
+
+
+
 
 
 
