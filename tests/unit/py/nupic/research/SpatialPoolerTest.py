@@ -1,43 +1,71 @@
+#!/usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
 
-
-import unittest2 as unittest
+import numpy
 from mock import Mock, patch, ANY, call
-from SpatialPooler import SpatialPooler, GrokSpatialPooler
+import unittest2 as unittest
 from nupic.bindings.math import SM32 as SparseMatrix, \
                                 SM_01_32_32 as SparseBinaryMatrix, \
                                 count_gte, GetNTAReal
-import numpy
+from SpatialPooler import SpatialPooler, GrokSpatialPooler
+
+
 
 class SpatialPoolerTest(unittest.TestCase):
 	"""Unit Tests for SpatialPooler class"""
 
 	def setUp(self):
-		self._sp = SpatialPooler(inputDimensions = 5,
-               columnDimensions = 5,
-               potentialRadius = 3,
-               potentialPct = 0.5,
-               globalInhibition = False,
-               localAreaDensity = -1.0,
-               numActiveColumnsPerInhArea = 3,
-               stimulusThreshold=1,
-               synPermInactiveDec=0.01,
-               synPermActiveInc = 0.1,
-               synPermActiveSharedDec = 0.04,
-               synPermOrphanDec = 0.05,
-               synPermConnected = 0.10,
-               minPctOverlapDutyCycle = 0.1,
-               minPctActiveDutyCycle = 0.1,
-               dutyCyclePeriod = 10,
-               maxBoost = 10.0,
-               seed = -1,
-               spVerbosity = 0,
+		self._sp = SpatialPooler(
+				inputDimensions = [5],
+       	columnDimensions = [5],
+       	potentialRadius = 3,
+       	potentialPct = 0.5,
+       	globalInhibition = False,
+       	localAreaDensity = -1.0,
+       	numActiveColumnsPerInhArea = 3,
+       	stimulusThreshold=1,
+       	synPermInactiveDec=0.01,
+       	synPermActiveInc = 0.1,
+       	synPermActiveSharedDec = 0.04,
+       	synPermOrphanDec = 0.05,
+       	synPermConnected = 0.10,
+       	minPctOverlapDutyCycle = 0.1,
+       	minPctActiveDutyCycle = 0.1,
+       	dutyCyclePeriod = 10,
+       	maxBoost = 10.0,
+       	seed = -1,
+       	spVerbosity = 0,
 			)
 
 	def test_compute(self):
-		return
+		"""
+		Tests that compute gets called smoothly with no errors
+		"""
 		sp = self._sp
-		inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('int')
-		sp.compute(inputVector,True)
+		for i in xrange(100):
+			inputVector = (
+					numpy.random.random(sp._numInputs) > 0.3
+				).astype('int')
+			sp.compute(inputVector,True)
 
 
 	#test this and initPermanence with too big of a radius
@@ -241,16 +269,16 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._columnDimensions = numpy.array([9])
 		sp._numInpts = 8
 		sp._inputDimensions = numpy.array([8])
-		sp._connectedSynapses = \
-			SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
-								[0, 0, 0, 1, 0, 0, 0, 1],
-								[0, 0, 0, 0, 0, 0, 1, 0],
-								[0, 0, 1, 0, 0, 0, 1, 0],
-								[0, 0, 0, 0, 0, 0, 0, 0],
-								[0, 1, 1, 0, 0, 0, 0, 0],
-								[0, 0, 1, 1, 1, 0, 0, 0],
-								[0, 0, 1, 0, 1, 0, 0, 0],
-								[1, 1, 1, 1, 1, 1, 1, 1]])
+		sp._connectedSynapses = SparseBinaryMatrix(
+								[[0, 1, 0, 1, 0, 1, 0, 1],
+								 [0, 0, 0, 1, 0, 0, 0, 1],
+								 [0, 0, 0, 0, 0, 0, 1, 0],
+								 [0, 0, 1, 0, 0, 0, 1, 0],
+								 [0, 0, 0, 0, 0, 0, 0, 0],
+								 [0, 1, 1, 0, 0, 0, 0, 0],
+								 [0, 0, 1, 1, 1, 0, 0, 0],
+								 [0, 0, 1, 0, 1, 0, 0, 0],
+								 [1, 1, 1, 1, 1, 1, 1, 1]])
 		
 		trueAvgConnectedSpan = [6, 4, 0, 4, 0, 1, 2, 2, 7]
 		for i in xrange(sp._numColumns):
@@ -321,7 +349,9 @@ class SpatialPoolerTest(unittest.TestCase):
 
 		trueAvgConnectedSpan = [2, 2, 3.5, 2, 1.5, 1, 0]
 		for i in xrange(sp._numColumns):
-			sp._connectedSynapses.replaceSparseRow(i,connected[i].reshape(-1).nonzero()[0])
+			sp._connectedSynapses.replaceSparseRow(
+				i,connected[i].reshape(-1).nonzero()[0]
+			)
 
 		for i in xrange(sp._numColumns):
 			connectedSpan = sp._avgConnectedSpanForColumn2D(i)
@@ -347,7 +377,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		connected[1][0][1][3] = 1
 		connected[2][2][1][0] = 1
 		# span:   2  2  0  3, avg = 7/4
-		sp._connectedSynapses.replaceSparseRow(0,connected.reshape(-1).nonzero()[0])
+		sp._connectedSynapses.replaceSparseRow(
+			0,connected.reshape(-1).nonzero()[0]
+		)
 
 		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
 		connected[2][0][1][0] = 1
@@ -355,7 +387,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		connected[3][0][0][0] = 1
 		connected[3][0][1][0] = 1
 		# span:   1  0  1  0, avg = 2/4
-		sp._connectedSynapses.replaceSparseRow(1,connected.reshape(-1).nonzero()[0])		
+		sp._connectedSynapses.replaceSparseRow(
+			1,connected.reshape(-1).nonzero()[0]
+		)		
 
 		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
 		connected[0][0][1][4] = 1
@@ -365,20 +399,25 @@ class SpatialPoolerTest(unittest.TestCase):
 		connected[0][0][1][1] = 1
 		connected[3][3][1][1] = 1
 		# span:   3  3  1  3, avg = 10/4
-		sp._connectedSynapses.replaceSparseRow(2,connected.reshape(-1).nonzero()[0])		
+		sp._connectedSynapses.replaceSparseRow(
+			2,connected.reshape(-1).nonzero()[0]
+		)		
 
 		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
 		connected[3][3][1][4] = 1
 		connected[0][0][0][0] = 1
 		# span:   3  3  1  4, avg = 11/4
-		sp._connectedSynapses.replaceSparseRow(3,connected.reshape(-1).nonzero()[0])		
+		sp._connectedSynapses.replaceSparseRow(
+			3,connected.reshape(-1).nonzero()[0]
+		)		
 
 		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
 		# span:   0  0  0  0, avg = 0
-		sp._connectedSynapses.replaceSparseRow(4,connected.reshape(-1).nonzero()[0])		
+		sp._connectedSynapses.replaceSparseRow(
+			4,connected.reshape(-1).nonzero()[0]
+		)		
 
 		trueAvgConnectedSpan = [7.0/4, 2.0/4, 10.0/4, 11.0/4, 0]			
-
 
 		for i in xrange(sp._numColumns):
 			connectedSpan = sp._avgConnectedSpanForColumnND(i)
@@ -401,24 +440,24 @@ class SpatialPoolerTest(unittest.TestCase):
 			   		  		[1, 1, 1, 0, 0, 0, 1, 0],
 			   		  		[1, 1, 1, 1, 1, 1, 1, 1]])
 
-		sp._permanences = \
-			SparseMatrix([[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],	
-					 	  [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450], 
-	    			  	  [0.000, 0.000, 0.014, 0.000, 0.032, 0.044, 0.110, 0.000],
-	    			  	  [0.041, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000],
-	    			  	  [0.100, 0.738, 0.045, 0.002, 0.050, 0.008, 0.208, 0.034]])
+		sp._permanences = SparseMatrix(
+			[[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],	
+			 [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450], 
+	 		 [0.000, 0.000, 0.014, 0.000, 0.032, 0.044, 0.110, 0.000],
+	 	  	 [0.041, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000],
+	 	  	 [0.100, 0.738, 0.045, 0.002, 0.050, 0.008, 0.208, 0.034]])
 
 		truePermanences = \
-						 [[0.210, 0.130, 0.100, 0.000, 0.000, 0.000, 0.000, 0.000], 	
-					#		Inc    Inc    Inc    Trim 	 - 		-	   -	  -
-					 	  [0.160, 0.000, 0.000, 0.000, 0.190, 0.130, 0.000, 0.460], 
-					#		Inc 	-	   -	  -		 Inc 	Inc    -  	 Inc
-	    			  	  [0.000, 0.000, 0.014, 0.000, 0.032, 0.044, 0.110, 0.000], #unchanged
-	    			#		-		-	   -	  -		 -		-	   -	  -
-	    			  	  [0.051, 0.000, 0.000, 0.000, 0.000, 0.000, 0.188, 0.000],
-	    			#		Inc   Trim 	 Trim 	 -		 -		-	  Inc 	  -
-	    			  	  [0.110, 0.748, 0.055, 0.000, 0.060, 0.000, 0.218, 0.000]]
-	    			#		Inc 	Inc   Inc 	 Trim 	 Inc   Trim   Inc 	 Trim
+			[[0.210, 0.130, 0.100, 0.000, 0.000, 0.000, 0.000, 0.000], 	
+		#		Inc    Inc    Inc    Trim 	 - 		-	   -	  -
+			[0.160, 0.000, 0.000, 0.000, 0.190, 0.130, 0.000, 0.460], 
+		#		Inc 	-	   -	  -		 Inc 	Inc    -  	 Inc
+	    	[0.000, 0.000, 0.014, 0.000, 0.032, 0.044, 0.110, 0.000], #unchanged
+		#		-		-	   -	  -		 -		-	   -	  -
+		 	[0.051, 0.000, 0.000, 0.000, 0.000, 0.000, 0.188, 0.000],
+		#		Inc   Trim 	 Trim 	 -		 -		-	  Inc 	  -
+		    [0.110, 0.748, 0.055, 0.000, 0.060, 0.000, 0.218, 0.000]]
+	    #		Inc 	Inc   Inc 	 Trim 	 Inc   Trim   Inc 	 Trim
 
 		sp._bumpUpWeakColumns()
 		for i in xrange(sp._numColumns):
@@ -443,11 +482,13 @@ class SpatialPoolerTest(unittest.TestCase):
 
 		sp._minPctOverlapDutyCycles = 0.04
 		sp._overlapDutyCycles = numpy.array([1.4, 0.5, 1.2, 0.8, 0.1])
-		trueMinOverlapDutyCycles = [0.04*1.4, 0.04*1.2, 0.04*1.2, 0.04*1.4, 0.04*1.4]
+		trueMinOverlapDutyCycles = [0.04*1.4, 0.04*1.2, 0.04*1.2, 0.04*1.4, 
+									0.04*1.4]
 
 		sp._minPctActiveDutyCycles = 0.02
 		sp._activeDutyCycles = numpy.array([0.4, 0.5, 0.2, 0.18, 0.1])
-		trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4, 0.02*0.5]
+		trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4, 
+								   0.02*0.5]
 
 		sp._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
 		sp._minActiveDutyCycles = numpy.zeros(sp._numColumns)
@@ -456,7 +497,6 @@ class SpatialPoolerTest(unittest.TestCase):
 							list(sp._minOverlapDutyCycles))
 		self.assertListEqual(trueMinActiveDutyCycles, \
 							list(sp._minActiveDutyCycles))
-
 
 		sp._numColumns = 8
 		sp._getNeighborsND = Mock(side_effect= \
@@ -606,21 +646,21 @@ class SpatialPoolerTest(unittest.TestCase):
 								[1, 0, 0, 0, 0, 0, 1, 0]) > 0)[0]
 		orphanColumns = numpy.array([])
 
-		sp._permanences = \
-			SparseMatrix([[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],
-					 	  [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450],
-	    			  	  [0.000, 0.000, 0.014, 0.000, 0.000, 0.000, 0.110, 0.000],
-	    			  	  [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]])
+		sp._permanences = SparseMatrix(
+			[[0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000],
+			 [0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450],
+	    	 [0.000, 0.000, 0.014, 0.000, 0.000, 0.000, 0.110, 0.000],
+	    	 [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]])
 
 		truePermanences = \
-						 [[0.280, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
-						#  Inc/Sh 	Dec	   Dec 	 Inc	 -		-		-		-
-					 	  [0.230, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
-					 	#  Inc/Sh 	 -		-	   -	Inc    Dec 	   -      Dec	
-	    			  	  [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.190, 0.000],
-	    			  	#   -  		- 	  Trim 	  -		 - 		-	  Inc/Sh 	  - 
-			   		  	  [0.120, 0.000, 0.000, 0.000, 0.000, 0.000, 0.258, 0.000]]
-						#  Inc/Sh 	- 	   -	  -		  -		-	  Inc/Sh   -	
+			[[0.280, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
+			#  Inc/Sh 	Dec	   Dec 	 Inc	 -		-		-	-
+		  	 [0.230, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
+		 	#  Inc/Sh 	 -		-	   -	Inc    Dec 	   -      Dec	
+	    	 [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.190, 0.000],
+		  	#   -  		- 	  Trim 	  -		 - 		-	  Inc/Sh   - 
+  		     [0.120, 0.000, 0.000, 0.000, 0.000, 0.000, 0.258, 0.000]]
+			#  Inc/Sh 	- 	   -	  -		  -		-	  Inc/Sh   -	
 
 		sp._adaptSynapses(inputVector,sharedInputs,orphanColumns)
 		for i in xrange(sp._numColumns):
@@ -641,21 +681,21 @@ class SpatialPoolerTest(unittest.TestCase):
 								[1, 0, 0, 1, 0, 0, 0, 0]) > 0)[0]
 		orphanColumns = numpy.array([3])
 
-		sp._permanences = \
-			SparseMatrix([[0.200, 0.120, 0.090, 0.000, 0.000, 0.000, 0.000, 0.000],
-					 	  [0.000, 0.017, 0.232, 0.400, 0.000, 0.000, 0.000, 0.000],
-	    			  	  [0.000, 0.000, 0.014, 0.051, 0.730, 0.000, 0.000, 0.000],
-	    			  	  [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]])
+		sp._permanences = SparseMatrix(
+			[[0.200, 0.120, 0.090, 0.000, 0.000, 0.000, 0.000, 0.000],
+			 [0.000, 0.017, 0.232, 0.400, 0.000, 0.000, 0.000, 0.000],
+	    	 [0.000, 0.000, 0.014, 0.051, 0.730, 0.000, 0.000, 0.000],
+	    	 [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]])
 
 		truePermanences = \
-						 [[0.280, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000],
-						#  Inc/Sh  	Dec	   Dec 	  -	     -		-		-		-
-					 	  [0.000, 0.000, 0.222, 0.480, 0.000, 0.000, 0.000, 0.000],
-					 	#  	 - 	   Trim	   Dec	Inc/Sh	 -     	- 	   -      -	
-	    			  	  [0.000, 0.000, 0.000, 0.131, 0.830, 0.000, 0.000, 0.000],
-	    			  	#   -  		- 	   Trim Inc/Sh	Inc	 	- 		-	   - 
-			   		  	  [0.220, 0.000, 0.000, 0.000, 0.000, 0.000, 0.450, 0.000]]
-					#	Inc/Sh/Orph	- 	   -	  -		  -		-	Inc/Orph   -	
+			[[0.280, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000],
+		    #  Inc/Sh  	Dec	   Dec 	  -	     -		-		-		-
+			 [0.000, 0.000, 0.222, 0.480, 0.000, 0.000, 0.000, 0.000],
+			#  	 - 	   Trim	   Dec	Inc/Sh	 -     	- 	   -      -	
+	    	 [0.000, 0.000, 0.000, 0.131, 0.830, 0.000, 0.000, 0.000],
+	    	#   -  		- 	   Trim Inc/Sh	Inc	 	- 		-	   - 
+			 [0.220, 0.000, 0.000, 0.000, 0.000, 0.000, 0.450, 0.000]]
+			#	Inc/Sh/Orph	- 	   -	  -		  -		-	Inc/Orph   -	
 
 		sp._adaptSynapses(inputVector,sharedInputs,orphanColumns)
 		for i in xrange(sp._numColumns):
@@ -671,19 +711,25 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp = self._sp
 		
 		activeColumns = numpy.array([])
-		overlapsPct = numpy.array([1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1])
+		overlapsPct = numpy.array(
+			[1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1]
+		)
 		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
 		trueOrphanColumns = []
 		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
 
 		activeColumns = numpy.array(range(10))
-		overlapsPct = numpy.array([0.98, 0.12, 0.15, 0.92, 0.4, 0.41, 0.61, 0.88, 0.01, 0.1])
+		overlapsPct = numpy.array(
+			[0.98, 0.12, 0.15, 0.92, 0.4, 0.41, 0.61, 0.88, 0.01, 0.1]
+		)
 		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
 		trueOrphanColumns = []
 		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
 
 		activeColumns = numpy.array([5,6,7])
-		overlapsPct = numpy.array([1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1])
+		overlapsPct = numpy.array(
+			[1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1]
+		)
 		orphanColumns = sp._calculateOrphanColumns(activeColumns,overlapsPct)
 		trueOrphanColumns = [5,6]
 		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
@@ -716,10 +762,10 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 		truePermanences = \
-					[[0.0, 0.12, 0.105, 0.102, 0.0],		# incremented once
-					 [0.12, 0.15, 0.02, 0.12, 0.09],		# no change
-	    			 [0.53, 0.101, 0.0, 0.109, 0.33],		# increment twice 
-			   		 [0.22, 0.1001, 0.15, 0.051, 0.07],		# increment four times
+					[[0.0, 0.12, 0.105, 0.102, 0.0],	# incremented once
+					 [0.12, 0.15, 0.02, 0.12, 0.09],	# no change
+	    			 [0.53, 0.101, 0.0, 0.109, 0.33],	# increment twice 
+			   		 [0.22, 0.1001, 0.15, 0.051, 0.07],	# increment four times
 			   		 [0.101, 0.101, 0.101, 0.101, 0.101]]	#increment 9 times
 
 
@@ -735,7 +781,10 @@ class SpatialPoolerTest(unittest.TestCase):
 			perm = list(sp._permanences.getRow(i))
 			for j in xrange(sp._numInputs):
 				self.assertAlmostEqual(truePermanences[i][j],perm[j])
-			self.assertListEqual(trueConnectedSynapses[i],list(sp._connectedSynapses.getRow(i)))
+			self.assertListEqual(
+				trueConnectedSynapses[i],
+				list(sp._connectedSynapses.getRow(i))
+			)
 			self.assertEqual(trueConnectedCounts[i],sp._connectedCounts[i])
 
 
@@ -770,7 +819,10 @@ class SpatialPoolerTest(unittest.TestCase):
 		trueConnectedCounts = [2,2,2,2,3]
 		for i in xrange(sp._numColumns):
 			sp._updatePermanencesForColumn(permanences[i],i)
-			self.assertListEqual(trueConnectedSynapses[i],list(sp._connectedSynapses.getRow(i)))
+			self.assertListEqual(
+				trueConnectedSynapses[i],
+				list(sp._connectedSynapses.getRow(i))
+			)
 		self.assertListEqual(trueConnectedCounts, list(sp._connectedCounts))
 
 		
@@ -1027,12 +1079,6 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertListEqual(list(newDc),trueNewDc)
 		
 
-	# def test_compute1(self):
-	# 	sp = self._sp
-	# 	inputVector = (numpy.random.random(sp._numInputs) > 0.3).astype('float32')
-	# 	cols = sp.compute(inputVector,True,True)
-	# 	self.assertEqual(cols,5)
-
 	def test_inhibitColumnsGlobal(self):
 		"""
 		tests that global inhibition correctly picks the 
@@ -1067,7 +1113,6 @@ class SpatialPoolerTest(unittest.TestCase):
 		trueActive = [1,2,4,5,6,8,9]
 		active = list(sp._inhibitColumnsLocal(overlaps,numActive))
 		self.assertListEqual(trueActive, active)
-
 
 		numActive = 2
 		sp._numColumns = 10
@@ -1140,6 +1185,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
+
 
 	def test_getNeighbors2D(self):
 		"""
@@ -1289,8 +1335,6 @@ class SpatialPoolerTest(unittest.TestCase):
 		#import pdb; pdb.set_trace()
 		self.assertListEqual(sorted(list(trueNeighbors)), \
 							 sorted(list(neighbors)))
-		
-
 
 		#these are all the same tests from 1D
 		layout = numpy.array([0, 0, 1, 0, 1, 0, 0,  0])
@@ -1412,11 +1456,11 @@ class GrokSpatialPoolerTest(unittest.TestCase):
 			   numInputs = 5,
                numColumns = 5,
                localAreaDensity = 0.1,
-               numActiveColumnsPerInhArea = -1,
+               numActiveColumnsPerInhArea=-1,
                stimulusThreshold=1,
                minDistance = 0.0,
-               seed = -1,
-               spVerbosity = 0,
+               seed=-1,
+               spVerbosity=0,
 			)
 
 	def test_selectVIPColumns(self):
@@ -1457,10 +1501,5 @@ class GrokSpatialPoolerTest(unittest.TestCase):
 		self.assertListEqual(trueVIPColumns, list(vipColumns))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
-
-
-
-
-
