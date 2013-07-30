@@ -12,10 +12,10 @@ class SpatialPoolerTest(unittest.TestCase):
 	"""Unit Tests for SpatialPooler class"""
 
 	def setUp(self):
-		self._sp = SpatialPooler(numInputs = 5,
-               numColumns = 5,
-               receptiveFieldRadius = 3,
-               receptiveFieldPctPotential = 0.5,
+		self._sp = SpatialPooler(inputDimensions = 5,
+               columnDimensions = 5,
+               potentialRadius = 3,
+               potentialPct = 0.5,
                globalInhibition = False,
                localAreaDensity = -1.0,
                numActiveColumnsPerInhArea = 3,
@@ -41,7 +41,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 	#test this and initPermanence with too big of a radius
-	def test_mapRF(self):
+	def test_mapPotential(self):
 		pass
 
 
@@ -386,15 +386,15 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 	def test_bumpUpWeakColumns(self):
-	 	sp = SpatialPooler(numInputs = 8,
-						   numColumns = 5)
+	 	sp = SpatialPooler(inputDimensions = 8,
+						   columnDimensions = 5)
 
 	 	sp._synPermBelowStimulusInc = 0.01
 	 	sp._synPermTrimThreshold = 0.05
 	 	sp._overlapDutyCycles = numpy.array([0, 0.009, 0.1, 0.001, 0.002])
 	 	sp._minOverlapDutyCycles = numpy.array(5*[0.01])
 
-	 	sp._receptiveFields = \
+	 	sp._potentialPools = \
 		SparseBinaryMatrix([[1, 1, 1, 1, 0, 0, 0, 0],
 							[1, 0, 0, 0, 1, 1, 0, 1],
 	    			  		[0, 0, 1, 0, 1, 1, 1, 0],
@@ -434,7 +434,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		#a mock to know exactly the neighbors 
 		#of each column
 		sp._numColumns = 5
-		sp._getNeighbors = Mock(side_effect= \
+		sp._getNeighborsND = Mock(side_effect= \
 			[[0,1,2],
 			 [1,2,3],
 			 [2,3,4],
@@ -459,7 +459,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 		sp._numColumns = 8
-		sp._getNeighbors = Mock(side_effect= \
+		sp._getNeighborsND = Mock(side_effect= \
 			[[0,1,2,3,4],
 			 [1,2,3,4,5],
 			 [2,3,4,6,7],
@@ -586,15 +586,15 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertEqual(trueAnomalyScore,anomalyScore)
 
 	def test_adaptSynapses(self):
-		sp = SpatialPooler(numInputs = 8,
-						   numColumns = 4,
+		sp = SpatialPooler(inputDimensions = 8,
+						   columnDimensions = 4,
                			   synPermInactiveDec=0.01,
                			   synPermActiveInc = 0.1,
                			   synPermActiveSharedDec = 0.02,
                			   synPermOrphanDec = 0.03)
 		sp._synPermTrimThreshold = 0.05
 
-		sp._receptiveFields = \
+		sp._potentialPools = \
 			SparseBinaryMatrix([[1, 1, 1, 1, 0, 0, 0, 0],
 								[1, 0, 0, 0, 1, 1, 0, 1],
 								[0, 0, 1, 0, 0, 0, 1, 0],
@@ -629,7 +629,7 @@ class SpatialPoolerTest(unittest.TestCase):
 				self.assertAlmostEqual(truePermanences[i][j],perm[j])
 
 		# test orphan columns
-		sp._receptiveFields = \
+		sp._potentialPools = \
 			SparseBinaryMatrix([[1, 1, 1, 0, 0, 0, 0, 0],
 								[0, 1, 1, 1, 0, 0, 0, 0],
 								[0, 0, 1, 1, 1, 0, 0, 0],
@@ -695,8 +695,8 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertListEqual(trueOrphanColumns,list(orphanColumns))
 
 	def test_raisePermanenceThreshold(self):
-		sp = SpatialPooler(numInputs = 5, 
-						   numColumns=5, 
+		sp = SpatialPooler(inputDimensions = 5, 
+						   columnDimensions=5, 
 						   synPermConnected=0.1,
 						   stimulusThreshold=3)
 		sp._synPermBelowStimulusInc = 0.01
@@ -741,7 +741,9 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
 	def test_updatePermanencesForColumn(self):
-		sp = SpatialPooler(numInputs = 5, numColumns=5, synPermConnected=0.1)
+		sp = SpatialPooler(inputDimensions = 5, 
+						   columnDimensions=5, 
+						   synPermConnected=0.1)
 		sp._synPermTrimThreshold = 0.05
 		permanences = numpy.array(	   [[-0.10, 0.500, 0.400, 0.010, 0.020],
 										[0.300, 0.010, 0.020, 0.120, 0.090],
@@ -774,7 +776,8 @@ class SpatialPoolerTest(unittest.TestCase):
 		
 
 	def test_calculateSharedInputs(self):
-		sp = SpatialPooler(numInputs = 8, numColumns=5)
+		sp = SpatialPooler(inputDimensions = 8, 
+						   columnDimensions=5)
 		sp._connectedSynapses = SparseBinaryMatrix([[0, 1, 0, 1, 0, 1, 0, 1],
 													[0, 0, 0, 1, 0, 0, 0, 1],
 													[0, 0, 0, 0, 0, 0, 1, 0],
@@ -837,7 +840,8 @@ class SpatialPoolerTest(unittest.TestCase):
 		"""
 		test that column computes overlap and percent overlap correctly
 		"""
-		sp = SpatialPooler(numInputs = 10, numColumns=5)
+		sp = SpatialPooler(inputDimensions = 10, 
+						   columnDimensions=5)
 		sp._connectedSynapses = \
 			SparseBinaryMatrix([[1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
 								[0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -907,8 +911,8 @@ class SpatialPoolerTest(unittest.TestCase):
 		"""
 
 		sp = self._sp
-		sp._receptiveFieldRadius = 2
-		sp._receptiveFieldPctPotential = 1
+		sp._potentialRadius = 2
+		sp._potentialPct = 1
 		perm = sp._initPermanence(0)
 		connected = (perm > sp._synPermConnected).astype(int)
 		numcon = (connected.nonzero()[0]).size
@@ -916,14 +920,14 @@ class SpatialPoolerTest(unittest.TestCase):
 		maxThresh = sp._synPermConnected + sp._synPermActiveInc/4
 		self.assertEqual((perm <= maxThresh).all(),True)
 
-		sp._receptiveFieldPctPotential = 0
+		sp._potentialPct = 0
 		perm = sp._initPermanence(0)
 		connected = (perm > sp._synPermConnected).astype(int)
 		numcon = (connected.nonzero()[0]).size
 		self.assertEqual(numcon, 0)
 
-		sp._receptiveFieldPctPotential = 0.5
-		sp._receptiveFieldRadius = 100
+		sp._potentialPct = 0.5
+		sp._potentialRadius = 100
 		sp._numInputs = 100
 		perm = sp._initPermanence(0)
 		connected = (perm > sp._synPermConnected).astype(int)
@@ -941,22 +945,22 @@ class SpatialPoolerTest(unittest.TestCase):
 		"""
 		test initial permanence generation. ensure that
 		permanence values are only assigned to bits within
-		a column's receptive field
+		a column's potential pct
 		"""
 		sp = self._sp
 
 		sp._numInputs = 10
-		sp._receptiveFieldRadius = 1
+		sp._potentialRadius = 1
 		index = 0
-		sp._receptiveFieldPctPotential = 1
+		sp._potentialPct = 1
 		#import pdb; pdb.set_trace()
 		perm = sp._initPermanence(index)
   		connected = list((perm > 0).astype(int))
 		trueConnected = [1,1,0,0,0,0,0,0,0,1]
 		self.assertListEqual(connected,trueConnected)
 
-		sp._receptiveFieldRadius = 1
-		sp._receptiveFieldPctPotential = 1
+		sp._potentialRadius = 1
+		sp._potentialPct = 1
 		index = 5
 		perm = sp._initPermanence(index)
   		connected = list((perm > 0).astype(int))
@@ -964,16 +968,16 @@ class SpatialPoolerTest(unittest.TestCase):
 		self.assertListEqual(connected,trueConnected)
 
 
-		sp._receptiveFieldRadius = 1
-		sp._receptiveFieldPctPotential = 1
+		sp._potentialRadius = 1
+		sp._potentialPct = 1
 		index = 9
 		perm = sp._initPermanence(index)
   		connected = list((perm > 0).astype(int))
 		trueConnected = [1,0,0,0,0,0,0,0,1,1]
 		self.assertListEqual(connected,trueConnected)
 
-		sp._receptiveFieldRadius = 4
-		sp._receptiveFieldPctPotential = 1
+		sp._potentialRadius = 4
+		sp._potentialPct = 1
 		index = 2
 		perm = sp._initPermanence(index)
   		connected = list((perm > 0).astype(int))
@@ -1099,7 +1103,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3
 		dimensions = numpy.array([8])
 		radius = 1
-		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors1D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1109,7 +1113,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3
 		dimensions = numpy.array([8])
 		radius = 2
-		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors1D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1120,7 +1124,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 0
 		dimensions = numpy.array([8])
 		radius = 2
-		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors1D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		#import pdb; pdb.set_trace()
 		self.assertEqual(layout1D[mask].all(), True)
@@ -1132,7 +1136,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 6
 		dimensions = numpy.array([8])
 		radius = 20
-		mask = sp._getNeighbors(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors1D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1154,7 +1158,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3*5+ 2
 		dimensions = numpy.array([6, 5])
 		radius = 1
-		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1170,7 +1174,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3*5+ 2
 		dimensions = numpy.array([6, 5])
 		radius = 2
-		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1187,7 +1191,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		columnIndex = 3*5+ 2
 		dimensions = numpy.array([6, 5])
 		radius = 7
-		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
@@ -1204,7 +1208,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		dimensions = numpy.array([6, 5])
 		columnIndex = dimensions.prod() -1 
 		radius = 1
-		mask = sp._getNeighborsND(columnIndex, dimensions, radius)
+		mask = sp._getNeighbors2D(columnIndex, dimensions, radius)
 		negative = set(range(dimensions.prod())) - set(mask)
 		self.assertEqual(layout1D[mask].all(), True)
 		self.assertEqual(layout1D[list(negative)].any(),False)
