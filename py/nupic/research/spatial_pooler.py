@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -39,8 +38,9 @@ import nupic.research.fdrutilities as fdru
 realDType = GetNTAReal()
 
 
+
 class SpatialPooler(object):
-	""""
+	"""
 	This class implements a the spatial pooler. It is in charge of handling the relationships 
 	between the columns of a region and the inputs bits. The primary public interface to this
 	function is the "compute" method, which takes in an input vector and returns a list of 
@@ -1008,73 +1008,3 @@ class SpatialPooler(object):
 
 	def __set_state__(self):
 		pass
-
-
-
-class GrokSpatialPooler(SpatialPooler):
-	"""
-	This class implements the SpatialPooler used in Grok.
-	"""
-
-	def __init__(self,
-							 numInputs,
-							 numColumns,
-							 localAreaDensity=0.1,
-							 numActiveColumnsPerInhArea=-1,
-							 stimulusThreshold=0,
-							 minDistance=0.0,
-							 maxBoost=10.0,
-							 seed=-1,
-							 spVerbosity=0,
-							 ):
-
-		super(GrokSpatialPooler,self).__init__(
-				inputDimensions=numInputs,
-				columnDimensions=numColumns,
-				potentialRadius=numInputs,
-				potentialPct=0.5,
-				globalInhibition=True,
-				localAreaDensity=localAreaDensity,
-				numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-				stimulusThreshold=stimulusThreshold,
-				seed=seed
-			)
-
-		#verify input is valid
-		assert(numColumns > 0)
-		assert(numInputs > 0)
-
-		# save arguments
-		self._numInputs = numInputs
-		self._numColumns = numColumns
-		self._minDistance = minDistance
-
-		#set active duty cycles to ones, because they set anomaly scores to 0
-		self._activeDutyCycles = numpy.ones(self._numColumns)
-
-		# set of columns to be 'hungry' for learning
-		self._boostFactors *= maxBoost
-	
-
-	def compute(self, inputVector, learn=True):
-		assert (numpy.size(inputVector) == self._numInputs)
-		inputVector = numpy.array(inputVector, dtype=realDType)
-
-		overlaps, overlapsPct = self._calculateOverlap(inputVector)
-		vipColumns = self._selectVIPColumns(overlapsPct)
-		vipOverlaps = overlaps.copy()
-		vipOverlaps[vipColumns] = max(overlaps) + 1.0
-		activeColumns = self._inhibitColumns(vipOverlaps)
-		anomalyScore = self._calculateAnomalyScore(overlaps, activeColumns)
-
-		# if not learn: - don't let columns that never learned win! ???
-		if self._isUpdateRound():
-			self._updateMinDutyCycles()
-
-		self._updateBookeeping(learn)
-
-		return numpy.array(activeColumns), anomalyScore
-
-
-	def _selectVIPColumns(self, overlapsPct):
-		return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
