@@ -14,7 +14,7 @@ title: NuPIC Open Pull Requests
 <script id="pr-template" type="text/x-handler-template">
     <div class="pull-request">
             <h4><a href="{{html_url}}">{{title}}</a></h4>
-            <p class="sha"><a href="http://issues.numenta.org:8081/shaStatus/{{head.sha}}" target="_blank" title="See all statuses for this SHA">{{head.sha}}</a></p>
+            <p class="sha"><a href="http://issues.numenta.org:8081/shaStatus?repo=numenta/nupic&sha={{head.sha}}" target="_blank" title="See all statuses for this SHA">{{head.sha}}</a></p>
             <div class="status {{latest_status.state}}">{{latest_status.description}}</div>
             <pre>{{body}}</pre>
         <hr/>
