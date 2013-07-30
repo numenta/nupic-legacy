@@ -90,8 +90,15 @@ h5 {
 .success {
     background-color: #8CF58F;
 }
+.failure {
+    background-color: #FF6666;
+    color: black;
+    font-weight: bold;
+}
 .error {
-    background-color: #f8eec7;
+    color: yellow;
+    font-weight: bold;
+    background-color: red;
 }
 .pending {
     background-color: #ccc;
