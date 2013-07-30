@@ -28,8 +28,8 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  - "$NUPIC/run_tests.sh"
-  
+  - "$NUPIC/run_tests.sh -c"
+
   # run all example files
     # examples/bindings
   - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py" 
