@@ -22,12 +22,14 @@
 import os
 import sys
 
+from datetime import datetime
 from optparse import OptionParser
 
 import pytest
 
-def collect(option, opt_str, value, parser):
-  """ Collect multiple option values into a single list.  Used in conjunction
+
+def collect_set(option, opt_str, value, parser):
+  """ Collect multiple option values into a single set.  Used in conjunction
   with callback argument to OptionParser.add_option().
   """
 
@@ -38,6 +40,23 @@ def collect(option, opt_str, value, parser):
     if arg[:1] == "-":
       break
     value.add(arg)
+
+  del parser.rargs[:len(value)]
+  setattr(parser.values, option.dest, value)
+
+
+def collect_list(option, opt_str, value, parser):
+  """ Collect multiple option values into a single list.  Used in conjunction
+  with callback argument to OptionParser.add_option().
+  """
+
+  assert value is None
+  value = []
+
+  for arg in parser.rargs:
+    if arg[:1] == "-":
+      break
+    value.append(arg)
 
   del parser.rargs[:len(value)]
   setattr(parser.values, option.dest, value)
@@ -61,11 +80,12 @@ parser.add_option("-n", "--num",
   dest="processes")
 parser.add_option("-r", "--results",
   dest="results",
-  nargs=2)
+  action="callback",
+  callback=collect_list)
 parser.add_option("-s",
   dest="tests",
   action="callback",
-  callback=collect)
+  callback=collect_set)
 parser.add_option("-u", "--unit",
   action="store_true",
   default=False,
@@ -104,7 +124,14 @@ def main(parser, parse_args):
     args.extend(["-n", options.processes])
 
   if options.results is not None:
-    (format, runid) = options.results
+    results = options.results[:2]
+
+    format = results.pop(0)
+
+    if results:
+      runid = results.pop(0)
+    else:
+      runid = datetime.now().strftime('%Y%m%d%H%M%S')
 
     results = os.path.join(root, "results", "py2", "xunit", str(runid))
 
