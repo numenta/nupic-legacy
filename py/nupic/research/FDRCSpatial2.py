@@ -1018,74 +1018,10 @@ class FDRCSpatial2(object):
       print "SP: active outputs(%d):  " % (len(onCellIndices)), onCellIndices
 
 
-
-    #Visualization Invocation, can be done from outside the SP also.
-    if False:
-#    if self._runIter<5 or self._runIter>295000 :
-      self.saveStateForCytoscape(input,"~/visualization/data")
-
     self._runIter += 1
     # Return inference result
     return self._onCells
 
-
-
-  def saveStateForCytoscape(self,input,outdir):
-    #Input nodes
-    nodeAttFile = os.path.join(outdir,"node_Att_")
-    if self.fileCount ==0:
-      fopen = open(nodeAttFile+str(self.fileCount)+"_Net.sif",'w')
-      for i in range(input.shape[1]):
-        fopen.write("In_"+str(i)+'\n')
-      for i in range(self._topDownOut.shape[1]):
-        fopen.write("Out_"+str(i)+'\n')
-      for i in range(self._onCells.shape[0]):
-        fopen.write("SP_"+str(i)+'\n')
-      for i in range(len(self._masterPermanenceM)):
-        writestr = ""
-        curRow = self._masterPermanenceM[i].getRow(0)
-        #find which bits are actually connected to the column
-        curRowPot = self._masterPotentialM[i].getRow(0)
-        curRowCon = curRowPot.nonzero()[0]
-        for j in curRowCon:
-          writestr+= " In_" + str(j)
-        fopen.write("SP_"+str(i)+" xx " + writestr + "\n")
-      fopen.close()
-    fopen = open(nodeAttFile+str(self.fileCount)+"_On.noa",'w')
-    fopen.write("On"+"\n")
-    for i in range(input.shape[1]):
-      fopen.write("In_"+str(i) + "=" + str(input[0,i])+'\n')
-    out = self.topDownCompute(self._onCells)
-    for i in range(out.shape[0]):
-      fopen.write("Out_"+str(i) + "=" + str(out[i])+'\n')
-    fopen.close()
-    #SP Nodes
-    fopen = open(nodeAttFile+str(self.fileCount)+"_On.noa",'a')
-    for i in range(self._onCells.shape[0]):
-      fopen.write("SP_"+str(i) + "=" + str(self._onCells[i])+'\n')
-    fopen.close()
-    fopen = open(nodeAttFile+str(self.fileCount)+"_Firing_Boost.noa",'w')
-    fopen.write("FiringBoost"+"\n")
-    for i in range(self._onCells.shape[0]):
-      fopen.write("SP_"+str(i) + "=" + str(self._firingBoostFactors[i])+'\n')
-    fopen.close()
-    #SP Edges
-    fopen = open(nodeAttFile+str(self.fileCount)+"_Perm.eda",'w')
-    fopen.write("Permanence"+"\n")
-    for i in range(len(self._masterPermanenceM)):
-      #Make sure to grab permanences only from connected synapses
-      #Write from index as a short
-      fromdata = struct.pack("h",i)
-      curRowPot = self._masterPotentialM[i].getRow(0)
-      curRowCon = curRowPot.nonzero()[0]
-      curRow = self._masterPermanenceM[i].getRow(0)
-      for j in curRowCon:
-#          writestr= "SP_"+str(i)+" (xx) " + "In_" + str(j) + " = " + str(curRow[j])+ "\n"
-        todata = struct.pack("h",j)
-        valuedata = struct.pack("d",curRow[j])
-        fopen.write(fromdata+todata+valuedata)
-    fopen.close()
-    self.fileCount+=1
 
 
   #############################################################################
@@ -1202,39 +1138,40 @@ class FDRCSpatial2(object):
   #############################################################################
   @property
   def cm(self):
-    """Return the coincidence matrix as a SparseMatrix object.
+    # """Return the coincidence matrix as a SparseMatrix object.
 
-    The coincidence matrix is actually just the possible elements that could
-    be active.  If you want to see the ones that are currently active, see the
-    lernedCm
+    # The coincidence matrix is actually just the possible elements that could
+    # be active.  If you want to see the ones that are currently active, see the
+    # lernedCm
 
-    This isn't particularly fast, but is useful for debugging.
+    # This isn't particularly fast, but is useful for debugging.
 
-    @return cm  Our coincidence matrix.
-    TODO: assumes 2D
+    # @return cm  Our coincidence matrix.
+    # TODO: assumes 2D
 
-    """
-    cm = SM32(self._coincCount, self._inputCount)
+    # """
+    # cm = SM32(self._coincCount, self._inputCount)
 
-    coincRfShape   = ((2*self.coincInputRadius + 1), \
-                      (2*self.coincInputRadius + 1))
-    coincRfArea    = (coincRfShape[0] * coincRfShape[1])
-    coincInputPool = self.coincInputPoolPct * coincRfArea
+    # coincRfShape   = ((2*self.coincInputRadius + 1), \
+    #                   (2*self.coincInputRadius + 1))
+    # coincRfArea    = (coincRfShape[0] * coincRfShape[1])
+    # coincInputPool = self.coincInputPoolPct * coincRfArea
 
-    theOnes = numpy.ones(coincInputPool, numpy.float32)
+    # theOnes = numpy.ones(coincInputPool, numpy.float32)
 
-    for columnNum, masterNum in enumerate(self._cloneMapFlat):
+    # for columnNum, masterNum in enumerate(self._cloneMapFlat):
 
-      inputSlice = self._inputSlices[columnNum]
-      coincSlice = self._coincSlices[columnNum]
-      masterPotential = self._masterPotentialM[masterNum][coincSlice]
+    #   inputSlice = self._inputSlices[columnNum]
+    #   coincSlice = self._coincSlices[columnNum]
+    #   masterPotential = self._masterPotentialM[masterNum][coincSlice]
 
-      sparseCols = self._inputLayout[inputSlice][masterPotential]
-      # If the coincidence goes off the edge, the number of cols is less than
-      # coincInputPool
-      cm.setRowFromSparse(columnNum, sparseCols, theOnes[:len(sparseCols)])
+    #   sparseCols = self._inputLayout[inputSlice][masterPotential]
+    #   # If the coincidence goes off the edge, the number of cols is less than
+    #   # coincInputPool
+    #   cm.setRowFromSparse(columnNum, sparseCols, theOnes[:len(sparseCols)])
 
-    return cm
+    # return cm
+    return 
 
 
   #############################################################################
@@ -1284,19 +1221,20 @@ class FDRCSpatial2(object):
   def finishLearning(self):
     """Called for any last tasks at the end of learning."""
 
-    if self._doneLearning:
-      return
+    # if self._doneLearning:
+    #   return
 
-    #print "Member variables at start of finishLearning:"
-    #self._printMemberSizes(0)
+    # #print "Member variables at start of finishLearning:"
+    # #self._printMemberSizes(0)
 
-    self._doneLearning = True
-    self._iterNum = 0
+    # self._doneLearning = True
+    # self._iterNum = 0
 
-    #print "Member variables after finishLearning:"
-    #self._printMemberSizes(0)
+    # #print "Member variables after finishLearning:"
+    # #self._printMemberSizes(0)
 
-    #self._saveCoincsImage()
+    # #self._saveCoincsImage()
+    return
 
 
   #############################################################################
@@ -1304,10 +1242,11 @@ class FDRCSpatial2(object):
     """ Used by the node to tell us to cache the output for debugging
     """
 
-    if doIt:
-      self._denseOutput = numpy.zeros(self._coincCount, dtype='float64')
-    else:
-      self._denseOutput = None
+    # if doIt:
+    #   self._denseOutput = numpy.zeros(self._coincCount, dtype='float64')
+    # else:
+    #   self._denseOutput = None
+    return
 
 
   #############################################################################
@@ -1315,9 +1254,10 @@ class FDRCSpatial2(object):
     """ Used by the node to fetch the cached output
     """
 
-    if self._denseOutput is not None:
-      return list(self._denseOutput)
-    return []
+    # if self._denseOutput is not None:
+    #   return list(self._denseOutput)
+    # return []
+    return
 
 
   ############################################################################
@@ -1337,7 +1277,9 @@ class FDRCSpatial2(object):
   #############################################################################
   #TODO: Change the name of this function to getMasterPermanence
   def getMasterHistogram(self, masterNum):
-    """Return the histogram for a given master.
+    """
+    DEPRECATED
+    Return the histogram for a given master.
 
     This coincidence will be (2*coincInputRadius + 1) by
     (2*coincInputRadius + 1) big.  The coincidence is returned densely.
@@ -1346,12 +1288,14 @@ class FDRCSpatial2(object):
     @return histogram           A histogram.
     """
 
-    return self._masterPermanenceM[masterNum].toDense()
+    # return self._masterPermanenceM[masterNum].toDense()
+    return 
 
 
   #############################################################################
   def getMasterLearnedCoincidence(self, masterNum):
-    """Return the learned coincidence for a given master. This is used by the
+    """ DEPRECATED
+    Return the learned coincidence for a given master. This is used by the
     MasterCoincsTab inspector.
 
     This coincidence will be (2*coincInputRadius + 1) by
@@ -1367,13 +1311,15 @@ class FDRCSpatial2(object):
     @return learnedCoincidence  A learned coincidence, in numpy.where() format.
     """
 
-    masterConnected = self._masterConnectedM[masterNum]
-    return zip(*masterConnected.getAllNonZeros())
+    # masterConnected = self._masterConnectedM[masterNum]
+    # return zip(*masterConnected.getAllNonZeros())
+    return
 
 
   #############################################################################
   def getLearnedCmRowAsDenseArray(self, columnNum):
-    """Return a row from the learned coincidence matrix.
+    """ DEPRECATED
+    Return a row from the learned coincidence matrix.
 
     This isn't particularly fast, but is useful for debugging. In particular,
     it is used by the ColumnActivity tab to visualize the learned column
@@ -1382,8 +1328,8 @@ class FDRCSpatial2(object):
     @param  columnNum  The column to get.
     @return cmRow      The proper row from our learned coincidence matrix.
     """
-
-    return self._allConnectedM.getRow(columnNum).astype('bool')
+    # return self._allConnectedM.getRow(columnNum).astype('bool')
+    return
 
 
   #############################################################################
@@ -1725,82 +1671,6 @@ class FDRCSpatial2(object):
 
 
   #############################################################################
-  def _XXXupdateConnectedCoincidences(self, masters=None):
-    """Update 'connected' version of the given coincidence.
-
-    Each 'connected' coincidence is effectively a binary matrix (AKA boolean)
-    matrix that is the same size as the input histogram matrices.  They have
-    a 1 wherever the inputHistogram is "above synPermConnected".
-
-    """
-    # If no masterNum given, update all of them
-    if masters is None:
-      masters = xrange(self.numCloneMasters)
-
-    (nCellRows, nCellCols) = self._coincRFShape
-    (nInputRows, nInputCols) = self.inputShape
-    cloningOn = (self.numCloneMasters != self._coincCount)
-    for masterNum in masters:
-      # Where are we connected?
-      masterConnectedNZ = \
-        self._masterPermanenceM[masterNum].whereGreaterEqual(0,
-                nCellRows, 0, nCellCols, self.synPermConnected)
-      rowIdxs = masterConnectedNZ[:,0]
-      colIdxs = masterConnectedNZ[:,1]
-      self._masterConnectedM[masterNum].setAllNonZeros(nCellRows, nCellCols,
-                                                        rowIdxs, colIdxs)
-      self._masterConnectedCoincSizes[masterNum] = len(rowIdxs)
-
-      # This verifies our logic in adaptSynapses for boosting up all
-      #  permanences up when the # of connected falls below stimulusThreshold.
-      assert (self._masterConnectedCoincSizes[masterNum] \
-               >= self.stimulusThreshold)
-
-
-      # ------------------------------------------------------------------------
-      # Update the corresponding rows in the super, mondo connected matrix that
-      #  come from this master
-      if cloningOn:
-        cells = self._cellsForMaster[masterNum]
-      else:
-        cells = [masterNum]
-
-      flatMultiplier = numpy.array([nInputCols, 1], dtype='int')
-
-      # Where is the top left corner of this master in regards to the input?
-      for cell in cells:
-        # (0.8s)
-        (top, bottom, left, right) = self._coincSlices2[cell*4:(cell + 1)*4]
-        # (1.8s)
-        connectedNZ = self._masterPermanenceM[masterNum].whereGreaterEqual(top,
-                bottom, left, right, self.synPermConnected)
-
-        # Shift to top-left of input space
-        # (0.77s)
-        (topRow, leftCol) = self._columnCenters[cell]
-        topRow -= self.coincInputRadius
-        leftCol -= self.coincInputRadius
-
-        # Convert to flat coordinates (4.3s total)
-        connectedNZ += (topRow, leftCol) # (2.4s)
-        connectedNZ *= flatMultiplier # (1.25s)
-        sparseCols = connectedNZ.sum(axis=1) # (0.7s)
-
-        # Compare to original
-        if False:
-          inputSlice = self._inputSlices[cell]
-          coincSlice = self._coincSlices[cell]
-          masterConnected = \
-            self._masterConnectedM[masterNum].toDense().astype('bool')
-          masterSubset = masterConnected[coincSlice]
-          oldSparseCols = self._inputLayout[inputSlice][masterSubset]
-          if not numpy.array_equal(oldSparseCols, sparseCols):
-            import pdb; pdb.set_trace()
-
-        self._allConnectedM.replaceSparseRow(cell, sparseCols) # 0.4s
-
-
-  #############################################################################
   def _updateConnectedCoincidences(self, masters=None):
     """Update 'connected' version of the given coincidence.
 
@@ -1918,27 +1788,6 @@ class FDRCSpatial2(object):
       self._coincSlices2[k + 2] = self._coincSlices[i][1].start
       self._coincSlices2[k + 3] = self._coincSlices[i][1].stop
       k = k + 4
-
-
-    # ---------------------------------------------------------------------
-    # Which cells have clipped potential RF's?
-    if False:
-      self._cellRFClipped = numpy.zeros(self._coincCount, dtype='bool')
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,0] < coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,0] \
-                          >= inputShape[0] - coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,1] < coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,1] \
-                          >= inputShape[1] - coincInputRadius,
-                        self._cellRFClipped)
-
 
   #############################################################################
   @staticmethod
@@ -2192,19 +2041,6 @@ class FDRCSpatial2(object):
     # TODO: Is there a faster numpy operation for this?
     self._overlaps[self._overlaps < stimulusThreshold] = 0
     self._overlapsNoBoost = self._overlaps.copy()
-
-    # Test
-    if False:
-      import pdb; pdb.set_trace()
-      cpp_overlap_sbm(self._cloneMapFlat,
-                      self._inputSlices2,
-                      self._coincSlices2,
-                      inputShaped,
-                      self._masterConnectedM,
-                      stimulusThreshold,
-                      self._overlaps);
-
-      import pdb; pdb.set_trace()
 
 
   #############################################################################
