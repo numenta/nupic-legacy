@@ -40,7 +40,7 @@ realDType = GetNTAReal()
 
 
 
-class GrokSpatialPooler(SpatialPooler):
+class FlatSpatialPooler(SpatialPooler):
 	"""
 	This class implements the SpatialPooler used in Grok.
 	"""
@@ -57,7 +57,7 @@ class GrokSpatialPooler(SpatialPooler):
 							 spVerbosity=0,
 							 ):
 
-		super(GrokSpatialPooler,self).__init__(
+		super(FlatSpatialPooler,self).__init__(
 				inputDimensions=numInputs,
 				columnDimensions=numColumns,
 				potentialRadius=numInputs,

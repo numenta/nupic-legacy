@@ -26,12 +26,12 @@ import unittest2 as unittest
 from nupic.bindings.math import SM32 as SparseMatrix, \
                                 SM_01_32_32 as SparseBinaryMatrix, \
                                 count_gte, GetNTAReal
-from nupic.research.spatial_pooler import GrokSpatialPooler
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler
 
-class GrokSpatialPoolerTest(unittest.TestCase):
+class FlatSpatialPoolerTest(unittest.TestCase):
 
 	def setUp(self):
-		self._sp = GrokSpatialPooler(
+		self._sp = FlatSpatialPooler(
 			   numInputs = 5,
                numColumns = 5,
                localAreaDensity = 0.1,
