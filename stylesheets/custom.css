@@ -76,16 +76,42 @@ h5 {
     top: 10px;
     left: 10px;
 }
-
-.pull-request h4, .pull-request p {
+.pull-request {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #eee;
+    border-radius: 5px;
+}
+.pull-request pre {
+    border-radius: 0;
+}
+.pull-request h4, .pull-request p, .pull-request table td {
     padding: 0;
     margin: 0;
+    border: 0;
 }
 .pull-request .status {
     padding: 2px 5px;
 }
-.pull-request .sha {
-    text-align: right
+.pull-request .body {
+    font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+    color:#333;
+    background-color: white;
+    font-size:12px;
+    border: solid #ddd 1px;
+    padding: 3px 6px;
+}
+.pull-request.overdue .open-since {
+    font-weight: bold;
+    color: black;
+    padding: 0px 5px;
+    border-radius: 6px;
+    -webkit-animation: pulse-red 750ms infinite alternate;
+    -moz-animation: pulse-red 750ms infinite alternate;
+}
+.pull-request.overdue h4 a {
+    color: black;
 }
 .success {
     background-color: #8CF58F;
@@ -128,4 +154,12 @@ section.media h3 {
     text-align: right;
     margin: 0 40px 10px 0;
     padding: 0;
+}
+@-webkit-keyframes pulse-red {
+      0% {background-color: red;}
+     100% {background-color: orange;}
+}
+@-moz-keyframes pulse-red {
+      0% {background-color: red;}
+     100% {background-color: orange;}
 }
