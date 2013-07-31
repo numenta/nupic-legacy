@@ -36,9 +36,9 @@ else
 fi
 
 # Remove old build and install dirs and remake the directories.
-rm -r "$BUILDDIR"
+rm -rf "$BUILDDIR"
 mkdir -p "$BUILDDIR"
-rm -r "$NUPIC_INSTALL"
+rm -rf "$NUPIC_INSTALL"
 mkdir -p "$NUPIC_INSTALL"
 
 pushd `dirname $0`
