@@ -28,6 +28,7 @@ from optparse import OptionParser
 import pytest
 
 
+
 def collect_set(option, opt_str, value, parser):
   """ Collect multiple option values into a single set.  Used in conjunction
   with callback argument to OptionParser.add_option().
@@ -62,35 +63,49 @@ def collect_list(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value)
 
 
-parser = OptionParser(usage="%prog [options]\n\n" \
-  "Run Grok Engine tests.")
-parser.add_option("-a", "--all",
+parser = OptionParser(usage="%prog [options]\n\nRun Grok Engine tests.")
+parser.add_option(
+  "-a",
+  "--all",
   action="store_true",
   default=False,
   dest="all")
-parser.add_option("-c", "--coverage",
+parser.add_option(
+  "-c",
+  "--coverage",
   action="store_true",
   default=False,
   dest="coverage")
-parser.add_option("-i", "--integration",
+parser.add_option(
+  "-i",
+  "--integration",
   action="store_true",
   default=False,
   dest="integration")
-parser.add_option("-n", "--num",
+parser.add_option(
+  "-n",
+  "--num",
   dest="processes")
-parser.add_option("-r", "--results",
+parser.add_option(
+  "-r",
+  "--results",
   dest="results",
   action="callback",
   callback=collect_list)
-parser.add_option("-s",
+parser.add_option(
+  "-s",
   dest="tests",
   action="callback",
   callback=collect_set)
-parser.add_option("-u", "--unit",
+parser.add_option(
+  "-u",
+  "--unit",
   action="store_true",
   default=False,
   dest="unit")
-parser.add_option("-x", "--failfast",
+parser.add_option(
+  "-x",
+  "--failfast",
   action="store_true",
   default=False,
   dest="failfast")
@@ -157,7 +172,6 @@ def main(parser, parse_args):
   if not tests or options.all:
     tests.add(os.path.join(root, "external", "py2"))
     tests.add(os.path.join(root, "unit", "py2"))
-
 
   # Run tests
 
