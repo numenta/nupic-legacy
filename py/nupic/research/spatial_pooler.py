@@ -969,7 +969,6 @@ class SpatialPooler(object):
 			inhibitionArea = min(self._numColumns, inhibitionArea)
 			numActive = int(round(self._localAreaDensity * inhibitionArea))
 
-
 		# Add a little bit of random noise to the scores to help break
 		# ties.
 		tieBreaker = 0.1*numpy.random.rand(self._numColumns)
