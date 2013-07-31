@@ -103,9 +103,9 @@ class SpatialPoolerTest(unittest.TestCase):
 		sp._numActiveColumnsPerInhArea = -1
 		sp._localAreaDensity = 0.1
 		sp._globalInhibition = False
-		sp._inhibitionRadius = 19
-		# 0.1 * (19+1)**2
-		trueNumActive = 40 
+		sp._inhibitionRadius = 7
+		# 0.1 * (2*9+1)**2 = 22.5
+		trueNumActive = 23
 		sp._inhibitColumns(overlaps)
 		self.assertEqual(False,sp._inhibitColumnsGlobal.called)
 		self.assertEqual(True,sp._inhibitColumnsLocal.called)		
@@ -383,7 +383,7 @@ class SpatialPoolerTest(unittest.TestCase):
 		connected = numpy.zeros(sp._numInputs).reshape(sp._inputDimensions)
 		connected[2][0][1][0] = 1
 		connected[2][0][0][0] = 1
-		conncted[3][0][0][0] = 1
+		connected[3][0][0][0] = 1
 		connected[3][0][1][0] = 1
 		# spn:   1  0  1  0, avg = 2/4
 		sp._connectedSynapses.replaceSparseRow(
