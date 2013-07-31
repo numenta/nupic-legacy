@@ -1125,53 +1125,7 @@ class FDRCSpatial2(object):
       if topDownInTotal:
         topDownOut /= topDownInTotal
     return topDownOut.reshape(-1)
-
-
-  #############################################################################
-  def reset(self):
-    """ Reset the state.
-
-    This is normally used between sequences.
-    """
-    pass
-
-  #############################################################################
-  @property
-  def cm(self):
-    # """Return the coincidence matrix as a SparseMatrix object.
-
-    # The coincidence matrix is actually just the possible elements that could
-    # be active.  If you want to see the ones that are currently active, see the
-    # lernedCm
-
-    # This isn't particularly fast, but is useful for debugging.
-
-    # @return cm  Our coincidence matrix.
-    # TODO: assumes 2D
-
-    # """
-    # cm = SM32(self._coincCount, self._inputCount)
-
-    # coincRfShape   = ((2*self.coincInputRadius + 1), \
-    #                   (2*self.coincInputRadius + 1))
-    # coincRfArea    = (coincRfShape[0] * coincRfShape[1])
-    # coincInputPool = self.coincInputPoolPct * coincRfArea
-
-    # theOnes = numpy.ones(coincInputPool, numpy.float32)
-
-    # for columnNum, masterNum in enumerate(self._cloneMapFlat):
-
-    #   inputSlice = self._inputSlices[columnNum]
-    #   coincSlice = self._coincSlices[columnNum]
-    #   masterPotential = self._masterPotentialM[masterNum][coincSlice]
-
-    #   sparseCols = self._inputLayout[inputSlice][masterPotential]
-    #   # If the coincidence goes off the edge, the number of cols is less than
-    #   # coincInputPool
-    #   cm.setRowFromSparse(columnNum, sparseCols, theOnes[:len(sparseCols)])
-
-    # return cm
-    return 
+    return topDownIn.copy()
 
 
   #############################################################################
@@ -1217,49 +1171,6 @@ class FDRCSpatial2(object):
     self._initEphemerals()
 
 
-  #############################################################################
-  def finishLearning(self):
-    """Called for any last tasks at the end of learning."""
-
-    # if self._doneLearning:
-    #   return
-
-    # #print "Member variables at start of finishLearning:"
-    # #self._printMemberSizes(0)
-
-    # self._doneLearning = True
-    # self._iterNum = 0
-
-    # #print "Member variables after finishLearning:"
-    # #self._printMemberSizes(0)
-
-    # #self._saveCoincsImage()
-    return
-
-
-  #############################################################################
-  def setStoreDenseOutput(self, doIt):
-    """ Used by the node to tell us to cache the output for debugging
-    """
-
-    # if doIt:
-    #   self._denseOutput = numpy.zeros(self._coincCount, dtype='float64')
-    # else:
-    #   self._denseOutput = None
-    return
-
-
-  #############################################################################
-  def getDenseOutput(self,):
-    """ Used by the node to fetch the cached output
-    """
-
-    # if self._denseOutput is not None:
-    #   return list(self._denseOutput)
-    # return []
-    return
-
-
   ############################################################################
   def getAnomalyScore(self):
     """ Get the aggregate anomaly score for this input pattern
@@ -1267,69 +1178,8 @@ class FDRCSpatial2(object):
     Returns: A single scalar value for the anomaly score
     """
     numNonzero = len(numpy.nonzero(self._anomalyScores)[0])
-    #import pdb; pdb.set_trace()
-    #assert numNonzero == 40, "Num of nonzero anomalies is actually {0}".\
-    #                  format(numNonzero)
 
     return 1.0 / (numpy.sum(self._anomalyScores) + 1)
-
-
-  #############################################################################
-  #TODO: Change the name of this function to getMasterPermanence
-  def getMasterHistogram(self, masterNum):
-    """
-    DEPRECATED
-    Return the histogram for a given master.
-
-    This coincidence will be (2*coincInputRadius + 1) by
-    (2*coincInputRadius + 1) big.  The coincidence is returned densely.
-
-    @param  masterNum           The master number to look at.
-    @return histogram           A histogram.
-    """
-
-    # return self._masterPermanenceM[masterNum].toDense()
-    return 
-
-
-  #############################################################################
-  def getMasterLearnedCoincidence(self, masterNum):
-    """ DEPRECATED
-    Return the learned coincidence for a given master. This is used by the
-    MasterCoincsTab inspector.
-
-    This coincidence will be (2*coincInputRadius + 1) by
-    (2*coincInputRadius + 1) big.  The coincidence is returned sparsely
-    (like numpy.where does).  You can get the actual coincidence by doing:
-        denseCoinc = numpy.zeros(((2*coincInputRadius + 1),
-                                  (2*coincInputRadius + 1))
-                                 'bool')
-        mlc = fdrcSpatial.getSfdrMasterLearnedCoincidence(masterNum)
-        denseCoinc[mlc] = True
-
-    @param  masterNum           The master number to look at.
-    @return learnedCoincidence  A learned coincidence, in numpy.where() format.
-    """
-
-    # masterConnected = self._masterConnectedM[masterNum]
-    # return zip(*masterConnected.getAllNonZeros())
-    return
-
-
-  #############################################################################
-  def getLearnedCmRowAsDenseArray(self, columnNum):
-    """ DEPRECATED
-    Return a row from the learned coincidence matrix.
-
-    This isn't particularly fast, but is useful for debugging. In particular,
-    it is used by the ColumnActivity tab to visualize the learned column
-    as it relates to the entire input field.
-
-    @param  columnNum  The column to get.
-    @return cmRow      The proper row from our learned coincidence matrix.
-    """
-    # return self._allConnectedM.getRow(columnNum).astype('bool')
-    return
 
 
   #############################################################################
@@ -1449,16 +1299,6 @@ class FDRCSpatial2(object):
 
 
     return self._learningStats
-
-
-  #############################################################################
-  def resetStats(self):
-    """ Reset the stats (periodic, ???). This will usually be called by
-    user code at the start of each inference run (for a particular data set).
-
-    TODO which other stats need to be reset?  Learning stats?
-    """
-    self._periodicStatsReset()
 
 
   #############################################################################
@@ -1730,7 +1570,7 @@ class FDRCSpatial2(object):
     This function is called upon unpickling, since we can't pickle slices.
     """
 
-    self._columnCenters = numpy.array(self.computeCoincCenters(self.inputShape,
+    self._columnCenters = numpy.array(self._computeCoincCenters(self.inputShape,
                       self.coincidencesShape, self.inputBorder))
     coincInputRadius = self.coincInputRadius
     (coincHeight, coincWidth) = self._coincRFShape
@@ -1791,7 +1631,7 @@ class FDRCSpatial2(object):
 
   #############################################################################
   @staticmethod
-  def computeCoincCenters(inputShape, coincidencesShape, inputBorder):
+  def _computeCoincCenters(inputShape, coincidencesShape, inputBorder):
     """Compute the centers of all coincidences, given parameters.
 
     This function is semi-public: tools may use it to generate good

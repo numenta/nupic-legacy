@@ -190,14 +190,6 @@ def _getAdditionalSpecs(kwargs={}):
       count=0,
       constraints=''),
 
-    storeDenseOutput=dict(
-      description="""Whether to keep the dense coincidence output for each
-                     column (needed for denseOutput parameter).""",
-      accessMode='ReadWrite',
-      dataType='UInt32',
-      count=1,
-      constraints='bool'),
-
     spLearningStatsStr=dict(
       description="""String representation of dictionary containing a number
                      of statistics related to learning.""",
@@ -341,7 +333,6 @@ class SPRegion(PyRegion):
     self.breakKomodo = False
 
     # Defaults for all other parameters
-    self.storeDenseOutput = False
     self.logPathInput = ''
     self.logPathOutput = ''
     self.logPathOutputDense = ''
@@ -464,9 +455,6 @@ class SPRegion(PyRegion):
                               inputBorder=inputBorder,
                               coincInputRadius = coincInputRadius,
                               **autoArgs)
-
-    self._sfdr.setStoreDenseOutput(self.storeDenseOutput)
-
 
 
   #############################################################################
@@ -597,12 +585,7 @@ class SPRegion(PyRegion):
     # Run inference using the spatial pooler. We learn on the coincidences only
     # if we are in learning mode and trainingStep is set appropriately.
 
-    # Reset influences only hysteresis, if used
-    if resetSignal:
-      self._sfdr.reset()
-
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    self._sfdr.setStoreDenseOutput(True)
     self._spatialPoolerOutput = self._sfdr.compute(flatInput=rfInput[0],
                                                    learn=self.learningMode,
                                                    infer=self.inferenceMode,
@@ -621,24 +604,6 @@ class SPRegion(PyRegion):
       outputNZ = output.nonzero()[0]
       outStr = " ".join(["%d" % int(token) for token in outputNZ])
       print >>self._fpLogSPInput, output.size, outStr
-
-    if self._fpLogSPDense:
-      # Get the dense output (will only work if you've done storeDenseOutput)
-      try:
-        denseOutput = self._sfdr.getDenseOutput()
-        if len(denseOutput) == 0:
-          raise Exception("storeDenseOutput wasn't set in PY version")
-        denseOutput = numpy.array(denseOutput)
-        output = denseOutput.reshape(-1)
-        outputNZIds = denseOutput.nonzero()[0]
-        outputNZVals = denseOutput[outputNZIds]
-        outStrIds = " ".join(["%d" % int(token) for token in outputNZIds])
-        outStrVals = " ".join(["%d" % int(token) for token in outputNZVals])
-        print >>self._fpLogSPDense, output.size, outStrIds
-        print >>self._fpLogSPDense, output.size, outStrVals
-      except Exception:
-        print "WARNING: You must enable storing dense output in the SP using" \
-              "setStoreDenseOutput ."
 
     return self._spatialPoolerOutput
 
@@ -781,12 +746,6 @@ class SPRegion(PyRegion):
           accessMode='ReadWrite'),
 
       ),
-      commands=dict(
-        finishLearning=dict(description=
-                "Perform an internal optimization step that speeds up inference "
-                "if we know learning will not be performed anymore. This call "
-                "may, for example, remove all potential inputs to each column."),
-      )
     )
 
     return spec
@@ -814,11 +773,7 @@ class SPRegion(PyRegion):
       special treatment are explicitly handled here.
     """
 
-    if parameterName == 'sparseCoincidenceMatrix':
-      if not self._sfdr:
-        return None
-      return self._sfdr.cm
-    elif parameterName == 'activeOutputCount':
+    if parameterName == 'activeOutputCount':
       return self.columnCount
     elif parameterName == 'spatialPoolerInput':
       return list(self._spatialPoolerInput.reshape(-1))
@@ -826,33 +781,6 @@ class SPRegion(PyRegion):
       return list(self._spatialPoolerOutput)
     elif parameterName == 'spNumActiveOutputs':
       return len(self._spatialPoolerOutput.nonzero()[0])
-    elif parameterName == 'spOverlapDistribution':
-      if not self._sfdr:
-        return []
-      # Get the dense output (will only work if you've done storeDenseOutput)
-      try:
-        denseOutput = self._sfdr.getDenseOutput()
-        if len(denseOutput) == 0:
-          raise Exception("storeDenseOutput wasn't set in PY version")
-        denseOutput = numpy.array(denseOutput)
-      except Exception:
-        print "WARNING: You must enable storing dense output in the SP using" \
-              "setStoreDenseOutput."
-        return []
-      winnerIndices = numpy.array(self._spatialPoolerOutput).nonzero()[0]
-      overlaps = denseOutput[winnerIndices]
-
-      # Sort descending and convert to list...
-      overlaps = sorted(overlaps, reverse=True)
-
-      return overlaps
-    elif parameterName == "denseOutput":
-      # Must be a list, not a numpy array to make NuPIC happy...
-      denseOutput = self._sfdr.getDenseOutput()
-      if not isinstance(denseOutput, list):
-        assert isinstance(denseOutput, numpy.ndarray)
-        denseOutput = list(denseOutput)
-      return denseOutput
     elif parameterName == 'spOutputNonZeros':
       return [len(self._spatialPoolerOutput)] + \
               list(self._spatialPoolerOutput.nonzero()[0])
@@ -878,10 +806,6 @@ class SPRegion(PyRegion):
     """
     if parameterName in self._spatialArgNames:
       setattr(self._sfdr, parameterName, parameterValue)
-
-    elif parameterName == 'storeDenseOutput':
-      if self._sfdr:
-        self._sfdr.setStoreDenseOutput(parameterValue)
 
     elif parameterName == "logPathInput":
       self.logPathInput = parameterValue
@@ -924,24 +848,6 @@ class SPRegion(PyRegion):
 
     else:
       raise Exception('Unknown parameter: ' + parameterName)
-
-  #############################################################################
-  #
-  # Commands
-  #
-  #############################################################################
-  def finishLearning(self):
-    """Perform an internal optimization step that speeds up inference if we know
-    learning will not be performed anymore. This call may, for example, remove
-    all potential inputs to each column.
-    """
-    if self._sfdr is None:
-      raise RuntimeError("FDRCSpatial2 has not been initialized")
-
-    if hasattr(self._sfdr, 'finishLearning'):
-      self._sfdr.finishLearning()
-
-
 
   #############################################################################
   #
