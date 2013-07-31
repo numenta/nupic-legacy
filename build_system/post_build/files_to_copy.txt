@@ -18,20 +18,10 @@ external/${arch}/lib/python${PythonVersion}/site-packages/simplejson   lib/pytho
 @win32 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd
 
 # Platform independent python libraries
-external/common/lib/python${PythonVersion}/site-packages/dateutil   lib/python${PythonVersion}/site-packages/dateutil
-external/common/lib/python${PythonVersion}/site-packages/mock       lib/python${PythonVersion}/site-packages/mock
-external/common/lib/python${PythonVersion}/site-packages/unittest2  lib/python${PythonVersion}/site-packages/unittest2
-external/common/lib/python${PythonVersion}/site-packages/pylint     lib/python${PythonVersion}/site-packages/pylint
-external/common/lib/python${PythonVersion}/site-packages/logilab    lib/python${PythonVersion}/site-packages/logilab
-external/common/lib/python${PythonVersion}/site-packages/ordereddict.py   lib/python${PythonVersion}/site-packages/ordereddict.py
-external/common/lib/python${PythonVersion}/site-packages/asteval lib/python${PythonVersion}/site-packages/asteval
-external/common/lib/python${PythonVersion}/site-packages/six.py        lib/python${PythonVersion}/site-packages/six.py
-external/common/lib/python${PythonVersion}/site-packages/validictory lib/python${PythonVersion}/site-packages/validictory
 
 external/${arch}/lib/python${PythonVersion}/site-packages/pkg_resources.py   lib/python${PythonVersion}/site-packages/pkg_resources.py
 
 # Platform independent executable scripts
-external/common/bin/pylint bin/pylint
 
 lang/py/bindings/__init__.py   lib/python${PythonVersion}/site-packages/nupic/bindings/__init__.py
 
