@@ -629,11 +629,13 @@ class SPRegion(PyRegion):
     #tpTopDownOut = topDownInput
     #topDownOut = self._sfdr.topDownCompute(tpTopDownOut)
 
-    spatialTopDownOut = self._sfdr.topDownCompute(self._spatialPoolerOutput).copy()
-    if topDownInput is not None:
-      temporalTopDownOut = self._sfdr.topDownCompute(topDownInput)
-    else:
-      temporalTopDownOut = None
+    # spatialTopDownOut = self._sfdr.topDownCompute(self._spatialPoolerOutput).copy()
+    spatialTopDownOut = None
+    # if topDownInput is not None:
+    #   temporalTopDownOut = self._sfdr.topDownCompute(topDownInput)
+    # else:
+    #   temporalTopDownOut = None
+    temporalTopDownOut = None # ADD
     return spatialTopDownOut, temporalTopDownOut
 
   #############################################################################

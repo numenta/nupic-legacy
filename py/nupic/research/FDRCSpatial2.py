@@ -656,8 +656,8 @@ class FDRCSpatial2(object):
       self._permChanges = numpy.zeros(self.inputShape, dtype=realDType)
 
     # These are used to compute and hold the output from topDownCompute
-    self._topDownOut = numpy.zeros(self.inputShape, dtype=realDType)
-    self._topDownParentCounts = numpy.zeros(self.inputShape, dtype='int')
+    # self._topDownOut = numpy.zeros(self.inputShape, dtype=realDType)
+    # self._topDownParentCounts = numpy.zeros(self.inputShape, dtype='int')
 
     # Fill in the updatePermanenceGivenInput method pointer, which depends on
     #  chosen language
@@ -1025,107 +1025,107 @@ class FDRCSpatial2(object):
 
 
   #############################################################################
-  def topDownCompute(self, topDownIn):
-    """ Top-down compute - generate expected input given output of the SP
+  # def topDownCompute(self, topDownIn):
+  #   """ Top-down compute - generate expected input given output of the SP
 
-    Parameters:
-    ----------------------------
-    topDownIn:        top down input, from the level above us
+  #   Parameters:
+  #   ----------------------------
+  #   topDownIn:        top down input, from the level above us
 
-    retval:           best estimate of the SP input that would have generated
-                      topDownIn.
-    """
+  #   retval:           best estimate of the SP input that would have generated
+  #                     topDownIn.
+  #   """
 
-    #If topDownIn is not defined, generate the outputs based on the current state and overlaps of the sp
-    #This is meant for spatial prediction tasks.
-    if(topDownIn==None):
-      #Get highest overlaps
-      sortedOverlaps = numpy.sort(self._overlapsNoBoost)
-      #Threshold overlaps to .5 of the max overlap, this will cut out most columns that do not
-      #encode the input, but keep most of the columns that have been encoded with the same predicted field
-      halfOnThresh = numpy.where(self._overlapsNoBoost>sortedOverlaps[-1]*.5)
-      #keep at least the top 120 by overlap
-      overlapThresh = sortedOverlaps[-120]
-      pastOverlapThresh = numpy.where(self._overlapsNoBoost>=overlapThresh)
-      pastOverlapThresh = numpy.union1d(pastOverlapThresh[0], halfOnThresh[0])
+  #   #If topDownIn is not defined, generate the outputs based on the current state and overlaps of the sp
+  #   #This is meant for spatial prediction tasks.
+  #   if(topDownIn==None):
+  #     #Get highest overlaps
+  #     sortedOverlaps = numpy.sort(self._overlapsNoBoost)
+  #     #Threshold overlaps to .5 of the max overlap, this will cut out most columns that do not
+  #     #encode the input, but keep most of the columns that have been encoded with the same predicted field
+  #     halfOnThresh = numpy.where(self._overlapsNoBoost>sortedOverlaps[-1]*.5)
+  #     #keep at least the top 120 by overlap
+  #     overlapThresh = sortedOverlaps[-120]
+  #     pastOverlapThresh = numpy.where(self._overlapsNoBoost>=overlapThresh)
+  #     pastOverlapThresh = numpy.union1d(pastOverlapThresh[0], halfOnThresh[0])
 
-      zippedOLplusDC = zip(pastOverlapThresh,self._dutyCycleAfterInh[pastOverlapThresh])
-      zippedOLplusDC.sort(key=itemgetter(1), reverse=True)
-      selectedCols = zippedOLplusDC[0:min(40,len(zippedOLplusDC))]
-      pastThresh,dutyCycles = zip(*selectedCols)
+  #     zippedOLplusDC = zip(pastOverlapThresh,self._dutyCycleAfterInh[pastOverlapThresh])
+  #     zippedOLplusDC.sort(key=itemgetter(1), reverse=True)
+  #     selectedCols = zippedOLplusDC[0:min(40,len(zippedOLplusDC))]
+  #     pastThresh,dutyCycles = zip(*selectedCols)
 
-      topDownIn = numpy.zeros(self._overlaps.shape)
-      topDownIn[list(pastThresh)] = 1
+  #     topDownIn = numpy.zeros(self._overlaps.shape)
+  #     topDownIn[list(pastThresh)] = 1
 
 
-    # Init topdown out. This is shaped to the input
-    topDownOut = self._topDownOut
-    self._topDownOut.fill(0)
-    self._topDownParentCounts.fill(0)
+  #   # Init topdown out. This is shaped to the input
+  #   topDownOut = self._topDownOut
+  #   self._topDownOut.fill(0)
+  #   self._topDownParentCounts.fill(0)
 
-    # =========================================================================
-    # Get the contributions from each of the active cells to the inputs.
-    # We compute the average contribution to each input from each of the
-    #  active cells that connects to it.
-    # If topDownIn is not flat, flatten it
-    if len(topDownIn.shape) > 1:
-      topDownIn = topDownIn.reshape(-1)
-    activeCells = topDownIn.nonzero()[0]
+  #   # =========================================================================
+  #   # Get the contributions from each of the active cells to the inputs.
+  #   # We compute the average contribution to each input from each of the
+  #   #  active cells that connects to it.
+  #   # If topDownIn is not flat, flatten it
+  #   if len(topDownIn.shape) > 1:
+  #     topDownIn = topDownIn.reshape(-1)
+  #   activeCells = topDownIn.nonzero()[0]
 
-    if self.spReconstructionParam == "dutycycle":
-      maxDutyCycle = max(1-self._dutyCycleAfterInh)
-    if self.spReconstructionParam == "pctoverlap":
-      maxPctOverlap = max(self._pctOverlaps)
+  #   if self.spReconstructionParam == "dutycycle":
+  #     maxDutyCycle = max(1-self._dutyCycleAfterInh)
+  #   if self.spReconstructionParam == "pctoverlap":
+  #     maxPctOverlap = max(self._pctOverlaps)
 
-    # From each output, get the expected input that generated it
-    cloningOn = (self.numCloneMasters != self._coincCount)
-    for cell in activeCells:
-      if cloningOn:
-        masterNum = self._cloneMapFlat[cell]
-      else:
-        masterNum = cell
+  #   # From each output, get the expected input that generated it
+  #   cloningOn = (self.numCloneMasters != self._coincCount)
+  #   for cell in activeCells:
+  #     if cloningOn:
+  #       masterNum = self._cloneMapFlat[cell]
+  #     else:
+  #       masterNum = cell
 
-      # Get the permanences for this master
-      activeInputs = self._masterConnectedM[masterNum].toDense()
+  #     # Get the permanences for this master
+  #     activeInputs = self._masterConnectedM[masterNum].toDense()
 
-      # Add the connected inputs to the topDownOut
-      inputSlice = self._inputSlices[cell]
-      coincSlice = self._coincSlices[cell]
+  #     # Add the connected inputs to the topDownOut
+  #     inputSlice = self._inputSlices[cell]
+  #     coincSlice = self._coincSlices[cell]
 
-      # Weight each connected input by the cell's firing strength
-      if self.spReconstructionParam == "unweighted_mean":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice]
-      elif self.spReconstructionParam == "permanence":
-        maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
-      elif self.spReconstructionParam == "pctoverlap":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + self._pctOverlaps[cell]/maxPctOverlap*0.5)
-      elif self.spReconstructionParam == "dutycycle":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + (1-(self._dutyCycleAfterInh[cell]/maxDutyCycle))*0.5)
-      elif self.spReconstructionParam == "maximum_firingstrength":
-        maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
-        strength = topDownIn[cell]*activeInputs[coincSlice] * \
-          (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
-        topDownOut[inputSlice] = numpy.maximum(topDownOut[inputSlice],
-                                               strength)
+  #     # Weight each connected input by the cell's firing strength
+  #     if self.spReconstructionParam == "unweighted_mean":
+  #       topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice]
+  #     elif self.spReconstructionParam == "permanence":
+  #       maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
+  #       topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
+  #         (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
+  #     elif self.spReconstructionParam == "pctoverlap":
+  #       topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
+  #         (0.5 + self._pctOverlaps[cell]/maxPctOverlap*0.5)
+  #     elif self.spReconstructionParam == "dutycycle":
+  #       topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
+  #         (0.5 + (1-(self._dutyCycleAfterInh[cell]/maxDutyCycle))*0.5)
+  #     elif self.spReconstructionParam == "maximum_firingstrength":
+  #       maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
+  #       strength = topDownIn[cell]*activeInputs[coincSlice] * \
+  #         (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
+  #       topDownOut[inputSlice] = numpy.maximum(topDownOut[inputSlice],
+  #                                              strength)
 
-      # Bump up the parent counts for these inputs
-      self._topDownParentCounts[inputSlice] += activeInputs[coincSlice]
+  #     # Bump up the parent counts for these inputs
+  #     self._topDownParentCounts[inputSlice] += activeInputs[coincSlice]
 
-    # Old method of normalizing
-    # Divide each input's accumulated weight by it's number of parents
-    # numpy.clip(self._topDownParentCounts, 1.0, numpy.inf,
-    #            self._topDownParentCounts)
-    # topDownOut /= self._topDownParentCounts
-    if "maximum_firingstrength" not in self.spReconstructionParam:
-      topDownInTotal = topDownIn.sum()
-      if topDownInTotal:
-        topDownOut /= topDownInTotal
-    return topDownOut.reshape(-1)
-    return topDownIn.copy()
+  #   # Old method of normalizing
+  #   # Divide each input's accumulated weight by it's number of parents
+  #   # numpy.clip(self._topDownParentCounts, 1.0, numpy.inf,
+  #   #            self._topDownParentCounts)
+  #   # topDownOut /= self._topDownParentCounts
+  #   if "maximum_firingstrength" not in self.spReconstructionParam:
+  #     topDownInTotal = topDownIn.sum()
+  #     if topDownInTotal:
+  #       topDownOut /= topDownInTotal
+  #   return topDownOut.reshape(-1)
+  #   return topDownIn.copy()
 
 
   #############################################################################
