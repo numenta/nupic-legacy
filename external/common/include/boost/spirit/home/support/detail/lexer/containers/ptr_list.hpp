@@ -1,5 +1,5 @@
 // ptr_list.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -61,8 +61,8 @@ public:
 private:
     list _list;
 
-    ptr_list (ptr_list const &); // No copy construction.
-    ptr_list &operator = (ptr_list const &); // No assignment.
+    ptr_list (const ptr_list &); // No copy construction.
+    ptr_list &operator = (const ptr_list &); // No assignment.
 };
 }
 }

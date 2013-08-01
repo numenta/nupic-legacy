@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2007
+// (C) Copyright Ion Gaztanaga 2007-2012
 //
 // Distributed under the Boost Software License, Version 1.0.
 //    (See accompanying file LICENSE_1_0.txt or copy at
@@ -46,7 +46,7 @@ struct operator_arrow_proxy<T&>
    // This function is needed for MWCW and BCC, which won't call operator->
    // again automatically per 13.3.1.2 para 8
 //   operator T*() const { return &m_value; }
-   mutable T &m_value;
+   T &m_value;
 };
 
 template <class Iterator, class UnaryFunction>
@@ -71,7 +71,7 @@ class transform_iterator
    {  return members_.m_it;   }
 
    //Constructors
-   transform_iterator& operator++() 
+   transform_iterator& operator++()
    { increment();   return *this;   }
 
    transform_iterator operator++(int)

@@ -11,6 +11,12 @@
 #ifndef BOOST_UNITS_SCALE_HPP_INCLUDED
 #define BOOST_UNITS_SCALE_HPP_INCLUDED
 
+///
+/// \file
+/// \brief 10^3 Engineering & 2^10 binary scaling factors for autoprefixing.
+/// \details
+///
+
 #include <string>
 
 #include <boost/units/config.hpp>
@@ -27,7 +33,7 @@ template<class S, class Scale>
 struct scaled_base_unit;
 
 /// class representing a scaling factor such as 10^3
-/// The exponent should be a static rational.
+/// The exponent must be a static rational.
 template<long Base, class Exponent>
 struct scale
 {
@@ -35,8 +41,10 @@ struct scale
     typedef Exponent exponent;
     typedef double value_type;
     static value_type value() { return(detail::static_rational_power<Exponent>(static_cast<double>(base))); }
-    static std::string name() { return ""; };
-    static std::string symbol() { return ""; };
+    // These need to be defined in specializations for
+    // printing to work.
+    // static std::string name();
+    // static std::string symbol();
 };
 
 template<long Base, class Exponent>
@@ -49,9 +57,9 @@ struct scale<Base, static_rational<0> >
     static const long base = Base;
     typedef static_rational<0> exponent;
     typedef one value_type;
-    static one value() { return(one()); }
-    static std::string name() { return(std::string()); }
-    static std::string symbol() { return(std::string()); }
+    static one value() { one result; return(result); }
+    static std::string name() { return(""); }
+    static std::string symbol() { return(""); }
 };
 
 template<long Base>

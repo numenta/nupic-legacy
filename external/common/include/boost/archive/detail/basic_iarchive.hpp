@@ -20,6 +20,8 @@
 // #include <boost/scoped_ptr.hpp>
 
 #include <boost/config.hpp>
+#include <boost/noncopyable.hpp>
+
 #include <boost/type_traits/broken_compiler_spec.hpp>
 #include <boost/serialization/tracking_enum.hpp>
 #include <boost/archive/basic_archive.hpp>
@@ -39,7 +41,8 @@ class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iserializer;
 class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_pointer_iserializer;
 //////////////////////////////////////////////////////////////////////
 // class basic_iarchive - read serialized objects from a input stream
-class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iarchive 
+class BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) basic_iarchive :
+    private boost::noncopyable
 {
     friend class basic_iarchive_impl;
     // hide implementation of this class to minimize header conclusion
@@ -64,26 +67,25 @@ public:
     // note: NOT part of the public API.
     void next_object_pointer(void *t);
     void register_basic_serializer(
-        const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ basic_iserializer & bis
+        const basic_iserializer & bis
     );
     void load_object(
         void *t, 
-        const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ basic_iserializer & bis
+        const basic_iserializer & bis
     );
-    const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */ basic_pointer_iserializer * 
+    const basic_pointer_iserializer * 
     load_pointer(
         void * & t, 
-        const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */
-            basic_pointer_iserializer * bpis_ptr,
-        const /* BOOST_ARCHIVE_DECL(BOOST_PP_EMPTY()) */
-        basic_pointer_iserializer * (*finder)(
+        const basic_pointer_iserializer * bpis_ptr,
+        const basic_pointer_iserializer * (*finder)(
             const boost::serialization::extended_type_info & eti
         )
+
     );
     // real public API starts here
     void 
-    set_library_version(unsigned int archive_library_version);
-    unsigned int 
+    set_library_version(library_version_type archive_library_version);
+    library_version_type 
     get_library_version() const;
     unsigned int
     get_flags() const;

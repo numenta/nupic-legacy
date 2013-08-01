@@ -45,4 +45,4 @@
     #include <boost/config/auto_link.hpp>
 #endif  // auto-linking disabled
 
-#endif // ARCHIVE_DETAIL_AUTO_LINK_ARCHIVE_HPP
+#endif // BOOST_ARCHIVE_DETAIL_AUTO_LINK_ARCHIVE_HPP

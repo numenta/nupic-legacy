@@ -103,7 +103,7 @@ class fifo_worker : noncopyable
 
     void terminate()
     {
-      work_item item = bind( &fifo_worker::terminate_impl, this );
+      work_item item = boost::bind( &fifo_worker::terminate_impl, this );
       queue_work_item( item );
     }
 

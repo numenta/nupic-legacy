@@ -16,6 +16,8 @@
 // http://springerlink.metapress.com/link.asp?id=pcu07ew5rhexp9yt
 
 #include <boost/config/no_tr1/cmath.hpp>
+#include <boost/throw_exception.hpp>
+#include <boost/assert.hpp>
 #include <vector>
 #include <exception>
 #include <algorithm>
@@ -28,6 +30,7 @@
 #include <boost/graph/breadth_first_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/named_function_params.hpp>
+#include <boost/graph/topology.hpp>
 
 namespace boost { 
 
@@ -71,7 +74,7 @@ struct update_position_visitor {
 #endif
 
     if (get(node_distance, v) > distance_limit)
-      throw over_distance_limit();
+      BOOST_THROW_EXCEPTION(over_distance_limit());
     Point old_position = get(position_map, v);
     double distance = get(node_distance, v);
     double fraction = 
@@ -167,7 +170,7 @@ gursoy_atun_step
     }
     min_distance_unset = false;
   }
-  assert (!min_distance_unset); // Graph must have at least one vertex
+  BOOST_ASSERT (!min_distance_unset); // Graph must have at least one vertex
   boost::detail::update_position_visitor<
       PositionMap, NodeDistanceMap, Topology,
       VertexListAndIncidenceGraph> 
@@ -350,281 +353,6 @@ gursoy_atun_layout(const VertexListAndIncidenceGraph& graph,
                      choose_param(get_param(params, edge_weight), 
                                   dummy_property_map()));
 }
-
-/***********************************************************
- * Topologies                                              *
- ***********************************************************/
-template<std::size_t Dims>
-class convex_topology 
-{
-  struct point 
-  {
-    point() { }
-    double& operator[](std::size_t i) {return values[i];}
-    const double& operator[](std::size_t i) const {return values[i];}
-
-  private:
-    double values[Dims];
-  };
-
- public:
-  typedef point point_type;
-
-  double distance(point a, point b) const 
-  {
-    double dist = 0;
-    for (std::size_t i = 0; i < Dims; ++i) {
-      double diff = b[i] - a[i];
-      dist += diff * diff;
-    }
-    // Exact properties of the distance are not important, as long as
-    // < on what this returns matches real distances
-    return dist;
-  }
-
-  point move_position_toward(point a, double fraction, point b) const 
-  {
-    point result;
-    for (std::size_t i = 0; i < Dims; ++i)
-      result[i] = a[i] + (b[i] - a[i]) * fraction;
-    return result;
-  }
-};
-
-template<std::size_t Dims,
-         typename RandomNumberGenerator = minstd_rand>
-class hypercube_topology : public convex_topology<Dims>
-{
-  typedef uniform_01<RandomNumberGenerator, double> rand_t;
-
- public:
-  typedef typename convex_topology<Dims>::point_type point_type;
-
-  explicit hypercube_topology(double scaling = 1.0) 
-    : gen_ptr(new RandomNumberGenerator), rand(new rand_t(*gen_ptr)), 
-      scaling(scaling) 
-  { }
-
-  hypercube_topology(RandomNumberGenerator& gen, double scaling = 1.0) 
-    : gen_ptr(), rand(new rand_t(gen)), scaling(scaling) { }
-                     
-  point_type random_point() const 
-  {
-    point_type p;
-    for (std::size_t i = 0; i < Dims; ++i)
-      p[i] = (*rand)() * scaling;
-    return p;
-  }
-
- private:
-  shared_ptr<RandomNumberGenerator> gen_ptr;
-  shared_ptr<rand_t> rand;
-  double scaling;
-};
-
-template<typename RandomNumberGenerator = minstd_rand>
-class square_topology : public hypercube_topology<2, RandomNumberGenerator>
-{
-  typedef hypercube_topology<2, RandomNumberGenerator> inherited;
-
- public:
-  explicit square_topology(double scaling = 1.0) : inherited(scaling) { }
-  
-  square_topology(RandomNumberGenerator& gen, double scaling = 1.0) 
-    : inherited(gen, scaling) { }
-};
-
-template<typename RandomNumberGenerator = minstd_rand>
-class cube_topology : public hypercube_topology<3, RandomNumberGenerator>
-{
-  typedef hypercube_topology<3, RandomNumberGenerator> inherited;
-
- public:
-  explicit cube_topology(double scaling = 1.0) : inherited(scaling) { }
-  
-  cube_topology(RandomNumberGenerator& gen, double scaling = 1.0) 
-    : inherited(gen, scaling) { }
-};
-
-template<std::size_t Dims,
-         typename RandomNumberGenerator = minstd_rand>
-class ball_topology : public convex_topology<Dims>
-{
-  typedef uniform_01<RandomNumberGenerator, double> rand_t;
-
- public:
-  typedef typename convex_topology<Dims>::point_type point_type;
-
-  explicit ball_topology(double radius = 1.0) 
-    : gen_ptr(new RandomNumberGenerator), rand(new rand_t(*gen_ptr)), 
-      radius(radius) 
-  { }
-
-  ball_topology(RandomNumberGenerator& gen, double radius = 1.0) 
-    : gen_ptr(), rand(new rand_t(gen)), radius(radius) { }
-                     
-  point_type random_point() const 
-  {
-    point_type p;
-    double dist_sum;
-    do {
-      dist_sum = 0.0;
-      for (std::size_t i = 0; i < Dims; ++i) {
-        double x = (*rand)() * 2*radius - radius;
-        p[i] = x;
-        dist_sum += x * x;
-      }
-    } while (dist_sum > radius*radius);
-    return p;
-  }
-
- private:
-  shared_ptr<RandomNumberGenerator> gen_ptr;
-  shared_ptr<rand_t> rand;
-  double radius;
-};
-
-template<typename RandomNumberGenerator = minstd_rand>
-class circle_topology : public ball_topology<2, RandomNumberGenerator>
-{
-  typedef ball_topology<2, RandomNumberGenerator> inherited;
-
- public:
-  explicit circle_topology(double radius = 1.0) : inherited(radius) { }
-  
-  circle_topology(RandomNumberGenerator& gen, double radius = 1.0) 
-    : inherited(gen, radius) { }
-};
-
-template<typename RandomNumberGenerator = minstd_rand>
-class sphere_topology : public ball_topology<3, RandomNumberGenerator>
-{
-  typedef ball_topology<3, RandomNumberGenerator> inherited;
-
- public:
-  explicit sphere_topology(double radius = 1.0) : inherited(radius) { }
-  
-  sphere_topology(RandomNumberGenerator& gen, double radius = 1.0) 
-    : inherited(gen, radius) { }
-};
-
-template<typename RandomNumberGenerator = minstd_rand>
-class heart_topology 
-{
-  // Heart is defined as the union of three shapes:
-  // Square w/ corners (+-1000, -1000), (0, 0), (0, -2000)
-  // Circle centered at (-500, -500) radius 500*sqrt(2)
-  // Circle centered at (500, -500) radius 500*sqrt(2)
-  // Bounding box (-1000, -2000) - (1000, 500*(sqrt(2) - 1))
-
-  struct point 
-  {
-    point() { values[0] = 0.0; values[1] = 0.0; }
-    point(double x, double y) { values[0] = x; values[1] = y; }
-
-    double& operator[](std::size_t i)       { return values[i]; }
-    double  operator[](std::size_t i) const { return values[i]; }
-
-  private:
-    double values[2];
-  };
-
-  bool in_heart(point p) const 
-  {
-#ifndef BOOST_NO_STDC_NAMESPACE
-    using std::abs;
-    using std::pow;
-#endif
-
-    if (p[1] < abs(p[0]) - 2000) return false; // Bottom
-    if (p[1] <= -1000) return true; // Diagonal of square
-    if (pow(p[0] - -500, 2) + pow(p[1] - -500, 2) <= 500000)
-      return true; // Left circle
-    if (pow(p[0] - 500, 2) + pow(p[1] - -500, 2) <= 500000)
-      return true; // Right circle
-    return false;
-  }
-
-  bool segment_within_heart(point p1, point p2) const 
-  {
-    // Assumes that p1 and p2 are within the heart
-    if ((p1[0] < 0) == (p2[0] < 0)) return true; // Same side of symmetry line
-    if (p1[0] == p2[0]) return true; // Vertical
-    double slope = (p2[1] - p1[1]) / (p2[0] - p1[0]);
-    double intercept = p1[1] - p1[0] * slope;
-    if (intercept > 0) return false; // Crosses between circles
-    return true;
-  }
-
-  typedef uniform_01<RandomNumberGenerator, double> rand_t;
-
- public:
-  typedef point point_type;
-
-  heart_topology() 
-    : gen_ptr(new RandomNumberGenerator), rand(new rand_t(*gen_ptr)) { }
-
-  heart_topology(RandomNumberGenerator& gen) 
-    : gen_ptr(), rand(new rand_t(gen)) { }
-
-  point random_point() const 
-  {
-#ifndef BOOST_NO_STDC_NAMESPACE
-    using std::sqrt;
-#endif
-
-    point result;
-    double sqrt2 = sqrt(2.);
-    do {
-      result[0] = (*rand)() * (1000 + 1000 * sqrt2) - (500 + 500 * sqrt2);
-      result[1] = (*rand)() * (2000 + 500 * (sqrt2 - 1)) - 2000;
-    } while (!in_heart(result));
-    return result;
-  }
-
-  double distance(point a, point b) const 
-  {
-#ifndef BOOST_NO_STDC_NAMESPACE
-    using std::sqrt;
-#endif
-    if (segment_within_heart(a, b)) {
-      // Straight line
-      return sqrt((b[0] - a[0]) * (b[0] - a[0]) + (b[1] - a[1]) * (b[1] - a[1]));
-    } else {
-      // Straight line bending around (0, 0)
-      return sqrt(a[0] * a[0] + a[1] * a[1]) + sqrt(b[0] * b[0] + b[1] * b[1]);
-    }
-  }
-
-  point move_position_toward(point a, double fraction, point b) const 
-  {
-#ifndef BOOST_NO_STDC_NAMESPACE
-    using std::sqrt;
-#endif
-
-    if (segment_within_heart(a, b)) {
-      // Straight line
-      return point(a[0] + (b[0] - a[0]) * fraction,
-                   a[1] + (b[1] - a[1]) * fraction);
-    } else {
-      double distance_to_point_a = sqrt(a[0] * a[0] + a[1] * a[1]);
-      double distance_to_point_b = sqrt(b[0] * b[0] + b[1] * b[1]);
-      double location_of_point = distance_to_point_a / 
-                                   (distance_to_point_a + distance_to_point_b);
-      if (fraction < location_of_point)
-        return point(a[0] * (1 - fraction / location_of_point), 
-                     a[1] * (1 - fraction / location_of_point));
-      else
-        return point(
-          b[0] * ((fraction - location_of_point) / (1 - location_of_point)),
-          b[1] * ((fraction - location_of_point) / (1 - location_of_point)));
-    }
-  }
-
- private:
-  shared_ptr<RandomNumberGenerator> gen_ptr;
-  shared_ptr<rand_t> rand;
-};
 
 } // namespace boost
 

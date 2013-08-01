@@ -22,7 +22,8 @@
 
 namespace boost { namespace numeric { namespace ublas {
 
-    // Matrix based row vector class
+    /** \brief 
+     */
     template<class M>
     class matrix_row:
         public vector_expression<matrix_row<M> > {
@@ -1856,6 +1857,7 @@ namespace boost { namespace numeric { namespace ublas {
     : vector_temporary_traits< M > {} ;
 
     // Matrix based vector indirection class
+
     template<class M, class IA>
     class matrix_vector_indirect:
         public vector_expression<matrix_vector_indirect<M, IA> > {
@@ -4162,6 +4164,24 @@ namespace boost { namespace numeric { namespace ublas {
     // Matrix based indirection class
     // Contributed by Toon Knapen.
     // Extended and optimized by Kresimir Fresl.
+    /** \brief A matrix referencing a non continuous submatrix of elements given another matrix of indices.
+     *
+     * It is the most general version of any submatrices because it uses another matrix of indices to reference
+     * the submatrix. 
+     *
+     * The matrix of indices can be of any type with the restriction that its elements must be
+     * type-compatible with the size_type \c of the container. In practice, the following are good candidates:
+     * - \c boost::numeric::ublas::indirect_array<A> where \c A can be \c int, \c size_t, \c long, etc...
+     * - \c boost::numeric::ublas::matrix<int> can work too (\c int can be replaced by another integer type)
+     * - etc...
+     *
+     * An indirect matrix can be used as a normal matrix in any expression. If the specified indirect matrix 
+     * falls outside that of the indices of the matrix, then the \c matrix_indirect is not a well formed 
+     * \i Matrix \i Expression and access to an element outside of indices of the matrix is \b undefined.
+     *
+     * \tparam V the type of the referenced matrix, for example \c matrix<double>)
+     * \tparam IA the type of index matrix. Default is \c ublas::indirect_array<>
+     */
     template<class M, class IA>
     class matrix_indirect:
         public matrix_expression<matrix_indirect<M, IA> > {

@@ -53,12 +53,12 @@ struct pfto_wrapper {
 };
 
 template<class T>
-pfto_wrapper<T> make_pfto_wrapper(const T & t, BOOST_PFTO int){
-    return pfto_wrapper<T>(t);
+pfto_wrapper< T > make_pfto_wrapper(const T & t, BOOST_PFTO int){
+    return pfto_wrapper< T >(t);
 }
 
 template<class T>
-pfto_wrapper<T> make_pfto_wrapper(const pfto_wrapper<T> & t, int){
+pfto_wrapper< T > make_pfto_wrapper(const pfto_wrapper< T > & t, int){
     return t;
 }
 
@@ -67,7 +67,7 @@ pfto_wrapper<T> make_pfto_wrapper(const pfto_wrapper<T> & t, int){
 
 #ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
     #define BOOST_PFTO_WRAPPER(T) \
-        boost::serialization::pfto_wrapper<T>
+        boost::serialization::pfto_wrapper< T >
     #define BOOST_MAKE_PFTO_WRAPPER(t) \
         boost::serialization::make_pfto_wrapper(t, 0)
 #else

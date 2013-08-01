@@ -8,6 +8,7 @@
 #ifndef BOOST_ACCUMULATORS_STATISTICS_WEIGHTED_P_SQUARE_QUANTILE_HPP_DE_01_01_2006
 #define BOOST_ACCUMULATORS_STATISTICS_WEIGHTED_P_SQUARE_QUANTILE_HPP_DE_01_01_2006
 
+#include <cmath>
 #include <functional>
 #include <boost/array.hpp>
 #include <boost/parameter/keyword.hpp>
@@ -241,6 +242,9 @@ namespace extract
 {
     extractor<tag::weighted_p_square_quantile> const weighted_p_square_quantile = {};
     extractor<tag::weighted_p_square_quantile_for_median> const weighted_p_square_quantile_for_median = {};
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_p_square_quantile)
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_p_square_quantile_for_median)
 }
 
 using extract::weighted_p_square_quantile;

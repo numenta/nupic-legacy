@@ -15,7 +15,6 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 //  See http://www.boost.org for updates, documentation, and revision history.
-#include <string>
 #include <cstddef> // NULL
 #include <boost/cstdint.hpp>
 #include <boost/mpl/bool.hpp>

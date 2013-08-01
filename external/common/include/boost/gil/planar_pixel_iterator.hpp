@@ -54,13 +54,13 @@ struct planar_pixel_reference;
 template <typename ChannelPtr, typename ColorSpace>
 struct planar_pixel_iterator : public iterator_facade<planar_pixel_iterator<ChannelPtr,ColorSpace>,
                                                       pixel<typename std::iterator_traits<ChannelPtr>::value_type,layout<ColorSpace> >,
-                                                      random_access_traversal_tag,
+                                                      std::random_access_iterator_tag,
                                                       const planar_pixel_reference<typename std::iterator_traits<ChannelPtr>::reference,ColorSpace> >,
                                public detail::homogeneous_color_base<ChannelPtr,layout<ColorSpace>,mpl::size<ColorSpace>::value > {
 private:
     typedef iterator_facade<planar_pixel_iterator<ChannelPtr,ColorSpace>,
                             pixel<typename std::iterator_traits<ChannelPtr>::value_type,layout<ColorSpace> >,
-                            random_access_traversal_tag,
+                            std::random_access_iterator_tag,
                             const planar_pixel_reference<typename std::iterator_traits<ChannelPtr>::reference,ColorSpace> > parent_t;
     typedef detail::homogeneous_color_base<ChannelPtr,layout<ColorSpace>,mpl::size<ColorSpace>::value> color_base_parent_t;
     typedef typename std::iterator_traits<ChannelPtr>::value_type channel_t;
@@ -109,8 +109,8 @@ public:
     reference operator->()                        const { return **this; }
 
     // PERFORMANCE_CHECK: Remove?
-    bool operator< (const planar_pixel_iterator& ptr)   const { return at_c<0>(*this)< at_c<0>(ptr); }
-    bool operator!=(const planar_pixel_iterator& ptr)   const { return at_c<0>(*this)!=at_c<0>(ptr); }
+    bool operator< (const planar_pixel_iterator& ptr)   const { return gil::at_c<0>(*this)< gil::at_c<0>(ptr); }
+    bool operator!=(const planar_pixel_iterator& ptr)   const { return gil::at_c<0>(*this)!=gil::at_c<0>(ptr); }
 private:
     friend class boost::iterator_core_access;
 
@@ -119,8 +119,8 @@ private:
     void advance(ptrdiff_t d)   { static_transform(*this,*this,std::bind2nd(detail::plus_asymmetric<ChannelPtr,ptrdiff_t>(),d)); }
     reference dereference() const { return this->template deref<reference>(); }
 
-    ptrdiff_t distance_to(const planar_pixel_iterator& it) const { return at_c<0>(it)-at_c<0>(*this); }
-    bool equal(const planar_pixel_iterator& it) const { return at_c<0>(*this)==at_c<0>(it); }
+    ptrdiff_t distance_to(const planar_pixel_iterator& it) const { return gil::at_c<0>(it)-gil::at_c<0>(*this); }
+    bool equal(const planar_pixel_iterator& it) const { return gil::at_c<0>(*this)==gil::at_c<0>(it); }
 };
 
 namespace detail {
@@ -184,7 +184,7 @@ inline std::ptrdiff_t memunit_step(const planar_pixel_iterator<IC,C>&) { return 
 
 template <typename IC, typename C>
 inline std::ptrdiff_t memunit_distance(const planar_pixel_iterator<IC,C>& p1, const planar_pixel_iterator<IC,C>& p2) { 
-    return memunit_distance(at_c<0>(p1),at_c<0>(p2)); 
+    return memunit_distance(gil::at_c<0>(p1),gil::at_c<0>(p2)); 
 }
 
 template <typename IC>

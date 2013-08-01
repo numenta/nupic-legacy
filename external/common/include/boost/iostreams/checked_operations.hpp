@@ -14,12 +14,14 @@
 #include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/detail/dispatch.hpp>
 #include <boost/iostreams/detail/error.hpp>
+#include <boost/iostreams/detail/config/unreachable_return.hpp>
 #include <boost/iostreams/get.hpp>
 #include <boost/iostreams/put.hpp>
 #include <boost/iostreams/read.hpp>
 #include <boost/iostreams/seek.hpp>
 #include <boost/iostreams/traits.hpp>
 #include <boost/iostreams/write.hpp>
+#include <boost/throw_exception.hpp>
 
 // Must come last.
 #include <boost/iostreams/detail/config/disable_warnings.hpp>  // MSVC.
@@ -93,24 +95,28 @@ struct read_write_if_impl<input> {
 
     template<typename T>
     static bool put(T&, typename char_type_of<T>::type)
-    { throw cant_write(); }
+    { boost::throw_exception(cant_write());
+      BOOST_IOSTREAMS_UNREACHABLE_RETURN(false) }
 
     template<typename T>
     static std::streamsize 
     write(T&, const typename char_type_of<T>::type*, std::streamsize)
-    { throw cant_write(); }
+    { boost::throw_exception(cant_write());
+      BOOST_IOSTREAMS_UNREACHABLE_RETURN(0) }
 };
 
 template<>
 struct read_write_if_impl<output> {
     template<typename T>
     static typename int_type_of<T>::type get(T&)
-    { throw cant_read(); }
+    { boost::throw_exception(cant_read());
+      BOOST_IOSTREAMS_UNREACHABLE_RETURN(0) }
 
     template<typename T>
     static std::streamsize
     read(T&, typename char_type_of<T>::type*, std::streamsize)
-    { throw cant_read(); }
+    { boost::throw_exception(cant_read());
+      BOOST_IOSTREAMS_UNREACHABLE_RETURN(0) }
 
     template<typename T>
     static bool put(T& t, typename char_type_of<T>::type c)
@@ -139,7 +145,8 @@ struct seek_if_impl<any_tag> {
     template<typename T>
     static std::streampos 
     seek(T&, stream_offset, BOOST_IOS::seekdir, BOOST_IOS::openmode)
-    { throw cant_seek(); }
+    { boost::throw_exception(cant_seek());
+      BOOST_IOSTREAMS_UNREACHABLE_RETURN(std::streampos()) }
 };
 
 } // End namespace detail.

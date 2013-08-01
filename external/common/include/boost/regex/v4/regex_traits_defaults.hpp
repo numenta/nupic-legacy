@@ -84,7 +84,7 @@ inline bool is_combining<unsigned char>(unsigned char)
 {
    return false;
 }
-#ifndef __hpux // can't use WCHAR_MAX/MIN in pp-directives
+#if !defined(__hpux) && !defined(__WINSCW__) // can't use WCHAR_MAX/MIN in pp-directives
 #ifdef _MSC_VER 
 template<>
 inline bool is_combining<wchar_t>(wchar_t c)
@@ -159,7 +159,7 @@ struct character_pointer_range
 template <class charT>
 int get_default_class_id(const charT* p1, const charT* p2)
 {
-   static const charT data[72] = {
+   static const charT data[73] = {
       'a', 'l', 'n', 'u', 'm',
       'a', 'l', 'p', 'h', 'a',
       'b', 'l', 'a', 'n', 'k',
@@ -172,11 +172,12 @@ int get_default_class_id(const charT* p1, const charT* p2)
       's', 'p', 'a', 'c', 'e',
       'u', 'n', 'i', 'c', 'o', 'd', 'e',
       'u', 'p', 'p', 'e', 'r',
+      'v',
       'w', 'o', 'r', 'd',
       'x', 'd', 'i', 'g', 'i', 't',
    };
 
-   static const character_pointer_range<charT> ranges[19] = 
+   static const character_pointer_range<charT> ranges[21] = 
    {
       {data+0, data+5,}, // alnum
       {data+5, data+10,}, // alpha
@@ -185,6 +186,7 @@ int get_default_class_id(const charT* p1, const charT* p2)
       {data+20, data+21,}, // d
       {data+20, data+25,}, // digit
       {data+25, data+30,}, // graph
+      {data+29, data+30,}, // h
       {data+30, data+31,}, // l
       {data+30, data+35,}, // lower
       {data+35, data+40,}, // print
@@ -194,9 +196,10 @@ int get_default_class_id(const charT* p1, const charT* p2)
       {data+57, data+58,}, // u
       {data+50, data+57,}, // unicode
       {data+57, data+62,}, // upper
-      {data+62, data+63,}, // w
-      {data+62, data+66,}, // word
-      {data+66, data+72,}, // xdigit
+      {data+62, data+63,}, // v
+      {data+63, data+64,}, // w
+      {data+63, data+67,}, // word
+      {data+67, data+73,}, // xdigit
    };
    static const character_pointer_range<charT>* ranges_begin = ranges;
    static const character_pointer_range<charT>* ranges_end = ranges + (sizeof(ranges)/sizeof(ranges[0]));
@@ -312,6 +315,43 @@ int global_toi(const charT*& p1, const charT* p2, int radix, const traits& t)
       ++p1;
    }
    return result;
+}
+
+template <class charT>
+inline const charT* get_escape_R_string()
+{
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4309 4245)
+#endif
+   static const charT e1[] = { '(', '?', '>', '\x0D', '\x0A', '?', 
+      '|', '[', '\x0A', '\x0B', '\x0C', '\x85', '\\', 'x', '{', '2', '0', '2', '8', '}', 
+                '\\', 'x', '{', '2', '0', '2', '9', '}', ']', ')', '\0' };
+   static const charT e2[] = { '(', '?', '>', '\x0D', '\x0A', '?', 
+      '|', '[', '\x0A', '\x0B', '\x0C', '\x85', ']', ')', '\0' };
+
+   charT c = static_cast<charT>(0x2029u);
+   bool b = (static_cast<unsigned>(c) == 0x2029u);
+   
+   return (b ? e1 : e2);
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
+}
+
+template <>
+inline const char* get_escape_R_string<char>()
+{
+#ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4309)
+#endif
+   static const char e2[] = { '(', '?', '>', '\x0D', '\x0A', '?', 
+      '|', '[', '\x0A', '\x0B', '\x0C', '\x85', ']', ')', '\0' };
+   return e2;
+#ifdef BOOST_MSVC
+#  pragma warning(pop)
+#endif
 }
 
 } // re_detail

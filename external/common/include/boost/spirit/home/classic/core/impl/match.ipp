@@ -19,12 +19,12 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     : len(-1), val() {}
 
     template <typename T>
-    inline match<T>::match(std::size_t length)
-    : len(length), val() {}
+    inline match<T>::match(std::size_t length_)
+    : len(length_), val() {}
 
     template <typename T>
-    inline match<T>::match(std::size_t length, ctor_param_t val_)
-    : len(length), val(val_) {}
+    inline match<T>::match(std::size_t length_, ctor_param_t val_)
+    : len(length_), val(val_) {}
 
     template <typename T>
     inline bool
@@ -66,11 +66,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     inline match<nil_t>::match()
     : len(-1) {}
 
-    inline match<nil_t>::match(std::size_t length)
-    : len(length) {}
+    inline match<nil_t>::match(std::size_t length_)
+    : len(length_) {}
 
-    inline match<nil_t>::match(std::size_t length, nil_t)
-    : len(length) {}
+    inline match<nil_t>::match(std::size_t length_, nil_t)
+    : len(length_) {}
 
     inline bool
     match<nil_t>::operator!() const

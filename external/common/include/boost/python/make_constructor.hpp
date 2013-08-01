@@ -105,12 +105,12 @@ namespace detail
       // If the BasePolicy_ supplied a result converter it would be
       // ignored; issue an error if it's not the default.
 #if defined _MSC_VER && _MSC_VER < 1300
-	  typedef is_same<
+      typedef is_same<
               typename BasePolicy_::result_converter
             , default_result_converter
           > same_result_converter;
-	  //see above for explanation
-	  BOOST_STATIC_ASSERT(same_result_converter::value) ;
+      //see above for explanation
+      BOOST_STATIC_ASSERT(same_result_converter::value) ;
 #else
       BOOST_MPL_ASSERT_MSG(
          (is_same<

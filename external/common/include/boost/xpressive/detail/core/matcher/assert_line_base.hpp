@@ -31,10 +31,10 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename Traits::char_class_type char_class_type;
 
     protected:
-        assert_line_base(Traits const &traits)
-            : newline_(lookup_classname(traits, "newline"))
-            , nl_(traits.widen('\n'))
-            , cr_(traits.widen('\r'))
+        assert_line_base(Traits const &tr)
+            : newline_(lookup_classname(tr, "newline"))
+            , nl_(tr.widen('\n'))
+            , cr_(tr.widen('\r'))
         {
         }
 

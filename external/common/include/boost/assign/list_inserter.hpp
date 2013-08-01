@@ -40,7 +40,7 @@ namespace assign_detail
         std::size_t  sz;
         T            val;
 
-        repeater( std::size_t sz, T r ) : sz( sz ), val( r )
+        repeater( std::size_t sz_, T r ) : sz( sz_ ), val( r )
         { }
     };
     
@@ -50,7 +50,7 @@ namespace assign_detail
         std::size_t  sz;
         Fun          val;
         
-        fun_repeater( std::size_t sz, Fun r ) : sz( sz ), val( r )
+        fun_repeater( std::size_t sz_, Fun r ) : sz( sz_ ), val( r )
         { }
     };
     

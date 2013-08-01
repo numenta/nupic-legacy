@@ -17,6 +17,7 @@
 #include "boost/lambda/detail/operator_actions.hpp"
 #include "boost/lambda/detail/operator_return_type_traits.hpp"
 
-#include "boost/lambda/detail/control_structures_impl.hpp"
+#include "boost/lambda/if.hpp"
+#include "boost/lambda/loops.hpp"
 
 #endif

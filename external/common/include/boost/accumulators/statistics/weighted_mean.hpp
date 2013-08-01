@@ -149,6 +149,8 @@ namespace extract
 {
     extractor<tag::mean> const weighted_mean = {};
     BOOST_ACCUMULATORS_DEFINE_EXTRACTOR(tag, weighted_mean_of_variates, (typename)(typename))
+
+    BOOST_ACCUMULATORS_IGNORE_GLOBAL(weighted_mean)
 }
 
 using extract::weighted_mean;

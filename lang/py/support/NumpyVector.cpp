@@ -31,7 +31,12 @@
 
 
 //#define NO_IMPORT_ARRAY
+#ifdef _PY27 
+#include <python2.7/Python.h>
+#else
 #include <python2.6/Python.h>
+#endif
+
 #include <numpy/arrayobject.h>
 
 // workaround for change in numpy config.h for python2.5 on windows
@@ -212,7 +217,7 @@ int NumpyArray::stride(int i) const
 PyObject *NumpyArray::forPython() {
   if(p_) {
     Py_XINCREF(p_);
-    PyObject *toReturn = PyArray_Return(p_);
+    PyObject *toReturn = PyArray_Return((PyArrayObject *)p_);
     return toReturn;
   }
   else return 0;

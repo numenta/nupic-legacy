@@ -54,7 +54,7 @@ class dynamic_bitset
   // of VC++ are likely able to digest a more drinking form of the
   // code; but changing it now is probably not worth the risks...]
 
-  BOOST_STATIC_ASSERT(detail::dynamic_bitset_impl::allowed_block_type<Block>::value);
+  BOOST_STATIC_ASSERT((bool)detail::dynamic_bitset_impl::allowed_block_type<Block>::value);
 
 public:
     typedef Block block_type;
@@ -476,24 +476,18 @@ BOOST_DYNAMIC_BITSET_PRIVATE:
 
 };
 
-#if defined(__IBMCPP__) && BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(600))
+#if !defined BOOST_NO_INCLASS_MEMBER_INITIALIZATION
 
-// Workaround for IBM's AIX platform.
-// See http://comments.gmane.org/gmane.comp.lib.boost.user/15331
-//
-// NOTE:
-//  The compiler is actually right, until core issue 454 will be settled:
-//   <http://www.open-std.org/JTC1/SC22/WG21/docs/cwg_active.html#454>
-//
-//  It's arguable whether we want to mark this with BOOST_WORKAROUND or not.
-
-
-template<typename Block, typename Allocator>
-dynamic_bitset<Block, Allocator>::block_width_type const
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::block_width_type
 dynamic_bitset<Block, Allocator>::bits_per_block;
 
-template<typename Block, typename Allocator>
-dynamic_bitset<Block, Allocator>::block_width_type const
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::size_type
+dynamic_bitset<Block, Allocator>::npos;
+
+template <typename Block, typename Allocator>
+const typename dynamic_bitset<Block, Allocator>::block_width_type
 dynamic_bitset<Block, Allocator>::ulong_width;
 
 #endif
@@ -676,7 +670,7 @@ resize(size_type num_bits, bool value) // strong guarantee
 
   if (value && (num_bits > m_num_bits)) {
 
-    const size_type extra_bits = count_extra_bits();
+    const block_width_type extra_bits = count_extra_bits();
     if (extra_bits) {
         assert(old_num_blocks >= 1 && old_num_blocks <= m_bits.size());
 
@@ -1005,20 +999,26 @@ dynamic_bitset<Block, Allocator>::count() const
     using detail::dynamic_bitset_impl::access_by_blocks;
     using detail::dynamic_bitset_impl::value_to_type;
 
+#if BOOST_WORKAROUND(__GNUC__, == 4) && (__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ == 3)
+    // NOTE: Explicit qualification of "bits_per_block"
+    //       breaks compilation on gcc 4.3.3
+    enum { no_padding = bits_per_block == CHAR_BIT * sizeof(Block) };
+#else
     // NOTE: Explicitly qualifying "bits_per_block" to workaround
     //       regressions of gcc 3.4.x
-    const bool no_padding =
+    enum { no_padding =
         dynamic_bitset<Block, Allocator>::bits_per_block
-        == CHAR_BIT * sizeof(Block);
+        == CHAR_BIT * sizeof(Block) };
+#endif
 
-    const bool enough_table_width = table_width >= CHAR_BIT;
+    enum { enough_table_width = table_width >= CHAR_BIT };
 
-    const bool mode = (no_padding && enough_table_width)
+    enum { mode = (no_padding && enough_table_width)
                           ? access_by_bytes
-                          : access_by_blocks;
+                          : access_by_blocks };
 
     return do_count(m_bits.begin(), num_blocks(), Block(0),
-                                       static_cast<value_to_type<mode> *>(0));
+                    static_cast<value_to_type<(bool)mode> *>(0));
 }
 
 
@@ -1108,10 +1108,10 @@ to_ulong() const
   // beyond the "allowed" positions
   typedef unsigned long result_type;
 
-  const size_type max_size =
+  const size_type maximum_size =
             (std::min)(m_num_bits, static_cast<size_type>(ulong_width));
 
-  const size_type last_block = block_index( max_size - 1 );
+  const size_type last_block = block_index( maximum_size - 1 );
 
   assert((last_block * bits_per_block) < static_cast<size_type>(ulong_width));
 

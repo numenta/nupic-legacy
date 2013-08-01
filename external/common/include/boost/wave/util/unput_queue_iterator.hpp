@@ -5,7 +5,7 @@
     
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -30,116 +30,6 @@ namespace boost {
 namespace wave {
 namespace util {
 
-#if !defined(BOOST_ITERATOR_ADAPTORS_VERSION) || \
-    BOOST_ITERATOR_ADAPTORS_VERSION < 0x0200
-
-template <typename TokenT, typename ContainerT>
-class unput_queue_policies : public boost::default_iterator_policies
-{
-public:
-    unput_queue_policies(ContainerT &unput_queue_)
-    :   unput_queue(unput_queue_)
-    {}
-    
-    unput_queue_policies &operator= (unput_queue_policies const &rhs)
-    { 
-        unput_queue = rhs.unput_queue; 
-        return *this; 
-    }
-    
-    template <typename BaseT>
-    void initialize(BaseT &)
-    {}
-
-    template <typename IteratorAdaptorT>
-    typename IteratorAdaptorT::reference 
-    dereference(const IteratorAdaptorT &x) const
-    { 
-        if (x.policies().unput_queue.size() > 0)
-            return x.policies().unput_queue.front();
-        return *x.base(); 
-    }
-
-    template <typename IteratorAdaptorT>
-    void 
-    increment(IteratorAdaptorT &x)
-    { 
-        if (x.policies().unput_queue.size() > 0) {
-        // there exist pending tokens in the unput queue
-            x.policies().unput_queue.pop_front();
-        }
-        else {
-        // the unput_queue is empty, so advance the base iterator
-            ++x.base(); 
-        }
-    }
-
-    template <typename IteratorAdaptorT1, typename IteratorAdaptorT2>
-    bool 
-    equal(const IteratorAdaptorT1 &x, const IteratorAdaptorT2 &y) const
-    { 
-    // two iterators are equal, if both begin() iterators of the queue objects
-    // are equal and the base iterators are equal as well
-        return 
-           (x.policies().unput_queue.begin() == y.policies().unput_queue.begin() ||
-            (0 == x.policies().queuesize() && 0 == y.policies().queuesize())) &&
-            x.base() == y.base(); 
-    }
-    
-    typename ContainerT::size_type queuesize() const 
-    { return unput_queue.size(); }
-
-    ContainerT &get_unput_queue() { return unput_queue; }
-    ContainerT const &get_unput_queue() const { return unput_queue; }
-    
-private:
-    ContainerT &unput_queue;
-};
-
-///////////////////////////////////////////////////////////////////////////////
-//
-//  unput_queue_iterator
-//
-//      The unput_queue_iterator templates encapsulates an unput_queue together
-//      with the direct input to be read after the unput queue is emptied
-//
-//      This version is for the old iterator_adaptors (Boost V1.30.x)
-//
-///////////////////////////////////////////////////////////////////////////////
-template <typename IteratorT, typename TokenT, typename ContainerT>
-class unput_queue_iterator 
-:   public boost::iterator_adaptor<
-        IteratorT, unput_queue_policies<TokenT, ContainerT>, TokenT, 
-        TokenT const &, TokenT const *>
-{
-    typedef 
-        boost::iterator_adaptor<
-            IteratorT, unput_queue_policies<TokenT, ContainerT>, TokenT, 
-            TokenT const &, TokenT const *
-        >
-        base_type;
-    typedef unput_queue_policies<TokenT, ContainerT> policies_type;
-        
-public:
-    typedef ContainerT  container_type;
-    typedef IteratorT   iterator_type;
-    
-    unput_queue_iterator(IteratorT const &it, ContainerT &queue)
-    :   base_type(it, policies_type(queue))
-    {}
-    
-    ContainerT &get_unput_queue() 
-        { return policies().get_unput_queue(); }
-    ContainerT const &get_unput_queue() const 
-        { return policies().get_unput_queue(); }
-    IteratorT &get_base_iterator() 
-        { return base(); }
-    IteratorT const &get_base_iterator() const 
-        { return base(); }
-};
-
-#else // BOOST_ITERATOR_ADAPTORS_VERSION < 0x0200
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 //  unput_queue_iterator
@@ -161,7 +51,7 @@ class unput_queue_iterator
                 unput_queue_iterator<IteratorT, TokenT, ContainerT>, 
                 IteratorT, TokenT const, std::forward_iterator_tag>
         base_type;
-        
+
 public:
     typedef ContainerT  container_type;
     typedef IteratorT   iterator_type;
@@ -219,19 +109,17 @@ public:
     // objects are equal and the base iterators are equal as well
         OtherDerivedT const &rhs = static_cast<OtherDerivedT const &>(x);
         return 
-            (unput_queue.empty() && rhs.unput_queue.empty() ||
+            ((unput_queue.empty() && rhs.unput_queue.empty()) ||
               (&unput_queue == &rhs.unput_queue &&
                unput_queue.begin() == rhs.unput_queue.begin()
               )
             ) &&
-            get_base_iterator() == rhs.get_base_iterator(); 
+            (get_base_iterator() == rhs.get_base_iterator()); 
     }
 
 private:
     ContainerT &unput_queue;
 };
-
-#endif // BOOST_ITERATOR_ADAPTORS_VERSION < 0x0200
 
 namespace impl {
 
@@ -243,9 +131,9 @@ namespace impl {
         typedef IteratorT iterator_type;
         typedef unput_queue_iterator<IteratorT, TokenT, ContainerT> 
             return_type;
-                
+
         static container_type last;
-        
+
         static return_type
         generate(iterator_type const &it)
         {
@@ -258,7 +146,7 @@ namespace impl {
             return return_type(it, queue);
         }
     };
-    
+
     template <typename IteratorT, typename TokenT, typename ContainerT>
     typename gen_unput_queue_iterator<IteratorT, TokenT, ContainerT>::
           container_type  
@@ -277,52 +165,32 @@ namespace impl {
             iterator_type;
         typedef unput_queue_iterator<IteratorT, TokenT, ContainerT> 
             return_type;
-        
+
         static container_type last;
-        
+
         static return_type 
         generate(iterator_type &it)
         {
-            return return_t(it.base(), last);
+            return return_type(it.base(), last);
         }
 
         static return_type 
         generate(ContainerT &queue, iterator_type &it)
         {
-            return return_t(it.base(), queue);
+            return return_type(it.base(), queue);
         }
     };
-    
+
     ///////////////////////////////////////////////////////////////////////////
     template <typename IteratorT>
-    struct assign_iterator {
-    
+    struct assign_iterator 
+    {
         static void 
         do_ (IteratorT &dest, IteratorT const &src)
         {
             dest = src;
         }
     };
-    
-#if !defined(BOOST_ITERATOR_ADAPTORS_VERSION) || \
-    BOOST_ITERATOR_ADAPTORS_VERSION < 0x0200
-    
-    template <typename IteratorT, typename TokenT, typename ContainerT>
-    struct assign_iterator<
-        unput_queue_iterator<IteratorT, TokenT, ContainerT> > 
-    {
-        typedef unput_queue_iterator<IteratorT, TokenT, ContainerT> 
-            iterator_type;
-        
-        static void 
-        do_ (iterator_type &dest, iterator_type const &src)
-        {
-            dest.base() = src.base();
-            dest.policies() = src.policies();
-        }
-    };
-    
-#endif // BOOST_ITERATOR_ADAPTORS_VERSION < 0x0200
 
     ///////////////////////////////////////////////////////////////////////////
     //
@@ -330,8 +198,8 @@ namespace impl {
     // Note though, that the embedded unput_queues are not touched in any way!
     //
     template <typename IteratorT>
-    struct next_token {
-    
+    struct next_token 
+    {
         static boost::wave::token_id  
         peek(IteratorT it, IteratorT end, bool skip_whitespace = true)
         {
@@ -353,26 +221,26 @@ namespace impl {
             return T_EOI;
         }
     };
-    
+
     template <typename IteratorT, typename TokenT, typename ContainerT>
     struct next_token<
         unput_queue_iterator<IteratorT, TokenT, ContainerT> > {
-        
+
         typedef unput_queue_iterator<IteratorT, TokenT, ContainerT> iterator_type;
-        
+
         static boost::wave::token_id 
         peek(iterator_type it, iterator_type end, bool skip_whitespace = true)
         {
             using namespace boost::wave;
-            
+
         typename iterator_type::container_type &queue = it.get_unput_queue();
-        
+
         // first try to find it in the unput_queue
             if (0 != queue.size()) {
             typename iterator_type::container_type::iterator cit = queue.begin();
             typename iterator_type::container_type::iterator cend = queue.end();
 
-                if (skip_whitespace) {            
+                if (skip_whitespace) {
                     for (++cit; cit != cend; ++cit) {
                         if (!IS_CATEGORY(*cit, WhiteSpaceTokenType) &&
                             T_NEWLINE != token_id(*cit))
@@ -387,7 +255,7 @@ namespace impl {
                 if (cit != cend) 
                     return token_id(*cit);
             }
-            
+
         // second try to move on into the base iterator stream
         typename iterator_type::iterator_type base_it = it.get_base_iterator();
         typename iterator_type::iterator_type base_end = end.get_base_iterator();

@@ -53,8 +53,8 @@ namespace boost { namespace numeric { namespace ublas {
             else
                 *p = s;
         }
-        
-    public:   
+
+    public:
         // Construction and destruction
         sparse_vector_element (vector_type &v, size_type i):
             container_reference<vector_type> (v), i_ (i) {
@@ -260,7 +260,22 @@ namespace boost { namespace numeric { namespace ublas {
 #endif
 
 
-    // Index map based sparse vector class
+    /** \brief Index map based sparse vector
+     *
+     * A sparse vector of values of type T of variable size. The sparse storage type A can be 
+     * \c std::map<size_t, T> or \c map_array<size_t, T>. This means that only non-zero elements
+     * are effectively stored.
+     *
+     * For a \f$n\f$-dimensional sparse vector,  and 0 <= i < n the non-zero elements \f$v_i\f$ 
+     * are mapped to consecutive elements of the associative container, i.e. for elements 
+     * \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of the container, holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array are \c map_array<std::size_t, T> and 
+     * \c map_std<std::size_t, T>. The latter is equivalent to \c std::map<std::size_t, T>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam A the type of Storage array
+     */
     template<class T, class A>
     class mapped_vector:
         public vector_container<mapped_vector<T, A> > {
@@ -428,7 +443,7 @@ namespace boost { namespace numeric { namespace ublas {
                 return;
             data ().erase (it);
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -552,11 +567,11 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             return const_iterator (*this, data ().lower_bound (i));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             return iterator (*this, data ().lower_bound (i));
         }
@@ -755,8 +770,29 @@ namespace boost { namespace numeric { namespace ublas {
     const typename mapped_vector<T, A>::value_type mapped_vector<T, A>::zero_ = value_type/*zero*/();
 
 
-    // Compressed array based sparse vector class
     // Thanks to Kresimir Fresl for extending this to cover different index bases.
+    
+    /** \brief Compressed array based sparse vector
+     *
+     * a sparse vector of values of type T of variable size. The non zero values are stored as 
+     * two seperate arrays: an index array and a value array. The index array is always sorted 
+     * and there is at most one entry for each index. Inserting an element can be time consuming.
+     * If the vector contains a few zero entries, then it is better to have a normal vector.
+     * If the vector has a very high dimension with a few non-zero values, then this vector is
+     * very memory efficient (at the cost of a few more computations).
+     *
+     * For a \f$n\f$-dimensional compressed vector and \f$0 \leq i < n\f$ the non-zero elements 
+     * \f$v_i\f$ are mapped to consecutive elements of the index and value container, i.e. for 
+     * elements \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of these containers holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array (indices and values) are \c unbounded_array<> ,
+     * \c bounded_array<> and \c std::vector<>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam IB the index base of the compressed vector. Default is 0. Other supported value is 1
+     * \tparam IA the type of adapted array for indices. Default is \c unbounded_array<std::size_t>
+     * \tparam TA the type of adapted array for values. Default is unbounded_array<T>
+     */
     template<class T, std::size_t IB, class IA, class TA>
     class compressed_vector:
         public vector_container<compressed_vector<T, IB, IA, TA> > {
@@ -992,7 +1028,7 @@ namespace boost { namespace numeric { namespace ublas {
             }
             storage_invariants ();
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -1143,11 +1179,11 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             return const_iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             return iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
@@ -1374,9 +1410,29 @@ namespace boost { namespace numeric { namespace ublas {
     template<class T, std::size_t IB, class IA, class TA>
     const typename compressed_vector<T, IB, IA, TA>::value_type compressed_vector<T, IB, IA, TA>::zero_ = value_type/*zero*/();
 
-
-    // Coordimate array based sparse vector class
     // Thanks to Kresimir Fresl for extending this to cover different index bases.
+
+    /** \brief Coordimate array based sparse vector
+     *
+     * a sparse vector of values of type \c T of variable size. The non zero values are stored 
+     * as two seperate arrays: an index array and a value array. The arrays may be out of order 
+     * with multiple entries for each vector element. If there are multiple values for the same 
+     * index the sum of these values is the real value. It is way more efficient for inserting values
+     * than a \c compressed_vector but less memory efficient. Also linearly parsing a vector can 
+     * be longer in specific cases than a \c compressed_vector.
+     *
+     * For a n-dimensional sorted coordinate vector and \f$ 0 \leq i < n\f$ the non-zero elements 
+     * \f$v_i\f$ are mapped to consecutive elements of the index and value container, i.e. for 
+     * elements \f$k = v_{i_1}\f$ and \f$k + 1 = v_{i_2}\f$ of these containers holds \f$i_1 < i_2\f$.
+     *
+     * Supported parameters for the adapted array (indices and values) are \c unbounded_array<> ,
+     * \c bounded_array<> and \c std::vector<>.
+     *
+     * \tparam T the type of object stored in the vector (like double, float, complex, etc...)
+     * \tparam IB the index base of the compressed vector. Default is 0. Other supported value is 1
+     * \tparam IA the type of adapted array for indices. Default is \c unbounded_array<std::size_t>
+     * \tparam TA the type of adapted array for values. Default is unbounded_array<T>
+     */
     template<class T, std::size_t IB, class IA, class TA>
     class coordinate_vector:
         public vector_container<coordinate_vector<T, IB, IA, TA> > {
@@ -1479,7 +1535,6 @@ namespace boost { namespace numeric { namespace ublas {
             sorted_filled_ = sorted;
             filled_ = filled;
             storage_invariants ();
-            return filled_;
         }
         BOOST_UBLAS_INLINE
         index_array_type &index_data () {
@@ -1627,7 +1682,7 @@ namespace boost { namespace numeric { namespace ublas {
             }
             storage_invariants ();
         }
-        
+
         // Zeroing
         BOOST_UBLAS_INLINE
         void clear () {
@@ -1636,7 +1691,7 @@ namespace boost { namespace numeric { namespace ublas {
             sorted_ = true;
             storage_invariants ();
         }
-        
+
         // Assignment
         BOOST_UBLAS_INLINE
         coordinate_vector &operator = (const coordinate_vector &v) {
@@ -1746,17 +1801,64 @@ namespace boost { namespace numeric { namespace ublas {
             v1.swap (v2);
         }
 
+        // replacement if STL lower bound algorithm for use of inplace_merge
+        size_type lower_bound (size_type beg, size_type end, size_type target) const {
+            while (end > beg) {
+                size_type mid = (beg + end) / 2;
+                if (index_data_[mid] < index_data_[target]) {
+                    beg = mid + 1;
+                } else {
+                    end = mid;
+                }
+            }
+            return beg;
+        }
+
+        // specialized replacement of STL inplace_merge to avoid compilation
+        // problems with respect to the array_triple iterator
+        void inplace_merge (size_type beg, size_type mid, size_type end) const {
+            size_type len_lef = mid - beg;
+            size_type len_rig = end - mid;
+
+            if (len_lef == 1 && len_rig == 1) {
+                if (index_data_[mid] < index_data_[beg]) {
+                    std::swap(index_data_[beg], index_data_[mid]);
+                    std::swap(value_data_[beg], value_data_[mid]);
+                }
+            } else if (len_lef > 0 && len_rig > 0) {
+                size_type lef_mid, rig_mid;
+                if (len_lef >= len_rig) {
+                    lef_mid = (beg + mid) / 2;
+                    rig_mid = lower_bound(mid, end, lef_mid);
+                } else {
+                    rig_mid = (mid + end) / 2;
+                    lef_mid = lower_bound(beg, mid, rig_mid);
+                }
+                std::rotate(&index_data_[0] + lef_mid, &index_data_[0] + mid, &index_data_[0] + rig_mid);
+                std::rotate(&value_data_[0] + lef_mid, &value_data_[0] + mid, &value_data_[0] + rig_mid);
+
+                size_type new_mid = lef_mid + rig_mid - mid;
+                inplace_merge(beg, lef_mid, new_mid);
+                inplace_merge(new_mid, rig_mid, end);
+            }
+        }
+
         // Sorting and summation of duplicates
         BOOST_UBLAS_INLINE
         void sort () const {
             if (! sorted_ && filled_ > 0) {
                 typedef index_pair_array<index_array_type, value_array_type> array_pair;
                 array_pair ipa (filled_, index_data_, value_data_);
+#ifndef BOOST_UBLAS_COO_ALWAYS_DO_FULL_SORT
                 const typename array_pair::iterator iunsorted = ipa.begin () + sorted_filled_;
                 // sort new elements and merge
                 std::sort (iunsorted, ipa.end ());
-                std::inplace_merge (ipa.begin (), iunsorted, ipa.end ());
-                
+                inplace_merge(0, sorted_filled_, filled_);
+#else
+                const typename array_pair::iterator iunsorted = ipa.begin ();
+                std::sort (iunsorted, ipa.end ());
+#endif
+
                 // sum duplicates with += and remove
                 size_type filled = 0;
                 for (size_type i = 1; i < filled_; ++ i) {
@@ -1821,12 +1923,12 @@ namespace boost { namespace numeric { namespace ublas {
         class iterator;
 
         // Element lookup
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         const_iterator find (size_type i) const {
             sort ();
             return const_iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
         }
-        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.    
+        // BOOST_UBLAS_INLINE This function seems to be big. So we do not let the compiler inline it.
         iterator find (size_type i) {
             sort ();
             return iterator (*this, detail::lower_bound (index_data_.begin (), index_data_.begin () + filled_, k_based (i), std::less<size_type> ()));
@@ -2038,7 +2140,7 @@ namespace boost { namespace numeric { namespace ublas {
         size_type size_;
         size_type capacity_;
         mutable typename index_array_type::size_type filled_;
-        mutable typename index_array_type::size_type sorted_filled_; 
+        mutable typename index_array_type::size_type sorted_filled_;
         mutable bool sorted_;
         mutable index_array_type index_data_;
         mutable value_array_type value_data_;

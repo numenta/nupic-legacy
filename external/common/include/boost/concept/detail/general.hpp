@@ -5,6 +5,7 @@
 # define BOOST_CONCEPT_DETAIL_GENERAL_DWA2006429_HPP
 
 # include <boost/preprocessor/cat.hpp>
+# include <boost/concept/detail/backward_compatibility.hpp>
 
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
 #  include <boost/concept/detail/has_constraints.hpp>
@@ -13,7 +14,7 @@
 
 // This implementation works on Comeau and GCC, all the way back to
 // 2.95
-namespace boost { namespace concept {
+namespace boost { namespace concepts {
 
 template <class ModelFn>
 struct requirement_;
@@ -29,6 +30,14 @@ struct requirement
     static void failed() { ((Model*)0)->~Model(); }
 };
 
+struct failed {};
+
+template <class Model>
+struct requirement<failed ************ Model::************>
+{
+    static void failed() { ((Model*)0)->~Model(); }
+};
+
 # ifdef BOOST_OLD_CONCEPT_SUPPORT
 
 template <class Model>
@@ -40,9 +49,9 @@ struct constraint
 template <class Model>
 struct requirement_<void(*)(Model)>
   : mpl::if_<
-        concept::not_satisfied<Model>
+        concepts::not_satisfied<Model>
       , constraint<Model>
-      , requirement<Model>
+      , requirement<failed ************ Model::************>
     >::type
 {};
   
@@ -51,14 +60,14 @@ struct requirement_<void(*)(Model)>
 // For GCC-2.x, these can't have exactly the same name
 template <class Model>
 struct requirement_<void(*)(Model)>
-  : requirement<Model>
+    : requirement<failed ************ Model::************>
 {};
   
 # endif
 
 #  define BOOST_CONCEPT_ASSERT_FN( ModelFnPtr )             \
-    typedef ::boost::concept::detail::instantiate<          \
-    &::boost::concept::requirement_<ModelFnPtr>::failed>    \
+    typedef ::boost::concepts::detail::instantiate<          \
+    &::boost::concepts::requirement_<ModelFnPtr>::failed>    \
       BOOST_PP_CAT(boost_concept_check,__LINE__)
 
 }}

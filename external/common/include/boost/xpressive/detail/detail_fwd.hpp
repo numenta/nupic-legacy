@@ -39,11 +39,10 @@ namespace boost { namespace xpressive { namespace detail
     struct type_info_less;
 
     typedef std::map<std::type_info const *, void *, type_info_less> action_args_type;
-    
+
     struct action_context;
 
-    template<typename BidiIter>
-    struct replacement_context;
+    struct ReplaceAlgo;
 
     ///////////////////////////////////////////////////////////////////////////////
     // placeholders
@@ -212,11 +211,11 @@ namespace boost { namespace xpressive { namespace detail
     template<typename Traits>
     struct logical_newline_matcher;
 
-    typedef proto::terminal<logical_newline_placeholder>::type logical_newline_xpression;
+    typedef proto::expr<proto::tag::terminal, proto::term<logical_newline_placeholder>, 0> logical_newline_xpression;
 
     struct set_initializer;
 
-    typedef proto::terminal<set_initializer>::type set_initializer_type;
+    typedef proto::expr<proto::tag::terminal, proto::term<set_initializer>, 0> set_initializer_type;
 
     struct lookahead_tag;
 
@@ -287,6 +286,9 @@ namespace boost { namespace xpressive { namespace detail
     template<typename BidiIter>
     struct sub_match_impl;
 
+    template<typename T>
+    struct list;
+
     template<typename BidiIter>
     struct results_cache;
 
@@ -323,22 +325,22 @@ namespace boost { namespace xpressive { namespace detail
     struct memento;
 
     template<typename Char, typename Traits>
-    void set_char(compound_charset<Traits> &chset, Char ch, Traits const &traits, bool icase);
+    void set_char(compound_charset<Traits> &chset, Char ch, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &traits, bool icase);
+    void set_range(compound_charset<Traits> &chset, Char from, Char to, Traits const &tr, bool icase);
 
     template<typename Traits>
-    void set_class(compound_charset<Traits> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits);
+    void set_class(compound_charset<Traits> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr);
 
     template<typename Char, typename Traits>
-    void set_char(basic_chset<Char> &chset, Char ch, Traits const &traits, bool icase);
+    void set_char(basic_chset<Char> &chset, Char ch, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &traits, bool icase);
+    void set_range(basic_chset<Char> &chset, Char from, Char to, Traits const &tr, bool icase);
 
     template<typename Char, typename Traits>
-    void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &traits);
+    void set_class(basic_chset<Char> &chset, typename Traits::char_class_type char_class, bool no, Traits const &tr);
 
     template<typename Matcher>
     static_xpression<Matcher> const
@@ -405,13 +407,15 @@ namespace boost { namespace xpressive { namespace grammar_detail
     using proto::otherwise;
     using proto::switch_;
     using proto::make;
-    using proto::_arg;
+    using proto::_child;
+    using proto::_value;
     using proto::_left;
     using proto::_right;
     using proto::not_;
     using proto::_state;
-    using proto::_visitor;
+    using proto::_data;
     using proto::callable;
+    using proto::transform;
     using proto::fold;
     using proto::reverse_fold;
     using proto::fold_tree;
@@ -421,7 +425,7 @@ namespace boost { namespace xpressive { namespace grammar_detail
     using proto::bitwise_or;
     using proto::logical_not;
     using proto::dereference;
-    using proto::posit;
+    using proto::unary_plus;
     using proto::negate;
     using proto::complement;
     using proto::comma;

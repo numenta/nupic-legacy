@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -14,6 +14,9 @@
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/or.hpp>
+#include <boost/mpl/plus.hpp>
+#include <boost/mpl/int.hpp>
+#include <boost/mpl/apply.hpp>
 #include <boost/tuple/tuple.hpp>
 
 namespace boost { namespace fusion
@@ -44,8 +47,8 @@ namespace boost { namespace fusion
     {
         typedef Cons cons_type;
 
-        explicit boost_tuple_iterator(Cons& cons)
-            : cons(cons) {}
+        explicit boost_tuple_iterator(Cons& in_cons)
+            : cons(in_cons) {}
         Cons& cons;
 
         template <typename Iterator>
@@ -91,6 +94,43 @@ namespace boost { namespace fusion
                 return type(iter.cons.get_tail());
             }
         };
+        
+        template <typename I1, typename I2>
+        struct distance;
+
+        // detail
+        template <typename I1, typename I2>
+        struct lazy_next_distance
+        {
+            typedef
+                typename mpl::plus<
+                    mpl::int_<1>,
+                    typename distance<
+                        typename next<I1>::type,
+                        I2
+                    >::type
+                >::type type;
+        };
+        
+        template <typename I1, typename I2>
+        struct distance
+        {
+            typedef typename mpl::eval_if<
+                boost::is_same<I1, I2>,
+                mpl::int_<0>,
+                lazy_next_distance<I1, I2>
+            >::type type;
+            
+            static type
+            call(I1 const&, I2 const&)
+            {
+                return type();
+            }
+        };
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        boost_tuple_iterator& operator= (boost_tuple_iterator const&);
     };
 
     template <typename Null>

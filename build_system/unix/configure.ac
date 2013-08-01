@@ -40,7 +40,7 @@ AC_CANONICAL_SYSTEM
 # nostdinc -- don't include standard -I options
 # subdir-objects -- put objects into subdirs. Without this we get very long .o names
 
-AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman nostdinc subdir-objects])
+AM_INIT_AUTOMAKE([foreign no-dist no-installinfo no-installman subdir-objects])
 
 # Gets lots of stuff off of the command line
 # None of our source code actually uses this header file.
@@ -75,8 +75,10 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if test "x$PYTHON_VERSION" != "x2.6" ; then
-    AC_MSG_ERROR([Python 2.6 is required. You have version $PYTHON_VERSION])
+if [ "x$PYTHON_VERSION" != "x2.6" ] || [ "x$PYTHON_VERSION" != "x2.7" ]; then
+    AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
+elif [ "x$PYTHON_VERSION" == "x2.7" ]; then
+    AC_DEFINE(_PY27)
 fi
 
 #
@@ -91,6 +93,15 @@ AC_SUBST(PYTHON_SYS_LIB)
 
 PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
 AC_SUBST(PYTHON_SYS_INCLUDE)
+
+
+### Check for Python modules ###
+
+# pip is used for python modules
+AC_CHECK_PROG(havepip,pip,yes,no)
+AM_CONDITIONAL(HAVE_PIP, [test x$havepip = xyes])
+AM_COND_IF(HAVE_PIP, ,AC_MSG_ERROR([Error: pip is needed for Python dependencies.]))
+
 
 #
 # Defaults for variables that may be overridded per-platform.
@@ -255,18 +266,6 @@ else
 fi
 
 AM_CONDITIONAL(NTA_PROFILING_ENABLED, test "x$enable_profiling" = "xyes")
-
-#
-# Workaround for possible gcc 4.1.1 compiler bug. 
-# Symptom is a "lowering visibility" warning in ConstraintParser.cpp related to boost
-# Could also be a boost 1.37 bug. 
-gcc_version=`$CXX --version | head -1 | awk '{print $3}'`
-if test "x$gcc_version" = "x4.1.1" -o "x$gcc_version" = "x4.1.2" 
-then
-  echo "Adding -Wno-attributes workaround for gcc 4.1.1"
-  nta_platform_cxxflags="$nta_platform_cxxflags -Wno-attributes"  
-fi
-
 
 
 

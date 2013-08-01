@@ -21,6 +21,7 @@
 #include <boost/range/detail/iterator.hpp>
 #else
 
+#include <boost/range/detail/extract_optional_type.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <cstddef>
 #include <utility>
@@ -31,11 +32,13 @@ namespace boost
     // default
     //////////////////////////////////////////////////////////////////////////
     
+    namespace range_detail {
+        BOOST_RANGE_EXTRACT_OPTIONAL_TYPE( iterator )
+    }
+
     template< typename C >
-    struct range_mutable_iterator
-    {
-        typedef BOOST_DEDUCED_TYPENAME C::iterator type;
-    };
+    struct range_mutable_iterator : range_detail::extract_iterator<C>
+    {};
     
     //////////////////////////////////////////////////////////////////////////
     // pair

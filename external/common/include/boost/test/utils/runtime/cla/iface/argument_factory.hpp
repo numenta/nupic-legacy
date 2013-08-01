@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines interface for argument_factory
 // ***************************************************************************
@@ -30,7 +30,7 @@ namespace cla {
 // ************************************************************************** //
 // **************                argument_factory              ************** //
 // ************************************************************************** //
-// another name could be argument production policy
+// another name can be argument production policy
 
 class argument_factory {
 public:

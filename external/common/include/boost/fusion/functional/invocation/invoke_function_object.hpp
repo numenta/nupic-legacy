@@ -118,6 +118,8 @@ namespace boost { namespace fusion
                 Function (BOOST_PP_ENUM(N,M,~)) >::type result_type;
 #undef M
 
+#if N > 0
+
             template <class F>
             static inline result_type
             call(F & f, Sequence & s)
@@ -126,6 +128,18 @@ namespace boost { namespace fusion
                 return f( BOOST_PP_ENUM(N,M,~) );
 #undef M
             }
+
+#else
+
+            template <class F>
+            static inline result_type
+            call(F & f, Sequence & /*s*/)
+            {
+                return f();
+            }
+
+#endif
+
         };
 
         template <class Function, class Sequence>
@@ -138,20 +152,32 @@ namespace boost { namespace fusion
                 Function (BOOST_PP_ENUM_PARAMS(N,typename seq::T))
                 >::type result_type;
 
+#if N > 0
+
             template <class F>
             static inline result_type
             call(F & f, Sequence & s)
             {
-#if N > 0
                 typename seq::I0 i0 = fusion::begin(s);
 #define M(z,j,data)                                                             \
             typename seq::I##j i##j =                                          \
                 fusion::next(BOOST_PP_CAT(i,BOOST_PP_DEC(j)));
                 BOOST_PP_REPEAT_FROM_TO(1,N,M,~)
 #undef M
-#endif
                 return f( BOOST_PP_ENUM_PARAMS(N,*i) );
             }
+
+#else
+
+            template <class F>
+            static inline result_type
+            call(F & f, Sequence & /*s*/)
+            {
+                return f();
+            }
+
+#endif
+
         };
 
         template <class Sequence>

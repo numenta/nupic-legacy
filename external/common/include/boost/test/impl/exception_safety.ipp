@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : Facilities to perform exception safety tests
 // ***************************************************************************
@@ -166,7 +166,7 @@ exception_safety_tester::exception_safety_tester( const_string test_name )
 , m_forced_exception_point( 1 )
 , m_exec_path_point( 0 )
 , m_exec_path_counter( 1 )
-, m_break_exec_path( (unsigned)-1 )
+, m_break_exec_path( static_cast<unsigned>(-1) )
 , m_invairant_failed( false )
 {
     framework::register_observer( *this );
@@ -447,7 +447,7 @@ format_execution_path( wrap_stringstream& formatter, ExecPathIt it, ExecPathIt e
 
                 unsigned i;
                 for( i = 0; i < std::min<std::size_t>( it->m_alloc.size, 8 ); i++ ) {
-                    unsigned char c = ((unsigned char*)it->m_alloc.ptr)[i];
+                    unsigned char c = static_cast<unsigned char*>(it->m_alloc.ptr)[i];
                     if( (std::isprint)( c ) )
                         formatter << c;
                     else
@@ -457,7 +457,7 @@ format_execution_path( wrap_stringstream& formatter, ExecPathIt it, ExecPathIt e
                 formatter << "> ";
 
                 for( i = 0; i < std::min<std::size_t>( it->m_alloc.size, 8 ); i++ ) {
-                    unsigned c = ((unsigned char*)it->m_alloc.ptr)[i];
+                    unsigned c = static_cast<unsigned char*>(it->m_alloc.ptr)[i];
                     formatter << std::hex << std::uppercase << c << ' ';
                 }
 
@@ -491,7 +491,7 @@ exception_safety_tester::report_error()
         if( m_invairant_failed )
             formatter << " and ";
 
-        formatter << (unsigned int)m_memory_in_use.size() << " memory leak";
+        formatter << static_cast<unsigned int>(m_memory_in_use.size()) << " memory leak";
         if( m_memory_in_use.size() > 1 )
             formatter << 's';
     }

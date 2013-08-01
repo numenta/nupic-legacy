@@ -226,6 +226,11 @@ inline boost::math::concepts::std_real_concept tanh(boost::math::concepts::std_r
 
 } // namespace std
 
+#include <boost/math/special_functions/round.hpp>
+#include <boost/math/special_functions/trunc.hpp>
+#include <boost/math/special_functions/modf.hpp>
+#include <boost/math/tools/precision.hpp>
+
 namespace boost{ namespace math{ namespace concepts{
 
 //
@@ -318,10 +323,17 @@ inline std::basic_istream<charT, traits>& operator>>(std::basic_istream<charT, t
 }}
 
 #include <boost/math/tools/precision.hpp>
+#include <boost/math/tools/big_constant.hpp>
 
 namespace boost{ namespace math{
 namespace tools
 {
+
+template <>
+inline concepts::std_real_concept make_big_value<concepts::std_real_concept>(long double val, const char* , mpl::false_ const&, mpl::false_ const&)
+{
+   return val;  // Can't use lexical_cast here, sometimes it fails....
+}
 
 template <>
 inline concepts::std_real_concept max_value<concepts::std_real_concept>(BOOST_MATH_EXPLICIT_TEMPLATE_TYPE_SPEC(concepts::std_real_concept))
@@ -375,6 +387,7 @@ using concepts::llround;
 } // namespace boost
 
 #endif // BOOST_MATH_STD_REAL_CONCEPT_HPP
+
 
 
 

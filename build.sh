@@ -23,6 +23,9 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
+# Terminate on first failure.
+set -e
+
 # Set sane defaults
 [[ -z $NUPIC ]] && NUPIC=$PWD
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
@@ -49,8 +52,24 @@ function prepDirectories {
     pushd "$BUILDDIR"
 }
 
+
+# get PYTHON_VERSION early here
+PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
+
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
+    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
+    #cov-core may fail to install properly, reporting something to the effect of:
+    #
+    #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
+    #
+    #   Subprocesses WILL NOT have coverage collected.
+    #
+    #   To measure subprocesses put the following in a pth file called init_cov_core.pth:
+    #   import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()
+    #
+    #Therefore, explicitly write out the .pth file.
+    echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python${PY_VER}/site-packages/init_cov_core.pth
     exitOnError $?
 }
 

@@ -20,6 +20,8 @@
 #include <utility>
 #include <iterator>
 #include <algorithm>
+#include <boost/mpl/assert.hpp>
+#include <boost/type_traits/is_same.hpp>
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/xpressive/detail/detail_fwd.hpp>
 
@@ -43,17 +45,18 @@ namespace boost { namespace xpressive
 ///////////////////////////////////////////////////////////////////////////////
 // sub_match
 //
-/// \brief Class template sub_match denotes the sequence of characters matched by a particular marked sub-expression.
+/// \brief Class template \c sub_match denotes the sequence of characters matched by a particular
+/// marked sub-expression.
 ///
-/// When the marked sub-expression denoted by an object of type sub_match\<\> participated in a
-/// regular expression match then member matched evaluates to true, and members first and second
-/// denote the range of characters [first,second) which formed that match. Otherwise matched is false,
-/// and members first and second contained undefined values.
+/// When the marked sub-expression denoted by an object of type \c sub_match\<\> participated in a
+/// regular expression match then member \c matched evaluates to \c true, and members \c first and \c second
+/// denote the range of characters <tt>[first,second)</tt> which formed that match. Otherwise \c matched is \c false,
+/// and members \c first and \c second contained undefined values.
 ///
-/// If an object of type sub_match\<\> represents sub-expression 0 - that is to say the whole match -
-/// then member matched is always true, unless a partial match was obtained as a result of the flag
-/// match_partial being passed to a regular expression algorithm, in which case member matched is
-/// false, and members first and second represent the character range that formed the partial match.
+/// If an object of type \c sub_match\<\> represents sub-expression 0 - that is to say the whole match -
+/// then member \c matched is always \c true, unless a partial match was obtained as a result of the flag
+/// \c match_partial being passed to a regular expression algorithm, in which case member \c matched is
+/// \c false, and members \c first and \c second represent the character range that formed the partial match.
 template<typename BidiIter>
 struct sub_match
   : std::pair<BidiIter, BidiIter>
@@ -109,7 +112,7 @@ public:
 
     /// \brief Performs a lexicographic string comparison
     /// \param str the string against which to compare
-    /// \return the results of (*this).str().compare(str)
+    /// \return the results of <tt>(*this).str().compare(str)</tt>
     int compare(string_type const &str) const
     {
         return this->str().compare(str);
@@ -134,6 +137,44 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+/// \brief \c range_begin() to make \c sub_match\<\> a valid range
+/// \param sub the \c sub_match\<\> object denoting the range
+/// \return \c sub.first
+/// \pre \c sub.first is not singular
+template<typename BidiIter>
+inline BidiIter range_begin(sub_match<BidiIter> &sub)
+{
+    return sub.first;
+}
+
+/// \overload
+///
+template<typename BidiIter>
+inline BidiIter range_begin(sub_match<BidiIter> const &sub)
+{
+    return sub.first;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+/// \brief \c range_end() to make \c sub_match\<\> a valid range
+/// \param sub the \c sub_match\<\> object denoting the range
+/// \return \c sub.second
+/// \pre \c sub.second is not singular
+template<typename BidiIter>
+inline BidiIter range_end(sub_match<BidiIter> &sub)
+{
+    return sub.second;
+}
+
+/// \overload
+///
+template<typename BidiIter>
+inline BidiIter range_end(sub_match<BidiIter> const &sub)
+{
+    return sub.second;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// \brief insertion operator for sending sub-matches to ostreams
 /// \param sout output stream.
 /// \param sub sub_match object to be written to the stream.
@@ -146,6 +187,11 @@ inline std::basic_ostream<Char, Traits> &operator <<
 )
 {
     typedef typename iterator_value<BidiIter>::type char_type;
+    BOOST_MPL_ASSERT_MSG(
+        (boost::is_same<Char, char_type>::value)
+      , CHARACTER_TYPES_OF_STREAM_AND_SUB_MATCH_MUST_MATCH
+      , (Char, char_type)
+    );
     if(sub.matched)
     {
         std::ostream_iterator<char_type, Char, Traits> iout(sout);
@@ -388,5 +434,35 @@ operator + (typename sub_match<BidiIter>::string_type const &lhs, sub_match<Bidi
 }
 
 }} // namespace boost::xpressive
+
+// Hook the Boost.Range customization points to make sub_match a valid range.
+namespace boost
+{
+    /// INTERNAL ONLY
+    ///
+    template<typename Range>
+    struct range_mutable_iterator;
+
+    /// INTERNAL ONLY
+    ///
+    template<typename BidiIter>
+    struct range_mutable_iterator<xpressive::sub_match<BidiIter> >
+    {
+        typedef BidiIter type;
+    };
+
+    /// INTERNAL ONLY
+    ///
+    template<typename Range>
+    struct range_const_iterator;
+
+    /// INTERNAL ONLY
+    ///
+    template<typename BidiIter>
+    struct range_const_iterator<xpressive::sub_match<BidiIter> >
+    {
+        typedef BidiIter type;
+    };
+}
 
 #endif

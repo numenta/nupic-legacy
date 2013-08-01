@@ -8,10 +8,6 @@
 #ifndef PHOENIX_SCOPE_LET_HPP
 #define PHOENIX_SCOPE_LET_HPP
 
-#if !defined(PHOENIX_LOCAL_LIMIT)
-# define PHOENIX_LOCAL_LIMIT PHOENIX_LIMIT
-#endif
-
 #include <boost/spirit/home/phoenix/core/limits.hpp>
 #include <boost/spirit/home/phoenix/core/composite.hpp>
 #include <boost/spirit/home/phoenix/scope/scoped_environment.hpp>

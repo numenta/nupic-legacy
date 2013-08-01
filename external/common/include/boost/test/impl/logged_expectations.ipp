@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : Facilities to perform interaction based testng of logged expectations
 // ***************************************************************************
@@ -85,7 +85,7 @@ expectations_logger::expectations_logger( const_string log_file_name, bool test_
     m_log_file.open( log_file_name.begin(), test_or_log ? std::ios::in : std::ios::out );
 
     BOOST_REQUIRE_MESSAGE( m_log_file.is_open(),
-                           "Couldn't open expectations log file " << log_file_name
+                           "Can't open expectations log file " << log_file_name
                                 << " for " << ( m_test_or_log ? "reading" : "writing") );
 
     if( m_test_or_log ) {

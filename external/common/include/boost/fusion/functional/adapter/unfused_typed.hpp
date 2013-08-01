@@ -28,6 +28,11 @@
 #include <boost/fusion/functional/adapter/limits.hpp>
 #include <boost/fusion/functional/adapter/detail/access.hpp>
 
+#if defined (BOOST_MSVC)
+#  pragma warning(push)
+#  pragma warning (disable: 4512) // assignment operator could not be generated.
+#endif
+
 
 namespace boost { namespace fusion
 {
@@ -69,8 +74,13 @@ namespace boost { namespace fusion
 
 }}
 
+#if defined (BOOST_MSVC)
+#  pragma warning(pop)
+#endif
+
 namespace boost 
 {
+#if !defined(BOOST_RESULT_OF_USE_DECLTYPE) || defined(BOOST_NO_DECLTYPE)
     template<class F, class Seq>
     struct result_of< boost::fusion::unfused_typed<F,Seq> const () >
         : boost::fusion::unfused_typed<F,Seq>::template result< 
@@ -78,6 +88,17 @@ namespace boost
     { };
     template<class F, class Seq>
     struct result_of< boost::fusion::unfused_typed<F,Seq>() >
+        : boost::fusion::unfused_typed<F,Seq>::template result< 
+            boost::fusion::unfused_typed<F,Seq> () >
+    { };
+#endif
+    template<class F, class Seq>
+    struct tr1_result_of< boost::fusion::unfused_typed<F,Seq> const () >
+        : boost::fusion::unfused_typed<F,Seq>::template result< 
+            boost::fusion::unfused_typed<F,Seq> const () >
+    { };
+    template<class F, class Seq>
+    struct tr1_result_of< boost::fusion::unfused_typed<F,Seq>() >
         : boost::fusion::unfused_typed<F,Seq>::template result< 
             boost::fusion::unfused_typed<F,Seq> () >
     { };

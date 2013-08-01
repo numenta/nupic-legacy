@@ -1,7 +1,7 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
 #ifndef BOOST_PP_IS_ITERATING
@@ -25,54 +25,64 @@
 #include <boost/fusion/container/vector/vector50.hpp>
 #endif
 
-#include <boost/mpl/distance.hpp>
-#include <boost/mpl/find.hpp>
-#include <boost/mpl/begin_end.hpp>
 #include <boost/preprocessor/cat.hpp>
+#include <boost/preprocessor/arithmetic/dec.hpp>
+#include <boost/preprocessor/arithmetic/sub.hpp>
+#include <boost/preprocessor/facilities/intercept.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
+#include <boost/preprocessor/repetition/enum_trailing_params.hpp>
 
 namespace boost { namespace fusion
 {
     struct void_;
 }}
 
+#if !defined(BOOST_FUSION_DONT_USE_PREPROCESSED_FILES)
+#include <boost/fusion/container/vector/detail/preprocessed/vector_chooser.hpp>
+#else
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 2, line: 0, output: "preprocessed/vector_chooser" FUSION_MAX_VECTOR_SIZE_STR ".hpp")
+#endif
+
+/*=============================================================================
+    Copyright (c) 2001-2011 Joel de Guzman
+
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+    This is an auto-generated file. Do not edit!
+==============================================================================*/
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 1)
+#endif
+
 namespace boost { namespace fusion { namespace detail
 {
-    template <int N>
-    struct get_vector_n;
+    template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, typename T)>
+    struct vector_n_chooser
+    {
+        typedef BOOST_PP_CAT(vector, FUSION_MAX_VECTOR_SIZE)<BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, T)> type;
+    };
 
     template <>
-    struct get_vector_n<0>
+    struct vector_n_chooser<BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, void_ BOOST_PP_INTERCEPT)>
     {
-        template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, typename T)>
-        struct call
-        {
-            typedef vector0 type;
-        };
+        typedef vector0<> type;
     };
 
 #define BOOST_PP_FILENAME_1 \
     <boost/fusion/container/vector/detail/vector_n_chooser.hpp>
-#define BOOST_PP_ITERATION_LIMITS (1, FUSION_MAX_VECTOR_SIZE)
+#define BOOST_PP_ITERATION_LIMITS (1, BOOST_PP_DEC(FUSION_MAX_VECTOR_SIZE))
 #include BOOST_PP_ITERATE()
 
-    template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, typename T)>
-    struct vector_n_chooser
-    {
-        typedef
-            mpl::BOOST_PP_CAT(vector, FUSION_MAX_VECTOR_SIZE)
-                <BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, T)>
-        input;
-
-        typedef typename mpl::begin<input>::type begin;
-        typedef typename mpl::find<input, void_>::type end;
-        typedef typename mpl::distance<begin, end>::type size;
-
-        typedef typename get_vector_n<size::value>::template
-            call<BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, T)>::type
-        type;
-    };
 }}}
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(output: null)
+#endif
+
+#endif // BOOST_FUSION_DONT_USE_PREPROCESSED_FILES
 
 #endif
 
@@ -85,14 +95,12 @@ namespace boost { namespace fusion { namespace detail
 
 #define N BOOST_PP_ITERATION()
 
-    template <>
-    struct get_vector_n<N>
+    template <BOOST_PP_ENUM_PARAMS(N, typename T)>
+    struct vector_n_chooser<
+        BOOST_PP_ENUM_PARAMS(N, T)
+        BOOST_PP_ENUM_TRAILING_PARAMS(BOOST_PP_SUB(FUSION_MAX_VECTOR_SIZE, N), void_ BOOST_PP_INTERCEPT)>
     {
-        template <BOOST_PP_ENUM_PARAMS(FUSION_MAX_VECTOR_SIZE, typename T)>
-        struct call
-        {
-            typedef BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> type;
-        };
+        typedef BOOST_PP_CAT(vector, N)<BOOST_PP_ENUM_PARAMS(N, T)> type;
     };
 
 #undef N

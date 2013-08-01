@@ -93,14 +93,14 @@ inline int get_mark_number(int i)
     return i;
 }
 
-inline std::vector<int> to_vector(int sub_match)
+inline std::vector<int> to_vector(int subs)
 {
-    return std::vector<int>(1, sub_match);
+    return std::vector<int>(1, subs);
 }
 
-inline std::vector<int> const &to_vector(std::vector<int> const &sub_matches)
+inline std::vector<int> const &to_vector(std::vector<int> const &subs)
 {
-    return sub_matches;
+    return subs;
 }
 
 template<typename Int, std::size_t Size>
@@ -159,9 +159,13 @@ struct regex_token_iterator
       , BidiIter end
       , basic_regex<BidiIter> const &rex
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex))
+      : impl_()
     {
-        this->next_();
+        if(0 != rex.regex_id())
+        {
+            this->impl_ = new impl_type_(begin, begin, end, begin, rex);
+            this->next_();
+        }
     }
 
     /// \param begin The beginning of the character range to search.
@@ -177,15 +181,20 @@ struct regex_token_iterator
       , basic_regex<BidiIter> const &rex
       , detail::let_<LetExpr> const &args
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex))
+      : impl_()
     {
-        detail::bind_args(args, this->impl_->iter_.what_);
-        this->next_();
+        if(0 != rex.regex_id())
+        {
+            this->impl_ = new impl_type_(begin, begin, end, begin, rex);
+            detail::bind_args(args, this->impl_->iter_.what_);
+            this->next_();
+        }
     }
 
     /// \param begin The beginning of the character range to search.
     /// \param end The end of the character range to search.
     /// \param rex The regex pattern to search for.
+    /// \param subs A range of integers designating sub-matches to be treated as tokens.
     /// \param flags Optional match flags, used to control how the expression is matched against the sequence. (See match_flag_type.)
     /// \pre \c [begin,end) is a valid range.
     /// \pre \c subs is either an integer greater or equal to -1,
@@ -199,14 +208,19 @@ struct regex_token_iterator
       , Subs const &subs
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex, flags, detail::to_vector(subs)))
+      : impl_()
     {
-        this->next_();
+        if(0 != rex.regex_id())
+        {
+            this->impl_ = new impl_type_(begin, begin, end, begin, rex, flags, detail::to_vector(subs));
+            this->next_();
+        }
     }
 
     /// \param begin The beginning of the character range to search.
     /// \param end The end of the character range to search.
     /// \param rex The regex pattern to search for.
+    /// \param subs A range of integers designating sub-matches to be treated as tokens.
     /// \param args A let() expression with argument bindings for semantic actions.
     /// \param flags Optional match flags, used to control how the expression is matched against the sequence. (See match_flag_type.)
     /// \pre \c [begin,end) is a valid range.
@@ -222,10 +236,14 @@ struct regex_token_iterator
       , detail::let_<LetExpr> const &args
       , regex_constants::match_flag_type flags = regex_constants::match_default
     )
-      : impl_(new impl_type_(begin, begin, end, begin, rex, flags, detail::to_vector(subs)))
+      : impl_()
     {
-        detail::bind_args(args, this->impl_->iter_.what_);
-        this->next_();
+        if(0 != rex.regex_id())
+        {
+            this->impl_ = new impl_type_(begin, begin, end, begin, rex, flags, detail::to_vector(subs));
+            detail::bind_args(args, this->impl_->iter_.what_);
+            this->next_();
+        }
     }
 
     /// \post <tt>*this == that</tt>

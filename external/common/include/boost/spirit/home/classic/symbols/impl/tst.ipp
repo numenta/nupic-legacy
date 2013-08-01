@@ -136,7 +136,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             node_t**  np = &root;
             CharT   ch = *first;
 
-            BOOST_SPIRIT_ASSERT(first == last || ch != 0
+            BOOST_SPIRIT_ASSERT((first == last || ch != 0)
                 && "Won't add string containing null character");
 
             for (;;)
@@ -174,7 +174,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
                        }
                         ++first;
                         ch = (first == last) ? CharT(0) : *first;
-                        BOOST_SPIRIT_ASSERT(first == last || ch != 0
+                        BOOST_SPIRIT_ASSERT((first == last || ch != 0)
                             && "Won't add string containing null character");
                         np = &(**np).middle.link;
                     }

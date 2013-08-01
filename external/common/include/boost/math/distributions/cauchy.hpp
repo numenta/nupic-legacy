@@ -56,7 +56,7 @@ RealType cdf_imp(const cauchy_distribution<RealType, Policy>& dist, const RealTy
    //
    BOOST_MATH_STD_USING // for ADL of std functions
    static const char* function = "boost::math::cdf(cauchy<%1%>&, %1%)";
-   RealType result;
+   RealType result = 0;
    RealType location = dist.location();
    RealType scale = dist.scale();
    if(false == detail::check_location(function, location, &result, Policy()))
@@ -105,7 +105,7 @@ RealType quantile_imp(
    static const char* function = "boost::math::quantile(cauchy<%1%>&, %1%)";
    BOOST_MATH_STD_USING // for ADL of std functions
 
-   RealType result;
+   RealType result = 0;
    RealType location = dist.location();
    RealType scale = dist.scale();
    if(false == detail::check_location(function, location, &result, Policy()))
@@ -140,7 +140,7 @@ RealType quantile_imp(
       return location;
    }
    result = -scale / tan(constants::pi<RealType>() * P);
-   return complement ? location - result : location + result;
+   return complement ? RealType(location - result) : RealType(location + result);
 } // quantile
 
 } // namespace detail
@@ -180,15 +180,30 @@ typedef cauchy_distribution<double> cauchy;
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const cauchy_distribution<RealType, Policy>&)
 { // Range of permissible values for random variable x.
+  if (std::numeric_limits<RealType>::has_infinity)
+  { 
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
+  }
+  else
+  { // Can only use max_value.
    using boost::math::tools::max_value;
-   return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + infinity.
+   return std::pair<RealType, RealType>(-max_value<RealType>(), max_value<RealType>()); // - to + max.
+  }
 }
 
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> support(const cauchy_distribution<RealType, Policy>& )
 { // Range of supported values for random variable x.
    // This is range where cdf rises from 0 to 1, and outside it, the pdf is zero.
-   return std::pair<RealType, RealType>(-tools::max_value<RealType>(), tools::max_value<RealType>()); // - to + infinity.
+  if (std::numeric_limits<RealType>::has_infinity)
+  { 
+     return std::pair<RealType, RealType>(-std::numeric_limits<RealType>::infinity(), std::numeric_limits<RealType>::infinity()); // - to + infinity.
+  }
+  else
+  { // Can only use max_value.
+     using boost::math::tools::max_value;
+     return std::pair<RealType, RealType>(-tools::max_value<RealType>(), max_value<RealType>()); // - to + max.
+  }
 }
 
 template <class RealType, class Policy>
@@ -197,7 +212,7 @@ inline RealType pdf(const cauchy_distribution<RealType, Policy>& dist, const Rea
    BOOST_MATH_STD_USING  // for ADL of std functions
 
    static const char* function = "boost::math::pdf(cauchy<%1%>&, %1%)";
-   RealType result;
+   RealType result = 0;
    RealType location = dist.location();
    RealType scale = dist.scale();
    if(false == detail::check_scale("boost::math::pdf(cauchy<%1%>&, %1%)", scale, &result, Policy()))

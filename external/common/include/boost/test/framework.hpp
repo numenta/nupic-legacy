@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 54633 $
 //
 //  Description : defines framework interface
 // ***************************************************************************
@@ -70,7 +70,7 @@ BOOST_TEST_DECL test_unit&  get( test_unit_id, test_unit_type );
 template<typename UnitType>
 UnitType&               get( test_unit_id id )
 {
-    return static_cast<UnitType&>( get( id, (test_unit_type)UnitType::type ) );
+    return static_cast<UnitType&>( get( id, static_cast<test_unit_type>(UnitType::type) ) );
 }
 
 // test initiation
@@ -93,6 +93,10 @@ struct internal_error : std::runtime_error {
 struct setup_error : std::runtime_error {
     setup_error( const_string m ) : std::runtime_error( std::string( m.begin(), m.size() ) ) {}
 };
+
+#define BOOST_TEST_SETUP_ASSERT( cond, msg ) if( cond ) {} else throw unit_test::framework::setup_error( msg )
+
+struct nothing_to_test {}; // not really an error
 
 } // namespace framework
 

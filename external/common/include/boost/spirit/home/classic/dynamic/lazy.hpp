@@ -30,8 +30,8 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
     struct lazy_parser : parser<lazy_parser<ActorT> >
     {
         typedef lazy_parser<ActorT> self_t;
-        typedef typename phoenix::actor_result<
-            ActorT, phoenix::tuple<> >::plain_type actor_result_t;
+        typedef typename ::phoenix::actor_result<
+            ActorT, ::phoenix::tuple<> >::plain_type actor_result_t;
 
         template<typename ScannerT>
         struct result

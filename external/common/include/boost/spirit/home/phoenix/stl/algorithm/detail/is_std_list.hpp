@@ -20,7 +20,7 @@
 #define IS_STD_LIST_EN_16_12_2004
 
 #include <boost/mpl/bool.hpp>
-#include "./std_list_fwd.hpp"
+#include <boost/detail/container_fwd.hpp>
 
 namespace boost
 {

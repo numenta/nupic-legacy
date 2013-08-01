@@ -15,10 +15,10 @@
 #include <boost/type_traits/is_same.hpp>
 #include <boost/type_traits/is_convertible.hpp>
 #include <boost/type_traits/detail/ice_and.hpp>
-#include <boost/type_traits/remove_cv.hpp>
 #include <boost/config.hpp>
 #include <boost/static_assert.hpp>
 #endif
+#include <boost/type_traits/remove_cv.hpp>
 
 // should be the last #include
 #include <boost/type_traits/detail/bool_trait_def.hpp>
@@ -133,7 +133,7 @@ struct bd_helper
 template<typename B, typename D>
 struct is_base_and_derived_impl2
 {
-#if BOOST_WORKAROUND(_MSC_FULL_VER, >= 140050000)
+#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(push)
 #pragma warning(disable:6334)
 #endif
@@ -156,7 +156,7 @@ struct is_base_and_derived_impl2
 
     BOOST_STATIC_CONSTANT(bool, value =
         sizeof(bd_helper<B,D>::check_sig(Host(), 0)) == sizeof(type_traits::yes_type));
-#if BOOST_WORKAROUND(_MSC_FULL_VER, >= 140050000)
+#if BOOST_WORKAROUND(BOOST_MSVC_FULL_VER, >= 140050000)
 #pragma warning(pop)
 #endif
 };
@@ -212,7 +212,7 @@ struct is_base_and_derived_impl
     typedef is_base_and_derived_select<
        ::boost::is_class<B>::value,
        ::boost::is_class<D>::value,
-       ::boost::is_same<B,D>::value> selector;
+       ::boost::is_same<ncvB,ncvD>::value> selector;
     typedef typename selector::template rebind<ncvB,ncvD> binder;
     typedef typename binder::type bound_type;
 
@@ -222,7 +222,10 @@ struct is_base_and_derived_impl
 template <typename B, typename D>
 struct is_base_and_derived_impl
 {
-    BOOST_STATIC_CONSTANT(bool, value = BOOST_IS_BASE_OF(B,D));
+    typedef typename remove_cv<B>::type ncvB;
+    typedef typename remove_cv<D>::type ncvD;
+
+    BOOST_STATIC_CONSTANT(bool, value = (BOOST_IS_BASE_OF(B,D) && ! ::boost::is_same<ncvB,ncvD>::value));
 };
 #endif
 } // namespace detail

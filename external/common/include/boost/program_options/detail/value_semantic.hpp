@@ -16,16 +16,17 @@ namespace boost { namespace program_options {
     std::string
     typed_value<T, charT>::name() const
     {
+        std::string const& var = (m_value_name.empty() ? arg : m_value_name);
         if (!m_implicit_value.empty() && !m_implicit_value_as_text.empty()) {
-            std::string msg = "[=arg(=" + m_implicit_value_as_text + ")]";
+            std::string msg = "[=" + var + "(=" + m_implicit_value_as_text + ")]";
             if (!m_default_value.empty() && !m_default_value_as_text.empty())
                 msg += " (=" + m_default_value_as_text + ")";
             return msg;
         }
         else if (!m_default_value.empty() && !m_default_value_as_text.empty()) {
-            return arg + " (=" + m_default_value_as_text + ")";
+            return var + " (=" + m_default_value_as_text + ")";
         } else {
-            return arg;
+            return var;
         }
     }
 
@@ -33,7 +34,7 @@ namespace boost { namespace program_options {
     void 
     typed_value<T, charT>::notify(const boost::any& value_store) const
     {
-        const T* value = boost::any_cast<const T>(&value_store);
+        const T* value = boost::any_cast<T>(&value_store);
         if (m_store_to) {
             *m_store_to = *value;
         }
@@ -55,13 +56,12 @@ namespace boost { namespace program_options {
         {
             static std::basic_string<charT> empty;
             if (v.size() > 1)
-                throw validation_error("multiple values not allowed");
-            if (v.size() == 1)
+                boost::throw_exception(validation_error(validation_error::multiple_values_not_allowed));
+            else if (v.size() == 1)
                 return v.front();
-            else if (allow_empty)
-                return empty;
-            else
-                throw validation_error("at least one value required");
+            else if (!allow_empty)
+                boost::throw_exception(validation_error(validation_error::at_least_one_value_required));
+            return empty;
         }
 
         /* Throws multiple_occurrences if 'value' is not empty. */
@@ -144,9 +144,9 @@ namespace boost { namespace program_options {
                    a validator for class T, we use it even
                    when parsing vector<T>.  */
                 boost::any a;
-                std::vector<std::basic_string<charT> > v;
-                v.push_back(s[i]);
-                validate(a, v, (T*)0, 0);                
+                std::vector<std::basic_string<charT> > cv;
+                cv.push_back(s[i]);
+                validate(a, cv, (T*)0, 0);                
                 tv->push_back(boost::any_cast<T>(a));
             }
             catch(const bad_lexical_cast& /*e*/) {

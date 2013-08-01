@@ -14,17 +14,15 @@
 #include <boost/config.hpp>
 #include <boost/version.hpp>
 
-#if (BOOST_VERSION >= 103400)
-    ///INTERNAL ONLY
-    #define BOOST_UNITS_HAS_BOOST_TYPEOF    1
-#else
-    ///INTERNAL ONLY
-    #define BOOST_UNITS_HAS_BOOST_TYPEOF    0
-#endif
-
-// uncomment this to test without Boost Typeof
-//#undef BOOST_UNITS_HAS_BOOST_TYPEOF
-//#define BOOST_UNITS_HAS_BOOST_TYPEOF      0   
+#ifndef BOOST_UNITS_HAS_BOOST_TYPEOF
+    #if (BOOST_VERSION >= 103400)
+        ///INTERNAL ONLY
+        #define BOOST_UNITS_HAS_BOOST_TYPEOF    1
+    #else
+        ///INTERNAL ONLY
+        #define BOOST_UNITS_HAS_BOOST_TYPEOF    0
+    #endif
+#endif 
 
 #if (BOOST_UNITS_HAS_BOOST_TYPEOF)
     #include <boost/typeof/typeof.hpp> 
@@ -93,7 +91,7 @@
 /// is not layout compatible with T
 #define BOOST_UNITS_REQUIRE_LAYOUT_COMPATIBILITY
 
-/// If defined will diasable a preprocessor check that the
+/// If defined will disable a preprocessor check that the
 /// compiler is able to handle the library.
 #define BOOST_UNITS_NO_COMPILER_CHECK
 

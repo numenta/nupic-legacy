@@ -69,16 +69,68 @@
 #      define BOOST_NO_IS_ABSTRACT
 #    endif
 
+#    if (__SUNPRO_CC <= 0x5100)
+       // Sun 5.10 may not correctly value-initialize objects of
+       // some user defined types, as was reported in April 2010
+       // (CR 6947016), and confirmed by Steve Clamage.
+       // (Niels Dekker, LKEB, May 2010).
+#      define BOOST_NO_COMPLETE_VALUE_INITIALIZATION
+#    endif
+
+//
+// Dynamic shared object (DSO) and dynamic-link library (DLL) support
+//
+#if __SUNPRO_CC > 0x500
+#  define BOOST_SYMBOL_EXPORT __global
+#  define BOOST_SYMBOL_IMPORT __global
+#  define BOOST_SYMBOL_VISIBLE __global
+#endif
+
+
+
 //
 // Issues that effect all known versions:
 //
 #define BOOST_NO_TWO_PHASE_NAME_LOOKUP
 #define BOOST_NO_ADL_BARRIER
 
-#if(__SUNPRO_CC >= 0x590) 
+//
+// C++0x features
+//
 #  define BOOST_HAS_LONG_LONG
-#endif
 
+#define BOOST_NO_CXX11_AUTO_DECLARATIONS
+#define BOOST_NO_CXX11_AUTO_MULTIDECLARATIONS
+#define BOOST_NO_CXX11_CHAR16_T
+#define BOOST_NO_CXX11_CHAR32_T
+#define BOOST_NO_CXX11_CONSTEXPR
+#define BOOST_NO_CXX11_DECLTYPE
+#define BOOST_NO_CXX11_DECLTYPE_N3276
+#define BOOST_NO_CXX11_DEFAULTED_FUNCTIONS
+#define BOOST_NO_CXX11_DELETED_FUNCTIONS
+#define BOOST_NO_CXX11_EXPLICIT_CONVERSION_OPERATORS
+#define BOOST_NO_CXX11_EXTERN_TEMPLATE
+#define BOOST_NO_CXX11_FUNCTION_TEMPLATE_DEFAULT_ARGS
+#define BOOST_NO_CXX11_HDR_INITIALIZER_LIST
+#define BOOST_NO_CXX11_LAMBDAS
+#define BOOST_NO_CXX11_LOCAL_CLASS_TEMPLATE_PARAMETERS
+#define BOOST_NO_CXX11_NOEXCEPT
+#define BOOST_NO_CXX11_NULLPTR
+#define BOOST_NO_CXX11_RANGE_BASED_FOR
+#define BOOST_NO_CXX11_RAW_LITERALS
+#define BOOST_NO_CXX11_RVALUE_REFERENCES
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#define BOOST_NO_SFINAE_EXPR
+#define BOOST_NO_CXX11_STATIC_ASSERT
+#define BOOST_NO_CXX11_TEMPLATE_ALIASES
+#define BOOST_NO_CXX11_UNICODE_LITERALS
+#define BOOST_NO_CXX11_VARIADIC_TEMPLATES
+#define BOOST_NO_CXX11_VARIADIC_MACROS
+#define BOOST_NO_CXX11_UNIFIED_INITIALIZATION_SYNTAX
+
+//
+// Version
+//
 
 #define BOOST_COMPILER "Sun compiler version " BOOST_STRINGIZE(__SUNPRO_CC)
 
@@ -95,9 +147,3 @@
 #     error "Unknown compiler version - please run the configure tests and report the results"
 #  endif
 #endif
-
-
-
-
-
-

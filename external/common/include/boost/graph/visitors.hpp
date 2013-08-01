@@ -15,10 +15,11 @@
 
 #include <iosfwd>
 #include <boost/config.hpp>
-#include <boost/property_map.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/property_map/property_map.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/limits.hpp>
-#include <boost/graph/detail/is_same.hpp>
 
 #if BOOST_WORKAROUND(BOOST_MSVC, < 1300)
 // Stay out of the way of the concept checking class
@@ -82,9 +83,6 @@ namespace boost {
   struct on_edge_not_minimized {
     enum { num = detail::on_edge_not_minimized_num }; };
 
-  struct true_tag { enum { num = true }; };
-  struct false_tag { enum { num = false }; };
-
   //========================================================================
   // base_visitor and null_visitor
 
@@ -107,21 +105,20 @@ namespace boost {
 
   namespace detail {
     template <class Visitor, class T, class Graph>
-    inline void
-    invoke_dispatch(Visitor& v, T x, Graph& g, true_tag) {
+    inline void invoke_dispatch(Visitor& v, T x, Graph& g, mpl::true_) {
        v(x, g);
     }
+
     template <class Visitor, class T, class Graph>
-    inline void
-    invoke_dispatch(Visitor&, T, Graph&, false_tag) { }
+    inline void invoke_dispatch(Visitor&, T, Graph&, mpl::false_)
+    { }
   } // namespace detail
 
   template <class Visitor, class Rest, class T, class Graph, class Tag>
   inline void
   invoke_visitors(std::pair<Visitor, Rest>& vlist, T x, Graph& g, Tag tag) {
     typedef typename Visitor::event_filter Category;
-    typedef typename graph_detail::is_same<Category, Tag>::is_same_tag
-      IsSameTag;
+    typedef typename is_same<Category, Tag>::type IsSameTag;
     detail::invoke_dispatch(vlist.first, x, g, IsSameTag());
     invoke_visitors(vlist.second, x, g, tag);
   }
@@ -130,8 +127,7 @@ namespace boost {
   inline void
   invoke_visitors(base_visitor<Visitor>& vis, T x, Graph& g, Tag) {
     typedef typename Visitor::event_filter Category;
-    typedef typename graph_detail::is_same<Category, Tag>::is_same_tag
-      IsSameTag;
+    typedef typename is_same<Category, Tag>::type IsSameTag;
     Visitor& v = static_cast<Visitor&>(vis);
     detail::invoke_dispatch(v, x, g, IsSameTag());
   }
@@ -140,8 +136,7 @@ namespace boost {
   inline void
   invoke_visitors(Visitor& v, T x, Graph& g, Tag) {
     typedef typename Visitor::event_filter Category;
-    typedef typename graph_detail::is_same<Category, Tag>::is_same_tag
-      IsSameTag;
+    typedef typename is_same<Category, Tag>::type IsSameTag;
     detail::invoke_dispatch(v, x, g, IsSameTag());
   }
 #endif
@@ -255,6 +250,52 @@ namespace boost {
   write_property(PA pa, OutputIterator out, Tag) {
     return property_writer<PA, OutputIterator, Tag>(pa, out);
   }
+
+  //========================================================================
+  // property_put
+
+    /**
+     * Functor which just sets a given value to a vertex or edge in a property map.
+     */
+
+  template <typename PropertyMap, typename EventTag>
+  struct property_put
+  {
+    typedef EventTag event_filter;
+    
+    property_put (PropertyMap property_map,
+                  typename property_traits <PropertyMap>::value_type value) :
+      property_map_ (property_map), value_ (value)
+    {}
+
+    template <typename VertexOrEdge, typename Graph>
+    void operator() (VertexOrEdge v, const Graph&)
+    {
+      put (property_map_, v, value_);
+    }
+
+  private:
+    PropertyMap property_map_;
+    typename property_traits <PropertyMap>::value_type value_;
+  };
+
+  /**
+   * Creates a property_put functor which just sets a given value to a vertex or edge.
+   * 
+   * @param property_map Given writeable property map 
+   * @param value Fixed value of the map
+   * @param tag Event Filter
+   * @return The functor.
+   */
+
+    template <typename PropertyMap, typename EventTag>
+    inline property_put <PropertyMap, EventTag>
+    put_property (PropertyMap property_map,
+                  typename property_traits <PropertyMap>::value_type value,
+                  EventTag)
+    {
+      return property_put <PropertyMap, EventTag> (property_map, value);
+    }
 
 #define BOOST_GRAPH_EVENT_STUB(Event,Kind)                                 \
     typedef ::boost::Event Event##_type;                                   \

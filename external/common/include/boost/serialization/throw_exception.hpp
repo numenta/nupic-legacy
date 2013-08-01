@@ -17,8 +17,8 @@
 
 #include <boost/config.hpp>
 
-#ifdef BOOST_NO_EXCEPTIONS
-# include <exception>
+#ifndef BOOST_NO_EXCEPTIONS
+#include <exception>
 #endif
 
 namespace boost {
@@ -26,7 +26,7 @@ namespace serialization {
 
 #ifdef BOOST_NO_EXCEPTIONS
 
-void throw_exception(std::exception const & e) {
+inline void throw_exception(std::exception const & e) {
     ::boost::throw_exception(e);
 }
 
