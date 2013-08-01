@@ -1,9 +1,9 @@
 /* Copyright (c) 2002,2003 CrystalClear Software, Inc.
- * Use, modification and distribution is subject to the 
+ * Use, modification and distribution is subject to the
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2012-09-22 09:04:10 -0700 (Sat, 22 Sep 2012) $
  */
 
 #ifndef NO_BOOST_DATE_TIME_INLINE
@@ -14,7 +14,7 @@
 namespace boost {
 namespace date_time {
   //! Return the day of the week (0==Sunday, 1==Monday, etc)
-  /*! Converts a the year-month-day into a day of the week number
+  /*! Converts a year-month-day into a day of the week number
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
@@ -27,10 +27,10 @@ namespace date_time {
     //std::cout << year << "-" << month << "-" << day << " is day: " << d << "\n";
     return d;
   }
-  
+
   //!Return the iso week number for the date
   /*!Implements the rules associated with the iso 8601 week number.
-    Basically the rule is that Week 1 of the year is the week that contains 
+    Basically the rule is that Week 1 of the year is the week that contains
     January 4th or the week that contains the first Thursday in January.
     Reference for this algorithm is the Calendar FAQ by Claus Tondering, April 2000.
   */
@@ -42,12 +42,12 @@ namespace date_time {
     unsigned long juliantoday = julian_day_number(ymd);
     unsigned long day = (julianbegin + 3) % 7;
     unsigned long week = (juliantoday + day - julianbegin + 4)/7;
-    
+
     if ((week >= 1) && (week <= 52)) {
       return week;
     }
-    
-    if ((week == 53)) {
+
+    if (week == 53) {
       if((day==6) ||(day == 5 && is_leap_year(ymd.year))) {
         return week; //under these circumstances week == 53.
       } else {
@@ -62,18 +62,18 @@ namespace date_time {
       week = (juliantoday + day - julianbegin + 4)/7;
       return week;
     }
-    
+
     return week;  //not reachable -- well except if day == 5 and is_leap_year != true
-    
+
   }
-  
+
   //! Convert a ymd_type into a day number
   /*! The day number is an absolute number of days since the start of count
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   date_int_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::day_number(const ymd_type& ymd) 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::day_number(const ymd_type& ymd)
   {
     unsigned short a = static_cast<unsigned short>((14-ymd.month)/12);
     unsigned short y = static_cast<unsigned short>(ymd.year + 4800 - a);
@@ -81,14 +81,14 @@ namespace date_time {
     unsigned long  d = ymd.day + ((153*m + 2)/5) + 365*y + (y/4) - (y/100) + (y/400) - 32045;
     return d;
   }
-  
+
   //! Convert a year-month-day into the julian day number
   /*! Since this implementation uses julian day internally, this is the same as the day_number.
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   date_int_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::julian_day_number(const ymd_type& ymd) 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::julian_day_number(const ymd_type& ymd)
   {
     return day_number(ymd);
   }
@@ -99,17 +99,17 @@ namespace date_time {
    */
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
-  long
-  gregorian_calendar_base<ymd_type_,date_int_type_>::modjulian_day_number(const ymd_type& ymd) 
+  date_int_type_
+  gregorian_calendar_base<ymd_type_,date_int_type_>::modjulian_day_number(const ymd_type& ymd)
   {
     return julian_day_number(ymd)-2400001; //prerounded
   }
-  
+
   //! Change a day number into a year-month-day
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   ymd_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::from_day_number(date_int_type dayNumber) 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::from_day_number(date_int_type dayNumber)
   {
     date_int_type a = dayNumber + 32044;
     date_int_type b = (4*a + 3)/146097;
@@ -121,15 +121,15 @@ namespace date_time {
     unsigned short month = static_cast<unsigned short>(m + 3 - 12 * (m/10));
     year_type year = static_cast<unsigned short>(100*b + d - 4800 + (m/10));
     //std::cout << year << "-" << month << "-" << day << "\n";
-    
+
     return ymd_type(static_cast<unsigned short>(year),month,day);
   }
-  
+
   //! Change a day number into a year-month-day
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   ymd_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::from_julian_day_number(date_int_type dayNumber) 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::from_julian_day_number(date_int_type dayNumber)
   {
     date_int_type a = dayNumber + 32044;
     date_int_type b = (4*a+3)/146097;
@@ -141,19 +141,19 @@ namespace date_time {
     unsigned short month = static_cast<unsigned short>(m + 3 - 12 * (m/10));
     year_type year = static_cast<year_type>(100*b + d - 4800 + (m/10));
     //std::cout << year << "-" << month << "-" << day << "\n";
-    
+
     return ymd_type(year,month,day);
   }
-  
+
   //! Change a modified julian day number into a year-month-day
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   ymd_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::from_modjulian_day_number(long dayNumber) {
+  gregorian_calendar_base<ymd_type_,date_int_type_>::from_modjulian_day_number(date_int_type dayNumber) {
     date_int_type jd = dayNumber + 2400001; //is 2400000.5 prerounded
     return from_julian_day_number(jd);
   }
-  
+
   //! Determine if the provided year is a leap year
   /*!
    *@return true if year is a leap year, false otherwise
@@ -161,12 +161,12 @@ namespace date_time {
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   bool
-  gregorian_calendar_base<ymd_type_,date_int_type_>::is_leap_year(year_type year) 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::is_leap_year(year_type year)
   {
     //divisible by 4, not if divisible by 100, but true if divisible by 400
     return (!(year % 4))  && ((year % 100) || (!(year % 400)));
   }
-  
+
   //! Calculate the last day of the month
   /*! Find the day which is the end of the month given year and month
    *  No error checking is performed.
@@ -175,7 +175,7 @@ namespace date_time {
   BOOST_DATE_TIME_INLINE
   unsigned short
   gregorian_calendar_base<ymd_type_,date_int_type_>::end_of_month_day(year_type year,
-                                                                      month_type month) 
+                                                                      month_type month)
   {
     switch (month) {
     case 2:
@@ -194,12 +194,12 @@ namespace date_time {
     };
 
   }
-  
+
   //! Provide the ymd_type specification for the calandar start
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   ymd_type_
-  gregorian_calendar_base<ymd_type_,date_int_type_>::epoch() 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::epoch()
   {
     return ymd_type(1400,1,1);
   }
@@ -208,7 +208,7 @@ namespace date_time {
   template<typename ymd_type_, typename date_int_type_>
   BOOST_DATE_TIME_INLINE
   unsigned short
-  gregorian_calendar_base<ymd_type_,date_int_type_>::days_in_week() 
+  gregorian_calendar_base<ymd_type_,date_int_type_>::days_in_week()
   {
     return 7;
   }

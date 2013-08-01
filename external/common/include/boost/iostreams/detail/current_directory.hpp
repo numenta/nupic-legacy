@@ -30,6 +30,9 @@
 # include <unistd.h>        // sysconf.
 #endif
 
+// Must come last.
+#include <boost/iostreams/detail/config/disable_warnings.hpp>
+
 namespace boost { namespace iostreams { namespace detail {
 
 // Returns the current working directory
@@ -56,5 +59,7 @@ inline std::string current_directory()
 }
 
 } } } // End namespaces detail, iostreams, boost.
+
+#include <boost/iostreams/detail/config/enable_warnings.hpp>
 
 #endif // #ifndef BOOST_IOSTREAMS_DETAIL_CURRENT_DIRECTORY_HPP_INCLUDED

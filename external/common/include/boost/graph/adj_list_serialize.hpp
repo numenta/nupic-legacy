@@ -10,6 +10,7 @@
 #define ADJ_LIST_SERIALIZE_HPP
 
 #include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/iteration_macros.hpp>
 #include <boost/pending/property_serialize.hpp>
 #include <boost/config.hpp>
 #include <boost/detail/workaround.hpp>
@@ -49,19 +50,19 @@ inline void save(
   // assign indices to vertices
   std::map<Vertex,int> indices;
   int num = 0;
-  typename graph_traits<Graph>::vertex_iterator vi;
-  for (vi = vertices(graph).first; vi != vertices(graph).second; ++vi) {
-    indices[*vi] = num++;
-    ar << serialization::make_nvp("vertex_property", get(vertex_all_t(), graph, *vi) );
+  BGL_FORALL_VERTICES_T(v, graph, Graph) {
+    indices[v] = num++;
+    ar << serialization::make_nvp("vertex_property", get(vertex_all_t(), graph, v) );
   }
   
   // write edges
-  typename graph_traits<Graph>::edge_iterator ei;
-  for (ei = edges(graph).first; ei != edges(graph).second; ++ei){
-    ar << serialization::make_nvp("u" , indices[source(*ei,graph)]);
-    ar << serialization::make_nvp("v" , indices[target(*ei,graph)]);
-    ar << serialization::make_nvp("edge_property", get(edge_all_t(), graph, *ei) );
+  BGL_FORALL_EDGES_T(e, graph, Graph) {
+    ar << serialization::make_nvp("u" , indices[source(e,graph)]);
+    ar << serialization::make_nvp("v" , indices[target(e,graph)]);
+    ar << serialization::make_nvp("edge_property", get(edge_all_t(), graph, e) );
   }
+
+  ar << serialization::make_nvp("graph_property", get_property(graph, graph_all_t()) );
 }
 
 
@@ -93,9 +94,10 @@ inline void load(
     ar >> BOOST_SERIALIZATION_NVP(u);
     ar >> BOOST_SERIALIZATION_NVP(v);
     Edge e; bool inserted;
-    tie(e,inserted) = add_edge(verts[u], verts[v], graph);
+    boost::tie(e,inserted) = add_edge(verts[u], verts[v], graph);
     ar >> serialization::make_nvp("edge_property", get(edge_all_t(), graph, e) );
   }
+  ar >> serialization::make_nvp("graph_property", get_property(graph, graph_all_t()) );
 }
 
 template<class Archive, class OEL, class VL, class D, class VP, class EP, class GP, class EL>

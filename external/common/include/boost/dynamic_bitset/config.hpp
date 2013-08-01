@@ -20,19 +20,13 @@
 # define BOOST_OLD_IOSTREAMS
 #endif
 
-// this should be in the config system some day
-// see http://lists.boost.org/MailArchives/boost/msg62291.php
-#define BOOST_DYNAMIC_BITSET_GNUC_VERSION  (  (__GNUC__)       * 100 * 100     \
-                                            + (__GNUC_MINOR__) * 100)
-
 // no-op function to workaround gcc bug c++/8419
 //
 namespace boost { namespace detail {
     template <typename T> T make_non_const(T t) { return t; }
 }}
 
-#if defined(__GNUC__) && BOOST_WORKAROUND(BOOST_DYNAMIC_BITSET_GNUC_VERSION, \
-                                          BOOST_TESTED_AT(30300))
+#if defined(__GNUC__)
 # define BOOST_DYNAMIC_BITSET_WRAP_CONSTANT(expr) \
          (boost::detail::make_non_const(expr))
 #else

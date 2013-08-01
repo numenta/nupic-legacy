@@ -151,6 +151,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         //              initialized before calling this function.
         //
         ///////////////////////////////////////////////////////////////////////
+#if defined(BOOST_MSVC)
+#pragma warning(push) 
+#pragma warning(disable:4127) //conditional expression is constant
+#endif
+        
         template <typename T, int Radix>
         struct positive_accumulate
         {
@@ -351,11 +356,6 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
         //  real_parser_impl class
         //
         ///////////////////////////////////////////////////////////////////////
-#if (defined(BOOST_MSVC) && (BOOST_MSVC <= 1310))
-#pragma warning(push)
-#pragma warning(disable:4127)
-#endif
-
         template <typename RT, typename T, typename RealPoliciesT>
         struct real_parser_impl
         {
@@ -464,7 +464,7 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
             }
         };
 
-#if (defined(BOOST_MSVC) && (BOOST_MSVC <= 1310))
+#if defined(BOOST_MSVC)
 #pragma warning(pop)
 #endif
 

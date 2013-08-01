@@ -50,17 +50,17 @@ struct hash_peek_bitset
     }
 
     template<typename Traits>
-    void set_char(char_type ch, bool icase, Traits const &traits)
+    void set_char(char_type ch, bool icase, Traits const &tr)
     {
         if(this->test_icase_(icase))
         {
-            ch = icase ? traits.translate_nocase(ch) : traits.translate(ch);
-            this->bset_.set(traits.hash(ch));
+            ch = icase ? tr.translate_nocase(ch) : tr.translate(ch);
+            this->bset_.set(tr.hash(ch));
         }
     }
 
     template<typename Traits>
-    void set_range(char_type from, char_type to, bool no, bool icase, Traits const &traits)
+    void set_range(char_type from, char_type to, bool no, bool icase, Traits const &tr)
     {
         int_type ifrom = std::char_traits<char_type>::to_int_type(from);
         int_type ito = std::char_traits<char_type>::to_int_type(to);
@@ -75,14 +75,14 @@ struct hash_peek_bitset
             for(int_type i = ifrom; i <= ito; ++i)
             {
                 char_type ch = std::char_traits<char_type>::to_char_type(i);
-                ch = icase ? traits.translate_nocase(ch) : traits.translate(ch);
-                this->bset_.set(traits.hash(ch));
+                ch = icase ? tr.translate_nocase(ch) : tr.translate(ch);
+                this->bset_.set(tr.hash(ch));
             }
         }
     }
 
     template<typename Traits>
-    void set_class(typename Traits::char_class_type char_class, bool no, Traits const &traits)
+    void set_class(typename Traits::char_class_type char_class, bool no, Traits const &tr)
     {
         if(1 != sizeof(char_type))
         {
@@ -94,7 +94,7 @@ struct hash_peek_bitset
             for(std::size_t i = 0; i <= UCHAR_MAX; ++i)
             {
                 char_type ch = std::char_traits<char_type>::to_char_type(static_cast<int_type>(i));
-                if(no != traits.isctype(ch, char_class))
+                if(no != tr.isctype(ch, char_class))
                 {
                     this->bset_.set(i);
                 }
@@ -124,24 +124,24 @@ struct hash_peek_bitset
     }
 
     template<typename Traits>
-    bool test(char_type ch, Traits const &traits) const
+    bool test(char_type ch, Traits const &tr) const
     {
-        ch = this->icase_ ? traits.translate_nocase(ch) : traits.translate(ch);
-        return this->bset_.test(traits.hash(ch));
+        ch = this->icase_ ? tr.translate_nocase(ch) : tr.translate(ch);
+        return this->bset_.test(tr.hash(ch));
     }
 
     template<typename Traits>
-    bool test(char_type ch, Traits const &traits, mpl::false_) const
+    bool test(char_type ch, Traits const &tr, mpl::false_) const
     {
         BOOST_ASSERT(!this->icase_);
-        return this->bset_.test(traits.hash(traits.translate(ch)));
+        return this->bset_.test(tr.hash(tr.translate(ch)));
     }
 
     template<typename Traits>
-    bool test(char_type ch, Traits const &traits, mpl::true_) const
+    bool test(char_type ch, Traits const &tr, mpl::true_) const
     {
         BOOST_ASSERT(this->icase_);
-        return this->bset_.test(traits.hash(traits.translate_nocase(ch)));
+        return this->bset_.test(tr.hash(tr.translate_nocase(ch)));
     }
 
 private:

@@ -161,7 +161,7 @@ struct compiler_traits
         case BOOST_XPR_CHAR_(char_type, '{'):
             old_begin = this->eat_ws_(++begin, end);
             spec.min_ = spec.max_ = detail::toi(begin, end, this->traits());
-            detail::ensure
+            BOOST_XPR_ENSURE_
             (
                 begin != old_begin && begin != end, error_brace, "invalid quantifier"
             );
@@ -170,7 +170,7 @@ struct compiler_traits
             {
                 old_begin = this->eat_ws_(++begin, end);
                 spec.max_ = detail::toi(begin, end, this->traits());
-                detail::ensure
+                BOOST_XPR_ENSURE_
                 (
                     begin != end && BOOST_XPR_CHAR_(char_type, '}') == *begin
                   , error_brace, "invalid quantifier"
@@ -182,7 +182,7 @@ struct compiler_traits
                 }
                 else
                 {
-                    detail::ensure
+                    BOOST_XPR_ENSURE_
                     (
                         spec.min_ <= spec.max_, error_badbrace, "invalid quantification range"
                     );
@@ -190,7 +190,7 @@ struct compiler_traits
             }
             else
             {
-                detail::ensure
+                BOOST_XPR_ENSURE_
                 (
                     BOOST_XPR_CHAR_(char_type, '}') == *begin, error_brace, "invalid quantifier"
                 );
@@ -220,7 +220,7 @@ struct compiler_traits
         if(this->eat_ws_(begin, end) != end && BOOST_XPR_CHAR_(char_type, '?') == *begin)
         {
             this->eat_ws_(++begin, end);
-            detail::ensure(begin != end, error_paren, "incomplete extension");
+            BOOST_XPR_ENSURE_(begin != end, error_paren, "incomplete extension");
 
             switch(*begin)
             {
@@ -232,7 +232,7 @@ struct compiler_traits
             case BOOST_XPR_CHAR_(char_type, 'R'): ++begin; return token_recurse;
             case BOOST_XPR_CHAR_(char_type, '$'):
                 this->get_name_(++begin, end, name);
-                detail::ensure(begin != end, error_paren, "incomplete extension");
+                BOOST_XPR_ENSURE_(begin != end, error_paren, "incomplete extension");
                 if(BOOST_XPR_CHAR_(char_type, '=') == *begin)
                 {
                     ++begin;
@@ -242,30 +242,30 @@ struct compiler_traits
 
             case BOOST_XPR_CHAR_(char_type, '<'):
                 this->eat_ws_(++begin, end);
-                detail::ensure(begin != end, error_paren, "incomplete extension");
+                BOOST_XPR_ENSURE_(begin != end, error_paren, "incomplete extension");
                 switch(*begin)
                 {
                 case BOOST_XPR_CHAR_(char_type, '='): ++begin; return token_positive_lookbehind;
                 case BOOST_XPR_CHAR_(char_type, '!'): ++begin; return token_negative_lookbehind;
                 default:
-                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
+                    BOOST_THROW_EXCEPTION(regex_error(error_badbrace, "unrecognized extension"));
                 }
 
             case BOOST_XPR_CHAR_(char_type, 'P'):
                 this->eat_ws_(++begin, end);
-                detail::ensure(begin != end, error_paren, "incomplete extension");
+                BOOST_XPR_ENSURE_(begin != end, error_paren, "incomplete extension");
                 switch(*begin)
                 {
                 case BOOST_XPR_CHAR_(char_type, '<'):
                     this->get_name_(++begin, end, name);
-                    detail::ensure(begin != end && BOOST_XPR_CHAR_(char_type, '>') == *begin++, error_paren, "incomplete extension");
+                    BOOST_XPR_ENSURE_(begin != end && BOOST_XPR_CHAR_(char_type, '>') == *begin++, error_paren, "incomplete extension");
                     return token_named_mark;
                 case BOOST_XPR_CHAR_(char_type, '='):
                     this->get_name_(++begin, end, name);
-                    detail::ensure(begin != end, error_paren, "incomplete extension");
+                    BOOST_XPR_ENSURE_(begin != end, error_paren, "incomplete extension");
                     return token_named_mark_ref;
                 default:
-                    boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
+                    BOOST_THROW_EXCEPTION(regex_error(error_badbrace, "unrecognized extension"));
                 }
 
             case BOOST_XPR_CHAR_(char_type, 'i'):
@@ -276,7 +276,7 @@ struct compiler_traits
                 return this->parse_mods_(begin, end);
 
             default:
-                boost::throw_exception(regex_error(error_badbrace, "unrecognized extension"));
+                BOOST_THROW_EXCEPTION(regex_error(error_badbrace, "unrecognized extension"));
             }
         }
 
@@ -301,13 +301,13 @@ struct compiler_traits
                 FwdIter next = begin; ++next;
                 if(next != end)
                 {
-                    detail::ensure(
+                    BOOST_XPR_ENSURE_(
                         *next != BOOST_XPR_CHAR_(char_type, '=')
                       , error_collate
                       , "equivalence classes are not yet supported"
                     );
 
-                    detail::ensure(
+                    BOOST_XPR_ENSURE_(
                         *next != BOOST_XPR_CHAR_(char_type, '.')
                       , error_collate
                       , "collation sequences are not yet supported"
@@ -397,9 +397,9 @@ private:
         case BOOST_XPR_CHAR_(char_type, ':'): ++begin; // fall-through
         case BOOST_XPR_CHAR_(char_type, ')'): return token_no_mark;
         case BOOST_XPR_CHAR_(char_type, '-'): if(false == (set = !set)) break; // else fall-through
-        default: boost::throw_exception(regex_error(error_paren, "unknown pattern modifier"));
+        default: BOOST_THROW_EXCEPTION(regex_error(error_paren, "unknown pattern modifier"));
         }
-        while(detail::ensure(++begin != end, error_paren, "incomplete extension"));
+        while(BOOST_XPR_ENSURE_(++begin != end, error_paren, "incomplete extension"));
         // this return is technically unreachable, but this must
         // be here to work around a bug in gcc 4.0
         return token_no_mark;
@@ -437,7 +437,7 @@ private:
             name.push_back(*begin);
         }
         this->eat_ws_(begin, end);
-        detail::ensure(!name.empty(), regex_constants::error_paren, "incomplete extension");
+        BOOST_XPR_ENSURE_(!name.empty(), regex_constants::error_paren, "incomplete extension");
     }
 
     ///////////////////////////////////////////////////////////////////////////////

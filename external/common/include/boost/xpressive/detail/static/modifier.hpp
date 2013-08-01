@@ -17,7 +17,7 @@
 #endif
 
 #include <boost/xpressive/detail/detail_fwd.hpp>
-#include <boost/xpressive/proto/traits.hpp>
+#include <boost/proto/traits.hpp>
 #include <boost/xpressive/regex_constants.hpp>
 
 namespace boost { namespace xpressive { namespace detail
@@ -36,7 +36,7 @@ namespace boost { namespace xpressive { namespace detail
             typedef typename proto::binary_expr<
                 modifier_tag
               , typename proto::terminal<Modifier>::type
-              , typename proto::result_of::as_arg<Expr const>::type
+              , typename proto::result_of::as_child<Expr const>::type
             >::type type;
         };
 
@@ -44,7 +44,7 @@ namespace boost { namespace xpressive { namespace detail
         typename apply<Expr>::type const
         operator ()(Expr const &expr) const
         {
-            typename apply<Expr>::type that = {{this->mod_}, proto::as_arg(expr)};
+            typename apply<Expr>::type that = {{this->mod_}, proto::as_child(expr)};
             return that;
         }
 

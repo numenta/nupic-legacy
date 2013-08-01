@@ -382,7 +382,7 @@ namespace boost {
                 typedef BOOST_STRING_TYPENAME boost::detail::
                     iterator_traits<ForwardIteratorT>::iterator_category category;
 
-                return find_head_impl( Begin, End, N, category() );
+                return ::boost::algorithm::detail::find_head_impl( Begin, End, N, category() );
             }
 
             template< typename ForwardIteratorT >
@@ -456,7 +456,7 @@ namespace boost {
                 typedef BOOST_STRING_TYPENAME boost::detail::
                     iterator_traits<ForwardIteratorT>::iterator_category category;
 
-                return find_tail_impl( Begin, End, N, category() );
+                return ::boost::algorithm::detail::find_tail_impl( Begin, End, N, category() );
             }
 
 
@@ -484,14 +484,14 @@ namespace boost {
                 {
                     if(m_N>=0)
                     {
-                        return find_head_impl( Begin, End, m_N );
+                        return ::boost::algorithm::detail::find_head_impl( Begin, End, m_N );
                     }
                     else
                     {
                         iterator_range<ForwardIteratorT> Res=
-                            find_tail_impl( Begin, End, -m_N );
+                            ::boost::algorithm::detail::find_tail_impl( Begin, End, -m_N );
 
-                        return make_iterator_range(Begin, Res.begin());
+                        return ::boost::make_iterator_range(Begin, Res.begin());
                     }
                 }
 
@@ -522,14 +522,14 @@ namespace boost {
                 {
                     if(m_N>=0)
                     {
-                        return find_tail_impl( Begin, End, m_N );
+                        return ::boost::algorithm::detail::find_tail_impl( Begin, End, m_N );
                     }
                     else
                     {
                         iterator_range<ForwardIteratorT> Res=
-                            find_head_impl( Begin, End, -m_N );
+                            ::boost::algorithm::detail::find_head_impl( Begin, End, -m_N );
 
-                        return make_iterator_range(Res.end(), End);
+                        return ::boost::make_iterator_range(Res.end(), End);
                     }
                 }
 

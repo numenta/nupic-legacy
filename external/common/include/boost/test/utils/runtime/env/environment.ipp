@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : implements model of program environment 
 // ***************************************************************************
@@ -75,6 +75,11 @@ find_var_record( cstring var_name )
 
 //____________________________________________________________________________//
 
+#ifdef BOOST_MSVC 
+#pragma warning(push) 
+#pragma warning(disable:4996) // getenv
+#endif
+
 BOOST_RT_PARAM_INLINE cstring
 sys_read_var( cstring var_name )
 {
@@ -82,6 +87,9 @@ sys_read_var( cstring var_name )
     return BOOST_RT_PARAM_GETENV( var_name.begin() );
 }
 
+#ifdef BOOST_MSVC 
+#pragma warning(pop) 
+#endif
 //____________________________________________________________________________//
 
 BOOST_RT_PARAM_INLINE void

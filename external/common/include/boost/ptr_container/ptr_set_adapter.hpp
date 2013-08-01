@@ -204,12 +204,14 @@ namespace ptr_container_detail
         
         size_type erase( const key_type& x ) // nothrow
         {
-            iterator i( this->base().find( const_cast<key_type*>(&x) ) );       
-                                                                    // nothrow
+            key_type* key = const_cast<key_type*>(&x);
+            iterator i( this->base().find( key ) );       
             if( i == this->end() )                                  // nothrow
                 return 0u;                                          // nothrow
-            this->remove( i );                                      // nothrow
-            return this->base().erase( const_cast<key_type*>(&x) ); // nothrow 
+            key = static_cast<key_type*>(*i.base());                // nothrow
+            size_type res = this->base().erase( key );              // nothrow 
+            this->remove( key );                                    // nothrow
+            return res;
         }
 
 

@@ -32,6 +32,7 @@
 #include <boost/mpi/detail/ignore_iprimitive.hpp>
 #include <boost/mpi/detail/ignore_oprimitive.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/archive/detail/register_archive.hpp>
 
 namespace boost { namespace mpi {
 

@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -13,6 +13,8 @@
 #include <boost/fusion/view/reverse_view/reverse_view_iterator.hpp>
 #include <boost/fusion/view/reverse_view/detail/begin_impl.hpp>
 #include <boost/fusion/view/reverse_view/detail/end_impl.hpp>
+#include <boost/fusion/view/reverse_view/detail/at_impl.hpp>
+#include <boost/fusion/view/reverse_view/detail/value_at_impl.hpp>
 #include <boost/fusion/support/sequence_base.hpp>
 #include <boost/fusion/sequence/intrinsic/begin.hpp>
 #include <boost/fusion/sequence/intrinsic/end.hpp>
@@ -20,6 +22,9 @@
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/static_assert.hpp>
 #include <boost/mpl/bool.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/inherit.hpp>
+#include <boost/mpl/identity.hpp>
 
 namespace boost { namespace fusion
 {
@@ -33,6 +38,7 @@ namespace boost { namespace fusion
         typedef fusion_sequence_tag tag; // this gets picked up by MPL
         typedef mpl::true_ is_view;
 
+        typedef Sequence seq_type;
         typedef typename traits::category_of<Sequence>::type category;
         typedef typename result_of::begin<Sequence>::type first_type;
         typedef typename result_of::end<Sequence>::type last_type;
@@ -43,13 +49,17 @@ namespace boost { namespace fusion
                 bidirectional_traversal_tag
               , typename traits::category_of<first_type>::type>::value));
 
-        reverse_view(Sequence& seq)
-            : seq(seq)
+        reverse_view(Sequence& in_seq)
+            : seq(in_seq)
         {}
 
         first_type first() const { return fusion::begin(seq); }
         last_type last() const { return fusion::end(seq); }
         typename mpl::if_<traits::is_view<Sequence>, Sequence, Sequence&>::type seq;
+
+    private:
+        // silence MSVC warning C4512: assignment operator could not be generated
+        reverse_view& operator= (reverse_view const&);
     };
 }}
 

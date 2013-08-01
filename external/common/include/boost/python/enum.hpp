@@ -41,7 +41,7 @@ inline enum_<T>::enum_(char const* name, char const* doc )
         , &enum_<T>::convertible_from_python
         , &enum_<T>::construct
         , type_id<T>()
-		, doc
+        , doc
         )
 {
 }
@@ -79,7 +79,11 @@ void* enum_<T>::convertible_from_python(PyObject* obj)
 template <class T>
 void enum_<T>::construct(PyObject* obj, converter::rvalue_from_python_stage1_data* data)
 {
+#if PY_VERSION_HEX >= 0x03000000
+    T x = static_cast<T>(PyLong_AS_LONG(obj));
+#else
     T x = static_cast<T>(PyInt_AS_LONG(obj));
+#endif
     void* const storage = ((converter::rvalue_from_python_storage<T>*)data)->storage.bytes;
     new (storage) T(x);
     data->convertible = storage;

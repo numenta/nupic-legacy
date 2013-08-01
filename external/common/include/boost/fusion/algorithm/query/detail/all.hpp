@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2006 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2007 Dan Marsden
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -106,9 +106,9 @@ namespace boost { namespace fusion { namespace detail
     struct unrolled_all<0>
     {
         template <typename It, typename F>
-        static bool call(It const& it, F f)
+        static bool call(It const& /*it*/, F /*f*/)
         {
-            return false;
+            return true;
         }
     };
 

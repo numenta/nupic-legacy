@@ -22,6 +22,8 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/serialization.hpp>
 #include <boost/serialization/version.hpp>
+#include <boost/serialization/collection_size_type.hpp>
+#include <boost/serialization/item_version_type.hpp>
 
 namespace boost{
 namespace serialization {
@@ -34,17 +36,46 @@ namespace stl {
 template<class Archive, class Container>
 inline void save_hash_collection(Archive & ar, const Container &s)
 {
-    // record number of elements
-    unsigned int count = s.size();
-    ar <<  BOOST_SERIALIZATION_NVP(count);
-    // make sure the target type is registered so we can retrieve
-    // the version when we load
-    if(3 < ar.get_library_version()){
-        const unsigned int bucket_count = s.bucket_count();
+    collection_size_type count(s.size());
+    const collection_size_type bucket_count(s.bucket_count());
+    const item_version_type item_version(
+        version<BOOST_DEDUCED_TYPENAME Container::value_type>::value
+    );
+
+    #if 0
+    /* should only be necessary to create archives of previous versions
+     * which is not currently supported.  So for now comment this out
+     */
+    boost::archive::library_version_type library_version(
+        ar.get_library_version()
+    );
+    // retrieve number of elements
+    if(boost::archive::library_version_type(6) != library_version){
+        ar << BOOST_SERIALIZATION_NVP(count);
         ar << BOOST_SERIALIZATION_NVP(bucket_count);
-        const unsigned int item_version = version<BOOST_DEDUCED_TYPENAME Container::value_type>::value;
+    }
+    else{
+        // note: fixup for error in version 6.  collection size was
+        // changed to size_t BUT for hashed collections it was implemented
+        // as an unsigned int.  This should be a problem only on win64 machines
+        // but I'll leave it for everyone just in case.
+        const unsigned int c = count;
+        const unsigned int bc = bucket_count;
+        ar << BOOST_SERIALIZATION_NVP(c);
+        ar << BOOST_SERIALIZATION_NVP(bc);
+    }
+    if(boost::archive::library_version_type(3) < library_version){
+        // record number of elements
+        // make sure the target type is registered so we can retrieve
+        // the version when we load
         ar << BOOST_SERIALIZATION_NVP(item_version);
     }
+    #else
+        ar << BOOST_SERIALIZATION_NVP(count);
+        ar << BOOST_SERIALIZATION_NVP(bucket_count);
+        ar << BOOST_SERIALIZATION_NVP(item_version);
+    #endif
+
     BOOST_DEDUCED_TYPENAME Container::const_iterator it = s.begin();
     while(count-- > 0){
         // note borland emits a no-op without the explicit namespace

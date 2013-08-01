@@ -3,7 +3,7 @@
 
     http://www.boost.org/
 
-    Copyright (c) 2001-2008 Hartmut Kaiser. Distributed under the Boost
+    Copyright (c) 2001-2012 Hartmut Kaiser. Distributed under the Boost
     Software License, Version 1.0. (See accompanying file
     LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 =============================================================================*/
@@ -54,10 +54,10 @@ struct BOOST_WAVE_DECL intlit_grammar_gen {
 //      to safe compilation time.
 //
 ///////////////////////////////////////////////////////////////////////////////
-template <typename TokenT>
+template <typename IntegralResult, typename TokenT>
 struct BOOST_WAVE_DECL chlit_grammar_gen {
 
-    static unsigned int evaluate(TokenT const &tok, value_error& status);
+    static IntegralResult evaluate(TokenT const &tok, value_error& status);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

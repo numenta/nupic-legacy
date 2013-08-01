@@ -1,8 +1,8 @@
 //
-// connect_pair.hpp
-// ~~~~~~~~~~~~~~~~
+// local/connect_pair.hpp
+// ~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,16 +15,18 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/basic_socket.hpp>
-#include <boost/asio/error.hpp>
-#include <boost/asio/local/basic_endpoint.hpp>
-#include <boost/asio/detail/socket_ops.hpp>
-#include <boost/asio/detail/throw_error.hpp>
+#include <boost/asio/detail/config.hpp>
 
 #if defined(BOOST_ASIO_HAS_LOCAL_SOCKETS) \
   || defined(GENERATING_DOCUMENTATION)
+
+#include <boost/asio/basic_socket.hpp>
+#include <boost/asio/detail/socket_ops.hpp>
+#include <boost/asio/detail/throw_error.hpp>
+#include <boost/asio/error.hpp>
+#include <boost/asio/local/basic_endpoint.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -50,7 +52,7 @@ inline void connect_pair(
 {
   boost::system::error_code ec;
   connect_pair(socket1, socket2, ec);
-  boost::asio::detail::throw_error(ec);
+  boost::asio::detail::throw_error(ec, "connect_pair");
 }
 
 template <typename Protocol, typename SocketService1, typename SocketService2>
@@ -74,8 +76,9 @@ inline boost::system::error_code connect_pair(
   if (socket1.assign(protocol, sv[0], ec))
   {
     boost::system::error_code temp_ec;
-    boost::asio::detail::socket_ops::close(sv[0], temp_ec);
-    boost::asio::detail::socket_ops::close(sv[1], temp_ec);
+    boost::asio::detail::socket_ops::state_type state[2] = { 0, 0 };
+    boost::asio::detail::socket_ops::close(sv[0], state[0], true, temp_ec);
+    boost::asio::detail::socket_ops::close(sv[1], state[1], true, temp_ec);
     return ec;
   }
 
@@ -83,7 +86,8 @@ inline boost::system::error_code connect_pair(
   {
     boost::system::error_code temp_ec;
     socket1.close(temp_ec);
-    boost::asio::detail::socket_ops::close(sv[1], temp_ec);
+    boost::asio::detail::socket_ops::state_type state = 0;
+    boost::asio::detail::socket_ops::close(sv[1], state, true, temp_ec);
     return ec;
   }
 
@@ -94,9 +98,9 @@ inline boost::system::error_code connect_pair(
 } // namespace asio
 } // namespace boost
 
+#include <boost/asio/detail/pop_options.hpp>
+
 #endif // defined(BOOST_ASIO_HAS_LOCAL_SOCKETS)
        //   || defined(GENERATING_DOCUMENTATION)
-
-#include <boost/asio/detail/pop_options.hpp>
 
 #endif // BOOST_ASIO_LOCAL_CONNECT_PAIR_HPP

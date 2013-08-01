@@ -30,10 +30,10 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename Traits::char_type char_type;
         typedef typename Traits::char_class_type char_class_type;
 
-        logical_newline_matcher(Traits const &traits)
-          : newline_(lookup_classname(traits, "newline"))
-          , nl_(traits.widen('\n'))
-          , cr_(traits.widen('\r'))
+        logical_newline_matcher(Traits const &tr)
+          : newline_(lookup_classname(tr, "newline"))
+          , nl_(tr.widen('\n'))
+          , cr_(tr.widen('\r'))
         {
         }
 

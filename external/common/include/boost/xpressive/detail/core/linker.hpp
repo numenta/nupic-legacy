@@ -77,9 +77,9 @@ struct regex_traits_type
     typedef typename iterator_value<BidiIter>::type char_type;
 
     // if Locale is std::locale, wrap it in a cpp_regex_traits<Char>
-    typedef typename mpl::if_
+    typedef typename mpl::if_c
     <
-        is_same<Locale, std::locale>
+        is_same<Locale, std::locale>::value
       , cpp_regex_traits<char_type>
       , Locale
     >::type type;
@@ -141,9 +141,9 @@ template<typename Char>
 struct xpression_linker
 {
     template<typename Traits>
-    explicit xpression_linker(Traits const &traits)
+    explicit xpression_linker(Traits const &tr)
       : back_stack_()
-      , traits_(&traits)
+      , traits_(&tr)
       , traits_type_(&typeid(Traits))
       , has_backrefs_(false)
     {

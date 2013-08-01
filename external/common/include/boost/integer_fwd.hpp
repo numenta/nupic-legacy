@@ -14,11 +14,23 @@
 
 #include <boost/config.hpp>  // for BOOST_NO_INTRINSIC_WCHAR_T
 #include <boost/limits.hpp>  // for std::numeric_limits
+#include <boost/cstdint.hpp>  // For intmax_t
 
 
 namespace boost
 {
 
+#ifdef BOOST_NO_INTEGRAL_INT64_T
+     typedef unsigned long static_log2_argument_type;
+     typedef          int  static_log2_result_type;
+     typedef long          static_min_max_signed_type;
+     typedef unsigned long static_min_max_unsigned_type;
+#else
+     typedef boost::uintmax_t static_min_max_unsigned_type;
+     typedef boost::intmax_t  static_min_max_signed_type;
+     typedef boost::uintmax_t static_log2_argument_type;
+     typedef int              static_log2_result_type;
+#endif
 
 //  From <boost/cstdint.hpp>  ------------------------------------------------//
 
@@ -65,12 +77,18 @@ template <  >
 template <  >
     class integer_traits< unsigned long >;
 
-#ifdef ULLONG_MAX
+#if !defined(BOOST_NO_INTEGRAL_INT64_T) && !defined(BOOST_NO_INT64_T) && defined(BOOST_HAS_LONG_LONG)
 template <  >
-    class integer_traits<  ::boost::long_long_type>;
+class integer_traits<  ::boost::long_long_type>;
 
 template <  >
-    class integer_traits<  ::boost::ulong_long_type >;
+class integer_traits<  ::boost::ulong_long_type >;
+#elif !defined(BOOST_NO_INTEGRAL_INT64_T) && !defined(BOOST_NO_INT64_T) && defined(BOOST_HAS_MS_INT64)
+template <  >
+class integer_traits<__int64>;
+
+template <  >
+class integer_traits<unsigned __int64>;
 #endif
 
 
@@ -85,13 +103,25 @@ template< int Bits >
 template< int Bits >
     struct uint_t;
 
-template< long MaxValue >
+#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+    template< boost::long_long_type MaxValue >   // maximum value to require support
+#else
+  template< long MaxValue >   // maximum value to require support
+#endif
     struct int_max_value_t;
 
-template< long MinValue >
+#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+  template< boost::long_long_type MinValue >   // minimum value to require support
+#else
+  template< long MinValue >   // minimum value to require support
+#endif
     struct int_min_value_t;
 
-template< unsigned long Value >
+#if !defined(BOOST_NO_INTEGRAL_INT64_T) && defined(BOOST_HAS_LONG_LONG)
+  template< boost::ulong_long_type MaxValue >   // maximum value to require support
+#else
+  template< unsigned long MaxValue >   // maximum value to require support
+#endif
     struct uint_value_t;
 
 
@@ -106,45 +136,27 @@ template < std::size_t Bits >
 template <  >
     struct low_bits_mask_t< ::std::numeric_limits<unsigned char>::digits >;
 
-#if USHRT_MAX > UCHAR_MAX
-template <  >
-    struct low_bits_mask_t< ::std::numeric_limits<unsigned short>::digits >;
-#endif
-
-#if UINT_MAX > USHRT_MAX
-template <  >
-    struct low_bits_mask_t< ::std::numeric_limits<unsigned int>::digits >;
-#endif
-
-#if ULONG_MAX > UINT_MAX
-template <  >
-    struct low_bits_mask_t< ::std::numeric_limits<unsigned long>::digits >;
-#endif
-
-
 //  From <boost/integer/static_log2.hpp>  ------------------------------------//
 
-template < unsigned long Value >
+template <static_log2_argument_type Value >
     struct static_log2;
 
-template <  >
-    struct static_log2< 0ul >;
+template <> struct static_log2<0u>;
 
 
 //  From <boost/integer/static_min_max.hpp>  ---------------------------------//
 
-template < long Value1, long Value2 >
+template <static_min_max_signed_type Value1, static_min_max_signed_type Value2>
     struct static_signed_min;
 
-template < long Value1, long Value2 >
+template <static_min_max_signed_type Value1, static_min_max_signed_type Value2>
     struct static_signed_max;
 
-template < unsigned long Value1, unsigned long Value2 >
+template <static_min_max_unsigned_type Value1, static_min_max_unsigned_type Value2>
     struct static_unsigned_min;
 
-template < unsigned long Value1, unsigned long Value2 >
+template <static_min_max_unsigned_type Value1, static_min_max_unsigned_type Value2>
     struct static_unsigned_max;
-
 
 }  // namespace boost
 

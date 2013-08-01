@@ -157,9 +157,10 @@ struct eval_scale_list_impl<0>
     struct apply
     {
         typedef one type;
-        static type value()
+        static one value()
         {
-            return(type());
+            one result;
+            return(result);
         }
     };
 };

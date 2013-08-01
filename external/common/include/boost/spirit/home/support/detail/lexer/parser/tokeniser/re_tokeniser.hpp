@@ -1,5 +1,5 @@
 // tokeniser.hpp
-// Copyright (c) 2007 Ben Hanson (http://www.benhanson.net/)
+// Copyright (c) 2007-2009 Ben Hanson (http://www.benhanson.net/)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file licence_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -54,6 +54,12 @@ public:
                     "(missing '\"').");
             }
 
+            if (state_._paren_count)
+            {
+                throw runtime_error ("Unexpected end of regex "
+                    "(missing ')').");
+            }
+
             token_.set (num_token::END, null_token);
         }
         else
@@ -78,6 +84,7 @@ public:
                 case '(':
                     token_.set (num_token::OPENPAREN, null_token);
                     ++state_._paren_count;
+                    read_options (state_);
                     break;
                 case ')':
                     --state_._paren_count;
@@ -87,11 +94,17 @@ public:
                         std::ostringstream ss_;
 
                         ss_ << "Number of open parenthesis < 0 at index " <<
-                            state_._index - 1 << '.';
+                            state_.index () - 1 << '.';
                         throw runtime_error (ss_.str ().c_str ());
                     }
 
                     token_.set (num_token::CLOSEPAREN, null_token);
+
+                    if (!state_._flags_stack.empty ())
+                    {
+                        state_._flags = state_._flags_stack.top ();
+                        state_._flags_stack.pop ();
+                    }
                     break;
                 case '?':
                     if (!state_.eos () && *state_._curr == '?')
@@ -136,18 +149,36 @@ public:
                     token_.set (num_token::OR, null_token);
                     break;
                 case '^':
-                    token_.set (num_token::CHARSET, bol_token);
-                    state_._seen_BOL_assertion = true;
+                    if (state_._curr - 1 == state_._start)
+                    {
+                        token_.set (num_token::CHARSET, bol_token);
+                        state_._seen_BOL_assertion = true;
+                    }
+                    else
+                    {
+                        create_charset_token (string (1, ch_), false,
+                            map_, token_);
+                    }
+
                     break;
                 case '$':
-                    token_.set (num_token::CHARSET, eol_token);
-                    state_._seen_EOL_assertion = true;
+                    if (state_._curr == state_._end)
+                    {
+                        token_.set (num_token::CHARSET, eol_token);
+                        state_._seen_EOL_assertion = true;
+                    }
+                    else
+                    {
+                        create_charset_token (string (1, ch_), false,
+                            map_, token_);
+                    }
+
                     break;
                 case '.':
                 {
                     string dot_;
 
-                    if (state_._dot_not_newline)
+                    if (state_._flags & dot_not_newline)
                     {
                         dot_ = '\n';
                     }
@@ -160,8 +191,11 @@ public:
                     charset (state_, map_, token_);
                     break;
                 }
+                case '/':
+                    throw runtime_error("Lookahead ('/') is not supported yet.");
+                    break;
                 default:
-                    if (!state_._case_sensitive &&
+                    if ((state_._flags & icase) &&
                         (std::isupper (ch_, state_._locale) ||
                         std::islower (ch_, state_._locale)))
                     {
@@ -188,6 +222,74 @@ public:
 private:
     typedef basic_re_tokeniser_helper<CharT> tokeniser_helper;
 
+    static void read_options (state &state_)
+    {
+        if (!state_.eos () && *state_._curr == '?')
+        {
+            CharT ch_ = 0;
+            bool eos_ = false;
+            bool negate_ = false;
+
+            state_.increment ();
+            eos_ = state_.next (ch_);
+            state_._flags_stack.push (state_._flags);
+
+            while (!eos_ && ch_ != ':')
+            {
+                switch (ch_)
+                {
+                case '-':
+                    negate_ ^= 1;
+                    break;
+                case 'i':
+                    if (negate_)
+                    {
+                        state_._flags = static_cast<regex_flags>
+                            (state_._flags & ~icase);
+                    }
+                    else
+                    {
+                        state_._flags = static_cast<regex_flags>
+                            (state_._flags | icase);
+                    }
+
+                    negate_ = false;
+                    break;
+                case 's':
+                    if (negate_)
+                    {
+                        state_._flags = static_cast<regex_flags>
+                            (state_._flags | dot_not_newline);
+                    }
+                    else
+                    {
+                        state_._flags = static_cast<regex_flags>
+                            (state_._flags & ~dot_not_newline);
+                    }
+
+                    negate_ = false;
+                    break;
+                default:
+                {
+                    std::ostringstream ss_;
+
+                    ss_ << "Unknown option at index " <<
+                        state_.index () - 1 << '.';
+                    throw runtime_error (ss_.str ().c_str ());
+                }
+                }
+
+                eos_ = state_.next (ch_);
+            }
+
+            // End of string handler will handle early termination
+        }
+        else if (!state_._flags_stack.empty ())
+        {
+            state_._flags_stack.push (state_._flags);
+        }
+    }
+
     static void escape (state &state_, token_map &map_, num_token &token_)
     {
         CharT ch_ = 0;
@@ -197,8 +299,8 @@ private:
 
         if (str_)
         {
-            state state2_ (str_ + 1, str_ + str_len_, state_._case_sensitive,
-                state_._locale, state_._dot_not_newline);
+            state state2_ (str_ + 1, str_ + str_len_, state_._flags,
+                state_._locale);
 
             charset (state2_, map_, token_);
         }
@@ -328,7 +430,8 @@ private:
                 {
                     std::ostringstream ss_;
 
-                    ss_ << "Missing '}' at index " << state_._index - 1 << '.';
+                    ss_ << "Missing '}' at index " <<
+                        state_.index () - 1 << '.';
                     throw runtime_error (ss_.str ().c_str ());
                 }
 
@@ -367,7 +470,7 @@ private:
         {
             std::ostringstream ss_;
 
-            ss_ << "Missing '}' at index " << state_._index - 1 << '.';
+            ss_ << "Missing '}' at index " << state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 
@@ -381,7 +484,7 @@ private:
                 std::ostringstream ss_;
 
                 ss_ << "Cannot have exactly zero repeats preceding index " <<
-                    state_._index << '.';
+                    state_.index () << '.';
                 throw runtime_error (ss_.str ().c_str ());
             }
 
@@ -389,8 +492,8 @@ private:
             {
                 std::ostringstream ss_;
 
-                ss_ << "Max less than min preceding index " << state_._index
-                    << '.';
+                ss_ << "Max less than min preceding index " <<
+                    state_.index () << '.';
                 throw runtime_error (ss_.str ().c_str ());
             }
 
@@ -412,7 +515,7 @@ private:
             std::ostringstream ss_;
 
             ss_ << "Invalid MACRO name at index " <<
-                state_._index - 1 << '.';
+                state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 
@@ -425,14 +528,14 @@ private:
                 throw runtime_error ("Unexpected end of regex "
                     "(missing '}').");
             }
-        } while (ch_ == '_' || ch_ == '-' || ch_ >= 'A' && ch_ <= 'Z' ||
-            ch_ >= 'a' && ch_ <= 'z' || ch_ >= '0' && ch_ <= '9');
+        } while (ch_ == '_' || ch_ == '-' || (ch_ >= 'A' && ch_ <= 'Z') ||
+            (ch_ >= 'a' && ch_ <= 'z') || (ch_ >= '0' && ch_ <= '9'));
 
         if (ch_ != '}')
         {
             std::ostringstream ss_;
 
-            ss_ << "Missing '}' at index " << state_._index - 1 << '.';
+            ss_ << "Missing '}' at index " << state_.index () - 1 << '.';
             throw runtime_error (ss_.str ().c_str ());
         }
 

@@ -23,7 +23,6 @@
 #include <string>
 #include <stdexcept>
 
-
 #include <boost/config.hpp>
 
 
@@ -114,7 +113,7 @@ namespace boost
         {
 #if defined(BOOST_FUNCTION_SCOPE_USING_DECLARATION_BREAKS_ADL) || defined(__GNUC__)
             using namespace std;
-#elif    defined(BOOST_NO_STDC_NAMESPACE)
+#elif    defined(BOOST_NO_STDC_NAMESPACE) && !defined(__SUNPRO_CC)
             using    ::abs;
             using    ::sinh;
             using    ::sqrt;

@@ -1170,7 +1170,9 @@ namespace boost { namespace numeric { namespace ublas {
     // (t * v) [i] = t * v [i]
     template<class T1, class E2>
     BOOST_UBLAS_INLINE
+    typename enable_if< is_convertible<T1, typename E2::value_type >,    
     typename vector_binary_scalar1_traits<const T1, E2, scalar_multiplies<T1, typename E2::value_type> >::result_type
+    >::type
     operator * (const T1 &e1,
                 const vector_expression<E2> &e2) {
         typedef typename vector_binary_scalar1_traits<const T1, E2, scalar_multiplies<T1, typename E2::value_type> >::expression_type expression_type;
@@ -1395,7 +1397,9 @@ namespace boost { namespace numeric { namespace ublas {
     // (v * t) [i] = v [i] * t
     template<class E1, class T2>
     BOOST_UBLAS_INLINE
+    typename enable_if< is_convertible<T2, typename E1::value_type >,    
     typename vector_binary_scalar2_traits<E1, const T2, scalar_multiplies<typename E1::value_type, T2> >::result_type
+    >::type
     operator * (const vector_expression<E1> &e1,
                 const T2 &e2) {
         typedef typename vector_binary_scalar2_traits<E1, const T2, scalar_multiplies<typename E1::value_type, T2> >::expression_type expression_type;
@@ -1405,7 +1409,9 @@ namespace boost { namespace numeric { namespace ublas {
     // (v / t) [i] = v [i] / t
     template<class E1, class T2>
     BOOST_UBLAS_INLINE
+    typename enable_if< is_convertible<T2, typename E1::value_type >,    
     typename vector_binary_scalar2_traits<E1, const T2, scalar_divides<typename E1::value_type, T2> >::result_type
+    >::type
     operator / (const vector_expression<E1> &e1,
                 const T2 &e2) {
         typedef typename vector_binary_scalar2_traits<E1, const T2, scalar_divides<typename E1::value_type, T2> >::expression_type expression_type;

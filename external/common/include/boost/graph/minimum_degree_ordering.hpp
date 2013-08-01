@@ -12,12 +12,12 @@
 #define MINIMUM_DEGREE_ORDERING_HPP
 
 #include <vector>
-#include <cassert>
+#include <boost/assert.hpp>
 #include <boost/config.hpp>
 #include <boost/pending/bucket_sorter.hpp>
 #include <boost/detail/numeric_traits.hpp> // for integer_traits
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 namespace boost {
 
@@ -53,7 +53,7 @@ namespace boost {
           : data(_data), current(-(std::numeric_limits<value_type>::max)()) {}
         
         void pop() {
-          assert(! empty());
+          BOOST_ASSERT(! empty());
           current = data[current];
         }
         void push(value_type v) {
@@ -310,13 +310,13 @@ namespace boost {
       {
         typename graph_traits<Graph>::vertex_iterator v, vend;
         size_type vid = 0;
-        for (tie(v, vend) = vertices(G); v != vend; ++v, ++vid)
+        for (boost::tie(v, vend) = vertices(G); v != vend; ++v, ++vid)
           index_vertex_vec[vid] = *v;
         index_vertex_map = IndexVertexMap(&index_vertex_vec[0]);
 
         // Initialize degreelists.  Degreelists organizes the nodes
         // according to their degree.
-        for (tie(v, vend) = vertices(G); v != vend; ++v) {
+        for (boost::tie(v, vend) = vertices(G); v != vend; ++v) {
           put(degree, *v, out_degree(*v, G));
           degreelists.push(*v);
         }
@@ -409,7 +409,7 @@ namespace boost {
           size_type e_id = element_neighbor.top();
           vertex_t element = get(index_vertex_map, e_id);
           adj_iter i, i_end;
-          for (tie(i, i_end) = adjacent_vertices(element, G); i != i_end; ++i){
+          for (boost::tie(i, i_end) = adjacent_vertices(element, G); i != i_end; ++i){
             vertex_t i_node = *i;
             if (!marker.is_tagged(i_node) && !numbering.is_numbered(i_node)) {
               marker.mark_tagged(i_node);
@@ -419,7 +419,7 @@ namespace boost {
           element_neighbor.pop();
         }
         adj_iter v, ve;
-        for (tie(v, ve) = adjacent_vertices(node, G); v != ve; ++v) {
+        for (boost::tie(v, ve) = adjacent_vertices(node, G); v != ve; ++v) {
           vertex_t v_node = *v;
           if (!degree_lists_marker.need_update(v_node) 
               && !degree_lists_marker.outmatched_or_done(v_node)) {
@@ -456,7 +456,7 @@ namespace boost {
 
           vertex_t current = get(index_vertex_map, llist.top());
           adj_iter i, ie;
-          for (tie(i,ie) = adjacent_vertices(current, G); i != ie; ++i) {
+          for (boost::tie(i,ie) = adjacent_vertices(current, G); i != ie; ++i) {
             vertex_t i_node = *i;
             const size_type i_id = get(vertex_index_map, i_node);
             if (supernode_size[i_node] != 0) {
@@ -490,7 +490,7 @@ namespace boost {
             }
             if (numbering.is_numbered(neighbor)) {
               adj_iter i, ie;
-              for (tie(i,ie) = adjacent_vertices(neighbor, G);
+              for (boost::tie(i,ie) = adjacent_vertices(neighbor, G);
                    i != ie; ++i) {
                 const vertex_t i_node = *i;
                 if (i_node == u_node || supernode_size[i_node] == 0)
@@ -536,7 +536,7 @@ namespace boost {
             marker.increment_tag();
             deg = deg0;
             adj_iter i, ie;
-            for (tie(i, ie) = adjacent_vertices(u_node, G); i != ie; ++i) {
+            for (boost::tie(i, ie) = adjacent_vertices(u_node, G); i != ie; ++i) {
               vertex_t i_node = *i;
               if (marker.is_tagged(i_node)) 
                 continue;
@@ -544,7 +544,7 @@ namespace boost {
 
               if (numbering.is_numbered(i_node)) {
                 adj_iter j, je;
-                for (tie(j, je) = adjacent_vertices(i_node, G); j != je; ++j) {
+                for (boost::tie(j, je) = adjacent_vertices(i_node, G); j != je; ++j) {
                   const vertex_t j_node = *j;
                   if (marker.is_not_tagged(j_node)) {
                     marker.mark_tagged(j_node);

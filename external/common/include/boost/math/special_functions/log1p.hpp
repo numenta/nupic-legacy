@@ -16,6 +16,7 @@
 #include <boost/math/tools/config.hpp>
 #include <boost/math/tools/series.hpp>
 #include <boost/math/tools/rational.hpp>
+#include <boost/math/tools/big_constant.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
 
@@ -74,7 +75,6 @@ T log1p_imp(T const & x, const Policy& pol, const mpl::int_<0>&)
 { // The function returns the natural logarithm of 1 + x.
    typedef typename tools::promote_args<T>::type result_type;
    BOOST_MATH_STD_USING
-   using std::abs;
 
    static const char* function = "boost::math::log1p<%1%>(%1%)";
 
@@ -86,7 +86,7 @@ T log1p_imp(T const & x, const Policy& pol, const mpl::int_<0>&)
          function, 0, pol);
 
    result_type a = abs(result_type(x));
-   if(a > result_type(0.5L))
+   if(a > result_type(0.5f))
       return log(1 + result_type(x));
    // Note that without numeric_limits specialisation support, 
    // epsilon just returns zero, and our "optimisation" will always fail:
@@ -95,12 +95,12 @@ T log1p_imp(T const & x, const Policy& pol, const mpl::int_<0>&)
    detail::log1p_series<result_type> s(x);
    boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 #if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582)) && !BOOST_WORKAROUND(__EDG_VERSION__, <= 245)
-   result_type result = tools::sum_series(s, policies::digits<result_type, Policy>(), max_iter);
+   result_type result = tools::sum_series(s, policies::get_epsilon<result_type, Policy>(), max_iter);
 #else
    result_type zero = 0;
-   result_type result = tools::sum_series(s, policies::digits<result_type, Policy>(), max_iter, zero);
+   result_type result = tools::sum_series(s, policies::get_epsilon<result_type, Policy>(), max_iter, zero);
 #endif
-   policies::check_series_iterations(function, max_iter, pol);
+   policies::check_series_iterations<T>(function, max_iter, pol);
    return result;
 }
 
@@ -184,26 +184,26 @@ T log1p_imp(T const& x, const Policy& pol, const mpl::int_<64>&)
    // Maximum Relative Change in Control Points:   9.648e-05
    // Max Error found at long double precision =   2.242324e-19
    static const T P[] = {    
-      -0.807533446680736736712e-19L,
-      -0.490881544804798926426e-18L,
-      0.333333333333333373941L,
-      1.17141290782087994162L,
-      1.62790522814926264694L,
-      1.13156411870766876113L,
-      0.408087379932853785336L,
-      0.0706537026422828914622L,
-      0.00441709903782239229447L
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.807533446680736736712e-19),
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.490881544804798926426e-18),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.333333333333333373941),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1.17141290782087994162),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1.62790522814926264694),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1.13156411870766876113),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.408087379932853785336),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.0706537026422828914622),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.00441709903782239229447)
    };
    static const T Q[] = {    
-      1L,
-      4.26423872346263928361L,
-      7.48189472704477708962L,
-      6.94757016732904280913L,
-      3.6493508622280767304L,
-      1.06884863623790638317L,
-      0.158292216998514145947L,
-      0.00885295524069924328658L,
-      -0.560026216133415663808e-6L
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 4.26423872346263928361),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 7.48189472704477708962),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 6.94757016732904280913),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 3.6493508622280767304),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1.06884863623790638317),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.158292216998514145947),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.00885295524069924328658),
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.560026216133415663808e-6)
    };
 
    T result = 1 - x / 2 + tools::evaluate_polynomial(P, x) / tools::evaluate_polynomial(Q, x);
@@ -258,6 +258,34 @@ T log1p_imp(T const& x, const Policy& pol, const mpl::int_<24>&)
    return result;
 }
 
+template <class T, class Policy, class tag>
+struct log1p_initializer
+{
+   struct init
+   {
+      init()
+      {
+         do_init(tag());
+      }
+      template <int N>
+      static void do_init(const mpl::int_<N>&){}
+      static void do_init(const mpl::int_<64>&)
+      {
+         boost::math::log1p(static_cast<T>(0.25), Policy());
+      }
+      void force_instantiate()const{}
+   };
+   static const init initializer;
+   static void force_instantiate()
+   {
+      initializer.force_instantiate();
+   }
+};
+
+template <class T, class Policy, class tag>
+const typename log1p_initializer<T, Policy, tag>::init log1p_initializer<T, Policy, tag>::initializer;
+
+
 } // namespace detail
 
 template <class T, class Policy>
@@ -286,6 +314,9 @@ inline typename tools::promote_args<T>::type log1p(T x, const Policy&)
          >::type
       >::type
    >::type tag_type;
+
+   detail::log1p_initializer<value_type, forwarding_policy, tag_type>::force_instantiate();
+
    return policies::checked_narrowing_cast<result_type, forwarding_policy>(
       detail::log1p_imp(static_cast<value_type>(x), forwarding_policy(), tag_type()), "boost::math::log1p<%1%>(%1%)");
 }
@@ -316,9 +347,7 @@ inline long double log1p(long double z)
 #endif
 
 #if defined(BOOST_HAS_LOG1P) && !(defined(__osf__) && defined(__DECCXX_VER))
-#  if (defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901)) \
-   || ((defined(linux) || defined(__linux) || defined(__linux__)) && !defined(__SUNPRO_CC)) \
-   || (defined(__hpux) && !defined(__hppa))
+#  ifdef BOOST_MATH_USE_C99
 template <class Policy>
 inline float log1p(float x, const Policy& pol)
 { 
@@ -386,13 +415,18 @@ inline double log1p(double x, const Policy& pol)
    if(u == 1.0) 
       return x; 
    else
-      return log(u)*(x/(u-1.0));
+      return ::log(u)*(x/(u-1.0));
 }
 template <class Policy>
 inline float log1p(float x, const Policy& pol)
 {
    return static_cast<float>(boost::math::log1p(static_cast<double>(x), pol));
 }
+#ifndef _WIN32_WCE
+//
+// For some reason this fails to compile under WinCE...
+// Needs more investigation.
+//
 template <class Policy>
 inline long double log1p(long double x, const Policy& pol)
 {
@@ -406,8 +440,9 @@ inline long double log1p(long double x, const Policy& pol)
    if(u == 1.0) 
       return x; 
    else
-      return log(u)*(x/(u-1.0));
+      return ::logl(u)*(x/(u-1.0));
 }
+#endif
 #endif
 
 template <class T>
@@ -434,7 +469,7 @@ inline typename tools::promote_args<T>::type
          function, 0, pol);
 
    result_type a = abs(result_type(x));
-   if(a > result_type(0.95L))
+   if(a > result_type(0.95f))
       return log(1 + result_type(x)) - result_type(x);
    // Note that without numeric_limits specialisation support, 
    // epsilon just returns zero, and our "optimisation" will always fail:
@@ -445,11 +480,11 @@ inline typename tools::promote_args<T>::type
    boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
 #if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582))
    T zero = 0;
-   T result = boost::math::tools::sum_series(s, policies::digits<T, Policy>(), max_iter, zero);
+   T result = boost::math::tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter, zero);
 #else
-   T result = boost::math::tools::sum_series(s, policies::digits<T, Policy>(), max_iter);
+   T result = boost::math::tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter);
 #endif
-   policies::check_series_iterations(function, max_iter, pol);
+   policies::check_series_iterations<T>(function, max_iter, pol);
    return result;
 }
 

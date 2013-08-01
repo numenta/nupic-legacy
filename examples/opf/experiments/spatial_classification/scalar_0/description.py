@@ -60,7 +60,6 @@ config = \
     },
     'clParams': { 
       'clVerbosity': 0,
-      'implementation': 'py'
     },
   }
 }

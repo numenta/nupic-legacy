@@ -36,6 +36,11 @@ BOOST_SPIRIT_CLASSIC_NAMESPACE_BEGIN
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(push)
+#pragma warning(disable:4512) //assignment operator could not be generated
+#endif
+
 template<typename NestedT = non_nested, typename LexemeT = non_lexeme>
 struct confix_parser_gen;
 
@@ -70,6 +75,10 @@ private:
     typename as_parser<ExprT>::type::embed_t expr;
     typename as_parser<CloseT>::type::embed_t close;
 };
+
+#if BOOST_WORKAROUND(BOOST_MSVC, >= 1400)
+#pragma warning(pop)
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 //

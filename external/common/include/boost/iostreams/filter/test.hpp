@@ -239,16 +239,60 @@ bool test_filter_pair( OutputFilter out,
           inc <= default_increment * 40; 
           inc += default_increment )
     {
-        array_source  src(data.data(), data.data() + data.size());
-        std::string   temp;
-        std::string   dest;
-        iostreams::copy(src, compose(out, non_blocking_sink(temp, inc)));
-        iostreams::copy( 
-            compose(in, non_blocking_source(temp, inc)),
-            iostreams::back_inserter(dest)
-        );
-        if (dest != data)
-            return false;
+        {
+            array_source  src(data.data(), data.data() + data.size());
+            std::string   temp;
+            std::string   dest;
+            iostreams::copy(src, compose(out, non_blocking_sink(temp, inc)));
+            iostreams::copy( 
+                compose(in, non_blocking_source(temp, inc)),
+                iostreams::back_inserter(dest)
+            );
+            if (dest != data)
+                return false;
+        }
+        {
+            array_source  src(data.data(), data.data() + data.size());
+            std::string   temp;
+            std::string   dest;
+            iostreams::copy(src, compose(out, non_blocking_sink(temp, inc)));
+            // truncate the file, this should not loop, it may throw
+            // std::ios_base::failure, which we swallow.
+            try {
+                temp.resize(temp.size() / 2);
+                iostreams::copy( 
+                    compose(in, non_blocking_source(temp, inc)),
+                    iostreams::back_inserter(dest)
+                );
+            } catch(std::ios_base::failure&) {}
+        }
+        {
+            array_source  src(data.data(), data.data() + data.size());
+            std::string   temp;
+            std::string   dest;
+            iostreams::copy(compose(out, src), non_blocking_sink(temp, inc));
+            iostreams::copy( 
+                non_blocking_source(temp, inc),
+                compose(in, iostreams::back_inserter(dest))
+            );
+            if (dest != data)
+                return false;
+        }
+        {
+            array_source  src(data.data(), data.data() + data.size());
+            std::string   temp;
+            std::string   dest;
+            iostreams::copy(compose(out, src), non_blocking_sink(temp, inc));
+            // truncate the file, this should not loop, it may throw
+            // std::ios_base::failure, which we swallow.
+            try {
+                temp.resize(temp.size() / 2);
+                iostreams::copy( 
+                    non_blocking_source(temp, inc),
+                    compose(in, iostreams::back_inserter(dest))
+                );
+            } catch(std::ios_base::failure&) {}
+        }
     }
     return true;
 }

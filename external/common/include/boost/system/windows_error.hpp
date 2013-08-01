@@ -29,7 +29,7 @@ namespace boost
 
     //  To construct an error_code after a API error:
     //
-    //      error_code( ::GetLastError(), system_category )
+    //      error_code( ::GetLastError(), system_category() )
 
     namespace windows_error
     {
@@ -107,7 +107,7 @@ namespace boost
     namespace windows_error
     {
       inline error_code make_error_code( windows_error_code e )
-        { return error_code( e, get_system_category() ); }
+        { return error_code( e, system_category() ); }
     }
 
   }  // namespace system

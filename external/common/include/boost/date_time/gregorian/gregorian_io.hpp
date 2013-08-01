@@ -6,13 +6,20 @@
  * Boost Software License, Version 1.0. (See accompanying
  * file LICENSE_1_0.txt or http://www.boost.org/LICENSE_1_0.txt)
  * Author: Jeff Garland, Bart Garst
- * $Date: 2008-02-27 15:00:24 -0500 (Wed, 27 Feb 2008) $
+ * $Date: 2008-11-12 11:37:53 -0800 (Wed, 12 Nov 2008) $
  */
 
-#include "boost/date_time/date_facet.hpp"
-#include "boost/io/ios_state.hpp"
-#include <iostream>
 #include <locale>
+#include <iostream>
+#include <iterator> // i/ostreambuf_iterator
+#include <boost/io/ios_state.hpp>
+#include <boost/date_time/date_facet.hpp>
+#include <boost/date_time/period_parser.hpp>
+#include <boost/date_time/period_formatter.hpp>
+#include <boost/date_time/special_values_parser.hpp>
+#include <boost/date_time/special_values_formatter.hpp>
+#include <boost/date_time/gregorian/gregorian_types.hpp>
+#include <boost/date_time/gregorian/conversion.hpp> // to_tm will be needed in the facets
 
 namespace boost {
 namespace gregorian {

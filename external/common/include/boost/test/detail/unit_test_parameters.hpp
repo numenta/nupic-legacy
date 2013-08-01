@@ -7,7 +7,7 @@
 //
 //  File        : $RCSfile$
 //
-//  Version     : $Revision: 49312 $
+//  Version     : $Revision: 57992 $
 //
 //  Description : storage for unit test framework parameters information
 // ***************************************************************************
@@ -19,6 +19,9 @@
 #include <boost/test/detail/log_level.hpp>
 
 #include <boost/test/detail/suppress_warnings.hpp>
+
+// STL
+#include <iosfwd>
 
 //____________________________________________________________________________//
 
@@ -32,24 +35,26 @@ namespace unit_test {
 
 namespace runtime_config {
 
-void                    BOOST_TEST_DECL init( int* argc, char** argv );
+BOOST_TEST_DECL void                     init( int& argc, char** argv );
 
-unit_test::log_level    BOOST_TEST_DECL log_level();
-bool                    BOOST_TEST_DECL no_result_code();
-unit_test::report_level BOOST_TEST_DECL report_level();
-const_string            BOOST_TEST_DECL test_to_run();
-const_string            BOOST_TEST_DECL break_exec_path();
-bool                    BOOST_TEST_DECL save_pattern();
-bool                    BOOST_TEST_DECL show_build_info();
-bool                    BOOST_TEST_DECL show_progress();
-bool                    BOOST_TEST_DECL catch_sys_errors();
-bool                    BOOST_TEST_DECL auto_start_dbg();
-bool                    BOOST_TEST_DECL use_alt_stack();
-bool                    BOOST_TEST_DECL detect_fp_exceptions();
-output_format           BOOST_TEST_DECL report_format();
-output_format           BOOST_TEST_DECL log_format();
-long                    BOOST_TEST_DECL detect_memory_leaks();
-int                     BOOST_TEST_DECL random_seed();
+BOOST_TEST_DECL unit_test::log_level     log_level();
+BOOST_TEST_DECL bool                     no_result_code();
+BOOST_TEST_DECL unit_test::report_level  report_level();
+BOOST_TEST_DECL const_string             test_to_run();
+BOOST_TEST_DECL const_string             break_exec_path();
+BOOST_TEST_DECL bool                     save_pattern();
+BOOST_TEST_DECL bool                     show_build_info();
+BOOST_TEST_DECL bool                     show_progress();
+BOOST_TEST_DECL bool                     catch_sys_errors();
+BOOST_TEST_DECL bool                     auto_start_dbg();
+BOOST_TEST_DECL bool                     use_alt_stack();
+BOOST_TEST_DECL bool                     detect_fp_exceptions();
+BOOST_TEST_DECL output_format            report_format();
+BOOST_TEST_DECL output_format            log_format();
+BOOST_TEST_DECL std::ostream*            report_sink();
+BOOST_TEST_DECL std::ostream*            log_sink();
+BOOST_TEST_DECL long                     detect_memory_leaks();
+BOOST_TEST_DECL int                      random_seed();
 
 } // namespace runtime_config
 

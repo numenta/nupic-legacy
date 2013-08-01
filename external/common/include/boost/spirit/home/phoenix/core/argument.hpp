@@ -8,7 +8,7 @@
 #define PHOENIX_CORE_ARGUMENT_HPP
 
 #include <boost/preprocessor/repetition/repeat_from_to.hpp>
-#include <boost/preprocessor/arithmetic/inc.hpp>
+#include <boost/preprocessor/inc.hpp>
 #include <boost/spirit/home/phoenix/core/actor.hpp>
 #include <boost/fusion/include/at.hpp>
 #include <boost/mpl/if.hpp>
@@ -21,14 +21,14 @@
 #include <boost/mpl/size.hpp>
 #include <boost/type_traits/add_reference.hpp>
 
-#if !defined(PHOENIX_ARG_LIMIT)
-# define PHOENIX_ARG_LIMIT PHOENIX_LIMIT
-#endif
-
-#define PHOENIX_DECLARE_ARG(z, n, data)                                         \
-    actor<argument<n> > const                                                   \
-        BOOST_PP_CAT(arg, BOOST_PP_INC(n)) = argument<n>();                     \
-    actor<argument<n> > const                                                   \
+#define PHOENIX_DECLARE_ARG(z, n, data)                                       \
+    typedef actor<argument<n> >                                               \
+        BOOST_PP_CAT(BOOST_PP_CAT(arg, BOOST_PP_INC(n)), _type);              \
+    actor<argument<n> > const                                                 \
+        BOOST_PP_CAT(arg, BOOST_PP_INC(n)) = argument<n>();                   \
+    typedef actor<argument<n> >                                               \
+        BOOST_PP_CAT(BOOST_PP_CAT(_, BOOST_PP_INC(n)), _type);                \
+    actor<argument<n> > const                                                 \
         BOOST_PP_CAT(_, BOOST_PP_INC(n)) = argument<n>();
 
 namespace boost { namespace phoenix
@@ -73,13 +73,19 @@ namespace boost { namespace phoenix
     namespace arg_names
     {
     //  Phoenix style names
+        typedef actor<argument<0> > arg1_type;
         actor<argument<0> > const arg1 = argument<0>();
+        typedef actor<argument<1> > arg2_type;
         actor<argument<1> > const arg2 = argument<1>();
+        typedef actor<argument<2> > arg3_type;
         actor<argument<2> > const arg3 = argument<2>();
 
     //  BLL style names
+        typedef actor<argument<0> > _1_type;
         actor<argument<0> > const _1 = argument<0>();
+        typedef actor<argument<1> > _2_type;
         actor<argument<1> > const _2 = argument<1>();
+        typedef actor<argument<2> > _3_type;
         actor<argument<2> > const _3 = argument<2>();
 
     //  Bring in the rest or the Phoenix style arguments (arg4 .. argN+1)

@@ -41,9 +41,9 @@ namespace boost { namespace xpressive { namespace detail
         typedef typename Traits::char_type char_type;
         typedef typename Traits::string_type string_type;
 
-        typedef typename mpl::if_
+        typedef typename mpl::if_c
         <
-            is_char_literal<Matcher, char_type>
+            is_char_literal<Matcher, char_type>::value
           , literal_matcher<Traits, ICase, mpl::false_>
           , string_matcher<Traits, ICase>
         >::type type;

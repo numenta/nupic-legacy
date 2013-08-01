@@ -59,7 +59,7 @@ namespace boost {
         {
             return ::boost::algorithm::detail::transform_range_copy( 
                Output,
-               as_literal(Input),
+               ::boost::as_literal(Input),
                ::boost::algorithm::detail::to_lowerF<
                     typename range_value<RangeT>::type >(Loc));
         }
@@ -93,7 +93,7 @@ namespace boost {
             const std::locale& Loc=std::locale())
         {
             ::boost::algorithm::detail::transform_range(
-                as_literal(Input),
+                ::boost::as_literal(Input),
                 ::boost::algorithm::detail::to_lowerF<
                     typename range_value<WritableRangeT>::type >(Loc));
         }
@@ -124,7 +124,7 @@ namespace boost {
         {
             return ::boost::algorithm::detail::transform_range_copy( 
                Output,
-               as_literal(Input),
+               ::boost::as_literal(Input),
                ::boost::algorithm::detail::to_upperF<
                     typename range_value<RangeT>::type >(Loc));
         }
@@ -158,7 +158,7 @@ namespace boost {
             const std::locale& Loc=std::locale())
         {
             ::boost::algorithm::detail::transform_range(
-                as_literal(Input),
+                ::boost::as_literal(Input),
                 ::boost::algorithm::detail::to_upperF<
                     typename range_value<WritableRangeT>::type >(Loc));
         }

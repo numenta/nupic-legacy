@@ -2,7 +2,7 @@
 // basic_deadline_timer.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2008 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2012 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -15,17 +15,15 @@
 # pragma once
 #endif // defined(_MSC_VER) && (_MSC_VER >= 1200)
 
-#include <boost/asio/detail/push_options.hpp>
-
-#include <boost/asio/detail/push_options.hpp>
+#include <boost/asio/detail/config.hpp>
 #include <cstddef>
-#include <boost/config.hpp>
-#include <boost/asio/detail/pop_options.hpp>
-
 #include <boost/asio/basic_io_object.hpp>
 #include <boost/asio/deadline_timer_service.hpp>
-#include <boost/asio/error.hpp>
+#include <boost/asio/detail/handler_type_requirements.hpp>
 #include <boost/asio/detail/throw_error.hpp>
+#include <boost/asio/error.hpp>
+
+#include <boost/asio/detail/push_options.hpp>
 
 namespace boost {
 namespace asio {
@@ -34,6 +32,10 @@ namespace asio {
 /**
  * The basic_deadline_timer class template provides the ability to perform a
  * blocking or asynchronous wait for a timer to expire.
+ *
+ * A deadline timer is always in one of two states: "expired" or "not expired".
+ * If the wait() or async_wait() function is called on an expired timer, the
+ * wait operation will complete immediately.
  *
  * Most applications will use the boost::asio::deadline_timer typedef.
  *
@@ -160,7 +162,7 @@ public:
   {
     boost::system::error_code ec;
     this->service.expires_at(this->implementation, expiry_time, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "expires_at");
   }
 
   /// Constructor to set a particular expiry time relative to now.
@@ -179,7 +181,7 @@ public:
   {
     boost::system::error_code ec;
     this->service.expires_from_now(this->implementation, expiry_time, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "expires_from_now");
   }
 
   /// Cancel any asynchronous operations that are waiting on the timer.
@@ -193,12 +195,22 @@ public:
    * @return The number of asynchronous operations that were cancelled.
    *
    * @throws boost::system::system_error Thrown on failure.
+   *
+   * @note If the timer has already expired when cancel() is called, then the
+   * handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t cancel()
   {
     boost::system::error_code ec;
     std::size_t s = this->service.cancel(this->implementation, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "cancel");
     return s;
   }
 
@@ -213,10 +225,81 @@ public:
    * @param ec Set to indicate what error occurred, if any.
    *
    * @return The number of asynchronous operations that were cancelled.
+   *
+   * @note If the timer has already expired when cancel() is called, then the
+   * handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t cancel(boost::system::error_code& ec)
   {
     return this->service.cancel(this->implementation, ec);
+  }
+
+  /// Cancels one asynchronous operation that is waiting on the timer.
+  /**
+   * This function forces the completion of one pending asynchronous wait
+   * operation against the timer. Handlers are cancelled in FIFO order. The
+   * handler for the cancelled operation will be invoked with the
+   * boost::asio::error::operation_aborted error code.
+   *
+   * Cancelling the timer does not change the expiry time.
+   *
+   * @return The number of asynchronous operations that were cancelled. That is,
+   * either 0 or 1.
+   *
+   * @throws boost::system::system_error Thrown on failure.
+   *
+   * @note If the timer has already expired when cancel_one() is called, then
+   * the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
+   */
+  std::size_t cancel_one()
+  {
+    boost::system::error_code ec;
+    std::size_t s = this->service.cancel_one(this->implementation, ec);
+    boost::asio::detail::throw_error(ec, "cancel_one");
+    return s;
+  }
+
+  /// Cancels one asynchronous operation that is waiting on the timer.
+  /**
+   * This function forces the completion of one pending asynchronous wait
+   * operation against the timer. Handlers are cancelled in FIFO order. The
+   * handler for the cancelled operation will be invoked with the
+   * boost::asio::error::operation_aborted error code.
+   *
+   * Cancelling the timer does not change the expiry time.
+   *
+   * @param ec Set to indicate what error occurred, if any.
+   *
+   * @return The number of asynchronous operations that were cancelled. That is,
+   * either 0 or 1.
+   *
+   * @note If the timer has already expired when cancel_one() is called, then
+   * the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
+   */
+  std::size_t cancel_one(boost::system::error_code& ec)
+  {
+    return this->service.cancel_one(this->implementation, ec);
   }
 
   /// Get the timer's expiry time as an absolute time.
@@ -240,13 +323,23 @@ public:
    * @return The number of asynchronous operations that were cancelled.
    *
    * @throws boost::system::system_error Thrown on failure.
+   *
+   * @note If the timer has already expired when expires_at() is called, then
+   * the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t expires_at(const time_type& expiry_time)
   {
     boost::system::error_code ec;
     std::size_t s = this->service.expires_at(
         this->implementation, expiry_time, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "expires_at");
     return s;
   }
 
@@ -261,6 +354,16 @@ public:
    * @param ec Set to indicate what error occurred, if any.
    *
    * @return The number of asynchronous operations that were cancelled.
+   *
+   * @note If the timer has already expired when expires_at() is called, then
+   * the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t expires_at(const time_type& expiry_time,
       boost::system::error_code& ec)
@@ -289,13 +392,23 @@ public:
    * @return The number of asynchronous operations that were cancelled.
    *
    * @throws boost::system::system_error Thrown on failure.
+   *
+   * @note If the timer has already expired when expires_from_now() is called,
+   * then the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t expires_from_now(const duration_type& expiry_time)
   {
     boost::system::error_code ec;
     std::size_t s = this->service.expires_from_now(
         this->implementation, expiry_time, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "expires_from_now");
     return s;
   }
 
@@ -310,6 +423,16 @@ public:
    * @param ec Set to indicate what error occurred, if any.
    *
    * @return The number of asynchronous operations that were cancelled.
+   *
+   * @note If the timer has already expired when expires_from_now() is called,
+   * then the handlers for asynchronous wait operations will:
+   *
+   * @li have already been invoked; or
+   *
+   * @li have been queued for invocation in the near future.
+   *
+   * These handlers can no longer be cancelled, and therefore are passed an
+   * error code that indicates the successful completion of the wait operation.
    */
   std::size_t expires_from_now(const duration_type& expiry_time,
       boost::system::error_code& ec)
@@ -329,7 +452,7 @@ public:
   {
     boost::system::error_code ec;
     this->service.wait(this->implementation, ec);
-    boost::asio::detail::throw_error(ec);
+    boost::asio::detail::throw_error(ec, "wait");
   }
 
   /// Perform a blocking wait on the timer.
@@ -369,9 +492,14 @@ public:
    * boost::asio::io_service::post().
    */
   template <typename WaitHandler>
-  void async_wait(WaitHandler handler)
+  void async_wait(BOOST_ASIO_MOVE_ARG(WaitHandler) handler)
   {
-    this->service.async_wait(this->implementation, handler);
+    // If you get an error on the following line it means that your handler does
+    // not meet the documented type requirements for a WaitHandler.
+    BOOST_ASIO_WAIT_HANDLER_CHECK(WaitHandler, handler) type_check;
+
+    this->service.async_wait(this->implementation,
+        BOOST_ASIO_MOVE_CAST(WaitHandler)(handler));
   }
 };
 

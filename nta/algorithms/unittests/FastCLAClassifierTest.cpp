@@ -66,7 +66,7 @@ namespace nta {
 
     bool found0 = false;
     bool found1 = false;
-    for (map<UInt, vector<Real64>*>::const_iterator it = result2.begin();
+    for (map<Int, vector<Real64>*>::const_iterator it = result2.begin();
          it != result2.end(); ++it)
     {
       if (it->first == 0)

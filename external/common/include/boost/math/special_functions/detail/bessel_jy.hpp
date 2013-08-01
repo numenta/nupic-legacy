@@ -16,8 +16,8 @@
 #include <boost/math/special_functions/hypot.hpp>
 #include <boost/math/special_functions/sin_pi.hpp>
 #include <boost/math/special_functions/cos_pi.hpp>
-#include <boost/math/special_functions/detail/simple_complex.hpp>
 #include <boost/math/special_functions/detail/bessel_jy_asym.hpp>
+#include <boost/math/special_functions/detail/bessel_jy_series.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/mpl/if.hpp>
@@ -29,6 +29,45 @@
 namespace boost { namespace math {
 
 namespace detail {
+
+//
+// Simultaneous calculation of A&S 9.2.9 and 9.2.10
+// for use in A&S 9.2.5 and 9.2.6.
+// This series is quick to evaluate, but divergent unless
+// x is very large, in fact it's pretty hard to figure out
+// with any degree of precision when this series actually 
+// *will* converge!!  Consequently, we may just have to
+// try it and see...
+//
+template <class T, class Policy>
+bool hankel_PQ(T v, T x, T* p, T* q, const Policy& )
+{
+   BOOST_MATH_STD_USING
+   T tolerance = 2 * policies::get_epsilon<T, Policy>();
+   *p = 1;
+   *q = 0;
+   T k = 1;
+   T z8 = 8 * x;
+   T sq = 1;
+   T mu = 4 * v * v;
+   T term = 1;
+   bool ok = true;
+   do
+   {
+      term *= (mu - sq * sq) / (k * z8);
+      *q += term;
+      k += 1;
+      sq += 2;
+      T mult = (sq * sq - mu) / (k * z8);
+      ok = fabs(mult) < 0.5f;
+      term *= mult;
+      *p += term;
+      k += 1;
+      sq += 2;
+   }
+   while((fabs(term) > tolerance * *p) && ok);
+   return ok;
+}
 
 // Calculate Y(v, x) and Y(v+1, x) by Temme's method, see
 // Temme, Journal of Computational Physics, vol 21, 343 (1976)
@@ -55,12 +94,12 @@ int temme_jy(T v, T x, T* Y, T* Y1, const Policy& pol)
     sigma = -a * v;
     d = abs(sigma) < tools::epsilon<T>() ?
         T(1) : sinh(sigma) / sigma;
-    e = abs(v) < tools::epsilon<T>() ? v*pi<T>()*pi<T>() / 2
-        : 2 * spv2 * spv2 / v;
+    e = abs(v) < tools::epsilon<T>() ? T(v*pi<T>()*pi<T>() / 2)
+        : T(2 * spv2 * spv2 / v);
 
-    T g1 = (v == 0) ? -euler<T>() : (gp - gm) / ((1 + gp) * (1 + gm) * 2 * v);
+    T g1 = (v == 0) ? T(-euler<T>()) : T((gp - gm) / ((1 + gp) * (1 + gm) * 2 * v));
     T g2 = (2 + gp + gm) / ((1 + gp) * (1 + gm) * 2);
-    T vspv = (fabs(v) < tools::epsilon<T>()) ? 1/constants::pi<T>() : v / spv;
+    T vspv = (fabs(v) < tools::epsilon<T>()) ? T(1/constants::pi<T>()) : T(v / spv);
     f = (g1 * cosh(sigma) - g2 * a * d) * 2 * vspv;
 
     p = vspv / (xp * (1 + gm));
@@ -76,7 +115,7 @@ int temme_jy(T v, T x, T* Y, T* Y1, const Policy& pol)
     T coef_mult = -x * x / 4;
 
     // series summation
-    tolerance = tools::epsilon<T>();
+    tolerance = policies::get_epsilon<T, Policy>();
     for (k = 1; k < policies::get_max_series_iterations<Policy>(); k++)
     {
         f = (k * f + p + q) / (k*k - v2);
@@ -92,7 +131,7 @@ int temme_jy(T v, T x, T* Y, T* Y1, const Policy& pol)
            break; 
         }
     }
-    policies::check_series_iterations("boost::math::bessel_jy<%1%>(%1%,%1%) in temme_jy", k, pol);
+    policies::check_series_iterations<T>("boost::math::bessel_jy<%1%>(%1%,%1%) in temme_jy", k, pol);
     *Y = -sum;
     *Y1 = -2 * sum1 / x;
 
@@ -115,10 +154,10 @@ int CF1_jy(T v, T x, T* fv, int* sign, const Policy& pol)
 
     // modified Lentz's method, see
     // Lentz, Applied Optics, vol 15, 668 (1976)
-    tolerance = 2 * tools::epsilon<T>();
+    tolerance = 2 * policies::get_epsilon<T, Policy>();;
     tiny = sqrt(tools::min_value<T>());
     C = f = tiny;                           // b0 = 0, replace with tiny
-    D = 0.0L;
+    D = 0;
     for (k = 1; k < policies::get_max_series_iterations<Policy>() * 100; k++)
     {
         a = -1;
@@ -131,74 +170,94 @@ int CF1_jy(T v, T x, T* fv, int* sign, const Policy& pol)
         delta = C * D;
         f *= delta;
         if (D < 0) { s = -s; }
-        if (abs(delta - 1.0L) < tolerance) 
+        if (abs(delta - 1) < tolerance) 
         { break; }
     }
-    policies::check_series_iterations("boost::math::bessel_jy<%1%>(%1%,%1%) in CF1_jy", k / 100, pol);
+    policies::check_series_iterations<T>("boost::math::bessel_jy<%1%>(%1%,%1%) in CF1_jy", k / 100, pol);
     *fv = -f;
     *sign = s;                              // sign of denominator
 
     return 0;
 }
-
-template <class T>
-struct complex_trait
-{
-   typedef typename mpl::if_<is_floating_point<T>,
-      std::complex<T>, sc::simple_complex<T> >::type type;
-};
-
-// Evaluate continued fraction p + iq = (J' + iY') / (J + iY), see
-// Press et al, Numerical Recipes in C, 2nd edition, 1992
+//
+// This algorithm was originally written by Xiaogang Zhang
+// using std::complex to perform the complex arithmetic.
+// However, that turns out to 10x or more slower than using
+// all real-valued arithmetic, so it's been rewritten using
+// real values only.
+//
 template <typename T, typename Policy>
 int CF2_jy(T v, T x, T* p, T* q, const Policy& pol)
 {
-    BOOST_MATH_STD_USING
+   BOOST_MATH_STD_USING
 
-    typedef typename complex_trait<T>::type complex_type;
+   T Cr, Ci, Dr, Di, fr, fi, a, br, bi, delta_r, delta_i, temp;
+   T tiny;
+   unsigned long k;
 
-    complex_type C, D, f, a, b, delta, one(1);
-    T tiny, zero(0.0L);
-    unsigned long k;
+   // |x| >= |v|, CF2_jy converges rapidly
+   // |x| -> 0, CF2_jy fails to converge
+   BOOST_ASSERT(fabs(x) > 1);
 
-    // |x| >= |v|, CF2_jy converges rapidly
-    // |x| -> 0, CF2_jy fails to converge
-    BOOST_ASSERT(fabs(x) > 1);
+   // modified Lentz's method, complex numbers involved, see
+   // Lentz, Applied Optics, vol 15, 668 (1976)
+   T tolerance = 2 * policies::get_epsilon<T, Policy>();
+   tiny = sqrt(tools::min_value<T>());
+   Cr = fr = -0.5f / x;
+   Ci = fi = 1;
+   //Dr = Di = 0;
+   T v2 = v * v;
+   a = (0.25f - v2) / x; // Note complex this one time only!
+   br = 2 * x;
+   bi = 2;
+   temp = Cr * Cr + 1;
+   Ci = bi + a * Cr / temp;
+   Cr = br + a / temp;
+   Dr = br;
+   Di = bi;
+   if (fabs(Cr) + fabs(Ci) < tiny) { Cr = tiny; }
+   if (fabs(Dr) + fabs(Di) < tiny) { Dr = tiny; }
+   temp = Dr * Dr + Di * Di;
+   Dr = Dr / temp;
+   Di = -Di / temp;
+   delta_r = Cr * Dr - Ci * Di;
+   delta_i = Ci * Dr + Cr * Di;
+   temp = fr;
+   fr = temp * delta_r - fi * delta_i;
+   fi = temp * delta_i + fi * delta_r;
+   for (k = 2; k < policies::get_max_series_iterations<Policy>(); k++)
+   {
+      a = k - 0.5f;
+      a *= a;
+      a -= v2;
+      bi += 2;
+      temp = Cr * Cr + Ci * Ci;
+      Cr = br + a * Cr / temp;
+      Ci = bi - a * Ci / temp;
+      Dr = br + a * Dr;
+      Di = bi + a * Di;
+      if (fabs(Cr) + fabs(Ci) < tiny) { Cr = tiny; }
+      if (fabs(Dr) + fabs(Di) < tiny) { Dr = tiny; }
+      temp = Dr * Dr + Di * Di;
+      Dr = Dr / temp;
+      Di = -Di / temp;
+      delta_r = Cr * Dr - Ci * Di;
+      delta_i = Ci * Dr + Cr * Di;
+      temp = fr;
+      fr = temp * delta_r - fi * delta_i;
+      fi = temp * delta_i + fi * delta_r;
+      if (fabs(delta_r - 1) + fabs(delta_i) < tolerance)
+         break;
+   }
+   policies::check_series_iterations<T>("boost::math::bessel_jy<%1%>(%1%,%1%) in CF2_jy", k, pol);
+   *p = fr;
+   *q = fi;
 
-    // modified Lentz's method, complex numbers involved, see
-    // Lentz, Applied Optics, vol 15, 668 (1976)
-    T tolerance = 2 * tools::epsilon<T>();
-    tiny = sqrt(tools::min_value<T>());
-    C = f = complex_type(-0.5f/x, 1.0L);
-    D = 0;
-    for (k = 1; k < policies::get_max_series_iterations<Policy>(); k++)
-    {
-        a = (k - 0.5f)*(k - 0.5f) - v*v;
-        if (k == 1)
-        {
-            a *= complex_type(T(0), 1/x);
-        }
-        b = complex_type(2*x, T(2*k));
-        C = b + a / C;
-        D = b + a * D;
-        if (C == zero) { C = tiny; }
-        if (D == zero) { D = tiny; }
-        D = one / D;
-        delta = C * D;
-        f *= delta;
-        if (abs(delta - one) < tolerance) { break; }
-    }
-    policies::check_series_iterations("boost::math::bessel_jy<%1%>(%1%,%1%) in CF2_jy", k, pol);
-    *p = real(f);
-    *q = imag(f);
-
-    return 0;
+   return 0;
 }
 
-enum
-{
-   need_j = 1, need_y = 2
-};
+static const int need_j = 1;
+static const int need_y = 2;
 
 // Compute J(v, x) and Y(v, x) simultaneously by Steed's method, see
 // Barnett et al, Computer Physics Communications, vol 8, 377 (1974)
@@ -212,6 +271,9 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
     bool reflect = false;
     unsigned n, k;
     int s;
+    int org_kind = kind;
+    T cp = 0;
+    T sp = 0;
 
     static const char* function = "boost::math::bessel_jy<%1%>(%1%,%1%)";
 
@@ -228,6 +290,13 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
     n = iround(v, pol);
     u = v - n;                              // -1/2 <= u < 1/2
 
+    if(reflect)
+    {
+        T z = (u + n % 2);
+        cp = boost::math::cos_pi(z, pol);
+        sp = boost::math::sin_pi(z, pol);
+    }
+
     if (x == 0)
     {
        *J = *Y = policies::raise_overflow_error<T>(
@@ -237,7 +306,59 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
 
     // x is positive until reflection
     W = T(2) / (x * pi<T>());               // Wronskian
-    if (x <= 2)                           // x in (0, 2]
+    T Yv_scale = 1;
+    if((x > 8) && (x < 1000) && hankel_PQ(v, x, &p, &q, pol))
+    {
+       //
+       // Hankel approximation: note that this method works best when x 
+       // is large, but in that case we end up calculating sines and cosines
+       // of large values, with horrendous resulting accuracy.  It is fast though
+       // when it works....
+       //
+       T chi = x - fmod(T(v / 2 + 0.25f), T(2)) * boost::math::constants::pi<T>();
+       T sc = sin(chi);
+       T cc = cos(chi);
+       chi = sqrt(2 / (boost::math::constants::pi<T>() * x));
+       Yv = chi * (p * sc + q * cc);
+       Jv = chi * (p * cc - q * sc);
+    }
+    else if((x < 1) && (u != 0) && (log(policies::get_epsilon<T, Policy>() / 2) > v * log((x/2) * (x/2) / v)))
+    {
+       // Evaluate using series representations.
+       // This is particularly important for x << v as in this
+       // area temme_jy may be slow to converge, if it converges at all.
+       // Requires x is not an integer.
+       if(kind&need_j)
+          Jv = bessel_j_small_z_series(v, x, pol);
+       else
+          Jv = std::numeric_limits<T>::quiet_NaN();
+       if((org_kind&need_y && (!reflect || (cp != 0))) 
+          || (org_kind & need_j && (reflect && (sp != 0))))
+       {
+          // Only calculate if we need it, and if the reflection formula will actually use it:
+          Yv = bessel_y_small_z_series(v, x, &Yv_scale, pol);
+       }
+       else
+          Yv = std::numeric_limits<T>::quiet_NaN();
+    }
+    else if((u == 0) && (x < policies::get_epsilon<T, Policy>()))
+    {
+       // Truncated series evaluation for small x and v an integer,
+       // much quicker in this area than temme_jy below.
+       if(kind&need_j)
+          Jv = bessel_j_small_z_series(v, x, pol);
+       else
+          Jv = std::numeric_limits<T>::quiet_NaN();
+       if((org_kind&need_y && (!reflect || (cp != 0))) 
+          || (org_kind & need_j && (reflect && (sp != 0))))
+       {
+          // Only calculate if we need it, and if the reflection formula will actually use it:
+          Yv = bessel_yn_small_z(n, x, &Yv_scale, pol);
+       }
+       else
+          Yv = std::numeric_limits<T>::quiet_NaN();
+    }
+    else if (x <= 2)                           // x in (0, 2]
     {
         if(temme_jy(u, x, &Yu, &Yu1, pol))             // Temme series
         {
@@ -247,21 +368,30 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
         }
         prev = Yu;
         current = Yu1;
+        T scale = 1;
         for (k = 1; k <= n; k++)            // forward recurrence for Y
         {
-            next = 2 * (u + k) * current / x - prev;
+            T fact = 2 * (u + k) / x;
+            if((tools::max_value<T>() - fabs(prev)) / fact < fabs(current))
+            {
+               scale /= current;
+               prev /= current;
+               current = 1;
+            }
+            next = fact * current - prev;
             prev = current;
             current = next;
         }
-        Yv = prev;
-        Yv1 = current;
-        if(kind&need_j)
-        {
-          CF1_jy(v, x, &fv, &s, pol);                 // continued fraction CF1_jy
-          Jv = W / (Yv * fv - Yv1);           // Wronskian relation
-        }
-        else
-           Jv = std::numeric_limits<T>::quiet_NaN(); // any value will do, we're not using it.
+         Yv = prev;
+         Yv1 = current;
+         if(kind&need_j)
+         {
+            CF1_jy(v, x, &fv, &s, pol);                 // continued fraction CF1_jy
+            Jv = scale * W / (Yv * fv - Yv1);           // Wronskian relation
+         }
+         else
+            Jv = std::numeric_limits<T>::quiet_NaN(); // any value will do, we're not using it.
+         Yv_scale = scale;
     }
     else                                    // x in (2, \infty)
     {
@@ -269,7 +399,7 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
         // define tag type that will dispatch to right limits:
         typedef typename bessel_asymptotic_tag<T, Policy>::type tag_type;
 
-        T lim;
+        T lim, ratio;
         switch(kind)
         {
         case need_j:
@@ -289,7 +419,7 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
            if(kind&need_y)
            {
               Yu = asymptotic_bessel_y_large_x_2(u, x);
-              Yu1 = asymptotic_bessel_y_large_x_2(u + 1, x);
+              Yu1 = asymptotic_bessel_y_large_x_2(T(u + 1), x);
            }
            else
               Yu = std::numeric_limits<T>::quiet_NaN(); // any value will do, we're not using it.
@@ -307,18 +437,62 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
            T init = sqrt(tools::min_value<T>());
            prev = fv * s * init;
            current = s * init;
-           for (k = n; k > 0; k--)             // backward recurrence for J
+           if(v < max_factorial<T>::value)
            {
-               next = 2 * (u + k) * current / x - prev;
-               prev = current;
-               current = next;
+              for (k = n; k > 0; k--)             // backward recurrence for J
+              {
+                  next = 2 * (u + k) * current / x - prev;
+                  prev = current;
+                  current = next;
+              }
+              ratio = (s * init) / current;     // scaling ratio
+              // can also call CF1_jy() to get fu, not much difference in precision
+              fu = prev / current;
            }
-           T ratio = (s * init) / current;     // scaling ratio
-           // can also call CF1_jy() to get fu, not much difference in precision
-           fu = prev / current;
+           else
+           {
+              //
+              // When v is large we may get overflow in this calculation
+              // leading to NaN's and other nasty surprises:
+              //
+              bool over = false;
+              for (k = n; k > 0; k--)             // backward recurrence for J
+              {
+                  T t = 2 * (u + k) / x;
+                  if(tools::max_value<T>() / t < current)
+                  {
+                     over = true;
+                     break;
+                  }
+                  next = t * current - prev;
+                  prev = current;
+                  current = next;
+              }
+              if(!over)
+              {
+                 ratio = (s * init) / current;     // scaling ratio
+                 // can also call CF1_jy() to get fu, not much difference in precision
+                 fu = prev / current;
+              }
+              else
+              {
+                 ratio = 0;
+                 fu = 1;
+              }
+           }
            CF2_jy(u, x, &p, &q, pol);                  // continued fraction CF2_jy
            T t = u / x - fu;                   // t = J'/J
            gamma = (p - t) / q;
+           //
+           // We can't allow gamma to cancel out to zero competely as it messes up
+           // the subsequent logic.  So pretend that one bit didn't cancel out
+           // and set to a suitably small value.  The only test case we've been able to
+           // find for this, is when v = 8.5 and x = 4*PI.
+           //
+           if(gamma == 0)
+           {
+              gamma = u * tools::epsilon<T>() / x;
+           }
            Ju = sign(current) * sqrt(W / (q + gamma * (p - t)));
 
            Jv = Ju * ratio;                    // normalization
@@ -333,7 +507,14 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
            current = Yu1;
            for (k = 1; k <= n; k++)            // forward recurrence for Y
            {
-               next = 2 * (u + k) * current / x - prev;
+               T fact = 2 * (u + k) / x;
+               if((tools::max_value<T>() - fabs(prev)) / fact < fabs(current))
+               {
+                  prev /= current;
+                  Yv_scale /= current;
+                  current = 1;
+               }
+               next = fact * current - prev;
                prev = current;
                current = next;
            }
@@ -345,14 +526,22 @@ int bessel_jy(T v, T x, T* J, T* Y, int kind, const Policy& pol)
 
     if (reflect)
     {
-        T z = (u + n % 2);
-        *J = boost::math::cos_pi(z, pol) * Jv - boost::math::sin_pi(z, pol) * Yv;     // reflection formula
-        *Y = boost::math::sin_pi(z, pol) * Jv + boost::math::cos_pi(z, pol) * Yv;
+        if((sp != 0) && (tools::max_value<T>() * fabs(Yv_scale) < fabs(sp * Yv)))
+           *J = org_kind & need_j ? T(-sign(sp) * sign(Yv) * sign(Yv_scale) * policies::raise_overflow_error<T>(function, 0, pol)) : T(0);
+        else
+            *J = cp * Jv - (sp == 0 ? T(0) : T((sp * Yv) / Yv_scale));     // reflection formula
+        if((cp != 0) && (tools::max_value<T>() * fabs(Yv_scale) < fabs(cp * Yv)))
+           *Y = org_kind & need_y ? T(-sign(cp) * sign(Yv) * sign(Yv_scale) * policies::raise_overflow_error<T>(function, 0, pol)) : T(0);
+        else
+           *Y = sp * Jv + (cp == 0 ? T(0) : T((cp * Yv) / Yv_scale));
     }
     else
     {
         *J = Jv;
-        *Y = Yv;
+        if(tools::max_value<T>() * fabs(Yv_scale) < fabs(Yv))
+           *Y = org_kind & need_y ? T(sign(Yv) * sign(Yv_scale) * policies::raise_overflow_error<T>(function, 0, pol)) : T(0);
+        else
+         *Y = Yv / Yv_scale;
     }
 
     return 0;

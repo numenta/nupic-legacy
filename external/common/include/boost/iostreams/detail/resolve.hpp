@@ -67,7 +67,8 @@ resolve( const T& t
          // be correct, but I'm not sure why :(
          #if BOOST_WORKAROUND(BOOST_INTEL_CXX_VERSION, BOOST_TESTED_AT(810)) ||\
              BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205)) || \
-             BOOST_WORKAROUND(BOOST_IOSTREAMS_GCC, BOOST_TESTED_AT(400)) \
+             BOOST_WORKAROUND(BOOST_IOSTREAMS_GCC, BOOST_TESTED_AT(400)) ||\
+             BOOST_WORKAROUND(__IBMCPP__, BOOST_TESTED_AT(1110))
              /**/
          , typename disable_if< is_iterator_range<T> >::type* = 0
          #endif

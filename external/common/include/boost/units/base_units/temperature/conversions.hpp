@@ -18,7 +18,7 @@
     #define BOOST_UNITS_SYSTEMS_KELVIN_TO_CELSIUS_CONVERSION_DEFINED
     #include <boost/units/conversion.hpp>
     #include <boost/units/absolute.hpp>
-    BOOST_UNITS_DEFINE_CONVERSION_FACTOR(boost::units::si::kelvin_base_unit, boost::units::temperature::celsius_base_unit, one, one());
+    BOOST_UNITS_DEFINE_CONVERSION_FACTOR(boost::units::si::kelvin_base_unit, boost::units::temperature::celsius_base_unit, one, make_one());
     BOOST_UNITS_DEFINE_CONVERSION_OFFSET(boost::units::si::kelvin_base_unit, boost::units::temperature::celsius_base_unit, double, -273.15);
 #endif
 

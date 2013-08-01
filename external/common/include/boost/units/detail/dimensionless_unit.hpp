@@ -11,7 +11,6 @@
 #ifndef BOOST_UNITS_DETAIL_DIMENSIONLESS_UNIT_HPP
 #define BOOST_UNITS_DETAIL_DIMENSIONLESS_UNIT_HPP
 
-#include <boost/utility/enable_if.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/units/units_fwd.hpp>
 
@@ -27,56 +26,60 @@ struct homogeneous_system;
 template<class T1, class T2, class Scale>
 struct heterogeneous_system_impl;
 
+typedef boost::units::heterogeneous_system<
+    boost::units::heterogeneous_system_impl<
+        boost::units::dimensionless_type,
+        boost::units::dimensionless_type,
+        boost::units::dimensionless_type
+    >
+> heterogeneous_dimensionless_system;
+
 namespace detail {
 
-template<class T>
-struct is_dimensionless_system : boost::mpl::false_ {};
+template<class System>
+struct void_if_dimensionless {
+    typedef int type;
+};
 
 template<class T>
-struct is_dimensionless_system<boost::units::homogeneous_system<T> > : boost::mpl::true_ {};
+struct void_if_dimensionless<boost::units::homogeneous_system<T> > {
+    typedef void type;
+};
 
 template<>
-struct is_dimensionless_system<
-   boost::units::heterogeneous_system<
-       boost::units::heterogeneous_system_impl<
-           boost::units::dimensionless_type,
-           boost::units::dimensionless_type,
-           boost::units::dimensionless_type
-       >
-   >
-> : boost::mpl::true_ {};
+struct void_if_dimensionless<heterogeneous_dimensionless_system> {
+    typedef void type;
+};
 
-#ifdef BOOST_MSVC
+template<class System, class Test = void>
+struct void_if_heterogeneous {
+    typedef void type;
+};
 
-#define BOOST_UNITS_DIMENSIONLESS_UNIT(T)\
-    boost::units::unit<\
-        typename boost::enable_if<boost::units::detail::is_dimensionless_system<T>, boost::units::dimensionless_type>::type,\
-        T\
-    >
+template<class System>
+struct void_if_heterogeneous<System, typename void_if_dimensionless<System>::type> {
+    typedef int type;
+};
 
-#define BOOST_UNITS_HETEROGENEOUS_DIMENSIONLESS_UNIT(T)\
-    boost::units::unit<\
-        typename boost::disable_if<boost::units::detail::is_dimensionless_system<T>, boost::units::dimensionless_type>::type,\
-        T\
-    >
+template<class System, class Enable=void>
+struct is_dimensionless_system : mpl::false_ {};
 
-#else
+template<class System>
+struct is_dimensionless_system<System, typename void_if_dimensionless<System>::type> : mpl::true_ {};
 
 #define BOOST_UNITS_DIMENSIONLESS_UNIT(T)\
     boost::units::unit<\
         boost::units::dimensionless_type,\
         T,\
-        typename boost::enable_if<boost::units::detail::is_dimensionless_system<T> >::type\
+        typename ::boost::units::detail::void_if_dimensionless<T>::type\
     >
 
 #define BOOST_UNITS_HETEROGENEOUS_DIMENSIONLESS_UNIT(T)\
     boost::units::unit<\
         boost::units::dimensionless_type,\
         T,\
-        typename boost::disable_if<boost::units::detail::is_dimensionless_system<T> >::type\
+        typename ::boost::units::detail::void_if_heterogeneous<T>::type\
     >
-
-#endif
 
 }
 }

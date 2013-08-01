@@ -126,12 +126,22 @@ class MetricsManager(object):
       rawRecord = self._getRawGroundTruth()
       if field:
         if type(inference) in (list, tuple):
-          fieldIndex = self.__fieldNameIndexMap[field]
-          inference = inference[fieldIndex]
+          if field in self.__fieldNameIndexMap:
+            # NOTE: If the predicted field is not fed in at the bottom, we
+            #  won't have it in our fieldNameIndexMap
+            fieldIndex = self.__fieldNameIndexMap[field]
+            inference = inference[fieldIndex]
+          else:
+            inference = None
         if groundTruth is not None:
           if type(groundTruth) in (list, tuple):
-            fieldIndex = self.__fieldNameIndexMap[field]
-            groundTruth = groundTruth[fieldIndex]
+            if field in self.__fieldNameIndexMap:
+              # NOTE: If the predicted field is not fed in at the bottom, we
+              #  won't have it in our fieldNameIndexMap
+              fieldIndex = self.__fieldNameIndexMap[field]
+              groundTruth = groundTruth[fieldIndex]
+            else:
+              groundTruth = None
           else:
             # groundTruth could be a dict based off of field names
             groundTruth = groundTruth[field]

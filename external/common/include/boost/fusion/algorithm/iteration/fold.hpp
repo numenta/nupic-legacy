@@ -1,48 +1,63 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
     Copyright (c) 2007 Dan Marsden
+    Copyright (c) 2009-2010 Christopher Schmidt
 
-    Distributed under the Boost Software License, Version 1.0. (See accompanying 
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 ==============================================================================*/
-#if !defined(BOOST_FUSION_FOLD_05052005_1214)
-#define BOOST_FUSION_FOLD_05052005_1214
+#ifndef BOOST_FUSION_ALGORITHM_ITERATION_FOLD_HPP
+#define BOOST_FUSION_ALGORITHM_ITERATION_FOLD_HPP
 
-#include <boost/fusion/algorithm/iteration/detail/fold.hpp>
+#include <boost/fusion/algorithm/iteration/fold_fwd.hpp>
+#include <boost/config.hpp>
+#include <boost/fusion/sequence/intrinsic/begin.hpp>
+#include <boost/fusion/sequence/intrinsic/end.hpp>
+#include <boost/fusion/sequence/intrinsic/empty.hpp>
 #include <boost/fusion/sequence/intrinsic/size.hpp>
-#include <boost/fusion/support/category_of.hpp>
+#include <boost/fusion/support/is_segmented.hpp>
+#include <boost/fusion/iterator/equal_to.hpp>
+#include <boost/fusion/iterator/deref.hpp>
+#include <boost/fusion/iterator/value_of.hpp>
+#include <boost/fusion/iterator/prior.hpp>
+#include <boost/fusion/iterator/next.hpp>
+#include <boost/mpl/eval_if.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/mpl/bool.hpp>
+#include <boost/utility/result_of.hpp>
+#include <boost/type_traits/add_const.hpp>
+#include <boost/type_traits/add_reference.hpp>
 
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/static_assert.hpp>
-
-namespace boost { namespace fusion { 
-
-    struct random_access_traversal_tag;
-
-    namespace result_of
-    {
-        template <typename Sequence, typename State, typename F>
-        struct fold
-            : fusion::detail::choose_fold<
-            Sequence, State, F
-            , is_base_of<random_access_traversal_tag, typename traits::category_of<Sequence>::type>::value>
-        {};
-    }
-
-    template <typename Sequence, typename State, typename F>
-    inline typename result_of::fold<Sequence, State, F>::type
-    fold(Sequence& seq, State const& state, F f)
-    {
-        return detail::fold(seq, state, f, typename traits::category_of<Sequence>::type());
-    }
-
-    template <typename Sequence, typename State, typename F>
-    inline typename result_of::fold<Sequence const, State, F>::type
-    fold(Sequence const& seq, State const& state, F f)
-    {
-        return detail::fold(seq, state, f, typename traits::category_of<Sequence>::type());
-    }
-}}
-
+#if !defined(BOOST_FUSION_DONT_USE_PREPROCESSED_FILES)
+#include <boost/fusion/algorithm/iteration/detail/preprocessed/fold.hpp>
+#else
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 2, line: 0, output: "detail/preprocessed/fold.hpp")
 #endif
 
+/*=============================================================================
+    Copyright (c) 2001-2011 Joel de Guzman
+    Copyright (c) 2007 Dan Marsden
+    Copyright (c) 2009-2010 Christopher Schmidt
+
+    Distributed under the Boost Software License, Version 1.0. (See accompanying
+    file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+    This is an auto-generated file. Do not edit!
+==============================================================================*/
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(preserve: 1)
+#endif
+
+#include <boost/fusion/algorithm/iteration/detail/fold.hpp>
+
+#if defined(__WAVE__) && defined(BOOST_FUSION_CREATE_PREPROCESSED_FILES)
+#pragma wave option(output: null)
+#endif
+
+#endif // BOOST_FUSION_DONT_USE_PREPROCESSED_FILES
+
+#include <boost/fusion/algorithm/iteration/detail/segmented_fold.hpp>
+
+#endif

@@ -1,5 +1,5 @@
 /*=============================================================================
-    Copyright (c) 2001-2007 Joel de Guzman
+    Copyright (c) 2001-2011 Joel de Guzman
 
     Distributed under the Boost Software License, Version 1.0. (See accompanying
     file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -7,60 +7,105 @@
 #if !defined(SPIRIT_RAW_APRIL_9_2007_0912AM)
 #define SPIRIT_RAW_APRIL_9_2007_0912AM
 
-#include <boost/spirit/home/support/component.hpp>
+#if defined(_MSC_VER)
+#pragma once
+#endif
+
+#include <boost/spirit/home/qi/meta_compiler.hpp>
+#include <boost/spirit/home/qi/skip_over.hpp>
+#include <boost/spirit/home/qi/parser.hpp>
+#include <boost/spirit/home/qi/detail/assign_to.hpp>
 #include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/info.hpp>
+#include <boost/spirit/home/support/common_terminals.hpp>
+#include <boost/spirit/home/support/unused.hpp>
+#include <boost/spirit/home/support/has_semantic_action.hpp>
+#include <boost/spirit/home/support/handles_container.hpp>
 #include <boost/range/iterator_range.hpp>
+
+namespace boost { namespace spirit
+{
+    ///////////////////////////////////////////////////////////////////////////
+    // Enablers
+    ///////////////////////////////////////////////////////////////////////////
+    template <>
+    struct use_directive<qi::domain, tag::raw> // enables raw
+      : mpl::true_ {};
+}}
 
 namespace boost { namespace spirit { namespace qi
 {
-    struct raw_director
+#ifndef BOOST_SPIRIT_NO_PREDEFINED_TERMINALS
+    using spirit::raw;
+#endif
+    using spirit::raw_type;
+
+    template <typename Subject>
+    struct raw_directive : unary_parser<raw_directive<Subject> >
     {
-        template <typename Component, typename Context, typename Iterator>
+        typedef Subject subject_type;
+        raw_directive(Subject const& subject)
+          : subject(subject) {}
+
+        template <typename Context, typename Iterator>
         struct attribute
         {
             typedef iterator_range<Iterator> type;
         };
 
-        template <
-            typename Component
-          , typename Iterator, typename Context
+        template <typename Iterator, typename Context
           , typename Skipper, typename Attribute>
-        static bool parse(
-            Component const& component
-          , Iterator& first, Iterator const& last
-          , Context& context, Skipper const& skipper
-          , Attribute& attr)
+        bool parse(Iterator& first, Iterator const& last
+          , Context& context, Skipper const& skipper, Attribute& attr) const
         {
-            typedef typename
-                result_of::subject<Component>::type::director
-            director;
-
-            qi::skip(first, last, skipper);
+            qi::skip_over(first, last, skipper);
             Iterator i = first;
-            if (director::parse(
-                spirit::subject(component), i, last, context, skipper, unused))
+            if (subject.parse(i, last, context, skipper, unused))
             {
-                attr = Attribute(first, i);
+                spirit::traits::assign_to(first, i, attr);
                 first = i;
                 return true;
             }
             return false;
         }
 
-        template <typename Component, typename Context>
-        static std::string what(Component const& component, Context const& ctx)
+        template <typename Context>
+        info what(Context& context) const
         {
-            std::string result = "raw[";
+            return info("raw", subject.what(context));
 
-            typedef typename
-                result_of::subject<Component>::type::director
-            director;
+        }
 
-            result += director::what(subject(component), ctx);
-            result += "]";
-            return result;
+        Subject subject;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Parser generators: make_xxx function (objects)
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Modifiers>
+    struct make_directive<tag::raw, Subject, Modifiers>
+    {
+        typedef raw_directive<Subject> result_type;
+        result_type operator()(unused_type, Subject const& subject, unused_type) const
+        {
+            return result_type(subject);
         }
     };
+}}}
+
+namespace boost { namespace spirit { namespace traits
+{
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject>
+    struct has_semantic_action<qi::raw_directive<Subject> >
+      : unary_has_semantic_action<Subject> {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Subject, typename Attribute, typename Context
+        , typename Iterator>
+    struct handles_container<qi::raw_directive<Subject>, Attribute
+        , Context, Iterator>
+      : unary_handles_container<Subject, Attribute, Context, Iterator> {};
 }}}
 
 #endif

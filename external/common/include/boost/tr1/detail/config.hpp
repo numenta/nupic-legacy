@@ -8,7 +8,10 @@
 
 #include <cstddef>
 
-#if defined(__GNUC__) || (!defined(_AIX) && defined(__IBMCPP__)  && (__IBMCPP__ >= 800)) 
+#if (defined(__GNUC__) && !(defined(linux) || defined(__linux) || defined(__linux__))) \
+   || (!defined(_AIX) && defined(__IBMCPP__)  && (__IBMCPP__ >= 800)) 
+   // Disable use of #include_next on Linux as typically we are installed in a 
+   // directory that is searched *after* the std lib include path.
 #if !defined(BOOST_HAS_INCLUDE_NEXT)
 #  define BOOST_HAS_INCLUDE_NEXT
 #endif
@@ -21,7 +24,7 @@
 #     define BOOST_TR1_NO_RECURSION
 #     define BOOST_TR1_NO_CONFIG_RECURSION
 #  endif
-#  ifdef BOOST_HAS_INCLUDE_NEXT
+#  if defined(BOOST_HAS_INCLUDE_NEXT) && !defined(BOOST_TR1_DISABLE_INCLUDE_NEXT)
 #     include_next <utility>
 #  else
 #     include BOOST_TR1_STD_HEADER(utility)
@@ -134,25 +137,28 @@
 // this here, in addition the feature pack for VC9
 // provides a more or less full TR1 implementation:
 //
-#if defined(_HAS_TR1) && (_HAS_TR1 + 0)
-#  define BOOST_HAS_TR1_ARRAY
-#  define BOOST_HAS_TR1_REFERENCE_WRAPPER
-#  define BOOST_HAS_TR1_RESULT_OF
-#  define BOOST_HAS_TR1_MEM_FN
-#  define BOOST_HAS_TR1_BIND
-#  define BOOST_HAS_TR1_FUNCTION
-#  define BOOST_HAS_TR1_HASH
-#  define BOOST_HAS_TR1_SHARED_PTR
-#  define BOOST_HAS_TR1_RANDOM
-#  define BOOST_HAS_TR1_REGEX
-#  define BOOST_HAS_TR1_TUPLE
-#  define BOOST_HAS_TR1_TYPE_TRAITS
-#  define BOOST_HAS_TR1_UTILITY
-#  define BOOST_HAS_TR1_UNORDERED_MAP
-#  define BOOST_HAS_TR1_UNORDERED_SET
-#else
-#  define BOOST_HAS_TR1_HASH
-#endif
+#  if defined(_HAS_TR1) && (_HAS_TR1 + 0)
+#    define BOOST_HAS_TR1_ARRAY
+#    define BOOST_HAS_TR1_REFERENCE_WRAPPER
+#    define BOOST_HAS_TR1_RESULT_OF
+#    define BOOST_HAS_TR1_MEM_FN
+#    define BOOST_HAS_TR1_BIND
+#    define BOOST_HAS_TR1_FUNCTION
+#    define BOOST_HAS_TR1_HASH
+#    define BOOST_HAS_TR1_SHARED_PTR
+#    define BOOST_HAS_TR1_RANDOM
+#    define BOOST_HAS_TR1_REGEX
+#    define BOOST_HAS_TR1_TUPLE
+#    define BOOST_HAS_TR1_TYPE_TRAITS
+#    define BOOST_HAS_TR1_UTILITY
+#    define BOOST_HAS_TR1_UNORDERED_MAP
+#    define BOOST_HAS_TR1_UNORDERED_SET
+#  else
+#    define BOOST_HAS_TR1_HASH
+#  endif
+#  if _MSC_VER >= 1600
+#     define BOOST_HAS_CPP_0X
+#  endif
 #endif
 
 #include <boost/config.hpp>

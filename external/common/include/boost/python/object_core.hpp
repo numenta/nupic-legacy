@@ -5,6 +5,8 @@
 #ifndef OBJECT_CORE_DWA2002615_HPP
 # define OBJECT_CORE_DWA2002615_HPP
 
+# define BOOST_PYTHON_OBJECT_HAS_IS_NONE // added 2010-03-15 by rwgk
+
 # include <boost/python/detail/prefix.hpp>
 
 # include <boost/type.hpp>
@@ -41,6 +43,12 @@
 # include <boost/mpl/if.hpp>
 
 namespace boost { namespace python { 
+
+namespace detail
+{
+  class kwds_proxy; 
+  class args_proxy; 
+} 
 
 namespace converter
 {
@@ -102,6 +110,11 @@ namespace api
 
 # define BOOST_PP_ITERATION_PARAMS_1 (3, (1, BOOST_PYTHON_MAX_ARITY, <boost/python/object_call.hpp>))
 # include BOOST_PP_ITERATE()
+    
+      detail::args_proxy operator* () const; 
+      object operator()(detail::args_proxy const &args) const; 
+      object operator()(detail::args_proxy const &args, 
+                        detail::kwds_proxy const &kwds) const; 
 
       // truth value testing
       //
@@ -115,6 +128,10 @@ namespace api
       const_object_objattribute attr(object const&) const;
       object_objattribute attr(object const&);
 
+      // Wrap 'in' operator (aka. __contains__)
+      template <class T>
+      object contains(T const& key) const;
+      
       // item access
       //
       const_object_item operator[](object_cref) const;
@@ -219,12 +236,14 @@ namespace api
       inline object_base(object_base const&);
       inline object_base(PyObject* ptr);
       
-      object_base& operator=(object_base const& rhs);
-      ~object_base();
+      inline object_base& operator=(object_base const& rhs);
+      inline ~object_base();
         
       // Underlying object access -- returns a borrowed reference
-      PyObject* ptr() const;
-      
+      inline PyObject* ptr() const;
+
+      inline bool is_none() const;
+
    private:
       PyObject* m_ptr;
   };
@@ -329,12 +348,12 @@ namespace api
   // Macros for forwarding constructors in classes derived from
   // object. Derived classes will usually want these as an
   // implementation detail
-# define BOOST_PYTHON_FORWARD_OBJECT_CONSTRUCTORS_(derived, base)       \
-    inline explicit derived(python::detail::borrowed_reference p)       \
-        : base(p) {}                                                    \
-    inline explicit derived(python::detail::new_reference p)            \
-        : base(p) {}                                                    \
-    inline explicit derived(python::detail::new_non_null_reference p)   \
+# define BOOST_PYTHON_FORWARD_OBJECT_CONSTRUCTORS_(derived, base)              \
+    inline explicit derived(::boost::python::detail::borrowed_reference p)     \
+        : base(p) {}                                                           \
+    inline explicit derived(::boost::python::detail::new_reference p)          \
+        : base(p) {}                                                           \
+    inline explicit derived(::boost::python::detail::new_non_null_reference p) \
         : base(p) {}
 
 # if !defined(BOOST_MSVC) || BOOST_MSVC >= 1300
@@ -393,7 +412,7 @@ namespace api
       static PyObject*
       get(T const& x, U)
       {
-          return python::incref(get_managed_object(x, tag));
+          return python::incref(get_managed_object(x, boost::python::tag));
       }
   };
 
@@ -415,6 +434,71 @@ template <class T> struct extract;
 //
 // implementation
 //
+
+namespace detail 
+{
+
+class call_proxy 
+{ 
+public: 
+  call_proxy(object target) : m_target(target) {} 
+  operator object() const { return m_target;} 
+ 
+ private: 
+    object m_target; 
+}; 
+ 
+class kwds_proxy : public call_proxy 
+{ 
+public: 
+  kwds_proxy(object o = object()) : call_proxy(o) {} 
+}; 
+class args_proxy : public call_proxy 
+{ 
+public: 
+  args_proxy(object o) : call_proxy(o) {} 
+  kwds_proxy operator* () const { return kwds_proxy(*this);} 
+}; 
+} 
+ 
+template <typename U> 
+detail::args_proxy api::object_operators<U>::operator* () const 
+{ 
+  object_cref2 x = *static_cast<U const*>(this); 
+  return boost::python::detail::args_proxy(x); 
+} 
+ 
+template <typename U> 
+object api::object_operators<U>::operator()(detail::args_proxy const &args) const 
+{ 
+  U const& self = *static_cast<U const*>(this); 
+  PyObject *result = PyObject_Call(get_managed_object(self, boost::python::tag), 
+                                   args.operator object().ptr(), 
+                                   0); 
+  return object(boost::python::detail::new_reference(result)); 
+ 
+} 
+ 
+template <typename U> 
+object api::object_operators<U>::operator()(detail::args_proxy const &args, 
+                                            detail::kwds_proxy const &kwds) const 
+{ 
+  U const& self = *static_cast<U const*>(this); 
+  PyObject *result = PyObject_Call(get_managed_object(self, boost::python::tag), 
+                                   args.operator object().ptr(), 
+                                   kwds.operator object().ptr()); 
+  return object(boost::python::detail::new_reference(result)); 
+ 
+}  
+
+
+template <typename U>
+template <class T>
+object api::object_operators<U>::contains(T const& key) const
+{
+    return this->attr("__contains__")(object(key));
+}
+
 
 inline object::object()
     : object_base(python::incref(Py_None))
@@ -457,6 +541,11 @@ inline object::object(detail::new_non_null_reference p)
 inline PyObject* api::object_base::ptr() const
 {
     return m_ptr;
+}
+
+inline bool api::object_base::is_none() const
+{
+    return (m_ptr == Py_None);
 }
 
 //

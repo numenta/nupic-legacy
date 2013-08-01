@@ -16,7 +16,7 @@
 
 //  See http://www.boost.org for updates, documentation, and revision history.
 
-#include <cassert>
+#include <boost/assert.hpp>
 
 #include <boost/config.hpp> // for BOOST_DEDUCED_TYPENAME
 
@@ -43,16 +43,17 @@ struct tri_state {
     enum state_enum {
         is_false = false,
         is_true = true,
-        is_indeterminant,
+        is_indeterminant
     } m_state;
     // convert to bool
     operator bool (){
-        assert(is_indeterminant != m_state);
+        BOOST_ASSERT(is_indeterminant != m_state);
         return is_true == m_state ? true : false;
     }
     // assign from bool
     tri_state & operator=(bool rhs) {
         m_state = rhs ? is_true : is_false;
+        return *this;
     }
     tri_state(bool rhs) :
         m_state(rhs ? is_true : is_false)

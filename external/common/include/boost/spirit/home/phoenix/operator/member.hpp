@@ -29,12 +29,6 @@
 
 #include <boost/get_pointer.hpp>
 
-#include <boost/preprocessor/arithmetic/sub.hpp>
-
-#if !defined(PHOENIX_MEMBER_LIMIT)
-#define PHOENIX_MEMBER_LIMIT BOOST_PP_SUB(PHOENIX_COMPOSITE_LIMIT, 2)
-#endif
-
 #include <boost/spirit/home/phoenix/operator/detail/mem_fun_ptr_gen.hpp>
 
 #include <memory>

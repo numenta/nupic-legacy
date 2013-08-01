@@ -12,7 +12,7 @@
 #include <functional>
 #include <boost/limits.hpp> // for numeric limits
 #include <boost/graph/graph_traits.hpp>
-#include <boost/property_map.hpp>
+#include <boost/property_map/property_map.hpp>
 
 namespace boost {
 
@@ -22,13 +22,16 @@ namespace boost {
     template <class T>
     struct closed_plus
     {
+      const T inf;
+
+      closed_plus() : inf((std::numeric_limits<T>::max)()) { }
+      closed_plus(T inf) : inf(inf) { }
+
       T operator()(const T& a, const T& b) const {
         using namespace std;
-       T zero(0);
-       T result = a + b;
-       if (result < zero && a >= zero && b >= zero)
-         return (numeric_limits<T>::max)();
-       return result;
+       if (a == inf) return inf;
+       if (b == inf) return inf;
+       return a + b;
       }
     };
     
@@ -46,17 +49,30 @@ namespace boost {
       Vertex u = source(e, g), v = target(e, g);
       typedef typename property_traits<DistanceMap>::value_type D;
       typedef typename property_traits<WeightMap>::value_type W;
-      D d_u = get(d, u), d_v = get(d, v);
-      W w_e = get(w, e);
+      const D d_u = get(d, u);
+      const D d_v = get(d, v);
+      const W& w_e = get(w, e);
       
+      // The seemingly redundant comparisons after the distance puts are to
+      // ensure that extra floating-point precision in x87 registers does not
+      // lead to relax() returning true when the distance did not actually
+      // change.
       if ( compare(combine(d_u, w_e), d_v) ) {
         put(d, v, combine(d_u, w_e));
-        put(p, v, u);
-        return true;
+        if (compare(get(d, v), d_v)) {
+          put(p, v, u);
+          return true;
+        } else {
+          return false;
+        }
       } else if (is_undirected && compare(combine(d_v, w_e), d_u)) {
         put(d, u, combine(d_v, w_e));
-        put(p, u, v);
-        return true;
+        if (compare(get(d, u), d_u)) {
+          put(p, u, v);
+          return true;
+        } else {
+          return false;
+        }
       } else
         return false;
     }

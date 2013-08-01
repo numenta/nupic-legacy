@@ -69,6 +69,9 @@ GENERATE_APPLY_FWD_OPS generates for every N functions that look like this (for 
 #define GIL_FWD_CASE(z, N, SUM)       case N: return op(*gil_reinterpret_cast<typename mpl::deref<T##N>::type*>(&bits));
 #define GIL_FWD_CONST_CASE(z, N, SUM) case N: return op(*gil_reinterpret_cast_c<const typename mpl::deref<T##N>::type*>(&bits));
 
+#define GIL_FWD_CASE_WITH_INFO(z, N, SUM)       case N: return op(*gil_reinterpret_cast<typename mpl::deref<T##N>::type*>(&bits), info);
+#define GIL_FWD_CONST_CASE_WITH_INFO(z, N, SUM) case N: return op(*gil_reinterpret_cast_c<const typename mpl::deref<T##N>::type*>(&bits), info);
+
 #define GIL_APPLY_FWD_OP(z, N, text)                                                                        \
     template <> struct apply_operation_fwd_fn<BOOST_PP_ADD(N,1)> {                                      \
         template <typename Types, typename Bits, typename UnaryOp>                                     \
@@ -88,6 +91,26 @@ GENERATE_APPLY_FWD_OPS generates for every N functions that look like this (for 
             T##N;                                                                                       \
             switch (index) {                                                                            \
                 BOOST_PP_REPEAT(BOOST_PP_ADD(N,1), GIL_FWD_CONST_CASE,BOOST_PP_EMPTY)                       \
+            }                                                                                           \
+            throw;                                                                                      \
+        }                                                                                               \
+        template <typename Types, typename Info, typename Bits, typename UnaryOp>                                     \
+        typename UnaryOp::result_type apply(Bits& bits, std::size_t index, const Info& info, UnaryOp op) const {        \
+            typedef typename mpl::begin<Types>::type                                             \
+            BOOST_PP_REPEAT(N, GIL_FWD_TYPEDEFS, BOOST_PP_EMPTY)                                            \
+            T##N;                                                                                       \
+            switch (index) {                                                                            \
+                BOOST_PP_REPEAT(BOOST_PP_ADD(N,1), GIL_FWD_CASE_WITH_INFO, BOOST_PP_EMPTY)                            \
+            }                                                                                           \
+            throw;                                                                                      \
+        }                                                                                               \
+        template <typename Types, typename Bits, typename Info, typename UnaryOp>                                     \
+        typename UnaryOp::result_type applyc(const Bits& bits, std::size_t index, const Info& info, UnaryOp op) const { \
+            typedef typename mpl::begin<Types>::type                                             \
+            BOOST_PP_REPEAT(N, GIL_FWD_TYPEDEFS, BOOST_PP_EMPTY)                                            \
+            T##N;                                                                                       \
+            switch (index) {                                                                            \
+                BOOST_PP_REPEAT(BOOST_PP_ADD(N,1), GIL_FWD_CONST_CASE_WITH_INFO,BOOST_PP_EMPTY)                       \
             }                                                                                           \
             throw;                                                                                      \
         }                                                                                               \
@@ -118,7 +141,7 @@ namespace detail {
     template <typename T2, typename Op>
     struct reduce_bind1 {
         const T2& _t2;
-        mutable Op&  _op;
+		Op&  _op;
 
         typedef typename Op::result_type result_type;
 
@@ -131,7 +154,7 @@ namespace detail {
     struct reduce_bind2 {
         const Bits1& _bits1;
         std::size_t _index1;
-        mutable Op&  _op;
+		Op&  _op;
 
         typedef typename Op::result_type result_type;
 
