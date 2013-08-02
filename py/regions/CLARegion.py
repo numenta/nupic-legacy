@@ -1101,13 +1101,6 @@ class CLARegion(PyRegion):
       if self.nMultiStepPrediction > 0:
         self._doPredict()
 
-      # if self.computeTopDown:
-      #   (topDownOutput, spReconstructedInput) = self._doTopDownInfer(
-      #                                           topDownInput = rfOutput)
-      #   outputs['topDownOut'][:] = topDownOutput
-      #   if spReconstructedInput is not None:
-      #     outputs['spReconstructedIn'][:] = spReconstructedInput
-
       # Write the bottom up out to our node outputs only if we are doing
       # inference
       outputs['bottomUpOut'][:] = rfOutput.flat
@@ -1279,12 +1272,7 @@ class CLARegion(PyRegion):
       else:
         spTopDownIn = self._spatialPoolerOutput
 
-      # Input reconstruction
-      # if not self.disableSpatial:
-      #   self._multiStepInputPrediction[i,:] = self._sfdr.topDownCompute(spTopDownIn)
-      # else:
-      #   self._multiStepInputPrediction[i,:] = spTopDownIn
-      self._multiStepInputPrediction[i,:] = spTopDownIn # ADD
+      self._multiStepInputPrediction[i,:] = spTopDownIn
 
 
   #############################################################################
@@ -1310,15 +1298,8 @@ class CLARegion(PyRegion):
     else:
       tpTopDownOut = self._tfdr.topDownCompute(topDownInput)
 
-    # Run through the SP's topdown compute
-    # if self.disableSpatial:
-    #   topDownOut = tpTopDownOut
-    #   spReconstructedIn = None
-    # else:
-    #   spReconstructedIn = self._sfdr.topDownCompute(self._spatialPoolerOutput).copy()
-    #   topDownOut = self._sfdr.topDownCompute(tpTopDownOut)
-    topDownOut = tpTopDownOut # ADD
-    spReconstructedIn = None # ADD
+    topDownOut = tpTopDownOut 
+    spReconstructedIn = None
 
     return (topDownOut, spReconstructedIn)
 
