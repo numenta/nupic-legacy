@@ -6,6 +6,7 @@ compiler:
   - gcc
 python:
   - "2.6"
+  - "2.7"
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
