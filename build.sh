@@ -58,7 +58,8 @@ PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
+    add_to_path "$NUPIC_INSTALL"
+    pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
     #cov-core may fail to install properly, reporting something to the effect of:
     #
     #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
