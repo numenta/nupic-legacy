@@ -771,14 +771,12 @@ class MetricMovingMean(AggregateMetric):
 
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
-  if(type(prediction)==float):
-    sandbox.symtable['prediction']=prediction
-  elif(type(prediction)==dict):
+  if(type(prediction) == dict):
     sandbox.symtable['prediction'] = tools.mostLikely(prediction)
     sandbox.symtable['EXP'] = tools.expValue(prediction)
     sandbox.symtable['probabilityDistribution'] = prediction
   else:
-    assert False, "prediction is neither a dict nor float"
+    sandbox.symtable['prediction'] = prediction
   sandbox.symtable['groundTruth'] = groundTruth
   sandbox.symtable['tools'] = tools
   error = sandbox(expr)
