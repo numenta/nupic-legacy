@@ -59,6 +59,7 @@ PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
     add_to_path "$NUPIC_INSTALL"
+    add_to_pythonpath "$NUPIC_INSTALL/lib/python${PY_VER}/site-packages"
     pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
     #cov-core may fail to install properly, reporting something to the effect of:
     #
@@ -97,6 +98,13 @@ function add_to_path {
         return 0
     fi
     export PATH="$PATH:${1}"
+}
+function add_to_pythonpath {
+    if [[ "$PYTHONPATH" =~ (^|:)"$1"(:|$) ]]
+    then
+        return 0
+    fi
+    export PYTHONPATH="$PYTHONPATH:${1}"
 }
 
 prepDirectories
