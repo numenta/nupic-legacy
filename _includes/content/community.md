@@ -42,6 +42,23 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
 <br/>
 <br/>
 
-### Numenta on Facebook
+<h3>Numenta on Facebook</h3>
 
-<div class="fb-follow" data-href="https://www.facebook.com/pages/Numenta/321559142118" data-show-faces="true" data-width="450"></div>
+<div>
+    <div class="fb-follow" data-href="https://www.facebook.com/pages/Numenta/321559142118" data-show-faces="true" data-width="450"></div>
+</div>
+
+<br/>
+<br/>
+
+<h3>Numenta on Google+</h3>
+
+<div class="g-page" data-href="//plus.google.com/100642636108337517466" data-rel="publisher"></div>
+
+<script type="text/javascript">
+  (function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+  })();
+</script>
