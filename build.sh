@@ -89,6 +89,15 @@ function cleanUpDirectories {
     [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
 }
 
+# only add to PATH once, give new path as argument
+function add_to_path {
+    if [[ "$PATH" =~ (^|:)"$1"(:|$) ]]
+    then
+        return 0
+    fi
+    export PATH="$PATH:${1}"
+}
+
 prepDirectories
 
 pythonSetup
