@@ -17,13 +17,18 @@ title: NuPIC Open Pull Requests
     {{else}}
         <div class="pull-request">
     {{/if}}
-            <h4><a target="_blank" href="{{html_url}}">{{title}}</a></h4>
-            <table><tbody><tr>
+            <table><tbody>
+            <tr>
+                <th><a target="_blank" href="{{html_url}}">{{title}}</a></th>
+                <th class="right"><a href="http://github.com/{{user.login}}" target="_blank">{{user.login}}</a></th>
+            </tr>
+            <tr>
                 <td>Open Since: <span class="open-since">{{created_at}}</span></td>
                 <td>
                     <a href="http://issues.numenta.org:8081/shaStatus?repo=numenta/nupic&sha={{head.sha}}" target="_blank" title="See all statuses for this SHA">Status history (JSON)</a>
                 </td>
-            </tr></tbody></table>
+            </tr>
+            </tbody></table>
             <div class="status {{latest_status.state}}">{{latest_status.description}}</div>
             <div class="body">{{body}}</div>
     </div>

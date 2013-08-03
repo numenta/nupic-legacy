@@ -52,6 +52,10 @@ span.nowrap {
     font-weight: bold;
 }
 
+.right {
+    text-align: right;
+}
+
 div.image-wrapper {
     text-align: center;
 }
@@ -112,6 +116,10 @@ h5 {
 }
 .pull-request.overdue h4 a {
     color: black;
+}
+.pull-request table th, .pull-request table {
+    margin: 0;
+    padding: 0;
 }
 .success {
     background-color: #8CF58F;
