@@ -24,8 +24,11 @@
 # environment is set up correctly for NuPIC. It requires $NTA to be set prior
 # to invocation as described in the README.
 
+# get PYTHON_VERSION early here
+PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
+
 export PATH=$NTA/bin:$PATH
-export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
+export PYTHONPATH=$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH
 export NTA_ROOTDIR=$NTA
 
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
