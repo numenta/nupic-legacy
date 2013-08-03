@@ -31,6 +31,7 @@ import uuid
 from mock import Mock, patch
 from pkg_resources import resource_filename, resource_string
 from xml.parsers.expat import ExpatError
+from xml.etree.ElementTree import ParseError
 import nupic
 
 import nupic.support.configuration_base as configuration
@@ -320,7 +321,7 @@ class ConfigurationTest(unittest.TestCase):
       outp.flush()
 
     with patch('sys.stderr', new_callable=StringIO):
-      self.assertRaises(ExpatError, configuration.Configuration.get, 'foo')
+      self.assertRaises((ExpatError, ParseError), configuration.Configuration.get, 'foo')
 
 
   @patch.object(configuration.os, 'environ', spec=dict)
