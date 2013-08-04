@@ -31,7 +31,11 @@ import uuid
 from mock import Mock, patch
 from pkg_resources import resource_filename, resource_string
 from xml.parsers.expat import ExpatError
-from xml.etree.ElementTree import ParseError
+# ParseError not present in xml module for python2.6
+try:
+    from xml.etree.ElementTree import ParseError
+except ImportError:
+    from xml.parsers.expat import ExpatError as ParseError 
 import nupic
 
 import nupic.support.configuration_base as configuration
