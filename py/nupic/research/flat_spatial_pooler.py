@@ -19,6 +19,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+""" Implements the flat spatial pooler """
+
 import copy
 import cPickle
 import itertools
@@ -42,7 +44,9 @@ realDType = GetNTAReal()
 
 class FlatSpatialPooler(SpatialPooler):
 	"""
-	This class implements the SpatialPooler used in Grok.
+	This class implements the flat spatial pooler. This version of the spatial 
+	pooler contains no toplogy information. It uses global coverage and global
+	inhibition
 	"""
 
 	def __init__(self,
