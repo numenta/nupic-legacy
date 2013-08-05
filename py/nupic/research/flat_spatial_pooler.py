@@ -48,6 +48,7 @@ class FlatSpatialPooler(SpatialPooler):
 	def __init__(self,
 							 numInputs,
 							 numColumns,
+							 potentialPct=0.5,
 							 localAreaDensity=0.1,
 							 numActiveColumnsPerInhArea=-1,
 							 stimulusThreshold=0,
@@ -58,15 +59,15 @@ class FlatSpatialPooler(SpatialPooler):
 							 ):
 
 		super(FlatSpatialPooler,self).__init__(
-				inputDimensions=numInputs,
-				columnDimensions=numColumns,
-				potentialRadius=numInputs,
-				potentialPct=0.5,
-				globalInhibition=True,
-				localAreaDensity=localAreaDensity,
-				numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-				stimulusThreshold=stimulusThreshold,
-				seed=seed
+				inputDimensions = numInputs,
+				columnDimensions = numColumns,
+				potentialRadius = numInputs,
+				potentialPct = potentialPct,
+				globalInhibition = True,
+				localAreaDensity = localAreaDensity,
+				numActiveColumnsPerInhArea = numActiveColumnsPerInhArea,
+				stimulusThreshold = stimulusThreshold,
+				seed = seed
 			)
 
 		#verify input is valid
@@ -81,7 +82,7 @@ class FlatSpatialPooler(SpatialPooler):
 		#set active duty cycles to ones, because they set anomaly scores to 0
 		self._activeDutyCycles = numpy.ones(self._numColumns)
 
-		# set of columns to be 'hungry' for learning
+		# set columns to be 'hungry' for learning
 		self._boostFactors *= maxBoost
 	
 
