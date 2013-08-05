@@ -258,7 +258,7 @@ class SpatialPooler(object):
 		# 'potentialPools' is a matrix, whose rows represent cortical columns, and 
 		# whose columns represent the input bits. if potentialPools[i][j] == 1,
 		# then input bit 'j' is in column 'i's potential pool. A column can only be 
-		# connected to inputs in its potential poolThe indices refer to a 
+		# connected to inputs in its potential pool. The indices refer to a 
 		# falttenned version of both the inputs and columns. Namely, irrespective 
 		# of the topology of the inputs and columns, they are treated as being a 
 		# one dimensional array. Since a column is typically connected to only a 
@@ -276,7 +276,8 @@ class SpatialPooler(object):
 		# cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here we 
 		# also use the SparseMatrix class to reduce the memory footprint and 
 		# computation time of algorithms that require iterating over the data 
-		# structure. 
+		# structure. This permanence matrix is only allowed to have non-zero 
+		# elements where the potential pool is non-zero.
 		self._permanences = SparseMatrix(numColumns, numInputs)
 
 		# 'self._connectedSynapses' is a similar matrix to 'self._permanences' 
@@ -507,7 +508,7 @@ class SpatialPooler(object):
 			return
 
 		avgConnectedSpan = numpy.average( 
-													[self._avgConnectedSpanForColumn1D(i)
+													[self._avgConnectedSpanForColumnND(i)
 													for i in xrange(self._numColumns)]
 												)
 		columnsPerInput = self._avgColumnsPerInput()
@@ -520,8 +521,8 @@ class SpatialPooler(object):
 		"""
 		The average number of columns per input, taking into account the topology 
 		of the inputs and columns. This value is used to calculate the inhibition 
-		radius. This function supports an arbitrary number of 
-		dimensions, but the number of dimensions must be the same for both the
+		radius. This function supports an arbitrary number of dimensions, but the 
+		number of dimensions must be the same for both the
 		inputs and columns
 		"""
 		#TODO: extend to support different number of dimensions for inputs and 
@@ -577,7 +578,7 @@ class SpatialPooler(object):
 		"""
 		The range of connectedSynapses per column, averaged for each dimension. 
 		This vaule is used to calculate the inhibition radius. This variation of 
-		the function only supports arbitrary column dimensions.
+		the function supports arbitrary column dimensions.
 
 		Parameters:
 		----------------------------
