@@ -543,13 +543,6 @@ class SPRegion(PyRegion):
       # TOP-DOWN inference
       #
 
-      ## TODO: Fix the top-down compute flow
-      #tdInputVector = inputs['topDownIn']
-      #(topDownOutput, spReconstructedInput) = self._doTopDownInfer(
-      #                                        topDownInput = tdInputVector)
-      #outputs['topDownOut'][:] = topDownOutput
-      #if spReconstructedInput is not None:
-
       topDownIn = inputs.get('topDownIn',None)
       spatialTopDownOut, temporalTopDownOut = self._doTopDownInfer(topDownIn)
       outputs['spatialTopDownOut'][:] = spatialTopDownOut
@@ -625,16 +618,7 @@ class SPRegion(PyRegion):
 
     """
 
-    ## Feeddown TP's topDownOut
-    #tpTopDownOut = topDownInput
-    #topDownOut = self._sfdr.topDownCompute(tpTopDownOut)
-
-    spatialTopDownOut = self._sfdr.topDownCompute(self._spatialPoolerOutput).copy()
-    if topDownInput is not None:
-      temporalTopDownOut = self._sfdr.topDownCompute(topDownInput)
-    else:
-      temporalTopDownOut = None
-    return spatialTopDownOut, temporalTopDownOut
+    return None, None
 
   #############################################################################
   #
