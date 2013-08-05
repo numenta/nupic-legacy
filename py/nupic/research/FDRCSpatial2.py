@@ -1195,6 +1195,15 @@ class FDRCSpatial2(object):
 
     return self._learningStats
 
+  #############################################################################
+  def resetStats(self):
+    """ Reset the stats (periodic, ???). This will usually be called by
+    user code at the start of each inference run (for a particular data set).
+
+    TODO which other stats need to be reset?  Learning stats?
+    """
+    self._periodicStatsReset()
+    
 
   #############################################################################
   def _seed(self, seed=-1):
