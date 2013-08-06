@@ -111,7 +111,6 @@ class FlatSpatialPooler(SpatialPooler):
 
 	def _selectVIPColumns(self, overlapsPct):
 		return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
-=======
   """
   This class implements the flat spatial pooler. This version of the spatial 
   pooler contains no toplogy information. It uses global coverage and global

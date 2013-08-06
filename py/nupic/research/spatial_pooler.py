@@ -1198,7 +1198,6 @@ class SpatialPooler(object):
 
 	def __set_state__(self):
 		pass
-=======
   """
   This class implements a the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The primary
