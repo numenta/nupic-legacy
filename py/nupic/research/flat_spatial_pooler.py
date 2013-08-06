@@ -43,7 +43,6 @@ realDType = GetNTAReal()
 
 
 class FlatSpatialPooler(SpatialPooler):
-<<<<<<< HEAD
 	"""
 	This class implements the flat spatial pooler. This version of the spatial 
 	pooler contains no toplogy information. It uses global coverage and global
