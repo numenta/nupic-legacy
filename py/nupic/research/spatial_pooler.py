@@ -217,18 +217,18 @@ class SpatialPooler(object):
 		assert(numInputs > 0)
 		assert (numActiveColumnsPerInhArea > 0 or localAreaDensity > 0)
 		assert (localAreaDensity == -1 or 
-						(localAreaDensity >0 and localAreaDensity < 1))
+						(localAreaDensity > 0 and localAreaDensity <= 0.5))
 
 
 		# save arguments
-		self._numInputs = numInputs
-		self._numColumns = numColumns
+		self._numInputs = int(numInputs)
+		self._numColumns = int(numColumns)
 		self._columnDimensions = columnDimensions
 		self._inputDimensions = inputDimensions
-		self._potentialRadius = min(potentialRadius, numInputs)    
+		self._potentialRadius = int(min(potentialRadius, numInputs))
 		self._potentialPct = potentialPct
 		self._globalInhibition = globalInhibition
-		self._numActiveColumnsPerInhArea = numActiveColumnsPerInhArea
+		self._numActiveColumnsPerInhArea = int(numActiveColumnsPerInhArea)
 		self._localAreaDensity = localAreaDensity
 		self._stimulusThreshold = stimulusThreshold
 		self._synPermInactiveDec = synPermInactiveDec
@@ -344,6 +344,7 @@ class SpatialPooler(object):
 		"""
 
 		assert (numpy.size(inputVector) == self._numInputs)
+		self._updateBookeepingVars(learn)
 		inputVector = numpy.array(inputVector, dtype=realDType)
 		inputVector.reshape(-1)
 		overlaps, overlapsPct = self._calculateOverlap(inputVector)
@@ -354,7 +355,6 @@ class SpatialPooler(object):
 			boostedOverlaps = overlaps
 
 		activeColumns = self._inhibitColumns(boostedOverlaps)
-		anomalyScore = self._calculateAnomalyScore(overlaps, activeColumns)
 
 		# if not learn: - don't let columns that never learned win!
 		# TODO: <implement this>
@@ -362,7 +362,8 @@ class SpatialPooler(object):
 		if learn:
 			orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
 			sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
-			self._adaptSynapses(inputVector, sharedInputs, orphanColumns)
+			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
+			self._adaptOrphanSynapses(inputVector, orphanColumns)
 			self._raisePermanenceToThreshold()
 			self._bumpUpWeakColumns() 
 			self._updateBoostFactors()
@@ -372,38 +373,7 @@ class SpatialPooler(object):
 			if self._isUpdateRound():
 				self._updateMinDutyCycles()
 
-		self._updateBookeeping(learn)
-
-		return numpy.array(activeColumns), anomalyScore
-
-
-
-	def _calculateAnomalyScore(self, overlaps, activeColumns):
-		"""
-		The anomaly score is a value between 0 and 1 measuring the familiarity of 
-		the input vector to input vectors that were witnessed in the past. Since 
-		columns become 'connected' to input bits which turn on repeatedly once a 
-		column is active, a high overlap in active columns is a measure of 
-		similarity between the current input, and inputs that have activated them 
-		in the past. Furthermore, since some columns become active more frequently 
-		than others, having an infrequently active column become active is another 
-		indication that the input is anomalous. We take these two considerations 
-		into account in computing the anomaly score.
-
-		Parameters:
-		----------------------------
-		overlaps:				an array containing the overlap score for each  column. 
-										The overlap score for a column is defined as the number 
-										of synapses in a "connected state" (connected synapses) 
-										that are connected to input bits which are turned on.
-		activeColumns:	An array containing the indices of the active columns, 
-										the sprase set of columns which survived inhibition
-		"""
-		if activeColumns.size == 0:
-			return 1.0
-		anomalyScores = overlaps[activeColumns]
-		anomalyScores *= self._activeDutyCycles[activeColumns]
-		return 1.0 / (numpy.sum(anomalyScores) + 1)
+		return numpy.array(activeColumns)
 
 
 	def _updateMinDutyCycles(self):
@@ -475,7 +445,7 @@ class SpatialPooler(object):
 		if activeColumns.size > 0:
 			activeArray[activeColumns] = 1
 		period = self._dutyCyclePeriod
-		if (period < self._iterationNum):
+		if (period > self._iterationNum):
 			period = self._iterationNum
 
 		self._overlapDutyCycles = self._updateDutyCyclesHelper(
@@ -603,16 +573,49 @@ class SpatialPooler(object):
 		return numpy.average(maxCoord - minCoord)
 
 
-	def _adaptSynapses(self, inputVector, sharedInputs, orphanColumns):
+	def _adaptSynapses(self, inputVector, sharedInputs, activeColumns):
 		"""
 		The primary method in charge of learning. Adapts the permanence values of 
 		the synapses based on the input vector, and the chosen columns after 
-		inhibition round. Permanence values for synapses connected to input bits
-		that are turned on, and decreased for synapses connected to inputs bits 
-		that are turned off. Shared inputs, which are turned on input bits that are 
-		connected to more than one active column, and orphan columns, which are
-		columns with 100 percent overlap  yet did not survive inhibition, are 
-		treated slightly differently.
+		inhibition round. Permanence values are increased for synapses connected to 
+		input bits that are turned on, and decreased for synapses connected to 
+		inputs bits that are turned off. Permanence values for shared inputs, which 
+		are input bits that are turned on and connected to more than one active 
+		column, are decreased in order to discourage multiple columns from learning 
+		the same input pattern.
+
+		Parameters:
+		----------------------------
+		inputVector:    a numpy array of 0's and 1's thata comprises the input to 
+										the spatial pooler. There exists an entry in the array 
+										for every input bit.
+		sharedInputs:		an array containing the indices of the input bits that 
+										happen to be connected to more than one active column
+		activeColumns:	an array containing the indices of the columns that 
+										survived inhibition.
+		"""
+		inputIndices = numpy.where(inputVector > 0)[0]
+		permChanges = numpy.zeros(self._numInputs)
+		permChanges.fill(-1 * self._synPermInactiveDec)
+		permChanges[inputIndices] = self._synPermActiveInc
+		permChanges[sharedInputs] -= self._synPermActiveSharedDec
+		for i in activeColumns:
+			perm = self._permanences.getRow(i)
+			maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+			perm[maskRF] += permChanges[maskRF]
+			self._updatePermanencesForColumn(perm, i)
+
+
+
+	def _adaptOrphanSynapses(self, inputVector, orphanColumns):
+		"""
+		The secondary method for learning. This method decreases the permanence 
+		values of synapses belonging to orphan columns. Orphan columns, are
+		columns with 100 percent overlap that did not survive inhibition. 
+		Essentially, these columns have likely learned a pattern for which another
+		column learned better. We decrease the permanence values of synapses 
+		connected to input bits that are turned on for these columns in order to 
+		encourage them to learn different patterns.
 
 		Parameters:
 		----------------------------
@@ -625,17 +628,12 @@ class SpatialPooler(object):
 										orhpans.
 		"""
 		inputIndices = numpy.where(inputVector > 0)[0]
-		orphanSet = set(orphanColumns)
 		permChanges = numpy.zeros(self._numInputs)
-		permChanges.fill(-1 * self._synPermInactiveDec)
 		permChanges[inputIndices] = self._synPermActiveInc
-		permChanges[sharedInputs] -= self._synPermActiveSharedDec
-		for i in xrange(self._numColumns):
+		for i in orphanColumns:
 			perm = self._permanences.getRow(i)
 			maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-			perm[maskRF] += permChanges[maskRF]
-			if i in orphanSet:
-				perm[maskRF] -= self._synPermOrphanDec
+			perm[maskRF] -= permChanges[maskRF]
 			self._updatePermanencesForColumn(perm, i)
 
 
@@ -703,7 +701,7 @@ class SpatialPooler(object):
 		"""
 		numpy.clip(perm,self._synPermMin, self._synPermMax, out=perm)
 		perm[perm < self._synPermTrimThreshold] = 0
-		newConnected = numpy.where(perm > self._synPermConnected)[0]
+		newConnected = numpy.where(perm >= self._synPermConnected)[0]
 		self._permanences.setRowFromDense(index, perm)
 		self._connectedSynapses.replaceSparseRow(index, newConnected)
 		self._connectedCounts[index] = newConnected.size
@@ -858,16 +856,18 @@ class SpatialPooler(object):
 						minActiveDutyCucle
 		"""
 		
-		self._boostFactors = ((1 - self._maxBoost) / self._minActiveDutyCycles * 
-				self._activeDutyCycles) + self._maxBoost
+		mask = numpy.where(self._minActiveDutyCycles > 0)[0]
+		self._boostFactors[mask] = ((1 - self._maxBoost) / 
+			self._minActiveDutyCycles[mask] * self._activeDutyCycles[mask]
+				).astype(realDType) + self._maxBoost
 
 		self._boostFactors[self._activeDutyCycles > 
 			self._minActiveDutyCycles] = 1.0
 
 
-	def _updateBookeeping(self, learn):
+	def _updateBookeepingVars(self, learn):
 		"""
-		Updates counters instance variables each round.
+		Updates counter instance variables each round.
 
 		Parameters:
 		----------------------------
@@ -887,7 +887,8 @@ class SpatialPooler(object):
 		This function determines each column's overlap with the current input 
 		vector. The overlap of a column is the number of synapses for that column
 		that are connected (permance value is greater than '_synPermConnected') 
-		to input bits which are turned on. The implementation takes advandage of 
+		to input bits which are turned on. overlap values that are lower than
+		the 'stimulusThreshold' are ignored. The implementation takes advandage of 
 		the SpraseBinaryMatrix class to perform this calculation efficiently.
 
 		Parameters:
@@ -898,6 +899,7 @@ class SpatialPooler(object):
 		"""
 		overlaps = numpy.zeros(self._numColumns).astype(realDType)
 		self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)
+		overlaps[overlaps < self._stimulusThreshold] = 0
 		overlapsPct = overlaps.astype(realDType) / self._connectedCounts
 		return overlaps, overlapsPct
 
@@ -921,7 +923,7 @@ class SpatialPooler(object):
 										the array for every column
 		"""
 		perfectOverlaps = set(numpy.where(overlapsPct >= 1)[0])
-		return list(perfectOverlaps.intersection(set(activeColumns)))
+		return list(perfectOverlaps - set(activeColumns))
 
 
 	def _calculateSharedInputs(self, inputVector, activeColumns):
@@ -969,10 +971,11 @@ class SpatialPooler(object):
 																		** self._columnDimensions.size)
 			inhibitionArea = min(self._numColumns, inhibitionArea)
 			numActive = int(round(self._localAreaDensity * inhibitionArea))
-
+		
 		# Add a little bit of random noise to the scores to help break
 		# ties.
-		tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+		# tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+		tieBreaker = 0
 		overlaps += tieBreaker
 
 		if self._globalInhibition or \
@@ -986,7 +989,8 @@ class SpatialPooler(object):
 		"""
 		Perform global inhibition. Performing global inhibition entails picking the 
 		top 'numActive' columns with the highest overlap score in the entire 
-		region.
+		region. At most half of the columns in a local neighborhood are allowed to
+		be active.
 
 		Parameters:
 		----------------------------
@@ -997,6 +1001,7 @@ class SpatialPooler(object):
 		numActive:			The intended number of columns to survive inhibition.
 		"""
 		#calculate num active per inhibition area
+		numActive = min(numActive,int(self._numColumns/2))
 		activeColumns = numpy.zeros(self._numColumns)
 		winners = sorted(range(overlaps.size), 
 										 key=lambda k: overlaps[k], 
@@ -1010,7 +1015,8 @@ class SpatialPooler(object):
 		Performs local inhibition. Local inhibition is performed on a column by 
 		column basis. Each column observes the overlaps of its neighbors and is 
 		selected if its overlap score is within the top 'numActive' in its local 
-		neighborhood.
+		neighborhood. At most half of the columns in a local neighborhood are 
+		allowed to be active.
 
 		Parameters:
 		----------------------------
@@ -1025,12 +1031,12 @@ class SpatialPooler(object):
 		"""
 		activeColumns = numpy.zeros(self._numColumns)
 		addToWinners = max(overlaps)/1000.0   
-		overlaps = numpy.array(overlaps, dtype=realDType).reshape(
-			self._columnDimensions)
+		overlaps = numpy.array(overlaps, dtype=realDType)
 		for i in xrange(self._numColumns):
 			maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
 				self._inhibitionRadius)
 			overlapSlice = overlaps[maskNeighbors]
+			numActive = min(numActive,int(overlapSlice.size/2))
 			kthLargestValue = sorted(overlapSlice,
 															 reverse=True)[numActive-1]
 			if overlaps[i] >= kthLargestValue:

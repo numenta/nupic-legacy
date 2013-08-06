@@ -52,7 +52,6 @@ class FlatSpatialPooler(SpatialPooler):
 	def __init__(self,
 							 numInputs,
 							 numColumns,
-							 potentialPct=0.5,
 							 localAreaDensity=0.1,
 							 numActiveColumnsPerInhArea=-1,
 							 stimulusThreshold=0,
@@ -63,15 +62,15 @@ class FlatSpatialPooler(SpatialPooler):
 							 ):
 
 		super(FlatSpatialPooler,self).__init__(
-				inputDimensions = numInputs,
-				columnDimensions = numColumns,
-				potentialRadius = numInputs,
-				potentialPct = potentialPct,
-				globalInhibition = True,
-				localAreaDensity = localAreaDensity,
-				numActiveColumnsPerInhArea = numActiveColumnsPerInhArea,
-				stimulusThreshold = stimulusThreshold,
-				seed = seed
+				inputDimensions=numInputs,
+				columnDimensions=numColumns,
+				potentialRadius=numInputs,
+				potentialPct=0.5,
+				globalInhibition=True,
+				localAreaDensity=localAreaDensity,
+				numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+				stimulusThreshold=stimulusThreshold,
+				seed=seed
 			)
 
 		#verify input is valid
@@ -86,12 +85,15 @@ class FlatSpatialPooler(SpatialPooler):
 		#set active duty cycles to ones, because they set anomaly scores to 0
 		self._activeDutyCycles = numpy.ones(self._numColumns)
 
-		# set columns to be 'hungry' for learning
+		# set of columns to be 'hungry' for learning
 		self._boostFactors *= maxBoost
 	
 
 	def compute(self, inputVector, learn=True):
 		assert (numpy.size(inputVector) == self._numInputs)
+
+		self._updateBookeepingVars(learn)
+
 		inputVector = numpy.array(inputVector, dtype=realDType)
 
 		overlaps, overlapsPct = self._calculateOverlap(inputVector)
@@ -99,15 +101,12 @@ class FlatSpatialPooler(SpatialPooler):
 		vipOverlaps = overlaps.copy()
 		vipOverlaps[vipColumns] = max(overlaps) + 1.0
 		activeColumns = self._inhibitColumns(vipOverlaps)
-		anomalyScore = self._calculateAnomalyScore(overlaps, activeColumns)
 
 		# if not learn: - don't let columns that never learned win! ???
 		if self._isUpdateRound():
 			self._updateMinDutyCycles()
 
-		self._updateBookeeping(learn)
-
-		return numpy.array(activeColumns), anomalyScore
+		return numpy.array(activeColumns)
 
 
 	def _selectVIPColumns(self, overlapsPct):
