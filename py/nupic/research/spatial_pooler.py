@@ -40,7 +40,6 @@ realDType = GetNTAReal()
 
 
 class SpatialPooler(object):
-<<<<<<< HEAD
 	"""
 	This class implements a the spatial pooler. It is in charge of handling the relationships 
 	between the columns of a region and the inputs bits. The primary public interface to this
