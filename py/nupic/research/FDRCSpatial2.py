@@ -2312,16 +2312,16 @@ class FDRCSpatial2(object):
     self._learningStats['underCoveragePct'] = (
         100.0 * self._stats['underCoveragePctSum'] / numSamples)
     self._learningStats['overCoveragePct'] = (
-        (100.0 * self._stats['overCoveragePctSum'] / numSamples)
+        (100.0 * self._stats['overCoveragePctSum'] / numSamples))
     self._learningStats['numConnectionChangesAvg'] = numMasterChanges.mean()
     self._learningStats['numConnectionChangesMin'] = numMasterChanges.min()
     self._learningStats['numConnectionChangesMax'] = numMasterChanges.max()
     self._learningStats['avgCellOverlap'] = (
         (float(self._stats['cellOverlapSums']) /
-         max(1, self._stats['numOnSum']))
+         max(1, self._stats['numOnSum'])))
     self._learningStats['avgCellPctOverlap'] = (
         (100.0 * self._stats['cellPctOverlapSums'] /
-         max(1, self._stats['numOnSum']))
+         max(1, self._stats['numOnSum'])))
 
     self._learningStats['firingBoostMaxChangePct'] = (
         100.0 * (self._stats['maxBoostFactor'] /
