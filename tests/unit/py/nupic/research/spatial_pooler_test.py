@@ -418,8 +418,8 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testBumpUpWeakColumns(self):
-     sp = SpatialPooler(inputDimensions = 8,
-                        columnDimensions = 5)
+     sp = SpatialPooler(inputDimensions=8,
+                        columnDimensions=5)
 
      sp._synPermBelowStimulusInc = 0.01
      sp._synPermTrimThreshold = 0.05
@@ -478,7 +478,8 @@ class SpatialPoolerTest(unittest.TestCase):
 
     sp._minPctActiveDutyCycles = 0.02
     sp._activeDutyCycles = numpy.array([0.4, 0.5, 0.2, 0.18, 0.1])
-    trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4, 0.02*0.5]
+    trueMinActiveDutyCycles = [0.02*0.5, 0.02*0.5, 0.02*0.2, 0.02*0.4,
+                               0.02*0.5]
 
     sp._minOverlapDutyCycles = numpy.zeros(sp._numColumns)
     sp._minActiveDutyCycles = numpy.zeros(sp._numColumns)
