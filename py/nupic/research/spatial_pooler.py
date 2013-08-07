@@ -629,7 +629,7 @@ class SpatialPooler(object):
 		"""
 		inputIndices = numpy.where(inputVector > 0)[0]
 		permChanges = numpy.zeros(self._numInputs)
-		permChanges[inputIndices] = self._synPermActiveInc
+		permChanges[inputIndices] = self._synPermOrphanDec
 		for i in orphanColumns:
 			perm = self._permanences.getRow(i)
 			maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
