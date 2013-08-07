@@ -42,7 +42,7 @@ NTA_LINKFLAGS =  -L$(externaldir)/lib @nta_platform_ldflags@
 #
 
 # NTA_INTERNAL tells us that the code is being built under the build system
-# and not as a separate program. Used for cppvision example
+
 NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
 
 #
@@ -117,7 +117,7 @@ AM_LDFLAGS =
 CXXFLAGS =
 CCASFLAGS =
 CFLAGS =
-LDFLAGS =
+LDFLAGS = -Wl,-O1,--sort-common
 
 ##############################################################
 # Export platform-specific build environment variables
