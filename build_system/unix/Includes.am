@@ -61,7 +61,7 @@ endif
 # Compiling with debugging symbols can be set at configure time
 #
 if NTA_DEBUGSYMBOLS_ENABLED
-  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@
+  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@ -fvar-tracking-assignments
 endif
 
 #
