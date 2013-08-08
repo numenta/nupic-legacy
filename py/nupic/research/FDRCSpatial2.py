@@ -1591,7 +1591,6 @@ class FDRCSpatial2(object):
 
 
     return list(cross(heightCenters, widthCenters))
-    #~!!!~!~
 
 
   def _updateInhibitionObj(self):
