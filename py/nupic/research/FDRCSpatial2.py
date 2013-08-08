@@ -549,7 +549,6 @@ class FDRCSpatial2(object):
     self._updateConnectedCoincidences()
 
 
-  #############################################################################
   def _getEphemeralMembers(self):
     """
     List of our member variables that we don't need to be saved
@@ -582,7 +581,7 @@ class FDRCSpatial2(object):
             '_topDownParentCounts',
             ]
 
-  #############################################################################
+
   def _initEphemerals(self):
     """
     Initialize all ephemeral members after being restored to a pickled state.
@@ -687,7 +686,6 @@ class FDRCSpatial2(object):
     self._periodicStatsCreate()
 
 
-  #############################################################################
   def compute(self, flatInput, learn=False, infer=True, computeAnomaly=False):
     """ Compute with the current input vector.
 
@@ -1018,226 +1016,11 @@ class FDRCSpatial2(object):
       print "SP: active outputs(%d):  " % (len(onCellIndices)), onCellIndices
 
 
-
-    #Visualization Invocation, can be done from outside the SP also.
-    if False:
-#    if self._runIter<5 or self._runIter>295000 :
-      self.saveStateForCytoscape(input,"~/visualization/data")
-
     self._runIter += 1
     # Return inference result
     return self._onCells
 
 
-
-  def saveStateForCytoscape(self,input,outdir):
-    #Input nodes
-    nodeAttFile = os.path.join(outdir,"node_Att_")
-    if self.fileCount ==0:
-      fopen = open(nodeAttFile+str(self.fileCount)+"_Net.sif",'w')
-      for i in range(input.shape[1]):
-        fopen.write("In_"+str(i)+'\n')
-      for i in range(self._topDownOut.shape[1]):
-        fopen.write("Out_"+str(i)+'\n')
-      for i in range(self._onCells.shape[0]):
-        fopen.write("SP_"+str(i)+'\n')
-      for i in range(len(self._masterPermanenceM)):
-        writestr = ""
-        curRow = self._masterPermanenceM[i].getRow(0)
-        #find which bits are actually connected to the column
-        curRowPot = self._masterPotentialM[i].getRow(0)
-        curRowCon = curRowPot.nonzero()[0]
-        for j in curRowCon:
-          writestr+= " In_" + str(j)
-        fopen.write("SP_"+str(i)+" xx " + writestr + "\n")
-      fopen.close()
-    fopen = open(nodeAttFile+str(self.fileCount)+"_On.noa",'w')
-    fopen.write("On"+"\n")
-    for i in range(input.shape[1]):
-      fopen.write("In_"+str(i) + "=" + str(input[0,i])+'\n')
-    out = self.topDownCompute(self._onCells)
-    for i in range(out.shape[0]):
-      fopen.write("Out_"+str(i) + "=" + str(out[i])+'\n')
-    fopen.close()
-    #SP Nodes
-    fopen = open(nodeAttFile+str(self.fileCount)+"_On.noa",'a')
-    for i in range(self._onCells.shape[0]):
-      fopen.write("SP_"+str(i) + "=" + str(self._onCells[i])+'\n')
-    fopen.close()
-    fopen = open(nodeAttFile+str(self.fileCount)+"_Firing_Boost.noa",'w')
-    fopen.write("FiringBoost"+"\n")
-    for i in range(self._onCells.shape[0]):
-      fopen.write("SP_"+str(i) + "=" + str(self._firingBoostFactors[i])+'\n')
-    fopen.close()
-    #SP Edges
-    fopen = open(nodeAttFile+str(self.fileCount)+"_Perm.eda",'w')
-    fopen.write("Permanence"+"\n")
-    for i in range(len(self._masterPermanenceM)):
-      #Make sure to grab permanences only from connected synapses
-      #Write from index as a short
-      fromdata = struct.pack("h",i)
-      curRowPot = self._masterPotentialM[i].getRow(0)
-      curRowCon = curRowPot.nonzero()[0]
-      curRow = self._masterPermanenceM[i].getRow(0)
-      for j in curRowCon:
-#          writestr= "SP_"+str(i)+" (xx) " + "In_" + str(j) + " = " + str(curRow[j])+ "\n"
-        todata = struct.pack("h",j)
-        valuedata = struct.pack("d",curRow[j])
-        fopen.write(fromdata+todata+valuedata)
-    fopen.close()
-    self.fileCount+=1
-
-
-  #############################################################################
-  def topDownCompute(self, topDownIn):
-    """ Top-down compute - generate expected input given output of the SP
-
-    Parameters:
-    ----------------------------
-    topDownIn:        top down input, from the level above us
-
-    retval:           best estimate of the SP input that would have generated
-                      topDownIn.
-    """
-
-    #If topDownIn is not defined, generate the outputs based on the current state and overlaps of the sp
-    #This is meant for spatial prediction tasks.
-    if(topDownIn==None):
-      #Get highest overlaps
-      sortedOverlaps = numpy.sort(self._overlapsNoBoost)
-      #Threshold overlaps to .5 of the max overlap, this will cut out most columns that do not
-      #encode the input, but keep most of the columns that have been encoded with the same predicted field
-      halfOnThresh = numpy.where(self._overlapsNoBoost>sortedOverlaps[-1]*.5)
-      #keep at least the top 120 by overlap
-      overlapThresh = sortedOverlaps[-120]
-      pastOverlapThresh = numpy.where(self._overlapsNoBoost>=overlapThresh)
-      pastOverlapThresh = numpy.union1d(pastOverlapThresh[0], halfOnThresh[0])
-
-      zippedOLplusDC = zip(pastOverlapThresh,self._dutyCycleAfterInh[pastOverlapThresh])
-      zippedOLplusDC.sort(key=itemgetter(1), reverse=True)
-      selectedCols = zippedOLplusDC[0:min(40,len(zippedOLplusDC))]
-      pastThresh,dutyCycles = zip(*selectedCols)
-
-      topDownIn = numpy.zeros(self._overlaps.shape)
-      topDownIn[list(pastThresh)] = 1
-
-
-    # Init topdown out. This is shaped to the input
-    topDownOut = self._topDownOut
-    self._topDownOut.fill(0)
-    self._topDownParentCounts.fill(0)
-
-    # =========================================================================
-    # Get the contributions from each of the active cells to the inputs.
-    # We compute the average contribution to each input from each of the
-    #  active cells that connects to it.
-    # If topDownIn is not flat, flatten it
-    if len(topDownIn.shape) > 1:
-      topDownIn = topDownIn.reshape(-1)
-    activeCells = topDownIn.nonzero()[0]
-
-    if self.spReconstructionParam == "dutycycle":
-      maxDutyCycle = max(1-self._dutyCycleAfterInh)
-    if self.spReconstructionParam == "pctoverlap":
-      maxPctOverlap = max(self._pctOverlaps)
-
-    # From each output, get the expected input that generated it
-    cloningOn = (self.numCloneMasters != self._coincCount)
-    for cell in activeCells:
-      if cloningOn:
-        masterNum = self._cloneMapFlat[cell]
-      else:
-        masterNum = cell
-
-      # Get the permanences for this master
-      activeInputs = self._masterConnectedM[masterNum].toDense()
-
-      # Add the connected inputs to the topDownOut
-      inputSlice = self._inputSlices[cell]
-      coincSlice = self._coincSlices[cell]
-
-      # Weight each connected input by the cell's firing strength
-      if self.spReconstructionParam == "unweighted_mean":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice]
-      elif self.spReconstructionParam == "permanence":
-        maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
-      elif self.spReconstructionParam == "pctoverlap":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + self._pctOverlaps[cell]/maxPctOverlap*0.5)
-      elif self.spReconstructionParam == "dutycycle":
-        topDownOut[inputSlice] += topDownIn[cell] * activeInputs[coincSlice] * \
-          (0.5 + (1-(self._dutyCycleAfterInh[cell]/maxDutyCycle))*0.5)
-      elif self.spReconstructionParam == "maximum_firingstrength":
-        maxPermanence = max(self._masterPermanenceM[cell].getRow(0))
-        strength = topDownIn[cell]*activeInputs[coincSlice] * \
-          (0.5 + self._masterPermanenceM[cell].getRow(0)/maxPermanence*0.5)
-        topDownOut[inputSlice] = numpy.maximum(topDownOut[inputSlice],
-                                               strength)
-
-      # Bump up the parent counts for these inputs
-      self._topDownParentCounts[inputSlice] += activeInputs[coincSlice]
-
-    # Old method of normalizing
-    # Divide each input's accumulated weight by it's number of parents
-    # numpy.clip(self._topDownParentCounts, 1.0, numpy.inf,
-    #            self._topDownParentCounts)
-    # topDownOut /= self._topDownParentCounts
-    if "maximum_firingstrength" not in self.spReconstructionParam:
-      topDownInTotal = topDownIn.sum()
-      if topDownInTotal:
-        topDownOut /= topDownInTotal
-    return topDownOut.reshape(-1)
-
-
-  #############################################################################
-  def reset(self):
-    """ Reset the state.
-
-    This is normally used between sequences.
-    """
-    pass
-
-  #############################################################################
-  @property
-  def cm(self):
-    """Return the coincidence matrix as a SparseMatrix object.
-
-    The coincidence matrix is actually just the possible elements that could
-    be active.  If you want to see the ones that are currently active, see the
-    lernedCm
-
-    This isn't particularly fast, but is useful for debugging.
-
-    @return cm  Our coincidence matrix.
-    TODO: assumes 2D
-
-    """
-    cm = SM32(self._coincCount, self._inputCount)
-
-    coincRfShape   = ((2*self.coincInputRadius + 1), \
-                      (2*self.coincInputRadius + 1))
-    coincRfArea    = (coincRfShape[0] * coincRfShape[1])
-    coincInputPool = self.coincInputPoolPct * coincRfArea
-
-    theOnes = numpy.ones(coincInputPool, numpy.float32)
-
-    for columnNum, masterNum in enumerate(self._cloneMapFlat):
-
-      inputSlice = self._inputSlices[columnNum]
-      coincSlice = self._coincSlices[columnNum]
-      masterPotential = self._masterPotentialM[masterNum][coincSlice]
-
-      sparseCols = self._inputLayout[inputSlice][masterPotential]
-      # If the coincidence goes off the edge, the number of cols is less than
-      # coincInputPool
-      cm.setRowFromSparse(columnNum, sparseCols, theOnes[:len(sparseCols)])
-
-    return cm
-
-
-  #############################################################################
   def __getstate__(self):
 
     # Update our random states
@@ -1255,7 +1038,6 @@ class FDRCSpatial2(object):
     return state
 
 
-  #############################################################################
   def __setstate__(self, state):
 
     self.__dict__.update(state)
@@ -1280,47 +1062,6 @@ class FDRCSpatial2(object):
     self._initEphemerals()
 
 
-  #############################################################################
-  def finishLearning(self):
-    """Called for any last tasks at the end of learning."""
-
-    if self._doneLearning:
-      return
-
-    #print "Member variables at start of finishLearning:"
-    #self._printMemberSizes(0)
-
-    self._doneLearning = True
-    self._iterNum = 0
-
-    #print "Member variables after finishLearning:"
-    #self._printMemberSizes(0)
-
-    #self._saveCoincsImage()
-
-
-  #############################################################################
-  def setStoreDenseOutput(self, doIt):
-    """ Used by the node to tell us to cache the output for debugging
-    """
-
-    if doIt:
-      self._denseOutput = numpy.zeros(self._coincCount, dtype='float64')
-    else:
-      self._denseOutput = None
-
-
-  #############################################################################
-  def getDenseOutput(self,):
-    """ Used by the node to fetch the cached output
-    """
-
-    if self._denseOutput is not None:
-      return list(self._denseOutput)
-    return []
-
-
-  ############################################################################
   def getAnomalyScore(self):
     """ Get the aggregate anomaly score for this input pattern
 
@@ -1333,60 +1074,7 @@ class FDRCSpatial2(object):
 
     return 1.0 / (numpy.sum(self._anomalyScores) + 1)
 
-
-  #############################################################################
-  #TODO: Change the name of this function to getMasterPermanence
-  def getMasterHistogram(self, masterNum):
-    """Return the histogram for a given master.
-
-    This coincidence will be (2*coincInputRadius + 1) by
-    (2*coincInputRadius + 1) big.  The coincidence is returned densely.
-
-    @param  masterNum           The master number to look at.
-    @return histogram           A histogram.
-    """
-
-    return self._masterPermanenceM[masterNum].toDense()
-
-
-  #############################################################################
-  def getMasterLearnedCoincidence(self, masterNum):
-    """Return the learned coincidence for a given master. This is used by the
-    MasterCoincsTab inspector.
-
-    This coincidence will be (2*coincInputRadius + 1) by
-    (2*coincInputRadius + 1) big.  The coincidence is returned sparsely
-    (like numpy.where does).  You can get the actual coincidence by doing:
-        denseCoinc = numpy.zeros(((2*coincInputRadius + 1),
-                                  (2*coincInputRadius + 1))
-                                 'bool')
-        mlc = fdrcSpatial.getSfdrMasterLearnedCoincidence(masterNum)
-        denseCoinc[mlc] = True
-
-    @param  masterNum           The master number to look at.
-    @return learnedCoincidence  A learned coincidence, in numpy.where() format.
-    """
-
-    masterConnected = self._masterConnectedM[masterNum]
-    return zip(*masterConnected.getAllNonZeros())
-
-
-  #############################################################################
-  def getLearnedCmRowAsDenseArray(self, columnNum):
-    """Return a row from the learned coincidence matrix.
-
-    This isn't particularly fast, but is useful for debugging. In particular,
-    it is used by the ColumnActivity tab to visualize the learned column
-    as it relates to the entire input field.
-
-    @param  columnNum  The column to get.
-    @return cmRow      The proper row from our learned coincidence matrix.
-    """
-
-    return self._allConnectedM.getRow(columnNum).astype('bool')
-
-
-  #############################################################################
+  
   def getLearningStats(self):
     """ Return a dictionary containing a set of statistics related to learning.
 
@@ -1462,50 +1150,49 @@ class FDRCSpatial2(object):
     self._learningStats['rfRadiusMin'] = self._rfRadiusMin
     self._learningStats['rfRadiusMax'] = self._rfRadiusMax
     if self._inhibitionObj is not None:
-      self._learningStats['inhibitionRadius'] = \
-                               self._inhibitionObj.getInhibitionRadius()
-      self._learningStats['targetDensityPct'] = \
-                               100.0 * self._inhibitionObj.getLocalAreaDensity()
+      self._learningStats['inhibitionRadius'] = (
+        self._inhibitionObj.getInhibitionRadius())
+      self._learningStats['targetDensityPct'] = (
+        100.0 * self._inhibitionObj.getLocalAreaDensity())
     else:
       print "Warning: No inhibitionObj found for getLearningStats"
       self._learningStats['inhibitionRadius'] = 0.0
       self._learningStats['targetDensityPct'] = 0.0
 
 
-    self._learningStats['coincidenceSizeAvg'] = \
-                                  self._masterConnectedCoincSizes.mean()
-    self._learningStats['coincidenceSizeMin'] = \
-                                  self._masterConnectedCoincSizes.min()
-    self._learningStats['coincidenceSizeMax'] = \
-                                  self._masterConnectedCoincSizes.max()
+    self._learningStats['coincidenceSizeAvg'] = (
+      self._masterConnectedCoincSizes.mean())
+    self._learningStats['coincidenceSizeMin'] = (
+      self._masterConnectedCoincSizes.min())
+    self._learningStats['coincidenceSizeMax'] = (
+      self._masterConnectedCoincSizes.max())
 
     if not self._doneLearning:
-      self._learningStats['dcBeforeInhibitionAvg'] = \
-                                    self._dutyCycleBeforeInh.mean()
-      self._learningStats['dcBeforeInhibitionMin'] = \
-                                    self._dutyCycleBeforeInh.min()
-      self._learningStats['dcBeforeInhibitionMax'] = \
-                                    self._dutyCycleBeforeInh.max()
+      self._learningStats['dcBeforeInhibitionAvg'] = (
+        self._dutyCycleBeforeInh.mean())
+      self._learningStats['dcBeforeInhibitionMin'] = (
+        self._dutyCycleBeforeInh.min())
+      self._learningStats['dcBeforeInhibitionMax'] = (
+        self._dutyCycleBeforeInh.max())
 
-      self._learningStats['dcAfterInhibitionAvg'] = \
-                                    self._dutyCycleAfterInh.mean()
-      self._learningStats['dcAfterInhibitionMin'] = \
-                                    self._dutyCycleAfterInh.min()
-      self._learningStats['dcAfterInhibitionMax'] = \
-                                    self._dutyCycleAfterInh.max()
+      self._learningStats['dcAfterInhibitionAvg'] = (
+        self._dutyCycleAfterInh.mean())
+      self._learningStats['dcAfterInhibitionMin'] = (
+        self._dutyCycleAfterInh.min())
+      self._learningStats['dcAfterInhibitionMax'] = (
+        self._dutyCycleAfterInh.max())
 
-    self._learningStats['firingBoostAvg'] = \
-                                  self._firingBoostFactors.mean()
-    self._learningStats['firingBoostMin'] = \
-                                  self._firingBoostFactors.min()
-    self._learningStats['firingBoostMax'] = \
-                                  self._firingBoostFactors.max()
+    self._learningStats['firingBoostAvg'] = (
+      self._firingBoostFactors.mean())
+    self._learningStats['firingBoostMin'] = (
+      self._firingBoostFactors.min())
+    self._learningStats['firingBoostMax'] = (
+      self._firingBoostFactors.max())
 
 
     return self._learningStats
 
 
-  #############################################################################
   def resetStats(self):
     """ Reset the stats (periodic, ???). This will usually be called by
     user code at the start of each inference run (for a particular data set).
@@ -1515,7 +1202,6 @@ class FDRCSpatial2(object):
     self._periodicStatsReset()
 
 
-  #############################################################################
   def _seed(self, seed=-1):
     """
     Initialize the random seed
@@ -1529,7 +1215,6 @@ class FDRCSpatial2(object):
       self.random = NupicRandom()
 
 
-  #############################################################################
   def _initialPermanence(self):
     """ Create and return a 2D matrix filled with initial permanence values.
     The returned matrix will be of shape:
@@ -1642,7 +1327,6 @@ class FDRCSpatial2(object):
     return perms
 
 
-  #############################################################################
   def _gaussianMatrix(self, dim, sigma):
     """
     Create and return a 2D matrix filled with a gaussian distribution. The
@@ -1667,7 +1351,7 @@ class FDRCSpatial2(object):
 
     return m
 
-  #############################################################################
+
   def _makeMasterCoincidences(self, numCloneMasters, coincRFShape,
                               coincInputPoolPct, initialPermanence=None,
                               nupicRandom=None):
@@ -1724,83 +1408,6 @@ class FDRCSpatial2(object):
     return masterPotentialM, masterPermanenceM
 
 
-  #############################################################################
-  def _XXXupdateConnectedCoincidences(self, masters=None):
-    """Update 'connected' version of the given coincidence.
-
-    Each 'connected' coincidence is effectively a binary matrix (AKA boolean)
-    matrix that is the same size as the input histogram matrices.  They have
-    a 1 wherever the inputHistogram is "above synPermConnected".
-
-    """
-    # If no masterNum given, update all of them
-    if masters is None:
-      masters = xrange(self.numCloneMasters)
-
-    (nCellRows, nCellCols) = self._coincRFShape
-    (nInputRows, nInputCols) = self.inputShape
-    cloningOn = (self.numCloneMasters != self._coincCount)
-    for masterNum in masters:
-      # Where are we connected?
-      masterConnectedNZ = \
-        self._masterPermanenceM[masterNum].whereGreaterEqual(0,
-                nCellRows, 0, nCellCols, self.synPermConnected)
-      rowIdxs = masterConnectedNZ[:,0]
-      colIdxs = masterConnectedNZ[:,1]
-      self._masterConnectedM[masterNum].setAllNonZeros(nCellRows, nCellCols,
-                                                        rowIdxs, colIdxs)
-      self._masterConnectedCoincSizes[masterNum] = len(rowIdxs)
-
-      # This verifies our logic in adaptSynapses for boosting up all
-      #  permanences up when the # of connected falls below stimulusThreshold.
-      assert (self._masterConnectedCoincSizes[masterNum] \
-               >= self.stimulusThreshold)
-
-
-      # ------------------------------------------------------------------------
-      # Update the corresponding rows in the super, mondo connected matrix that
-      #  come from this master
-      if cloningOn:
-        cells = self._cellsForMaster[masterNum]
-      else:
-        cells = [masterNum]
-
-      flatMultiplier = numpy.array([nInputCols, 1], dtype='int')
-
-      # Where is the top left corner of this master in regards to the input?
-      for cell in cells:
-        # (0.8s)
-        (top, bottom, left, right) = self._coincSlices2[cell*4:(cell + 1)*4]
-        # (1.8s)
-        connectedNZ = self._masterPermanenceM[masterNum].whereGreaterEqual(top,
-                bottom, left, right, self.synPermConnected)
-
-        # Shift to top-left of input space
-        # (0.77s)
-        (topRow, leftCol) = self._columnCenters[cell]
-        topRow -= self.coincInputRadius
-        leftCol -= self.coincInputRadius
-
-        # Convert to flat coordinates (4.3s total)
-        connectedNZ += (topRow, leftCol) # (2.4s)
-        connectedNZ *= flatMultiplier # (1.25s)
-        sparseCols = connectedNZ.sum(axis=1) # (0.7s)
-
-        # Compare to original
-        if False:
-          inputSlice = self._inputSlices[cell]
-          coincSlice = self._coincSlices[cell]
-          masterConnected = \
-            self._masterConnectedM[masterNum].toDense().astype('bool')
-          masterSubset = masterConnected[coincSlice]
-          oldSparseCols = self._inputLayout[inputSlice][masterSubset]
-          if not numpy.array_equal(oldSparseCols, sparseCols):
-            import pdb; pdb.set_trace()
-
-        self._allConnectedM.replaceSparseRow(cell, sparseCols) # 0.4s
-
-
-  #############################################################################
   def _updateConnectedCoincidences(self, masters=None):
     """Update 'connected' version of the given coincidence.
 
@@ -1829,8 +1436,8 @@ class FDRCSpatial2(object):
 
       # Update the corresponding rows in the super, mondo connected matrix that
       #  come from this master
-      masterConnected = \
-        self._masterConnectedM[masterNum].toDense().astype('bool') # 0.2s
+      masterConnected = (
+        self._masterConnectedM[masterNum].toDense().astype('bool')) # 0.2s
       if cloningOn:
         cells = self._cellsForMaster[masterNum]
       else:
@@ -1845,7 +1452,6 @@ class FDRCSpatial2(object):
         self._allConnectedM.replaceSparseRow(cell, sparseCols) # 4s.
 
 
-  #############################################################################
   def _setSlices(self):
     """Compute self._columnSlices  and self._inputSlices
 
@@ -1920,27 +1526,6 @@ class FDRCSpatial2(object):
       k = k + 4
 
 
-    # ---------------------------------------------------------------------
-    # Which cells have clipped potential RF's?
-    if False:
-      self._cellRFClipped = numpy.zeros(self._coincCount, dtype='bool')
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,0] < coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,0] \
-                          >= inputShape[0] - coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,1] < coincInputRadius,
-                        self._cellRFClipped)
-      numpy.logical_or(self._cellRFClipped,
-                        self._columnCenters[:,1] \
-                          >= inputShape[1] - coincInputRadius,
-                        self._cellRFClipped)
-
-
-  #############################################################################
   @staticmethod
   def computeCoincCenters(inputShape, coincidencesShape, inputBorder):
     """Compute the centers of all coincidences, given parameters.
@@ -2006,9 +1591,9 @@ class FDRCSpatial2(object):
 
 
     return list(cross(heightCenters, widthCenters))
+    #~!!!~!~
 
 
-  #############################################################################
   def _updateInhibitionObj(self):
     """
     Calculate the average inhibitionRadius to use and update the inhibition
@@ -2104,7 +1689,6 @@ class FDRCSpatial2(object):
                                         localAreaDensity)          # density
 
 
-  #############################################################################
   def _updateMinDutyCycles(self, actDutyCycles, minPctDutyCycle, minDutyCycles):
     """
     Calculate and update the minimum acceptable duty cycle for each cell based
@@ -2157,7 +1741,6 @@ class FDRCSpatial2(object):
       print fdru.numpyStr(minDutyCycles, '%.4f')
 
 
-  #############################################################################
   def _computeOverlapsPy(self, inputShaped, stimulusThreshold):
     """
     Computes overlaps for every column for the current input in place. The
@@ -2193,21 +1776,7 @@ class FDRCSpatial2(object):
     self._overlaps[self._overlaps < stimulusThreshold] = 0
     self._overlapsNoBoost = self._overlaps.copy()
 
-    # Test
-    if False:
-      import pdb; pdb.set_trace()
-      cpp_overlap_sbm(self._cloneMapFlat,
-                      self._inputSlices2,
-                      self._coincSlices2,
-                      inputShaped,
-                      self._masterConnectedM,
-                      stimulusThreshold,
-                      self._overlaps);
 
-      import pdb; pdb.set_trace()
-
-
-  #############################################################################
   def _computeOverlapsCPP(self, inputShaped, stimulusThreshold):
     """
     Same as _computeOverlapsPy, but using a C++ implementation.
@@ -2221,7 +1790,6 @@ class FDRCSpatial2(object):
                 self._overlaps);
 
 
-  #############################################################################
   def _computeOverlapsTest(self, inputShaped, stimulusThreshold):
     """
     Same as _computeOverlapsPy, but compares the python and C++
@@ -2242,7 +1810,6 @@ class FDRCSpatial2(object):
       sys.exit(0)
 
 
-  #############################################################################
   def _raiseAllPermanences(self, masterNum, minConnections=None,
                             densePerm=None, densePotential=None):
     """
@@ -2356,7 +1923,6 @@ class FDRCSpatial2(object):
     return (True, numConnected)
 
 
-  #############################################################################
   def _bumpUpWeakCoincidences(self):
     """
     This bump-up ensures every coincidence have non-zero connections. We find
@@ -2385,7 +1951,6 @@ class FDRCSpatial2(object):
               "minDutyCycleBeforeInh:", bumpUpList
 
 
-  #############################################################################
   def _updateBoostFactors(self):
     """
     Update the boost factors. The boost factors is linearly interpolated
@@ -2400,19 +1965,14 @@ class FDRCSpatial2(object):
     """
 
     if self._minDutyCycleAfterInh.sum() > 0:
-      self._firingBoostFactors = (1 - self.maxFiringBoost)\
-            /self._minDutyCycleAfterInh * self._dutyCycleAfterInh \
-            + self.maxFiringBoost
+      self._firingBoostFactors = ((1 - self.maxFiringBoost)
+            /self._minDutyCycleAfterInh * self._dutyCycleAfterInh 
+            + self.maxFiringBoost)
 
-    self._firingBoostFactors[self._dutyCycleAfterInh \
-                                > self._minDutyCycleAfterInh] = 1.0
-
-#    if self._dutyCycleAfterInh.min() == 0: # where there are unlearned coincs
-#      self._firingBoostFactors[self._dutyCycleAfterInh == 0] = \
-#        self.maxFiringBoost
+    self._firingBoostFactors[self._dutyCycleAfterInh > \
+      self._minDutyCycleAfterInh] = 1.0
 
 
-  #############################################################################
   def _updateInputUse(self, onCellIndices):
     """
     During learning (adapting permanence values), we need to be able to tell
@@ -2435,7 +1995,6 @@ class FDRCSpatial2(object):
                                 onCellIndices).reshape(self.inputShape)
 
 
-  #############################################################################
   def _adaptSynapses(self, onCellIndices, orphanCellIndices, input):
     """
     This is the main function in learning of SP. The permanence values are
@@ -2609,7 +2168,6 @@ class FDRCSpatial2(object):
       return onCellIndices
 
 
-  #############################################################################
   def _updatePermanenceGivenInputPy(self, columnNum, masterNum, input, inputUse,
           permanence, permanenceSlice, activeInputSlice, permChangesSlice):
     """
@@ -2651,7 +2209,6 @@ class FDRCSpatial2(object):
     # If this cell has permanence boost, apply the incremental
 
 
-  #############################################################################
   def _updatePermanenceGivenInputCPP(self, columnNum, masterNum, input,
           inputUse, permanence, permanenceSlice, activeInputSlice,
           permChangesSlice):
@@ -2679,7 +2236,6 @@ class FDRCSpatial2(object):
                                 permanence)
 
 
-  #############################################################################
   def _updatePermanenceGivenInputTest(self, columnNum, masterNum, input,
           inputUse, permanence, permanenceSlice, activeInputSlice,
           permChangesSlice):
@@ -2708,7 +2264,6 @@ class FDRCSpatial2(object):
       sys.exit(0)
 
 
-  #############################################################################
   def _periodicStatsCreate(self):
     """
     Allocate the periodic stats structure
@@ -2741,7 +2296,6 @@ class FDRCSpatial2(object):
     self._periodicStatsReset()
 
 
-  #############################################################################
   def _periodicStatsReset(self):
     """
     Reset the periodic stats this is done every N iterations before capturing
@@ -2777,7 +2331,6 @@ class FDRCSpatial2(object):
     self._stats['outputPatternSamples'] = 0
 
 
-  #############################################################################
   def _periodicStatsComputeEnd(self, activeCells, activeInputs):
     """
     Called at the end of compute. This increments the number of computes
@@ -2952,7 +2505,6 @@ class FDRCSpatial2(object):
     self._periodicStatsReset()
 
 
-  ##############################################################################
   def _printInputSlice(self, inputSlice, prefix=''):
     """ Print the given input slice in a nice human readable format.
 
@@ -2980,7 +2532,6 @@ class FDRCSpatial2(object):
       print prefix, ''.join(items)
 
 
-  ##############################################################################
   def _printSyns(self, cell, prefix='', showValues=False):
     """ Print the synapse permanence values for the given cell in a nice,
     human, readable format.
@@ -3030,7 +2581,6 @@ class FDRCSpatial2(object):
         print prefix, ''.join(items)
 
 
-  ##############################################################################
   def _printMemberSizes(self, over=100):
     """ Print the size of each member
     """
@@ -3065,7 +2615,6 @@ class FDRCSpatial2(object):
     print "\nTOTAL: %10d (%10.3fMB) " % (totalSize, totalSize/1000000.0)
 
 
-  ##############################################################################
   def printParams(self):
     """ Print the main creation parameters associated with this instance.
     """
