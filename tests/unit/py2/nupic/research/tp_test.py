@@ -125,7 +125,6 @@ class TPTest(unittest.TestCase):
         self.assertTrue(numpy.array_equal(result1, result2))
 
 
-  @unittest.skip('NUP-1887: Checkpointing causes divergence in TP output.')
   def testCheckpointMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
     tp1 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
@@ -141,15 +140,29 @@ class TPTest(unittest.TestCase):
                                  dtype='int32')
         records.append(bottomUpIn)
 
+    i = 1
     for r in records[:250]:
+      print i
+      i += 1
       output1 = tp1.compute(r, True, True)
       output2 = tp2.compute(r, True, True)
       self.assertTrue(numpy.array_equal(output1, output2))
 
-    tp3 = pickle.loads(pickle.dumps(tp1))
-    tp4 = pickle.loads(pickle.dumps(tp2))
+    print 'Serializing and deserializing models.'
 
-    i = 0
+    savePath1 = os.path.join(self._tmpDir, 'tp1.bin')
+    tp1.saveToFile(savePath1)
+    tp3 = pickle.loads(pickle.dumps(tp1))
+    tp3.loadFromFile(savePath1)
+
+    savePath2 = os.path.join(self._tmpDir, 'tp2.bin')
+    tp2.saveToFile(savePath2)
+    tp4 = pickle.loads(pickle.dumps(tp2))
+    tp4.loadFromFile(savePath2)
+
+    self.assertTPsEqual(tp1, tp3)
+    self.assertTPsEqual(tp2, tp4)
+
     for r in records[250:]:
       print i
       i += 1
@@ -158,11 +171,13 @@ class TPTest(unittest.TestCase):
       out3 = tp3.compute(r, True, True)
       out4 = tp4.compute(r, True, True)
 
-      self.assertTPsEqual(tp1, tp2)
-
       self.assertTrue(numpy.array_equal(out1, out2))
       self.assertTrue(numpy.array_equal(out1, out3))
       self.assertTrue(numpy.array_equal(out1, out4))
+
+    self.assertTPsEqual(tp1, tp2)
+    self.assertTPsEqual(tp1, tp3)
+    self.assertTPsEqual(tp2, tp4)
 
 
   def assertTPsEqual(self, tp1, tp2):

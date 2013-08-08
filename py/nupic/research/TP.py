@@ -430,7 +430,7 @@ class TP(ConsolePrinterMixin):
         if len(a) != len(b):
           diff.append((keys + (k, 'len'), len(a), len(b)))
         elif not numpy.array_equal(a, b):
-          diff.append((keys + (k), a, b))
+          diff.append((keys + (k,), a, b))
         #for i in xrange(len(a)):
         #  toCheck.append((keys + (k, i), a[i], b[i]))
       elif isinstance(a, Random):
