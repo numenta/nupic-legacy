@@ -441,16 +441,19 @@ class SpatialPooler(object):
 		activeColumns:	An array containing the indices of the active columns, 
 										the sprase set of columns which survived inhibition
 		"""
+		overlapArray = numpy.zeros(self._numColumns)
 		activeArray = numpy.zeros(self._numColumns)
+		overlapArray[overlaps > 0] = 1
 		if activeColumns.size > 0:
 			activeArray[activeColumns] = 1
+
 		period = self._dutyCyclePeriod
 		if (period > self._iterationNum):
 			period = self._iterationNum
 
 		self._overlapDutyCycles = self._updateDutyCyclesHelper(
 																self._overlapDutyCycles, 
-																overlaps, 
+																overlapArray, 
 																period
 															)
 
@@ -1177,7 +1180,7 @@ class SpatialPooler(object):
 		returns true if the enough rounds have passed to warrant updates of 
 		duty cycles
 		"""
-		return ((self._iterationNum + 1) % self._updatePeriod) == 0
+		return (self._iterationNum % self._updatePeriod) == 0
 
 
 	def _seed(self, seed=-1):
