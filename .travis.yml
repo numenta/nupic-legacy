@@ -60,4 +60,4 @@ script:
   - "python $NUPIC/examples/tp/tp_test.py"
 
 after_script:
-  - "travis-artifacts upload --target-path artifacts/$TRAVIS_BUILD_ID/$TRAVIS_JOB_ID --path testeverything.out"
+  - "travis-artifacts upload --target-path nupic/artifacts/$TRAVIS_BUILD_ID/$TRAVIS_JOB_ID --path testeverything.out"
