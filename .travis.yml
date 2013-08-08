@@ -10,6 +10,11 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
+    # AWS S3 details so travis can post build artifacts
+    - "ARTIFACTS_AWS_REGION=us-west-2"
+    - "ARTIFACTS_S3_BUCKET=builds.s3.numenta.org"
+    - secure: "YHjFx/1aqigl3Bpj53l9Cxs+TnRXSXqWnGMu41EuXOPcUuMfn3TUGj001Grv\n7sz5TOLxUMoMNw4jBdNXnOu8ZSz/cmSobgKcc8cq39Ht1TFOb1p62y1WP5Q0\nrlZET1siPwsOmYXjL3Xg7xn9VKXm5JVzxMpFio+BHICMA4hQS3g="
+    - secure: "Fhyq0E70lFDj+3fpnZpEYZWyu2++byNeR3I0sSQ35dJuEvhIEJnJzGMWxC+S\n4YoMBMmzSU6wXBECUKqhRFg5bgIRI0sB0OwexapWvNwIn0v38Spye9XmnYvE\nJVl1+QEkMgjm9KY8U++kFtg9LV70QLhe/Ti5PzGlt2tYL0W1tHs="
 
 notifications:
   irc: 
@@ -21,6 +26,9 @@ before_install:
   - "source $NUPIC/env.sh"
 
 install: "$NUPIC/build.sh"
+
+before_script:
+  - "gem install travis-artifacts"
 
 script: 
   # legacy binary tests
@@ -50,3 +58,6 @@ script:
     # examples/tp
   - "python $NUPIC/examples/tp/hello_tp.py"
   - "python $NUPIC/examples/tp/tp_test.py"
+
+after_script:
+  - "travis-artifacts upload --target-path artifacts/$TRAVIS_BUILD_ID/$TRAVIS_JOB_ID --path testeverything.out"
