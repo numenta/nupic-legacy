@@ -557,6 +557,7 @@ class CLARegion(PyRegion):
                trainingStep = 'temporal',
                cellsSavePath='',
                statelessMode=False,
+               storeDenseOutput=False, #DEPRECATED
                outputCloningWidth=0,
                outputCloningHeight=0,
                saveMasterCoincImages = 0,
@@ -1101,6 +1102,13 @@ class CLARegion(PyRegion):
       if self.nMultiStepPrediction > 0:
         self._doPredict()
 
+      if self.computeTopDown:
+        (topDownOutput, spReconstructedInput) = self._doTopDownInfer(
+                                                topDownInput = rfOutput)
+        outputs['topDownOut'][:] = topDownOutput
+        if spReconstructedInput is not None:
+          outputs['spReconstructedIn'][:] = spReconstructedInput
+
       # Write the bottom up out to our node outputs only if we are doing
       # inference
       outputs['bottomUpOut'][:] = rfOutput.flat
@@ -1272,7 +1280,9 @@ class CLARegion(PyRegion):
       else:
         spTopDownIn = self._spatialPoolerOutput
 
+      # Input reconstruction
       self._multiStepInputPrediction[i,:] = spTopDownIn
+
 
 
   #############################################################################
@@ -1298,7 +1308,8 @@ class CLARegion(PyRegion):
     else:
       tpTopDownOut = self._tfdr.topDownCompute(topDownInput)
 
-    topDownOut = tpTopDownOut 
+    # Run through the SP's topdown compute
+    topDownOut = tpTopDownOut
     spReconstructedIn = None
 
     return (topDownOut, spReconstructedIn)
@@ -1491,6 +1502,7 @@ class CLARegion(PyRegion):
       return list(self._spatialPoolerOutput)
     elif parameterName == 'spNumActiveOutputs':
       return len(self._spatialPoolerOutput.nonzero()[0])
+
     elif parameterName == 'spOutputNonZeros':
       return [len(self._spatialPoolerOutput)] + \
               list(self._spatialPoolerOutput.nonzero()[0])
