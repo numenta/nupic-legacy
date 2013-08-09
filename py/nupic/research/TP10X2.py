@@ -303,7 +303,6 @@ class TP10X2(TP):
     slows things down, but you can override this by passing in True for
     computeInfOutput
     """
-
     # The C++ TP takes 32 bit floats as input. uint32 works as well since the
     # code only checks whether elements are non-zero
     assert (bottomUpInput.dtype == numpy.dtype('float32')) or \
