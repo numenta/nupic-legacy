@@ -35,13 +35,22 @@
             $("#tableHeaderCommitter").width(110);
             $("#tableHeaderReviewer").width(90);
             $(".tableHeaderTriangle").fadeOut(1000);
-            $("thead").hover(function(){
-                $(".tableHeaderTriangle").stop().fadeIn(100);
+            $("th").hover(function(){
+                //if($('thead').data('hover')) {
+                    $(".tableHeaderTriangle").stop().fadeIn(100);
+                //}
             },function(){
                 setTimeout(function(){
-                    $(".tableHeaderTriangle").stop().fadeOut(500);
+                    if(!($('thead').data('hover'))) {
+                        $(".tableHeaderTriangle").stop();
+                        $(".tableHeaderTriangle").fadeOut(500);
+                    }
                 },1000);
             });
+            $("thead").hover(
+                function() { $.data(this, 'hover', true); },
+                function() { $.data(this, 'hover', false); }
+            ).data('hover', false);
         });
     });
 
