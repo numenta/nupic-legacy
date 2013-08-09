@@ -482,9 +482,10 @@ def sameSegment(seg1, seg2):
     result = False
 
   # Now compare synapses, ignoring order of synapses
-  if seg2[1:][2] <= 0:
-    print "A synapse with zero permanence encountered"
-    result = False
+  for syn in seg2[1:]:
+    if syn[2] <= 0:
+      print "A synapse with zero permanence encountered"
+      result = False
   if result == True:
     for syn in seg1[1:]:
       if syn[2] <= 0:
