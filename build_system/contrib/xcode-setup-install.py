@@ -26,7 +26,8 @@ buildStyle = os.environ['BUILD_STYLE']
 
 # Build the configure command.
 configureCmd = os.path.join(buildSystemDir, 'contrib', 'configure.py')
-configureCmd += ' --mode=%s' % buildStyle
+# configureCmd += ' --mode=%s' % buildStyle
+configureCmd += ' --mode=release'
 configureCmd += ' --builddir=%s' % buildDir
 
 print 'Running command:', configureCmd
