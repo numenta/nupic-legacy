@@ -11,16 +11,18 @@ title: NuPIC Contributors
 {% raw %}
 <script id="contributor-table" type="text/x-handler-template">
     <table>
-    <tbody>
+    <thead>
     <tr>
         {{#each headings}}
-            <th>{{this}}</th>
+            <th id="tableHeader{{this}}" style="cursor: pointer;">{{this}}<span class="tableHeaderTriangle" style="font-size: 14px; margin-left: 5px; color: #888888;">&#x25BC;</span></th>
         {{/each}}
     </tr>
+    </thead>
+    <tbody>
     {{#each contributors}}
     <tr id="{{Github}}">
-            <td><a href="#{{Github}}">{{Name}}</a></td>
-            <td><a href="https://github.com/{{Github}}">{{Github}}</a></td>
+            <td onclick="document.location='#{{Github}}'" style="color:#39c; cursor: pointer">{{Name}}</td>
+            <td onclick="document.location='https://github.com/{{Github}}'" style="color:#39c; cursor: pointer;">{{Github}}</td>
             <td>{{Committer}}</td>
             <td>{{Reviewer}}</td>
     </tr>
@@ -31,4 +33,6 @@ title: NuPIC Contributors
 {% endraw %}
 
 <script src="{{ site.baseurl }}/javascripts/handlebars.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="{{ site.baseurl }}/javascripts/jquery.tablesorter.min.js"></script>
 <script src="{{ site.baseurl }}/javascripts/contributors.js"></script>
