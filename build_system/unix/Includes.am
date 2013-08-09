@@ -42,16 +42,15 @@ NTA_LINKFLAGS =  -L$(externaldir)/lib @nta_platform_ldflags@
 #
 
 # NTA_INTERNAL tells us that the code is being built under the build system
-# and not as a separate program. Used for cppvision example
+
 NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
 
 #
 # Optimization can be set at configure time
 #
 if NTA_OPTIMIZATION_ENABLED
-  # -fno-strict-aliasing because of GCC 4.1 compiler warnings
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
-  NTA_CXX_OPTFLAGS = -O3 -fno-strict-aliasing -falign-loops=16
+  NTA_CXX_OPTFLAGS = -march=native -O3 -falign-loops=16 -pipe
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
@@ -62,7 +61,7 @@ endif
 # Compiling with debugging symbols can be set at configure time
 #
 if NTA_DEBUGSYMBOLS_ENABLED
-  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@
+  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@ -fvar-tracking-assignments
 endif
 
 #
@@ -118,7 +117,7 @@ AM_LDFLAGS =
 CXXFLAGS =
 CCASFLAGS =
 CFLAGS =
-LDFLAGS =
+LDFLAGS = -Wl,-O1,--sort-common
 
 ##############################################################
 # Export platform-specific build environment variables
