@@ -50,7 +50,7 @@ NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
 #
 if NTA_OPTIMIZATION_ENABLED
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
-  NTA_CXX_OPTFLAGS = -march=native -O3 -falign-loops=16 -pipe
+  NTA_CXX_OPTFLAGS = -O3 -falign-loops=16 -pipe
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
@@ -61,7 +61,7 @@ endif
 # Compiling with debugging symbols can be set at configure time
 #
 if NTA_DEBUGSYMBOLS_ENABLED
-  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@ -fvar-tracking-assignments
+  NTA_CXXFLAGS_BASE += @nta_platform_debug_flag@
 endif
 
 #
@@ -117,7 +117,7 @@ AM_LDFLAGS =
 CXXFLAGS =
 CCASFLAGS =
 CFLAGS =
-LDFLAGS = -Wl,-O1,--sort-common
+LDFLAGS = -Wl
 
 ##############################################################
 # Export platform-specific build environment variables
