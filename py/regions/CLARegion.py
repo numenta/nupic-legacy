@@ -1102,13 +1102,6 @@ class CLARegion(PyRegion):
       if self.nMultiStepPrediction > 0:
         self._doPredict()
 
-      if self.computeTopDown:
-        (topDownOutput, spReconstructedInput) = self._doTopDownInfer(
-                                                topDownInput = rfOutput)
-        outputs['topDownOut'][:] = topDownOutput
-        if spReconstructedInput is not None:
-          outputs['spReconstructedIn'][:] = spReconstructedInput
-
       # Write the bottom up out to our node outputs only if we are doing
       # inference
       outputs['bottomUpOut'][:] = rfOutput.flat
@@ -1283,36 +1276,6 @@ class CLARegion(PyRegion):
       # Input reconstruction
       self._multiStepInputPrediction[i,:] = spTopDownIn
 
-
-
-  #############################################################################
-  def _doTopDownInfer(self, topDownInput):
-    """
-    Do one iteration of top-down inference.
-
-    Parameters:
-    --------------------------------------------
-    tdInput:      Top-down input
-
-    retval:     (topDownOut, spReconstructedIn)
-                  topDownOut is the top down output computed from the topDown in
-                   of the level above us.
-                  spReconstructedIn is the top down output computed only from the SP,
-                    using it's current bottom-up output.
-
-    """
-
-    # Run through the TP's topdown compute
-    if self.disableTemporal:
-      tpTopDownOut = topDownInput
-    else:
-      tpTopDownOut = self._tfdr.topDownCompute(topDownInput)
-
-    # Run through the SP's topdown compute
-    topDownOut = tpTopDownOut
-    spReconstructedIn = None
-
-    return (topDownOut, spReconstructedIn)
 
   #############################################################################
   def _doSpatialInfer(self, rfInput, resetSignal, outputs):
