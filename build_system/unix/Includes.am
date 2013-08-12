@@ -117,7 +117,7 @@ AM_LDFLAGS =
 CXXFLAGS =
 CCASFLAGS =
 CFLAGS =
-LDFLAGS = -Wl
+LDFLAGS =
 
 ##############################################################
 # Export platform-specific build environment variables
