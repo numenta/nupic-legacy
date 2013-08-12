@@ -41,7 +41,7 @@ import numpy
 
 # here we choose TP implementation: 
 # This is the class correspondingn to the C++ optimized Temporal Pooler # TODO buggy
-from nupic.research.TP10X2 import TP10X2 as TP
+#from nupic.research.TP10X2 import TP10X2 as TP
 # simple python impl., latest code
 from nupic.research.TP import TP as TP
 
