@@ -25,4 +25,4 @@ It is too early to claim this new interest in cortical computing is here to stay
 > Jeff Hawkins <br/>
 > Founder, Numenta Inc.
 
-[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/)
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1kb2nw/brains_and_machine_intelligence_a_long_time_coming/)
