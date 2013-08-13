@@ -23,6 +23,8 @@ import copy
 import cPickle
 import itertools
 import numpy
+import numpy.random
+import random
 
 from nupic.bindings.math import SM32 as SparseMatrix, \
                                 SM_01_32_32 as SparseBinaryMatrix, \
@@ -219,6 +221,7 @@ class SpatialPooler(object):
 		assert (localAreaDensity == -1 or 
 						(localAreaDensity > 0 and localAreaDensity <= 0.5))
 
+		self._seed(seed)
 
 		# save arguments
 		self._numInputs = int(numInputs)
@@ -293,7 +296,7 @@ class SpatialPooler(object):
 		# a sum of each row of 'self._connectedSynapses'. again, while this 
 		# information is readily available from 'self._connectedSynapses', it is
 		# stored separately for efficiency purposes.
-		self._connectedCounts = numpy.zeros(numColumns)
+		self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
 		for i in xrange(numColumns):
 			self._updatePermanencesForColumn(self._initPermanence(i), i) 
 		
@@ -301,11 +304,13 @@ class SpatialPooler(object):
 		# has a chance of being activated.
 		self._raisePermanenceToThreshold()
 
-		self._overlapDutyCycles = numpy.zeros(numColumns)
-		self._activeDutyCycles = numpy.zeros(numColumns)
-		self._minOverlapDutyCycles = numpy.zeros(numColumns) + 1e-6
-		self._minActiveDutyCycles = numpy.zeros(numColumns) + 1e-6
-		self._boostFactors = numpy.ones(numColumns)
+		self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
+		self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
+		self._minOverlapDutyCycles = numpy.zeros(numColumns, 
+																						 dtype=realDType) + 1e-6
+		self._minActiveDutyCycles = numpy.zeros(numColumns,
+																						dtype=realDType) + 1e-6
+		self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
 		# The inhibition radius determines the size of a column's local 
 		# neighborhood. of a column. A cortical column must overcome the overlap 
@@ -347,7 +352,8 @@ class SpatialPooler(object):
 		self._updateBookeepingVars(learn)
 		inputVector = numpy.array(inputVector, dtype=realDType)
 		inputVector.reshape(-1)
-		overlaps, overlapsPct = self._calculateOverlap(inputVector)
+		overlaps = self._calculateOverlap(inputVector)
+		overlapsPct = self._calculateOverlapPct(overlaps)
 
 		if learn:
 			boostedOverlaps = self._boostFactors * overlaps
@@ -364,10 +370,12 @@ class SpatialPooler(object):
 			sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
 			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
 			self._adaptOrphanSynapses(inputVector, orphanColumns)
+			self._updateDutyCycles(overlaps, activeColumns)
 			self._raisePermanenceToThreshold()
+			# to comply with old implementation bump Up weak columns must be 
+			# performed after overlap duty cycle has been updated.
 			self._bumpUpWeakColumns() 
 			self._updateBoostFactors()
-			self._updateDutyCycles(overlaps, activeColumns)
 			self._updateInhibitionRadius()
 
 			if self._isUpdateRound():
@@ -606,7 +614,7 @@ class SpatialPooler(object):
 			perm = self._permanences.getRow(i)
 			maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
 			perm[maskRF] += permChanges[maskRF]
-			self._updatePermanencesForColumn(perm, i)
+			self._updatePermanencesForColumn(perm, i, trim=False)
 
 
 
@@ -678,8 +686,14 @@ class SpatialPooler(object):
 					break
 			self._updatePermanencesForColumn(perm, i)
 
+		# REMOVE THIS. BACKWORDS COMPATABILITY ONLY
+		for i in xrange(self._numColumns):
+			perm = self._permanences.getRow(i).astype(realDType)
+			self._updatePermanencesForColumn(perm, i)
 
-	def _updatePermanencesForColumn(self, perm, index):
+
+
+	def _updatePermanencesForColumn(self, perm, index, trim=True):
 		"""
 		This method updates the permanence matrix with a column's new permanence
 		values. The column is identified by its index, which reflects the row in
@@ -700,10 +714,14 @@ class SpatialPooler(object):
 										"dense", i.e. it contains an entry for each input bit, even
 										if the permanence value is 0.
 		index:					The index identifying a column in the permanence, potential 
-										and connectivity matrices,
+										and connectivity matrices
+		trim:						A boolean value indicating whether to zero out permanences
+										below '_synPermTrimThreshold'
 		"""
+		
 		numpy.clip(perm,self._synPermMin, self._synPermMax, out=perm)
-		perm[perm < self._synPermTrimThreshold] = 0
+		if trim:
+			perm[perm < self._synPermTrimThreshold] = 0
 		newConnected = numpy.where(perm >= self._synPermConnected)[0]
 		self._permanences.setRowFromDense(index, perm)
 		self._connectedSynapses.replaceSparseRow(index, newConnected)
@@ -836,7 +854,7 @@ class SpatialPooler(object):
 	def _updateBoostFactors(self):
 		"""
 		Update the boost factors for all columns. The boost factors are used to 
-		artificially increase the overlap of inactive columns to increase their 
+		artificially increase the overlap of inactive columns to improve their 
 		chances of becoming active, and hence encourage participation of more 
 		columns in the learning process. This is a line defined as: y = mx + b
 		boost = (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this
@@ -903,8 +921,12 @@ class SpatialPooler(object):
 		overlaps = numpy.zeros(self._numColumns).astype(realDType)
 		self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)
 		overlaps[overlaps < self._stimulusThreshold] = 0
-		overlapsPct = overlaps.astype(realDType) / self._connectedCounts
-		return overlaps, overlapsPct
+		return overlaps
+
+
+	def _calculateOverlapPct(self, overlaps):
+		return overlaps.astype(realDType) / self._connectedCounts
+
 
 
 	def _calculateOrphanColumns(self, activeColumns, overlapsPct):
@@ -978,7 +1000,10 @@ class SpatialPooler(object):
 		# Add a little bit of random noise to the scores to help break
 		# ties.
 		# tieBreaker = 0.1*numpy.random.rand(self._numColumns)
-		tieBreaker = 0
+		tieBreaker = 0.001 * (
+  	numpy.array(range(self._numColumns)).astype(realDType) / self._numColumns)
+		# import pdb; pdb.set_trace()
+		# tieBreaker = 0
 		overlaps += tieBreaker
 
 		if self._globalInhibition or \
