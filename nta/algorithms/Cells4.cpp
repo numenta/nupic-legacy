@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <vector>
 #include <iostream>
+#include <limits>  // numeric_limits
 #include <set>
 #include <sstream>
 
@@ -1951,6 +1952,7 @@ void Cells4::save(std::ostream& outStream) const
 void Cells4::saveToFile(std::string filePath) const
 {
   OFStream outStream(filePath.c_str(), std::ios_base::out | std::ios_base::binary);
+  outStream.precision(std::numeric_limits<double>::digits10 + 1);
   save(outStream);
 }
 

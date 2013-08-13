@@ -119,7 +119,7 @@ AC_MSG_CHECKING([platform])
 case "${target}" in
      *darwin*)
         nta_platform="darwin64"
-        nta_platform_cxxflags="-fPIC -DPIC -Wnewline-eof -m64"
+        nta_platform_cxxflags="-fPIC -DPIC -m64"
         # link against the system version of python (64-bits)
         nta_platform_python_libs="-F/System/Library/Frameworks -framework Python"
         nta_platform_env1="MACOSX_DEPLOYMENT_TARGET=10.7"
