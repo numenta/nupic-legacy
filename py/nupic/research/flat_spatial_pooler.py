@@ -91,24 +91,58 @@ class FlatSpatialPooler(SpatialPooler):
 
 	def compute(self, inputVector, learn=True):
 		assert (numpy.size(inputVector) == self._numInputs)
-
 		self._updateBookeepingVars(learn)
-
 		inputVector = numpy.array(inputVector, dtype=realDType)
+		overlaps = self._calculateOverlap(inputVector)
+		overlapsPct = self._calculateOverlapPct(overlaps)
+		highTierColumns = self._selectHighTierColumns(overlapsPct)
+		virginColumns = self._selectVirginColumns()
 
-		overlaps, overlapsPct = self._calculateOverlap(inputVector)
-		vipColumns = self._selectVIPColumns(overlapsPct)
-		vipOverlaps = overlaps.copy()
-		vipOverlaps[vipColumns] = max(overlaps) + 1.0
+		# Include this section if useHighTier is to be used without randomSP #
+		if learn:
+			vipOverlaps = self._boostFactors * overlaps
+			# REMOVE THIS. JUST FOR BACKWARDS COMPATABILITY
+			vipOverlaps[highTierColumns] = overlaps[highTierColumns]
+			# END
+		else:
+			vipOverlaps = overlaps.copy()
+		# end here #
+
+		vipBonus = max(overlaps) + 1.0
+		vipOverlaps[highTierColumns] += vipBonus
+		vipOverlaps[virginColumns] = vipBonus
 		activeColumns = self._inhibitColumns(vipOverlaps)
 
+
+		# Include this section if useHighTier is to be used without randomSP #
+		if learn:
+			orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
+			sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
+			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
+			self._adaptOrphanSynapses(inputVector, orphanColumns)
+			self._updateDutyCycles(overlaps, activeColumns)
+			self._raisePermanenceToThreshold()
+			self._bumpUpWeakColumns() 
+			self._updateBoostFactors()
+			self._updateInhibitionRadius()
+
+			if self._isUpdateRound():
+				self._updateMinDutyCycles()
+
+		# End include #
+
+
+
 		# if not learn: - don't let columns that never learned win! ???
-		if self._isUpdateRound():
-			self._updateMinDutyCycles()
+		# if self._isUpdateRound():
+		# 	self._updateMinDutyCycles()
 
 		return numpy.array(activeColumns)
 
+	def _selectVirginColumns(self):
+		return numpy.where(self._activeDutyCycles == 0)[0]
 
-	def _selectVIPColumns(self, overlapsPct):
+	def _selectHighTierColumns(self, overlapsPct):
 		return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+
   
