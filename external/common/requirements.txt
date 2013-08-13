@@ -1,6 +1,6 @@
 #External python dependencies installed by pip in $NUPIC/build.sh
 #See http://www.pip-installer.org/en/latest/requirements.html for details
-asteval==0.9
+asteval==0.9.1
 mock==1.0.1
 ordereddict==1.1
 pylint==0.28.0
