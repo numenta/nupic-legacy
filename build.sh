@@ -58,9 +58,7 @@ PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    add_to_path "$NUPIC_INSTALL"
-    add_to_pythonpath "$NUPIC_INSTALL/lib/python${PY_VER}/site-packages"
-    pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
+    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
     #cov-core may fail to install properly, reporting something to the effect of:
     #
     #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
@@ -89,22 +87,6 @@ function doMake {
 function cleanUpDirectories {
     popd
     [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
-}
-
-# only add to PATH once, give new path as argument
-function add_to_path {
-    if [[ "$PATH" =~ (^|:)"$1"(:|$) ]]
-    then
-        return 0
-    fi
-    export PATH="$PATH:${1}"
-}
-function add_to_pythonpath {
-    if [[ "$PYTHONPATH" =~ (^|:)"$1"(:|$) ]]
-    then
-        return 0
-    fi
-    export PYTHONPATH="$PYTHONPATH:${1}"
 }
 
 prepDirectories
