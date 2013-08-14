@@ -58,7 +58,33 @@ PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
+
+    echo "**********************************"
+    echo "SETUP COMPLETE, PIP INSTALLING...."
+    echo "INTO => $NUPIC_INSTALL"
+    echo "**********************************"
+
+    # PATH=$NUPIC_INSTALL:$PATH pip install -v -v -v  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
+    # PATH=$NUPIC_INSTALL:$PATH pip install -v -v -v --use-mirrors --install-option="--prefix=\"$NUPIC_INSTALL\"" --ignore-installed --upgrade --target="$NUPIC_INSTALL/lib/python${PY_VER}/site-packages" -r "$NUPIC/external/common/requirements.txt"
+
+    # We do it this way instead of in a single 'pip' command because pip won't move
+    # the packages it installs into the install path until it's done installing all of them.
+    # It also won't install the numpy dependency for 'asteval', and it doesn't matter if we manually
+    # list it in the requirements file.
+    while read p; do
+        # make sure we don't read in a comment
+        if [[ $p != \#* ]] ; then
+            echo "*********************"
+            echo "Installing: $p "
+            echo "*********************"
+            PATH="$NUPIC_INSTALL:$PATH" pip install -v -v -v --use-mirrors --install-option="--prefix=$NUPIC_INSTALL" --ignore-installed --upgrade "$p"
+        fi
+    done < "$NUPIC/external/common/requirements.txt"
+
+    echo "*****************"
+    echo "INSTALL COMPLETE"
+    echo "*****************"
+
     #cov-core may fail to install properly, reporting something to the effect of:
     #
     #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
