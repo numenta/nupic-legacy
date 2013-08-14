@@ -38,7 +38,7 @@ else
     NUPIC_INSTALL=$HOME/nta/eng
 fi
 # location of compiled runable binary
-export NUPIC_INSTALL 
+export NUPIC_INSTALL
 
 function exitOnError {
     if [[ !( "$1" == 0 ) ]] ; then
@@ -60,14 +60,15 @@ PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
-    
-    # workaround for matplotlib install bug: (and asteval) - numpy must already be installed
-    # see http://stackoverflow.com/questions/11797688/matplotlib-requirements-with-pip-install-in-virtualenv 
-    # https://github.com/matplotlib/matplotlib/wiki/MEP11
-    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" numpy==1.7.1
-    
-    PATH=$NUPIC_INSTALL:$PATH pip install  --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" -r $NUPIC/external/common/requirements.txt
 
+    # workaround for matplotlib install bug: (and asteval) - numpy must already be installed
+    # see http://stackoverflow.com/questions/11797688/matplotlib-requirements-with-pip-install-in-virtualenv
+    # https://github.com/matplotlib/matplotlib/wiki/MEP11
+    PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" --ignore-installed numpy==1.7.1
+    exitOnError $?
+
+    PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --target=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages --install-option="--install-scripts=$NUPIC_INSTALL/bin" --ignore-installed -r $NUPIC/external/common/requirements.txt
+    exitOnError $?
     #cov-core may fail to install properly, reporting something to the effect of:
     #
     #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
@@ -98,6 +99,11 @@ function cleanUpDirectories {
     [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
 }
 
+function cleanUpEnv {
+    popd
+    unset NUPIC_INSTALL
+}
+
 prepDirectories
 
 pythonSetup
@@ -105,3 +111,4 @@ doConfigure
 doMake
 
 cleanUpDirectories
+cleanUpEnv
