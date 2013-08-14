@@ -100,7 +100,6 @@ function cleanUpDirectories {
 }
 
 function cleanUpEnv {
-    popd
     unset NUPIC_INSTALL
 }
 
