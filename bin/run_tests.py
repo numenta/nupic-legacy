@@ -175,8 +175,9 @@ def main(parser, parse_args):
 
   # Run tests
 
-  pytest.main(args + list(tests))
+  return pytest.main(args + list(tests))
 
 
 if __name__ == "__main__":
-  main(parser, sys.argv[1:])
+  result = main(parser, sys.argv[1:])
+  sys.exit(result)
