@@ -28,7 +28,7 @@
 PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 export PATH=$NTA/bin:$PATH
-export PYTHONPATH=$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH
+export PYTHONPATH=$NTA/lib/python${PY_VER}/site-packages:$NTA:$PYTHONPATH
 export NTA_ROOTDIR=$NTA
 
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
