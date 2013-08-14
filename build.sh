@@ -78,6 +78,7 @@ function pythonSetup {
             echo "Installing: $p "
             echo "*********************"
             PATH="$NUPIC_INSTALL:$PATH" pip install -v -v -v --use-mirrors --install-option="--prefix=$NUPIC_INSTALL" --ignore-installed --upgrade "$p"
+            exitOnError $?
         fi
     done < "$NUPIC/external/common/requirements.txt"
 
@@ -95,7 +96,7 @@ function pythonSetup {
     #   import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()
     #
     #Therefore, explicitly write out the .pth file.
-    echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python${PY_VER}/site-packages/init_cov_core.pth
+    echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > "$NUPIC_INSTALL/lib/python${PY_VER}/site-packages/init_cov_core.pth"
     exitOnError $?
 }
 
