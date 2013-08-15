@@ -726,21 +726,9 @@ namespace nta {
 
 	inline float rbf_kernel(int i, int j) const
 	{
-	  // On x86_64, there is a bug in glibc that makes expf very slow
-	  // (more than it should be), so we continue using exp on that 
-	  // platform as a workaround.
-	  // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-	  // To force the compiler to use exp instead of expf, the return
-	  // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-	  double v = exp(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
-	  NTA_ASSERT(-HUGE_VAL <= v && v < HUGE_VAL);
-	  return v;
-#else
 	  float v = expf(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
 	  NTA_ASSERT(-HUGE_VAL <= v && v < HUGE_VAL);
 	  return v;
-#endif
 	}
       };
 
@@ -846,19 +834,8 @@ namespace nta {
 
 	inline float rbf_kernel(int i, int j) const
 	{
-	  // On x86_64, there is a bug in glibc that makes expf very slow
-	  // (more than it should be), so we continue using exp on that 
-	  // platform as a workaround.
-	  // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-	  // To force the compiler to use exp instead of expf, the return
-	  // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-	  double v = exp(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
-	  return v;
-#else
 	  float v = expf(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
 	  return v;
-#endif
 	}
       };
 
