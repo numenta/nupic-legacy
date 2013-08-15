@@ -28,11 +28,9 @@
 #ifndef NTA_EROSION_HPP
 #define NTA_EROSION_HPP
 
-#ifdef NUPIC2
 /*
  * Python bindings are used used in GaborNode
  */
-#endif
 
 using namespace std;
 
