@@ -24,17 +24,19 @@
 # environment is set up correctly for NuPIC. It requires $NTA to be set prior
 # to invocation as described in the README.
 
-export PATH=$NTA/bin:$PATH
-export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
-export NTA_ROOTDIR=$NTA
+PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
+
+export PATH="$NTA/bin:$PATH"
+export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
+export NTA_ROOTDIR="$NTA"
 
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
 # different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
 # Linux.
 LDIR="$NTA/lib"
 if [[ ! "$DYLD_LIBRARY_PATH" == "$LDIR" ]]; then
-  export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH
+  export DYLD_LIBRARY_PATH="$LDIR:$DYLD_LIBRARY_PATH"
 fi
 if [[ ! "$LD_LIBRARY_PATH" == "$LDIR" ]]; then
-  export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH
+  export LD_LIBRARY_PATH="$LDIR:$LD_LIBRARY_PATH"
 fi

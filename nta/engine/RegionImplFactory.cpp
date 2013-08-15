@@ -42,6 +42,10 @@
 #include <nta/utils/Log.hpp>
 #include <nta/utils/StringUtils.hpp>
 
+// see: http://stackoverflow.com/a/9096509/1781435
+#define stringify(x)  #x
+#define expand_and_stringify(x) stringify(x)
+
 // Path from site-packages to packages that contain NuPIC Python regions
 const size_t packages_length = 2;
 const char * packages[] = { "nupic.regions", "nupic.regions.extra" };
@@ -263,8 +267,7 @@ static std::string getPackageDir(const std::string& rootDir, const std::string &
   size_t pos = p.find(".");
   if (pos != std::string::npos)
     p.replace(p.find("."), 1, "/");
-  
-  return Path::join(rootDir, "lib/python2.6/site-packages", p);
+  return Path::join(rootDir, "lib/python" expand_and_stringify(NTA_PYTHON_SUPPORT) "/site-packages", p);
 }
 
 // This function creates either a NuPIC 2 or NuPIC 1 Python node 
@@ -451,8 +454,8 @@ static Spec * getPySpec(DynamicPythonLibrary * pyLib,
     if (exception)
     {
       nta::Exception * e = (nta::Exception *)exception;
+      NTA_THROW << "Could not get valid spec for Region: " << nodeType << " Exception Info: " << e->getMessage() << "\nFile: " << e->getFilename() << "\nStack: " << e->getStackTrace();
       delete e;
-      NTA_THROW << "Could not get valid spec for Region: " << nodeType;
     }
   }
 
