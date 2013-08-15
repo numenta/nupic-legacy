@@ -21,7 +21,7 @@ notifications:
 before_install:
   - "source $NUPIC/env.sh"
 
-install: "$NUPIC/build.sh"
+install: "$NUPIC/cleanbuild.sh"
 
 script: 
   # legacy binary tests
