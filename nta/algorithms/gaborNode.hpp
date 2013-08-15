@@ -101,11 +101,6 @@ typedef enum _POSTPROC_METHOD {
 } POSTPROC_METHOD;
 
 
-#ifndef NUPIC2
-NTA_EXPORT 
-void initFromPython(unsigned long long refP);
-#endif
-
 // FUNCTION: gaborCompute()
 // PURPOSE: Implements efficient Gabor filtering.
 NTA_EXPORT
