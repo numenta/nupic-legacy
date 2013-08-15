@@ -28,13 +28,7 @@
 #ifndef NTA_SPARSE_TENSOR_HPP
 #define NTA_SPARSE_TENSOR_HPP
 
-#ifdef NUPIC2
 #include <nta/math/utils.hpp>
-#else
-#include <nta/common/utils.hpp>
-#endif
-
-
 #include <nta/math/math.hpp>
 #include <nta/math/array_algo.hpp>
 #include <nta/math/stl_io.hpp>
