@@ -327,7 +327,7 @@ def assertNoTPDiffs(tps):
   if len(tps) > 2:
     raise "Not implemented for more than 2 TPs"
 
-  same = fdrutils.tpDiff2(*tps.values(), verbosity=VERBOSITY)
+  same = fdrutils.tpDiff2(tps.values(), verbosity=VERBOSITY)
   assert(same)
   return
 
