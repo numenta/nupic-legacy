@@ -11,6 +11,7 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
+    - PIP_IGNORE_INSTALLED=1
 
 notifications:
   irc: 
@@ -21,7 +22,7 @@ notifications:
 before_install:
   - "source $NUPIC/env.sh"
 
-install: "$NUPIC/cleanbuild.sh"
+install: "$NUPIC/build.sh"
 
 script: 
   # legacy binary tests
