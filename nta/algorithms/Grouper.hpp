@@ -29,12 +29,8 @@
 #ifndef NTA_GROUPER_HPP
 #define NTA_GROUPER_HPP
 
-#ifdef NUPIC2
 // Used in temporal pooler node
 #include <nta/utils/Log.hpp>
-#else
-#include <nta/utils/Log.hpp>
-#endif
 
 #include <nta/math/TAM.hpp>
 #include <nta/math/array_algo.hpp>
