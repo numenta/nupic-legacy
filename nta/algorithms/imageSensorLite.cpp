@@ -31,12 +31,6 @@
  *  with ctypes wrappers around numpy array objects.
  */ 
 
-// Includes the correct Python.h. Must be the first header. 
-#ifndef NUPIC2
-#include <nta/python/cpplibs/Python.h>
-#include "numpy/arrayobject.h"
-#endif
-
 #include <stdio.h>
 #include <math.h>
 
@@ -118,26 +112,6 @@ extern "C" {
 #define IMAGE_STRIDE(array, k)        (((long int*)(array->pnStrides))[k])
 #define IMAGE_ROWSTRIDE(array)        IMAGE_STRIDE(array, 0)
 */
-
-
-// FUNCTION: initNumpyLibrary()
-//
-// PURPOSE: This function must be called prior to directly
-//    invoking any of the API calls within the numpy C API.
-//    We do not currently invoke such calls (instead we use
-//    Python operations to extract references to specific
-//    members of the numpy array data structures, and package
-//    these members into a python ARRAY class, which appears
-//    as a NUMPY_ARRAY structure here on the C side.
-//
-//    However, gcc generates a compilation warning if we do not
-//    reference the _import_array() function.
-//
-#ifndef NUPIC2
-int initNumpyLibraryForImageSensorLite(void) {
-  return _import_array();
-}
-#endif
 
 
 /*
