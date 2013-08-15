@@ -204,7 +204,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     # Create noisy training sequence
     trainingSequences = []
-    for i in xrange(numRepetitions):
+    for _ in xrange(numRepetitions):
       sequence = []
       for j in xrange(numPatterns):
 
