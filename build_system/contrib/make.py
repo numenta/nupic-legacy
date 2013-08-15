@@ -7,7 +7,6 @@
 import sys
 import os
 import string
-import time
 
 buildDir = os.environ['BUILT_PRODUCTS_DIR']
 pushd = os.getcwd()
