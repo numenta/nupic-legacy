@@ -27,7 +27,6 @@ Generate artificial datasets
 """
 
 import os
-import numpy
 import random
 from optparse import OptionParser
 
