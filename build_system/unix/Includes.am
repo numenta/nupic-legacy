@@ -192,7 +192,7 @@ endif
 # the build, and performance isn't too important for wrapper
 # functions.
 ##############################################################
-NTA_CXXFLAGS = $(NTA_CXXFLAGS_BASE) $(NTA_CXX_OPTFLAGS) -fpermissive
+NTA_CXXFLAGS = $(NTA_CXXFLAGS_BASE) $(NTA_CXX_OPTFLAGS)
 
 # -falign-functions is necessary to avoid a compiler problem on
 # darwin. If you build without -falign-functions, exceptions
