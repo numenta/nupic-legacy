@@ -58,18 +58,7 @@
 // a dependency on PythonSystem, which is not included in the
 // algorithm source release. So it is disabled by default
 #ifdef INIT_FROM_PYTHON
-#ifdef NUPIC2
 #error "Unexpected Python dependency for imageSensorLite in NuPIC 2"
-#endif
-
-#include <nta/python/cpplibs/nupic_pycommon/PythonSystem.hpp>
-
-void PythonSystem_initFromReferenceP(unsigned long long refP)
-{
-  NTA_CHECK(refP != 0);
-  const nta::PythonSystemRef *p = (nta::PythonSystemRef*)refP;
-  nta::PythonSystem::initFromReference(*p);
-}
 #endif
 
 
