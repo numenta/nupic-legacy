@@ -25,17 +25,8 @@ import copy
 import cPickle
 import itertools
 import numpy
-from operator import itemgetter
 
-from nupic.bindings.algorithms import (adjustMasterValidPermanence,
-                                       cpp_overlap, cpp_overlap_sbm,
-                                       Inhibition2 as Inhibition)
-from nupic.bindings.math import (count_gte, GetNTAReal,
-                                 Random as NupicRandom,
-                                 SM_01_32_32 as SparseBinaryMatrix,
-                                 SM32 as SparseMatrix)
-from nupic.math.cross import cross
-from nupic.research import fdrutilities as fdru
+from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
