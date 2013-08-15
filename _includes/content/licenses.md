@@ -18,7 +18,7 @@ Are you interested in [getting involved]({{ site.baseurl }}/community.html) in t
 Translation Licence
 ----------
 Translations of Numenta.org Documentation
-We welcome members of the NuPIC community who want to translate our documentation into languages other than English. Feel free to notify us about your translation so that we can link to it from our web site. Of course, we cannot take responsibility for the quality of the translations, but we appreciate your efforts to help us spread the word about this technology.
+We welcome members of the NuPIC community who want to translate our documentation into languages other than English. Feel free to notify us about your translation so that we can link to it from our web site. We cannot take responsibility for the quality of the translations, but we appreciate your efforts to help us spread the word about this technology.
 
 We give you the rights to translate these materials under the following license:
 
