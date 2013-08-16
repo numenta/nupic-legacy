@@ -32,6 +32,12 @@ import uuid
 from mock import Mock, patch
 from pkg_resources import resource_filename, resource_string
 from xml.parsers.expat import ExpatError
+# ParseError not present in xml module for python2.6
+try:
+    from xml.etree.ElementTree import ParseError
+except ImportError:
+    from xml.parsers.expat import ExpatError as ParseError 
+
 import nupic
 
 import nupic.support.configuration_custom as configuration
@@ -43,7 +49,7 @@ import configuration_test
 class ConfigurationCustomTest(unittest.TestCase):
 
   def setUp(self):
-    
+
     if "NTA_DYNAMIC_CONF_DIR" in os.environ:
       # Remove it to make sure our in-proc tests won't accidentally
       # mess with actual files
@@ -53,11 +59,11 @@ class ConfigurationCustomTest(unittest.TestCase):
                       dict(NTA_DYNAMIC_CONF_DIR=oldNtaDynamicConfDir))
 
     self.files = dict()
-    
+
     tmpDir = tempfile.mkdtemp()
     self.addCleanup(shutil.rmtree, tmpDir)
-    
-    
+
+
     with open(os.path.join(tmpDir, 'nupic-default.xml-unittest'), 'w') as fp:
       fp.write(resource_string(__name__, 'conf/nupic-default.xml'))
       self.files['nupic-default.xml'] = fp.name
@@ -168,7 +174,7 @@ class ConfigurationCustomTest(unittest.TestCase):
 
     configuration.Configuration.setCustomProperties(
       {'PersistProp' : 'PersistVal', 'apple' : 'pear'})
-    
+
     expectedProps = {'PersistProp' : 'PersistVal', 'apple' : 'pear'}
     expectedProps.update(originalProps)
     self.assertEqual(configuration.Configuration.dict(), expectedProps)
@@ -601,7 +607,7 @@ class ConfigurationCustomTest(unittest.TestCase):
           '<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>')))
 
     with patch('sys.stderr', new_callable=StringIO):
-      self.assertRaises(ExpatError, configuration.Configuration.get, 'foo')
+      self.assertRaises((ExpatError, ParseError), configuration.Configuration.get, 'foo')
 
 
   @patch.object(configuration.os, 'environ', spec=dict)
