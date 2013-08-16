@@ -75,10 +75,10 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if [ "x$PYTHON_VERSION" != "x2.6" ] || [ "x$PYTHON_VERSION" != "x2.7" ]; then
+if [[ "$PYTHON_VERSION" != "2.6" && "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
-elif [ "x$PYTHON_VERSION" == "x2.7" ]; then
-    AC_DEFINE(_PY27)
+elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
+    AC_SUBST([_PY27],[-D_PY27])
 fi
 
 #
@@ -121,7 +121,7 @@ case "${target}" in
         nta_platform="darwin64"
         nta_platform_cxxflags="-fPIC -DPIC -m64"
         # link against the system version of python (64-bits)
-        nta_platform_python_libs="-F/System/Library/Frameworks -framework Python"
+        nta_platform_python_libs=`python2-config --ldflags`
         nta_platform_env1="MACOSX_DEPLOYMENT_TARGET=10.7"
         AC_MSG_RESULT([darwin on x86_64])
         nta_platform_asflags=""
@@ -154,7 +154,7 @@ case "${target}" in
         nta_platform_ldflags="-static-libgcc"
 	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs="`python2-config --ldflags` -lpython\$(PYTHON_VERSION)"
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"
@@ -169,7 +169,7 @@ case "${target}" in
 	# pthread needed by libapr-1
 	nta_platform_libs='-lm -lpthread -ldl -lutil -lcrypt -lstdc++'
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs="`python2-config --ldflags` -lpython\$(PYTHON_VERSION)"
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"

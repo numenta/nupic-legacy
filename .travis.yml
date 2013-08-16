@@ -6,10 +6,12 @@ compiler:
   - gcc
 python:
   - "2.6"
+  - "2.7"
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
+    - PIP_IGNORE_INSTALLED=1
 
 notifications:
   irc: 
