@@ -109,7 +109,9 @@ class SpatialPooler(object):
     globalInhibition:     If true, then during inhibition phase the winning 
                           columns are selected as the most active columns from 
                           the region as a whole. Otherwise, the winning columns 
-                          are selected with resepct to their local neighborhood
+                          are selected with resepct to their local 
+                          neighborhoods. using global inhibition boosts 
+                          performance x60.
     localAreaDensity:     The desired density of active columns within a local
                           inhibition area (the size of which is set by the
                           internally calculated inhibitionRadius, which is in
@@ -291,12 +293,15 @@ class SpatialPooler(object):
     # information is readily available from 'self._connectedSynapses', it is
     # stored separately for efficiency purposes.
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
+
+    # Initialize the set of permanence values for each columns. Ensure that 
+    # each column is connected to enough input bits to allow it to be 
+    # activated
     for i in xrange(numColumns):
-      self._updatePermanencesForColumn(self._initPermanence(i), i) 
+      perm = self._initPermanence(i)
+      maskPP = self._potentialPools.getRow(i)
+      self._updatePermanencesForColumn(perm, i) 
     
-    # Ensure that each column is connected to enough input bits such that it 
-    # has a chance of being activated.
-    self._raisePermanenceToThreshold()
 
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -365,14 +370,13 @@ class SpatialPooler(object):
       self._adaptSynapses(inputVector, sharedInputs, activeColumns)
       self._adaptOrphanSynapses(inputVector, orphanColumns)
       self._updateDutyCycles(overlaps, activeColumns)
-      self._raisePermanenceToThreshold()
       # to comply with old implementation bump Up weak columns must be 
       # performed after overlap duty cycle has been updated.
       self._bumpUpWeakColumns() 
       self._updateBoostFactors()
-      self._updateInhibitionRadius()
 
       if self._isUpdateRound():
+        self._updateInhibitionRadius()
         self._updateMinDutyCycles()
 
     return numpy.array(activeColumns)
@@ -415,8 +419,9 @@ class SpatialPooler(object):
     different columns.
     """
     for i in xrange(self._numColumns):
-      maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
-        self._inhibitionRadius)
+      maskNeighbors = numpy.append(i,
+        self._getNeighborsND(i, self._columnDimensions,
+        self._inhibitionRadius)) 
       self._minOverlapDutyCycles[i] = (
         self._overlapDutyCycles[maskNeighbors].max() * 
         self._minPctOverlapDutyCycles
@@ -479,7 +484,7 @@ class SpatialPooler(object):
     value is meaningless if global inhibition is enabled.
     """
     if self._globalInhibition:
-      self._inhibitionRadius = self._numColumns
+      self._inhibitionRadius = self._columnDimensions.max()
       return
 
     avgConnectedSpan = numpy.average( 
@@ -487,25 +492,30 @@ class SpatialPooler(object):
                           for i in xrange(self._numColumns)]
                         )
     columnsPerInput = self._avgColumnsPerInput()
-    newInhibitionRadius = avgConnectedSpan * columnsPerInput
-    newInhibitionRadius = max(1.0, newInhibitionRadius)
-    self._inhibitionRadius = int(round(newInhibitionRadius))
+    diameter = avgConnectedSpan * columnsPerInput
+    radius = (diameter - 1) / 2.0
+    radius = max(1.0, radius)
+    self._inhibitionRadius = int(round(radius))
 
 
   def _avgColumnsPerInput(self):
     """
     The average number of columns per input, taking into account the topology 
     of the inputs and columns. This value is used to calculate the inhibition 
-    radius. This function supports an arbitrary number of dimensions, but the 
-    number of dimensions must be the same for both the
-    inputs and columns
+    radius. This function supports an arbitrary number of dimensions. If the 
+    number of column dimensions does not match the number of input dimensions, 
+    we treat the missing, or phantom dimensions as 'ones'.
     """
     #TODO: extend to support different number of dimensions for inputs and 
     # columns
-    columnsPerInput = (self._columnDimensions.astype(realDType) /
-        self._inputDimensions
-      )
-         # (self._inputDimensions - self._inputBorder)
+    numDim = max(self._columnDimensions.size, self._inputDimensions.size)
+    colDim = numpy.ones(numDim)
+    colDim[:self._columnDimensions.size] = self._columnDimensions
+
+    inputDim = numpy.ones(numDim)
+    inputDim[:self._inputDimensions.size] = self._inputDimensions
+
+    columnsPerInput = colDim.astype(realDType) / inputDim
     return numpy.average(columnsPerInput)
 
 
@@ -525,7 +535,7 @@ class SpatialPooler(object):
     if connected.size == 0:
       return 0
     else:
-      return max(connected) - min(connected)
+      return max(connected) - min(connected) + 1
 
 
   def _avgConnectedSpanForColumn2D(self, index):
@@ -544,8 +554,8 @@ class SpatialPooler(object):
     (rows, cols) = connected.reshape(self._inputDimensions).nonzero()
     if  rows.size == 0 and cols.size == 0:
       return 0
-    rowSpan = rows.max() - rows.min()
-    colSpan = cols.max() - cols.min()
+    rowSpan = rows.max() - rows.min() + 1
+    colSpan = cols.max() - cols.min() + 1
     return numpy.average([rowSpan, colSpan])
 
 
@@ -575,7 +585,7 @@ class SpatialPooler(object):
     for i in connected:
       maxCoord = numpy.maximum(maxCoord, toCoords(i))
       minCoord = numpy.minimum(minCoord, toCoords(i))
-    return numpy.average(maxCoord - minCoord)
+    return numpy.average(maxCoord - minCoord + 1)
 
 
   def _adaptSynapses(self, inputVector, sharedInputs, activeColumns):
@@ -606,9 +616,9 @@ class SpatialPooler(object):
     permChanges[sharedInputs] -= self._synPermActiveSharedDec
     for i in activeColumns:
       perm = self._permanences.getRow(i)
-      maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskRF] += permChanges[maskRF]
-      self._updatePermanencesForColumn(perm, i, trim=False)
+      maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+      perm[maskPP] += permChanges[maskPP]
+      self._updatePermanencesForColumn(perm, i)
 
 
 
@@ -637,9 +647,9 @@ class SpatialPooler(object):
     permChanges[inputIndices] = self._synPermOrphanDec
     for i in orphanColumns:
       perm = self._permanences.getRow(i)
-      maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskRF] -= permChanges[maskRF]
-      self._updatePermanencesForColumn(perm, i, trim=False)
+      maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+      perm[maskPP] -= permChanges[maskPP]
+      self._updatePermanencesForColumn(perm, i)
 
 
   def _bumpUpWeakColumns(self):
@@ -653,12 +663,12 @@ class SpatialPooler(object):
                                 < self._minOverlapDutyCycles)[0]   
     for i in weakColumns:
       perm = self._permanences.getRow(i).astype(realDType)
-      maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskRF] += self._synPermBelowStimulusInc
-      self._updatePermanencesForColumn(perm, i)
+      maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
+      perm[maskPP] += self._synPermBelowStimulusInc
+      self._updatePermanencesForColumn(perm, i, raisePerm=False)
    
 
-  def _raisePermanenceToThreshold(self):
+  def _raisePermanenceToThreshold(self,perm, mask):
     """
     This method ensures that each column has enough connections to input bits
     to allow it to become active. Since a column must have at least 
@@ -668,26 +678,15 @@ class SpatialPooler(object):
     obtaining the minimum threshold. For such columns, the permanence values
     are increased until the minimum number of connections are formed.
     """
-    belowThreshold = numpy.where(
-      self._connectedCounts < self._stimulusThreshold)[0]
-    for i in belowThreshold:
-      perm = self._permanences.getRow(i).astype(realDType)
-      maskRF = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      while True:
-        perm[maskRF] += self._synPermBelowStimulusInc
-        numConnected = count_gte(perm, self._synPermConnected)
-        if numConnected >= self._stimulusThreshold:
-          break
-      self._updatePermanencesForColumn(perm, i)
-
-    # REMOVE THIS. BACKWORDS COMPATABILITY ONLY
-    for i in xrange(self._numColumns):
-      perm = self._permanences.getRow(i).astype(realDType)
-      self._updatePermanencesForColumn(perm, i)
+    numpy.clip(perm,self._synPermMin, self._synPermMax, out=perm)
+    while True:
+      numConnected = count_gte(perm, self._synPermConnected)
+      if numConnected >= self._stimulusThreshold:
+        return
+      perm[mask] += self._synPermBelowStimulusInc
 
 
-
-  def _updatePermanencesForColumn(self, perm, index, trim=True):
+  def _updatePermanencesForColumn(self, perm, index, raisePerm=True):
     """
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
@@ -714,8 +713,10 @@ class SpatialPooler(object):
     """
     
     numpy.clip(perm,self._synPermMin, self._synPermMax, out=perm)
-    if trim:
-      perm[perm < self._synPermTrimThreshold] = 0
+    maskPP = numpy.where(self._potentialPools.getRow(index) > 0)[0]
+    if raisePerm:
+      self._raisePermanenceToThreshold(perm, maskPP)
+    perm[perm < self._synPermTrimThreshold] = 0
     newConnected = numpy.where(perm >= self._synPermConnected)[0]
     self._permanences.setRowFromDense(index, perm)
     self._connectedSynapses.replaceSparseRow(index, newConnected)
@@ -777,9 +778,9 @@ class SpatialPooler(object):
 
     # Create a full vector the size of the entire input and fill in
     # the permanence values we just computed at the correct indices
-    maskRF = numpy.where(self._mapPotential(index) > 0)[0]
+    maskPP = numpy.where(self._mapPotential(index) > 0)[0]
     permanences = numpy.zeros(self._numInputs)
-    permanences[maskRF] = permRF
+    permanences[maskPP] = permRF
 
     return permanences
 
@@ -941,7 +942,7 @@ class SpatialPooler(object):
                     continuous value between 0 and 1. There exists an entry in 
                     the array for every column
     """
-    perfectOverlaps = set(numpy.where(overlapsPct >= 1)[0])
+    perfectOverlaps = set(numpy.where(overlapsPct >= 1.0)[0])
     return list(perfectOverlaps - set(activeColumns))
 
 
@@ -994,11 +995,9 @@ class SpatialPooler(object):
     
     # Add a little bit of random noise to the scores to help break
     # ties.
-    # tieBreaker = 0.1*numpy.random.rand(self._numColumns)
-    tieBreaker = 0.001 * (
-    numpy.array(range(self._numColumns)).astype(realDType) / self._numColumns)
-    # import pdb; pdb.set_trace()
-    # tieBreaker = 0
+    tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+    # tieBreaker = 0.01 * (
+    # numpy.array(range(self._numColumns)).astype(realDType) / self._numColumns)
     overlaps += tieBreaker
 
     if self._globalInhibition or \
@@ -1060,10 +1059,9 @@ class SpatialPooler(object):
       maskNeighbors = self._getNeighborsND(i, self._columnDimensions,
         self._inhibitionRadius)
       overlapSlice = overlaps[maskNeighbors]
-      numActive = int(density * (len(maskNeighbors) + 1))
-      kthLargestValue = sorted(overlapSlice,
-                               reverse=True)[numActive-1]
-      if overlaps[i] >= kthLargestValue:
+      numActive = int(0.5 + density * (len(maskNeighbors) + 1))
+      numBigger = numpy.count_nonzero(overlapSlice > overlaps[i])
+      if numBigger < numActive:
         activeColumns[i] = 1
         overlaps[i] += addToWinners
     return numpy.where(activeColumns > 0)[0]
@@ -1157,18 +1155,18 @@ class SpatialPooler(object):
     col = toCol(columnIndex)
 
     if wrapAround:
-      colRange = numpy.array(range(row-radius, row+radius+1)) % nrows
-      rowRange = numpy.array(range(col-radius, col+radius+1)) % ncols
+      colRange = numpy.array(range(col-radius, col+radius+1)) % ncols
+      rowRange = numpy.array(range(row-radius, row+radius+1)) % nrows
     else:
-      colRange = numpy.array(range(row-radius, row+radius+1))
+      colRange = numpy.array(range(col-radius, col+radius+1))
       colRange = colRange[
         numpy.logical_and(colRange >= 0, colRange < ncols)]
-      rowRange = numpy.array(range(col-radius, col+radius+1))
+      rowRange = numpy.array(range(row-radius, row+radius+1))
       rowRange = rowRange[
         numpy.logical_and(rowRange >= 0, rowRange < nrows)]
 
     neighbors = [toIndex(r, c) for (r, c) in 
-      itertools.product(colRange, rowRange)]
+      itertools.product(rowRange, colRange)]
     neighbors = list(set(neighbors) - set([columnIndex]))
     assert(neighbors)
     return neighbors

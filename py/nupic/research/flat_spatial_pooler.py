@@ -40,6 +40,78 @@ class FlatSpatialPooler(SpatialPooler):
 	inhibition
 	"""
 
+
+	def __init2__(self,
+               inputShape=(32, 32),
+               inputBorder=8,
+               inputDensity=1.0,
+               coincidencesShape=(48, 48),
+               coincInputRadius=16,
+               coincInputPoolPct=1.0,
+               gaussianDist=False,
+               commonDistributions=False,
+               localAreaDensity=-1.0,
+               numActivePerInhArea=10.0,
+               stimulusThreshold=0,
+               synPermInactiveDec=0.01,
+               synPermActiveInc=0.1,
+               synPermActiveSharedDec=0.0,
+               synPermOrphanDec=0.0,
+               synPermConnected=0.10,
+               minPctDutyCycleBeforeInh=0.001,
+               minPctDutyCycleAfterInh=0.001,
+               dutyCyclePeriod=1000,
+               maxFiringBoost=10.0,
+               maxSSFiringBoost=2.0,
+               maxSynPermBoost=10.0,
+               minDistance=0.0,
+               cloneMap=None,
+               numCloneMasters=-1,
+               seed=-1,
+               spVerbosity=0,
+               printPeriodicStats=0,
+               testMode=False,
+               globalInhibition=False,
+               spReconstructionParam="unweighted_mean",
+               useHighTier=True,
+               randomSP=False,
+              ):
+
+		super(FlatSpatialPooler,self).__init__(
+				inputDimensions=numpy.array(inputShape),
+				columnDimensions=numpy.array(coincidencesShape),
+				potentialRadius=coincInputRadius,
+				potentialPct=coincInputPoolPct,
+				globalInhibition=globalInhibition,
+				localAreaDensity=localAreaDensity,
+				numActiveColumnsPerInhArea=numActivePerInhArea,
+				stimulusThreshold=stimulusThreshold,
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermActiveSharedDec=synPermActiveSharedDec,
+        synPermOrphanDec=synPermOrphanDec,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycle=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycle=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+				seed=seed,
+				spVerbosity=spVerbosity,
+			)
+
+		# save arguments
+		self._numInputs = numpy.prod(numpy.array(inputShape))
+		self._numColumns = numpy.prod(numpy.array(coincidencesShape))
+		self._minDistance = minDistance
+		self._randomSP = randomSP
+
+		#set active duty cycles to ones, because they set anomaly scores to 0
+		self._activeDutyCycles = numpy.ones(self._numColumns)
+
+		# set of columns to be 'hungry' for learning
+		self._boostFactors *= maxFiringBoost
+
+
 	def __init__(self,
 							 numInputs,
 							 numColumns,
@@ -50,6 +122,7 @@ class FlatSpatialPooler(SpatialPooler):
 							 maxBoost=10.0,
 							 seed=-1,
 							 spVerbosity=0,
+							 randomSP=False,
 							 ):
 
 		super(FlatSpatialPooler,self).__init__(
@@ -72,6 +145,8 @@ class FlatSpatialPooler(SpatialPooler):
 		self._numInputs = numInputs
 		self._numColumns = numColumns
 		self._minDistance = minDistance
+		self._randomSP = randomSP
+
 
 		#set active duty cycles to ones, because they set anomaly scores to 0
 		self._activeDutyCycles = numpy.ones(self._numColumns)
@@ -80,7 +155,19 @@ class FlatSpatialPooler(SpatialPooler):
 		self._boostFactors *= maxBoost
 	
 
-	def compute(self, inputVector, learn=True):
+		# REMOVE THIS
+	def getAnomalyScore(self):
+		return 0
+
+	# def compute(self, inputVector, learn=True):
+	def compute(self, flatInput, learn=True, infer=True, computeAnomaly=True):
+
+		# REMOVE THIS
+		inputVector = flatInput
+		if self._randomSP:
+			learn=False
+		# End Remove
+
 		assert (numpy.size(inputVector) == self._numInputs)
 		self._updateBookeepingVars(learn)
 		inputVector = numpy.array(inputVector, dtype=realDType)
@@ -99,9 +186,12 @@ class FlatSpatialPooler(SpatialPooler):
 			vipOverlaps = overlaps.copy()
 		# end here #
 
-		vipBonus = max(overlaps) + 1.0
+		vipBonus = max(vipOverlaps) + 1.0
+		# Include only if to be used without randomSP
+		if learn:
+			vipOverlaps[virginColumns] = vipBonus
+		# End
 		vipOverlaps[highTierColumns] += vipBonus
-		vipOverlaps[virginColumns] = vipBonus
 		activeColumns = self._inhibitColumns(vipOverlaps)
 
 
@@ -112,23 +202,26 @@ class FlatSpatialPooler(SpatialPooler):
 			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
 			self._adaptOrphanSynapses(inputVector, orphanColumns)
 			self._updateDutyCycles(overlaps, activeColumns)
-			self._raisePermanenceToThreshold()
 			self._bumpUpWeakColumns() 
 			self._updateBoostFactors()
-			self._updateInhibitionRadius()
 
 			if self._isUpdateRound():
+				self._updateInhibitionRadius()
 				self._updateMinDutyCycles()
 
 		# End include #
-
 
 
 		# if not learn: - don't let columns that never learned win! ???
 		# if self._isUpdateRound():
 		# 	self._updateMinDutyCycles()
 
-		return numpy.array(activeColumns)
+		# return numpy.array(activeColumns)
+		# COMMENT THIS IN ^ COMMENT THIS OUT \/
+		activeArray = numpy.zeros(self._numColumns)
+		activeArray[activeColumns] = 1
+		return activeArray
+		#end
 
 	def _selectVirginColumns(self):
 		return numpy.where(self._activeDutyCycles == 0)[0]
