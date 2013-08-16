@@ -25,7 +25,7 @@
 # to invocation as described in the README.
 
 # get PYTHON_VERSION early here
-PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
+PY_VER=`python -c 'import sys; print sys.version[:3]'`
 
 #orig values for paths, before env.sh has been run
 if [[ -z $_PATH ]]; then

@@ -75,10 +75,10 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if [ "x$PYTHON_VERSION" != "x2.6" ] || [ "x$PYTHON_VERSION" != "x2.7" ]; then
+if [[ "$PYTHON_VERSION" != "2.6" && "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
-elif [ "x$PYTHON_VERSION" == "x2.7" ]; then
-    AC_DEFINE(_PY27)
+elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
+    AC_SUBST([_PY27],[-D_PY27])
 fi
 
 #
