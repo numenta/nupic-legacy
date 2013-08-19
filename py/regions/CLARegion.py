@@ -23,8 +23,7 @@ import numpy
 import sys
 import os
 
-from nupic.research import FDRCSpatial2
-# from nupic.research.flat_spatial_pooler import FlatSpatialPooler 
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
 
@@ -143,9 +142,8 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       return ''
 
   spatialSpec = {}
-  FDRSpatialClass = FDRCSpatial2.FDRCSpatial2
-  # FDRSpatialClass = FlatSpatialPooler
-  sArgTuples = _buildArgs(FDRSpatialClass.__init__)
+  SpatialPoolerClass = FlatSpatialPooler
+  sArgTuples = _buildArgs(SpatialPoolerClass.__init__)
 
   FDRTemporalClass = _getTPClass(temporalImp)
 
@@ -590,8 +588,7 @@ class CLARegion(PyRegion):
 
     # Pull out the spatial and temporal arguments automatically
     # These calls whittle down kwargs and create instance variables of CLARegion
-    sArgTuples = _buildArgs(FDRCSpatial2.FDRCSpatial2.__init__, self, kwargs)
-    # sArgTuples = _buildArgs(FlatSpatialPooler.__init__, self, kwargs)
+    sArgTuples = _buildArgs(FlatSpatialPooler.__init__, self, kwargs)
     tArgTuples = _buildArgs(FDRTemporalClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial and temporal arg names for later use
@@ -888,8 +885,7 @@ class CLARegion(PyRegion):
     autoArgs.pop('seed')
 
 
-    self._sfdr = FDRCSpatial2.FDRCSpatial2(
-    # self._sfdr = FlatSpatialPooler(
+    self._sfdr = FlatSpatialPooler(
       cloneMap=self._cloneMap,
       numCloneMasters=self._numCloneMasters,
       seed=self.spSeed,
@@ -1314,7 +1310,7 @@ class CLARegion(PyRegion):
         (self._iterations%self.saveMasterCoincImages == 0):
       self.saveMasterCoincidenceImage()
 
-    output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
+    output = self._sfdr.compute(rfInput[0], learnFlag)
     self._spatialPoolerOutput[:] = output[:]
 
     # This is queried by the node inspectors to indicate that it is safe
