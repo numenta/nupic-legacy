@@ -3,6 +3,8 @@ layout: default
 title: NuPIC Open Pull Requests
 ---
 
+<link href="../stylesheets/pullrequests.css" />
+
 <section>
     <h2>{{ page.title }}</h2>
     <h3 id="pr-count"></h3>
@@ -24,13 +26,13 @@ title: NuPIC Open Pull Requests
                 <th class="right" colspan="2"><a href="http://github.com/{{user.login}}" target="_blank">{{user.login}}</a></th>
             </tr>
             <tr>
-                <td width="50%">Open Since: <span class="open-since">{{created_at}}</span></td>
-                <td width="20%">
+                <td>Open Since: <span class="open-since">{{created_at}}</span></td>
+                <td>
                     {{#if latest_status.target_url}}
                         <a href="{{latest_status.target_url}}" target="_blank" title="Target URL">Details</a>
                     {{/if}}
                 </td>
-                <td width="30%" style="text-align: right;">
+                <td>
                     <a href="http://issues.numenta.org:8081/shaStatus?repo=numenta/nupic&sha={{head.sha}}" target="_blank" title="See all statuses for this SHA">Status history (JSON)</a>
                 </td>
             </tr>

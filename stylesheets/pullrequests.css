@@ -1,0 +1,10 @@
+td	{
+	width: 20%;
+}
+td:first-child	{
+	width: 50%;
+}
+td:last-child	{
+	width: 30%;
+	text-align: right;
+};
