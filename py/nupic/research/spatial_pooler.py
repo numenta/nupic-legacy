@@ -248,11 +248,15 @@ class SpatialPooler(object):
     self._synPermTrimThreshold = synPermActiveInc / 2.0
     assert(self._synPermTrimThreshold < self._synPermConnected)
     self._updatePeriod = 50
+    initConnectedPct = 0.5
 
     # Internal state
     self._version = 1.0
     self._iterationNum = 0
     self._iterationLearnNum = 0
+
+    # initialize the random number generators
+    self._seed(seed)
 
     # Store the set of all inputs that are within each column's potential pool.
     # 'potentialPools' is a matrix, whose rows represent cortical columns, and 
@@ -266,7 +270,8 @@ class SpatialPooler(object):
     # the the potentialPool matrix is stored using the SparseBinaryMatrix 
     # class, to reduce memory footprint and compuation time of algorithms that 
     # require iterating over the data strcuture.
-    potentialPools = [self._mapPotential(i) for i in xrange(numColumns)]
+    potentialPools = [self._mapPotential(i,wrapAround=True) 
+                      for i in xrange(numColumns)]
     self._potentialPools = SparseBinaryMatrix(potentialPools)
 
     # Initialize the permanences for each column. Similar to the 
@@ -300,12 +305,12 @@ class SpatialPooler(object):
     # activated
     for i in xrange(numColumns):
       maskPP = self._potentialPools.getRow(i)
-      perm = self._initPermanence(i,maskPP)
+      perm = self._initPermanence(maskPP,initConnectedPct)
       self._updatePermanencesForColumn(perm, i) 
     
 
-    self._overlapDutyCycles = numpy.ones(numColumns, dtype=realDType)
-    self._activeDutyCycles = numpy.ones(numColumns, dtype=realDType)
+    self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
+    self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._minOverlapDutyCycles = numpy.zeros(numColumns, 
                                              dtype=realDType) + 1e-6
     self._minActiveDutyCycles = numpy.zeros(numColumns,
@@ -319,8 +324,6 @@ class SpatialPooler(object):
     # average number of connected synapses per column.
     self._inhibitionRadius = 0
     self._updateInhibitionRadius()
-
-    self._seed(seed)
   
 
   def compute(self, inputVector, learn=True):
@@ -347,7 +350,6 @@ class SpatialPooler(object):
                     of the model. setting learning to 'off' might be useful
                     for indicating separate training vs. testing sets. 
     """
-
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
@@ -664,7 +666,6 @@ class SpatialPooler(object):
     """
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]   
-    import pdb; pdb.set_trace()
     for i in weakColumns:
       perm = self._permanences.getRow(i).astype(realDType)
       maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
@@ -727,7 +728,7 @@ class SpatialPooler(object):
     self._connectedCounts[index] = newConnected.size
 
 
-  def _initPermanence(self, index, mask):
+  def _initPermanence(self, mask, connectedPct):
     """
     Initializes the permanences of a column. The method
     returns a 1-D array the size of the input, where each entry in the
@@ -737,15 +738,20 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    index:          The index identifying a column in the permanence, potential 
-                    and connectivity matrices,
+    mask:           A numpy array specifying the potential pool of the column.
+                    Permanence values will only be generated for input bits 
+                    corresponding to indices for which the mask value is 1.
+    connectedPct:   A value between 0 or 1 specifying the percent of the input 
+                    bits that will start off in a connected state.
+
     """
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a 
     # column's potential pool will be connected. This number is
     # given by the parameter "potentialPct"
-    rand = numpy.random.random(2*self._potentialRadius+1)
-    threshold = 1-self._potentialPct
+    numPotential = numpy.nonzero(mask)[0].size
+    rand = numpy.random.random(numPotential)
+    threshold = 1-connectedPct
     connectedSynapses = numpy.where(rand > threshold)[0]
     unconnectedSynpases = list(set(range(self._potentialRadius)) -
       set(connectedSynapses))
@@ -782,9 +788,9 @@ class SpatialPooler(object):
 
     # Create a full vector the size of the entire input and fill in
     # the permanence values we just computed at the correct indices
-    maskPP = numpy.where(mask > 0)[0]
+    maskIndices = numpy.where(mask > 0)[0]
     permanences = numpy.zeros(self._numInputs)
-    permanences[maskPP] = permRF
+    permanences[maskIndices] = permRF
 
     return permanences
 
@@ -823,9 +829,15 @@ class SpatialPooler(object):
     else:
       indices = indices[
         numpy.logical_and(indices >= 0, indices < self._numInputs)]
-    indices = list(set(indices))
+    indices = numpy.array(list(set(indices)))
+
+    # Select a subset of the receptive field to serve as the
+    # the potential pool
+    sample = numpy.empty(int(indices.size*self._potentialPct),dtype='uint32')
+    self._random.getUInt32Sample(indices.astype('uint32'),sample)
+
     mask = numpy.zeros(self._numInputs)
-    mask[indices] = 1
+    mask[sample] = 1
     return mask
 
 
