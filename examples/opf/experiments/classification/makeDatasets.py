@@ -27,7 +27,6 @@ Generate artificial datasets
 """
 
 import os
-import numpy
 import random
 from optparse import OptionParser
 
@@ -163,7 +162,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   sequences = []
   nextElemIdx = max(hub)+1
   
-  for i in range(numSequences):
+  for _ in range(numSequences):
     seq = []
     for j in range(hubOffset):
       seq.append(nextElemIdx)
@@ -179,7 +178,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   
   # Write out the sequences in random order
   seqIdxs = []
-  for i in range(numRepeats):
+  for _ in range(numRepeats):
     seqIdxs += range(numSequences)
   random.shuffle(seqIdxs)
   
