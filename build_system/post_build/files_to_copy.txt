@@ -9,9 +9,6 @@ external/${arch}/lib/python${PythonVersion}/site-packages/pylab.py   lib/python$
 @darwin external/${arch}/lib/python${PythonVersion}/site-packages/Crypto   lib/python${PythonVersion}/site-packages/Crypto
 
 external/${arch}/lib/python${PythonVersion}/site-packages/PIL   lib/python${PythonVersion}/site-packages/PIL
-external/${arch}/lib/python${PythonVersion}/site-packages/psutil   lib/python${PythonVersion}/site-packages/psutil
-@darwin external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_osx.so lib/python${PythonVersion}/site-packages/_psutil_osx.so
-@darwin64 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_posix.so lib/python${PythonVersion}/site-packages/_psutil_posix.so
 @win32 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd
 
 # Platform independent python libraries
