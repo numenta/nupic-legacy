@@ -40,6 +40,7 @@ class FlatSpatialPoolerTest(unittest.TestCase):
     self._sp = FlatSpatialPooler(
         numInputs=5,
         numColumns=5,
+        potentialRadius=5,
         localAreaDensity=0.1,
         numActiveColumnsPerInhArea=-1,
         stimulusThreshold=1,

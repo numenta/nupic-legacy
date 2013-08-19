@@ -23,14 +23,10 @@ import numpy
 import sys
 import os
 
-from nupic.research import FDRCSpatial2
-
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler
 from nupic.support import getArgumentDescriptions
-
 from PyRegion import PyRegion
-
 from nupic.bindings.math import GetNTAReal
-
 import nupic.research.fdrutilities as fdru
 
 
@@ -96,7 +92,7 @@ def _getAdditionalSpecs(kwargs={}):
   to 'Byte' for None and complex types
 
   Determines the spatial parameters based on the selected implementation.
-  It defaults to FDRCSpatial.
+  It defaults to FlatSpatialPooler.
   """
   typeNames = {int: 'UInt32', float: 'Real32', str: 'Byte', bool: 'bool', tuple: 'tuple'}
 
@@ -119,10 +115,10 @@ def _getAdditionalSpecs(kwargs={}):
     else:
       return ''
 
-  # Get arguments from FDRCSpatial2 constructor, figure out types of variables
+  # Get arguments from FlatSpatialP constructor, figure out types of variables
   # and populate spatialSpec
   spatialSpec = {}
-  FDRSpatialClass = FDRCSpatial2.FDRCSpatial2
+  FDRSpatialClass = FlatSpatialPooler
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
 
   for argTuple in sArgTuples:
@@ -274,22 +270,22 @@ class SPRegion(PyRegion):
   SPRegion is designed to implement the spatial pooler compute for a given
   HTM level.
 
-  Uses the FDRCSpatial2 class to do most of the work. This node has just one
-  FDRCSpatial instance for the enitire level and does *not* support the concept
+  Uses the FlatSpatialPooler class to do most of the work. This node has just one
+  FlatSpatialPooler instance for the enitire level and does *not* support the concept
   of "baby nodes" within it.
 
   Automatic parameter handling:
 
   Parameter names, default values, and descriptions are retrieved automatically
-  from FDRCSpatial2. Thus, there are only a few hardcoded arguments in __init__,
+  from FlatSpatialPooler. Thus, there are only a few hardcoded arguments in __init__,
   and the rest are passed to the appropriate underlying class. The NodeSpec is
   mostly built automatically from these parameters, too.
 
-  If you add a parameter to FDRCSpatial2, it will be exposed through SPRegion
+  If you add a parameter to FlatSpatialPooler, it will be exposed through SPRegion
   automatically as if it were in SPRegion.__init__, with the right default
   value. Add an entry in the __init__ docstring for it too, and that will be
   brought into the NodeSpec. SPRegion will maintain the parameter as its own
-  instance variable and also pass it to FDRCSpatial2. If the parameter is
+  instance variable and also pass it to FlatSpatialPooler If the parameter is
   changed, SPRegion will propagate the change.
 
   If you want to do something different with the parameter, add it as an
@@ -307,7 +303,7 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
-    sArgTuples = _buildArgs(FDRCSpatial2.FDRCSpatial2.__init__, self, kwargs)
+    sArgTuples = _buildArgs(FlatSpatialPooler.__init__, self, kwargs)
 
     # Make a list of automatic spatial arg names for later use
     self._spatialArgNames = [t[0] for t in sArgTuples]
@@ -444,7 +440,7 @@ class SPRegion(PyRegion):
         outputCloningHeight=coincidencesShape[0]
       )
 
-    self._sfdr = FDRCSpatial2.FDRCSpatial2(
+    self._sfdr = FlatSpatialPooler(
                               # These parameters are standard defaults for SPRegion
                               # They can be overridden by explicit calls to
                               # getParameter
@@ -512,7 +508,7 @@ class SPRegion(PyRegion):
     #                     "topDownMode is True")
 
     if self._sfdr is None:
-      raise RuntimeError("FDRCSpatial2 has not been initialized")
+      raise RuntimeError("SpatialPooler has not been initialized")
 
 
     if not self.topDownMode:
@@ -579,11 +575,8 @@ class SPRegion(PyRegion):
     # if we are in learning mode and trainingStep is set appropriately.
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    self._spatialPoolerOutput = self._sfdr.compute(flatInput=rfInput[0],
-                                                   learn=self.learningMode,
-                                                   infer=self.inferenceMode,
-                                                   computeAnomaly=self.anomalyMode)
-
+    self._spatialPoolerOutput = self._sfdr.compute(inputVector=rfInput[0],
+                                                   learn=self.learningMode)
     # Direct logging of SP outputs if requested
     if self._fpLogSP:
       output = self._spatialPoolerOutput.reshape(-1)

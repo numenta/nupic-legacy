@@ -41,7 +41,7 @@ class FlatSpatialPooler(SpatialPooler):
 	"""
 
 
-	def __init2__(self,
+	def __init__(self,
                inputShape=(32, 32),
                inputBorder=8,
                inputDensity=1.0,
@@ -112,61 +112,56 @@ class FlatSpatialPooler(SpatialPooler):
 		self._boostFactors *= maxFiringBoost
 
 
-	def __init__(self,
-							 numInputs,
-							 numColumns,
-							 localAreaDensity=0.1,
-							 numActiveColumnsPerInhArea=-1,
-							 stimulusThreshold=0,
-							 minDistance=0.0,
-							 maxBoost=10.0,
-							 seed=-1,
-							 spVerbosity=0,
-							 randomSP=False,
-							 ):
+	# def __init__(self,
+	# 						 numInputs,
+	# 						 numColumns,
+	# 						 localAreaDensity=0.1,
+	# 						 numActiveColumnsPerInhArea=-1,
+	# 						 stimulusThreshold=0,
+	# 						 minDistance=0.0,
+	# 						 maxBoost=10.0,
+	# 						 seed=-1,
+	# 						 spVerbosity=0,
+	# 						 randomSP=False,
+	# 						 ):
 
-		super(FlatSpatialPooler,self).__init__(
-				inputDimensions=numInputs,
-				columnDimensions=numColumns,
-				potentialRadius=numInputs,
-				potentialPct=0.5,
-				globalInhibition=True,
-				localAreaDensity=localAreaDensity,
-				numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-				stimulusThreshold=stimulusThreshold,
-				seed=seed
-			)
+	# 	super(FlatSpatialPooler,self).__init__(
+	# 			inputDimensions=numInputs,
+	# 			columnDimensions=numColumns,
+	# 			potentialRadius=numInputs,
+	# 			potentialPct=0.5,
+	# 			globalInhibition=True,
+	# 			localAreaDensity=localAreaDensity,
+	# 			numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+	# 			stimulusThreshold=stimulusThreshold,
+	# 			seed=seed
+	# 		)
 
-		#verify input is valid
-		assert(numColumns > 0)
-		assert(numInputs > 0)
+	# 	#verify input is valid
+	# 	assert(numColumns > 0)
+	# 	assert(numInputs > 0)
 
-		# save arguments
-		self._numInputs = numInputs
-		self._numColumns = numColumns
-		self._minDistance = minDistance
-		self._randomSP = randomSP
+	# 	# save arguments
+	# 	self._numInputs = numInputs
+	# 	self._numColumns = numColumns
+	# 	self._minDistance = minDistance
+	# 	self._randomSP = randomSP
 
 
-		#set active duty cycles to ones, because they set anomaly scores to 0
-		self._activeDutyCycles = numpy.ones(self._numColumns)
+	# 	#set active duty cycles to ones, because they set anomaly scores to 0
+	# 	self._activeDutyCycles = numpy.ones(self._numColumns)
 
-		# set of columns to be 'hungry' for learning
-		self._boostFactors *= maxBoost
+	# 	# set of columns to be 'hungry' for learning
+	# 	self._boostFactors *= maxBoost
 	
 
-		# REMOVE THIS
+	# OBSOLETE
 	def getAnomalyScore(self):
 		return 0
 
-	# def compute(self, inputVector, learn=True):
-	def compute(self, flatInput, learn=True, infer=True, computeAnomaly=True):
-
-		# REMOVE THIS
-		inputVector = flatInput
+	def compute(self, inputVector, learn=True):
 		if self._randomSP:
 			learn=False
-		# End Remove
 
 		assert (numpy.size(inputVector) == self._numInputs)
 		self._updateBookeepingVars(learn)
@@ -179,9 +174,6 @@ class FlatSpatialPooler(SpatialPooler):
 		# Include this section if useHighTier is to be used without randomSP #
 		if learn:
 			vipOverlaps = self._boostFactors * overlaps
-			# REMOVE THIS. JUST FOR BACKWARDS COMPATABILITY
-			vipOverlaps[highTierColumns] = overlaps[highTierColumns]
-			# END
 		else:
 			vipOverlaps = overlaps.copy()
 		# end here #
@@ -208,20 +200,14 @@ class FlatSpatialPooler(SpatialPooler):
 			if self._isUpdateRound():
 				self._updateInhibitionRadius()
 				self._updateMinDutyCycles()
-
 		# End include #
 
 
-		# if not learn: - don't let columns that never learned win! ???
-		# if self._isUpdateRound():
-		# 	self._updateMinDutyCycles()
+		# TODO: don't let columns that never learned win (if not learning) 
 
-		# return numpy.array(activeColumns)
-		# COMMENT THIS IN ^ COMMENT THIS OUT \/
 		activeArray = numpy.zeros(self._numColumns)
 		activeArray[activeColumns] = 1
 		return activeArray
-		#end
 
 	def _selectVirginColumns(self):
 		return numpy.where(self._activeDutyCycles == 0)[0]

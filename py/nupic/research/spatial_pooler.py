@@ -246,6 +246,7 @@ class SpatialPooler(object):
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
+    assert(self._synPermTrimThreshold < self._synPermConnected)
     self._updatePeriod = 50
 
     # Internal state
@@ -298,13 +299,13 @@ class SpatialPooler(object):
     # each column is connected to enough input bits to allow it to be 
     # activated
     for i in xrange(numColumns):
-      perm = self._initPermanence(i)
       maskPP = self._potentialPools.getRow(i)
+      perm = self._initPermanence(i,maskPP)
       self._updatePermanencesForColumn(perm, i) 
     
 
-    self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
-    self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
+    self._overlapDutyCycles = numpy.ones(numColumns, dtype=realDType)
+    self._activeDutyCycles = numpy.ones(numColumns, dtype=realDType)
     self._minOverlapDutyCycles = numpy.zeros(numColumns, 
                                              dtype=realDType) + 1e-6
     self._minActiveDutyCycles = numpy.zeros(numColumns,
@@ -379,7 +380,9 @@ class SpatialPooler(object):
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
 
-    return numpy.array(activeColumns)
+    activeArray = numpy.zeros(self._numColumns)
+    activeArray[activeColumns] = 1
+    return activeArray
 
 
   def _updateMinDutyCycles(self):
@@ -661,6 +664,7 @@ class SpatialPooler(object):
     """
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]   
+    import pdb; pdb.set_trace()
     for i in weakColumns:
       perm = self._permanences.getRow(i).astype(realDType)
       maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
@@ -723,7 +727,7 @@ class SpatialPooler(object):
     self._connectedCounts[index] = newConnected.size
 
 
-  def _initPermanence(self, index):
+  def _initPermanence(self, index, mask):
     """
     Initializes the permanences of a column. The method
     returns a 1-D array the size of the input, where each entry in the
@@ -778,14 +782,14 @@ class SpatialPooler(object):
 
     # Create a full vector the size of the entire input and fill in
     # the permanence values we just computed at the correct indices
-    maskPP = numpy.where(self._mapPotential(index) > 0)[0]
+    maskPP = numpy.where(mask > 0)[0]
     permanences = numpy.zeros(self._numInputs)
     permanences[maskPP] = permRF
 
     return permanences
 
 
-  def _mapPotential(self, index):
+  def _mapPotential(self, index, wrapAround=False):
     """
     Maps a column to its input bits. This method encapsultes the topology of 
     the region. It takes the index of the column as an argument and determines 
@@ -814,7 +818,11 @@ class SpatialPooler(object):
     indices = numpy.array(range(2*self._potentialRadius+1))
     indices += index
     indices -= self._potentialRadius
-    indices %= self._numInputs
+    if wrapAround:
+      indices %= self._numInputs
+    else:
+      indices = indices[
+        numpy.logical_and(indices >= 0, indices < self._numInputs)]
     indices = list(set(indices))
     mask = numpy.zeros(self._numInputs)
     mask[indices] = 1
@@ -993,11 +1001,8 @@ class SpatialPooler(object):
       density = float(self._numActiveColumnsPerInhArea) / inhibitionArea
       density = min(density, 0.5)
     
-    # Add a little bit of random noise to the scores to help break
-    # ties.
+    # Add a little bit of random noise to the scores to help break ties.
     tieBreaker = 0.1*numpy.random.rand(self._numColumns)
-    # tieBreaker = 0.01 * (
-    # numpy.array(range(self._numColumns)).astype(realDType) / self._numColumns)
     overlaps += tieBreaker
 
     if self._globalInhibition or \
