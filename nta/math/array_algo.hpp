@@ -895,7 +895,7 @@ namespace nta {
   inline float dot(const float* x, const float* x_end, const float* y)
   {
     float result = 0;
-#ifdef NTA_PLATFORM_darwin86
+#if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64)
     vDSP_dotpr(x, 1, y, 1, &result, (x_end - x));
 #else
     for (; x != x_end; ++x, ++y)
@@ -2832,7 +2832,7 @@ namespace nta {
    */
   
   //--------------------------------------------------------------------------------
-#ifdef NTA_PLATFORM_darwin86
+#if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64)  
   inline void sum_of_squares(float* begin, int n, float* s)
   {
     vDSP_svesq(begin, 1, s, n);
@@ -2860,10 +2860,10 @@ namespace nta {
 
     Lp2<value_type> lp2;
 
-#ifdef NTA_PLATFORM_darwin86 // 10X faster
+#if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64) // 10X faster
 
-    // &*begin won't work on platforms where the iterators are not pointers
-    // (win32)
+    // &*begin won't work on platforms where the iterators are not pointers (win32)
+    // also, sum_of_squares uses vDSP.h -> Mac only
     sum_of_squares(&*begin, (end - begin), &n);
 
 #else
@@ -3904,7 +3904,7 @@ namespace nta {
         << "sum: Invalid range";
     }
 
-#ifdef NTA_PLATFORM_darwin86
+#if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64)
 
     nta::Real32 result = 0;
     vDSP_sve(begin, 1, &result, (end - begin));
