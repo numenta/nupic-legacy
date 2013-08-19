@@ -81,6 +81,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <nta/math/math.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/math/array2D.hpp>
+#include <nta/math/array_algo.hpp> // for int checkSSE()
 
 namespace nta {
   namespace algorithms {
@@ -944,46 +945,8 @@ namespace nta {
         //       it needs to be 4 bytes (floats) for sse/xmm registers.
         inline bool checkSSE()
         {
-          if (param_.kernel == 1 && n_dims() % 8 == 0) { 
-
-            // We really only need to look at register edx after call to cpuid.
-            // If 25th bit of edx is 1, we have sse: 2^25 = 22554432.
-            // If 26th bit of edx is 1, we have sse2: 2^26 = 67108864.
-            // We don't care about sse3, which we are not using.
-            // Refer to Intel manuals for details.
-
-#ifdef NTA_PLATFORM_win32
-
-            unsigned int f = 1, d;
-
-            __asm {
-                   mov eax, f
-                   cpuid
-                   mov d, edx
-                  }
-            
-            return ((d & 33554432) > 0) || ((d & 67108864) > 0);
-
-#elif defined(NTA_PLATFORM_darwin86)
-
-            unsigned int f = 1, a,b,c,d;
-
-            // PIC-compliant asm
-            __asm__ __volatile__(
-                                 "pushl %%ebx\n\t"
-                                 "cpuid\n\t"
-                                 "movl %%ebx, %1\n\t"
-                                 "popl %%ebx\n\t"
-                                 : "=a" (a), "=r" (b), "=c" (c), "=d" (d)
-                                 : "a" (f)
-                                 : "cc"
-                                 );
-
-            return ((d & 33554432) > 0) || ((d & 67108864) > 0);
-#endif
-          } 
-          
-          return false;
+         // use int checkSSE() from nta/math/array_algo.hpp, if ret==-1 -> no SSE 
+          return checkSSE()!=-1;
         }
 
 	inline ~svm()
