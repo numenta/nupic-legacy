@@ -11,3 +11,4 @@ python-dateutil==2.1
 unittest2==0.5.1
 validictory==0.9.1
 #numpy==1.7.1 #hack - see build.sh
+tweepy==2.1
