@@ -60,10 +60,10 @@ def parse_groups(grouper):
   groups = []
   idx = 0
   n_groups = groups_list[idx] ; idx += 1
-  for g in xrange(n_groups):
+  for _ in xrange(n_groups):
     n_elts = groups_list[idx]; idx += 1
     group = []
-    for e in xrange(n_elts):
+    for _ in xrange(n_elts):
       group.append(groups_list[idx]); idx += 1
     groups.append(group)
   return groups
