@@ -29,7 +29,6 @@ score.
 import csv
 import datetime
 import logging
-import sys
 
 from nupic.data.datasethelpers import findDataset
 from nupic.frameworks.opf.modelfactory import ModelFactory
