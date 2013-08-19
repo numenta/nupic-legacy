@@ -25,7 +25,6 @@ Generate artificial datasets for the multi-step prediction experiments
 """
 
 import os
-import numpy
 import random
 import datetime
 from optparse import OptionParser

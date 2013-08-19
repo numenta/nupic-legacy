@@ -22,7 +22,6 @@
 
 from Tkinter import *
 import math
-import random
 from nupic.research import DataGenerator
 from nupic.research import distributions
 
