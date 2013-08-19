@@ -48,15 +48,13 @@
 #undef max
 #endif
 
-// This include because on darwin86, vDSP provides high quality optimized
-// code that exploits SSE. 
-#ifdef NTA_PLATFORM_darwin86
+// This include because on darwin86 darwin64, vDSP provides high quality optimized code that exploits SSE. 
+#if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64)
 #include <vecLib/vDSP.h>
 #endif
 
 namespace nta {
 
-#ifdef NTA_PLATFORM_darwin86
   //--------------------------------------------------------------------------------
   // Checks whether the SSE supports the operations we need, i.e. SSE3 and SSE4. 
   // Returns highest SSE level supported by the CPU: 1, 2, 3 or 41 or 42. It also
@@ -83,7 +81,7 @@ namespace nta {
         mov d, edx
         }
             
-#elif defined(NTA_PLATFORM_darwin86)
+#else
 
     unsigned int a,b;
 
@@ -108,7 +106,6 @@ namespace nta {
 
     return ret;
   } 
-#endif
 
   //--------------------------------------------------------------------------------
   // Highest SSE level supported by the CPU: 1, 2, 3 or 41 or 42.
@@ -116,11 +113,7 @@ namespace nta {
   // off for all platforms except darwin86. Also, they won't work properly on 64 bits
   // platforms for now. 
   //--------------------------------------------------------------------------------
-#ifdef NTA_PLATFORM_darwin86
   static const int SSE_LEVEL = checkSSE();
-#else
-  static const int SSE_LEVEL = -1;
-#endif
 
   //--------------------------------------------------------------------------------
   // TESTS
