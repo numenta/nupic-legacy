@@ -13,6 +13,22 @@ env:
     - NTA=$HOME/nta/eng
     - PIP_IGNORE_INSTALLED=1
 
+    # For S3 upload from travis-artifacts
+    - ARTIFACTS_AWS_REGION=us-west-2
+    - ARTIFACTS_S3_BUCKET=artifacts.numenta.org
+
+    # ARTIFACTS_AWS_ACCESS_KEY_ID
+    - secure: |-
+        CJdye71QR+eexESMCd9FsEYB+7IGXkAoIZrJPALAMYhLoPixx5zm4FAFaazX
+        vkBQORndufd5b3FTPswQ8Mzwo1epK0gh2H8f/uQzjSJOHa6FufYkpEuoz4wE
+        W9eMAH+vxxsPIta2vA6Vyf4faouHZ+A1Bwou3y/EbEl7Rl5sK8g=
+
+    # ARTIFACTS_AWS_SECRET_ACCESS_KEY
+    - secure: |-
+        lwl7bFPU6dIGWLJfDbnna3OQveRJOhbHKpL58XB3ld2qHQqpTWyYHyMaYHIe
+        7ZP7GMJ/lPZyQOq9yWw6/lGEYT6TWEzgTxXH3wV6K+6zTkiCxno0aXMXk4f2
+        Z8XjidLTydaxypFf3S05StGkmsb6e7dkvxOcu18khTP1dvV3Gd8=
+
 notifications:
   irc: 
     channels: 
@@ -20,7 +36,8 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  - "source $NUPIC/env.sh"
+  - source $NUPIC/env.sh
+  - gem install travis-artifacts
 
 install: "$NUPIC/build.sh"
 
@@ -52,3 +69,8 @@ script:
     # examples/tp
   - "python $NUPIC/examples/tp/hello_tp.py"
   - "python $NUPIC/examples/tp/tp_test.py"
+
+after_script:
+- tar -zcvf nupic-${TRAVIS_BUILD_NUMBER}.tar.gz ${NTA}
+- travis-artifacts upload --path nupic-$TRAVIS_BUILD_NUMBER.tar.gz --target-path artifacts/$TRAVIS_REPO_SLUG
+
