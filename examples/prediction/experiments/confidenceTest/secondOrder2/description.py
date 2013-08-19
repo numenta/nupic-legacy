@@ -27,7 +27,6 @@ If things are working correctly then, you should do as well as a 2-grams model
 
 """
 
-import imp
 from nupic.frameworks.prediction.helpers import importBaseDescription
 
 config = dict(
