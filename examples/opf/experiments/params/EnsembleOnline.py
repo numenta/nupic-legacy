@@ -1,17 +1,8 @@
 import random
 import multiprocessing
-import time
-import os
-import sys
-from pprint import pprint
-import time
 import numpy as np
-from Queue import Queue
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.client import Client
-import operator
-import math
-from operator import itemgetter
 from random import shuffle
 from random import randrange, uniform
 import copy

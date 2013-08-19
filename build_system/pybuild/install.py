@@ -32,7 +32,6 @@ import logging
 import getopt
 import shutil
 import string
-import platform
 import ctypes
 
 log_level = logging.INFO

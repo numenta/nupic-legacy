@@ -169,12 +169,7 @@ if NTA_PYTHON_SUPPORT
   NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
     -I$(PYTHON_SYS_INCLUDE)
 
-  # If we autodetect Numpy from the Python installation, rather than from
-  # external, turn on this flag and the equivalent code in configure.ac.
-  # NTA_CXXFLAGS_BASE += -I$(NUMPY_SYS_INCLUDE)
-
-  # Otherwise, pick up the version of Numpy installed in external.
-  NTA_CXXFLAGS_BASE += -I$(top_srcdir)/external/@nta_platform@/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
+  NTA_CXXFLAGS_BASE += -I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
 
 else
   NTA_PYEMBEDFLAGS =
@@ -192,7 +187,7 @@ endif
 # the build, and performance isn't too important for wrapper
 # functions.
 ##############################################################
-NTA_CXXFLAGS = $(NTA_CXXFLAGS_BASE) $(NTA_CXX_OPTFLAGS) -fpermissive
+NTA_CXXFLAGS = $(NTA_CXXFLAGS_BASE) $(NTA_CXX_OPTFLAGS)
 
 # -falign-functions is necessary to avoid a compiler problem on
 # darwin. If you build without -falign-functions, exceptions
@@ -222,7 +217,7 @@ $(NTA_PYTHON_CXXFLAGS) $(NUPIC_VERSION_FLAGS)
 PYSWIGINCLUDES = \
 -I$(top_srcdir) \
 -I$(top_srcdir)/external/@nta_platform@/include \
--I$(top_srcdir)/external/@nta_platform@/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
+-I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
 
 PYSWIGCOMPILE = $(SWIG) $(PYSWIGOPTS) $(PYSWIGINCLUDES)
 

@@ -2,7 +2,6 @@
 
 import os
 import sys
-import string
 
 
 doClean = ('clean' in sys.argv) or ('uninstall' in sys.argv)

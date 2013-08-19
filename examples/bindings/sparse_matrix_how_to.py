@@ -21,7 +21,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import random
 import cPickle
 
 # SparseMatrix is a versatile class that offers a wide range of functionality.
