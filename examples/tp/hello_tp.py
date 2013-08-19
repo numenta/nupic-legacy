@@ -39,9 +39,11 @@ PLEASE READ THROUGH THE CODE COMMENTS - THEY EXPLAIN THE OUTPUT IN DETAIL
 # Can't live without numpy
 import numpy
 
-# This is the class correspondingn to the C++ optimized Temporal Pooler
-from nupic.research.TP10X2 import TP10X2
-
+# here we choose TP implementation: (uncomment one only)
+# This is the class correspondingn to the C++ optimized Temporal Pooler (default)
+from nupic.research.TP10X2 import TP10X2 as TP
+# This is simple implementation in Python
+#from nupic.research.TP import TP as TP
 
 # Utility routine for printing the input vector
 def formatRow(x):
@@ -58,7 +60,7 @@ def formatRow(x):
 #######################################################################
 #
 # Step 1: create Temporal Pooler instance with appropriate parameters
-tp = TP10X2(numberOfCols=50, cellsPerColumn=1,
+tp = TP(numberOfCols=50, cellsPerColumn=1,
                 initialPerm=0.5, connectedPerm=0.5,
                 minThreshold=10, newSynapseCount=10,
                 permanenceInc=0.1, permanenceDec=0.0,
