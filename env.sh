@@ -35,8 +35,8 @@ if [[ -z $_PYTHONPATH ]]; then
   export _PYTHONPATH=$PYTHONPATH
 fi
 
-export PATH="$NTA/bin:$_PATH"
-export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$_PYTHONPATH"
+export PATH="$NTA/bin:$PATH"
+export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
 export NTA_ROOTDIR="$NTA"
 
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
