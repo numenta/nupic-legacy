@@ -73,7 +73,7 @@ namespace nta {
   static int checkSSE()
   {
     unsigned int f = 1, c,d;
-
+#ifdef NTA_ASM
 #ifdef NTA_PLATFORM_win32
 
     __asm {
@@ -98,7 +98,7 @@ namespace nta {
                          : "cc"
                          );
 #endif
-
+#endif //NTA_ASM
     int ret = -1;
     if (d & 33554432) ret = 1;
     if (d & 67108864) ret = 2;
@@ -229,7 +229,7 @@ namespace nta {
     }
 
     // On win32, the asm syntax is not correct.
-#ifdef NTA_PLATFORM_darwin86
+#if defined(NTA_PLATFORM_darwin86) && defined(NTA_ASM)
 
     // This test can be moved to compile time using a template with an int
     // parameter, and partial specializations that will match the static
@@ -326,7 +326,7 @@ namespace nta {
     const Byte* x_end = &x[end];
 
     // On win32, the asm syntax is not correct.
-#ifdef NTA_PLATFORM_darwin86
+#if defined(NTA_ASM) && defined(NTA_PLATFORM_darwin86)
 
     // This test can be moved to compile time using a template with an int
     // parameter, and partial specializations that will match the static
