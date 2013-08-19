@@ -25,6 +25,11 @@ title: NuPIC Open Pull Requests
             </tr>
             <tr>
                 <td>Open Since: <span class="open-since">{{created_at}}</span></td>
+                {{#if latest_status.target_url}}
+                    <td>
+                        <a href="{{latest_status.target_url}}" target="_blank" title="Target URL">Details</a>
+                    </td>
+                {{/if}}
                 <td>
                     <a href="http://issues.numenta.org:8081/shaStatus?repo=numenta/nupic&sha={{head.sha}}" target="_blank" title="See all statuses for this SHA">Status history (JSON)</a>
                 </td>
