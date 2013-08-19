@@ -80,8 +80,8 @@ namespace nta {
         mov c, ecx
         mov d, edx
         }
-            
-#else
+# TODO: enable ASM SSE check for 64bit and linux too           
+#elif defined(NTA_PLATFORM_darwin86)
 
     unsigned int a,b;
 
