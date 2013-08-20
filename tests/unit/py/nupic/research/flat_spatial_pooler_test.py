@@ -38,16 +38,8 @@ class FlatSpatialPoolerTest(unittest.TestCase):
 
   def setUp(self):
     self._sp = FlatSpatialPooler(
-        numInputs=5,
-        numColumns=5,
-        potentialRadius=5,
-        localAreaDensity=0.1,
-        numActiveColumnsPerInhArea=-1,
-        stimulusThreshold=1,
-        minDistance=0.0,
-        seed=-1,
-        spVerbosity=0,
-    )
+        inputShape=(5,1),
+        coincidencesShape=(10,1))
 
   def testSelectVirginColumns(self):
     sp = self._sp
