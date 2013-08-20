@@ -25,17 +25,8 @@ import copy
 import cPickle
 import itertools
 import numpy
-from operator import itemgetter
 
-from nupic.bindings.algorithms import (adjustMasterValidPermanence,
-                                       cpp_overlap, cpp_overlap_sbm,
-                                       Inhibition2 as Inhibition)
-from nupic.bindings.math import (count_gte, GetNTAReal,
-                                 Random as NupicRandom,
-                                 SM_01_32_32 as SparseBinaryMatrix,
-                                 SM32 as SparseMatrix)
-from nupic.math.cross import cross
-from nupic.research import fdrutilities as fdru
+from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
@@ -49,66 +40,179 @@ class FlatSpatialPooler(SpatialPooler):
 	inhibition
 	"""
 
+
 	def __init__(self,
-							 numInputs,
-							 numColumns,
-							 localAreaDensity=0.1,
-							 numActiveColumnsPerInhArea=-1,
-							 stimulusThreshold=0,
-							 minDistance=0.0,
-							 maxBoost=10.0,
-							 seed=-1,
-							 spVerbosity=0,
-							 ):
+               inputShape=(32, 32),
+               inputBorder=8,
+               inputDensity=1.0,
+               coincidencesShape=(48, 48),
+               coincInputRadius=16,
+               coincInputPoolPct=1.0,
+               gaussianDist=False,
+               commonDistributions=False,
+               localAreaDensity=-1.0,
+               numActivePerInhArea=10.0,
+               stimulusThreshold=0,
+               synPermInactiveDec=0.01,
+               synPermActiveInc=0.1,
+               synPermActiveSharedDec=0.0,
+               synPermOrphanDec=0.0,
+               synPermConnected=0.10,
+               minPctDutyCycleBeforeInh=0.001,
+               minPctDutyCycleAfterInh=0.001,
+               dutyCyclePeriod=1000,
+               maxFiringBoost=10.0,
+               maxSSFiringBoost=2.0,
+               maxSynPermBoost=10.0,
+               minDistance=0.0,
+               cloneMap=None,
+               numCloneMasters=-1,
+               seed=-1,
+               spVerbosity=0,
+               printPeriodicStats=0,
+               testMode=False,
+               globalInhibition=False,
+               spReconstructionParam="unweighted_mean",
+               useHighTier=True,
+               randomSP=False,
+              ):
 
 		super(FlatSpatialPooler,self).__init__(
-				inputDimensions=numInputs,
-				columnDimensions=numColumns,
-				potentialRadius=numInputs,
-				potentialPct=0.5,
-				globalInhibition=True,
+				inputDimensions=numpy.array(inputShape),
+				columnDimensions=numpy.array(coincidencesShape),
+				potentialRadius=coincInputRadius,
+				potentialPct=coincInputPoolPct,
+				globalInhibition=globalInhibition,
 				localAreaDensity=localAreaDensity,
-				numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+				numActiveColumnsPerInhArea=numActivePerInhArea,
 				stimulusThreshold=stimulusThreshold,
-				seed=seed
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermActiveSharedDec=synPermActiveSharedDec,
+        synPermOrphanDec=synPermOrphanDec,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycle=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycle=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+				seed=seed,
+				spVerbosity=spVerbosity,
 			)
 
-		#verify input is valid
-		assert(numColumns > 0)
-		assert(numInputs > 0)
-
 		# save arguments
-		self._numInputs = numInputs
-		self._numColumns = numColumns
+		self._numInputs = numpy.prod(numpy.array(inputShape))
+		self._numColumns = numpy.prod(numpy.array(coincidencesShape))
 		self._minDistance = minDistance
+		self._randomSP = randomSP
 
 		#set active duty cycles to ones, because they set anomaly scores to 0
 		self._activeDutyCycles = numpy.ones(self._numColumns)
 
 		# set of columns to be 'hungry' for learning
-		self._boostFactors *= maxBoost
+		self._boostFactors *= maxFiringBoost
+
+
+	# def __init__(self,
+	# 						 numInputs,
+	# 						 numColumns,
+	# 						 localAreaDensity=0.1,
+	# 						 numActiveColumnsPerInhArea=-1,
+	# 						 stimulusThreshold=0,
+	# 						 minDistance=0.0,
+	# 						 maxBoost=10.0,
+	# 						 seed=-1,
+	# 						 spVerbosity=0,
+	# 						 randomSP=False,
+	# 						 ):
+
+	# 	super(FlatSpatialPooler,self).__init__(
+	# 			inputDimensions=numInputs,
+	# 			columnDimensions=numColumns,
+	# 			potentialRadius=numInputs,
+	# 			potentialPct=0.5,
+	# 			globalInhibition=True,
+	# 			localAreaDensity=localAreaDensity,
+	# 			numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+	# 			stimulusThreshold=stimulusThreshold,
+	# 			seed=seed
+	# 		)
+
+	# 	#verify input is valid
+	# 	assert(numColumns > 0)
+	# 	assert(numInputs > 0)
+
+	# 	# save arguments
+	# 	self._numInputs = numInputs
+	# 	self._numColumns = numColumns
+	# 	self._minDistance = minDistance
+	# 	self._randomSP = randomSP
+
+
+	# 	#set active duty cycles to ones, because they set anomaly scores to 0
+	# 	self._activeDutyCycles = numpy.ones(self._numColumns)
+
+	# 	# set of columns to be 'hungry' for learning
+	# 	self._boostFactors *= maxBoost
 	
 
+	# OBSOLETE
+	def getAnomalyScore(self):
+		return 0
+
 	def compute(self, inputVector, learn=True):
+		if self._randomSP:
+			learn=False
+
 		assert (numpy.size(inputVector) == self._numInputs)
-
 		self._updateBookeepingVars(learn)
-
 		inputVector = numpy.array(inputVector, dtype=realDType)
+		overlaps = self._calculateOverlap(inputVector)
+		overlapsPct = self._calculateOverlapPct(overlaps)
+		highTierColumns = self._selectHighTierColumns(overlapsPct)
+		virginColumns = self._selectVirginColumns()
 
-		overlaps, overlapsPct = self._calculateOverlap(inputVector)
-		vipColumns = self._selectVIPColumns(overlapsPct)
-		vipOverlaps = overlaps.copy()
-		vipOverlaps[vipColumns] = max(overlaps) + 1.0
+		# Include this section if useHighTier is to be used without randomSP #
+		if learn:
+			vipOverlaps = self._boostFactors * overlaps
+		else:
+			vipOverlaps = overlaps.copy()
+		# end here #
+
+		vipBonus = max(vipOverlaps) + 1.0
+		# Include only if to be used without randomSP
+		if learn:
+			vipOverlaps[virginColumns] = vipBonus
+		# End
+		vipOverlaps[highTierColumns] += vipBonus
 		activeColumns = self._inhibitColumns(vipOverlaps)
 
-		# if not learn: - don't let columns that never learned win! ???
-		if self._isUpdateRound():
-			self._updateMinDutyCycles()
 
-		return numpy.array(activeColumns)
+		# Include this section if useHighTier is to be used without randomSP #
+		if learn:
+			orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
+			sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
+			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
+			self._adaptOrphanSynapses(inputVector, orphanColumns)
+			self._updateDutyCycles(overlaps, activeColumns)
+			self._bumpUpWeakColumns() 
+			self._updateBoostFactors()
+
+			if self._isUpdateRound():
+				self._updateInhibitionRadius()
+				self._updateMinDutyCycles()
+		# End include #
 
 
-	def _selectVIPColumns(self, overlapsPct):
+		# TODO: don't let columns that never learned win (if not learning) 
+
+		activeArray = numpy.zeros(self._numColumns)
+		activeArray[activeColumns] = 1
+		return activeArray
+
+	def _selectVirginColumns(self):
+		return numpy.where(self._activeDutyCycles == 0)[0]
+
+	def _selectHighTierColumns(self, overlapsPct):
 		return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+
   
