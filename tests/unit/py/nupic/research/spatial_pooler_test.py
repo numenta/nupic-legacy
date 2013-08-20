@@ -41,12 +41,12 @@ class SpatialPoolerTest(unittest.TestCase):
     self._sp = SpatialPooler(
         inputDimensions = [5],
         columnDimensions = [5],
-        potentialRadius = 3,
+        potentialRadius = 5,
         potentialPct = 0.5,
         globalInhibition = False,
         localAreaDensity = -1.0,
         numActiveColumnsPerInhArea = 3,
-        stimulusThreshold=1,
+        stimulusThreshold=0,
         synPermInactiveDec=0.01,
         synPermActiveInc = 0.1,
         synPermActiveSharedDec = 0.04,
@@ -62,21 +62,11 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testCompute1(self):
-    """
-    Tests that compute gets called smoothly with no errors.
-    """
-    sp = self._sp
-    for i in xrange(100):
-      inputVector = (
-          numpy.random.random(sp._numInputs) > 0.3).astype('int')
-      sp.compute(inputVector,True)
-
-  def testCompute2(self):
     """Checks that feeding in the same input vector leads to polarized
     permanence values: either zeros or ones, but no fractions"""
 
     sp = SpatialPooler(
-        inputDimensions = [5],
+        inputDimensions = [9],
         columnDimensions = [5],
         potentialRadius = 3,
         potentialPct = 0.5,
@@ -100,7 +90,7 @@ class SpatialPoolerTest(unittest.TestCase):
       numpy.ones([sp._numColumns, sp._numInputs]))
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
-    inputVector = numpy.array([1.0,0.0,0.0,1.0,0.0])
+    inputVector = numpy.array([1,0,1,0,1,0,0,1,1])
     for i in xrange(20):
       sp.compute(inputVector,True)
 
@@ -109,7 +99,7 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertEqual(list(perm),list(inputVector))
 
 
-  def testCompute4(self):
+  def testCompute2(self):
     """Checks that columns only change the permanence values for 
        inputs that are within their potential pool"""
 
@@ -150,6 +140,7 @@ class SpatialPoolerTest(unittest.TestCase):
     """Test this and initPermanence with too big of a radius."""
     sp = self._sp
     sp._potentialRadius = 2
+    sp._potentialPct = 1
     sp._numInputs = 10
     index = 3
     trueMask = [0,1,1,1,1,1,0,0,0,0]
@@ -157,6 +148,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueMask,mask)
 
     sp._potentialRadius = 2
+    sp._potentialPct = 1
     sp._numInputs = 10
     index = 7
     trueMask = [0,0,0,0,0,1,1,1,1,1]
@@ -164,6 +156,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueMask,mask)
 
     sp._potentialRadius = 2
+    sp._potentialPct = 1
     sp._numInputs = 10
     index = 8
     trueMask = [0,0,0,0,0,0,1,1,1,1]
@@ -820,10 +813,11 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueOrphanColumns, list(set(orphanColumns)))
 
   def testRaisePermanenceThreshold(self):
-    sp = SpatialPooler(inputDimensions=[5],
-                       columnDimensions=[5],
-                       synPermConnected=0.1,
-                       stimulusThreshold=3)
+    sp = self._sp
+    sp._inputDimensions=numpy.array([5])
+    sp._columnDimensions=numpy.array([5])
+    sp._synPermConnected=0.1
+    sp._stimulusThreshold=3
     sp._synPermBelowStimulusInc = 0.01
     sp._permanences = SparseMatrix(
         [[0.0, 0.11, 0.095, 0.092, 0.01],
@@ -1044,30 +1038,32 @@ class SpatialPoolerTest(unittest.TestCase):
     a connected state, with permanence values drawn from
     the correct ranges
     """
-    sp = SpatialPooler(inputDimensions = [10])
+    sp = self._sp
+    sp._inputDimensions = numpy.array([10])
+    sp._numInputs = 10
     sp._raisePermanenceToThreshold = Mock()
 
     sp._potentialRadius = 2
-    sp._potentialPct = 1
+    connectedPct = 1
     mask = numpy.array([1,1,1,0,0,0,0,0,1,1])
-    perm = sp._initPermanence(0,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = (perm > sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 5)
     maxThresh = sp._synPermConnected + sp._synPermActiveInc/4
     self.assertEqual((perm <= maxThresh).all(),True)
 
-    sp._potentialPct = 0
-    perm = sp._initPermanence(0,mask)
+    connectedPct = 0
+    perm = sp._initPermanence(mask,connectedPct)
     connected = (perm > sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 0)
 
-    sp._potentialPct = 0.5
+    connectedPct = 0.5
     sp._potentialRadius = 100
     sp._numInputs = 100
     mask = numpy.ones(100)
-    perm = sp._initPermanence(0,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = (perm > sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertGreater(numcon, 0)
@@ -1082,44 +1078,39 @@ class SpatialPoolerTest(unittest.TestCase):
   def testInitPermanence2(self):
     """
     Test initial permanence generation. ensure that permanence values
-    are only assigned to bits within a column's potential pct.
+    are only assigned to bits within a column's potential pool.
     """
     sp = self._sp
     sp._raisePermanenceToThreshold = Mock()
 
     sp._numInputs = 10
-    sp._potentialRadius = 1
-    index = 0
-    sp._potentialPct = 1
+    connectedPct = 1
     mask = numpy.array([1,1,0,0,0,0,0,0,0,0])
-    perm = sp._initPermanence(index,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = list((perm > 0).astype(int))
     trueConnected = [1,1,0,0,0,0,0,0,0,0]
     self.assertListEqual(connected, trueConnected)
 
-    sp._potentialRadius = 1
-    sp._potentialPct = 1
-    index = 5
+    sp._numInputs = 10
+    connectedPct = 1
     mask = numpy.array([0,0,0,0,1,1,1,0,0,0])
-    perm = sp._initPermanence(index,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = list((perm > 0).astype(int))
     trueConnected = [0,0,0,0,1,1,1,0,0,0]
     self.assertListEqual(connected, trueConnected)
 
-    sp._potentialRadius = 1
-    sp._potentialPct = 1
-    index = 9
+    sp._numInputs = 10
+    connectedPct = 1
     mask = numpy.array([0,0,0,0,0,0,0,0,1,1])
-    perm = sp._initPermanence(index,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = list((perm > 0).astype(int))
     trueConnected = [0,0,0,0,0,0,0,0,1,1]
     self.assertListEqual(connected, trueConnected)
 
-    sp._potentialRadius = 4
-    sp._potentialPct = 1
-    index = 2
+    sp._numInputs = 10
+    connectedPct = 1
     mask = numpy.array([1,1,1,1,1,1,1,0,1,1])
-    perm = sp._initPermanence(index,mask)
+    perm = sp._initPermanence(mask,connectedPct)
     connected = list((perm > 0).astype(int))
     trueConnected = [1,1,1,1,1,1,1,0,1,1]
     self.assertListEqual(connected, trueConnected)
