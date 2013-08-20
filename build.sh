@@ -107,6 +107,7 @@ function cleanUpEnv {
 }
 
 # Redirect stdout to a file but still print stderr.
+mkdir -p `dirname $STDOUT`
 {
   prepDirectories
 
