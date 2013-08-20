@@ -88,8 +88,6 @@ class FlatSpatialPooler(SpatialPooler):
 				stimulusThreshold=stimulusThreshold,
         synPermInactiveDec=synPermInactiveDec,
         synPermActiveInc=synPermActiveInc,
-        synPermActiveSharedDec=synPermActiveSharedDec,
-        synPermOrphanDec=synPermOrphanDec,
         synPermConnected=synPermConnected,
         minPctOverlapDutyCycle=minPctDutyCycleBeforeInh,
         minPctActiveDutyCycle=minPctDutyCycleAfterInh,
@@ -190,9 +188,7 @@ class FlatSpatialPooler(SpatialPooler):
 		# Include this section if useHighTier is to be used without randomSP #
 		if learn:
 			orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
-			sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
-			self._adaptSynapses(inputVector, sharedInputs, activeColumns)
-			self._adaptOrphanSynapses(inputVector, orphanColumns)
+			self._adaptSynapses(inputVector, activeColumns)
 			self._updateDutyCycles(overlaps, activeColumns)
 			self._bumpUpWeakColumns() 
 			self._updateBoostFactors()

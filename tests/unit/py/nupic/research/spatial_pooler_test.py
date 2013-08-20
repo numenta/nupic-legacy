@@ -49,8 +49,6 @@ class SpatialPoolerTest(unittest.TestCase):
         stimulusThreshold=0,
         synPermInactiveDec=0.01,
         synPermActiveInc = 0.1,
-        synPermActiveSharedDec = 0.04,
-        synPermOrphanDec = 0.05,
         synPermConnected = 0.10,
         minPctOverlapDutyCycle = 0.1,
         minPctActiveDutyCycle = 0.1,
@@ -76,8 +74,6 @@ class SpatialPoolerTest(unittest.TestCase):
         stimulusThreshold=1,
         synPermInactiveDec=0.01,
         synPermActiveInc = 0.1,
-        synPermActiveSharedDec = 0,
-        synPermOrphanDec = 0.05,
         synPermConnected = 0.10,
         minPctOverlapDutyCycle = 0.1,
         minPctActiveDutyCycle = 0.1,
@@ -114,8 +110,6 @@ class SpatialPoolerTest(unittest.TestCase):
         stimulusThreshold=1,
         synPermInactiveDec=0.01,
         synPermActiveInc = 0.1,
-        synPermActiveSharedDec = 0,
-        synPermOrphanDec = 0.05,
         synPermConnected = 0.10,
         minPctOverlapDutyCycle = 0.1,
         minPctActiveDutyCycle = 0.1,
@@ -707,9 +701,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = SpatialPooler(inputDimensions=[8],
                        columnDimensions=[4],
                        synPermInactiveDec=0.01,
-                       synPermActiveInc=0.1,
-                       synPermActiveSharedDec=0.02,
-                       synPermOrphanDec=0.03)
+                       synPermActiveInc=0.1)
     sp._synPermTrimThreshold = 0.05
 
     sp._potentialPools = SparseBinaryMatrix(
@@ -719,8 +711,6 @@ class SpatialPoolerTest(unittest.TestCase):
          [1, 0, 0, 0, 0, 0, 1, 0]])
 
     inputVector = numpy.array([1, 0, 0, 1, 1, 0, 1, 0])
-    sharedInputs = numpy.where(numpy.array(
-        [1, 0, 0, 0, 0, 0, 1, 0]) > 0)[0]
     activeColumns = numpy.array([0,1,2])
 
     sp._permanences = SparseMatrix(
@@ -730,22 +720,21 @@ class SpatialPoolerTest(unittest.TestCase):
          [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]])
 
     truePermanences = [
-        [0.280, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
-      #  Inc/Sh   Dec     Dec    Inc   -    -    -  -
-        [0.230, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
-      #  Inc/Sh    -      -     -      Inc    Dec    -     Dec  
-        [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.190, 0.000],
-      #   -      -     Trim     -     -     -    Inc/Sh   - 
+        [0.300, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
+      #   Inc     Dec   Dec    Inc      -      -      -     -
+        [0.250, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
+      #   Inc      -      -     -      Inc    Dec    -     Dec  
+        [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.210, 0.000],
+      #   -      -     Trim     -     -     -       Inc   - 
         [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]]
-      #   -      -      -    -      -    -    -    -   -   
+      #    -      -      -      -      -      -      -       -   
 
-    sp._adaptSynapses(inputVector,sharedInputs, activeColumns)
+    sp._adaptSynapses(inputVector, activeColumns)
     for i in xrange(sp._numColumns):
       perm = list(sp._permanences.getRow(i))
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
 
-    # test orphan columns
     sp._potentialPools = SparseBinaryMatrix(
         [[1, 1, 1, 0, 0, 0, 0, 0],
          [0, 1, 1, 1, 0, 0, 0, 0],
@@ -753,7 +742,6 @@ class SpatialPoolerTest(unittest.TestCase):
          [1, 0, 0, 0, 0, 0, 1, 0]])
 
     inputVector = numpy.array([1, 0, 0, 1, 1, 0, 1, 0])
-    sharedInputs = numpy.where(numpy.array([1, 0, 0, 1, 0, 0, 0, 0]) > 0)[0]
     activeColumns = numpy.array([0,1,2])
 
     sp._permanences = SparseMatrix(
@@ -763,54 +751,21 @@ class SpatialPoolerTest(unittest.TestCase):
          [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]])
 
     truePermanences = [
-        [0.280, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000],
-        #  Inc/Sh    Dec     Dec     -       -    -    -    -
-        [0.000, 0.000, 0.222, 0.480, 0.000, 0.000, 0.000, 0.000],
-        #     -      Trim     Dec  Inc/Sh   -       -      -      -
-        [0.000, 0.000, 0.000, 0.131, 0.830, 0.000, 0.000, 0.000],
-        #   -      -      Trim Inc/Sh  Inc     -     -     -
+        [0.30, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000],
+        #  Inc    Dec     Dec     -       -    -    -    -
+        [0.000, 0.000, 0.222, 0.500, 0.000, 0.000, 0.000, 0.000],
+        #  -     Trim    Dec    Inc    -       -      -      -
+        [0.000, 0.000, 0.000, 0.151, 0.830, 0.000, 0.000, 0.000],
+        #   -      -    Trim   Inc    Inc     -     -     -
         [0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000]]
         #  -    -      -      -      -       -       -     -
 
-    sp._adaptSynapses(inputVector,sharedInputs, activeColumns)
+    sp._adaptSynapses(inputVector, activeColumns)
     for i in xrange(sp._numColumns):
       perm = list(sp._permanences.getRow(i))
       for j in xrange(sp._numInputs):
         self.assertAlmostEqual(truePermanences[i][j], perm[j])
 
-
-  def testCalculateOrphanColumns(self):
-    sp = self._sp
-
-    activeColumns = numpy.array([])
-    overlapsPct = numpy.array(
-      [1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1]
-    )
-    orphanColumns = sp._calculateOrphanColumns(activeColumns, overlapsPct)
-    trueOrphanColumns = list(set([0, 5, 6, 8]))
-    self.assertListEqual(trueOrphanColumns, list(set(orphanColumns)))
-
-    activeColumns = numpy.array(range(10))
-    overlapsPct = numpy.array(
-      [0.98, 0.12, 0.15, 0.92, 0.4, 0.41, 0.61, 0.88, 0.01, 0.1]
-    )
-    orphanColumns = sp._calculateOrphanColumns(activeColumns, overlapsPct)
-    trueOrphanColumns = list(set([]))
-    self.assertListEqual(trueOrphanColumns, list(set(orphanColumns)))
-
-    activeColumns = numpy.array([5,6,7])
-    overlapsPct = numpy.array(
-      [1, 0.12, 0.15, 0.92, 0.4, 1, 1, 0.88, 1, 0.1]
-    )
-    orphanColumns = sp._calculateOrphanColumns(activeColumns, overlapsPct)
-    trueOrphanColumns = list(set([0, 8]))
-    self.assertListEqual(trueOrphanColumns, list(set(list(orphanColumns))))
-
-    activeColumns = numpy.array([1,2,3,6,7])
-    overlapsPct = numpy.array([1, 0.12, 1, 0.92, 1, 0.4, 1, 0.88, 1, 0.1])
-    orphanColumns = sp._calculateOrphanColumns(activeColumns, overlapsPct)
-    trueOrphanColumns = list(set([0, 4, 8]))
-    self.assertListEqual(trueOrphanColumns, list(set(orphanColumns)))
 
   def testRaisePermanenceThreshold(self):
     sp = self._sp
@@ -889,76 +844,6 @@ class SpatialPoolerTest(unittest.TestCase):
         list(sp._connectedSynapses.getRow(i))
       )
     self.assertListEqual(trueConnectedCounts, list(sp._connectedCounts))
-
-
-  def testCalculateSharedInputs(self):
-    sp = SpatialPooler(inputDimensions=[8],
-                       columnDimensions=[5])
-    sp._connectedSynapses = SparseBinaryMatrix(
-      [[0, 1, 0, 1, 0, 1, 0, 1],
-       [0, 0, 0, 1, 0, 0, 0, 1],
-       [0, 0, 0, 0, 0, 0, 1, 0],
-       [0, 0, 1, 0, 0, 0, 1, 0],
-       [1, 0, 0, 0, 1, 0, 0, 0]])
-    inputVector = numpy.array(
-       [1, 1, 1, 1, 0, 0, 0, 0])
-    activeColumns = range(5)
-    sharedTrue = set([3])
-    shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
-    self.assertSetEqual(shared, sharedTrue)
-
-    sp._connectedSynapses = SparseBinaryMatrix(
-      [[0, 1, 0, 1, 0, 1, 0, 1],
-       [0, 0, 0, 1, 0, 0, 0, 1],
-       [0, 0, 0, 0, 0, 0, 1, 0],
-       [0, 0, 1, 0, 0, 0, 1, 0],
-       [1, 0, 0, 0, 1, 0, 0, 0]])
-    inputVector = numpy.array(
-       [1, 1, 1, 0, 1, 1, 1, 1])
-    activeColumns = range(5)
-    sharedTrue = set([6,7])
-    shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
-    self.assertSetEqual(shared, sharedTrue)
-
-    sp._connectedSynapses = SparseBinaryMatrix(
-      [[0, 1, 0, 1, 0, 1, 0, 1],
-       [0, 0, 0, 1, 0, 0, 0, 1],
-       [0, 0, 0, 0, 0, 0, 1, 0],
-       [0, 0, 1, 0, 0, 0, 1, 0],
-       [1, 0, 0, 0, 1, 0, 0, 0]])
-    inputVector = numpy.array(
-       [0, 0, 0, 0, 0, 0, 0, 0])
-
-    activeColumns = range(5)
-    sharedTrue = set([])
-    shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
-    self.assertSetEqual(shared, sharedTrue)
-
-    sp._connectedSynapses = SparseBinaryMatrix(
-      [[0, 1, 0, 1, 0, 1, 0, 1],
-       [0, 0, 0, 1, 0, 0, 0, 1],
-       [0, 0, 0, 0, 0, 0, 1, 0],
-       [0, 0, 1, 0, 0, 0, 1, 0],
-       [1, 0, 0, 0, 1, 0, 0, 0]])
-    inputVector = numpy.array(
-       [1, 0, 1, 0, 1, 1, 1, 0])
-
-    activeColumns = [1,2,3]
-    sharedTrue = set([6])
-    shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
-    self.assertSetEqual(shared, sharedTrue)
-
-    sp._connectedSynapses = SparseBinaryMatrix(
-      [[0, 1, 0, 1, 0, 1, 0, 1],
-       [0, 0, 0, 1, 0, 0, 0, 1],
-       [0, 0, 0, 0, 0, 0, 1, 0],
-       [0, 0, 1, 0, 0, 0, 1, 0],
-       [1, 0, 0, 0, 1, 0, 0, 0]])
-    inputVector = numpy.array([1, 0, 1, 1, 1, 1, 1, 1])
-    activeColumns = [0,1,3,4]
-    sharedTrue = set([3,7])
-    shared = set(sp._calculateSharedInputs(inputVector, activeColumns))
-    self.assertSetEqual(shared, sharedTrue)
 
 
   def testCalculateOverlap(self):
