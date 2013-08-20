@@ -28,7 +28,7 @@ import random
 
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                 SM_01_32_32 as SparseBinaryMatrix,
-                                count_gte, GetNTAReal,
+                                GetNTAReal,
                                 Random as NupicRandom)
 
 realDType = GetNTAReal()
@@ -60,8 +60,6 @@ class SpatialPooler(object):
                stimulusThreshold=0,
                synPermInactiveDec=0.01,
                synPermActiveInc=0.1,
-               synPermActiveSharedDec=0.0,
-               synPermOrphanDec=0.0,
                synPermConnected=0.10,
                minPctOverlapDutyCycle=0.001,
                minPctActiveDutyCycle=0.001,
@@ -232,9 +230,7 @@ class SpatialPooler(object):
     self._stimulusThreshold = stimulusThreshold
     self._synPermInactiveDec = synPermInactiveDec
     self._synPermActiveInc = synPermActiveInc
-    self._synPermActiveSharedDec = synPermActiveSharedDec
     self._synPermBelowStimulusInc = synPermConnected / 10.0
-    self._synPermOrphanDec = synPermOrphanDec
     self._synPermConnected = synPermConnected
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
@@ -369,15 +365,10 @@ class SpatialPooler(object):
 
     if learn:
       orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
-      sharedInputs = self._calculateSharedInputs(inputVector, activeColumns)
-      self._adaptSynapses(inputVector, sharedInputs, activeColumns)
-      self._adaptOrphanSynapses(inputVector, orphanColumns)
+      self._adaptSynapses(inputVector, activeColumns)
       self._updateDutyCycles(overlaps, activeColumns)
-      # to comply with old implementation bump Up weak columns must be 
-      # performed after overlap duty cycle has been updated.
       self._bumpUpWeakColumns() 
       self._updateBoostFactors()
-
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
@@ -593,7 +584,7 @@ class SpatialPooler(object):
     return numpy.average(maxCoord - minCoord + 1)
 
 
-  def _adaptSynapses(self, inputVector, sharedInputs, activeColumns):
+  def _adaptSynapses(self, inputVector, activeColumns):
     """
     The primary method in charge of learning. Adapts the permanence values of 
     the synapses based on the input vector, and the chosen columns after 
@@ -618,42 +609,10 @@ class SpatialPooler(object):
     permChanges = numpy.zeros(self._numInputs)
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
-    permChanges[sharedInputs] -= self._synPermActiveSharedDec
     for i in activeColumns:
       perm = self._permanences.getRow(i)
       maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
       perm[maskPP] += permChanges[maskPP]
-      self._updatePermanencesForColumn(perm, i)
-
-
-
-  def _adaptOrphanSynapses(self, inputVector, orphanColumns):
-    """
-    The secondary method for learning. This method decreases the permanence 
-    values of synapses belonging to orphan columns. Orphan columns, are
-    columns with 100 percent overlap that did not survive inhibition. 
-    Essentially, these columns have likely learned a pattern for which another
-    column learned better. We decrease the permanence values of synapses 
-    connected to input bits that are turned on for these columns in order to 
-    encourage them to learn different patterns.
-
-    Parameters:
-    ----------------------------
-    inputVector:    a numpy array of 0's and 1's thata comprises the input to 
-                    the spatial pooler. There exists an entry in the array 
-                    for every input bit.
-    sharedInputs:   an array containing the indices of the input bits that 
-                    happen to be connected to more than one active column
-    orphanColumns:  an array containing the indices of the columns that are
-                    orhpans.
-    """
-    inputIndices = numpy.where(inputVector > 0)[0]
-    permChanges = numpy.zeros(self._numInputs)
-    permChanges[inputIndices] = self._synPermOrphanDec
-    for i in orphanColumns:
-      perm = self._permanences.getRow(i)
-      maskPP = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskPP] -= permChanges[maskPP]
       self._updatePermanencesForColumn(perm, i)
 
 
@@ -685,7 +644,7 @@ class SpatialPooler(object):
     """
     numpy.clip(perm,self._synPermMin, self._synPermMax, out=perm)
     while True:
-      numConnected = count_gte(perm, self._synPermConnected)
+      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
       if numConnected >= self._stimulusThreshold:
         return
       perm[mask] += self._synPermBelowStimulusInc
@@ -753,7 +712,7 @@ class SpatialPooler(object):
     rand = numpy.random.random(numPotential)
     threshold = 1-connectedPct
     connectedSynapses = numpy.where(rand > threshold)[0]
-    unconnectedSynpases = list(set(range(self._potentialRadius)) -
+    unconnectedSynpases = list(set(range(numPotential)) -
       set(connectedSynapses))
     maxPermValue = min(1.0, self._synPermConnected +
                 self._synPermInactiveDec)
@@ -964,27 +923,6 @@ class SpatialPooler(object):
     """
     perfectOverlaps = set(numpy.where(overlapsPct >= 1.0)[0])
     return list(perfectOverlaps - set(activeColumns))
-
-
-  def _calculateSharedInputs(self, inputVector, activeColumns):
-    """
-    Determines the shared inputs for a set of active columns and an input 
-    vector. Shared inputs are defined as input bits which are connected to two  
-    or more active columns.
-
-    Parameters:
-    ----------------------------
-    inputVector:    a numpy array of 0's and 1's thata comprises the input to 
-                    the spatial pooler. There exists an entry in the array 
-                    for every input bit.
-    activeColumns:  An array containing the indices of the active columns, 
-                    the sprase set of columns which survived inhibition
-    """
-    connectedSynapses = SparseMatrix(self._connectedSynapses)
-    inputCoverage = connectedSynapses.addListOfRows(activeColumns)
-    sharedInputs = numpy.where(numpy.logical_and(inputCoverage > 1,
-      inputVector > 0))[0]
-    return sharedInputs
 
 
   def _inhibitColumns(self, overlaps):
