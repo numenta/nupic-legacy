@@ -22,7 +22,6 @@
 import utils
 import os
 import sys
-import time
 import logging
 
 log = logging.getLogger("build")

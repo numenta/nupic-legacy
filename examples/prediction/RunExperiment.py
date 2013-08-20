@@ -23,14 +23,12 @@ import glob
 import sys
 import numpy
 import random
-import traceback
 
 import cProfile
 import pstats
 
 from nupic.frameworks.prediction.experiment import Experiment
-from nupic.frameworks.prediction import (utils,
-                                         helpers)
+from nupic.frameworks.prediction import utils
 
 # Keep GUIs around, so they don't just evaporate
 gui = []
