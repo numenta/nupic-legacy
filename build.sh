@@ -40,6 +40,9 @@ fi
 # location of compiled runable binary
 export NUPIC_INSTALL
 
+# get PYTHON_VERSION early here
+PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
+
 STDOUT="$BUILDDIR/stdout.txt"
 
 function exitOnError {
@@ -57,10 +60,6 @@ function prepDirectories {
     mkdir -p "$NUPIC_INSTALL"
     pushd "$BUILDDIR"
 }
-
-
-# get PYTHON_VERSION early here
-PY_VER=`python -c 'import platform; print platform.python_version()[:3]'`
 
 function pythonSetup {
     python "$NUPIC/build_system/setup.py" --autogen
