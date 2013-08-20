@@ -64,10 +64,10 @@ function pythonSetup {
     # workaround for matplotlib install bug: numpy must already be installed
     # see http://stackoverflow.com/questions/11797688/matplotlib-requirements-with-pip-install-in-virtualenv
     # https://github.com/matplotlib/matplotlib/wiki/MEP11
-    PATH=$NUPIC_INSTALL:$PATH pip install -vvv --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--prefix=$NUPIC_INSTALL" numpy==1.7.1
+    PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--prefix=$NUPIC_INSTALL" numpy==1.7.1
     exitOnError $?
 
-    PATH=$NUPIC_INSTALL:$PATH pip install -vvv --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--prefix=$NUPIC_INSTALL" -r $NUPIC/external/common/requirements.txt
+    PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--prefix=$NUPIC_INSTALL" -r $NUPIC/external/common/requirements.txt
     exitOnError $?
     #cov-core may fail to install properly, reporting something to the effect of:
     #
