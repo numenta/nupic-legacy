@@ -38,54 +38,59 @@ class FlatSpatialPoolerTest(unittest.TestCase):
 
   def setUp(self):
     self._sp = FlatSpatialPooler(
-        numInputs=5,
-        numColumns=5,
-        localAreaDensity=0.1,
-        numActiveColumnsPerInhArea=-1,
-        stimulusThreshold=1,
-        minDistance=0.0,
-        seed=-1,
-        spVerbosity=0,
-    )
+        inputShape=(5,1),
+        coincidencesShape=(10,1))
 
+  def testSelectVirginColumns(self):
+    sp = self._sp
+    sp._numColumns = 6
+    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
+    virgins = list(sp._selectVirginColumns())
+    trueVirgins = range(sp._numColumns)
+    self.assertListEqual(trueVirgins,virgins)
 
-  def testSelectVIPColumns(self):
+    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
+    sp._activeDutyCycles[[3,4]] = 0.2
+    virgins = list(sp._selectVirginColumns())
+    trueVirgins = [0,1,2,5]
+    self.assertListEqual(trueVirgins,virgins)
+
+  def testSelectHighTierColumns(self):
     sp = self._sp
     sp._numColumns = 7
     sp._minDistance = 0.0
     sp._overlapsPct = numpy.array([1.0, 0.7, 0.8, 0.1, 1.0, 0.3, 0.1])
-    vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+    vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = [0, 4]
     self.assertListEqual(trueVIPColumns, list(vipColumns))
 
     sp._numColumns = 7
     sp._minDistance = 0.1
     sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
-    vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+    vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = [1, 3, 4]
     self.assertListEqual(trueVIPColumns, list(vipColumns))
 
     sp._numColumns = 7
     sp._minDistance = 0.15
     sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
-    vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+    vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = [1, 2, 3, 4, 6]
     self.assertListEqual(trueVIPColumns, list(vipColumns))
 
     sp._numColumns = 7
     sp._minDistance = 1.0
     sp._overlapsPct = numpy.array([0.0, 0.9, 0.85, 0.91, 1.0, 0.3, 0.89])
-    vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+    vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = range(7)
     self.assertListEqual(trueVIPColumns, list(vipColumns))
 
     sp._numColumns = 7
     sp._minDistance = 0.99
     sp._overlapsPct = numpy.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
-    vipColumns = sp._selectVIPColumns(sp._overlapsPct)
+    vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = []
     self.assertListEqual(trueVIPColumns, list(vipColumns))
-
 
 
 if __name__ == "__main__":
