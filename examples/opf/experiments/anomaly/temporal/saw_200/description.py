@@ -358,8 +358,6 @@ control = {
   # computed for this experiment
   'metrics':[
     MetricSpec(field=u'f', metric='aae', inferenceElement='prediction', params={'window': 100}),
-    MetricSpec(field=u'f', metric='grokScore_scalar', inferenceElement='encodings', params={'frequencyWindow': 1000, 'movingAverageWindow': 1000}),
-    MetricSpec(field=u'f', metric='grokScore_scalar', inferenceElement='encodings', params={'frequencyWindow': 1000})
   ],
     
   # Logged Metrics: A sequence of regular expressions that specify which of

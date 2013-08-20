@@ -10,3 +10,6 @@ pytest-xdist==1.8
 python-dateutil==2.1
 unittest2==0.5.1
 validictory==0.9.1
+PyMySQL==0.5
+DBUtils==1.1
+
