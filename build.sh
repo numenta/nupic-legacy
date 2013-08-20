@@ -40,8 +40,12 @@ fi
 # location of compiled runable binary
 export NUPIC_INSTALL
 
+STDOUT="$BUILDDIR/stdout.txt"
+
 function exitOnError {
     if [[ !( "$1" == 0 ) ]] ; then
+        echo "Stdout redirected to: $STDOUT"
+        echo "Build failed."
         exit $1
     fi
 }
@@ -103,11 +107,18 @@ function cleanUpEnv {
     unset NUPIC_INSTALL
 }
 
-prepDirectories
+# Redirect stdout to a file but still print stderr.
+{
+    prepDirectories
 
-pythonSetup
-doConfigure
-doMake
+    pythonSetup
+    doConfigure
+    doMake
 
-cleanUpDirectories
-cleanUpEnv
+    cleanUpDirectories
+    cleanUpEnv
+} 2>&1 > $STDOUT
+
+echo
+echo "Stdout redirected to: $STDOUT"
+echo "Build successful."
