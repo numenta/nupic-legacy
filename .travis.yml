@@ -74,5 +74,5 @@ after_script:
 - tar -zcf nupic-$TRAVIS_BUILD_NUMBER.tar.gz $NTA
 # debug
 - ls -l *.gz
-- travis-artifacts upload --path nupic-$TRAVIS_BUILD_NUMBER.tar.gz --target-path artifacts/$TRAVIS_REPO_SLUG
+- travis-artifacts upload --path nupic-$TRAVIS_JOB_NUMBER.tar.gz --target-path artifacts/$TRAVIS_REPO_SLUG
 
