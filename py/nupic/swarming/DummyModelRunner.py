@@ -32,12 +32,10 @@ from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                              PeriodicActivityRequest)
 from nupic.frameworks.opf.opfutils import ModelResult
 from nupic.support import sortedJSONDumpS
-from grokengine.support.configuration import Configuration
+from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from grokengine.cluster.database.prediction_output_stream import (
-    PredictionOutputStream)
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
 
@@ -604,6 +602,8 @@ class OPFDummyModelRunner(OPFModelRunner):
     -----------------------------------------------------------------------
     task:       The task description given in the
     """
+    from grokengine.cluster.database.prediction_output_stream import (
+        PredictionOutputStream)
     self._predictionLogger = PredictionOutputStream(
       modelID=str(self._modelID), fields=self.__fieldInfo, maxRecords=self._predictionCacheMaxRecords,
       isBlocking=False, removeOldData=True)
