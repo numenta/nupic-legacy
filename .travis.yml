@@ -71,8 +71,8 @@ script:
   - "python $NUPIC/examples/tp/tp_test.py"
 
 after_script:
-- tar -zcf nupic-$TRAVIS_BUILD_NUMBER.tar.gz $NTA
+- tar -zcf build-$TRAVIS_JOB_NUMBER.tar.gz $NTA
 # debug
 - ls -l *.gz
-- travis-artifacts upload --path nupic-$TRAVIS_JOB_NUMBER.tar.gz --target-path $TRAVIS_REPO_SLUG
+- travis-artifacts upload --path build-$TRAVIS_JOB_NUMBER.tar.gz --target-path $TRAVIS_REPO_SLUG
 
