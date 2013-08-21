@@ -25,10 +25,8 @@ import time
 import subprocess
 import tempfile
 import uuid
-from multiprocessing import Pool, Process
 
 from nupic.support import object_json as json
-
 import nupic.database.ClientJobsDAO as cjdao
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.HypersearchV2 import HypersearchV2
@@ -725,7 +723,7 @@ class _HyperSearchRunner(object):
       # If running without the engine, startup the workers ourselves
       if not self._options["useEngine"]:
         cmdLine = "python -m nupic.swarming.HypersearchWorker" \
-                   " --logLevel=10 --jobID=%d" % (jobID)
+                   " --jobID=%d" % (jobID)
         self._launchWorkers(cmdLine, maxWorkers)
           
     searchJob = _HyperSearchJob(jobID)
