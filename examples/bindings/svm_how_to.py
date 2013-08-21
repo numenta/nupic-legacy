@@ -21,10 +21,7 @@
 
 from random import *
 import numpy
-import pdb
 import cPickle
-import bz2
-import sys
 import pylab
 import nupic.bindings.algorithms as algo
 from nupic.bindings.math import GetNumpyDataType

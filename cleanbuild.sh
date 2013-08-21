@@ -36,15 +36,18 @@ else
 fi
 
 # Remove old build and install dirs and remake the directories.
-rm -r "$BUILDDIR"
+rm -rf "$BUILDDIR"
 mkdir -p "$BUILDDIR"
-rm -r "$NUPIC_INSTALL"
+rm -rf "$NUPIC_INSTALL"
 mkdir -p "$NUPIC_INSTALL"
 
 pushd `dirname $0`
 
 # Clean up source location.
 python build_system/setup.py --clean
+
+# Re-build and re-install any python modules
+PIP_IGNORE_INSTALLED=1
 
 # Do the build.
 ./build.sh "$NUPIC_INSTALL"

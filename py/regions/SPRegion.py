@@ -578,6 +578,7 @@ class SPRegion(PyRegion):
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
     self._spatialPoolerOutput = self._sfdr.compute(inputVector=rfInput[0],
                                                    learn=self.learningMode)
+
     # Direct logging of SP outputs if requested
     if self._fpLogSP:
       output = self._spatialPoolerOutput.reshape(-1)
