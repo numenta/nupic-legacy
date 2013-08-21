@@ -152,9 +152,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       
     return workers
       
+      
   ############################################################################
   def _getJobInfo(self, cjDAO, workers, jobID):
-    """ Return the status of search job
+    """ Return the job info for a job
     
     Parameters:
     -----------------------------------------------
@@ -168,9 +169,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     # Get the job info
     jobInfo = cjDAO.jobInfo(jobID)
 
-    # When running outside of the Grok engine, we launched the workers 
-    #  ourself, so see how many are still running and jam that into the
-    #  job info. When running with the Grok engine, it would do this for us. 
+    # Since we're running outside of the Grok engine, we launched the workers 
+    #  ourself, so see how many are still running and jam the correct status 
+    #  into the job info. When using the Grok engine, it would do this
+    #  for us. 
     runningCount = 0
     for worker in workers:
       retCode = worker.poll()
