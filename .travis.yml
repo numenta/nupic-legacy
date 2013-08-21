@@ -19,15 +19,15 @@ env:
 
     # ARTIFACTS_AWS_ACCESS_KEY_ID
     - secure: |-
-        CJdye71QR+eexESMCd9FsEYB+7IGXkAoIZrJPALAMYhLoPixx5zm4FAFaazX
-        vkBQORndufd5b3FTPswQ8Mzwo1epK0gh2H8f/uQzjSJOHa6FufYkpEuoz4wE
-        W9eMAH+vxxsPIta2vA6Vyf4faouHZ+A1Bwou3y/EbEl7Rl5sK8g=
+        LryXoMT+lhDYreY0xYVBZg0HbpZHik6fUh8ZqCiOoUYrCAkoMck1NWkvWMst
+        di3ZnAyQKxnOzqNpWDiBufJnA4OXzm4SnkDj5NT2ZYZ56jRNFXveRD9bmXcz
+        PFtP88dQvesy1el66EBBGTfuPls4pI7+Juu9iaK5jo9pup22rX0=
 
     # ARTIFACTS_AWS_SECRET_ACCESS_KEY
     - secure: |-
-        lwl7bFPU6dIGWLJfDbnna3OQveRJOhbHKpL58XB3ld2qHQqpTWyYHyMaYHIe
-        7ZP7GMJ/lPZyQOq9yWw6/lGEYT6TWEzgTxXH3wV6K+6zTkiCxno0aXMXk4f2
-        Z8XjidLTydaxypFf3S05StGkmsb6e7dkvxOcu18khTP1dvV3Gd8=
+        ZDEgrBeE7f9yTjD3Va4uvkEakNcNKTgNTJ8VWT9QUZdmEvlgvGWRvCbUZHQc
+        P+tJ/UVBATmEx5RHf0NqKFyfkC/VeA8C3D4ekCnbB11WF/4i8CCGCrhui9Mx
+        cfgr20Rz8KuuC/TZklPjVCy+0dXS3o2CL7u2b7XDGYzBYPxayjU=
 
 notifications:
   irc: 
