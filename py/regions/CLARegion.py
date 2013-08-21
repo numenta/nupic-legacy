@@ -23,7 +23,8 @@ import numpy
 import sys
 import os
 
-from nupic.research import FDRCSpatial2
+from nupic.research.FDRCSpatial2 import FDRCSpatial2
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
 
@@ -34,7 +35,6 @@ from PyRegion import PyRegion
 from nupic.bindings.algorithms import FDRCSpatial as CPPSP
 from nupic.bindings.math import GetNTAReal
 
-gDefaultTemporalImp = 'py'
 
 ##############################################################################
 def _getTPClass(temporalImp):
@@ -51,6 +51,21 @@ def _getTPClass(temporalImp):
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', and 'trivial'" % (temporalImp))
 
+
+##############################################################################
+def _getSPClass(spatialImp):
+  """ Return the class corresponding to the given spatialImp string
+  """
+
+  if spatialImp == 'py':
+    return FlatSpatialPooler
+  elif temporalImp == 'cpp':
+    raise RuntimeError("Spatial pooler not yet implemented in C++")
+  elif temporalImp == 'oldpy':
+    return FDRCSpatial2
+  else:
+    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
+              "'cpp', and 'oldpy'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -141,12 +156,11 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
     else:
       return ''
 
-  spatialSpec = {}
-  FDRSpatialClass = FDRCSpatial2.FDRCSpatial2
-  sArgTuples = _buildArgs(FDRSpatialClass.__init__)
-
+  FDRSpatialClass = _getSPClass(spatialImp)
   FDRTemporalClass = _getTPClass(temporalImp)
 
+  spatialSpec = {}
+  sArgTuples = _buildArgs(FDRSpatialClass.__init__)
   tArgTuples = _buildArgs(FDRTemporalClass.__init__)
 
   for argTuple in sArgTuples:
@@ -561,7 +575,8 @@ class CLARegion(PyRegion):
                outputCloningWidth=0,
                outputCloningHeight=0,
                saveMasterCoincImages = 0,
-               temporalImp=gDefaultTemporalImp, #'py', 'simple' or 'cpp'
+               temporalImp='py', #'py', 'simple' or 'cpp'
+               spatialImp='oldpy',   #'py', 'cpp', or 'oldpy'
                computeTopDown = 0,
                nMultiStepPrediction = 0,
 
@@ -584,11 +599,12 @@ class CLARegion(PyRegion):
         kwargs[name] = (int(height), int(width))
 
     # Which FDR Temporal implementation?
+    FDRCSpatialClass = _getSPClass(spatialImp)
     FDRTemporalClass = _getTPClass(temporalImp)
 
     # Pull out the spatial and temporal arguments automatically
     # These calls whittle down kwargs and create instance variables of CLARegion
-    sArgTuples = _buildArgs(FDRCSpatial2.FDRCSpatial2.__init__, self, kwargs)
+    sArgTuples = _buildArgs(FDRCSpatialClass.__init__, self, kwargs)
     tArgTuples = _buildArgs(FDRTemporalClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial and temporal arg names for later use
