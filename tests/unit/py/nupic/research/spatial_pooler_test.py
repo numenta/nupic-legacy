@@ -130,6 +130,33 @@ class SpatialPoolerTest(unittest.TestCase):
       self.assertEqual(list(perm),list(potential))
 
 
+  def testStripNeverLearned(self):
+    sp = self._sp
+    
+    sp._activeDutyCycles = numpy.array([0.5, 0.1, 0, 0.2, 0.4, 0])
+    activeColumns = numpy.array([0,1,2,4])
+    stripped = sp._stripNeverLearned(activeColumns)
+    trueStripped = [0,1,4]
+    self.assertListEqual(trueStripped,list(stripped))
+
+    sp._activeDutyCycles = numpy.array([0.9, 0, 0, 0, 0.4, 0.3])
+    activeColumns = numpy.array(range(6))
+    stripped = sp._stripNeverLearned(activeColumns)
+    trueStripped = [0,4,5]
+    self.assertListEqual(trueStripped,list(stripped))
+
+    sp._activeDutyCycles = numpy.array([0, 0, 0, 0, 0, 0])
+    activeColumns = numpy.array(range(6))
+    stripped = sp._stripNeverLearned(activeColumns)
+    trueStripped = []
+    self.assertListEqual(trueStripped,list(stripped))
+
+    sp._activeDutyCycles = numpy.ones(6)
+    activeColumns = numpy.array(range(6))
+    stripped = sp._stripNeverLearned(activeColumns)
+    trueStripped = range(6)
+    self.assertListEqual(trueStripped,list(stripped))
+
   def testMapPotential(self):
     """Test this and initPermanence with too big of a radius."""
     sp = self._sp

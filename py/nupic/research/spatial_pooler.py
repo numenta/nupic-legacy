@@ -360,11 +360,7 @@ class SpatialPooler(object):
 
     activeColumns = self._inhibitColumns(boostedOverlaps)
 
-    # if not learn: - don't let columns that never learned win!
-    # TODO: <implement this>
-
     if learn:
-      orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
       self._adaptSynapses(inputVector, activeColumns)
       self._updateDutyCycles(overlaps, activeColumns)
       self._bumpUpWeakColumns() 
@@ -372,10 +368,17 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
+    else:
+      activeColumns = self._stripNeverLearned(activeColumns)
 
     activeArray = numpy.zeros(self._numColumns)
     activeArray[activeColumns] = 1
     return activeArray
+
+
+  def _stripNeverLearned(self, activeColumns):
+    neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
+    return numpy.array(list(set(activeColumns) - set(neverLearned)))
 
 
   def _updateMinDutyCycles(self):
