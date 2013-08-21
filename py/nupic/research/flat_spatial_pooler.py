@@ -109,7 +109,9 @@ class FlatSpatialPooler(SpatialPooler):
 		# set of columns to be 'hungry' for learning
 		self._boostFactors *= maxFiringBoost
 
-
+	# This constructor is a minimal, stripped down version of the 
+	# constructure above. The constructor above is only used to 
+	# provid backwards compatibility to the old spatial pooler.
 	# def __init__(self,
 	# 						 numInputs,
 	# 						 numColumns,
