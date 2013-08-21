@@ -187,7 +187,7 @@ class FlatSpatialPooler(SpatialPooler):
 				self._updateInhibitionRadius()
 				self._updateMinDutyCycles()
 		else:
-      activeColumns = self._stripNeverLearned(activeColumns)
+			activeColumns = self._stripNeverLearned(activeColumns)
 
 		activeArray = numpy.zeros(self._numColumns)
 		activeArray[activeColumns] = 1
