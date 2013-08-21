@@ -569,7 +569,8 @@ class SPRegion(PyRegion):
         outputs['temporalTopDownOut'][:] = temporalTopDownOut
 
 
-    outputs['anomalyScore'][:] = self._sfdr.getAnomalyScore()
+    # OBSOLETE.
+    outputs['anomalyScore'][:] = 0
 
       # Write the bottom up out to our node outputs only if we are doing inference
       #print "SPRegion input: ", buInputVector.nonzero()[0]

@@ -151,11 +151,6 @@ class FlatSpatialPooler(SpatialPooler):
 
 	# 	# set of columns to be 'hungry' for learning
 	# 	self._boostFactors *= maxBoost
-	
-
-	# OBSOLETE
-	def getAnomalyScore(self):
-		return 0
 
 	def compute(self, inputVector, learn=True):
 		if self._randomSP:
@@ -169,25 +164,18 @@ class FlatSpatialPooler(SpatialPooler):
 		highTierColumns = self._selectHighTierColumns(overlapsPct)
 		virginColumns = self._selectVirginColumns()
 
-		# Include this section if useHighTier is to be used without randomSP #
 		if learn:
 			vipOverlaps = self._boostFactors * overlaps
 		else:
 			vipOverlaps = overlaps.copy()
-		# end here #
 
 		vipBonus = max(vipOverlaps) + 1.0
-		# Include only if to be used without randomSP
 		if learn:
 			vipOverlaps[virginColumns] = vipBonus
-		# End
 		vipOverlaps[highTierColumns] += vipBonus
 		activeColumns = self._inhibitColumns(vipOverlaps)
 
-
-		# Include this section if useHighTier is to be used without randomSP #
 		if learn:
-			orphanColumns = self._calculateOrphanColumns(activeColumns, overlapsPct)
 			self._adaptSynapses(inputVector, activeColumns)
 			self._updateDutyCycles(overlaps, activeColumns)
 			self._bumpUpWeakColumns() 
@@ -196,10 +184,8 @@ class FlatSpatialPooler(SpatialPooler):
 			if self._isUpdateRound():
 				self._updateInhibitionRadius()
 				self._updateMinDutyCycles()
-		# End include #
-
-
-		# TODO: don't let columns that never learned win (if not learning) 
+		else:
+      activeColumns = self._stripNeverLearned(activeColumns)
 
 		activeArray = numpy.zeros(self._numColumns)
 		activeArray[activeColumns] = 1
