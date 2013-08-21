@@ -235,8 +235,10 @@ class OPFModelRunner(object):
 
     if self._useStreams:
       from grokengine.cluster.database.stream_reader import StreamReader
+      from grokengine.support.configuration \
+                          import Configuration as EngineConfiguration
       readTimeout = int(
-        Configuration.get('nupic.cluster.database.inputcache.timeout'))
+        EngineConfiguration.get('nupic.cluster.database.inputcache.timeout'))
     else:
       from nupic.data.stream_reader import StreamReader
       readTimeout = 0 
