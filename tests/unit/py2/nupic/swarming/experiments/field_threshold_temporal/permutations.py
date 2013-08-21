@@ -22,19 +22,20 @@ from nupic.swarming.permutationhelpers import *
 # The name of the field being predicted.  Any allowed permutation MUST contain
 # the prediction field.
 # (generated from PREDICTION_FIELD)
-predictedField = 'consumption'
+predictedField = 'attendance'
 
 permutations = {
-  '__model_num': PermuteInt(0, 9),
   
   'modelParams': {
     'sensorParams': {
       'encoders': {
-        'gym': PermuteEncoder(fieldName='gym', encoderClass='SDRCategoryEncoder', w=7, n=100),
+        'attendance': PermuteEncoder(fieldName='attendance', encoderClass='AdaptiveScalarEncoder', maxval=36067, n=PermuteInt(13, 500, 25), clipInput=True, w=7, minval=0),
+        'visitor_winloss': PermuteEncoder(fieldName='visitor_winloss', encoderClass='AdaptiveScalarEncoder', maxval=0.786, n=PermuteInt(13, 500, 25), clipInput=True, w=7, minval=0),
         'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.dayOfWeek', radius=PermuteChoices([1, 3]), w=7),
+        'precip': PermuteEncoder(fieldName='precip', encoderClass='SDRCategoryEncoder', w=7, n=100),
         'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteChoices([1, 8]), w=7),
-        'consumption': PermuteEncoder(fieldName='consumption', encoderClass='ScalarEncoder', maxval=PermuteInt(100, 300, 25), n=PermuteInt(13, 500, 20), w=7, minval=0),
-        'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=7, n=100),
+        'daynight': PermuteEncoder(fieldName='daynight', encoderClass='SDRCategoryEncoder', w=7, n=100),
+        'home_winloss': PermuteEncoder(fieldName='home_winloss', encoderClass='AdaptiveScalarEncoder', maxval=0.7, n=PermuteInt(13, 500, 25), clipInput=True, w=7, minval=0),
       },
     },
   
@@ -54,15 +55,60 @@ permutations = {
 #       report generator
 # (fieldname values generated from PERM_PREDICTED_FIELD_NAME)
 report = [
-          '.*consumption.*',
+          '.*attendance.*',
          ]
 
 # Permutation optimization setting: either minimize or maximize metric
 # used by RunPermutations.
 # NOTE: The value is used as a regular expressions by RunPermutations.py's
 #       report generator
-# (generated from minimize = 'temporal:rmse:field=consumption')
-minimize = 'prediction:rmse:field=consumption'
+# (generated from minimize = 'nonprediction:aae:window=1000:field=attendance')
+minimize = 'prediction:aae:window=1000:field=attendance'
+
+
+#############################################################################
+def dummyModelParams(perm):
+  """ This function can be used for Hypersearch algorithm development. When
+  present, we don't actually run the CLA model in the OPF, but instead run
+  a dummy model. This function returns the dummy model params that will be
+  used. See the OPFDummyModelRunner class source code (in
+  nupic.swarming.ModelRunner) for a description of the schema for
+  the dummy model params.
+  """
+
+
+  #By contribution order from most to least A,B,C,D,E,F
+  #Want A,E combo to give the most contribution followed by A,D then A,C
+  errScore = 100
+  #A
+  if not perm['modelParams']['sensorParams']['encoders']['visitor_winloss'] \
+          is None:
+    errScore -= 25
+  #B
+  if not perm['modelParams']['sensorParams']['encoders']['home_winloss'] \
+          is None:
+    errScore -= 20 
+  #C
+  if not perm['modelParams']['sensorParams']['encoders']\
+          ['timestamp_timeOfDay'] is None:
+    errScore -= 15
+  #D
+  if not perm['modelParams']['sensorParams']['encoders']\
+          ['timestamp_dayOfWeek'] is None:
+    errScore -= 10
+  #E
+  if not perm['modelParams']['sensorParams']['encoders']['precip'] is None:
+    errScore -= 5
+  #F
+  if not perm['modelParams']['sensorParams']['encoders']['daynight'] is None:
+    errScore += 10
+    
+  dummyModelParams = dict(
+                metricValue = errScore,
+                metricFunctions = None,
+                )
+  return dummyModelParams
+
 
 
 #############################################################################
@@ -79,8 +125,7 @@ def permutationFilter(perm):
   """
 
   # An example of how to use this
-  limit = int(os.environ.get('NTA_TEST_maxvalFilter', 300))
-  if perm['modelParams']['sensorParams']['encoders']['consumption']['maxval'] > limit:
-    return False;
-
+  #if perm['__consumption_encoder']['maxval'] > 300:
+  #  return False;
+  #
   return True

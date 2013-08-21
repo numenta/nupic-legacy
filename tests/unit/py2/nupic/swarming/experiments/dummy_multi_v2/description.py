@@ -101,7 +101,7 @@ config = {
     # Model parameter dictionary.
     'modelParams': {
         # The type of inference that this model will perform
-        'inferenceType': 'TemporalMultiStep',
+        'inferenceType': 'TemporalNextStep',
 
         'sensorParams': {
             # Sensor diagnostic output verbosity control;
@@ -125,7 +125,7 @@ config = {
                                    'fieldname': u'consumption',
                                    'maxval': 200,
                                    'minval': 0,
-                                   'n': 501,
+                                   'n': 500,
                                    'name': u'consumption',
                                    'type': 'ScalarEncoder',
                                    'w': 7},
@@ -314,7 +314,6 @@ config = {
     },
           
   
-  'InferenceType': 'TemporalNextStep',
 }
 # end of config dictionary
 
@@ -378,6 +377,8 @@ control = {
   # specified in permutations.py.
   'loggedMetrics': [".*grokScore.*"],
 }
+
+
 
 
 ################################################################################
