@@ -34,14 +34,14 @@ realDType = GetNTAReal()
 
 
 class FlatSpatialPooler(SpatialPooler):
-	"""
-	This class implements the flat spatial pooler. This version of the spatial 
-	pooler contains no toplogy information. It uses global coverage and global
-	inhibition
-	"""
+  """
+  This class implements the flat spatial pooler. This version of the spatial 
+  pooler contains no toplogy information. It uses global coverage and global
+  inhibition
+  """
 
 
-	def __init__(self,
+  def __init__(self,
                inputShape=(32, 32),
                inputBorder=8,
                inputDensity=1.0,
@@ -77,15 +77,15 @@ class FlatSpatialPooler(SpatialPooler):
                randomSP=False,
               ):
 
-		super(FlatSpatialPooler,self).__init__(
-				inputDimensions=numpy.array(inputShape),
-				columnDimensions=numpy.array(coincidencesShape),
-				potentialRadius=coincInputRadius,
-				potentialPct=coincInputPoolPct,
-				globalInhibition=globalInhibition,
-				localAreaDensity=localAreaDensity,
-				numActiveColumnsPerInhArea=numActivePerInhArea,
-				stimulusThreshold=stimulusThreshold,
+    super(FlatSpatialPooler,self).__init__(
+        inputDimensions=numpy.array(inputShape),
+        columnDimensions=numpy.array(coincidencesShape),
+        potentialRadius=coincInputRadius,
+        potentialPct=coincInputPoolPct,
+        globalInhibition=globalInhibition,
+        localAreaDensity=localAreaDensity,
+        numActiveColumnsPerInhArea=numActivePerInhArea,
+        stimulusThreshold=stimulusThreshold,
         synPermInactiveDec=synPermInactiveDec,
         synPermActiveInc=synPermActiveInc,
         synPermConnected=synPermConnected,
@@ -93,110 +93,110 @@ class FlatSpatialPooler(SpatialPooler):
         minPctActiveDutyCycle=minPctDutyCycleAfterInh,
         dutyCyclePeriod=dutyCyclePeriod,
         maxBoost=maxFiringBoost,
-				seed=seed,
-				spVerbosity=spVerbosity,
-			)
+        seed=seed,
+        spVerbosity=spVerbosity,
+      )
 
-		# save arguments
-		self._numInputs = numpy.prod(numpy.array(inputShape))
-		self._numColumns = numpy.prod(numpy.array(coincidencesShape))
-		self._minDistance = minDistance
-		self._randomSP = randomSP
+    # save arguments
+    self._numInputs = numpy.prod(numpy.array(inputShape))
+    self._numColumns = numpy.prod(numpy.array(coincidencesShape))
+    self._minDistance = minDistance
+    self._randomSP = randomSP
 
-		#set active duty cycles to ones, because they set anomaly scores to 0
-		self._activeDutyCycles = numpy.ones(self._numColumns)
+    #set active duty cycles to ones, because they set anomaly scores to 0
+    self._activeDutyCycles = numpy.ones(self._numColumns)
 
-		# set of columns to be 'hungry' for learning
-		self._boostFactors *= maxFiringBoost
+    # set of columns to be 'hungry' for learning
+    self._boostFactors *= maxFiringBoost
 
-	# This constructor is a minimal, stripped down version of the 
-	# constructure above. The constructor above is only used to 
-	# provid backwards compatibility to the old spatial pooler.
-	# def __init__(self,
-	# 						 numInputs,
-	# 						 numColumns,
-	# 						 localAreaDensity=0.1,
-	# 						 numActiveColumnsPerInhArea=-1,
-	# 						 stimulusThreshold=0,
-	# 						 minDistance=0.0,
-	# 						 maxBoost=10.0,
-	# 						 seed=-1,
-	# 						 spVerbosity=0,
-	# 						 randomSP=False,
-	# 						 ):
+  # This constructor is a minimal, stripped down version of the 
+  # constructure above. The constructor above is only used to 
+  # provid backwards compatibility to the old spatial pooler.
+  # def __init__(self,
+  #              numInputs,
+  #              numColumns,
+  #              localAreaDensity=0.1,
+  #              numActiveColumnsPerInhArea=-1,
+  #              stimulusThreshold=0,
+  #              minDistance=0.0,
+  #              maxBoost=10.0,
+  #              seed=-1,
+  #              spVerbosity=0,
+  #              randomSP=False,
+  #              ):
 
-	# 	super(FlatSpatialPooler,self).__init__(
-	# 			inputDimensions=numInputs,
-	# 			columnDimensions=numColumns,
-	# 			potentialRadius=numInputs,
-	# 			potentialPct=0.5,
-	# 			globalInhibition=True,
-	# 			localAreaDensity=localAreaDensity,
-	# 			numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-	# 			stimulusThreshold=stimulusThreshold,
-	# 			seed=seed
-	# 		)
+  #   super(FlatSpatialPooler,self).__init__(
+  #       inputDimensions=numInputs,
+  #       columnDimensions=numColumns,
+  #       potentialRadius=numInputs,
+  #       potentialPct=0.5,
+  #       globalInhibition=True,
+  #       localAreaDensity=localAreaDensity,
+  #       numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+  #       stimulusThreshold=stimulusThreshold,
+  #       seed=seed
+  #     )
 
-	# 	#verify input is valid
-	# 	assert(numColumns > 0)
-	# 	assert(numInputs > 0)
+  #   #verify input is valid
+  #   assert(numColumns > 0)
+  #   assert(numInputs > 0)
 
-	# 	# save arguments
-	# 	self._numInputs = numInputs
-	# 	self._numColumns = numColumns
-	# 	self._minDistance = minDistance
-	# 	self._randomSP = randomSP
+  #   # save arguments
+  #   self._numInputs = numInputs
+  #   self._numColumns = numColumns
+  #   self._minDistance = minDistance
+  #   self._randomSP = randomSP
 
 
-	# 	#set active duty cycles to ones, because they set anomaly scores to 0
-	# 	self._activeDutyCycles = numpy.ones(self._numColumns)
+  #   #set active duty cycles to ones, because they set anomaly scores to 0
+  #   self._activeDutyCycles = numpy.ones(self._numColumns)
 
-	# 	# set of columns to be 'hungry' for learning
-	# 	self._boostFactors *= maxBoost
+  #   # set of columns to be 'hungry' for learning
+  #   self._boostFactors *= maxBoost
 
-	def compute(self, inputVector, learn=True):
-		if self._randomSP:
-			learn=False
+  def compute(self, inputVector, learn=True):
+    if self._randomSP:
+      learn=False
 
-		assert (numpy.size(inputVector) == self._numInputs)
-		self._updateBookeepingVars(learn)
-		inputVector = numpy.array(inputVector, dtype=realDType)
-		overlaps = self._calculateOverlap(inputVector)
-		overlapsPct = self._calculateOverlapPct(overlaps)
-		highTierColumns = self._selectHighTierColumns(overlapsPct)
-		virginColumns = self._selectVirginColumns()
+    assert (numpy.size(inputVector) == self._numInputs)
+    self._updateBookeepingVars(learn)
+    inputVector = numpy.array(inputVector, dtype=realDType)
+    overlaps = self._calculateOverlap(inputVector)
+    overlapsPct = self._calculateOverlapPct(overlaps)
+    highTierColumns = self._selectHighTierColumns(overlapsPct)
+    virginColumns = self._selectVirginColumns()
 
-		if learn:
-			vipOverlaps = self._boostFactors * overlaps
-		else:
-			vipOverlaps = overlaps.copy()
+    if learn:
+      vipOverlaps = self._boostFactors * overlaps
+    else:
+      vipOverlaps = overlaps.copy()
 
-		vipBonus = max(vipOverlaps) + 1.0
-		if learn:
-			vipOverlaps[virginColumns] = vipBonus
-		vipOverlaps[highTierColumns] += vipBonus
-		activeColumns = self._inhibitColumns(vipOverlaps)
+    vipBonus = max(vipOverlaps) + 1.0
+    if learn:
+      vipOverlaps[virginColumns] = vipBonus
+    vipOverlaps[highTierColumns] += vipBonus
+    activeColumns = self._inhibitColumns(vipOverlaps)
 
-		if learn:
-			self._adaptSynapses(inputVector, activeColumns)
-			self._updateDutyCycles(overlaps, activeColumns)
-			self._bumpUpWeakColumns() 
-			self._updateBoostFactors()
+    if learn:
+      self._adaptSynapses(inputVector, activeColumns)
+      self._updateDutyCycles(overlaps, activeColumns)
+      self._bumpUpWeakColumns() 
+      self._updateBoostFactors()
 
-			if self._isUpdateRound():
-				self._updateInhibitionRadius()
-				self._updateMinDutyCycles()
-		else:
-			activeColumns = self._stripNeverLearned(activeColumns)
+      if self._isUpdateRound():
+        self._updateInhibitionRadius()
+        self._updateMinDutyCycles()
+    else:
+      activeColumns = self._stripNeverLearned(activeColumns)
 
-		activeArray = numpy.zeros(self._numColumns)
-		activeArray[activeColumns] = 1
-		return activeArray
+    activeArray = numpy.zeros(self._numColumns)
+    activeArray[activeColumns] = 1
+    return activeArray
 
-	def _selectVirginColumns(self):
-		return numpy.where(self._activeDutyCycles == 0)[0]
+  def _selectVirginColumns(self):
+    return numpy.where(self._activeDutyCycles == 0)[0]
 
-	def _selectHighTierColumns(self, overlapsPct):
-		return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+  def _selectHighTierColumns(self, overlapsPct):
+    return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
 
   
