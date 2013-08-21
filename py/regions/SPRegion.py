@@ -23,16 +23,30 @@ import numpy
 import sys
 import os
 
-from nupic.research import FDRCSpatial2
-
+from nupic.bindings.math import GetNTAReal
+from nupic.research.FDRCSpatial2 import FDRCSpatial2
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler
+import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
 
-from nupic.bindings.math import GetNTAReal
+gDefaultSpatialImp = 'py'
 
-import nupic.research.fdrutilities as fdru
+##############################################################################
+def _getSPClass(spatialImp):
+  """ Return the class corresponding to the given spatialImp string
+  """
 
+  if spatialImp == 'py':
+    return FlatSpatialPooler
+  elif spatialImp == 'cpp':
+    raise RuntimeError("Spatial pooler not yet implemented in C++")
+  elif spatialImp == 'oldpy':
+    return FDRCSpatial2
+  else:
+    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
+              "'cpp', and 'oldpy'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -89,7 +103,7 @@ def _buildArgs(f, self=None, kwargs={}):
   return argTuples
 
 
-def _getAdditionalSpecs(kwargs={}):
+def _getAdditionalSpecs(spatialImp, kwargs={}):
   """Build the additional specs in three groups (for the inspector)
 
   Use the type of the default argument to set the Spec type, defaulting
@@ -122,7 +136,8 @@ def _getAdditionalSpecs(kwargs={}):
   # Get arguments from FDRCSpatial2 constructor, figure out types of variables
   # and populate spatialSpec
   spatialSpec = {}
-  FDRSpatialClass = FDRCSpatial2.FDRCSpatial2
+  # FDRSpatialClass = _getSPClass(spatialImp)
+  FDRSpatialClass = _getSPClass(spatialImp)
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
 
   for argTuple in sArgTuples:
@@ -299,6 +314,7 @@ class SPRegion(PyRegion):
   def __init__(self,
                columnCount,   # Number of columns in the SP, a required parameter
                inputWidth,    # Size of inputs to the SP, a required parameter
+               spatialImp=gDefaultSpatialImp,   #'py', 'cpp', or 'oldpy'
                **kwargs):
 
     if columnCount <= 0 or inputWidth <=0:
@@ -307,7 +323,8 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
-    sArgTuples = _buildArgs(FDRCSpatial2.FDRCSpatial2.__init__, self, kwargs)
+    self._FDRCSpatialClass = _getSPClass(spatialImp)
+    sArgTuples = _buildArgs(self._FDRCSpatialClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial arg names for later use
     self._spatialArgNames = [t[0] for t in sArgTuples]
@@ -444,7 +461,7 @@ class SPRegion(PyRegion):
         outputCloningHeight=coincidencesShape[0]
       )
 
-    self._sfdr = FDRCSpatial2.FDRCSpatial2(
+    self._sfdr = self._FDRCSpatialClass(
                               # These parameters are standard defaults for SPRegion
                               # They can be overridden by explicit calls to
                               # getParameter
@@ -512,7 +529,7 @@ class SPRegion(PyRegion):
     #                     "topDownMode is True")
 
     if self._sfdr is None:
-      raise RuntimeError("FDRCSpatial2 has not been initialized")
+      raise RuntimeError("Spatial pooler has not been initialized")
 
 
     if not self.topDownMode:
@@ -550,7 +567,8 @@ class SPRegion(PyRegion):
         outputs['temporalTopDownOut'][:] = temporalTopDownOut
 
 
-    outputs['anomalyScore'][:] = self._sfdr.getAnomalyScore()
+    # OBSOLETE
+    outputs['anomalyScore'][:] = 0
 
       # Write the bottom up out to our node outputs only if we are doing inference
       #print "SPRegion input: ", buInputVector.nonzero()[0]
@@ -579,7 +597,7 @@ class SPRegion(PyRegion):
     # if we are in learning mode and trainingStep is set appropriately.
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    self._spatialPoolerOutput = self._sfdr.compute(flatInput=rfInput[0],
+    self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
                                                    learn=self.learningMode,
                                                    infer=self.inferenceMode,
                                                    computeAnomaly=self.anomalyMode)
@@ -742,7 +760,7 @@ class SPRegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, o = _getAdditionalSpecs()
+    s, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp)
     spec['parameters'].update(s)
     spec['parameters'].update(o)
 
