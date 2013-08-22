@@ -51,8 +51,8 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  # QA: check for time to run regressions, avg 172sec on Travis, +-10%
-  - "_TIME_START=$(date +%s); _avg_time_runtests=190"
+  # QA: check for time to run regressions, avg 172sec on Travis, +-40%
+  - "_TIME_START=$(date +%s); _avg_time_runtests=220"
   - "$NUPIC/run_tests.sh -c"
   - "_TIME_FINISH=$(date +%s); if [ $(( $_TIME_FINISH - $_TIME_START )) -ge $_avg_time_runtests ]; then echo 'Run_tests.sh takes too long!'; exit 1; fi"
   
