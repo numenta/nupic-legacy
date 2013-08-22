@@ -56,7 +56,7 @@ function exitOnError {
 function prepDirectories {
   [[ -d $NUPIC_INSTALL ]] && echo "Warning: directory \"$NUPIC_INSTALL\" already exists and may contain (old) data. Consider removing it. "
   [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
-  mkdir -p "$BUILDDIR"
+  mkdir -p "$BUILDDIR/pip-build"
   mkdir -p "$NUPIC_INSTALL"
   pushd "$BUILDDIR"
 }
@@ -67,10 +67,10 @@ function pythonSetup {
   # Workaround for matplotlib install bug: numpy must already be installed
   # see http://stackoverflow.com/questions/11797688/matplotlib-requirements-with-pip-install-in-virtualenv
   # https://github.com/matplotlib/matplotlib/wiki/MEP11
-  PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages" numpy==1.7.1
+  PATH=$NUPIC_INSTALL:$PATH pip install --build="$BUILDDIR/pip-build" --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages" numpy==1.7.1
   exitOnError $?
 
-  PATH=$NUPIC_INSTALL:$PATH pip install --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages" -r $NUPIC/external/common/requirements.txt
+  PATH=$NUPIC_INSTALL:$PATH pip install --build="$BUILDDIR/pip-build" --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python${PY_VER}/site-packages" -r $NUPIC/external/common/requirements.txt
   exitOnError $?
   # cov-core may fail to install properly, reporting something to the effect of:
   #
