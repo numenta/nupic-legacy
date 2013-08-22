@@ -85,7 +85,7 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
 
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int32, PyArray_INT32);
 
-#ifndef NTA_PLATFORM_linux32
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
 // size_t (above) is the same as UInt32 on linux32
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt32, PyArray_UINT32);
 #endif

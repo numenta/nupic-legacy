@@ -111,7 +111,7 @@ def installFromManifest(manifestFileName, srcdir, destdir, level, overwrite, des
       # @all@ expands to one file per architecture
       if line.find("@all@") != -1:
         if allArchitectures:
-          arches = ["linux64", "linux32", "darwin86", "win32"]
+          arches = ["linux64", "linux32", "linux32arm", "darwin86", "win32"]
         else:
           arches = [myarch]
         for a in arches:
@@ -125,7 +125,7 @@ def installFromManifest(manifestFileName, srcdir, destdir, level, overwrite, des
       # @allunix@ expands to one file per unix architecture
       elif line.find("@allunix@") != -1:
         if allArchitectures:
-          arches = ["linux64", "linux32", "darwin86"]
+          arches = ["linux64", "linux32", "linux32arm", "darwin86"]
         elif myarch != "win32":
           arches = [myarch]
         else:

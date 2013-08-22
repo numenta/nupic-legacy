@@ -133,7 +133,7 @@ case "${target}" in
         nta_platform_pyembed=""
 	;;
      armv6l-*-*linux*)
-        nta_platform="linux32"
+        nta_platform="linux32arm"
         nta_platform_cxxflags="-fPIC -DPIC -ffloat-store -D_PY27"
         nta_platform_asflags=""
         nta_platform_debug_flag="-g"
