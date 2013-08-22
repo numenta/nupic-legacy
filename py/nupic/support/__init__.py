@@ -76,7 +76,7 @@ import logging
 import logging.config
 import logging.handlers
 from platform import python_version
-import json
+import simplejson as json
 import struct
 from StringIO import StringIO
 import time

@@ -15,4 +15,5 @@ tweepy==2.1
 psutil==1.0.1
 PyYAML==3.10
 # for vision problems, obsolete now:
-#PIL==1.1.7 
+#PIL==1.1.7
+simplejson==3.3.0 
