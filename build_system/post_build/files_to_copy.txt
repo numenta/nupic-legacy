@@ -6,19 +6,13 @@ external/${arch}/lib/python${PythonVersion}/site-packages/matplotlib lib/python$
 external/${arch}/lib/python${PythonVersion}/site-packages/pytz       lib/python${PythonVersion}/site-packages/pytz
 external/${arch}/lib/python${PythonVersion}/site-packages/pylab.py   lib/python${PythonVersion}/site-packages/pylab.py
 
-external/${arch}/lib/python${PythonVersion}/site-packages/PIL   lib/python${PythonVersion}/site-packages/PIL
-@win32 external/${arch}/lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd lib/python${PythonVersion}/site-packages/_psutil_mswindows.pyd
-
 # Platform independent python libraries
-
 external/${arch}/lib/python${PythonVersion}/site-packages/pkg_resources.py   lib/python${PythonVersion}/site-packages/pkg_resources.py
 
 # Platform independent executable scripts
-
 lang/py/bindings/__init__.py   lib/python${PythonVersion}/site-packages/nupic/bindings/__init__.py
 
 # Pull in the pieces of nupic that we want
-
 py/nupic/algorithms    lib/python${PythonVersion}/site-packages/nupic/algorithms
 py/nupic/frameworks    lib/python${PythonVersion}/site-packages/nupic/frameworks
 py/nupic/analysis      lib/python${PythonVersion}/site-packages/nupic/analysis
