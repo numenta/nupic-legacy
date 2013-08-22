@@ -103,7 +103,7 @@ $(externaldir)/lib/libz.a \
 @nta_platform_libs@
 
 #$(externaldir)/lib/libcrypto.a \
-#$(externaldir)/lib/libpng.a
+#$(externaldir)/lib/libpng.a # was used for PIL (vision problems)
 
 ################################################################
 # dont use standard automake options
