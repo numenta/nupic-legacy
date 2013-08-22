@@ -116,7 +116,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   sequences = []
   nextElemIdx = max(hub)+1
   
-  for i in range(numSequences):
+  for _ in range(numSequences):
     seq = []
     for j in range(hubOffset):
       seq.append(nextElemIdx)
@@ -132,7 +132,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   
   # Write out the sequences in random order
   seqIdxs = []
-  for i in range(numRepeats):
+  for _ in range(numRepeats):
     seqIdxs += range(numSequences)
   random.shuffle(seqIdxs)
   
@@ -315,7 +315,7 @@ def _generateFileFromProb(filename, numRecords, categoryList, initProb,
   elementsInSeq = []
   numElementsSinceReset = 0
   maxCatIdx = len(categoryList) - 1
-  for i in xrange(numRecords):
+  for _ in xrange(numRecords):
 
     # Generate a reset?
     if numElementsSinceReset == 0:
