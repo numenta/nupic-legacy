@@ -31,14 +31,13 @@ from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                              PeriodicActivityRequest)
 from nupic.frameworks.opf.opfutils import ModelResult
-from nupic.support import sortedJSONDumpS
+from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
-
 
 
 class OPFDummyModelRunner(OPFModelRunner):
