@@ -12,6 +12,7 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
     - PIP_IGNORE_INSTALLED=1
+    - _NTA_COMPILATION_OUTPUT="Travis"  # see build.sh
 
     # For S3 upload from travis-artifacts
     - ARTIFACTS_AWS_REGION=us-west-2

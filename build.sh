@@ -113,11 +113,17 @@ mkdir -p `dirname $STDOUT`
 
   pythonSetup
   doConfigure
-  doMake
+
+  #workaround: in Travis output to file (10k lines limit there), on local machine, output to screen
+  if [[ x$_NTA_COMPILATION_OUTPUT == "xTravis" ]]; then
+    doMake 1 > $STDOUT 2>&1 
+  else
+    doMake
+  fi
 
   cleanUpDirectories
   cleanUpEnv
-} 2>&1 > $STDOUT
+}
 
 echo
 echo "Stdout redirected to: $STDOUT"
