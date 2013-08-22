@@ -102,10 +102,10 @@ def generateRandomInput(numRecords, elemSize = 400, numSet = 42):
   
   inputs = []
   
-  for i in xrange(numRecords):
+  for _ in xrange(numRecords):
     
     input = np.zeros(elemSize, dtype=realDType)
-    for j in range(0,numSet):
+    for _ in range(0,numSet):
       ind = np.random.random_integers(0, elemSize-1, 1)[0]
       input[ind] = 1
     while abs(input.sum() - numSet) > 0.1:
@@ -520,7 +520,7 @@ def testSPFile():
         sp.compute(inputs[ind], learn=True, infer=False) 
 
     # Test
-    for i in xrange(pattern[1]):
+    for _ in xrange(pattern[1]):
       rand1 = np.random.random_integers(0, size-1, 1)[0]
       rand2 = np.random.random_integers(0, size-1, 1)[0]
     

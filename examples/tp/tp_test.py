@@ -695,7 +695,7 @@ def buildHL0aTrainingSet(numOnes=5):
 
   s = []
   s.append(p[rgen.randint(3,23)])
-  for i in xrange(20):
+  for _ in xrange(20):
     s.append(p[rgen.randint(3,23)])
     s.append(p[0])
     s.append(p[1])
@@ -721,7 +721,7 @@ def buildHL0bTrainingSet(numOnes=5):
 
   s = []
   s.append(p[rgen.randint(5,numPatterns)])
-  for i in xrange(50):
+  for _ in xrange(50):
     r = rgen.randint(5,numPatterns)
     print r,
     s.append(p[r])
@@ -1239,7 +1239,7 @@ def TestB7(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B7"):
 
     print "Test "+name+" (sequence memory - 4 repetition - 1 sequence - slow learning)"
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       trainingSet = buildTrainingSet(numSequences =numSequences,
                                      sequenceLength = sequenceLength,
@@ -1289,7 +1289,7 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
     print "Num patterns in sequence =", numUniquePatterns,
     print "cellsPerColumn=",cellsPerColumn
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       trainingSet = buildTrainingSet(numSequences =numSequences,
                                      sequenceLength = sequenceLength,
@@ -1361,7 +1361,7 @@ def TestB3(numUniquePatterns, nTests):
 
     print "Test B3 (sequence memory - 2 repetitions -", numSequences, "sequences)"
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       trainingSet = buildTrainingSet(numSequences =numSequences,
                                      sequenceLength = sequenceLength,
@@ -1449,7 +1449,7 @@ def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
     print "cellsPerColumn=",cellsPerColumn,"nTests=",nTests,
     print "numSequences=",numSequences, "pctShared=", pctShared
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       trainingSet = buildTrainingSet(numSequences = numSequences,
                                      sequenceLength = sequenceLength,
@@ -1553,7 +1553,7 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
     print "numSequences=",numSequences, "pctShared=", pctShared,
     print "sharing mode=", seqGenMode
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       trainingSet = buildTrainingSet(numSequences = numSequences,
                                      sequenceLength = sequenceLength,
@@ -1673,7 +1673,7 @@ def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
     print "nTrainingReps=", nTrainingReps, "minOnes=", minOnes,
     print "maxOnes=", maxOnes
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       minOnes = 1.5 * newSynapseCount
 
@@ -1832,7 +1832,7 @@ def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2]
     print "maxOnes=", maxOnes,
     print 'noiseModel=', noiseModel, 'noiseLevel=', noiseLevel
 
-    for k in range(nTests): # Test that configuration several times
+    for _ in range(nTests): # Test that configuration several times
 
       minOnes = 1.5 * newSynapseCount
 
@@ -2230,7 +2230,8 @@ def runTests(testLength = "short"):
   #---------------------------------------------------------------------------------
   # Keep
   if False:
-    import hotshot, hotshot.stats
+    import hotshot
+    import hotshot.stats
     prof = hotshot.Profile("profile.prof")
     prof.runcall(TestB2, numUniquePatterns=100, nTests=2)
     prof.close()
