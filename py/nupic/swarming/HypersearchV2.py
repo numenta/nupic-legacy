@@ -1366,9 +1366,29 @@ class HsState(object):
     if self._priorStateJSON is None:
       swarms = dict()
 
+      # Fast Swarm, first and only sprint has one swarm for each field
+      # in fixedFields 
+      if self._hsObj._fixedFields is not None:
+        print self._hsObj._fixedFields
+        encoderSet = []
+        for field in self._hsObj._fixedFields:
+            if field =='_classifierInput':
+              continue
+            encoderName = self.getEncoderKeyFromName(field)
+            assert encoderName in self._hsObj._encoderNames, "The field '%s' " \
+              " specified in the fixedFields list is not present in this " \
+              " model." % (field)
+            encoderSet.append(encoderName)
+        encoderSet.sort()
+        swarms['.'.join(encoderSet)] = {
+                                'status': 'active',
+                                'bestModelId': None,
+                                'bestErrScore': None,
+                                'sprintIdx': 0,
+                                }
       # Temporal prediction search, first sprint has N swarms of 1 field each,
       #  the predicted field may or may not be that one field. 
-      if self._hsObj._searchType == HsSearchType.temporal:
+      elif self._hsObj._searchType == HsSearchType.temporal:
         for encoderName in self._hsObj._encoderNames:
           swarms[encoderName] = {
                                   'status': 'active',
@@ -1531,6 +1551,10 @@ class HsState(object):
                 are how much each field contributed to the best score.
     """
 
+    #in the fast swarm, there is only 1 sprint and field contributions are 
+    #not defined
+    if self._hsObj._fixedFields is not None:
+      return dict(), dict()
     # Get the predicted field encoder name    
     predictedEncoderName = self._hsObj._predictedFieldEncoder
     
@@ -2051,6 +2075,10 @@ class HsState(object):
       if self._state['lastGoodSprint'] is not None:
         return (False, True)
 
+      # if fixedFields is set, we are running a fast swarm and only run sprint0
+      if self._hsObj._fixedFields is not None:
+        return (False, True)
+
       # ----------------------------------------------------------------------
       # Get the best model (if there is one) from the prior sprint. That gives
       # us the base encoder set for the next sprint. For sprint zero make sure
@@ -2196,31 +2224,7 @@ class HsState(object):
                 # If a speculative sprint, only add the first encoder, if not add
                 #   all of them.
                 if (len(self.getActiveSwarms(sprintIdx-1)) > 0):
-                  break
-
-      # ----------------------------------------------------------------------
-      # If the caller gave us a fixed list of fields, then process that logic
-      #  here. This overrides the logic above that builds fields combinations
-      #  incrementally
-      if self._hsObj._fixedFields is not None and sprintIdx > 0:
-        newSwarmIds = set()
-        
-        # There should only be two sprints: sprint #0 where we get the best
-        #  parameters for the predicted field and sprint #1 where we test the
-        #  fixed set of fields provided by the user.
-        if sprintIdx == 1:
-          encoderSet = []
-          for field in self._hsObj._fixedFields:
-            encoderName = self.getEncoderKeyFromName(field)
-            assert encoderName in self._hsObj._encoderNames, "The field '%s' " \
-              " specified in the fixedFields list is not present in this " \
-              " model." % (field)
-            encoderSet.append(encoderName)
-          encoderSet.sort()
-          newSwarmId = '.'.join(encoderSet)
-          if newSwarmId not in self._state['swarms']:
-            newSwarmIds.add(newSwarmId)
-        
+                  break      
         
         
       # ----------------------------------------------------------------------
@@ -2356,6 +2360,8 @@ class HypersearchV2(object):
                                       contents of base description.py file
       description:        OPTIONAL - JSON description of the search
       useStreams:         OPTIONAL - True or False (default True)
+      createCheckpoints:  OPTIONAL - default is to set this to the value of
+                                      useStreams. 
       useTerminators      OPTIONAL - True of False (default config.xml). When set
                                      to False, the model and swarm terminators
                                      are disabled
@@ -2426,6 +2432,8 @@ class HypersearchV2(object):
         clippedObj(searchParams))))
 
     self._useStreams = self._searchParams.get('useStreams', True)
+    self._createCheckpoints = self._searchParams.get('createCheckpoints', 
+                                                     self._useStreams)
     self._maxModels = self._searchParams.get('maxModels', None)
     if self._maxModels == -1:
       self._maxModels = None
@@ -2512,7 +2520,7 @@ class HypersearchV2(object):
           self._searchParams['description']['anomalyParams'] = anomalyParams
         
 
-        # Call the experiment generator to generator the permutations and base
+        # Call the experiment generator to generate the permutations and base
         # description file.
         outDir = self._tempDir = tempfile.mkdtemp()
         expGenerator([
@@ -3942,7 +3950,7 @@ class HypersearchV2(object):
     #  (if there are no streams, we're typically running on a single machine
     #  and just save models to files) but we may want to break this out as
     #  a separate controllable parameter in the future
-    if not self._useStreams:
+    if not self._createCheckpoints:
       modelCheckpointGUID = None
     
     # Register this model in our database

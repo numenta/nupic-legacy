@@ -1351,7 +1351,8 @@ def _generateExperiment(options, outputDirPath, hsVersion):
   # Option permuting over SP synapse decrement value
   tokenReplacements['\$PERM_SP_CHOICES'] = ""
   if options['spPermuteDecrement'] \
-        and options['inferenceType'] != 'NontemporalClassification':
+        and options['inferenceType'] != 'NontemporalClassification' \
+        and not useRandomSP: 
     tokenReplacements['\$PERM_SP_CHOICES'] = \
       _ONE_INDENT +"'synPermInactiveDec': PermuteFloat(0.005, 0.1),\n"
 
