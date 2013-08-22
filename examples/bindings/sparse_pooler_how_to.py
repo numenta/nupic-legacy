@@ -65,12 +65,12 @@ def sparse_pooler_use_case():
     sp.setSigma(.414)
 
     # Learn
-    for i in range(0, 10):
+    for _ in range(0, 10):
         x = numpy.random.random((8))
         sp.learn(x)
 
     # Infer
-    for i in range(0, 10):
+    for _ in range(0, 10):
         x = numpy.random.random((8))
         sp.infer(x)
 

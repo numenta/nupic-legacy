@@ -63,7 +63,6 @@ result from post-processing:
 
 """
 
-import imp
 from nupic.frameworks.prediction.helpers import importBaseDescription
 
 config = dict(
