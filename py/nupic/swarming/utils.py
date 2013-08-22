@@ -30,7 +30,7 @@ import nupic
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support import sortedJSONDumpS
+from nupic.support.serializationutils import sortedJSONDumpS
 
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
