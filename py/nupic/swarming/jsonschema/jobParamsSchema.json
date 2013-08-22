@@ -41,6 +41,12 @@
       "required":false
     },
     
+    "createCheckpoints":{
+      "type":"boolean",
+      "description":"True to create checkpoints of best models. ",
+      "required":false
+    },
+    
     "predictionCacheMaxRecords":{
       "type":["integer", null],
       "minimum":1,
