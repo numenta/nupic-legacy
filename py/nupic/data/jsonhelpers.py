@@ -34,7 +34,10 @@
 # TODO: offer a combined json parsing/validation function that applies
 #       defaults from the schema
 
-import json
+try:
+  import json
+except ImportError:
+  import simplejson as json
 import math
 import os
 

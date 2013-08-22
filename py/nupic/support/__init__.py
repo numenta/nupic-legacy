@@ -76,7 +76,6 @@ import logging
 import logging.config
 import logging.handlers
 from platform import python_version
-import json
 import struct
 from StringIO import StringIO
 import time
@@ -84,6 +83,7 @@ import traceback
 
 
 from configuration import Configuration
+from nupic.data.jsonhelpers import json
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 
 
