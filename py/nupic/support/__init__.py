@@ -76,7 +76,7 @@ import logging
 import logging.config
 import logging.handlers
 from platform import python_version
-import simplejson
+import json
 import struct
 from StringIO import StringIO
 import time
@@ -647,7 +647,7 @@ def sortedJSONDumpS(obj):
     items = obj.items()
     items.sort()
     for key, value in items:
-      itemStrs.append('%s: %s' % (simplejson.dumps(key), sortedJSONDumpS(value)))
+      itemStrs.append('%s: %s' % (json.dumps(key), sortedJSONDumpS(value)))
     return '{%s}' % (', '.join(itemStrs))
 
   elif hasattr(obj, '__iter__'):
@@ -656,7 +656,7 @@ def sortedJSONDumpS(obj):
     return '[%s]' % (', '.join(itemStrs))
 
   else:
-    return simplejson.dumps(obj)
+    return json.dumps(obj)
 
 
 ###############################################################################
@@ -805,25 +805,25 @@ if __name__ == "__main__":
 
   foo = [1, {'a':1, 'b':2}, 3]
   print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
+  print " json:      ", json.dumps(foo)
   print " sortedJSON:", sortedJSONDumpS(foo)
 
   foo = 42
   print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
+  print " json:      ", json.dumps(foo)
   print " sortedJSON:", sortedJSONDumpS(foo)
 
   foo = [1, 3, 5]
   print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
+  print " json:      ", json.dumps(foo)
   print " sortedJSON:", sortedJSONDumpS(foo)
 
   foo = {'za':1, 'b':2}
   print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
+  print " json:      ", json.dumps(foo)
   print " sortedJSON:", sortedJSONDumpS(foo)
 
   foo = {'za':1, 'b':[3, 4, 5, {'zc':3, 'd':[10,11]}]}
   print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
+  print " json:      ", json.dumps(foo)
   print " sortedJSON:", sortedJSONDumpS(foo)
