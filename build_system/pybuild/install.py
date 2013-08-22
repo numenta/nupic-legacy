@@ -319,6 +319,8 @@ def installFromList(filename, srcdir, destdir, overwrite=True, link=False, optim
         if getArch() != "linux64": continue
       elif arch == "@linux32":
         if getArch() != "linux32": continue
+      elif arch == "@linux32arm":
+        if getArch() != "linux32arm": continue
       else:
         raise Exception("Unknown architecture type %s in file %s" % (arch, filename))
       src = elements[1]

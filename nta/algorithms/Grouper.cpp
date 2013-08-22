@@ -79,7 +79,7 @@ namespace nta {
       segmentSize_(segmentSize)
   {     
     const char* where = "Grouper::Grouper(<parameters>): ";
-
+/*
     NTA_CHECK(topNeighbors > 0)
       << where
       << "Invalid top neighbors: " << topNeighbors
@@ -99,6 +99,7 @@ namespace nta {
       << where
       << "Invalid number of tbis: " << n_tbis
       << " - Should be >= 0";
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -122,7 +123,9 @@ namespace nta {
       merges_(),
       segmentSize_(1)
   {
+/*
     readState(inStream);
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -135,6 +138,7 @@ namespace nta {
   //--------------------------------------------------------------------------------
   void Grouper::tbi_create_()
   { 
+/*
     // Delete current data, if any
     tbi_delete_();
     
@@ -184,14 +188,17 @@ namespace nta {
       reqBufSize = std::max((size_type) g->size(), reqBufSize);
 
     tbiBuffer_.resize(reqBufSize, (value_type) 0.0);
+*/
   }
 
   //--------------------------------------------------------------------------------
   void Grouper::tbi_delete_()
   {
+/*
     tbiCellWeights_.clear();
     tbiCellOutputs_.clear();
     tbiBuffer_.clear();
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -200,6 +207,7 @@ namespace nta {
    */
   void Grouper::resetTBIHistory(void)
   { 
+/*
     // If we haven't formed the TBI structures yet, nothing to do
     if (tbiCellWeights_.size() == 0)
       return;
@@ -210,6 +218,7 @@ namespace nta {
 	std::fill(cells.begin(), cells.end(), (value_type)0.0);
       }
     }
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -219,10 +228,12 @@ namespace nta {
   //--------------------------------------------------------------------------------
   void Grouper::resetGroups()
   {
+/*
     resetHistory();
     groups_.clear();
     weights_.resize(0,0);
     tbi_delete_();
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -232,7 +243,7 @@ namespace nta {
       return groups_;
 
     Grouper::Groups slimGroups; // without HOT states
-
+/*
     // Trim groups by keeping only roots of HOT states
     for (size_type i = 0; i != groups_.size(); ++i) {
       AGroup agroup;
@@ -241,13 +252,14 @@ namespace nta {
 	agroup.insert(tam_.getHOTCoincidence(*it));
       slimGroups.push_back(agroup);
     }
-    
+ */   
     return slimGroups;
   }
 
   //--------------------------------------------------------------------------------
   void Grouper::getGroupsString(std::ostream& buf, bool collapsed)
   {   
+/*
     const Grouper::Groups groups = getGroups(collapsed);
     buf << groups.size() << endl;
     for (size_type i = 0; i != groups.size(); ++i) {
@@ -257,6 +269,7 @@ namespace nta {
         buf << *it << " ";
       buf << endl;
     }
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -306,9 +319,11 @@ namespace nta {
   //--------------------------------------------------------------------------------
   void Grouper::pruneCoincidences(const std::vector<size_type>& toDelete)
   {
+/*
     tam_.deleteRows(toDelete.begin(), toDelete.end());
     tam_.deleteCols(toDelete.begin(), toDelete.end());
     resetHistory();
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -317,6 +332,7 @@ namespace nta {
 				     const vector<IdxVal>& sortedCounts,
 				     std::vector<size_type>& neighbors)
   {
+/*
     list<IdxVal> row;
     tam2.getRowToSparse(cur, back_inserter(row));
     if (!alreadyGrouped.empty())
@@ -325,6 +341,7 @@ namespace nta {
     row.resize(min(size_type(row.size()), topNeighbors_));
     neighbors.clear();
     transform(row.begin(), row.end(), back_inserter(neighbors), select1st<IdxVal>());
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -333,6 +350,7 @@ namespace nta {
    */
   void Grouper::group(const vector<IdxVal>& counts)
   {      
+/*
     const char* where = "Grouper::group(): ";
 
     // tam2 contains our tam, adjusted to be symmetric if requested
@@ -442,6 +460,7 @@ namespace nta {
       coincidence_counts[counts[i].first] = value_type(counts[i].second);
 
     finish_grouping_(coincidence_counts);
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -453,6 +472,7 @@ namespace nta {
    */
   void Grouper::finish_grouping_(const vector<value_type>& counts)
   {
+/*
     const size_type n_coincidences = tam_.nRows(); // not HOT!
     weights_.resize(groups_.size(), n_coincidences, true);
     vector<value_type> row(n_coincidences);
@@ -467,6 +487,7 @@ namespace nta {
     }
     
     weights_.normalizeRows();
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -527,6 +548,7 @@ namespace nta {
   //--------------------------------------------------------------------------------
   void Grouper::AHCGroup(size_type nGroups)
   {
+/*
     { // Preconditions
       NTA_CHECK(tam_.nNonZeroRows() > 0)
 	<< "Grouper::AHCGroup: No coincidence learnt yet";
@@ -639,6 +661,7 @@ namespace nta {
     }
 
     groups_from_merges_(nGroups);
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -661,6 +684,7 @@ namespace nta {
 			    std::vector<value_type>& row_sums)
 
   {
+/*
     size_type trace = 0;
     
     if (!(row_sums[g1] > 0)) {
@@ -699,19 +723,18 @@ namespace nta {
 	// transitions from 3 to 0 / (total transitions into 0 and into 3)
 	// = importance of that transition 
 	value_type row_sum = row_sums[g1] + row_sums[g2];
-	/*
-	  value_type diag_prod = 1.0, diag_sum = 1.0;
-	  if (groups[g1].size() >= 2 && groups[g2].size() >= 2) {
-	  diag_prod += utam.get(g1,g1) * utam.get(g2,g2);
-	  diag_sum += utam.get(g1,g1) + utam.get(g2,g2);
-	  }
-	*/
+//	  value_type diag_prod = 1.0, diag_sum = 1.0;
+//	  if (groups[g1].size() >= 2 && groups[g2].size() >= 2) {
+//	  diag_prod += utam.get(g1,g1) * utam.get(g2,g2);
+//	  diag_sum += utam.get(g1,g1) + utam.get(g2,g2);
+//	  }
+
 	value_type val = *nz / row_sum;
-	/*alpha * *nz / diag_prod 
-	  + beta * *nz / row_sum 
-	  + gamma * *nz / (row_sum * diag_prod)
-	  + delta * *nz / diag_sum;
-	*/
+//	//alpha * *nz / diag_prod 
+//	  + beta * *nz / row_sum 
+//	  + gamma * *nz / (row_sum * diag_prod)
+//	  + delta * *nz / diag_sum;
+
 	// Reduce the importance by dividing by a power of the size of the 
 	// groups. This will tend to equalize the group sizes.
 	value_type size_sum(groups[g1].size() + groups[g2].size());
@@ -729,6 +752,7 @@ namespace nta {
 	ntam.set(g2, g1, val);
       }
     }
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -767,6 +791,7 @@ namespace nta {
   //--------------------------------------------------------------------------------
   void Grouper::groups_from_merges_(size_type nGroups)
   {
+/*
     { // Preconditions
       NTA_CHECK(tam_.nNonZeroRows() > 0)
 	<< "Grouper::groups_from_merges_: No coincidence learnt yet";
@@ -828,6 +853,7 @@ namespace nta {
     tam_.rowSums(counts.begin());
    
     finish_grouping_(counts);
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -858,6 +884,7 @@ namespace nta {
 			   const std::vector<value_type>& initial_dist,
 			   Sequences& future) const
   {
+/*
     { // Pre-conditions
       NTA_ASSERT(getMode() == tbi)
 	<< "Grouper::predict: Available only in tbi mode.";
@@ -919,6 +946,7 @@ namespace nta {
 
       copy(y, x);
     }
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -929,6 +957,7 @@ namespace nta {
    */
   void Grouper::predict(size_type tbi_idx, PredictionMode mode, Sequences& future)
   {
+/*
     using namespace std;
 
     { // Pre-conditions
@@ -1003,6 +1032,7 @@ namespace nta {
 	}
       }
     }
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -1023,6 +1053,7 @@ namespace nta {
    */
   void Grouper::saveState(std::ostream& outStream) const
   {
+/*
     {
       NTA_CHECK(outStream.good())
         << "Grouper::saveState(): "
@@ -1068,6 +1099,7 @@ namespace nta {
 
     outStream << segmentSize_ << " ";
     outStream << (size_type) rescaleTBI_ << " ";
+*/
   }
 
   //--------------------------------------------------------------------------------
@@ -1085,6 +1117,7 @@ namespace nta {
    */
   void Grouper::readState(std::istream& inStream)
   {
+/*
     const char* where = "Grouper::readState(): ";
     
     {
@@ -1291,6 +1324,7 @@ namespace nta {
 
     if (version >= 19)
       inStream >> rescaleTBI_;
+*/
   }
 
   //--------------------------------------------------------------------------------

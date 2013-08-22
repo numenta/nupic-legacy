@@ -434,18 +434,15 @@ INLINE_ELAPSED(inline)
 #endif
 
 /*----------------------------------------------------------------*/
-/* Raspberry Pi - use 1MHz system timer - TODO: Add system check  */
-#if !defined(HAVE_TICK_COUNTER)
-/* Pulled from linux-headers-3.2.0-4-common/arch/arm/mach-bcm2708/include/mach/platform.h */
-#define ST_BASE 0x20000000+0x3000
-typedef unsigned long ticks;
+/* Raspberry Pi - use 1MHz system timer                           */
+#if defined(NTA_PLATFORM_linux32arm) && !defined(HAVE_TICK_COUNTER)
+typedef unsigned long long ticks;
 
 static inline ticks getticks(void)
 {
-     ticks ret;
-
-     ret = *(const volatile unsigned long *) ST_BASE + 0x04;
-     return ret;
+     struct timespec t;
+     clock_gettime(CLOCK_MONOTONIC, &t);
+     return (ticks)(t.tv_sec) * 1.0E9 + (ticks)(t.tv_nsec);
 }
 
 #define HAVE_TICK_COUNTER
