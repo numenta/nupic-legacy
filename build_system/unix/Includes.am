@@ -88,7 +88,7 @@ NTA_CXXFLAGS_BASE += -DNTA_PLATFORM_@nta_platform@
 
 NTA_CXXFLAGS_BASE += \
        -Wall -Wreturn-type -Wunused-variable -Wno-deprecated \
-       -DBOOST_NO_WREGEX -DNTA_INSTRUMENT_ON
+       -DBOOST_NO_WREGEX
 
 ################################################################
 
