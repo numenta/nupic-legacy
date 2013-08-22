@@ -152,7 +152,7 @@ def buildOverlappedSequences( numSequences = 2,
   trainingSequences = []
 
   uniquePatternIndices = range(numSharedElements, numPatterns)
-  for i in xrange(numSequences):
+  for _ in xrange(numSequences):
     sequence = []
 
     # pattern indices [0 ... numSharedElements-1] are reserved for the shared
@@ -213,12 +213,12 @@ def buildSequencePool(numSequences = 10,
   # -----------------------------------------------------------------------
   # Create the training sequences
   trainingSequences = []
-  for i in xrange(numSequences):
+  for _ in xrange(numSequences):
 
     # Build it up from patterns
     sequence = []
     length = random.choice(seqLen)
-    for j in xrange(length):
+    for _ in xrange(length):
       patIdx = random.choice(xrange(numPatterns))
       sequence.append(patterns[patIdx])
 
@@ -327,7 +327,7 @@ def assertNoTPDiffs(tps):
   if len(tps) > 2:
     raise "Not implemented for more than 2 TPs"
 
-  same = fdrutils.tpDiff2(*tps.values(), verbosity=VERBOSITY)
+  same = fdrutils.tpDiff2(tps.values(), verbosity=VERBOSITY)
   assert(same)
   return
 
