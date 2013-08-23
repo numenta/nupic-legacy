@@ -3,18 +3,17 @@
 asteval==0.9.1
 mock==1.0.1
 ordereddict==1.1
+PIL==1.1.7
+psutil==1.0.1
 pylint==0.28.0
 pytest==2.4.0.dev8
 pytest-cov==1.6
 pytest-xdist==1.8
 python-dateutil==2.1
+PyYAML==3.10
 unittest2==0.5.1
 validictory==0.9.1
 PyMySQL==0.5
 DBUtils==1.1
 #numpy==1.7.1 #hack - see build.sh
 tweepy==2.1
-psutil==1.0.1
-PyYAML==3.10
-# for vision problems, obsolete now:
-#PIL==1.1.7 
