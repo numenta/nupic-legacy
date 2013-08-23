@@ -81,6 +81,7 @@ class MyTestEnvironment(object):
     thisFile = __file__
     testDir = os.path.split(os.path.abspath(thisFile))[0]
     self.testSrcExpDir = os.path.join(testDir, 'experiments')
+    self.testSrcDataDir = os.path.join(testDir, 'data')
 
     return
 
@@ -127,6 +128,28 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     print "###############################################################"
     print "Running test: %s.%s..." % (self.__class__, self._testMethodName)
+
+
+
+  ############################################################################
+  def _setDataPath(self, env):
+    """ Put the path to our datasets int the NTA_DATA_PATH variable which
+    will be used to set the environment for each of the workers
+    
+    Parameters:
+    ---------------------------------------------------------------------
+    env: The current environment dict
+    """
+    
+    assert env is not None
+    
+    # If already have a path, catenate to it
+    if "NTA_DATA_PATH" in env:
+      newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
+    else:
+      newPath = g_myEnv.testSrcDataDir
+      
+    env["NTA_DATA_PATH"] = newPath
 
 
   ############################################################################
@@ -632,6 +655,12 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     retval:          (jobID, jobInfo, resultsInfoForAllModels, metricResults,
                         minErrScore)
     """
+    
+    # Put in the path to our datasets
+    if env is None:
+      env = dict()
+    self._setDataPath(env)
+    
     # ----------------------------------------------------------------
     # Prepare the jobParams
     jobParams = self._generateHSJobParams(useStreams=useStreams,
