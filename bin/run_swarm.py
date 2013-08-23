@@ -20,10 +20,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This script is the command-line interface for running swarms in nupic
-"""
+"""This script is the command-line interface for running swarms in nupic."""
 from nupic.swarming import permutations_runner
+
+
 
 if __name__ == "__main__":
   permutations_runner.main()
-
