@@ -349,8 +349,8 @@ control = {
   #
   'dataset' :   {u'info': u'test_NoProviders',
       u'streams': [   {   u'columns': [u'*'],
-                          u'info': u'hotGym.csv',
-                          u'source': u'file://extra/qa/hotgym/qa_hotgym.csv'}],
+                          u'info': u'test data',
+                          u'source': u'file://test_data.csv'}],
       u'version': 1},
 
   # Iteration count: maximum number of iterations.  Each iteration corresponds
