@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------
 # Author: Surabhi Gupta
 
-from sets import Set
 import sys
 import numpy as np
 import matplotlib.pylab as pyl
@@ -43,8 +42,8 @@ def analyzeOverlaps(activeCoincsFile, encodingsFile, dataset):
   inputs = encodingsFile.readlines()
   w = len(inputs[0].split(' '))-1
 
-  patterns = Set([])
-  encodings = Set([])
+  patterns = set([])
+  encodings = set([])
   coincs = []    #The set of all coincidences that have won atleast once
   reUsedCoincs = []
   
@@ -62,12 +61,12 @@ def analyzeOverlaps(activeCoincsFile, encodingsFile, dataset):
     
     spBUout = [int(z) for z in lines[x].split(' ')]  
     spBUout.pop(0)         #The first element of each row of spBUOut is the size of the SP 
-    temp = Set(spBUout)
+    temp = set(spBUout)
     spOutput[x]=spBUout
     
     input = [int(z) for z in inputs[x].split(' ')]    
     input.pop(0)   #The first element of each row of sensorBUout is the size of the encoding space
-    tempInput = Set(input)
+    tempInput = set(input)
     inputBits[x]=input
     
     #Creating the encoding space 
@@ -121,8 +120,8 @@ def drawFile(dataset, matrix, patterns, cells, w, fnum):
   count = 0
   assert len(patterns)==len(cells)
   for p in xrange(len(patterns)-1):
-    matrix[p+1:,p] = [len(Set(patterns[p]).intersection(Set(q)))*100/w for q in patterns[p+1:]]
-    matrix[p,p+1:] = [len(Set(cells[p]).intersection(Set(r)))*5/2 for r in cells[p+1:]]
+    matrix[p+1:,p] = [len(set(patterns[p]).intersection(set(q)))*100/w for q in patterns[p+1:]]
+    matrix[p,p+1:] = [len(set(cells[p]).intersection(set(r)))*5/2 for r in cells[p+1:]]
     
     score += sum(abs(np.array(matrix[p+1:,p])-np.array(matrix[p,p+1:])))
     count += len(matrix[p+1:,p])
