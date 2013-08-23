@@ -152,7 +152,7 @@ case "${target}" in
         nta_platform_asflags=""
         nta_platform_debug_flag="-g"
         nta_platform_ldflags="-static-libgcc"
-	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt"
 	nta_platform_mpi_extra_libs="-lrt"
 	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
@@ -167,7 +167,7 @@ case "${target}" in
 	nta_platform_debug_flag="-g"
 	# nta_platform_ldflags="-static-libgcc"
 	# pthread needed by libapr-1
-	nta_platform_libs='-lm -lpthread -ldl -lutil -lcrypt -lstdc++'
+	nta_platform_libs='-lm -lpthread -ldl -lutil -lstdc++'
 	nta_platform_mpi_extra_libs="-lrt"
 	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
