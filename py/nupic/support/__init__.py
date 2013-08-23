@@ -76,7 +76,6 @@ import logging
 import logging.config
 import logging.handlers
 from platform import python_version
-import json
 import struct
 from StringIO import StringIO
 import time
@@ -632,33 +631,6 @@ def clippedObj(obj, maxElementSize=64):
   return objOut
 
 
-#############################################################################
-def sortedJSONDumpS(obj):
-  """
-  Return a JSON representation of obj with sorted keys on any embedded dicts.
-  This insures that the same object will always be represented by the same
-  string even if it contains dicts (where the sort order of the keys is
-  normally undefined).
-  """
-
-  itemStrs = []
-
-  if isinstance(obj, dict):
-    items = obj.items()
-    items.sort()
-    for key, value in items:
-      itemStrs.append('%s: %s' % (json.dumps(key), sortedJSONDumpS(value)))
-    return '{%s}' % (', '.join(itemStrs))
-
-  elif hasattr(obj, '__iter__'):
-    for val in obj:
-      itemStrs.append(sortedJSONDumpS(val))
-    return '[%s]' % (', '.join(itemStrs))
-
-  else:
-    return json.dumps(obj)
-
-
 ###############################################################################
 def intTo8ByteArray(inValue):
   """
@@ -762,68 +734,37 @@ def aggregationToMonthsSeconds(interval):
 def aggregationDivide(dividend, divisor):
   """
   Return the result from dividing two dicts that represent date and time.
-  
+
   Both dividend and divisor are dicts that contain one or more of the following
   keys: 'years', 'months', 'weeks', 'days', 'hours', 'minutes', seconds',
   'milliseconds', 'microseconds'.
-  
+
   Parameters:
   ---------------------------------------------------------------------
   dividend:  The numerator, as a dict representing a date and time
   divisor:   the denominator, as a dict representing a date and time
   retval:    number of times divisor goes into dividend, as a floating point
-                number. 
-  
+                number.
+
   For example:
   aggregationDivide({'hours': 4}, {'minutes': 15}) == 16
-  
+
   """
-  
+
   # Convert each into microseconds
   dividendMonthSec = aggregationToMonthsSeconds(dividend)
   divisorMonthSec = aggregationToMonthsSeconds(divisor)
-  
+
   # It is a usage error to mix both months and seconds in the same operation
   if (dividendMonthSec['months'] != 0 and divisorMonthSec['seconds'] != 0) \
     or (dividendMonthSec['seconds'] != 0 and divisorMonthSec['months'] != 0):
     raise RuntimeError("Aggregation dicts with months/years can only be "
       "inter-operated with other aggregation dicts that contain "
       "months/years")
-    
-  
+
+
   if dividendMonthSec['months'] > 0:
     return float(dividendMonthSec['months']) / divisor['months']
-  
+
   else:
     return float(dividendMonthSec['seconds']) / divisorMonthSec['seconds']
-    
-
-
-
-#####################################################################################
-if __name__ == "__main__":
-
-  foo = [1, {'a':1, 'b':2}, 3]
-  print "\nobj %r: "% (foo)
-  print " json:      ", json.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = 42
-  print "\nobj %r: "% (foo)
-  print " json:      ", json.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = [1, 3, 5]
-  print "\nobj %r: "% (foo)
-  print " json:      ", json.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = {'za':1, 'b':2}
-  print "\nobj %r: "% (foo)
-  print " json:      ", json.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = {'za':1, 'b':[3, 4, 5, {'zc':3, 'd':[10,11]}]}
-  print "\nobj %r: "% (foo)
-  print " json:      ", json.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
