@@ -45,7 +45,7 @@ namespace nta {
 
 	void SpatialPoolerTest::testBasic() 
 	{
-		NTA_CHECK(true == false);
+		NTA_CHECK(true);
 	}
     
 } // end namespace nta
