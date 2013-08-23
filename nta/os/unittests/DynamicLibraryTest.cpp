@@ -44,7 +44,7 @@ static Path getPath(const std::string & s)
   // Assume testeverything is in <nupic-root>/bin/testeverything
   std::string mypath = Path::makeAbsolute(Path::getExecutablePath());
   std::string rootdir = Path::getParent(Path::getParent(mypath));
-  return Path::Path(Path::join(rootdir, s));
+  return Path(Path::join(rootdir, s));
 }
 
 void DynamicLibraryTest::RunTests()
