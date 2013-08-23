@@ -322,8 +322,8 @@ def runPermutations(args):
   fileExtension = os.path.splitext(basename)[1]
 
   # Setup interrupt handling
-  #signal.signal(signal.SIGTERM, termHandler)
-  #signal.signal(signal.SIGINT, termHandler)
+  signal.signal(signal.SIGTERM, termHandler)
+  signal.signal(signal.SIGINT, termHandler)
 
   if fileExtension == '.json':
     expDescJsonPath = fileArgPath
