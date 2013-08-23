@@ -36,4 +36,3 @@ SpatialPooler::SpatialPooler() {
 void SpatialPooler::initialize() {
   std::cout << "SpatialPooler initialized.\n";
 }
-
