@@ -49,6 +49,3 @@ namespace nta {
 	}
     
 } // end namespace nta
-
-
-   

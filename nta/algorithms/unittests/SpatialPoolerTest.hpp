@@ -55,6 +55,7 @@ namespace nta {
   //----------------------------------------------------------------------
 } // end namespace nta
 
+
 #endif // NTA_SPATIAL_POOLER_TEST
 
 
