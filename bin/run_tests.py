@@ -110,7 +110,6 @@ parser.add_option(
   default=False,
   dest="failfast")
 
-
 def main(parser, parse_args):
   """ Parse CLI options and execute tests """
 
@@ -119,6 +118,14 @@ def main(parser, parse_args):
   parser.add_option("-v", "--verbose",
     action="store_true",
     dest="verbose")
+
+  parser.add_option(
+    "-w", #sWarming
+    "--runSwarmingTests",
+    action="store_true",
+    default=False,
+    dest="run_swarming")
+
 
   # Parse CLI args
 
@@ -165,6 +172,9 @@ def main(parser, parse_args):
 
   if options.verbose:
     args.append("-v")
+  
+  if options.run_swarming:
+    args.append("--runSwarmingTests")
 
   if options.failfast:
     args.append("-x")
