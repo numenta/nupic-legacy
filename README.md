@@ -26,7 +26,7 @@ Installation
 ------------
 
 Currently supported platforms:
- * Linux
+ * Linux (32/64bit)
  * Mac OSX
  * VM images ([vagrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine))
 
