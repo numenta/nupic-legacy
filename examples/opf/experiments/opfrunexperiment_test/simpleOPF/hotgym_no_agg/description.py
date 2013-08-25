@@ -372,8 +372,6 @@ control = {
   'metrics':[
     MetricSpec(field=u'consumption', metric='multiStep', inferenceElement='multiStepBestPredictions', params={'window': 1000, 'steps': [1, 5], 'errorMetric': 'aae'}),
     MetricSpec(field=u'consumption', metric='multiStep', inferenceElement='multiStepBestPredictions', params={'window': 1000, 'steps': [1, 5], 'errorMetric': 'altMAPE'}),
-    MetricSpec(field=u'consumption', metric='grokScore_scalar', inferenceElement='encodings', params={'frequencyWindow': 1000, 'movingAverageWindow': 1000}),
-    MetricSpec(field=u'consumption', metric='grokScore_scalar', inferenceElement='encodings', params={'frequencyWindow': 1000})
   ],
 
   # Logged Metrics: A sequence of regular expressions that specify which of
