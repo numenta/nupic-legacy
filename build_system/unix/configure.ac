@@ -78,7 +78,7 @@ AC_PROG_INSTALL
 if [[ "$PYTHON_VERSION" != "2.6" ]] && [[ "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
 elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
-    AC_SUBST([_PY27],[-D_PY27])
+    AC_DEFINE(_PY27)
 fi
 
 #
