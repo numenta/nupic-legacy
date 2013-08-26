@@ -47,7 +47,7 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  - "$NUPIC/run_tests.sh -c"
+  - "$NUPIC/run_tests.sh --all --coverage"
 
   # run all example files
     # examples/bindings
