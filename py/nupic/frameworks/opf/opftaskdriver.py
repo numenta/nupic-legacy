@@ -22,7 +22,7 @@
 # This script is part of the Online Prediction Framework (OPF) suite.
 # It implements the TaskDriver for an OPF experiment.
 #
-# It's used by OPF RunExperiment and may also be useful for Grok's
+# It's used by OPF RunExperiment and may also be useful for swarming's
 # HyperSearch Worker
 #
 # The TaskDriver is a simple state machine that:
