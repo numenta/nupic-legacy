@@ -105,6 +105,9 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     raised by this method will be considered an error rather than a test
     failure. The default implementation does nothing.
     """
+    if not g_myEnv.options.runSwarmingTests:
+      self.skipTest("Swarming tests are skipped. ")
+
     pass
 
 
@@ -1388,6 +1391,7 @@ class OneNodeTests(ExperimentTestBaseClass):
     error when the predicted field is INCLUDED, so make sure we don't get
     this low error
     """
+
     self._printTestHeader()
     expDir = os.path.join(g_myEnv.testSrcExpDir, 'input_predicted_field')
 
@@ -2667,6 +2671,10 @@ class _ArgParser(object):
     parser.add_option("--hs", dest="hsVersion", default=2, type='int',
                       help=("Hypersearch version (only 2 supported; 1 was "
                             "deprecated) [default: %default]."))
+
+    parser.add_option("--runSwarmingTests", action="store", default=False, 
+	   help="Run Swarming tests (requires MySQL) [default: %default].")
+
     return parser.parse_args(args=cls.args)
 
   @classmethod
