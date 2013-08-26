@@ -1,6 +1,8 @@
 title: Numenta.org
 tagline: Numenta&nbsp;Platform&nbsp;for Intelligent&nbsp;Computing<br/>(NuPIC)
 
+baseurl: http://rhyolight.github.io/nupic/
+
 future: false
 
 markdown: maruku
