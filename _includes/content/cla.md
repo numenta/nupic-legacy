@@ -1,6 +1,12 @@
 
 # The Cortical Learning Algorithm (CLA)
 
+There are many things humans find easy to do that computers are currently unable to do. Tasks such as visual pattern recognition, understanding spoken language, recognizing and manipulating objects by touch, and navigating in a complex world are easy for humans. Yet despite decades of research, we have few viable algorithms for achieving human-like performance on a computer.
+
+In humans, these capabilities are largely performed by the neocortex. The Cortical Learning Algorithm (CLA) is a technology modeled on how the neocortex performs these functions. HTM offers the promise of building machines that approach or exceed human level performance for many cognitive tasks.
+
+For a detailed explanation of the CLA and how it relates to Hierarchal Temporal Memory, see the [CLA White Paper](cla-white-paper.html).
+
 ## Online Learning
 
 Most machine learning techniques are relatively static.  A model is constructed from a training data set, verified on a testing data set, and then applied to real-world data. However the patterns and structure in the world changes over time. Therefore previously accurate models must be regularly retrained with new data, repeating the time and expense of the original process.
