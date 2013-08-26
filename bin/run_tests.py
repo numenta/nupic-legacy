@@ -181,6 +181,9 @@ def main(parser, parse_args):
   if options.unit or options.all:
     tests.add(os.path.join(root, "unit", "py2"))
 
+  if options.integration or options.all:
+    tests.add(os.path.join(root, "integration", "py2"))
+
   if options.verbose:
     args.append("-v")
 
