@@ -1,5 +1,8 @@
 
-> I need help writing this page. Details are in the sections below. I'm open to an entirely different structure, this is just a preliminary outline.
+&nbsp;
+
+<blockquote style="color:red">I need help writing this page. Details are in the sections below. I'm open to an entirely different structure, this is just a preliminary outline.</blockquote>
+<br/>
 
 # Importance of the Cortical Learning Algorithm
 
