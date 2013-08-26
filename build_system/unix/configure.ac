@@ -85,7 +85,7 @@ fi
 PYTHON_SYS_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
 AC_MSG_NOTICE([Python sys prefix is $PYTHON_SYS_PREFIX])
 
-PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib"
+PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib/python$PYTHON_VERSION"
 AC_MSG_NOTICE([Python lib dir is $PYTHON_SYS_LIB])
 AC_SUBST(PYTHON_SYS_LIB)
 
