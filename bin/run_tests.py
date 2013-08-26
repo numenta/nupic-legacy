@@ -77,6 +77,13 @@ parser.add_option(
   default=False,
   dest="coverage")
 parser.add_option(
+  "-m",
+  "--filtermarks",
+  dest="markexpresson",
+  help="Expression for filtering tests by tags that were used to mark the "
+       "test classes and/or methods; presently, 'tag' or 'not tag' are "
+       "supported; e.g., 'not clusterExclusive'")
+parser.add_option(
   "-i",
   "--integration",
   action="store_true",
@@ -116,7 +123,15 @@ def main(parser, parse_args):
 
   # Extensions to test spec (args not part of official test runner)
 
-  parser.add_option("-v", "--verbose",
+  parser.add_option(
+    "-e",
+    "--engine",
+    action="callback",
+    callback=collect_set,
+    dest="engine_tests")
+  parser.add_option(
+    "-v",
+    "--verbose",
     action="store_true",
     dest="verbose")
 
@@ -137,6 +152,9 @@ def main(parser, parse_args):
 
   if options.processes is not None:
     args.extend(["-n", options.processes])
+
+  if options.markexpresson is not None:
+    args.extend(["-m", options.markexpresson])
 
   if options.results is not None:
     results = options.results[:2]
@@ -175,7 +193,40 @@ def main(parser, parse_args):
 
   # Run tests
 
-  return pytest.main(args + list(tests))
+  if options.engine_tests is not None:
+    # Engine tests in qa/
+
+    if options.engine_tests:
+      testlist = options.engine_tests.pop()
+      if testlist.endswith(".testlist"):
+        engine_tests = [test.strip() for test in open(testlist).readlines()]
+
+      else:
+        engine_tests = options.engine_tests
+        engine_tests.add(testlist)
+
+    else:
+      engine_tests = \
+        [
+          test.strip()
+          for test
+          in open("tests/engine.testlist").readlines()
+        ]
+
+    for test in engine_tests:
+      specific_args = \
+        [
+          arg.replace("results.xml", test.replace("/", "_") + ".xml")
+            if arg.startswith("--junitxml=")
+            else arg
+          for arg in args
+        ]
+      pytest.main(specific_args + [test])
+
+  else:
+    # Standard tests
+
+    pytest.main(args + list(tests))
 
 
 if __name__ == "__main__":
