@@ -124,11 +124,12 @@ def main(parser, parse_args):
   # Extensions to test spec (args not part of official test runner)
 
   parser.add_option(
-    "-e",
-    "--engine",
+    "-t",
+    "--testlist",
     action="callback",
     callback=collect_set,
-    dest="engine_tests")
+    dest="testlist_file",
+    help="Test list file, specifying tests (one per line)")
   parser.add_option(
     "-v",
     "--verbose",
@@ -196,27 +197,19 @@ def main(parser, parse_args):
 
   # Run tests
 
-  if options.engine_tests is not None:
-    # Engine tests in qa/
+  if options.testlist_file is not None:
+    # Arbitrary test lists
 
-    if options.engine_tests:
-      testlist = options.engine_tests.pop()
+    if options.testlist_file:
+      testlist = options.testlist_file.pop()
       if testlist.endswith(".testlist"):
-        engine_tests = [test.strip() for test in open(testlist).readlines()]
+        testlist = [test.strip() for test in open(testlist).readlines()]
 
       else:
-        engine_tests = options.engine_tests
-        engine_tests.add(testlist)
+        testlist = options.testlist_file
+        testlist.add(testlist)
 
-    else:
-      engine_tests = \
-        [
-          test.strip()
-          for test
-          in open("tests/engine.testlist").readlines()
-        ]
-
-    for test in engine_tests:
+    for test in testlist:
       specific_args = \
         [
           arg.replace("results.xml", test.replace("/", "_") + ".xml")
