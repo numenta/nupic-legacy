@@ -1,5 +1,5 @@
 
-# Numenta Platform for Intelligent Computing
+# Numenta Platform for Intelligent Computing (NuPIC)
 
 ## Getting Started
 
