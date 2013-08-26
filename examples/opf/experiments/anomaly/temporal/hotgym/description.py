@@ -351,9 +351,9 @@ control = {
   'dataset' : {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
-                            u'info': u'test data',
+                            u'info': u'hotGym.csv',
                             u'last_record': config['numRecords'],
-                            u'source': u'file://test_data.csv'}],
+                            u'source': u'file://extra/hotgym/hotgym.csv'}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
 
