@@ -1,14 +1,27 @@
+#! /usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
-Abstraction around some test framework features to make it easier to move to
+Abstraction around some test framework features to make it easier to
 move to a different framework in the future.
 
 Tests should make use of the built-in unittest framework's features where
@@ -24,29 +37,29 @@ import pytest
 
 
 def tagTest(tag, comment=None):
-  """ A decorator for taggomg a test class or test method with the given tag
+  """ A decorator for tagging a test class or test method with the given tag
   string
-  
+
   tag: test tag string
   comment: reason for the tag; string; optional
-  
+
   Examples:
-  
-  @markTest("slowTests", "takes a long time to execute")
+
+  @tagTest("slowTests", "takes a long time to execute")
   class ClusterTests(TestCase):
     def testSwarmWithAggregation(self):
       pass
-    
+
     def testSwarmWithoutAggregation(self):
       pass
-  
+
   or
-  
+
   class MiscTests(TestCase):
     def testOnePlusOne(self):
       pass
-      
-    @markTest("slowTests")
+
+    @tagTest("slowTests")
     def testSwarm(self):
       pass
   """
