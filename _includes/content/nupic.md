@@ -16,10 +16,10 @@ We're working in providing virtual machines ready to run NuPIC so Windows develo
 
 ## Source Code
 
-<iframe src="http://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large"
+<iframe src="http://ghbtns.com/github-btn.html?user=numenta&amp;repo=nupic&amp;type=watch&amp;count=true&amp;size=large"
   allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
 </iframe>
-<iframe src="http://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=fork&count=true&size=large"
+<iframe src="http://ghbtns.com/github-btn.html?user=numenta&amp;repo=nupic&amp;type=fork&amp;count=true&amp;size=large"
   allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
 </iframe>
 
