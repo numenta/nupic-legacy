@@ -64,5 +64,5 @@ Lots of people are interested in participating remotely. We're going to have at 
 
 
 <script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s); js.id=id;js.async=true;js.src="https://secure.meetup.com/3245529744623182445/script/api/mu.btns.js?id=e9kfqhi2ji04fq8bmcustckcc6";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","mu-bootjs");
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s); js.id=id;js.async=true;js.src="http://secure.meetup.com/3245529744623182445/script/api/mu.btns.js?id=e9kfqhi2ji04fq8bmcustckcc6";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","mu-bootjs");
 </script>
