@@ -22,7 +22,7 @@
     </dd>
     <dt>RSVP</dt>
     <dd>
-        In order to confirm your attendance, you must RSVP on the <strong><a href="http://www.meetup.com/numenta/events/136809782/">NuPIC Meetup Page</a></strong>.
+        <a href="http://www.meetup.com/numenta/events/136809782/" data-event="136809782" class="mu-rsvp-btn">RSVP</a>
     </dd>
     <dt>Parking</dt>
     <dd>There are many parking garages nearby where you can park, but most of them will not allow you to park overnight. We are working with a local parking garage to provide overnight parking. If you need a place to park overnight, <a href="mailto:matt@numenta.org?subject=Hackathon%20Parking">please notify us</a>.</dd>
@@ -61,3 +61,8 @@ Please read through our [community page](http://numenta.org/community.html) to g
 
 #### Streaming Video
 Lots of people are interested in participating remotely. We're going to have at least one web camera set up in the main work area of the Tagged offices, so it is probable that audio and video of you will be broadcast on the internet during the hackathon. So be sure to brush your hair and look your best ;).
+
+
+<script>
+!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s); js.id=id;js.async=true;js.src="https://secure.meetup.com/3245529744623182445/script/api/mu.btns.js?id=e9kfqhi2ji04fq8bmcustckcc6";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","mu-bootjs");
+</script>
