@@ -14,11 +14,24 @@ We're working in providing virtual machines ready to run NuPIC so Windows develo
 * Linux or Unix environment with gnu compilers
 * Python 2.6 or 2.7
 
-## Road Map
-
-You can get an indication of our current direction by reading through our [Road Map](https://github.com/numenta/nupic/wiki/Road-Map).
-
 ## Source Code
+
+<iframe src="http://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=watch&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
+</iframe>
+<iframe src="http://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=fork&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
+</iframe>
+<iframe src="http://ghbtns.com/github-btn.html?user=numenta&type=follow&count=true&size=large"
+  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
+</iframe>
+
+<br/>
+<br/>
+
+## Build Status
+
+[![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 
 Source Code
 -----------
@@ -29,3 +42,7 @@ We keep our source code on [Github](http://github.com/numenta/nupic).
 Issue Tracking
 --------------
 We use Github Issues for [issue tracking](https://github.com/numenta/nupic/issues) and [Huboard](https://huboard.com/numenta/nupic) for agile planning.
+
+## Road Map
+
+You can get an indication of our current direction by reading through our [Road Map](https://github.com/numenta/nupic/wiki/Road-Map).
