@@ -6,7 +6,7 @@
 <dl>
     <dt>When?</dt>
     <dd>
-        <p>Starts: Saturday, November 2 @ 6PM PST<br/>
+        <p>Starts: Saturday, November 2 @ 10AM PST<br/>
         Ends: Sunday, November 3 @ 7PM PST</p>
     </dd>
     <dt>Where?</dt>
