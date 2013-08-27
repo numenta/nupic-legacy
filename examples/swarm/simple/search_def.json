@@ -1,5 +1,4 @@
 {
-  "environment": "grok", 
   "includedFields": [
     {
       "fieldName": "timestamp", 
@@ -59,3 +58,4 @@
   "iterationCount": -1, 
   "swarmSize": "medium"
 }
+
