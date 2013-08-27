@@ -3,6 +3,8 @@ layout: default
 title: Numenta.org News Items
 ---
 
+<div id="jump-menu"></div>
+
 {% for post in site.categories.news limit:3 %}
 <section>
     <h3 class="date">{{ post.date | date_to_string }}</h3>
