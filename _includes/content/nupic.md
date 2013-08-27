@@ -22,9 +22,6 @@ We're working in providing virtual machines ready to run NuPIC so Windows develo
 <iframe src="http://ghbtns.com/github-btn.html?user=numenta&repo=nupic&type=fork&count=true&size=large"
   allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
 </iframe>
-<iframe src="http://ghbtns.com/github-btn.html?user=numenta&type=follow&count=true&size=large"
-  allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30">
-</iframe>
 
 <br/>
 <br/>
