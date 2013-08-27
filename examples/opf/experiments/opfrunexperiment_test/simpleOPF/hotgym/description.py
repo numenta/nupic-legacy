@@ -392,11 +392,6 @@ tasks = [
                    metric='aae',
                    params={'window': 200}),
         
-        MetricSpec(field=u'consumption',
-                   inferenceElement='encodings',
-                   metric='grokScore_scalar',
-                   params={'frequencyWindow': 200,
-                           'movingAverageWindow': 200}),
       ],
 
       # Logged Metrics: A sequence of regular expressions that specify which of
