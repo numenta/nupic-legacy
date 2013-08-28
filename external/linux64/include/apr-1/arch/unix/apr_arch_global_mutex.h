@@ -14,44 +14,24 @@
  * limitations under the License.
  */
 
-#ifndef APR_SUPPORT_H
-#define APR_SUPPORT_H
-
-/**
- * @file apr_support.h
- * @brief APR Support functions
- */
+#ifndef GLOBAL_MUTEX_H
+#define GLOBAL_MUTEX_H
 
 #include "apr.h"
-#include "apr_network_io.h"
-#include "apr_file_io.h"
+#include "apr_private.h"
+#include "apr_general.h"
+#include "apr_lib.h"
+#include "apr_global_mutex.h"
+#include "apr_arch_proc_mutex.h"
+#include "apr_arch_thread_mutex.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+struct apr_global_mutex_t {
+    apr_pool_t *pool;
+    apr_proc_mutex_t *proc_mutex;
+#if APR_HAS_THREADS
+    apr_thread_mutex_t *thread_mutex;
+#endif /* APR_HAS_THREADS */
+};
 
-/**
- * @defgroup apr_support Internal APR support functions
- * @ingroup APR 
- * @{
- */
+#endif  /* GLOBAL_MUTEX_H */
 
-/**
- * Wait for IO to occur or timeout.
- *
- * @param f The file to wait on.
- * @param s The socket to wait on if @a f is @c NULL.
- * @param for_read If non-zero wait for data to be available to read,
- *        otherwise wait for data to be able to be written. 
- * @return APR_TIMEUP if we run out of time.
- */
-apr_status_t apr_wait_for_io_or_timeout(apr_file_t *f, apr_socket_t *s,
-                                        int for_read);
-
-/** @} */
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  /* ! APR_SUPPORT_H */

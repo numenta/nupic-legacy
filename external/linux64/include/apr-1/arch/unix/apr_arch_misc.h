@@ -14,44 +14,54 @@
  * limitations under the License.
  */
 
-#ifndef APR_SUPPORT_H
-#define APR_SUPPORT_H
-
-/**
- * @file apr_support.h
- * @brief APR Support functions
- */
+#ifndef MISC_H
+#define MISC_H
 
 #include "apr.h"
-#include "apr_network_io.h"
+#include "apr_portable.h"
+#include "apr_private.h"
+#include "apr_general.h"
+#include "apr_pools.h"
+#include "apr_getopt.h"
+#include "apr_thread_proc.h"
 #include "apr_file_io.h"
+#include "apr_errno.h"
+#include "apr_getopt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-/**
- * @defgroup apr_support Internal APR support functions
- * @ingroup APR 
- * @{
- */
-
-/**
- * Wait for IO to occur or timeout.
- *
- * @param f The file to wait on.
- * @param s The socket to wait on if @a f is @c NULL.
- * @param for_read If non-zero wait for data to be available to read,
- *        otherwise wait for data to be able to be written. 
- * @return APR_TIMEUP if we run out of time.
- */
-apr_status_t apr_wait_for_io_or_timeout(apr_file_t *f, apr_socket_t *s,
-                                        int for_read);
-
-/** @} */
-
-#ifdef __cplusplus
-}
+#if APR_HAVE_STDIO_H
+#include <stdio.h>
+#endif
+#if APR_HAVE_SIGNAL_H
+#include <signal.h>
+#endif
+#if APR_HAVE_PTHREAD_H
+#include <pthread.h>
 #endif
 
-#endif  /* ! APR_SUPPORT_H */
+#if APR_HAVE_STDLIB_H
+#include <stdlib.h>
+#endif
+#if APR_HAVE_STRING_H
+#include <string.h>
+#endif
+
+#ifdef BEOS
+#include <kernel/OS.h>
+#endif
+
+struct apr_other_child_rec_t {
+    apr_pool_t *p;
+    struct apr_other_child_rec_t *next;
+    apr_proc_t *proc;
+    void (*maintenance) (int, void *, int);
+    void *data;
+    apr_os_file_t write_fd;
+};
+
+#if defined(WIN32) || defined(NETWARE)
+#define WSAHighByte 2
+#define WSALowByte 0
+#endif
+
+#endif  /* ! MISC_H */
+
