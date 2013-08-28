@@ -57,15 +57,20 @@ namespace nta {
   //
   // Refer to Intel manuals for details. Basically, after call to cpuid, the 
   // interesting bits are set to 1 in either ecx or edx:
-  // If 25th bit of edx is 1, we have sse: 2^25 = 33554432.
-  // If 26th bit of edx is 1, we have sse2: 2^26 = 67108864.
+  // If 25th bit of edx is 1, we have sse: 2^25 = 33554432 = 1<<25
+  // If 26th bit of edx is 1, we have sse2.
   // If 0th bit of ecx is 1, we have sse3.
-  // If 19th bit of ecx is 1, we have sse4.1: 2^19 = 524288.
-  // If 20th bit of ecx is 1, we have sse4.2: 2^20 = 1048576.
+  // If 19th bit of ecx is 1, we have sse4.1.
+  // If 20th bit of ecx is 1, we have sse4.2.
   //--------------------------------------------------------------------------------
   static int checkSSE()
   {
     unsigned int f = 1, c,d;
+    const unsigned int  SSE=  1<<25, 
+			SSE2= 1<<26,
+			SSE3= 1<<0,
+			SSE41=1<<19,
+			SSE42=1<<20;
 #ifdef NTA_ASM
 #ifdef NTA_PLATFORM_win32
 
@@ -93,11 +98,11 @@ namespace nta {
 #endif
 #endif //NTA_ASM
     int ret = -1;
-    if (d & 33554432) ret = 1;
-    if (d & 67108864) ret = 2;
-    if (c & 1) ret = 3;
-    if (c & 524288) ret = 41;
-    if (c & 1048576) ret = 42;
+    if (d & SSE) ret = 1;
+    if (d & SSE2) ret = 2;
+    if (c & SSE3) ret = 3;
+    if (c & SSE41) ret = 41;
+    if (c & SSE42) ret = 42;
 
     return ret;
   } 
