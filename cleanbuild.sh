@@ -22,9 +22,6 @@
 
 # Do a clean build of NuPIC.
 
-# Terminate on first failure.
-set -e
-
 # Set up sane defaults.
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
 if [[ ! -z $1 ]] ; then
