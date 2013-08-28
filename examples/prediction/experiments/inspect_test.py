@@ -20,7 +20,8 @@
 # ----------------------------------------------------------------------
 
 from nupic.engine import *
-import os, sys
+import os
+import sys
 
 os.chdir(sys.argv[1] + '/networks')
 
