@@ -24,9 +24,23 @@
 # environment is set up correctly for NuPIC. It requires $NTA to be set prior
 # to invocation as described in the README.
 
-export PATH=$NTA/bin:$PATH
-export PYTHONPATH=$NTA/lib/python2.6/site-packages:$PYTHONPATH
-export NTA_ROOTDIR=$NTA
+# get PYTHON_VERSION early here
+PY_VER=`python -c 'import sys; print sys.version[:3]'`
+
+#orig values for paths, before env.sh has been run
+if [[ -z $_PATH ]]; then
+  export _PATH=$PATH
+fi
+if [[ -z $_PYTHONPATH ]]; then
+  export _PYTHONPATH=$PYTHONPATH
+fi
+
+export PATH="$NTA/bin:$PATH"
+export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
+export NTA_ROOTDIR="$NTA"
+
+# Setup the path to data for OPF experiments
+export NTA_DATA_PATH="$NTA/share/prediction/data:$NTA_DATA_PATH"
 
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
 # different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
