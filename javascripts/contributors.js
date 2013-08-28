@@ -25,32 +25,56 @@
     }
 
     $.ajax(csvUrl).done(function(csv) {
-        var contribs = csvToJson(csv);
-        $('#contributors').html(tmpl({headings: headings, contributors: contribs}));
-
-        $(document).ready(function() {
-            $("table").tablesorter({ 
-                sortList: [[3,0],[2,0],[0,0]] 
-            });
-            $("#tableHeaderCommitter").width(110);
-            $("#tableHeaderReviewer").width(90);
-            $(".tableHeaderTriangle").fadeOut(1000);
-            $("th").hover(function(){
-                //if($('thead').data('hover')) {
-                    $(".tableHeaderTriangle").stop().fadeIn(100);
-                //}
-            },function(){
-                setTimeout(function(){
-                    if(!($('thead').data('hover'))) {
-                        $(".tableHeaderTriangle").stop();
-                        $(".tableHeaderTriangle").fadeOut(500);
+        function addCommits(commitData) {
+            console.log(commitData)
+            var contribs = csvToJson(csv).map(function(thisContributor){
+                var thisContributorCommitData = $.grep(commitData['numenta/nupic'], function(nextObj){
+                    return nextObj.login == thisContributor.Github
+                });
+                if (thisContributorCommitData.length) {
+                    thisContributor.Commits = thisContributorCommitData.shift().commits;
+                    if (thisContributor.Commits == 0) {
+                        thisContributor.Commits = '';
                     }
-                },1000);
+                }
+                return thisContributor;
             });
-            $("thead").hover(
-                function() { $.data(this, 'hover', true); },
-                function() { $.data(this, 'hover', false); }
-            ).data('hover', false);
+            headings.push('Commits');
+            $('#contributors').html(tmpl({headings: headings, contributors: contribs}));
+
+            $(document).ready(function() {
+                $("table").tablesorter({ 
+                    sortList: [[3,0],[2,0],[0,0]] 
+                });
+                $("#tableHeaderCommitter").width(88);
+                $("#tableHeaderReviewer").width(78);
+                $("#tableHeaderCommits").width(77);
+                $(".tableHeaderTriangle").fadeOut(1000);
+                $("th").hover(function(){
+                    //if($('thead').data('hover')) {
+                        $(".tableHeaderTriangle").stop().fadeIn(100);
+                    //}
+                },function(){
+                    setTimeout(function(){
+                        if(!($('thead').data('hover'))) {
+                            $(".tableHeaderTriangle").stop();
+                            $(".tableHeaderTriangle").fadeOut(500);
+                        }
+                    },1000);
+                });
+                $("thead").hover(
+                    function() { $.data(this, 'hover', true); },
+                    function() { $.data(this, 'hover', false); }
+                ).data('hover', false);
+            });
+
+        }
+        $.ajax({
+            url: 'http://issues.numenta.org:8081/contribStats',
+            dataType: 'jsonp',
+            data: { repo: 'numenta/nupic' },
+            success: function(data) { addCommits(data); },
+            jsonp: "callback"
         });
     });
 
