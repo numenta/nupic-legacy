@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,8 +22,7 @@
 #define APR_LDAP_INIT_H
 
 /**
- * @defgroup APR_Util_LDAP LDAP
- * @ingroup APR_Util
+ * @addtogroup APR_Util_LDAP
  * @{
  */
 
@@ -34,6 +33,35 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
+
+
+/**
+ * Macro to detect security related return values.
+ */
+#if defined(LDAP_INSUFFICIENT_ACCESS)
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_ACCESS
+#elif defined(LDAP_INSUFFICIENT_RIGHTS)
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
+#elif defined(APR_HAS_MICROSOFT_LDAPSDK)
+/* The macros above fail to contemplate that LDAP_RETCODE values
+ * may be represented by an enum.  autoconf tests would be much
+ * more robust.
+ */
+#define APU_LDAP_INSUFFICIENT_ACCESS LDAP_INSUFFICIENT_RIGHTS
+#else
+#error The security return codes must be added to support this LDAP toolkit.
+#endif
+
+#if defined(LDAP_SECURITY_ERROR)
+#define APU_LDAP_SECURITY_ERROR LDAP_SECURITY_ERROR
+#else
+#define APU_LDAP_SECURITY_ERROR(n)	\
+    (LDAP_INAPPROPRIATE_AUTH == n) ? 1 \
+    : (LDAP_INVALID_CREDENTIALS == n) ? 1 \
+    : (APU_LDAP_INSUFFICIENT_ACCESS == n) ? 1 \
+    : 0
+#endif
+
 
 /**
  * APR LDAP SSL Initialise function
@@ -58,10 +86,10 @@ extern "C" {
  * apr_ldap_set_option() APR_LDAP_OPT_TLS_CERT option for details.
  * @param result_err The returned result
  */
-APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
-                                   const char *cert_auth_file,
-                                   int cert_file_type,
-                                   apr_ldap_err_t **result_err);
+APU_DECLARE_LDAP(int) apr_ldap_ssl_init(apr_pool_t *pool,
+                                        const char *cert_auth_file,
+                                        int cert_file_type,
+                                        apr_ldap_err_t **result_err);
 
 /**
  * APR LDAP SSL De-Initialise function
@@ -72,7 +100,7 @@ APU_DECLARE(int) apr_ldap_ssl_init(apr_pool_t *pool,
  * @todo currently we do not check whether apr_ldap_ssl_init()
  * has been called first - we probably should.
  */
-APU_DECLARE(int) apr_ldap_ssl_deinit(void);
+APU_DECLARE_LDAP(int) apr_ldap_ssl_deinit(void);
 
 /**
  * APR LDAP initialise function
@@ -108,12 +136,12 @@ APU_DECLARE(int) apr_ldap_ssl_deinit(void);
  * @param secure The security mode to set
  * @param result_err The returned result
  */
-APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
-                               LDAP **ldap,
-                               const char *hostname,
-                               int portno,
-                               int secure,
-                               apr_ldap_err_t **result_err);
+APU_DECLARE_LDAP(int) apr_ldap_init(apr_pool_t *pool,
+                                    LDAP **ldap,
+                                    const char *hostname,
+                                    int portno,
+                                    int secure,
+                                    apr_ldap_err_t **result_err);
 
 /**
  * APR LDAP info function
@@ -123,8 +151,8 @@ APU_DECLARE(int) apr_ldap_init(apr_pool_t *pool,
  * @param pool The pool to use
  * @param result_err The returned result
  */
-APU_DECLARE(int) apr_ldap_info(apr_pool_t *pool,
-                               apr_ldap_err_t **result_err);
+APU_DECLARE_LDAP(int) apr_ldap_info(apr_pool_t *pool,
+                                    apr_ldap_err_t **result_err);
 
 #ifdef __cplusplus
 }
