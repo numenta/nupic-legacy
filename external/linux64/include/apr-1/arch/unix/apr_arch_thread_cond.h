@@ -14,44 +14,29 @@
  * limitations under the License.
  */
 
-#ifndef APR_SUPPORT_H
-#define APR_SUPPORT_H
-
-/**
- * @file apr_support.h
- * @brief APR Support functions
- */
+#ifndef THREAD_COND_H
+#define THREAD_COND_H
 
 #include "apr.h"
-#include "apr_network_io.h"
-#include "apr_file_io.h"
+#include "apr_private.h"
+#include "apr_general.h"
+#include "apr_lib.h"
+#include "apr_thread_mutex.h"
+#include "apr_thread_cond.h"
+#include "apr_pools.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-/**
- * @defgroup apr_support Internal APR support functions
- * @ingroup APR 
- * @{
- */
-
-/**
- * Wait for IO to occur or timeout.
- *
- * @param f The file to wait on.
- * @param s The socket to wait on if @a f is @c NULL.
- * @param for_read If non-zero wait for data to be available to read,
- *        otherwise wait for data to be able to be written. 
- * @return APR_TIMEUP if we run out of time.
- */
-apr_status_t apr_wait_for_io_or_timeout(apr_file_t *f, apr_socket_t *s,
-                                        int for_read);
-
-/** @} */
-
-#ifdef __cplusplus
-}
+#if APR_HAVE_PTHREAD_H
+#include <pthread.h>
 #endif
 
-#endif  /* ! APR_SUPPORT_H */
+/* XXX: Should we have a better autoconf search, something like
+ * APR_HAS_PTHREAD_COND? -aaron */
+#if APR_HAS_THREADS
+struct apr_thread_cond_t {
+    apr_pool_t *pool;
+    pthread_cond_t cond;
+};
+#endif
+
+#endif  /* THREAD_COND_H */
+
