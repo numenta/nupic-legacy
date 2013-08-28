@@ -1738,6 +1738,8 @@ def _generateMetricSpecs(options):
       metricLabel = metricLabel.replace(']', '\\]')
       optimizeMetricLabel = metricLabel
 
+      if options["customErrorMetric"] is not None :
+        optimizeMetricLabel = ".*custom_error_metric.*"
 
     # Legacy, single-step metrics
     else:
@@ -1865,7 +1867,7 @@ def _generateMetricSpecs(options):
                                 metric="custom",
                                 params=options["customErrorMetric"])
       optimizeMetricLabel = ".*custom_error_metric.*"
-
+  
       metricSpecStrings.append(optimizeMetricSpec)
 
 
