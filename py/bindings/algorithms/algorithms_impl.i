@@ -2915,11 +2915,38 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 }
 
 %include <nta/algorithms/spatial_pooler.hpp>
+
 %extend nta::algorithms::spatial_pooler::SpatialPooler
 {
   %pythoncode %{
-    def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_SpatialPooler(*args, **kwargs)
+    import numpy
+    from nupic.bindings.math import (SM32 as SparseMatrix,
+                                     SM_01_32_32 as SparseBinaryMatrix)
+
+    def __init__(self,
+                 inputDimensions=[32,32],
+                 columnDimensions=[64,64],
+                 potentialRadius=16,
+                 potentialPct=0.5,
+                 globalInhibition=False,
+                 localAreaDensity=-1.0,
+                 numActiveColumnsPerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermConnected=0.10,
+                 minPctOverlapDutyCycle=0.001,
+                 minPctActiveDutyCycle=0.001,
+                 dutyCyclePeriod=1000,
+                 maxBoost=10.0,
+                 seed=-1,
+                 spVerbosity=0):
+      self.this = _ALGORITHMS.new_SpatialPooler(inputDimensions,
+        columnDimensions, potentialRadius, potentialPct, globalInhibition,
+        localAreaDensity, numActiveColumnsPerInhArea, stimulusThreshold,
+        synPermInactiveDec, synPermActiveInc, synPermConnected, minPctOverlapDutyCycle,
+        minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, seed, spVerbosity)
+
   %}
 }
 
