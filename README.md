@@ -28,6 +28,7 @@ Installation
 Currently supported platforms:
  * Linux
  * Mac OSX
+ * Raspberry Pi (ARMv6)
  * VM images ([vagrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine))
 
 Dependencies:
