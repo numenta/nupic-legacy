@@ -39,6 +39,9 @@ export PATH="$NTA/bin:$PATH"
 export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
 export NTA_ROOTDIR="$NTA"
 
+# Setup the path to data for OPF experiments
+export NTA_DATA_PATH="$NTA/share/prediction/data:$NTA_DATA_PATH"
+
 # Setup the OS dynamic library path to point to $NTA/lib. There are two
 # different paths to set: DYLD_LIBRARY_PATH on Mac and LD_LIBRARY_PATH on
 # Linux.
