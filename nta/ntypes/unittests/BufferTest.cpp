@@ -314,8 +314,6 @@ void BufferTest::testComplicatedSerialization()
 
 void BufferTest::testArrayMethods()
 {
-  Int32 res = 0;
-  
   // Test read UInt32 array
   {
     const Byte * s = "1 2 3 444";
@@ -329,7 +327,7 @@ void BufferTest::testArrayMethods()
       TEST(result[i]== 0);
     }
   
-    res = reader.read((UInt32 *)result, 3);
+    reader.read((UInt32 *)result, 3);
     for (UInt32 i = 0; i < 3; ++i)
     {
       TEST(result[i] == i+1);
@@ -353,7 +351,7 @@ void BufferTest::testArrayMethods()
       TEST(result[i]== 0);
     }
   
-    res = reader.read((Int32 *)result, 3);
+    reader.read((Int32 *)result, 3);
     for (Int32 i = 0; i < 3; ++i)
     {
       TEST(result[i] == -i-1);
@@ -377,7 +375,7 @@ void BufferTest::testArrayMethods()
       TEST(result[i]== 0);
     }
   
-    res = reader.read((Real32 *)result, 3);
+    reader.read((Real32 *)result, 3);
     for (UInt32 i = 0; i < 3; ++i)
     {
       TEST(result[i] == i+1.5);

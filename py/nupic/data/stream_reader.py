@@ -23,7 +23,7 @@
 import os
 import logging
 from pkg_resources import resource_filename
-import simplejson as json
+import json
 import tempfile
 
 
