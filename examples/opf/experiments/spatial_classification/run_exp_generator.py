@@ -36,8 +36,8 @@ import json
 from optparse import OptionParser
 
 import grokengine.cluster.utils  as cutils
-from grokengine.frameworks.opf.expGenerator.ExpGenerator import expGenerator
-from grokengine.frameworks.opf.permutations_runner import runPermutations
+from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
+from nupic.frameworks.opf.permutations_runner import runPermutations
 
 
 ##############################################################################

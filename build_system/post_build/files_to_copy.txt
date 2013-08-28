@@ -19,6 +19,8 @@ py/nupic/analysis      lib/python${PythonVersion}/site-packages/nupic/analysis
 py/nupic/image         lib/python${PythonVersion}/site-packages/nupic/image
 py/nupic/research      lib/python${PythonVersion}/site-packages/nupic/research
 py/nupic/data          lib/python${PythonVersion}/site-packages/nupic/data
+py/nupic/database      lib/python${PythonVersion}/site-packages/nupic/database
+py/nupic/swarming      lib/python${PythonVersion}/site-packages/nupic/swarming
 py/nupic/encoders      lib/python${PythonVersion}/site-packages/nupic/encoders
 py/nupic/support       lib/python${PythonVersion}/site-packages/nupic/support
 py/regions	       lib/python${PythonVersion}/site-packages/nupic/regions
@@ -37,6 +39,7 @@ qa/shared_data      share/test/data
 tests tests
 run_tests.sh bin/run_tests.sh
 bin/run_tests.py bin/run_tests.py
+bin/run_swarm.py bin/run_swarm.py
 
 # miscellaneous files
 external/licenses               share/doc/licenses
