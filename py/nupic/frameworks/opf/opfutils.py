@@ -236,8 +236,7 @@ class SensorInput(object):
 #
 # predictionEncodings: A sequence of numpy arrays, where each element is the
 #                      binary representation of the corresponding predicted field
-#                      in "predictionRow". The main purpose of this is for
-#                      computing the Grok Score
+#                      in "predictionRow". 
 #
 # classification: The classification category of this input.
 #
