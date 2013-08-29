@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -20,33 +20,4 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Do a clean build of NuPIC.
-
-# Set up sane defaults.
-[[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
-if [[ ! -z $1 ]] ; then
-  NUPIC_INSTALL=$1
-elif [[ ! -z $NTA ]] ; then
-  NUPIC_INSTALL=$NTA
-else
-  NUPIC_INSTALL=$HOME/nta/eng
-fi
-
-# Remove old build and install dirs and remake the directories.
-rm -rf "$BUILDDIR"
-mkdir -p "$BUILDDIR"
-rm -rf "$NUPIC_INSTALL"
-mkdir -p "$NUPIC_INSTALL"
-
-pushd `dirname $0`
-
-# Clean up source location.
-python build_system/setup.py --clean
-
-# Re-build and re-install any python modules
-PIP_IGNORE_INSTALLED=1
-
-# Do the build.
-./build.sh "$NUPIC_INSTALL"
-
-popd
+# This directory contains shared code for automated tests
