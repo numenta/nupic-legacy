@@ -73,7 +73,54 @@ namespace nta {
     testInitPermUnconnected();
     testInitPermanence();
     testUpdatePermanencesForColumn();
+    testUpdateInhibitionRadius();
+    testUpdateMinDutyCycles();
+    testUpdateMinDutyCyclesGlobal();
+    testUpdateMinDutyCyclesLocal();
+    testUpdateDutyCycles();
+    testAvgColumnsPerInput();
+    testAvgConnectedSpanForColumn1D();
+    testAvgConnectedSpanForColumn2D();
+    testAvgConnectedSpanForColumnND();
+    testAdaptSynapses();
+    testBumpUpWeakColumns();          
+    testUpdateDutyCyclesHelper();
+    testUpdateBoostFactors();
+    testUpdateBookeepingVars();
+    testCalculateOverlap();
+    testCalculateOverlapPct();
+    testInhibitColumns();
+    testInhibitColumnsGlobal();
+    testInhibitColumnsLocal();
+    testGetNeighbors1D();
+    testGetNeighbors2D();
+    testGetNeighborsND();  
+    testIsUpdateRound();
 	}  
+
+  void SpatialPoolerTest::testUpdateInhibitionRadius() {}
+  void SpatialPoolerTest::testUpdateMinDutyCycles() {}
+  void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {}
+  void SpatialPoolerTest::testUpdateMinDutyCyclesLocal() {}
+  void SpatialPoolerTest::testUpdateDutyCycles() {}
+  void SpatialPoolerTest::testAvgColumnsPerInput() {}
+  void SpatialPoolerTest::testAvgConnectedSpanForColumn1D() {}
+  void SpatialPoolerTest::testAvgConnectedSpanForColumn2D() {}
+  void SpatialPoolerTest::testAvgConnectedSpanForColumnND() {}
+  void SpatialPoolerTest::testAdaptSynapses() {}
+  void SpatialPoolerTest::testBumpUpWeakColumns() {}
+  void SpatialPoolerTest::testUpdateDutyCyclesHelper() {}
+  void SpatialPoolerTest::testUpdateBoostFactors() {}
+  void SpatialPoolerTest::testUpdateBookeepingVars() {}
+  void SpatialPoolerTest::testCalculateOverlap() {}
+  void SpatialPoolerTest::testCalculateOverlapPct() {}
+  void SpatialPoolerTest::testInhibitColumns() {}
+  void SpatialPoolerTest::testInhibitColumnsGlobal() {}
+  void SpatialPoolerTest::testInhibitColumnsLocal() {}
+  void SpatialPoolerTest::testGetNeighbors1D() {}
+  void SpatialPoolerTest::testGetNeighbors2D() {}
+  void SpatialPoolerTest::testGetNeighborsND() {}
+  bool SpatialPoolerTest::testIsUpdateRound() {}
 
   void SpatialPoolerTest::testRaisePermanencesToThreshold()
   {
@@ -153,15 +200,15 @@ namespace nta {
 
     Real truePerm[5][5] = 
        {{ 0.000, 0.500, 0.400, 0.000, 0.000},
-  //      Clip     -     -      Trim   Trim
+        // Clip     -     -      Trim   Trim
         {0.300, 0.000, 0.000, 0.120, 0.090},
-  //       -    Trim   Trim   -     -
+         // -    Trim   Trim   -     -
         {0.070, 0.050, 1.000, 0.190, 0.060},
-  //      -     -   Clip   -     -
+        // -     -   Clip   -     -
         {0.180, 0.090, 0.110, 0.000, 0.000},
-  //      -     -    -      Trim   Trim
+        // -     -    -      Trim   Trim
         {0.200, 0.101, 0.050, 0.000, 1.000}};
-  //      -      -     -      Clip   Clip
+        // -      -     -      Clip   Clip
     
     UInt trueConnectedSynapses[5][5] = 
       {{0, 1, 1, 0, 0},
@@ -274,7 +321,6 @@ namespace nta {
     sp.initialize(inputDim,columnDim);
     sp.setPotentialRadius(potentialRadius);
     sp.setPotentialPct(potentialPct);
-
 
     UInt truePotential1[10][10] = 
     {{ 1, 1, 0, 0, 0, 0, 0, 0, 0, 1 },

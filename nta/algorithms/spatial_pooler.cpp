@@ -440,6 +440,7 @@ Real SpatialPooler::real_rand()
 
 vector<UInt> SpatialPooler::compute(vector<UInt> inputVector, bool learn)
 {
+  // TODO: implement stub
   vector<UInt> activeColumns(numColumns_, 0);
   return activeColumns;
 }
@@ -557,7 +558,150 @@ UInt SpatialPooler::raisePermanencesToThreshold_(vector<Real>& perm,
 
 void SpatialPooler::updateInhibitionRadius_()
 {
+  // TODO: implement
   return;
+}
+
+void SpatialPooler::updateMinDutyCycles_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateMinDutyCyclesGlobal_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateMinDutyCyclesLocal_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateDutyCycles_(vector<UInt>& overlaps, 
+                       vector<UInt>& activeColumns)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::avgColumnsPerInput_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::avgConnectedSpanForColumn1D_(UInt column)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::avgConnectedSpanForColumn2D_(UInt column)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector, 
+                    vector<UInt>& activeColumns)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::bumpUpWeakColumns_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
+                                     vector<UInt> newValues, 
+                                     UInt period)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateBoostFactors_()
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::updateBookeepingVars_(bool learn)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::calculateOverlap_(vector<UInt>& inputVector)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::inhibitColumns_(vector<UInt>& overlaps, 
+                     vector<UInt>& activeColumns)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::inhibitColumnsGlobal_(vector<UInt>& overlaps, Real density,
+                           vector<UInt>& activeColumns)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::inhibitColumnsLocal_(vector<UInt>& overlaps, Real density,
+                           vector<UInt>& activeColumns)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::getNeighbors1D_(UInt column, vector<UInt>& dimensions, 
+                     UInt radius, bool wrapAround)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::getNeighbors2D_(UInt column, vector<UInt>& dimensions, 
+                     UInt radius, bool wrapAround)
+{
+  // TODO: implement
+  return;
+}
+
+void SpatialPooler::getNeighborsND_(UInt column, vector<UInt>& dimensions, 
+                     UInt radius, bool wrapAround)
+{
+  // TODO: implement
+  return;
+}
+
+bool SpatialPooler::isUpdateRound_()
+{
+  // TODO: implement
+  return true;
 }
 
 

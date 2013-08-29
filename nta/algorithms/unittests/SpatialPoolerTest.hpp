@@ -61,6 +61,30 @@ namespace nta {
     void testInitPermanence();
     void testUpdatePermanencesForColumn();
     void testRaisePermanencesToThreshold();
+    void testUpdateInhibitionRadius();
+    void testUpdateMinDutyCycles();
+    void testUpdateMinDutyCyclesGlobal();
+    void testUpdateMinDutyCyclesLocal();
+    void testUpdateDutyCycles();
+    void testAvgColumnsPerInput();
+    void testAvgConnectedSpanForColumn1D();
+    void testAvgConnectedSpanForColumn2D();
+    void testAvgConnectedSpanForColumnND();
+    void testAdaptSynapses();
+    void testBumpUpWeakColumns();          
+    void testUpdateDutyCyclesHelper();
+    void testUpdateBoostFactors();
+    void testUpdateBookeepingVars();
+    void testCalculateOverlap();
+    void testCalculateOverlapPct();
+    void testInhibitColumns();
+    void testInhibitColumnsGlobal();
+    void testInhibitColumnsLocal();
+    void testGetNeighbors1D();
+    void testGetNeighbors2D();
+    void testGetNeighborsND();  
+    bool testIsUpdateRound();
+
   }; // end class SpatialPoolerTest
     
   //----------------------------------------------------------------------
@@ -68,6 +92,3 @@ namespace nta {
 
 
 #endif // NTA_SPATIAL_POOLER_TEST
-
-
-
