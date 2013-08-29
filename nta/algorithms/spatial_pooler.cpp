@@ -35,30 +35,28 @@ using namespace std;
 using namespace nta;
 using namespace nta::algorithms::spatial_pooler;
 
-SpatialPooler::SpatialPooler(vector<UInt> inputDimensions,
-  vector<UInt> columnDimensions,
-  UInt potentialRadius=16,
-  Real potentialPct=0.5,
-  bool globalInhibition=true,
-  Real localAreaDensity=-1.0,
-  UInt numActiveColumnsPerInhArea=10,
-  UInt stimulusThreshold=0,
-  Real synPermInactiveDec=0.01,
-  Real synPermActiveInc=0.1,
-  Real synPermConnected=0.1,
-  Real minPctOverlapDutyCycle=0.001,
-  Real minPctActiveDutyCycle=0.001,
-  UInt dutyCyclePeriod=1000,
-  Real maxBoost=10.0,
-  Int seed=1,
-  UInt spVerbosity=0)
-{
-  initialize(inputDimensions, columnDimensions,potentialRadius, potentialPct, 
-             globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
-             stimulusThreshold, synPermInactiveDec, synPermActiveInc, 
-             synPermConnected, minPctOverlapDutyCycle, minPctActiveDutyCycle, 
-             dutyCyclePeriod, maxBoost, seed, spVerbosity);
+SpatialPooler::SpatialPooler() { }
+
+UInt SpatialPooler::getPotentialRadius() 
+{ 
+  return potentialRadius_; 
 }
+
+void SpatialPooler::setPotentialRadius(UInt potentialRadius)
+{ 
+  potentialRadius_ = potentialRadius; 
+}
+
+Real SpatialPooler::getPotentialPct() 
+{ 
+  return potentialPct_; 
+}
+
+void SpatialPooler::setPotentialPct(Real potentialPct)
+{ 
+  potentialPct_ = potentialPct; 
+}
+
           
 bool SpatialPooler::getGlobalInhibition() 
 { 
@@ -179,6 +177,16 @@ Real SpatialPooler::getSynPermTrimThreshold()
 void SpatialPooler::setSynPermTrimThreshold(Real synPermTrimThreshold)
 {
   synPermTrimThreshold_ = synPermTrimThreshold;
+}
+
+Real SpatialPooler::getSynPermActiveInc()
+{
+  return synPermActiveInc_;
+}
+
+void SpatialPooler::setSynPermActiveInc(Real synPermActiveInc)
+{
+  synPermActiveInc_ = synPermActiveInc;
 }
 
 Real SpatialPooler::getSynPermInactiveDec()
@@ -369,10 +377,12 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   NTA_ASSERT(numActiveColumnsPerInhArea > 0 || localAreaDensity > 0);
   NTA_ASSERT(localAreaDensity < 0 ||
     localAreaDensity > 0 && localAreaDensity <= 0.5);
+  NTA_ASSERT(potentialPct > 0 && potentialPct <= 1);
 
   seed_(seed);
 
-  potentialRadius_ = potentialRadius;
+  potentialRadius_ = potentialRadius > numInputs_ ? numInputs_ : 
+                                                    potentialRadius;
   potentialPct_ = potentialPct;
   globalInhibition_ = globalInhibition;
   numActiveColumnsPerInhArea_ = numActiveColumnsPerInhArea;
@@ -411,6 +421,21 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   inhibitionRadius_ = 0;
 
+  for (UInt i = 0; i < numColumns_; ++i)
+  {
+    vector<UInt> potential = mapPotential1D_(i,true);
+    vector<Real> perm = initPermanence_(potential, initConnectedPct_);
+    potentialPools_.rowFromDense(i,potential.begin(),potential.end());
+    updatePermanencesForColumn_(perm,i,true);
+  }
+
+  updateInhibitionRadius_();
+
+}
+
+Real SpatialPooler::real_rand()
+{
+  return ((double)rand()/(double)RAND_MAX);
 }
 
 vector<UInt> SpatialPooler::compute(vector<UInt> inputVector, bool learn)
@@ -419,10 +444,125 @@ vector<UInt> SpatialPooler::compute(vector<UInt> inputVector, bool learn)
   return activeColumns;
 }
 
+vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
+{
+  vector<UInt> potential(numInputs_,0);
+  vector<Int> indices;
+  for (Int i = -potentialRadius_ + column; i <= Int(potentialRadius_ + column); 
+       i++)
+    if (wrapAround)
+      indices.push_back((i + numInputs_) % numInputs_);
+    else if (i >= 0 && i < Int(numInputs_))
+      indices.push_back(i);
+
+  random_shuffle(indices.begin(),indices.end(),rgen_);
+  Int numPotential = Int(round(indices.size() * potentialPct_));
+  for (Int i = 0; i < numPotential; i++)
+    potential[indices[i]] = 1;
+  
+  return potential;
+}
+
+Real SpatialPooler::initPermConnected_()
+{
+  return synPermConnected_ + real_rand() * synPermActiveInc_ / 4.0;
+}
+
+Real SpatialPooler::initPermUnconnected_()
+{
+  return synPermConnected_ * real_rand();
+}
+
+vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential, 
+                                            Real connectedPct)
+{
+  vector<Real> perm(numInputs_, 0);
+  for (UInt i = 0; i < numInputs_; i++) {
+    if (potential[i] < 1) 
+      continue;
+
+    if (real_rand() < connectedPct)
+      perm[i] = initPermConnected_();
+    else
+      perm[i] = initPermUnconnected_();
+    perm[i] = perm[i] < synPermTrimThreshold_ ? 0 : perm[i];
+  }
+
+  return perm;
+}
+
+void SpatialPooler::clip_(vector<Real>& perm, bool trim=false)
+{
+  Real minVal = trim ? synPermTrimThreshold_ : synPermMin_;
+  for (UInt i = 0; i < perm.size(); i++)
+  {
+    perm[i] = perm[i] > synPermMax_ ? synPermMax_ : perm[i];
+    perm[i] = perm[i] < minVal ? synPermMin_ : perm[i];
+  }
+}
+
+
+void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm, UInt column,
+                                                bool raisePerm)
+{
+  vector<UInt> connected(numInputs_,0);
+
+  UInt numConnected;
+  if (raisePerm) {
+    vector<UInt> potential = getPotential(column);
+    raisePermanencesToThreshold_(perm,potential);
+  }
+
+  numConnected = 0;
+  for (UInt i = 0; i < perm.size(); ++i)
+  {
+    if (perm[i] > synPermConnected_) {
+      connected[i] = 1;
+      ++numConnected;
+    }
+  }
+
+  clip_(perm, true);
+  connectedSynapses_.rowFromDense(column,connected.begin(), connected.end());
+  permanences_.setRowFromDense(column, perm);
+  connectedCounts_[column] = numConnected;
+}
+
+UInt SpatialPooler::countConnected_(vector<Real>& perm)
+{
+  UInt numConnected = 0;
+  for (UInt i = 0; i < perm.size(); i++) 
+     if (perm[i] > synPermConnected_)
+       ++numConnected;
+  return numConnected;
+}
+
+UInt SpatialPooler::raisePermanencesToThreshold_(vector<Real>& perm, 
+                                                 vector<UInt>& potential)
+{
+  clip_(perm);
+  UInt numConnected;
+  while (true) 
+  {
+    numConnected = countConnected_(perm);
+    if (numConnected >= stimulusThreshold_)
+      break;
+
+    for (UInt i = 0; i < numInputs_; i++)
+      if (potential[i] > 0)
+        perm[i] += synPermBelowStimulusInc_;
+  }
+  return numConnected;
+}
+
+void SpatialPooler::updateInhibitionRadius_()
+{
+  return;
+}
 
 
 void SpatialPooler::seed_(Int seed)
 {
-  return;
+  rgen_ = Random(seed);
 }
 

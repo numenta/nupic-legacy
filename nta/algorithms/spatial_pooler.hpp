@@ -55,8 +55,128 @@ namespace nta {
       /////////////////////////////////////////////////////////////////////////
       class SpatialPooler {
         public:
+          SpatialPooler();
+
+          ~SpatialPooler() {}
+
+          UInt version() const {
+            return version_;
+          };
+
+          Real real_rand();
+
+          vector<UInt> compute(vector<UInt> inputVector, bool learn);
+
+          UInt getPotentialRadius();
+          void setPotentialRadius(UInt potentialRadius);
+
+          Real getPotentialPct();
+          void setPotentialPct(Real potentialPct);
+
+          bool getGlobalInhibition();
+          void setGlobalInhibition(bool globalInhibition);
+          
+          UInt getNumActiveColumnsPerInhArea();
+          void setNumActiveColumnsPerInhArea(UInt numActiveColumnsPerInhArea);
+          
+          Real getLocalAreaDensity();
+          void setLocalAreaDensity(Real localAreaDensity);
+          
+          UInt getStimulusThreshold();
+          void setStimulusThreshold(UInt stimulusThreshold);
+          
+          UInt getInhibitionRadius();
+          void setInhibitionRadius(UInt inhibitionRadius);
+          
+          UInt getDutyCyclePeriod();
+          void setDutyCyclePeriod(UInt dutyCyclePeriod);
+          
+          Real getMaxBoost();
+          void setMaxBoost(Real maxBoost);
+          
+          UInt getIterationNum();
+          void setIterationNum(UInt iterationNum);
+          
+          UInt getIterationLearnNum();
+          void setIterationLearnNum(UInt iterationLearnNum);
+          
+          UInt getSpVerbosity();
+          void setSpVerbosity(UInt spVerbosity);
+          
+          UInt getUpatePeriod();
+          void setUpdatePeriod(UInt updatePeriod);
+          
+          Real getSynPermTrimThreshold();
+          void setSynPermTrimThreshold(Real synPermTrimThreshold);
+          
+          Real getSynPermActiveInc();
+          void setSynPermActiveInc(Real synPermActiveInc);
+
+          Real getSynPermInactiveDec();
+          void setSynPermInactiveDec(Real synPermInactiveDec);
+
+          Real getSynPermBelowStimulusInc();
+          void setSynPermBelowStimulusInc(Real synPermBelowStimulusInc);
+
+          Real getSynPermConnected();
+          void setSynPermConnected(Real setSynPermConnected);
+
+          Real getMinPctOverlapDutyCycles();
+          void setMinPctOverlapDutyCycles(Real minPctOverlapDutyCycles);
+
+          Real getMinPctActiveDutyCycles();
+          void setMinPctActiveDutyCycles(Real minPctActiveDutyCycles);
+
+          vector<Real> getBoostFactors();
+          void setBoostFactors(const vector<Real>& boostFactors);
+
+          vector<Real> getOverlapDutyCycles();
+          void setOverlapDutyCycles(const vector<Real>& overlapDutyCycles);
+
+          vector<Real> getActiveDutyCycles();
+          void setActiveDutyCycles(const vector<Real>& activeDutyCycles);
+
+          vector<Real> getMinOverlapDutyCycles();
+          void setMinOverlapDutyCycles(const vector<Real>& 
+            minOverlapDutyCycles);
+
+          vector<Real> getMinActiveDutyCycles();
+          void setMinActiveDutyCycles(const vector<Real>& minActiveDutyCycles);
+
+          vector<UInt> getPotential(UInt column);
+          void setPotential(UInt column, const vector<UInt>& potential);
+          
+          vector<Real> getPermanence(UInt column);
+          void setPermanence(UInt column, const vector<Real>& permanence);
+
+          vector<UInt> getConnected(UInt column);
+
+          vector<UInt> getConnectedCounts();
+
+          vector<UInt> mapPotential1D_(UInt column, bool wrapAround);
+
+          Real initPermConnected_();
+          
+          Real initPermUnconnected_();
+
+          vector<Real> initPermanence_(vector<UInt>& potential, 
+                                       Real connectedPct);
+
+          void updatePermanencesForColumn_(vector<Real>& perm, UInt column,
+                                           bool raisePerm);
+
+          UInt raisePermanencesToThreshold_(vector<Real>& perm, 
+                                            vector<UInt>& potential);
+
+          void clip_(vector<Real>& perm, bool trim);
+
+          UInt countConnected_(vector<Real>& perm);
+
+
+          void updateInhibitionRadius_();
+
           /**
-           * Constructor.
+           * Initialize.
            *
            * @param inputDimensions A vector representing the dimensions of the 
                                     input vector. Format is [height, width, 
@@ -194,126 +314,23 @@ namespace nta {
            * @param seed    Seed for our own pseudo-random number generator.
            * @param spVerbosity spVerbosity level: 0, 1, 2, or 3
            */
-          SpatialPooler(vector<UInt> inputDimensions,
-            vector<UInt> columnDimensions,
-            UInt potentialRadius,
-            Real potentialPct,
-            bool globalInhibition,
-            Real localAreaDensity,
-            UInt numActiveColumnsPerInhArea,
-            UInt stimulusThreshold,
-            Real synPermInactiveDec,
-            Real synPermActiveInc,
-            Real synPermConnected,
-            Real minPctOverlapDutyCycle,
-            Real minPctActiveDutyCycle,
-            UInt dutyCyclePeriod,
-            Real maxBoost,
-            Int seed,
-            UInt spVerbosity);
-
-          ~SpatialPooler() {}
-
-          UInt version() const {
-            return version_;
-          };
-
-          vector<UInt> compute(vector<UInt> inputVector, bool learn);
-
-          bool getGlobalInhibition();
-          void setGlobalInhibition(bool globalInhibition);
-          
-          UInt getNumActiveColumnsPerInhArea();
-          void setNumActiveColumnsPerInhArea(UInt numActiveColumnsPerInhArea);
-          
-          Real getLocalAreaDensity();
-          void setLocalAreaDensity(Real localAreaDensity);
-          
-          UInt getStimulusThreshold();
-          void setStimulusThreshold(UInt stimulusThreshold);
-          
-          UInt getInhibitionRadius();
-          void setInhibitionRadius(UInt inhibitionRadius);
-          
-          UInt getDutyCyclePeriod();
-          void setDutyCyclePeriod(UInt dutyCyclePeriod);
-          
-          Real getMaxBoost();
-          void setMaxBoost(Real maxBoost);
-          
-          UInt getIterationNum();
-          void setIterationNum(UInt iterationNum);
-          
-          UInt getIterationLearnNum();
-          void setIterationLearnNum(UInt iterationLearnNum);
-          
-          UInt getSpVerbosity();
-          void setSpVerbosity(UInt spVerbosity);
-          
-          UInt getUpatePeriod();
-          void setUpdatePeriod(UInt updatePeriod);
-          
-          Real getSynPermTrimThreshold();
-          void setSynPermTrimThreshold(Real synPermTrimThreshold);
-          
-          Real getSynPermInactiveDec();
-          void setSynPermInactiveDec(Real synPermInactiveDec);
-
-          Real getSynPermBelowStimulusInc();
-          void setSynPermBelowStimulusInc(Real synPermBelowStimulusInc);
-
-          Real getSynPermConnected();
-          void setSynPermConnected(Real setSynPermConnected);
-
-          Real getMinPctOverlapDutyCycles();
-          void setMinPctOverlapDutyCycles(Real minPctOverlapDutyCycles);
-
-          Real getMinPctActiveDutyCycles();
-          void setMinPctActiveDutyCycles(Real minPctActiveDutyCycles);
-
-          vector<Real> getBoostFactors();
-          void setBoostFactors(const vector<Real>& boostFactors);
-
-          vector<Real> getOverlapDutyCycles();
-          void setOverlapDutyCycles(const vector<Real>& overlapDutyCycles);
-
-          vector<Real> getActiveDutyCycles();
-          void setActiveDutyCycles(const vector<Real>& activeDutyCycles);
-
-          vector<Real> getMinOverlapDutyCycles();
-          void setMinOverlapDutyCycles(const vector<Real>& 
-            minOverlapDutyCycles);
-
-          vector<Real> getMinActiveDutyCycles();
-          void setMinActiveDutyCycles(const vector<Real>& minActiveDutyCycles);
-
-          vector<UInt> getPotential(UInt column);
-          void setPotential(UInt column, const vector<UInt>& potential);
-          
-          vector<Real> getPermanence(UInt column);
-          void setPermanence(UInt column, const vector<Real>& permanence);
-
-          vector<UInt> getConnected(UInt column);
-
-          vector<UInt> getConnectedCounts();
-
           void initialize(vector<UInt> inputDimensions,
             vector<UInt> columnDimensions,
-            UInt potentialRadius,
-            Real potentialPct,
-            bool globalInhibition,
-            Real localAreaDensity,
-            UInt numActiveColumnsPerInhArea,
-            UInt stimulusThreshold,
-            Real synPermInactiveDec,
-            Real synPermActiveInc,
-            Real synPermConnected,
-            Real minPctOverlapDutyCycle,
-            Real minPctActiveDutyCycle,
-            UInt dutyCyclePeriod,
-            Real maxBoost,
-            Int seed,
-            UInt spVerbosity);
+            UInt potentialRadius=16,
+            Real potentialPct=0.5,
+            bool globalInhibition=true,
+            Real localAreaDensity=-1.0,
+            UInt numActiveColumnsPerInhArea=10,
+            UInt stimulusThreshold=0,
+            Real synPermInactiveDec=0.01,
+            Real synPermActiveInc=0.1,
+            Real synPermConnected=0.1,
+            Real minPctOverlapDutyCycles=0.001,
+            Real minPctActiveDutyCycles=0.001,
+            UInt dutyCyclePeriod=1000,
+            Real maxBoost=10.0,
+            Int seed=1,
+            UInt spVerbosity=0);
 
           void seed_(Int seed);
 
@@ -360,6 +377,8 @@ namespace nta {
           SparseBinaryMatrix<UInt,UInt> potentialPools_;
           SparseBinaryMatrix<UInt, UInt> connectedSynapses_;
           vector<UInt> connectedCounts_;
+
+          Random rgen_;
 
       };
     } // end namespace spatial_pooler

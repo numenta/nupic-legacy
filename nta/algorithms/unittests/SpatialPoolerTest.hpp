@@ -28,12 +28,16 @@
 //----------------------------------------------------------------------
 
 #include <nta/test/Tester.hpp>
+#include <nta/algorithms/spatial_pooler.hpp>
 //#include <nta/foundation/TRandom.hpp>
 
 //----------------------------------------------------------------------
 
 #ifndef NTA_SPATIAL_POOLER_TEST
 #define NTA_SPATIAL_POOLER_TEST
+
+
+using namespace nta::algorithms::spatial_pooler;
 
 namespace nta {
 
@@ -48,8 +52,15 @@ namespace nta {
     virtual void RunTests();
 
   private:
-    void testBasic();
-
+    void setup(SpatialPooler& sp, UInt numInputs, UInt numColumns);
+    bool check_vector_eq(UInt arr[], vector<UInt> vec);
+    bool check_vector_eq(Real arr[], vector<Real> vec);
+    void testMapPotential();
+    void testInitPermConnected();
+    void testInitPermUnconnected();
+    void testInitPermanence();
+    void testUpdatePermanencesForColumn();
+    void testRaisePermanencesToThreshold();
   }; // end class SpatialPoolerTest
     
   //----------------------------------------------------------------------
