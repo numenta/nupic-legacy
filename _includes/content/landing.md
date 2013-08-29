@@ -14,7 +14,7 @@ The mission of this project is to build and support a [community]({{ site.baseur
 
 What is NuPIC?
 --------------
-NuPIC, the *Numenta Platform for Intelligent Computing*, comprises a set of learning algorithms that were first described in a [white paper]({{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms.pdf) published by Numenta in 2009. The learning algorithms faithfully capture how layers of neurons in the neocortex learn.  The white paper has been translated into seven languages by volunteers and has generated considerable interest among developers and research scientists.
+NuPIC, the *Numenta Platform for Intelligent Computing*, comprises a set of learning algorithms that were first described in a [white paper]({{ site.baseurl }}/cla-white-paper.html) published by Numenta in 2009. The learning algorithms faithfully capture how layers of neurons in the neocortex learn.  The white paper has been translated into seven languages by volunteers and has generated considerable interest among developers and research scientists.
 
 Why did we create the NuPIC Open Source project?
 --------------

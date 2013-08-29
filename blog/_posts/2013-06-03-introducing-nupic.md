@@ -1,7 +1,7 @@
 ---
 layout: blogpost
 title: Introducing NuPIC
-category: news
+category: blog
 ---
 
 Welcome to the NuPIC open source project.  This is a good place to be if you are interested in machine intelligence and brain modeling.

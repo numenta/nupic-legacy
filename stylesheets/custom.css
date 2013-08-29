@@ -22,6 +22,11 @@ header nav li {
     font-size: 14pt;
 }
 
+header nav li span {
+    font-size: small;
+    padding: 0 5px;
+}
+
 div.wrapper section nav,
 div.wrapper section nav ul,
 div.wrapper section nav ul li {
