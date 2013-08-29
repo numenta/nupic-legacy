@@ -2941,7 +2941,8 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                  maxBoost=10.0,
                  seed=-1,
                  spVerbosity=0):
-      self.this = _ALGORITHMS.new_SpatialPooler(inputDimensions,
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      _ALGORITHMS.SpatialPooler_initialize(self,inputDimensions,
         columnDimensions, potentialRadius, potentialPct, globalInhibition,
         localAreaDensity, numActiveColumnsPerInhArea, stimulusThreshold,
         synPermInactiveDec, synPermActiveInc, synPermConnected, minPctOverlapDutyCycle,
