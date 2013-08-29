@@ -50,11 +50,9 @@ namespace nta {
   {
     for (UInt i = 0; i < vec.size(); i++) {
       Real diff = arr[i] - vec[i];
-      // cout << arr[i] << ":" << vec[i] << ":" << diff << " ";
       if (diff < -1e-5 || diff > 1e-5 )
         return false;
     }
-    // cout << endl;
     return true;
   }
 
@@ -89,7 +87,6 @@ namespace nta {
     sp.setStimulusThreshold(stimulusThreshold);
     sp.setSynPermConnected(synPermConnected);
     sp.setSynPermBelowStimulusInc(synPermBelowStimulusInc);
-    cout << "raisePermanencesToThreshold_" << endl;
     
     UInt potentialArr[7][5] =
       {{ 1, 1, 1, 1, 1 },
