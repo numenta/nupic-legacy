@@ -153,27 +153,53 @@ namespace nta {
 
           vector<UInt> getConnectedCounts();
 
+          // Implementation methods
+
           vector<UInt> mapPotential1D_(UInt column, bool wrapAround);
-
           Real initPermConnected_();
-          
           Real initPermUnconnected_();
-
           vector<Real> initPermanence_(vector<UInt>& potential, 
                                        Real connectedPct);
-
+          void clip_(vector<Real>& perm, bool trim);
           void updatePermanencesForColumn_(vector<Real>& perm, UInt column,
                                            bool raisePerm);
-
+          UInt countConnected_(vector<Real>& perm);
           UInt raisePermanencesToThreshold_(vector<Real>& perm, 
                                             vector<UInt>& potential);
-
-          void clip_(vector<Real>& perm, bool trim);
-
-          UInt countConnected_(vector<Real>& perm);
-
-
           void updateInhibitionRadius_();
+          void updateMinDutyCycles_();
+          void updateMinDutyCyclesGlobal_();
+          void updateMinDutyCyclesLocal_();
+          void updateDutyCycles_(vector<UInt>& overlaps, 
+                                 vector<UInt>& activeColumns);
+          void avgColumnsPerInput_();
+          void avgConnectedSpanForColumn1D_(UInt column);
+          void avgConnectedSpanForColumn2D_(UInt column);
+          void avgConnectedSpanForColumnND_(UInt column);
+          void adaptSynapses_(vector<UInt>& inputVector, 
+                              vector<UInt>& activeColumns);
+          void bumpUpWeakColumns_();          
+          static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
+                                               vector<UInt> newValues, 
+                                               UInt period);
+          void updateBoostFactors_();
+          void updateBookeepingVars_(bool learn);
+          void calculateOverlap_(vector<UInt>& inputVector);
+          void calculateOverlapPct_(vector<UInt>& overlaps);
+          void inhibitColumns_(vector<UInt>& overlaps, 
+                               vector<UInt>& activeColumns);
+          void inhibitColumnsGlobal_(vector<UInt>& overlaps, Real density,
+                                     vector<UInt>& activeColumns);
+          void inhibitColumnsLocal_(vector<UInt>& overlaps, Real density,
+                                     vector<UInt>& activeColumns);
+
+          void getNeighbors1D_(UInt column, vector<UInt>& dimensions, 
+                               UInt radius, bool wrapAround=false);
+          void getNeighbors2D_(UInt column, vector<UInt>& dimensions, 
+                               UInt radius, bool wrapAround=false);
+          void getNeighborsND_(UInt column, vector<UInt>& dimensions, 
+                               UInt radius, bool wrapAround=false);  
+          bool isUpdateRound_();
 
           /**
            * Initialize.
@@ -377,6 +403,9 @@ namespace nta {
           SparseBinaryMatrix<UInt,UInt> potentialPools_;
           SparseBinaryMatrix<UInt, UInt> connectedSynapses_;
           vector<UInt> connectedCounts_;
+
+          vector<UInt> overlaps;
+          vector<UInt> activeColumns;
 
           Random rgen_;
 
