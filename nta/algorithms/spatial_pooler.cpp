@@ -24,6 +24,7 @@
  * Implementation of SpatialPooler
  */
 
+#include <math.h>
 #include <iostream>
 #include <cstring>
 #include <string>
@@ -318,11 +319,11 @@ vector<Real> SpatialPooler::getPermanence(UInt column)
   return perm;
 }
 
-void SpatialPooler::setPermanence(UInt column, const vector<Real>& permanences)
+void SpatialPooler::setPermanence(UInt column, vector<Real>& permanences)
 {
   NTA_ASSERT(column < numColumns_);
   NTA_ASSERT(permanences.size() == numInputs_);
-  permanences_.setRowFromDense(column, permanences);
+  updatePermanencesForColumn_(permanences, column, false);
 }
 
 vector<UInt> SpatialPooler::getConnected(UInt column) 
@@ -418,6 +419,7 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   minOverlapDutyCycles_.assign(numColumns_, 0);
   minActiveDutyCycles_.assign(numColumns_, 0);
   boostFactors_.assign(numColumns_, 1);
+  overlaps.assign(numColumns_, 0);
 
   inhibitionRadius_ = 0;
 
@@ -451,15 +453,19 @@ vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
   vector<Int> indices;
   for (Int i = -potentialRadius_ + column; i <= Int(potentialRadius_ + column); 
        i++)
-    if (wrapAround)
-      indices.push_back((i + numInputs_) % numInputs_);
-    else if (i >= 0 && i < Int(numInputs_))
-      indices.push_back(i);
+    {
+      if (wrapAround) {
+        indices.push_back((i + numInputs_) % numInputs_);
+      } else if (i >= 0 && i < Int(numInputs_)) {
+        indices.push_back(i);
+      }
+    }
 
   random_shuffle(indices.begin(),indices.end(),rgen_);
   Int numPotential = Int(round(indices.size() * potentialPct_));
-  for (Int i = 0; i < numPotential; i++)
+  for (Int i = 0; i < numPotential; i++) {
     potential[indices[i]] = 1;
+  }
   
   return potential;
 }
@@ -479,13 +485,15 @@ vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential,
 {
   vector<Real> perm(numInputs_, 0);
   for (UInt i = 0; i < numInputs_; i++) {
-    if (potential[i] < 1) 
+    if (potential[i] < 1) {
       continue;
+    }
 
-    if (real_rand() < connectedPct)
+    if (real_rand() < connectedPct) {
       perm[i] = initPermConnected_();
-    else
+    } else {
       perm[i] = initPermUnconnected_();
+    } 
     perm[i] = perm[i] < synPermTrimThreshold_ ? 0 : perm[i];
   }
 
@@ -532,9 +540,11 @@ void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm, UInt column,
 UInt SpatialPooler::countConnected_(vector<Real>& perm)
 {
   UInt numConnected = 0;
-  for (UInt i = 0; i < perm.size(); i++) 
-     if (perm[i] > synPermConnected_)
+  for (UInt i = 0; i < perm.size(); i++) {
+     if (perm[i] > synPermConnected_) {
        ++numConnected;
+     }
+   }
   return numConnected;
 }
 
@@ -549,9 +559,11 @@ UInt SpatialPooler::raisePermanencesToThreshold_(vector<Real>& perm,
     if (numConnected >= stimulusThreshold_)
       break;
 
-    for (UInt i = 0; i < numInputs_; i++)
-      if (potential[i] > 0)
+    for (UInt i = 0; i < numInputs_; i++) {
+      if (potential[i] > 0) {
         perm[i] += synPermBelowStimulusInc_;
+      }
+    }
   }
   return numConnected;
 }
@@ -644,33 +656,66 @@ void SpatialPooler::updateBookeepingVars_(bool learn)
   return;
 }
 
-void SpatialPooler::calculateOverlap_(vector<UInt>& inputVector)
+void SpatialPooler::calculateOverlap_(vector<UInt>& inputVector,
+                                      vector<UInt>& overlaps)
 {
-  // TODO: implement
+  overlaps.assign(numColumns_,0);
+  connectedSynapses_.rightVecSumAtNZ(inputVector.begin(),inputVector.end(),
+    overlaps.begin(),overlaps.end());
+  if (stimulusThreshold_ > 0) {
+    for (UInt i = 0; i < numColumns_; i++) {
+      if (overlaps[i] < stimulusThreshold_) {
+        overlaps[i] = 0;
+      }
+    }
+  }
   return;
 }
 
-void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps)
+void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps,
+                                         vector<Real>& overlapPct)
 {
-  // TODO: implement
-  return;
+  overlapPct.assign(numColumns_,0);
+  for (UInt i = 0; i < numColumns_; i++) {
+    overlapPct[i] = ((Real) overlaps[i]) / connectedCounts_[i];
+  }
 }
 
+// Makes a copy of overlaps
 void SpatialPooler::inhibitColumns_(vector<UInt>& overlaps, 
                      vector<UInt>& activeColumns)
 {
-  // TODO: implement
-  return;
+  Real density = localAreaDensity_;
+  if (localAreaDensity_ < 0) {
+    UInt inhibitionArea = pow((Real) (2 * inhibitionRadius_ + 1),
+                              (Real) columnDimensions_.size());
+    inhibitionArea = min(inhibitionArea, numColumns_);
+    density = ((Real) numActiveColumnsPerInhArea_) / inhibitionArea;
+    density = min(density, (Real) 0.5);
+  }
+
+  vector<Real> overlapsReal;
+  overlapsReal.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    overlapsReal[i] = overlaps[i] + 0.1 * real_rand();
+  }
+
+  if (globalInhibition_ || 
+      inhibitionRadius_ > max_element(columnDimensions_)) {
+    inhibitColumnsGlobal_(overlapsReal, density, activeColumns);
+  } else {
+    inhibitColumnsLocal_(overlapsReal, density, activeColumns);
+  }
 }
 
-void SpatialPooler::inhibitColumnsGlobal_(vector<UInt>& overlaps, Real density,
+void SpatialPooler::inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                            vector<UInt>& activeColumns)
 {
   // TODO: implement
   return;
 }
 
-void SpatialPooler::inhibitColumnsLocal_(vector<UInt>& overlaps, Real density,
+void SpatialPooler::inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
                            vector<UInt>& activeColumns)
 {
   // TODO: implement
