@@ -147,7 +147,7 @@ namespace nta {
           void setPotential(UInt column, const vector<UInt>& potential);
           
           vector<Real> getPermanence(UInt column);
-          void setPermanence(UInt column, const vector<Real>& permanence);
+          void setPermanence(UInt column, vector<Real>& permanence);
 
           vector<UInt> getConnected(UInt column);
 
@@ -184,13 +184,15 @@ namespace nta {
                                                UInt period);
           void updateBoostFactors_();
           void updateBookeepingVars_(bool learn);
-          void calculateOverlap_(vector<UInt>& inputVector);
-          void calculateOverlapPct_(vector<UInt>& overlaps);
+          void calculateOverlap_(vector<UInt>& inputVector,
+                                 vector<UInt>& overlaps);
+          void calculateOverlapPct_(vector<UInt>& overlaps,
+                                    vector<Real>& overlapsPct);
           void inhibitColumns_(vector<UInt>& overlaps, 
                                vector<UInt>& activeColumns);
-          void inhibitColumnsGlobal_(vector<UInt>& overlaps, Real density,
+          void inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                                      vector<UInt>& activeColumns);
-          void inhibitColumnsLocal_(vector<UInt>& overlaps, Real density,
+          void inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
                                      vector<UInt>& activeColumns);
 
           void getNeighbors1D_(UInt column, vector<UInt>& dimensions, 
