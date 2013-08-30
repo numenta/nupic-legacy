@@ -22,17 +22,14 @@
 
 # Do a clean build of NuPIC.
 
-# Terminate on first failure.
-set -e
-
 # Set up sane defaults.
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
 if [[ ! -z $1 ]] ; then
-    NUPIC_INSTALL=$1
+  NUPIC_INSTALL=$1
 elif [[ ! -z $NTA ]] ; then
-    NUPIC_INSTALL=$NTA
+  NUPIC_INSTALL=$NTA
 else
-    NUPIC_INSTALL=$HOME/nta/eng
+  NUPIC_INSTALL=$HOME/nta/eng
 fi
 
 # Remove old build and install dirs and remake the directories.
