@@ -75,7 +75,7 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if [[ "$PYTHON_VERSION" != "2.6" && "$PYTHON_VERSION" != "2.7" ]]; then
+if [[ "$PYTHON_VERSION" != "2.6" ]] && [[ "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
 elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
     AC_SUBST([_PY27],[-D_PY27])
@@ -138,7 +138,7 @@ case "${target}" in
         nta_platform_asflags=""
         nta_platform_debug_flag="-g"
         nta_platform_ldflags="-static-libgcc"
-	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt"
 	nta_platform_mpi_extra_libs="-lrt"
 	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
@@ -153,7 +153,7 @@ case "${target}" in
 	nta_platform_debug_flag="-g"
 	# nta_platform_ldflags="-static-libgcc"
 	# pthread needed by libapr-1
-	nta_platform_libs='-lm -lpthread -ldl -lutil -lcrypt -lstdc++'
+	nta_platform_libs='-lm -lpthread -ldl -lutil -lstdc++'
 	nta_platform_mpi_extra_libs="-lrt"
 	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"

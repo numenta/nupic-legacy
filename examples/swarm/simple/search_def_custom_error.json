@@ -1,0 +1,66 @@
+{
+  "includedFields": [
+    {
+      "fieldName": "timestamp", 
+      "fieldType": "datetime"
+    }, 
+    {
+      "fieldName": "consumption", 
+      "fieldType": "float"
+    }
+  ], 
+  "streamDef": {
+    "info": "test", 
+    "version": 1, 
+    "streams": [
+      {
+        "info": "hotGym.csv", 
+        "source": "file://extra/hotgym/hotgym.csv", 
+        "columns": [
+          "*"
+        ], 
+        "last_record": 100
+      }
+    ], 
+    "aggregation": {
+      "hours": 1, 
+      "microseconds": 0, 
+      "seconds": 0, 
+      "fields": [
+        [
+          "consumption", 
+          "sum"
+        ], 
+        [
+          "gym", 
+          "first"
+        ], 
+        [
+          "timestamp", 
+          "first"
+        ]
+      ], 
+      "weeks": 0, 
+      "months": 0, 
+      "minutes": 0, 
+      "days": 0, 
+      "milliseconds": 0, 
+      "years": 0
+    }
+  }, 
+  "inferenceType": "MultiStep", 
+  "inferenceArgs": {
+    "predictionSteps": [
+      1
+    ], 
+    "predictedField": "consumption"
+  }, 
+  "iterationCount": -1, 
+  "swarmSize": "medium",
+  
+  "customErrorMetric": {
+    "customExpr": "(prediction - groundTruth) ** 2",
+    "errorWindow": 500
+    }
+}
+
