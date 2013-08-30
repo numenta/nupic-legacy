@@ -1079,7 +1079,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testInhibitColumnsLocal(self):
     sp = self._sp
-    numActive = 2
+    numActive = 2 # might need to change to density=0.5
     sp._numColumns = 10
     sp._columnDimensions = numpy.array([sp._numColumns])
     sp._inhibitionRadius = 2
