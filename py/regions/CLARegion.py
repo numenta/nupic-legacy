@@ -35,6 +35,9 @@ from PyRegion import PyRegion
 from nupic.bindings.algorithms import FDRCSpatial as CPPSP
 from nupic.bindings.math import GetNTAReal
 
+gDefaultSpatialImp = 'py'
+gDefaultTemporalImp = 'py'
+
 
 ##############################################################################
 def _getTPClass(temporalImp):
@@ -125,7 +128,7 @@ def _buildArgs(f, self=None, kwargs={}):
   return argTuples
 
 
-def _getAdditionalSpecs(temporalImp, kwargs={}):
+def _getAdditionalSpecs(spatialImp, temporalImp, kwargs={}):
   """Build the additional specs in three groups (for the inspector)
 
   Use the type of the default argument to set the Spec type, defaulting
@@ -634,6 +637,7 @@ class CLARegion(PyRegion):
     self.nCellsPerCol = nCellsPerCol  # Modified in initInNetwork
     self.coincidenceCount = self.coincidencesShape[0] * self.coincidencesShape[1]
     self.temporalImp = temporalImp
+    self.spatialImp = spatialImp
     self.computeTopDown = computeTopDown
     self.nMultiStepPrediction = nMultiStepPrediction
 
@@ -689,7 +693,7 @@ class CLARegion(PyRegion):
     # For inspector usage
     #from dbgp.client import brk; brk(port=9019)
     self._spatialSpec, self._temporalSpec, self._otherSpec = \
-                    _getAdditionalSpecs(temporalImp=self.temporalImp)
+                    _getAdditionalSpecs(spatialImp=self.spatialImp, temporalImp=self.temporalImp)
 
   #############################################################################
   #
@@ -901,7 +905,8 @@ class CLARegion(PyRegion):
     autoArgs.pop('seed')
 
 
-    self._sfdr = FDRCSpatial2.FDRCSpatial2(
+    FDRCSpatialClass = _getSPClass(self.spatialImp)
+    self._sfdr =  FDRCSpatialClass(
       cloneMap=self._cloneMap,
       numCloneMasters=self._numCloneMasters,
       seed=self.spSeed,
@@ -1453,7 +1458,7 @@ class CLARegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, t, o = _getAdditionalSpecs(temporalImp=gDefaultTemporalImp)
+    s, t, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp,temporalImp=gDefaultTemporalImp)
     spec['parameters'].update(s)
     spec['parameters'].update(t)
     spec['parameters'].update(o)
