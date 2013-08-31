@@ -711,8 +711,18 @@ void SpatialPooler::inhibitColumns_(vector<UInt>& overlaps,
 void SpatialPooler::inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                            vector<UInt>& activeColumns)
 {
-  // TODO: implement
-  return;
+  UInt numActive = (UInt) density * numColumns_;
+  activeColumns_.assign(0, numColumns_);
+  vector<pair<UInt, Real> > winners(0, numActive);  
+  for (UInt i = 0; i < numColumns_; i++) {
+    if (is_winner_(activeColumns_[i], winners)) {
+      add_to_winners_(i,activeColumns_[i], winners);
+    }
+  }
+
+  for (UInt i = 0; i < numActive; i++) {
+    activeColumns_[winners[i]] = 1;
+  }
 }
 
 void SpatialPooler::inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
