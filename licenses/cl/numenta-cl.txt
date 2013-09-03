@@ -1,5 +1,5 @@
                             Numenta, Inc.
-                   Contributor License ("CL") V1.0
+                   Contributor License ("CL") V1.1
                      http://numenta.org/licenses/
 
 Thank you for your interest in contributing to Numenta, Inc.
@@ -24,7 +24,7 @@ copy for your records.
 
   Full name: ______________________________________________________
 
-  (optional) Public name: _________________________________________
+  Github login: ___________________________________________________
 
   Mailing Address: ________________________________________________
 
@@ -93,16 +93,17 @@ to Numenta and to recipients of software distributed by Numenta a
 perpetual, worldwide, non-exclusive, no-charge, royalty-free,
 irrevocable (except as stated in this section) patent license to make,
 have made, use, offer to sell, sell, import, and otherwise transfer the
-Work, where such license applies only to those patent claims licensable
-by You that are necessarily infringed by Your Contribution(s) alone or
-by combination of Your Contribution(s) with the Work to which such
-Contribution(s) was submitted. If any entity institutes patent
-litigation against You or any other entity (including a cross-claim or
-counterclaim in a lawsuit) alleging that your Contribution, or the Work
-to which you have contributed, constitutes direct or contributory
-patent infringement, then any patent licenses granted to that entity
-under this Agreement for that Contribution or Work shall terminate as
-of the date such litigation is filed.
+Work, where such license applies only to those patent claims existing as
+of the effective date of this CL and licensable by You that are 
+necessarily infringed by Your Contribution(s) alone or by combination of
+Your Contribution(s) with the Work to which such Contribution(s) was
+submitted. If any entity institutes patent litigation against You or any
+other entity (including a cross-claim or counterclaim in a lawsuit)
+alleging that your Contribution, or the Work to which you have
+contributed, constitutes direct or contributory patent infringement,
+then any patent licenses granted to that entity under this Agreement for
+that Contribution or Work shall terminate as of the date such litigation
+is filed.
 
 4. Representations
 
