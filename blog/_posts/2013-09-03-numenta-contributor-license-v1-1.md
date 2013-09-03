@@ -30,4 +30,4 @@ If you have already signed the CL, and you are comfortable with the document you
 > Open Source Community Flag-Bearer <br/>
 > Numenta, Inc.
 
-[Comments on Reddit](http://www.reddit.com/r/opensource/comments/1lo1aw/numenta_contributor_license_v11/
+[Comments on Reddit](http://www.reddit.com/r/opensource/comments/1lo1aw/numenta_contributor_license_v11/)
