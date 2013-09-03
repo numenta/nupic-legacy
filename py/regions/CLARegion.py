@@ -62,9 +62,9 @@ def _getSPClass(spatialImp):
 
   if spatialImp == 'py':
     return FlatSpatialPooler
-  elif temporalImp == 'cpp':
+  elif spatialImp == 'cpp':
     raise RuntimeError("Spatial pooler not yet implemented in C++")
-  elif temporalImp == 'oldpy':
+  elif spatialImp == 'oldpy':
     return FDRCSpatial2
   else:
     raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
