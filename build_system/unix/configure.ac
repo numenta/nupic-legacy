@@ -77,8 +77,6 @@ AC_PROG_INSTALL
 
 if [[ "$PYTHON_VERSION" != "2.6" ]] && [[ "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
-elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
-    AC_SUBST([_PY27],[-D_PY27])
 fi
 
 #
@@ -87,11 +85,11 @@ fi
 PYTHON_SYS_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
 AC_MSG_NOTICE([Python sys prefix is $PYTHON_SYS_PREFIX])
 
-PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib"
+PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib/python$PYTHON_VERSION"
 AC_MSG_NOTICE([Python lib dir is $PYTHON_SYS_LIB])
 AC_SUBST(PYTHON_SYS_LIB)
 
-PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
+PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include/python$PYTHON_VERSION"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
 
