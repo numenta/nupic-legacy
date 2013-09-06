@@ -39,6 +39,13 @@ using namespace std;
 namespace nta {
   namespace algorithms {
     namespace spatial_pooler {
+
+      typedef struct {
+        UInt index;
+        Real score;
+      } scoreCard;
+
+
       /////////////////////////////////////////////////////////////////////////
       /// CLA spatial pooler implementation in C++.
       ///
@@ -155,6 +162,9 @@ namespace nta {
 
           // Implementation methods
 
+          void range_(Int start, Int end, UInt ubound, bool wrapAround,
+                           vector<UInt>& rangeVector);
+
           vector<UInt> mapPotential1D_(UInt column, bool wrapAround);
           Real initPermConnected_();
           Real initPermUnconnected_();
@@ -162,33 +172,27 @@ namespace nta {
                                        Real connectedPct);
           void clip_(vector<Real>& perm, bool trim);
           void updatePermanencesForColumn_(vector<Real>& perm, UInt column,
-                                           bool raisePerm);
+                                           bool raisePerm=false);
           UInt countConnected_(vector<Real>& perm);
           UInt raisePermanencesToThreshold_(vector<Real>& perm, 
                                             vector<UInt>& potential);
-          void updateInhibitionRadius_();
-          void updateMinDutyCycles_();
-          void updateMinDutyCyclesGlobal_();
-          void updateMinDutyCyclesLocal_();
-          void updateDutyCycles_(vector<UInt>& overlaps, 
-                                 vector<UInt>& activeColumns);
-          void avgColumnsPerInput_();
-          void avgConnectedSpanForColumn1D_(UInt column);
-          void avgConnectedSpanForColumn2D_(UInt column);
-          void avgConnectedSpanForColumnND_(UInt column);
-          void adaptSynapses_(vector<UInt>& inputVector, 
-                              vector<UInt>& activeColumns);
-          void bumpUpWeakColumns_();          
-          static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
-                                               vector<UInt> newValues, 
-                                               UInt period);
-          void updateBoostFactors_();
-          void updateBookeepingVars_(bool learn);
+         
+               
+
+
           void calculateOverlap_(vector<UInt>& inputVector,
-                                 vector<UInt>& overlaps);
+                                 vector<UInt>& overlap);
           void calculateOverlapPct_(vector<UInt>& overlaps,
-                                    vector<Real>& overlapsPct);
-          void inhibitColumns_(vector<UInt>& overlaps, 
+                                    vector<Real>& overlapPct);
+
+
+          bool is_winner_(Real score, vector<scoreCard>& winners,
+                               UInt numWinners);
+
+          void add_to_winners_(UInt index, Real score, 
+                                    vector<scoreCard>& winners);
+
+          void inhibitColumns_(vector<UInt> overlaps, 
                                vector<UInt>& activeColumns);
           void inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                                      vector<UInt>& activeColumns);
@@ -196,11 +200,38 @@ namespace nta {
                                      vector<UInt>& activeColumns);
 
           void getNeighbors1D_(UInt column, vector<UInt>& dimensions, 
-                               UInt radius, bool wrapAround=false);
+                               UInt radius, bool wrapAround,
+                               vector<UInt>& neighbors);
           void getNeighbors2D_(UInt column, vector<UInt>& dimensions, 
-                               UInt radius, bool wrapAround=false);
+                               UInt radius, bool wrapAround,
+                               vector<UInt>& neighbors);
+          void cartesianProduct_(vector<vector<UInt> >& vecs, 
+                                      vector<vector<UInt> >& product);
+
           void getNeighborsND_(UInt column, vector<UInt>& dimensions, 
-                               UInt radius, bool wrapAround=false);  
+                               UInt radius, bool wrapAround,
+                               vector<UInt>& neighbors);  
+
+          void adaptSynapses_(vector<UInt>& inputVector, 
+                              vector<UInt>& activeColumns);
+          void bumpUpWeakColumns_();     
+
+          void updateInhibitionRadius_();
+          void avgColumnsPerInput_();
+          void avgConnectedSpanForColumn1D_(UInt column);
+          void avgConnectedSpanForColumn2D_(UInt column);
+          void avgConnectedSpanForColumnND_(UInt column);
+          void updateMinDutyCycles_();
+          void updateMinDutyCyclesGlobal_();
+          void updateMinDutyCyclesLocal_();
+          static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
+                                               vector<UInt> newValues, 
+                                               UInt period);
+          void updateDutyCycles_(vector<UInt>& overlaps, 
+                                 vector<UInt>& activeColumns);
+          void updateBoostFactors_();
+          void updateBookeepingVars_(bool learn);
+
           bool isUpdateRound_();
 
           /**
