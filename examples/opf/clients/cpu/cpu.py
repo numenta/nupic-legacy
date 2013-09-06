@@ -26,7 +26,7 @@ from collections import deque
 import time
 
 import psutil
-from matplotlib.pylab import draw, plot
+from matplotlib.pylab import draw, plot, ion
 
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf.modelfactory import ModelFactory
@@ -36,6 +36,7 @@ import model_params
 SECONDS_PER_STEP = 2
 WINDOW = 60
 
+ion()
 
 
 def runCPU():
