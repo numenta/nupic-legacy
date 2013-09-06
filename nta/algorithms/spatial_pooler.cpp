@@ -626,8 +626,26 @@ void SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
 void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector, 
                     vector<UInt>& activeColumns)
 {
-  // TODO: implement
-  return;
+  vector<Real> permChanges(numInputs_, -1 * synPermInactiveDec_);
+  for (UInt i = 0; i < numInputs_; i++) {
+    if (inputVector[i] > 0) {
+      permChanges[i] = synPermActiveInc_;
+    }
+  }
+
+  for (UInt i = 0; i < activeColumns.size(); i++) {
+    UInt column = activeColumns[i];
+    vector<UInt> potential(numInputs_, 0);
+    vector <Real> perm(numInputs_, 0);
+    potentialPools_.getRow(column, potential.begin(), potential.end());
+    permanences_.getRowToDense(column, perm);
+    for (UInt j = 0; j < numInputs_; j++) {
+      if (potential[j] > 0) {
+        perm[j] += permChanges[j];
+      }
+    }
+    updatePermanencesForColumn_(perm, column);
+  }
 }
 
 void SpatialPooler::bumpUpWeakColumns_()
