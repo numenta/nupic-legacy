@@ -31,7 +31,7 @@ from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
 
-gDefaultSpatialImp = 'py'
+gDefaultSpatialImp = 'oldpy'
 
 ##############################################################################
 def _getSPClass(spatialImp):
@@ -212,6 +212,15 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
       dataType='Byte',
       count=0,
       constraints='handle'),
+
+    spatialImp=dict(
+        description="""Which spatial pooler implementation to use. Set to either
+                      'py', or 'cpp'. The 'cpp' implementation is optimized for 
+                      speed in C++.""",
+        accessMode='ReadWrite',
+        dataType='Byte',
+        count=0,
+        constraints='enum: py, cpp, oldpy'),
   ))
 
 
@@ -686,7 +695,6 @@ class SPRegion(PyRegion):
           requireSplitterMap=False),
 
       ),
-
       outputs=dict(
         bottomUpOut=dict(
           description="""The output signal generated from the bottom-up inputs
