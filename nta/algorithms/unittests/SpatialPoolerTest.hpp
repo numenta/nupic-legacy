@@ -55,6 +55,10 @@ namespace nta {
     void setup(SpatialPooler& sp, UInt numInputs, UInt numColumns);
     bool check_vector_eq(UInt arr[], vector<UInt> vec);
     bool check_vector_eq(Real arr[], vector<Real> vec);
+    bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
+    bool almost_eq(Real a, Real b);
+    bool findVector(UInt needle[], UInt n, 
+                                     vector<vector<UInt> > haystack);
     void testMapPotential();
     void testInitPermConnected();
     void testInitPermUnconnected();
@@ -77,13 +81,21 @@ namespace nta {
     void testUpdateBookeepingVars();
     void testCalculateOverlap();
     void testCalculateOverlapPct();
+    void testIsWinner();
+    void testAddToWinners();
     void testInhibitColumns();
     void testInhibitColumnsGlobal();
     void testInhibitColumnsLocal();
     void testGetNeighbors1D();
     void testGetNeighbors2D();
+    void testCartesianProduct();
     void testGetNeighborsND();  
     bool testIsUpdateRound();
+
+    void print_vec(UInt arr[], UInt n);
+    void print_vec(Real arr[], UInt n);
+    void print_vec(vector<UInt> vec);
+    void print_vec(vector<Real> vec);
 
   }; // end class SpatialPoolerTest
     
