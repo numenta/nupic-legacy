@@ -156,7 +156,108 @@ namespace nta {
   void SpatialPoolerTest::testAvgConnectedSpanForColumn1D() {}
   void SpatialPoolerTest::testAvgConnectedSpanForColumn2D() {}
   void SpatialPoolerTest::testAvgConnectedSpanForColumnND() {}
-  void SpatialPoolerTest::testAdaptSynapses() {}
+  
+  void SpatialPoolerTest::testAdaptSynapses() 
+  {
+    SpatialPooler sp;
+    UInt numColumns = 4;
+    UInt numInputs = 8;
+    setup(sp, numInputs, numColumns);
+
+    vector<UInt> activeColumns;
+    vector<UInt> inputVector;
+
+    UInt potentialArr1[4][8] = 
+      {{1, 1, 1, 1, 0, 0, 0, 0},
+       {1, 0, 0, 0, 1, 1, 0, 1},
+       {0, 0, 1, 0, 0, 0, 1, 0},
+       {1, 0, 0, 0, 0, 0, 1, 0}};
+
+    Real permanencesArr1[5][8] = 
+      {{0.200, 0.120, 0.090, 0.060, 0.000, 0.000, 0.000, 0.000},
+       {0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450},
+       {0.000, 0.000, 0.014, 0.000, 0.000, 0.000, 0.110, 0.000},
+       {0.070, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000}};
+
+    Real truePermanences1[5][8] = 
+      {{ 0.300, 0.110, 0.080, 0.160, 0.000, 0.000, 0.000, 0.000},
+      //   Inc     Dec   Dec    Inc      -      -      -     -
+        {0.250, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440},
+      //   Inc      -      -     -      Inc    Dec    -     Dec  
+        {0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.210, 0.000},
+      //   -      -     Trim     -     -     -       Inc   - 
+        {0.070, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000}};
+      //    -      -      -      -      -      -      -       -  
+
+    UInt inputArr1[8] = {1, 0, 0, 1, 1, 0, 1, 0};
+    UInt activeColumnsArr1[3] = {0, 1, 2};
+
+    for (UInt column = 0; column < numColumns; column++) {
+      vector<UInt> potential;
+      vector<Real> perm;
+      potential.assign(&potentialArr1[column][0], &potentialArr1[column][numInputs]);
+      perm.assign(&permanencesArr1[column][0], &permanencesArr1[column][numInputs]);
+      sp.setPotential(column, potential);
+      sp.setPermanence(column, perm);
+    }
+
+    inputVector.assign(&inputArr1[0], &inputArr1[numInputs]);
+    activeColumns.assign(&activeColumnsArr1[0], &activeColumnsArr1[3]);
+
+    sp.adaptSynapses_(inputVector, activeColumns);
+    cout << endl; 
+    for (UInt column = 0; column < numColumns; column++) {
+      vector<Real> perm = sp.getPermanence(column);
+      NTA_CHECK(check_vector_eq(truePermanences1[column], perm));
+    }
+
+
+    UInt potentialArr2[4][8] = 
+      {{1, 1, 1, 0, 0, 0, 0, 0},
+       {0, 1, 1, 1, 0, 0, 0, 0},
+       {0, 0, 1, 1, 1, 0, 0, 0},
+       {1, 0, 0, 0, 0, 0, 1, 0}};
+
+    Real permanencesArr2[4][8] = 
+      {{0.200, 0.120, 0.090, 0.000, 0.000, 0.000, 0.000, 0.000},
+       {0.000, 0.017, 0.232, 0.400, 0.000, 0.000, 0.000, 0.000},
+       {0.000, 0.000, 0.014, 0.051, 0.730, 0.000, 0.000, 0.000},
+       {0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000}};
+
+    Real truePermanences2[4][8] = 
+      {{0.30, 0.110, 0.080, 0.000, 0.000, 0.000, 0.000, 0.000},
+    //  #  Inc    Dec     Dec     -       -    -    -    -
+       {0.000, 0.000, 0.222, 0.500, 0.000, 0.000, 0.000, 0.000},
+    //  #  -     Trim    Dec    Inc    -       -      -      -
+       {0.000, 0.000, 0.000, 0.151, 0.830, 0.000, 0.000, 0.000},
+    //  #   -      -    Trim   Inc    Inc     -     -     -
+       {0.170, 0.000, 0.000, 0.000, 0.000, 0.000, 0.380, 0.000}};
+    //  #  -    -      -      -      -       -       -     -
+
+    UInt inputArr2[8] = { 1, 0, 0, 1, 1, 0, 1, 0 };
+    UInt activeColumnsArr2[3] = {0, 1, 2};
+
+    for (UInt column = 0; column < numColumns; column++) {
+      vector<UInt> potential;
+      vector<Real> perm;
+      potential.assign(&potentialArr2[column][0], &potentialArr2[column][numInputs]);
+      perm.assign(&permanencesArr2[column][0], &permanencesArr2[column][numInputs]);
+      sp.setPotential(column, potential);
+      sp.setPermanence(column, perm);
+    }
+
+    inputVector.assign(&inputArr2[0], &inputArr2[numInputs]);
+    activeColumns.assign(&activeColumnsArr2[0], &activeColumnsArr2[3]);
+
+    sp.adaptSynapses_(inputVector, activeColumns);
+    cout << endl; 
+    for (UInt column = 0; column < numColumns; column++) {
+      vector<Real> perm = sp.getPermanence(column);
+      NTA_CHECK(check_vector_eq(truePermanences2[column], perm));
+    }
+
+  }
+
   void SpatialPoolerTest::testBumpUpWeakColumns() {}
   void SpatialPoolerTest::testUpdateDutyCyclesHelper() {}
   void SpatialPoolerTest::testUpdateBoostFactors() {}
