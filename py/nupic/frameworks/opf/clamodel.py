@@ -121,7 +121,9 @@ class CLAModel(Model):
       sensorParams={},
       spEnable=True,
       spParams={},
-      trainSPNetOnlyIfRequested=False,  ## We can't figure out what this is. Remove?
+      
+      # TODO: We can't figure out what this is. Remove?
+      trainSPNetOnlyIfRequested=False,  
       tpEnable=True,
       tpParams={},
       clParams={},
@@ -397,7 +399,7 @@ class CLAModel(Model):
     tpTopDownComputed = False
     inferences = {}
 
-    # Reconstruction is not used anymore
+    # TODO: Reconstruction and temporal classification not used. Remove
     if self._isReconstructionModel():  
       inferences = self._reconstructionCompute()
       tpTopDownComputed = True
@@ -735,7 +737,7 @@ class CLAModel(Model):
     # Get the actual value and the bucket index for this sample. The
     #  predicted field may not be enabled for input to the network, so we
     #  explicitly encode it outside of the sensor
-    # All this logic could be simpler if in the encoder itself
+    # TODO: All this logic could be simpler if in the encoder itself
     absoluteValue = rawInput[predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
     
@@ -824,7 +826,7 @@ class CLAModel(Model):
 
       # For the special case of timeStep=1, plug in the legacy fields
       #   prediction and encodings. This is only for legacy networks;
-      # we don't need this anymore.
+      # TODO: remove, we don't need this legacy network support anymore.
       if steps == 1:
         # predictionRow and predictionFieldEncodings are expected to be
         #  lists of items, one item for each encoder. The CLAClassifier only
@@ -1103,7 +1105,8 @@ class CLAModel(Model):
 
     # This is old functionality that would automatically reset the TP state
     # at a regular interval, such as every week for daily data, every day for
-    # hourly data, etc. Not being used anymore
+    # hourly data, etc.
+    # TODO: remove, not being used anymore
     if sensorParams['sensorAutoReset']: 
       sensorAutoResetDict = sensorParams['sensorAutoReset']
 
@@ -1145,7 +1148,7 @@ class CLAModel(Model):
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
 
-    ## SP is not enabled for spatial classification network
+    # SP is not enabled for spatial classification network
     if spEnable:
       spParams = spParams.copy()
       spParams['inputWidth'] = prevRegionWidth
@@ -1217,8 +1220,9 @@ class CLAModel(Model):
 
 
     # Stats collector is used to collect statistics about the various regions as
-    # it goes along. The concept is very usefu for debugging but not used
-    # anymore. 
+    # it goes along. The concept is very useful for debugging but not used
+    # anymore.
+    # TODO: remove, including NetworkInfo, DutyCycleStatistic, CLAStatistic
     
     #--------------------------------------------------
     # Create stats collectors for this network
