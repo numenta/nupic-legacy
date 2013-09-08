@@ -22,17 +22,14 @@
 
 # Do a clean build of NuPIC.
 
-# Terminate on first failure.
-set -e
-
 # Set up sane defaults.
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
 if [[ ! -z $1 ]] ; then
-    NUPIC_INSTALL=$1
+  NUPIC_INSTALL=$1
 elif [[ ! -z $NTA ]] ; then
-    NUPIC_INSTALL=$NTA
+  NUPIC_INSTALL=$NTA
 else
-    NUPIC_INSTALL=$HOME/nta/eng
+  NUPIC_INSTALL=$HOME/nta/eng
 fi
 
 # Remove old build and install dirs and remake the directories.
@@ -45,6 +42,9 @@ pushd `dirname $0`
 
 # Clean up source location.
 python build_system/setup.py --clean
+
+# Re-build and re-install any python modules
+PIP_IGNORE_INSTALLED=1
 
 # Do the build.
 ./build.sh "$NUPIC_INSTALL"

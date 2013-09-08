@@ -75,10 +75,8 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if [ "x$PYTHON_VERSION" != "x2.6" ] || [ "x$PYTHON_VERSION" != "x2.7" ]; then
+if [[ "$PYTHON_VERSION" != "2.6" ]] && [[ "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
-elif [ "x$PYTHON_VERSION" == "x2.7" ]; then
-    AC_DEFINE(_PY27)
 fi
 
 #
@@ -87,11 +85,11 @@ fi
 PYTHON_SYS_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
 AC_MSG_NOTICE([Python sys prefix is $PYTHON_SYS_PREFIX])
 
-PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib"
+PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib/python$PYTHON_VERSION"
 AC_MSG_NOTICE([Python lib dir is $PYTHON_SYS_LIB])
 AC_SUBST(PYTHON_SYS_LIB)
 
-PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
+PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include/python$PYTHON_VERSION"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
 
@@ -121,7 +119,7 @@ case "${target}" in
         nta_platform="darwin64"
         nta_platform_cxxflags="-fPIC -DPIC -m64"
         # link against the system version of python (64-bits)
-        nta_platform_python_libs="-F/System/Library/Frameworks -framework Python"
+        nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
         nta_platform_env1="MACOSX_DEPLOYMENT_TARGET=10.7"
         AC_MSG_RESULT([darwin on x86_64])
         nta_platform_asflags=""
@@ -138,9 +136,9 @@ case "${target}" in
         nta_platform_asflags=""
         nta_platform_debug_flag="-g"
         nta_platform_ldflags="-static-libgcc"
-	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt"
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"
@@ -153,9 +151,9 @@ case "${target}" in
 	nta_platform_debug_flag="-g"
 	# nta_platform_ldflags="-static-libgcc"
 	# pthread needed by libapr-1
-	nta_platform_libs='-lm -lpthread -ldl -lutil -lcrypt -lstdc++'
+	nta_platform_libs='-lm -lpthread -ldl -lutil -lstdc++'
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"

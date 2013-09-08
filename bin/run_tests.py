@@ -77,6 +77,13 @@ parser.add_option(
   default=False,
   dest="coverage")
 parser.add_option(
+  "-m",
+  "--filtermarks",
+  dest="markexpresson",
+  help="Expression for filtering tests by tags that were used to mark the "
+       "test classes and/or methods; presently, 'tag' or 'not tag' are "
+       "supported; e.g., 'not clusterExclusive'")
+parser.add_option(
   "-i",
   "--integration",
   action="store_true",
@@ -116,7 +123,16 @@ def main(parser, parse_args):
 
   # Extensions to test spec (args not part of official test runner)
 
-  parser.add_option("-v", "--verbose",
+  parser.add_option(
+    "-t",
+    "--testlist",
+    action="callback",
+    callback=collect_set,
+    dest="testlist_file",
+    help="Test list file, specifying tests (one per line)")
+  parser.add_option(
+    "-v",
+    "--verbose",
     action="store_true",
     dest="verbose")
 
@@ -137,6 +153,9 @@ def main(parser, parse_args):
 
   if options.processes is not None:
     args.extend(["-n", options.processes])
+
+  if options.markexpresson is not None:
+    args.extend(["-m", options.markexpresson])
 
   if options.results is not None:
     results = options.results[:2]
@@ -163,6 +182,9 @@ def main(parser, parse_args):
   if options.unit or options.all:
     tests.add(os.path.join(root, "unit", "py2"))
 
+  if options.integration or options.all:
+    tests.add(os.path.join(root, "integration", "py2"))
+
   if options.verbose:
     args.append("-v")
 
@@ -175,7 +197,32 @@ def main(parser, parse_args):
 
   # Run tests
 
-  return pytest.main(args + list(tests))
+  if options.testlist_file is not None:
+    # Arbitrary test lists
+
+    if options.testlist_file:
+      testlist = options.testlist_file.pop()
+      if testlist.endswith(".testlist"):
+        testlist = [test.strip() for test in open(testlist).readlines()]
+
+      else:
+        testlist = options.testlist_file
+        testlist.add(testlist)
+
+    for test in testlist:
+      specific_args = \
+        [
+          arg.replace("results.xml", test.replace("/", "_") + ".xml")
+            if arg.startswith("--junitxml=")
+            else arg
+          for arg in args
+        ]
+      pytest.main(specific_args + [test])
+
+  else:
+    # Standard tests
+
+    pytest.main(args + list(tests))
 
 
 if __name__ == "__main__":
