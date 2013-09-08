@@ -85,6 +85,13 @@ function pythonSetup {
   # Therefore, explicitly write out the .pth file.
   echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python${PY_VER}/site-packages/init_cov_core.pth
   exitOnError $?
+
+  # check if matplotlib is working on thi system (some problems on Macs, see https://issues.numenta.org/browse/NPC-371) 
+  # if not, we can live without it, it's needed just for visualisations and some examples. 
+  if ! `python -c "from matplotlib import ft2font" 2>/dev/null`; then 
+    echo "WARNING: Matplotlib is not working properly on this setup, some functionality might not work!"
+    export NTA_AUTOBUILD_NO_DISPLAY=1
+  fi
 }
 
 function doConfigure {
