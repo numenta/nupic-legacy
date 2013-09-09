@@ -32,6 +32,15 @@
     <script src="{{ site.baseurl }}/javascripts/jquery.prettyPhoto.js"></script>
     <script src="{{ site.baseurl }}/javascripts/scale.fix.js"></script>
 
+    <script type="text/javascript" charset="utf-8">
+      $(document).ready(function(){
+        $("a[rel^='prettyPhoto']").prettyPhoto({
+          default_width: 800,
+          default_height: 500
+        });
+      });
+    </script>
+
     <script>
       (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
       (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
