@@ -8,28 +8,33 @@ import sys
 import os
 import string
 
-buildDir = os.environ['BUILT_PRODUCTS_DIR']
+buildDir = os.environ['BUILDDIR']
+makeJobs = os.environ['MK_JOBS']
 pushd = os.getcwd()
+
+if not os.path.exists(buildDir):
+    os.makedirs(buildDir)
 os.chdir(buildDir)
 
 if 'clean' in sys.argv[1:]:
-  retCode = os.system('make uninstall clean')
-  if retCode != 0:
-    print >>sys.stderr, 'Clean failed: Error', retCode
-    sys.exit(1)
-  else:
-    print 'Clean completed.'
-    sys.exit(0)
+    retCode = os.system('make uninstall clean')
+    if retCode != 0:
+        print >>sys.stderr, 'Clean failed: Error', retCode
+        sys.exit(1)
+    else:
+        print 'Clean completed.'
+        sys.exit(0)
 elif sys.argv[1:]:
-  args = sys.argv[1:]
+    args = sys.argv[1:]
 else:
-  args = ['install']
+    args = ['install']
 
 useMake = True
 if useMake:
-  retCode = os.system(string.join(["make"] + args, " "))
-  if retCode != 0:
-    print >>sys.stderr, "Build failed. Error", retCode
-    sys.exit(1)
-  else:
-    sys.exit(0)
+    os.system('make -j %s ' % makeJobs)
+    retCode = os.system(string.join(["make"] + args, " "))
+    if retCode != 0:
+        print >>sys.stderr, "Build failed. Error", retCode
+        sys.exit(1)
+    else:
+        sys.exit(0)
