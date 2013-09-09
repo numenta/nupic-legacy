@@ -20,8 +20,8 @@ if retCode != 0:
   print >>sys.stderr, 'setup.py failed: Error', retCode
   sys.exit(1)
 
-buildDir = os.environ['BUILT_PRODUCTS_DIR']
-buildStyle = os.environ['BUILD_STYLE']
+buildDir = os.environ['BUILDDIR']
+buildStyle = 'debug'
 
 # Build the configure command.
 configureCmd = os.path.join(buildSystemDir, 'contrib', 'configure.py')
