@@ -1,80 +1,86 @@
-<!-- <section>
-    <nav class="toc">
-    <ul>
-      <li><a href="#oscon">OSCON</a></li>
-      <li><a href="#intelligent_computing_bof">Intelligent Computing BoF</a></li>
-      <li><a href="#next_hackathon">Next Hackathon</a></li>
-    </ul>
-    </nav>
-</section> -->
 
 NuPIC Media
 ===========
 
-Building Brains to Understand the World's Data
---------------------------
+<div id="jump-menu"></div>
+
+## <a href="http://www.youtube.com/watch?v=4y43qwS8fl4" rel="prettyPhoto" title="">Building Brains to Understand the World's Data</a>
 
 ### Google, 2013
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/4y43qwS8fl4" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+The neocortex works on principles that are fundamentally different than traditional computers. In this talk I will describe recent advances in understanding the neocortex and how we are applying them to model millions of high velocity data streams.
+The talk will start with a description of sparse distributed representations, which are the fundamental units of information in brains. I will then discuss how these representations are learned and how the brain processes them to build predictive models from sensory data. Numenta has built a product called Grok that emulates these capabilities of the neocortex. Grok is being used to understand high velocity machine generated data in many different domains. I will give a brief introduction to Grok and speculate on the future of machine intelligence.
 
-New Insights from Neuroscience and the Future of Intelligent Machines
---------------------------
+### [Top](#nupic_media)
+
+* * *
+
+## <a href="http://www.youtube.com/watch?v=A8sHMcCk0lU" rel="prettyPhoto" title="">New Insights from Neuroscience and the Future of Intelligent Machines</a>
 
 ### International Symposium on Computer Architecture, 2012
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/A8sHMcCk0lU" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+Jeff Hawkins presented the opening keynote address of the 39th International Symposium on Computer Architecture on June 11, 2012 in Portland, OR. In this presentation, Jeff describes sparse distributed representations, and their impact on future computer architectures. 
 
-Modeling Data Streams Using Sparse Distributed Representations
---------------------------
+### [Top](#nupic_media)
+
+* * *
+
+## <a href="http://www.youtube.com/watch?v=iNMbsvK8Q8Y" rel="prettyPhoto" title="">Modeling Data Streams Using Sparse Distributed Representations</a>
 
 ### Screencast, 2012
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/iNMbsvK8Q8Y" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+In this screencast, Jeff Hawkins narrates the presentation he gave at a workshop called "From Data to Knowledge: Machine-Learning with Real-time and Streaming Applications." The workshop was held May 7-11, 2012 at the University of California, Berkeley.
 
-Intelligence and the Brain: Recent Advances in Understanding How the Brain Works
---------------------------
+Sparse distributed representations appear to be the means by which brains encode information. They have several advantageous properties including the ability to encode semantic meaning. We have created a distributed memory system for learning sequences of sparse distribute representations. In addition we have created a means of encoding structured and unstructured data into sparse distributed representations. The resulting memory system learns in an on-line fashion making it suitable for high velocity data streams. We are currently applying it to commercially valuable data streams for prediction, classification, and anomaly detection In this talk I will describe this distributed memory system and illustrate how it can be used to build models and make predictions from data streams.
 
-### Berkeley, 2012
+### [Top](#nupic_media)
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/qZM9JREjnp4" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+* * *
 
-Conversations with History: On Intelligence
---------------------------
+## <a href="http://www.youtube.com/watch?v=qZM9JREjnp4" rel="prettyPhoto" title=""> Intelligence and the Brain: Recent Advances in Understanding How the Brain Works</a>
 
 ### Berkeley, 2012
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/e5xyF84dw2o" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+How the brain creates intelligence is viewed by many as the greatest scientific quest of all time. We are living at the time when rapid progress is being made and a comprehensive theory of brain function is emerging. Jeff Hawkins, an inventor, engineer, neuroscientist, author and entrepreneur, presents the big picture of what we know so far and describes recent progress in a core issue: why neurons are arranged as they are in the neocortex, how this arrangement builds models of the world, and how these models make predictions and generate actions. Series: "UC Berkeley Graduate Council Lectures" 
 
-Computing Like the Brain
----------------
+### [Top](#nupic_media)
+
+* * *
+
+## <a href="http://www.youtube.com/watch?v=e5xyF84dw2o" rel="prettyPhoto" title="">Conversations with History: On Intelligence</a> 
+
+### Berkeley, 2012
+
+Conversations host Harry Kreisler welcomes Jeff Hawkins, founder of both Palm Computing and Handspring and creator of the Redwood Neuroscience Institute, to promote research on memory and cognition. Hawkins traces his intellectual journey focusing on his lifelong passion to develop a theory of the brain. Hawkins explicates the brain's operating principles and explores the implications of human intelligence for engineering intelligent machines, the goal of his new company Numenta. Series: "Conversations with History" 
+
+### [Top](#nupic_media)
+
+* * *
+
+## [Computing Like the Brain](http://www.infoq.com/presentations/Brain-Computing)
 
 ### Strange Loop, 2012
 
-[![Strange Loop: Computing Like the Brain](./images/strange-loop.png)](http://www.infoq.com/presentations/Brain-Computing)
+Jeff Hawkins discusses 3 operating principles of the neocortex and introduces Grok, a predictive modeling product based on those principles.
 
+### [Top](#nupic_media)
 
-Tutorial: CLA Basics
-----------
+* * *
+
+## <a href="http://www.youtube.com/watch?v=z6r3ekreRzY" rel="prettyPhoto" title="">Tutorial: CLA Basics</a>
 
 ### Numenta, 2012
 
-<iframe width="560" height="315" src="//www.youtube.com/embed/nBYddmFg4nQ" frameborder="0" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+Rahul Agarwal, from Numenta, introduces how the Cortical Learning Algorithm implementation within [NuPIC]({{ site.baseurl}}/nupic.html) works.
 
-- [Part 2](http://www.youtube.com/watch?v=iXIOwUnu0X0)
-- [Part 3](http://www.youtube.com/watch?v=3gjVVNPnPYA)
+### [Top](#nupic_media)
 
-How Brain Science Will Change Computing
----------------
+* * *
+
+## <a href="http://www.ted.com/talks/jeff_hawkins_on_how_brain_science_will_change_computing.html">How Brain Science Will Change Computing</a>
 
 ### TED, 2007
 
-<iframe src="http://embed.ted.com/talks/jeff_hawkins_on_how_brain_science_will_change_computing.html" width="560" height="315" frameborder="0" scrolling="no" webkitAllowFullScreen="webkitAllowFullScreen" mozallowfullscreen="mozallowfullscreen" allowFullScreen="allowFullScreen">
-</iframe>
+Treo creator Jeff Hawkins urges us to take a new look at the brain -- to see it not as a fast processor, but as a memory system that stores and plays back experiences to help us predict, intelligently, what will happen next.
 
+### [Top](#nupic_media)
