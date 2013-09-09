@@ -6,6 +6,8 @@ category: blog
 
 <div align="center">
     <img src="{{ site.baseurl }}/images/blog/jeff-oscon.jpg"/>
+    <br/>
+    <small>Photo credit: <a href="http://www.flickr.com/photos/garrettheath/" target="_new">Garrett Heath</a></small>
 </div>
 <br/>
 
