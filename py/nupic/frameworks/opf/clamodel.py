@@ -62,7 +62,6 @@ from abc import ABCMeta, abstractmethod
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
 DEFAULT_MAX_PREDICTIONS_PER_STEP = 8
 
-
 DEFAULT_ANOMALY_TRAINRECORDS = 4000
 DEFAULT_ANOMALY_THRESHOLD = 1.1
 DEFAULT_ANOMALY_CACHESIZE = 10000
@@ -122,7 +121,9 @@ class CLAModel(Model):
       sensorParams={},
       spEnable=True,
       spParams={},
-      trainSPNetOnlyIfRequested=False,
+      
+      # TODO: We can't figure out what this is. Remove?
+      trainSPNetOnlyIfRequested=False,  
       tpEnable=True,
       tpParams={},
       clParams={},
@@ -398,12 +399,14 @@ class CLAModel(Model):
     tpTopDownComputed = False
     inferences = {}
 
-    if self._isReconstructionModel():
+    # TODO: Reconstruction and temporal classification not used. Remove
+    if self._isReconstructionModel():  
       inferences = self._reconstructionCompute()
       tpTopDownComputed = True
     elif self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
-    elif self._isClassificationModel():
+    # For temporal classification. Not used, and might not work anymore
+    elif self._isClassificationModel():  
       inferences = self._classifcationCompute()
 
     results.inferences.update(inferences)
@@ -610,7 +613,7 @@ class CLAModel(Model):
   def _anomalyCompute(self, computeTPTopDown):
     """
     Compute Anomaly score, if required
-      computeTPTopDown: If True, first perform a
+      computeTPTopDown: If True, first perform a  
 
     """
     inferenceType = self.getInferenceType()
@@ -700,6 +703,8 @@ class CLAModel(Model):
         raise RuntimeError("This experiment description is missing "
               "the 'predictedField' in its config, which is required "
               "for multi-step prediction inference.")
+      
+      # This is getting index of predicted field if being fed to CLA.
       self._predictedFieldName = predictedFieldName
       encoderList = sensor.getSelf().encoder.getEncoderList()
       self._numFields = len(encoderList)
@@ -717,7 +722,7 @@ class CLAModel(Model):
         encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
       else:
         encoderList = []
-      if len(encoderList) >= 1:
+      if len(encoderList) >= 1:  
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
         self._classifierInputEncoder = encoderList[fieldNames.index(
                                                         predictedFieldName)]
@@ -732,6 +737,7 @@ class CLAModel(Model):
     # Get the actual value and the bucket index for this sample. The
     #  predicted field may not be enabled for input to the network, so we
     #  explicitly encode it outside of the sensor
+    # TODO: All this logic could be simpler if in the encoder itself
     absoluteValue = rawInput[predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
     
@@ -760,6 +766,8 @@ class CLAModel(Model):
     classifier.setParameter('learningMode', needLearning)
     classificationIn = {'bucketIdx': bucketIdx,
                         'actValue': actualValue}
+    
+    # Handle missing records
     if inputTSRecordIdx is not None:
       recordNum = inputTSRecordIdx
     else:
@@ -817,7 +825,8 @@ class CLAModel(Model):
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
       # For the special case of timeStep=1, plug in the legacy fields
-      #   prediction and encodings
+      #   prediction and encodings. This is only for legacy networks;
+      # TODO: remove, we don't need this legacy network support anymore.
       if steps == 1:
         # predictionRow and predictionFieldEncodings are expected to be
         #  lists of items, one item for each encoder. The CLAClassifier only
@@ -1072,10 +1081,13 @@ class CLAModel(Model):
     enabledEncoders = copy.deepcopy(sensorParams['encoders'])
     for name,params in enabledEncoders.items():
       if params is not None:
-        classifierOnly = params.pop('classifierOnly', False)
+        classifierOnly = params.pop('classifierOnly', False)  
         if classifierOnly:
           enabledEncoders.pop(name)
-        
+      
+    # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
+    # SP or TP Regions. This is to handle the case where the predicted field
+    # is not fed through the SP/TP. We typically just have one of these now.
     disabledEncoders = copy.deepcopy(sensorParams['encoders'])
     for name,params in disabledEncoders.items():
       if params is None:
@@ -1091,7 +1103,11 @@ class CLAModel(Model):
     sensor.disabledEncoder = MultiEncoder(disabledEncoders)
     sensor.dataSource = DataBuffer()
 
-    if sensorParams['sensorAutoReset']:
+    # This is old functionality that would automatically reset the TP state
+    # at a regular interval, such as every week for daily data, every day for
+    # hourly data, etc.
+    # TODO: remove, not being used anymore
+    if sensorParams['sensorAutoReset']: 
       sensorAutoResetDict = sensorParams['sensorAutoReset']
 
       supportedUnits = set(('days', 'hours', 'minutes', 'seconds',
@@ -1132,6 +1148,7 @@ class CLAModel(Model):
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
 
+    # SP is not enabled for spatial classification network
     if spEnable:
       spParams = spParams.copy()
       spParams['inputWidth'] = prevRegionWidth
@@ -1142,6 +1159,7 @@ class CLAModel(Model):
       n.link("sensor", "SP", "UniformLink", "")
       n.link("sensor", "SP", "UniformLink", "", srcOutput="resetOut",
              destInput="resetIn")
+      
       n.link("SP", "sensor", "UniformLink", "", srcOutput="spatialTopDownOut",
              destInput="spatialTopDownIn")
       n.link("SP", "sensor", "UniformLink", "", srcOutput="temporalTopDownOut",
@@ -1201,6 +1219,11 @@ class CLAModel(Model):
     n.initialize()
 
 
+    # Stats collector is used to collect statistics about the various regions as
+    # it goes along. The concept is very useful for debugging but not used
+    # anymore.
+    # TODO: remove, including NetworkInfo, DutyCycleStatistic, CLAStatistic
+    
     #--------------------------------------------------
     # Create stats collectors for this network
     #
@@ -1209,6 +1232,7 @@ class CLAModel(Model):
     # Suppressing DutyCycleStatistic as there is no need for it at this time.
     #stats.append(DutyCycleStatistic())
 
+    ## Why do we need a separate tiny class for NetworkInfo??
     result = NetworkInfo(net=n, statsCollectors=stats)
 
     return result
@@ -1446,6 +1470,7 @@ class CLAModel(Model):
     spEnable - True if network has an SP region
     tpEnable - True if network has a TP region; Currently requires True 
     """
+    
     allParams = copy.deepcopy(params)
     knnParams = dict(k=1,
                      distanceMethod='rawOverlap',
