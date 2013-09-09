@@ -67,7 +67,7 @@ All-in-all, OSCON was great fun and a wonderful way to spread the word about NuP
 > Open Source Community Flag-Bearer <br/>
 > Numenta, Inc.
 
-[Comments on Reddit](http://www.reddit.com/r/opensource/comments/1lo1aw/numenta_contributor_license_v11/)
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1m2hdo/numenta_as_oscon/)
 
 <script async="async" src="//platform.twitter.com/widgets.js" charset="utf-8">
     
