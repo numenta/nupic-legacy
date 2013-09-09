@@ -154,7 +154,7 @@ class FlatSpatialPooler(SpatialPooler):
   #   self._boostFactors *= maxBoost
 
 
-  def compute(self, inputVector, learn=True):
+  def compute(self, flatInput, learn=True, infer=False, computeAnomaly=False):
     """
     This is the primary public method of the SpatialPooler class. This 
     function takes a input vector and outputs the indices of the active columns 
@@ -180,13 +180,17 @@ class FlatSpatialPooler(SpatialPooler):
                     values of the synapses, and hence modifying the 'state' 
                     of the model. setting learning to 'off' might be useful
                     for indicating separate training vs. testing sets. 
+    infer:          OBSOLTETE. include in method signature for backwards 
+                    compatibility.
+    computeAnomaly: OBSOLTETE. include in method signature for backwards
+                    compatibility
     """
     if self._randomSP:
       learn=False
 
-    assert (numpy.size(inputVector) == self._numInputs)
+    assert (numpy.size(flatInput) == self._numInputs)
     self._updateBookeepingVars(learn)
-    inputVector = numpy.array(inputVector, dtype=realDType)
+    inputVector = numpy.array(flatInput, dtype=realDType)
     overlaps = self._calculateOverlap(inputVector)
     overlapsPct = self._calculateOverlapPct(overlaps)
     highTierColumns = self._selectHighTierColumns(overlapsPct)
