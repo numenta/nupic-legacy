@@ -4,6 +4,11 @@ title: Numenta at OSCON
 category: blog
 ---
 
+<div align="center">
+    <img src="{{ site.baseurl }}/images/blog/jeff-oscon.jpg"/>
+</div>
+<br/>
+
 At [OSCON 2013](http://www.oscon.com/oscon2013) this past July, the Numenta team had the opportunity to give two presentations about cortical learning algorithms and NuPIC. Jeff Hawkins gave a short keynote talk entitled [On Open Intelligence](http://www.oscon.com/oscon2013/public/schedule/speaker/130998), which created a decent amount of conversation. OSCON has provided a <a href="http://www.youtube.com/watch?v=1_eT5bsS4bQ" rel="prettyPhoto" title="On Open Intelligence Video">great video of Jeff's keynote</a>. Here are some twitter reactions to Jeff's talk:
 
 <div align="center">
@@ -21,7 +26,7 @@ At [OSCON 2013](http://www.oscon.com/oscon2013) this past July, the Numenta team
 </div>
 <br/>
 
-It seemed like there was a lot of interest in the brain-inspired technology behind NuPIC, as depicted in this [blog post](http://www.jeffkramer.com/2013/07/29/oscon-2013-the-source-must-flow/):
+There was a lot of interest in the brain-inspired technology behind NuPIC, as depicted in this [blog post](http://www.jeffkramer.com/2013/07/29/oscon-2013-the-source-must-flow/):
 
 > The most interesting keynote, though, was from Numenta.  ... The science is beyond me, but the demo and keynote was great, and you can (should) watch it on YouTube.  I went to their panel later, and they recommended Jeff’s book On Intelligence as a primer for those interested.  There are code samples (in Python!) with the NuPIC library up on their github account.
 
@@ -49,7 +54,7 @@ After the session, the Q/A was running long, so we stayed around and answered qu
 </div>
 <br/>
 
-At some point during the conference, Simon Phipps from [Twit.tv](http://twit.tv/floss259) pulled Jeff aside and recored <a href="http://www.youtube.com/watch?v=V08QmAz9MyI" rel="prettyPhoto" title="Jeff Hawkins at OSCON 2013: FLOSS 259">this interview with him</a>.
+At some point during the conference, Simon Phipps from [Twit.tv](http://twit.tv/floss259) pulled Jeff aside and recorded <a href="http://www.youtube.com/watch?v=V08QmAz9MyI" rel="prettyPhoto" title="Jeff Hawkins at OSCON 2013: FLOSS 259">this interview with him</a>.
 
 We also had the opportunity to hold a Birds of a Feather (BOF) session, which drew around 30 people and lasted for over 90 minutes. Although I hadn't thought of recording this session, a persistent community member (you know who you are) prodded me into an ad-hoc A/V session, and I managed to get a <a href="http://www.youtube.com/watch?v=Xr2Vtom3TcU" rel="prettyPhoto" title="Intelligent Computing BOF OSCON 2013 with Jeff Hawkins">somewhat-digestible video online</a>. Sorry for the awful audio, but this was my first ad-hoc live-streaming experience. I promise, it will be better next time!
 
