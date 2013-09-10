@@ -42,7 +42,7 @@
 
 ##### CLA Deep Dive
 
-> Subutai Ahmad, Grok/Numenta VP of Engineering, will go into detail about some of the major components of the CLA, including the Spatial and Temporal Poolers. This talk will describe the theory behind these ideas (and other) as well as pointing out the locations within the NuPIC codebase where they are implemented. If you are interested in how the CLA within NuPIC works behind the curtains, this is the talk for you.
+> Subutai Ahmad, Grok/Numenta VP of Engineering, will go into detail about some of the major components of the CLA, including the Spatial and Temporal Poolers. This talk will describe the theory behind these ideas (and others) as well as pointing out the locations within the NuPIC codebase where they are implemented. If you are interested in how the CLA within NuPIC works behind the curtains, this is the talk for you.
 
 ##### Working Session: NuPIC Documentation for ML/AI Researchers
 
