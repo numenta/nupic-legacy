@@ -92,7 +92,7 @@ namespace nta {
     void testGetNeighbors2D();
     void testCartesianProduct();
     void testGetNeighborsND();  
-    bool testIsUpdateRound();
+    void testIsUpdateRound();
 
     void print_vec(UInt arr[], UInt n);
     void print_vec(Real arr[], UInt n);
