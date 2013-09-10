@@ -36,6 +36,7 @@ import model_params
 SECONDS_PER_STEP = 2
 WINDOW = 60
 
+# turn matplotlib interactive mode on (ion)
 ion()
 
 
