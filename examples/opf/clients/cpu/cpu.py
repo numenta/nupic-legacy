@@ -38,7 +38,12 @@ WINDOW = 60
 
 # turn matplotlib interactive mode on (ion)
 plt.ion()
-
+fig = plt.figure()
+# plot title, legend, etc
+plt.title('CPU prediction example')
+plt.xlabel('time [s]')
+plt.ylabel('CPU usage [%]')
+plt.autoscale(enable=True, axis='x', tight=None)
 
 def runCPU():
   """Poll CPU usage, make predictions, and plot the results. Runs forever."""
@@ -57,15 +62,8 @@ def runCPU():
   # Set the y-axis range.
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
-  # plot title, legend, etc
-  plt.title('CPU prediction example')
-  plt.xlabel('time [s]')
-  plt.ylabel('CPU usage [%]')
-  plt.autoscale(enable=True, axis='x', tight=None)
-  plt.legend( ('actual','predicted') )
 
-  while True:
-    s = time.time()
+  while plt.fignum_exists(fig.number):
 
     # Get the CPU usage.
     cpu = psutil.cpu_percent()
@@ -84,11 +82,13 @@ def runCPU():
     actline.set_ydata(actHistory)  # update the data
     predline.set_ydata(predHistory)  # update the data
     plt.draw()
+    plt.legend( ('actual','predicted') )    
 
     # Make sure we wait a total of 2 seconds per iteration.
-    time.sleep(SECONDS_PER_STEP - (time.time() - s))
-
-
+    try: 
+      plt.pause(SECONDS_PER_STEP)
+    except:
+      pass
 
 if __name__ == "__main__":
   runCPU()
