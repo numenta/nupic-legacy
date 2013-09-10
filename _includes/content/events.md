@@ -31,14 +31,24 @@
 </dl>
 
 ### Schedule
-**Saturday November 2**
+#### Saturday November 2
 
 - 10:00 AM: Kickoff with Jeff Hawkins
 - 10:15 AM: NuPIC Introduction
 - 10:30 AM: NuPIC Natural Language Processing Primer
 - 11:00 AM: HACK START
+-  2:00 PM: [CLA Deep Dive](#cla_deep_dive)
+-  4:00 PM: [Working Session: NuPIC Documentation for ML/AI Researchers](#working_session_nupic_documentation_for_mlai_researchers)
 
-**Sunday November 3**
+##### CLA Deep Dive
+
+> Subutai Ahmad, Grok/Numenta VP of Engineering, will go into detail about some of the major components of the CLA, including the Spatial and Temporal Poolers. This talk will describe the theory behind these ideas (and other) as well as pointing out the locations within the NuPIC codebase where they are implemented. If you are interested in how the CLA within NuPIC works behind the curtains, this is the talk for you.
+
+##### Working Session: NuPIC Documentation for ML/AI Researchers
+
+> Descriptions matter. We'll be creating a document that describes NuPIC and CLA in terms that are familiar to academic Machine Learning and AI researchers. This document will become an entry point for academics into NuPIC. As we walk through CLA, participants will be asked to contribute how their field would describe each component, and suggest relevant citations for similar work. Components and performance characteristics of CLA which are particularly novel will be highlighted.
+
+#### Sunday November 3
 - 05:45PM: HACK STOP
 - 06:00PM: Demonstrations and Prizes
 
