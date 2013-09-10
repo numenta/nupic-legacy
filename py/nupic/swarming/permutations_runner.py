@@ -42,6 +42,7 @@ from nupic.support import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.HypersearchV2 import HypersearchV2
+from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 
 gCurrentSearch = None
@@ -291,6 +292,12 @@ def runPermutations(args):
          "[default: %default].")
 
   parser.add_option(
+    "--overwrite", default=False, action="store_true",
+    help="If 'yes', overwrite existing description.py and permutations.py"
+         " (in the same directory as the <expDescription.json> file) if they"
+         " already exist. [default: %default].")
+
+  parser.add_option(
     "--genTopNDescriptions", dest="genTopNDescriptions", default=1, type="int",
     help="Generate description files for the top N models. Each one will be"
          " placed into it's own subdirectory under the base description file."
@@ -327,6 +334,21 @@ def runPermutations(args):
 
   if fileExtension == '.json':
     expDescJsonPath = fileArgPath
+    
+    # Generate the description and permutations.py files in the same directory
+    #  for reference.
+    outDir = os.path.dirname(expDescJsonPath)
+    if not options.overwrite:
+      for name in ('description.py', 'permutations.py'):
+        if os.path.exists(os.path.join(outDir, name)):
+          raise RuntimeError("The %s file already exists and will be "
+            "overwritten by this tool. If it is OK to overwrite this file, "
+            "use the --overwrite option." % \
+            os.path.join(outDir, "description.py"))
+    expGenerator([
+      '--descriptionFromFile=%s' % (expDescJsonPath),
+      '--outDir=%s' % (outDir)])
+
   else:
     # Assume it's a permutations python script
     permutationsScriptPath = fileArgPath
