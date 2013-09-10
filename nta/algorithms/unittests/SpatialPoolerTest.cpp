@@ -89,6 +89,24 @@ namespace nta {
     return true;
   }
 
+  bool SpatialPoolerTest::check_vector_eq(UInt arr1[], UInt arr2[], UInt n)
+  {
+    for (UInt i = 0; i < n; i++) {
+      if (arr1[i] != arr2[i])
+        return false;
+    }
+    return true;
+  }
+
+  bool SpatialPoolerTest::check_vector_eq(Real arr1[], Real arr2[], UInt n)
+  {
+    for (UInt i = 0; i < n; i++) {
+      if (!almost_eq(arr1[i], arr2[i]))
+        return false;
+    }
+    return true;
+  }
+
   bool SpatialPoolerTest::check_vector_eq(vector<UInt> vec1, vector<UInt> vec2)
   {
     if (vec1.size() != vec2.size()) {
@@ -193,12 +211,8 @@ namespace nta {
     UInt activeColumnsArr1[3] = {0, 1, 2};
 
     for (UInt column = 0; column < numColumns; column++) {
-      vector<UInt> potential;
-      vector<Real> perm;
-      potential.assign(&potentialArr1[column][0], &potentialArr1[column][numInputs]);
-      perm.assign(&permanencesArr1[column][0], &permanencesArr1[column][numInputs]);
-      sp.setPotential(column, potential);
-      sp.setPermanence(column, perm);
+      sp.setPotential(column, potentialArr1[column]);
+      sp.setPermanence(column, permanencesArr1[column]);
     }
 
     inputVector.assign(&inputArr1[0], &inputArr1[numInputs]);
@@ -207,8 +221,11 @@ namespace nta {
     sp.adaptSynapses_(inputVector, activeColumns);
     cout << endl; 
     for (UInt column = 0; column < numColumns; column++) {
-      vector<Real> perm = sp.getPermanence(column);
-      NTA_CHECK(check_vector_eq(truePermanences1[column], perm));
+      Real permArr[numInputs];
+      sp.getPermanence(column, permArr);
+      NTA_CHECK(check_vector_eq(truePermanences1[column],
+                                permArr,
+                                numInputs));
     }
 
 
@@ -238,12 +255,8 @@ namespace nta {
     UInt activeColumnsArr2[3] = {0, 1, 2};
 
     for (UInt column = 0; column < numColumns; column++) {
-      vector<UInt> potential;
-      vector<Real> perm;
-      potential.assign(&potentialArr2[column][0], &potentialArr2[column][numInputs]);
-      perm.assign(&permanencesArr2[column][0], &permanencesArr2[column][numInputs]);
-      sp.setPotential(column, potential);
-      sp.setPermanence(column, perm);
+      sp.setPotential(column, potentialArr2[column]);
+      sp.setPermanence(column, permanencesArr2[column]);
     }
 
     inputVector.assign(&inputArr2[0], &inputArr2[numInputs]);
@@ -252,8 +265,9 @@ namespace nta {
     sp.adaptSynapses_(inputVector, activeColumns);
     cout << endl; 
     for (UInt column = 0; column < numColumns; column++) {
-      vector<Real> perm = sp.getPermanence(column);
-      NTA_CHECK(check_vector_eq(truePermanences2[column], perm));
+      Real permArr[numInputs];
+      sp.getPermanence(column, permArr);
+      NTA_CHECK(check_vector_eq(truePermanences2[column], permArr, numInputs));
     }
 
   }
@@ -295,9 +309,7 @@ namespace nta {
 
     for (UInt i = 0; i < numColumns; i++)
     {
-      vector<Real> perm;
-      perm.assign(&permArr[i][0],&permArr[i][numInputs]);
-      sp.setPermanence(i,perm);
+      sp.setPermanence(i,permArr[i]);
     }
 
     for (UInt i = 0; i < numTrials; i++)
@@ -348,9 +360,7 @@ namespace nta {
 
     for (UInt i = 0; i < numColumns; i++)
     {
-      vector<Real> perm;
-      perm.assign(&permArr[i][0],&permArr[i][numInputs]);
-      sp.setPermanence(i,perm);
+      sp.setPermanence(i,permArr[i]);
     }
 
     for (UInt i = 0; i < numTrials; i++)
@@ -1245,8 +1255,10 @@ namespace nta {
     vector<UInt> inputDim; 
     vector<UInt> columnDim;
 
+    UInt numInputs = 5;
+    UInt numColumns = 5;
     SpatialPooler sp;
-    setup(sp,5,5);
+    setup(sp,numInputs,numColumns);
     Real synPermTrimThreshold = 0.05;
     sp.setSynPermTrimThreshold(synPermTrimThreshold);
 
@@ -1282,9 +1294,15 @@ namespace nta {
     {
       vector<Real> perm(&permArr[i][0], &permArr[i][5]);
       sp.updatePermanencesForColumn_(perm, i, false);
-      NTA_CHECK(check_vector_eq(truePerm[i], sp.getPermanence(i)));
-      NTA_CHECK(check_vector_eq(trueConnectedSynapses[i],sp.getConnected(i)));
-      NTA_CHECK(trueConnectedCount[i] == sp.getConnectedCounts().at(i));
+      Real permArr[numInputs];
+      UInt connectedArr[numInputs];
+      UInt connectedCountsArr[numColumns];
+      sp.getPermanence(i, permArr);
+      sp.getConnectedSynapses(i, connectedArr);
+      sp.getConnectedCounts(connectedCountsArr);
+      NTA_CHECK(check_vector_eq(truePerm[i], permArr, numInputs));
+      NTA_CHECK(check_vector_eq(trueConnectedSynapses[i],connectedArr, numInputs));
+      NTA_CHECK(trueConnectedCount[i] == connectedCountsArr[i]);
     }
 
   }

@@ -110,7 +110,7 @@ namespace nta {
           UInt getSpVerbosity();
           void setSpVerbosity(UInt spVerbosity);
           
-          UInt getUpatePeriod();
+          UInt getUpdatePeriod();
           void setUpdatePeriod(UInt updatePeriod);
           
           Real getSynPermTrimThreshold();
@@ -134,33 +134,34 @@ namespace nta {
           Real getMinPctActiveDutyCycles();
           void setMinPctActiveDutyCycles(Real minPctActiveDutyCycles);
 
-          vector<Real> getBoostFactors();
-          void setBoostFactors(const vector<Real>& boostFactors);
+          void getBoostFactors(Real boostFactors[]);
+          void setBoostFactors(Real boostFactors[]);
 
-          vector<Real> getOverlapDutyCycles();
-          void setOverlapDutyCycles(const vector<Real>& overlapDutyCycles);
+          void getOverlapDutyCycles(Real overlapDutyCycles[]);
+          void setOverlapDutyCycles(Real overlapDutyCycles[]);
 
-          vector<Real> getActiveDutyCycles();
-          void setActiveDutyCycles(const vector<Real>& activeDutyCycles);
+          void getActiveDutyCycles(Real activeDutyCycles[]);
+          void setActiveDutyCycles(Real activeDutyCycles[]);
 
-          vector<Real> getMinOverlapDutyCycles();
-          void setMinOverlapDutyCycles(const vector<Real>& 
-            minOverlapDutyCycles);
+          void getMinOverlapDutyCycles(Real minOverlapDutyCycles[]);
+          void setMinOverlapDutyCycles(Real minOverlapDutyCycles[]);
 
-          vector<Real> getMinActiveDutyCycles();
-          void setMinActiveDutyCycles(const vector<Real>& minActiveDutyCycles);
+          void getMinActiveDutyCycles(Real minActiveDutyCycles[]);
+          void setMinActiveDutyCycles(Real minActiveDutyCycles[]);
 
-          vector<UInt> getPotential(UInt column);
-          void setPotential(UInt column, const vector<UInt>& potential);
+          void getPotential(UInt column, UInt potential[]);
+          void setPotential(UInt column, UInt potential[]);
           
-          vector<Real> getPermanence(UInt column);
-          void setPermanence(UInt column, vector<Real>& permanence);
+          void getPermanence(UInt column, Real permanence[]);
+          void setPermanence(UInt column, Real permanence[]);
 
-          vector<UInt> getConnected(UInt column);
+          void getConnectedSynapses(UInt column, UInt connectedSynapses[]);
 
-          vector<UInt> getConnectedCounts();
+          void getConnectedCounts(UInt connectedCounts[]);
 
-          // Implementation methods
+
+          // Implementation methods. all methods below this line are
+          // NOT part of the public API
 
           void range_(Int start, Int end, UInt ubound, bool wrapAround,
                            vector<UInt>& rangeVector);

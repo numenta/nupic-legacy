@@ -2948,8 +2948,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
         minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
         seed, spVerbosity)
-
   %}
+
+  inline void setPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPermanence(column, (nta::Real*) x->data);
+  }
 }
 
 %include <nta/algorithms/fast_cla_classifier.hpp>
