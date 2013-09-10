@@ -57,6 +57,12 @@ def runCPU():
   # Set the y-axis range.
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
+  # plot title, legend, etc
+  plt.title('CPU prediction example')
+  plt.xlabel('time [s]')
+  plt.ylabel('CPU usage [%]')
+  plt.autoscale(enable=True, axis='x', tight=None)
+  plt.legend( ('actual','predicted') )
 
   while True:
     s = time.time()
