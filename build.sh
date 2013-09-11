@@ -23,9 +23,6 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
-# Terminate on first failure.
-set -e
-
 # Set sane defaults
 [[ -z $NUPIC ]] && NUPIC=$PWD
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
@@ -47,8 +44,12 @@ STDOUT="$BUILDDIR/stdout.txt"
 
 function exitOnError {
   if [[ !( "$1" == 0 ) ]] ; then
-    echo "Stdout redirected to: $STDOUT"
-    echo "Build failed."
+    {
+      echo
+      echo "STDOUT redirected to: $STDOUT"
+      echo "Build failed!!!"
+      echo
+    } 1>&2
     exit $1
   fi
 }

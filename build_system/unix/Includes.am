@@ -167,8 +167,7 @@ if NTA_PYTHON_SUPPORT
   # Minimal functional subset. Assumes Python 2.4. Equivalent to Windows flags.
   # NTA_PYTHON_CXXFLAGS = -DNTA_PYTHON_SUPPORT
 
-  NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
-    -I$(PYTHON_SYS_INCLUDE)
+  NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) -I$(PYTHON_SYS_INCLUDE)
 
   NTA_CXXFLAGS_BASE += -I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
 
