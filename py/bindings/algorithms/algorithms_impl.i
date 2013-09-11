@@ -2944,8 +2944,106 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
         minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
         seed, spVerbosity)
-
   %}
+
+  inline void setBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void getBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void setOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+
+  inline void setMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+  inline void setPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void getPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void setPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getConnectedSynapses(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedSynapses(column, (nta::UInt*) x->data);
+  }
+
+  inline void getConnectedCounts(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedCounts((nta::UInt*) x->data);
+  }
+
+
 }
 
 %include <nta/algorithms/fast_cla_classifier.hpp>

@@ -55,6 +55,8 @@ namespace nta {
     void setup(SpatialPooler& sp, UInt numInputs, UInt numColumns);
     bool check_vector_eq(UInt arr[], vector<UInt> vec);
     bool check_vector_eq(Real arr[], vector<Real> vec);
+    bool check_vector_eq(UInt arr1[], UInt arr2[], UInt n);
+    bool check_vector_eq(Real arr1[], Real arr2[], UInt n);
     bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
     bool almost_eq(Real a, Real b);
     bool findVector(UInt needle[], UInt n, 
@@ -90,7 +92,7 @@ namespace nta {
     void testGetNeighbors2D();
     void testCartesianProduct();
     void testGetNeighborsND();  
-    bool testIsUpdateRound();
+    void testIsUpdateRound();
 
     void print_vec(UInt arr[], UInt n);
     void print_vec(Real arr[], UInt n);

@@ -36,6 +36,57 @@ using namespace std;
 using namespace nta;
 using namespace nta::algorithms::spatial_pooler;
 
+class CoordinateConverter2D {
+
+  public:
+    CoordinateConverter2D(UInt nrows, UInt ncols) : nrows_(nrows), 
+                                                    ncols_(ncols) {}
+    UInt toRow(UInt index) { return index / ncols_; };
+    UInt toCol(UInt index) { return index % ncols_; };
+    UInt toIndex(UInt row, UInt col) { return row * ncols_ + col; };
+
+  private:
+    UInt nrows_;
+    UInt ncols_;
+};
+
+
+class CoordinateConverterND {
+
+  public:
+    CoordinateConverterND(vector<UInt>& dimensions) 
+    {
+      dimensions_ = dimensions;
+      UInt b = 1;
+      for (Int i = (Int) dimensions.size()-1; i >= 0; i--) {
+        bounds_.insert(bounds_.begin(), b);
+        b *= dimensions[i];
+      }
+    }
+
+    void toCoord(UInt index, vector<UInt>& coord) 
+    { 
+      coord.clear();
+      for (UInt i = 0; i < bounds_.size(); i++)  {
+        coord.push_back((index / bounds_[i]) % dimensions_[i]);
+      }
+    };
+
+    UInt toIndex(vector<UInt>& coord) 
+    { 
+      UInt index = 0;
+      for (UInt i = 0; i < coord.size(); i++) {
+        index += coord[i] * bounds_[i];
+      } 
+      return index;
+    };
+
+  private:
+    vector<UInt> dimensions_;
+    vector<UInt> bounds_;
+};
+
+
 SpatialPooler::SpatialPooler() { }
 
 UInt SpatialPooler::getPotentialRadius() 
@@ -77,7 +128,9 @@ UInt SpatialPooler::getNumActiveColumnsPerInhArea()
 void SpatialPooler::setNumActiveColumnsPerInhArea(UInt 
   numActiveColumnsPerInhArea) 
 { 
+  NTA_ASSERT(numActiveColumnsPerInhArea > 0);
   numActiveColumnsPerInhArea_ = numActiveColumnsPerInhArea; 
+  localAreaDensity_ = -1;
 }
 
 Real SpatialPooler::getLocalAreaDensity()
@@ -87,7 +140,9 @@ Real SpatialPooler::getLocalAreaDensity()
 
 void SpatialPooler::setLocalAreaDensity(Real localAreaDensity)
 {
+  NTA_ASSERT(localAreaDensity > 0 && localAreaDensity <= 1);
   localAreaDensity_ = localAreaDensity;
+  numActiveColumnsPerInhArea_ = -1;
 }
 
 UInt SpatialPooler::getStimulusThreshold()
@@ -160,7 +215,7 @@ void SpatialPooler::setSpVerbosity(UInt spVerbosity)
   spVerbosity_ = spVerbosity;
 }
 
-UInt SpatialPooler::getUpatePeriod()
+UInt SpatialPooler::getUpdatePeriod()
 {
   return updatePeriod_;
 }
@@ -240,103 +295,95 @@ void SpatialPooler::setMinPctActiveDutyCycles(Real minPctActiveDutyCycles)
   minPctActiveDutyCycles_ = minPctActiveDutyCycles;
 }
 
-vector<Real> SpatialPooler::getBoostFactors() 
+void SpatialPooler::getBoostFactors(Real boostFactors[]) 
 {
-  return boostFactors_;
+  copy(boostFactors_.begin(), boostFactors_.end(), boostFactors);
 }
 
-void SpatialPooler::setBoostFactors(const vector<Real>& boostFactors) 
+void SpatialPooler::setBoostFactors(Real boostFactors[]) 
 {
-  NTA_ASSERT(boostFactors.size() == numColumns_);
-  boostFactors_.assign(boostFactors.begin(), boostFactors.end());
+  boostFactors_.assign(&boostFactors[0], &boostFactors[numColumns_]);
 }
 
-vector<Real> SpatialPooler::getOverlapDutyCycles()
+void SpatialPooler::getOverlapDutyCycles(Real overlapDutyCycles[])
 {
-  return overlapDutyCycles_;
+  copy(overlapDutyCycles_.begin(), overlapDutyCycles_.end(), 
+       overlapDutyCycles);
 }
 
-void SpatialPooler::setOverlapDutyCycles(const vector<Real>& overlapDutyCycles)
+void SpatialPooler::setOverlapDutyCycles(Real overlapDutyCycles[])
 {
-  NTA_ASSERT(overlapDutyCycles.size() == numColumns_);
-  overlapDutyCycles_.assign(overlapDutyCycles.begin(), overlapDutyCycles.end());
+  overlapDutyCycles_.assign(&overlapDutyCycles[0], &overlapDutyCycles[numColumns_]);
 }
 
-vector<Real> SpatialPooler::getActiveDutyCycles()
+void SpatialPooler::getActiveDutyCycles(Real activeDutyCycles[])
 {
-  return activeDutyCycles_;
+  copy(activeDutyCycles_.begin(), activeDutyCycles_.end(), activeDutyCycles);
 }
 
-void SpatialPooler::setActiveDutyCycles(const vector<Real>& activeDutyCycles)
+void SpatialPooler::setActiveDutyCycles(Real activeDutyCycles[])
 {
-  NTA_ASSERT(activeDutyCycles.size() == numColumns_);
-  activeDutyCycles_.assign(activeDutyCycles.begin(), activeDutyCycles.end());
+  activeDutyCycles_.assign(&activeDutyCycles[0], &activeDutyCycles[numColumns_]);
 }
 
-vector<Real> SpatialPooler::getMinOverlapDutyCycles()
+void SpatialPooler::getMinOverlapDutyCycles(Real minOverlapDutyCycles[])
 {
-  return minOverlapDutyCycles_;
+  copy(minOverlapDutyCycles_.begin(), minOverlapDutyCycles_.end(), minOverlapDutyCycles);
 }
 
-void SpatialPooler::setMinOverlapDutyCycles(const vector<Real>& minOverlapDutyCycles)
+void SpatialPooler::setMinOverlapDutyCycles(Real minOverlapDutyCycles[])
 {
-  NTA_ASSERT(minOverlapDutyCycles.size() == numColumns_);
-  minOverlapDutyCycles_.assign(minOverlapDutyCycles.begin(), 
-                               minOverlapDutyCycles.end());
+  minOverlapDutyCycles_.assign(&minOverlapDutyCycles[0], 
+                               &minOverlapDutyCycles[numColumns_]);
 }
 
-vector<Real> SpatialPooler::getMinActiveDutyCycles()
+void SpatialPooler::getMinActiveDutyCycles(Real minActiveDutyCycles[])
 {
-  return minActiveDutyCycles_;
-}
-void SpatialPooler::setMinActiveDutyCycles(const vector<Real>& minActiveDutyCycles)
-{
-  NTA_ASSERT(minActiveDutyCycles.size() == numColumns_);
-  minActiveDutyCycles_.assign(minActiveDutyCycles.begin(), 
-                               minActiveDutyCycles.end());
+  copy(minActiveDutyCycles_.begin(), minActiveDutyCycles_.end(), minActiveDutyCycles); 
 }
 
-vector<UInt> SpatialPooler::getPotential(UInt column) 
+void SpatialPooler::setMinActiveDutyCycles(Real minActiveDutyCycles[])
+{
+  minActiveDutyCycles_.assign(&minActiveDutyCycles[0], 
+                              &minActiveDutyCycles[numColumns_]);
+}
+
+void SpatialPooler::getPotential(UInt column, UInt potential[]) 
 {
   NTA_ASSERT(column < numColumns_);
-  vector<UInt> potential(numInputs_,0);
-  potentialPools_.getRow(column, potential.begin(), potential.end());
-  return potential;
+  potentialPools_.getRow(column, &potential[0], &potential[numInputs_]);
 }
 
-void SpatialPooler::setPotential(UInt column, const vector<UInt>& potential) 
-{
-  NTA_ASSERT(potential.size() == numInputs_);
-  NTA_ASSERT(column < numColumns_);
-  potentialPools_.rowFromDense(column, potential.begin(), potential.end());
-}
-
-vector<Real> SpatialPooler::getPermanence(UInt column)
+void SpatialPooler::setPotential(UInt column, UInt potential[]) 
 {
   NTA_ASSERT(column < numColumns_);
-  vector<Real> perm(numInputs_,0);
-  permanences_.getRowToDense(column, perm);
-  return perm;
+  potentialPools_.rowFromDense(column, &potential[0], &potential[numInputs_]);
 }
 
-void SpatialPooler::setPermanence(UInt column, vector<Real>& permanences)
+void SpatialPooler::getPermanence(UInt column, Real permanences[])
 {
   NTA_ASSERT(column < numColumns_);
-  NTA_ASSERT(permanences.size() == numInputs_);
-  updatePermanencesForColumn_(permanences, column, false);
+  permanences_.getRowToDense(column, permanences);
 }
 
-vector<UInt> SpatialPooler::getConnected(UInt column) 
+void SpatialPooler::setPermanence(UInt column, Real permanences[])
 {
   NTA_ASSERT(column < numColumns_);
-  vector<UInt> connected(numInputs_,0);
-  connectedSynapses_.getRow(column,connected.begin(),connected.end());
-  return connected;
+  vector<Real> perm;
+  perm.assign(&permanences[0],&permanences[numInputs_]);
+  updatePermanencesForColumn_(perm, column, false);
 }
 
-vector<UInt> SpatialPooler::getConnectedCounts() 
+void SpatialPooler::getConnectedSynapses(UInt column, UInt connectedSynapses[]) 
 {
-  return connectedCounts_;
+  NTA_ASSERT(column < numColumns_);
+  connectedSynapses_.getRow(column,&connectedSynapses[0],
+                            &connectedSynapses[numInputs_]);
+}
+
+void SpatialPooler::getConnectedCounts(UInt connectedCounts[]) 
+{
+  copy(connectedCounts_.begin(), connectedCounts_.end(), connectedCounts);
 }
 
 
@@ -360,6 +407,7 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   UInt spVerbosity) {
 
   numInputs_ = 1;
+  inputDimensions_.clear();
   for (size_t i = 0; i < inputDimensions.size(); ++i)
   {  
     numInputs_ *= inputDimensions[i];
@@ -367,7 +415,8 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   }
 
   numColumns_ = 1;
-  for (size_t i = 0; i < inputDimensions.size(); ++i)
+  columnDimensions_.clear();
+  for (size_t i = 0; i < columnDimensions.size(); ++i)
   {
     numColumns_ *= columnDimensions[i];
     columnDimensions_.push_back(columnDimensions[i]);
@@ -514,11 +563,13 @@ void SpatialPooler::clip_(vector<Real>& perm, bool trim=false)
 void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm, UInt column,
                                                 bool raisePerm)
 {
-  vector<UInt> connected(numInputs_,0);
+  vector<UInt> connectedSparse;
 
   UInt numConnected;
   if (raisePerm) {
-    vector<UInt> potential = getPotential(column);
+    vector<UInt> potential;
+    potential.resize(numInputs_);
+    potentialPools_.getRow(column, potential.begin(), potential.end());
     raisePermanencesToThreshold_(perm,potential);
   }
 
@@ -526,13 +577,14 @@ void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm, UInt column,
   for (UInt i = 0; i < perm.size(); ++i)
   {
     if (perm[i] > synPermConnected_) {
-      connected[i] = 1;
+      connectedSparse.push_back(i);
       ++numConnected;
     }
   }
 
   clip_(perm, true);
-  connectedSynapses_.rowFromDense(column,connected.begin(), connected.end());
+  connectedSynapses_.replaceSparseRow(column,connectedSparse.begin(), 
+                                      connectedSparse.end());
   permanences_.setRowFromDense(column, perm);
   connectedCounts_[column] = numConnected;
 }
@@ -599,28 +651,95 @@ void SpatialPooler::updateDutyCycles_(vector<UInt>& overlaps,
   return;
 }
 
-void SpatialPooler::avgColumnsPerInput_()
+Real SpatialPooler::avgColumnsPerInput_()
 {
-  // TODO: implement
-  return;
+  UInt numDim = max(columnDimensions_.size(), inputDimensions_.size());
+  Real columnsPerInput = 0;
+  for (UInt i = 0; i < numDim; i++) {
+    Real col, input;
+    col = (i < columnDimensions_.size()) ? columnDimensions_[i] : 1;
+    input = (i < inputDimensions_.size()) ? inputDimensions_[i] : 1;
+    columnsPerInput += col / input;
+  }
+  return columnsPerInput / numDim;
 }
 
-void SpatialPooler::avgConnectedSpanForColumn1D_(UInt column)
+Real SpatialPooler::avgConnectedSpanForColumn1D_(UInt column)
 {
-  // TODO: implement
-  return;
+
+  NTA_ASSERT(inputDimensions_.size() == 1);
+  vector<UInt> connectedSparse = connectedSynapses_.getSparseRow(column);
+  if (connectedSparse.size() == 0)
+    return 0;
+  UInt minIndex = *min_element(connectedSparse.begin(),
+                               connectedSparse.end());
+  UInt maxIndex = *max_element(connectedSparse.begin(),
+                               connectedSparse.end());
+  return maxIndex - minIndex + 1;
 }
 
-void SpatialPooler::avgConnectedSpanForColumn2D_(UInt column)
+Real SpatialPooler::avgConnectedSpanForColumn2D_(UInt column)
 {
-  // TODO: implement
-  return;
+
+  NTA_ASSERT(inputDimensions_.size() == 2);
+
+  UInt nrows = inputDimensions_[0];
+  UInt ncols = inputDimensions_[1];
+
+  CoordinateConverter2D conv(nrows,ncols);
+
+  vector<UInt> connectedSparse = connectedSynapses_.getSparseRow(column);
+  vector<UInt> rows, cols;
+  for (UInt i = 0; i < connectedSparse.size(); i++) {
+    UInt index = connectedSparse[i];
+    rows.push_back(conv.toRow(index));
+    cols.push_back(conv.toCol(index));
+  }
+
+  if (rows.size() == 0 && cols.size() == 0) {
+    return 0;
+  }
+  
+  UInt rowSpan = *max_element(rows.begin(),rows.end()) - 
+                 *min_element(rows.begin(),rows.end()) + 1;
+
+  UInt colSpan = *max_element(cols.begin(),cols.end()) - 
+                 *min_element(cols.begin(),cols.end()) + 1;
+
+  return (rowSpan + colSpan) / 2.0;                
+
 }
 
-void SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
+Real SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
 {
-  // TODO: implement
-  return;
+  UInt numDimensions = inputDimensions_.size();
+  vector<UInt> connectedSparse = connectedSynapses_.getSparseRow(column);
+  vector<UInt> maxCoord(numDimensions, 0);
+  vector<UInt> minCoord(numDimensions, *max_element(inputDimensions_.begin(),
+                                                    inputDimensions_.end()));
+
+  CoordinateConverterND conv(inputDimensions_);
+
+  if (connectedSparse.size() == 0 ) {
+    return 0;
+  }
+
+  for (UInt i = 0; i < connectedSparse.size(); i++) {
+    vector<UInt> columnCoord;
+    conv.toCoord(connectedSparse[i],columnCoord);
+    for (UInt j = 0; j < columnCoord.size(); j++) {
+      maxCoord[j] = max(maxCoord[j], columnCoord[j]);
+      minCoord[j] = min(minCoord[j], columnCoord[j]);
+    }
+  }
+
+  UInt totalSpan = 0;
+  for (UInt j = 0; j < inputDimensions_.size(); j++) {
+    totalSpan += maxCoord[j] - minCoord[j] + 1;
+  }
+
+  return (Real) totalSpan / inputDimensions_.size();
+
 }
 
 void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector, 
@@ -637,6 +756,7 @@ void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector,
     UInt column = activeColumns[i];
     vector<UInt> potential(numInputs_, 0);
     vector <Real> perm(numInputs_, 0);
+    // use nNonZerosOnRow() and getRowToSparse()
     potentialPools_.getRow(column, potential.begin(), potential.end());
     permanences_.getRowToDense(column, perm);
     for (UInt j = 0; j < numInputs_; j++) {
@@ -727,7 +847,7 @@ void SpatialPooler::inhibitColumns_(vector<UInt> overlaps,
   }
 }
 
-bool SpatialPooler::is_winner_(Real score, vector<scoreCard>& winners,
+bool SpatialPooler::isWinner_(Real score, vector<scoreCard>& winners,
                                UInt numWinners)
 {
   if (winners.size() < numWinners) {
@@ -741,7 +861,7 @@ bool SpatialPooler::is_winner_(Real score, vector<scoreCard>& winners,
   return false;
 }
 
-void SpatialPooler::add_to_winners_(UInt index, Real score, 
+void SpatialPooler::addToWinners_(UInt index, Real score, 
                                     vector<scoreCard>& winners)
 {
   scoreCard val = { index, score };
@@ -762,8 +882,8 @@ void SpatialPooler::inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
   UInt numActive = (UInt) (density * numColumns_);
   vector<scoreCard> winners;
   for (UInt i = 0; i < numColumns_; i++) {
-    if (is_winner_(overlaps[i], winners, numActive)) {
-      add_to_winners_(i,overlaps[i], winners);      
+    if (isWinner_(overlaps[i], winners, numActive)) {
+      addToWinners_(i,overlaps[i], winners);      
     }
   }
 
@@ -823,20 +943,6 @@ void SpatialPooler::getNeighbors2D_(UInt column, vector<UInt>& dimensions,
 {
   NTA_ASSERT(dimensions.size() == 2);
   neighbors.clear();
-
-  class CoordinateConverter2D {
-
-  public:
-    CoordinateConverter2D(UInt nrows, UInt ncols) : nrows_(nrows), 
-                                                    ncols_(ncols) {}
-    UInt toRow(UInt index) { return index / ncols_; };
-    UInt toCol(UInt index) { return index % ncols_; };
-    UInt toIndex(UInt row, UInt col) { return row * ncols_ + col; };
-
-  private:
-    UInt nrows_;
-    UInt ncols_;
-  };
 
   UInt nrows = dimensions[0];
   UInt ncols = dimensions[1];
@@ -909,40 +1015,6 @@ void SpatialPooler::range_(Int start, Int end, UInt ubound, bool wrapAround,
 void SpatialPooler::getNeighborsND_(UInt column, vector<UInt>& dimensions, 
                      UInt radius, bool wrapAround, vector<UInt>& neighbors)
 {
-  class CoordinateConverterND {
-
-  public:
-    CoordinateConverterND(vector<UInt>& dimensions) 
-    {
-      dimensions_ = dimensions;
-      UInt b = 1;
-      for (Int i = (Int) dimensions.size()-1; i >= 0; i--) {
-        bounds_.insert(bounds_.begin(), b);
-        b *= dimensions[i];
-      }
-    }
-
-    void toCoord(UInt index, vector<UInt>& coord) 
-    { 
-      coord.clear();
-      for (UInt i = 0; i < bounds_.size(); i++)  {
-        coord.push_back((index / bounds_[i]) % dimensions_[i]);
-      }
-    };
-
-    UInt toIndex(vector<UInt>& coord) 
-    { 
-      UInt index = 0;
-      for (UInt i = 0; i < coord.size(); i++) {
-        index += coord[i] * bounds_[i];
-      } 
-      return index;
-    };
-
-  private:
-    vector<UInt> dimensions_;
-    vector<UInt> bounds_;
-  };
 
   neighbors.clear();
   CoordinateConverterND conv(dimensions);
@@ -973,8 +1045,7 @@ void SpatialPooler::getNeighborsND_(UInt column, vector<UInt>& dimensions,
 
 bool SpatialPooler::isUpdateRound_()
 {
-  // TODO: implement
-  return true;
+  return (iterationNum_ % updatePeriod_) == 0;
 }
 
 
