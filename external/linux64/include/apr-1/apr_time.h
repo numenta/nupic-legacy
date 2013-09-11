@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -72,7 +72,10 @@ typedef apr_int32_t apr_short_interval_time_t;
 /** @return apr_time_t as a msec */
 #define apr_time_as_msec(time) ((time) / 1000)
 
-/** @return a second as an apr_time_t */
+/** @return milliseconds as an apr_time_t */
+#define apr_time_from_msec(msec) ((apr_time_t)(msec) * 1000)
+
+/** @return seconds as an apr_time_t */
 #define apr_time_from_sec(sec) ((apr_time_t)(sec) * APR_USEC_PER_SEC)
 
 /** @return a second and usec combination as an apr_time_t */
