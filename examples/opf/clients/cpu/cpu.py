@@ -43,7 +43,6 @@ fig = plt.figure()
 plt.title('CPU prediction example')
 plt.xlabel('time [s]')
 plt.ylabel('CPU usage [%]')
-plt.autoscale(enable=True, axis='x', tight=None)
 
 def runCPU():
   """Poll CPU usage, make predictions, and plot the results. Runs forever."""
