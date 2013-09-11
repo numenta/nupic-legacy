@@ -247,7 +247,104 @@ namespace nta {
   }
 
   void SpatialPoolerTest::testUpdateMinDutyCycles() {}
-  void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {}
+
+  void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {
+    SpatialPooler sp;
+    UInt numColumns = 5;
+    UInt numInputs = 5;
+    setup(sp, numInputs, numColumns);
+    Real minPctOverlap, minPctActive;
+
+    minPctOverlap = 0.01;
+    minPctActive = 0.02;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr1[] = 
+      {0.06, 1, 3, 6, 0.5};
+    Real activeArr1[] = 
+      {0.6, 0.07, 0.5, 0.4, 0.3};
+
+    sp.setOverlapDutyCycles(overlapArr1);
+    sp.setActiveDutyCycles(activeArr1);
+
+    Real trueMinOverlap1 = 0.01 * 6;
+    Real trueMinActive1 = 0.02 * 0.6;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive1[5];
+    Real resultOverlap1[5];
+    sp.getMinOverlapDutyCycles(resultOverlap1);
+    sp.getMinActiveDutyCycles(resultActive1);
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(resultOverlap1[i] == trueMinOverlap1);
+      NTA_CHECK(resultActive1[i] == trueMinActive1);
+    }
+
+
+    minPctOverlap = 0.015;
+    minPctActive = 0.03;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr2[] = {0.86, 2.4, 0.03, 1.6, 1.5};
+    Real activeArr2[] = {0.16, 0.007, 0.15, 0.54, 0.13};
+
+    sp.setOverlapDutyCycles(overlapArr2);
+    sp.setActiveDutyCycles(activeArr2);
+
+    Real trueMinOverlap2 = 0.015 * 2.4;
+    Real trueMinActive2 = 0.03 * 0.54;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive2[5];
+    Real resultOverlap2[5];
+    sp.getMinOverlapDutyCycles(resultOverlap2);
+    sp.getMinActiveDutyCycles(resultActive2);
+    print_vec(resultOverlap2, 5);
+    print_vec(resultActive2, 5);
+    cout << "True overlap: " << trueMinOverlap2 << endl;
+    cout << "True active: " << trueMinActive2 << endl;
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(almost_eq(resultOverlap2[i],trueMinOverlap2));
+      NTA_CHECK(almost_eq(resultActive2[i],trueMinActive2));
+    }
+
+
+    minPctOverlap = 0.015;
+    minPctActive = 0.03;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr3[] = {0, 0, 0, 0, 0};
+    Real activeArr3[] = {0, 0, 0, 0, 0};
+
+    sp.setOverlapDutyCycles(overlapArr3);
+    sp.setActiveDutyCycles(activeArr3);
+
+    Real trueMinOverlap3 = 0;
+    Real trueMinActive3 = 0;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive3[5];
+    Real resultOverlap3[5];
+    sp.getMinOverlapDutyCycles(resultOverlap3);
+    sp.getMinActiveDutyCycles(resultActive3);
+    print_vec(resultOverlap3, 5);
+    print_vec(resultActive3, 5);
+    cout << "True overlap: " << trueMinOverlap3 << endl;
+    cout << "True active: " << trueMinActive3 << endl;
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(almost_eq(resultOverlap3[i],trueMinOverlap3));
+      NTA_CHECK(almost_eq(resultActive3[i],trueMinActive3));
+    }
+
+
+  }
+
   void SpatialPoolerTest::testUpdateMinDutyCyclesLocal() {}
   void SpatialPoolerTest::testUpdateDutyCycles() {}
 
