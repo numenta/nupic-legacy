@@ -482,6 +482,30 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   updateInhibitionRadius_();
 
+  switch (inputDimensions_.size()) {
+    case 1:
+      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumn1D_;
+      break;
+    case 2:
+      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumn2D_;
+      break;
+    default:
+      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumnND_;
+      break;
+  }
+
+  switch (columnDimensions_.size()) {
+    case 1:
+      getNeighbors_ = &SpatialPooler::getNeighbors1D_;
+      break;
+    case 2:
+      getNeighbors_ = &SpatialPooler::getNeighbors2D_;
+      break;
+    default:
+      getNeighbors_ = &SpatialPooler::getNeighborsND_;
+      break;
+  }
+
 }
 
 Real SpatialPooler::real_rand()
@@ -622,8 +646,22 @@ UInt SpatialPooler::raisePermanencesToThreshold_(vector<Real>& perm,
 
 void SpatialPooler::updateInhibitionRadius_()
 {
-  // TODO: implement
-  return;
+  if (globalInhibition_) {
+    inhibitionRadius_ = *max_element(columnDimensions_.begin(),
+                                     columnDimensions_.end());
+    return;
+  }
+
+  Real connectedSpan = 0;
+  for (UInt i = 0; i < numColumns_; i++) {
+    connectedSpan += (this->*avgConnectedSpanForColumn_)(i);
+  }
+  connectedSpan /= numColumns_;
+  Real columnsPerInput = avgColumnsPerInput_();
+  Real diameter = connectedSpan * columnsPerInput;
+  Real radius = (diameter - 1) / 2.0;
+  radius = max((Real) 1.0, radius);
+  inhibitionRadius_ = UInt(round(radius));
 }
 
 void SpatialPooler::updateMinDutyCycles_()
@@ -778,8 +816,11 @@ void SpatialPooler::updateDutyCyclesHelper_(vector<Real>& dutyCycles,
                                      vector<UInt> newValues, 
                                      UInt period)
 {
-  // TODO: implement
-  return;
+  NTA_ASSERT(period >= 1);
+  NTA_ASSERT(dutyCycles.size() == newValues.size());
+  for (UInt i = 0; i < dutyCycles.size(); i++) {
+    dutyCycles[i] = (dutyCycles[i] * (period - 1) + newValues[i]) / period;
+  }
 }
 
 void SpatialPooler::updateBoostFactors_()
@@ -900,7 +941,7 @@ void SpatialPooler::inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
   Real arbitration = *max_element(overlaps.begin(), overlaps.end()) / 1000.0;
   for (UInt column = 0; column < numColumns_; column++) {
     vector<UInt> neighbors;
-    getNeighborsND_(column, columnDimensions_, inhibitionRadius_, false, 
+    (this->*getNeighbors_)(column, columnDimensions_, inhibitionRadius_, false, 
                     neighbors);
     UInt numActive = (UInt) (0.5 + (density * (neighbors.size() + 1)));
     UInt numBigger = 0;
