@@ -23,7 +23,6 @@
 """A simple client to read CPU usage and predict it in real time."""
 
 from collections import deque
-import time
 
 import psutil
 import matplotlib.pyplot as plt
