@@ -174,3 +174,6 @@ section.media h3 {
       0% {background-color: red;}
      100% {background-color: orange;}
 }
+.rss {
+	vertical-align: middle;
+}
