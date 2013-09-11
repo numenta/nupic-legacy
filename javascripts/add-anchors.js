@@ -1,6 +1,6 @@
 $(function() {
 
-    $headers = $('h2').each(function() {
+    $headers = $('h2,h3').each(function() {
         var $header = $(this),
             id = $header.attr('id'),
             $a = $header.find('a'),

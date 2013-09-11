@@ -3,7 +3,7 @@
 
 ## November 2013 Hackathon
 
-<dl>
+<dl class="events">
     <dt>When?</dt>
     <dd>
         <p>Starts: Saturday, November 2 @ 10AM PST<br/>
@@ -28,17 +28,22 @@
     <dd>There are many parking garages nearby where you can park, but most of them will not allow you to park overnight. We are working with a local parking garage to provide overnight parking. If you need a place to park overnight, <a href="mailto:matt@numenta.org?subject=Hackathon%20Parking">please notify us</a>.</dd>
     <dt>Hotels</dt>
     <dd>You are welcome to crash on one of the many couches at the Tagged offices (or the floor, or under a desk, or on the roof). But if you think you'll need a hotel room the night of November 2, please let us know. We are planning on blocking out some rooms nearby, and we can make sure you get a room if you <a href="mailto:matt@numenta.org?subject=Hackathon%20Hotels">please notify us</a></dd>
+    <dt>Sustenance</dt>
+    <dd>Food and drinks will be provided, but there is also a diverse selection of restaurants within walking distance.</dd>
 </dl>
 
 ### Schedule
+
+* * *
+
 #### Saturday November 2
 
-- 10:00 AM: Kickoff with Jeff Hawkins
-- 10:15 AM: NuPIC Introduction
-- 10:30 AM: NuPIC Natural Language Processing Primer
-- 11:00 AM: HACK START
--  2:00 PM: [CLA Deep Dive](#cla_deep_dive)
--  4:00 PM: [Working Session: NuPIC Documentation for ML/AI Researchers](#working_session_nupic_documentation_for_mlai_researchers)
+- **10:00 AM**: Kickoff with Jeff Hawkins
+- **10:15 AM**: NuPIC Introduction
+- **10:30 AM**: NuPIC Natural Language Processing Primer
+- **11:00 AM**: HACK START
+- **02:00 PM**: [CLA Deep Dive](#cla_deep_dive) (Subutai Ahmad)
+- **04:00 PM**: [Working Session: NuPIC Documentation for ML/AI Researchers](#working_session_nupic_documentation_for_mlai_researchers) (Ian Danforth)
 
 ##### CLA Deep Dive
 
@@ -48,11 +53,18 @@
 
 > Descriptions matter. We'll be creating a document that describes NuPIC and CLA in terms that are familiar to academic Machine Learning and AI researchers. This document will become an entry point for academics into NuPIC. As we walk through CLA, participants will be asked to contribute how their field would describe each component, and suggest relevant citations for similar work. Components and performance characteristics of CLA which are particularly novel will be highlighted.
 
-#### Sunday November 3
-- 05:45PM: HACK STOP
-- 06:00PM: Demonstrations and Prizes
+* * *
 
-Food and drinks will be provided, but there is also a diverse selection of restaurants within walking distance.
+#### Sunday November 3
+- **01:00PM**: [Sensor-Motor Integration in the Neocortex](#sensormotor_integration_in_the_neocortex) (Jeff Hawkins)
+- **05:45PM**: HACK STOP
+- **06:00PM**: Demonstrations and Prizes
+
+##### Sensor-Motor Integration in the Neocortex
+
+> Most of the changes on our senses are due, wholly or in part, to our own actions.  Therefore, the neocortex learns a sensory-motor model of the world.  In this talk I discuss some of what we know about how the neocortex generates behavior and how we might construct a simple sensory-motor system based on the Cortical Learning Algorithm.  It is a good starting point for anyone wanting to add motor output to the CLA.  I will assume basic understanding of the CLA.
+
+* * *
 
 ### Preparations
 I recommend you get a [github](http://github.com) account if you don't already have one. Then you can get the code by simply running `git clone https://github.com/numenta/nupic.git` in a command-line interpreter. You can [download the code directly](https://github.com/numenta/nupic/archive/master.zip) if you don't want to use git. Depending on your OS and environment, you may have difficulties building NuPIC. Please make an attempt to build, run tests, and run the sample application as specified in the [README](https://github.com/numenta/nupic#numenta-platform-for-intelligent-computing-nupic). If you're still having trouble when you arrive, we'll help you get set up.
@@ -71,3 +83,5 @@ Please read through our [community page](http://numenta.org/community.html) to g
 
 #### Streaming Video
 Lots of people are interested in participating remotely. We're going to have at least one web camera set up in the main work area of the Tagged offices, so it is probable that audio and video of you will be broadcast on the internet during the hackathon. So be sure to brush your hair and look your best ;).
+
+All presentation will be live-streamed as well, and preserved on YouTube for future viewers.
