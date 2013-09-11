@@ -62,7 +62,8 @@ def runCPU():
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
 
-  while plt.fignum_exists(fig.number):
+  while True:
+    s = time.time()
 
     # Get the CPU usage.
     cpu = psutil.cpu_percent()
