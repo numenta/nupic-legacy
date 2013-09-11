@@ -8,5 +8,5 @@ future: false
 markdown: maruku
 pygments: true
 
-name: NuPIC News
-description: Numenta Platform for Intelligent Computing News
+name: NuPIC
+description: Numenta Platform for Intelligent Computing
