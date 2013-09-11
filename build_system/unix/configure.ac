@@ -194,7 +194,7 @@ if test -z "$SWIG" ; then
    SWIG='echo "Error: SWIG is not installed. Error in NuPIC source installation"'
 fi
 
-SWIG_LIB=${extdir}/share/swig/1.3.36
+SWIG_LIB=${srcdir}/external/common/share/swig/1.3.36
 AC_SUBST([SWIG_LIB])
 
 AC_MSG_NOTICE([SWIG executable is '$SWIG'])
