@@ -1,4 +1,3 @@
-
 # Upcoming Events
 
 ## November 2013 Hackathon
@@ -58,7 +57,7 @@
 #### Sunday November 3
 - **01:00PM**: [Sensor-Motor Integration in the Neocortex](#sensormotor_integration_in_the_neocortex) (Jeff Hawkins)
 - **05:45PM**: HACK STOP
-- **06:00PM**: Demonstrations and Prizes
+- **06:00PM**: Demonstrations
 
 ##### Sensor-Motor Integration in the Neocortex
 
