@@ -247,3 +247,12 @@ footer {
     color:#444;
   }
 }
+
+/** EVENTS PAGE **/
+
+dl.events {
+  background-color: #EEE;
+  padding: 20px;
+  border-radius: 20px;
+  border: solid 1px #CCC;
+}
