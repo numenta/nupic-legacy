@@ -795,12 +795,11 @@ void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector,
     vector<UInt> potential(numInputs_, 0);
     vector <Real> perm(numInputs_, 0);
     // use nNonZerosOnRow() and getRowToSparse()
-    potentialPools_.getRow(column, potential.begin(), potential.end());
+    potential = potentialPools_.getSparseRow(column);
     permanences_.getRowToDense(column, perm);
-    for (UInt j = 0; j < numInputs_; j++) {
-      if (potential[j] > 0) {
-        perm[j] += permChanges[j];
-      }
+    for (UInt j = 0; j < potential.size(); j++) {
+        UInt index = potential[j];
+        perm[index] += permChanges[index];
     }
     updatePermanencesForColumn_(perm, column);
   }
@@ -808,8 +807,20 @@ void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector,
 
 void SpatialPooler::bumpUpWeakColumns_()
 {
-  // TODO: implement
-  return;
+  for (UInt i = 0; i < numColumns_; i++) {
+    if (overlapDutyCycles_[i] >= minOverlapDutyCycles_[i]) {
+      continue;
+    }
+    vector<Real> perm(numInputs_, 0);
+    vector<UInt> potential;
+    potential = potentialPools_.getSparseRow(i);
+    permanences_.getRowToDense(i, perm);
+    for (UInt j = 0; j < potential.size(); j++) {
+      UInt index = potential[j];
+      perm[index] += synPermBelowStimulusInc_;
+    }
+    updatePermanencesForColumn_(perm, i, false);
+  }
 }
 
 void SpatialPooler::updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
@@ -840,8 +851,10 @@ void SpatialPooler::updateBoostFactors_()
 
 void SpatialPooler::updateBookeepingVars_(bool learn)
 {
-  // TODO: implement
-  return;
+  iterationNum_++;
+  if (learn) {
+    iterationLearnNum_++;
+  }
 }
 
 void SpatialPooler::calculateOverlap_(vector<UInt>& inputVector,

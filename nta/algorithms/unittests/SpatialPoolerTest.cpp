@@ -619,7 +619,60 @@ namespace nta {
 
   }
 
-  void SpatialPoolerTest::testBumpUpWeakColumns() {}
+  void SpatialPoolerTest::testBumpUpWeakColumns() 
+  {
+    SpatialPooler sp;
+    UInt numInputs = 8; 
+    UInt numColumns = 5;
+    setup(sp,numInputs,numColumns);
+    sp.setSynPermBelowStimulusInc(0.01);
+    sp.setSynPermTrimThreshold(0.05);
+    Real overlapDutyCyclesArr[] = {0, 0.009, 0.1, 0.001, 0.002};
+    sp.setOverlapDutyCycles(overlapDutyCyclesArr);
+    Real minOverlapDutyCyclesArr[] = {0.01, 0.01, 0.01, 0.01, 0.01};
+    sp.setMinOverlapDutyCycles(minOverlapDutyCyclesArr);
+
+    UInt potentialArr[5][8] = 
+      {{1, 1, 1, 1, 0, 0, 0, 0},
+       {1, 0, 0, 0, 1, 1, 0, 1},
+       {0, 0, 1, 0, 1, 1, 1, 0},
+       {1, 1, 1, 0, 0, 0, 1, 0},
+       {1, 1, 1, 1, 1, 1, 1, 1}};
+
+    Real permArr[5][8] = 
+      {{0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000},
+       {0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450},
+       {0.000, 0.000, 0.074, 0.000, 0.062, 0.054, 0.110, 0.000},
+       {0.051, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000},
+       {0.100, 0.738, 0.085, 0.002, 0.052, 0.008, 0.208, 0.034}};
+
+    Real truePermArr[5][8] = 
+      {{0.210, 0.130, 0.100, 0.000, 0.000, 0.000, 0.000, 0.000},
+    //  Inc    Inc    Inc    Trim    -     -     -    -
+       {0.160, 0.000, 0.000, 0.000, 0.190, 0.130, 0.000, 0.460},
+    //  Inc   -     -    -     Inc   Inc    -     Inc
+       {0.000, 0.000, 0.074, 0.000, 0.062, 0.054, 0.110, 0.000},  // unchanged
+    //  -    -     -    -     -    -     -    -
+       {0.061, 0.000, 0.000, 0.000, 0.000, 0.000, 0.188, 0.000},
+    //   Inc   Trim    Trim    -     -      -     Inc     -
+       {0.110, 0.748, 0.095, 0.000, 0.062, 0.000, 0.218, 0.000}};
+
+    for (UInt i = 0; i < numColumns; i++) {
+      sp.setPotential(i, potentialArr[i]);
+      sp.setPermanence(i, permArr[i]);
+      Real perm[8];
+      sp.getPermanence(i, perm);
+    }
+
+    sp.bumpUpWeakColumns_();
+
+    for (UInt i = 0; i < numColumns; i++) {
+      Real perm[8];
+      sp.getPermanence(i, perm);
+      NTA_CHECK(check_vector_eq(truePermArr[i], perm, numInputs));
+    }
+
+  }
 
   void SpatialPoolerTest::testUpdateDutyCyclesHelper() 
   {
@@ -748,7 +801,20 @@ namespace nta {
     NTA_CHECK(check_vector_eq(trueBoostFactors4, resultBoostFactors4, 5));
   }
 
-  void SpatialPoolerTest::testUpdateBookeepingVars() {}
+  void SpatialPoolerTest::testUpdateBookeepingVars() 
+  {
+    SpatialPooler sp;
+    sp.setIterationNum(5);
+    sp.setIterationLearnNum(3);
+    sp.updateBookeepingVars_(true);
+    NTA_CHECK(6 == sp.getIterationNum());
+    NTA_CHECK(4 == sp.getIterationLearnNum());
+
+    sp.updateBookeepingVars_(false);
+    NTA_CHECK(7 == sp.getIterationNum());
+    NTA_CHECK(4 == sp.getIterationLearnNum());
+  }
+
   void SpatialPoolerTest::testCalculateOverlap() 
   {
     SpatialPooler sp;
