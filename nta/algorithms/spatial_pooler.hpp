@@ -255,6 +255,9 @@ namespace nta {
 
 
         private:
+          Real (SpatialPooler::*avgConnectedSpanForColumn_) (UInt);
+          void (SpatialPooler::*getNeighbors_) (UInt, vector<UInt>&,UInt, 
+                                bool, vector<UInt>&);
           UInt numInputs_;
           UInt numColumns_;
           vector<UInt> columnDimensions_;

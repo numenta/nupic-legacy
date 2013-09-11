@@ -165,7 +165,87 @@ namespace nta {
     testIsUpdateRound();
 	}  
 
-  void SpatialPoolerTest::testUpdateInhibitionRadius() {}
+  void SpatialPoolerTest::testUpdateInhibitionRadius() 
+  {
+    SpatialPooler sp;
+    vector<UInt> colDim, inputDim;
+    colDim.push_back(57);
+    colDim.push_back(31);
+    colDim.push_back(2);
+    inputDim.push_back(1);
+
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(true);
+    NTA_CHECK(sp.getInhibitionRadius() == 57);
+
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 4
+    // avgConnectedSpanForColumn = 3
+    UInt numInputs = 3;
+    inputDim.push_back(numInputs);
+    UInt numCols = 12;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 1, 1};
+      sp.setPermanence(i,permArr);
+    }
+    UInt trueInhibitionRadius = 6;
+    // ((3 * 4) - 1)/2 => round up
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 1.2
+    // avgConnectedSpanForColumn = 0.5
+    numInputs = 5;
+    inputDim.push_back(numInputs);
+    numCols = 6;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 0, 0, 0, 0};
+      if (i % 2 == 0) {
+        permArr[0] = 0;
+      }
+      sp.setPermanence(i,permArr);
+    }
+    trueInhibitionRadius = 1;
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 2.4
+    // avgConnectedSpanForColumn = 2
+    numInputs = 5;
+    inputDim.push_back(numInputs);
+    numCols = 12;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 1, 0, 0, 0};
+      sp.setPermanence(i,permArr);
+    }
+    trueInhibitionRadius = 2;
+    // ((2.4 * 2) - 1)/2 => round up
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+
+
+  }
+
   void SpatialPoolerTest::testUpdateMinDutyCycles() {}
   void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {}
   void SpatialPoolerTest::testUpdateMinDutyCyclesLocal() {}
@@ -540,7 +620,60 @@ namespace nta {
   }
 
   void SpatialPoolerTest::testBumpUpWeakColumns() {}
-  void SpatialPoolerTest::testUpdateDutyCyclesHelper() {}
+
+  void SpatialPoolerTest::testUpdateDutyCyclesHelper() 
+  {
+    SpatialPooler sp;
+    vector<Real> dutyCycles; 
+    vector<UInt> newValues;
+    UInt period;
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr1[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues1[] = {0, 0, 0, 0, 0};
+    period = 1000;
+    Real trueDutyCycles1[] = {999.0, 999.0, 999.0, 999.0, 999.0};
+    dutyCycles.assign(dutyCyclesArr1, dutyCyclesArr1+5);
+    newValues.assign(newValues1, newValues1+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles1, dutyCycles));
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr2[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues2[] = {1000, 1000, 1000, 1000, 1000};
+    period = 1000;
+    Real trueDutyCycles2[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    dutyCycles.assign(dutyCyclesArr2, dutyCyclesArr2+5);
+    newValues.assign(newValues2, newValues2+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles2, dutyCycles));
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr3[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues3[] = {2000, 4000, 5000, 6000, 7000};
+    period = 1000;
+    Real trueDutyCycles3[] = {1001.0, 1003.0, 1004.0, 1005.0, 1006.0};
+    dutyCycles.assign(dutyCyclesArr3, dutyCyclesArr3+5);
+    newValues.assign(newValues3, newValues3+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles3, dutyCycles));    
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr4[] = {1000.0, 800.0, 600.0, 400.0, 2000.0};
+    Real newValues4[] = {0, 0, 0, 0, 0};
+    period = 2;
+    Real trueDutyCycles4[] = {500.0, 400.0, 300.0, 200.0, 1000.0};
+    dutyCycles.assign(dutyCyclesArr4, dutyCyclesArr4+5);
+    newValues.assign(newValues4, newValues4+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles4, dutyCycles));
+
+  }
+
   void SpatialPoolerTest::testUpdateBoostFactors() {}
   void SpatialPoolerTest::testUpdateBookeepingVars() {}
   void SpatialPoolerTest::testCalculateOverlap() 
