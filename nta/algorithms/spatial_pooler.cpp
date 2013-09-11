@@ -825,8 +825,17 @@ void SpatialPooler::updateDutyCyclesHelper_(vector<Real>& dutyCycles,
 
 void SpatialPooler::updateBoostFactors_()
 {
-  // TODO: implement
-  return;
+  for (UInt i = 0; i < numColumns_; i++) {
+    if (minActiveDutyCycles_[i] <= 0) {
+      continue;
+    }
+    if (activeDutyCycles_[i] > minActiveDutyCycles_[i]) {
+      boostFactors_[i] = 1.0;
+      continue;
+    }
+    boostFactors_[i] = ((1 - maxBoost_) / minActiveDutyCycles_[i] * 
+                        activeDutyCycles_[i]) + maxBoost_;
+  }
 }
 
 void SpatialPooler::updateBookeepingVars_(bool learn)
