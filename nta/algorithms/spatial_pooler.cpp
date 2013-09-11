@@ -672,8 +672,15 @@ void SpatialPooler::updateMinDutyCycles_()
 
 void SpatialPooler::updateMinDutyCyclesGlobal_()
 {
-  // TODO: implement
-  return;
+  Real maxActiveDutyCycles = *max_element(activeDutyCycles_.begin(),
+                                          activeDutyCycles_.end());
+  Real maxOverlapDutyCycles = *max_element(overlapDutyCycles_.begin(),
+                                           overlapDutyCycles_.end());
+  fill(minActiveDutyCycles_.begin(), minActiveDutyCycles_.end(),
+       minPctActiveDutyCycles_ * maxActiveDutyCycles);
+
+  fill(minOverlapDutyCycles_.begin(), minOverlapDutyCycles_.end(),
+       minPctOverlapDutyCycles_ * maxOverlapDutyCycles);
 }
 
 void SpatialPooler::updateMinDutyCyclesLocal_()
