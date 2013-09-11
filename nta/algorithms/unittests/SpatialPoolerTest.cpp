@@ -674,7 +674,80 @@ namespace nta {
 
   }
 
-  void SpatialPoolerTest::testUpdateBoostFactors() {}
+  void SpatialPoolerTest::testUpdateBoostFactors() 
+  {
+    SpatialPooler sp;
+    setup(sp, 6, 6);
+    
+    Real initMinActiveDutyCycles1[] = 
+      {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+    Real initActiveDutyCycles1[] =
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initBoostFactors1[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors1[] = 
+      {1, 1, 1, 1, 1};
+    Real resultBoostFactors1[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors1);
+    sp.setActiveDutyCycles(initActiveDutyCycles1);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles1);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors1);
+    NTA_CHECK(check_vector_eq(trueBoostFactors1, resultBoostFactors1, 5));
+
+    Real initMinActiveDutyCycles2[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles2[] =
+      {0.1 ,0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initBoostFactors2[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors2[] = 
+      {1, 1, 1, 1, 1};
+    Real resultBoostFactors2[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors2);
+    sp.setActiveDutyCycles(initActiveDutyCycles2);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles2);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors2);
+    NTA_CHECK(check_vector_eq(trueBoostFactors2, resultBoostFactors2, 5));
+
+     Real initMinActiveDutyCycles3[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles3[] =
+      {0.01 ,0.03, 0.002, 0.004, 0.07, 0.012};
+    Real initBoostFactors3[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors3[] = 
+      {9.1, 9.1, 9.1, 9.1, 9.1};
+    Real resultBoostFactors3[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors3);
+    sp.setActiveDutyCycles(initActiveDutyCycles3);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles3);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors3);
+    NTA_CHECK(check_vector_eq(trueBoostFactors3, resultBoostFactors3, 5));
+
+     Real initMinActiveDutyCycles4[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles4[] =
+      {0 ,0, 0, 0, 0, 0};
+    Real initBoostFactors4[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors4[] = 
+      {10, 10, 10, 10, 10};
+    Real resultBoostFactors4[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors4);
+    sp.setActiveDutyCycles(initActiveDutyCycles4);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles4);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors4);
+    NTA_CHECK(check_vector_eq(trueBoostFactors4, resultBoostFactors4, 5));
+  }
+
   void SpatialPoolerTest::testUpdateBookeepingVars() {}
   void SpatialPoolerTest::testCalculateOverlap() 
   {
