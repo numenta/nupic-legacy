@@ -10,4 +10,9 @@ title: NuPIC Media
   {{ content | markdownify }}
 </section>
 
-<script src="{{ site.baseurl }}/javascripts/add-anchors.js"></script>
+<script src="{{ site.baseurl }}/javascripts/add-anchors.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function() {
+        NTA.addAnchors();
+    });
+</script>

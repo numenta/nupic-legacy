@@ -1,0 +1,2 @@
+// Global workspace.
+window.NTA = {};
