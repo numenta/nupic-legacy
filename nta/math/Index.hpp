@@ -633,16 +633,6 @@ namespace nta {
     return true;
   }
   
-  template <typename Index>
-  inline bool indexGeZero(const Index& idx)
-  {
-    const UInt NDims = idx.size();
-    for (UInt i = 0; i < NDims; ++i)
-      if (idx[i] < 0)
-        return false;
-    return true;
-  }
-
   /**
    * This is not the same as positiveInBounds.
    */
