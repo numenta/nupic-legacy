@@ -305,11 +305,8 @@ namespace nta {
         NTA_ASSERT(indexGtZero(bounds));
       }
       
-      if (NDims == 1)
-        i_[0] = ordinal;
-      
       value_type o = ordinal, p = bounds.product() / bounds[0];
-      
+     //TODO optimize /  
       for (UInt k = 0; k < NDims-1; o %= p, p /= bounds[k+1], ++k) 
         i_[k] = o / p;
       i_[NDims-1] = o;
@@ -809,10 +806,6 @@ namespace nta {
     }
 
     const UInt NDims = (UInt)idx.size();
-
-    if (NDims == 1) // do specialization
-      return idx[0];
-
     typename Index1::value_type p = bounds[NDims-1], pos = idx[NDims-1];
       
     for (int k = NDims-2; k >= 1; p *= bounds[k], --k) 
@@ -833,12 +826,8 @@ namespace nta {
     }
     
     const UInt NDims = (UInt)bounds.size();
-
-    if (NDims == 1)
-      idx[0] = ordinal;
-    
     typename Index1::value_type o = ordinal, p = product(bounds) / bounds[0];
-    
+   //TODO optimize double / use (slow!) 
     for (UInt k = 0; k < NDims-1; o %= p, p /= bounds[k+1], ++k) 
       idx[k] = o / p;
     idx[NDims-1] = o;
