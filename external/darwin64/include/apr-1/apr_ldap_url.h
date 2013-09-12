@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,10 +22,13 @@
 #define APR_LDAP_URL_H
 
 /**
- * @defgroup APR_Util_LDAP LDAP
- * @ingroup APR_Util
+ * @addtogroup APR_Util_LDAP
  * @{
  */
+
+#if defined(DOXYGEN)
+#include "apr_ldap.h"
+#endif
 
 #if APR_HAS_LDAP
 

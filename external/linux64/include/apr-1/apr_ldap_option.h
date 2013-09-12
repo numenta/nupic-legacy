@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -22,8 +22,7 @@
 #define APR_LDAP_OPTION_H
 
 /**
- * @defgroup APR_Util_LDAP LDAP
- * @ingroup APR_Util
+ * @addtogroup APR_Util_LDAP
  * @{
  */
 
@@ -56,6 +55,16 @@ extern "C" {
  * all servers are considered trusted.
  */
 #define APR_LDAP_OPT_VERIFY_CERT 0x6ffd
+/**
+ * Set the LDAP library to indicate if referrals should be chased during
+ * LDAP searches.
+ */
+#define APR_LDAP_OPT_REFERRALS 0x6ffc
+/**
+ * Set the LDAP library to indicate a maximum number of referral hops to
+ * chase before giving up on the search.
+ */
+#define APR_LDAP_OPT_REFHOPLIMIT 0x6ffb
 
 /**
  * Structures for the apr_set_option() cases
@@ -137,6 +146,11 @@ extern "C" {
 #define APR_LDAP_CERT_TYPE_PFX      13
 /** PKCS#12 encoded private key */
 #define APR_LDAP_KEY_TYPE_PFX       14
+/** Openldap directory full of base64-encoded cert 
+ * authorities with hashes in corresponding .0 directory
+ */
+#define APR_LDAP_CA_TYPE_CACERTDIR_BASE64 15
+
 
 /**
  * Certificate structure.
@@ -200,11 +214,11 @@ struct apr_ldap_opt_tls_cert_t {
  * @param result_err The apr_ldap_err_t structure contained detailed results
  *        of the operation.
  */
-APU_DECLARE(int) apr_ldap_get_option(apr_pool_t *pool,
-                                     LDAP *ldap,
-                                     int option,
-                                     void *outvalue,
-                                     apr_ldap_err_t **result_err);
+APU_DECLARE_LDAP(int) apr_ldap_get_option(apr_pool_t *pool,
+                                          LDAP *ldap,
+                                          int option,
+                                          void *outvalue,
+                                          apr_ldap_err_t **result_err);
 
 /**
  * APR LDAP set option function
@@ -222,11 +236,11 @@ APU_DECLARE(int) apr_ldap_get_option(apr_pool_t *pool,
  * @param result_err The apr_ldap_err_t structure contained detailed results
  *        of the operation.
  */
-APU_DECLARE(int) apr_ldap_set_option(apr_pool_t *pool,
-                                     LDAP *ldap,
-                                     int option,
-                                     const void *invalue,
-                                     apr_ldap_err_t **result_err);
+APU_DECLARE_LDAP(int) apr_ldap_set_option(apr_pool_t *pool,
+                                          LDAP *ldap,
+                                          int option,
+                                          const void *invalue,
+                                          apr_ldap_err_t **result_err);
 
 #ifdef __cplusplus
 }

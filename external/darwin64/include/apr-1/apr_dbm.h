@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -63,10 +63,10 @@ typedef struct
  * @param dbm The newly opened database
  * @param type The type of the DBM (not all may be available at run time)
  * <pre>
- *  GDBM for GDBM files
- *  SDBM for SDBM files
- *  DB   for berkeley DB files
- *  NDBM for NDBM files
+ *  db   for Berkeley DB files
+ *  gdbm for GDBM files
+ *  ndbm for NDBM files
+ *  sdbm for SDBM files (always available)
  *  default for the default DBM type
  *  </pre>
  * @param name The dbm file name to open
@@ -81,6 +81,9 @@ typedef struct
  * @param cntxt The pool to use when creating the dbm
  * @remark The dbm name may not be a true file name, as many dbm packages
  * append suffixes for seperate data and index files.
+ * @bug In apr-util 0.9 and 1.x, the type arg was case insensitive.  This
+ * was highly inefficient, and as of 2.x the dbm name must be provided in
+ * the correct case (lower case for all bundled providers)
  */
 
 APU_DECLARE(apr_status_t) apr_dbm_open_ex(apr_dbm_t **dbm, const char* type, 
@@ -184,7 +187,7 @@ APU_DECLARE(char *) apr_dbm_geterror(apr_dbm_t *dbm, int *errcode,
  * actual file/path names which would be (created and) used. At most, two
  * files may be used; used2 may be NULL if only one file is used.
  * @param pool The pool for allocating used1 and used2.
- * @param type The type of DBM you require info on
+ * @param type The type of DBM you require info on @see apr_dbm_open_ex
  * @param pathname The path name to generate used-names from.
  * @param used1 The first pathname used by the apr_dbm implementation.
  * @param used2 The second pathname used by apr_dbm. If only one file is
