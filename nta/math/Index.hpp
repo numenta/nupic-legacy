@@ -64,7 +64,7 @@ namespace nta {
    * @b Notes
    *  NDims > 0 (that is, 0 is not allowed...)
    */
-  template <typename UInt, UInt NDims>
+  template <typename UInt, const UInt NDims>
   class Index
   {
   public:
@@ -282,11 +282,11 @@ namespace nta {
      * @retval UInt the ordinal for this index
      */
     inline UInt ordinal(const Index& bounds) const
-    {    
+    {
       {
         NTA_ASSERT(indexGtZero(bounds));
       }
-
+    
       if (NDims == 1) // do specialization
         return i_[0];
       
