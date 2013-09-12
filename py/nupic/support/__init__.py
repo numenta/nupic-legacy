@@ -68,7 +68,6 @@ from __future__ import with_statement
 
 # Standard imports
 import datetime
-from distutils import version
 import os
 import sys
 import inspect
@@ -497,8 +496,8 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
         customConfig.write(line)
     
     customConfig.seek(0)
-    if version.StrictVersion(python_version()) >= version.StrictVersion('2.6'):
-      # NOTE: the disable_existing_loggers arg is new as of python 2.6, so it's
+    if python_version()[:3] >= '2.6':
+      # NOTE: the disable_existing_loggers arg is new as of Python 2.6, so it's
       #  not supported on our jython interperter, which was v2.5.x as of this
       #  writing
       logging.config.fileConfig(customConfig, disable_existing_loggers=False)
