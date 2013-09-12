@@ -910,8 +910,6 @@ def _generateEncoderStringsV2(includedFields, options):
       raise RuntimeError("Unsupported field type '%s'" % (fieldType))
 
 
-
-
     # -----------------------------------------------------------------------
     # If this was the predicted field, insert another encoder that sends it
     # to the classifier only
