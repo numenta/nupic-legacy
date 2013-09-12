@@ -824,10 +824,14 @@ def _generateEncoderStringsV2(includedFields, options):
   # ==========================================================================
   # For each field, generate the default encoding dict and PermuteEncoder
   #  constructor arguments
+
+
   for fieldInfo in includedFields:
 
     fieldName = fieldInfo['fieldName']
     fieldType = fieldInfo['fieldType']
+
+
 
     # ---------
     # Scalar?
@@ -911,6 +915,7 @@ def _generateEncoderStringsV2(includedFields, options):
 
 
 
+
     # -----------------------------------------------------------------------
     # If this was the predicted field, insert another encoder that sends it
     # to the classifier only
@@ -925,6 +930,13 @@ def _generateEncoderStringsV2(includedFields, options):
       if options["inferenceArgs"]["inputPredictedField"] == "no":
         encoderDictsList.remove(encoderDict)
 
+  #Remove any encoders not in fiexedFields
+  if 'fixedFields' in options:
+    tempList=[]
+    for encoderDict in encoderDictsList:
+      if encoderDict['name'] in options['fixedFields']:
+        tempList.append(encoderDict)
+    encoderDictsList = tempList
 
   # ==========================================================================
   # Now generate the encoderSpecsStr and permEncoderChoicesStr strings from 
