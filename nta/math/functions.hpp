@@ -28,11 +28,7 @@
 #ifndef NTA_MATH_FUNCTIONS_HPP
 #define NTA_MATH_FUNCTIONS_HPP
 
-#ifdef NUPIC2
-#include <nta/utils/Log.hpp> // For NTA_ASSERT.
-#else
-#include <nta/utils/Log.hpp> // For NTA_ASSERT.
-#endif
+#include <nta/utils/Log.hpp> // For NTA_ASSERT
 
 #include <cmath>
 #include <boost/math/special_functions/gamma.hpp>
@@ -42,7 +38,7 @@
 
 namespace nta {
 
-  // todo: replace other functions by boost/math
+  // TODO: replace other functions by boost/math
 
   static const double pi  =  3.14159265358979311600e+00;
 

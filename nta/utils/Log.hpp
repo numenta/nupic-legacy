@@ -29,15 +29,6 @@
 #ifndef NTA_LOG2_HPP
 #define NTA_LOG2_HPP
 
-#ifndef NUPIC2
-#error "NUPIC2 is not defined when compiling nta/utils/Log.hpp -- this indicates an include error somewhre"
-#endif
-
-
-#ifdef NTA_LOG_HPP
-#error "The NuPIC 1 and NuPIC 2 versions of the logging macros are both defined!"
-#endif
-
 #include <nta/utils/LoggingException.hpp>
 #include <nta/utils/LogItem.hpp>
 
