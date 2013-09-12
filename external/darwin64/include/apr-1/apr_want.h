@@ -30,9 +30,9 @@
  *
  * Typical usage:
  *
- *   #define APR_WANT_STRFUNC
- *   #define APR_WANT_MEMFUNC
- *   #include "apr_want.h"
+ *   \#define APR_WANT_STRFUNC
+ *   \#define APR_WANT_MEMFUNC
+ *   \#include "apr_want.h"
  *
  * The appropriate headers will be included.
  *
@@ -81,9 +81,24 @@
 
 #ifdef APR_WANT_IOVEC
 
+#if APR_HAVE_IOVEC
+
 #if APR_HAVE_SYS_UIO_H
 #include <sys/uio.h>
 #endif
+
+#else
+
+#ifndef APR_IOVEC_DEFINED
+#define APR_IOVEC_DEFINED
+struct iovec
+{
+    void *iov_base;
+    size_t iov_len;
+};
+#endif /* !APR_IOVEC_DEFINED */
+
+#endif /* APR_HAVE_IOVEC */
 
 #undef APR_WANT_IOVEC
 #endif
