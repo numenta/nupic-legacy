@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -38,6 +38,9 @@
  */
 
 
+#define APR_COPYRIGHT "Copyright (c) 2013 The Apache Software " \
+                      "Foundation or its licensors, as applicable."
+
 /* The numeric compile-time version constants. These constants are the
  * authoritative version numbers for APR. 
  */
@@ -53,13 +56,13 @@
  * Minor API changes that do not cause binary compatibility problems.
  * Reset to 0 when upgrading APR_MAJOR_VERSION
  */
-#define APR_MINOR_VERSION       2
+#define APR_MINOR_VERSION       4
 
 /** patch level 
  * The Patch Level never includes API changes, simply bug fixes.
  * Reset to 0 when upgrading APR_MINOR_VERSION
  */
-#define APR_PATCH_VERSION       2
+#define APR_PATCH_VERSION       8
 
 /** 
  * The symbol APR_IS_DEV_VERSION is only defined for internal,
@@ -68,10 +71,28 @@
  */
 /* #define APR_IS_DEV_VERSION */
 
+/**
+ * Check at compile time if the APR version is at least a certain
+ * level.
+ * @param major The major version component of the version checked
+ * for (e.g., the "1" of "1.3.0").
+ * @param minor The minor version component of the version checked
+ * for (e.g., the "3" of "1.3.0").
+ * @param patch The patch level component of the version checked
+ * for (e.g., the "0" of "1.3.0").
+ * @remark This macro is available with APR versions starting with
+ * 1.3.0.
+ */
+#define APR_VERSION_AT_LEAST(major,minor,patch)                    \
+(((major) < APR_MAJOR_VERSION)                                     \
+ || ((major) == APR_MAJOR_VERSION && (minor) < APR_MINOR_VERSION) \
+ || ((major) == APR_MAJOR_VERSION && (minor) == APR_MINOR_VERSION && (patch) <= APR_PATCH_VERSION))
 
 #if defined(APR_IS_DEV_VERSION) || defined(DOXYGEN)
 /** Internal: string form of the "is dev" flag */
+#ifndef APR_IS_DEV_STRING
 #define APR_IS_DEV_STRING "-dev"
+#endif
 #else
 #define APR_IS_DEV_STRING ""
 #endif

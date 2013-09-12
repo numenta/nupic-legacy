@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -71,13 +71,19 @@ APR_DECLARE(apr_status_t) apr_shm_create(apr_shm_t **m,
                                          apr_pool_t *pool);
 
 /**
- * Remove shared memory segment associated with a filename.
+ * Remove named resource associated with a shared memory segment,
+ * preventing attachments to the resource, but not destroying it.
  * @param filename The filename associated with shared-memory segment which
  *        needs to be removed
  * @param pool The pool used for file operations
  * @remark This function is only supported on platforms which support
  * name-based shared memory segments, and will return APR_ENOTIMPL on
- * platforms without such support.
+ * platforms without such support.  Removing the file while the shm
+ * is in use is not entirely portable, caller may use this to enhance
+ * obscurity of the resource, but be prepared for the the call to fail,
+ * and for concurrent attempts to create a resource of the same name
+ * to also fail.  The pool cleanup of apr_shm_create (apr_shm_destroy)
+ * also removes the named resource.
  */
 APR_DECLARE(apr_status_t) apr_shm_remove(const char *filename,
                                          apr_pool_t *pool);

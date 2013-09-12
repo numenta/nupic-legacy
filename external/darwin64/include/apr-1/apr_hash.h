@@ -122,16 +122,15 @@ APR_DECLARE(void *) apr_hash_get(apr_hash_t *ht, const void *key,
  * @param p The pool to allocate the apr_hash_index_t iterator. If this
  *          pool is NULL, then an internal, non-thread-safe iterator is used.
  * @param ht The hash table
+ * @return The iteration state
  * @remark  There is no restriction on adding or deleting hash entries during
  * an iteration (although the results may be unpredictable unless all you do
  * is delete the current entry) and multiple iterations can be in
  * progress at the same time.
-
- * @example
- */
-/**
- * <PRE>
- * 
+ *
+ * @par Example:
+ *
+ * @code
  * int sum_values(apr_pool_t *p, apr_hash_t *ht)
  * {
  *     apr_hash_index_t *hi;
@@ -143,7 +142,7 @@ APR_DECLARE(void *) apr_hash_get(apr_hash_t *ht, const void *key,
  *     }
  *     return sum;
  * }
- * </PRE>
+ * @endcode
  */
 APR_DECLARE(apr_hash_index_t *) apr_hash_first(apr_pool_t *p, apr_hash_t *ht);
 
@@ -173,6 +172,12 @@ APR_DECLARE(void) apr_hash_this(apr_hash_index_t *hi, const void **key,
  * @return The number of key/value pairs in the hash table.
  */
 APR_DECLARE(unsigned int) apr_hash_count(apr_hash_t *ht);
+
+/**
+ * Clear any key/value pairs in the hash table.
+ * @param ht The hash table
+ */
+APR_DECLARE(void) apr_hash_clear(apr_hash_t *ht);
 
 /**
  * Merge two hash tables into one new hash table. The values of the overlay
@@ -211,6 +216,36 @@ APR_DECLARE(apr_hash_t *) apr_hash_merge(apr_pool_t *p,
                                                      const void *h2_val,
                                                      const void *data),
                                          const void *data);
+
+/**
+ * Declaration prototype for the iterator callback function of apr_hash_do().
+ *
+ * @param rec The data passed as the first argument to apr_hash_[v]do()
+ * @param key The key from this iteration of the hash table
+ * @param klen The key length from this iteration of the hash table
+ * @param value The value from this iteration of the hash table
+ * @remark Iteration continues while this callback function returns non-zero.
+ * To export the callback function for apr_hash_do() it must be declared 
+ * in the _NONSTD convention.
+ */
+typedef int (apr_hash_do_callback_fn_t)(void *rec, const void *key,
+                                                   apr_ssize_t klen,
+                                                   const void *value);
+
+/** 
+ * Iterate over a hash table running the provided function once for every
+ * element in the hash table. The @param comp function will be invoked for
+ * every element in the hash table.
+ *
+ * @param comp The function to run
+ * @param rec The data to pass as the first argument to the function
+ * @param ht The hash table to iterate over
+ * @return FALSE if one of the comp() iterations returned zero; TRUE if all
+ *            iterations returned non-zero
+ * @see apr_hash_do_callback_fn_t
+ */
+APR_DECLARE(int) apr_hash_do(apr_hash_do_callback_fn_t *comp,
+                             void *rec, const apr_hash_t *ht);
 
 /**
  * Get a pointer to the pool which the hash table was created in
