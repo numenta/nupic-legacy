@@ -925,7 +925,7 @@ def _generateEncoderStringsV2(includedFields, options):
         encoderDictsList.remove(encoderDict)
 
   #Remove any encoders not in fiexedFields
-  if 'fixedFields' in options:
+  if options.get('fixedFields') is not None:
     tempList=[]
     for encoderDict in encoderDictsList:
       if encoderDict['name'] in options['fixedFields']:
