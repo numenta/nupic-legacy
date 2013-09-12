@@ -33,12 +33,7 @@
 #include <cstdarg>
 #include <string.h> // for memcpy in gcc 4.4
 
-#ifdef NUPIC2
 #include <nta/math/utils.hpp>
-#else
-#include <nta/common/utils.hpp>
-#endif
-
 #include <nta/math/math.hpp>
 #include <nta/math/stl_io.hpp>
 
