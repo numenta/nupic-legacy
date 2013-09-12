@@ -106,7 +106,11 @@ APR_DECLARE(char *) apr_pstrdup(apr_pool_t *p, const char *s);
  *         has 'n' or more characters.  If the string might contain
  *         fewer characters, use apr_pstrndup.
  */
-APR_DECLARE(char *) apr_pstrmemdup(apr_pool_t *p, const char *s, apr_size_t n);
+APR_DECLARE(char *) apr_pstrmemdup(apr_pool_t *p, const char *s, apr_size_t n)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
+    __attribute__((alloc_size(3)))
+#endif
+    ;
 
 /**
  * Duplicate at most n characters of a string into memory allocated 
@@ -128,7 +132,11 @@ APR_DECLARE(char *) apr_pstrndup(apr_pool_t *p, const char *s, apr_size_t n);
  * @param n The number of bytes to duplicate
  * @return The new block of memory
  */
-APR_DECLARE(void *) apr_pmemdup(apr_pool_t *p, const void *m, apr_size_t n);
+APR_DECLARE(void *) apr_pmemdup(apr_pool_t *p, const void *m, apr_size_t n)
+#if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
+    __attribute__((alloc_size(3)))
+#endif
+    ;
 
 /**
  * Concatenate multiple strings, allocating memory out a pool
@@ -136,7 +144,11 @@ APR_DECLARE(void *) apr_pmemdup(apr_pool_t *p, const void *m, apr_size_t n);
  * @param ... The strings to concatenate.  The final string must be NULL
  * @return The new string
  */
-APR_DECLARE_NONSTD(char *) apr_pstrcat(apr_pool_t *p, ...);
+APR_DECLARE_NONSTD(char *) apr_pstrcat(apr_pool_t *p, ...)
+#if defined(__GNUC__) && __GNUC__ >= 4
+    __attribute__((sentinel))
+#endif
+    ;
 
 /**
  * Concatenate multiple strings specified in a writev-style vector
@@ -196,11 +208,11 @@ APR_DECLARE(char *) apr_cpystrn(char *dst, const char *src,
                                 apr_size_t dst_size);
 
 /**
- * Strip spaces from a string
+ * Remove all whitespace from a string
  * @param dest The destination string.  It is okay to modify the string
  *             in place.  Namely dest == src
  * @param src The string to rid the spaces from.
- * @return The destination string, dest.
+ * @return A pointer to the destination string's null terminator.
  */
 APR_DECLARE(char *) apr_collapse_spaces(char *dest, const char *src);
 
@@ -311,6 +323,8 @@ APR_DECLARE(char *) apr_off_t_toa(apr_pool_t *p, apr_off_t n);
  *   or 0.  If base is zero, buf will be treated as base ten unless its
  *   digits are prefixed with '0x', in which case it will be treated as
  *   base 16.
+ * @bug *end breaks type safety; where *buf is const, *end needs to be
+ * declared as const in APR 2.0
  */
 APR_DECLARE(apr_status_t) apr_strtoff(apr_off_t *offset, const char *buf, 
                                       char **end, int base);
@@ -328,7 +342,7 @@ APR_DECLARE(apr_status_t) apr_strtoff(apr_off_t *offset, const char *buf,
  *   digits are prefixed with '0x', in which case it will be treated as
  *   base 16.
  * @return The numeric value of the string.  On overflow, errno is set
- * to ERANGE.
+ * to ERANGE.  On success, errno is set to 0.
  */
 APR_DECLARE(apr_int64_t) apr_strtoi64(const char *buf, char **end, int base);
 
@@ -336,7 +350,8 @@ APR_DECLARE(apr_int64_t) apr_strtoi64(const char *buf, char **end, int base);
  * parse a base-10 numeric string into a 64-bit numeric value.
  * Equivalent to apr_strtoi64(buf, (char**)NULL, 10).
  * @param buf The string to parse
- * @return The numeric value of the string
+ * @return The numeric value of the string.  On overflow, errno is set
+ * to ERANGE.  On success, errno is set to 0.
  */
 APR_DECLARE(apr_int64_t) apr_atoi64(const char *buf);
 

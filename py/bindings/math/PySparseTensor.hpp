@@ -28,13 +28,7 @@
  */
 
 
-#ifdef NUPIC2
 #include <lang/py/support/NumpyVector.hpp>
-#else
-#include <nta/python/cpplibs/PyFwd.hpp>
-#include <nta/python/cpplibs/nupic_numpy/NumpyVector.hpp>
-#endif
-
 #include <nta/math/Index.hpp>
 #include <nta/math/Domain.hpp>
 #include <nta/math/SparseTensor.hpp>
