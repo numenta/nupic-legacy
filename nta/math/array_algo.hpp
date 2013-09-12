@@ -34,12 +34,7 @@
 #include <iterator>
 #include <algorithm>
 
-#ifdef NUPIC2
 #include <nta/utils/Random.hpp> // For the official Numenta RNG
-#else
-#include <nta/common/Random.hpp> // For the official Numenta RNG
-#endif
-
 #include <nta/math/math.hpp>
 #include <nta/math/types.hpp>
 
