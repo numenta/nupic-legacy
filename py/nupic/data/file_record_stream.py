@@ -549,7 +549,7 @@ class FileRecordStream(RecordStreamIface):
         try:
           line = reader.next()
           for i, f in enumerate(line):
-            if types[i] in ['int', 'float'] and f not in self._missingValues:
+            if len(types) > i and types[i] in ['int', 'float'] and f not in self._missingValues:
               value = self._adapters[i](f)
               if self._stats['max'][i] == None or \
                  self._stats['max'][i] < value:
