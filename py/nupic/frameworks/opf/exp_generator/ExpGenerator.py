@@ -824,14 +824,10 @@ def _generateEncoderStringsV2(includedFields, options):
   # ==========================================================================
   # For each field, generate the default encoding dict and PermuteEncoder
   #  constructor arguments
-
-
   for fieldInfo in includedFields:
 
     fieldName = fieldInfo['fieldName']
     fieldType = fieldInfo['fieldType']
-
-
 
     # ---------
     # Scalar?

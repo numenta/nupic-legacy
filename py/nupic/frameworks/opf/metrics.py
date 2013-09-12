@@ -767,7 +767,6 @@ class MetricMovingMean(AggregateMetric):
 
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
-
   if isinstance(prediction, dict):
     sandbox.symtable['prediction'] = tools.mostLikely(prediction)
     sandbox.symtable['EXP'] = tools.expValue(prediction)
