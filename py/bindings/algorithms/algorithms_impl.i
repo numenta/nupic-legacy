@@ -2738,6 +2738,13 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         seed, spVerbosity)
   %}
 
+  inline UInt* compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
   inline void setBoostFactors(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;

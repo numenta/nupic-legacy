@@ -72,7 +72,11 @@ namespace nta {
 
           Real real_rand();
 
-          vector<UInt> compute(vector<UInt> inputVector, bool learn);
+          void compute(UInt inputVector[], bool learn,
+                       UInt activeVector[]);
+
+          UInt getNumColumns();
+          UInt getNumInputs();
 
           UInt getPotentialRadius();
           void setPotentialRadius(UInt potentialRadius);
@@ -163,6 +167,15 @@ namespace nta {
           // Implementation methods. all methods below this line are
           // NOT part of the public API
 
+          void stripNeverLearned_(UInt activeArray[]);
+
+
+          void toDense_(vector<UInt>& sparse, 
+                       UInt dense[],
+                       UInt n);
+
+          void boostOverlaps_(vector<UInt> overlaps, 
+                                   vector<Real> boostedOverlaps);
           void range_(Int start, Int end, UInt ubound, bool wrapAround,
                            vector<UInt>& rangeVector);
 
@@ -177,11 +190,8 @@ namespace nta {
           UInt countConnected_(vector<Real>& perm);
           UInt raisePermanencesToThreshold_(vector<Real>& perm, 
                                             vector<UInt>& potential);
-         
-               
-
-
-          void calculateOverlap_(vector<UInt>& inputVector,
+                        
+          void calculateOverlap_(UInt inputVector[],
                                  vector<UInt>& overlap);
           void calculateOverlapPct_(vector<UInt>& overlaps,
                                     vector<Real>& overlapPct);
@@ -193,7 +203,7 @@ namespace nta {
           void addToWinners_(UInt index, Real score, 
                                     vector<scoreCard>& winners);
 
-          void inhibitColumns_(vector<UInt> overlaps, 
+          void inhibitColumns_(vector<Real>& overlaps, 
                                vector<UInt>& activeColumns);
           void inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                                      vector<UInt>& activeColumns);
@@ -213,7 +223,7 @@ namespace nta {
                                UInt radius, bool wrapAround,
                                vector<UInt>& neighbors);  
 
-          void adaptSynapses_(vector<UInt>& inputVector, 
+          void adaptSynapses_(UInt inputVector[], 
                               vector<UInt>& activeColumns);
           void bumpUpWeakColumns_();     
 

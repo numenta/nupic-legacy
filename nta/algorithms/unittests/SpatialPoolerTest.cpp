@@ -165,11 +165,295 @@ namespace nta {
     testIsUpdateRound();
 	}  
 
-  void SpatialPoolerTest::testUpdateInhibitionRadius() {}
-  void SpatialPoolerTest::testUpdateMinDutyCycles() {}
-  void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {}
-  void SpatialPoolerTest::testUpdateMinDutyCyclesLocal() {}
-  void SpatialPoolerTest::testUpdateDutyCycles() {}
+  void SpatialPoolerTest::testUpdateInhibitionRadius() 
+  {
+    SpatialPooler sp;
+    vector<UInt> colDim, inputDim;
+    colDim.push_back(57);
+    colDim.push_back(31);
+    colDim.push_back(2);
+    inputDim.push_back(1);
+
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(true);
+    NTA_CHECK(sp.getInhibitionRadius() == 57);
+
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 4
+    // avgConnectedSpanForColumn = 3
+    UInt numInputs = 3;
+    inputDim.push_back(numInputs);
+    UInt numCols = 12;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 1, 1};
+      sp.setPermanence(i,permArr);
+    }
+    UInt trueInhibitionRadius = 6;
+    // ((3 * 4) - 1)/2 => round up
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 1.2
+    // avgConnectedSpanForColumn = 0.5
+    numInputs = 5;
+    inputDim.push_back(numInputs);
+    numCols = 6;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 0, 0, 0, 0};
+      if (i % 2 == 0) {
+        permArr[0] = 0;
+      }
+      sp.setPermanence(i,permArr);
+    }
+    trueInhibitionRadius = 1;
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+
+    colDim.clear();
+    inputDim.clear();
+    // avgColumnsPerInput = 2.4
+    // avgConnectedSpanForColumn = 2
+    numInputs = 5;
+    inputDim.push_back(numInputs);
+    numCols = 12;
+    colDim.push_back(numCols);
+    sp.initialize(inputDim, colDim);
+    sp.setGlobalInhibition(false);
+
+    for (UInt i = 0; i < numCols; i++) {
+      Real permArr[] = {1, 1, 0, 0, 0};
+      sp.setPermanence(i,permArr);
+    }
+    trueInhibitionRadius = 2;
+    // ((2.4 * 2) - 1)/2 => round up
+    sp.updateInhibitionRadius_();
+    NTA_CHECK(trueInhibitionRadius == sp.getInhibitionRadius());
+
+
+
+  }
+
+  void SpatialPoolerTest::testUpdateMinDutyCycles() 
+  {
+    SpatialPooler sp;
+    UInt numColumns = 10;
+    UInt numInputs = 5;
+    setup(sp, numInputs, numColumns);
+    sp.setMinPctOverlapDutyCycles(0.01);
+    sp.setMinPctActiveDutyCycles(0.02);
+
+    Real initOverlapDuty[10] = {0.01, 0.001, 0.02, 0.3, 0.012, 0.0512,
+                                0.054, 0.221, 0.0873, 0.309};
+
+    Real initActiveDuty[10] = {0.01, 0.045, 0.812, 0.091, 0.001, 0.0003,
+                               0.433, 0.136, 0.211, 0.129};
+
+    sp.setOverlapDutyCycles(initOverlapDuty);
+    sp.setActiveDutyCycles(initActiveDuty);
+    sp.setGlobalInhibition(true);
+    sp.setInhibitionRadius(2);
+    sp.updateMinDutyCycles_();
+    Real resultMinActive[10];
+    Real resultMinOverlap[10];
+    sp.getMinOverlapDutyCycles(resultMinOverlap);
+    sp.getMinActiveDutyCycles(resultMinActive);
+
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultMinActiveGlobal[10];
+    Real resultMinOverlapGlobal[10];
+    sp.getMinOverlapDutyCycles(resultMinOverlapGlobal);
+    sp.getMinActiveDutyCycles(resultMinActiveGlobal);
+
+    sp.updateMinDutyCyclesLocal_();
+    Real resultMinActiveLocal[10];
+    Real resultMinOverlapLocal[10];
+    sp.getMinOverlapDutyCycles(resultMinOverlapLocal);
+    sp.getMinActiveDutyCycles(resultMinActiveLocal);
+
+
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveGlobal, numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+  
+    sp.setGlobalInhibition(false);
+    sp.updateMinDutyCycles_();
+    sp.getMinOverlapDutyCycles(resultMinOverlap);
+    sp.getMinActiveDutyCycles(resultMinActive);
+
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveGlobal, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+
+  }
+
+  void SpatialPoolerTest::testUpdateMinDutyCyclesGlobal() {
+    SpatialPooler sp;
+    UInt numColumns = 5;
+    UInt numInputs = 5;
+    setup(sp, numInputs, numColumns);
+    Real minPctOverlap, minPctActive;
+
+    minPctOverlap = 0.01;
+    minPctActive = 0.02;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr1[] = 
+      {0.06, 1, 3, 6, 0.5};
+    Real activeArr1[] = 
+      {0.6, 0.07, 0.5, 0.4, 0.3};
+
+    sp.setOverlapDutyCycles(overlapArr1);
+    sp.setActiveDutyCycles(activeArr1);
+
+    Real trueMinOverlap1 = 0.01 * 6;
+    Real trueMinActive1 = 0.02 * 0.6;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive1[5];
+    Real resultOverlap1[5];
+    sp.getMinOverlapDutyCycles(resultOverlap1);
+    sp.getMinActiveDutyCycles(resultActive1);
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(resultOverlap1[i] == trueMinOverlap1);
+      NTA_CHECK(resultActive1[i] == trueMinActive1);
+    }
+
+
+    minPctOverlap = 0.015;
+    minPctActive = 0.03;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr2[] = {0.86, 2.4, 0.03, 1.6, 1.5};
+    Real activeArr2[] = {0.16, 0.007, 0.15, 0.54, 0.13};
+
+    sp.setOverlapDutyCycles(overlapArr2);
+    sp.setActiveDutyCycles(activeArr2);
+
+    Real trueMinOverlap2 = 0.015 * 2.4;
+    Real trueMinActive2 = 0.03 * 0.54;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive2[5];
+    Real resultOverlap2[5];
+    sp.getMinOverlapDutyCycles(resultOverlap2);
+    sp.getMinActiveDutyCycles(resultActive2);
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(almost_eq(resultOverlap2[i],trueMinOverlap2));
+      NTA_CHECK(almost_eq(resultActive2[i],trueMinActive2));
+    }
+
+
+    minPctOverlap = 0.015;
+    minPctActive = 0.03;
+
+    sp.setMinPctOverlapDutyCycles(minPctOverlap);
+    sp.setMinPctActiveDutyCycles(minPctActive);
+
+    Real overlapArr3[] = {0, 0, 0, 0, 0};
+    Real activeArr3[] = {0, 0, 0, 0, 0};
+
+    sp.setOverlapDutyCycles(overlapArr3);
+    sp.setActiveDutyCycles(activeArr3);
+
+    Real trueMinOverlap3 = 0;
+    Real trueMinActive3 = 0;
+
+    sp.updateMinDutyCyclesGlobal_();
+    Real resultActive3[5];
+    Real resultOverlap3[5];
+    sp.getMinOverlapDutyCycles(resultOverlap3);
+    sp.getMinActiveDutyCycles(resultActive3);
+    for (UInt i = 0; i < numColumns; i++) {
+      NTA_CHECK(almost_eq(resultOverlap3[i],trueMinOverlap3));
+      NTA_CHECK(almost_eq(resultActive3[i],trueMinActive3));
+    }
+
+
+  }
+
+  void SpatialPoolerTest::testUpdateMinDutyCyclesLocal() 
+  {
+    SpatialPooler sp;
+    UInt numInputs = 5;
+    UInt numColumns = 8;
+    setup(sp, numInputs, numColumns);
+
+    sp.setInhibitionRadius(1);
+    Real activeDutyArr[] = {0.9, 0.3, 0.5, 0.7, 0.1, 0.01, 0.08, 0.12};
+    Real overlapDutyArr[] = {0.7, 0.1, 0.5, 0.01, 0.78, 0.55, 0.1, 0.001};
+    sp.setOverlapDutyCycles(overlapDutyArr);
+    sp.setActiveDutyCycles(activeDutyArr);
+    sp.setMinPctActiveDutyCycles(0.1);
+    sp.setMinPctOverlapDutyCycles(0.2);
+    
+    sp.updateMinDutyCyclesLocal_();
+
+    Real trueActiveArr[] = {0.09, 0.09, 0.07, 0.07, 0.07, 0.01, 0.012, 0.012};
+    Real trueOverlapArr[] = {0.14, 0.14, 0.1, 0.156, 0.156, 0.156, 0.11, 0.02};
+
+    Real resultMinOverlapArr[8];
+    Real resultMinActiveArr[8];
+    sp.getMinActiveDutyCycles(resultMinActiveArr);
+    sp.getMinOverlapDutyCycles(resultMinOverlapArr);
+
+    NTA_CHECK(check_vector_eq(resultMinOverlapArr, trueOverlapArr, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActiveArr, trueActiveArr, numColumns));
+  }
+  
+  void SpatialPoolerTest::testUpdateDutyCycles() 
+  {
+    SpatialPooler sp;
+    UInt numInputs = 5;
+    UInt numColumns = 5;
+    setup(sp, numInputs, numColumns);
+    vector<UInt> overlaps, active;
+
+    Real initOverlapArr1[] = {1, 1, 1, 1, 1};
+    sp.setOverlapDutyCycles(initOverlapArr1);
+    Real overlapNewVal1[] = {1, 5, 7, 0, 0};
+    overlaps.assign(overlapNewVal1, overlapNewVal1+numColumns);
+    active.assign(numColumns, 0);
+
+    sp.setIterationNum(2);
+    sp.updateDutyCycles_(overlaps, active);
+
+    Real resultOverlapArr1[5];
+    sp.getOverlapDutyCycles(resultOverlapArr1);
+
+    Real trueOverlapArr1[] = {1, 1, 1, 0.5, 0.5};
+    NTA_CHECK(check_vector_eq(resultOverlapArr1, trueOverlapArr1, numColumns));
+
+    sp.setOverlapDutyCycles(initOverlapArr1);
+    sp.setIterationNum(2000);
+    sp.setUpdatePeriod(1000);
+    sp.updateDutyCycles_(overlaps, active);
+
+    Real resultOverlapArr2[5];
+    sp.getOverlapDutyCycles(resultOverlapArr2); 
+    Real trueOverlapArr2[] = {1, 1, 1, 0.999, 0.999};
+
+    NTA_CHECK(check_vector_eq(resultOverlapArr2, trueOverlapArr2, numColumns));
+  }
 
   void SpatialPoolerTest::testAvgColumnsPerInput() 
   {
@@ -482,10 +766,9 @@ namespace nta {
       sp.setPermanence(column, permanencesArr1[column]);
     }
 
-    inputVector.assign(&inputArr1[0], &inputArr1[numInputs]);
     activeColumns.assign(&activeColumnsArr1[0], &activeColumnsArr1[3]);
 
-    sp.adaptSynapses_(inputVector, activeColumns);
+    sp.adaptSynapses_(inputArr1, activeColumns);
     cout << endl; 
     for (UInt column = 0; column < numColumns; column++) {
       Real permArr[numInputs];
@@ -526,10 +809,9 @@ namespace nta {
       sp.setPermanence(column, permanencesArr2[column]);
     }
 
-    inputVector.assign(&inputArr2[0], &inputArr2[numInputs]);
     activeColumns.assign(&activeColumnsArr2[0], &activeColumnsArr2[3]);
 
-    sp.adaptSynapses_(inputVector, activeColumns);
+    sp.adaptSynapses_(inputArr2, activeColumns);
     cout << endl; 
     for (UInt column = 0; column < numColumns; column++) {
       Real permArr[numInputs];
@@ -539,10 +821,202 @@ namespace nta {
 
   }
 
-  void SpatialPoolerTest::testBumpUpWeakColumns() {}
-  void SpatialPoolerTest::testUpdateDutyCyclesHelper() {}
-  void SpatialPoolerTest::testUpdateBoostFactors() {}
-  void SpatialPoolerTest::testUpdateBookeepingVars() {}
+  void SpatialPoolerTest::testBumpUpWeakColumns() 
+  {
+    SpatialPooler sp;
+    UInt numInputs = 8; 
+    UInt numColumns = 5;
+    setup(sp,numInputs,numColumns);
+    sp.setSynPermBelowStimulusInc(0.01);
+    sp.setSynPermTrimThreshold(0.05);
+    Real overlapDutyCyclesArr[] = {0, 0.009, 0.1, 0.001, 0.002};
+    sp.setOverlapDutyCycles(overlapDutyCyclesArr);
+    Real minOverlapDutyCyclesArr[] = {0.01, 0.01, 0.01, 0.01, 0.01};
+    sp.setMinOverlapDutyCycles(minOverlapDutyCyclesArr);
+
+    UInt potentialArr[5][8] = 
+      {{1, 1, 1, 1, 0, 0, 0, 0},
+       {1, 0, 0, 0, 1, 1, 0, 1},
+       {0, 0, 1, 0, 1, 1, 1, 0},
+       {1, 1, 1, 0, 0, 0, 1, 0},
+       {1, 1, 1, 1, 1, 1, 1, 1}};
+
+    Real permArr[5][8] = 
+      {{0.200, 0.120, 0.090, 0.040, 0.000, 0.000, 0.000, 0.000},
+       {0.150, 0.000, 0.000, 0.000, 0.180, 0.120, 0.000, 0.450},
+       {0.000, 0.000, 0.074, 0.000, 0.062, 0.054, 0.110, 0.000},
+       {0.051, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000},
+       {0.100, 0.738, 0.085, 0.002, 0.052, 0.008, 0.208, 0.034}};
+
+    Real truePermArr[5][8] = 
+      {{0.210, 0.130, 0.100, 0.000, 0.000, 0.000, 0.000, 0.000},
+    //  Inc    Inc    Inc    Trim    -     -     -    -
+       {0.160, 0.000, 0.000, 0.000, 0.190, 0.130, 0.000, 0.460},
+    //  Inc   -     -    -     Inc   Inc    -     Inc
+       {0.000, 0.000, 0.074, 0.000, 0.062, 0.054, 0.110, 0.000},  // unchanged
+    //  -    -     -    -     -    -     -    -
+       {0.061, 0.000, 0.000, 0.000, 0.000, 0.000, 0.188, 0.000},
+    //   Inc   Trim    Trim    -     -      -     Inc     -
+       {0.110, 0.748, 0.095, 0.000, 0.062, 0.000, 0.218, 0.000}};
+
+    for (UInt i = 0; i < numColumns; i++) {
+      sp.setPotential(i, potentialArr[i]);
+      sp.setPermanence(i, permArr[i]);
+      Real perm[8];
+      sp.getPermanence(i, perm);
+    }
+
+    sp.bumpUpWeakColumns_();
+
+    for (UInt i = 0; i < numColumns; i++) {
+      Real perm[8];
+      sp.getPermanence(i, perm);
+      NTA_CHECK(check_vector_eq(truePermArr[i], perm, numInputs));
+    }
+
+  }
+
+  void SpatialPoolerTest::testUpdateDutyCyclesHelper() 
+  {
+    SpatialPooler sp;
+    vector<Real> dutyCycles; 
+    vector<UInt> newValues;
+    UInt period;
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr1[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues1[] = {0, 0, 0, 0, 0};
+    period = 1000;
+    Real trueDutyCycles1[] = {999.0, 999.0, 999.0, 999.0, 999.0};
+    dutyCycles.assign(dutyCyclesArr1, dutyCyclesArr1+5);
+    newValues.assign(newValues1, newValues1+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles1, dutyCycles));
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr2[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues2[] = {1000, 1000, 1000, 1000, 1000};
+    period = 1000;
+    Real trueDutyCycles2[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    dutyCycles.assign(dutyCyclesArr2, dutyCyclesArr2+5);
+    newValues.assign(newValues2, newValues2+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles2, dutyCycles));
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr3[] = {1000.0, 1000.0, 1000.0, 1000.0, 1000.0};
+    Real newValues3[] = {2000, 4000, 5000, 6000, 7000};
+    period = 1000;
+    Real trueDutyCycles3[] = {1001.0, 1003.0, 1004.0, 1005.0, 1006.0};
+    dutyCycles.assign(dutyCyclesArr3, dutyCyclesArr3+5);
+    newValues.assign(newValues3, newValues3+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles3, dutyCycles));    
+
+    dutyCycles.clear();
+    newValues.clear();
+    Real dutyCyclesArr4[] = {1000.0, 800.0, 600.0, 400.0, 2000.0};
+    Real newValues4[] = {0, 0, 0, 0, 0};
+    period = 2;
+    Real trueDutyCycles4[] = {500.0, 400.0, 300.0, 200.0, 1000.0};
+    dutyCycles.assign(dutyCyclesArr4, dutyCyclesArr4+5);
+    newValues.assign(newValues4, newValues4+5);
+    sp.updateDutyCyclesHelper_(dutyCycles, newValues, period);
+    NTA_CHECK(check_vector_eq(trueDutyCycles4, dutyCycles));
+
+  }
+
+  void SpatialPoolerTest::testUpdateBoostFactors() 
+  {
+    SpatialPooler sp;
+    setup(sp, 6, 6);
+    
+    Real initMinActiveDutyCycles1[] = 
+      {1e-6, 1e-6, 1e-6, 1e-6, 1e-6};
+    Real initActiveDutyCycles1[] =
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initBoostFactors1[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors1[] = 
+      {1, 1, 1, 1, 1};
+    Real resultBoostFactors1[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors1);
+    sp.setActiveDutyCycles(initActiveDutyCycles1);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles1);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors1);
+    NTA_CHECK(check_vector_eq(trueBoostFactors1, resultBoostFactors1, 5));
+
+    Real initMinActiveDutyCycles2[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles2[] =
+      {0.1 ,0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initBoostFactors2[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors2[] = 
+      {1, 1, 1, 1, 1};
+    Real resultBoostFactors2[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors2);
+    sp.setActiveDutyCycles(initActiveDutyCycles2);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles2);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors2);
+    NTA_CHECK(check_vector_eq(trueBoostFactors2, resultBoostFactors2, 5));
+
+     Real initMinActiveDutyCycles3[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles3[] =
+      {0.01 ,0.03, 0.002, 0.004, 0.07, 0.012};
+    Real initBoostFactors3[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors3[] = 
+      {9.1, 9.1, 9.1, 9.1, 9.1};
+    Real resultBoostFactors3[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors3);
+    sp.setActiveDutyCycles(initActiveDutyCycles3);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles3);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors3);
+    NTA_CHECK(check_vector_eq(trueBoostFactors3, resultBoostFactors3, 5));
+
+     Real initMinActiveDutyCycles4[] = 
+      {0.1, 0.3, 0.02, 0.04, 0.7, 0.12};
+    Real initActiveDutyCycles4[] =
+      {0 ,0, 0, 0, 0, 0};
+    Real initBoostFactors4[] = 
+      {0, 0, 0, 0, 0};
+    Real trueBoostFactors4[] = 
+      {10, 10, 10, 10, 10};
+    Real resultBoostFactors4[5];
+    sp.setMaxBoost(10);
+    sp.setBoostFactors(initBoostFactors4);
+    sp.setActiveDutyCycles(initActiveDutyCycles4);
+    sp.setMinActiveDutyCycles(initMinActiveDutyCycles4);
+    sp.updateBoostFactors_();
+    sp.getBoostFactors(resultBoostFactors4);
+    NTA_CHECK(check_vector_eq(trueBoostFactors4, resultBoostFactors4, 5));
+  }
+
+  void SpatialPoolerTest::testUpdateBookeepingVars() 
+  {
+    SpatialPooler sp;
+    sp.setIterationNum(5);
+    sp.setIterationLearnNum(3);
+    sp.updateBookeepingVars_(true);
+    NTA_CHECK(6 == sp.getIterationNum());
+    NTA_CHECK(4 == sp.getIterationLearnNum());
+
+    sp.updateBookeepingVars_(false);
+    NTA_CHECK(7 == sp.getIterationNum());
+    NTA_CHECK(4 == sp.getIterationLearnNum());
+  }
+
   void SpatialPoolerTest::testCalculateOverlap() 
   {
     SpatialPooler sp;
@@ -581,10 +1055,8 @@ namespace nta {
 
     for (UInt i = 0; i < numTrials; i++)
     {
-      vector<UInt> inputVector;
       vector<UInt> overlaps;
-      inputVector.assign(&inputs[i][0],&inputs[i][numInputs]);
-      sp.calculateOverlap_(inputVector,overlaps);
+      sp.calculateOverlap_(inputs[i],overlaps);
       // cout << "input:  " << endl; print_vec(inputVector);
       // cout << "return: " << endl; print_vec(overlaps);
       // cout << "true:   " << endl; print_vec(trueOverlaps[i],numColumns);
@@ -771,7 +1243,7 @@ namespace nta {
     setup(sp, 10,10);
 
     vector<Real> overlapsReal;
-    vector<UInt> overlaps;
+    vector<Real> overlaps;
     vector<UInt> activeColumns;
     vector<UInt> activeColumnsGlobal;
     vector<UInt> activeColumnsLocal;
