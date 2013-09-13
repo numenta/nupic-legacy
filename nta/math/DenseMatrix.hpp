@@ -32,12 +32,7 @@
 
 #include <vector>
 
-#ifdef NUPIC2
 #include <nta/utils/TRandom.hpp>
-#else
-#include <nta/foundation/TRandom.hpp>
-#endif
-
 #include <nta/math/SparseMatrix.hpp>
 
 
