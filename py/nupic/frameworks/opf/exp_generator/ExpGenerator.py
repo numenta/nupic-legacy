@@ -924,7 +924,7 @@ def _generateEncoderStringsV2(includedFields, options):
       if options["inferenceArgs"]["inputPredictedField"] == "no":
         encoderDictsList.remove(encoderDict)
 
-  #Remove any encoders not in fiexedFields
+  #Remove any encoders not in fixedFields
   if options.get('fixedFields') is not None:
     tempList=[]
     for encoderDict in encoderDictsList:
