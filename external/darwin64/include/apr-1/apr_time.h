@@ -72,7 +72,10 @@ typedef apr_int32_t apr_short_interval_time_t;
 /** @return apr_time_t as a msec */
 #define apr_time_as_msec(time) ((time) / 1000)
 
-/** @return a second as an apr_time_t */
+/** @return milliseconds as an apr_time_t */
+#define apr_time_from_msec(msec) ((apr_time_t)(msec) * 1000)
+
+/** @return seconds as an apr_time_t */
 #define apr_time_from_sec(sec) ((apr_time_t)(sec) * APR_USEC_PER_SEC)
 
 /** @return a second and usec combination as an apr_time_t */
