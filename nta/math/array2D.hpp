@@ -28,11 +28,9 @@
 #ifndef NTA_ARRAY2D_HPP
 #define NTA_ARRAY2D_HPP
 
-#ifdef NUPIC2
 /*
  * This is only used in svm. Including it in NuPIC2 for the time being.
  */
-#endif
 
 // separate allocation
 // separate storage type and computation type

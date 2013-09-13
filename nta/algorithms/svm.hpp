@@ -72,12 +72,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 #endif
 
-#ifdef NUPIC2
 #include <nta/utils/Random.hpp>
-#else
-#include <nta/common/Random.hpp>
-#endif
-
 #include <nta/math/math.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/math/array2D.hpp>

@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -40,6 +40,9 @@ extern "C" {
  * atomic operation's internal structures
  * @param p pool
  * @return APR_SUCCESS on successful completion
+ * @remark Programs do NOT need to call this directly. APR will call this
+ *         automatically from apr_initialize.
+ * @internal
  */
 APR_DECLARE(apr_status_t) apr_atomic_init(apr_pool_t *p);
 
@@ -119,6 +122,14 @@ APR_DECLARE(apr_uint32_t) apr_atomic_xchg32(volatile apr_uint32_t *mem, apr_uint
  * @return the old value of the pointer
  */
 APR_DECLARE(void*) apr_atomic_casptr(volatile void **mem, void *with, const void *cmp);
+
+/**
+ * exchange a pair of pointer values
+ * @param mem pointer to the pointer
+ * @param with what to swap it with
+ * @return the old value of the pointer
+ */
+APR_DECLARE(void*) apr_atomic_xchgptr(volatile void **mem, void *with);
 
 /** @} */
 
