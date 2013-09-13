@@ -31,6 +31,8 @@ from delta import DeltaEncoder,testDeltaEncoder
 from scalarspace import ScalarSpaceEncoder,testScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder, testMultiEncoder
+from passthru import PassThruEncoder, testPassThruEncoder
+from bitmaparray import BitmapArrayEncoder, testBitmapArrayEncoder
 from utils import bitsToString
 
 
@@ -46,3 +48,5 @@ if __name__ == "__main__":
   testAdaptiveScalarEncoder()
   testDeltaEncoder()
   testScalarSpaceEncoder()
+  testPassThruEncoder()
+  testBitmapArrayEncoder()
