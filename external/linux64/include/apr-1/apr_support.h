@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -39,7 +39,11 @@ extern "C" {
 /**
  * Wait for IO to occur or timeout.
  *
- * Uses POOL for temporary allocations.
+ * @param f The file to wait on.
+ * @param s The socket to wait on if @a f is @c NULL.
+ * @param for_read If non-zero wait for data to be available to read,
+ *        otherwise wait for data to be able to be written. 
+ * @return APR_TIMEUP if we run out of time.
  */
 apr_status_t apr_wait_for_io_or_timeout(apr_file_t *f, apr_socket_t *s,
                                         int for_read);
