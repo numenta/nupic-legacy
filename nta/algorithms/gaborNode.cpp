@@ -42,14 +42,7 @@
 
 // Includes the correct Python.h. Must be the first header. 
 
-#ifdef NUPIC2
 #include <nta/utils/Log.hpp>
-#else
-#include <nta/python/cpplibs/Python.h>
-#include "numpy/arrayobject.h"
-#include <nta/utils/Log.hpp>
-#endif
-
 #include <stdio.h>
 #include <math.h>
 
@@ -65,20 +58,7 @@
 // a dependency on PythonSystem, which is not included in the
 // algorithm source release. So it is disabled by default
 #ifdef INIT_FROM_PYTHON
-#ifdef NUPIC2
 #error "gaborNode should not depend on Python in NuPIC2"
-
-#else
-
-#include <nta/python/cpplibs/nupic_pycommon/PythonSystem.hpp>
-
-void PythonSystem_initFromReferenceP(unsigned long long refP)
-{
-  NTA_CHECK(refP != 0);
-  const nta::PythonSystemRef *p = (nta::PythonSystemRef*)refP;
-  nta::PythonSystem::initFromReference(*p);
-}
-#endif // NUPIC2
 #endif // INIT_FROM_PYTHON
 
 
@@ -138,28 +118,6 @@ extern "C" {
 #define ALIGN_4_CEIL(value)           ALIGN_4_FLOOR(((value)+3))
 #define ALIGN_8_FLOOR(value)          (((value)>>3)<<3)
 #define ALIGN_8_CEIL(value)           ALIGN_8_FLOOR((value)+7)
-
-
-#ifndef NUPIC2
-// FUNCTION: initNumpyLibrary()
-//
-// PURPOSE: This function must be called prior to directly
-//    invoking any of the API calls within the numpy C API.
-//    We do not currently invoke such calls (instead we use
-//    Python operations to extract references to specific
-//    members of the numpy array data structures, and package
-//    these members into a python ARRAY class, which appears
-//    as a NUMPY_ARRAY structure here on the C side.
-//
-//    However, gcc generates a compilation warning if we do not
-//    reference the _import_array() function.
-//
-int initNumpyLibrary(void) {
-  return _import_array();
-}
-#endif
-
-
 
 
 // FUNCTION: _prepareInput_sweepOff()
