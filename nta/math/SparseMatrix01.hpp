@@ -30,16 +30,9 @@
 
 //----------------------------------------------------------------------
 
-#ifdef NUPIC2
 #include <nta/types/types.hpp>
 #include <nta/ntypes/MemParser.hpp>
 #include <nta/ntypes/MemStream.hpp>
-#else
-#include <nta/types/types.hpp>
-#include <nta/common/MemParser.hpp>
-#include <nta/common/MemStream.hpp>
-#endif
-
 #include <nta/math/math.hpp>
 
 #include <string.h> // for memset in gcc 4.4
