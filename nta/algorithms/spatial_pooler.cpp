@@ -86,8 +86,15 @@ class CoordinateConverterND {
     vector<UInt> bounds_;
 };
 
-
 SpatialPooler::SpatialPooler() { }
+
+UInt SpatialPooler::getNumColumns() {
+  return numColumns_;
+}
+
+UInt SpatialPooler::getNumInputs() {
+  return numInputs_;
+}
 
 UInt SpatialPooler::getPotentialRadius() 
 { 
@@ -482,42 +489,81 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   updateInhibitionRadius_();
 
-  switch (inputDimensions_.size()) {
-    case 1:
-      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumn1D_;
-      break;
-    case 2:
-      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumn2D_;
-      break;
-    default:
-      avgConnectedSpanForColumn_ = &SpatialPooler::avgConnectedSpanForColumnND_;
-      break;
-  }
-
-  switch (columnDimensions_.size()) {
-    case 1:
-      getNeighbors_ = &SpatialPooler::getNeighbors1D_;
-      break;
-    case 2:
-      getNeighbors_ = &SpatialPooler::getNeighbors2D_;
-      break;
-    default:
-      getNeighbors_ = &SpatialPooler::getNeighborsND_;
-      break;
-  }
-
 }
 
 Real SpatialPooler::real_rand()
 {
-  return ((double)rand()/(double)RAND_MAX);
+  // return ((double)rand()/(double)RAND_MAX);
+  return 0;
 }
 
-vector<UInt> SpatialPooler::compute(vector<UInt> inputVector, bool learn)
+void SpatialPooler::compute(UInt inputVector[], bool learn,
+                            UInt activeVector[])
 {
-  // TODO: implement stub
-  vector<UInt> activeColumns(numColumns_, 0);
-  return activeColumns;
+  vector<UInt> overlaps_;
+  vector<Real> overlapsPct_;
+  vector<Real> boostedOverlaps_;
+  vector<UInt> activeColumns_;
+
+  overlaps_.resize(numColumns_);
+  overlapsPct_.resize(numColumns_);
+  boostedOverlaps_.resize(numColumns_);
+
+
+  updateBookeepingVars_(learn);
+  calculateOverlap_(inputVector, overlaps_);
+  calculateOverlapPct_(overlaps, overlapsPct_);
+
+  if (learn) {
+    boostOverlaps_(overlaps_, boostedOverlaps_);
+  } else {
+    boostedOverlaps_.assign(overlaps.begin(), overlaps.end());
+  }
+
+  inhibitColumns_(boostedOverlaps_, activeColumns_);
+  toDense_(activeColumns_, activeVector, numColumns_);
+
+  if (learn) {
+    adaptSynapses_(inputVector, activeColumns_);
+    updateDutyCycles_(overlaps_, activeColumns_);
+    bumpUpWeakColumns_();
+    updateBoostFactors_();
+    if (isUpdateRound_()) {
+      updateInhibitionRadius_();
+      updateMinDutyCycles_();
+    }
+  } else {
+    stripNeverLearned_(activeVector);
+  }
+}
+
+void SpatialPooler::stripNeverLearned_(UInt activeArray[])
+{
+  for (UInt i = 0; i < numColumns_; i++) {
+    if (activeDutyCycles_[i] == 0) {
+      activeArray[i] = 0;
+    }
+  }  
+}
+
+
+void SpatialPooler::toDense_(vector<UInt>& sparse, 
+                            UInt dense[],
+                            UInt n)
+{
+  std::fill(dense,dense+n, 0);
+  for (UInt i = 0; i < sparse.size(); i++) {
+    UInt index = sparse[i];
+    dense[index] = 1;
+  }
+}
+
+void SpatialPooler::boostOverlaps_(vector<UInt> overlaps, 
+                                   vector<Real> boosted)
+{
+  for (UInt i = 0; i < numColumns_; i++) {
+    boosted[i] = overlaps[i] * boostFactors_[i];
+  }
 }
 
 vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
@@ -654,7 +700,7 @@ void SpatialPooler::updateInhibitionRadius_()
 
   Real connectedSpan = 0;
   for (UInt i = 0; i < numColumns_; i++) {
-    connectedSpan += (this->*avgConnectedSpanForColumn_)(i);
+    connectedSpan += avgConnectedSpanForColumnND_(i);
   }
   connectedSpan /= numColumns_;
   Real columnsPerInput = avgColumnsPerInput_();
@@ -666,7 +712,13 @@ void SpatialPooler::updateInhibitionRadius_()
 
 void SpatialPooler::updateMinDutyCycles_()
 {
-  // TODO: implement
+  if (globalInhibition_ || inhibitionRadius_ > 
+    *max_element(columnDimensions_.begin(), columnDimensions_.end())) {
+    updateMinDutyCyclesGlobal_();
+  } else {
+    updateMinDutyCyclesLocal_();
+  }
+
   return;
 }
 
@@ -685,15 +737,40 @@ void SpatialPooler::updateMinDutyCyclesGlobal_()
 
 void SpatialPooler::updateMinDutyCyclesLocal_()
 {
-  // TODO: implement
-  return;
+  for (UInt i = 0; i < numColumns_; i++) {
+    vector<UInt> neighbors;
+
+    getNeighborsND_(i, columnDimensions_, inhibitionRadius_, false, neighbors);
+    neighbors.push_back(i);
+    Real maxActiveDuty = 0;
+    Real maxOverlapDuty = 0;
+    for (UInt j = 0; j <  neighbors.size(); j++) {
+      UInt index = neighbors[j];
+      maxActiveDuty = max(maxActiveDuty, activeDutyCycles_[index]);
+      maxOverlapDuty = max(maxOverlapDuty, overlapDutyCycles_[index]);
+    }
+
+    minActiveDutyCycles_[i] = maxActiveDuty * minPctActiveDutyCycles_;
+    minOverlapDutyCycles_[i] = maxOverlapDuty * minPctOverlapDutyCycles_;
+  }
 }
 
 void SpatialPooler::updateDutyCycles_(vector<UInt>& overlaps, 
                        vector<UInt>& activeColumns)
 {
-  // TODO: implement
-  return;
+  vector<UInt> newOverlapVal(numColumns_, 0);
+  vector<UInt> newActiveVal(numColumns_, 0);
+
+  for (UInt i = 0; i < numColumns_; i++) {
+    newOverlapVal[i] = overlaps[i] > 0 ? 1 : 0;
+    newActiveVal[i] = activeColumns[i] > 0 ? 1 : 0;
+  }
+
+  UInt period = dutyCyclePeriod_ > iterationNum_ ?
+    iterationNum_ : dutyCyclePeriod_;
+
+  updateDutyCyclesHelper_(overlapDutyCycles_, newOverlapVal, period);
+  updateDutyCyclesHelper_(activeDutyCycles_, newActiveVal, period);
 }
 
 Real SpatialPooler::avgColumnsPerInput_()
@@ -787,7 +864,7 @@ Real SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
 
 }
 
-void SpatialPooler::adaptSynapses_(vector<UInt>& inputVector, 
+void SpatialPooler::adaptSynapses_(UInt inputVector[], 
                     vector<UInt>& activeColumns)
 {
   vector<Real> permChanges(numInputs_, -1 * synPermInactiveDec_);
@@ -864,11 +941,11 @@ void SpatialPooler::updateBookeepingVars_(bool learn)
   }
 }
 
-void SpatialPooler::calculateOverlap_(vector<UInt>& inputVector,
+void SpatialPooler::calculateOverlap_(UInt inputVector[],
                                       vector<UInt>& overlaps)
 {
   overlaps.assign(numColumns_,0);
-  connectedSynapses_.rightVecSumAtNZ(inputVector.begin(),inputVector.end(),
+  connectedSynapses_.rightVecSumAtNZ(inputVector,inputVector+numInputs_,
     overlaps.begin(),overlaps.end());
   if (stimulusThreshold_ > 0) {
     for (UInt i = 0; i < numColumns_; i++) {
@@ -889,7 +966,7 @@ void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps,
 }
 
 // Makes a copy of overlaps
-void SpatialPooler::inhibitColumns_(vector<UInt> overlaps, 
+void SpatialPooler::inhibitColumns_(vector<Real>& overlaps, 
                                     vector<UInt>& activeColumns)
 {
   Real density = localAreaDensity_;
@@ -901,19 +978,19 @@ void SpatialPooler::inhibitColumns_(vector<UInt> overlaps,
     density = min(density, (Real) 0.5);
   }
 
-  vector<Real> overlapsReal;
-  overlapsReal.resize(numColumns_);
+  vector<Real> overlapsWithNoise;
+  overlapsWithNoise.resize(numColumns_);
 
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapsReal[i] = overlaps[i] + 0.1 * real_rand();
+    overlapsWithNoise[i] = overlaps[i] + 0.1 * real_rand();
   }
 
   if (globalInhibition_ || 
       inhibitionRadius_ > *max_element(columnDimensions_.begin(),
                                        columnDimensions_.end())) {
-    inhibitColumnsGlobal_(overlapsReal, density, activeColumns);
+    inhibitColumnsGlobal_(overlapsWithNoise, density, activeColumns);
   } else {
-    inhibitColumnsLocal_(overlapsReal, density, activeColumns);
+    inhibitColumnsLocal_(overlapsWithNoise, density, activeColumns);
   }
 }
 
@@ -970,8 +1047,7 @@ void SpatialPooler::inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
   Real arbitration = *max_element(overlaps.begin(), overlaps.end()) / 1000.0;
   for (UInt column = 0; column < numColumns_; column++) {
     vector<UInt> neighbors;
-    (this->*getNeighbors_)(column, columnDimensions_, inhibitionRadius_, false, 
-                    neighbors);
+    getNeighborsND_(column, columnDimensions_, inhibitionRadius_, false, neighbors);
     UInt numActive = (UInt) (0.5 + (density * (neighbors.size() + 1)));
     UInt numBigger = 0;
     for (UInt i = 0; i < neighbors.size(); i++) {
