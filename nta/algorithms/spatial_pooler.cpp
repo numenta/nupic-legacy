@@ -493,8 +493,8 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
 Real SpatialPooler::real_rand()
 {
-  // return ((double)rand()/(double)RAND_MAX);
-  return 0;
+  return ((double)rand()/(double)RAND_MAX);
+  // return 0;
 }
 
 void SpatialPooler::compute(UInt inputVector[], bool learn,

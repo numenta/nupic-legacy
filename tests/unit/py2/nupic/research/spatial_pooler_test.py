@@ -87,8 +87,9 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
     inputVector = numpy.array([1,0,1,0,1,0,0,1,1])
+    activeArray = numpy.zeros(5)
     for i in xrange(20):
-      sp.compute(inputVector,True)
+      sp.compute(inputVector,True, activeArray)
 
     for i in xrange(sp._numColumns):
       perm = sp._permanences.getRow(i)
@@ -121,8 +122,9 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
     inputVector = numpy.ones(sp._numInputs)
+    activeArray = numpy.zeros(5)
     for i in xrange(20):
-      sp.compute(inputVector,True)
+      sp.compute(inputVector,True, activeArray)
 
     for i in xrange(sp._numColumns):
       potential = sp._potentialPools.getRow(i)
