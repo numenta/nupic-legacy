@@ -444,7 +444,7 @@ namespace nta {
         /**
          * Various accessors
          */
-        inline bool empty() const { return size() == 0; }
+        inline bool empty() const { return _synapses.empty(); }
         inline UInt size() const { return _synapses.size(); }
         inline bool isSequenceSegment() const { return _seqSegFlag; }
         inline Real& frequency() { return _frequency; }

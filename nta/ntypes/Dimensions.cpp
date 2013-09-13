@@ -130,7 +130,7 @@ Dimensions::isSpecified() const
 
 
 // internal helper method
-static std::string vecToString(std::vector<size_t> vec)
+private static std::string vecToString(std::vector<size_t> vec)
 {
   std::stringstream ss;
   for (size_t i = 0; i < vec.size(); i++)
