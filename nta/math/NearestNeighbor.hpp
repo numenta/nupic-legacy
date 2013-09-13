@@ -1053,22 +1053,8 @@ namespace nta {
       } // End pre-conditions
 
      LpDist(p, in_begin, out_begin, false);
-
-     // On x86_64, there is a bug in glibc that makes expf very slow
-     // (more than it should be), so we continue using exp on that 
-     // platform as a workaround.
-     // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-     // To force the compiler to use exp instead of expf, the return
-     // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-     OutputIterator out_end = out_begin + this->nRows();
-     for (; out_begin != out_end; ++out_begin) {
-       double v = exp(k * *out_begin);
-       *out_begin = v;
-     }
-#else
+     
      range_exp(k, out_begin, out_begin + this->nRows());
-#endif
     }
 
     //--------------------------------------------------------------------------------
@@ -1193,21 +1179,7 @@ namespace nta {
 
       projLpDist(p, in_begin, out_begin, false);
 
-      // On x86_64, there is a bug in glibc that makes expf very slow
-      // (more than it should be), so we continue using exp on that 
-      // platform as a workaround.
-      // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-      // To force the compiler to use exp instead of expf, the return
-      // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-      OutputIterator out_end = out_begin + this->nRows();
-      for (; out_begin != out_end; ++out_begin) {
-	double v = exp(k * *out_begin);
-	*out_begin = v;
-      }
-#else
       range_exp(k, out_begin, out_begin + this->nRows());
-#endif
     }
 
   }; // end class NearestNeighbor
