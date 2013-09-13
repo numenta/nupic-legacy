@@ -163,7 +163,7 @@ Region* Network::addRegionFromBundle(const std::string& name,
 void 
 Network::setPhases_(Region *r, std::set<UInt32>& phases)
 {
-  if (phases.size() == 0)
+  if (phases.empty())
     NTA_THROW << "Attempt to set empty phase list for region " << r->getName();
 
   UInt32 maxNewPhase = *(phases.rbegin());
@@ -276,7 +276,7 @@ Network::removeRegion(const std::string& name)
   // Trim phaseinfo as we may have no more regions at the highest phase(s)
   for (size_t i = phaseInfo_.size() - 1; i > 0; i--)
   {
-    if (phaseInfo_[i].size() == 0)
+    if (phaseInfo_[i].empty())
       phaseInfo_.resize(i);
     else
       break;
@@ -389,7 +389,7 @@ Network::run(int n)
     initialize();
   }
 
-  if (phaseInfo_.size() == 0)
+  if (phaseInfo_.empty())
     return;
 
   NTA_CHECK(maxEnabledPhase_ < phaseInfo_.size()) << "maxphase: " << maxEnabledPhase_ << " size: " << phaseInfo_.size();
@@ -568,7 +568,7 @@ Network::getMinPhase() const
   UInt32 i = 0;
   for (; i < phaseInfo_.size(); i++)
   {
-    if (phaseInfo_[i].size() > 0)
+    if (!phaseInfo_[i].empty())
       break;
   }
   return i;
@@ -583,7 +583,7 @@ Network::getMaxPhase() const
    * phaseInfo_.size()-1
    */
 
-  if (phaseInfo_.size() == 0)
+  if (phaseInfo_.empty())
     return 0;
 
   return phaseInfo_.size() - 1;
