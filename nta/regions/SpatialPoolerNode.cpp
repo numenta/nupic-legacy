@@ -27,10 +27,6 @@
 
 #include <sstream>
 
-#ifndef NUPIC2
-#define NUPIC2
-#endif
-
 // #include <nta/math/helpers.hpp>
 #include <nta/regions/SpatialPoolerNode.hpp>
 #include <nta/engine/Spec.hpp>
