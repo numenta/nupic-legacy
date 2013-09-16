@@ -39,6 +39,9 @@ export PATH="$NTA/bin:$PATH"
 export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
 export NTA_ROOTDIR="$NTA"
 
+# Numpy requires this to be set to function properly
+export PY_VERSION=`python -c 'import platform; print platform.python_version()[:3]'`
+
 # Setup the path to data for OPF experiments
 export NTA_DATA_PATH="$NTA/share/prediction/data:$NTA_DATA_PATH"
 
