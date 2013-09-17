@@ -251,9 +251,8 @@ class SpatialPoolerAPITest(unittest.TestCase):
     sp = SpatialPooler(columnDimensions=[3], inputDimensions=[3])
     numInputs = 3
     numColumns = 3
-    # sp.initialize(columnDimensions=[numInputs], 
-    #               inputDimensions=[numColumns])
-    import pdb; pdb.set_trace()
+    sp.initialize(columnDimensions=[numInputs], 
+                   inputDimensions=[numColumns])
     inParam1 = numpy.array([1, 0, 1]).astype(uintType)
     sp.setPotential(0, inParam1)
     inParam2 = numpy.array([1, 1, 0]).astype(uintType)

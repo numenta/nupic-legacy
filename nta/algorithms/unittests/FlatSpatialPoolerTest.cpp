@@ -124,6 +124,83 @@ namespace nta {
 	{
     testSelectVirgin();
     testSelectHighTierColumns();
+    testAddBonus();
+  }
+
+  void FlatSpatialPoolerTest::testAddBonus()
+  {
+    UInt numInputs = 5;
+    UInt numColumns = 7;
+    FlatSpatialPooler fsp = FlatSpatialPooler();
+    fsp.initializeFlat(numInputs, numColumns);
+    vector<UInt> indices;
+    vector<Real> vec;
+    Real bonus;
+    bool replace;
+
+    indices.clear();
+    indices.push_back(1);
+    indices.push_back(4);
+    indices.push_back(6);
+    bonus = 5;
+    replace = false;
+    Real initArray1[] = {10, 10, 10, 10, 10, 10, 10};
+    Real trueArray1[] = {10, 15, 10, 10, 15, 10, 15};
+    vec.assign(initArray1, initArray1 + numColumns);
+    fsp.addBonus_(vec, bonus, indices, replace);
+    NTA_CHECK(check_vector_eq(trueArray1, vec));
+
+    indices.clear();
+    indices.push_back(1);
+    indices.push_back(4);
+    indices.push_back(6);
+    bonus = 4;
+    replace = true;
+    Real initArray2[] = {10, 10, 10, 10, 10, 10, 10};
+    Real trueArray2[] = {10, 4, 10, 10, 4, 10, 4};
+    vec.assign(initArray2, initArray2 + numColumns);
+    fsp.addBonus_(vec, bonus, indices, replace);
+    NTA_CHECK(check_vector_eq(trueArray2, vec));
+
+    indices.clear();
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(4);
+    indices.push_back(6);
+    bonus = 5000;
+    replace = false;
+    Real initArray3[] = {10, 10, 10, 10, 10, 10, 10};
+    Real trueArray3[] = {10, 5010, 5010, 5010, 5010, 10, 5010};
+    vec.assign(initArray3, initArray3 + numColumns);
+    fsp.addBonus_(vec, bonus, indices, replace);
+    NTA_CHECK(check_vector_eq(trueArray3, vec));
+
+    indices.clear();
+    bonus = 1;
+    replace = true;
+    Real initArray4[] = {0, 123, 456, 678, 999, 1111, 9834};
+    Real trueArray4[] = {0, 123, 456, 678, 999, 1111, 9834};
+    vec.assign(initArray4, initArray4 + numColumns);
+    fsp.addBonus_(vec, bonus, indices, replace);
+    NTA_CHECK(check_vector_eq(trueArray4, vec));
+
+    indices.clear();
+    indices.push_back(1);
+    indices.push_back(2);
+    indices.push_back(3);
+    indices.push_back(4);
+    indices.push_back(6);
+    bonus = 5000;
+    replace = false;
+    Real initArray5[] = {10, 10, 10, 10, 10, 10, 10};
+    Real trueArray5[] = {10, 5010, 5010, 5010, 5010, 10, 5010};
+    vec.assign(initArray5, initArray5 + numColumns);
+    fsp.addBonus_(vec, bonus, indices, replace);
+    NTA_CHECK(check_vector_eq(trueArray5, vec));
+
+
+
   }
 
   void FlatSpatialPoolerTest::testSelectHighTierColumns()

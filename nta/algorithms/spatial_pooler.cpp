@@ -476,7 +476,9 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   minOverlapDutyCycles_.assign(numColumns_, 0);
   minActiveDutyCycles_.assign(numColumns_, 0);
   boostFactors_.assign(numColumns_, 1);
-  overlaps.assign(numColumns_, 0);
+  overlaps_.resize(numColumns_);
+  overlapsPct_.resize(numColumns_);
+  boostedOverlaps_.resize(numColumns_);
 
   inhibitionRadius_ = 0;
 
@@ -494,21 +496,13 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
 Real SpatialPooler::real_rand()
 {
-  return ((double)rand()/(double)RAND_MAX);
+  // return ((double)rand()/(double)RAND_MAX);
+  return 0;
 }
 
 void SpatialPooler::compute(UInt inputArray[], bool learn,
                             UInt activeArray[])
 {
-  vector<UInt> overlaps_;
-  vector<Real> overlapsPct_;
-  vector<Real> boostedOverlaps_;
-  vector<UInt> activeColumns_;
-
-  overlaps_.resize(numColumns_);
-  overlapsPct_.resize(numColumns_);
-  boostedOverlaps_.resize(numColumns_);
-
   updateBookeepingVars_(learn);
   calculateOverlap_(inputArray, overlaps_);
   calculateOverlapPct_(overlaps_, overlapsPct_);
@@ -516,7 +510,7 @@ void SpatialPooler::compute(UInt inputArray[], bool learn,
   if (learn) {
     boostOverlaps_(overlaps_, boostedOverlaps_);
   } else {
-    boostedOverlaps_.assign(overlaps.begin(), overlaps.end());
+    boostedOverlaps_.assign(overlaps_.begin(), overlaps_.end());
   }
 
   inhibitColumns_(boostedOverlaps_, activeColumns_);
@@ -981,8 +975,8 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
   overlapsWithNoise.resize(numColumns_);
 
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapsWithNoise[i] = overlaps[i] + 0.1 * real_rand();
-    // overlapsWithNoise[i] = overlaps[i] + 0.001 * i;
+    // overlapsWithNoise[i] = overlaps[i] + 0.1 * real_rand();
+    overlapsWithNoise[i] = overlaps[i] + 0.001 * i;
   }
 
   if (globalInhibition_ || 

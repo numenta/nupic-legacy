@@ -58,12 +58,85 @@ void FlatSpatialPooler::setRandomSP(bool randomSP)
 }
 
 
-void FlatSpatialPooler::compute(UInt inputVector[], bool learn, 
-                                UInt activeVector[])
+void FlatSpatialPooler::compute(UInt inputArray[], bool learn, 
+                                UInt activeArray[])
 {
+  if (randomSP_) {
+    learn = false;
+  }
 
+  updateBookeepingVars_(learn);
+  calculateOverlap_(inputArray, overlaps_);
+  calculateOverlapPct_(overlaps_, overlapsPct_);
+
+  selectHighTierColumns_(overlapsPct_, highTier_);
+  selectVirginColumns_(virgin_);
+
+  if (learn) {
+    boostOverlaps_(overlaps_, boostedOverlaps_);
+  } else {
+    boostedOverlaps_.assign(overlaps_.begin(), overlaps_.end());
+  }
+
+  Real bonus = *max_element(boostedOverlaps_.begin(),
+                            boostedOverlaps_.end()) + 1;
+
+
+  // cout << "boosted overlaps: " << endl;
+  // for (UInt i = 0; i < numColumns_; i++) {
+  //   cout << boostedOverlaps_[i] << " ";
+  // }
+  // cout << endl << "high tier: " << endl;
+  // for (UInt i = 0; i < highTier_.size(); i++) {
+  //   cout << highTier_[i] << " ";
+  // }
+  // cout << endl << "virgin: " << endl;
+  // for (UInt i = 0; i < virgin_.size(); i++) {
+  //   cout << virgin_[i] << " ";
+  // }
+
+  if (learn) {
+    addBonus_(boostedOverlaps_, bonus, virgin_, true);
+  } 
+  addBonus_(boostedOverlaps_, bonus, highTier_, false);
+
+  // cout << endl << "final overlaps: " << endl;
+  // for (UInt i = 0; i < numColumns_; i++) {
+  //   cout << boostedOverlaps_[i] << " ";
+  // }
+  // cout << endl;
+
+  inhibitColumns_(boostedOverlaps_, activeColumns_);
+  toDense_(activeColumns_, activeArray, numColumns_);
+
+
+  if (learn) {
+    adaptSynapses_(inputArray, activeColumns_);
+    updateDutyCycles_(overlaps_, activeArray);
+    bumpUpWeakColumns_();
+    updateBoostFactors_();
+    
+    if (isUpdateRound_()) {
+      updateInhibitionRadius_();
+      updateMinDutyCycles_();
+    }
+  } else {
+    stripNeverLearned_(activeArray);
+  }
 }
 
+void FlatSpatialPooler::addBonus_(vector<Real>& vec, Real bonus,
+  vector<UInt>& indices, bool replace) 
+{
+  for (UInt i = 0; i < indices.size(); i++) {
+    UInt index = indices[i];
+    if (replace) {
+      vec[index] = bonus;
+    } else {
+      vec[index] += bonus; 
+    }
+  }
+}
 
 void FlatSpatialPooler::selectVirginColumns_(vector<UInt>& virgin)
 {

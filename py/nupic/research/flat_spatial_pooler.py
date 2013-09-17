@@ -40,6 +40,18 @@ class FlatSpatialPooler(SpatialPooler):
   inhibition.
   """
 
+  def setMinDistance(self, minDistance):
+    self._minDistance = minDistance
+  
+  def getMinDistance(self):
+    return self._minDistance
+
+  def setRandomSP(self, randomSP):
+    self._randomSP = randomSP
+
+  def getRandomSP(self):
+    return self._randomSP
+
   def __init__(self,
                inputShape=(32, 32),
                inputBorder=8,
@@ -154,7 +166,7 @@ class FlatSpatialPooler(SpatialPooler):
   #   self._boostFactors *= maxBoost
 
 
-  def compute(self, flatInput, learn=True, infer=False, computeAnomaly=False):
+  def compute(self, inputArray, learn, activeArray):
     """
     This is the primary public method of the SpatialPooler class. This 
     function takes a input vector and outputs the indices of the active columns 
@@ -188,9 +200,9 @@ class FlatSpatialPooler(SpatialPooler):
     if self._randomSP:
       learn=False
 
-    assert (numpy.size(flatInput) == self._numInputs)
+    assert (numpy.size(inputArray) == self._numInputs)
     self._updateBookeepingVars(learn)
-    inputVector = numpy.array(flatInput, dtype=realDType)
+    inputVector = numpy.array(inputArray, dtype=realDType)
     overlaps = self._calculateOverlap(inputVector)
     overlapsPct = self._calculateOverlapPct(overlaps)
     highTierColumns = self._selectHighTierColumns(overlapsPct)
@@ -205,6 +217,7 @@ class FlatSpatialPooler(SpatialPooler):
     if learn:
       vipOverlaps[virginColumns] = vipBonus
     vipOverlaps[highTierColumns] += vipBonus
+
     activeColumns = self._inhibitColumns(vipOverlaps)
 
     if learn:
@@ -219,9 +232,8 @@ class FlatSpatialPooler(SpatialPooler):
     else:
       activeColumns = self._stripNeverLearned(activeColumns)
 
-    activeArray = numpy.zeros(self._numColumns)
+    activeArray[:] = 0
     activeArray[activeColumns] = 1
-    return activeArray
 
 
   def _selectVirginColumns(self):
