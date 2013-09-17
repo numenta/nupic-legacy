@@ -34,7 +34,7 @@ class SpatialPoolerCPPTest(unittest.TestCase):
 
 
   def testVersion(self):
-    self.assertEqual(self._sp.version(),"SpatialPoolerV1")
+    self.assertEqual(self._sp.version(),1)
 
 
 

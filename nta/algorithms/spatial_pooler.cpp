@@ -28,13 +28,13 @@
 #include <iostream>
 #include <cstring>
 #include <string>
-#include <map>
 #include <vector>
 #include <nta/algorithms/spatial_pooler.hpp>
 
 using namespace std;
 using namespace nta;
 using namespace nta::algorithms::spatial_pooler;
+
 
 class CoordinateConverter2D {
 
@@ -127,7 +127,7 @@ void SpatialPooler::setGlobalInhibition(bool globalInhibition)
   globalInhibition_ = globalInhibition; 
 }
 
-UInt SpatialPooler::getNumActiveColumnsPerInhArea()
+Int SpatialPooler::getNumActiveColumnsPerInhArea()
 { 
   return numActiveColumnsPerInhArea_; 
 }
@@ -411,7 +411,8 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   UInt dutyCyclePeriod,
   Real maxBoost,
   Int seed,
-  UInt spVerbosity) {
+  UInt spVerbosity) 
+{
 
   numInputs_ = 1;
   inputDimensions_.clear();
@@ -494,11 +495,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 Real SpatialPooler::real_rand()
 {
   return ((double)rand()/(double)RAND_MAX);
-  // return 0;
 }
 
-void SpatialPooler::compute(UInt inputVector[], bool learn,
-                            UInt activeVector[])
+void SpatialPooler::compute(UInt inputArray[], bool learn,
+                            UInt activeArray[])
 {
   vector<UInt> overlaps_;
   vector<Real> overlapsPct_;
@@ -509,10 +509,9 @@ void SpatialPooler::compute(UInt inputVector[], bool learn,
   overlapsPct_.resize(numColumns_);
   boostedOverlaps_.resize(numColumns_);
 
-
   updateBookeepingVars_(learn);
-  calculateOverlap_(inputVector, overlaps_);
-  calculateOverlapPct_(overlaps, overlapsPct_);
+  calculateOverlap_(inputArray, overlaps_);
+  calculateOverlapPct_(overlaps_, overlapsPct_);
 
   if (learn) {
     boostOverlaps_(overlaps_, boostedOverlaps_);
@@ -521,11 +520,11 @@ void SpatialPooler::compute(UInt inputVector[], bool learn,
   }
 
   inhibitColumns_(boostedOverlaps_, activeColumns_);
-  toDense_(activeColumns_, activeVector, numColumns_);
+  toDense_(activeColumns_, activeArray, numColumns_);
 
   if (learn) {
-    adaptSynapses_(inputVector, activeColumns_);
-    updateDutyCycles_(overlaps_, activeColumns_);
+    adaptSynapses_(inputArray, activeColumns_);
+    updateDutyCycles_(overlaps_, activeArray);
     bumpUpWeakColumns_();
     updateBoostFactors_();
     if (isUpdateRound_()) {
@@ -533,7 +532,7 @@ void SpatialPooler::compute(UInt inputVector[], bool learn,
       updateMinDutyCycles_();
     }
   } else {
-    stripNeverLearned_(activeVector);
+    stripNeverLearned_(activeArray);
   }
 }
 
@@ -558,8 +557,8 @@ void SpatialPooler::toDense_(vector<UInt>& sparse,
   }
 }
 
-void SpatialPooler::boostOverlaps_(vector<UInt> overlaps, 
-                                   vector<Real> boosted)
+void SpatialPooler::boostOverlaps_(vector<UInt>& overlaps, 
+                                   vector<Real>& boosted)
 {
   for (UInt i = 0; i < numColumns_; i++) {
     boosted[i] = overlaps[i] * boostFactors_[i];
@@ -646,7 +645,7 @@ void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm, UInt column,
   numConnected = 0;
   for (UInt i = 0; i < perm.size(); ++i)
   {
-    if (perm[i] > synPermConnected_) {
+    if (perm[i] >= synPermConnected_) {
       connectedSparse.push_back(i);
       ++numConnected;
     }
@@ -756,14 +755,14 @@ void SpatialPooler::updateMinDutyCyclesLocal_()
 }
 
 void SpatialPooler::updateDutyCycles_(vector<UInt>& overlaps, 
-                       vector<UInt>& activeColumns)
+                       UInt activeArray[])
 {
   vector<UInt> newOverlapVal(numColumns_, 0);
   vector<UInt> newActiveVal(numColumns_, 0);
 
   for (UInt i = 0; i < numColumns_; i++) {
     newOverlapVal[i] = overlaps[i] > 0 ? 1 : 0;
-    newActiveVal[i] = activeColumns[i] > 0 ? 1 : 0;
+    newActiveVal[i] = activeArray[i] > 0 ? 1 : 0;
   }
 
   UInt period = dutyCyclePeriod_ > iterationNum_ ?
@@ -908,7 +907,7 @@ void SpatialPooler::bumpUpWeakColumns_()
 }
 
 void SpatialPooler::updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
-                                     vector<UInt> newValues, 
+                                     vector<UInt>& newValues, 
                                      UInt period)
 {
   NTA_ASSERT(period >= 1);
@@ -983,6 +982,7 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
 
   for (UInt i = 0; i < numColumns_; i++) {
     overlapsWithNoise[i] = overlaps[i] + 0.1 * real_rand();
+    // overlapsWithNoise[i] = overlaps[i] + 0.001 * i;
   }
 
   if (globalInhibition_ || 
@@ -994,14 +994,14 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
   }
 }
 
-bool SpatialPooler::isWinner_(Real score, vector<scoreCard>& winners,
+bool SpatialPooler::isWinner_(Real score, vector<pair<UInt, Real> >& winners,
                                UInt numWinners)
 {
   if (winners.size() < numWinners) {
     return true;
   }
 
-  if (score > (winners[numWinners-1].score)) {
+  if (score > winners[numWinners-1].second) {
     return true;
   }
 
@@ -1009,12 +1009,12 @@ bool SpatialPooler::isWinner_(Real score, vector<scoreCard>& winners,
 }
 
 void SpatialPooler::addToWinners_(UInt index, Real score, 
-                                    vector<scoreCard>& winners)
+                                    vector<pair<UInt, Real> >& winners)
 {
-  scoreCard val = { index, score };
-  for (vector<scoreCard>::iterator it = winners.begin();
+  pair<UInt, Real> val = make_pair(index, score);
+  for (vector<pair<UInt, Real> >::iterator it = winners.begin();
        it != winners.end(); it++) {
-    if (score > it->score) {
+    if (score > it->second) {
       winners.insert(it, val);
       return;
     }
@@ -1027,7 +1027,7 @@ void SpatialPooler::inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
 {
   activeColumns.clear();
   UInt numActive = (UInt) (density * numColumns_);
-  vector<scoreCard> winners;
+  vector<pair<UInt, Real> > winners;
   for (UInt i = 0; i < numColumns_; i++) {
     if (isWinner_(overlaps[i], winners, numActive)) {
       addToWinners_(i,overlaps[i], winners);      
@@ -1035,7 +1035,7 @@ void SpatialPooler::inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
   }
 
   for (UInt i = 0; i < numActive; i++) {
-    activeColumns.push_back(winners[i].index);
+    activeColumns.push_back(winners[i].first);
   }
   
 }

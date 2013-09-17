@@ -73,6 +73,7 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
 #include <nta/algorithms/spatial_pooler.hpp>
+#include <nta/algorithms/flat_spatial_pooler.hpp>
 
 #include <nta/algorithms/Cells4.hpp>
 #include <nta/algorithms/classifier_result.hpp>
@@ -2842,7 +2843,71 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     self->getConnectedCounts((nta::UInt*) x->data);
   }
 
+}
 
+
+%include <nta/algorithms/flat_spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::FlatSpatialPooler
+{
+  %pythoncode %{ 
+    import numpy
+
+    def __init__(self,
+                 inputShape=(32, 32),
+                 inputBorder=8,
+                 inputDensity=1.0,
+                 coincidencesShape=(48, 48),
+                 coincInputRadius=16,
+                 coincInputPoolPct=1.0,
+                 gaussianDist=False,
+                 commonDistributions=False,
+                 localAreaDensity=-1.0,
+                 numActivePerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermActiveSharedDec=0.0,
+                 synPermOrphanDec=0.0,
+                 synPermConnected=0.10,
+                 minPctDutyCycleBeforeInh=0.001,
+                 minPctDutyCycleAfterInh=0.001,
+                 dutyCyclePeriod=1000,
+                 maxFiringBoost=10.0,
+                 maxSSFiringBoost=2.0,
+                 maxSynPermBoost=10.0,
+                 minDistance=0.0,
+                 cloneMap=None,
+                 numCloneMasters=-1,
+                 seed=-1,
+                 spVerbosity=0,
+                 printPeriodicStats=0,
+                 testMode=False,
+                 globalInhibition=False,
+                 spReconstructionParam="unweighted_mean",
+                 useHighTier=True,
+                 randomSP=False,
+              ):
+      
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
+        self,
+        numInputs=numpy.prod(inputShape),
+        numColumns=numpy.prod(coincidencesShape),
+        localAreaDensity=localAreaDensity,
+        numActiveColumnsPerInhArea=numActivePerInhArea,
+        stimulusThreshold=stimulusThreshold,
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+        seed=seed,
+        spVerbosity=spVerbosity
+      )
+  %}
 }
 
 %include <nta/algorithms/fast_cla_classifier.hpp>
