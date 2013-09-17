@@ -40,12 +40,6 @@ namespace nta {
   namespace algorithms {
     namespace spatial_pooler {
 
-      typedef struct {
-        UInt index;
-        Real score;
-      } scoreCard;
-
-
       /////////////////////////////////////////////////////////////////////////
       /// CLA spatial pooler implementation in C++.
       ///
@@ -66,13 +60,13 @@ namespace nta {
 
           ~SpatialPooler() {}
 
-          UInt version() const {
+          virtual UInt version() const {
             return version_;
           };
 
           Real real_rand();
 
-          void compute(UInt inputVector[], bool learn,
+          virtual void compute(UInt inputVector[], bool learn,
                        UInt activeVector[]);
 
           UInt getNumColumns();
@@ -87,7 +81,7 @@ namespace nta {
           bool getGlobalInhibition();
           void setGlobalInhibition(bool globalInhibition);
           
-          UInt getNumActiveColumnsPerInhArea();
+          Int getNumActiveColumnsPerInhArea();
           void setNumActiveColumnsPerInhArea(UInt numActiveColumnsPerInhArea);
           
           Real getLocalAreaDensity();
@@ -174,8 +168,8 @@ namespace nta {
                        UInt dense[],
                        UInt n);
 
-          void boostOverlaps_(vector<UInt> overlaps, 
-                                   vector<Real> boostedOverlaps);
+          void boostOverlaps_(vector<UInt>& overlaps, 
+                              vector<Real>& boostedOverlaps);
           void range_(Int start, Int end, UInt ubound, bool wrapAround,
                            vector<UInt>& rangeVector);
 
@@ -197,11 +191,11 @@ namespace nta {
                                     vector<Real>& overlapPct);
 
 
-          bool isWinner_(Real score, vector<scoreCard>& winners,
+          bool isWinner_(Real score, vector<pair<UInt, Real> >& winners,
                                UInt numWinners);
 
           void addToWinners_(UInt index, Real score, 
-                                    vector<scoreCard>& winners);
+                                    vector<pair<UInt, Real> >& winners);
 
           void inhibitColumns_(vector<Real>& overlaps, 
                                vector<UInt>& activeColumns);
@@ -236,17 +230,17 @@ namespace nta {
           void updateMinDutyCyclesGlobal_();
           void updateMinDutyCyclesLocal_();
           static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
-                                               vector<UInt> newValues, 
+                                               vector<UInt>& newValues, 
                                                UInt period);
           void updateDutyCycles_(vector<UInt>& overlaps, 
-                                 vector<UInt>& activeColumns);
+                                 UInt activeArray[]);
           void updateBoostFactors_();
           void updateBookeepingVars_(bool learn);
 
           bool isUpdateRound_();
 
           
-          void initialize(vector<UInt> inputDimensions,
+          virtual void initialize(vector<UInt> inputDimensions,
             vector<UInt> columnDimensions,
             UInt potentialRadius=16,
             Real potentialPct=0.5,
@@ -267,7 +261,7 @@ namespace nta {
           void seed_(Int seed);
 
 
-        private:
+        protected:
           UInt numInputs_;
           UInt numColumns_;
           vector<UInt> columnDimensions_;
@@ -285,7 +279,6 @@ namespace nta {
           UInt iterationNum_;
           UInt iterationLearnNum_;
           UInt spVerbosity_;
-          UInt version_;
           UInt updatePeriod_;
 
           Real synPermMin_;
@@ -314,6 +307,9 @@ namespace nta {
           vector<UInt> activeColumns;
 
           Random rgen_;
+
+        private:
+          UInt version_;
 
       };
     } // end namespace spatial_pooler

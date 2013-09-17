@@ -248,11 +248,12 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.assertListEqual(list(inParam),list(outParam))
 
   def testGetPotential(self):
-    sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
+    sp = SpatialPooler(columnDimensions=[3], inputDimensions=[3])
     numInputs = 3
     numColumns = 3
-    sp.initialize(columnDimensions=[numInputs], 
-                  inputDimensions=[numColumns])
+    # sp.initialize(columnDimensions=[numInputs], 
+    #               inputDimensions=[numColumns])
+    import pdb; pdb.set_trace()
     inParam1 = numpy.array([1, 0, 1]).astype(uintType)
     sp.setPotential(0, inParam1)
     inParam2 = numpy.array([1, 1, 0]).astype(uintType)

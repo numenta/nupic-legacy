@@ -426,13 +426,13 @@ namespace nta {
     UInt numInputs = 5;
     UInt numColumns = 5;
     setup(sp, numInputs, numColumns);
-    vector<UInt> overlaps, active;
+    vector<UInt> overlaps;
 
     Real initOverlapArr1[] = {1, 1, 1, 1, 1};
     sp.setOverlapDutyCycles(initOverlapArr1);
     Real overlapNewVal1[] = {1, 5, 7, 0, 0};
     overlaps.assign(overlapNewVal1, overlapNewVal1+numColumns);
-    active.assign(numColumns, 0);
+    UInt active[] = {0, 0, 0, 0, 0};
 
     sp.setIterationNum(2);
     sp.updateDutyCycles_(overlaps, active);
@@ -1119,7 +1119,7 @@ namespace nta {
   void SpatialPoolerTest::testIsWinner() 
   {
     SpatialPooler sp;
-    vector<scoreCard> winners;
+    vector<pair<UInt, Real> > winners;
 
     UInt numWinners = 3;
     Real score = -5;
@@ -1127,9 +1127,9 @@ namespace nta {
     score = 0;
     NTA_CHECK(sp.isWinner_(score,winners,numWinners));
 
-    scoreCard sc1; sc1.index = 1;  sc1.score = 32;
-    scoreCard sc2; sc2.index = 2;  sc2.score = 27;
-    scoreCard sc3; sc3.index = 17; sc3.score = 19.5;
+    pair<UInt, Real> sc1; sc1.first = 1;  sc1.second = 32;
+    pair<UInt, Real> sc2; sc2.first = 2;  sc2.second = 27;
+    pair<UInt, Real> sc3; sc3.first = 17; sc3.second = 19.5;
     winners.push_back(sc1);
     winners.push_back(sc2);
     winners.push_back(sc3);
@@ -1153,9 +1153,9 @@ namespace nta {
     numWinners = 6;
     NTA_CHECK(sp.isWinner_(score,winners,numWinners));
 
-    scoreCard sc4; sc4.index = 34; sc4.score = 17.1;
-    scoreCard sc5; sc5.index = 51; sc5.score = 1.2;
-    scoreCard sc6; sc6.index = 19; sc6.score = 0.3;
+    pair<UInt, Real> sc4; sc4.first = 34; sc4.second = 17.1;
+    pair<UInt, Real> sc5; sc5.first = 51; sc5.second = 1.2;
+    pair<UInt, Real> sc6; sc6.first = 19; sc6.second = 0.3;
     winners.push_back(sc4);
     winners.push_back(sc5);
     winners.push_back(sc6);
@@ -1177,7 +1177,7 @@ namespace nta {
   void SpatialPoolerTest::testAddToWinners() 
   {
     SpatialPooler sp;
-    vector<scoreCard> winners;
+    vector<pair<UInt, Real> > winners;
     
     UInt index;
     Real score;
@@ -1189,51 +1189,51 @@ namespace nta {
     index = 2; score = 27;
     sp.addToWinners_(index,score,winners);
 
-    NTA_CHECK(winners[0].index == 1);
-    NTA_CHECK(almost_eq(winners[0].score,32));
-    NTA_CHECK(winners[1].index == 2);
-    NTA_CHECK(almost_eq(winners[1].score,27));
-    NTA_CHECK(winners[2].index == 17);
-    NTA_CHECK(almost_eq(winners[2].score,19.5));
+    NTA_CHECK(winners[0].first == 1);
+    NTA_CHECK(almost_eq(winners[0].second,32));
+    NTA_CHECK(winners[1].first == 2);
+    NTA_CHECK(almost_eq(winners[1].second,27));
+    NTA_CHECK(winners[2].first == 17);
+    NTA_CHECK(almost_eq(winners[2].second,19.5));
 
     index = 15; score = 20.5;
     sp.addToWinners_(index,score,winners);
-    NTA_CHECK(winners[0].index == 1);
-    NTA_CHECK(almost_eq(winners[0].score,32));
-    NTA_CHECK(winners[1].index == 2);
-    NTA_CHECK(almost_eq(winners[1].score,27));
-    NTA_CHECK(winners[2].index == 15);
-    NTA_CHECK(almost_eq(winners[2].score,20.5));
-    NTA_CHECK(winners[3].index == 17);
-    NTA_CHECK(almost_eq(winners[3].score,19.5));
+    NTA_CHECK(winners[0].first == 1);
+    NTA_CHECK(almost_eq(winners[0].second,32));
+    NTA_CHECK(winners[1].first == 2);
+    NTA_CHECK(almost_eq(winners[1].second,27));
+    NTA_CHECK(winners[2].first == 15);
+    NTA_CHECK(almost_eq(winners[2].second,20.5));
+    NTA_CHECK(winners[3].first == 17);
+    NTA_CHECK(almost_eq(winners[3].second,19.5));
 
     index = 7; score = 100;
     sp.addToWinners_(index,score,winners);
-    NTA_CHECK(winners[0].index == 7);
-    NTA_CHECK(almost_eq(winners[0].score,100));
-    NTA_CHECK(winners[1].index == 1);
-    NTA_CHECK(almost_eq(winners[1].score,32));
-    NTA_CHECK(winners[2].index == 2);
-    NTA_CHECK(almost_eq(winners[2].score,27));
-    NTA_CHECK(winners[3].index == 15);
-    NTA_CHECK(almost_eq(winners[3].score,20.5));
-    NTA_CHECK(winners[4].index == 17);
-    NTA_CHECK(almost_eq(winners[4].score,19.5));
+    NTA_CHECK(winners[0].first == 7);
+    NTA_CHECK(almost_eq(winners[0].second,100));
+    NTA_CHECK(winners[1].first == 1);
+    NTA_CHECK(almost_eq(winners[1].second,32));
+    NTA_CHECK(winners[2].first == 2);
+    NTA_CHECK(almost_eq(winners[2].second,27));
+    NTA_CHECK(winners[3].first == 15);
+    NTA_CHECK(almost_eq(winners[3].second,20.5));
+    NTA_CHECK(winners[4].first == 17);
+    NTA_CHECK(almost_eq(winners[4].second,19.5));
 
     index = 22; score = 1;
     sp.addToWinners_(index,score,winners);
-    NTA_CHECK(winners[0].index == 7);
-    NTA_CHECK(almost_eq(winners[0].score,100));
-    NTA_CHECK(winners[1].index == 1);
-    NTA_CHECK(almost_eq(winners[1].score,32));
-    NTA_CHECK(winners[2].index == 2);
-    NTA_CHECK(almost_eq(winners[2].score,27));
-    NTA_CHECK(winners[3].index == 15);
-    NTA_CHECK(almost_eq(winners[3].score,20.5));
-    NTA_CHECK(winners[4].index == 17);
-    NTA_CHECK(almost_eq(winners[4].score,19.5));
-    NTA_CHECK(winners[5].index == 22);
-    NTA_CHECK(almost_eq(winners[5].score,1));
+    NTA_CHECK(winners[0].first == 7);
+    NTA_CHECK(almost_eq(winners[0].second,100));
+    NTA_CHECK(winners[1].first == 1);
+    NTA_CHECK(almost_eq(winners[1].second,32));
+    NTA_CHECK(winners[2].first == 2);
+    NTA_CHECK(almost_eq(winners[2].second,27));
+    NTA_CHECK(winners[3].first == 15);
+    NTA_CHECK(almost_eq(winners[3].second,20.5));
+    NTA_CHECK(winners[4].first == 17);
+    NTA_CHECK(almost_eq(winners[4].second,19.5));
+    NTA_CHECK(winners[5].first == 22);
+    NTA_CHECK(almost_eq(winners[5].second,1));
 
   }
 
