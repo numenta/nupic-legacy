@@ -1179,7 +1179,8 @@ class SpatialPooler(object):
       density = min(density, 0.5)
     
     # Add a little bit of random noise to the scores to help break ties.
-    tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+    # tieBreaker = 0.1*numpy.random.rand(self._numColumns)
+    tieBreaker = 0.001*numpy.array(range(self._numColumns))
     overlaps += tieBreaker
 
     if self._globalInhibition or \

@@ -75,8 +75,11 @@ namespace nta {
           void setRandomSP(bool randomSP);
 
 
-          void compute(UInt inputVector[], bool learn,
+          virtual void compute(UInt inputVector[], bool learn,
                        UInt activeVector[]);
+
+          void addBonus_(vector<Real>& vec, Real bonus, 
+                        vector<UInt>& indices, bool replace);
 
           void selectVirginColumns_(vector<UInt>& virgin);
 
@@ -105,6 +108,9 @@ namespace nta {
         protected:
           Real minDistance_;
           bool randomSP_;
+          
+          vector<UInt> highTier_;
+          vector<UInt> virgin_;
 
         private:
           UInt version_;

@@ -306,6 +306,12 @@ namespace nta {
           vector<UInt> overlaps;
           vector<UInt> activeColumns;
 
+
+          vector<UInt> overlaps_;
+          vector<Real> overlapsPct_;
+          vector<Real> boostedOverlaps_;
+          vector<UInt> activeColumns_;
+
           Random rgen_;
 
         private:
