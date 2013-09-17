@@ -731,8 +731,7 @@ inline float svm<traits>::rbf_function(float* x, float* x_end, float* y) const
 {
   float sum = 0;
 
-#ifdef NTA_PLATFORM_win32
-
+#if defined(NTA_ASM) && defined(NTA_PLATFORM_win32)
   if (with_sse) {
 
     __asm {
@@ -773,7 +772,7 @@ inline float svm<traits>::rbf_function(float* x, float* x_end, float* y) const
     }
   }
 
-#elif defined(NTA_PLATFORM_darwin86) 
+#elif defined(NTA_ASM) && defined(NTA_PLATFORM_darwin86) 
 
   if (with_sse) {
     
@@ -816,7 +815,7 @@ inline float svm<traits>::rbf_function(float* x, float* x_end, float* y) const
     }
   }
 
-#else // not NTA_PLATFORM_darwin86, not NTA_PLATFORM_win32
+#else // not NTA_PLATFORM_darwin86, not NTA_PLATFORM_win32; or not NTA_ASM
 
   while (x != x_end) {
     float d = *x - *y;
