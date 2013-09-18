@@ -28,6 +28,7 @@ from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 class AdaptiveScalarTest(unittest.TestCase):
     """Tests for AdaptiveScalarEncoder"""
 
+
     def testMissingValues(self):
       """missing values"""
       mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
