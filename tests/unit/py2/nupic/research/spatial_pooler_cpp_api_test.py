@@ -20,15 +20,16 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
 import unittest2 as unittest
 
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 
-import spatial_pooler_py_api_test as pytest
+import spatial_pooler_py_api_test
 
-pytest.SpatialPooler = CPPSpatialPooler
-SpatialPoolerCPPAPITest = pytest.SpatialPoolerAPITest
+spatial_pooler_py_api_test.SpatialPooler = CPPSpatialPooler
+SpatialPoolerCPPAPITest = spatial_pooler_py_api_test.SpatialPoolerAPITest
+
+
 
 if __name__ == "__main__":
   unittest.main()

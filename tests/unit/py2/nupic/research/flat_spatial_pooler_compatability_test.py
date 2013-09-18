@@ -23,13 +23,13 @@
 import numpy
 import unittest2 as unittest
 
+from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
+from nupic.bindings.math import GetNTAReal, Random
 from nupic.research.flat_spatial_pooler import (
   FlatSpatialPooler as PyFlatSpatialPooler)
-from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
-from nupic.bindings.math import GetNTAReal, Random as NupicRandom
 
 realType = GetNTAReal()
-uintType = 'uint32'
+uintType = "uint32"
 numRecords = 100
 
 
@@ -39,60 +39,60 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
-    for (a,b) in zip(alist,blist):
+    for a, b in zip(alist, blist):
       diff = abs(a - b)
-      self.assertLess(diff,1e-5)
+      self.assertLess(diff, 1e-5)
 
 
   def compare(self, pySp, cppSp):
-    self.assertAlmostEqual(pySp.getNumColumns(), 
+    self.assertAlmostEqual(pySp.getNumColumns(),
                            cppSp.getNumColumns())
-    self.assertAlmostEqual(pySp.getNumInputs(), 
+    self.assertAlmostEqual(pySp.getNumInputs(),
                            cppSp.getNumInputs())
-    self.assertAlmostEqual(pySp.getPotentialRadius(), 
+    self.assertAlmostEqual(pySp.getPotentialRadius(),
                            cppSp.getPotentialRadius())
-    self.assertAlmostEqual(pySp.getPotentialPct(), 
+    self.assertAlmostEqual(pySp.getPotentialPct(),
                            cppSp.getPotentialPct())
-    self.assertAlmostEqual(pySp.getGlobalInhibition(), 
+    self.assertAlmostEqual(pySp.getGlobalInhibition(),
                            cppSp.getGlobalInhibition())
-    self.assertAlmostEqual(pySp.getNumActiveColumnsPerInhArea(), 
+    self.assertAlmostEqual(pySp.getNumActiveColumnsPerInhArea(),
                            cppSp.getNumActiveColumnsPerInhArea())
-    self.assertAlmostEqual(pySp.getLocalAreaDensity(), 
+    self.assertAlmostEqual(pySp.getLocalAreaDensity(),
                            cppSp.getLocalAreaDensity())
-    self.assertAlmostEqual(pySp.getStimulusThreshold(), 
+    self.assertAlmostEqual(pySp.getStimulusThreshold(),
                            cppSp.getStimulusThreshold())
-    self.assertAlmostEqual(pySp.getInhibitionRadius(), 
+    self.assertAlmostEqual(pySp.getInhibitionRadius(),
                            cppSp.getInhibitionRadius())
-    self.assertAlmostEqual(pySp.getDutyCyclePeriod(), 
+    self.assertAlmostEqual(pySp.getDutyCyclePeriod(),
                            cppSp.getDutyCyclePeriod())
-    self.assertAlmostEqual(pySp.getMaxBoost(), 
+    self.assertAlmostEqual(pySp.getMaxBoost(),
                            cppSp.getMaxBoost())
-    self.assertAlmostEqual(pySp.getIterationNum(), 
+    self.assertAlmostEqual(pySp.getIterationNum(),
                            cppSp.getIterationNum())
-    self.assertAlmostEqual(pySp.getIterationLearnNum(), 
+    self.assertAlmostEqual(pySp.getIterationLearnNum(),
                            cppSp.getIterationLearnNum())
-    self.assertAlmostEqual(pySp.getSpVerbosity(), 
+    self.assertAlmostEqual(pySp.getSpVerbosity(),
                            cppSp.getSpVerbosity())
-    self.assertAlmostEqual(pySp.getUpdatePeriod(), 
+    self.assertAlmostEqual(pySp.getUpdatePeriod(),
                            cppSp.getUpdatePeriod())
-    self.assertAlmostEqual(pySp.getSynPermTrimThreshold(), 
+    self.assertAlmostEqual(pySp.getSynPermTrimThreshold(),
                            cppSp.getSynPermTrimThreshold())
-    self.assertAlmostEqual(pySp.getSynPermActiveInc(), 
+    self.assertAlmostEqual(pySp.getSynPermActiveInc(),
                            cppSp.getSynPermActiveInc())
-    self.assertAlmostEqual(pySp.getSynPermInactiveDec(), 
+    self.assertAlmostEqual(pySp.getSynPermInactiveDec(),
                            cppSp.getSynPermInactiveDec())
-    self.assertAlmostEqual(pySp.getSynPermBelowStimulusInc(), 
+    self.assertAlmostEqual(pySp.getSynPermBelowStimulusInc(),
                            cppSp.getSynPermBelowStimulusInc())
-    self.assertAlmostEqual(pySp.getSynPermConnected(), 
+    self.assertAlmostEqual(pySp.getSynPermConnected(),
                            cppSp.getSynPermConnected())
-    self.assertAlmostEqual(pySp.getMinPctOverlapDutyCycles(), 
+    self.assertAlmostEqual(pySp.getMinPctOverlapDutyCycles(),
                            cppSp.getMinPctOverlapDutyCycles())
-    self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(), 
+    self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(),
                            cppSp.getMinPctActiveDutyCycles())
 
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
-    
+
     pyBoost = numpy.zeros(numColumns).astype(realType)
     cppBoost = numpy.zeros(numColumns).astype(realType)
     pySp.getBoostFactors(pyBoost)
@@ -109,7 +109,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     cppActive = numpy.zeros(numColumns).astype(realType)
     pySp.getActiveDutyCycles(pyActive)
     cppSp.getActiveDutyCycles(cppActive)
-    self.assertListAlmostEqual(list(pyActive), list(cppActive))  
+    self.assertListAlmostEqual(list(pyActive), list(cppActive))
 
     pyMinOverlap = numpy.zeros(numColumns).astype(realType)
     cppMinOverlap = numpy.zeros(numColumns).astype(realType)
@@ -121,10 +121,9 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     cppMinActive = numpy.zeros(numColumns).astype(realType)
     pySp.getMinActiveDutyCycles(pyMinActive)
     cppSp.getMinActiveDutyCycles(cppMinActive)
-    self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))  
+    self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
-
       pyPot = numpy.zeros(numInputs).astype(uintType)
       cppPot = numpy.zeros(numInputs).astype(uintType)
       pySp.getPotential(i, pyPot)
@@ -167,7 +166,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       cppSp.setLocalAreaDensity(localAreaDensity)
     else:
       cppSp.setNumActiveColumnsPerInhArea(numActiveColumnsPerInhArea)
-    
+
     cppSp.setStimulusThreshold(pySp.getStimulusThreshold())
     cppSp.setInhibitionRadius(pySp.getInhibitionRadius())
     cppSp.setDutyCyclePeriod(pySp.getDutyCyclePeriod())
@@ -185,7 +184,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     cppSp.setMinPctActiveDutyCycles(pySp.getMinPctActiveDutyCycles())
     cppSp.setMinDistance(pySp.getMinDistance())
     cppSp.setRandomSP(pySp.getRandomSP())
-    
+
     boostFactors = numpy.zeros(numColumns).astype(realType)
     pySp.getBoostFactors(boostFactors)
     cppSp.setBoostFactors(boostFactors)
@@ -215,7 +214,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       pySp.getPermanence(i, perm)
       cppSp.setPermanence(i, perm)
 
-    pySp._random = NupicRandom(newSeed)
+    pySp._random = Random(newSeed)
     cppSp.seed_(newSeed)
     return cppSp
 
@@ -229,42 +228,42 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       raise RuntimeError("unrecognized implementation")
 
     sp = spClass(
-      inputShape=params['inputShape'],
-      coincidencesShape=params['coincidencesShape'],
-      localAreaDensity=params['localAreaDensity'],
-      numActivePerInhArea=params['numActivePerInhArea'],
-      stimulusThreshold=params['stimulusThreshold'],
-      synPermInactiveDec=params['synPermInactiveDec'],
-      synPermActiveInc=params['synPermActiveInc'],
-      synPermConnected=params['synPermConnected'],
-      minPctDutyCycleBeforeInh=params['minPctDutyCycleBeforeInh'],
-      minPctDutyCycleAfterInh=params['minPctDutyCycleAfterInh'],
-      dutyCyclePeriod=params['dutyCyclePeriod'],
-      maxFiringBoost=params['maxFiringBoost'],
-      minDistance=params['minDistance'],
-      seed=params['seed'],
-      spVerbosity=params['spVerbosity'],
-      randomSP=params['randomSP']
-    )    
+      inputShape=params["inputShape"],
+      coincidencesShape=params["coincidencesShape"],
+      localAreaDensity=params["localAreaDensity"],
+      numActivePerInhArea=params["numActivePerInhArea"],
+      stimulusThreshold=params["stimulusThreshold"],
+      synPermInactiveDec=params["synPermInactiveDec"],
+      synPermActiveInc=params["synPermActiveInc"],
+      synPermConnected=params["synPermConnected"],
+      minPctDutyCycleBeforeInh=params["minPctDutyCycleBeforeInh"],
+      minPctDutyCycleAfterInh=params["minPctDutyCycleAfterInh"],
+      dutyCyclePeriod=params["dutyCyclePeriod"],
+      maxFiringBoost=params["maxFiringBoost"],
+      minDistance=params["minDistance"],
+      seed=params["seed"],
+      spVerbosity=params["spVerbosity"],
+      randomSP=params["randomSP"]
+    )
 
     return sp
 
 
   def runSideBySide(self, params):
     pySp = self.createSp("py",params)
-    numColumns = pySp.getNumColumns() 
+    numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
     cppSp = self.createSp("cpp",params)
     self.compare(pySp,cppSp)
     threshold = 0.8
-    inputMatrix = (numpy.random.rand(numRecords,numInputs) > 
-      threshold).astype(uintType)
+    inputMatrix = (numpy.random.rand(numRecords,numInputs) >
+                   threshold).astype(uintType)
     learn = True
     randomSP = True
     for i in xrange(numRecords):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
-      inputVector = inputMatrix[i,:]  
+      inputVector = inputMatrix[i,:]
       cppSp = self.convertSP(pySp, i+1)
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
@@ -274,66 +273,66 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def testCompatability1(self):
     params = {
-      'inputShape' : 20,
-      'coincidencesShape' : 21,
-      'localAreaDensity' : 0,
-      'numActivePerInhArea' : 7,
-      'stimulusThreshold' : 0,
-      'synPermInactiveDec' : 0.01,
-      'synPermActiveInc' : 0.1,
-      'synPermConnected' : 0.10,
-      'minPctDutyCycleBeforeInh' : 0.001,
-      'minPctDutyCycleAfterInh' : 0.001,
-      'dutyCyclePeriod' : 30,
-      'maxFiringBoost' : 10.0,
-      'minDistance' : 0.0,
-      'seed' : 3,
-      'spVerbosity' : 0,
-      'randomSP' : False
+      "inputShape" : 20,
+      "coincidencesShape" : 21,
+      "localAreaDensity" : 0,
+      "numActivePerInhArea" : 7,
+      "stimulusThreshold" : 0,
+      "synPermInactiveDec" : 0.01,
+      "synPermActiveInc" : 0.1,
+      "synPermConnected" : 0.10,
+      "minPctDutyCycleBeforeInh" : 0.001,
+      "minPctDutyCycleAfterInh" : 0.001,
+      "dutyCyclePeriod" : 30,
+      "maxFiringBoost" : 10.0,
+      "minDistance" : 0.0,
+      "seed" : 3,
+      "spVerbosity" : 0,
+      "randomSP" : False
     }
     self.runSideBySide(params)
 
 
   def testCompatability2(self):
     params = {
-      'inputShape' : 15,
-      'coincidencesShape' : 36,
-      'localAreaDensity' : 0.2,
-      'numActivePerInhArea' : 0,
-      'stimulusThreshold' : 2,
-      'synPermInactiveDec' : 0.025,
-      'synPermActiveInc' : 0.2,
-      'synPermConnected' : 0.13,
-      'minPctDutyCycleBeforeInh' : 0.031,
-      'minPctDutyCycleAfterInh' : 0.032,
-      'dutyCyclePeriod' : 30,
-      'maxFiringBoost' : 10.0,
-      'minDistance' : 0.2,
-      'seed' : 7,
-      'spVerbosity' : 0,
-      'randomSP' : False
+      "inputShape" : 15,
+      "coincidencesShape" : 36,
+      "localAreaDensity" : 0.2,
+      "numActivePerInhArea" : 0,
+      "stimulusThreshold" : 2,
+      "synPermInactiveDec" : 0.025,
+      "synPermActiveInc" : 0.2,
+      "synPermConnected" : 0.13,
+      "minPctDutyCycleBeforeInh" : 0.031,
+      "minPctDutyCycleAfterInh" : 0.032,
+      "dutyCyclePeriod" : 30,
+      "maxFiringBoost" : 10.0,
+      "minDistance" : 0.2,
+      "seed" : 7,
+      "spVerbosity" : 0,
+      "randomSP" : False
     }
     self.runSideBySide(params)
 
 
   def testCompatability3(self):
     params = {
-      'inputShape' : 27,
-      'coincidencesShape' : 63,
-      'localAreaDensity' : 0.4,
-      'numActivePerInhArea' : 0,
-      'stimulusThreshold' : 2,
-      'synPermInactiveDec' : 0.02,
-      'synPermActiveInc' : 0.1,
-      'synPermConnected' : 0.15,
-      'minPctDutyCycleBeforeInh' : 0.001,
-      'minPctDutyCycleAfterInh' : 0.002,
-      'dutyCyclePeriod' : 31,
-      'maxFiringBoost' : 14.0,
-      'minDistance' : 0.4,
-      'seed' : 19,
-      'spVerbosity' : 0,
-      'randomSP' : True
+      "inputShape" : 27,
+      "coincidencesShape" : 63,
+      "localAreaDensity" : 0.4,
+      "numActivePerInhArea" : 0,
+      "stimulusThreshold" : 2,
+      "synPermInactiveDec" : 0.02,
+      "synPermActiveInc" : 0.1,
+      "synPermConnected" : 0.15,
+      "minPctDutyCycleBeforeInh" : 0.001,
+      "minPctDutyCycleAfterInh" : 0.002,
+      "dutyCyclePeriod" : 31,
+      "maxFiringBoost" : 14.0,
+      "minDistance" : 0.4,
+      "seed" : 19,
+      "spVerbosity" : 0,
+      "randomSP" : True
     }
     self.runSideBySide(params)
 
