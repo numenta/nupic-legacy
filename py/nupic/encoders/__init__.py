@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from scalar import ScalarEncoder, testScalarEncoder
+from scalar import ScalarEncoder
 from adaptivescalar import AdaptiveScalarEncoder
 from date import DateEncoder
 from log import LogEncoder
@@ -36,7 +36,6 @@ from utils import bitsToString
 
 
 if __name__ == "__main__":
-  testScalarEncoder()
   testMultiEncoder()
   testSDRCategoryEncoder()
   testSDRRandomEncoder()
