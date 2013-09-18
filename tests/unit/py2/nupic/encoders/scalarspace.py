@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -18,27 +19,29 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from nupic.encoders import DeltaEncoder,AdaptiveScalarEncoder
-from base import *
+
+"""Unit tests for scalar space encoder"""
+
+#TODO howto not import * ??
+from nupic.encoders.base import *
+import unittest2 as unittest
+
+from nupic.encoders.scalarspace import ScalarSpaceEncoder
 
 
-class ScalarSpaceEncoder(Encoder):
-  """An encoder that can be used to permute the encodings through different spaces
-  These include absolute value,delta, log space, etc.
-  """
+#########################################################################
+class DateEncoderTest(unittest.TestCase):
+  '''Unit tests for ScalarSpaceEncoder class'''
 
+
+  def testScalarSpaceEncoder(self):
+    """scalar space encoder"""
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta")
+    assert sse.isDelta()
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute")
+    assert not sse.isDelta()
   
-  SPACE_ABSOLUTE="absolute"
-  SPACE_DELTA="delta"
-  def __init__(self):
-    pass
-  def __new__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False, 
-                space="absolute"):
-    self._encoder = None
-    if space == "absolute":
-      ret = AdaptiveScalarEncoder(w,minval,maxval,periodic,n,radius,
-                                            resolution,name,verbosity,clipInput)
-    else:
-      ret = DeltaEncoder(w,minval,maxval,periodic,n,radius,resolution,name,verbosity,clipInput)
-    return ret
+   
+###########################################
+if __name__ == '__main__':
+  unittest.main()
