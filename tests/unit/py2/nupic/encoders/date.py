@@ -24,6 +24,9 @@
 
 import datetime
 import numpy
+#TODO howto not import * ??
+from nupic.encoders.base import *
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import unittest2 as unittest
 
 from nupic.encoders.date import DateEncoder
@@ -34,23 +37,18 @@ class DateEncoderTest(unittest.TestCase):
   '''Unit tests for DateEncoder class'''
 
   
-  def testDateEncoder(self):
-    '''creating date encoder instance'''
-
+  def setUp(self):
+    ##TODO: comment and code dont match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
-    e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
-    self.asertEqual(e.getDescription(), [("season", 0), ("day of week", 12),
-                                ("weekend", 19), ("time of day", 25)])
-
-    # in the middle of fall, thursday, not a weekend, afternoon
-    d = datetime.datetime(2010, 11, 4, 14, 55)
-    bits = e.encode(d)
-
-    # season is aaabbbcccddd (1 bit/month)
+    self._e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
+    # in the middle of fall, thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
+    self._d = datetime.datetime(2010, 11, 4, 14, 55)
+    self._bits = self._e.encode(self._d)
+    # season is aaabbbcccddd (1 bit/month) # TODO should be <<3?
+    # should be 000000000111 (centered on month 11 - Nov)
     seasonExpected = [0,0,0,0,0,0,0,0,0,1,1,1]
 
-    # should be 000000000111 (centered on month 11)
-    # week is MTFTFSS
+    # week is MTWTFSS
     # contrary to localtime documentation, Monaday = 0 (for python
     #  datetime.datetime.timetuple()
     dayOfWeekExpected = [0,0,0,1,0,0,0]
@@ -62,23 +60,29 @@ class DateEncoderTest(unittest.TestCase):
     # 14:55 is minute 14*60 + 55 = 895; 895/48 = bit 18.6
     # should be 30 bits total (30 * 48 minutes = 24 hours)
     timeOfDayExpected = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0]
-    expected = numpy.array(seasonExpected + dayOfWeekExpected + weekendExpected \
+    self._expected = numpy.array(seasonExpected + dayOfWeekExpected + weekendExpected \
                           + timeOfDayExpected, dtype=defaultDtype)
-    self.assertEqual(expected,bits).all()
+   
+  def testDateEncoder(self):
+    '''creating date encoder instance'''
+    self.assertEqual(self._e.getDescription(), [("season", 0), ("day of week", 12),
+                                ("weekend", 19), ("time of day", 25)])
+
+    self.assertTrue((self._expected == self._bits).all())
 
     print
-    e.pprintHeader()
-    e.pprint(bits)
+    self._e.pprintHeader()
+    self._e.pprint(self._bits)
     print
 
-  def testMissingValues(self, e):
+  def testMissingValues(self):
     '''missing values'''
-    mvOutput = e.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
+    mvOutput = self._e.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
     self.assertEqual(sum(mvOutput), 0)
 
-  def testDecoding(self, e):
+  def testDecoding(self):
     '''decoding date'''
-    decoded = e.decode(bits)
+    decoded = self._e.decode(self._bits)
 
     (fieldsDict, fieldNames) = decoded
     self.assertEqual(len(fieldsDict), 4)
@@ -100,20 +104,20 @@ class DateEncoderTest(unittest.TestCase):
     self.assertSequenceEqual(ranges[0], [0, 0])
     
     print decoded
-    print "decodedToStr=>", e.decodedToStr(decoded)
+    print "decodedToStr=>", self._e.decodedToStr(decoded)
 
-  def testTopDownCompute(self, e):
+  def testTopDownCompute(self):
     '''Check topDownCompute'''
-    topDown = e.topDownCompute(bits)
+    topDown = self._e.topDownCompute(self._bits)
     topDownValues = numpy.array([elem.value for elem in topDown])
     errs = topDownValues - numpy.array([320.25, 3.5, .167, 14.8])
     self.assertAlmostEqual(errs.max(), 0, 4)
 
-  def testBucketIndexSupport(self, e):
+  def testBucketIndexSupport(self):
     '''Check bucket index support'''
-    bucketIndices = e.getBucketIndices(d)
+    bucketIndices = self._e.getBucketIndices(self._d)
     print "bucket indices:", bucketIndices
-    topDown = e.getBucketInfo(bucketIndices)
+    topDown = self._e.getBucketInfo(bucketIndices)
     topDownValues = numpy.array([elem.value for elem in topDown])
     errs = topDownValues - numpy.array([320.25, 3.5, .167, 14.8])
     self.assertAlmostEqual(errs.max(), 0, 4)
@@ -121,9 +125,9 @@ class DateEncoderTest(unittest.TestCase):
     encodings = []
     for x in topDown:
       encodings.extend(x.encoding)
-    self.assertSequenceEqual(encodings, expected)
+    self.assertTrue((encodings == self._expected).all())
 
-  def testHoliday(self, e):
+  def testHoliday(self):
     '''look at holiday more carefully because of the smooth transition'''
     e = DateEncoder(holiday=5)
     holiday = numpy.array([0,0,0,0,0,1,1,1,1,1], dtype='uint8')
@@ -131,28 +135,28 @@ class DateEncoderTest(unittest.TestCase):
     holiday2 = numpy.array([0,0,0,1,1,1,1,1,0,0], dtype='uint8')
 
     d = datetime.datetime(2010, 12, 25, 4, 55)
-    self.assertSequenceEqual(e.encode(d), holiday)
+    self.assertTrue((e.encode(d) == holiday).all())
 
     d = datetime.datetime(2008, 12, 27, 4, 55)
-    self.assertSequenceEqual(e.encode(d), notholiday)
+    self.assertTrue((e.encode(d) == notholiday).all())
 
     d = datetime.datetime(1999, 12, 26, 8, 00)
-    self.assertSequenceEqual(e.encode(d), holiday2)
+    self.assertTrue((e.encode(d) == holiday2).all())
 
     d = datetime.datetime(2011, 12, 24, 16, 00)
-    self.assertSequenceEqual(e.encode(d), holiday2)
+    self.assertTrue((e.encode(d) == holiday2).all())
 
-  def testWeekend(self, e):
+  def testWeekend(self):
     '''Test weekend encoder'''
     e = DateEncoder(customDays = (21,["sat","sun","fri"]))
     mon = DateEncoder(customDays = (21,"Monday"))
 
     e2 = DateEncoder(weekend=(21,1))
     d = datetime.datetime(1988,5,29,20,00)
-    self.assertSequenceEqual(e.encode(d), e2.encode(d))
+    self.assertTrue((e.encode(d) == e2.encode(d)).all())
     for _ in range(300):
       d = d+datetime.timedelta(days=1)
-      self.assertSequenceEqual(e.encode(d), e2.encode(d))
+      self.assertTrue((e.encode(d) == e2.encode(d)).all())
       print mon.decode(mon.encode(d))
       #Make sure
       if mon.decode(mon.encode(d))[0]["Monday"][0][0][0]==1.0:
