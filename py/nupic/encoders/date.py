@@ -22,7 +22,6 @@
 
 from base import *
 import datetime
-import time
 from scalar import ScalarEncoder
 import numpy
 
