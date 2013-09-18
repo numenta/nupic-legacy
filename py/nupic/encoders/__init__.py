@@ -20,8 +20,6 @@
 # ----------------------------------------------------------------------
 
 from scalar import ScalarEncoder, testScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder, testAdaptiveScalarEncoder
-from date import DateEncoder
 from log import LogEncoder, testLogEncoder
 from category import CategoryEncoder, testCategoryEncoder
 from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
@@ -42,6 +40,5 @@ if __name__ == "__main__":
   testMultiEncoder()
   testSDRCategoryEncoder()
   testSDRRandomEncoder()
-  testAdaptiveScalarEncoder()
   testDeltaEncoder()
   testScalarSpaceEncoder()
