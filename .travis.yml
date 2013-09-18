@@ -71,6 +71,6 @@ script:
   - "python $NUPIC/examples/tp/tp_test.py"
 
 after_script:
-- tar -zcf build-$TRAVIS_COMMIT.tar.gz $NTA
+- tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
 - travis-artifacts upload --path build-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG
 
