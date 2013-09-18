@@ -81,30 +81,10 @@ void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
   Real bonus = *max_element(boostedOverlaps_.begin(),
                             boostedOverlaps_.end()) + 1;
 
-
-  // cout << "boosted overlaps: " << endl;
-  // for (UInt i = 0; i < numColumns_; i++) {
-  //   cout << boostedOverlaps_[i] << " ";
-  // }
-  // cout << endl << "high tier: " << endl;
-  // for (UInt i = 0; i < highTier_.size(); i++) {
-  //   cout << highTier_[i] << " ";
-  // }
-  // cout << endl << "virgin: " << endl;
-  // for (UInt i = 0; i < virgin_.size(); i++) {
-  //   cout << virgin_[i] << " ";
-  // }
-
   if (learn) {
     addBonus_(boostedOverlaps_, bonus, virgin_, true);
   } 
   addBonus_(boostedOverlaps_, bonus, highTier_, false);
-
-  // cout << endl << "final overlaps: " << endl;
-  // for (UInt i = 0; i < numColumns_; i++) {
-  //   cout << boostedOverlaps_[i] << " ";
-  // }
-  // cout << endl;
 
   inhibitColumns_(boostedOverlaps_, activeColumns_);
   toDense_(activeColumns_, activeArray, numColumns_);
@@ -199,5 +179,3 @@ void FlatSpatialPooler::initializeFlat(UInt numInputs, UInt numColumns,
   boostFactors_.assign(numColumns_, maxBoost);
 
 }
-
-

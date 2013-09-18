@@ -31,7 +31,6 @@
 #include <cstring>
 #include <string>
 #include <vector>
-#include <map>
 #include <iostream>
 
 using namespace std;
@@ -63,8 +62,6 @@ namespace nta {
           virtual UInt version() const {
             return version_;
           };
-
-          Real real_rand();
 
           virtual void compute(UInt inputVector[], bool learn,
                        UInt activeVector[]);
@@ -175,12 +172,12 @@ namespace nta {
 
           vector<UInt> mapPotential1D_(UInt column, bool wrapAround);
           Real initPermConnected_();
-          Real initPermUnconnected_();
+          Real initPermNonConnected_();
           vector<Real> initPermanence_(vector<UInt>& potential, 
                                        Real connectedPct);
           void clip_(vector<Real>& perm, bool trim);
           void updatePermanencesForColumn_(vector<Real>& perm, UInt column,
-                                           bool raisePerm=false);
+                                           bool raisePerm=true);
           UInt countConnected_(vector<Real>& perm);
           UInt raisePermanencesToThreshold_(vector<Real>& perm, 
                                             vector<UInt>& potential);
@@ -258,8 +255,7 @@ namespace nta {
             Int seed=1,
             UInt spVerbosity=0);
 
-          void seed_(Int seed);
-
+          void seed_(UInt64 seed);
 
         protected:
           UInt numInputs_;
@@ -312,10 +308,9 @@ namespace nta {
           vector<Real> boostedOverlaps_;
           vector<UInt> activeColumns_;
 
-          Random rgen_;
-
         private:
           UInt version_;
+          Random rng_;
 
       };
     } // end namespace spatial_pooler

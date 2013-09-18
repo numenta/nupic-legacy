@@ -40,17 +40,22 @@ class FlatSpatialPooler(SpatialPooler):
   inhibition.
   """
 
+
   def setMinDistance(self, minDistance):
     self._minDistance = minDistance
+
   
   def getMinDistance(self):
     return self._minDistance
 
+
   def setRandomSP(self, randomSP):
     self._randomSP = randomSP
 
+
   def getRandomSP(self):
     return self._randomSP
+
 
   def __init__(self,
                inputShape=(32, 32),
@@ -88,12 +93,14 @@ class FlatSpatialPooler(SpatialPooler):
                randomSP=False,
               ):
 
+    numInputs = numpy.array(inputShape).prod()
+    numColumns = numpy.array(coincidencesShape).prod()
     super(FlatSpatialPooler, self).__init__(
       inputDimensions=numpy.array(inputShape),
       columnDimensions=numpy.array(coincidencesShape),
-      potentialRadius=coincInputRadius,
-      potentialPct=coincInputPoolPct,
-      globalInhibition=globalInhibition,
+      potentialRadius=numInputs,
+      potentialPct=0.5,
+      globalInhibition=True,
       localAreaDensity=localAreaDensity,
       numActiveColumnsPerInhArea=numActivePerInhArea,
       stimulusThreshold=stimulusThreshold,
@@ -232,7 +239,7 @@ class FlatSpatialPooler(SpatialPooler):
     else:
       activeColumns = self._stripNeverLearned(activeColumns)
 
-    activeArray[:] = 0
+    activeArray.fill(0)
     activeArray[activeColumns] = 1
 
 
@@ -246,11 +253,11 @@ class FlatSpatialPooler(SpatialPooler):
 
   def _selectHighTierColumns(self, overlapsPct):
     """
-    returns the set of high tier columns. High tier columns are columns who have
-    learned to represent a particular input pattern. How well a column 
+    returns the set of high tier columns. High tier columns are columns who 
+    have learned to represent a particular input pattern. How well a column 
     represents an input pattern is represented by the percent of connected 
     synapses connected to inputs bits which are turned on. 'self._minDistance'
-    determines with how much precision a column must learn to represent an input
-    pattern in order to be considered a 'high tier' column.
+    determines with how much precision a column must learn to represent an 
+    input pattern in order to be considered a 'high tier' column.
     """
     return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]

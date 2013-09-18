@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -20,10 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
-
 from mock import Mock, patch, ANY, call
 import numpy
+import unittest2 as unittest
 
 from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
@@ -41,6 +40,7 @@ class FlatSpatialPoolerTest(unittest.TestCase):
         inputShape=(5,1),
         coincidencesShape=(10,1))
 
+
   def testSelectVirginColumns(self):
     sp = self._sp
     sp._numColumns = 6
@@ -54,6 +54,7 @@ class FlatSpatialPoolerTest(unittest.TestCase):
     virgins = list(sp._selectVirginColumns())
     trueVirgins = [0,1,2,5]
     self.assertListEqual(trueVirgins,virgins)
+
 
   def testSelectHighTierColumns(self):
     sp = self._sp
@@ -91,6 +92,7 @@ class FlatSpatialPoolerTest(unittest.TestCase):
     vipColumns = sp._selectHighTierColumns(sp._overlapsPct)
     trueVIPColumns = []
     self.assertListEqual(trueVIPColumns, list(vipColumns))
+
 
 
 if __name__ == "__main__":

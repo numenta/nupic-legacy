@@ -26,12 +26,9 @@
 #define NTA_flat_spatial_pooler_HPP
 
 #include <nta/types/types.hpp>
-// #include <nta/math/SparseMatrix.hpp>
-// #include <nta/math/SparseBinaryMatrix.hpp>
 #include <cstring>
 #include <string>
 #include <vector>
-#include <map>
 #include <nta/algorithms/spatial_pooler.hpp>
 #include <iostream>
 
@@ -83,16 +80,17 @@ namespace nta {
 
           void selectVirginColumns_(vector<UInt>& virgin);
 
-          void selectHighTierColumns_(vector<Real>& overlapsPct, vector<UInt> &highTier);
+          void selectHighTierColumns_(vector<Real>& overlapsPct, 
+                                      vector<UInt> &highTier);
 
 
           virtual void initializeFlat(
             UInt numInputs, 
             UInt numColumns,
-            Real localAreaDensity=0.1, 
-            UInt numActiveColumnsPerInhArea=-1,
+            Real localAreaDensity=0, 
+            UInt numActiveColumnsPerInhArea=10,
             UInt stimulusThreshold=0, 
-            Real synPermInactiveDec=0.1, 
+            Real synPermInactiveDec=0.01, 
             Real synPermActiveInc=0.1, 
             Real synPermConnected=0.1,
             Real minPctOverlapDutyCycles=0.001, 

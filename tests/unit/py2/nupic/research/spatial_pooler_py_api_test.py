@@ -1,20 +1,40 @@
 #! /usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
 
-
-import unittest2 as unittest
 from mock import Mock, patch, ANY, call
 import numpy
+import unittest2 as unittest
+
 from nupic.research.spatial_pooler import SpatialPooler
-
-
 from nupic.bindings.math import GetNTAReal
-
 
 realType = GetNTAReal()
 uintType = 'uint32'
 
+
+
 class SpatialPoolerAPITest(unittest.TestCase):
   """Tests for SpatialPooler public API"""
+
 
   def testCompute(self):
     # Check that there are no errors in call to compute
@@ -31,6 +51,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getUpdatePeriod()
     self.assertEqual(inParam, outParam)
 
+
   def testGetPotentialRadius(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 56
@@ -38,12 +59,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getPotentialRadius()
     self.assertEqual(inParam, outParam)
 
+
   def testGetPotentialPct(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.4
     sp.setPotentialPct(inParam)
     outParam = sp.getPotentialPct()
     self.assertAlmostEqual(inParam, outParam)
+
 
   def testGetGlobalInhibition(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -65,12 +88,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getNumActiveColumnsPerInhArea()
     self.assertEqual(inParam, outParam)
 
+
   def testGetLocalAreaDensity(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.4
     sp.setLocalAreaDensity(inParam)
     outParam = sp.getLocalAreaDensity()
     self.assertAlmostEqual(inParam, outParam)
+
 
   def testGetStimulusThreshold(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -79,12 +104,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getStimulusThreshold()
     self.assertEqual(inParam, outParam)
 
+
   def testGetInhibitionRadius(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 4
     sp.setInhibitionRadius(inParam)
     outParam = sp.getInhibitionRadius()
     self.assertEqual(inParam, outParam)
+
 
   def testGetDutyCyclePeriod(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -93,12 +120,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getDutyCyclePeriod()
     self.assertEqual(inParam, outParam)
 
+
   def testGetMaxBoost(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 78
     sp.setMaxBoost(inParam)
     outParam = sp.getMaxBoost()
     self.assertEqual(inParam, outParam)
+
 
   def testGetIterationNum(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -107,12 +136,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getIterationNum()
     self.assertEqual(inParam, outParam)
 
+
   def testGetIterationLearnNum(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 666
     sp.setIterationLearnNum(inParam)
     outParam = sp.getIterationLearnNum()
     self.assertEqual(inParam, outParam)
+
 
   def testGetSpVerbosity(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -121,12 +152,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getSpVerbosity()
     self.assertEqual(inParam, outParam)
 
+
   def testGetSynPermTrimThreshold(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.7
     sp.setSynPermTrimThreshold(inParam)
     outParam = sp.getSynPermTrimThreshold()
     self.assertAlmostEqual(inParam, outParam)
+
 
   def testGetSynPermActiveInc(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -135,12 +168,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getSynPermActiveInc()
     self.assertAlmostEqual(inParam, outParam)
 
+
   def testGetSynPermInactiveDec(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.123
     sp.setSynPermInactiveDec(inParam)
     outParam = sp.getSynPermInactiveDec()
     self.assertAlmostEqual(inParam, outParam)
+
 
   def testGetSynPermBelowStimulusInc(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -157,6 +192,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getSynPermConnected()
     self.assertAlmostEqual(inParam, outParam)
 
+
   def testGetMinPctOverlapDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.11122
@@ -164,12 +200,14 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = sp.getMinPctOverlapDutyCycles()
     self.assertAlmostEqual(inParam, outParam)
 
+
   def testGetMinPctActiveDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     inParam = 0.444333
     sp.setMinPctActiveDutyCycles(inParam)
     outParam = sp.getMinPctActiveDutyCycles()
     self.assertAlmostEqual(inParam, outParam)
+
 
   def testGetPermanence(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -199,6 +237,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     sp.getBoostFactors(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
+
   def testGetOverlapDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     numInputs = 3
@@ -210,6 +249,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = numpy.zeros(numInputs).astype(realType)
     sp.getOverlapDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
+
 
   def testGetActiveDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
@@ -223,6 +263,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     sp.getActiveDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
+
   def testGetMinOverlapDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     numInputs = 3
@@ -235,6 +276,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     sp.getMinOverlapDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
 
+
   def testGetMinActiveDutyCycles(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     numInputs = 3
@@ -246,6 +288,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = numpy.zeros(numInputs).astype(realType)
     sp.getMinActiveDutyCycles(outParam)
     self.assertListEqual(list(inParam),list(outParam))
+
 
   def testGetPotential(self):
     sp = SpatialPooler(columnDimensions=[3], inputDimensions=[3])
@@ -266,6 +309,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     self.assertListEqual(list(inParam1),list(outParam1))
     self.assertListEqual(list(inParam2),list(outParam2))
 
+
   def testGetConnectedSynapses(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     numInputs = 5
@@ -283,6 +327,7 @@ class SpatialPoolerAPITest(unittest.TestCase):
     sp.getConnectedSynapses(0, outParam)
     self.assertListEqual(list(trueConnected),list(outParam))
 
+
   def testGetConnectedCounts(self):
     sp = SpatialPooler(columnDimensions=[5], inputDimensions=[5])
     numInputs = 5
@@ -299,6 +344,8 @@ class SpatialPoolerAPITest(unittest.TestCase):
     outParam = numpy.zeros(numInputs).astype(uintType)
     sp.getConnectedCounts(outParam)
     self.assertEqual(trueConnectedCount,outParam[0])
+
+
 
 if __name__ == "__main__":
   unittest.main()
