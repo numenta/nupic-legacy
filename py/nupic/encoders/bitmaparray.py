@@ -114,41 +114,31 @@ class BitmapArrayEncoder(Encoder):
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):
-    """ See the function description in base.py
+    """ Does a bitwise compare of the two bitmaps and returns a fractonal 
+    value between 0 and 1 of how similar they are. 
+    1 => identical
+    0 => no overlaping bits
 
-    kwargs will have the keyword "fractional", which is ignored by this encoder
+    kwargs will have the keyword "fractional", which is assumed by this encoder
     """
 
-    return numpy.array([0])
+    ratio = 1.0
+    esum = int(expValues.sum())
+    asum = int(actValues.sum())
+    if asum > esum:
+      diff = asum - esum
+      if diff < esum:
+        ratio = 1 - diff/float(esum)
+      else:
+        ratio = 1/float(diff)
 
-############################################################################
-def testBitmapArrayEncoder():
-  print "Testing BitmapArrayEncoder...",
+    olap = expValues & actValues
+    osum = int(olap.sum())
+    if esum == 0:
+      r = 0.0
+    else:
+      r = osum/float(esum)
+    r = r * ratio
 
-  fieldWidth = 25
-  bitsOn = 5
+    return numpy.array([r])
 
-  s = BitmapArrayEncoder(n=fieldWidth, w=bitsOn, name="foo")
-
-  bitmap = "2,7,15,18,23"
-  out = s.encode(bitmap)
-  assert out.sum() == bitsOn
-
-  bitmap = [2,7,15,18,23]
-  out = s.encode(bitmap)
-  assert out.sum() == bitsOn
-  #print out
-
-  x = s.decode(out)
-  print x
-  assert isinstance(x[0], dict)
-  assert "foo" in x[0]
-
-  print "passed"
-
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testBitmapArrayEncoder()
