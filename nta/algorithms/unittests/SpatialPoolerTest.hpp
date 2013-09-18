@@ -28,9 +28,6 @@
 
 #include <nta/test/Tester.hpp>
 #include <nta/algorithms/spatial_pooler.hpp>
-//#include <nta/foundation/TRandom.hpp>
-
-//----------------------------------------------------------------------
 
 #ifndef NTA_SPATIAL_POOLER_TEST
 #define NTA_SPATIAL_POOLER_TEST
@@ -40,7 +37,6 @@ using namespace nta::algorithms::spatial_pooler;
 
 namespace nta {
 
-  //----------------------------------------------------------------------
   class SpatialPoolerTest : public Tester
   {
   public:
@@ -58,8 +54,7 @@ namespace nta {
     bool check_vector_eq(Real arr1[], Real arr2[], UInt n);
     bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
     bool almost_eq(Real a, Real b);
-    bool findVector(UInt needle[], UInt n, 
-                                     vector<vector<UInt> > haystack);
+    bool findVector(UInt needle[], UInt n, vector<vector<UInt> > haystack);
     void testMapPotential();
     void testInitPermConnected();
     void testInitPermNonConnected();
@@ -76,7 +71,7 @@ namespace nta {
     void testAvgConnectedSpanForColumn2D();
     void testAvgConnectedSpanForColumnND();
     void testAdaptSynapses();
-    void testBumpUpWeakColumns();          
+    void testBumpUpWeakColumns();
     void testUpdateDutyCyclesHelper();
     void testUpdateBoostFactors();
     void testUpdateBookeepingVars();
@@ -90,7 +85,7 @@ namespace nta {
     void testGetNeighbors1D();
     void testGetNeighbors2D();
     void testCartesianProduct();
-    void testGetNeighborsND();  
+    void testGetNeighborsND();
     void testIsUpdateRound();
 
     void print_vec(UInt arr[], UInt n);
@@ -99,9 +94,7 @@ namespace nta {
     void print_vec(vector<Real> vec);
 
   }; // end class SpatialPoolerTest
-    
-  //----------------------------------------------------------------------
-} // end namespace nta
 
+} // end namespace nta
 
 #endif // NTA_SPATIAL_POOLER_TEST

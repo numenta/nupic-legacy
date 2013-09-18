@@ -23,68 +23,75 @@
 
 /** @file
  * Implementation of unit tests for SpatialPooler
- */     
+ */
 
+#include <cstring>
 #include <iostream>
 #include <nta/algorithms/flat_spatial_pooler.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/types/types.hpp>
 #include <nta/utils/Log.hpp>
-#include <cstring>
 #include "FlatSpatialPoolerTest.hpp"
 
 using namespace std;
 using namespace nta::algorithms::spatial_pooler;
 
-namespace nta {  
+namespace nta {
 
   void FlatSpatialPoolerTest::print_vec(UInt arr[], UInt n)
   {
-    for (UInt i = 0; i < n; i++)
+    for (UInt i = 0; i < n; i++) {
       cout << arr[i] << " ";
+    }
     cout << endl;
   }
 
   void FlatSpatialPoolerTest::print_vec(Real arr[], UInt n)
   {
-    for (UInt i = 0; i < n; i++)
+    for (UInt i = 0; i < n; i++) {
       cout << arr[i] << " ";
+    }
     cout << endl;
   }
 
   void FlatSpatialPoolerTest::print_vec(vector<UInt> vec)
   {
-    for (UInt i = 0; i < vec.size(); i++)
+    for (UInt i = 0; i < vec.size(); i++) {
       cout << vec[i] << " ";
+    }
     cout << endl;
   }
 
   void FlatSpatialPoolerTest::print_vec(vector<Real> vec)
   {
-    for (UInt i = 0; i < vec.size(); i++)
+    for (UInt i = 0; i < vec.size(); i++) {
       cout << vec[i] << " ";
+    }
     cout << endl;
   }
 
   bool FlatSpatialPoolerTest::almost_eq(Real a, Real b)
   {
     Real diff = a - b;
-    return (diff > -1e-5 && diff < 1e-5); 
+    return (diff > -1e-5 && diff < 1e-5);
   }
 
   bool FlatSpatialPoolerTest::check_vector_eq(UInt arr[], vector<UInt> vec)
   {
-    for (UInt i = 0; i < vec.size(); i++)
-      if (arr[i] != vec[i])
+    for (UInt i = 0; i < vec.size(); i++) {
+      if (arr[i] != vec[i]) {
         return false;
+      }
+    }
     return true;
   }
 
   bool FlatSpatialPoolerTest::check_vector_eq(Real arr[], vector<Real> vec)
   {
     for (UInt i = 0; i < vec.size(); i++) {
-      if (!almost_eq(arr[i],vec[i]))
+      if (!almost_eq(arr[i],vec[i])) {
         return false;
+      }
     }
     return true;
   }
@@ -92,8 +99,9 @@ namespace nta {
   bool FlatSpatialPoolerTest::check_vector_eq(UInt arr1[], UInt arr2[], UInt n)
   {
     for (UInt i = 0; i < n; i++) {
-      if (arr1[i] != arr2[i])
+      if (arr1[i] != arr2[i]) {
         return false;
+      }
     }
     return true;
   }
@@ -101,8 +109,9 @@ namespace nta {
   bool FlatSpatialPoolerTest::check_vector_eq(Real arr1[], Real arr2[], UInt n)
   {
     for (UInt i = 0; i < n; i++) {
-      if (!almost_eq(arr1[i], arr2[i]))
+      if (!almost_eq(arr1[i], arr2[i])) {
         return false;
+      }
     }
     return true;
   }
@@ -120,8 +129,8 @@ namespace nta {
     return true;
   }
 
-	void FlatSpatialPoolerTest::RunTests() 
-	{
+  void FlatSpatialPoolerTest::RunTests()
+  {
     testSelectVirgin();
     testSelectHighTierColumns();
     testAddBonus();
@@ -198,9 +207,6 @@ namespace nta {
     vec.assign(initArray5, initArray5 + numColumns);
     fsp.addBonus_(vec, bonus, indices, replace);
     NTA_CHECK(check_vector_eq(trueArray5, vec));
-
-
-
   }
 
   void FlatSpatialPoolerTest::testSelectHighTierColumns()
@@ -264,10 +270,9 @@ namespace nta {
       highTierDense[highTier[i]] = 1;
     }
     NTA_CHECK(check_vector_eq(trueHighTier4, highTierDense));
-
   }
 
-  void FlatSpatialPoolerTest::testSelectVirgin() 
+  void FlatSpatialPoolerTest::testSelectVirgin()
   {
     UInt numInputs = 5;
     UInt numColumns = 10;
@@ -294,7 +299,6 @@ namespace nta {
 
     fsp.selectVirginColumns_(virgin);
     NTA_CHECK(virgin.size() == 0);
-
   }
-    
+
 } // end namespace nta
