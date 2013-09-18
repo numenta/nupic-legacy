@@ -21,7 +21,7 @@
 
 from scalar import ScalarEncoder, testScalarEncoder
 from adaptivescalar import AdaptiveScalarEncoder, testAdaptiveScalarEncoder
-from date import DateEncoder, testDateEncoder
+from date import DateEncoder
 from log import LogEncoder, testLogEncoder
 from category import CategoryEncoder, testCategoryEncoder
 from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
@@ -38,7 +38,6 @@ from utils import bitsToString
 if __name__ == "__main__":
   testScalarEncoder()
   testCategoryEncoder()
-  testDateEncoder()
   testLogEncoder()
   testMultiEncoder()
   testSDRCategoryEncoder()
