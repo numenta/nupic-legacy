@@ -21,9 +21,6 @@
 
 
 from base import *
-import datetime
-from nupic.encoders import *
-from nupic.data.dictutils import DictObj
 
 ############################################################################
 class MultiEncoder(Encoder):
@@ -126,59 +123,3 @@ class MultiEncoder(Encoder):
                 "some required constructor parameters. Parameters "
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
-
-############################################################################
-def testMultiEncoder():
-
-  print "Testing MultiEncoder..."
-
-  e = MultiEncoder()
-
-  # should be 7 bits wide
-  e.addEncoder("dow", ScalarEncoder(w=3, resolution=1, minval=1, maxval=8,
-                periodic=True, name="day of week"))
-  # sould be 14 bits wide
-  e.addEncoder("myval", ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
-                periodic=False, name="aux"))
-  assert e.getWidth() == 21
-  assert e.getDescription() == [("day of week", 0), ("aux", 7)]
-
-  d = DictObj(dow=3, myval=10)
-  expected=numpy.array([0,1,1,1,0,0,0] + [0,0,0,0,0,0,0,0,0,1,1,1,1,1], dtype='uint8')
-  output = e.encode(d)
-  assert(expected == output).all()
-
-
-  e.pprintHeader()
-  e.pprint(output)
-
-  # Check decoding
-  decoded = e.decode(output)
-  #print decoded
-  assert len(decoded) == 2
-  (ranges, desc) = decoded[0]['aux']
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10])
-  (ranges, desc) = decoded[0]['day of week']
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [3, 3])
-  print "decodedToStr=>", e.decodedToStr(decoded)
-
-  e.addEncoder("myCat", SDRCategoryEncoder(n=7, w=3,
-                                           categoryList=["run", "pass","kick"]))
-
-  print "\nTesting mixed multi-encoder"
-  d = DictObj(dow=4, myval=6, myCat="pass")
-  output = e.encode(d)
-  topDownOut = e.topDownCompute(output)
-  assert topDownOut[0].value == 4
-  assert topDownOut[1].value == 6
-  assert topDownOut[2].value == "pass"
-  assert topDownOut[2].scalar == 2
-  assert topDownOut[2].encoding.sum() == 3
-
-  print "passed."
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testMultiEncoder()
