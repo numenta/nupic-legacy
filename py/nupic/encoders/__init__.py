@@ -20,6 +20,8 @@
 # ----------------------------------------------------------------------
 
 from scalar import ScalarEncoder, testScalarEncoder
+from adaptivescalar import AdaptiveScalarEncoder
+from date import DateEncoder
 from log import LogEncoder, testLogEncoder
 from category import CategoryEncoder, testCategoryEncoder
 from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
