@@ -26,7 +26,7 @@ from collections import deque
 import time
 
 import psutil
-from matplotlib.pylab import draw, plot
+import matplotlib.pyplot as plt
 
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf.modelfactory import ModelFactory
@@ -36,7 +36,13 @@ import model_params
 SECONDS_PER_STEP = 2
 WINDOW = 60
 
-
+# turn matplotlib interactive mode on (ion)
+plt.ion()
+fig = plt.figure()
+# plot title, legend, etc
+plt.title('CPU prediction example')
+plt.xlabel('time [s]')
+plt.ylabel('CPU usage [%]')
 
 def runCPU():
   """Poll CPU usage, make predictions, and plot the results. Runs forever."""
@@ -50,8 +56,8 @@ def runCPU():
   predHistory = deque([0.0] * WINDOW, maxlen=60)
 
   # Initialize the plot lines that we will update with each new record.
-  actline, = plot(range(WINDOW), actHistory)
-  predline, = plot(range(WINDOW), predHistory)
+  actline, = plt.plot(range(WINDOW), actHistory)
+  predline, = plt.plot(range(WINDOW), predHistory)
   # Set the y-axis range.
   actline.axes.set_ylim(0, 100)
   predline.axes.set_ylim(0, 100)
@@ -75,12 +81,14 @@ def runCPU():
     # Redraw the chart with the new data.
     actline.set_ydata(actHistory)  # update the data
     predline.set_ydata(predHistory)  # update the data
-    draw()
+    plt.draw()
+    plt.legend( ('actual','predicted') )    
 
     # Make sure we wait a total of 2 seconds per iteration.
-    time.sleep(SECONDS_PER_STEP - (time.time() - s))
-
-
+    try: 
+      plt.pause(SECONDS_PER_STEP)
+    except:
+      pass
 
 if __name__ == "__main__":
   runCPU()

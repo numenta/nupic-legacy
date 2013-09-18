@@ -25,7 +25,7 @@
 # to invocation as described in the README.
 
 # get PYTHON_VERSION early here
-PY_VER=`python -c 'import sys; print sys.version[:3]'`
+export PY_VERSION=`python -c 'import sys; print sys.version[:3]'`
 
 #orig values for paths, before env.sh has been run
 if [[ -z $_PATH ]]; then
@@ -36,7 +36,7 @@ if [[ -z $_PYTHONPATH ]]; then
 fi
 
 export PATH="$NTA/bin:$PATH"
-export PYTHONPATH="$NTA/lib/python${PY_VER}/site-packages:$PYTHONPATH"
+export PYTHONPATH="$NTA/lib/python$PY_VERSION/site-packages:$PYTHONPATH"
 export NTA_ROOTDIR="$NTA"
 
 # Setup the path to data for OPF experiments

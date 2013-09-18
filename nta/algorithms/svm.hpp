@@ -72,15 +72,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 #endif
 
-#ifdef NUPIC2
 #include <nta/utils/Random.hpp>
-#else
-#include <nta/common/Random.hpp>
-#endif
-
 #include <nta/math/math.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/math/array2D.hpp>
+#include <nta/math/array_algo.hpp> // for int checkSSE()
 
 namespace nta {
   namespace algorithms {
@@ -726,21 +722,9 @@ namespace nta {
 
 	inline float rbf_kernel(int i, int j) const
 	{
-	  // On x86_64, there is a bug in glibc that makes expf very slow
-	  // (more than it should be), so we continue using exp on that 
-	  // platform as a workaround.
-	  // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-	  // To force the compiler to use exp instead of expf, the return
-	  // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-	  double v = exp(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
-	  NTA_ASSERT(-HUGE_VAL <= v && v < HUGE_VAL);
-	  return v;
-#else
 	  float v = expf(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
 	  NTA_ASSERT(-HUGE_VAL <= v && v < HUGE_VAL);
 	  return v;
-#endif
 	}
       };
 
@@ -846,19 +830,8 @@ namespace nta {
 
 	inline float rbf_kernel(int i, int j) const
 	{
-	  // On x86_64, there is a bug in glibc that makes expf very slow
-	  // (more than it should be), so we continue using exp on that 
-	  // platform as a workaround.
-	  // https://bugzilla.redhat.com/show_bug.cgi?id=521190
-	  // To force the compiler to use exp instead of expf, the return
-	  // type (and not the argument type!) needs to be double.
-#ifdef NTA_PLATFORM_linux64
-	  double v = exp(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
-	  return v;
-#else
 	  float v = expf(-gamma*(x_square[i] + x_square[j] - 2*dot(i, j)));
 	  return v;
-#endif
 	}
       };
 
@@ -967,46 +940,8 @@ namespace nta {
         //       it needs to be 4 bytes (floats) for sse/xmm registers.
         inline bool checkSSE()
         {
-          if (param_.kernel == 1 && n_dims() % 8 == 0) { 
-
-            // We really only need to look at register edx after call to cpuid.
-            // If 25th bit of edx is 1, we have sse: 2^25 = 22554432.
-            // If 26th bit of edx is 1, we have sse2: 2^26 = 67108864.
-            // We don't care about sse3, which we are not using.
-            // Refer to Intel manuals for details.
-
-#ifdef NTA_PLATFORM_win32
-
-            unsigned int f = 1, d;
-
-            __asm {
-                   mov eax, f
-                   cpuid
-                   mov d, edx
-                  }
-            
-            return ((d & 33554432) > 0) || ((d & 67108864) > 0);
-
-#elif defined(NTA_PLATFORM_darwin86)
-
-            unsigned int f = 1, a,b,c,d;
-
-            // PIC-compliant asm
-            __asm__ __volatile__(
-                                 "pushl %%ebx\n\t"
-                                 "cpuid\n\t"
-                                 "movl %%ebx, %1\n\t"
-                                 "popl %%ebx\n\t"
-                                 : "=a" (a), "=r" (b), "=c" (c), "=d" (d)
-                                 : "a" (f)
-                                 : "cc"
-                                 );
-
-            return ((d & 33554432) > 0) || ((d & 67108864) > 0);
-#endif
-          } 
-          
-          return false;
+         // use int checkSSE() from nta/math/array_algo.hpp, if ret==-1 -> no SSE 
+          return checkSSE()!=-1;
         }
 
 	inline ~svm()

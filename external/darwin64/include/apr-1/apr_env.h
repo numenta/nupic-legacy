@@ -28,7 +28,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @defgroup apr_env Functions for manupulating the environment
+ * @defgroup apr_env Functions for manipulating the environment
  * @ingroup APR 
  * @{
  */
