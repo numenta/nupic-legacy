@@ -316,7 +316,7 @@ namespace nta {
 
       size_type counter = 0;
       for (size_type r = 0; r != nRows(); ++r, ++it) 
-        if (ind_[r].size() > 0) {
+        if (!ind_[r].empty()) {
           *it = true;
           ++ counter;
         } else {

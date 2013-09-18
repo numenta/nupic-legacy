@@ -90,20 +90,20 @@ namespace nta {
   void SparsePoolerInputMasks::compute_cache_()
   {
     { // Pre-conditions
-      NTA_CHECK(segment_size_ > 0)
+      NTA_ASSERT(segment_size_ > 0)
 	<< "SparsePoolerInputMasks: Invalid segment size: " << segment_size_
 	<< " - Should be > 0";
       
-      NTA_CHECK(masks_.size() > 0)
+      NTA_ASSERT(masks_.size() > 0)
 	<< "SparsePoolerInputMasks: No masks passed";
 
       for (size_type i = 0; i != masks_.size(); ++i) {
 	
-	NTA_CHECK(masks_[i].size() > 0)
+	NTA_ASSERT(masks_[i].size() > 0)
 	  << "SparsePoolerInputMasks: Empty mask";
 	
 	for (size_type j = 0; j != masks_[i].size(); ++j) 
-	  NTA_CHECK(masks_[i][j].second > 0)
+	  NTA_ASSERT(masks_[i][j].second > 0)
 	    << "SparsePoolerInputMasks: Empty mask segment";
       }
     } // End pre-conditions
