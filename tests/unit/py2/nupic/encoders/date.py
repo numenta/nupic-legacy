@@ -24,8 +24,6 @@
 
 from base import *
 import datetime
-import time
-import unittest2 as unittest
 import numpy
 
 from nupic.encoders.date import DateEncoder
@@ -36,8 +34,8 @@ from nupic.encoders.date import DateEncoder
 class DateEncoderTest():
   '''Unit tests for DateEncoder class'''
   
-  def testDateEncoder():
-  '''creating date encoder instance'''
+  def testDateEncoder(self):
+    '''creating date encoder instance'''
 
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
     e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
@@ -73,12 +71,12 @@ class DateEncoderTest():
     e.pprint(bits)
     print
 
-  def testMissingValues(e):
+  def testMissingValues(self, e):
     '''missing values'''
     mvOutput = e.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
     self.assertEqual(sum(mvOutput), 0)
 
-  def testDecoding(e):
+  def testDecoding(self, e):
     '''decoding date'''
     decoded = e.decode(bits)
 
@@ -104,14 +102,14 @@ class DateEncoderTest():
     print decoded
     print "decodedToStr=>", e.decodedToStr(decoded)
 
-  def testTopDownCompute(e):
+  def testTopDownCompute(self, e):
     '''Check topDownCompute'''
     topDown = e.topDownCompute(bits)
     topDownValues = numpy.array([elem.value for elem in topDown])
     errs = topDownValues - numpy.array([320.25, 3.5, .167, 14.8])
     self.assertAlmostEqual(errs.max(), 0, 4)
 
-  def testBucketIndexSupport(e):
+  def testBucketIndexSupport(self, e):
     '''Check bucket index support'''
     bucketIndices = e.getBucketIndices(d)
     print "bucket indices:", bucketIndices
@@ -125,7 +123,7 @@ class DateEncoderTest():
       encodings.extend(x.encoding)
     self.assertSequenceEqual(encodings, expected)
 
-  def testHoliday(e):
+  def testHoliday(self, e):
     '''look at holiday more carefully because of the smooth transition'''
     e = DateEncoder(holiday=5)
     holiday = numpy.array([0,0,0,0,0,1,1,1,1,1], dtype='uint8')
@@ -144,7 +142,7 @@ class DateEncoderTest():
     d = datetime.datetime(2011, 12, 24, 16, 00)
     self.assertSequenceEqual(e.encode(d), holiday2)
 
-  def testWeekend(e):
+  def testWeekend(self, e):
     '''Test weekend encoder'''
     e = DateEncoder(customDays = (21,["sat","sun","fri"]))
     mon = DateEncoder(customDays = (21,"Monday"))
@@ -152,7 +150,7 @@ class DateEncoderTest():
     e2 = DateEncoder(weekend=(21,1))
     d = datetime.datetime(1988,5,29,20,00)
     self.assertSequenceEqual(e.encode(d), e2.encode(d))
-    for i in range(300):
+    for _ in range(300):
       d = d+datetime.timedelta(days=1)
       self.assertSequenceEqual(e.encode(d), e2.encode(d))
       print mon.decode(mon.encode(d))

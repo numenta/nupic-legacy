@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------
 
 import numpy
-import math
 defaultDtype = numpy.uint8
 from utils import bitsToString
 from collections import namedtuple
