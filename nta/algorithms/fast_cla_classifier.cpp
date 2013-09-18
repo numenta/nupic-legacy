@@ -370,7 +370,7 @@ namespace nta
         // Check the version.
         UInt version;
         inStream >> version;
-        NTA_CHECK(version >= 0 && version <= 1);
+        NTA_CHECK(version <= 1);
 
         // Load the simple variables.
         inStream >> version_
