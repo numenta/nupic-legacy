@@ -27,7 +27,7 @@ from category import CategoryEncoder
 from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
 from sdrrandom import SDRRandomEncoder, testSDRRandomEncoder
 from nonuniformscalar import NonUniformScalarEncoder, testNonUniformScalarEncoder
-from delta import DeltaEncoder,testDeltaEncoder
+from delta import DeltaEncoder
 from scalarspace import ScalarSpaceEncoder,testScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder, testMultiEncoder
@@ -41,5 +41,4 @@ if __name__ == "__main__":
   testMultiEncoder()
   testSDRCategoryEncoder()
   testSDRRandomEncoder()
-  testDeltaEncoder()
   testScalarSpaceEncoder()
