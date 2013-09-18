@@ -39,8 +39,8 @@ class DateEncoderTest(unittest.TestCase):
 
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
     e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
-    assert e.getDescription() == [("season", 0), ("day of week", 12),
-                                ("weekend", 19), ("time of day", 25)]
+    self.asertEqual(e.getDescription(), [("season", 0), ("day of week", 12),
+                                ("weekend", 19), ("time of day", 25)])
 
     # in the middle of fall, thursday, not a weekend, afternoon
     d = datetime.datetime(2010, 11, 4, 14, 55)
