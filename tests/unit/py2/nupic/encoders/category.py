@@ -22,7 +22,6 @@
 
 """Unit tests for category encoder"""
 
-from base import *
 import numpy
 import unittest2 as unittest
 
@@ -32,6 +31,7 @@ from nupic.encoders.category import CategoryEncoder
 #########################################################################
 class CategoryEncoderTest(unittest.TestCase):
   '''Unit tests for CategoryEncoder class'''
+
 
   def testCategoryEncoder(self):
       verbosity = 0
