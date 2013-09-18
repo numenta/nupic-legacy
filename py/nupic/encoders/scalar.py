@@ -275,8 +275,6 @@ class ScalarEncoder(Encoder):
 
   ############################################################################
   def recalcParams(self):
-    min = self.minval
-    max = self.maxval
     self.rangeInternal = float(self.maxval - self.minval)
 
     if not self.periodic:
@@ -423,8 +421,6 @@ class ScalarEncoder(Encoder):
     """ See the function description in base.py
     """
 
-    logPrefix = "decode"
-
     # For now, we simply assume any top-down output greater than 0
     #  is ON. Eventually, we will probably want to incorporate the strength
     #  of each top-down output.
@@ -439,7 +435,6 @@ class ScalarEncoder(Encoder):
 
     # Search for portions of the output that have "holes"
     maxZerosInARow = self.halfwidth
-    searchStrings = []
     for i in xrange(maxZerosInARow):
       searchStr = numpy.ones(i + 3, dtype=encoded.dtype)
       searchStr[1:-1] = 0
@@ -612,13 +607,9 @@ class ScalarEncoder(Encoder):
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
 
-    # Get/generate the topDown mapping table
-    topDownMappingM = self._getTopDownMapping()
-
     # The "category" is simply the bucket index
     category = buckets[0]
     encoding = self._topDownMappingM.getRow(category)
-
 
     # Which input value does this correspond to?
     if self.periodic:
@@ -929,7 +920,7 @@ def testScalarEncoder():
   #Make sure only the last and first encoding encodes to max and min, and there is no value greater than max or min
   l = ScalarEncoder(name='scalar', n=140, w=3, minval=1, maxval=141, periodic=False)
   for i in range(137):
-    iterlist = [0 for n in range(140)]
+    iterlist = [0 for _ in range(140)]
     for j in range(i, i+3):
       iterlist[j] =1
     npar = numpy.array(iterlist)
