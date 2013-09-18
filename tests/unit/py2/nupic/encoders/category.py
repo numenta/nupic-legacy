@@ -21,7 +21,8 @@
 # ----------------------------------------------------------------------
 
 """Unit tests for category encoder"""
-
+from nupic.encoders.base import *
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import numpy
 import unittest2 as unittest
 
