@@ -30,7 +30,7 @@ from nupic.encoders.scalarspace import ScalarSpaceEncoder
 
 
 #########################################################################
-class DateEncoderTest(unittest.TestCase):
+class ScalarSpaceEncoderTest(unittest.TestCase):
   '''Unit tests for ScalarSpaceEncoder class'''
 
 

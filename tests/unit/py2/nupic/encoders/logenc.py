@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for date encoder"""
+"""Unit tests for logarithmic encoder"""
 
 import numpy
 import math
@@ -33,8 +33,8 @@ from nupic.encoders.logenc import LogEncoder
 
 
 #########################################################################
-class DateEncoderTest(unittest.TestCase):
-  '''Unit tests for DateEncoder class'''
+class LogEncoderTest(unittest.TestCase):
+  '''Unit tests for LogEncoder class'''
 
 
   ############################################################################
