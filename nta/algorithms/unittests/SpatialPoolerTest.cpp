@@ -1,5 +1,4 @@
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
  * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
  * Numenta, Inc. a separate commercial license for this software code, the
@@ -120,7 +119,8 @@ namespace nta {
     return true;
   }
 
-  void SpatialPoolerTest::setup(SpatialPooler& sp, UInt numInputs, UInt numColumns)
+  void SpatialPoolerTest::setup(SpatialPooler& sp, UInt numInputs, 
+                                UInt numColumns)
   {
     vector<UInt> inputDim; 
     vector<UInt> columnDim;
@@ -134,7 +134,7 @@ namespace nta {
     testRaisePermanencesToThreshold();
 		testMapPotential();
     testInitPermConnected();
-    testInitPermUnconnected();
+    testInitPermNonConnected();
     testInitPermanence();
     testUpdatePermanencesForColumn();
     testUpdateInhibitionRadius();
@@ -285,20 +285,28 @@ namespace nta {
     sp.getMinActiveDutyCycles(resultMinActiveLocal);
 
 
-    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveGlobal, numColumns));
-    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
-    NTA_CHECK(check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, numColumns));
-    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveGlobal, 
+                              numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, 
+                               numColumns));
+    NTA_CHECK(check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, 
+                              numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveLocal, 
+                               numColumns));
   
     sp.setGlobalInhibition(false);
     sp.updateMinDutyCycles_();
     sp.getMinOverlapDutyCycles(resultMinOverlap);
     sp.getMinActiveDutyCycles(resultMinActive);
 
-    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveGlobal, numColumns));
-    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
-    NTA_CHECK(!check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, numColumns));
-    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinActive, resultMinActiveGlobal, 
+                               numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, 
+                              numColumns));
+    NTA_CHECK(!check_vector_eq(resultMinOverlap, resultMinOverlapGlobal, 
+                               numColumns));
+    NTA_CHECK(check_vector_eq(resultMinActive, resultMinActiveLocal, 
+                              numColumns));
 
   }
 
@@ -416,7 +424,8 @@ namespace nta {
     sp.getMinActiveDutyCycles(resultMinActiveArr);
     sp.getMinOverlapDutyCycles(resultMinOverlapArr);
 
-    NTA_CHECK(check_vector_eq(resultMinOverlapArr, trueOverlapArr, numColumns));
+    NTA_CHECK(check_vector_eq(resultMinOverlapArr, trueOverlapArr, 
+                              numColumns));
     NTA_CHECK(check_vector_eq(resultMinActiveArr, trueActiveArr, numColumns));
   }
   
@@ -1108,9 +1117,6 @@ namespace nta {
       vector<UInt> overlaps;
       overlaps.assign(&overlapsArr[i][0],&overlapsArr[i][numColumns]);
       sp.calculateOverlapPct_(overlaps,overlapsPct);
-      // cout << "overlaps:  " << endl; print_vec(overlaps);
-      // cout << "overlapsPct: " << endl; print_vec(overlapsPct);
-      // cout << "trueOverlapsPct:   " << endl; print_vec(trueOverlapsPct[i],numColumns);
       NTA_CHECK(check_vector_eq(trueOverlapsPct[i],overlapsPct));
     }
 
@@ -1784,10 +1790,10 @@ namespace nta {
 
             trueNeighbors2Wrap[wc_][zc_][yc_][xc_] = 1;
 
-            if (wc < 0 || wc >= dimensions[0] || 
-                zc < 0 || zc >= dimensions[1] ||
-                yc < 0 || yc >= dimensions[2] ||
-                xc < 0 || xc >= dimensions[3]) {
+            if (wc < 0 || wc >= (Int) dimensions[0] || 
+                zc < 0 || zc >= (Int) dimensions[1] ||
+                yc < 0 || yc >= (Int) dimensions[2] ||
+                xc < 0 || xc >= (Int) dimensions[3]) {
               continue;
             }
 
@@ -1798,7 +1804,8 @@ namespace nta {
       }
     }
 
-    column = (UInt) (&trueNeighbors2[w][z][y][x] - &trueNeighbors2[0][0][0][0]);
+    column = (UInt) (&trueNeighbors2[w][z][y][x] - 
+      &trueNeighbors2[0][0][0][0]);
     sp.getNeighborsND_(column, dimensions, radius, false, 
                        neighbors);
 
@@ -2008,7 +2015,11 @@ namespace nta {
       vector<Real> perm;
       vector<UInt> potential;
       perm.assign(&permArr[i][0],&permArr[i][numInputs]);
-      potential.assign(&potentialArr[i][0],&potentialArr[i][numInputs]);
+      for (UInt j = 0; j < numInputs; j++) {
+        if (potentialArr[i][j] > 0) {
+          potential.push_back(j);
+        }
+      }
       UInt connected = 
         sp.raisePermanencesToThreshold_(perm, potential);
       NTA_CHECK(check_vector_eq(truePerm[i],perm));
@@ -2068,7 +2079,8 @@ namespace nta {
       sp.getConnectedSynapses(i, connectedArr);
       sp.getConnectedCounts(connectedCountsArr);
       NTA_CHECK(check_vector_eq(truePerm[i], permArr, numInputs));
-      NTA_CHECK(check_vector_eq(trueConnectedSynapses[i],connectedArr, numInputs));
+      NTA_CHECK(check_vector_eq(trueConnectedSynapses[i],connectedArr, 
+                                numInputs));
       NTA_CHECK(trueConnectedCount[i] == connectedCountsArr[i]);
     }
 
@@ -2141,13 +2153,13 @@ namespace nta {
     }
   }
 
-  void SpatialPoolerTest::testInitPermUnconnected()
+  void SpatialPoolerTest::testInitPermNonConnected()
   { 
     SpatialPooler sp;
     Real synPermConnected = 0.2;
     sp.setSynPermConnected(synPermConnected);
     for (UInt i = 0; i < 100; i++) {
-      Real permVal = sp.initPermUnconnected_();
+      Real permVal = sp.initPermNonConnected_();
       NTA_CHECK(permVal >= 0 &&
                 permVal <= synPermConnected);
     }

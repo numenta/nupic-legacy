@@ -1,5 +1,4 @@
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
  * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
  * Numenta, Inc. a separate commercial license for this software code, the
@@ -63,7 +62,7 @@ namespace nta {
                                      vector<vector<UInt> > haystack);
     void testMapPotential();
     void testInitPermConnected();
-    void testInitPermUnconnected();
+    void testInitPermNonConnected();
     void testInitPermanence();
     void testUpdatePermanencesForColumn();
     void testRaisePermanencesToThreshold();
