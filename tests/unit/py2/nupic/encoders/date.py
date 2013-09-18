@@ -25,13 +25,13 @@
 from base import *
 import datetime
 import numpy
+import unittest2 as unittest
 
 from nupic.encoders.date import DateEncoder
 
 
-
 #########################################################################
-class DateEncoderTest():
+class DateEncoderTest(unittest.TestCase):
   '''Unit tests for DateEncoder class'''
   
   def testDateEncoder(self):
