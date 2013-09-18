@@ -54,7 +54,7 @@ typedef struct apr_thread_cond_t apr_thread_cond_t;
  * and schedule threads in a single process.
  * @param cond the memory address where the newly created condition variable
  *        will be stored.
- * @param pool the pool from which to allocate the mutex.
+ * @param pool the pool from which to allocate the condition.
  */
 APR_DECLARE(apr_status_t) apr_thread_cond_create(apr_thread_cond_t **cond,
                                                  apr_pool_t *pool);
@@ -70,6 +70,9 @@ APR_DECLARE(apr_status_t) apr_thread_cond_create(apr_thread_cond_t **cond,
  * @param mutex the mutex that must be locked upon entering this function,
  *        is released while the thread is asleep, and is again acquired before
  *        returning from this function.
+ * @remark Spurious wakeups may occur. Before and after every call to wait on
+ * a condition variable, the caller should test whether the condition is already
+ * met.
  */
 APR_DECLARE(apr_status_t) apr_thread_cond_wait(apr_thread_cond_t *cond,
                                                apr_thread_mutex_t *mutex);
@@ -100,6 +103,7 @@ APR_DECLARE(apr_status_t) apr_thread_cond_timedwait(apr_thread_cond_t *cond,
  * the associated mutex. Although it is not required, if predictable scheduling
  * is desired, that mutex must be locked while calling this function.
  * @param cond the condition variable on which to produce the signal.
+ * @remark If no threads are waiting on the condition variable, nothing happens.
  */
 APR_DECLARE(apr_status_t) apr_thread_cond_signal(apr_thread_cond_t *cond);
 
@@ -108,6 +112,7 @@ APR_DECLARE(apr_status_t) apr_thread_cond_signal(apr_thread_cond_t *cond);
  * Each thread that was signaled is then scheduled to wake up and acquire
  * the associated mutex. This will happen in a serialized manner.
  * @param cond the condition variable on which to produce the broadcast.
+ * @remark If no threads are waiting on the condition variable, nothing happens.
  */
 APR_DECLARE(apr_status_t) apr_thread_cond_broadcast(apr_thread_cond_t *cond);
 

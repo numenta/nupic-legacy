@@ -64,7 +64,7 @@ void NuPIC::shutdown()
     NTA_THROW << "NuPIC::shutdown -- NuPIC has not been initialized";
   }
 
-  if (networks_.size() > 0)
+  if (!networks_.empty())
   {
     NTA_THROW << "NuPIC::shutdown -- cannot shut down NuPIC because " 
               << networks_.size() << " networks still exist.";
