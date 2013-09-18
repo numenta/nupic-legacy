@@ -19,10 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.encoders import *
+from nupic.encoders import AdaptiveScalarEncoder
 
 from base import *
-import numpy as np
 
 
 class DeltaEncoder(AdaptiveScalarEncoder):
@@ -31,6 +30,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   successive scalar values instead of encoding the actual values. It returns an actual value when
   decoding and not a delta.
   """
+
 
   ############################################################################
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
@@ -102,59 +102,3 @@ class DeltaEncoder(AdaptiveScalarEncoder):
 #      ret[0].value+=self._prevAbsolute
 #      ret[0].scalar+=self._prevAbsolute
     return ret
-
-
-
-
-def testDeltaEncoder():
-  print "testing delta encoder"
-  dencoder = DeltaEncoder(w=21, n=100)
-  adaptscalar = AdaptiveScalarEncoder(w=21, n=100)
-
-  for i in range(5):
-    encarr =  dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
-  dencoder.setStateLock(True)
-  for i in range(5, 7):
-    encarr =  dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
-  res = dencoder.topDownCompute(encarr)
-  assert res[0].value == 6
-  assert dencoder.topDownCompute(encarr)[0].value == res[0].value
-  assert dencoder.topDownCompute(encarr)[0].scalar == res[0].scalar
-  assert (dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all()
-
-  print "simple delta reconstruction test passed"
-
-  feedIn  = [1, 10, 4, 7, 9, 6, 3, 1]
-  expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
-  dencoder.setStateLock(False)
-  #Check that the deltas are being returned correctly.
-  for i in range(len(feedIn)):
-    aseencode = np.zeros(100)
-    adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
-    delencode = np.zeros(100)
-    dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
-    assert  (delencode[0] == aseencode[0]).all()
-
-  print "encoding verification test passed"
-
-  feedIn  = [1, 10, 9, 7, 9, 6, 3, 1]
-  expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
-  #Check that locking the state works correctly.
-  for i in range(len(feedIn)):
-    if i == 3:
-      dencoder.setStateLock(True)
-
-    aseencode = np.zeros(100)
-    adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
-    delencode = np.zeros(100)
-    if i>=3:
-      dencoder.encodeIntoArray(feedIn[i]-feedIn[2], delencode, learn=True)
-    else:
-      dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
-
-    assert  (delencode[0] == aseencode[0]).all()
-
-  print "state locking test passed"
-
-if __name__ == "__main__":
-  testDeltaEncoder()

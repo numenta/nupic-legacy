@@ -1,0 +1,89 @@
+#!/usr/bin/env python
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+"""Unit tests for date encoder"""
+
+import numpy as np
+#TODO howto not import * ??
+from nupic.encoders.base import *
+import unittest2 as unittest
+
+from nupic.encoders.delta import (DeltaEncoder,
+                                    AdaptiveScalarEncoder)
+
+
+#########################################################################
+class DateEncoderTest(unittest.TestCase):
+  '''Unit tests for DateEncoder class'''
+
+
+  def setUp(self):
+    self._dencoder = DeltaEncoder(w=21, n=100)
+    self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100)
+
+###########################################
+  def testDeltaEncoder(self):
+      """simple detla reconstruction test"""
+      for i in range(5):
+        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
+      self._dencoder.setStateLock(True)
+      for i in range(5, 7):
+        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
+      res = self._dencoder.topDownCompute(encarr)
+      assert res[0].value == 6
+      assert self._dencoder.topDownCompute(encarr)[0].value == res[0].value
+      assert self._dencoder.topDownCompute(encarr)[0].scalar == res[0].scalar
+      assert (self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all()
+
+  def testEncodingVerification(self):
+      """encoding verification test passed"""
+      feedIn  = [1, 10, 4, 7, 9, 6, 3, 1]
+      expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
+      self._dencoder.setStateLock(False)
+      #Check that the deltas are being returned correctly.
+      for i in range(len(feedIn)):
+        aseencode = np.zeros(100)
+        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
+        delencode = np.zeros(100)
+        self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
+        assert  (delencode[0] == aseencode[0]).all()
+
+  def testLockingState(self):
+      """Check that locking the state works correctly"""
+      feedIn  = [1, 10, 9, 7, 9, 6, 3, 1]
+      expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
+      for i in range(len(feedIn)):
+        if i == 3:
+          self._dencoder.setStateLock(True)
+
+        aseencode = np.zeros(100)
+        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
+        delencode = np.zeros(100)
+        if i>=3:
+          self._dencoder.encodeIntoArray(feedIn[i]-feedIn[2], delencode, learn=True)
+        else:
+          self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
+
+        assert  (delencode[0] == aseencode[0]).all()
+###################################################################
+if __name__ == "__main__":
+  unittest.main()
