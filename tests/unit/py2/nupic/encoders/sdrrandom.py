@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -19,22 +20,38 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from scalar import ScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder
-from date import DateEncoder
-from log import LogEncoder
-from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder
-from nonuniformscalar import NonUniformScalarEncoder, testNonUniformScalarEncoder
-from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
-# multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder, testMultiEncoder
-from utils import bitsToString
+"""Unit tests for SDRRandom encoder"""
+
+#TODO howto not import * ??
+from nupic.encoders.base import *
+import unittest2 as unittest
+
+from nupic.encoders.sdrrandom import SDRRandomEncoder
 
 
+#########################################################################
+class SDRRandomEncoderTest(unittest.TestCase):
+  '''Unit tests for SDRRandomEncoder class'''
 
-if __name__ == "__main__":
-  testMultiEncoder()
-  testSDRCategoryEncoder()
+  def testSDRRandomEncoder(self):
+      print "Testing RandomEncoder...",
+
+      fieldWidth = 25
+      bitsOn = 10
+
+      s = SDRRandomEncoder(n=fieldWidth, w=bitsOn, name="foo")
+
+      for _ in range(100):
+        out = s.encode(0)
+        assert out.shape == (fieldWidth,)
+        assert out.sum() == bitsOn
+        #print out
+
+      x = s.decode(out)
+      print x
+      assert isinstance(x[0], dict)
+      assert "foo" in x[0]
+
+###########################################
+if __name__ == '__main__':
+  unittest.main()

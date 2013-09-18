@@ -115,32 +115,3 @@ class SDRRandomEncoder(Encoder):
     """
 
     return numpy.array([0])
-
-############################################################################
-def testSDRRandomEncoder():
-  print "Testing RandomEncoder...",
-
-  fieldWidth = 25
-  bitsOn = 10
-
-  s = SDRRandomEncoder(n=fieldWidth, w=bitsOn, name="foo")
-
-  for i in range(100):
-    out = s.encode(0)
-    assert out.shape == (fieldWidth,)
-    assert out.sum() == bitsOn
-    #print out
-
-  x = s.decode(out)
-  print x
-  assert isinstance(x[0], dict)
-  assert "foo" in x[0]
-
-  print "passed"
-
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testSDRRandomEncoder()
