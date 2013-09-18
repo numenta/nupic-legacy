@@ -24,7 +24,7 @@ from adaptivescalar import AdaptiveScalarEncoder
 from date import DateEncoder
 from log import LogEncoder
 from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
+from sdrcategory import SDRCategoryEncoder
 from sdrrandom import SDRRandomEncoder
 from nonuniformscalar import NonUniformScalarEncoder, testNonUniformScalarEncoder
 from delta import DeltaEncoder
@@ -37,4 +37,3 @@ from utils import bitsToString
 
 if __name__ == "__main__":
   testMultiEncoder()
-  testSDRCategoryEncoder()
