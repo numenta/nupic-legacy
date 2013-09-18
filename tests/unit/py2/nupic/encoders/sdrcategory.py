@@ -32,8 +32,8 @@ from nupic.encoders.sdrcategory import SDRCategoryEncoder
 
 
 #########################################################################
-class DateEncoderTest(unittest.TestCase):
-  '''Unit tests for DateEncoder class'''
+class SDRCategoryEncoderTest(unittest.TestCase):
+  '''Unit tests for SDRCategory encoder class'''
 
 
   def testSDRCategoryEncoder(self):

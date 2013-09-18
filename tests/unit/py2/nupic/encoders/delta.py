@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for date encoder"""
+"""Unit tests for delta encoder"""
 
 import numpy as np
 #TODO howto not import * ??
@@ -32,8 +32,8 @@ from nupic.encoders.delta import (DeltaEncoder,
 
 
 #########################################################################
-class DateEncoderTest(unittest.TestCase):
-  '''Unit tests for DateEncoder class'''
+class DeltaEncoderTest(unittest.TestCase):
+  '''Unit tests for DeltaEncoder class'''
 
 
   def setUp(self):
