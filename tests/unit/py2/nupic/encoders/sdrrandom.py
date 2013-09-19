@@ -22,10 +22,7 @@
 
 """Unit tests for SDRRandom encoder"""
 
-#TODO howto not import * ??
-from nupic.encoders.base import *
 import unittest2 as unittest
-
 from nupic.encoders.sdrrandom import SDRRandomEncoder
 
 

@@ -25,7 +25,7 @@ from scalar import ScalarEncoder
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 
-############################################################################
+
 class LogEncoder(Encoder):
   """A Log encoder represents a floating point value on a logarithmic (decibel)
   scale.
@@ -42,7 +42,7 @@ class LogEncoder(Encoder):
     maxval -- Higher values are reset to this value
   """
 
-  ############################################################################
+
   def __init__(self, w = 5, resolution = 1.0, minval=0.10, maxval=10000,
                 name="log", verbosity=0):
 
@@ -69,7 +69,6 @@ class LogEncoder(Encoder):
     # This list is created by getBucketValues() the first time it is called,
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
-
 
   ############################################################################
   def getWidth(self):
@@ -108,7 +107,6 @@ class LogEncoder(Encoder):
     else:
       return self.encoder.getBucketIndices(scaledVal)
 
-
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See the function description in base.py
@@ -125,7 +123,6 @@ class LogEncoder(Encoder):
       if self.verbosity >= 2:
         print "input:", input, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
-
 
   ############################################################################
   def decode(self, encoded, parentFieldName=''):
@@ -147,7 +144,6 @@ class LogEncoder(Encoder):
       outRanges.append((math.pow(10, minV / 10.0),
                         math.pow(10, maxV / 10.0)))
 
-
     # Generate a text description of the ranges
     desc = ""
     numRanges = len(outRanges)
@@ -166,7 +162,6 @@ class LogEncoder(Encoder):
       fieldName = self.name
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
-
   ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
@@ -180,7 +175,6 @@ class LogEncoder(Encoder):
         self._bucketValues.append(value)
 
     return self._bucketValues
-
 
   ############################################################################
   def getBucketInfo(self, buckets):
@@ -205,7 +199,6 @@ class LogEncoder(Encoder):
 
     return EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)
-
 
   ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):

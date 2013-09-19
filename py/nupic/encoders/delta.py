@@ -21,8 +21,6 @@
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 
-from base import Encoder
-
 
 class DeltaEncoder(AdaptiveScalarEncoder):
   """
@@ -32,7 +30,6 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   """
 
 
-  ############################################################################
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True):
     """[ScalarEncoder class method override]"""

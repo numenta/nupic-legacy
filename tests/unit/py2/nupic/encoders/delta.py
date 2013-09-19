@@ -23,8 +23,6 @@
 """Unit tests for delta encoder"""
 
 import numpy as np
-#TODO howto not import * ??
-from nupic.encoders.base import *
 import unittest2 as unittest
 
 from nupic.encoders.delta import (DeltaEncoder,

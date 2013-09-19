@@ -19,7 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
 from base import Encoder
 import datetime
 from scalar import ScalarEncoder
@@ -27,7 +26,7 @@ import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 
-############################################################################
+
 class DateEncoder(Encoder):
   """A date encoder encodes a date according to encoding parameters
   specified in its constructor.
