@@ -605,9 +605,10 @@ class ScalarEncoder(Encoder):
   ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
-
-    # Get/generate the topDown mapping table 
-    #TODO: must be here-fixes error
+    
+    # Get/generate the topDown mapping table
+    #NOTE: although variable topDownMappingM is unused, some (bad-style) actions
+    #are executed during _getTopDownMapping() so this line must stay here
     topDownMappingM = self._getTopDownMapping()
 
     # The "category" is simply the bucket index
