@@ -81,6 +81,7 @@ function pythonSetup {
   #   import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()
   #
   # Therefore, explicitly write out the .pth file.
+  mkdir -p $NUPIC_INSTALL/lib/python$PY_VERSION/site-packages
   echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python$PY_VERSION/site-packages/init_cov_core.pth
   exitOnError $?
 
