@@ -65,7 +65,7 @@ namespace nta {
   //--------------------------------------------------------------------------------
   static int checkSSE()
   {
-    unsigned int f = 1, c,d;
+    unsigned int f = 1, c = 0, d = 0;
     const unsigned int  SSE=  1<<25, 
 			SSE2= 1<<26,
 			SSE3= 1<<0,
