@@ -1428,4 +1428,10 @@ void SpatialPooler::load(istream& inStream)
 
   inStream >> marker;
   NTA_CHECK(marker == "~SpatialPooler");
+
+  // initialize ephemeral members
+  overlaps_.resize(numColumns_);
+  overlapsPct_.resize(numColumns_);
+  boostedOverlaps_.resize(numColumns_);
+
 }
