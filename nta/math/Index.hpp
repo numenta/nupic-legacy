@@ -692,7 +692,7 @@ namespace nta {
 
     const UInt NDims = idx.size();
     for (UInt k = 0; k < NDims; ++k)
-      if (idx[k] < 0 || idx[k] >= ub[k])
+      if (idx[k] >= ub[k])
         return false;
     return true;
   }
