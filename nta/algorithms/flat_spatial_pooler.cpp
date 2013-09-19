@@ -58,7 +58,7 @@ void FlatSpatialPooler::setRandomSP(bool randomSP)
 }
 
 
-void FlatSpatialPooler::compute(UInt inputArray[], bool learn, 
+void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
                                 UInt activeArray[])
 {
   if (randomSP_) {
@@ -83,19 +83,18 @@ void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
 
   if (learn) {
     addBonus_(boostedOverlaps_, bonus, virgin_, true);
-  } 
+  }
   addBonus_(boostedOverlaps_, bonus, highTier_, false);
 
   inhibitColumns_(boostedOverlaps_, activeColumns_);
   toDense_(activeColumns_, activeArray, numColumns_);
-
 
   if (learn) {
     adaptSynapses_(inputArray, activeColumns_);
     updateDutyCycles_(overlaps_, activeArray);
     bumpUpWeakColumns_();
     updateBoostFactors_();
-    
+
     if (isUpdateRound_()) {
       updateInhibitionRadius_();
       updateMinDutyCycles_();
@@ -105,15 +104,15 @@ void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
   }
 }
 
-void FlatSpatialPooler::addBonus_(vector<Real>& vec, Real bonus,
-  vector<UInt>& indices, bool replace) 
+void FlatSpatialPooler::addBonus_(
+    vector<Real>& vec, Real bonus, vector<UInt>& indices, bool replace)
 {
   for (UInt i = 0; i < indices.size(); i++) {
     UInt index = indices[i];
     if (replace) {
       vec[index] = bonus;
     } else {
-      vec[index] += bonus; 
+      vec[index] += bonus;
     }
   }
 }
@@ -128,8 +127,8 @@ void FlatSpatialPooler::selectVirginColumns_(vector<UInt>& virgin)
   }
 }
 
-void FlatSpatialPooler::selectHighTierColumns_(vector<Real>& overlapsPct, 
-                                              vector<UInt> &highTier)
+void FlatSpatialPooler::selectHighTierColumns_(vector<Real>& overlapsPct,
+                                               vector<UInt> &highTier)
 {
   highTier.clear();
   for (UInt i = 0; i < numColumns_; i++) {
@@ -139,22 +138,21 @@ void FlatSpatialPooler::selectHighTierColumns_(vector<Real>& overlapsPct,
   }
 }
 
-void FlatSpatialPooler::initializeFlat(UInt numInputs, UInt numColumns,
-  Real localAreaDensity, UInt numActiveColumnsPerInhArea,
-  UInt stimulusThreshold, Real synPermInactiveDec, 
-  Real synPermActiveInc, Real synPermConnected,
-  Real minPctOverlapDutyCycles, Real minPctActiveDutyCycles,
-  UInt dutyCyclePeriod, Real maxBoost, Real minDistance, bool randomSP,  
-  Int seed, UInt spVerbosity)
+void FlatSpatialPooler::initializeFlat(
+    UInt numInputs, UInt numColumns, Real localAreaDensity,
+    UInt numActiveColumnsPerInhArea, UInt stimulusThreshold,
+    Real synPermInactiveDec, Real synPermActiveInc, Real synPermConnected,
+    Real minPctOverlapDutyCycles, Real minPctActiveDutyCycles,
+    UInt dutyCyclePeriod, Real maxBoost, Real minDistance, bool randomSP,
+    Int seed, UInt spVerbosity)
 {
-
   // call parent class initialize
-  vector<UInt>inputDimensions, columnDimensions;
+  vector<UInt> inputDimensions, columnDimensions;
   inputDimensions.push_back(numInputs);
   columnDimensions.push_back(numColumns);
 
   initialize(
-    inputDimensions, 
+    inputDimensions,
     columnDimensions,
     numInputs,
     0.5,
@@ -177,5 +175,4 @@ void FlatSpatialPooler::initializeFlat(UInt numInputs, UInt numColumns,
 
   activeDutyCycles_.assign(numColumns_, 1);
   boostFactors_.assign(numColumns_, maxBoost);
-
 }

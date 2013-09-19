@@ -19,18 +19,20 @@
  * http://numenta.org/licenses/
  * ----------------------------------------------------------------------
  */
+
 /** @file
  * Definitions for the Spatial Pooler
  */
+
 #ifndef NTA_flat_spatial_pooler_HPP
 #define NTA_flat_spatial_pooler_HPP
 
-#include <nta/types/types.hpp>
 #include <cstring>
+#include <iostream>
+#include <nta/algorithms/spatial_pooler.hpp>
+#include <nta/types/types.hpp>
 #include <string>
 #include <vector>
-#include <nta/algorithms/spatial_pooler.hpp>
-#include <iostream>
 
 using namespace std;
 
@@ -73,31 +75,31 @@ namespace nta {
 
 
           virtual void compute(UInt inputVector[], bool learn,
-                       UInt activeVector[]);
+                               UInt activeVector[]);
 
-          void addBonus_(vector<Real>& vec, Real bonus, 
-                        vector<UInt>& indices, bool replace);
+          void addBonus_(vector<Real>& vec, Real bonus,
+                         vector<UInt>& indices, bool replace);
 
           void selectVirginColumns_(vector<UInt>& virgin);
 
-          void selectHighTierColumns_(vector<Real>& overlapsPct, 
+          void selectHighTierColumns_(vector<Real>& overlapsPct,
                                       vector<UInt> &highTier);
 
 
           virtual void initializeFlat(
-            UInt numInputs, 
+            UInt numInputs,
             UInt numColumns,
-            Real localAreaDensity=0, 
+            Real localAreaDensity=0,
             UInt numActiveColumnsPerInhArea=10,
-            UInt stimulusThreshold=0, 
-            Real synPermInactiveDec=0.01, 
-            Real synPermActiveInc=0.1, 
+            UInt stimulusThreshold=0,
+            Real synPermInactiveDec=0.01,
+            Real synPermActiveInc=0.1,
             Real synPermConnected=0.1,
-            Real minPctOverlapDutyCycles=0.001, 
+            Real minPctOverlapDutyCycles=0.001,
             Real minPctActiveDutyCycles=0.001,
-            UInt dutyCyclePeriod=1000, 
-            Real maxBoost=10.0, 
-            Real minDistance=0.0, 
+            UInt dutyCyclePeriod=1000,
+            Real maxBoost=10.0,
+            Real minDistance=0.0,
             bool randomSP=false,
             Int seed=-1,
             UInt spVerbosity=0);
@@ -106,7 +108,7 @@ namespace nta {
         protected:
           Real minDistance_;
           bool randomSP_;
-          
+
           vector<UInt> highTier_;
           vector<UInt> virgin_;
 

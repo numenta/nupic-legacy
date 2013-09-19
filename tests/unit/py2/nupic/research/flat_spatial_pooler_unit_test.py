@@ -37,8 +37,8 @@ class FlatSpatialPoolerTest(unittest.TestCase):
 
   def setUp(self):
     self._sp = FlatSpatialPooler(
-        inputShape=(5,1),
-        coincidencesShape=(10,1))
+        inputShape=(5, 1),
+        coincidencesShape=(10, 1))
 
 
   def testSelectVirginColumns(self):

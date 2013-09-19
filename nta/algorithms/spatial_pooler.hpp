@@ -19,19 +19,21 @@
  * http://numenta.org/licenses/
  * ----------------------------------------------------------------------
  */
+
 /** @file
  * Definitions for the Spatial Pooler
  */
+
 #ifndef NTA_spatial_pooler_HPP
 #define NTA_spatial_pooler_HPP
 
-#include <nta/types/types.hpp>
-#include <nta/math/SparseMatrix.hpp>
-#include <nta/math/SparseBinaryMatrix.hpp>
 #include <cstring>
+#include <iostream>
+#include <nta/math/SparseBinaryMatrix.hpp>
+#include <nta/math/SparseMatrix.hpp>
+#include <nta/types/types.hpp>
 #include <string>
 #include <vector>
-#include <iostream>
 
 using namespace std;
 
@@ -64,7 +66,7 @@ namespace nta {
           };
 
           virtual void compute(UInt inputVector[], bool learn,
-                       UInt activeVector[]);
+                               UInt activeVector[]);
 
           UInt getNumColumns();
           UInt getNumInputs();
@@ -77,40 +79,40 @@ namespace nta {
 
           bool getGlobalInhibition();
           void setGlobalInhibition(bool globalInhibition);
-          
+
           Int getNumActiveColumnsPerInhArea();
           void setNumActiveColumnsPerInhArea(UInt numActiveColumnsPerInhArea);
-          
+
           Real getLocalAreaDensity();
           void setLocalAreaDensity(Real localAreaDensity);
-          
+
           UInt getStimulusThreshold();
           void setStimulusThreshold(UInt stimulusThreshold);
-          
+
           UInt getInhibitionRadius();
           void setInhibitionRadius(UInt inhibitionRadius);
-          
+
           UInt getDutyCyclePeriod();
           void setDutyCyclePeriod(UInt dutyCyclePeriod);
-          
+
           Real getMaxBoost();
           void setMaxBoost(Real maxBoost);
-          
+
           UInt getIterationNum();
           void setIterationNum(UInt iterationNum);
-          
+
           UInt getIterationLearnNum();
           void setIterationLearnNum(UInt iterationLearnNum);
-          
+
           UInt getSpVerbosity();
           void setSpVerbosity(UInt spVerbosity);
-          
+
           UInt getUpdatePeriod();
           void setUpdatePeriod(UInt updatePeriod);
-          
+
           Real getSynPermTrimThreshold();
           void setSynPermTrimThreshold(Real synPermTrimThreshold);
-          
+
           Real getSynPermActiveInc();
           void setSynPermActiveInc(Real synPermActiveInc);
 
@@ -146,7 +148,7 @@ namespace nta {
 
           void getPotential(UInt column, UInt potential[]);
           void setPotential(UInt column, UInt potential[]);
-          
+
           void getPermanence(UInt column, Real permanence[]);
           void setPermanence(UInt column, Real permanence[]);
 
@@ -161,27 +163,27 @@ namespace nta {
           void stripNeverLearned_(UInt activeArray[]);
 
 
-          void toDense_(vector<UInt>& sparse, 
-                       UInt dense[],
-                       UInt n);
+          void toDense_(vector<UInt>& sparse,
+                        UInt dense[],
+                        UInt n);
 
-          void boostOverlaps_(vector<UInt>& overlaps, 
+          void boostOverlaps_(vector<UInt>& overlaps,
                               vector<Real>& boostedOverlaps);
           void range_(Int start, Int end, UInt ubound, bool wrapAround,
-                           vector<UInt>& rangeVector);
+                      vector<UInt>& rangeVector);
 
           vector<UInt> mapPotential1D_(UInt column, bool wrapAround);
           Real initPermConnected_();
           Real initPermNonConnected_();
-          vector<Real> initPermanence_(vector<UInt>& potential, 
+          vector<Real> initPermanence_(vector<UInt>& potential,
                                        Real connectedPct);
           void clip_(vector<Real>& perm, bool trim);
           void updatePermanencesForColumn_(vector<Real>& perm, UInt column,
                                            bool raisePerm=true);
           UInt countConnected_(vector<Real>& perm);
-          UInt raisePermanencesToThreshold_(vector<Real>& perm, 
+          UInt raisePermanencesToThreshold_(vector<Real>& perm,
                                             vector<UInt>& potential);
-                        
+
           void calculateOverlap_(UInt inputVector[],
                                  vector<UInt>& overlap);
           void calculateOverlapPct_(vector<UInt>& overlaps,
@@ -189,34 +191,34 @@ namespace nta {
 
 
           bool isWinner_(Real score, vector<pair<UInt, Real> >& winners,
-                               UInt numWinners);
+                         UInt numWinners);
 
-          void addToWinners_(UInt index, Real score, 
-                                    vector<pair<UInt, Real> >& winners);
+          void addToWinners_(UInt index, Real score,
+                             vector<pair<UInt, Real> >& winners);
 
-          void inhibitColumns_(vector<Real>& overlaps, 
+          void inhibitColumns_(vector<Real>& overlaps,
                                vector<UInt>& activeColumns);
           void inhibitColumnsGlobal_(vector<Real>& overlaps, Real density,
                                      vector<UInt>& activeColumns);
           void inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
-                                     vector<UInt>& activeColumns);
+                                    vector<UInt>& activeColumns);
 
-          void getNeighbors1D_(UInt column, vector<UInt>& dimensions, 
+          void getNeighbors1D_(UInt column, vector<UInt>& dimensions,
                                UInt radius, bool wrapAround,
                                vector<UInt>& neighbors);
-          void getNeighbors2D_(UInt column, vector<UInt>& dimensions, 
+          void getNeighbors2D_(UInt column, vector<UInt>& dimensions,
                                UInt radius, bool wrapAround,
                                vector<UInt>& neighbors);
-          void cartesianProduct_(vector<vector<UInt> >& vecs, 
-                                      vector<vector<UInt> >& product);
+          void cartesianProduct_(vector<vector<UInt> >& vecs,
+                                 vector<vector<UInt> >& product);
 
-          void getNeighborsND_(UInt column, vector<UInt>& dimensions, 
+          void getNeighborsND_(UInt column, vector<UInt>& dimensions,
                                UInt radius, bool wrapAround,
-                               vector<UInt>& neighbors);  
+                               vector<UInt>& neighbors);
 
-          void adaptSynapses_(UInt inputVector[], 
+          void adaptSynapses_(UInt inputVector[],
                               vector<UInt>& activeColumns);
-          void bumpUpWeakColumns_();     
+          void bumpUpWeakColumns_();
 
           void updateInhibitionRadius_();
           Real avgColumnsPerInput_();
@@ -226,34 +228,34 @@ namespace nta {
           void updateMinDutyCycles_();
           void updateMinDutyCyclesGlobal_();
           void updateMinDutyCyclesLocal_();
-          static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles, 
-                                               vector<UInt>& newValues, 
+          static  void updateDutyCyclesHelper_(vector<Real>& dutyCycles,
+                                               vector<UInt>& newValues,
                                                UInt period);
-          void updateDutyCycles_(vector<UInt>& overlaps, 
+          void updateDutyCycles_(vector<UInt>& overlaps,
                                  UInt activeArray[]);
           void updateBoostFactors_();
           void updateBookeepingVars_(bool learn);
 
           bool isUpdateRound_();
 
-          
+
           virtual void initialize(vector<UInt> inputDimensions,
-            vector<UInt> columnDimensions,
-            UInt potentialRadius=16,
-            Real potentialPct=0.5,
-            bool globalInhibition=true,
-            Real localAreaDensity=-1.0,
-            UInt numActiveColumnsPerInhArea=10,
-            UInt stimulusThreshold=0,
-            Real synPermInactiveDec=0.01,
-            Real synPermActiveInc=0.1,
-            Real synPermConnected=0.1,
-            Real minPctOverlapDutyCycles=0.001,
-            Real minPctActiveDutyCycles=0.001,
-            UInt dutyCyclePeriod=1000,
-            Real maxBoost=10.0,
-            Int seed=1,
-            UInt spVerbosity=0);
+                                  vector<UInt> columnDimensions,
+                                  UInt potentialRadius=16,
+                                  Real potentialPct=0.5,
+                                  bool globalInhibition=true,
+                                  Real localAreaDensity=-1.0,
+                                  UInt numActiveColumnsPerInhArea=10,
+                                  UInt stimulusThreshold=0,
+                                  Real synPermInactiveDec=0.01,
+                                  Real synPermActiveInc=0.1,
+                                  Real synPermConnected=0.1,
+                                  Real minPctOverlapDutyCycles=0.001,
+                                  Real minPctActiveDutyCycles=0.001,
+                                  UInt dutyCyclePeriod=1000,
+                                  Real maxBoost=10.0,
+                                  Int seed=1,
+                                  UInt spVerbosity=0);
 
           void seed_(UInt64 seed);
 
@@ -301,7 +303,6 @@ namespace nta {
 
           vector<UInt> overlaps;
           vector<UInt> activeColumns;
-
 
           vector<UInt> overlaps_;
           vector<Real> overlapsPct_;
