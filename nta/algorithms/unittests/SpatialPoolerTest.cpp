@@ -25,6 +25,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <nta/algorithms/spatial_pooler.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/types/types.hpp>
@@ -128,8 +129,109 @@ namespace nta {
     return true;
   }
 
-  void SpatialPoolerTest::setup(SpatialPooler& sp, UInt numInputs,
-                                UInt numColumns)
+  void SpatialPoolerTest::check_spatial_eq(SpatialPooler sp1, SpatialPooler sp2)
+  {
+    UInt numColumns = sp1.getNumColumns();
+    UInt numInputs = sp2.getNumInputs();
+
+    NTA_CHECK(sp1.getNumColumns() == sp2.getNumColumns());
+    NTA_CHECK(sp1.getNumInputs() == sp2.getNumInputs());
+    NTA_CHECK(sp1.getPotentialRadius() == 
+              sp2.getPotentialRadius());
+    NTA_CHECK(sp1.getPotentialPct() == sp2.getPotentialPct());
+    NTA_CHECK(sp1.getGlobalInhibition() == 
+              sp2.getGlobalInhibition());
+    NTA_CHECK(sp1.getNumActiveColumnsPerInhArea() == 
+              sp2.getNumActiveColumnsPerInhArea());
+    NTA_CHECK(almost_eq(sp1.getLocalAreaDensity(),
+              sp2.getLocalAreaDensity()));
+    NTA_CHECK(sp1.getStimulusThreshold() == 
+              sp2.getStimulusThreshold());
+    NTA_CHECK(sp1.getDutyCyclePeriod() == sp2.getDutyCyclePeriod());
+    NTA_CHECK(almost_eq(sp1.getMaxBoost(), sp2.getMaxBoost()));
+    NTA_CHECK(sp1.getIterationNum() == sp2.getIterationNum());
+    NTA_CHECK(sp1.getIterationLearnNum() == 
+              sp2.getIterationLearnNum());
+    NTA_CHECK(sp1.getSpVerbosity() == sp2.getSpVerbosity());
+    NTA_CHECK(sp1.getUpdatePeriod() == sp2.getUpdatePeriod());
+    NTA_CHECK(almost_eq(sp1.getSynPermTrimThreshold(), 
+              sp2.getSynPermTrimThreshold()));
+    cout << "check: " << sp1.getSynPermActiveInc() << " " <<
+      sp2.getSynPermActiveInc() << endl;
+    NTA_CHECK(almost_eq(sp1.getSynPermActiveInc(),
+              sp2.getSynPermActiveInc()));
+    NTA_CHECK(almost_eq(sp1.getSynPermInactiveDec(),
+              sp2.getSynPermInactiveDec()));
+    NTA_CHECK(almost_eq(sp1.getSynPermBelowStimulusInc(), 
+              sp2.getSynPermBelowStimulusInc()));
+    NTA_CHECK(almost_eq(sp1.getSynPermConnected(),
+              sp2.getSynPermConnected()));
+    NTA_CHECK(almost_eq(sp1.getMinPctOverlapDutyCycles(),
+              sp2.getMinPctActiveDutyCycles()));
+
+
+    Real boostFactors1[numColumns];
+    Real boostFactors2[numColumns];
+    sp1.getBoostFactors(boostFactors1);
+    sp2.getBoostFactors(boostFactors2);
+    NTA_CHECK(check_vector_eq(boostFactors1, boostFactors2, numColumns));
+
+    Real overlapDutyCycles1[numColumns];
+    Real overlapDutyCycles2[numColumns];
+    sp1.getOverlapDutyCycles(overlapDutyCycles1);
+    sp2.getOverlapDutyCycles(overlapDutyCycles2);
+    NTA_CHECK(check_vector_eq(overlapDutyCycles1, overlapDutyCycles2, numColumns));
+
+    Real activeDutyCycles1[numColumns];
+    Real activeDutyCycles2[numColumns];
+    sp1.getActiveDutyCycles(activeDutyCycles1);
+    sp2.getActiveDutyCycles(activeDutyCycles2);
+    NTA_CHECK(check_vector_eq(activeDutyCycles1, activeDutyCycles2, numColumns));
+
+    Real minOverlapDutyCycles1[numColumns];
+    Real minOverlapDutyCycles2[numColumns];
+    sp1.getMinOverlapDutyCycles(minOverlapDutyCycles1);
+    sp2.getMinOverlapDutyCycles(minOverlapDutyCycles2);
+    NTA_CHECK(check_vector_eq(minOverlapDutyCycles1, minOverlapDutyCycles2, numColumns));
+
+    Real minActiveDutyCycles1[numColumns];
+    Real minActiveDutyCycles2[numColumns];
+    sp1.getMinActiveDutyCycles(minActiveDutyCycles1);
+    sp2.getMinActiveDutyCycles(minActiveDutyCycles2);
+    NTA_CHECK(check_vector_eq(minActiveDutyCycles1, minActiveDutyCycles2, numColumns));
+
+    for (UInt i = 0; i < numColumns; i++) {
+      UInt potential1[numInputs];
+      UInt potential2[numInputs];
+      sp1.getPotential(i, potential1);
+      sp2.getPotential(i, potential2);
+      NTA_CHECK(check_vector_eq(potential1, potential2, numInputs));
+    }
+
+    for (UInt i = 0; i < numColumns; i++) {
+      Real perm1[numInputs];
+      Real perm2[numInputs];
+      sp1.getPermanence(i, perm1);
+      sp2.getPermanence(i, perm2);
+      NTA_CHECK(check_vector_eq(perm1, perm2, numInputs));
+    }
+
+    for (UInt i = 0; i < numColumns; i++) {
+      UInt con1[numInputs];
+      UInt con2[numInputs];
+      sp1.getConnectedSynapses(i, con1);
+      sp2.getConnectedSynapses(i, con2);
+      NTA_CHECK(check_vector_eq(con1, con2, numInputs));
+    }
+
+    UInt conCounts1[numColumns];
+    UInt conCounts2[numColumns];
+    sp1.getConnectedCounts(conCounts1);
+    sp2.getConnectedCounts(conCounts2);
+    NTA_CHECK(check_vector_eq(conCounts1, conCounts2, numColumns));
+  }
+
+  void SpatialPoolerTest::setup(SpatialPooler& sp, UInt numInputs, 
   {
     vector<UInt> inputDim;
     vector<UInt> columnDim;
@@ -172,7 +274,8 @@ namespace nta {
     testCartesianProduct();
     testGetNeighborsND();
     testIsUpdateRound();
-  }
+    testSerialize();
+	}  
 
   void SpatialPoolerTest::testUpdateInhibitionRadius()
   {
@@ -2260,4 +2363,29 @@ namespace nta {
     }
   }
 
+  void SpatialPoolerTest::testSerialize() 
+  {
+    string filename = "SpatialPoolerSerialization.tmp";
+    SpatialPooler sp_orig;
+    UInt numInputs = 6;
+    UInt numColumns = 12;
+    setup(sp_orig, numInputs, numColumns);
+
+    ofstream outfile;
+    outfile.open (filename.c_str());
+    sp_orig.save(outfile);
+    outfile.close();
+
+    SpatialPooler sp_dest;
+    ifstream infile (filename.c_str());
+    sp_dest.load(infile);
+    infile.close();
+
+    check_spatial_eq(sp_orig, sp_dest);
+
+
+    string command = string("rm -f ") + filename;
+    system(command.c_str());
+  }
+    
 } // end namespace nta
