@@ -316,10 +316,10 @@ class SpatialPoolerAPITest(unittest.TestCase):
       [0.06, 0.07, 0.08, 0.12, 0.11]).astype(realType)
     trueConnectedCount = 2
     self.sp.setSynPermConnected(0.1)
-    self.sp.setPermanence(0,inParam)
+    self.sp.setPermanence(0, inParam)
     outParam = numpy.zeros(numInputs).astype(uintType)
     self.sp.getConnectedCounts(outParam)
-    self.assertEqual(trueConnectedCount,outParam[0])
+    self.assertEqual(trueConnectedCount, outParam[0])
 
 
   def assertListAlmostEqual(self, alist, blist):

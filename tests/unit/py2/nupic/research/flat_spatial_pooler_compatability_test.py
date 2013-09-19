@@ -280,9 +280,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     inputMatrix = (
       numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
 
-    outputMatrix1 = numpy.zeros([numRecords, numColumns])
-    outputMatrix2 = numpy.zeros([numRecords, numColumns])
-
     for i in xrange(numRecords/2):
       activeArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]  
@@ -297,13 +294,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       learn = (numpy.random.rand() > 0.5)
       sp1.compute(inputVector, learn, activeArray1)
       sp2.compute(inputVector, learn, activeArray2)
-      outputMatrix1[i,:] = activeArray1
-      outputMatrix2[i,:] = activeArray2
-
-    for i in xrange(numRecords):
-      activeList1 = list(outputMatrix1[i,:])
-      activeList2 = list(outputMatrix2[i,:])
-      self.assertListEqual(activeList1, activeList2)
+      self.assertListEqual(list(activeArray1), list(activeArray2))
 
 
   def testCompatability1(self):
