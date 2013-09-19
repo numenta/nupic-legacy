@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import cPickle as pickle
 import numpy
 import unittest2 as unittest
 
@@ -334,6 +335,34 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity": 0
     }
     self.runSideBySide(params)
+
+  def testSerialization(self):
+    params = {
+      'inputDimensions' : [2,4,5,2],
+      'columnDimensions' : [4,3,3],
+      'potentialRadius' : 30,
+      'potentialPct' : 0.7,
+      'globalInhibition' : False,
+      'localAreaDensity' : 0.23,
+      'numActiveColumnsPerInhArea' : 0,
+      'stimulusThreshold' : 2,
+      'synPermInactiveDec' : 0.02,
+      'synPermActiveInc' : 0.1,
+      'synPermConnected' : 0.12,
+      'minPctOverlapDutyCycle' : 0.011,
+      'minPctActiveDutyCycle' : 0.052,
+      'dutyCyclePeriod' : 25,
+      'maxBoost' : 11.0,
+      'seed' : 19,
+      'spVerbosity' : 0
+    }
+    sp1 = self.createSp("py", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
+
+    sp1 = self.createSp("cpp", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
 
 
 
