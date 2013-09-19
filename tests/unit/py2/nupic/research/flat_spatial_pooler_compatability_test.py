@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import cPickle as pickle
 import numpy
 import unittest2 as unittest
 
@@ -271,6 +272,40 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       self.compare(pySp,cppSp)
 
 
+  def runSerialize(self, imp, params):
+    seed = 5
+    sp1 = self.createSp(imp, params)
+    numColumns = sp1.getNumColumns() 
+    numInputs = sp1.getNumInputs()
+    threshold = 0.8
+    inputMatrix = (
+      numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
+    learn = True
+
+    outputMatrix1 = numpy.zeros([numRecords, numColumns])
+    outputMatrix2 = numpy.zeros([numRecords, numColumns])
+
+    for i in xrange(numRecords/2):
+      activeArray = numpy.zeros(numColumns).astype(uintType)
+      inputVector = inputMatrix[i,:]  
+      sp1.compute(inputVector, learn, activeArray)
+
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    for i in xrange(numRecords/2+1,numRecords):
+      activeArray1 = numpy.zeros(numColumns).astype(uintType)
+      activeArray2 = numpy.zeros(numColumns).astype(uintType)
+      inputVector = inputMatrix[i,:]
+      sp1.compute(inputVector, learn, activeArray1)
+      sp2.compute(inputVector, learn, activeArray2)
+      outputMatrix1[i,:] = activeArray1
+      outputMatrix2[i,:] = activeArray2
+
+    for i in xrange(numRecords):
+      activeList1 = list(outputMatrix1[i,:])
+      activeList2 = list(outputMatrix2[i,:])
+      self.assertListEqual(activeList1, activeList2)
+
+
   def testCompatability1(self):
     params = {
       "inputShape" : 20,
@@ -335,6 +370,57 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "randomSP" : True
     }
     self.runSideBySide(params)
+
+
+    def testSerialization(self):
+      params = {
+        'inputShape' : 27,
+        'coincidencesShape' : 63,
+        'localAreaDensity' : 0.4,
+        'numActivePerInhArea' : 0,
+        'stimulusThreshold' : 2,
+        'synPermInactiveDec' : 0.02,
+        'synPermActiveInc' : 0.1,
+        'synPermConnected' : 0.15,
+        'minPctDutyCycleBeforeInh' : 0.001,
+        'minPctDutyCycleAfterInh' : 0.002,
+        'dutyCyclePeriod' : 31,
+        'maxFiringBoost' : 14.0,
+        'minDistance' : 0.4,
+        'seed' : 19,
+        'spVerbosity' : 0,
+        'randomSP' : True
+      }
+    sp1 = self.createSp("py", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
+
+    sp1 = self.createSp("cpp", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
+
+
+  def testSerializationRun(self):
+    params = {
+      'inputShape' : 27,
+      'coincidencesShape' : 63,
+      'localAreaDensity' : 0.4,
+      'numActivePerInhArea' : 0,
+      'stimulusThreshold' : 2,
+      'synPermInactiveDec' : 0.02,
+      'synPermActiveInc' : 0.1,
+      'synPermConnected' : 0.15,
+      'minPctDutyCycleBeforeInh' : 0.001,
+      'minPctDutyCycleAfterInh' : 0.002,
+      'dutyCyclePeriod' : 31,
+      'maxFiringBoost' : 14.0,
+      'minDistance' : 0.4,
+      'seed' : 19,
+      'spVerbosity' : 0,
+      'randomSP' : True
+    }
+    self.runSerialize("py", params)
+    self.runSerialize("cpp", params)
 
 
 
