@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -20,10 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
-
 from mock import Mock, patch, ANY, call
 import numpy
+import unittest2 as unittest
 
 from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
@@ -87,8 +86,9 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
     inputVector = numpy.array([1,0,1,0,1,0,0,1,1])
+    activeArray = numpy.zeros(5)
     for i in xrange(20):
-      sp.compute(inputVector,True)
+      sp.compute(inputVector,True, activeArray)
 
     for i in xrange(sp._numColumns):
       perm = sp._permanences.getRow(i)
@@ -121,8 +121,9 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
 
     inputVector = numpy.ones(sp._numInputs)
+    activeArray = numpy.zeros(5)
     for i in xrange(20):
-      sp.compute(inputVector,True)
+      sp.compute(inputVector,True, activeArray)
 
     for i in xrange(sp._numColumns):
       potential = sp._potentialPools.getRow(i)
@@ -156,6 +157,7 @@ class SpatialPoolerTest(unittest.TestCase):
     stripped = sp._stripNeverLearned(activeColumns)
     trueStripped = range(6)
     self.assertListEqual(trueStripped,list(stripped))
+
 
   def testMapPotential(self):
     """Test this and initPermanence with too big of a radius."""
@@ -196,11 +198,11 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     sp._inhibitColumnsGlobal = Mock(return_value = 1)
     sp._inhibitColumnsLocal = Mock(return_value = 2)
-    overlaps = numpy.random.rand(sp._numColumns)
     numpy.random.rand = Mock(return_value = 0)
     sp._numColumns = 5
     sp._inhibitionRadius = 10
     sp._columnDimensions = [5]
+    overlaps = numpy.random.random(sp._numColumns)
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
@@ -225,6 +227,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 7
     # 0.1 * (2*9+1)**2 = 22.5
     trueDensity = sp._localAreaDensity
+    overlaps = numpy.random.random(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
     self.assertEqual(True,sp._inhibitColumnsLocal.called)    
@@ -241,6 +244,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 4
     trueDensity = 3.0/81.0
+    overlaps = numpy.random.random(sp._numColumns)
     # 3.0 / (((2*4) + 1) ** 2)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
@@ -259,11 +263,13 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 1
     trueDensity = 0.5
+    overlaps = numpy.random.random(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
     self.assertEqual(True,sp._inhibitColumnsLocal.called)
     density = sp._inhibitColumnsLocal.call_args[0][1]
     self.assertEqual(trueDensity, density)
+
 
   def testUpdateBoostFactors(self):
     sp = self._sp
@@ -694,6 +700,7 @@ class SpatialPoolerTest(unittest.TestCase):
                              sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
+
 
   def testIsUpdateRound(self):
     sp = self._sp
@@ -1309,6 +1316,7 @@ class SpatialPoolerTest(unittest.TestCase):
     negative = set(range(dimensions.prod())) - set(mask)
     self.assertEqual(layout1D[mask].all(), True)
     self.assertEqual(layout1D[list(negative)].any(),False)
+
 
   def testGetNeighborsND(self):
     sp = self._sp
