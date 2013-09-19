@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import *
+from base import Encoder
 import math
 
 from nupic.bindings.math import SM32, GetNTAReal

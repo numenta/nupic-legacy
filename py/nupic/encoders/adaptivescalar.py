@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from scalar import *
+from scalar import ScalarEncoder
 import numpy as np
 import math
 

@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import *
+from base import Encoder
 import random
 from nupic.data.fieldmeta import FieldMetaType
 
