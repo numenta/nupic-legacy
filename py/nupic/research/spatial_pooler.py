@@ -30,6 +30,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
                                 Random as NupicRandom)
 
 realDType = GetNTAReal()
+uintType = "uint32"
 
 
 
@@ -1174,8 +1175,8 @@ class SpatialPooler(object):
     # Select a subset of the receptive field to serve as the
     # the potential pool
     sample = numpy.empty(int(round(
-      indices.size*self._potentialPct)),dtype='uint32')
-    self._random.getUInt32Sample(indices.astype('uint32'),sample)
+      indices.size*self._potentialPct)),dtype=uintType)
+    self._random.getUInt32Sample(indices.astype(uintType),sample)
 
     mask = numpy.zeros(self._numInputs)
     mask[sample] = 1
