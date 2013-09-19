@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import cPickle as pickle
 import numpy
 import unittest2 as unittest
 
@@ -255,16 +256,42 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     threshold = 0.8
     inputMatrix = (
       numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
-    learn = True
     for i in xrange(numRecords):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
       cppSp = self.convertSP(pySp, i+1)
+      learn = (numpy.random.rand() > 0.5)
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
       self.compare(pySp,cppSp)
+
+
+  def runSerialize(self, imp, params):
+    seed = 5
+    sp1 = self.createSp(imp, params)
+    numColumns = sp1.getNumColumns() 
+    numInputs = sp1.getNumInputs()
+    threshold = 0.8
+    inputMatrix = (
+      numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
+
+    for i in xrange(numRecords/2):
+      activeArray = numpy.zeros(numColumns).astype(uintType)
+      inputVector = inputMatrix[i,:] 
+      learn = (numpy.random.rand() > 0.5) 
+      sp1.compute(inputVector, learn, activeArray)
+
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    for i in xrange(numRecords/2+1,numRecords):
+      activeArray1 = numpy.zeros(numColumns).astype(uintType)
+      activeArray2 = numpy.zeros(numColumns).astype(uintType)
+      inputVector = inputMatrix[i,:]
+      learn = (numpy.random.rand() > 0.5)
+      sp1.compute(inputVector, learn, activeArray1)
+      sp2.compute(inputVector, learn, activeArray2)
+      self.assertListEqual(list(activeArray1), list(activeArray2))
 
 
   def testCompatability1(self):
@@ -335,6 +362,58 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     }
     self.runSideBySide(params)
 
+
+  def testSerialization(self):
+    params = {
+      'inputDimensions' : [2,4,5,2],
+      'columnDimensions' : [4,3,3],
+      'potentialRadius' : 30,
+      'potentialPct' : 0.7,
+      'globalInhibition' : False,
+      'localAreaDensity' : 0.23,
+      'numActiveColumnsPerInhArea' : 0,
+      'stimulusThreshold' : 2,
+      'synPermInactiveDec' : 0.02,
+      'synPermActiveInc' : 0.1,
+      'synPermConnected' : 0.12,
+      'minPctOverlapDutyCycle' : 0.011,
+      'minPctActiveDutyCycle' : 0.052,
+      'dutyCyclePeriod' : 25,
+      'maxBoost' : 11.0,
+      'seed' : 19,
+      'spVerbosity' : 0
+    }
+    sp1 = self.createSp("py", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
+
+    sp1 = self.createSp("cpp", params)
+    sp2 = pickle.loads(pickle.dumps(sp1))
+    self.compare(sp1, sp2)
+
+
+  def testSerializationRun(self):
+    params = {
+      'inputDimensions' : [2,4,5,2],
+      'columnDimensions' : [4,3,3],
+      'potentialRadius' : 30,
+      'potentialPct' : 0.7,
+      'globalInhibition' : False,
+      'localAreaDensity' : 0.23,
+      'numActiveColumnsPerInhArea' : 0,
+      'stimulusThreshold' : 2,
+      'synPermInactiveDec' : 0.02,
+      'synPermActiveInc' : 0.1,
+      'synPermConnected' : 0.12,
+      'minPctOverlapDutyCycle' : 0.011,
+      'minPctActiveDutyCycle' : 0.052,
+      'dutyCyclePeriod' : 25,
+      'maxBoost' : 11.0,
+      'seed' : 19,
+      'spVerbosity' : 0
+    }
+    self.runSerialize("py", params)
+    self.runSerialize("cpp", params)
 
 
 if __name__ == "__main__":
