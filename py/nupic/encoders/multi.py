@@ -20,19 +20,7 @@
 # ----------------------------------------------------------------------
 
 
-from base import *
-from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
-from nupic.encoders.date import DateEncoder
-from nupic.encoders.logenc import LogEncoder
-from nupic.encoders.category import CategoryEncoder
-from nupic.encoders.sdrcategory import SDRCategoryEncoder
-from nupic.encoders.sdrrandom import SDRRandomEncoder
-from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder
-from nupic.encoders.delta import DeltaEncoder
-from nupic.encoders.scalarspace import ScalarSpaceEncoder
-# multiencoder must be imported last because it imports * from this module!
-from nupic.encoders.utils import bitsToString
+from base import Encoder
 
 ############################################################################
 class MultiEncoder(Encoder):

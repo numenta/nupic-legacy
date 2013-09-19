@@ -21,7 +21,7 @@
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 
-from base import *
+from base import Encoder
 
 
 class DeltaEncoder(AdaptiveScalarEncoder):

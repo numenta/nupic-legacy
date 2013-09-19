@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 
-from base import *
+from base import Encoder
 import datetime
 from scalar import ScalarEncoder
 import numpy
