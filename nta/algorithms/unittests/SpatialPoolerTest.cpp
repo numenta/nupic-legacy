@@ -232,6 +232,7 @@ namespace nta {
   }
 
   void SpatialPoolerTest::setup(SpatialPooler& sp, UInt numInputs, 
+                                UInt numColumns)
   {
     vector<UInt> inputDim;
     vector<UInt> columnDim;

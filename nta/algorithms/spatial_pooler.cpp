@@ -867,7 +867,6 @@ void SpatialPooler::adaptSynapses_(UInt inputVector[],
     }
   }
 
-  UInt column;
   for (UInt i = 0; i < activeColumns.size(); i++) {
     UInt column = activeColumns[i];
     vector<UInt> potential;
