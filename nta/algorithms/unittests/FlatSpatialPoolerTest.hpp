@@ -25,23 +25,16 @@
  * Definitions for SpatialPoolerTest
  */
 
-//----------------------------------------------------------------------
-
-#include <nta/test/Tester.hpp>
-#include <nta/algorithms/flat_spatial_pooler.hpp>
-//#include <nta/foundation/TRandom.hpp>
-
-//----------------------------------------------------------------------
-
 #ifndef NTA_FLAT_SPATIAL_POOLER_TEST
 #define NTA_FLAT_SPATIAL_POOLER_TEST
 
+#include <nta/algorithms/flat_spatial_pooler.hpp>
+#include <nta/test/Tester.hpp>
 
 using namespace nta::algorithms::spatial_pooler;
 
 namespace nta {
 
-  //----------------------------------------------------------------------
   class FlatSpatialPoolerTest : public Tester
   {
   public:
@@ -70,9 +63,7 @@ namespace nta {
     void print_vec(vector<Real> vec);
 
   }; // end class SpatialPoolerTest
-    
-  //----------------------------------------------------------------------
-} // end namespace nta
 
+} // end namespace nta
 
 #endif // NTA_FLAT_SPATIAL_POOLER_TEST
