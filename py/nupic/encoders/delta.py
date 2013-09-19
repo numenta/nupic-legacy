@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.encoders import AdaptiveScalarEncoder
+from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 
 from base import *
 
