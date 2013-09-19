@@ -164,7 +164,7 @@ if NTA_PYTHON_SUPPORT
 
   # Minimal functional subset
   NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
-    -I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include \
+    -I$(NTA_NUMPY_INCLUDE) \
     -I$(PYTHON_SYS_INCLUDE)
 
 else
@@ -208,12 +208,12 @@ PYSWIGOPTS = $(SWIG_PYTHON_OPT) \
 -castmode \
 -w511 -w302 -w362 -w312 -w389 \
 -DNTA_PLATFORM_@nta_platform@ \
-$(NTA_PYTHON_CXXFLAGS) 
+$(NTA_PYTHON_CXXFLAGS)
 
 PYSWIGINCLUDES = \
 -I$(top_srcdir) \
 -I$(top_srcdir)/external/@nta_platform@/include \
--I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
+-I$(NTA_NUMPY_INCLUDE)
 
 PYSWIGCOMPILE = $(SWIG) $(PYSWIGOPTS) $(PYSWIGINCLUDES)
 
