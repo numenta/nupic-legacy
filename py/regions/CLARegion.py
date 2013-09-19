@@ -24,7 +24,8 @@ import sys
 import os
 
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
-from nupic.research.flat_spatial_pooler import FlatSpatialPooler
+from nupic.research.flat_spatial_pooler import PyFlatSpatialPooler
+from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
 
@@ -61,14 +62,14 @@ def _getSPClass(spatialImp):
   """
 
   if spatialImp == 'py':
-    return FlatSpatialPooler
+    return PyFlatSpatialPooler
   elif spatialImp == 'cpp':
-    raise RuntimeError("Spatial pooler not yet implemented in C++")
+    return CPPFlatSpatialPooler
   elif spatialImp == 'oldpy':
-    return FDRCSpatial2
+    raise "old spatial pooler not supported"
   else:
-    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'oldpy'" % (spatialImp))
+    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py' and "
+              "'cpp'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -1331,8 +1332,19 @@ class CLARegion(PyRegion):
         (self._iterations%self.saveMasterCoincImages == 0):
       self.saveMasterCoincidenceImage()
 
-    output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
-    self._spatialPoolerOutput[:] = output[:]
+
+    if (self._FDRCSpatialClass == FDRCSpatial2):
+      # Backwards compatability
+      output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
+      self._spatialPoolerOutput[:] = output[:]
+
+    else:  
+      inputVector = numpy.array(rfInput[0]).astype('uint32')
+      outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
+      self._sfdr.compute(inputVector, learnFlag, outputVector)
+      self._spatialPoolerOutput[:] = outputVector[:]
+
+
 
     # This is queried by the node inspectors to indicate that it is safe
     #  to ask for the variables they need.
