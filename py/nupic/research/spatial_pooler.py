@@ -741,8 +741,9 @@ class SpatialPooler(object):
       activeColumns = self._stripNeverLearned(activeColumns)
 
     activeArray.fill(0)
-    activeArray[activeColumns] = 1
-    return activeArray
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+
 
 
   def _stripNeverLearned(self, activeColumns):

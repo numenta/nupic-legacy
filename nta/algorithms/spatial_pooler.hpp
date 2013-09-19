@@ -71,7 +71,7 @@ namespace nta {
           virtual void save(ostream& outStream);
           virtual void load(istream& inStream);
 
-          UInt persistentSize();
+          virtual UInt persistentSize();
 
           UInt getNumColumns();
           UInt getNumInputs();
