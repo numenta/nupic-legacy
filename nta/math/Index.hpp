@@ -813,8 +813,11 @@ namespace nta {
     const UInt NDims = (UInt)bounds.size();
     typename Index1::value_type o = ordinal, p = product(bounds) / bounds[0];
    //TODO optimize double / use (slow!) 
-    for (UInt k = 0; k < NDims-1; o %= p, p /= bounds[k+1], ++k) 
+    for (UInt k = 0; k < NDims-1; ++k) { 
+      o %= p;
+      p /= bounds[k];
       idx[k] = o / p;
+    }
     idx[NDims-1] = o;
   }
 
