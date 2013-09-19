@@ -24,7 +24,7 @@ from scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 
-############################################################################
+
 class CategoryEncoder(Encoder):
   """Encodes a list of discrete categories (described by strings), that aren't
   related to each other, so we never emit a mixture of categories.
@@ -36,7 +36,7 @@ class CategoryEncoder(Encoder):
 
   The SDRCategoryEncoder uses a different method to encode categories"""
 
-  ############################################################################
+
   def __init__(self, w, categoryList, name="category", verbosity=0):
 
     self.encoders = None

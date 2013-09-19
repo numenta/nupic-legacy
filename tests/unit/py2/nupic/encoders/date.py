@@ -24,8 +24,7 @@
 
 import datetime
 import numpy
-#TODO howto not import * ??
-from nupic.encoders.base import *
+from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import unittest2 as unittest
 

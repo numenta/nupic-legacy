@@ -22,8 +22,6 @@
 
 """Unit tests for scalar space encoder"""
 
-#TODO howto not import * ??
-from nupic.encoders.base import *
 import unittest2 as unittest
 
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
@@ -40,8 +38,8 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
     assert sse.isDelta()
     sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute")
     assert not sse.isDelta()
-  
-   
+
+     
 ###########################################
 if __name__ == '__main__':
   unittest.main()

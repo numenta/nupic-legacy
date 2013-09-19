@@ -22,8 +22,8 @@
 
 """Unit tests for non-uniform scalar encoder"""
 
-#TODO howto not import * ??
-from nupic.encoders.base import *
+
+from nupic.encoders.base import defaultDtype
 import unittest2 as unittest
 
 from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder

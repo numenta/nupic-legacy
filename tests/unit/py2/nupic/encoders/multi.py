@@ -23,8 +23,6 @@
 """Unit tests for multi- encoder"""
 
 import numpy
-#TODO howto not import * ??
-from nupic.encoders.base import *
 import unittest2 as unittest
 
 from nupic.encoders.multi import MultiEncoder

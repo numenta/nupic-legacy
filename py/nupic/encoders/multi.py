@@ -19,16 +19,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
 from base import Encoder
 
-############################################################################
+
 class MultiEncoder(Encoder):
   """A MultiEncoder encodes a dictionary or object with
   multiple components. A MultiEncode contains a number
   of sub-encoders, each of which encodes a separate component."""
 
-  ############################################################################
+
   def __init__(self, encoderDescriptions=None):
     self.width = 0
     self.encoders = []
@@ -51,7 +50,6 @@ class MultiEncoder(Encoder):
 
     self._flattenedEncoderList = None
     self._flattenedFieldTypeList = None
-
 
   ############################################################################
   def encodeIntoArray(self, obj, output):
