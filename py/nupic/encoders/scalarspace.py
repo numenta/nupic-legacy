@@ -18,7 +18,8 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from nupic.encoders import DeltaEncoder,AdaptiveScalarEncoder
+from nupic.encoders.delta import DeltaEncoder
+from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from base import *
 
 
