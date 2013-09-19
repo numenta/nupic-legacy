@@ -72,6 +72,8 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/SparsePooler.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
+#include <nta/algorithms/spatial_pooler.hpp>
+#include <nta/algorithms/flat_spatial_pooler.hpp>
 
 #include <nta/algorithms/Cells4.hpp>
 #include <nta/algorithms/classifier_result.hpp>
@@ -2701,6 +2703,212 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 }
 
+%include <nta/algorithms/spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::SpatialPooler
+{
+  %pythoncode %{
+    import numpy
+    from nupic.bindings.math import (SM32 as SparseMatrix,
+                                     SM_01_32_32 as SparseBinaryMatrix)
+
+    def __init__(self,
+                 inputDimensions=[32,32],
+                 columnDimensions=[64,64],
+                 potentialRadius=16,
+                 potentialPct=0.5,
+                 globalInhibition=False,
+                 localAreaDensity=-1.0,
+                 numActiveColumnsPerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermConnected=0.10,
+                 minPctOverlapDutyCycle=0.001,
+                 minPctActiveDutyCycle=0.001,
+                 dutyCyclePeriod=1000,
+                 maxBoost=10.0,
+                 seed=-1,
+                 spVerbosity=0):
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      _ALGORITHMS.SpatialPooler_initialize(
+        self, inputDimensions, columnDimensions, potentialRadius, potentialPct, 
+        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
+        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
+        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
+        seed, spVerbosity)
+  %}
+
+  inline UInt* compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
+  inline void setBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void getBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void setOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+
+  inline void setMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+  inline void setPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void getPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void setPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getConnectedSynapses(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedSynapses(column, (nta::UInt*) x->data);
+  }
+
+  inline void getConnectedCounts(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedCounts((nta::UInt*) x->data);
+  }
+
+}
+
+
+%include <nta/algorithms/flat_spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::FlatSpatialPooler
+{
+  %pythoncode %{ 
+    import numpy
+
+    def __init__(self,
+                 inputShape=(32, 32),
+                 inputBorder=8,
+                 inputDensity=1.0,
+                 coincidencesShape=(48, 48),
+                 coincInputRadius=16,
+                 coincInputPoolPct=1.0,
+                 gaussianDist=False,
+                 commonDistributions=False,
+                 localAreaDensity=-1.0,
+                 numActivePerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermActiveSharedDec=0.0,
+                 synPermOrphanDec=0.0,
+                 synPermConnected=0.10,
+                 minPctDutyCycleBeforeInh=0.001,
+                 minPctDutyCycleAfterInh=0.001,
+                 dutyCyclePeriod=1000,
+                 maxFiringBoost=10.0,
+                 maxSSFiringBoost=2.0,
+                 maxSynPermBoost=10.0,
+                 minDistance=0.0,
+                 cloneMap=None,
+                 numCloneMasters=-1,
+                 seed=-1,
+                 spVerbosity=0,
+                 printPeriodicStats=0,
+                 testMode=False,
+                 globalInhibition=False,
+                 spReconstructionParam="unweighted_mean",
+                 useHighTier=True,
+                 randomSP=False,
+              ):
+      
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
+        self,
+        numInputs=numpy.prod(inputShape),
+        numColumns=numpy.prod(coincidencesShape),
+        localAreaDensity=localAreaDensity,
+        numActiveColumnsPerInhArea=numActivePerInhArea,
+        stimulusThreshold=stimulusThreshold,
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+        seed=seed,
+        spVerbosity=spVerbosity
+      )
+  %}
+}
 
 %include <nta/algorithms/fast_cla_classifier.hpp>
 
