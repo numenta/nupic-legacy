@@ -19,8 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
+from base import Encoder, EncoderResult
 import math
+import numpy
 
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA

@@ -20,6 +20,8 @@
 # ----------------------------------------------------------------------
 
 from scalar import ScalarEncoder
+from base import defaultDtype
+import numpy
 
 class NonUniformScalarEncoder(ScalarEncoder):
   """
