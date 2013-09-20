@@ -53,6 +53,7 @@ namespace nta {
     bool check_vector_eq(UInt arr1[], UInt arr2[], UInt n);
     bool check_vector_eq(Real arr1[], Real arr2[], UInt n);
     bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
+    void check_spatial_eq(SpatialPooler sp1, SpatialPooler sp2);
     bool almost_eq(Real a, Real b);
     bool findVector(UInt needle[], UInt n, vector<vector<UInt> > haystack);
     void testMapPotential();
@@ -87,6 +88,7 @@ namespace nta {
     void testCartesianProduct();
     void testGetNeighborsND();
     void testIsUpdateRound();
+    void testSerialize();
 
     void print_vec(UInt arr[], UInt n);
     void print_vec(Real arr[], UInt n);
