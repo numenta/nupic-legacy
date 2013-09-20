@@ -462,6 +462,7 @@ void VectorFileSensor::seek(int n)
   // Set curVector_ to be one before the vector we want and reset iterations
   iterations_ = 0;
   curVector_ = n - 1;
+  //TODO: this code looks wrong, fix it
   if (curVector_ < 0) curVector_ = (NTA_Size)vectorFile_.vectorCount();
 }
 
