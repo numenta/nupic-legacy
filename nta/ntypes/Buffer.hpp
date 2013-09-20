@@ -155,7 +155,6 @@ namespace nta
   private:
     ReadBufferVec & readBufferVec_;
     Size index_;
-    bool owner_;
   };
 
   /**
