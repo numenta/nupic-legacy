@@ -438,7 +438,7 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
             (localAreaDensity > 0 && localAreaDensity <= 0.5));
   NTA_ASSERT(potentialPct > 0 && potentialPct <= 1);
 
-  seed_((UInt64) seed < 0 ? rand() : seed);
+  seed_( (UInt64)(seed < 0 ? rand() : seed) );
 
   potentialRadius_ = potentialRadius > numInputs_ ? numInputs_ :
                                                     potentialRadius;
@@ -1190,6 +1190,7 @@ bool SpatialPooler::isUpdateRound_()
   return (iterationNum_ % updatePeriod_) == 0;
 }
 
+/* create a RNG with given seed */
 void SpatialPooler::seed_(UInt64 seed)
 {
   rng_ = Random(seed);
