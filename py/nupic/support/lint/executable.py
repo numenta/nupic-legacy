@@ -34,7 +34,8 @@ MSGS = {
     'W9821': ('Unprotected executable code', 'executable-no-main',
               'Used when a script has a shebang line or has executable '
               'permissions but does not have a __main__ check.'),
-    'W9822': ('Missing shebang', 'executable-no-shebang',
+    'W9822': ('Missing shebang or improper shebang (should be "#!/usr/bin/env '
+              'python")', 'executable-no-shebang',
               'Used when a script has executable permissions or has a __main__ '
               'check but is missing a shebang line.'),
     }
