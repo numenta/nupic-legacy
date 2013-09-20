@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 from scalar import ScalarEncoder
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import numpy as np
 import math
 
