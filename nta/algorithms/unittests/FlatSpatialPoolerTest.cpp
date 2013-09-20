@@ -27,6 +27,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <nta/algorithms/flat_spatial_pooler.hpp>
 #include <nta/math/stl_io.hpp>
 #include <nta/types/types.hpp>
@@ -134,6 +135,7 @@ namespace nta {
     testSelectVirgin();
     testSelectHighTierColumns();
     testAddBonus();
+    testSerialize();
   }
 
   void FlatSpatialPoolerTest::testAddBonus()
@@ -301,4 +303,32 @@ namespace nta {
     NTA_CHECK(virgin.size() == 0);
   }
 
+  void FlatSpatialPoolerTest::testSerialize()
+  {
+    string filename = "FlatSpatialPoolerSerialization.tmp";
+    FlatSpatialPooler sp_orig;
+    UInt numInputs = 5;
+    UInt numColumns = 10;
+    FlatSpatialPooler fsp_orig = FlatSpatialPooler();
+    fsp_orig.initializeFlat(numInputs, numColumns);
+    fsp_orig.setRandomSP(true);
+    fsp_orig.setMinDistance(0.3);
+
+    ofstream outfile;
+    outfile.open (filename.c_str());
+    fsp_orig.save(outfile);
+    outfile.close();
+
+    FlatSpatialPooler fsp_dest;
+    ifstream infile (filename.c_str());
+    fsp_dest.load(infile);
+    infile.close();
+
+    NTA_CHECK(fsp_orig.getMinDistance() == fsp_dest.getMinDistance());
+    NTA_CHECK(fsp_orig.getRandomSP() == fsp_dest.getRandomSP());
+
+    string command = string("rm -f ") + filename;
+    system(command.c_str());
+  }
+    
 } // end namespace nta

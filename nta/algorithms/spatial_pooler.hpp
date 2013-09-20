@@ -68,6 +68,11 @@ namespace nta {
           virtual void compute(UInt inputVector[], bool learn,
                                UInt activeVector[]);
 
+          virtual void save(ostream& outStream);
+          virtual void load(istream& inStream);
+
+          virtual UInt persistentSize();
+
           UInt getNumColumns();
           UInt getNumInputs();
 
@@ -300,9 +305,6 @@ namespace nta {
           SparseBinaryMatrix<UInt,UInt> potentialPools_;
           SparseBinaryMatrix<UInt, UInt> connectedSynapses_;
           vector<UInt> connectedCounts_;
-
-          vector<UInt> overlaps;
-          vector<UInt> activeColumns;
 
           vector<UInt> overlaps_;
           vector<Real> overlapsPct_;
