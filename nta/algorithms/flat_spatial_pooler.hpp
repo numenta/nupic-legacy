@@ -61,8 +61,9 @@ namespace nta {
 
           ~FlatSpatialPooler() {}
 
-          void somefunc() {}
-
+          virtual void save(ostream& outStream);
+          virtual void load(istream& inStream);
+          
           virtual UInt version() const {
             return version_;
           };
