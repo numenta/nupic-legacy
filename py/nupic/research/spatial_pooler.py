@@ -741,8 +741,9 @@ class SpatialPooler(object):
       activeColumns = self._stripNeverLearned(activeColumns)
 
     activeArray.fill(0)
-    activeArray[activeColumns] = 1
-    return activeArray
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+
 
 
   def _stripNeverLearned(self, activeColumns):
@@ -1561,11 +1562,3 @@ class SpatialPooler(object):
       self._random = NupicRandom(seed)
     else:
       self._random = NupicRandom()
-    
-
-  def __get_state__(self):
-    if not hasattr(self,"_version"):
-      pass
-
-  def __set_state__(self):
-    pass
