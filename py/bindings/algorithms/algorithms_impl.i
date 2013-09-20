@@ -2737,6 +2737,26 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
         minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
         seed, spVerbosity)
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ spatial pooler with the
+      # string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ spatial pooler and populate it from the serialized
+      # string.
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
   %}
 
   inline UInt* compute(PyObject *py_x, bool learn, PyObject *py_y)
@@ -2744,6 +2764,24 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
     self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
+  void loadFromString(const std::string& inString)
+  {
+    std::istringstream inStream(inString);
+    self->load(inStream);
+  }
+
+
+  PyObject* getCState()
+  {
+    SharedPythonOStream py_s(self->persistentSize());
+    std::ostream& s = py_s.getStream();
+    // TODO: Consider writing floats as binary instead.
+    s.flags(ios::scientific);
+    s.precision(numeric_limits<double>::digits10 + 1);
+    self->save(s);
+    return py_s.close();
   }
 
   inline void setBoostFactors(PyObject* py_x)
