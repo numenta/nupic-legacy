@@ -733,12 +733,12 @@ namespace nta {
     colDim.push_back(10);
     sp.initialize(inputDim, colDim);
 
-    UInt trueAvgConnectedSpan1[7] = {3, 3, 4.5, 3, 2.5, 2, 0};
+    Real trueAvgConnectedSpan1[7] = {3, 3, 4.5, 3, 2.5, 2, 0};
 
     for (UInt i = 0; i < numColumns; i++) {
       sp.setPermanence(i, permArr1[i]);
-      UInt result = sp.avgConnectedSpanForColumn2D_(i);
-      NTA_CHECK(result == (trueAvgConnectedSpan1[i]));
+      Real result = sp.avgConnectedSpanForColumn2D_(i);
+      NTA_CHECK(result == trueAvgConnectedSpan1[i]);
     }
 
     //1D tests repeated
@@ -764,12 +764,12 @@ namespace nta {
        {0, 0, 1, 0, 1, 0, 0, 0},
        {1, 1, 1, 1, 1, 1, 1, 1}};
 
-    UInt trueAvgConnectedSpan2[9] =
+    Real trueAvgConnectedSpan2[9] =
       {8, 5, 1, 5, 0, 2, 3, 3, 8};
 
     for (UInt i = 0; i < numColumns; i++) {
       sp.setPermanence(i, permArr2[i]);
-      UInt result = sp.avgConnectedSpanForColumn2D_(i);
+      Real result = sp.avgConnectedSpanForColumn2D_(i);
       NTA_CHECK(result == (trueAvgConnectedSpan2[i] + 1)/2);
     }
   }
