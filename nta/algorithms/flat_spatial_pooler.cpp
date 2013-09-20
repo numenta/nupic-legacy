@@ -176,3 +176,38 @@ void FlatSpatialPooler::initializeFlat(
   activeDutyCycles_.assign(numColumns_, 1);
   boostFactors_.assign(numColumns_, maxBoost);
 }
+
+
+void FlatSpatialPooler::save(ostream& outStream)
+{
+
+  SpatialPooler::save(outStream);
+
+
+  // Write a starting marker and version.
+  outStream << "FlatSpatialPooler" << endl;
+
+  outStream << minDistance_ << " "
+            << randomSP_ << endl;
+
+  outStream << "~FlatSpatialPooler" << endl;
+
+}
+
+void FlatSpatialPooler::load(istream& inStream)
+{
+
+  SpatialPooler::load(inStream);
+
+  // Check the marker
+  string marker;
+  inStream >> marker;
+  NTA_CHECK(marker == "FlatSpatialPooler");
+
+  inStream >> minDistance_
+           >> randomSP_;
+
+  inStream >> marker;
+  NTA_CHECK(marker == "~FlatSpatialPooler");
+}
+
