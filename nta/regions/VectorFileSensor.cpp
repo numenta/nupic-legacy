@@ -328,7 +328,7 @@ void VectorFileSensor::setParameterFromBuffer(const std::string& name,
     NTA_CHECK(value.read(int_param) == 0)
       << where << "Unable to read position: " 
       << int_param << " - Should be a positive integer";
-    if ( (int_param >= 0) && ((unsigned int) int_param < vectorFile_.vectorCount()) ) 
+    if ( int_param < vectorFile_.vectorCount() ) 
     {
       seek(int_param);
     }

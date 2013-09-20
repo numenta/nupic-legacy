@@ -108,7 +108,7 @@ void VectorFile::appendFile(const string &fileName,
     }
     inFile.exceptions(ios_base::failbit | ios_base::badbit);
   
-    if ( (fileFormat < 0) || (fileFormat > 4) ) {
+    if ( fileFormat > 4 ) {
       NTA_THROW << "VectorFile::appendFile - incorrect file format: "
         << fileFormat;
     }
@@ -221,13 +221,13 @@ static bool dosEndings(IFStream &inFile)
   return unixLines;
 }
 
-void VectorFile::saveVectors(ostream &out, Size nColumns, Int32 fileFormat, 
+void VectorFile::saveVectors(ostream &out, Size nColumns, UInt32 fileFormat, 
   Int64 begin, const char *lineEndings)
 {
   saveVectors(out, nColumns, fileFormat, begin, fileVectors_.size(), lineEndings);
 }
 
-void VectorFile::saveVectors(ostream &out, Size nColumns, Int32 fileFormat, 
+void VectorFile::saveVectors(ostream &out, Size nColumns, UInt32 fileFormat, 
   Int64 begin, Int64 end, const char *lineEndings)
 {
   out.exceptions(ios_base::failbit | ios_base::badbit);
