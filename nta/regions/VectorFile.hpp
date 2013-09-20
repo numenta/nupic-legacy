@@ -110,7 +110,7 @@ namespace nta
 
     // Return true iff a labeled file was read in
     inline bool isLabeled() const 
-    { return ( (elementLabels_.size()>0) && (vectorLabels_.size()>0) ); }
+    { return (! (elementLabels_.empty() || vectorLabels_.empty()) ); }
 
     /// Save the scale and offset vectors to this stream
     void saveState(std::ostream &str);
