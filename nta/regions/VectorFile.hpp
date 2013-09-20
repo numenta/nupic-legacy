@@ -121,9 +121,9 @@ namespace nta
     void readState(std::istream& state);
 
     /// Save vectors, unscaled, to a file with the specified format.
-    void saveVectors(std::ostream &out, Size nColumns, Int32 fileFormat, 
+    void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
       Int64 begin=0, const char *lineEndings=0);
-    void saveVectors(std::ostream &out, Size nColumns, Int32 fileFormat, 
+    void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
        Int64 begin, Int64 end, const char *lineEndings=0);
 
   private:
