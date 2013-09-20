@@ -37,28 +37,9 @@
 //--------------------------------------------------------------------------------
 %inline { 
 
-  void setGlobalEpsilon(nta::Real eps) { nta::Epsilon = eps; }
   nta::Real getGlobalEpsilon() { return nta::Epsilon; }
 
 }
-
-%pythoncode %{
-_pushedGlobalEpsilon = None
-
-def _pushEpsilon():
-  global _pushedGlobalEpsilon
-  assert _pushedGlobalEpsilon is None
-  _pushedGlobalEpsilon = getGlobalEpsilon()
-  setGlobalEpsilon(0)
-
-def _popEpsilon():
-  global _pushedGlobalEpsilon
-  assert _pushedGlobalEpsilon is not None
-  setGlobalEpsilon(_pushedGlobalEpsilon)
-  _pushedGlobalEpsilon = None
-%}
-
-//--------------------------------------------------------------------------------
 
 %ignore nta::Domain::operator[];
 %ignore print;
