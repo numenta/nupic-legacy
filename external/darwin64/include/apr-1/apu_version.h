@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -53,20 +53,20 @@
  * Minor API changes that do not cause binary compatibility problems.
  * Reset to 0 when upgrading APU_MAJOR_VERSION
  */
-#define APU_MINOR_VERSION       2
+#define APU_MINOR_VERSION       5
 
 /** patch level 
  * The Patch Level never includes API changes, simply bug fixes.
  * Reset to 0 when upgrading APR_MINOR_VERSION
  */
-#define APU_PATCH_VERSION      10
+#define APU_PATCH_VERSION       2
 
 /** 
  * The symbol APU_IS_DEV_VERSION is only defined for internal,
  * "development" copies of APU.  It is undefined for released versions
  * of APU.
  */
-/* #undef APU_IS_DEV_VERSION */
+/* #define APU_IS_DEV_VERSION */
 
 
 #if defined(APU_IS_DEV_VERSION) || defined(DOXYGEN)

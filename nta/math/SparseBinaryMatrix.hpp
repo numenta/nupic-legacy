@@ -60,6 +60,11 @@ namespace nta {
 
   public:
     //--------------------------------------------------------------------------------
+    inline SparseBinaryMatrix()
+      : ncols_(0),
+        ind_(),
+        buffer_() { }
+
     inline SparseBinaryMatrix(std::istream& inStream)
       : ncols_(0),
         ind_(),
@@ -316,7 +321,7 @@ namespace nta {
 
       size_type counter = 0;
       for (size_type r = 0; r != nRows(); ++r, ++it) 
-        if (ind_[r].size() > 0) {
+        if (!ind_[r].empty()) {
           *it = true;
           ++ counter;
         } else {
@@ -2036,9 +2041,6 @@ namespace nta {
 	}
       }
     }
-
-    //--------------------------------------------------------------------------------
-    SparseBinaryMatrix();
 
     //--------------------------------------------------------------------------------
   }; // end class SparseBinaryMatrix

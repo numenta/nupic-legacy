@@ -14,10 +14,6 @@
 
 /* Define as function which can be used for conversion of strings to
    apr_int64_t */
-#define APR_INT64_STRFN strtoll
-
-/* Define as function used for conversion of strings to apr_off_t */
-#define APR_OFF_T_STRFN strtoll
 
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
    systems. This function is required for `alloca.c' support on those systems.
@@ -82,7 +78,7 @@
 /* #undef GETSERVBYNAME_R_SOLARIS */
 
 /* Define if accept4 function is supported */
-/* #undef HAVE_ACCEPT4 */
+#define HAVE_ACCEPT4 1
 
 /* Define to 1 if you have `alloca', as a function or macro. */
 #define HAVE_ALLOCA 1
@@ -285,13 +281,13 @@
 #define HAVE_MKSTEMP 1
 
 /* Define to 1 if you have the `mkstemp64' function. */
-#define HAVE_MKSTEMP64 1
+/* #undef HAVE_MKSTEMP64 */
 
 /* Define to 1 if you have the `mmap' function. */
 #define HAVE_MMAP 1
 
 /* Define to 1 if you have the `mmap64' function. */
-#define HAVE_MMAP64 1
+/* #undef HAVE_MMAP64 */
 
 /* Define to 1 if you have the `munmap' function. */
 #define HAVE_MUNMAP 1
@@ -378,7 +374,7 @@
 #define HAVE_PWD_H 1
 
 /* Define to 1 if you have the `readdir64_r' function. */
-#define HAVE_READDIR64_R 1
+/* #undef HAVE_READDIR64_R */
 
 /* Define to 1 if you have the <sched.h> header file. */
 /* #undef HAVE_SCHED_H */
@@ -414,7 +410,7 @@
 #define HAVE_SENDFILE 1
 
 /* Define to 1 if you have the `sendfile64' function. */
-#define HAVE_SENDFILE64 1
+/* #undef HAVE_SENDFILE64 */
 
 /* Define to 1 if you have the `sendfilev' function. */
 /* #undef HAVE_SENDFILEV */
@@ -678,13 +674,13 @@
 /* #undef HAVE_UUID_CREATE */
 
 /* Define to 1 if you have the `uuid_generate' function. */
-/* #undef HAVE_UUID_GENERATE */
+#define HAVE_UUID_GENERATE 1
 
 /* Define to 1 if you have the <uuid.h> header file. */
 /* #undef HAVE_UUID_H */
 
 /* Define to 1 if you have the <uuid/uuid.h> header file. */
-/* #undef HAVE_UUID_UUID_H */
+#define HAVE_UUID_UUID_H 1
 
 /* Define if C compiler supports VLA */
 #define HAVE_VLA 1
@@ -754,19 +750,19 @@
 #define SIZEOF_CHAR 1
 
 /* The size of ino_t */
-#define SIZEOF_INO_T 4
+#define SIZEOF_INO_T 8
 
 /* The size of `int', as computed by sizeof. */
 #define SIZEOF_INT 4
 
 /* The size of `long', as computed by sizeof. */
-#define SIZEOF_LONG 4
+#define SIZEOF_LONG 8
 
 /* The size of `long long', as computed by sizeof. */
 #define SIZEOF_LONG_LONG 8
 
 /* The size of off_t */
-#define SIZEOF_OFF_T 4
+#define SIZEOF_OFF_T 8
 
 /* The size of pid_t */
 #define SIZEOF_PID_T 4
@@ -775,16 +771,16 @@
 #define SIZEOF_SHORT 2
 
 /* The size of size_t */
-#define SIZEOF_SIZE_T 4
+#define SIZEOF_SIZE_T 8
 
 /* The size of ssize_t */
-#define SIZEOF_SSIZE_T 4
+#define SIZEOF_SSIZE_T 8
 
 /* The size of struct iovec */
-#define SIZEOF_STRUCT_IOVEC 8
+#define SIZEOF_STRUCT_IOVEC 16
 
 /* The size of `void*', as computed by sizeof. */
-#define SIZEOF_VOIDP 4
+#define SIZEOF_VOIDP 8
 
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
@@ -804,7 +800,7 @@
 /* #undef SYSVSEM_IS_GLOBAL */
 
 /* Define if use of generic atomics is requested */
-#define USE_ATOMICS_GENERIC 1
+/* #undef USE_ATOMICS_GENERIC */
 
 /* Define if BeOS Semaphores will be used */
 /* #undef USE_BEOSSEM */
@@ -953,32 +949,32 @@
  */
 #ifdef DARWIN_10
 
-#define APR_OFF_T_STRFN strtoll
-#define APR_INT64_STRFN strtoll
-#define SIZEOF_LONG 4
-#define SIZEOF_SIZE_T 4
-#define SIZEOF_SSIZE_T 4
-#define SIZEOF_VOIDP 4
-#define SIZEOF_STRUCT_IOVEC 8
+#define APR_OFF_T_STRFN strtol
+#define APR_INT64_STRFN strtol
+#define SIZEOF_LONG 8
+#define SIZEOF_SIZE_T 8
+#define SIZEOF_SSIZE_T 8
+#define SIZEOF_VOIDP 8
+#define SIZEOF_STRUCT_IOVEC 16
 
 #ifdef __LP64__
- #define APR_INT64_STRFN strtoll
- #define SIZEOF_LONG 4
- #define SIZEOF_SIZE_T 4
- #define SIZEOF_SSIZE_T 4
- #define SIZEOF_VOIDP 4
- #define SIZEOF_STRUCT_IOVEC 8
+ #define APR_INT64_STRFN strtol
+ #define SIZEOF_LONG 8
+ #define SIZEOF_SIZE_T 8
+ #define SIZEOF_SSIZE_T 8
+ #define SIZEOF_VOIDP 8
+ #define SIZEOF_STRUCT_IOVEC 16
 #else
- #define APR_INT64_STRFN strtoll
- #define SIZEOF_LONG 4
- #define SIZEOF_SIZE_T 4
- #define SIZEOF_SSIZE_T 4
- #define SIZEOF_VOIDP 4
- #define SIZEOF_STRUCT_IOVEC 8
+ #define APR_INT64_STRFN strtol
+ #define SIZEOF_LONG 8
+ #define SIZEOF_SIZE_T 8
+ #define SIZEOF_SSIZE_T 8
+ #define SIZEOF_VOIDP 8
+ #define SIZEOF_STRUCT_IOVEC 16
 #endif
 
-#define APR_OFF_T_STRFN strtoll
-#define APR_OFF_T_STRFN strtoll
+#define APR_OFF_T_STRFN strtol
+#define APR_OFF_T_STRFN strtol
  
 
 #define SETPGRP_VOID 1

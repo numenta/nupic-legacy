@@ -18,7 +18,7 @@
 #define APR_SIGNAL_H
 
 /**
- * @file apr_signal.h 
+ * @file apr_signal.h
  * @brief APR Signal Handling
  */
 
@@ -34,8 +34,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 /**
- * @defgroup apr_signal Handling
- * @ingroup APR 
+ * @defgroup apr_signal Signal Handling
+ * @ingroup APR
  * @{
  */
 
