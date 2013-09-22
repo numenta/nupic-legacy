@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -95,7 +95,7 @@ struct apr_uri_t {
     char *hostname;
     /** port string (integer representation is in "port") */
     char *port_str;
-    /** the request path (or "/" if only scheme://host was given) */
+    /** the request path (or NULL if only scheme://host was given) */
     char *path;
     /** Everything after a '?' in the path, if present */
     char *query;
@@ -154,21 +154,21 @@ APU_DECLARE(char *) apr_uri_unparse(apr_pool_t *p,
  * @param p The pool to allocate out of
  * @param uri The uri to parse
  * @param uptr The apr_uri_t to fill out
- * @return 0 for success or error code
+ * @return APR_SUCCESS for success or error code
  */
-APU_DECLARE(int) apr_uri_parse(apr_pool_t *p, const char *uri, 
-                               apr_uri_t *uptr);
+APU_DECLARE(apr_status_t) apr_uri_parse(apr_pool_t *p, const char *uri, 
+                                        apr_uri_t *uptr);
 
 /**
  * Special case for CONNECT parsing: it comes with the hostinfo part only
  * @param p The pool to allocate out of
  * @param hostinfo The hostinfo string to parse
  * @param uptr The apr_uri_t to fill out
- * @return 0 for success or error code
+ * @return APR_SUCCESS for success or error code
  */
-APU_DECLARE(int) apr_uri_parse_hostinfo(apr_pool_t *p, 
-                                        const char *hostinfo, 
-                                        apr_uri_t *uptr);
+APU_DECLARE(apr_status_t) apr_uri_parse_hostinfo(apr_pool_t *p, 
+                                                 const char *hostinfo, 
+                                                 apr_uri_t *uptr);
 
 /** @} */
 #ifdef __cplusplus

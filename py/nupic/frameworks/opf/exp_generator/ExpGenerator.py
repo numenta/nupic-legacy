@@ -910,7 +910,6 @@ def _generateEncoderStringsV2(includedFields, options):
       raise RuntimeError("Unsupported field type '%s'" % (fieldType))
 
 
-
     # -----------------------------------------------------------------------
     # If this was the predicted field, insert another encoder that sends it
     # to the classifier only
@@ -925,6 +924,13 @@ def _generateEncoderStringsV2(includedFields, options):
       if options["inferenceArgs"]["inputPredictedField"] == "no":
         encoderDictsList.remove(encoderDict)
 
+  #Remove any encoders not in fixedFields
+  if options.get('fixedFields') is not None:
+    tempList=[]
+    for encoderDict in encoderDictsList:
+      if encoderDict['name'] in options['fixedFields']:
+        tempList.append(encoderDict)
+    encoderDictsList = tempList
 
   # ==========================================================================
   # Now generate the encoderSpecsStr and permEncoderChoicesStr strings from 
