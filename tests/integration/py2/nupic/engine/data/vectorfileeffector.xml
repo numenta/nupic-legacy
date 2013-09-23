@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NumentaNet Version="1.0">
+  <Node Name="TestFileSensor">
+    <Class>VectorFileSensor</Class>
+    <State></State>
+    <Property Name="Phase">
+      <Value>2</Value>
+    </Property>
+    <Output Name="dataOut">
+      <ElementCount>11</ElementCount>
+    </Output>
+  </Node>
+  <Node Name="TestEffector">
+    <Class>VectorFileEffector</Class>
+    <State></State>
+    <Property Name="Phase">
+      <Value>2</Value>
+    </Property>
+  </Node>
+  <Link>
+    <ElementCount>11</ElementCount>
+    <Source>
+      <Node>TestFileSensor</Node>
+      <Output>dataOut</Output>
+      <Offset>0</Offset>
+    </Source>
+    <Destination>
+      <Node>TestEffector</Node>
+      <Input>dataIn</Input>
+      <Offset>0</Offset>
+    </Destination>
+  </Link>
+</NumentaNet>
