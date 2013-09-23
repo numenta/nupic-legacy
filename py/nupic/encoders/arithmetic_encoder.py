@@ -122,8 +122,9 @@ class ArithmeticEncoder(Encoder):
       if inputValue in b:
         bucket = b
         break
-    assert bucket is not None
-    b.add(inputValue)
+    else:
+      raise LookupError("Unable to find bucket for inputValue: %s" % str(inputValue))
+    bucket.add(inputValue)
     # Add the value to the history, removing the oldest value if the history
     # is full.
     if len(self.history) == self.window:
