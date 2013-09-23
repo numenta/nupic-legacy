@@ -71,10 +71,6 @@ def _popEpsilon():
 %include <nta/math/SparseBinaryMatrix.hpp>
  //%include <nta/math/SparseRLEMatrix.hpp>
 
- //#ifndef NUPIC2
- //%include <nta/math/SparseR3FTensor.hpp>
- //#endif
-
 %template(_Domain32) nta::Domain<nta::UInt32>;
 %template(_Domain2D32) nta::Domain2D<nta::UInt32>;
 %template(_DistanceToZero32) nta::DistanceToZero<nta::Real32>;
@@ -92,11 +88,6 @@ def _popEpsilon():
 //%template(_SM_RLE_16_8) nta::SparseRLEMatrix<nta::UInt16, unsigned char>;
 //%template(_SM_RLE_16_16) nta::SparseRLEMatrix<nta::UInt16, nta::UInt16>;
 //%template(_SM_RLE_32_32) nta::SparseRLEMatrix<nta::UInt32, nta::Real32>;
-
-//#ifndef NUPIC2
-//%template(_ST_R3F_32_16_32) nta::SparseR3FTensor<nta::UInt32, nta::UInt16, nta::Real32>;
-//%template(_ST_R3F_32_32_32) nta::SparseR3FTensor<nta::UInt32, nta::UInt32, nta::Real32>;
-//#endif
 
 //--------------------------------------------------------------------------------
 %define SparseMatrix_(N1, N2, N3, N4)
@@ -1918,44 +1909,6 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
 	 nta::SparseMatrixAlgorithms::addConstantOnNonZeros(A, B, cval);
 	 }
 	 */
-	
-// no SparseR3FTensor in NUPIC2
-/* #ifndef NUPIC2 */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_assignNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,   */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& B, */
-/* 			nta::UInt32 sliceIndex) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::assignNoAlloc(A, B, sliceIndex); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_assignNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A,  */
-/* 			nta::UInt32 slice_a, */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& B, */
-/* 			nta::UInt32 slice_b) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::assignNoAlloc(A, slice_a, B, slice_b); */
-/*   } */
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_assignNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,   */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& B, */
-/* 			nta::UInt32 sliceIndex) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::assignNoAlloc(A, B, sliceIndex); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_assignNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A,  */
-/* 			nta::UInt32 slice_a, */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& B, */
-/* 			nta::UInt32 slice_b) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::assignNoAlloc(A, slice_a, B, slice_b); */
-/*   } */
-
-/* #endif // NUPIC2 (SparseR3FTensor) */
 
   //--------------------------------------------------------------------------------
   void SM_logSumNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,  
@@ -1963,43 +1916,6 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
   {
     nta::SparseMatrixAlgorithms::logSumNoAlloc(A, B, min_floor);
   }
-
-/* #ifndef NUPIC2   */
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logSumNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/* 			nta::UInt32 sliceIndex,  */
-/* 			const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logSumNoAlloc(A, sliceIndex, B, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logSumNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/* 			nta::UInt32 slice_a,  */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& B,  */
-/* 			nta::UInt32 slice_b, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logSumNoAlloc(A, slice_a, B, slice_b, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logSumNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/* 			nta::UInt32 sliceIndex,  */
-/* 			const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logSumNoAlloc(A, sliceIndex, B, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logSumNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/* 			nta::UInt32 slice_a,  */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& B,  */
-/* 			nta::UInt32 slice_b, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logSumNoAlloc(A, slice_a, B, slice_b, min_floor); */
-/*   } */
-
-/* #endif //NUPIC2 */
 
   //--------------------------------------------------------------------------------
   /*
@@ -2031,41 +1947,6 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
     nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, B, min_floor);
   }
 
-/* #ifndef NUPIC2 */
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logDiffNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/* 			nta::UInt32 sliceIndex,  */
-/* 			const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, sliceIndex, B, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logDiffNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/* 			nta::UInt32 slice_a,  */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& B,  */
-/* 			nta::UInt32 slice_b, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, slice_a, B, slice_b, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logDiffNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/* 			nta::UInt32 sliceIndex,  */
-/* 			const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, sliceIndex, B, min_floor); */
-/*   } */
-
-/*   //-------------------------------------------------------------------------------- */
-/*   void SM_logDiffNoAlloc(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/* 			nta::UInt32 slice_a,  */
-/* 			const nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& B,  */
-/* 			nta::UInt32 slice_b, double min_floor) */
-/*   { */
-/*     nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, slice_a, B, slice_b, min_floor); */
-/*   } */
-/* #endif // NUPIC2 */
   /*
   //--------------------------------------------------------------------------------
   void SM_logDiffNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A,  
@@ -2152,35 +2033,6 @@ def SM_assignNoAlloc(sm, right):
     return self->fast_sum_of_logs(x, y);
   }
 
-/* #ifndef NUPIC2 */
-/*   inline void logSum(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/*                      nta::UInt32 sliceIndex,  */
-/*                      const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->logSum(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void fastLogSum(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/*                          nta::UInt32 sliceIndex,  */
-/*                          const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->fastLogSum(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void logSum(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/*                      nta::UInt32 sliceIndex,  */
-/*                      const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->logSum(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void fastLogSum(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/*                          nta::UInt32 sliceIndex,  */
-/*                          const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->fastLogSum(A, sliceIndex, B); */
-/*   } */
-/* #endif //NUPIC2 */
 }
 
 //--------------------------------------------------------------------------------
@@ -2197,35 +2049,6 @@ def SM_assignNoAlloc(sm, right):
     return self->fast_diff_of_logs(x, y);
   }
 
-/* #ifndef NUPIC2 */
-/*   inline void logDiff(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/*                       nta::UInt32 sliceIndex,  */
-/*                       const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->logDiff(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void fastLogDiff(nta::SparseR3FTensor<nta::UInt32,nta::UInt16,nta::Real32>& A, */
-/*                           nta::UInt32 sliceIndex,  */
-/*                           const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->fastLogDiff(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void logDiff(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/*                       nta::UInt32 sliceIndex,  */
-/*                       const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->logDiff(A, sliceIndex, B); */
-/*   } */
-
-/*   inline void fastLogDiff(nta::SparseR3FTensor<nta::UInt32,nta::UInt32,nta::Real32>& A, */
-/*                           nta::UInt32 sliceIndex,  */
-/*                           const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B) */
-/*   { */
-/*     self->fastLogDiff(A, sliceIndex, B); */
-/*   } */
-/* #endif // NUPIC2 */
 }
 
 //--------------------------------------------------------------------------------
@@ -2839,11 +2662,7 @@ TAM_(32, 32, 32, 64)
       return toReturn;
 
     } catch(...) {
-#ifndef NUPIC2
-      RaisePyException(false, "Unknown error.");
-#else
       PyErr_SetString(PyExc_RuntimeError, const_cast<char *>("Unknown error in enumerate_sequences"));
-#endif
       return NULL;
     }
   }
@@ -2873,11 +2692,7 @@ TAM_(32, 32, 32, 64)
       return toReturn;
 
     } catch(...) {
-#ifndef NUPIC2
-      RaisePyException(false, "Unknown error.");
-#else
       PyErr_SetString(PyExc_RuntimeError, const_cast<char *>("Unknown error in enumerate_sequences"));
-#endif
       return NULL;
     }
   }
@@ -2935,11 +2750,7 @@ inline PyObject *_find_connected_components2(const TSM &sm)
       return toReturn;
 
     } catch(...) {
-#ifndef NUPIC2
-      RaisePyException(false, "Unknown error.");
-#else
       PyErr_SetString(PyExc_RuntimeError, const_cast<char *>("Unknown error in enumerate_sequences"));
-#endif
       return NULL;
     }
   }
@@ -4325,284 +4136,6 @@ def __setstate__(self, inString):
     return _SM_RLE_32_32(*args)
 %}
 */
-
-//--------------------------------------------------------------------------------
-// SPARSE R3F TENSOR
-//--------------------------------------------------------------------------------
-#ifndef NUPIC2
-/*
-%extend nta::SparseR3FTensor<nta::UInt32, nta::UInt16, nta::Real32>
-{
-%pythoncode %{
-
-def __init__(self, *args): 
-  this = _MATH.new__ST_R3F_32_16_32()
-  try:
-    self.this.append(this)
-  except:
-    self.this = this
-  if len(args) == 2:
-    if isinstance(args[1], numpy.ndarray) or hasattr(args[1], '__iter__'):
-      self.initializeFromDense(args[0], numpy.asarray(args[1]))
-    if isinstance(args[1], _SM_01_32_16) or isinstance(args[1], _SM_01_32_32):
-      nz_i,nz_j = args[1].getAllNonZeros(True)
-      self.setAllNonZeros(args[0], args[1].nRows(), args[1].nCols(), nz_i,nz_j)
-    elif isinstance(args[1], _SparseMatrix32):
-      nz_i,nz_j,nz_v = args[1].getAllNonZeros(True)
-      self.setAllNonZeros(args[0], args[1].nRows(), args[1].nCols(), nz_i,nz_j)
-
-def __str__(self):
-    s = ''
-    for i in range(self.nSlices()):
-        s += self.toDense(i).__str__() + '\n\n'
-    return s
-%}
-
-  inline PyObject* getAllNonZeros(nta::UInt32 s, bool three_lists =false) const
-  {
-    const nta::UInt32 nnzps = self->nNonZerosPerSlice();
-    nta::NumpyVectorT<nta::UInt32> rows(nnzps), cols(nnzps);
-    nta::NumpyVectorT<nta::Real32> nz(nnzps);
-
-    self->getAllNonZeros(s, rows.begin(), rows.end(),
-			 cols.begin(), cols.end(),
-			 nz.begin(), nz.end());
-
-    PyObject* toReturn = NULL;
-
-    if (!three_lists) {
-      // Return one list of triples
-      toReturn = PyTuple_New(nnzps);
-      for (nta::UInt32 i = 0; i != nnzps; ++i) {
-	PyObject* tuple = PyTuple_New(3);
-	PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(rows.get(i)));
-	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(cols.get(i)));
-	PyTuple_SET_ITEM(tuple, 2, PyFloat_FromDouble(nz.get(i)));
-	PyTuple_SET_ITEM(toReturn, i, tuple);
-      }
-    } else {
-      // Return two lists
-      toReturn = PyTuple_New(3);
-      PyTuple_SET_ITEM(toReturn, 0, rows.forPython());
-      PyTuple_SET_ITEM(toReturn, 1, cols.forPython());
-      PyTuple_SET_ITEM(toReturn, 2, nz.forPython());
-    }
-
-    return toReturn;
-  } 
-
-  inline void initializeFromDense(nta::UInt32 nslices, PyObject* py_m)
-  {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
-    self->initializeFromDense(nslices, m.rows(), m.columns(), 
-                              m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
-  }
-
-  inline void setAllNonZeros(nta::UInt32 nslices, nta::UInt32 nrows, nta::UInt32 ncols,
-			     PyObject* py_nz_i, PyObject* py_nz_j, bool clean =true)
-  {
-    nta::NumpyVectorT<nta::UInt32> nz_i(py_nz_i);
-    nta::NumpyVectorT<nta::UInt16> nz_j(py_nz_j);
-    self->setAllNonZeros(nslices, nrows, ncols, 
-			 nz_i.begin(), nz_i.end(),
-			 nz_j.begin(), nz_j.end(),
-                         clean);
-  }
-
-  inline void fromDense(nta::UInt32 slice, PyObject* py_m)
-  {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
-    self->fromDense(slice,
-		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
-  }
-
-  inline PyObject* toDense(nta::UInt32 slice) const 
-  {
-    int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
-    self->toDense(slice, out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
-    return out.forPython();
-  }
-
-  inline PyObject* rowSums(nta::UInt32 slice) const
-  {
-    nta::NumpyVectorT<nta::Real32> m(self->nRows());
-    self->rowSums(slice, m.begin(), m.end());
-    return m.forPython();
-  }
-
-  inline PyObject* colSums(nta::UInt32 slice) const
-  {
-    nta::NumpyVectorT<nta::Real32> m(self->nCols());
-    self->colSums(slice, m.begin(), m.end());
-    return m.forPython();
-  }
-
-  inline void scaleCols(nta::UInt32 slice, PyObject* py_x)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->scaleCols(slice, x.begin(), x.end());
-  }
-
-  inline void NZAddDownCols(nta::UInt32 slice, PyObject* py_x, nta::Real32 min_floor)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->NZAddDownCols(slice, x.begin(), x.end(), min_floor);
-  }
-
-  inline void NZAddAcrossRows(nta::UInt32 slice, PyObject* py_x, nta::Real32 min_floor)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->NZAddAcrossRows(slice, x.begin(), x.end(), min_floor);
-  }
-
-} // end extend nta::SparseR3FTensor
-*/
-
-//--------------------------------------------------------------------------------
- /*
-%extend nta::SparseR3FTensor<nta::UInt32, nta::UInt32, nta::Real32>
-{
-%pythoncode %{
-
-def __init__(self, *args): 
-  this = _MATH.new__ST_R3F_32_32_32()
-  try:
-    self.this.append(this)
-  except:
-    self.this = this
-  if len(args) == 2:
-    if isinstance(args[1], numpy.ndarray) or hasattr(args[1], '__iter__'):
-      self.initializeFromDense(args[0], numpy.asarray(args[1]))
-    if isinstance(args[1], _SM_01_32_32):
-      nz_i,nz_j = args[1].getAllNonZeros(True)
-      self.setAllNonZeros(args[0], args[1].nRows(), args[1].nCols(), nz_i,nz_j)
-    elif isinstance(args[1], _SparseMatrix32):
-      nz_i,nz_j,nz_v = args[1].getAllNonZeros(True)
-      self.setAllNonZeros(args[0], args[1].nRows(), args[1].nCols(), nz_i,nz_j)
-
-def __str__(self):
-    s = ''
-    for i in range(self.nSlices()):
-        s += self.toDense(i).__str__() + '\n\n'
-    return s
-%}
-
-  inline PyObject* getAllNonZeros(nta::UInt32 s, bool three_lists =false) const
-  {
-    const nta::UInt32 nnzps = self->nNonZerosPerSlice();
-    nta::NumpyVectorT<nta::UInt32> rows(nnzps), cols(nnzps);
-    nta::NumpyVectorT<nta::Real32> nz(nnzps);
-
-    self->getAllNonZeros(s, rows.begin(), rows.end(),
-			 cols.begin(), cols.end(),
-			 nz.begin(), nz.end());
-
-    PyObject* toReturn = NULL;
-
-    if (!three_lists) {
-      // Return one list of triples
-      toReturn = PyTuple_New(nnzps);
-      for (nta::UInt32 i = 0; i != nnzps; ++i) {
-	PyObject* tuple = PyTuple_New(3);
-	PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(rows.get(i)));
-	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(cols.get(i)));
-	PyTuple_SET_ITEM(tuple, 2, PyFloat_FromDouble(nz.get(i)));
-	PyTuple_SET_ITEM(toReturn, i, tuple);
-      }
-    } else {
-      // Return two lists
-      toReturn = PyTuple_New(3);
-      PyTuple_SET_ITEM(toReturn, 0, rows.forPython());
-      PyTuple_SET_ITEM(toReturn, 1, cols.forPython());
-      PyTuple_SET_ITEM(toReturn, 2, nz.forPython());
-    }
-
-    return toReturn;
-  } 
-
-  inline void setAllNonZeros(nta::UInt32 nslices, nta::UInt32 nrows, nta::UInt32 ncols,
-			     PyObject* py_nz_i, PyObject* py_nz_j, bool clean =true)
-  {
-    nta::NumpyVectorT<nta::UInt32> nz_i(py_nz_i);
-    nta::NumpyVectorT<nta::UInt32> nz_j(py_nz_j);
-    self->setAllNonZeros(nslices, nrows, ncols, 
-			 nz_i.begin(), nz_i.end(),
-			 nz_j.begin(), nz_j.end(),
-                         clean);
-  }
-
-  inline void initializeFromDense(nta::UInt32 nslices, PyObject* py_m)
-  {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
-    self->initializeFromDense(nslices, m.rows(), m.columns(), 
-                              m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
-  }
-
-  inline void fromDense(nta::UInt32 slice, PyObject* py_m)
-  {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
-    self->fromDense(slice,
-                    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
-  }
-
-  inline PyObject* toDense(nta::UInt32 slice) const 
-  {
-    int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
-    self->toDense(slice, out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
-    return out.forPython();
-  }
-
-  inline PyObject* rowSums(nta::UInt32 slice) const
-  {
-    nta::NumpyVectorT<nta::Real32> m(self->nRows());
-    self->rowSums(slice, m.begin(), m.end());
-    return m.forPython();
-  }
-
-  inline PyObject* colSums(nta::UInt32 slice) const
-  {
-    nta::NumpyVectorT<nta::Real32> m(self->nCols());
-    self->colSums(slice, m.begin(), m.end());
-    return m.forPython();
-  }
-
-  inline void scaleCols(nta::UInt32 slice, PyObject* py_x)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->scaleCols(slice, x.begin(), x.end());
-  }
-
-  inline void NZAddDownCols(nta::UInt32 slice, PyObject* py_x, nta::Real32 min_floor)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->NZAddDownCols(slice, x.begin(), x.end(), min_floor);
-  }
-
-  inline void NZAddAcrossRows(nta::UInt32 slice, PyObject* py_x, nta::Real32 min_floor)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    self->NZAddAcrossRows(slice, x.begin(), x.end(), min_floor);
-  }
-
-} // end extend nta::SparseR3FTensor
-
-
-%pythoncode %{
-  
-  #ST_R3F_32_16_32 = _ST_R3F_32_16_32
-  ST_R3F_32_32_32 = _ST_R3F_32_32_32
-
-  def SparseR3FTensor(*args, **keywords):
-    #if len(args) > 0 and \
-    #  isinstance(args[len(args)-1], basestring) and args[len(args)-1] == '32_16_32':
-    #  return _ST_R3F_32_16_32(*args[:-1])
-    #else:
-    return _ST_R3F_32_32_32(*args)
-%}
-*/
-#endif //NUPIC2
 
 //--------------------------------------------------------------------------------
 // Fast functions from our math library

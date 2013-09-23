@@ -29,22 +29,13 @@
 #ifndef NTA_VIDEO_SENSOR_NODE_HPP
 #define NTA_VIDEO_SENSOR_NODE_HPP
 
-#ifdef NUPIC2
 #include <nta/utils/Log.hpp>
-#else
-#include <nta/utils/Log.hpp>
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-#ifdef NUPIC2
 #include <nta/types/types.h>
-#else
-#include <nta/types/types.h>
-#endif
-
 #include "arrayBuffer.hpp"
 
 
@@ -141,11 +132,6 @@ typedef struct _TARGETSIZES {
   TARGETSIZE   anScales[MAXNUM_SCALES];
 } TARGETSIZES; 
 */
-
-#ifndef NUPIC2
-NTA_EXPORT 
-void initFromPython(unsigned long long refP);
-#endif
 
 // FUNCTION: adjustBox()
 // PURPOSE: Implements efficient adjustment of tracking box

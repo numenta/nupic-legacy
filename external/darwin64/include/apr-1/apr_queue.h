@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -57,13 +57,13 @@ APU_DECLARE(apr_status_t) apr_queue_create(apr_queue_t **queue,
                                            apr_pool_t *a);
 
 /**
- * push/add a object to the queue, blocking if the queue is already full
+ * push/add an object to the queue, blocking if the queue is already full
  *
  * @param queue the queue
  * @param data the data
  * @returns APR_EINTR the blocking was interrupted (try again)
  * @returns APR_EOF the queue has been terminated
- * @returns APR_SUCCESS on a successfull push
+ * @returns APR_SUCCESS on a successful push
  */
 APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data);
 
@@ -74,31 +74,31 @@ APU_DECLARE(apr_status_t) apr_queue_push(apr_queue_t *queue, void *data);
  * @param data the data
  * @returns APR_EINTR the blocking was interrupted (try again)
  * @returns APR_EOF if the queue has been terminated
- * @returns APR_SUCCESS on a successfull pop
+ * @returns APR_SUCCESS on a successful pop
  */
 APU_DECLARE(apr_status_t) apr_queue_pop(apr_queue_t *queue, void **data);
 
 /**
- * push/add a object to the queue, returning immediatly if the queue is full
+ * push/add an object to the queue, returning immediately if the queue is full
  *
  * @param queue the queue
  * @param data the data
  * @returns APR_EINTR the blocking operation was interrupted (try again)
  * @returns APR_EAGAIN the queue is full
  * @returns APR_EOF the queue has been terminated
- * @returns APR_SUCCESS on a successfull push
+ * @returns APR_SUCCESS on a successful push
  */
 APU_DECLARE(apr_status_t) apr_queue_trypush(apr_queue_t *queue, void *data);
 
 /**
- * pop/get an object to the queue, returning immediatly if the queue is empty
+ * pop/get an object to the queue, returning immediately if the queue is empty
  *
  * @param queue the queue
  * @param data the data
  * @returns APR_EINTR the blocking operation was interrupted (try again)
  * @returns APR_EAGAIN the queue is empty
  * @returns APR_EOF the queue has been terminated
- * @returns APR_SUCCESS on a successfull push
+ * @returns APR_SUCCESS on a successful pop
  */
 APU_DECLARE(apr_status_t) apr_queue_trypop(apr_queue_t *queue, void **data);
 
@@ -120,7 +120,7 @@ APU_DECLARE(unsigned int) apr_queue_size(apr_queue_t *queue);
 APU_DECLARE(apr_status_t) apr_queue_interrupt_all(apr_queue_t *queue);
 
 /**
- * terminate all queue, sendinging a interupt to all the
+ * terminate the queue, sending an interrupt to all the
  * blocking threads
  *
  * @param queue the queue

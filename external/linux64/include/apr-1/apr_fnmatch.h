@@ -66,16 +66,57 @@ extern "C" {
 
 /**
  * Try to match the string to the given pattern, return APR_SUCCESS if
- *    match, else return APR_FNM_NOMATCH.
+ *    match, else return APR_FNM_NOMATCH.  Note that there is no such thing as
+ *    an illegal pattern.
+ *
+ * With all flags unset, a pattern is interpreted as such:
+ *
+ * PATTERN: Backslash followed by any character, including another
+ *          backslash.<br/>
+ * MATCHES: That character exactly.
+ * 
+ * <p>
+ * PATTERN: ?<br/>
+ * MATCHES: Any single character.
+ * </p>
+ * 
+ * <p>
+ * PATTERN: *<br/>
+ * MATCHES: Any sequence of zero or more characters. (Note that multiple
+ *          *s in a row are equivalent to one.)
+ * 
+ * PATTERN: Any character other than \?*[ or a \ at the end of the pattern<br/>
+ * MATCHES: That character exactly. (Case sensitive.)
+ * 
+ * PATTERN: [ followed by a class description followed by ]<br/>
+ * MATCHES: A single character described by the class description.
+ *          (Never matches, if the class description reaches until the
+ *          end of the string without a ].) If the first character of
+ *          the class description is ^ or !, the sense of the description
+ *          is reversed.  The rest of the class description is a list of
+ *          single characters or pairs of characters separated by -. Any
+ *          of those characters can have a backslash in front of them,
+ *          which is ignored; this lets you use the characters ] and -
+ *          in the character class, as well as ^ and ! at the
+ *          beginning.  The pattern matches a single character if it
+ *          is one of the listed characters or falls into one of the
+ *          listed ranges (inclusive, case sensitive).  Ranges with
+ *          the first character larger than the second are legal but
+ *          never match. Edge cases: [] never matches, and [^] and [!]
+ *          always match without consuming a character.
+ * 
+ * Note that these patterns attempt to match the entire string, not
+ * just find a substring matching the pattern.
+ *
  * @param pattern The pattern to match to
  * @param strings The string we are trying to match
  * @param flags flags to use in the match.  Bitwise OR of:
- * <PRE>
+ * <pre>
  *              APR_FNM_NOESCAPE       Disable backslash escaping
  *              APR_FNM_PATHNAME       Slash must be matched by slash
  *              APR_FNM_PERIOD         Period must be matched by period
  *              APR_FNM_CASE_BLIND     Compare characters case-insensitively.
- * </PRE>
+ * </pre>
  */
 
 APR_DECLARE(apr_status_t) apr_fnmatch(const char *pattern, 

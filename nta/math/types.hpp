@@ -33,13 +33,8 @@
 #include <set>
 #include <algorithm> // sort
 
-#ifndef NUPIC2
 #include <nta/types/types.hpp>
 #include <nta/utils/Log.hpp> 
-#else 
-#include <nta/types/types.hpp>
-#include <nta/utils/Log.hpp>
-#endif
 
 /* This file is used by array_algo.hpp */
 

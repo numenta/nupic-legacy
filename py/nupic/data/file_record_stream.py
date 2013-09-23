@@ -64,7 +64,7 @@ contents using a for loop:
 import os
 import csv
 import copy
-import simplejson as json
+import json
 
 from nupic.data.fieldmeta import FieldMetaInfo
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -173,7 +173,7 @@ class FileRecordStream(RecordStreamIface):
     else:
       os.linesep = '\n' # make sure readline() works on windows too.
       # Read header lines
-      self._reader = csv.reader(self._file, dialect='excel')
+      self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
       try:
         names = [n.strip() for n in self._reader.next()]
       except:
@@ -311,7 +311,7 @@ class FileRecordStream(RecordStreamIface):
 
     self.close()
     self._file = open(self._filename, self._mode)
-    self._reader = csv.reader(self._file, dialect='excel')
+    self._reader = csv.reader(self._file, dialect='excel', quoting=csv.QUOTE_NONE)
     
     # Skip header rows
     row = self._reader.next()
@@ -529,7 +529,7 @@ class FileRecordStream(RecordStreamIface):
       os.linesep = '\n' # make sure readline() works on windows too.
 
       # Create a new reader; read names, types, specials
-      reader = csv.reader(inFile, dialect='excel')
+      reader = csv.reader(inFile, dialect='excel', quoting=csv.QUOTE_NONE)
       names = [n.strip() for n in reader.next()]
       types = [t.strip() for t in reader.next()]
       # Skip over specials
@@ -549,7 +549,7 @@ class FileRecordStream(RecordStreamIface):
         try:
           line = reader.next()
           for i, f in enumerate(line):
-            if types[i] in ['int', 'float'] and f not in self._missingValues:
+            if len(types) > i and types[i] in ['int', 'float'] and f not in self._missingValues:
               value = self._adapters[i](f)
               if self._stats['max'][i] == None or \
                  self._stats['max'][i] < value:
