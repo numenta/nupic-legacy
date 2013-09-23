@@ -19,6 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""
+TODO: Move encoder tests out of this module.
+"""
+
+from .arithmetic_encoder import ArithmeticEncoder
 from scalar import ScalarEncoder, testScalarEncoder
 from adaptivescalar import AdaptiveScalarEncoder, testAdaptiveScalarEncoder
 from date import DateEncoder, testDateEncoder
