@@ -463,7 +463,7 @@ void VectorFileSensor::seek(int n)
   iterations_ = 0;
   curVector_ = n - 1;
   //circular-buffer, reached one end of vector/line, continue fro the other
-  if (n - 1 < 0) curVector_ = (NTA_Size)vectorFile_.vectorCount();
+  if (n - 1 <= 0) curVector_ = (NTA_Size)vectorFile_.vectorCount() - 1;
 }
 
 size_t VectorFileSensor::getNodeOutputElementCount(const std::string& outputName)
