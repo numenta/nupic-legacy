@@ -27,6 +27,7 @@ AC_INIT([NuPIC], 1.0.0)
 # This directory is where libtoolize and automake put their scripts
 # must come before AM_INIT_AUTOMAKE
 AC_CONFIG_AUX_DIR([build_system/unix])
+AC_LANG([C++])
 
 # Find out what system we're on.
 # Must be called before AM_INIT_AUTOMAKE
@@ -75,10 +76,8 @@ AC_PROG_LIBTOOL
 
 AC_PROG_INSTALL
 
-if [[ "$PYTHON_VERSION" != "2.6" && "$PYTHON_VERSION" != "2.7" ]]; then
+if [[ "$PYTHON_VERSION" != "2.6" ]] && [[ "$PYTHON_VERSION" != "2.7" ]]; then
     AC_MSG_ERROR([Python 2.6 or 2.7 is required. You have version $PYTHON_VERSION])
-elif [[ "$PYTHON_VERSION" == "2.7" ]]; then
-    AC_SUBST([_PY27],[-D_PY27])
 fi
 
 #
@@ -87,11 +86,11 @@ fi
 PYTHON_SYS_PREFIX=`$PYTHON -c "import sys; print sys.prefix"`
 AC_MSG_NOTICE([Python sys prefix is $PYTHON_SYS_PREFIX])
 
-PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib"
+PYTHON_SYS_LIB="$PYTHON_SYS_PREFIX/lib/python$PYTHON_VERSION"
 AC_MSG_NOTICE([Python lib dir is $PYTHON_SYS_LIB])
 AC_SUBST(PYTHON_SYS_LIB)
 
-PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include"
+PYTHON_SYS_INCLUDE="$PYTHON_SYS_PREFIX/include/python$PYTHON_VERSION"
 AC_SUBST(PYTHON_SYS_INCLUDE)
 
 
@@ -121,7 +120,7 @@ case "${target}" in
         nta_platform="darwin64"
         nta_platform_cxxflags="-fPIC -DPIC -m64"
         # link against the system version of python (64-bits)
-        nta_platform_python_libs=`python$(PYTHON_VERSION)-config --ldflags`
+        nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
         nta_platform_env1="MACOSX_DEPLOYMENT_TARGET=10.7"
         AC_MSG_RESULT([darwin on x86_64])
         nta_platform_asflags=""
@@ -138,9 +137,9 @@ case "${target}" in
         nta_platform_asflags=""
         nta_platform_debug_flag="-g"
         nta_platform_ldflags="-static-libgcc"
-	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt"
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="`python2-config --ldflags` -lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"
@@ -153,9 +152,9 @@ case "${target}" in
 	nta_platform_debug_flag="-g"
 	# nta_platform_ldflags="-static-libgcc"
 	# pthread needed by libapr-1
-	nta_platform_libs='-lm -lpthread -ldl -lutil -lcrypt -lstdc++'
+	nta_platform_libs='-lm -lpthread -ldl -lutil -lstdc++'
 	nta_platform_mpi_extra_libs="-lrt"
-	nta_platform_python_libs="`python2-config --ldflags` -lpython\$(PYTHON_VERSION)"
+	nta_platform_python_libs=`python${PYTHON_VERSION}-config --ldflags`
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"
@@ -195,7 +194,7 @@ if test -z "$SWIG" ; then
    SWIG='echo "Error: SWIG is not installed. Error in NuPIC source installation"'
 fi
 
-SWIG_LIB=${extdir}/share/swig/1.3.36
+SWIG_LIB=${srcdir}/external/common/share/swig/1.3.36
 AC_SUBST([SWIG_LIB])
 
 AC_MSG_NOTICE([SWIG executable is '$SWIG'])

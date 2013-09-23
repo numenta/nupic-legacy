@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+# the file does not build in the current state, would be nice if we can make it run again 
 
 import os
 import sys
@@ -54,6 +55,7 @@ def buildApp(trunkDir, releaseDir, version="DEV", appName="Numenta People Tracke
     print "Removing previous installation"
     shutil.rmtree("dist")
 
+  # PIL moved from external sources to pip package, maybe the following paths need to be changed, 
   src = os.path.join(sitePackagesDir, "PIL")
   dest = os.path.join(sitePackagesDir, "Image")
   if not os.path.exists(dest):

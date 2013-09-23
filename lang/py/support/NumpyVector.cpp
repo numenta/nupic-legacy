@@ -26,16 +26,10 @@
 /** @file
  */
 
-// #include <nta/python/cpplibs/Python.h>
-
 
 
 //#define NO_IMPORT_ARRAY
-#ifdef _PY27 
-#include <python2.7/Python.h>
-#else
-#include <python2.6/Python.h>
-#endif
+#include <Python.h>
 
 #include <numpy/arrayobject.h>
 
@@ -49,7 +43,6 @@
 #define SIZEOF_DOUBLE 64
 #endif
 
-// #include <nta/python/cpplibs/types.hpp>
 #include <lang/py/support/NumpyVector.hpp>
 
 #include <stdexcept>

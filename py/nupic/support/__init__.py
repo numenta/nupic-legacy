@@ -68,7 +68,6 @@ from __future__ import with_statement
 
 # Standard imports
 import datetime
-from distutils import version
 import os
 import sys
 import inspect
@@ -76,7 +75,6 @@ import logging
 import logging.config
 import logging.handlers
 from platform import python_version
-import simplejson
 import struct
 from StringIO import StringIO
 import time
@@ -498,8 +496,8 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
         customConfig.write(line)
     
     customConfig.seek(0)
-    if version.StrictVersion(python_version()) >= version.StrictVersion('2.6'):
-      # NOTE: the disable_existing_loggers arg is new as of python 2.6, so it's
+    if python_version()[:3] >= '2.6':
+      # NOTE: the disable_existing_loggers arg is new as of Python 2.6, so it's
       #  not supported on our jython interperter, which was v2.5.x as of this
       #  writing
       logging.config.fileConfig(customConfig, disable_existing_loggers=False)
@@ -631,32 +629,6 @@ def clippedObj(obj, maxElementSize=64):
 
   return objOut
 
-
-#############################################################################
-def sortedJSONDumpS(obj):
-  """
-  Return a JSON representation of obj with sorted keys on any embedded dicts.
-  This insures that the same object will always be represented by the same
-  string even if it contains dicts (where the sort order of the keys is
-  normally undefined).
-  """
-
-  itemStrs = []
-
-  if isinstance(obj, dict):
-    items = obj.items()
-    items.sort()
-    for key, value in items:
-      itemStrs.append('%s: %s' % (simplejson.dumps(key), sortedJSONDumpS(value)))
-    return '{%s}' % (', '.join(itemStrs))
-
-  elif hasattr(obj, '__iter__'):
-    for val in obj:
-      itemStrs.append(sortedJSONDumpS(val))
-    return '[%s]' % (', '.join(itemStrs))
-
-  else:
-    return simplejson.dumps(obj)
 
 
 ###############################################################################
@@ -799,31 +771,3 @@ def aggregationDivide(dividend, divisor):
     
 
 
-
-#####################################################################################
-if __name__ == "__main__":
-
-  foo = [1, {'a':1, 'b':2}, 3]
-  print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = 42
-  print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = [1, 3, 5]
-  print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = {'za':1, 'b':2}
-  print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
-
-  foo = {'za':1, 'b':[3, 4, 5, {'zc':3, 'd':[10,11]}]}
-  print "\nobj %r: "% (foo)
-  print " json:      ", simplejson.dumps(foo)
-  print " sortedJSON:", sortedJSONDumpS(foo)
