@@ -39,20 +39,28 @@ import unittest2 as unittest
 from nupic.engine import Array, Dimensions, Network
 
 g_filename = pkg_resources.resource_filename(__name__, "data/vectorfile.nta")
-g_dataFile = pkg_resources.resource_filename(__name__, "data/vectortestdata.txt")
-g_dataFile2 = pkg_resources.resource_filename(__name__, "data/vectortestdata2.txt")
-g_dataFileCSV  = pkg_resources.resource_filename(__name__, "data/vectortestdata.csv")
-g_dataFileCSV2 = pkg_resources.resource_filename(__name__, "data/vectortestdata2.csv")
-g_dataFileCSV3 = pkg_resources.resource_filename(__name__, "data/vectortestdata3.csv")
-g_dataFileLF4 = pkg_resources.resource_filename(__name__, "data/vectortestdata.lf4")
-g_dataFileBF4 = pkg_resources.resource_filename(__name__, "data/vectortestdata.bf4")
-g_dataFileIDX = pkg_resources.resource_filename(__name__, "data/vectortestdata.idx")
+g_dataFile = pkg_resources.resource_filename(__name__,
+                                             "data/vectortestdata.txt")
+g_dataFile2 = pkg_resources.resource_filename(__name__,
+                                              "data/vectortestdata2.txt")
+g_dataFileCSV  = pkg_resources.resource_filename(__name__,
+                                                 "data/vectortestdata.csv")
+g_dataFileCSV2 = pkg_resources.resource_filename(__name__,
+                                                 "data/vectortestdata2.csv")
+g_dataFileCSV3 = pkg_resources.resource_filename(__name__,
+                                                 "data/vectortestdata3.csv")
+g_dataFileLF4 = pkg_resources.resource_filename(__name__,
+                                                "data/vectortestdata.lf4")
+g_dataFileBF4 = pkg_resources.resource_filename(__name__,
+                                                "data/vectortestdata.bf4")
+g_dataFileIDX = pkg_resources.resource_filename(__name__,
+                                                "data/vectortestdata.idx")
 
 
 
 class VectorFileSensorTest(unittest.TestCase):
-  """Class for testing the VectorFileSensor plugin by loading a known network with a
-  single VectorFileSensor node and a known data file."""
+  """Class for testing the VectorFileSensor plugin by loading a known network
+  with a single VectorFileSensor node and a known data file."""
 
 
   def setUp(self):
@@ -72,9 +80,13 @@ class VectorFileSensorTest(unittest.TestCase):
     self.testsPassed = 0
     self.testFailures = []
 
+    self.sensor = None
+
 
   def testAll(self):
-    """Run all the tests in our suite, catching any exceptions that might be thrown."""
+    """Run all the tests in our suite, catching any exceptions that might be
+    thrown.
+    """
     print 'VectorFileSensorTest parameters:'
     print 'PYTHONPATH: %s' % os.environ.get('PYTHONPATH', 'NOT SET')
     print 'filename: %s' % self.filename
@@ -107,8 +119,8 @@ class VectorFileSensorTest(unittest.TestCase):
     self._testLoadFile(self.dataFile6, '6', '0')
     self._testRun()
     self._testPosition()
-    self._testAppendFile(self.dataFile2, '2', '1',10)
-    self._testAppendFile(self.dataFile, '0', '1',15)
+    self._testAppendFile(self.dataFile2, '2', '1', 10)
+    self._testAppendFile(self.dataFile, '0', '1', 15)
     self._testRun()
     self._testScaling(self.dataFile3b, '3')
 
@@ -127,12 +139,10 @@ class VectorFileSensorTest(unittest.TestCase):
     r = n.addRegion(self.nodeName, self.sensorName, '{ activeOutputCount: 11}')
     r.dimensions = Dimensions([1])
     n.save(self.filename)
-    try:
-      n = Network(self.filename)
-      n.initialize()
-      self.testsPassed += 1
-    except:
-      self.assertTrue(False, "Can't load %s" % self.filename)
+
+    n = Network(self.filename)
+    n.initialize()
+    self.testsPassed += 1
 
     # Check that vectorCount parameter is zero
     r = n.regions[self.nodeName]
@@ -141,7 +151,6 @@ class VectorFileSensorTest(unittest.TestCase):
     self.assertEqual(
         res, 0, "getting vectorCount:\n Expected '0',  got back  '%d'\n" % res)
 
-    self.net = n
     self.sensor = r
 
 
@@ -153,8 +162,8 @@ class VectorFileSensorTest(unittest.TestCase):
 
 
   def _testRunWithoutFile(self):
-    """Test running the network without a file loaded. This should be run before any
-    file has been loaded in!"""
+    """Test running the network without a file loaded. This should be run
+    before any file has been loaded in!"""
     with self.assertRaises(AttributeError):
       self.sensor.compute()
 
@@ -180,28 +189,29 @@ class VectorFileSensorTest(unittest.TestCase):
         res, 42, "set repeatCount to 42:\n   got back     '%d'\n" % res)
 
     res = sensor.executeCommand(['dump'])
-    expected = self.sensorName + \
-               ' isLabeled = 0 repeatCount = 42 vectorCount = 0 iterations = 0\n'
+    expected = (self.sensorName +
+                ' isLabeled = 0 repeatCount = 42 vectorCount = 0 '
+                'iterations = 0\n')
     self.assertEqual(
         res, expected,
         "set to 42 test:\n   expected '%s'\n   got      '%s'\n" %
         (expected, res))
-    sensor.setParameter('repeatCount',1)
+    sensor.setParameter('repeatCount', 1)
 
 
-  def _testLoadFile(self, dataFile, format= '', iterations='',
-                   hasCategory=False, hasResetOut=False):
+  def _testLoadFile(self, dataFile, fileFormat= '', iterations=''):
     """Test reading our sample vector file. The sample file
     has 5 vectors of the correct length, plus one with incorrect length.
     The sensor should ignore the last line."""
 
     # Now load a real file
-    if format != '':
-      res = self.sensor.executeCommand(['loadFile', dataFile, format])
+    if fileFormat != '':
+      res = self.sensor.executeCommand(['loadFile', dataFile, fileFormat])
     else:
       res = self.sensor.executeCommand(['loadFile', dataFile])
 
-    self.assertTrue(res == '' or res.startswith('VectorFileSensor read in file'),
+    self.assertTrue(res == '' or
+                    res.startswith('VectorFileSensor read in file'),
                     'loading a real file: %s' % str(res))
 
     # Check recent file
@@ -218,14 +228,15 @@ class VectorFileSensorTest(unittest.TestCase):
                      (expected, res))
 
 
-  def _testAppendFile(self, dataFile, format= '', iterations='', numVecs=''):
+  def _testAppendFile(self, dataFile, fileFormat= '', iterations='',
+                      numVecs=''):
     """Test appending our sample vector file. The sample file
     has 5 vectors of the correct length, plus one with incorrect length.
     The sensor should ignore the last line."""
 
     # Now load a real file
-    if format != '':
-      res = self.sensor.executeCommand(['appendFile', dataFile, format])
+    if fileFormat != '':
+      res = self.sensor.executeCommand(['appendFile', dataFile, fileFormat])
     else:
       res = self.sensor.executeCommand(['appendFile', dataFile])
 
@@ -261,10 +272,11 @@ class VectorFileSensorTest(unittest.TestCase):
     self.sensor.setParameter('repeatCount', 3)
     self.sensor.setParameter('position', 0)
 
-    # run the sensor several times to ensure it is outputting the correct values.
-    for epoch in [1,2]:               # test looping
-      for vec in [0,1,2,3,4]:         # test each vector
-        for rc in [1,2,3]:            # test repeatCount
+    # Run the sensor several times to ensure it is outputting the correct
+    # values.
+    for _epoch in [1, 2]:  # test looping
+      for vec in [0, 1, 2, 3, 4]:  # test each vector
+        for _rc in [1, 2, 3]:  # test repeatCount
           # Run and get outputs
           self.sensor.compute()
           outputs = self.sensor.getOutputData('dataOut')
@@ -275,7 +287,7 @@ class VectorFileSensorTest(unittest.TestCase):
           self.assertEqual(sum(outputs), vec+1, 'output = %s' % str(outputs))
 
     # Set repeat count back to 1
-    self.sensor.setParameter('repeatCount',1)
+    self.sensor.setParameter('repeatCount', 1)
 
 
   def _testOutputCounts(self, vectorCount):
@@ -293,7 +305,7 @@ class VectorFileSensorTest(unittest.TestCase):
     self.assertEqual(res, 3 * vectorCount,
                      'getting maxOutputVectorCount:\n Expected ' +
                      str(3*vectorCount)+',  got back  "%d"\n' % res)
-    self.sensor.setParameter('repeatCount',1)
+    self.sensor.setParameter('repeatCount', 1)
 
     # Test activeOutputCount
     res = self.sensor.getParameter('activeOutputCount')
@@ -303,9 +315,9 @@ class VectorFileSensorTest(unittest.TestCase):
 
 
   def _testPosition(self):
-    """Test setting and getting position parameter. Run compute once to verify it
-    went to the right position."""
-    self.sensor.setParameter('position',2)
+    """Test setting and getting position parameter. Run compute once to verify
+    it went to the right position."""
+    self.sensor.setParameter('position', 2)
     self.sensor.compute()
     outputs = self.sensor.getOutputData('dataOut')
 
@@ -319,7 +331,7 @@ class VectorFileSensorTest(unittest.TestCase):
                      res)
 
 
-  def _testScaling(self, dataFile, format= ''):
+  def _testScaling(self, dataFile, fileFormat= ''):
     """Specific tests for setScaleVector, setOffsetVector, and scalingMode"""
 
     # Retrieve scalingMode after a netLoad. Should be 'none'
@@ -328,7 +340,8 @@ class VectorFileSensorTest(unittest.TestCase):
                      'Getting scalingMode:\n Expected "none", got back "%s"\n' %
                      res)
 
-    # retrieve scaling and offset after netLoad - should be 1 and zero respectively
+    # Retrieve scaling and offset after netLoad - should be 1 and zero
+    # respectively.
     a = Array('Real32', 11)
     self.sensor.getParameterArray('scaleVector', a)
     self.assertEqual(str(a), '[ 1 1 1 1 1 1 1 1 1 1 1 ]',
@@ -341,10 +354,11 @@ class VectorFileSensorTest(unittest.TestCase):
                      str(res))
 
     # load data file, set scaling and offset to standardForm and check
-    self.sensor.executeCommand(['loadFile', dataFile, format])
+    self.sensor.executeCommand(['loadFile', dataFile, fileFormat])
     self.sensor.setParameter('scalingMode', 'standardForm')
     self.sensor.getParameterArray('scaleVector', a)
-    s = '[ 2.23607 1.11803 0.745356 0.559017 0.447214 2.23607 1.11803 0.745356 0.559017 0.447214 2.23607 ]'
+    s = ('[ 2.23607 1.11803 0.745356 0.559017 0.447214 2.23607 1.11803 '
+         '0.745356 0.559017 0.447214 2.23607 ]')
     self.assertEqual(
         str(a), s,
         'Error getting standardForm scaleVector:\n Got back "%s"\n' % res)
@@ -358,7 +372,7 @@ class VectorFileSensorTest(unittest.TestCase):
     # set to custom value and check
 
     scaleVector = Array('Real32', 11)
-    for i,x in enumerate((1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1)):
+    for i, x in enumerate((1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1)):
       scaleVector[i] = x
     self.sensor.setParameterArray('scaleVector', scaleVector)
     self.sensor.getParameterArray('scaleVector', a)
@@ -382,9 +396,9 @@ class VectorFileSensorTest(unittest.TestCase):
         mode, 'custom',
         'Getting scalingMode:\n Expected "custom", got back "%s"\n' % res)
 
-    # At this point we test loading a data file using loadFile. The scaling params should still be
-    # active and applied to the new vectors.
-    res = self.sensor.executeCommand(['loadFile', dataFile, format])
+    # At this point we test loading a data file using loadFile. The scaling
+    # params should still be active and applied to the new vectors.
+    res = self.sensor.executeCommand(['loadFile', dataFile, fileFormat])
     self.sensor.getParameterArray('offsetVector', a)
     self.assertEqual(
         str(a), str(offsetVector),
@@ -396,7 +410,8 @@ class VectorFileSensorTest(unittest.TestCase):
                      'Error getting modified scaleVector after loadFile:\n '
                      'Got back "%s"\n' % res)
 
-    # set scaling mode back to none and retrieve scaling and offset - should be 1 and zero respectively
+    # Set scaling mode back to none and retrieve scaling and offset - should
+    # be 1 and zero respectively.
     self.sensor.setParameter('scalingMode', 'none')
     self.sensor.getParameterArray('scaleVector', a)
     noScaling = Array('Real32', 11)
@@ -428,12 +443,13 @@ class VectorFileSensorTest(unittest.TestCase):
     self.sensor.setParameter('repeatCount', 3)
     self.sensor.setParameter('position', 0)
 
-    # run the sensor several times to ensure it is outputting the correct values.
+    # Run the sensor several times to ensure it is outputting the correct
+    # values.
     categories = []
     resetOuts = []
-    for epoch in [1,2]:               # test looping
-      for vec in [0,1,2,3,4]:         # test each vector
-        for rc in [1,2,3]:            # test repeatCount
+    for _epoch in [1, 2]:               # test looping
+      for vec in [0, 1, 2, 3, 4]:         # test each vector
+        for _rc in [1, 2, 3]:            # test repeatCount
           # Run and get outputs
           self.sensor.compute()
           outputs = self.sensor.getOutputData('dataOut')
@@ -453,7 +469,7 @@ class VectorFileSensorTest(unittest.TestCase):
                      2 * [1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1])
 
     # Set repeat count back to 1
-    self.sensor.setParameter('repeatCount',1)
+    self.sensor.setParameter('repeatCount', 1)
 
 
 
