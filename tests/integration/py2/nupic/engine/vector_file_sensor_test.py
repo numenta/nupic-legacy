@@ -31,7 +31,6 @@ Need to add tests for parameters:
 """
 
 import os
-import sys
 
 import pkg_resources
 import unittest2 as unittest
@@ -474,16 +473,4 @@ class VectorFileSensorTest(unittest.TestCase):
 
 
 if __name__=='__main__':
-  assert len(sys.argv) in [1, 10]
-  if (len(sys.argv) == 10):
-    g_filename = sys.argv[1]
-    g_dataFile = sys.argv[2]
-    g_dataFile2 = sys.argv[3]
-    g_dataFileCSV = sys.argv[4]
-    g_dataFileCSV2 = sys.argv[5]
-    g_dataFileCSV3 = sys.argv[6]
-    g_dataFileLF4 = sys.argv[7]
-    g_dataFileBF4 = sys.argv[8]
-    g_dataFileIDX = sys.argv[9]
-
   unittest.main()
