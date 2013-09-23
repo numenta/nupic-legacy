@@ -28,14 +28,17 @@ from pylint.interfaces import IRawChecker
 
 
 MSGS = {
-    'W9820': ('Non-executable script', 'non-executable',
+    'W9820': ('Non-executable script - script has shebang line or __main__ '
+              'block but the executable bit is not set.', 'non-executable',
               'Used when a script has a shebang line or __main__ check but '
               'is not executable.'),
-    'W9821': ('Unprotected executable code', 'executable-no-main',
+    'W9821': ('Unprotected executable code - script is executable or has '
+              'shebang line but has no __main__ block.', 'executable-no-main',
               'Used when a script has a shebang line or has executable '
               'permissions but does not have a __main__ check.'),
     'W9822': ('Missing shebang or improper shebang (should be "#!/usr/bin/env '
-              'python")', 'executable-no-shebang',
+              'python") for script that has __main__ block or has executable '
+              'bit set.', 'executable-no-shebang',
               'Used when a script has executable permissions or has a __main__ '
               'check but is missing a shebang line.'),
     }
@@ -72,9 +75,9 @@ class ExecutableChecker(BaseChecker):
         break
 
     if (hasShebang or hasMainProtection) and not isExecutable:
-      self.add_message('W9820')
+      self.add_message('W9820', line=1)
     if (isExecutable or hasShebang) and not hasMainProtection:
-      self.add_message('W9821')
+      self.add_message('W9821', line=1)
     if (isExecutable or hasMainProtection) and not hasShebang:
       self.add_message('W9822', line=1)
 
