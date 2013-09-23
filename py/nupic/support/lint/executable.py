@@ -28,17 +28,22 @@ from pylint.interfaces import IRawChecker
 
 
 MSGS = {
-    'W9820': ('Non-executable script - script has shebang line or __main__ '
-              'block but the executable bit is not set.', 'non-executable',
-              'Used when a script has a shebang line or __main__ check but '
-              'is not executable.'),
-    'W9821': ('Unprotected executable code - script is executable or has '
-              'shebang line but has no __main__ block.', 'executable-no-main',
-              'Used when a script has a shebang line or has executable '
-              'permissions but does not have a __main__ check.'),
-    'W9822': ('Missing shebang or improper shebang (should be "#!/usr/bin/env '
-              'python") for script that has __main__ block or has executable '
-              'bit set.', 'executable-no-shebang',
+    'W9820': ('Non-executable script - script has __main__ block but the '
+              'executable bit is not set.  Set the executable bit on the '
+              'script or remove the __main__ block.', 'non-executable',
+              'Used when a script has a __main__ block but is not executable.'),
+    'W9821': ('Missing shebang or improper shebang (should be "#!/usr/bin/env '
+              'python") for script that has __main__ block.  Add the shebang '
+              'line or remove the __main__ block.', 'no-shebang',
+              'Used when a script has has a __main__ check but is missing a '
+              'shebang line.'),
+    'W9822': ('Script has the executable bit set but there is no __main__ '
+              'block. Unset the executable bit or add a __main__ block for the '
+              'executable code.', 'no-main-executable',
+              'Used when a script has no __main__ check but is executable.'),
+    'W9823': ('File has a shebang line at the top but has no __main__ block.  '
+              'Remove the shebang line or add a __main__ conditional.',
+              'no-main-shebang',
               'Used when a script has executable permissions or has a __main__ '
               'check but is missing a shebang line.'),
     }
@@ -74,12 +79,16 @@ class ExecutableChecker(BaseChecker):
         hasMainProtection = True
         break
 
-    if (hasShebang or hasMainProtection) and not isExecutable:
-      self.add_message('W9820', line=1)
-    if (isExecutable or hasShebang) and not hasMainProtection:
-      self.add_message('W9821', line=1)
-    if (isExecutable or hasMainProtection) and not hasShebang:
-      self.add_message('W9822', line=1)
+    if hasMainProtection:
+      if not isExecutable:
+        self.add_message('W9820', line=1)
+      if not hasShebang:
+        self.add_message('W9821', line=1)
+    else:
+      if isExecutable:
+        self.add_message('W9822', line=1)
+      if hasShebang:
+        self.add_message('W9823', line=1)
 
 
 def register(linter):
