@@ -100,9 +100,9 @@ nav {
 }
 
 header {
-  width:300px;
-  float:left;
-  position:fixed;
+  float: left;
+  height: 720px;
+  width: 300px;
 }
 
 header ul.buttons {
