@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -218,7 +218,7 @@ APU_DECLARE(apr_xml_parser *) apr_xml_parser_create(apr_pool_t *pool);
  * Parse a File, producing a xml_doc
  * @param p      The pool for allocating the parse results.
  * @param parser A pointer to *parser (needed so calling function can get
- *               errors), will be set to NULL on successfull completion.
+ *               errors), will be set to NULL on successful completion.
  * @param ppdoc  A pointer to *apr_xml_doc (which has the parsed results in it)
  * @param xmlfd  A file to read from.
  * @param buffer_length Buffer length which would be suitable 
@@ -304,10 +304,10 @@ APU_DECLARE(const char *) apr_xml_empty_elem(apr_pool_t *p,
 
 /**
  * quote an XML string
- * Replace '<', '>', and '&' with '&lt;', '&gt;', and '&amp;'.
+ * Replace '\<', '\>', and '\&' with '\&lt;', '\&gt;', and '\&amp;'.
  * @param p The pool to allocate out of
  * @param s The string to quote
- * @param quotes If quotes is true, then replace '"' with '&quot;'.
+ * @param quotes If quotes is true, then replace '&quot;' with '\&quot;'.
  * @return The quoted string
  * @note If the string does not contain special characters, it is not
  * duplicated into the pool and the original string is returned.

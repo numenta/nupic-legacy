@@ -38,13 +38,8 @@
 
 #include <boost/concept_check.hpp>
 
-#ifdef NUPIC2
 #include <nta/types/types.hpp>
 #include <nta/math/utils.hpp>
-#else
-#include <nta/types/types.hpp>
-#include <nta/common/utils.hpp>
-#endif
 
 #ifdef WIN32
 #undef min
