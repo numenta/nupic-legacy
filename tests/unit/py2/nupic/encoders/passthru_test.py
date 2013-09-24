@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for BitmapArray Encoder."""
+"""Unit tests for PassThru Encoder."""
 
 CL_VERBOSITY = 0
 
@@ -29,19 +29,19 @@ import unittest2 as unittest
 
 import numpy
 
-from nupic.encoders.bitmaparray import BitmapArrayEncoder
+from nupic.encoders.passthru import PassThruEncoder
 
 
 
-class BitmapArrayEncoderTest(unittest.TestCase):
-  """Unit tests for BitmapArrayEncoder class."""
+class PassThruEncoderTest(unittest.TestCase):
+  """Unit tests for PassThruEncoder class."""
 
 
   def setUp(self):
-    self.n = 25
+    self.n = 9
     self.w = 1
     self.name = "foo"
-    self._encoder = BitmapArrayEncoder
+    self._encoder = PassThruEncoder
 
 
   def testInitialization(self):
@@ -49,28 +49,26 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     self.assertEqual(type(e), self._encoder)
 
 
-  def testEncodeString(self):
-    """Send array as csv string."""
-    e = self._encoder(self.n, self.w, self.name)
-    bitmap = "2,7,15,18,23"
-    out = e.encode(bitmap)
-    assert out.sum() == len(bitmap.split(','))*self.w
-
-    x = e.decode(out)
-    assert isinstance(x[0], dict)
-    assert self.name in x[0]
-
-
   def testEncodeArray(self):
-    """Send bitmap as array of indicies"""
+    """Send bitmap as array"""
     e = self._encoder(self.n, self.w, self.name)
-    bitmap = [2,7,15,18,23]
+    bitmap = [0,0,0,1,0,0,0,0,0]
     out = e.encode(bitmap)
-    assert out.sum() == len(bitmap)*self.w
+    assert out.sum() == sum(bitmap)*self.w
 
     x = e.decode(out)
     assert isinstance(x[0], dict)
     assert self.name in x[0]
+
+
+  def testEncodeBitArray(self):
+    """Send bitmap as numpy bit array"""
+    e = self._encoder(self.n, self.w, self.name)
+    bitmap = numpy.zeros(self.n, dtype=numpy.uint8)
+    bitmap[3] = 1
+    bitmap[5] = 1
+    out = e.encode(bitmap)
+    assert out.sum() == sum(bitmap)*self.w
 
 
   def testClosenessScores(self):
@@ -78,48 +76,48 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, self.name)
 
     """Identical => 1"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [2,7,15,18,23]
+    bitmap1 = [0,0,0,1,1,1,0,0,0]
+    bitmap2 = [0,0,0,1,1,1,0,0,0]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 1.0
 
     """No overlap => 0"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [3,9,14,19,24]
+    bitmap1 = [0,0,0,1,1,1,0,0,0]
+    bitmap2 = [1,1,1,0,0,0,1,1,1]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 0.0
 
     """Similar => 4 of 5 match"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [2,7,17,18,23]
+    bitmap1 = [1,0,1,0,1,0,1,0,1]
+    bitmap2 = [1,0,0,1,1,0,1,0,1]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 0.8
 
     """Little => 1 of 5 match"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [3,7,17,19,24]
+    bitmap1 = [1,0,0,1,1,0,1,0,1]
+    bitmap2 = [0,1,1,1,0,1,0,1,0]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 0.2
 
     """Extra active bit => off by 1 of 5"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [2,7,11,15,18,23]
+    bitmap1 = [1,0,1,0,1,0,1,0,1]
+    bitmap2 = [1,0,1,1,1,0,1,0,1]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 0.8
 
     """Missing active bit => off by 1 of 5"""
-    bitmap1 = [2,7,15,18,23]
-    bitmap2 = [2,7,18,23]
+    bitmap1 = [1,0,1,0,1,0,1,0,1]
+    bitmap2 = [1,0,0,0,1,0,1,0,1]
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
@@ -128,10 +126,10 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testRobustness(self):
     """Encode bitmaps with robustness (w) set"""
+    self.n = 27 
     self.w = 3
-    self.n = self.n * self.w
-    self.testEncodeString()
     self.testEncodeArray()
+    self.testEncodeBitArray()
     self.testClosenessScores()
 
 
