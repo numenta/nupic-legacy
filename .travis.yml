@@ -36,7 +36,7 @@ notifications:
 
 before_install:
   - git clone https://github.com/numenta/nupic-linux64.git
-  - (cd nupic-linux64 && git reset --hard 9da95a163995848c338f2b3b84568cd0047e13b4)
+  - (cd nupic-linux64 && git reset --hard d8f87d0c0a6a29157be87ed47ed1e544c8b4589e)
   - source nupic-linux64/bin/activate
   - printenv | sort
   - gem install travis-artifacts
