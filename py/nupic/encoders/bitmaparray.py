@@ -28,16 +28,18 @@ class BitmapArrayEncoder(Encoder):
 
   Each encoding is an SDR in which w out of n bits are turned on.
   The input should be an array or string of indicies to turn on
-  i.e. for n=8 [0,2,5] => 101001000
-    or for n=8 "0,2,5" => 101001000
+  i.e. for n=8 w=1 [0,2,5] => 101001000
+    or for n=8 w=1 "0,2,5" => 101001000
 
+  i.e. for n=8 w=3 [0,2,5] => 111000111000000111000000000
+    or for n=8 w=3 "0,2,5" => 111000111000000111000000000
   """
 
   ############################################################################
   def __init__(self, n, w, name="bitmaparray", verbosity=0):
     """
-    n is the total bits in input/output
-    w is the number of bits that are turned on for each rep
+    n is the total bits in input
+    w is the number of bits used to encode each input bit
     """
 
     self.n = n
@@ -76,8 +78,10 @@ class BitmapArrayEncoder(Encoder):
     if type(input) == str:
       input = input.split(',')
 
+    output = numpy.zeros(self.n * self.w)
     for i in input:
-      output[int(i)] = 1
+      for j in xrange(0,self.w):
+        output[(int(i)*self.w)+j] = 1
 
     if self.verbosity >= 2:
       print "input:", input, "index:", index, "output:", output
@@ -102,7 +106,7 @@ class BitmapArrayEncoder(Encoder):
     """
 
     return [EncoderResult(value=0, scalar=0,
-                         encoding=numpy.zeros(self.n))]
+                         encoding=numpy.zeros(self.n * self.w))]
 
   ############################################################################
   def topDownCompute(self, encoded):
@@ -110,7 +114,7 @@ class BitmapArrayEncoder(Encoder):
     """
 
     return EncoderResult(value=0, scalar=0,
-                         encoding=numpy.zeros(self.n))
+                         encoding=numpy.zeros(self.n * self.w))
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):

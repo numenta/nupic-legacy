@@ -39,7 +39,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def setUp(self):
     self.n = 25
-    self.w = 5
+    self.w = 1
     self.name = "foo"
     self._encoder = BitmapArrayEncoder
 
@@ -54,7 +54,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, self.name)
     bitmap = "2,7,15,18,23"
     out = e.encode(bitmap)
-    assert out.sum() == self.w
+    assert out.sum() == len(bitmap.split(','))*self.w
 
     x = e.decode(out)
     assert isinstance(x[0], dict)
@@ -66,7 +66,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, self.name)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
-    assert out.sum() == self.w
+    assert out.sum() == len(bitmap)*self.w
 
     x = e.decode(out)
     assert isinstance(x[0], dict)
@@ -124,6 +124,14 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     assert c[0] == 0.8
+
+
+  def testRobustness(self):
+    """Encode bitmaps with robustness (w) set"""
+    self.w = 3
+    testEncodeString()
+    testEncodeArray()
+    testClosenessScores()
 
 
 
