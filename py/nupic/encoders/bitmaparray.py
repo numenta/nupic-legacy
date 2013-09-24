@@ -28,11 +28,12 @@ class BitmapArrayEncoder(Encoder):
 
   Each encoding is an SDR in which w out of n bits are turned on.
   The input should be an array or string of indicies to turn on
+  Note: the value for n must equal input length * w
   i.e. for n=8 w=1 [0,2,5] => 101001000
     or for n=8 w=1 "0,2,5" => 101001000
 
-  i.e. for n=8 w=3 [0,2,5] => 111000111000000111000000000
-    or for n=8 w=3 "0,2,5" => 111000111000000111000000000
+  i.e. for n=24 w=3 [0,2,5] => 111000111000000111000000000
+    or for n=24 w=3 "0,2,5" => 111000111000000111000000000
   """
 
   ############################################################################
@@ -78,7 +79,6 @@ class BitmapArrayEncoder(Encoder):
     if type(input) == str:
       input = input.split(',')
 
-    output = numpy.zeros(self.n * self.w)
     for i in input:
       for j in xrange(0,self.w):
         output[(int(i)*self.w)+j] = 1

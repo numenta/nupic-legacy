@@ -34,8 +34,8 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def __init__(self, n, w, name="passthru", verbosity=0):
     """
-    n is the total bits in input/output
-    w is the number of bits that are turned on for each rep
+    n is the total bits in output (must equal input bits * w)
+    w is the number of bits that are turned on for each on bit
     """
 
     self.n = n
@@ -71,11 +71,10 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
-    if type(input) == numpy.ndarray:
-      numpy.copyto(output, input)
-    else:
-      for i, v in enumerate(input):
-        output[i] = v
+    for i, v in enumerate(input):
+      if v != 0:
+        for j in xrange(0,self.w):
+          output[(int(i)*self.w)+j] = 1
 
     if self.verbosity >= 2:
       print "input:", input, "index:", index, "output:", output
@@ -112,42 +111,31 @@ class PassThruEncoder(Encoder):
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):
-    """ See the function description in base.py
+    """ Does a bitwise compare of the two bitmaps and returns a fractonal 
+    value between 0 and 1 of how similar they are. 
+    1 => identical
+    0 => no overlaping bits
 
-    kwargs will have the keyword "fractional", which is ignored by this encoder
+    kwargs will have the keyword "fractional", which is assumed by this encoder
     """
 
-    return numpy.array([0])
+    ratio = 1.0
+    esum = int(expValues.sum())
+    asum = int(actValues.sum())
+    if asum > esum:
+      diff = asum - esum
+      if diff < esum:
+        ratio = 1 - diff/float(esum)
+      else:
+        ratio = 1/float(diff)
 
-############################################################################
-def testPassThruEncoder():
-  print "Testing PassThruEncoder...",
+    olap = expValues & actValues
+    osum = int(olap.sum())
+    if esum == 0:
+      r = 0.0
+    else:
+      r = osum/float(esum)
+    r = r * ratio
 
-  fieldWidth = 9
-  bitsOn = 3
+    return numpy.array([r])
 
-  s = PassThruEncoder(n=fieldWidth, w=bitsOn, name="foo")
-
-  sdr = [0,0,0,1,1,1,0,0,0]
-  out = s.encode(sdr)
-  assert out.sum() == bitsOn
-
-  sdr = numpy.zeros(fieldWidth, dtype=defaultDtype)
-  sdr[0:bitsOn] = 1
-  out = s.encode(sdr)
-  assert (out == sdr).all()
-  #print out
-
-  x = s.decode(out)
-  print x
-  assert isinstance(x[0], dict)
-  assert "foo" in x[0]
-
-  print "passed"
-
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testPassThruEncoder()
