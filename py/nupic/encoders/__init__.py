@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from arithmetic_encoder import ArithmeticEncoder
 from scalar import ScalarEncoder
 from adaptivescalar import AdaptiveScalarEncoder
 from date import DateEncoder
@@ -32,5 +33,3 @@ from scalarspace import ScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder
 from utils import bitsToString
-
-
