@@ -27,6 +27,7 @@ AC_INIT([NuPIC], 1.0.0)
 # This directory is where libtoolize and automake put their scripts
 # must come before AM_INIT_AUTOMAKE
 AC_CONFIG_AUX_DIR([build_system/unix])
+AC_LANG([C++])
 
 # Find out what system we're on.
 # Must be called before AM_INIT_AUTOMAKE
@@ -207,7 +208,7 @@ if test -z "$SWIG" ; then
    SWIG='echo "Error: SWIG is not installed. Error in NuPIC source installation"'
 fi
 
-SWIG_LIB=${extdir}/share/swig/1.3.36
+SWIG_LIB=${srcdir}/external/common/share/swig/1.3.36
 AC_SUBST([SWIG_LIB])
 
 AC_MSG_NOTICE([SWIG executable is '$SWIG'])

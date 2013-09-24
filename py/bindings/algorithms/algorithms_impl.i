@@ -69,10 +69,11 @@ _ALGORITHMS = _algorithms
 #include <nta/math/SparseBinaryMatrix.hpp>
 #include <nta/algorithms/svm.hpp>
 #include <nta/algorithms/linear.hpp>
-#include <nta/algorithms/Grouper.hpp>
 #include <nta/algorithms/SparsePooler.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
+#include <nta/algorithms/spatial_pooler.hpp>
+#include <nta/algorithms/flat_spatial_pooler.hpp>
 
 #include <nta/algorithms/Cells4.hpp>
 #include <nta/algorithms/classifier_result.hpp>
@@ -665,213 +666,6 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
                  xcount, ycount, weightWidth, sharpness,
                  (float*)(data->data), (float*)(values->data),
                  (float*)(counts->data), (float*)(weights->data));
-  }
-}
-
-//--------------------------------------------------------------------------------
-// AHC GROUPER
-//--------------------------------------------------------------------------------
-%include <nta/algorithms/Grouper.hpp>
-
-%ignore nta::Grouper::getTam;
-%ignore nta::Grouper::getCollapsedTAM;
-
-%extend nta::Grouper
-{
-  PyObject* learn(PyObject* py_x, int baby_idx =0)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(0);
-    self->learn(x.begin(), y.begin(), baby_idx);
-    return y.forPython();
-  }
-
-  PyObject* infer(PyObject* py_x, int baby_idx =0)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(10000);
-    self->infer(x.begin(), x.end(), y.begin(), baby_idx);
-    return y.forPython();
-  }
-
-  PyObject* predict(int n_steps, int mode, int baby_idx =0)
-  {
-    std::vector<std::vector<nta::Real32> > future(n_steps);
-    self->predict(baby_idx, (nta::Grouper::PredictionMode)mode, future);
-    int dims[] = { int(future.size()), int(future[0].size()) };
-    nta::NumpyMatrix out(dims);
-    for (size_t i = 0; i != future.size(); ++i) {
-      for (size_t j = 0; j != future[i].size(); ++j) {
-    *(out.addressOf(0,0) + i*future[0].size() + j) = future[i][j];
-      }
-    }
-    return out.forPython();
-  }
-
-  PyObject* sampleFromGroup(int flag, int grp_idx, int n_steps)
-  {
-    std::vector<std::vector<nta::Real32> > future(n_steps);
-    std::vector<nta::Real32> u;
-    self->sampleFromGroup(grp_idx, (nta::Grouper::SamplingMode)flag, u, future);
-    int dims[] = { int(future.size()), int(future[0].size()) };
-    nta::NumpyMatrix out(dims);
-    for (size_t i = 0; i != future.size(); ++i) {
-      for (size_t j = 0; j != future[i].size(); ++j) {
-    *(out.addressOf(0,0) + i*future[0].size() + j) = future[i][j];
-      }
-    }
-    return out.forPython();
-  }
-
-  std::string getGroups(bool collapsed =true)
-  {
-    std::ostringstream outStream;
-    self->getGroupsString(outStream, collapsed);
-    return outStream.str();
-  }
-
-  inline PyObject* AHCMerges() const
-  {
-    const size_t n_merges = self->getAHCMerges().size();
-    PyObject *x = PyList_New(n_merges);
-
-    for (size_t i = 0; i != n_merges; ++i) {
-      PyObject *obj =
-       nta::createPair32(self->getAHCMerges()[i].first,
-                         self->getAHCMerges()[i].second);
-      PyList_SetItem(x, i, obj); // Does steal a reference to object.
-    }
-
-    return x;
-  }
-
-  inline PyObject* getPyMerges() const
-  {
-    const size_t n_merges = self->getAHCMerges().size();
-    PyObject *x = PyList_New(n_merges);
-
-    for (size_t i = 0; i != n_merges; ++i) {
-      PyObject *obj =
-       nta::createPair32(self->getAHCMerges()[i].first,
-                         self->getAHCMerges()[i].second);
-      PyList_SetItem(x, i, obj); // Does steal a reference to object.
-    }
-
-    return x;
-  }
-
-  nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >
-    tam()
-  {
-    nta::Grouper::IntegerTAM m = self->getTam();
-    nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > > ret;
-    ret.copy(m);
-    return ret;
-  }
-
-  nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >
-    collapsedTam()
-  {
-    nta::Grouper::IntegerTAM m = self->getCollapsedTAM();
-    nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > > ret;
-    ret.copy(m);
-    return ret;
-  }
-
-  std::string getPyHOTS2C()
-  {
-    std::map<nta::UInt32, nta::UInt32> s2c = self->getTam().getHOTS2C();
-    std::map<nta::UInt32, nta::UInt32>::const_iterator it;
-    std::ostringstream outStream;
-    for (it = s2c.begin(); it != s2c.end(); ++it)
-      outStream << it-> first << " " << it->second << " ";
-    return outStream.str();
-  }
-
-  nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >
-    getPyHOTC2S()
-  {
-    nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > c2s;
-    c2s.copy(self->getTam().getHOTC2S());
-    return c2s;
-  }
-
-  SparseMatrix32 tbiWeights(int grp_idx)
-  {
-    SparseMatrix32 ret(self->getTBIWeights(grp_idx));
-    return ret;
-  }
-
-  PyObject* tbiOutputs(int grp_idx, int baby_idx =0)
-  {
-    nta::Grouper::TBICellOutputs& o = self->getTBICellOutputs(grp_idx, baby_idx);
-    nta::NumpyVectorT<nta::Real32> v(o.size());
-    std::copy(o.begin(), o.end(), v.begin());
-    return v.forPython();
-  }
-
-  bool setTAMFromCSR(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->setTAMFromCSR(s);
-      return true;
-    }
-    else {
-      throw std::runtime_error("Failed to read SparseMatrix state from string.");
-      return false;
-    }
-  }
-
-  bool setTAMStateFromCSR(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->setTAMStateFromCSR(s);
-      return true;
-    }
-    else {
-      throw std::runtime_error("Failed to read SparseMatrix state from string.");
-      return false;
-    }
-  }
-
-  std::string __getstate__()
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  %pythoncode %{
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_Grouper(1,1,1,1,1,1,1,0)
-      self.thisown = 1
-      self.load(inString)
-  %}
-
-  inline void load(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->readState(inStream);
-  }
-
-  inline std::string __str__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  inline std::string __repr__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
   }
 }
 
@@ -2909,6 +2703,250 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 }
 
+%include <nta/algorithms/spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::SpatialPooler
+{
+  %pythoncode %{
+    import numpy
+    from nupic.bindings.math import (SM32 as SparseMatrix,
+                                     SM_01_32_32 as SparseBinaryMatrix)
+
+    def __init__(self,
+                 inputDimensions=[32,32],
+                 columnDimensions=[64,64],
+                 potentialRadius=16,
+                 potentialPct=0.5,
+                 globalInhibition=False,
+                 localAreaDensity=-1.0,
+                 numActiveColumnsPerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermConnected=0.10,
+                 minPctOverlapDutyCycle=0.001,
+                 minPctActiveDutyCycle=0.001,
+                 dutyCyclePeriod=1000,
+                 maxBoost=10.0,
+                 seed=-1,
+                 spVerbosity=0):
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      _ALGORITHMS.SpatialPooler_initialize(
+        self, inputDimensions, columnDimensions, potentialRadius, potentialPct, 
+        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
+        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
+        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
+        seed, spVerbosity)
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ spatial pooler with the
+      # string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ spatial pooler and populate it from the serialized
+      # string.
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
+  %}
+
+  inline UInt* compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
+  void loadFromString(const std::string& inString)
+  {
+    std::istringstream inStream(inString);
+    self->load(inStream);
+  }
+
+
+  PyObject* getCState()
+  {
+    SharedPythonOStream py_s(self->persistentSize());
+    std::ostream& s = py_s.getStream();
+    // TODO: Consider writing floats as binary instead.
+    s.flags(ios::scientific);
+    s.precision(numeric_limits<double>::digits10 + 1);
+    self->save(s);
+    return py_s.close();
+  }
+
+  inline void setBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void getBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void setOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+
+  inline void setMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+  inline void setPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void getPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void setPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getConnectedSynapses(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedSynapses(column, (nta::UInt*) x->data);
+  }
+
+  inline void getConnectedCounts(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedCounts((nta::UInt*) x->data);
+  }
+
+}
+
+
+%include <nta/algorithms/flat_spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::FlatSpatialPooler
+{
+  %pythoncode %{ 
+    import numpy
+
+    def __init__(self,
+                 inputShape=(32, 32),
+                 inputBorder=8,
+                 inputDensity=1.0,
+                 coincidencesShape=(48, 48),
+                 coincInputRadius=16,
+                 coincInputPoolPct=1.0,
+                 gaussianDist=False,
+                 commonDistributions=False,
+                 localAreaDensity=-1.0,
+                 numActivePerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermActiveSharedDec=0.0,
+                 synPermOrphanDec=0.0,
+                 synPermConnected=0.10,
+                 minPctDutyCycleBeforeInh=0.001,
+                 minPctDutyCycleAfterInh=0.001,
+                 dutyCyclePeriod=1000,
+                 maxFiringBoost=10.0,
+                 maxSSFiringBoost=2.0,
+                 maxSynPermBoost=10.0,
+                 minDistance=0.0,
+                 cloneMap=None,
+                 numCloneMasters=-1,
+                 seed=-1,
+                 spVerbosity=0,
+                 printPeriodicStats=0,
+                 testMode=False,
+                 globalInhibition=False,
+                 spReconstructionParam="unweighted_mean",
+                 useHighTier=True,
+                 randomSP=False,
+              ):
+      
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
+        self,
+        numInputs=numpy.prod(inputShape),
+        numColumns=numpy.prod(coincidencesShape),
+        localAreaDensity=localAreaDensity,
+        numActiveColumnsPerInhArea=numActivePerInhArea,
+        stimulusThreshold=stimulusThreshold,
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+        seed=seed,
+        spVerbosity=spVerbosity
+      )
+  %}
+}
 
 %include <nta/algorithms/fast_cla_classifier.hpp>
 

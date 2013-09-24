@@ -143,7 +143,7 @@ Output::getNodeOutputElementCount() const
 bool
 Output::hasOutgoingLinks()
 {
-  return (links_.size() > 0);
+  return (!links_.empty());
 }
 
 }
