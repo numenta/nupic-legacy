@@ -378,15 +378,15 @@ void VectorFile::saveVectors(ostream &out, Size nColumns, Int32 fileFormat,
 class AutoReleaseFile
 {
 public:
-  gzFile file_;
+  void * file_;
   AutoReleaseFile(const string &filename) : file_(ZLib::fopen(filename, "rb"))
   {
     if(!file_) throw runtime_error("Unable to open file '" + filename + "'.");
   }
-  ~AutoReleaseFile() { ::gzclose(file_); file_ = 0; }
+  ~AutoReleaseFile() { ::gzclose((gzFile)file_); file_ = 0; }
   void read(void *out, int n)
   {
-    int result = gzread(file_, out, n);
+    int result = gzread((gzFile)file_, out, n);
     if(result < n) throw runtime_error("Failed to read requested bytes from file.");
   }
 };
