@@ -19,13 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-from base import *
+import math
+from base import Encoder, EncoderResult
 from scalar import ScalarEncoder
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 
-############################################################################
+
 class LogEncoder(Encoder):
   """A Log encoder represents a floating point value on a logarithmic (decibel)
   scale.
@@ -42,7 +42,7 @@ class LogEncoder(Encoder):
     maxval -- Higher values are reset to this value
   """
 
-  ############################################################################
+
   def __init__(self, w = 5, resolution = 1.0, minval=0.10, maxval=10000,
                 name="log", verbosity=0):
 
@@ -69,7 +69,6 @@ class LogEncoder(Encoder):
     # This list is created by getBucketValues() the first time it is called,
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
-
 
   ############################################################################
   def getWidth(self):
@@ -108,7 +107,6 @@ class LogEncoder(Encoder):
     else:
       return self.encoder.getBucketIndices(scaledVal)
 
-
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See the function description in base.py
@@ -125,7 +123,6 @@ class LogEncoder(Encoder):
       if self.verbosity >= 2:
         print "input:", input, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
-
 
   ############################################################################
   def decode(self, encoded, parentFieldName=''):
@@ -147,7 +144,6 @@ class LogEncoder(Encoder):
       outRanges.append((math.pow(10, minV / 10.0),
                         math.pow(10, maxV / 10.0)))
 
-
     # Generate a text description of the ranges
     desc = ""
     numRanges = len(outRanges)
@@ -166,7 +162,6 @@ class LogEncoder(Encoder):
       fieldName = self.name
     return ({fieldName: (outRanges, desc)}, [fieldName])
 
-
   ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
@@ -180,7 +175,6 @@ class LogEncoder(Encoder):
         self._bucketValues.append(value)
 
     return self._bucketValues
-
 
   ############################################################################
   def getBucketInfo(self, buckets):
@@ -205,7 +199,6 @@ class LogEncoder(Encoder):
 
     return EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)
-
 
   ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
@@ -236,105 +229,3 @@ class LogEncoder(Encoder):
     #      "closeness", closeness
     #import pdb; pdb.set_trace()
     return numpy.array([closeness])
-
-
-############################################################################
-def testLogEncoder():
-  print "Testing LogEncoder...",
-
-  l = LogEncoder(w=5, resolution=1, minval=1, maxval=10000, name="amount")
-  assert l.getDescription() == [("amount", 0)]
-
-  # -------------------------------------------------------------------
-  # 10^0 -> 10^4 => 0 decibels -> 40 decibels;
-  # 41 possible decibel values plus padding=4 = width 45
-  assert l.getWidth() == 45
-  value = 1.0
-  output = l.encode(value)
-  expected = [1, 1, 1, 1, 1] + 40 * [0]
-  expected = numpy.array(expected, dtype='uint8')
-  assert (output == expected).all()
-
-  # Test reverse lookup
-  decoded = l.decode(output)
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [1, 1])
-
-  # MISSING VALUE
-  mvOutput = l.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-  assert sum(mvOutput) == 0
-
-  # Test top-down
-  value = l.minval
-  while value <= l.maxval:
-    output = l.encode(value)
-    print "output of %f =>" % (value), output
-
-    topDown = l.topDownCompute(output)
-    print "topdown =>", topDown
-
-    scaledVal = 10 * math.log10(value)
-    minTopDown = math.pow(10, (scaledVal-l.encoder.resolution) / 10.0)
-    maxTopDown = math.pow(10, (scaledVal+l.encoder.resolution) / 10.0)
-
-    assert(topDown.value >= minTopDown and topDown.value <= maxTopDown)
-
-    # Test bucket support
-    bucketIndices = l.getBucketIndices(value)
-    print "bucket index =>", bucketIndices[0]
-    topDown = l.getBucketInfo(bucketIndices)[0]
-    assert (topDown.value >= minTopDown and topDown.value <= maxTopDown)
-    assert (topDown.scalar >= minTopDown and topDown.scalar <= maxTopDown)
-    assert (topDown.encoding == output).all()
-    assert (topDown.value == l.getBucketValues()[bucketIndices[0]])
-
-
-    # Next value
-    scaledVal += l.encoder.resolution/4
-    value = math.pow(10, scaledVal / 10.0)
-
-
-  # -------------------------------------------------------------------
-  output = l.encode(100)
-  # increase of 2 decades = 20 decibels
-  # bit 0, 1 are padding; bit 3 is 1, ..., bit 22 is 20 (23rd bit)
-  expected = 20 * [0] + [1, 1, 1, 1, 1] + 20 * [0]
-  expected = numpy.array(expected, dtype='uint8')
-  assert (output == expected).all()
-
-  # Test reverse lookup
-  decoded = l.decode(output)
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [100, 100])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-
-
-  # -------------------------------------------------------------------
-  output = l.encode(10000)
-  expected = 40 * [0] + [1, 1, 1, 1, 1]
-  expected = numpy.array(expected, dtype='uint8')
-  assert (output == expected).all()
-
-  # Test reverse lookup
-  decoded = l.decode(output)
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10000, 10000])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-
-  print "passed."
-
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testLogEncoder()
