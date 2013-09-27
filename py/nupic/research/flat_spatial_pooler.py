@@ -240,7 +240,9 @@ class FlatSpatialPooler(SpatialPooler):
       activeColumns = self._stripNeverLearned(activeColumns)
 
     activeArray.fill(0)
-    activeArray[activeColumns] = 1
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+
 
 
   def _selectVirginColumns(self):

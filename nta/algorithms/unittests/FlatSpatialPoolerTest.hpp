@@ -56,6 +56,7 @@ namespace nta {
     void testSelectVirgin();
     void testSelectHighTierColumns();
     void testAddBonus();
+    void testSerialize();
 
     void print_vec(UInt arr[], UInt n);
     void print_vec(Real arr[], UInt n);
