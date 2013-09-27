@@ -792,7 +792,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
  ///%template(Int_Seg_32) std::pair<nta::UInt32, nta::algorithms::Segment<nta::UInt32,nta::Real32>*>;
 
 // Already seen by swig on linux32 where size_t is the same size as unsigned int
-#ifndef NTA_PLATFORM_linux32
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
 %template(Size_T_Vector) std::vector<size_t>;
 #endif
 
