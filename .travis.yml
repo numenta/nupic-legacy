@@ -11,7 +11,6 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
-    - PIP_IGNORE_INSTALLED=1
 
     # For S3 upload from travis-artifacts
     - ARTIFACTS_AWS_REGION=us-west-2
@@ -30,18 +29,23 @@ env:
         cfgr20Rz8KuuC/TZklPjVCy+0dXS3o2CL7u2b7XDGYzBYPxayjU=
 
 notifications:
-  irc: 
-    channels: 
+  irc:
+    channels:
       - "irc.freenode.net#nupic"
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  - source $NUPIC/env.sh
+  - git clone https://github.com/numenta/nupic-linux64.git
+  - (cd nupic-linux64 && git reset --hard d8f87d0c0a6a29157be87ed47ed1e544c8b4589e)
+  - source nupic-linux64/bin/activate
+  - printenv | sort
   - gem install travis-artifacts
 
-install: "$NUPIC/build.sh"
+install:
+  - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make) fi
+  - "$NUPIC/build.sh"
 
-script: 
+script:
   # legacy binary tests
   - "$NTA/bin/htmtest"
   # (not quite everything, really)
@@ -51,11 +55,11 @@ script:
 
   # run all example files
     # examples/bindings
-  - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py" 
-  - "python $NUPIC/examples/bindings/sparse_pooler_how_to.py"  
+  - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py"
+  - "python $NUPIC/examples/bindings/sparse_pooler_how_to.py"
 ##  - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
 ##  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
-    # examples/opf (run atleast 1 from each category) 
+    # examples/opf (run atleast 1 from each category)
   - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
   - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
   - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
@@ -73,4 +77,3 @@ script:
 after_script:
 - tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
 - travis-artifacts upload --path build-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG
-
