@@ -328,7 +328,7 @@ void VectorFileSensor::setParameterFromBuffer(const std::string& name,
     NTA_CHECK(value.read(int_param) == 0)
       << where << "Unable to read position: " 
       << int_param << " - Should be a positive integer";
-    if ( (int_param >= 0) && ((unsigned int) int_param < vectorFile_.vectorCount()) ) 
+    if ( int_param < vectorFile_.vectorCount() ) 
     {
       seek(int_param);
     }
@@ -462,7 +462,8 @@ void VectorFileSensor::seek(int n)
   // Set curVector_ to be one before the vector we want and reset iterations
   iterations_ = 0;
   curVector_ = n - 1;
-  if (curVector_ < 0) curVector_ = (NTA_Size)vectorFile_.vectorCount();
+  //circular-buffer, reached one end of vector/line, continue fro the other
+  if (n - 1 <= 0) curVector_ = (NTA_Size)vectorFile_.vectorCount() - 1;
 }
 
 size_t VectorFileSensor::getNodeOutputElementCount(const std::string& outputName)
