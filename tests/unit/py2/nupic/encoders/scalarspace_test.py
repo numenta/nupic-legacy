@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -19,17 +20,26 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from arithmetic_encoder import ArithmeticEncoder
-from scalar import ScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder
-from date import DateEncoder
-from logenc import LogEncoder
-from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder
-from nonuniformscalar import NonUniformScalarEncoder
-from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
-# multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder
-from utils import bitsToString
+"""Unit tests for scalar space encoder"""
+
+import unittest2 as unittest
+
+from nupic.encoders.scalarspace import ScalarSpaceEncoder
+
+
+#########################################################################
+class ScalarSpaceEncoderTest(unittest.TestCase):
+  '''Unit tests for ScalarSpaceEncoder class'''
+
+
+  def testScalarSpaceEncoder(self):
+    """scalar space encoder"""
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta")
+    assert sse.isDelta()
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute")
+    assert not sse.isDelta()
+
+     
+###########################################
+if __name__ == '__main__':
+  unittest.main()
