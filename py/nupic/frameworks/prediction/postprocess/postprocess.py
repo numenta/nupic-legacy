@@ -29,7 +29,6 @@ from nupic.engine import Network
 from nupic.algorithms.KNNClassifier import KNNClassifier
 from nupic.bindings.math import SM32, SparseBinaryMatrix
 
-
 from classificationstats import  (ClassificationStats,
                                   ClassificationVsBaselineStats)
 from inputpredictionstats import (InputPredictionStats,
@@ -135,19 +134,6 @@ def _readMultiStepPrediction(f):
 def _getFilenameForOutputs(directory, datasetName, testVariant, outputName):
   return os.path.join(directory, "%s_%s_%s.txt" % (datasetName, testVariant,
                         outputName))
-
-
-#############################################################################
-def _bitsToString(array):
-  """Returns a string representing a numpy array of 0's and 1's"""
-  s = []
-  for i in xrange(len(array)):
-    if array[i] == 0:
-      s.append(".")
-    else:
-      s.append("*")
-  return ''.join(s)
-
 
 
 #############################################################################

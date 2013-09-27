@@ -19,9 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import *
-import itertools
+from base import Encoder, EncoderResult
 import math
+import numpy
 
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -275,8 +275,6 @@ class ScalarEncoder(Encoder):
 
   ############################################################################
   def recalcParams(self):
-    min = self.minval
-    max = self.maxval
     self.rangeInternal = float(self.maxval - self.minval)
 
     if not self.periodic:
@@ -423,8 +421,6 @@ class ScalarEncoder(Encoder):
     """ See the function description in base.py
     """
 
-    logPrefix = "decode"
-
     # For now, we simply assume any top-down output greater than 0
     #  is ON. Eventually, we will probably want to incorporate the strength
     #  of each top-down output.
@@ -439,7 +435,6 @@ class ScalarEncoder(Encoder):
 
     # Search for portions of the output that have "holes"
     maxZerosInARow = self.halfwidth
-    searchStrings = []
     for i in xrange(maxZerosInARow):
       searchStr = numpy.ones(i + 3, dtype=encoded.dtype)
       searchStr[1:-1] = 0
@@ -611,14 +606,15 @@ class ScalarEncoder(Encoder):
   ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
-
+    
     # Get/generate the topDown mapping table
+    #NOTE: although variable topDownMappingM is unused, some (bad-style) actions
+    #are executed during _getTopDownMapping() so this line must stay here
     topDownMappingM = self._getTopDownMapping()
 
     # The "category" is simply the bucket index
     category = buckets[0]
     encoding = self._topDownMappingM.getRow(category)
-
 
     # Which input value does this correspond to?
     if self.periodic:
@@ -682,359 +678,3 @@ class ScalarEncoder(Encoder):
     print "  nInternal: %d" % self.nInternal
     print "  rangeInternal: %f" % self.rangeInternal
     print "  padding: %d" % self.padding
-
-
-############################################################################
-def testScalarEncoder():
-  print "Testing ScalarEncoder...",
-
-  # -------------------------------------------------------------------------
-  # test missing values
-  mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
-  empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-  print "\nEncoded missing data \'None\' as %s" % empty
-  assert empty.sum() == 0
-
-
-  # -------------------------------------------------------------------------
-  # test nans
-  mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
-  empty = mv.encode(float("nan"))
-  print "\nEncoded missing data \'None\' as %s" % empty
-  assert empty.sum() == 0
-
-  # -------------------------------------------------------------------------
-  # Test bottom-up encoding for a Periodic encoder
-  l = ScalarEncoder(n=14, w=3, minval=1, maxval=8, periodic=True)
-  assert l.getDescription() == [("[1:8]", 0)]
-  l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=8, periodic=True)
-  assert l.getDescription() == [("scalar", 0)]
-  assert (l.encode(3) == numpy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                                     dtype=defaultDtype)).all()
-  assert (l.encode(3.1) == l.encode(3)).all()
-  assert (l.encode(3.5) == numpy.array([0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-  assert (l.encode(3.6) == l.encode(3.5)).all()
-  assert (l.encode(3.7) == l.encode(3.5)).all()
-  assert (l.encode(4) == numpy.array([0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                                     dtype=defaultDtype)).all()
-
-  assert (l.encode(1) == numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-                                     dtype=defaultDtype)).all()
-  assert (l.encode(1.5) == numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-  assert (l.encode(7) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                                     dtype=defaultDtype)).all()
-  assert (l.encode(7.5) == numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-                                       dtype=defaultDtype)).all()
-
-  assert l.resolution == 0.5
-  assert l.radius == 1.5
-
-  # Test that we get the same encoder when we construct it using resolution
-  #  instead of n
-  d = l.__dict__
-  l = ScalarEncoder(name='scalar', resolution=0.5, w=3, minval=1, maxval=8,
-                    periodic=True)
-  assert l.__dict__ == d
-
-  # Test that we get the same encoder when we construct it using radius
-  #  instead of n
-  l = ScalarEncoder(name='scalar', radius=1.5, w=3, minval=1, maxval=8,
-                    periodic=True)
-  assert l.__dict__ == d
-
-
-  # -------------------------------------------------------------------------
-  # Test the input description generation, top-down compute, and bucket
-  # support on a periodic encoder
-  print "\nTesting periodic encoder decoding, resolution of %f..." % l.resolution
-  v = l.minval
-  while v < l.maxval:
-    output = l.encode(v)
-    decoded = l.decode(output)
-    print "decoding", output, "(%f)=>" % v, l.decodedToStr(decoded)
-
-    (fieldsDict, fieldNames) = decoded
-    assert len(fieldsDict) == 1
-    (ranges, desc) = fieldsDict.values()[0]
-    assert len(ranges) == 1
-    (rangeMin, rangeMax) = ranges[0]
-    assert (rangeMin == rangeMax)
-    assert abs(rangeMin - v) < l.resolution
-
-    topDown = l.topDownCompute(output)[0]
-    print "topdown =>", topDown
-    assert (topDown.encoding == output).all()
-    assert abs(topDown.value - v) <= l.resolution / 2
-
-    # Test bucket support
-    bucketIndices = l.getBucketIndices(v)
-    print "bucket index =>", bucketIndices[0]
-    topDown = l.getBucketInfo(bucketIndices)[0]
-    assert abs(topDown.value - v) <= l.resolution / 2
-    assert (topDown.value == l.getBucketValues()[bucketIndices[0]])
-    assert topDown.scalar == topDown.value
-    assert (topDown.encoding == output).all()
-
-
-    # Next value
-    v += l.resolution / 4
-
-
-  # -------------------------------------------------------------------------
-  # Test the input description generation on a large number, periodic encoder
-  l = ScalarEncoder(name='scalar', radius=1.5, w=3, minval=1, maxval=8,
-                    periodic=True)
-  print "\nTesting periodic encoder decoding, resolution of %f..." % \
-            l.resolution
-
-  # Test with a "hole"
-  decoded = l.decode(numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [7.5, 7.5])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  # Test with something wider than w, and with a hole, and wrapped
-  decoded = l.decode(numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 2 and numpy.array_equal(ranges[0], [7.5, 8]) \
-                           and numpy.array_equal(ranges[1], [1, 1])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  # Test with something wider than w, no hole
-  decoded = l.decode(numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [1.5, 2.5])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  # Test with 2 ranges
-  decoded = l.decode(numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 2 and numpy.array_equal(ranges[0], [1.5, 1.5]) \
-                           and numpy.array_equal(ranges[1], [5.5, 6.0])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  # Test with 2 ranges, 1 of which is narrower than w
-  decoded = l.decode(numpy.array([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 2 and numpy.array_equal(ranges[0], [1.5, 1.5]) \
-                           and numpy.array_equal(ranges[1], [5.5, 6.0])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-
-  # ============================================================================
-  # Test closenessScores for a periodic encoder.
-  encoder = ScalarEncoder(w=7, minval=0, maxval=7, radius=1, periodic=True,
-                          name="day of week")
-  scores = encoder.closenessScores((2, 4, 7), (4, 2, 1), fractional=False)
-  for actual, score in itertools.izip((2, 2, 1), scores):
-    assert actual == score
-
-
-  # ============================================================================
-  # Test Non-periodic encoder bottom-up
-  l = ScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10, periodic=False)
-  print "\nTesting non-periodic encoder encoding, resolution of %f..." % \
-              l.resolution
-  assert (l.encode(1) == numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                     dtype=defaultDtype)).all()
-  assert (l.encode(2) == numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                                     dtype=defaultDtype)).all()
-  assert (l.encode(10) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-                                      dtype=defaultDtype)).all()
-
-  # Test that we get the same encoder when we construct it using resolution
-  #  instead of n
-  d = l.__dict__
-  l = ScalarEncoder(name='scalar', resolution=1, w=5, minval=1, maxval=10,
-                     periodic=False)
-  assert l.__dict__ == d
-
-  # Test that we get the same encoder when we construct it using radius
-  #  instead of n
-  l = ScalarEncoder(name='scalar', radius=5, w=5, minval=1, maxval=10, periodic=False)
-  assert l.__dict__ == d
-
-
-
-  # -------------------------------------------------------------------------
-  # Test the input description generation and topDown decoding of a non-periodic
-  #  encoder
-  v = l.minval
-  print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
-              l.resolution
-  while v < l.maxval:
-    output = l.encode(v)
-    decoded = l.decode(output)
-    print "decoding", output, "(%f)=>" % v, l.decodedToStr(decoded)
-
-    (fieldsDict, fieldNames) = decoded
-    assert len(fieldsDict) == 1
-    (ranges, desc) = fieldsDict.values()[0]
-    assert len(ranges) == 1
-    (rangeMin, rangeMax) = ranges[0]
-    assert (rangeMin == rangeMax)
-    assert abs(rangeMin - v) < l.resolution
-
-    topDown = l.topDownCompute(output)[0]
-    print "topdown =>", topDown
-    assert (topDown.encoding == output).all()
-    assert abs(topDown.value - v) <= l.resolution
-
-    # Test bucket support
-    bucketIndices = l.getBucketIndices(v)
-    print "bucket index =>", bucketIndices[0]
-    topDown = l.getBucketInfo(bucketIndices)[0]
-    assert abs(topDown.value - v) <= l.resolution / 2
-    assert topDown.scalar == topDown.value
-    assert (topDown.encoding == output).all()
-
-    # Next value
-    v += l.resolution / 4
-
-
-  # Make sure we can fill in holes
-  decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
-  (fieldsDict, fieldNames) = decoded
-  assert len(fieldsDict) == 1
-  (ranges, desc) = fieldsDict.values()[0]
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10])
-  print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-
-  #Test min and max
-  l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=10, periodic=False)
-  decoded = l.topDownCompute(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]))[0]
-  assert decoded.value == 10
-  decoded = l.topDownCompute(numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))[0]
-  assert decoded.value == 1
-
-  #Make sure only the last and first encoding encodes to max and min, and there is no value greater than max or min
-  l = ScalarEncoder(name='scalar', n=140, w=3, minval=1, maxval=141, periodic=False)
-  for i in range(137):
-    iterlist = [0 for n in range(140)]
-    for j in range(i, i+3):
-      iterlist[j] =1
-    npar = numpy.array(iterlist)
-    decoded = l.topDownCompute(npar)[0]
-    assert decoded.value<=141
-    assert decoded.value>=1
-    assert decoded.value < 141 or i==137
-    assert decoded.value > 1 or i == 0
-
-
-  # -------------------------------------------------------------------------
-  # Test the input description generation and top-down compute on a small number
-  #   non-periodic encoder
-  l = ScalarEncoder(name='scalar', n=15, w=3, minval=.001, maxval=.002,
-                    periodic=False)
-  print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
-          l.resolution
-  v = l.minval
-  while v < l.maxval:
-    output = l.encode(v)
-    decoded = l.decode(output)
-    print "decoding", output, "(%f)=>" % v, l.decodedToStr(decoded)
-
-    (fieldsDict, fieldNames) = decoded
-    assert len(fieldsDict) == 1
-    (ranges, desc) = fieldsDict.values()[0]
-    assert len(ranges) == 1
-    (rangeMin, rangeMax) = ranges[0]
-    assert (rangeMin == rangeMax)
-    assert abs(rangeMin - v) < l.resolution
-
-    topDown = l.topDownCompute(output)[0].value
-    print "topdown =>", topDown
-    assert abs(topDown - v) <= l.resolution / 2
-    v += l.resolution / 4
-
-
-  # -------------------------------------------------------------------------
-  # Test the input description generation on a large number, non-periodic encoder
-  l = ScalarEncoder(name='scalar', n=15, w=3, minval=1, maxval=1000000000,
-                    periodic=False)
-  print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
-            l.resolution
-  v = l.minval
-  while v < l.maxval:
-    output = l.encode(v)
-    decoded = l.decode(output)
-    print "decoding", output, "(%f)=>" % v, l.decodedToStr(decoded)
-
-    (fieldsDict, fieldNames) = decoded
-    assert len(fieldsDict) == 1
-    (ranges, desc) = fieldsDict.values()[0]
-    assert len(ranges) == 1
-    (rangeMin, rangeMax) = ranges[0]
-    assert (rangeMin == rangeMax)
-    assert abs(rangeMin - v) < l.resolution
-
-    topDown = l.topDownCompute(output)[0].value
-    print "topdown =>", topDown
-    assert abs(topDown - v) <= l.resolution / 2
-    v += l.resolution / 4
-
-  # -------------------------------------------------------------------------
-  # Test setting fieldStats after initialization
-  if False:
-    # Modified on 11/20/12 12:53 PM - setFieldStats not applicable for ScalarEncoder
-    l = ScalarEncoder(n=14, w=3, minval=100, maxval=800, periodic=True)
-    l.setFieldStats("this", {"this":{"min":1, "max":8}})
-    l = ScalarEncoder(name='scalar', n=14, w=3, minval=100, maxval=800, periodic=True)
-    l.setFieldStats("this", {"this":{"min":1, "max":8}})
-    assert (l.encode(3) == numpy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-    assert (l.encode(3.1) == l.encode(3)).all()
-    assert (l.encode(3.5) == numpy.array([0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-                                         dtype=defaultDtype)).all()
-    assert (l.encode(3.6) == l.encode(3.5)).all()
-    assert (l.encode(3.7) == l.encode(3.5)).all()
-    assert (l.encode(4) == numpy.array([0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-
-    assert (l.encode(1) == numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-                                       dtype=defaultDtype)).all()
-    assert (l.encode(1.5) == numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                         dtype=defaultDtype)).all()
-    assert (l.encode(7) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
-                                       dtype=defaultDtype)).all()
-    assert (l.encode(7.5) == numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
-                                         dtype=defaultDtype)).all()
-
-    l = ScalarEncoder(name='scalar', n=14, w=5, minval=100, maxval=1000, periodic=False)
-    l.setFieldStats("this", {"this":{"min":1, "max":10}})
-
-    print "\nTesting non-periodic encoding using setFieldStats, resolution of %f..." % \
-                l.resolution
-    assert (l.encode(1) == numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-    assert (l.encode(2) == numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all()
-    assert (l.encode(10) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-                                        dtype=defaultDtype)).all()
-
-  print "passed"
-
-
-################################################################################
-if __name__ == '__main__':
-  # Run all tests
-  testScalarEncoder()
