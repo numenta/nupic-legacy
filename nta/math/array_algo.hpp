@@ -65,7 +65,7 @@ namespace nta {
   //--------------------------------------------------------------------------------
   static int checkSSE()
   {
-    unsigned int f = 1, c,d;
+    unsigned int        c = 0, d = 0;
     const unsigned int  SSE=  1<<25, 
 			SSE2= 1<<26,
 			SSE3= 1<<0,
@@ -73,7 +73,7 @@ namespace nta {
 			SSE42=1<<20;
 #ifdef NTA_ASM
 #ifdef NTA_PLATFORM_win32
-
+    unsigned int f = 1;
     __asm {
       mov eax, f
         cpuid
@@ -83,7 +83,7 @@ namespace nta {
 # TODO: enable ASM SSE check for 64bit and linux too           
 #elif defined(NTA_PLATFORM_darwin86)
 
-    unsigned int a,b;
+    unsigned int a = 0,b = 0, f = 1;
 
     // PIC-compliant asm
     __asm__ __volatile__(

@@ -938,10 +938,10 @@ namespace nta {
         // The speed-up is about 2X to 2.5X.
         // todo: check size of type used for components of support vectors.
         //       it needs to be 4 bytes (floats) for sse/xmm registers.
-        inline bool checkSSE()
+        static inline bool checkSSE()
         {
          // use int checkSSE() from nta/math/array_algo.hpp, if ret==-1 -> no SSE 
-          return checkSSE()!=-1;
+          return nta::checkSSE()!=-1;
         }
 
 	inline ~svm()
