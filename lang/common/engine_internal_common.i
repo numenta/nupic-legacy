@@ -69,7 +69,9 @@
 %template(UInt32Set) std::set<nta::UInt32>;
 
 
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
 %template(Dimset) std::vector<size_t>;
+#endif
 %include <nta/ntypes/Dimensions.hpp>
 %include <nta/ntypes/Array.hpp>
 %include <nta/ntypes/ArrayRef.hpp>
