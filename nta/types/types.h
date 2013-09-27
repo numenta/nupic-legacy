@@ -89,6 +89,12 @@ typedef  unsigned int         NTA_UInt32;
 typedef  long long            NTA_Int64;
 typedef  unsigned long long   NTA_UInt64;
 
+#elif defined(NTA_PLATFORM_linux32arm)
+typedef  int                  NTA_Int32;
+typedef  unsigned int         NTA_UInt32;
+typedef  long long            NTA_Int64;
+typedef  unsigned long long   NTA_UInt64;
+
 #elif defined(NTA_PLATFORM_win32)
 typedef  long                NTA_Int32;
 typedef  unsigned long       NTA_UInt32;
