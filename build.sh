@@ -46,6 +46,9 @@ function exitOnError {
       echo "STDOUT redirected to: $STDOUT"
       echo "Build failed!!!"
       echo
+      echo
+      echo "##############<snip> $STDOUT #############"
+      [[ -f $STDOUT ]] && tail -n5 $STDOUT
     } 1>&2
     exit $1
   fi
