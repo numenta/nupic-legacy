@@ -359,9 +359,10 @@ class DateEncoder(Encoder):
 
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
       output[0:] = 0
-    elif not isinstance(input, datetime.datetime):
-      raise ValueError("Input is type %s, expected datetime. Value: %s" % (
-          type(input), str(input)))
+    else:
+      if not isinstance(input, datetime.datetime):
+        raise ValueError("Input is type %s, expected datetime. Value: %s" % (
+            type(input), str(input)))
 
       # Get the scalar values for each sub-field
       scalars = self.getScalars(input)
