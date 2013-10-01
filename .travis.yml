@@ -43,7 +43,7 @@ before_install:
 
 install:
   - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make) fi
-  - "$NUPIC/build.sh"
+  - mkdir -p $NUPIC/cmake_build && cd $NUPIC/cmake_build && cmake ..
 
 script:
   # legacy binary tests
