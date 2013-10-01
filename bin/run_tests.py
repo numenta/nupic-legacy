@@ -121,7 +121,7 @@ parser.add_option(
 def main(parser, parse_args):
   """ Parse CLI options and execute tests """
 
-  exitStatus = -1 # Default to failure
+  exitStatus = 0 # Default to success, failures will flip it. 
 
   # Extensions to test spec (args not part of official test runner)
 
@@ -219,7 +219,10 @@ def main(parser, parse_args):
             else arg
           for arg in args
         ]
-      exitStatus = pytest.main(specific_args + [test])
+      testStatus = pytest.main(specific_args + [test])
+      # exitStatus defaults to 0, if any test returns non-0, we'll set it.
+      if testStatus is not 0:
+        exitStatus = testStatus
 
   else:
     # Standard tests
