@@ -35,7 +35,6 @@ import traceback
 import json
 from optparse import OptionParser
 
-import grokengine.cluster.utils  as cutils
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 from nupic.frameworks.opf.permutations_runner import runPermutations
 
@@ -46,10 +45,10 @@ if __name__ == '__main__':
   helpString = \
   """%prog [options] searchDef
   This script is used to create the description.py and permutations.py files
-  for an experiment. The searchDef argument should be the name of a python 
-  script with a getSearch() method which returns the search definition as a 
+  for an experiment. The searchDef argument should be the name of a python
+  script with a getSearch() method which returns the search definition as a
   dict. The schema for this dict can be found at
-  py/grokengine/frameworks/opf/expGenerator/experimentDescriptionSchema.json  
+  py/nupic/frameworks/opf/exp_generator/experimentDescriptionSchema.json
   """
   
   
