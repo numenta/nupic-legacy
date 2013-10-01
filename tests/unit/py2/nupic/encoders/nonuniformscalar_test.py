@@ -46,8 +46,6 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
           observed = encoder.encode(value)
           assert(observed == expected).all()
         except :
-          #print "Encoding Error: encoding value %f \
-          #\nexpected %s. got %s "% (value, str(expected), str(observed))
           print "Encoder Bins:\n%s"% encoder.bins
           raise Exception("Encoding Error: encoding value %f \
                                     expected %s\n got %s "%
