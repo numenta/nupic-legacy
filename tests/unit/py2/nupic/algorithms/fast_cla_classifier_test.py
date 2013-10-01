@@ -26,21 +26,13 @@ This test extends the test for the Python CLAClassifier to ensure that both
 classifiers and their tests stay in sync.
 """
 
-import os
-import sys
 import unittest2 as unittest
 
 from nupic.bindings.algorithms import FastCLAClassifier
 
-# Add the tests path to sys.path so we can import cla_classifier_test.
-testPath = os.path.join(os.getcwd(), __file__)
-for _ in xrange(5):
-  testPath = os.path.split(testPath)[0]
-sys.path.append(testPath)
-
 # Don't import the CLAClassifierTest directly or the unittest.main() will pick
 # it up and run it.
-from py2.nupic.algorithms import cla_classifier_test
+import cla_classifier_test
 
 
 
