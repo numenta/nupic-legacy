@@ -1,11 +1,23 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2011, 2012 Numenta Inc, All rights reserved,
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc, No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc,
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
@@ -14,21 +26,23 @@ single constant signal!
 """
 
 import numpy as np
+
 import unittest2 as unittest
 
 from nupic.research import fdrutilities as fdrutils
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        TestOptionParser)
 
-# ----------------------------------------------------------------------
-# Helper routines
-# ----------------------------------------------------------------------
+_SEED = 42
+VERBOSITY = 1
+np.random.seed(_SEED)
+
+
 
 def _printOneTrainingVector(x):
   "Print a single vector succinctly."
   print ''.join('1' if k != 0 else '.' for k in x)
+
 
 def _getSimplePatterns(numOnes, numPatterns):
   """Very simple patterns. Each pattern has numOnes consecutive
@@ -43,6 +57,7 @@ def _getSimplePatterns(numOnes, numPatterns):
     p.append(x)
 
   return p
+
 
 def _createTps(numCols):
   """Create two instances of temporal poolers (TP.py and TP10X2.py) with
@@ -65,7 +80,7 @@ def _createTps(numCols):
                   permanenceInc=permanenceInc, permanenceDec=permanenceDec,
                   activationThreshold=activationThreshold,
                   globalDecay=globalDecay, burnIn=1,
-                  seed=SEED, verbosity=VERBOSITY,
+                  seed=_SEED, verbosity=VERBOSITY,
                   checkSynapseConsistency=True,
                   pamLength=1000)
 
@@ -78,15 +93,18 @@ def _createTps(numCols):
              permanenceInc=permanenceInc, permanenceDec=permanenceDec,
              activationThreshold=activationThreshold,
              globalDecay=globalDecay, burnIn=1,
-             seed=SEED, verbosity=VERBOSITY,
+             seed=_SEED, verbosity=VERBOSITY,
              pamLength=1000)
 
   return cppTp, pyTp
 
-class TPConstantTest(TestCaseBase):
+
+class TPConstantTest(unittest.TestCase):
+
 
   def setUp(self):
     self.cppTp, self.pyTp = _createTps(100)
+
 
   def _basicTest(self, tp=None):
     """Test creation, pickling, and basic run of learning and inference."""
@@ -127,22 +145,19 @@ class TPConstantTest(TestCaseBase):
 
     print "TPConstant basicTest ok"
 
+
   def testCppTpBasic(self):
     self._basicTest(self.cppTp)
 
+
   def testPyTpBasic(self):
     self._basicTest(self.pyTp)
+
 
   def testIdenticalTps(self):
     self.assertTrue(fdrutils.tpDiff2(self.cppTp, self.pyTp))
 
 
+
 if __name__=="__main__":
-  parser = TestOptionParser()
-  options, _ = parser.parse_args()
-  SEED = options.seed
-  VERBOSITY = options.verbosity
-
-  np.random.seed(SEED)
-
   unittest.main()
