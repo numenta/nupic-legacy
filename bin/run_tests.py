@@ -121,7 +121,8 @@ parser.add_option(
 def main(parser, parse_args):
   """ Parse CLI options and execute tests """
 
-  exitStatus = 0 # Default to success, failures will flip it. 
+  # Default to success, failures will flip it. 
+  exitStatus = 0
 
   # Extensions to test spec (args not part of official test runner)
 
