@@ -216,9 +216,9 @@ class OPFModelRunner(object):
     # List of tuples, (iteration, metric), used to see if the model has 'matured'
     self._metricRegression = regression.AveragePctChange(windowSize=self._MATURITY_NUM_POINTS)
 
-    return
+    self.__loggedMetricPatterns = []
 
-################################################################################
+
   def run(self):
     """ Runs the OPF Model
 
