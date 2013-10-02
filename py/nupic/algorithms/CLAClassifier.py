@@ -197,7 +197,7 @@ class BitHistory(object):
       assert isinstance(stats, dict)
       maxBucket = max(stats.iterkeys())
       self._stats = array.array("f", itertools.repeat(0.0, maxBucket+1))
-      for index, value in stats.iteritems():
+      for (index, value) in stats.iteritems():
         self._stats[index] = value
     elif version == 1:
       state.pop("_updateDutyCycles", None)
@@ -497,7 +497,7 @@ class CLAClassifier(object):
       # Plug in the iteration number in the old patternNZHistory to make it
       #  compatible with the new format
       historyLen = len(self._patternNZHistory)
-      for i, pattern in enumerate(self._patternNZHistory):
+      for (i, pattern) in enumerate(self._patternNZHistory):
         self._patternNZHistory[i] = (self._learnIteration-(historyLen-i),
                                      pattern)
 
