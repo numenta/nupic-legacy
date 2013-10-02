@@ -1,38 +1,52 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2012 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+"""Unit tests for TwoGramModel.py."""
+
 import unittest2 as unittest
 
 from nupic.data import dictutils
 from nupic.frameworks.opf import opfutils, two_gram_model
-from nupic.support.unittesthelpers import testcasebase
-
-"""Unit tests for TwoGramModel.py."""
 
 
-class TwoGramModelTest(testcasebase.TestCaseBase):
+
+class TwoGramModelTest(unittest.TestCase):
   """Unit tests for TwoGramModel."""
 
+
   def testBasicPredictions(self):
-    encoders = {'a': {'fieldname': 'a',
-                      'maxval': 9,
-                      'minval': 0,
-                      'n': 10,
-                      'w': 1,
-                      'clipInput': True,
-                      'type': 'ScalarEncoder'}}
+    encoders = {"a": {"fieldname": "a",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({'a': 5},
-                                                   {'a': 6},
-                                                   {'a': 5},
-                                                   {'a': 6}))
+    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
+                                                   {"a": 6},
+                                                   {"a": 5},
+                                                   {"a": 6}))
     inferences = ((0,), (0,), (6,), (5,))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
@@ -42,20 +56,21 @@ class TwoGramModelTest(testcasebase.TestCaseBase):
           results.inferences[opfutils.InferenceElement.prediction],
           expectedInference)
 
+
   def testSequenceReset(self):
-    encoders = {'a': {'fieldname': u'a',
-                      'maxval': 9,
-                      'minval': 0,
-                      'n': 10,
-                      'w': 1,
-                      'clipInput': True,
-                      'type': 'ScalarEncoder'}}
+    encoders = {"a": {"fieldname": u"a",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({'a': 5},
-                                                   {'a': 6},
-                                                   {'a': 5},
-                                                   {'a': 6}))
+    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
+                                                   {"a": 6},
+                                                   {"a": 5},
+                                                   {"a": 6}))
     inferences = ((0,), (0,), (6,), (0,))
     resets = (False, False, True, False)
     for i, (inputRecord, expectedInference, reset) in enumerate(
@@ -68,27 +83,28 @@ class TwoGramModelTest(testcasebase.TestCaseBase):
           results.inferences[opfutils.InferenceElement.prediction],
           expectedInference)
 
+
   def testMultipleFields(self):
-    encoders = {'a': {'fieldname': u'a',
-                      'maxval': 9,
-                      'minval': 0,
-                      'n': 10,
-                      'w': 1,
-                      'clipInput': True,
-                      'type': 'ScalarEncoder'},
-                'b': {'fieldname': u'b',
-                      'maxval': 9,
-                      'minval': 0,
-                      'n': 10,
-                      'w': 1,
-                      'clipInput': True,
-                      'type': 'ScalarEncoder'}}
+    encoders = {"a": {"fieldname": u"a",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "type": "ScalarEncoder"},
+                "b": {"fieldname": u"b",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 10,
+                      "w": 1,
+                      "clipInput": True,
+                      "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({'a': 5, 'b': 1},
-                                                   {'a': 6, 'b': 2},
-                                                   {'a': 5, 'b': 3},
-                                                   {'a': 6, 'b': 2}))
+    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5, "b": 1},
+                                                   {"a": 6, "b": 2},
+                                                   {"a": 5, "b": 3},
+                                                   {"a": 6, "b": 2}))
     inferences = ((0, 0), (0, 0), (6, 0), (5, 3))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
@@ -98,18 +114,19 @@ class TwoGramModelTest(testcasebase.TestCaseBase):
           results.inferences[opfutils.InferenceElement.prediction],
           expectedInference)
 
+
   def testCategoryPredictions(self):
-    encoders = {'a': {'fieldname': u'a',
-                      'n': 10,
-                      'w': 3,
-                      'type': 'SDRCategoryEncoder'}}
+    encoders = {"a": {"fieldname": u"a",
+                      "n": 10,
+                      "w": 3,
+                      "type": "SDRCategoryEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({'a': 'A'},
-                                                   {'a': 'B'},
-                                                   {'a': 'A'},
-                                                   {'a': 'B'}))
-    inferences = (('',), ('',), ('B',), ('A',))
+    inputRecords = (dictutils.DictObj(d) for d in ({"a": "A"},
+                                                   {"a": "B"},
+                                                   {"a": "A"},
+                                                   {"a": "B"}))
+    inferences = (("",), ("",), ("B",), ("A",))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
       results = twoGramModel.run(inputRecord)
@@ -118,23 +135,24 @@ class TwoGramModelTest(testcasebase.TestCaseBase):
           results.inferences[opfutils.InferenceElement.prediction],
           expectedInference)
 
+
   def testBucketedScalars(self):
-    encoders = {'a': {'fieldname': u'a',
-                      'maxval': 9,
-                      'minval': 0,
-                      'n': 2,
-                      'w': 1,
-                      'clipInput': True,
-                      'type': 'ScalarEncoder'}}
+    encoders = {"a": {"fieldname": u"a",
+                      "maxval": 9,
+                      "minval": 0,
+                      "n": 2,
+                      "w": 1,
+                      "clipInput": True,
+                      "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
-    inputRecords = (dictutils.DictObj(d) for d in ({'a': 5},
-                                                   {'a': 6},
-                                                   {'a': 5},
-                                                   {'a': 4},
-                                                   {'a': 6},
-                                                   {'a': 7},
-                                                   {'a': 3}))
+    inputRecords = (dictutils.DictObj(d) for d in ({"a": 5},
+                                                   {"a": 6},
+                                                   {"a": 5},
+                                                   {"a": 4},
+                                                   {"a": 6},
+                                                   {"a": 7},
+                                                   {"a": 3}))
     inferences = ((0,), (6,), (5,), (0,), (6,), (7,), (7,))
     for i, (inputRecord, expectedInference) in enumerate(zip(inputRecords,
                                                              inferences)):
@@ -145,7 +163,6 @@ class TwoGramModelTest(testcasebase.TestCaseBase):
           expectedInference)
 
 
-if __name__ == '__main__':
-  parser = testcasebase.TestOptionParser()
-  parser.parse_args()
+
+if __name__ == "__main__":
   unittest.main()
