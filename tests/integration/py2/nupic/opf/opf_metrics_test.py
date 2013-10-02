@@ -21,20 +21,21 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
-from collections import deque
+
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import (getModule, MetricSpec)
-from nupic.support.unittesthelpers import testcasebase
-from nupic.data.fieldmeta import FieldMetaType
+from nupic.frameworks.opf.metrics import getModule, MetricSpec
 
-class OPFMetricsTest(testcasebase.TestCaseBase):
+
+
+class OPFMetricsTest(unittest.TestCase):
 
   DELTA = 0.01
   VERBOSITY = 0
 
+
   def testRMSE(self):
-    rmse = getModule(MetricSpec('rmse', None, None,
+    rmse = getModule(MetricSpec("rmse", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
@@ -42,11 +43,12 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
       rmse.addInstance(gt[i], p[i])
     target = 6.71
 
-    self.assertTrue(abs(rmse.getMetric()['value']-target)\
+    self.assertTrue(abs(rmse.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedRMSE(self):
-    wrmse = getModule(MetricSpec('rmse', None, None,
+    wrmse = getModule(MetricSpec("rmse", None, None,
 {"verbosity": OPFMetricsTest.VERBOSITY, "window":3}))
     gt = [9, 4, 4, 100, 44]
     p = [0, 13, 4, 6, 7]
@@ -54,99 +56,101 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
       wrmse.addInstance(gv, pv)
     target = 58.324
 
-    self.assertTrue (abs(wrmse.getMetric()['value']-target)\
+    self.assertTrue (abs(wrmse.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testAAE(self):
-    aae = getModule(MetricSpec('aae', None, None,
+    aae = getModule(MetricSpec("aae", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
     for i in xrange(len(gt)):
       aae.addInstance(gt[i], p[i])
     target = 6.0
-    self.assertTrue(abs(aae.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(aae.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
+
 
   def testTrivialAAE(self):
-    trivialaae = getModule(MetricSpec('trivial', None, None,
+    trivialaae = getModule(MetricSpec("trivial", None, None,
                 {"verbosity" : OPFMetricsTest.VERBOSITY,"errorMetric":"aae"}))
     gt = [i/4+1 for i in range(100)]
     p = [i for i in range(100)]
     for i in xrange(len(gt)):
       trivialaae.addInstance(gt[i], p[i])
     target = .25
-    self.assertTrue(abs(trivialaae.getMetric()['value']-target) \
+    self.assertTrue(abs(trivialaae.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA)
 
 
   def testTrivialAccuracy(self):
-    trivialaccuracy = getModule(MetricSpec('trivial', None, None,
+    trivialaccuracy = getModule(MetricSpec("trivial", None, None,
                 {"verbosity" : OPFMetricsTest.VERBOSITY,"errorMetric":"acc"}))
     gt = [str(i/4+1) for i in range(100)]
     p = [str(i) for i in range(100)]
     for i in xrange(len(gt)):
       trivialaccuracy.addInstance(gt[i], p[i])
     target = .75
-    self.assertTrue(abs(trivialaccuracy.getMetric()['value']-target) \
+    self.assertTrue(abs(trivialaccuracy.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedTrivialAAE (self):
-    # -------------------------------------------------------------------------
-    # Trivial Average Error metric test
-    trivialAveErr = getModule(MetricSpec('trivial', None, None,
+    """Trivial Average Error metric test"""
+    trivialAveErr = getModule(MetricSpec("trivial", None, None,
             {"verbosity" : OPFMetricsTest.VERBOSITY,"errorMetric":"avg_err"}))
     gt = [str(i/4+1) for i in range(100)]
     p = [str(i) for i in range(100)]
     for i in xrange(len(gt)):
       trivialAveErr.addInstance(gt[i], p[i])
     target = .25
-    self.assertTrue(abs(trivialAveErr.getMetric()['value']-target)\
+    self.assertTrue(abs(trivialAveErr.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedTrivialAccuract(self):
-    # -------------------------------------------------------------------------
-    # Trivial AAE metric test
-    trivialaae = getModule(MetricSpec('trivial', None, None,
-    {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100,"errorMetric":"aae"}))
+    """Trivial AAE metric test"""
+    trivialaae = getModule(MetricSpec("trivial", None, None,
+    {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100,"errorMetric":"aae"}))
     gt = [i/4+1 for i in range(1000)]
     p = [i for i in range(1000)]
     for i in xrange(len(gt)):
       trivialaae.addInstance(gt[i], p[i])
     target = .25
-    self.assertTrue(abs(trivialaae.getMetric()['value']-target) \
+    self.assertTrue(abs(trivialaae.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedTrivialAccuracy(self):
-    # -------------------------------------------------------------------------
-    # Trivial Accuracy metric test
-    trivialaccuracy = getModule(MetricSpec('trivial', None, None,
- {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100,"errorMetric":"acc"}))
+    """Trivial Accuracy metric test"""
+    trivialaccuracy = getModule(MetricSpec("trivial", None, None,
+ {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100,"errorMetric":"acc"}))
     gt = [str(i/4+1) for i in range(1000)]
     p = [str(i) for i in range(1000)]
     for i in xrange(len(gt)):
       trivialaccuracy.addInstance(gt[i], p[i])
     target = .75
-    self.assertTrue(abs(trivialaccuracy.getMetric()['value']-target)\
+    self.assertTrue(abs(trivialaccuracy.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedTrivialAverageError (self):
-    # -------------------------------------------------------------------------
-    # Trivial Average Error metric test
-    trivialAveErr = getModule(MetricSpec('trivial', None, None,
-{"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100,"errorMetric":"avg_err"}))
+    """Trivial Average Error metric test"""
+    trivialAveErr = getModule(MetricSpec("trivial", None, None,
+{"verbosity" : OPFMetricsTest.VERBOSITY, "window":100,"errorMetric":"avg_err"}))
     gt = [str(i/4+1) for i in range(500, 1000)]
     p = [str(i) for i in range(1000)]
     for i in xrange(len(gt)):
       trivialAveErr.addInstance(gt[i], p[i])
     target = .25
-    self.assertTrue(abs(trivialAveErr.getMetric()['value']-target)\
+    self.assertTrue(abs(trivialAveErr.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testMultistepAAE(self):
-    # -------------------------------------------------------------------------
-    # Multistep AAE metric test
-    msp = getModule(MetricSpec('multiStep', None, None,
-     {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, "errorMetric":"aae",
+    """Multistep AAE metric test"""
+    msp = getModule(MetricSpec("multiStep", None, None,
+     {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": 3}))
     
     # Make each ground truth 1 greater than the prediction
@@ -156,18 +160,17 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     for i in xrange(len(gt)):
       msp.addInstance(gt[i], p[i])
     target = 1
-    self.assertTrue(abs(msp.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(msp.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
 
 
   def testMultistepAAEMultipleSteps(self):
-    # -------------------------------------------------------------------------
-    # Multistep AAE metric test, predicting 2 different step sizes
-    msp = getModule(MetricSpec('multiStep', None, None,
-     {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, "errorMetric":"aae",
+    """Multistep AAE metric test, predicting 2 different step sizes"""
+    msp = getModule(MetricSpec("multiStep", None, None,
+     {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps": [3,6]}))
     
-    # Make each 3 step prediction +1 over ground truth and each 6 step prediction
-    #  +0.5 over ground truth
+    # Make each 3 step prediction +1 over ground truth and each 6 step
+    # prediction +0.5 over ground truth
     gt = [i for i in range(100)]
     p = [{3: {i+1: .7, 5: 0.3},
           6: {i+0.5: .7, 5: 0.3}} for i in range(100)]
@@ -175,14 +178,13 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     for i in xrange(len(gt)):
       msp.addInstance(gt[i], p[i])
     target = 0.75  # average of +1 error and 0.5 error
-    self.assertTrue(abs(msp.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(msp.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
 
 
   def testMultistepProbability(self):
-    # -------------------------------------------------------------------------
-    # Multistep with probabilities metric test
-    msp = getModule(MetricSpec('multiStepProbability', None, None,
- {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, "errorMetric":"aae",
+    """Multistep with probabilities metric test"""
+    msp = getModule(MetricSpec("multiStepProbability", None, None,
+ {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"aae",
            "steps":3}))
     gt = [5 for i in range(1000)]
     p = [{3: {i: .3, 5: .7}} for i in range(1000)]
@@ -190,14 +192,14 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
       msp.addInstance(gt[i], p[i])
     #((999-5)(1000-5)/2-(899-5)(900-5)/2)*.3/100
     target = 283.35
-    self.assertTrue(abs(msp.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(msp.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
 
 
   def testMultistepProbabilityMultipleSteps(self):
-    # -------------------------------------------------------------------------
-    # Multistep with probabilities metric test, predicting 2 different step sizes
-    msp = getModule(MetricSpec('multiStepProbability', None, None,
-          {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 
+    """Multistep with probabilities metric test, predicting 2 different step
+    sizes"""
+    msp = getModule(MetricSpec("multiStepProbability", None, None,
+          {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100,
            "errorMetric":"aae", "steps": [1,3]}))
     gt = [5 for i in range(1000)]
     p = [{3: {i: .3, 5: .7},
@@ -207,53 +209,52 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     #(((999-5)(1000-5)/2-(899-5)(900-5)/2)*.3/100) / 2
     #  / 2 because the 1-step prediction is 100% accurate
     target = 283.35/2
-    self.assertTrue(abs(msp.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(msp.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
 
 
   def testMovingMeanAbsoluteError(self):
-    # -------------------------------------------------------------------------
-    # Moving mean Average Absolute Error metric test
-    movingMeanAAE = getModule(MetricSpec('moving_mean', None, None,
-         {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 'mean_window':3,
-             'errorMetric':'aae'}))
+    """Moving mean Average Absolute Error metric test"""
+    movingMeanAAE = getModule(MetricSpec("moving_mean", None, None,
+         {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mean_window":3,
+             "errorMetric":"aae"}))
     gt = [i for i in range(890)]
     gt.extend([2*i for i in range(110)])
     p = [i for i in range(1000)]
     res = []
     for i in xrange(len(gt)):
       movingMeanAAE.addInstance(gt[i], p[i])
-      res.append(movingMeanAAE.getMetric()['value'])
+      res.append(movingMeanAAE.getMetric()["value"])
     self.assertTrue(max(res[1:890]) == 2.0)
     self.assertTrue(min(res[891:])>=4.0)
     target = 4.0
-    self.assertTrue(abs(movingMeanAAE.getMetric()['value']-target)\
+    self.assertTrue(abs(movingMeanAAE.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testMovingMeanRMSE(self):
-    # -------------------------------------------------------------------------
-    # Moving mean RMSE metric test
-    movingMeanRMSE = getModule(MetricSpec('moving_mean', None, None,
-         {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 'mean_window':3,
-          'errorMetric':'rmse'}))
+    """Moving mean RMSE metric test"""
+    movingMeanRMSE = getModule(MetricSpec("moving_mean", None, None,
+         {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mean_window":3,
+          "errorMetric":"rmse"}))
     gt = [i for i in range(890)]
     gt.extend([2*i for i in range(110)])
     p = [i for i in range(1000)]
     res = []
     for i in xrange(len(gt)):
       movingMeanRMSE.addInstance(gt[i], p[i])
-      res.append(movingMeanRMSE.getMetric()['value'])
+      res.append(movingMeanRMSE.getMetric()["value"])
     self.assertTrue(max(res[1:890]) == 2.0)
     self.assertTrue(min(res[891:])>=4.0)
     target = 4.0
-    self.assertTrue(abs(movingMeanRMSE.getMetric()['value']-target) \
+    self.assertTrue(abs(movingMeanRMSE.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA)
 
+
   def testMovingModeAverageError(self):
-    # -------------------------------------------------------------------------
-    # Moving mode Average Error metric test
-    movingModeAvgErr = getModule(MetricSpec('moving_mode', None, None,
-      {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 'mode_window':3,
-           'errorMetric':'avg_err'}))
+    """Moving mode Average Error metric test"""
+    movingModeAvgErr = getModule(MetricSpec("moving_mode", None, None,
+      {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mode_window":3,
+           "errorMetric":"avg_err"}))
     #Should initiall assymptote to .5
     #Then after 900 should go to 1.0 as the predictions will always be offset
     gt = [i/4 for i in range(900)]
@@ -262,7 +263,7 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     res = []
     for i in xrange(len(gt)):
       movingModeAvgErr.addInstance(gt[i], p[i])
-      res.append(movingModeAvgErr.getMetric()['value'])
+      res.append(movingModeAvgErr.getMetric()["value"])
     #Make sure that there is no point where the average error is >.5
     self.assertTrue(max(res[1:890]) == .5)
     #Make sure that after the statistics switch the error goes to 1.0
@@ -271,15 +272,15 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     #in the window
     self.assertTrue(res[998]<1.0)
     target = 1.0
-    self.assertTrue(abs(movingModeAvgErr.getMetric()['value']-target)\
+    self.assertTrue(abs(movingModeAvgErr.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testMovingModeAccuracy(self):
-    # -------------------------------------------------------------------------
-    # Moving mode Accuracy metric test
-    movingModeACC = getModule(MetricSpec('moving_mode', None, None,
-       {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 'mode_window':3,
-        'errorMetric':'acc'}))
+    """Moving mode Accuracy metric test"""
+    movingModeACC = getModule(MetricSpec("moving_mode", None, None,
+       {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mode_window":3,
+        "errorMetric":"acc"}))
     #Should initially asymptote to .5
     #Then after 900 should go to 0.0 as the predictions will always be offset
     gt = [i/4 for i in range(900)]
@@ -288,7 +289,7 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     res = []
     for i in xrange(len(gt)):
       movingModeACC.addInstance(gt[i], p[i])
-      res.append(movingModeACC.getMetric()['value'])
+      res.append(movingModeACC.getMetric()["value"])
     #Make sure that there is no point where the average acc is <.5
     self.assertTrue(min(res[1:899]) == .5)
     #Make sure that after the statistics switch the acc goes to 0.0
@@ -297,16 +298,16 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     #is in the window
     self.assertTrue(res[998]>0.0)
     target = 0.0
-    self.assertTrue(abs(movingModeACC.getMetric()['value']-target)\
+    self.assertTrue(abs(movingModeACC.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
+
 
   def testTwoGramScalars(self):
-    # -------------------------------------------------------------------------
-    # Two gram scalars test
-    oneGram = getModule(MetricSpec('two_gram', None, None,
+    """Two gram scalars test"""
+    oneGram = getModule(MetricSpec("two_gram", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY, \
-'window':100, 'predictionField':'test',
-               'errorMetric':'acc'}))
+"window":100, "predictionField":"test",
+               "errorMetric":"acc"}))
 
     # Sequences of 0,1,2,3,4,0,1,2,3,4,...
     encodings = [np.zeros(10) for i in range(5)]
@@ -317,25 +318,25 @@ class OPFMetricsTest(testcasebase.TestCaseBase):
     res = []
     for i in xrange(len(gt)):
       if i == 20:
-        # Make sure we don't barf with missing values
+        # Make sure we don"t barf with missing values
         oneGram.addInstance(np.zeros(10), prediction=None,
 record={"test":None})
       else:
         # Feed in next groundTruth
         oneGram.addInstance(encodings[i%5], prediction=None,
 record={"test":gt[i]})
-      res.append(oneGram.getMetric()['value'])
+      res.append(oneGram.getMetric()["value"])
     target = 1.0
-    self.assertTrue(abs(oneGram.getMetric()['value']-target)\
+    self.assertTrue(abs(oneGram.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
+
 
   def testTwoGramScalarsStepsGreaterOne(self):
-    # -------------------------------------------------------------------------
-    # Two gram scalars test with step size other than 1
-    oneGram = getModule(MetricSpec('two_gram', None, None,
+    """Two gram scalars test with step size other than 1"""
+    oneGram = getModule(MetricSpec("two_gram", None, None,
               {"verbosity" : OPFMetricsTest.VERBOSITY,\
-'window':100, 'predictionField':'test',
-               'errorMetric':'acc', 'steps': 2}))
+"window":100, "predictionField":"test",
+               "errorMetric":"acc", "steps": 2}))
 
     # Sequences of 0,1,2,3,4,0,1,2,3,4,...
     encodings = [np.zeros(10) for i in range(5)]
@@ -346,26 +347,26 @@ record={"test":gt[i]})
     res = []
     for i in xrange(len(gt)):
       if i == 20:
-        # Make sure we don't barf with missing values
+        # Make sure we don"t barf with missing values
         oneGram.addInstance(np.zeros(10), prediction=None,
 record={"test":None})
       else:
         # Feed in next groundTruth
         oneGram.addInstance(encodings[i%5], prediction=None,
 record={"test":gt[i]})
-      res.append(oneGram.getMetric()['value'])
+      res.append(oneGram.getMetric()["value"])
     target = 1.0
-    self.assertTrue(abs(oneGram.getMetric()['value']-target) \
+    self.assertTrue(abs(oneGram.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA)
 
-  def testTwoGramStrings(self):
-    # -------------------------------------------------------------------------
-    # One gram string test
-    oneGram = getModule(MetricSpec('two_gram', None, None,
-    {"verbosity" : OPFMetricsTest.VERBOSITY, 'window':100, 'errorMetric':'acc',
-           'predictionField':'test'}))
 
-    # Sequences of '0', '1', '2', '3', '4', '0', '1', ...
+  def testTwoGramStrings(self):
+    """One gram string test"""
+    oneGram = getModule(MetricSpec("two_gram", None, None,
+    {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "errorMetric":"acc",
+           "predictionField":"test"}))
+
+    # Sequences of "0", "1", "2", "3", "4", "0", "1", ...
     gt = [str(i%5) for i in range(1000)]
     encodings = [np.zeros(10) for i in range(5)]
     for i in range(len(encodings)):
@@ -381,86 +382,84 @@ record={"test":gt[i]})
     res = []
     for i in xrange(len(gt)):
       if i==20:
-        # Make sure we don't barf with missing values
+        # Make sure we don"t barf with missing values
         oneGram.addInstance(np.zeros(10), prediction=None,
 record={"test":None})
       else:
         oneGram.addInstance(encodings[i%5], prediction=None,
 record={"test":gt[i]})
-      res.append(oneGram.getMetric()['value'])
+      res.append(oneGram.getMetric()["value"])
     target = .8
-    self.assertTrue(abs(oneGram.getMetric()['value']-target)\
+    self.assertTrue(abs(oneGram.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
+
   def testWindowedAAE(self):
-    # -------------------------------------------------------------------------
-    # Windowed AAE
-    waae = getModule(MetricSpec('aae', None, None,
-{"verbosity" : OPFMetricsTest.VERBOSITY, 'window':1}))
+    """Windowed AAE"""
+    waae = getModule(MetricSpec("aae", None, None,
+{"verbosity" : OPFMetricsTest.VERBOSITY, "window":1}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
     for i in xrange(len(gt)):
       waae.addInstance(gt[i], p[i])
     target = 3.0
-    self.assertTrue( abs(waae.getMetric()['value']-target) \
+    self.assertTrue( abs(waae.getMetric()["value"]-target) \
 < OPFMetricsTest.DELTA, "Got %s" %waae.getMetric())
 
+
   def testAccuracy(self):
-    # -------------------------------------------------------------------------
-    # Accuracy
-    acc = getModule(MetricSpec('acc', None, None,
+    """Accuracy"""
+    acc = getModule(MetricSpec("acc", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     gt = [0, 1, 2, 3, 4, 5]
     p = [0, 1, 2, 4, 5, 6]
     for i in xrange(len(gt)):
       acc.addInstance(gt[i], p[i])
     target = 0.5
-    self.assertTrue(abs(acc.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(acc.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
 
 
   def testWindowedAccuracy(self):
-    # -------------------------------------------------------------------------
-    # Windowed accuracy
-    acc = getModule(MetricSpec('acc', None, None, \
-{"verbosity" : OPFMetricsTest.VERBOSITY,  'window':2}))
+    """Windowed accuracy"""
+    acc = getModule(MetricSpec("acc", None, None, \
+{"verbosity" : OPFMetricsTest.VERBOSITY,  "window":2}))
     gt = [0, 1, 2, 3, 4, 5]
     p = [0, 1, 2, 4, 5, 6]
     for i in xrange(len(gt)):
       acc.addInstance(gt[i], p[i])
     target = 0.0
 
-    self.assertTrue(abs(acc.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(acc.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
+
 
   def testAverageError(self):
-
-    # -------------------------------------------------------------------------
-    # Ave Error
-    err = getModule(MetricSpec('avg_err', None, None,
+    """Ave Error"""
+    err = getModule(MetricSpec("avg_err", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY}))
     gt = [1, 1, 2, 3, 4, 5]
     p = [0, 1, 2, 4, 5, 6]
     for i in xrange(len(gt)):
       err.addInstance(gt[i], p[i])
     target = (2.0/3.0)
-    self.assertTrue(abs(err.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(err.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
+
 
   def testWindowedAverageError(self):
-    # -------------------------------------------------------------------------
-    # Windowed Ave Error
-    err = getModule(MetricSpec('avg_err', None, None, \
-{"verbosity" : OPFMetricsTest.VERBOSITY, 'window':2}))
+    """Windowed Ave Error"""
+    err = getModule(MetricSpec("avg_err", None, None, \
+{"verbosity" : OPFMetricsTest.VERBOSITY, "window":2}))
     gt = [0, 1, 2, 3, 4, 5]
     p = [0, 1, 2, 4, 5, 6]
     for i in xrange(len(gt)):
       err.addInstance(gt[i], p[i])
     target = 1.0
 
-    self.assertTrue(abs(err.getMetric()['value']-target) < OPFMetricsTest.DELTA)
+    self.assertTrue(abs(err.getMetric()["value"]-target) < OPFMetricsTest.DELTA)
+
 
   def testLongWindowRMSE(self):
-    # -------------------------------------------------------------------------
-    # RMSE
-    rmse = getModule(MetricSpec('rmse', None, None,
+    """RMSE"""
+    rmse = getModule(MetricSpec("rmse", None, None,
 {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
@@ -468,16 +467,15 @@ record={"test":gt[i]})
       rmse.addInstance(gt[i], p[i])
     target = 6.71
 
-    self.assertTrue(abs(rmse.getMetric()['value']-target)\
+    self.assertTrue(abs(rmse.getMetric()["value"]-target)\
 < OPFMetricsTest.DELTA)
 
 
   def testCustomErrorMetric(self):
-
     customFunc = """def getError(pred,ground,tools):
                       return abs(pred-ground)"""
 
-    customEM = getModule(MetricSpec('custom_error_metric', None, None,
+    customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc, "errorWindow":3}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
@@ -487,9 +485,9 @@ record={"test":gt[i]})
     delta = 0.001
 
     # insure that addInstance returns the aggregate error - other
-    #  uber metrics depend on this behavior. 
-    self.assertEqual(aggErr, customEM.getMetric()['value'])
-    self.assertTrue(abs(customEM.getMetric()['value']-target) < delta)
+    # uber metrics depend on this behavior.
+    self.assertEqual(aggErr, customEM.getMetric()["value"])
+    self.assertTrue(abs(customEM.getMetric()["value"]-target) < delta)
 
     customFunc = """def getError(pred,ground,tools):
         sum = 0
@@ -497,7 +495,7 @@ record={"test":gt[i]})
           sum+=abs(tools.getPrediction(i)-tools.getGroundTruth(i))
         return sum/3"""
 
-    customEM = getModule(MetricSpec('custom_error_metric', None, None,
+    customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
     gt = [9, 4, 5, 6]
     p = [0, 13, 8, 3]
@@ -505,19 +503,18 @@ record={"test":gt[i]})
       customEM.addInstance(gt[i], p[i])
     target = 5.0
     delta = 0.001
-    self.assertTrue(abs(customEM.getMetric()['value']-target) < delta)
+    self.assertTrue(abs(customEM.getMetric()["value"]-target) < delta)
 
-
-    #Test custom error metric helper functions
-    #Test getPrediction
-    #Not-Windowed
+    # Test custom error metric helper functions
+    # Test getPrediction
+    # Not-Windowed
     storeWindow=4
     failed = False
     for lookBack in range(3):
       customFunc = """def getError(pred,ground,tools):
           return tools.getPrediction(%d)""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -535,13 +532,13 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue( customEM.getMetric()['value'] == p[i-lookBack])
+          self.assertTrue( customEM.getMetric()["value"] == p[i-lookBack])
     #Windowed
     for lookBack in range(5):
       customFunc = """def getError(pred,ground,tools):
           return tools.getPrediction(%d)""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":storeWindow}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -561,7 +558,7 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue (customEM.getMetric()['value'] == p[i-lookBack])
+          self.assertTrue (customEM.getMetric()["value"] == p[i-lookBack])
 
     #Test getGroundTruth
     #Not-Windowed
@@ -569,7 +566,7 @@ record={"test":gt[i]})
       customFunc = """def getError(pred,ground,tools):
           return tools.getGroundTruth(%d)""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -587,13 +584,13 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue (customEM.getMetric()['value'] == gt[i-lookBack])
+          self.assertTrue (customEM.getMetric()["value"] == gt[i-lookBack])
     #Windowed
     for lookBack in range(5):
       customFunc = """def getError(pred,ground,tools):
           return tools.getGroundTruth(%d)""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":storeWindow}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -611,7 +608,7 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue( customEM.getMetric()['value'] == gt[i-lookBack])
+          self.assertTrue( customEM.getMetric()["value"] == gt[i-lookBack])
 
     #Test getFieldValue
     #Not-Windowed Scalar
@@ -619,7 +616,7 @@ record={"test":gt[i]})
       customFunc = """def getError(pred,ground,tools):
           return tools.getFieldValue(%d,"test1")""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -637,13 +634,13 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue (customEM.getMetric()['value'] == t1[i-lookBack])
+          self.assertTrue (customEM.getMetric()["value"] == t1[i-lookBack])
     #Windowed Scalar
     for lookBack in range(3):
       customFunc = """def getError(pred,ground,tools):
           return tools.getFieldValue(%d,"test1")""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":storeWindow}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -661,13 +658,13 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue( customEM.getMetric()['value'] == t1[i-lookBack])
+          self.assertTrue( customEM.getMetric()["value"] == t1[i-lookBack])
     #Not-Windowed category
     for lookBack in range(3):
       customFunc = """def getError(pred,ground,tools):
           return tools.getFieldValue(%d,"test1")""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -685,14 +682,14 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue (customEM.getMetric()['value'] == t1[i-lookBack])
+          self.assertTrue (customEM.getMetric()["value"] == t1[i-lookBack])
 
     #Windowed category
     for lookBack in range(3):
       customFunc = """def getError(pred,ground,tools):
           return tools.getFieldValue(%d,"test1")""" % lookBack
 
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":storeWindow}))
       gt = [i for i in range(100)]
       p = [2*i for i in range(100)]
@@ -710,13 +707,13 @@ record={"test":gt[i]})
 "An exception should have been generated, but wasn't")
         else:
           customEM.addInstance(gt[i], p[i], curRecord)
-          self.assertTrue (customEM.getMetric()['value'] == t1[i-lookBack])
+          self.assertTrue (customEM.getMetric()["value"] == t1[i-lookBack])
     #Test getBufferLen
     #Not-Windowed
     customFunc = """def getError(pred,ground,tools):
         return tools.getBufferLen()"""
 
-    customEM = getModule(MetricSpec('custom_error_metric', None, None,
+    customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc}))
     gt = [i for i in range(100)]
     p = [2*i for i in range(100)]
@@ -726,12 +723,12 @@ record={"test":gt[i]})
     for i in xrange(len(gt)):
       curRecord = {"pred":p[i], "ground":gt[i], "test1":t1[i], "test2":t2[i]}
       customEM.addInstance(gt[i], p[i], curRecord)
-      self.assertTrue (customEM.getMetric()['value'] == i+1)
+      self.assertTrue (customEM.getMetric()["value"] == i+1)
     #Windowed
     customFunc = """def getError(pred,ground,tools):
         return tools.getBufferLen()"""
 
-    customEM = getModule(MetricSpec('custom_error_metric', None, None,
+    customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":storeWindow}))
     gt = [i for i in range(100)]
     p = [2*i for i in range(100)]
@@ -741,20 +738,20 @@ record={"test":gt[i]})
     for i in xrange(len(gt)):
       curRecord = {"pred":p[i], "ground":gt[i], "test1":t1[i], "test2":t2[i]}
       customEM.addInstance(gt[i], p[i], curRecord)
-      self.assertTrue (customEM.getMetric()['value'] == min(i+1, 4))
+      self.assertTrue (customEM.getMetric()["value"] == min(i+1, 4))
 
 
 
     #Test initialization edge cases
     try:
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"errorWindow":0}))
       self.assertTrue (False , "error Window of 0 should fail self.assertTrue")
     except:
       pass
 
     try:
-      customEM = getModule(MetricSpec('custom_error_metric', None, None,
+      customEM = getModule(MetricSpec("custom_error_metric", None, None,
 {"customFuncSource":customFunc,"storeWindow":0}))
       self.assertTrue (False , "error Window of 0 should fail self.assertTrue")
     except:
@@ -762,9 +759,5 @@ record={"test":gt[i]})
 
 
 
-
-
-if __name__ == '__main__':
-  parser = testcasebase.TestOptionParser()
-  parser.parse_args()
+if __name__ == "__main__":
   unittest.main()
