@@ -34,6 +34,8 @@ from nupic.bindings.math import SM32
 class TestCastMode(unittest.TestCase):
 
 
+  @unittest.skipIf(sys.platform == "linux2",
+                   "Castmode test disabled on linux -- fails")
   def testCastMode(self):
     """Test for an obscure error that is fixed by the -castmode flag to swig.
 
@@ -50,7 +52,4 @@ class TestCastMode(unittest.TestCase):
 
 
 if __name__ == "__main__":
-  if sys.platform == "linux2":
-    print "Castmode test disabled on linux -- fails"
-    sys.exit(0)
   unittest.main()
