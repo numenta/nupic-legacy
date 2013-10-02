@@ -134,8 +134,8 @@ for j in range(5):
   # tp.getPredictedState() gets the predicted cells.
   # predictedCells[c][i] represents the state of the i'th cell in the c'th
   # column. To see if a column is predicted, we can simply take the OR
-  # across all the cells in that column. In numpy we can do this by simply 
-  # taking the max along axis 1.
+  # across all the cells in that column. In numpy we can do this by taking 
+  # the max along axis 1.
   print "\n\nThe following columns are predicted by the temporal pooler. This"
   print "should correspond to columns in the *next* item in the sequence."
   predictedCells = tp.getPredictedState()
