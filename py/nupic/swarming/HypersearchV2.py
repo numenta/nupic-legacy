@@ -2372,8 +2372,7 @@ class HypersearchV2(object):
                           OPTIONAL - JSON encoded string with
                                       contents of base description.py file
       description:        OPTIONAL - JSON description of the search
-      createCheckpoints:  OPTIONAL - default is to set this to the value of
-                                      useStreams. 
+      createCheckpoints:  OPTIONAL - Whether to create checkpoints
       useTerminators      OPTIONAL - True of False (default config.xml). When set
                                      to False, the model and swarm terminators
                                      are disabled
@@ -2443,7 +2442,7 @@ class HypersearchV2(object):
     self.logger.info("searchParams: \n%s" % (pprint.pformat(
         clippedObj(searchParams))))
 
-    self._createCheckpoints = self._searchParams.get('createCheckpoints', 
+    self._createCheckpoints = self._searchParams.get('createCheckpoints',
                                                      False)
     self._maxModels = self._searchParams.get('maxModels', None)
     if self._maxModels == -1:

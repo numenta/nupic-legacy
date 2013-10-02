@@ -31,6 +31,8 @@ from nupic.math import lgamma
 class LGammaTest(unittest.TestCase):
 
 
+  @unittest.skipIf(sys.platform.startswith("win32"),
+                   "Skipping failed test on Windows.")
   def testLgamma(self):
     items = (
       (0.1,  2.25271265),
@@ -73,7 +75,4 @@ class LGammaTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-  if sys.platform.startswith("win32"):
-    print "Skipping failing test on Windows."
-    sys.exit(0)
   unittest.main()

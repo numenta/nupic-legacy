@@ -335,7 +335,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
     productionJobParams = dict(
        inputStreamDef = streamDef,
-       #useStreams=False,
        #outputDir=outputDir,
        modelSpec = dict(
             checkpointID=jobsDB.modelsGetFields(

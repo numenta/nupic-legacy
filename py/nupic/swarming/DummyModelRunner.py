@@ -118,7 +118,6 @@ class OPFDummyModelRunner(OPFModelRunner):
                predictedField,
                reportKeyPatterns,
                optimizeKeyPattern,
-               useStreams,
                jobsDAO,
                modelCheckpointGUID,
                logLevel=None,
@@ -238,8 +237,6 @@ class OPFDummyModelRunner(OPFModelRunner):
                         if it matches more than one key from the experiment's
                         results.
 
-    useStreams:         True to open an output stream
-
     jobsDAO:            Jobs data access object - the interface to the
                         jobs database which has the model's table.
 
@@ -259,15 +256,11 @@ class OPFDummyModelRunner(OPFModelRunner):
                                               experimentDir=None,
                                               reportKeyPatterns=reportKeyPatterns,
                                               optimizeKeyPattern=optimizeKeyPattern,
-                                              useStreams=False,
                                               jobsDAO=jobsDAO,
                                               modelCheckpointGUID=modelCheckpointGUID,
                                               logLevel=logLevel,
                                               predictionCacheMaxRecords=None)
 
-    #This is only used during checkpointing because checkpoints
-    # require a stream
-    self._useStreams = useStreams
     self._predictionCacheMaxRecords = predictionCacheMaxRecords
     self._streamDef = copy.deepcopy(self._DUMMY_STREAMDEF)
     self._params = copy.deepcopy(self._DEFAULT_PARAMS)
