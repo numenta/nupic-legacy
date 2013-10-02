@@ -35,18 +35,20 @@ import unittest2 as unittest
 
 from nupic.bindings.math import *
 
-#---------------------------------------------------------------------------------
 rgen = numpy.random.RandomState(37)
 
-#---------------------------------------------------------------------------------
+
+
 def error(str):
 
   print 'Error:', str
   assert(False)
-#---------------------------------------------------------------------------------
-class testSparseMatrices(unittest.TestCase):
 
-  #--------------------------------------------------------------------------------
+
+
+class SparseMatrixTest(unittest.TestCase):
+
+
   def test_construction(self):
 
     print 'Testing constructors'
