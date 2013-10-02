@@ -28,7 +28,13 @@
 #ifndef NTA_SPARSE_TENSOR_HPP
 #define NTA_SPARSE_TENSOR_HPP
 
+#ifdef NUPIC2
 #include <nta/math/utils.hpp>
+#else
+#include <nta/common/utils.hpp>
+#endif
+
+
 #include <nta/math/math.hpp>
 #include <nta/math/array_algo.hpp>
 #include <nta/math/stl_io.hpp>
@@ -154,6 +160,13 @@ namespace nta {
       for (UInt k = 1; k < getRank(); ++k)
         bounds_[k] = (UInt) va_arg(indices, unsigned int); 
       va_end(indices);
+
+      {
+        NTA_ASSERT(indexGeZero(bounds_))
+          << "SparseTensor::SparseTensor(UInt...):"
+          << "Invalid bounds: " << bounds_
+          << " - Should be >= 0";
+      }
     }
 
     /**
@@ -168,6 +181,12 @@ namespace nta {
     explicit inline SparseTensor(const Index& bounds)
       : bounds_(bounds), nz_()
     {
+      {
+        NTA_ASSERT(indexGeZero(bounds_))
+          << "SparseTensor::SparseTensor(Index):"
+          << "Invalid bounds: " << bounds_
+          << " - Should be >= 0";
+      }
     }
 
     /**
@@ -1568,6 +1587,10 @@ namespace nta {
      */
     inline void resize(const Index& newBounds)
     {
+      {
+        NTA_ASSERT(indexGeZero(newBounds));
+      }
+
       if (newBounds == bounds_)
         return;
 
