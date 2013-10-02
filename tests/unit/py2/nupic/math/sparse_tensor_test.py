@@ -31,10 +31,13 @@ import sys
 from nupic.bindings.math import *
 
 
+
 class TestSparseTensor(unittest.TestCase):
+
 
   def setUp(self):
     self.dtype = GetNTAReal()
+
 
   def test_Construction(self):
     x = SparseTensor((3, 4, 5))
@@ -45,6 +48,7 @@ class TestSparseTensor(unittest.TestCase):
     x.set((2, 1, 0), 5)
     assert x.get((2, 1, 0)) == 5
     print 'Get and set tests passed.'
+
 
   def test_Timing(self):
 
@@ -108,6 +112,7 @@ class TestSparseTensor(unittest.TestCase):
 
     print 'Timing tests passed.'
 
+
   def test_Slicing(self):
 
     x = SparseTensor((3, 4, 5))
@@ -139,6 +144,7 @@ class TestSparseTensor(unittest.TestCase):
     assert x[2, 2, 1] == 16.5
     print 'Bracket operator tests passed.'
 
+
   def test_Pickling(self):
 
     x = SparseTensor((3, 4, 5))
@@ -152,12 +158,10 @@ class TestSparseTensor(unittest.TestCase):
     assert x == y
     print 'Equality test passed.'
 
-
     z = x.copy()
     assert z is not x
     assert z == x
     print 'Copy tests passed.'
-
 
     assert x[:,:,:].getBounds() == (3, 4, 5)
     assert x[2,:,:].getBounds() == (4, 5)
@@ -228,7 +232,6 @@ class TestSparseTensor(unittest.TestCase):
     x[0, 0] = y[0, 0]
     assert (x.toDense() == y).all()
     print 'numpy tests passed.'
-
 
     # setSlice tests.
     x = SparseTensor((2, 3, 4))
