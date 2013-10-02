@@ -36,14 +36,10 @@ DUTY_CYCLE_UPDATE_INTERVAL = numpy.finfo(numpy.float32).max / ( 2**20 )
 g_debugPrefix = "CLAClassifier"
 
 
-def _pFormatArray(array, fmt="%.2f"):
+def _pFormatArray(array_, fmt="%.2f"):
   """Return a string with pretty-print of a numpy array using the given format
   for each element"""
-  items = ["["]
-  for x in array:
-    items.append(fmt % (x))
-  items.append("]")
-  return ' '.join(items)
+  return "[ " + " ".join(fmt % x for x in array_) + " ]"
 
 
 
@@ -75,7 +71,7 @@ class BitHistory(object):
 
     # Dictionary of bucket entries. The key is the bucket index, the
     # value is the dutyCycle, which is the rolling average of the duty cycle
-    self._stats = array.array('f')
+    self._stats = array.array("f")
 
     # lastUpdate is the iteration number of the last time it was updated.
     self._lastTotalUpdate = None
@@ -116,7 +112,7 @@ class BitHistory(object):
     """
 
     # If lastTotalUpdate has not been set, set it to the current iteration.
-    if self._lastTotalUpdate == None:
+    if self._lastTotalUpdate is None:
       self._lastTotalUpdate = iteration
     # Get the duty cycle stored for this bucket.
     statsLen = len(self._stats) - 1
@@ -200,18 +196,18 @@ class BitHistory(object):
       stats = state.pop("_stats")
       assert isinstance(stats, dict)
       maxBucket = max(stats.iterkeys())
-      self._stats = array.array('f', itertools.repeat(0.0, maxBucket+1))
+      self._stats = array.array("f", itertools.repeat(0.0, maxBucket+1))
       for index, value in stats.iteritems():
         self._stats[index] = value
     elif version == 1:
-      state.pop('_updateDutyCycles', None)
+      state.pop("_updateDutyCycles", None)
     elif version == 2:
       pass
     else:
       raise Exception("Error while deserializing %s: Invalid version %s"
                       %(self.__class__, version))
-    
-    for attr, value in state.iteritems():
+
+    for (attr, value) in state.iteritems():
       setattr(self, attr, value)
 
     self._version = BitHistory.__VERSION__
@@ -267,11 +263,11 @@ class CLAClassifier(object):
 
     # Init learn iteration index
     self._learnIteration = 0
-    
+
     # This contains the offset between the recordNum (provided by caller) and
     #  learnIteration (internal only, always starts at 0).
     self._recordNumMinusLearnIteration = None
-    
+
     # Max # of steps of prediction we need to support
     # TODO: Do we need the +1?
     maxSteps = max(self.steps) + 1
@@ -314,7 +310,7 @@ class CLAClassifier(object):
     recordNum:  Record number of this input pattern. Record numbers should
                 normally increase sequentially by 1 each time unless there
                 are missing records in the dataset. Knowing this information
-                insures that we don't get confused by missing records. 
+                insures that we don't get confused by missing records.
     patternNZ:  list of the active indices from the output below
     classification: dict of the classification information:
                       bucketIdx: index of the encoder bucket
@@ -341,7 +337,7 @@ class CLAClassifier(object):
     #  compute
     if self._recordNumMinusLearnIteration is None:
       self._recordNumMinusLearnIteration = recordNum - self._learnIteration
-      
+
     # Update the learn iteration
     self._learnIteration = recordNum - self._recordNumMinusLearnIteration
 
@@ -364,16 +360,16 @@ class CLAClassifier(object):
       # Return value dict. For buckets which we don't have an actual value
       # for yet, just plug in any valid actual value. It doesn't matter what
       # we use because that bucket won't have non-zero likelihood anyways.
-      
+
       # NOTE: If doing 0-step prediction, we shouldn't use any knowledge
       #  of the classification input during inference.
       if self.steps[0] == 0:
         defaultValue = 0
       else:
-        defaultValue = classification['actValue']
+        defaultValue = classification["actValue"]
       actValues = [x if x is not None else defaultValue
                    for x in self._actualValues]
-      retval = {'actualValues': actValues}
+      retval = {"actualValues": actValues}
 
       # For each n-step prediction...
       for nSteps in self.steps:
@@ -413,11 +409,11 @@ class CLAClassifier(object):
     # For each active bit in the activationPattern, store the classification
     # info. If the bucketIdx is None, we can't learn. This can happen when the
     # field is missing in a specific record.
-    if learn and classification['bucketIdx'] is not None:
+    if learn and classification["bucketIdx"] is not None:
 
       # Get classification info
-      bucketIdx = classification['bucketIdx']
-      actValue = classification['actValue']
+      bucketIdx = classification["bucketIdx"]
+      actValue = classification["actValue"]
 
       # Update maxBucketIndex
       self._maxBucketIdx = max(self._maxBucketIdx, bucketIdx)
@@ -470,14 +466,14 @@ class CLAClassifier(object):
     # Verbose print
     if infer and self.verbosity >= 1:
       print "  inference: combined bucket likelihoods:"
-      print "    actual bucket values:", retval['actualValues']
+      print "    actual bucket values:", retval["actualValues"]
       for (nSteps, votes) in retval.items():
-        if nSteps == 'actualValues':
+        if nSteps == "actualValues":
           continue
         print "    %d steps: " % (nSteps), _pFormatArray(votes)
         bestBucketIdx = votes.argmax()
         print "      most likely bucket idx: %d, value: %s" % (bestBucketIdx,
-                            retval['actualValues'][bestBucketIdx]) 
+                            retval["actualValues"][bestBucketIdx])
       print
 
     return retval
@@ -488,28 +484,28 @@ class CLAClassifier(object):
 
 
   def __setstate__(self, state):
-    if '_profileMemory' in state:
-      state.pop('_profileMemory')
+    if "_profileMemory" in state:
+      state.pop("_profileMemory")
 
-    # Set our state      
+    # Set our state
     self.__dict__.update(state)
 
     # Handle version 0 case (i.e. before versioning code)
     if "_version" not in state or state["_version"] < 2:
       self._recordNumMinusLearnIteration = None
-      
+
       # Plug in the iteration number in the old patternNZHistory to make it
       #  compatible with the new format
-      historyLen = len(self._patternNZHistory) 
+      historyLen = len(self._patternNZHistory)
       for i, pattern in enumerate(self._patternNZHistory):
         self._patternNZHistory[i] = (self._learnIteration-(historyLen-i),
                                      pattern)
-      
-      
+
+
     elif state["_version"] == 2:
       # Version 2 introduced _recordNumMinusLearnIteration
       pass
-    
+
     else:
       pass
 
