@@ -20,7 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests for sparse matrix."""
+"""
+## @file
+"""
 
 import sys
 import numpy
@@ -35,20 +37,18 @@ import unittest2 as unittest
 
 from nupic.bindings.math import *
 
+#---------------------------------------------------------------------------------
 rgen = numpy.random.RandomState(37)
 
-
-
+#---------------------------------------------------------------------------------
 def error(str):
 
   print 'Error:', str
   assert(False)
+#---------------------------------------------------------------------------------
+class testSparseMatrices(unittest.TestCase):
 
-
-
-class SparseMatrixTest(unittest.TestCase):
-
-
+  #--------------------------------------------------------------------------------
   def test_construction(self):
 
     print 'Testing constructors'
@@ -2864,7 +2864,7 @@ class SparseMatrixTest(unittest.TestCase):
       #cols_occupancy = sm.nNonZerosPerCol()
       #avg,dev = mean(cols_occupancy), std(cols_occupancy)
 
-
+  #---------------------------------------------------------------------------------
   def test_partial_argsort(self):
 
     print 'Testing partial_argsort'
@@ -2905,7 +2905,7 @@ class SparseMatrixTest(unittest.TestCase):
     if t2 > 0:
       print "\tspeed-up=", t1/t2
 
-
+  #---------------------------------------------------------------------------------
   def test_count_gt(self):
 
     print 'Testing count_gt'
@@ -2942,6 +2942,7 @@ class SparseMatrixTest(unittest.TestCase):
       print "\tspeed-up=", t1/t2
 
 
+  #---------------------------------------------------------------------------------
   def test_count_lt(self):
 
     print 'Testing count_lt'
@@ -2973,6 +2974,7 @@ class SparseMatrixTest(unittest.TestCase):
       print "\tspeed-up=", t1/t2
 
 
+  #---------------------------------------------------------------------------------
   def test_test_nta_set(self):
 
       print 'Testing nta set'
@@ -2985,6 +2987,7 @@ class SparseMatrixTest(unittest.TestCase):
       # m = 50000, n1 = 2500, n2 = 10000: 0.155576944351 0.00838160514832 18.5617124164
       # m = 50000, n1 = 5000, n2 = 10000: 0.256726026535 0.0143656730652 17.8707969595
 
+      #---------------------------------------------------------------------------------
       m = 50000
       n1 = 197
       n2 = 5759
@@ -3045,7 +3048,18 @@ class SparseMatrixTest(unittest.TestCase):
               total_calls = total_calls + ncalls
           print avg_T, total_calls, avg_T / float(total_calls)
 
-
-
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
 if __name__ == "__main__":
-  unittest.main()
+
+  unittest.main(argv=sys.argv)
+
+#  unit_tests = UnitTests()
+#
+#  for f in dir(unit_tests):
+#    if f[0] != '_':
+#      exec('unit_tests.%s()'%f)
+
+
+#---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
