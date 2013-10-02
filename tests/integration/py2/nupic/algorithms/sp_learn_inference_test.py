@@ -1,11 +1,23 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2011, 2012 Numenta Inc, All rights reserved,
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc, No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc,
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
@@ -19,18 +31,20 @@ import cPickle as pickle
 import numpy as np
 import random
 import time
+
 import unittest2 as unittest
 
 from nupic.bindings.math import GetNTAReal
-from nupic.research.fdrutilities import spDiff
 from nupic.research import FDRCSpatial2
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        TestOptionParser)
+from nupic.research.fdrutilities import spDiff
+
 realDType = GetNTAReal()
 
 
-class SPLearnInferenceTest(TestCaseBase):
+
+class SPLearnInferenceTest(unittest.TestCase):
   """Test to check that inference calls do not affect learning."""
+
 
   def _runLearnInference(self,
                          n=30,
@@ -40,10 +54,7 @@ class SPLearnInferenceTest(TestCaseBase):
                          spSeed=1951,
                          spVerbosity=0,
                          numTrainingRecords=100,
-                         seed=None):
-    if seed is None:
-      seed = SEED
-
+                         seed=42):
     # Instantiate two identical spatial pooler. One will be used only for
     # learning. The other will be trained with identical records, but with
     # random inference calls thrown in
@@ -86,7 +97,7 @@ class SPLearnInferenceTest(TestCaseBase):
     np.random.seed(seed)
     for i in xrange(numTrainingRecords):
       if spVerbosity > 0:
-        print 'Input #%d' % i
+        print "Input #%d" % i
       encodedInput = inputs[i]
 
       spLearnOnly.compute(encodedInput, learn=True, infer=False)
@@ -95,13 +106,13 @@ class SPLearnInferenceTest(TestCaseBase):
     np.random.seed(seed)
     for i in xrange(numTrainingRecords):
       if spVerbosity > 0:
-        print 'Input #%d' % i
+        print "Input #%d" % i
       encodedInput = inputs[i]
       spLearnInfer.compute(encodedInput, learn=True, infer=False)
 
-    print '\nElapsed time: %.2f seconds\n' % (time.time() - startTime)
+    print "\nElapsed time: %.2f seconds\n" % (time.time() - startTime)
 
-    # Test that both SP's are identical by checking learning stats
+    # Test that both SP"s are identical by checking learning stats
     # A more in depth test would check all the coincidences, duty cycles, etc.
     # ala tpDiff
     # Edit: spDiff has been written as an in depth tester of the spatial pooler
@@ -120,29 +131,17 @@ class SPLearnInferenceTest(TestCaseBase):
     for k in learnOnlyStats.keys():
       if learnOnlyStats[k] != learnInferStats[k]:
         success = False
-        print 'Stat', k, 'is different:', learnOnlyStats[k], learnInferStats[k]
+        print "Stat", k, "is different:", learnOnlyStats[k], learnInferStats[k]
 
     self.assertTrue(success)
     if success:
-      print 'Test succeeded'
-
-  def testLearnInferenceShort(self):
-    self._runLearnInference(n=50, w=15, seed=SEED)
-
-  def testLearnInferenceLong(self):
-    if not LONG:
-      return
-    for s in (30, 60):
-      self._runLearnInference(n=80, w=15, seed=(SEED + s),
-                              numTrainingRecords=475)
+      print "Test succeeded"
 
 
-if __name__ == '__main__':
-  # Process command line arguments
-  parser = TestOptionParser()
-  options, _ = parser.parse_args()
-  SEED = options.seed
-  VERBOSITY = options.verbosity
-  LONG = options.long
+  def testLearnInference(self):
+    self._runLearnInference(n=50, w=15)
 
-  unittest.main(verbosity=VERBOSITY)
+
+
+if __name__ == "__main__":
+  unittest.main()
