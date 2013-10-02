@@ -11,6 +11,11 @@
     </dd>
     <dt>Where?</dt>
     <dd>
+        <p> 
+            Tagged Inc<br/>
+            840 Battery St<br/>
+            San Francisco, CA 94111
+        </p>
         <div style="background:#333;width:405px;padding-left: 20px">
             <a href="http://about.tagged.com/"><img src="{{ site.baseurl }}/images/tagged_logo.png"/></a>
         </div>
