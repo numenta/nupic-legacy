@@ -1,11 +1,23 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2006,2007,2010 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
@@ -17,30 +29,29 @@ import unittest2 as unittest
 
 from nupic.data import dictutils
 from nupic.frameworks.opf import opfutils, previousvaluemodel
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        TestOptionParser)
 
 SEQUENCE_LENGTH = 100
 
 
-################################################################################
-# Functions that generate the datasets
 
 def _generateIncreasing():
   return [i for i in range(SEQUENCE_LENGTH)]
 
+
+
 def _generateDecreasing():
   return [SEQUENCE_LENGTH - i for i in range(SEQUENCE_LENGTH)]
+
+
 
 def _generateSaw():
   return [i % 3 for i in range(SEQUENCE_LENGTH)]
 
 
-class PreviousValueModelTest(TestCaseBase):
+
+class PreviousValueModelTest(unittest.TestCase):
   """Unit test for the Previous Value Model."""
 
-  #-----------------------------------------------------------------------------
-  # Methods that run the model for either next step or multistep
 
   def _runNextStep(self, data):
     model = previousvaluemodel.PreviousValueModel(
@@ -57,6 +68,7 @@ class PreviousValueModelTest(TestCaseBase):
       self.assertEqual(results.inferences[
         opfutils.InferenceElement.multiStepBestPredictions][1],
         expectedInference)
+
 
   def _runMultiStep(self, data):
     model = previousvaluemodel.PreviousValueModel(
@@ -81,30 +93,31 @@ class PreviousValueModelTest(TestCaseBase):
         opfutils.InferenceElement.multiStepBestPredictions][5],
         expectedInference)
 
-  #-----------------------------------------------------------------------------
-  # Methods that are called by the unittest framework
 
   def testNextStepIncreasing(self):
     self._runNextStep(_generateIncreasing())
 
+
   def testNextStepDecreasing(self):
     self._runNextStep(_generateDecreasing())
+
 
   def testNextStepSaw(self):
     self._runNextStep(_generateSaw())
 
+
   def testMultiStepIncreasing(self):
     self._runMultiStep(_generateIncreasing())
+
 
   def testMultiStepDecreasing(self):
     self._runMultiStep(_generateDecreasing())
 
+
   def testMultiStepSaw(self):
     self._runMultiStep(_generateSaw())
 
-##############################################################################
+
+
 if __name__ == '__main__':
-  
-  parser = TestOptionParser()
-  parser.parse_args()
   unittest.main()
