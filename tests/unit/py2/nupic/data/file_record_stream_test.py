@@ -20,8 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import os.path
-import sys
 from datetime import datetime
 import tempfile
 
@@ -30,8 +28,7 @@ import unittest2 as unittest
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.utils import (
-    intOrNone, floatOrNone, parseBool, parseTimestamp, serializeTimestamp,
-    serializeTimestampNoMS, escape, unescape)
+    parseTimestamp, serializeTimestamp, escape, unescape)
 
 
 
@@ -163,11 +160,7 @@ class TestFileRecordStream(unittest.TestCase):
       [datetime(day=2, month=3, year=2010)])
 
     o.appendRecord(records[0])
-    try:
-      o.appendRecord(records[1])
-      self.assertTrue(False)
-    except Exception, e:
-      print str(e)
+    o.appendRecord(records[1])
     o.close()
 
     # Write bad dataset with broken sequences
@@ -178,11 +171,7 @@ class TestFileRecordStream(unittest.TestCase):
 
     o.appendRecord(records[0])
     o.appendRecord(records[1])
-    try:
-      o.appendRecord(records[2])
-      self.assertTrue(False)
-    except Exception, e:
-      print str(e)
+    self.assertRaises(Exception, o.appendRecord, (records[2],))
     o.close()
 
 
@@ -202,7 +191,6 @@ class TestFileRecordStream(unittest.TestCase):
               ('name', 'string', ''),
               ('integer', 'int', ''),
               ('real', 'float', '')]
-    fieldNames = ['name', 'timestamp', 'integer', 'real']
     s = FileRecordStream(streamID=filename, write=True, fields=fields)
 
     # Records
