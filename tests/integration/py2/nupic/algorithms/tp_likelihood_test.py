@@ -53,6 +53,12 @@ from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers import testcasebase
 
+SEED = 42
+VERBOSITY = 1
+LONG = True
+
+_RGEN = numpy.random.RandomState(SEED)
+
 
 def _getSimplePatterns(numOnes, numPatterns):
   """Very simple patterns. Each pattern has numOnes consecutive
@@ -206,7 +212,7 @@ def _createDataset(numSequences, originalSequences, relativeFrequencies):
     # Pick a training sequence to present, based on the given training
     # frequencies.
     whichSequence = numpy.searchsorted(trainingCummulativeFrequencies,
-                                       rgen.random_sample())
+                                       _RGEN.random_sample())
     dataSet.append(originalSequences[whichSequence])
 
   return dataSet
@@ -281,7 +287,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
       # Pick a training sequence to present, based on the given training
       # frequencies.
       whichSequence = numpy.searchsorted(trainingCummulativeFrequencies,
-                                         rgen.random_sample())
+                                         _RGEN.random_sample())
       trainingSequence = trainingSequences[whichSequence]
 
       if VERBOSITY > 2:
@@ -405,7 +411,6 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     self._likelihoodTest1(numOnes=5, relativeFrequencies=[0.1, 0.7, 0.2],
                           checkSynapseConsistency=LONG)
 
-  @testcasebase.longTest
   def testLikelihood1Long(self):
     self._likelihoodTest1(numOnes=5, relativeFrequencies=[0.2, 0.5, 0.3])
     self._likelihoodTest1(numOnes=5, relativeFrequencies=[0.5, 0.5, 0.0])
@@ -415,7 +420,6 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     self._likelihoodTest2(numOnes=5, relativeFrequencies=[0.1, 0.7, 0.2],
                           checkSynapseConsistency=LONG)
 
-  @testcasebase.longTest
   def testLikelihood2Long(self):
     self._likelihoodTest2(numOnes=5, relativeFrequencies=[0.2, 0.5, 0.3])
     self._likelihoodTest2(numOnes=5, relativeFrequencies=[0.5, 0.5, 0.0])
@@ -423,13 +427,4 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
 
 
 if __name__ == "__main__":
-  parser = testcasebase.TestOptionParser()
-  options, _ = parser.parse_args()
-
-  SEED = options.seed
-  VERBOSITY = options.verbosity
-  LONG = options.long
-
-  rgen = numpy.random.RandomState(SEED) # always call this rgen, NOT random
-
-  unittest.main(verbosity=VERBOSITY)
+  unittest.main()
