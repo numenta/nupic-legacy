@@ -1,0 +1,128 @@
+---
+Version: 2
+Regions:
+  -
+    name: sensor
+    nodeType: py.RecordSensor
+    dimensions:
+      - 1
+    phases:
+      - 0
+    label: R0
+  -
+    name: SP
+    nodeType: py.SPRegion
+    dimensions:
+      - 1
+    phases:
+      - 1
+    label: R1
+  -
+    name: TP
+    nodeType: py.TPRegion
+    dimensions:
+      - 1
+    phases:
+      - 2
+    label: R2
+  -
+    name: Classifier
+    nodeType: py.CLAClassifierRegion
+    dimensions:
+      - 1
+    phases:
+      - 3
+    label: R3
+  -
+    name: AnomalyClassifier
+    nodeType: py.KNNAnomalyClassifierRegion
+    dimensions:
+      - 1
+    phases:
+      - 4
+    label: R4
+Links:
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: SP
+    srcOutput: spatialTopDownOut
+    destRegion: sensor
+    destInput: spatialTopDownIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: SP
+    srcOutput: temporalTopDownOut
+    destRegion: sensor
+    destInput: temporalTopDownIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: sensor
+    srcOutput: dataOut
+    destRegion: SP
+    destInput: bottomUpIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: sensor
+    srcOutput: resetOut
+    destRegion: SP
+    destInput: resetIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: TP
+    srcOutput: topDownOut
+    destRegion: SP
+    destInput: topDownIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: SP
+    srcOutput: bottomUpOut
+    destRegion: TP
+    destInput: bottomUpIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: sensor
+    srcOutput: resetOut
+    destRegion: TP
+    destInput: resetIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: TP
+    srcOutput: bottomUpOut
+    destRegion: Classifier
+    destInput: bottomUpIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: sensor
+    srcOutput: categoryOut
+    destRegion: Classifier
+    destInput: categoryIn
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: SP
+    srcOutput: bottomUpOut
+    destRegion: AnomalyClassifier
+    destInput: spBottomUpOut
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: TP
+    srcOutput: lrnActiveStateT
+    destRegion: AnomalyClassifier
+    destInput: tpLrnActiveStateT
+  -
+    type: UniformLink
+    params: ""
+    srcRegion: TP
+    srcOutput: topDownOut
+    destRegion: AnomalyClassifier
+    destInput: tpTopDownOut
