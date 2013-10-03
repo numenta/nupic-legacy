@@ -887,32 +887,32 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
     return acceptablePatterns
 
 #---------------------------------------------------------------------------------
-def testSequence(trainingSequences,
-                 nTrainingReps = 1,
-                 numberOfCols = 40,
-                 cellsPerColumn =5,
-                 initialPerm =.8,
-                 connectedPerm =.7,
-                 minThreshold = 11,
-                 newSynapseCount =5,
-                 permanenceInc =.4,
-                 permanenceDec =0.0,
-                 permanenceMax =1,
-                 globalDecay =0.0,
-                 pamLength = 1000,
-                 activationThreshold =5,
-                 acceptablePatterns = [], # if empty, try to infer what they are
-                 doPooling = False,
-                 nAcceptable = -1, # if doPooling, number of acceptable steps
-                 noiseModel = None,
-                 noiseLevel = 0,
-                 doResets = True,
-                 shouldFail = False,
-                 testSequences = None,
-                 predJustAfterHubOnly = None,
-                 compareToPy = False,
-                 nMultiStepPrediction = 0,
-                 highOrder = False):
+def _testSequence(trainingSequences,
+                  nTrainingReps = 1,
+                  numberOfCols = 40,
+                  cellsPerColumn =5,
+                  initialPerm =.8,
+                  connectedPerm =.7,
+                  minThreshold = 11,
+                  newSynapseCount =5,
+                  permanenceInc =.4,
+                  permanenceDec =0.0,
+                  permanenceMax =1,
+                  globalDecay =0.0,
+                  pamLength = 1000,
+                  activationThreshold =5,
+                  acceptablePatterns = [], # if empty, try to infer what they are
+                  doPooling = False,
+                  nAcceptable = -1, # if doPooling, number of acceptable steps
+                  noiseModel = None,
+                  noiseLevel = 0,
+                  doResets = True,
+                  shouldFail = False,
+                  testSequences = None,
+                  predJustAfterHubOnly = None,
+                  compareToPy = False,
+                  nMultiStepPrediction = 0,
+                  highOrder = False):
 
   """Test a single set of sequences once and return the number of
   prediction failures, the number of errors, and the number of perfect
@@ -1204,20 +1204,20 @@ def TestB1(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B1"):
                                      minOnes = 15, maxOnes = 20)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 1,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 8,
-                                newSynapseCount = 11,
-                                permanenceInc = .4,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                activationThreshold = 8,
-                                doPooling = False)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 1,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 8,
+                                 newSynapseCount = 11,
+                                 permanenceInc = .4,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 activationThreshold = 8,
+                                 doPooling = False)
       if numFailures == 0:
         print "Test "+name+" ok"
       else:
@@ -1249,20 +1249,20 @@ def TestB7(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B7"):
                                      minOnes = 15, maxOnes = 20)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 4,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                minThreshold = 11,
-                                newSynapseCount = 11,
-                                activationThreshold = 11,
-                                initialPerm = .2,
-                                connectedPerm = .6,
-                                permanenceInc = .2,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                doPooling = False)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 4,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 minThreshold = 11,
+                                 newSynapseCount = 11,
+                                 activationThreshold = 11,
+                                 initialPerm = .2,
+                                 connectedPerm = .6,
+                                 permanenceInc = .2,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 doPooling = False)
 
       if numFailures == 0:
         print "Test "+name+" ok"
@@ -1300,7 +1300,7 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
 
       # Do one pass through the training set
       numFailures1, numStrictErrors1, numPerfect1, tp1 = \
-                   testSequence(trainingSet,
+                   _testSequence(trainingSet,
                                 nTrainingReps = 1,
                                 numberOfCols = numCols,
                                 cellsPerColumn = cellsPerColumn,
@@ -1316,19 +1316,19 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
 
       # Do two passes through the training set
       numFailures, numStrictErrors, numPerfect, tp2 = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 2,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 8,
-                                newSynapseCount = 11,
-                                permanenceInc = .4,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                activationThreshold = 8)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 2,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 8,
+                                 newSynapseCount = 11,
+                                 permanenceInc = .4,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 activationThreshold = 8)
 
       # Check that training with a second pass did not result in more synapses
       segmentInfo1 = tp1.getSegmentInfo()
@@ -1371,20 +1371,20 @@ def TestB3(numUniquePatterns, nTests):
                                      minOnes = 15, maxOnes = 20)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 2,
-                                numberOfCols = numCols,
-                                cellsPerColumn = 4,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 11,
-                                permanenceInc = .4,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = 11,
-                                activationThreshold = 8,
-                                doPooling = False)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 2,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = 4,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 11,
+                                 permanenceInc = .4,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = 11,
+                                 activationThreshold = 8,
+                                 doPooling = False)
       if numFailures == 0:
         print "Test B3 ok"
       else:
@@ -1406,21 +1406,21 @@ def TestH0(numOnes = 5,nMultiStepPrediction=0):
   trainingSet = buildSimpleTrainingSet(numOnes)
 
   numFailures, numStrictErrors, numPerfect, tp = \
-               testSequence(trainingSet,
-                            nTrainingReps = 20,
-                            numberOfCols = trainingSet[0][0][0].size,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .8,
-                            connectedPerm = .7,
-                            minThreshold = 6,
-                            permanenceInc = .4,
-                            permanenceDec = .2,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            newSynapseCount = 5,
-                            activationThreshold = 4,
-                            doPooling = False,
-                            nMultiStepPrediction=nMultiStepPrediction)
+               _testSequence(trainingSet,
+                             nTrainingReps = 20,
+                             numberOfCols = trainingSet[0][0][0].size,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .8,
+                             connectedPerm = .7,
+                             minThreshold = 6,
+                             permanenceInc = .4,
+                             permanenceDec = .2,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             newSynapseCount = 5,
+                             activationThreshold = 4,
+                             doPooling = False,
+                             nMultiStepPrediction=nMultiStepPrediction)
 
   if numFailures == 0 and \
      numStrictErrors == 0 and \
@@ -1459,23 +1459,23 @@ def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
                                      minOnes = 21, maxOnes = 25)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = nTrainingReps,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 12,
-                                permanenceInc = .4,
-                                permanenceDec = .1,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = 11,
-                                activationThreshold = 8,
-                                doPooling = False,
-                                shouldFail = shouldFail,
-                                compareToPy = compareToPy,
-                                highOrder = highOrder)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = nTrainingReps,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 12,
+                                 permanenceInc = .4,
+                                 permanenceDec = .1,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = 11,
+                                 activationThreshold = 8,
+                                 doPooling = False,
+                                 shouldFail = shouldFail,
+                                 compareToPy = compareToPy,
+                                 highOrder = highOrder)
 
       if numFailures == 0 and not shouldFail \
              or numFailures > 0 and shouldFail:
@@ -1503,20 +1503,20 @@ def TestH11(numOnes = 3):
   trainingSet = buildAlternatingTrainingSet(numOnes= 3)
 
   numFailures, numStrictErrors, numPerfect, tp = \
-               testSequence(trainingSet,
-                            nTrainingReps = 1,
-                            numberOfCols = trainingSet[0][0][0].size,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .8,
-                            connectedPerm = .7,
-                            minThreshold = 6,
-                            permanenceInc = .4,
-                            permanenceDec = 0,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            newSynapseCount = 1,
-                            activationThreshold = 1,
-                            doPooling = False)
+               _testSequence(trainingSet,
+                             nTrainingReps = 1,
+                             numberOfCols = trainingSet[0][0][0].size,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .8,
+                             connectedPerm = .7,
+                             minThreshold = 6,
+                             permanenceInc = .4,
+                             permanenceDec = 0,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             newSynapseCount = 1,
+                             activationThreshold = 1,
+                             doPooling = False)
 
   if numFailures == 0 and \
      numStrictErrors == 0 and \
@@ -1565,59 +1565,59 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
       print "============== 10 ======================"
 
       numFailures3, numStrictErrors3, numPerfect3, tp3 = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 10,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .4,
-                                connectedPerm = .7,
-                                minThreshold = 12,
-                                permanenceInc = .1,
-                                permanenceDec = 0.1,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = 15,
-                                activationThreshold = 12,
-                                doPooling = False,
-                                shouldFail = shouldFail)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 10,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .4,
+                                 connectedPerm = .7,
+                                 minThreshold = 12,
+                                 permanenceInc = .1,
+                                 permanenceDec = 0.1,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = 15,
+                                 activationThreshold = 12,
+                                 doPooling = False,
+                                 shouldFail = shouldFail)
 
       print "============== 2 ======================"
 
       numFailures, numStrictErrors, numPerfect, tp2 = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 2,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 12,
-                                permanenceInc = .1,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = 15,
-                                activationThreshold = 12,
-                                doPooling = False,
-                                shouldFail = shouldFail)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 2,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 12,
+                                 permanenceInc = .1,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = 15,
+                                 activationThreshold = 12,
+                                 doPooling = False,
+                                 shouldFail = shouldFail)
 
       print "============== 1 ======================"
 
       numFailures1, numStrictErrors1, numPerfect1, tp1 = \
-                   testSequence(trainingSet,
-                                nTrainingReps = 1,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 12,
-                                permanenceInc = .1,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = 15,
-                                activationThreshold = 12,
-                                doPooling = False,
-                                shouldFail = shouldFail)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = 1,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 12,
+                                 permanenceInc = .1,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = 15,
+                                 activationThreshold = 12,
+                                 doPooling = False,
+                                 shouldFail = shouldFail)
 
       # Check that training with a second pass did not result in more synapses
       segmentInfo1 = tp1.getSegmentInfo()
@@ -1685,20 +1685,20 @@ def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
                                      minOnes = minOnes, maxOnes = maxOnes)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = nTrainingReps,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .8,
-                                connectedPerm = .7,
-                                minThreshold = 11,
-                                permanenceInc = .4,
-                                permanenceDec = 0,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                newSynapseCount = newSynapseCount,
-                                activationThreshold = activationThreshold,
-                                doPooling = True)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = nTrainingReps,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .8,
+                                 connectedPerm = .7,
+                                 minThreshold = 11,
+                                 permanenceInc = .4,
+                                 permanenceDec = 0,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 newSynapseCount = newSynapseCount,
+                                 activationThreshold = activationThreshold,
+                                 doPooling = True)
 
       if numFailures == 0 and \
          numStrictErrors == 0 and \
@@ -1726,22 +1726,22 @@ def TestHL0a(numOnes = 5):
   numCols = trainingSet[0][0].size
 
   numFailures, numStrictErrors, numPerfect, tp = \
-               testSequence([trainingSet],
-                            nTrainingReps = 1,
-                            numberOfCols = numCols,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .2,
-                            connectedPerm = .7,
-                            permanenceInc = .2,
-                            permanenceDec = 0.05,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            minThreshold = activationThreshold,
-                            newSynapseCount = newSynapseCount,
-                            activationThreshold = activationThreshold,
-                            pamLength = 2,
-                            doPooling = False,
-                            testSequences = testSet)
+               _testSequence([trainingSet],
+                             nTrainingReps = 1,
+                             numberOfCols = numCols,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .2,
+                             connectedPerm = .7,
+                             permanenceInc = .2,
+                             permanenceDec = 0.05,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             minThreshold = activationThreshold,
+                             newSynapseCount = newSynapseCount,
+                             activationThreshold = activationThreshold,
+                             pamLength = 2,
+                             doPooling = False,
+                             testSequences = testSet)
 
   tp.trimSegments()
   retAfter = tp.getSegmentInfo()
@@ -1777,21 +1777,21 @@ def TestHL0b(numOnes = 5):
   print "numCols=", numCols
 
   numFailures, numStrictErrors, numPerfect, tp = \
-               testSequence([trainingSet],
-                            nTrainingReps = 1,
-                            numberOfCols = numCols,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .2,
-                            connectedPerm = .7,
-                            permanenceInc = .2,
-                            permanenceDec = 0.05,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            minThreshold = activationThreshold,
-                            newSynapseCount = newSynapseCount,
-                            activationThreshold = activationThreshold,
-                            doPooling = False,
-                            testSequences = testSet)
+               _testSequence([trainingSet],
+                             nTrainingReps = 1,
+                             numberOfCols = numCols,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .2,
+                             connectedPerm = .7,
+                             permanenceInc = .2,
+                             permanenceDec = 0.05,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             minThreshold = activationThreshold,
+                             newSynapseCount = newSynapseCount,
+                             activationThreshold = activationThreshold,
+                             doPooling = False,
+                             testSequences = testSet)
 
   tp.trimSegments()
   retAfter = tp.getSegmentInfo()
@@ -1844,22 +1844,22 @@ def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2]
                                      minOnes = minOnes, maxOnes = maxOnes)
 
       numFailures, numStrictErrors, numPerfect, tp = \
-                   testSequence(trainingSet,
-                                nTrainingReps = nTrainingReps,
-                                numberOfCols = numCols,
-                                cellsPerColumn = cellsPerColumn,
-                                initialPerm = .2,
-                                connectedPerm = .7,
-                                minThreshold = activationThreshold,
-                                newSynapseCount = newSynapseCount,
-                                activationThreshold = activationThreshold,
-                                permanenceInc = .2,
-                                permanenceDec = 0.05,
-                                permanenceMax = 1,
-                                globalDecay = .0,
-                                doPooling = False,
-                                noiseModel = noiseModel,
-                                noiseLevel = noiseLevel)
+                   _testSequence(trainingSet,
+                                 nTrainingReps = nTrainingReps,
+                                 numberOfCols = numCols,
+                                 cellsPerColumn = cellsPerColumn,
+                                 initialPerm = .2,
+                                 connectedPerm = .7,
+                                 minThreshold = activationThreshold,
+                                 newSynapseCount = newSynapseCount,
+                                 activationThreshold = activationThreshold,
+                                 permanenceInc = .2,
+                                 permanenceDec = 0.05,
+                                 permanenceMax = 1,
+                                 globalDecay = .0,
+                                 doPooling = False,
+                                 noiseModel = noiseModel,
+                                 noiseLevel = noiseLevel)
 
       if numFailures == 0 and \
          numStrictErrors == 0 and \
@@ -1895,22 +1895,22 @@ def worker(x):
                                  minOnes = 21, maxOnes = 25)
 
   numFailures1, numStrictErrors1, numPerfect1, atHub, tp = \
-               testSequence(trainingSet,
-                            nTrainingReps = nTrainingReps,
-                            numberOfCols = numCols,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .8,
-                            connectedPerm = .7,
-                            minThreshold = 11,
-                            permanenceInc = .4,
-                            permanenceDec = 0,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            newSynapseCount = 8,
-                            activationThreshold = 8,
-                            doPooling = False,
-                            shouldFail = False,
-                            predJustAfterHubOnly = 5)
+               _testSequence(trainingSet,
+                             nTrainingReps = nTrainingReps,
+                             numberOfCols = numCols,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .8,
+                             connectedPerm = .7,
+                             minThreshold = 11,
+                             permanenceInc = .4,
+                             permanenceDec = 0,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             newSynapseCount = 8,
+                             activationThreshold = 8,
+                             doPooling = False,
+                             shouldFail = False,
+                             predJustAfterHubOnly = 5)
 
   seqGenMode = 'no shared subsequence'
   trainingSet = buildTrainingSet(numSequences = numSequences,
@@ -1921,21 +1921,21 @@ def worker(x):
                                  minOnes = 21, maxOnes = 25)
 
   numFailures2, numStrictErrors2, numPerfect2, tp = \
-               testSequence(trainingSet,
-                            nTrainingReps = nTrainingReps,
-                            numberOfCols = numCols,
-                            cellsPerColumn = cellsPerColumn,
-                            initialPerm = .8,
-                            connectedPerm = .7,
-                            minThreshold = 11,
-                            permanenceInc = .4,
-                            permanenceDec = 0,
-                            permanenceMax = 1,
-                            globalDecay = .0,
-                            newSynapseCount = 8,
-                            activationThreshold = 8,
-                            doPooling = False,
-                            shouldFail = False)
+               _testSequence(trainingSet,
+                             nTrainingReps = nTrainingReps,
+                             numberOfCols = numCols,
+                             cellsPerColumn = cellsPerColumn,
+                             initialPerm = .8,
+                             connectedPerm = .7,
+                             minThreshold = 11,
+                             permanenceInc = .4,
+                             permanenceDec = 0,
+                             permanenceMax = 1,
+                             globalDecay = .0,
+                             newSynapseCount = 8,
+                             activationThreshold = 8,
+                             doPooling = False,
+                             shouldFail = False)
 
   print 'Completed',
   print cellsPerColumn, numSequences, numFailures1, numStrictErrors1, numPerfect1, atHub, \

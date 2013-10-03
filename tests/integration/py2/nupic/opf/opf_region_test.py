@@ -60,11 +60,11 @@ import random
 import tempfile
 import unittest2 as unittest
 
+from nupic.data.datasethelpers import findDataset
+from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.research import fdrutilities as fdrutils
 from nupic.encoders import MultiEncoder
-from nupic.data.file_record_stream import FileRecordStream
-
 from nupic.frameworks.prediction.experimentdeschelpers import _getCLAParams
 from nupic.regions.RecordSensorFilters.ModifyFields import ModifyFields
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
@@ -72,7 +72,10 @@ from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
 
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
-_INSTALLDIR = ""       # Location of NuPIC installation directory (set below)
+
+# Seed the random number generators
+rgen = numpy.random.RandomState(_SEED)
+random.seed(_SEED)
 
 g_claConfig = None
 g_spRegionConfig = None
@@ -178,8 +181,7 @@ def _createLPFNetwork(addSP = True, addTP = False):
   # Create the encoder and data source stuff we need to configure the sensor
   sensorParams = dict(verbosity = _VERBOSITY)
   encoder = _createEncoder()
-  trainFile = os.path.join(_INSTALLDIR,
-                           "share/prediction/data/extra/gym/gym.csv")
+  trainFile = findDataset("extra/gym/gym.csv")
   dataSource = FileRecordStream(streamID=trainFile)
   dataSource.setAutoRewind(True)
 
@@ -220,8 +222,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   # Create the encoder and data source stuff we need to configure the sensor
   sensorParams = dict(verbosity = _VERBOSITY)
   encoder = _createEncoder()
-  trainFile = os.path.join(_INSTALLDIR,
-                           "share/prediction/data/extra/gym/gym.csv")
+  trainFile = findDataset("extra/gym/gym.csv")
   dataSource = FileRecordStream(streamID=trainFile)
   dataSource.setAutoRewind(True)
 
@@ -278,8 +279,12 @@ def _createOPFNetwork(addSP = True, addTP = False):
 
 class OPFRegionTest(TestCaseBase):
   """Unit tests for the OPF Region Test."""
-  
-  # ============================================================================
+
+
+  def setUp(self):
+    _initConfigDicts()
+
+
   def testCLAAndSP(self):
     """
     The test creates two networks, trains them, and ensures they return identical
@@ -364,8 +369,7 @@ class OPFRegionTest(TestCaseBase):
     level1OPF2 = netOPF2.regions['level1SP']
   
     sensor = netOPF.regions['sensor'].getSelf()
-    trainFile = os.path.join(_INSTALLDIR,
-                             "share/prediction/data/extra/gym/gym.csv")
+    trainFile = findDataset("extra/gym/gym.csv")
     sensor.dataSource = FileRecordStream(streamID=trainFile)
     sensor.dataSource.setAutoRewind(True)
   
@@ -798,39 +802,7 @@ class OPFRegionTest(TestCaseBase):
     print "RUN SUCCEEDED"
     """
 
-#############################################################################
+
+
 if __name__ == "__main__":
-
-  allTests = ["testCLAAndSP", \
-              "testSaveAndReload", \
-              "testCLAAndSPTP", \
-              "testCLAAndSPFlow", \
-              "testCLAAndSPTPFlow", \
-              "testMaxEnabledPhase"]
-
-  helpString = \
-  """%prog [options] \nThis script runs the following tests:
-    """
-
-  for i, testName in enumerate(allTests):
-    helpString += testName
-    if i < len(allTests) - 1:
-      helpString += ", "
-  
-  parser = TestOptionParser(helpString)
-  (options, args) = parser.parse_args()
- 
-  _SEED = options.seed
-  _VERBOSITY = options.verbosity
-  if options.installDir == None:
-    _INSTALLDIR = os.environ["NTA_ROOTDIR"]
-  else:
-    _INSTALLDIR = options.installDir
-
-  # Seed the random number generators
-  rgen = numpy.random.RandomState(_SEED)
-  random.seed(_SEED)
-  
-  _initConfigDicts()
-
   unittest.main()

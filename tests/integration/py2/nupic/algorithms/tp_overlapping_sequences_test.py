@@ -582,7 +582,7 @@ def evalSequences(tps,
   return tpStats
 
 #############################################################################
-def testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
+def _testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   """
   Build up a set of sequences, create the TP(s), train them, test them,
   and check that we got the expected number of missing predictions during
@@ -683,15 +683,15 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
     # Run various configs
     # No PAM, with 3 repetitions, still missing predictions
     print "\nRunning without PAM, 3 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=20,
-                               expMissingMax=None, pamLength=1,
-                               nTrainRepetitions=3))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=20,
+                                expMissingMax=None, pamLength=1,
+                                nTrainRepetitions=3))
 
     # With PAM, with only 3 repetitions, 0 missing predictions
     print "\nRunning with PAM, 3 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=0,
-                               expMissingMax=0, pamLength=5,
-                               nTrainRepetitions=3))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=0,
+                                expMissingMax=0, pamLength=5,
+                                nTrainRepetitions=3))
 
   def testSlowLearning(self):
     """
@@ -734,15 +734,15 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
     # No PAM, requires 40 repetitions
     # No PAM, with 10 repetitions, still missing predictions
     print "\nRunning without PAM, 10 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=10,
-                               expMissingMax=None, pamLength=1,
-                               nTrainRepetitions=10))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=10,
+                                expMissingMax=None, pamLength=1,
+                                nTrainRepetitions=10))
 
     # With PAM, with only 10 repetitions, 0 missing predictions
     print "\nRunning with PAM, 10 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=0,
-                               expMissingMax=0, pamLength=6,
-                               nTrainRepetitions=10))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=0,
+                                expMissingMax=0, pamLength=6,
+                                nTrainRepetitions=10))
 
   def testSlowLearningWithOverlap(self):
     """
@@ -790,15 +790,15 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
     # Run various configs
     # No PAM, with 10 repetitions, still missing predictions
     print "\nRunning without PAM, 10 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=10,
-                               expMissingMax=None, pamLength=1,
-                               nTrainRepetitions=10))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=10,
+                                expMissingMax=None, pamLength=1,
+                                nTrainRepetitions=10))
 
     # With PAM, with only 10 repetitions, 0 missing predictions
     print "\nRunning with PAM, 10 repetitions of the training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=0,
-                               expMissingMax=0, pamLength=6,
-                               nTrainRepetitions=10))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=0,
+                                expMissingMax=0, pamLength=6,
+                                nTrainRepetitions=10))
 
   def testForbesLikeData(self):
     """
@@ -851,30 +851,30 @@ class TPOverlappingSeqsTest(testcasebase.TestCaseBase):
     # Fast mode, with PAM
     print "\nRunning without PAM, fast learning, 2 repetitions of the " \
           "training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=50,
-                               expMissingMax=None, pamLength=1,
-                               nTrainRepetitions=2))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=50,
+                                expMissingMax=None, pamLength=1,
+                                nTrainRepetitions=2))
 
     # Fast mode, with PAM
     print "\nRunning with PAM, fast learning, 2 repetitions of the " \
           "training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=0,
-                               expMissingMax=0, pamLength=5,
-                               nTrainRepetitions=2))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=0,
+                                expMissingMax=0, pamLength=5,
+                                nTrainRepetitions=2))
 
     # Slow mode, no PAM
     print "\nRunning without PAM, slow learning, 8 repetitions of the " \
           "training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=1,
-                               expMissingMax=None, initialPerm=0.31,
-                               pamLength=1, nTrainRepetitions=8))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=1,
+                                expMissingMax=None, initialPerm=0.31,
+                                pamLength=1, nTrainRepetitions=8))
 
     # Fast mode, with PAM
     print "\nRunning with PAM, slow learning, 8 repetitions of the " \
           "training data..."
-    self.assertTrue(testConfig(baseParams=baseParams, expMissingMin=0,
-                               expMissingMax=0, initialPerm=0.31, pamLength=5,
-                               nTrainRepetitions=8))
+    self.assertTrue(_testConfig(baseParams=baseParams, expMissingMin=0,
+                                expMissingMax=0, initialPerm=0.31, pamLength=5,
+                                nTrainRepetitions=8))
 
 
 if __name__=="__main__":
