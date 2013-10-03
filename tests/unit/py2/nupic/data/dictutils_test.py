@@ -1,20 +1,35 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2012 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+"""Unit tests for dictutils module."""
+
+import unittest2 as unittest
 
 from nupic.data import dictutils
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        TestOptionParser,
-                                                        unittest)
 
 
-class TestDictUtils(TestCaseBase):
+
+class TestDictUtils(unittest.TestCase):
+
 
   def testRUpdateEmpty(self):
     d = {}
@@ -24,47 +39,59 @@ class TestDictUtils(TestCaseBase):
     self.assertDictEqual(d, {})
 
     # Original empty.
-    dictutils.rUpdate(d, {'a': 1})
-    self.assertDictEqual(d, {'a': 1})
+    dictutils.rUpdate(d, {"a": 1})
+    self.assertDictEqual(d, {"a": 1})
 
     # Update empty.
     dictutils.rUpdate(d, {})
-    self.assertDictEqual(d, {'a': 1})
+    self.assertDictEqual(d, {"a": 1})
+
 
   def testRUpdateBasic(self):
-    d = {'a': {'b': 2, 'e': 4},
-         'c': {'d': 3}}
-    dictutils.rUpdate(d, {'a': {'b': 5}})
-    self.assertDictEqual(d, {'a': {'b': 5, 'e': 4},
-                             'c': {'d': 3}})
+    d = {"a": {"b": 2, "e": 4},
+         "c": {"d": 3}}
+    dictutils.rUpdate(d, {"a": {"b": 5}})
+    self.assertDictEqual(d, {"a": {"b": 5, "e": 4},
+                             "c": {"d": 3}})
+
 
   def testRCopyEmpty(self):
     d = {}
     self.assertDictEqual(d, dictutils.rCopy(d))
     self.assertDictEqual(d, dictutils.rCopy(d, lambda x: 2* x))
 
+
   def testRCopyFlatDict(self):
-    d = {'a': 1, 'b': 2, 'c': 3}
+    d = {"a": 1, "b": 2, "c": 3}
     self.assertDictEqual(d, dictutils.rCopy(d))
-    expected = {'a': 2, 'b': 4, 'c': 6}
-    self.assertDictEqual(expected, dictutils.rCopy(d, lambda x: 2*x))
+
+    def f(value, _keys):
+      return value * 2
+    expected = {"a": 2, "b": 4, "c": 6}
+    self.assertDictEqual(expected, dictutils.rCopy(d, f))
+
 
   def testRCopyNestedDict(self):
-    d = {'a': {'b': {'c': 1}}}
+    d = {"a": {"b": {"c": 1}}}
     self.assertDictEqual(d, dictutils.rCopy(d))
-    expected = {'a': {'b': {'c': 2}}}
-    self.assertDictEqual(expected, dictutils.rCopy(d, lambda x: 2*x))
+
+    def f(value, _keys):
+      return value * 2
+    expected = {"a": {"b": {"c": 2}}}
+    self.assertDictEqual(expected, dictutils.rCopy(d, f))
+
 
   def testRCopyComplexNestedDict(self):
-    d = {'a': {'b': {'c': [1, 2, 3]}, 'd': 'Hello', 'e': 17}}
+    d = {"a": {"b": {"c": [1, 2, 3]}, "d": "Hello", "e": 17}}
     self.assertDictEqual(d, dictutils.rCopy(d))
-    expected = {'a': {'b': {'c': [1, 2, 3, 1, 2, 3]},
-                      'd': 'HelloHello', 'e': 34}}
-    self.assertDictEqual(expected, dictutils.rCopy(d, lambda x: 2*x))
+
+    def f(value, _keys):
+      return value * 2
+    expected = {"a": {"b": {"c": [1, 2, 3, 1, 2, 3]},
+                      "d": "HelloHello", "e": 34}}
+    self.assertDictEqual(expected, dictutils.rCopy(d, f))
 
 
-if __name__ == '__main__':
-  parser = TestOptionParser()
-  parser.parse_args()
 
+if __name__ == "__main__":
   unittest.main()
