@@ -575,3 +575,15 @@ class PeriodicActivityMgr(object):
           act.iteratorHolder[0] = None
 
     return True
+
+
+
+def generatePersistentJobGUID():
+  """Generates a "persistentJobGUID" value.
+
+  Parameters:
+  ----------------------------------------------------------------------
+  retval:          A persistentJobGUID value
+
+  """
+  return "JOB_UUID1-" + str(uuid.uuid1())

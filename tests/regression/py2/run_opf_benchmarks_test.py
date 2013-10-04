@@ -20,6 +20,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+"""Run OPF benchmarks to ensure that changes don't degrade prediction accuracy.
+
+This is done using a set of standard experiments with thresholds for the
+prediction metrics. Limiting the number of permutations can cause the test to
+fail if it results in lower accuracy.
+"""
+
 import sys
 import os
 import time
@@ -27,41 +34,29 @@ import imp
 import json
 import shutil
 import tempfile
-import string
 
 from optparse import OptionParser
 from multiprocessing import Process, Queue
 from Queue import Empty
 from collections import deque
 
+from nupic.database import ClientJobsDAO as cjdao
+from nupic.frameworks.opf.exp_generator import ExpGenerator
+from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.support.configuration import Configuration
 from nupic.support.unittesthelpers.testcasebase import unittest
 from nupic.swarming import permutations_runner
-from nupic.frameworks.opf.exp_generator import ExpGenerator
-import nupic.database.ClientJobsDAO as cjdao
-from nupic.support.configuration import Configuration
-from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
-
-
-g_helpString = (
-      "Usage: \n\n"
-      "runOPFBenchmarks --outdir DIRNAME  "
-      "// for simple v2 with Terminators benchmarks  \n"
-      "runOPFBenchmarks --outdir DIRNAME --searches=v2noTerm, v2Term     "
-      "//   to run all searches   \n"
-      "Specify a DIRNAME if you want to keep the results, otherwise it will "
-      "be done in a temp directory \n"
-      )
+from nupic.swarming.utils import generatePersistentJobGUID
 
 
 
 class OPFBenchmarkRunner(unittest.TestCase):
 
+
   # AWS tests attribute required for tagging via automatic test discovery via
   # nosetests
   engineAWSClusterTest = 1
-  
+
   allBenchmarks = ["hotgym",
                    "sine", "twovars",
                    "twovars2", "threevars",
@@ -112,16 +107,17 @@ class OPFBenchmarkRunner(unittest.TestCase):
   maxConcurrentJobs = 1
   isSaveResults = True
 
+
   @classmethod
   def setUpClass(cls):
     cls.setupBenchmarks()
 
-  ############################################################################
+
   @classmethod
   def getTests(cls, tests):
     found = False
     #Ignore case when matching
-    tests = string.lower(tests)
+    tests = tests.lower()
     if('cluster_default' in tests):
       found = True
       cls.__doClusterDef = True
@@ -133,7 +129,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
       cls.__doV2Term = True
     return found
 
-  ############################################################################
+
   def __updateProcessCounter(self):
     """ Function that iterates through the running Processes
     and counts the number of processes that are currently alive.
@@ -147,19 +143,19 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.__numRunningProcs = newcounter
     return newcounter
 
-  ############################################################################
+
   def cancelJobs(self):
-    """ Function that cancels all the jobs in the 
+    """ Function that cancels all the jobs in the
     process queue.
     """
     print "Terminating all Jobs due to reaching timeout"
     for proc in self.__procs:
       if not proc.is_alive():
-        
+
         proc.terminate()
     print "All jobs have been terminated"
 
-  ############################################################################
+
   def runJobs(self, maxJobs):
     """ Function that launched Hypersearch benchmark jobs.
     Runs jobs contained in self.testQ, until maxJobs are running
@@ -172,13 +168,14 @@ class OPFBenchmarkRunner(unittest.TestCase):
       while(jobsindx<len(self.testQ) or jobsrunning>0):
         if(jobsindx<len(self.testQ) and jobsrunning<maxJobs):
           curJob = self.testQ[jobsindx]
-          P = Process(target = curJob[0], args = curJob[1])
-          P.start()
-          self.__procs.append(P)
+          p = Process(target = curJob[0], args = curJob[1])
+          p.start()
+          self.__procs.append(p)
           jobsindx+=1
         if jobsrunning >= maxJobs:
           time.sleep(30)
-          print "Maximum number of jobs running, waiting before launching new jobs"
+          print ("Maximum number of jobs running, waiting before launching "
+                 "new jobs")
         elif jobsindx == len(self.testQ):
 
           time.sleep(30)
@@ -186,14 +183,14 @@ class OPFBenchmarkRunner(unittest.TestCase):
         #Update the number of active running processes.
         jobsrunning = self.__updateProcessCounter()
         for proc in self.__procs:
-          #Check that no process has died. If one has died, then kill all running
-          #jobs and exit.
+          # Check that no process has died. If one has died, then kill all
+          # running jobs and exit.
           if proc.exitcode == 1:
             self.cancelJobs()
             assert False, ("Some jobs have not been able to complete in the "
                            "allotted time.")
 
-    #Check that each test satisfied the benchmark
+    # Check that each test satisfied the benchmark
     try:
       while True:
         result = self.__resultQ.get(True, 5)
@@ -202,9 +199,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
       pass
 
 
-
-
-  ############################################################################
   @classmethod
   def setupTrainTestSplits(cls):
     cls.splits['hotgym'] = int(round(cls.__trainFraction*87843))
@@ -215,79 +209,79 @@ class OPFBenchmarkRunner(unittest.TestCase):
     cls.splits['fourvars'] = int(round(cls.__trainFraction*2003))
     cls.splits['categories'] = int(round(cls.__trainFraction*2003))
     cls.splits['sawtooth'] = int(round(cls.__trainFraction*1531))
-    cls.splits['hotgymsc'] = int(round(cls.__trainFraction*17500)) # only first gym
+    # Only the first gym
+    cls.splits['hotgymsc'] = int(round(cls.__trainFraction*17500))
 
 
-  ############################################################################
   @classmethod
-  def setupBenchmarks(self):
+  def setupBenchmarks(cls):
 
     # BenchmarkDB stores error/margin pairs
-    # Margin is in fraction difference. Thus .1 would mean a max of a 
+    # Margin is in fraction difference. Thus .1 would mean a max of a
     # 10% difference
 
-    self.benchmarkDB['hotgym' + ',' + 'v2NoTerm'] = (15.69, .1)
-    self.benchmarkDB['hotgym' + ',' + 'v2Term'] = (15.69, .1)
-    self.benchmarkDB['hotgym' + ',' + 'cluster_default'] = (15.69, .1)
+    cls.benchmarkDB['hotgym' + ',' + 'v2NoTerm'] = (15.69, .1)
+    cls.benchmarkDB['hotgym' + ',' + 'v2Term'] = (15.69, .1)
+    cls.benchmarkDB['hotgym' + ',' + 'cluster_default'] = (15.69, .1)
 
-    self.benchmarkDB['sine' + ',' + 'v2NoTerm'] = (0.054, .1)
-    self.benchmarkDB['sine' + ',' + 'v2Term'] = (0.054, .1)
-    self.benchmarkDB['sine' + ',' + 'cluster_default'] = (0.054, .1)
-
-    # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['twovars' + ',' + 'v2NoTerm'] = (2.5, .1)
-    self.benchmarkDB['twovars' + ',' + 'v2Term'] = (2.5, .1)
-    self.benchmarkDB['twovars' + ',' + 'cluster_default'] = (2.5, .1)
+    cls.benchmarkDB['sine' + ',' + 'v2NoTerm'] = (0.054, .1)
+    cls.benchmarkDB['sine' + ',' + 'v2Term'] = (0.054, .1)
+    cls.benchmarkDB['sine' + ',' + 'cluster_default'] = (0.054, .1)
 
     # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['twovars2' + ',' + 'v2NoTerm'] = (2.5, .1)
-    self.benchmarkDB['twovars2' + ',' + 'v2Term'] = (2.5, .1)
-    self.benchmarkDB['twovars2' + ',' + 'cluster_default'] = (2.5, .1)
+    cls.benchmarkDB['twovars' + ',' + 'v2NoTerm'] = (2.5, .1)
+    cls.benchmarkDB['twovars' + ',' + 'v2Term'] = (2.5, .1)
+    cls.benchmarkDB['twovars' + ',' + 'cluster_default'] = (2.5, .1)
 
     # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['threevars' + ',' + 'v2NoTerm'] = (2.5, .1)
-    self.benchmarkDB['threevars' + ',' + 'v2Term'] = (2.5, .1)
-    self.benchmarkDB['threevars' + ',' + 'cluster_default'] = (2.5, .1)
+    cls.benchmarkDB['twovars2' + ',' + 'v2NoTerm'] = (2.5, .1)
+    cls.benchmarkDB['twovars2' + ',' + 'v2Term'] = (2.5, .1)
+    cls.benchmarkDB['twovars2' + ',' + 'cluster_default'] = (2.5, .1)
 
     # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['fourvars' + ',' + 'v2NoTerm'] = (2.5, .1)
-    self.benchmarkDB['fourvars' + ',' + 'v2Term'] = (2.5, .1)
-    self.benchmarkDB['fourvars' + ',' + 'cluster_default'] = (2.5, .1)
+    cls.benchmarkDB['threevars' + ',' + 'v2NoTerm'] = (2.5, .1)
+    cls.benchmarkDB['threevars' + ',' + 'v2Term'] = (2.5, .1)
+    cls.benchmarkDB['threevars' + ',' + 'cluster_default'] = (2.5, .1)
 
     # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['categories' + ',' + 'v2NoTerm'] = (1, .1)
-    self.benchmarkDB['categories' + ',' + 'v2Term'] = (1, .1)
-    self.benchmarkDB['categories' + ',' + 'cluster_default'] = (1, .1)
+    cls.benchmarkDB['fourvars' + ',' + 'v2NoTerm'] = (2.5, .1)
+    cls.benchmarkDB['fourvars' + ',' + 'v2Term'] = (2.5, .1)
+    cls.benchmarkDB['fourvars' + ',' + 'cluster_default'] = (2.5, .1)
 
     # TODO: Convert these to altMAPE scores...
-    self.benchmarkDB['sawtooth' + ',' + 'v2NoTerm'] = (100, .1)
-    self.benchmarkDB['sawtooth' + ',' + 'v2Term'] = (100, .1)
-    self.benchmarkDB['sawtooth' + ',' + 'cluster_default'] = (100, .1)
+    cls.benchmarkDB['categories' + ',' + 'v2NoTerm'] = (1, .1)
+    cls.benchmarkDB['categories' + ',' + 'v2Term'] = (1, .1)
+    cls.benchmarkDB['categories' + ',' + 'cluster_default'] = (1, .1)
+
+    # TODO: Convert these to altMAPE scores...
+    cls.benchmarkDB['sawtooth' + ',' + 'v2NoTerm'] = (100, .1)
+    cls.benchmarkDB['sawtooth' + ',' + 'v2Term'] = (100, .1)
+    cls.benchmarkDB['sawtooth' + ',' + 'cluster_default'] = (100, .1)
 
     # HotGym using spatial classification
-    self.benchmarkDB['hotgymsc' + ',' + 'v2NoTerm'] = (21.1, .1)
-    self.benchmarkDB['hotgymsc' + ',' + 'v2Term'] = (21.1, .1)
-    self.benchmarkDB['hotgymsc' + ',' + 'cluster_default'] = (21.1, .1)
+    cls.benchmarkDB['hotgymsc' + ',' + 'v2NoTerm'] = (21.1, .1)
+    cls.benchmarkDB['hotgymsc' + ',' + 'v2Term'] = (21.1, .1)
+    cls.benchmarkDB['hotgymsc' + ',' + 'cluster_default'] = (21.1, .1)
 
-    return
 
-  ############################################################################
   def generatePrependPath(self, prependDict):
     prep = ""
     if 'iteration' in prependDict:
       prep = os.path.join(prep, str(prependDict["iteration"]))
-    if self.BRANCHING_PROP in prependDict and len(self.maxBranchings.split(","))>1:
-      prep = os.path.join(prep, "maxBranch_%s" % prependDict[self.BRANCHING_PROP])
-    if self.PARTICLE_PROP in prependDict and len(self.maxParticles.split(","))>1:
-      prep = os.path.join(prep, "maxParticles_%s" % prependDict[self.PARTICLE_PROP])
+    if (self.BRANCHING_PROP in prependDict and
+        len(self.maxBranchings.split(",")) > 1):
+      prep = os.path.join(prep, "maxBranch_%s" %
+                          prependDict[self.BRANCHING_PROP])
+    if (self.PARTICLE_PROP in prependDict and
+        len(self.maxParticles.split(",")) > 1):
+      prep = os.path.join(prep, "maxParticles_%s" %
+                          prependDict[self.PARTICLE_PROP])
     return prep
 
 
-  ############################################################################
-
   @classmethod
   def setMaxNumWorkers(cls, n):
-    #Safety check to make sure not too many workers run on a local machine
+    # Safety check to make sure not too many workers run on a local machine
     if(n is None):
       if(not cls.onCluster()):
         cls.__maxNumWorkers = 2
@@ -296,11 +290,10 @@ class OPFBenchmarkRunner(unittest.TestCase):
     else:
       cls.__maxNumWorkers = n
 
-  ############################################################################
+
   @classmethod
   def setNumRecords(cls, n):
     cls.__recordsToProcess = n
-  ############################################################################
 
 
   def waitForProductionWorkers(self):
@@ -309,20 +302,19 @@ class OPFBenchmarkRunner(unittest.TestCase):
     while(not done):
       done=True
       for jobID in self.swarmJobIDProductionJobIDMap.keys():
-        if (jobsDB.jobGetFields(self.swarmJobIDProductionJobIDMap[jobID], 
+        if (jobsDB.jobGetFields(self.swarmJobIDProductionJobIDMap[jobID],
             ["status",])[0] != 'completed'):
           done=False
           time.sleep(10)
 
     #When the production workers are done, get and store their results
     for jobRes in self.__resultList:
-      swarmjobID = jobRes['jobID']  
+      swarmjobID = jobRes['jobID']
       prodjobID = self.swarmJobIDProductionJobIDMap[swarmjobID]
       prodResults = json.loads(jobsDB.jobGetFields(prodjobID, ['results'])[0])
       jobRes['prodMetric'] = str(prodResults['bestValue'])
 
 
-  @unittest.skip("Requires generatePersistentJobGUID which isn't available.")
   def submitProductionJob(self, modelID, dataSet):
     jobsDB = cjdao.ClientJobsDAO.get()
 
@@ -353,13 +345,11 @@ class OPFBenchmarkRunner(unittest.TestCase):
            jobType = jobsDB.JOB_TYPE_PM)
 
 
-
-  ############################################################################
   def runProductionWorkers(self):
 
     jobsDB = cjdao.ClientJobsDAO.get()
     print "Starting Production Worker Jobs"
-    print "__expJobMap "+str(self.__expJobMap) + str(id(self.__expJobMap))
+    print "__expJobMap " + str(self.__expJobMap) + str(id(self.__expJobMap))
     while not self.__expJobMap.empty():
       (dataSet, jobID) = self.__expJobMap.get()
       modelCounterPairs = jobsDB.modelsGetUpdateCounters(jobID)
@@ -370,36 +360,36 @@ class OPFBenchmarkRunner(unittest.TestCase):
           self.swarmJobIDProductionJobIDMap[jobID] = prodID
 
 
-  ############################################################################
   @classmethod
   def setTrainFraction(cls, x):
-    if(x==None):
+    if x == None:
       cls.__trainFraction==1.0
-    elif(x>1.0 or x<0.0):
+    elif x > 1.0 or x < 0.0:
       raise Exception("Invalid training fraction")
     else:
       cls.__trainFraction=x
 
-  ############################################################################
+
   @classmethod
   def setDoEnsemble(cls):
     cls.__doEnsemble = True
-  ############################################################################
+
+
   @classmethod
   def setTimeout(cls, n):
     cls.__timeout = n
 
-  ############################################################################
+
   @classmethod
   def setMaxPermutations(cls, n):
     cls.__maxPermutations = n
 
 
- ############################################################################
   def setEnsemble(self, ensemble):
     if(ensemble):
       os.environ['NTA_CONF_PROP_nupic_hypersearch_ensemble'] = "True"
- ############################################################################
+
+
   @classmethod
   def setMetaOptimize(cls, paramString):
     print paramString
@@ -425,7 +415,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
                    str(paramsDict['minParticlesPerSwarm'])
 
 
-  ############################################################################
   def setUpExportDicts(self):
     """
     Setup up a dict of branchings and particles
@@ -450,8 +439,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
     return ret
 
 
-  ############################################################################
-
   def addExportsToResults(self, results, exports):
     if self.BRANCHING_PROP in exports:
       results['maxBranching'] = exports[self.BRANCHING_PROP]
@@ -459,33 +446,33 @@ class OPFBenchmarkRunner(unittest.TestCase):
       results['maxParticles'] = exports[self.PARTICLE_PROP]
 
 
-  ############################################################################
   def syncFiles(self):
     if(self.onCluster()):
       os.system("syncDataFiles %s" % self.outdir)
     return
 
-  ############################################################################
+
   def removeTmpDirs(self):
-    print "Removing temporary directory <%s>" % self.outdir 
+    print "Removing temporary directory <%s>" % self.outdir
     if(self.onCluster()):
       os.system("onall rm -r %s" % self.outdir)
     else :
       os.system("rm -r %s" % self.outdir)
 
-  ############################################################################
+
   @classmethod
   def onCluster(cls):
     return (Configuration.get('nupic.cluster.database.host') != 'localhost')
 
-  ############################################################################
+
   def createResultList(self):
     try:
       while 1:
         self.__resultList.append(self.__resultQ.get(True, 5))
     except Empty:
       pass
-  ############################################################################
+
+
   def printResults(self):
     jobsDB = cjdao.ClientJobsDAO.get()
     productionError=-1
@@ -493,13 +480,13 @@ class OPFBenchmarkRunner(unittest.TestCase):
       restup = self.resultDB[key]
       if(self.__trainFraction<1.0):
         productionError=json.loads(jobsDB.jobGetFields(
-                        self.swarmJobIDProductionJobIDMap[restup["jobID"]], 
+                        self.swarmJobIDProductionJobIDMap[restup["jobID"]],
                         ["results",])[0])['bestValue']
 
       print ("Test: %10s      Expected: %10.4f     Swarm Error: %10.4f     "
              "ProductionError: %10.4f   TotalModelWallTime: %8d    "
              "RecordsProcessed: %10d    Status: %10s") % \
-            (key, self.benchmarkDB[key][0], restup['metric'], 
+            (key, self.benchmarkDB[key][0], restup['metric'],
              productionError, restup['totalModelWallTime'],
              restup["totalNumRecordsProcessed"], restup['status'])
 
@@ -517,15 +504,15 @@ class OPFBenchmarkRunner(unittest.TestCase):
         with open("allResults.csv", "a") as results:
           results.write(lineResults+", "+lineMeta)
 
-  ############################################################################
+
   def saveResults(self):
     outpath = os.path.join(self.outdir, "BenchmarkResults.csv")
     csv = open(outpath, 'w')
     optionalKeys = ['maxBranching', 'maxParticles']
-    print >> csv , \
-      "JobID, Output Directory, Benchmark, Search, Swarm Error Metric," \
-      " Prod. Error Metric, encoders, TotalModelElapsedTime(s), TotalCpuTime(s)," \
-      " JobWallTime, RecordsProcessed, Completion Status",
+    print >> csv , (
+        "JobID, Output Directory, Benchmark, Search, Swarm Error Metric,"
+        " Prod. Error Metric, encoders, TotalModelElapsedTime(s), "
+        "TotalCpuTime(s), JobWallTime, RecordsProcessed, Completion Status"),
     addstr = ""
     for key in optionalKeys:
       addstr+= ",%s" % key
@@ -549,7 +536,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
     csv.close()
 
 
-  ############################################################################
   def readModelWallTime(self, modelInfo):
     format = "%Y-%m-%d %H:%M:%S"
     startTime = modelInfo.startTime
@@ -558,15 +544,15 @@ class OPFBenchmarkRunner(unittest.TestCase):
       return (endTime - startTime).seconds
     return 0
 
-  ############################################################################
+
   def readNumRecordsProcessed(self, modelInfo):
     return modelInfo.numRecords
-  ############################################################################
+
+
   def readModelCpuTime(self, modelInfo):
     return modelInfo.cpuTime
 
 
-  ############################################################################
   def getResultsFromJobDB(self, jobID, expname, searchtype, basedir):
     ret = {}
     jobsDB = cjdao.ClientJobsDAO.get()
@@ -590,8 +576,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
           if "grokScore" in key and "moving" in key:
             ret["grokScore"] = ret[key] = metrics[key]
           ret[key] = metrics[key]
-        ret["encoders"] = \
-                json.loads(modelInfo.params)["particleState"]["swarmId"]
+        ret["encoders"] = (
+            json.loads(modelInfo.params)["particleState"]["swarmId"])
       totalModelWallTime += self.readModelWallTime(modelInfo)
       totalNumRecordsProcessed += self.readNumRecordsProcessed(modelInfo)
       totalModelCpuTime += self.readModelCpuTime(modelInfo)
@@ -611,10 +597,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
 
   def benchmarkHotGym(self):
-    """ Try running a basic experiment and permutations
-    """
-
-
+    """Try running a basic experiment and permutations."""
     # Form the stream definition
     dataPath = os.path.join(self.datadir, "hotgym", "hotgym.csv")
 
@@ -725,7 +708,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(self.datadir, "generated", "spatial", 
+    dataPath = os.path.join(self.datadir, "generated", "spatial",
                             "linear_two_fields", "sample2.csv")
 
     streamDef = dict(
@@ -774,7 +757,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(self.datadir, "generated", "spatial", 
+    dataPath = os.path.join(self.datadir, "generated", "spatial",
                             "linear_two_plus_one_fields", "sample1.csv")
 
     streamDef = dict(
@@ -829,7 +812,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(self.datadir, "generated", "spatial", 
+    dataPath = os.path.join(self.datadir, "generated", "spatial",
                             "sum_two_fields_plus_extra_field", "sample1.csv")
 
     streamDef = dict(
@@ -888,7 +871,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(self.datadir, "generated", "temporal", 
+    dataPath = os.path.join(self.datadir, "generated", "temporal",
                             "categories", "sample1.csv")
 
     streamDef = dict(
@@ -932,7 +915,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(self.datadir, "generated", "spatial", 
+    dataPath = os.path.join(self.datadir, "generated", "spatial",
                             "linear_two_fields", "sample3.csv")
 
     streamDef = dict(
@@ -1020,7 +1003,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     """ The HotGym dataset, only the first gym, solved using spatial
     classification. This model learns the association between the date/time
     stamp and the consumption - the model does not get consumption fed in at
-    the bottom. 
+    the bottom.
     """
 
 
@@ -1080,10 +1063,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
     return expdir
 
 
-
-  ############################################################################
   def generateModules(self, expDesc, outdir):
-    """ This calls ExpGenerator to generate a base description file and 
+    """ This calls ExpGenerator to generate a base description file and
     permutations file from expDesc.
 
     Parameters:
@@ -1091,17 +1072,14 @@ class OPFBenchmarkRunner(unittest.TestCase):
     expDesc:       Experiment description dict
     outDir:        Which output directory to use
     """
-
-    #------------------------------------------------------------------
     # Print out example JSON for documentation purposes
     # TODO: jobParams is unused
     jobParams = dict(
       desription=expDesc
       )
 
-    #------------------------------------------------------------------
     # Call ExpGenerator to generate the base description and permutations
-    #  files.
+    # files.
     shutil.rmtree(outdir, ignore_errors=True)
 
     # TODO: outdirv2term is not used
@@ -1128,8 +1106,6 @@ class OPFBenchmarkRunner(unittest.TestCase):
       ExpGenerator.expGenerator(args)
 
 
-
-  ############################################################################
   def runV2noTerm(self, basedir, expname, searchtype, exportdict):
     v2path = os.path.join(basedir, "v2NoTerm", "base", "permutations.py")
     maxWorkers = "--maxWorkers=%d" % self.__maxNumWorkers
@@ -1141,18 +1117,18 @@ class OPFBenchmarkRunner(unittest.TestCase):
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
     if self.__timeout != None:
-      timeout = "--timeout=%d" % self.__timeout 
+      timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:
-      ensemble = "--ensemble" 
+      ensemble = "--ensemble"
       runString.append(ensemble)
     # Disabling maxPermutations
     # if(self.__maxPermutations > 0):
     #   maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
-    #   pr = permutations_runner.runPermutations([v2path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([v2path, maxWorkers,
     #                        searchMethod, maxPermutations, exports, timeout])
     # else:
-    #   pr = permutations_runner.runPermutations([v2path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([v2path, maxWorkers,
     #                        searchMethod, exports, timeout])
     pr = permutations_runner.runPermutations(runString)
     #Store results
@@ -1177,18 +1153,18 @@ class OPFBenchmarkRunner(unittest.TestCase):
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
     if self.__timeout != None:
-      timeout = "--timeout=%d" % self.__timeout 
+      timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:
-      ensemble = "--ensemble" 
+      ensemble = "--ensemble"
       runString.append(ensemble)
     # Disabling maxPermutations
     # if(self.__maxPermutations > 0):
     #   maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
-    #   pr = permutations_runner.runPermutations([path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([path, maxWorkers,
     #                clusterDefault, maxPermutations, exports, timeout])
     # else:
-    #   pr = permutations_runner.runPermutations([path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([path, maxWorkers,
     #                clusterDefault, exports, timeout])
     pr = permutations_runner.runPermutations(runString)
     resultdict = self.getResultsFromJobDB(pr, expname, searchtype, basedir)
@@ -1199,7 +1175,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.__expJobMap.put((expname, pr))
     return resultdict
 
-  ############################################################################
+
   def runV2Term(self, basedir, expname, searchtype, exportdict):
     v2path = os.path.join(basedir, "v2Term", "base", "permutations.py")
     maxWorkers = "--maxWorkers=%d" % self.__maxNumWorkers
@@ -1211,18 +1187,18 @@ class OPFBenchmarkRunner(unittest.TestCase):
       maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
       runString.append(maxPermutations)
     if self.__timeout != None:
-      timeout = "--timeout=%d" % self.__timeout 
+      timeout = "--timeout=%d" % self.__timeout
       runString.append(timeout)
     if self.__doEnsemble:
-      ensemble = "--ensemble" 
+      ensemble = "--ensemble"
       runString.append(ensemble)
     # Disabling maxPermutations
     # if(self.__maxPermutations > 0):
     #   maxPermutations = "--maxPermutations=%d" % self.__maxPermutations
-    #   pr = permutations_runner.runPermutations([v2path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([v2path, maxWorkers,
     #                  searchMethod, maxPermutations, useTerms, exports])
     # else:
-    #   pr = permutations_runner.runPermutations([v2path, maxWorkers, 
+    #   pr = permutations_runner.runPermutations([v2path, maxWorkers,
     #                  searchMethod, useTerms, exports])
     pr = permutations_runner.runPermutations(runString)
     resultdict = self.getResultsFromJobDB(pr, expname, searchtype, basedir)
@@ -1233,7 +1209,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.__expJobMap.put((expname, pr))
     return resultdict
 
-  ############################################################################
+
   def runBenchmarksSerial(self, basedir, expname, exportdict):
     # Run the Benchmarks inProc and serially
     if(self.__doV2Term):
@@ -1243,31 +1219,39 @@ class OPFBenchmarkRunner(unittest.TestCase):
     if(self.__doClusterDef):
       self.runDefault(basedir, expname, "cluster_default", exportdict)
     return True
+
+
   def runBenchmarksParallel(self, basedir, expname, exportdict):
     # Place the tests in a job queue
     if(self.__doV2Term):
-      v2termres = self.testQ.append((self.runV2Term, [basedir, expname, "v2Term", exportdict]))
+      v2termres = self.testQ.append((self.runV2Term, [basedir, expname,
+                                                      "v2Term", exportdict]))
     if(self.__doV2noTerm):
-      v2notermres = self.testQ.append((self.runV2noTerm, [basedir, expname, "v2NoTerm", exportdict]))
+      v2notermres = self.testQ.append((self.runV2noTerm,
+                                       [basedir, expname, "v2NoTerm",
+                                        exportdict]))
     if(self.__doClusterDef):
-      v2cldef = self.testQ.append((self.runDefault, [basedir, expname, "cluster_default", exportdict]))
+      v2cldef = self.testQ.append((self.runDefault,
+                                   [basedir, expname, "cluster_default",
+                                    exportdict]))
     return True
 
-  ############################################################################
+
   def compareBenchmarks(self, expname, searchMethod, result):
     benchmark = self.benchmarkDB[str([expname, searchMethod])]
     self.resultDB[str([expname, searchMethod])] = results
-    # Make sure results are within 2.2x of the desired result. 
+    # Make sure results are within 2.2x of the desired result.
     # This is only temporary before
     # we establish the actual desired ranges
     # TODO resulttuple is NOT defined
     return (resulttuple.metric / benchmark) < 2.20
 
-  ############################################################################
+
   def assertResults(self):
-    self.assertEqual(self.__failures, 0, 
+    self.assertEqual(self.__failures, 0,
                     "Some benchmarks failed to meet error criteria.")
-  ############################################################################
+
+
   def assertBenchmarks(self, resultdict):
     expname = resultdict['expName']
     searchMethod = resultdict['searchType']
@@ -1281,25 +1265,25 @@ class OPFBenchmarkRunner(unittest.TestCase):
       self.__failures+=1
     return
 
-  ############################################################################
+
   def getJobParamsFromJobDB(self, jobID):
     jobInfo = cjdao.ClientJobsDAO.get().jobInfo(jobID)
     pars = jobInfo.params
     params = json.loads(pars)
     return params
 
-  ############################################################################
+
   def checkPythonScript(self, scriptAbsPath):
     assert os.path.isabs(scriptAbsPath)
 
-    assert os.path.isfile(scriptAbsPath) , \
-                    ("Expected python script to be present here: <%s>") % \
-                        (scriptAbsPath)
+    assert os.path.isfile(scriptAbsPath) , (
+        "Expected python script to be present here: <%s>" % scriptAbsPath)
 
     # Test viability of the file as a python script by loading it
     # An exception will be raised if this fails
     mod = imp.load_source('test', scriptAbsPath)
     return mod
+
 
   def testOPFBenchmarks(self):
     """Run the entire set of OPF benchmark experiments
@@ -1309,7 +1293,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
       if not bm in self.allBenchmarks:
         raise Exception("Unknown benchmark %s" % bm)
 
-    # Set up FIFO queue for handling the different directories that are created 
+    # Set up FIFO queue for handling the different directories that are created
     # for the tests
     fifodirs = deque()
     baseoutdir = self.outdir
@@ -1318,9 +1302,9 @@ class OPFBenchmarkRunner(unittest.TestCase):
     for iter in range(iterations):
       for exports in exportDicts:
         if len(exportDicts)>1:
-          prependDict=exports
+          prependDict = exports
         else:
-          prependDict=dict()
+          prependDict = dict()
         if self.iterations > 1:
           prependDict["iteration"] = iter
         prepend = self.generatePrependPath(prependDict)
@@ -1398,115 +1382,101 @@ class OPFBenchmarkRunner(unittest.TestCase):
     print "Done with all tests"
 
 
-class _ArgParser(object):
-  """Class which handles command line arguments and arguments passed to the test
-  """
-  args = []
 
-  @classmethod
-  def _processArgs(cls):
-    parser = OptionParser(usage=g_helpString)
-    parser.add_option('--outdir', dest="outdir", default="artifacts",
-                      type='string', help = "Specify a dirname if you want to"
-                      "keep the results [default=%default].")
-    parser.add_option( "--searches", dest="searches", default="v2NoTerm", 
-                       type='string',  help="Which searches to run," 
-                       "specify as a list "
-                       "can be composed of v2noTerm, v2Term, cluster_default"
-                       "(ie. --searches=v2noTerm)"
-                       "[default: %default].")
-    parser.add_option("--maxPermutations", dest="maxPermutations", default= -1,
-                      type="int", help="Maximum number of models to search."
-                      "-1 for no limit to the number of models. "
-                      "[default: %default].")
-    parser.add_option("--recsToProcess", dest="recsToProcess", default= -1, 
-                      type="int", help="Maximum number of records to use as data"
-                      " from each experiment. "
-                      "-1 for the entire dateset [default: %default].")
-    parser.add_option("--maxConcurrentJobs", dest="maxConcurrentJobs",
-                      default= 4, type="int", 
-                      help="Maximum number of tests to run in parallel"
-                      "each will be allocated maxWorkers number of workers. "
-                      "[default: %default].")
-    parser.add_option("--maxWorkers", dest="maxWorkers", default=None, type="int",
-                      help="Maximum number of workers to use simmultaneously"
-                      "[default: %default].")
-    parser.add_option("--benchmarks", dest="benchmarks",
-                      default="hotgymsc",
-                      type="string",
-                      help="Which tests to run choose from "
-                      "hotgym, sine, "
-                      "hotgymsc [default: %default].")
-    parser.add_option("--maxBranchings", dest="maxBranchings", default=None, 
-                      type="string", help="What is the maximum number of fields "
-                      "to add per sprint. This dictates how many fields"
-                      "are used at each sprint to generate the new swarms."
-                      " Can be a comma seperated list for the "
-                      "different branching limits that you want to test. "
-                      "All means no limit on branching, None is config default "
-                      "[default: %default].")
-    parser.add_option("--maxParticles", dest="maxParticles", default=None, 
-                      type="string", help="Maximum number of particles per "
-                      "swarm to launch. None is config default"
-                      "[default: %default].")
-    parser.add_option("--iterations", dest="iterations", default=1, type="int",
-                      help="Number of times to run each test"
-                      "[default: %default].")
-    parser.add_option("--generateFilesOnly", dest="filesOnly", default=False, 
-                      action="store_true", help="Setting this to true will only "
-                      "generate the permutations and description files."
-                      " No searches will be run. [default: %default].")
-    parser.add_option("--useReconstruction", dest="useReconstruction", 
-                      action="store_true", help="Setting this to true will"
-                      " use the old SP-reconstruction method to "
-                      "make predictions. Used for side-by-side comparisons")
-    parser.add_option("--timeout", dest="timeout", default=25, type="int",
-                      help="The timeout for each individual search measured "
-                      "in minutes. If a search reaches this timeout all searches"
-                      " are cancelled")
-    parser.add_option("--metaOptimize", dest="metaOptimize", default=None, 
-                      type="string", help="Dictionary of default swarm "
-                      "parameters you want to moodify. Options are inertia, "
-                      "cogRate, socRate, minParticlesPerSwarm "
-                      "[default: %default].")
-    parser.add_option("--trainFraction", dest="trainFraction", default=1.0, 
-                      type="float", help="Setting this to true will swarm on"
-                      " x*100% of the data and run a production worker on "
-                      "(1-x)*100% of the data. This is to see if the swarm is "
-                      "overfitting [default: %default].")
-    parser.add_option("--ensemble", dest="ensemble", default=False, 
-                      action="store_true", help="Run an ensemble instead of HS"
-                      " for this job [default: %default].")
-    
-    (options, remainingArgs) = parser.parse_args(args=cls.args)
+if __name__ == "__main__":
+  helpString = (
+      "Usage: \n\n"
+      "runOPFBenchmarks --outdir DIRNAME  "
+      "// for simple v2 with Terminators benchmarks  \n"
+      "runOPFBenchmarks --outdir DIRNAME --searches=v2noTerm, v2Term     "
+      "//   to run all searches   \n"
+      "Specify a DIRNAME if you want to keep the results, otherwise it will "
+      "be done in a temp directory \n"
+      )
+  # ArgParser
+  parser = OptionParser(usage=helpString)
+  parser.add_option("--outdir", dest="outdir", default="artifacts",
+                    type="string", help = "Specify a dirname if you want to"
+                    "keep the results [default=%default].")
+  parser.add_option( "--searches", dest="searches", default="v2NoTerm",
+                     type="string",  help="Which searches to run,"
+                     "specify as a list "
+                     "can be composed of v2noTerm, v2Term, cluster_default"
+                     "(ie. --searches=v2noTerm)"
+                     "[default: %default].")
+  parser.add_option("--maxPermutations", dest="maxPermutations", default= -1,
+                    type="int", help="Maximum number of models to search."
+                    "-1 for no limit to the number of models. "
+                    "[default: %default].")
+  parser.add_option("--recsToProcess", dest="recsToProcess", default= -1,
+                    type="int", help="Maximum number of records to use as data"
+                    " from each experiment. "
+                    "-1 for the entire dateset [default: %default].")
+  parser.add_option("--maxConcurrentJobs", dest="maxConcurrentJobs",
+                    default= 4, type="int",
+                    help="Maximum number of tests to run in parallel"
+                    "each will be allocated maxWorkers number of workers. "
+                    "[default: %default].")
+  parser.add_option("--maxWorkers", dest="maxWorkers", default=None, type="int",
+                    help="Maximum number of workers to use simmultaneously"
+                    "[default: %default].")
+  parser.add_option("--benchmarks", dest="benchmarks",
+                    default="hotgymsc",
+                    type="string",
+                    help="Which tests to run choose from "
+                    "hotgym, sine, "
+                    "hotgymsc [default: %default].")
+  parser.add_option("--maxBranchings", dest="maxBranchings", default=None,
+                    type="string", help="What is the maximum number of fields "
+                    "to add per sprint. This dictates how many fields"
+                    "are used at each sprint to generate the new swarms."
+                    " Can be a comma seperated list for the "
+                    "different branching limits that you want to test. "
+                    "All means no limit on branching, None is config default "
+                    "[default: %default].")
+  parser.add_option("--maxParticles", dest="maxParticles", default=None,
+                    type="string", help="Maximum number of particles per "
+                    "swarm to launch. None is config default"
+                    "[default: %default].")
+  parser.add_option("--iterations", dest="iterations", default=1, type="int",
+                    help="Number of times to run each test"
+                    "[default: %default].")
+  parser.add_option("--generateFilesOnly", dest="filesOnly", default=False,
+                    action="store_true", help="Setting this to true will only "
+                    "generate the permutations and description files."
+                    " No searches will be run. [default: %default].")
+  parser.add_option("--useReconstruction", dest="useReconstruction",
+                    action="store_true", help="Setting this to true will"
+                    " use the old SP-reconstruction method to "
+                    "make predictions. Used for side-by-side comparisons")
+  parser.add_option("--timeout", dest="timeout", default=25, type="int",
+                    help="The timeout for each individual search measured "
+                    "in minutes. If a search reaches this timeout all searches"
+                    " are cancelled")
+  parser.add_option("--metaOptimize", dest="metaOptimize", default=None,
+                    type="string", help="Dictionary of default swarm "
+                    "parameters you want to moodify. Options are inertia, "
+                    "cogRate, socRate, minParticlesPerSwarm "
+                    "[default: %default].")
+  parser.add_option("--trainFraction", dest="trainFraction", default=1.0,
+                    type="float", help="Setting this to true will swarm on"
+                    " x*100% of the data and run a production worker on "
+                    "(1-x)*100% of the data. This is to see if the swarm is "
+                    "overfitting [default: %default].")
+  parser.add_option("--ensemble", dest="ensemble", default=False,
+                    action="store_true", help="Run an ensemble instead of HS"
+                    " for this job [default: %default].")
 
-    print "Parsed options: <%s>" % (options,)
-    print "remainingArgs: <%s>" % (remainingArgs,)
-    return (options, remainingArgs)
+  options, remainingArgs = parser.parse_args()
 
-  @classmethod
-  def parseArgs(cls):
-    """ Returns the test arguments after parsing 
-    """
-    return cls._processArgs()[0]
-  
-  @classmethod
-  def consumeArgs(cls):
-    """ Consumes the test arguments and returns the remaining arguments meant
-    for unittest.main
-    """
-    return cls._processArgs()[1]
-
-
-def setUpModule():
+  # Set up module
   print "\nCURRENT DIRECTORY:", os.getcwd()
-  options = _ArgParser.parseArgs()
   if not os.path.isdir(options.outdir):
     options.outdir = tempfile.mkdtemp()
     print "Provided directory to store Benchmark files is invalid.",
     print "Now storing in <%s> and then deleting" % options.outdir
     OPFBenchmarkRunner.isSaveResults = False
-  OPFBenchmarkRunner.outdir = os.path.abspath(os.path.join(options.outdir, 
+  OPFBenchmarkRunner.outdir = os.path.abspath(os.path.join(options.outdir,
                                                            "BenchmarkFiles"))
   if os.path.isdir(OPFBenchmarkRunner.outdir):
     shutil.rmtree(OPFBenchmarkRunner.outdir)
@@ -1520,34 +1490,24 @@ def setUpModule():
   OPFBenchmarkRunner.setMaxPermutations(options.maxPermutations)
   if options.ensemble:
     OPFBenchmarkRunner.setDoEnsemble()
-  
+
   if options.useReconstruction:
     OPFBenchmarkRunner.EXP_COMMON["inferenceType"] = \
                        InferenceType.TemporalNextStep
   OPFBenchmarkRunner.setupTrainTestSplits()
 
   OPFBenchmarkRunner.datadir = os.path.join('extra')
-  
+
 
   tests = options.searches
   if not OPFBenchmarkRunner.getTests(tests):
-    raise Exception("Incorrect formating of option \n %s" % g_helpString)
-    
-  OPFBenchmarkRunner.listOfBenchmarks = string.split(
-                                        string.lower(options.benchmarks), ',')
+    raise Exception("Incorrect formating of option \n %s" % helpString)
+
+  OPFBenchmarkRunner.listOfBenchmarks = options.benchmarks.lower().split(',')
   OPFBenchmarkRunner.filesOnly = options.filesOnly
   OPFBenchmarkRunner.maxParticles = options.maxParticles
   OPFBenchmarkRunner.maxBranchings = options.maxBranchings
   OPFBenchmarkRunner.iterations = options.iterations
   OPFBenchmarkRunner.maxConcurrentJobs = options.maxConcurrentJobs
 
-############################################################################
-############################################################################
-if __name__ == '__main__':
-  # Consume test specific arguments and pass remaining to unittest.main
-  # NOTE: Add verbosity to unittest output (so it prints a header for each test)
-  _ArgParser.args = sys.argv[1:] 
-  args = [sys.argv[0],"--verbose"] + _ArgParser.consumeArgs()
-  print "new args to unittest.main: <%s>" % (args,)
-  # Run the test
-  unittest.main(argv=args)
+  unittest.main(argv=[sys.argv[0]] + remainingArgs)

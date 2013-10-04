@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -40,13 +40,14 @@ import tempfile
 
 from optparse import OptionParser
 
-from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
-from nupic.swarming import HypersearchWorker
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
+from nupic.swarming import HypersearchWorker
+from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
+from nupic.swarming.util import generatePersistentJobGUID
+from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
 
@@ -61,18 +62,6 @@ g_myEnv = None
 # This value for the swarm maturity window gives more repeatable results for
 #  unit tests that use multiple workers
 g_repeatableSwarmMaturityWindow = 5
-
-
-################################################################################
-def _generatePersistentJobGUID():
-  """Generates a "persistentJobGUID" value.
-
-  Parameters:
-  ----------------------------------------------------------------------
-  retval:          A persistentJobGUID value
-
-  """
-  return "JOB_UUID1-" + str(uuid.uuid1())
 
 
 
@@ -252,7 +241,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       permutationsPyContents = open(permutationsPyPath, 'rb').read()
       descriptionPyContents = open(descriptionPyPath, 'rb').read()
 
-      jobParams = {'persistentJobGUID' : _generatePersistentJobGUID(),
+      jobParams = {'persistentJobGUID' : generatePersistentJobGUID(),
                 'permutationsPyContents': permutationsPyContents,
                 'descriptionPyContents': descriptionPyContents,
                 'maxModels': maxModels,
