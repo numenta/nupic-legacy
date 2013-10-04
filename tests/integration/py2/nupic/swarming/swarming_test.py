@@ -46,7 +46,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
 from nupic.swarming import HypersearchWorker
 from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
-from nupic.swarming.util import generatePersistentJobGUID
+from nupic.swarming.utils import generatePersistentJobGUID
 from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
@@ -242,10 +242,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       descriptionPyContents = open(descriptionPyPath, 'rb').read()
 
       jobParams = {'persistentJobGUID' : generatePersistentJobGUID(),
-                'permutationsPyContents': permutationsPyContents,
-                'descriptionPyContents': descriptionPyContents,
-                'maxModels': maxModels,
-                'hsVersion': hsImp}
+                   'permutationsPyContents': permutationsPyContents,
+                   'descriptionPyContents': descriptionPyContents,
+                   'maxModels': maxModels,
+                   'hsVersion': hsImp}
 
       if predictionCacheMaxRecords is not None:
         jobParams['predictionCacheMaxRecords'] = predictionCacheMaxRecords
