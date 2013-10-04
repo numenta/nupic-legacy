@@ -44,6 +44,8 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser,
                                                         TestCaseBase)
 
+_PY_VERSION = "%i.%i" % sys.version_info[0:2]
+
 extraDataFolder = "test_data"
 
 experimentDesc = {
@@ -86,6 +88,7 @@ class CompatibilityTest(TestCaseBase):
   deserialized properly"""
 
 
+  @unittest.skipIf(_PY_VERSION != "2.6", "Test only works on Python 2.6.")
   def testCLAPredictionModelCompatibility(self):
     """
     Test whether a prediction model checkpoint can be deserialized
@@ -102,8 +105,7 @@ class CompatibilityTest(TestCaseBase):
     self.assertNoUntrackedCheckpoints("prediction")
 
 
-  #@unittest.skipIf(os.environ["TRAVIS_PYTHON_VERSION"] != "2.6",
-  #                 "Test only works on Python 2.6.")
+  @unittest.skipIf(_PY_VERSION != "2.6", "Test only works on Python 2.6.")
   def testCLAAnomalyModelCompatibility(self):
     """
     Tests that old anomaly models can be deserialized, as well as that
@@ -129,7 +131,7 @@ class CompatibilityTest(TestCaseBase):
   def testCLAAnomalyModelConsistency(self):
     """
     Tests that the same model checkpointed twice has the same state in each
-    version. 
+    version.
     """
     description = copy.deepcopy(experimentDesc)
     description["inferenceType"] = InferenceType.TemporalAnomaly
