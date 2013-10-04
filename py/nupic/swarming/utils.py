@@ -37,6 +37,7 @@ import pprint
 import shutil
 import types
 import signal
+import uuid
 
 import nupic
 from nupic.frameworks.opf import opfhelpers
@@ -575,3 +576,15 @@ class PeriodicActivityMgr(object):
           act.iteratorHolder[0] = None
 
     return True
+
+
+
+def generatePersistentJobGUID():
+  """Generates a "persistentJobGUID" value.
+
+  Parameters:
+  ----------------------------------------------------------------------
+  retval:          A persistentJobGUID value
+
+  """
+  return "JOB_UUID1-" + str(uuid.uuid1())
