@@ -1,0 +1,21 @@
+   	SITE_LOCATION_NAME	SQM	NATURAL_LIGHTING	CBUS	HOURS_OF_USE	DATA_INST_TIMESTAMP	TOTAL_KWH
+1	Bondi Platinum	3100	Y	Y	103.75	Oct-10	56427.98
+2	Bondi Platinum	3100	Y	Y	103.75	Sep-10	55923.04
+3	Canberra City	1640	Y	Y	93	Oct-10	24330.87
+4	Canberra City	1640	Y	Y	93	Sep-10	23728.3
+5	Chadstone Platinum	2245	Y	Y	97	Oct-10	33137
+6	Chadstone Platinum	2245	Y	Y	97	Sep-10	33285.2
+7	Darlinghurst	2307	Y	Y	101	Oct-10	38040.58
+8	Darlinghurst	2307	Y	Y	101	Sep-10	37986.39
+9	Epping	1858	Y	N	95.5	Oct-10	31197.92
+10	Epping	1858	Y	N	95.5	Sep-10	28610.76
+11	Hornsby	2233	Y	Y	98	Oct-10	22868.07
+12	Hornsby	2233	Y	Y	98	Sep-10	21324.44
+13	Melbourne CBD - Melbourne Central	2460	Y	N	91	Oct-10	36958.82
+14	Melbourne CBD - Melbourne Central	2460	Y	N	91	Sep-10	36117.81
+15	North Sydney - Elizabeth Plaza	2240	Y	Y	78	Oct-10	30402.4
+16	North Sydney - Elizabeth Plaza	2240	Y	Y	78	Sep-10	31734.22
+17	Sydney CBD - Park St	1770	Y	Y	91	Oct-10	25102.17
+18	Sydney CBD - Park St	1770	Y	Y	91	Sep-10	24390.83
+19	Sydney CBD - Pitt St	1451	N	Y	79	Oct-10	29795.45
+20	Sydney CBD - Pitt St	1451	N	Y	79	Sep-10	28583.24

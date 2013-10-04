@@ -118,7 +118,6 @@ class OPFDummyModelRunner(OPFModelRunner):
                predictedField,
                reportKeyPatterns,
                optimizeKeyPattern,
-               useStreams,
                jobsDAO,
                modelCheckpointGUID,
                logLevel=None,
@@ -238,8 +237,6 @@ class OPFDummyModelRunner(OPFModelRunner):
                         if it matches more than one key from the experiment's
                         results.
 
-    useStreams:         True to open an output stream
-
     jobsDAO:            Jobs data access object - the interface to the
                         jobs database which has the model's table.
 
@@ -259,15 +256,11 @@ class OPFDummyModelRunner(OPFModelRunner):
                                               experimentDir=None,
                                               reportKeyPatterns=reportKeyPatterns,
                                               optimizeKeyPattern=optimizeKeyPattern,
-                                              useStreams=False,
                                               jobsDAO=jobsDAO,
                                               modelCheckpointGUID=modelCheckpointGUID,
                                               logLevel=logLevel,
                                               predictionCacheMaxRecords=None)
 
-    #This is only used during checkpointing because checkpoints
-    # require a stream
-    self._useStreams = useStreams
     self._predictionCacheMaxRecords = predictionCacheMaxRecords
     self._streamDef = copy.deepcopy(self._DUMMY_STREAMDEF)
     self._params = copy.deepcopy(self._DEFAULT_PARAMS)
@@ -447,12 +440,6 @@ class OPFDummyModelRunner(OPFModelRunner):
     self._reportMetricLabels = [self._optimizeKeyPattern]
 
     # =========================================================================
-    # Create output stream (if streams are specified). This is used to test if
-    # output streams are deleted appropriately
-    # =========================================================================
-    #self._createPredictionLogger()
-
-    # =========================================================================
     # Create our top-level loop-control iterator
     # =========================================================================
     if self._iterations >= 0:
@@ -604,51 +591,21 @@ class OPFDummyModelRunner(OPFModelRunner):
     modelDescription = expIface.getModelDescription()
     return ModelFactory.create(modelDescription)
 
-  ############################################################################
-  def _createPredictionStream(self):
-    """ Creates a prediction logger that outputs its results to  a stream
-    (as opposed to a file)
 
-    Parameters:
-    -----------------------------------------------------------------------
-    task:       The task description given in the
-    """
-    from grokengine.cluster.database.prediction_output_stream import (
-        PredictionOutputStream)
-    self._predictionLogger = PredictionOutputStream(
-      modelID=str(self._modelID), fields=self.__fieldInfo, maxRecords=self._predictionCacheMaxRecords,
-      isBlocking=False, removeOldData=True)
-
-    def dummyWriteRecord(self, record):
-      pass
-
-    def dummyWriteRecords(self, records, progressCB):
-      pass
-
-    self._predictionLogger.writeRecord = types.MethodType(dummyWriteRecord,
-                                                          self._predictionLogger,
-                                                          self._predictionLogger.__class__)
-
-    self._predictionLogger.writeRecords = types.MethodType(dummyWriteRecords,
-                                                           self._predictionLogger,
-                                                           self._predictionLogger.__class__)
-  ############################################################################
   def _createPredictionLogger(self):
     """
     Creates the model's PredictionLogger object, which is an interface to write
     model results to a permanent storage location
     """
 
-    if self._useStreams:
-      self._createPredictionStream()
-    else:
-      class DummyLogger:
-        def writeRecord(self, record): pass
-        def writeRecords(self, records, progressCB): pass
-        def close(self): pass
+    class DummyLogger:
+      def writeRecord(self, record): pass
+      def writeRecords(self, records, progressCB): pass
+      def close(self): pass
 
-      self._predictionLogger = DummyLogger()
-  ############################################################################
+    self._predictionLogger = DummyLogger()
+
+
   def __shouldSysExit(self, iteration):
     """
     Checks to see if the model should exit based on the exitAfter dummy
