@@ -20,19 +20,36 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+"""Cast mode test."""
 
+import sys
+
+import numpy
 import unittest2 as unittest
 
-from nupic.research.TP10X2 import TP10X2
-
-import tp_test
-
-# Run the Python TP test against the TP10X2.
-tp_test.TP = TP10X2
-TPTest = tp_test.TPTest
+from nupic.bindings.math import SM32
 
 
 
-if __name__ == '__main__':
+class TestCastMode(unittest.TestCase):
+
+
+  @unittest.skipIf(sys.platform == "linux2",
+                   "Castmode test disabled on linux -- fails")
+  def testCastMode(self):
+    """Test for an obscure error that is fixed by the -castmode flag to swig.
+
+    This code will throw an exception if the error exists.
+    """
+    hist = SM32(5, 10)
+    t = numpy.array([0, 0, 1, 0, 1, 0, 0, 1, 0, 1], dtype='float32')
+
+    hist.setRowFromDense(0, t)
+    hist.setRowFromDense(1, t)
+    self.assertSequenceEqual(tuple(hist.getRow(1)),
+                             (0, 0, 1, 0, 1, 0, 0, 1, 0, 1))
+
+
+
+if __name__ == "__main__":
   unittest.main()

@@ -28,7 +28,7 @@ import os
 def getSearch(rootDir):
   """ This method returns search description. See the following file for the
   schema of the dictionary this method returns:
-    py/grokengine/frameworks/opf/expGenerator/experimentDescriptionSchema.json
+    py/nupic/frameworks/opf/exp_generator/experimentDescriptionSchema.json
     
   The streamDef element defines the stream for this model. The schema for this
   element can be found at:

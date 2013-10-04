@@ -20,19 +20,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+"""This file invokes predictionmetricsmanager.py tests
 
-import unittest2 as unittest
+TODO: Move these tests to unit test format.
+"""
 
-from nupic.research.TP10X2 import TP10X2
-
-import tp_test
-
-# Run the Python TP test against the TP10X2.
-tp_test.TP = TP10X2
-TPTest = tp_test.TPTest
+from nupic.frameworks.opf.predictionmetricsmanager import (
+    test as predictionMetricsManagerTest)
 
 
 
-if __name__ == '__main__':
-  unittest.main()
+if __name__ == "__main__":
+  predictionMetricsManagerTest()
