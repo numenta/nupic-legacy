@@ -239,7 +239,7 @@ class TP10X2Test(unittest.TestCase):
     return tp, tpPy
 
 
-  def testTPs(self, short=False):
+  def testTPs(self, short=True):
     """Call basicTest2 with multiple parameter settings and ensure the C++ and
     PY versions are identical throughout."""
 
