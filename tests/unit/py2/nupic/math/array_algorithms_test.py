@@ -20,17 +20,33 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+"""Unit tests for array algorithms."""
 
 import unittest2 as unittest
 
-from nupic.research.TP10X2 import TP10X2
+import numpy
 
-import tp_test
+from nupic.bindings.math import nearlyZeroRange
 
-# Run the Python TP test against the TP10X2.
-tp_test.TP = TP10X2
-TPTest = tp_test.TPTest
+
+
+class TestArrayAlgos(unittest.TestCase):
+
+
+  def setUp(self):
+    self.x = numpy.zeros((10))
+
+
+  def testNearlyZeroRange1(self):
+    self.assertTrue(nearlyZeroRange(self.x))
+
+
+  def testNearlyZeroRange2(self):
+    self.assertTrue(nearlyZeroRange(self.x, 1e-8))
+
+
+  def testNearlyZeroRange3(self):
+    self.assertTrue(nearlyZeroRange(self.x, 2))
 
 
 

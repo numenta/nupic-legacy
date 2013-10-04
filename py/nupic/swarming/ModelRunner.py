@@ -82,7 +82,6 @@ class OPFModelRunner(object):
                experimentDir,
                reportKeyPatterns,
                optimizeKeyPattern,
-               useStreams,
                jobsDAO,
                modelCheckpointGUID,
                logLevel=None,
@@ -103,7 +102,6 @@ class OPFModelRunner(object):
                         This can also be a regular expression, but is an error
                         if it matches more than one key from the experiment's
                         results.
-    useStreams:         True to use a stream-based input; False to use FileSource
     jobsDAO:            Jobs data access object - the interface to the
                         jobs database which has the model's table.
     modelCheckpointGUID:
@@ -132,7 +130,6 @@ class OPFModelRunner(object):
     self._experimentDir = experimentDir
     self._reportKeyPatterns = reportKeyPatterns
     self._optimizeKeyPattern = optimizeKeyPattern
-    self._useStreams = useStreams
     self._jobsDAO = jobsDAO
     self._modelCheckpointGUID = modelCheckpointGUID
     self._predictionCacheMaxRecords = predictionCacheMaxRecords
@@ -219,9 +216,9 @@ class OPFModelRunner(object):
     # List of tuples, (iteration, metric), used to see if the model has 'matured'
     self._metricRegression = regression.AveragePctChange(windowSize=self._MATURITY_NUM_POINTS)
 
-    return
+    self.__loggedMetricPatterns = []
 
-################################################################################
+
   def run(self):
     """ Runs the OPF Model
 
@@ -245,16 +242,9 @@ class OPFModelRunner(object):
     # Create the input data stream for this task
     streamDef = self._modelControl['dataset']
 
-    if self._useStreams:
-      from grokengine.cluster.database.stream_reader import StreamReader
-      from grokengine.support.configuration \
-                          import Configuration as EngineConfiguration
-      readTimeout = int(
-        EngineConfiguration.get('nupic.cluster.database.inputcache.timeout'))
-    else:
-      from nupic.data.stream_reader import StreamReader
-      readTimeout = 0 
-      
+    from nupic.data.stream_reader import StreamReader
+    readTimeout = 0
+
     self._inputSource = StreamReader(streamDef, isBlocking=False,
                                      maxTimeout=readTimeout)
 
@@ -410,16 +400,10 @@ class OPFModelRunner(object):
         # NOTE: This is okay with Stream-based Source (when it times out
         # waiting for next record), but not okay with FileSource, which should
         # always return either with a valid record or None for EOF.
-        assert self._useStreams, \
-               "Got an empty record from FileSource: %r" % inputRecord
-
-        #** TODO: Temporary fix while stream service is being completed **
-        self._cmpReason = self._jobsDAO.CMPL_REASON_EOF
-        self._logger.warn("inputSource.getNext() timed out")
-        break
+        raise ValueError("Got an empty record from FileSource: %r" %
+                         inputRecord)
 
 
-################################################################################
   def _finalize(self):
     """Run final activities after a model has run. These include recording and
     logging the final score"""
@@ -545,22 +529,12 @@ class OPFModelRunner(object):
     Creates the model's PredictionLogger object, which is an interface to write
     model results to a permanent storage location
     """
-
-    if self._useStreams:
-      # Create an output stream
-      from grokengine.cluster.database.prediction_output_stream import (
-               PredictionOutputStream)
-      self._predictionLogger = PredictionOutputStream(
-        modelID=self._modelID, fields=self._model.getFieldInfo(),
-        maxRecords=self._predictionCacheMaxRecords,
-        isBlocking=False, removeOldData=True)
-    else:
-      # Write results to a file
-      self._predictionLogger = BasicPredictionLogger(
-        fields=self._model.getFieldInfo(),
-        experimentDir=self._experimentDir,
-        label = "hypersearch-worker",
-        inferenceType=self._model.getInferenceType())
+    # Write results to a file
+    self._predictionLogger = BasicPredictionLogger(
+      fields=self._model.getFieldInfo(),
+      experimentDir=self._experimentDir,
+      label = "hypersearch-worker",
+      inferenceType=self._model.getInferenceType())
 
     if self.__loggedMetricPatterns:
       metricLabels = self.__metricMgr.getMetricLabels()
@@ -905,24 +879,7 @@ class OPFModelRunner(object):
       self._predictionLogger = None
       self.__predictionCache = None
 
-    # If we are not using HBase, this is unnecessary
-    if not self._useStreams:
-      return
 
-    from grokengine.cluster.database.prediction_output_stream import (
-                PredictionOutputStream)
-    streamID = PredictionOutputStream.getStreamIDForModelID(modelID)
-    self._logger.info("Deleting output cache %s", streamID)
-
-    from grokengine.cluster.dataservices.data_streams_mgr import DataStreamsMgr
-    try:
-      DataStreamsMgr.delayedDelete(streamID)
-    except StreamDisappearedError:
-      self._logger.debug("Couldn't delete stream %s. "
-                         "Assuming that the stream was deleted by another "\
-                         "worker", streamID)
-
-  ################################################################################
   def _initPeriodicActivities(self):
     """ Creates and returns a PeriodicActivityMgr instance initialized with
     our periodic activities
