@@ -1,3 +1,7 @@
+<div align="center">
+    <img title="Numenta Logo" src="http://numenta.org/images/250x250numentaicon.gif"/>
+</div>
+
 Numenta Platform for Intelligent Computing (NuPIC)
 =====
 
