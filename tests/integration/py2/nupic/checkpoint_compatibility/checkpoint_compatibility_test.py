@@ -102,6 +102,8 @@ class CompatibilityTest(TestCaseBase):
     self.assertNoUntrackedCheckpoints("prediction")
 
 
+  #@unittest.skipIf(os.environ["TRAVIS_PYTHON_VERSION"] != "2.6",
+  #                 "Test only works on Python 2.6.")
   def testCLAAnomalyModelCompatibility(self):
     """
     Tests that old anomaly models can be deserialized, as well as that
@@ -192,7 +194,6 @@ class CompatibilityTest(TestCaseBase):
     # print "done"
 
 
-  #----------------------------------------------------------------------------
   def assertCheckpointsCompatible(self, checkpointRoot):
     start = time.time()
     print "Testing backwards compatibility of", checkpointRoot, "models..."
@@ -263,8 +264,8 @@ class CompatibilityTest(TestCaseBase):
                                    inferenceElements=['multiStepPredictions']):
     if checkpoint is None:
       return
-    print "Checking if in-memory and deserialized models "\
-           "produce same results...",
+    print ("Checking if in-memory and deserialized models "
+           "produce same results..."),
     sys.stdout.flush()
 
     savedModel = ModelFactory.loadFromCheckpoint(checkpoint)
