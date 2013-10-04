@@ -37,6 +37,7 @@ import pprint
 import shutil
 import types
 import signal
+import uuid
 
 import nupic
 from nupic.frameworks.opf import opfhelpers
