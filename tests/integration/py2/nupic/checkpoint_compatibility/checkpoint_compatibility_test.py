@@ -44,7 +44,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
                                                         TestOptionParser,
                                                         TestCaseBase)
 
-_PY_VERSION = "%i.%i" % sys.version_info[0:2]
+_TRAVIS = "TRAVIS" in os.environ
 
 extraDataFolder = "test_data"
 
@@ -88,7 +88,7 @@ class CompatibilityTest(TestCaseBase):
   deserialized properly"""
 
 
-  @unittest.skipIf(_PY_VERSION != "2.6", "Test only works on Python 2.6.")
+  @unittest.skipIf(_TRAVIS, "Test only works on Python 2.6.7, skipping on Travis.")
   def testCLAPredictionModelCompatibility(self):
     """
     Test whether a prediction model checkpoint can be deserialized
@@ -105,7 +105,7 @@ class CompatibilityTest(TestCaseBase):
     self.assertNoUntrackedCheckpoints("prediction")
 
 
-  @unittest.skipIf(_PY_VERSION != "2.6", "Test only works on Python 2.6.")
+  @unittest.skipIf(_TRAVIS, "Test only works on Python 2.6.7, skipping on Travis.")
   def testCLAAnomalyModelCompatibility(self):
     """
     Tests that old anomaly models can be deserialized, as well as that
