@@ -62,29 +62,6 @@ function prepDirectories {
 function pythonSetup {
   python "$NUPIC/build_system/setup.py" --autogen
 
-  # Workaround for matplotlib install bug: numpy must already be installed
-  # see http://stackoverflow.com/questions/11797688/matplotlib-requirements-with-pip-install-in-virtualenv
-  # https://github.com/matplotlib/matplotlib/wiki/MEP11
-  PATH=$NUPIC_INSTALL:$PATH pip install --build="$BUILDDIR/pip-build" --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python$PY_VERSION/site-packages" numpy==1.7.1
-  exitOnError $?
-
-  PATH=$NUPIC_INSTALL:$PATH pip install --build="$BUILDDIR/pip-build" --find-links=file://$NUPIC/external/common/pip-cache --no-index --index-url=file:///dev/null --install-option="--install-scripts=$NUPIC_INSTALL/bin" --install-option="--install-lib=$NUPIC_INSTALL/lib/python$PY_VERSION/site-packages" -r $NUPIC/external/common/requirements.txt
-  exitOnError $?
-
-  # cov-core may fail to install properly, reporting something to the effect of:
-  #
-  #   Failed to write pth file for subprocess measurement to $NTA/lib/python2.6/site-packages/init_cov_core.pth
-  #
-  #   Subprocesses WILL NOT have coverage collected.
-  #
-  #   To measure subprocesses put the following in a pth file called init_cov_core.pth:
-  #   import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()
-  #
-  # Therefore, explicitly write out the .pth file.
-  mkdir -p $NUPIC_INSTALL/lib/python$PY_VERSION/site-packages
-  echo "import os; os.environ.get('COV_CORE_SOURCE') and __import__('cov_core_init').init()" > $NUPIC_INSTALL/lib/python$PY_VERSION/site-packages/init_cov_core.pth
-  exitOnError $?
-
   export NTA_NUMPY_INCLUDE=`python -c 'import numpy; import sys; sys.stdout.write(numpy.get_include())'`
 }
 
