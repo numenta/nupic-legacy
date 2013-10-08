@@ -1,11 +1,6 @@
 # This file is a list of all source directories that must be copied
 # after the build is done
 
-# Python modules
-
-# Platform independent python libraries
-external/${arch}/lib/python${PythonVersion}/site-packages/pkg_resources.py   lib/python${PythonVersion}/site-packages/pkg_resources.py
-
 # Platform independent executable scripts
 lang/py/bindings/__init__.py   lib/python${PythonVersion}/site-packages/nupic/bindings/__init__.py
 
