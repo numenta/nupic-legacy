@@ -46,6 +46,7 @@ install:
   # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
+  - pip install -r $NUPIC/external/common/requirements.txt
   - "$NUPIC/build.sh"
 
 script:

@@ -30,13 +30,13 @@ import unittest2 as unittest
 import uuid
 
 from mock import Mock, patch
-from pkg_resources import resource_filename, resource_string
+from pkg_resources import resource_filename
 from xml.parsers.expat import ExpatError
 # ParseError not present in xml module for python2.6
 try:
     from xml.etree.ElementTree import ParseError
 except ImportError:
-    from xml.parsers.expat import ExpatError as ParseError 
+    from xml.parsers.expat import ExpatError as ParseError
 
 import nupic
 
@@ -65,16 +65,19 @@ class ConfigurationCustomTest(unittest.TestCase):
 
 
     with open(os.path.join(tmpDir, 'nupic-default.xml-unittest'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/nupic-default.xml'))
-      self.files['nupic-default.xml'] = fp.name
+      with open(resource_filename(__name__, 'conf/nupic-default.xml')) as inp:
+        fp.write(inp.read())
+        self.files['nupic-default.xml'] = fp.name
 
     with open(os.path.join(tmpDir, 'nupic-site.xml-unittest'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/nupic-site.xml'))
-      self.files['nupic-site.xml'] = fp.name
+      with open(resource_filename(__name__, 'conf/nupic-site.xml')) as inp:
+        fp.write(inp.read())
+        self.files['nupic-site.xml'] = fp.name
 
     with open(os.path.join(tmpDir, 'nupic-custom.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/nupic-custom.xml'))
-      self.files['nupic-custom.xml'] = fp.name
+      with open(resource_filename(__name__, 'conf/nupic-custom.xml')) as inp:
+        fp.write(inp.read())
+        self.files['nupic-custom.xml'] = fp.name
 
     self.customParam = 'nupic.custom.hello'
     self.customValue = 'world'
@@ -839,9 +842,11 @@ class ConfigurationCustomTest(unittest.TestCase):
     configuration.Configuration.clear()
     findConfigFile.side_effect = self.files.get
     with open(self.files['nupic-default.xml'], 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile1.xml'))
+      with open(resource_filename(__name__, 'conf/testFile1.xml')) as inp:
+        fp.write(inp.read())
     with open(self.files['nupic-site.xml'], 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile2.xml'))
+      with open(resource_filename(__name__, 'conf/testFile2.xml')) as inp:
+        fp.write(inp.read())
 
     env = {'USER': 'foo', 'HOME': 'bar'}
     environ.__getitem__.side_effect = env.__getitem__
@@ -902,9 +907,11 @@ class ConfigurationCustomTest(unittest.TestCase):
     self.addCleanup(shutil.rmtree, tmpDir)
 
     with open(os.path.join(tmpDir, 'nupic-default.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile1.xml'))
+      with open(resource_filename(__name__, 'conf/testFile1.xml')) as inp:
+        fp.write(inp.read())
     with open(os.path.join(tmpDir, 'nupic-site.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile2.xml'))
+      with open(resource_filename(__name__, 'conf/testFile2.xml')) as inp:
+        fp.write(inp.read())
 
     env = {
       'USER': 'foo',
@@ -965,15 +972,18 @@ class ConfigurationCustomTest(unittest.TestCase):
     self.addCleanup(shutil.rmtree, tmpDir)
 
     with open(os.path.join(tmpDir, 'nupic-default.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile1.xml'))
+      with open(resource_filename(__name__, 'conf/testFile1.xml')) as inp:
+        fp.write(inp.read())
     with open(os.path.join(tmpDir, 'nupic-site.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile2.xml'))
+      with open(resource_filename(__name__, 'conf/testFile2.xml')) as inp:
+        fp.write(inp.read())
 
     tmpDir2 = tempfile.mkdtemp()
     self.addCleanup(shutil.rmtree, tmpDir2)
 
     with open(os.path.join(tmpDir2, 'nupic-site.xml'), 'w') as fp:
-      fp.write(resource_string(__name__, 'conf/testFile3.xml'))
+      with open(resource_filename(__name__, 'conf/testFile3.xml')) as inp:
+        fp.write(inp.read())
 
     env['NTA_CONF_DIR'] = os.pathsep.join([tmpDir, tmpDir2])
 
