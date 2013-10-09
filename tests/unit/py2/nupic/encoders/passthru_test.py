@@ -46,7 +46,7 @@ class PassThruEncoderTest(unittest.TestCase):
 
   def testInitialization(self):
     e = self._encoder(self.n, self.w, name=self.name)
-    self.assertEqual(type(e), self._encoder)
+    self.assertIsInstance(e, self._encoder)
 
 
   def testEncodeArray(self):
@@ -54,11 +54,11 @@ class PassThruEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, name=self.name)
     bitmap = [0,0,0,1,0,0,0,0,0]
     out = e.encode(bitmap)
-    assert out.sum() == sum(bitmap)*self.w
+    self.assertEqual(out.sum(), sum(bitmap)*self.w)
 
     x = e.decode(out)
-    assert isinstance(x[0], dict)
-    assert self.name in x[0]
+    self.assertIsInstance(x[0], dict)
+    self.assertTrue(self.name in x[0])
 
 
   def testEncodeBitArray(self):
@@ -68,7 +68,7 @@ class PassThruEncoderTest(unittest.TestCase):
     bitmap[3] = 1
     bitmap[5] = 1
     out = e.encode(bitmap)
-    assert out.sum() == sum(bitmap)*self.w
+    self.assertEqual(out.sum(), sum(bitmap)*self.w)
 
 
   def testClosenessScores(self):
@@ -81,7 +81,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 1.0
+    self.assertEqual(c[0], 1.0)
 
     """No overlap => 0"""
     bitmap1 = [0,0,0,1,1,1,0,0,0]
@@ -89,7 +89,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.0
+    self.assertEqual(c[0], 0.0)
 
     """Similar => 4 of 5 match"""
     bitmap1 = [1,0,1,0,1,0,1,0,1]
@@ -97,7 +97,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
     """Little => 1 of 5 match"""
     bitmap1 = [1,0,0,1,1,0,1,0,1]
@@ -105,7 +105,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.2
+    self.assertEqual(c[0], 0.2)
 
     """Extra active bit => off by 1 of 5"""
     bitmap1 = [1,0,1,0,1,0,1,0,1]
@@ -113,7 +113,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
     """Missing active bit => off by 1 of 5"""
     bitmap1 = [1,0,1,0,1,0,1,0,1]
@@ -121,7 +121,7 @@ class PassThruEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
 
   def testRobustness(self):
@@ -141,15 +141,15 @@ class PassThruEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, self.onbits, self.name)
     bitmap = [0,0,0,1,0,0,0,1,1]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
     bitmap = [1,0,0,0,0,0,0,0,0]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
     bitmap = [1,1,1,1,0,0,0,0,0]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
 
 
