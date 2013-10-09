@@ -46,7 +46,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testInitialization(self):
     e = self._encoder(self.n, self.w, name=self.name)
-    self.assertEqual(type(e), self._encoder)
+    self.assertIsInstance(e, self._encoder)
 
 
   def testEncodeString(self):
@@ -54,11 +54,11 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, name=self.name)
     bitmap = "2,7,15,18,23"
     out = e.encode(bitmap)
-    assert out.sum() == len(bitmap.split(','))*self.w
+    self.assertEqual(out.sum(), len(bitmap.split(','))*self.w)
 
     x = e.decode(out)
-    assert isinstance(x[0], dict)
-    assert self.name in x[0]
+    self.assertIsInstance(x[0], dict)
+    self.assertTrue(self.name in x[0])
 
 
   def testEncodeArray(self):
@@ -66,11 +66,11 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, name=self.name)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
-    assert out.sum() == len(bitmap)*self.w
+    self.assertEqual(out.sum(), len(bitmap)*self.w)
 
     x = e.decode(out)
-    assert isinstance(x[0], dict)
-    assert self.name in x[0]
+    self.assertIsInstance(x[0], dict)
+    self.assertTrue(self.name in x[0])
 
 
   def testClosenessScores(self):
@@ -83,7 +83,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 1.0
+    self.assertEqual(c[0], 1.0)
 
     """No overlap => 0"""
     bitmap1 = [2,7,15,18,23]
@@ -91,7 +91,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.0
+    self.assertEqual(c[0], 0.0)
 
     """Similar => 4 of 5 match"""
     bitmap1 = [2,7,15,18,23]
@@ -99,7 +99,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
     """Little => 1 of 5 match"""
     bitmap1 = [2,7,15,18,23]
@@ -107,7 +107,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.2
+    self.assertEqual(c[0], 0.2)
 
     """Extra active bit => off by 1 of 5"""
     bitmap1 = [2,7,15,18,23]
@@ -115,7 +115,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
     """Missing active bit => off by 1 of 5"""
     bitmap1 = [2,7,15,18,23]
@@ -123,7 +123,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     out1 = e.encode(bitmap1)
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
-    assert c[0] == 0.8
+    self.assertEqual(c[0], 0.8)
 
 
   def testRobustness(self):
@@ -143,15 +143,15 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     e = self._encoder(self.n, self.w, self.onbits, self.name)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
     bitmap = [2]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
     bitmap = [0,1,2,3,7,15,18,23]
     out = e.encode(bitmap)
-    assert out.sum() == self.onbits
+    self.assertEqual(out.sum(), self.onbits)
 
 
 
