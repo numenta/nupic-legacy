@@ -47,10 +47,10 @@ class DeltaEncoderTest(unittest.TestCase):
       for i in range(5, 7):
         encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
       res = self._dencoder.topDownCompute(encarr)
-      assert res[0].value == 6
-      assert self._dencoder.topDownCompute(encarr)[0].value == res[0].value
-      assert self._dencoder.topDownCompute(encarr)[0].scalar == res[0].scalar
-      assert (self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all()
+      self.assertEqual(res[0].value, 6)
+      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].value, res[0].value)
+      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar, res[0].scalar)
+      self.assertTrue((self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all())
 
   def testEncodingVerification(self):
       """encoding verification test passed"""
@@ -63,7 +63,7 @@ class DeltaEncoderTest(unittest.TestCase):
         self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
         delencode = np.zeros(100)
         self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
-        assert  (delencode[0] == aseencode[0]).all()
+        self.assertTrue((delencode[0] == aseencode[0]).all())
 
   def testLockingState(self):
       """Check that locking the state works correctly"""
@@ -81,7 +81,7 @@ class DeltaEncoderTest(unittest.TestCase):
         else:
           self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
 
-        assert  (delencode[0] == aseencode[0]).all()
+        self.assertTrue((delencode[0] == aseencode[0]).all())
 ###################################################################
 if __name__ == "__main__":
   unittest.main()

@@ -35,9 +35,9 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
   def testScalarSpaceEncoder(self):
     """scalar space encoder"""
     sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta")
-    assert sse.isDelta()
+    self.assertTrue(sse.isDelta())
     sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute")
-    assert not sse.isDelta()
+    self.assertFalse(sse.isDelta())
 
      
 ###########################################
