@@ -40,29 +40,29 @@ class LogEncoderTest(unittest.TestCase):
       print "Testing LogEncoder...",
 
       l = LogEncoder(w=5, resolution=1, minval=1, maxval=10000, name="amount")
-      assert l.getDescription() == [("amount", 0)]
+      self.assertEqual(l.getDescription(), [("amount", 0)])
 
       # -------------------------------------------------------------------
       # 10^0 -> 10^4 => 0 decibels -> 40 decibels;
       # 41 possible decibel values plus padding=4 = width 45
-      assert l.getWidth() == 45
+      self.assertEqual(l.getWidth(), 45)
       value = 1.0
       output = l.encode(value)
       expected = [1, 1, 1, 1, 1] + 40 * [0]
       expected = numpy.array(expected, dtype='uint8')
-      assert (output == expected).all()
+      self.assertTrue((output == expected).all())
 
       # Test reverse lookup
       decoded = l.decode(output)
       (fieldsDict, fieldNames) = decoded
-      assert len(fieldsDict) == 1
+      self.assertEqual(len(fieldsDict), 1)
       (ranges, desc) = fieldsDict.values()[0]
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
-      assert len(ranges) == 1 and numpy.array_equal(ranges[0], [1, 1])
+      self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [1, 1]))
 
       # MISSING VALUE
       mvOutput = l.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-      assert sum(mvOutput) == 0
+      self.assertEqual(sum(mvOutput), 0)
 
       # Test top-down
       value = l.minval
@@ -77,16 +77,16 @@ class LogEncoderTest(unittest.TestCase):
         minTopDown = math.pow(10, (scaledVal-l.encoder.resolution) / 10.0)
         maxTopDown = math.pow(10, (scaledVal+l.encoder.resolution) / 10.0)
 
-        assert(topDown.value >= minTopDown and topDown.value <= maxTopDown)
+        self.assertTrue(topDown.value >= minTopDown and topDown.value <= maxTopDown)
 
         # Test bucket support
         bucketIndices = l.getBucketIndices(value)
         print "bucket index =>", bucketIndices[0]
         topDown = l.getBucketInfo(bucketIndices)[0]
-        assert (topDown.value >= minTopDown and topDown.value <= maxTopDown)
-        assert (topDown.scalar >= minTopDown and topDown.scalar <= maxTopDown)
-        assert (topDown.encoding == output).all()
-        assert (topDown.value == l.getBucketValues()[bucketIndices[0]])
+        self.assertTrue(topDown.value >= minTopDown and topDown.value <= maxTopDown)
+        self.assertTrue(topDown.scalar >= minTopDown and topDown.scalar <= maxTopDown)
+        self.assertTrue((topDown.encoding == output).all())
+        self.assertEqual(topDown.value, l.getBucketValues()[bucketIndices[0]])
 
 
         # Next value
@@ -100,28 +100,28 @@ class LogEncoderTest(unittest.TestCase):
       # bit 0, 1 are padding; bit 3 is 1, ..., bit 22 is 20 (23rd bit)
       expected = 20 * [0] + [1, 1, 1, 1, 1] + 20 * [0]
       expected = numpy.array(expected, dtype='uint8')
-      assert (output == expected).all()
+      self.assertTrue((output == expected).all())
 
       # Test reverse lookup
       decoded = l.decode(output)
       (fieldsDict, fieldNames) = decoded
-      assert len(fieldsDict) == 1
+      self.assertEqual(len(fieldsDict), 1)
       (ranges, desc) = fieldsDict.values()[0]
-      assert len(ranges) == 1 and numpy.array_equal(ranges[0], [100, 100])
+      self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [100, 100]))
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
       # -------------------------------------------------------------------
       output = l.encode(10000)
       expected = 40 * [0] + [1, 1, 1, 1, 1]
       expected = numpy.array(expected, dtype='uint8')
-      assert (output == expected).all()
+      self.assertTrue((output == expected).all())
 
       # Test reverse lookup
       decoded = l.decode(output)
       (fieldsDict, fieldNames) = decoded
-      assert len(fieldsDict) == 1
+      self.assertEqual(len(fieldsDict), 1)
       (ranges, desc) = fieldsDict.values()[0]
-      assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10000, 10000])
+      self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [10000, 10000]))
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
 
