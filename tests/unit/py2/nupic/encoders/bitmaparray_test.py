@@ -45,13 +45,13 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
 
   def testInitialization(self):
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     self.assertEqual(type(e), self._encoder)
 
 
   def testEncodeString(self):
     """Send array as csv string."""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     bitmap = "2,7,15,18,23"
     out = e.encode(bitmap)
     assert out.sum() == len(bitmap.split(','))*self.w
@@ -63,7 +63,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testEncodeArray(self):
     """Send bitmap as array of indicies"""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
     assert out.sum() == len(bitmap)*self.w
@@ -75,7 +75,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
 
     """Identical => 1"""
     bitmap1 = [2,7,15,18,23]
@@ -133,6 +133,25 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     self.testEncodeString()
     self.testEncodeArray()
     self.testClosenessScores()
+
+
+  def testSparsity(self):
+    """Set sparsity nomalization"""
+    self.n = 25
+    self.w = 1
+    self.onbits = 5
+    e = self._encoder(self.n, self.w, self.onbits, self.name)
+    bitmap = [2,7,15,18,23]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
+
+    bitmap = [2]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
+
+    bitmap = [0,1,2,3,7,15,18,23]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
 
 
 

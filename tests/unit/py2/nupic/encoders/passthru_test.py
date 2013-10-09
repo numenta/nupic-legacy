@@ -45,13 +45,13 @@ class PassThruEncoderTest(unittest.TestCase):
 
 
   def testInitialization(self):
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     self.assertEqual(type(e), self._encoder)
 
 
   def testEncodeArray(self):
     """Send bitmap as array"""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     bitmap = [0,0,0,1,0,0,0,0,0]
     out = e.encode(bitmap)
     assert out.sum() == sum(bitmap)*self.w
@@ -63,7 +63,7 @@ class PassThruEncoderTest(unittest.TestCase):
 
   def testEncodeBitArray(self):
     """Send bitmap as numpy bit array"""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
     bitmap = numpy.zeros(self.n, dtype=numpy.uint8)
     bitmap[3] = 1
     bitmap[5] = 1
@@ -73,7 +73,7 @@ class PassThruEncoderTest(unittest.TestCase):
 
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
-    e = self._encoder(self.n, self.w, self.name)
+    e = self._encoder(self.n, self.w, name=self.name)
 
     """Identical => 1"""
     bitmap1 = [0,0,0,1,1,1,0,0,0]
@@ -131,6 +131,25 @@ class PassThruEncoderTest(unittest.TestCase):
     self.testEncodeArray()
     self.testEncodeBitArray()
     self.testClosenessScores()
+
+
+  def testSparsity(self):
+    """Set sparsity nomalization"""
+    self.n = 9 
+    self.w = 1
+    self.onbits = 3
+    e = self._encoder(self.n, self.w, self.onbits, self.name)
+    bitmap = [0,0,0,1,0,0,0,1,1]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
+
+    bitmap = [1,0,0,0,0,0,0,0,0]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
+
+    bitmap = [1,1,1,1,0,0,0,0,0]
+    out = e.encode(bitmap)
+    assert out.sum() == self.onbits
 
 
 
