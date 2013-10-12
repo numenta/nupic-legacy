@@ -82,3 +82,5 @@ There are also some sample OPF clients. You can modify these to run your own
 data sets. One example is the hotgym prediction client:
 
     python $NUPIC/examples/opf/clients/hotgym/hotgym.py
+    
+other simplest example like : https://github.com/chetan51/linguist ,is very fit for begining.
