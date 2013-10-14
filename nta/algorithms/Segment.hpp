@@ -92,7 +92,7 @@ namespace nta {
       class CState
       {
       public:
-        static const UInt VERSION = 1;
+        static const UInt VERSION = 2;
 
         CState()
         {
