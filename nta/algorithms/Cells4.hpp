@@ -289,7 +289,6 @@ namespace nta {
         UInt _nIterations;
         UInt _nLrnIterations;
         UInt _segUpdateValidDuration;
-        Real _initSegFreq;   // TODO: Can we remove this? Used anywhere?
         Real _permInitial;
         Real _permConnected;
         Real _permMax;
