@@ -1744,9 +1744,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 
 //--------------------------------------------------------------------------------
 #endif // OLD_ALGORITHMS
-/// %include <nta/algorithms/Cells2.hpp>
 
-/// %template(Cells2_32) nta::algorithms::Cells2::Cells<nta::UInt32, nta::Int16, nta::Real32>;
 #ifdef OLD_ALGORITHMS
 
 //--------------------------------------------------------------------------------
