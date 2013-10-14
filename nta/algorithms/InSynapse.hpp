@@ -49,7 +49,7 @@ namespace nta {
       {
       private:
         UInt _srcCellIdx;
-        Perm_t _permanence;
+        NTA_Real32 _permanence; // resolves to float
 
       public:
         inline InSynapse()
@@ -57,7 +57,7 @@ namespace nta {
             _permanence(0)
         {}
 
-        inline InSynapse(UInt srcCellIdx, Perm_t permanence)
+        inline InSynapse(UInt srcCellIdx, NTA_Real32 permanence)
           : _srcCellIdx(srcCellIdx),
             _permanence(permanence)
         {}
@@ -75,8 +75,8 @@ namespace nta {
         }
 
         inline UInt srcCellIdx() const { return _srcCellIdx; } const
-        inline Perm_t& permanence() const { return _permanence; }
-        inline Perm_t& permanence() { return _permanence; }
+        inline NTA_Real32& permanence() const { return _permanence; }
+        inline NTA_Real32& permanence() { return _permanence; }
 
         inline void print(std::ostream& outStream) const;
       };
