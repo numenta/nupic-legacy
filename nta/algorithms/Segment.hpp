@@ -92,7 +92,7 @@ namespace nta {
       class CState
       {
       public:
-        static const UInt VERSION = 2;
+        static const UInt VERSION = 2; // latest "API" version
 
         CState()
         {
@@ -170,7 +170,7 @@ namespace nta {
         {
           UInt version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
@@ -276,7 +276,7 @@ namespace nta {
         {
           UInt version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
