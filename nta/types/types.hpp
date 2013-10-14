@@ -60,8 +60,6 @@ namespace nta
     LogLevel_Normal,
     LogLevel_Verbose,
   };
-  // specific types - used in particular part of the algorithm
-  typedef float 	     Perm_t; // permanence, heavily used variable, floating point, low resolution is enough
 
 } // end namespace nta
 
