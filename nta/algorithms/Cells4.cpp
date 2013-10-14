@@ -1709,7 +1709,7 @@ void Cells4::adaptSegment(const SegmentUpdate& update)
       synapses.push_back(InSynapse(update[i], _permInitial));
     }
     UInt segIdx =
-      _cells[cellIdx].getFreeSegment(synapses, _initSegFreq,
+      _cells[cellIdx].getFreeSegment(synapses, 
                                    update.isSequenceSegment(), _permConnected,
                                      _nLrnIterations);
 
@@ -1898,7 +1898,6 @@ void Cells4::save(std::ostream& outStream) const
             << _newSynapseCount << " "
             << _nIterations << " "
             << _segUpdateValidDuration << " "
-            << _initSegFreq << " "
             << _permInitial << " "
             << _permConnected << " "
             << _permMax << " "
@@ -2000,7 +1999,6 @@ void Cells4::load(std::istream& inStream)
            >> _newSynapseCount
            >> nIterations
            >> _segUpdateValidDuration
-           >> _initSegFreq
            >> _permInitial
            >> _permConnected
            >> _permMax
@@ -2263,7 +2261,6 @@ Cells4::initialize(UInt nColumns,
   _newSynapseCount            = newSynapseCount;
   _segUpdateValidDuration     = segUpdateValidDuration;
 
-  _initSegFreq                = 0.5;
   _permInitial                = permInitial;
   _permConnected              = permConnected;
   _permMax = permMax;
