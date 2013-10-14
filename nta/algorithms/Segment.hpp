@@ -187,7 +187,7 @@ namespace nta {
         }
       protected:
         UInt _version;
-        static UInt  _nCells;                      // should be static, since same size for all CStates
+        UInt  _nCells;                      // should be static, since same size for all CStates
         Byte* _pData;                       // protected in C++, but exposed to the Python code
         bool  _fMemoryAllocatedByPython;
       };
