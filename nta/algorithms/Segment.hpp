@@ -274,7 +274,7 @@ namespace nta {
         }
         void load(std::istream& inStream)
         {
-          UInt version;
+          NTA_UInt16 version;
           inStream >> version;
           NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
@@ -296,12 +296,12 @@ namespace nta {
           inStream >> token;
           NTA_CHECK(token == "end");
         }
-        UInt version() const
+        NTA_UInt16 version() const
         {
           return _version;
         }
       private:
-        UInt _version;
+        NTA_UInt16 _version;
         std::vector<UInt> _cellsOn;
         UInt _countOn;                      // how many cells are On
         bool _isSorted;                     // avoid unnecessary sorting
