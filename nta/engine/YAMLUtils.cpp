@@ -311,10 +311,11 @@ ValueMap toValueMap(const char* yamlstring,
       ParameterSpec & ps = item.second;
       if (ps.defaultValue != "")
       {
-        if (ps.accessMode != ParameterSpec::CreateAccess)
-        {
-          NTA_THROW << "Default value for non-create parameter: " << item.first;
-        }
+        // TODO: This check should be uncommented after dropping NuPIC 1.x nodes (which don't comply)
+        // if (ps.accessMode != ParameterSpec::CreateAccess)
+        // {
+        //   NTA_THROW << "Default value for non-create parameter: " << item.first;
+        // }
         
         try {
 #ifdef YAMLDEBUG
