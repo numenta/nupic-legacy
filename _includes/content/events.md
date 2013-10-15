@@ -96,25 +96,13 @@
 
 * * *
 
-### Preparations
-I recommend you get a [github](http://github.com) account if you don't already have one. Then you can get the code by simply running `git clone https://github.com/numenta/nupic.git` in a command-line interpreter. You can [download the code directly](https://github.com/numenta/nupic/archive/master.zip) if you don't want to use git. Depending on your OS and environment, you may have difficulties building NuPIC. Please make an attempt to build, run tests, and run the sample application as specified in the [README](https://github.com/numenta/nupic#numenta-platform-for-intelligent-computing-nupic). If you're still having trouble when you arrive, we'll help you get set up.
+### Natural Language Processing Focus
 
-#### Virtual Machine
-If nothing else works (or you are using Windows), we have a Virtual Machine instance set up for [Vagrant](http://www.vagrantup.com/). You'll need to follow [these instructions](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine) to get it set up (the VM file is a 635MB download, so you might want to start now if you have a lame internet connection).
+There will be an optional focus on NLP issues with NuPIC, and we're creating some initial tools for hackers to utilize at the event. If you're interested in attempting an NLP-related hack with NuPIC, you might find [this wiki page](https://github.com/numenta/nupic/wiki/Natural-Language-Processing) useful.
 
-### Communication
-Please read through our [community page](http://numenta.org/community.html) to get details about the mailing list and IRC channel. We'll be using them extensively to communicate during the hackathon. A lot of chatter will be happening on IRC, and you'll miss out if you don't take part. If you've never used IRC before, here are some nice IRC clients that make is easy to connect. Just install one of them, and [click here to join the #nupic room](irc://irc.freenode.net/nupic).
+* * * 
 
-#### IRC Clients
-- Mac OS X: [Colloquy](http://colloquy.info/)
-- Windows: [mIRC](http://www.mirc.com/)
-- Linux: [XChat](http://xchat.org/)
-- Any OS: [Firefox Chatzilla Add-On](http://chatzilla.hacksrus.com/)
-
-#### Streaming Video
-Lots of people are interested in participating remotely. We're going to have at least one web camera set up in the main work area of the Tagged offices, so it is probable that audio and video of you will be broadcast on the internet during the hackathon. So be sure to brush your hair and look your best ;).
-
-All presentation will be live-streamed as well, and preserved on YouTube for future viewers.
+For further preparation details, [see our wiki](https://github.com/numenta/nupic/wiki/Nov-2013-Hackathon-Preparation).
 
 
 ## YOW! 2013 Australia Developer Conference
