@@ -107,28 +107,28 @@ static void _toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
       NTA_THROW << "Internal error: attempting to convert YAML string to array of type Byte";
       break;
     case NTA_BasicType_UInt16:
-      item.to<UInt16>();
+      item.Read<UInt16>(((UInt16*)buffer)[i]);
       break;
     case NTA_BasicType_Int16:
-      item.to<Int16>();
+      item.Read<Int16>(((Int16*)buffer)[i]);
       break;
     case NTA_BasicType_UInt32:
-      item.to<UInt32>();
+      item.Read<UInt32>(((UInt32*)buffer)[i]);
       break;
     case NTA_BasicType_Int32:
-      item.to<Int32>();
+      item.Read<Int32>(((Int32*)buffer)[i]);
       break;
     case NTA_BasicType_UInt64:
-      item.to<UInt64>();
+      item.Read<UInt64>(((UInt64*)buffer)[i]);
       break;
     case NTA_BasicType_Int64:
-      item.to<Int64>();
+      item.Read<Int64>(((Int64*)buffer)[i]);
       break;
     case NTA_BasicType_Real32:
-      item.to<Real32>();
+      item.Read<Real32>(((Real32*)buffer)[i]);
       break;
     case NTA_BasicType_Real64:
-      item.to<Real64>();
+      item.Read<Real64>(((Real64*)buffer)[i]);
       break;
     default:
       // should not happen
