@@ -452,30 +452,6 @@ namespace nta {
 
         //-----------------------------------------------------------------------
         /**
-         * Checks whether the given src cellIdx is already contained in this segment
-         * or not.
-         * TODO: optimize with at least a binary search
-         */
-        inline bool has(UInt srcCellIdx) const
-        {
-          NTA_ASSERT(srcCellIdx != (UInt) -1);
-
-          UInt lo = 0;
-          UInt hi = _synapses.size();
-          while (lo < hi) {
-            const UInt test = (lo + hi)/2;
-            if (_synapses[test].srcCellIdx() < srcCellIdx)
-              lo = test + 1;
-            else if (_synapses[test].srcCellIdx() > srcCellIdx)
-              hi = test;
-            else
-              return true;
-          }
-          return false;
-        }
-
-        //-----------------------------------------------------------------------
-        /**
          * Returns the permanence of the idx-th synapse on this Segment. That idx is *not*
          * a cell index, but just the index of the synapse on that segment, i.e. that
          * index will change if synapses are deleted from this segment in synpase
