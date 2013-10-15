@@ -47,7 +47,7 @@ static Value toValue(const YAML::Node& node, NTA_BasicType dataType);
 
 static void toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s)
 {
-  NTA_CHECK(node.GetType() == YAML::CT_SCALAR);
+  NTA_CHECK(node.Type() == YAML::NodeType::Scalar);
   switch(s->getType())
   {
   case NTA_BasicType_Byte:
@@ -91,7 +91,7 @@ static void toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s)
     
 static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
 {
-  NTA_CHECK(node.GetType() == YAML::CT_SEQUENCE);
+  NTA_CHECK(node.Type() == YAML::NodeType::Sequence);
       
   a->allocateBuffer(node.size());
   void* buffer = a->getBuffer();
@@ -99,7 +99,7 @@ static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
   for (size_t i = 0; i < node.size(); i++)
   {
     const YAML::Node& item = node[i];
-    NTA_CHECK(item.GetType() == YAML::CT_SCALAR);
+    NTA_CHECK(item.Type() == YAML::NodeType::Scalar);
     switch(a->getType())
     {
     case NTA_BasicType_Byte:
@@ -107,28 +107,28 @@ static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
       NTA_THROW << "Internal error: attempting to convert YAML string to array of type Byte";
       break;
     case NTA_BasicType_UInt16:
-      item.Read<UInt16>(((UInt16*)buffer)[i]);
+      item.to<UInt16>();
       break;
     case NTA_BasicType_Int16:
-      item.Read<Int16>(((Int16*)buffer)[i]);
+      item.to<Int16>();
       break;
     case NTA_BasicType_UInt32:
-      item.Read<UInt32>(((UInt32*)buffer)[i]);
+      item.to<UInt32>();
       break;
     case NTA_BasicType_Int32:
-      item.Read<Int32>(((Int32*)buffer)[i]);
+      item.to<Int32>();
       break;
     case NTA_BasicType_UInt64:
-      item.Read<UInt64>(((UInt64*)buffer)[i]);
+      item.to<UInt64>();
       break;
     case NTA_BasicType_Int64:
-      item.Read<Int64>(((Int64*)buffer)[i]);
+      item.to<Int64>();
       break;
     case NTA_BasicType_Real32:
-      item.Read<Real32>(((Real32*)buffer)[i]);
+      item.to<Real32>();
       break;
     case NTA_BasicType_Real64:
-      item.Read<Real64>(((Real64*)buffer)[i]);
+      item.to<Real64>();
       break;
     default:
       // should not happen
@@ -139,11 +139,11 @@ static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
 
 static Value toValue(const YAML::Node& node, NTA_BasicType dataType)
 {
-  if (node.GetType() == YAML::CT_MAP || node.GetType() == YAML::CT_NONE)
+  if (node.Type() == YAML::NodeType::Map || node.Type() == YAML::NodeType::Null)
   {
     NTA_THROW << "YAML string does not not represent a value.";
   }
-  if (node.GetType() == YAML::CT_SCALAR)
+  if (node.Type() == YAML::NodeType::Scalar)
   {
     if (dataType == NTA_BasicType_Byte)
     {
@@ -242,7 +242,7 @@ ValueMap toValueMap(const char* yamlstring,
       NTA_THROW << "Unable to find document in YAML string";
 
     // A ValueMap is specified as a dictionary
-    if (doc.GetType() != YAML::CT_MAP)
+    if (doc.Type() != YAML::NodeType::Map)
     {
       std::string ys(yamlstring);
       if (ys.size() > 30)
@@ -260,7 +260,7 @@ ValueMap toValueMap(const char* yamlstring,
   YAML::Iterator i;
   for (i = doc.begin(); i != doc.end(); i++)
   {
-    const std::string key = i.first().Read<std::string>();
+    const std::string key = i.first().to<std::string>();
     if (!parameters.contains(key))
     {
       std::stringstream ss;
