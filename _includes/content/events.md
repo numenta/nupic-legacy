@@ -19,11 +19,12 @@
         <div style="background:#333;width:405px;padding-left: 20px">
             <a href="http://about.tagged.com/"><img src="{{ site.baseurl }}/images/tagged_logo.png"/></a>
         </div>
-        <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.google.com/maps?sll=37.794875,-122.40252210000001&amp;sspn=0.05208966829617781,0.08789348700432825&amp;t=m&amp;q=Tagged+Inc&amp;dg=opt&amp;ie=UTF8&amp;hq=Tagged+Inc&amp;hnear=&amp;ll=37.799276,-122.40059&amp;spn=0.06457,0.10896&amp;output=embed">
+        <iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;geocode=&amp;q=Vallejo+St+and+Battery+St,+San+Francisco,+CA&amp;aq=&amp;sll=37.799277,-122.400591&amp;sspn=0.003514,0.006968&amp;ie=UTF8&amp;hq=&amp;hnear=Battery+St+%26+Vallejo+St,+San+Francisco,+California+94111&amp;ll=37.799554,-122.401281&amp;spn=0.001757,0.003484&amp;t=m&amp;z=14&amp;iwloc=A&amp;output=embed">
         </iframe>
         <br />
-        <small><a href="https://www.google.com/maps?sll=37.79487499999999,-122.40252210000001&amp;sspn=0.03228569057386436,0.05562137110402536&amp;t=m&amp;q=Tagged+Inc&amp;dg=opt&amp;ie=UTF8&amp;hq=Tagged+Inc&amp;hnear=&amp;ll=37.794875,-122.402522&amp;spn=0.032286,0.055621&amp;source=embed" style="color:#0000FF;text-align:left">View Larger Map</a>
+        <small><a href="https://maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q=Vallejo+St+and+Battery+St,+San+Francisco,+CA&amp;aq=&amp;sll=37.799277,-122.400591&amp;sspn=0.003514,0.006968&amp;ie=UTF8&amp;hq=&amp;hnear=Battery+St+%26+Vallejo+St,+San+Francisco,+California+94111&amp;ll=37.799554,-122.401281&amp;spn=0.001757,0.003484&amp;t=m&amp;z=14&amp;iwloc=A" style="color:#0000FF;text-align:left">View Larger Map</a>
         </small>
+
     </dd>
     <dt>RSVP</dt>
     <dd>
