@@ -115,3 +115,8 @@ Please read through our [community page](http://numenta.org/community.html) to g
 Lots of people are interested in participating remotely. We're going to have at least one web camera set up in the main work area of the Tagged offices, so it is probable that audio and video of you will be broadcast on the internet during the hackathon. So be sure to brush your hair and look your best ;).
 
 All presentation will be live-streamed as well, and preserved on YouTube for future viewers.
+
+
+## YOW! 2013 Australia Developer Conference
+
+Jeff will be [giving a keynote](http://a.confui.com/public/conferences/517fce8207933939cd000001/locations/517fce8207933939cd000002/speakers/51b468804bedc23264000006?framehost=http://yowconference.com.au) on _Computing Like the Brain: The Path to Machine Intelligence_ at [YOW!](http://yowconference.com.au/) in Melbourne, Brisbane, and Sydney at various dates between **Dec 5 - 13**. See the [YOW! website](http://yowconference.com.au/) for registration information and more details. 
