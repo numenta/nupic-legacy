@@ -4,6 +4,7 @@ branches:
 language: python
 compiler:
   - gcc
+  - clang
 python:
   - "2.6"
   - "2.7"
