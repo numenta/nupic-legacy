@@ -114,7 +114,7 @@ namespace nta {
    *   numeric_limits<float>::epsilon() == 1.19209e-7
    *   numeric_limits<double>::epsilon() == 2.22045e-16
    */
-  static nta::Real Epsilon = nta::Real(1e-6);
+  static const nta::Real Epsilon = nta::Real(1e-6);
 
   //--------------------------------------------------------------------------------
   /**

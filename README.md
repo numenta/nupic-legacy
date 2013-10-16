@@ -1,7 +1,10 @@
-Numenta Platform for Intelligent Computing (NuPIC)
-=====
+<div align="center">
+    <img title="Numenta Logo" src="http://numenta.org/images/250x250numentaicon.gif"/>
+</div>
 
-[![Build Status](https://travis-ci.org/numenta/nupic.png?branch=dev-master)](https://travis-ci.org/numenta/nupic)
+# Numenta Platform for Intelligent Computing (NuPIC)
+
+[![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 
 NuPIC is a library that provides the building blocks for online prediction systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
 
@@ -9,8 +12,7 @@ For more information, see [numenta.org](http://numenta.org) or the [Github wiki]
 
 Issue tracker at [issues.numenta.org](https://issues.numenta.org/browse/NPC).
 
-OPF Basics
-----------
+## OPF Basics
 
 For more detailed documentation, see the [OPF wiki page](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework).
 
@@ -22,8 +24,9 @@ __Metrics__ take input values and predictions and output scalar representations 
 
 __Clients__ take input data and feed it through encoders, models, and metrics and store or report the resulting predictions or metric results.
 
-Installation
-------------
+## Installation
+
+For all installation options, see the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started) wiki page.
 
 Currently supported platforms:
  * Linux (32/64bit)
@@ -58,8 +61,10 @@ Build and install NuPIC:
 
 NuPIC should now be installed in $NTA!
 
-Try it out!
------------
+## Try it out!
+
+### Tests
+
 Run the C++ tests:
 
     $NTA/bin/htmtest
@@ -70,6 +75,8 @@ Run the Python unit tests:
     cd $NTA
     ./bin/run_tests.sh
 
+### Examples
+
 You can run the examples using the OpfRunExperiment OPF client:
 
     python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
@@ -78,3 +85,5 @@ There are also some sample OPF clients. You can modify these to run your own
 data sets. One example is the hotgym prediction client:
 
     python $NUPIC/examples/opf/clients/hotgym/hotgym.py
+
+Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page.

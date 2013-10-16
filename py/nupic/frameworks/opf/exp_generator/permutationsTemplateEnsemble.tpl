@@ -16,7 +16,7 @@ $EXP_GENERATOR_PROGRAM_PATH
 """
 
 import os
-from grokengine.cluster.ensemble.permutation_variables import *
+from nupic.swarming.permutationhelpers import *
 
 # The name of the field being predicted.  Any allowed permutation MUST contain
 # the prediction field.

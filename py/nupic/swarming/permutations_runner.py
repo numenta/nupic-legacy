@@ -224,8 +224,7 @@ def runPermutations(args):
          "dryRun: run a single HypersearchWorker inline within the application "
          "process without the Grok infrastructure to flush out bugs in "
          "description and permutations scripts; defaults to "
-         "maxPermutations=1: use --maxPermutations to change this; defaults to "
-         "useStreams=yes: use --useStreams=no to override. "
+         "maxPermutations=1: use --maxPermutations to change this; "
          "report: just print results from the last or current run. "
          "[default: %default].")
 
@@ -285,11 +284,6 @@ def runPermutations(args):
     "and the swarm can run across multiple machines. If set to 'no', then "
     "the engine is not required and swarming will run multiple processes on the "
     "local machine only. [default: %default].")
-
-  parser.add_option(
-    "--useStreams", dest="useStreams", default="yes" if engineRunning else "no",
-    help="If 'yes', use Hbase streams for input/output. If 'no', use files. "
-         "[default: %default].")
 
   parser.add_option(
     "--overwrite", default=False, action="store_true",
@@ -383,7 +377,6 @@ def runPermutations(args):
     useTerminators = options.useTerminators,
     maxNumWorkers = options.maxWorkers,
     maxPermutations = options.maxPermutations,
-    useStreams = options.useStreams == "yes",
     genTopNDescriptions = options.genTopNDescriptions,
     useEngine = options.useEngine == "yes",
   )
@@ -1810,14 +1803,12 @@ class _ClientJobUtils(object):
       params = {
               'hsVersion':          hsVersion,
               'maxModels':          maxModels,
-              'useStreams':         options['useStreams']
              }
     else:
       params = {
               'hsVersion':          hsVersion,
               'useTerminators':     useTerminators,
               'maxModels':          maxModels,
-              'useStreams':         options['useStreams']
              }
 
     if forRunning:
