@@ -20,22 +20,9 @@
 # ----------------------------------------------------------------------
 
 import numpy
-from nupic.bindings.math import (
-    getGlobalEpsilon,
-    setGlobalEpsilon,
-  )
+from nupic.bindings.math import getGlobalEpsilon
 
 # ------------------------------------------------
-class ZeroEpsilon(object):
-  def __init__(self):
-    self.epsilon = None
-  def __enter__(self):
-    self.epsilon = getGlobalEpsilon()
-    assert self.epsilon > 9.9e-8
-    setGlobalEpsilon(0.0)
-  def __exit__(self, type, value, traceback):
-    setGlobalEpsilon(self.epsilon)
-
 def importAndRunFunction(
     path,
     moduleName,

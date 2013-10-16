@@ -19,35 +19,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""
-TODO: Move encoder tests out of this module.
-"""
-
-from .arithmetic_encoder import ArithmeticEncoder
-from scalar import ScalarEncoder, testScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder, testAdaptiveScalarEncoder
-from date import DateEncoder, testDateEncoder
-from log import LogEncoder, testLogEncoder
-from category import CategoryEncoder, testCategoryEncoder
-from sdrcategory import SDRCategoryEncoder, testSDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder, testSDRRandomEncoder
-from nonuniformscalar import NonUniformScalarEncoder, testNonUniformScalarEncoder
-from delta import DeltaEncoder,testDeltaEncoder
-from scalarspace import ScalarSpaceEncoder,testScalarSpaceEncoder
+from arithmetic_encoder import ArithmeticEncoder
+from scalar import ScalarEncoder
+from adaptivescalar import AdaptiveScalarEncoder
+from date import DateEncoder
+from logenc import LogEncoder
+from category import CategoryEncoder
+from sdrcategory import SDRCategoryEncoder
+from sdrrandom import SDRRandomEncoder
+from nonuniformscalar import NonUniformScalarEncoder
+from delta import DeltaEncoder
+from scalarspace import ScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder, testMultiEncoder
+from multi import MultiEncoder
 from utils import bitsToString
-
-
-
-if __name__ == "__main__":
-  testScalarEncoder()
-  testCategoryEncoder()
-  testDateEncoder()
-  testLogEncoder()
-  testMultiEncoder()
-  testSDRCategoryEncoder()
-  testSDRRandomEncoder()
-  testAdaptiveScalarEncoder()
-  testDeltaEncoder()
-  testScalarSpaceEncoder()

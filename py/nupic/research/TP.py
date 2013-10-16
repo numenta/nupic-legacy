@@ -1176,6 +1176,16 @@ class TP(ConsolePrinterMixin):
     return self.infActiveState['t'].reshape(-1).astype('float32')
 
 
+  def getPredictedState(self):
+    """
+    Return a numpy array, predictedCells, representing the current predicted
+    state.
+    
+    predictedCells[c][i] represents the state of the i'th cell in the c'th
+    column.
+    """
+    return self.infPredictedState['t']
+
   def predict(self, nSteps):
     """
     This function gives the future predictions for <nSteps> timesteps starting

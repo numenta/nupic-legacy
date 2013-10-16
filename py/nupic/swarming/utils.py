@@ -37,6 +37,7 @@ import pprint
 import shutil
 import types
 import signal
+import uuid
 
 import nupic
 from nupic.frameworks.opf import opfhelpers
@@ -347,7 +348,7 @@ def _handleModelRunnerException(jobID, modelID, jobsDAO, experimentDir, logger,
 
 ########################################################################
 def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
-            predictedField, reportKeys, optimizeKey, useStreams, jobsDAO,
+            predictedField, reportKeys, optimizeKey, jobsDAO,
             modelCheckpointGUID, logLevel=None, predictionCacheMaxRecords=None):
   """ This creates an experiment directory with a base.py description file
   created from 'baseDescription' and a description.py generated from the
@@ -366,7 +367,6 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
   reportKeys:           Which metrics of the experiment to store into the
                                     results dict of the model's database entry
   optimizeKey:          Which metric we are optimizing for
-  useStreams:           True to use HBase streams as inputs/outputs (e.g.,
   jobsDAO               Jobs data access object - the interface to the
                                   jobs database which has the model's table.
   modelCheckpointGUID:  A persistent, globally-unique identifier for
@@ -436,7 +436,6 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
         experimentDir=experimentDir,
         reportKeyPatterns=reportKeys,
         optimizeKeyPattern=optimizeKey,
-        useStreams=useStreams,
         jobsDAO=jobsDAO,
         modelCheckpointGUID=modelCheckpointGUID,
         logLevel=logLevel,
@@ -467,7 +466,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
 
 
 ################################################################################
-def runDummyModel(modelID, jobID, useStreams, params, predictedField, reportKeys,
+def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
                   optimizeKey, jobsDAO, modelCheckpointGUID, logLevel=None, predictionCacheMaxRecords=None):
   from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
@@ -493,7 +492,6 @@ def runDummyModel(modelID, jobID, useStreams, params, predictedField, reportKeys
                                  predictedField=predictedField,
                                  reportKeyPatterns=reportKeys,
                                  optimizeKeyPattern=optimizeKey,
-                                 useStreams=useStreams,
                                  jobsDAO=jobsDAO,
                                  modelCheckpointGUID=modelCheckpointGUID,
                                  logLevel=logLevel,
@@ -578,3 +576,15 @@ class PeriodicActivityMgr(object):
           act.iteratorHolder[0] = None
 
     return True
+
+
+
+def generatePersistentJobGUID():
+  """Generates a "persistentJobGUID" value.
+
+  Parameters:
+  ----------------------------------------------------------------------
+  retval:          A persistentJobGUID value
+
+  """
+  return "JOB_UUID1-" + str(uuid.uuid1())
