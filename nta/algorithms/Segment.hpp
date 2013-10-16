@@ -457,11 +457,11 @@ namespace nta {
          * index will change if synapses are deleted from this segment in synpase
          * adaptation or global decay.
          */
-        inline void setPermanence(UInt idx, Real val)
+        inline void setPermanence(UInt idx, NTA_Real32 val)
         {
           NTA_ASSERT(idx < _synapses.size());
 
-          _synapses[idx].permanence() = val;
+          _synapses[idx].permanence(val);
         }
 
         //-----------------------------------------------------------------------

@@ -235,16 +235,16 @@ void Segment::decaySynapses(Real decay, std::vector<UInt>& removed,
   del.clear();                              // purge residual data
 
   for (UInt i = 0; i != _synapses.size(); ++i) {
+    NTA_Real32 perm = _synapses[i].permanence(); 
+    int wasConnected = static_cast<int>(perm >= permConnected);
 
-    int wasConnected = (int) (_synapses[i].permanence() >= permConnected);
-
-    if (_synapses[i].permanence() < decay) {
+    if (perm < decay) {
 
       removed.push_back(_synapses[i].srcCellIdx());
       del.push_back(i);
 
     } else if (doDecay) {
-      _synapses[i].permanence() -= decay;
+      _synapses[i].permanence(perm-decay); //! further perm!=syn.permanence()
     }
 
     int isConnected = (int) (_synapses[i].permanence() >= permConnected);
@@ -291,7 +291,7 @@ void Segment::decaySynapses2(Real decay, std::vector<UInt>& removed,
 
     } else {
 
-      _synapses[i].permanence() -= decay;
+      _synapses[i].permanence(_synapses[i].permanence()-decay);
 
       // If it was connected and is now below permanence, reduce connected count
       if ( (_synapses[i].permanence() + decay >= permConnected)
