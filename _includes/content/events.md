@@ -1,6 +1,10 @@
 
 # Upcoming Events
 
+## Open Office Hour
+
+We are holding our first online _Open Office Hour_ session on **Wednesday, Oct 23rd at 9AM PDT**. The event will be on Google Hangout, and streamed on YouTube. Anyone interested in NuPIC, Numenta, or CLA/HTM technologies is welcome to attend. This event is open to the public. [See event details here](https://plus.google.com/b/100642636108337517466/events/c2pt64fid2niuso3r4mp5n7u9os).
+
 ## November 2013 Hackathon
 
 <dl class="events">
