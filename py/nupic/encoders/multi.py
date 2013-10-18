@@ -19,19 +19,27 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from base import Encoder
+from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
+from nupic.encoders.date import DateEncoder
+from nupic.encoders.logenc import LogEncoder
+from nupic.encoders.category import CategoryEncoder
+from nupic.encoders.sdrcategory import SDRCategoryEncoder
+from nupic.encoders.sdrrandom import SDRRandomEncoder
+from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder
+from nupic.encoders.delta import DeltaEncoder
+from nupic.encoders.scalarspace import ScalarSpaceEncoder
+# multiencoder must be imported last because it imports * from this module!
+from nupic.encoders.utils import bitsToString 
 
-from base import *
-import datetime
-from nupic.encoders import *
-from nupic.data.dictutils import DictObj
 
-############################################################################
 class MultiEncoder(Encoder):
   """A MultiEncoder encodes a dictionary or object with
   multiple components. A MultiEncode contains a number
   of sub-encoders, each of which encodes a separate component."""
 
-  ############################################################################
+
   def __init__(self, encoderDescriptions=None):
     self.width = 0
     self.encoders = []
@@ -54,7 +62,6 @@ class MultiEncoder(Encoder):
 
     self._flattenedEncoderList = None
     self._flattenedFieldTypeList = None
-
 
   ############################################################################
   def encodeIntoArray(self, obj, output):
@@ -126,59 +133,3 @@ class MultiEncoder(Encoder):
                 "some required constructor parameters. Parameters "
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
-
-############################################################################
-def testMultiEncoder():
-
-  print "Testing MultiEncoder..."
-
-  e = MultiEncoder()
-
-  # should be 7 bits wide
-  e.addEncoder("dow", ScalarEncoder(w=3, resolution=1, minval=1, maxval=8,
-                periodic=True, name="day of week"))
-  # sould be 14 bits wide
-  e.addEncoder("myval", ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
-                periodic=False, name="aux"))
-  assert e.getWidth() == 21
-  assert e.getDescription() == [("day of week", 0), ("aux", 7)]
-
-  d = DictObj(dow=3, myval=10)
-  expected=numpy.array([0,1,1,1,0,0,0] + [0,0,0,0,0,0,0,0,0,1,1,1,1,1], dtype='uint8')
-  output = e.encode(d)
-  assert(expected == output).all()
-
-
-  e.pprintHeader()
-  e.pprint(output)
-
-  # Check decoding
-  decoded = e.decode(output)
-  #print decoded
-  assert len(decoded) == 2
-  (ranges, desc) = decoded[0]['aux']
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10])
-  (ranges, desc) = decoded[0]['day of week']
-  assert len(ranges) == 1 and numpy.array_equal(ranges[0], [3, 3])
-  print "decodedToStr=>", e.decodedToStr(decoded)
-
-  e.addEncoder("myCat", SDRCategoryEncoder(n=7, w=3,
-                                           categoryList=["run", "pass","kick"]))
-
-  print "\nTesting mixed multi-encoder"
-  d = DictObj(dow=4, myval=6, myCat="pass")
-  output = e.encode(d)
-  topDownOut = e.topDownCompute(output)
-  assert topDownOut[0].value == 4
-  assert topDownOut[1].value == 6
-  assert topDownOut[2].value == "pass"
-  assert topDownOut[2].scalar == 2
-  assert topDownOut[2].encoding.sum() == 3
-
-  print "passed."
-
-################################################################################
-if __name__=='__main__':
-
-  # Run all tests
-  testMultiEncoder()

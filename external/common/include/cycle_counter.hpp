@@ -433,3 +433,18 @@ INLINE_ELAPSED(inline)
 #define HAVE_TICK_COUNTER
 #endif
 
+/*----------------------------------------------------------------*/
+/* Raspberry Pi - use 1MHz system timer                           */
+#if defined(NTA_PLATFORM_linux32arm) && !defined(HAVE_TICK_COUNTER)
+typedef unsigned long long ticks;
+
+static inline ticks getticks(void)
+{
+     struct timespec t;
+     clock_gettime(CLOCK_MONOTONIC, &t);
+     return (ticks)(t.tv_sec) * 1.0E9 + (ticks)(t.tv_nsec);
+}
+
+#define HAVE_TICK_COUNTER
+#endif
+

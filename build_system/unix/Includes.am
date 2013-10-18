@@ -50,7 +50,8 @@ NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
 #
 if NTA_OPTIMIZATION_ENABLED
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
-  NTA_CXX_OPTFLAGS = -O3 -falign-loops=16 -pipe
+  # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
+  NTA_CXX_OPTFLAGS = -O3 -falign-loops=16 -pipe -DNTA_ASM
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
@@ -163,7 +164,7 @@ if NTA_PYTHON_SUPPORT
 
   # Minimal functional subset
   NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
-    -I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include \
+    -I$(NTA_NUMPY_INCLUDE) \
     -I$(PYTHON_SYS_INCLUDE)
 
 else
@@ -207,12 +208,12 @@ PYSWIGOPTS = $(SWIG_PYTHON_OPT) \
 -castmode \
 -w511 -w302 -w362 -w312 -w389 \
 -DNTA_PLATFORM_@nta_platform@ \
-$(NTA_PYTHON_CXXFLAGS) 
+$(NTA_PYTHON_CXXFLAGS)
 
 PYSWIGINCLUDES = \
 -I$(top_srcdir) \
 -I$(top_srcdir)/external/@nta_platform@/include \
--I$(NUPIC_INSTALL)/lib/python$(PYTHON_VERSION)/site-packages/numpy/core/include
+-I$(NTA_NUMPY_INCLUDE)
 
 PYSWIGCOMPILE = $(SWIG) $(PYSWIGOPTS) $(PYSWIGINCLUDES)
 

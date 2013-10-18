@@ -41,6 +41,7 @@ if __name__ == "__main__":
   renameList = []
   for arch,archiveType in [("linux64", "tgz"), 
                            ("linux32", "tgz"), 
+                           ("linux32arm", "tgz"), 
                            ("darwin86", "tgz"),
                            ("win32", "zip")]:
     oldname = "nupic-%s-%s" % (oldStamp, arch)
