@@ -51,7 +51,7 @@ namespace nta {
         UInt _srcCellIdx;
 	typedef unsigned char synapse_t;
         synapse_t _permanence; // resolves to float
-	static const synapse_t GRAIN = 255;
+	static const NTA_Real32 GRAIN = 255;
 
       public:
         inline InSynapse()
