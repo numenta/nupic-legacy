@@ -611,31 +611,31 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
 
     if (tp1.infActiveState['t'] != tp2.infActiveState['t']).any():
       print 'Active states diverged', numpy.where(tp1.infActiveState['t'] != tp2.infActiveState['t'])
-      result = False
+      return False
 
     if (tp1.infPredictedState['t'] - tp2.infPredictedState['t']).any():
       print 'Predicted states diverged', numpy.where(tp1.infPredictedState['t'] != tp2.infPredictedState['t'])
-      result = False
+      return False
 
     if checkLearn and (tp1.lrnActiveState['t'] - tp2.lrnActiveState['t']).any():
       print 'lrnActiveState[t] diverged', numpy.where(tp1.lrnActiveState['t'] != tp2.lrnActiveState['t'])
-      result = False
+      return False
 
     if checkLearn and (tp1.lrnPredictedState['t'] - tp2.lrnPredictedState['t']).any():
       print 'lrnPredictedState[t] diverged', numpy.where(tp1.lrnPredictedState['t'] != tp2.lrnPredictedState['t'])
-      result = False
+      return False
 
     if checkLearn and abs(tp1.getAvgLearnedSeqLength() - tp2.getAvgLearnedSeqLength()) > 0.01:
       print "Average learned sequence lengths differ: ",
       print tp1.getAvgLearnedSeqLength()," vs ", tp2.getAvgLearnedSeqLength()
-      result = False
+      return False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
     print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
-    result = False
+    return False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
     print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
@@ -652,7 +652,7 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
         print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
-        result = False
+        return False
 
   # If the above tests pass, then check each segment and report differences
   # Note that segments in tp1 can be in a different order than tp2. Here we
