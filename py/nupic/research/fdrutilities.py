@@ -441,6 +441,12 @@ def vectorsFromSeqList(seqList, patternMatrix):
   return vectors
 
 ###############################################################################
+# difference smaller than this value makes no effect. 
+# was 0.001, iff we use _permanence of type unsigned char (1/255) this needs to be set to
+# 0.01 instead.  
+_epsilon=0.01
+
+###############################################################################
 # The following three functions are used in tests to compare two different
 # TP instances.
 def sameTPParams(tp1, tp2):
@@ -461,9 +467,9 @@ def sameSynapse(syn, synapses):
   """Given a synapse and a list of synapses, check whether this synapse
   exist in the list.  A synapse is represented as [col, cell, permanence].
   A synapse matches if col and cell are identical and the permanence value is
-  within 0.001."""
+  within 0.01 (_epsilon)."""
   for s in synapses:
-    if (s[0]==syn[0]) and (s[1]==syn[1]) and (abs(s[2]-syn[2]) <= 0.001):
+    if (s[0]==syn[0]) and (s[1]==syn[1]) and (abs(s[2]-syn[2]) <= _epsilon):
       return True
   return False
 
@@ -474,11 +480,13 @@ def sameSegment(seg1, seg2):
   # check sequence segment, total activations etc. In case any are floats,
   # check that they are within 0.001.
   for field in [1, 2, 3, 4, 5, 6]:
-    if abs(seg1[0][field] - seg2[0][field]) > 0.001:
+    if abs(seg1[0][field] - seg2[0][field]) > _epsilon:
+      print "Segment values are too different! (> ", _epsilon, ") ", seg1[0][field], " vs. ", seg2[0][field]
       return False
 
   # Compare number of synapses
   if len(seg1[1:]) != len(seg2[1:]):
+    print "Segments do not have same number for synapses!"
     return False
 
   # Now compare synapses, ignoring order of synapses
@@ -493,7 +501,8 @@ def sameSegment(seg1, seg2):
         result = False
       res = sameSynapse(syn, seg2[1:])
       if res == False:
-        result = False
+        print "Two synapses differ!"
+        return False
 
   return result
 
