@@ -267,23 +267,6 @@ namespace nta {
     };
 
     //--------------------------------------------------------------------------------
-    // used for the old-fashioned sort in Inhibition2::compute()
-    //
-    // We would put this inside the function, but gcc 4.5 busts us.
-    // A language lawyer explains that C++98/03 (the current one) does
-    // not allow instantiation of a template with a local type.
-    template <typename It>
-    struct CMySort
-    {
-      typedef nta::UInt32 size_type;
-      It _x;
-      CMySort(It& x) : _x(x) {}
-      bool operator()(size_type A, size_type B) const {
-        return _x[A] > _x[B];
-      }
-    };
-
-    //--------------------------------------------------------------------------------
     //--------------------------------------------------------------------------------
     /*
      * This class implements cell inhibition. Given a region of cells and their
@@ -397,17 +380,11 @@ namespace nta {
           }
 
           // sort the qualified columns in descending value order
-#if 0
           // the lambda sort function requires -std=c++0x or -std=gnu++0x,
           // first supported in gnu 4.5, but our usage here busts in 4.5.2
           // and may first work in 4.6, not yet available pre-packaged for
           // Ubuntu 11.04.
           std::sort(vectIndices.begin(), vectIndices.end(), []( size_type a, size_type b) { return x[a] > x[b] ; }) ;
-#else
-          // sort the old-fashioned way
-          CMySort<It1> s(x);
-          std::sort(vectIndices.begin(), vectIndices.end(), s);
-#endif
 
           // compute how many columns we want
           size_type top_n = size_type(0.5 + local_area_density * c_field_size);
