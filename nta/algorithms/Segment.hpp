@@ -421,7 +421,7 @@ namespace nta {
          * Check that _nConnected is equal to actual number of connected synapses
          *
          */
-        inline bool checkConnected(Real permConnected) const {
+        inline bool checkConnected(NTA_Real32 permConnected) const {
           //
           UInt nc = 0;
           for (UInt i = 0; i != _synapses.size(); ++i)
@@ -468,7 +468,7 @@ namespace nta {
         /**
          * Returns the permanence of the idx-th synapse on this Segment as a value
          */
-        inline Real getPermanence(UInt idx) const
+        inline NTA_Real32 getPermanence(UInt idx) const
         {
           NTA_ASSERT(idx < _synapses.size());
           NTA_ASSERT(0 <= _synapses[idx].permanence());
