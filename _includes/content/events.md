@@ -5,6 +5,12 @@
 
 We are holding our first online _Open Office Hour_ session on **Wednesday, Oct 23rd at 9AM PDT**. The event will be on Google Hangout, and streamed on YouTube. Anyone interested in NuPIC, Numenta, or CLA/HTM technologies is welcome to attend. This event is open to the public. [See event details here](https://plus.google.com/b/100642636108337517466/events/c2pt64fid2niuso3r4mp5n7u9os).
 
+
+## ACM CIKM
+
+On **October 31 at 10:30AM**, Jeff will be presenting on [Online Learning from Streaming Data](http://www.cikm2013.org/industry.php#jeff) in Burlingame, CA at the [ACM Conference of Information and Knowledge Management](http://www.cikm2013.org/).
+
+
 ## November 2013 Hackathon
 
 <dl class="events">
