@@ -485,12 +485,12 @@ def sameSegment(seg1, seg2):
   for syn in seg2[1:]:
     if syn[2] <= 0:
       print "A synapse with zero permanence encountered"
-      result = False
+      #result = False
   if result == True:
     for syn in seg1[1:]:
       if syn[2] <= 0:
         print "A synapse with zero permanence encountered"
-        result = False
+        #result = False
       res = sameSynapse(syn, seg2[1:])
       if res == False:
         result = False
