@@ -529,24 +529,24 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
 
   if (tp1.activeState['t'] != tp2.activeState['t']).any():
     print 'Active states diverge', numpy.where(tp1.activeState['t'] != tp2.activeState['t'])
-    result = False
+    return False
 
   if (tp1.predictedState['t'] - tp2.predictedState['t']).any():
     print 'Predicted states diverge', numpy.where(tp1.predictedState['t'] != tp2.predictedState['t'])
-    result = False
+    return False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
     print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
-    result = False
+    return False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
     print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
     tp1.printCells()
     tp2.printCells()
-    result = False
+    return False
 
   # Check that each cell has the same number of segments and synapses
   for c in xrange(tp1.numberOfCols):
@@ -554,7 +554,7 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
         print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
-        result = False
+        return False
 
   # If the above tests pass, then check each segment and report differences
   # Note that segments in tp1 can be in a different order than tp2. Here we
@@ -581,7 +581,7 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
               tp1.printCell(c,i)
               print "Py"
               tp2.printCell(c,i)
-            result = False
+            return False
 
   if result == True and (verbosity > 1):
     print "TP's match"
@@ -683,12 +683,12 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
               break
           if res == False:
             print "\nSegments are different for cell:",c,i
-            result = False
             if verbosity >= 0:
               print "%s : " % tp1Label,
               tp1.printCell(c,i)
               print "\n%s  : " % tp2Label,
               tp2.printCell(c,i)
+            return False
 
   if result == True and (verbosity > 1):
     print "TP's match"
