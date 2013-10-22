@@ -31,13 +31,14 @@ import traceback
 
 
 ###############################################################################
-def logExceptions(getLoggerCallback=logging.getLogger):
+def logExceptions(getLoggerCallback=None):
   """ Returns a closure suitable for use as function/method decorator for
   logging exceptions that leave the scope of the decorated function. Exceptions
   are logged at ERROR level.
 
   getLoggerCallback:    user-supplied callback function that takes no args and
                           returns the logger instance to use for logging.
+                          Defaults to loging.getLogger.
 
   Usage Example:
     NOTE: logging must be initialized *before* any loggers are created, else
@@ -57,10 +58,11 @@ def logExceptions(getLoggerCallback=logging.getLogger):
       try:
         return func(*args, **kwargs)
       except:
-        e = sys.exc_info[1]
-        getLoggerCallback().exception(
+        logger = (getLoggerCallback() if getLoggerCallback is not None
+                  else logging.getLogger())
+        logger.exception(
           "Unhandled exception %r from %r. Caller stack:\n%s",
-          str(e) or repr(e), func, ''.join(traceback.format_stack()), )
+          sys.exc_info()[1], func, ''.join(traceback.format_stack()), )
         raise
 
     return exceptionLoggingWrap
