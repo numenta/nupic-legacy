@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+"""Tests for the C++ implementation of the temporal pooler. """
 
 import cPickle as pickle
 import unittest2 as unittest
