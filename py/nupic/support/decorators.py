@@ -21,6 +21,7 @@
 
 import functools
 import logging
+import sys
 import time
 import traceback
 
@@ -55,10 +56,11 @@ def logExceptions(getLoggerCallback=logging.getLogger):
     def exceptionLoggingWrap(*args, **kwargs):
       try:
         return func(*args, **kwargs)
-      except Exception, e:
+      except:
+        e = sys.exc_info[1]
         getLoggerCallback().exception(
           "Unhandled exception %r from %r. Caller stack:\n%s",
-          e, ''.join(traceback.format_stack()), func)
+          str(e) or repr(e), func, ''.join(traceback.format_stack()), )
         raise
 
     return exceptionLoggingWrap
