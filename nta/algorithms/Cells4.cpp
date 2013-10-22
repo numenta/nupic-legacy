@@ -1727,9 +1727,6 @@ void Cells4::adaptSegment(const SegmentUpdate& update)
       std::cout << std::endl;
     }
 
-#if 0                                       // Art testing 2011-08-14; this call appears unnecessary
-    _learnActivity.add(cellIdx, synapses.size());
-#endif
 
     addOutSynapses(cellIdx, segIdx, update.begin(), update.end());
 
