@@ -1358,7 +1358,6 @@ namespace nta {
     UInt numColumnsPerInhArea;
 
     density = 0.3;
-    inhibitionRadius = 5;
     numColumns = 10;
     Real overlapsArray[10] = {10,21,34,4,18,3,12,5,7,1};
 
@@ -1387,7 +1386,6 @@ namespace nta {
     NTA_CHECK(!check_vector_eq(activeColumns, activeColumnsLocal));
 
     inhibitionRadius = 2;
-    numColumnsPerInhArea = 2;
     density = 2.0 / 5;
 
     sp.setInhibitionRadius(inhibitionRadius);
