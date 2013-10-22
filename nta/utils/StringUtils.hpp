@@ -63,11 +63,6 @@ namespace nta
     static Real32 toReal32(const std::string& s, bool throwOnError = false, bool * fail = NULL);
     static Real64 toReal64(const std::string& s, bool throwOnError = false, bool * fail = NULL);
     static size_t toSizeT(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    // @todo the following functions should probably be removed, as we shouldn't use
-    // numbers of indeterminate size (except for size_t) in our code
-#if 0
-    static double toDouble(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-#endif
 
     static bool startsWith(const std::string& s, const std::string& prefix);
     static bool endsWith(const std::string& s, const std::string& ending);
