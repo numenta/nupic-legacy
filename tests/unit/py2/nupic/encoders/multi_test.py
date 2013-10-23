@@ -46,8 +46,8 @@ class MultiEncoderTest(unittest.TestCase):
       # sould be 14 bits wide
       e.addEncoder("myval", ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
                     periodic=False, name="aux"))
-      assert e.getWidth() == 21
-      assert e.getDescription() == [("day of week", 0), ("aux", 7)]
+      self.assertEqual(e.getWidth(), 21)
+      self.assertEqual(e.getDescription(), [("day of week", 0), ("aux", 7)])
 
       d = DictObj(dow=3, myval=10)
       expected=numpy.array([0,1,1,1,0,0,0] + [0,0,0,0,0,0,0,0,0,1,1,1,1,1], dtype='uint8')
@@ -61,11 +61,11 @@ class MultiEncoderTest(unittest.TestCase):
       # Check decoding
       decoded = e.decode(output)
       #print decoded
-      assert len(decoded) == 2
+      self.assertEqual(len(decoded), 2)
       (ranges, desc) = decoded[0]['aux']
-      assert len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10])
+      self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [10, 10]))
       (ranges, desc) = decoded[0]['day of week']
-      assert len(ranges) == 1 and numpy.array_equal(ranges[0], [3, 3])
+      self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [3, 3]))
       print "decodedToStr=>", e.decodedToStr(decoded)
 
       e.addEncoder("myCat", SDRCategoryEncoder(n=7, w=3,
@@ -75,11 +75,11 @@ class MultiEncoderTest(unittest.TestCase):
       d = DictObj(dow=4, myval=6, myCat="pass")
       output = e.encode(d)
       topDownOut = e.topDownCompute(output)
-      assert topDownOut[0].value == 4
-      assert topDownOut[1].value == 6
-      assert topDownOut[2].value == "pass"
-      assert topDownOut[2].scalar == 2
-      assert topDownOut[2].encoding.sum() == 3
+      self.assertEqual(topDownOut[0].value, 4)
+      self.assertEqual(topDownOut[1].value, 6)
+      self.assertEqual(topDownOut[2].value, "pass")
+      self.assertEqual(topDownOut[2].scalar, 2)
+      self.assertEqual(topDownOut[2].encoding.sum(), 3)
 
 ###########################################
 if __name__ == '__main__':

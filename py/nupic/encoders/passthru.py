@@ -19,8 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import *
+from base import Encoder
 from nupic.data.fieldmeta import FieldMetaType
+import numpy
+import random
 
 ############################################################################
 class PassThruEncoder(Encoder):
@@ -32,14 +34,16 @@ class PassThruEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w, name="passthru", verbosity=0):
+  def __init__(self, n, w, onbits=0, name="passthru", verbosity=0):
     """
     n is the total bits in output (must equal input bits * w)
     w is the number of bits that are turned on for each on bit
+    onbits is used to normalize the sparsity of the output
     """
 
     self.n = n
     self.w = w
+    self.onbits = onbits
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
@@ -75,6 +79,23 @@ class PassThruEncoder(Encoder):
       if v != 0:
         for j in xrange(0,self.w):
           output[(int(i)*self.w)+j] = 1
+
+    if self.onbits > 0:
+      random.seed(hash(str(output)))
+      t = self.onbits - output.sum()
+      while t > 0:
+        """ turn on more bits to normalize """
+        i = random.randint(0,self.n-1)
+        if output[i] == 0:
+          output[i] = 1
+          t -= 1
+
+      while t < 0:
+        """ turn off some bits to normalize """
+        i = random.randint(0,self.n-1)
+        if output[i] == 1:
+          output[i] = 0
+          t += 1
 
     if self.verbosity >= 2:
       print "input:", input, "index:", index, "output:", output

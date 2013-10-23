@@ -44,7 +44,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
         expected = numpy.array(expected, dtype=defaultDtype)
         try:
           observed = encoder.encode(value)
-          assert(observed == expected).all()
+          self.assertTrue((observed == expected).all())
         except :
           print "Encoder Bins:\n%s"% encoder.bins
           raise Exception("Encoding Error: encoding value %f \
@@ -159,7 +159,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       for i in xrange(enc.n - enc.w + 1):
         topdown = enc.topDownCompute(output)
         bin = enc.bins[i,:]
-        assert topdown[0].value >= bin[0] and topdown[0].value < bin[1]
+        self.assertTrue(topdown[0].value >= bin[0] and topdown[0].value < bin[1])
         output = numpy.roll(output, 1)
 
       print "\t*Test TD decoding with explicit bins*"
