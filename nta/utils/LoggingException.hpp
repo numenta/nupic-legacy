@@ -44,7 +44,7 @@ namespace nta
 
     virtual ~LoggingException() throw();
 
-    virtual const char * getMessage() const
+    const char * getMessage() const
     {
       // Make sure we use a persistent string. Otherwise the pointer may
       // become invalid. 
