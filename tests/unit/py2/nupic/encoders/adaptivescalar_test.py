@@ -94,18 +94,18 @@ class AdaptiveScalarTest(unittest.TestCase):
       l=self._l
       decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
       (fieldsDict, fieldNames) = decoded
-      assert len(fieldsDict) == 1
+      self.assertEqual(len(fieldsDict), 1)
 
       (ranges, desc) = fieldsDict.values()[0]
-      assert len(ranges) == 1
+      self.assertEqual(len(ranges), 1)
       self.assertSequenceEqual(ranges[0], [10, 10])
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
       decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
       (fieldsDict, fieldNames) = decoded
-      assert len(fieldsDict) == 1
+      self.assertEqual(len(fieldsDict), 1)
       (ranges, desc) = fieldsDict.values()[0]
-      assert len(ranges) == 1
+      self.assertEqual(len(ranges), 1)
       self.assertSequenceEqual(ranges[0], [10, 10])
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
@@ -118,11 +118,11 @@ class AdaptiveScalarTest(unittest.TestCase):
         if expV is None:
           expV = v
         self.assertTrue((l.encode(v) == numpy.array(encoded, dtype=defaultDtype)).all())
-        assert abs(l.getBucketInfo(l.getBucketIndices(v))[0].value - expV) <= \
-                    l.resolution/2
+        self.assertTrue(abs(l.getBucketInfo(l.getBucketIndices(v))[0].value - expV) <= \
+                    l.resolution/2)
 
       def _verifyNot(v, encoded):
-        assert not (l.encode(v) == numpy.array(encoded, dtype=defaultDtype)).all()
+        self.assertFalse((l.encode(v) == numpy.array(encoded, dtype=defaultDtype)).all())
 
       _verify(1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
       _verify(2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -174,14 +174,14 @@ class AdaptiveScalarTest(unittest.TestCase):
                                 periodic=False)
       reg = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=100,
                                 periodic=False)
-      assert _dumpParams(sfs) != _dumpParams(reg) , "Params should not be equal,"\
-                "since the two encoders were instantiated with different values."
+      self.assertTrue(_dumpParams(sfs) != _dumpParams(reg), "Params should not be equal, "\
+                "since the two encoders were instantiated with different values.")
       # set the min and the max using sFS to 1,100 respectively.
       sfs.setFieldStats('this',{"this":{"min":1,"max":100}})
 
       #Now the parameters for both should be the same
-      assert _dumpParams(sfs) == _dumpParams(reg) ,"Params should now be equal,"\
-            "but they are not.sFS should be equivalent to initialization."
+      self.assertEqual(_dumpParams(sfs), _dumpParams(reg), "Params should now be equal, "\
+            "but they are not. sFS should be equivalent to initialization.")
 
 
 ################################################################################
