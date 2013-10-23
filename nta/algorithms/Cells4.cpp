@@ -378,7 +378,6 @@ void Cells4::inferBacktrack(const std::vector<UInt> & activeColumns)
       badPatterns.push_back(startOffset);
     }
     else {
-      candConfidence = totalConfidence;
       candStartOffset = startOffset;
       
       // If we got to here, startOffset is a candidate starting point.
