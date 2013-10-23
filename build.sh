@@ -86,6 +86,13 @@ function pythonSetup {
   exitOnError $?
 
   export NTA_NUMPY_INCLUDE=`python -c 'import numpy; import sys; sys.stdout.write(numpy.get_include())'`
+
+  # check if matplotlib is working on thi system (some problems on Macs, see https://issues.numenta.org/browse/NPC-371) 
+  # if not, we can live without it, it's needed just for visualisations and some examples. 
+  if ! `python -c "from matplotlib import ft2font" 2>/dev/null`; then 
+    echo "WARNING: Matplotlib is not working properly on this setup, some functionality might not work!"
+    export NTA_AUTOBUILD_NO_DISPLAY=1
+  fi
 }
 
 function doConfigure {
