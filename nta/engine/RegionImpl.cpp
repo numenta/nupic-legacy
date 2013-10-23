@@ -220,11 +220,7 @@ void RegionImpl::setParameterArray(const std::string& name, Int64 index,const Ar
       break;
     }
 
-    if (rc != 0)
-    {
-      NTA_THROW << "getParameterArray -- failure to get parameter '"
-                << name << "' on node of type " << getType();
-    }
+    NTA_ASSERT(rc == 0) << "getParameterArray - failure to get parameter '" << name << "' on node of type " << getType();
   }
 
   ReadBuffer rb(wb.getData(), wb.getSize(), false);
