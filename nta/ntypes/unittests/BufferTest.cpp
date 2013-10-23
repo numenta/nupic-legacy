@@ -200,6 +200,8 @@ void BufferTest::testEvenMoreComplicatedSerialization()
     TEST2("BufferTest::testComplicatedSerialization(), rb.read(xi[i].d, 4) failed", res == 0);
     TEST2("BufferTest::testComplicatedSerialization(), rb.read(xi[i].d, 4) == 4", len == 4);
     rb.read(xo[i].e);
+    len = 3;
+    res = rb.read(xo[i].f, len);
     NTA_INFO << "xo[" << i << "]={" << xo[i].a << " "
              << xo[i].b << " " 
              << xo[i].c << " " 
