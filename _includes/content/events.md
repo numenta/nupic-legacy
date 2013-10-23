@@ -83,8 +83,13 @@ On **October 31 at 10:30AM**, Jeff will be presenting on [Online Learning from S
 - **10:15 AM**: NuPIC Introduction
 - **10:30 AM**: NuPIC Natural Language Processing Primer
 - **11:00 AM**: HACK START
+- **01:00 PM**: [CEPT SDR Session](#cept_sdr_session) (Francisco De Sousa Webber)
 - **02:00 PM**: [CLA Deep Dive](#cla_deep_dive) (Subutai Ahmad)
 - **04:00 PM**: [Working Session: NuPIC Documentation for ML/AI Researchers](#working_session_nupic_documentation_for_mlai_researchers) (Ian Danforth)
+
+##### Cept SDR Session
+
+> Francisco will talk about the [CEPT API](http://cept.3scale.net), and take questions about how CEPT uses sparse distributed representations to encode words.
 
 ##### CLA Deep Dive
 
