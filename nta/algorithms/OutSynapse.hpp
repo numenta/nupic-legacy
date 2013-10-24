@@ -98,7 +98,7 @@ namespace nta {
          * Checks that the destination cell index and destination segment index
          * are in range.
          */
-        bool invariants(Cells4* cells =NULL) const;
+        bool invariants(Cells4* cells =nullptr) const;
       };
 
       //--------------------------------------------------------------------------------

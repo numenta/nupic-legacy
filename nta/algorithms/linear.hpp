@@ -79,7 +79,7 @@ namespace nta {
       {
 	feature_node* data;
 
-	sparse_feature_vector() : data(NULL) {}
+	sparse_feature_vector() : data(nullptr) {}
 
 	sparse_feature_vector(int n, const float* dense_array)
 	  : data(new feature_node[n+1])
@@ -125,11 +125,11 @@ namespace nta {
       {
 	parameter()
 	  : solver_type(0), eps(0), C(0), 
-	    nr_weight(0), weight_label(NULL), weight(NULL)
+	    nr_weight(0), weight_label(nullptr), weight(nullptr)
 	{}
 
 	parameter(int solver_type_, float eps_, float C_, 
-		  int nr_weight_ =0, int *weight_label_ =NULL, float *weight_ =NULL)
+		  int nr_weight_ =0, int *weight_label_ =nullptr, float *weight_ =nullptr)
 	  : solver_type(solver_type_), eps(eps_), C(C_), 
 	    nr_weight(nr_weight_), weight_label(weight_label_),
 	    weight(weight_)
@@ -155,7 +155,7 @@ namespace nta {
       {
 	model()
 	  : nr_class(0), nr_feature(0),
-	    w(NULL), label(NULL), 
+	    w(nullptr), label(nullptr), 
 	    bias(0)
 	{
 	}
@@ -168,7 +168,7 @@ namespace nta {
 
 	void get_labels(int* label)
 	{
-	  if (label != NULL)
+	  if (label != nullptr)
 	    for(int i=0;i<nr_class;i++)
 	      label[i] = label[i];
 	}
@@ -213,11 +213,11 @@ namespace nta {
       {
       public:
 	linear(int solver_type, float eps, float C, 
-	       int nr_weight =0, int *weight_label =NULL, float *weight =NULL)
-	  : x_space(NULL),
+	       int nr_weight =0, int *weight_label =nullptr, float *weight =nullptr)
+	  : x_space(nullptr),
 	    the_param(new parameter(solver_type, eps, C, nr_weight, weight_label, weight)),
-	    the_problem(NULL),
-	    the_model(NULL)
+	    the_problem(nullptr),
+	    the_model(nullptr)
 	{}
 
 	~linear()
@@ -270,7 +270,7 @@ namespace nta {
 
 	inline void load_model(const char* model_file_name)
 	{
-	  if (the_model != NULL)
+	  if (the_model != nullptr)
 	    free(the_model);
 
 	  the_model = load_model_(model_file_name);

@@ -149,7 +149,7 @@ namespace nta {
      */
     inline NearestNeighbor<SparseMatrix<UInt, Real> >* getW() const 
     { 
-      NTA_CHECK(W_ != NULL)
+      NTA_CHECK(W_ != nullptr)
         << "SpatialPooler::getW(): "
         << "No W matrix (try getW01)";
       return W_; 
@@ -166,7 +166,7 @@ namespace nta {
      */
     inline SparseMatrix01<UInt, Real>* getW01() const 
     { 
-      NTA_CHECK(W01_ != NULL)
+      NTA_CHECK(W01_ != nullptr)
         << "SpatialPooler::getW01(): "
         << "No W01 matrix (try getW)";
       return W01_; 
@@ -336,8 +336,8 @@ namespace nta {
     {
       SpatialPooler::RowCounts counts = getRowCounts();
       buf << counts.size() << " ";
-      for (UInt i = 0; i < counts.size(); ++i)
-        buf << counts[i].first << " " << counts[i].second << " ";
+      for (auto & count : counts)
+        buf << count.first << " " << count.second << " ";
     }
 
     /**
@@ -388,7 +388,7 @@ namespace nta {
      * @param blank  [Real*] pointer to the current blank value
      */
     template <typename InIter, typename OutIter>
-    void infer(InIter begin1, OutIter begin2, Real* blank=0);
+    void infer(InIter begin1, OutIter begin2, Real* blank=nullptr);
 
     /**
      * Checks whether the current input vector is a blank or not.
