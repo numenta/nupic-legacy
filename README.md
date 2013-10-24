@@ -29,7 +29,7 @@ __Clients__ take input data and feed it through encoders, models, and metrics an
 For all installation options, see the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started) wiki page.
 
 Currently supported platforms:
- * Linux
+ * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
  * VM images ([vagrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine))
