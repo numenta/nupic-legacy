@@ -27,6 +27,7 @@
 #include <nta/types/types.hpp>
 #include <vector>
 #include <iostream> //for ostream, istream
+#include "nta/utils/Log.hpp" // for NTA_CHECK macros
 
 using namespace nta;
 
