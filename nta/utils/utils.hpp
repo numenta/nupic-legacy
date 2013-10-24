@@ -29,7 +29,8 @@
 #define NTA_UTILS_HPP
 
 #include <nta/types/types.hpp>
-
+namespace nta
+{
 namespace utils 
 {
   inline bool isSystemLittleEndian()
@@ -45,9 +46,10 @@ namespace utils
     SwapType *px = reinterpret_cast<SwapType *>(pxIn);
     SwapType *pxend = px + n;
     const int stop = sizeof(T) / 2;
+    using namespace std;
     for(; px!=pxend; ++px)
     {
-      for(int j=0; j<stop; ++j) std::swap(px->b[j], px->b[sizeof(T)-j-1]);
+      for(int j=0; j<stop; ++j) swap(px->b[j], px->b[sizeof(T)-j-1]);
     }
   }
   
@@ -66,7 +68,7 @@ namespace utils
       for(int j=0; j<sizeof(T); ++j) px1->b[j] = px0->b[sizeof(T)-j-1];
     }
   }
-  
+} // end of namespace utils 
 } // end of namespace nta
 
 #endif
