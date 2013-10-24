@@ -31,6 +31,7 @@
 #define NTA_MATH_SET_HPP
 
 #include <vector>
+#include <stddef.h> // size_t
 
 namespace nta {
 
