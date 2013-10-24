@@ -116,7 +116,7 @@ inline STBase SparseTensorFromString(const string &s) {
     forRank.exceptions(ios::failbit | ios::badbit);
     forRank >> rank;
   };
-  PyTensorIndex index(rank, (const size_t *) 0);
+  PyTensorIndex index(rank, (const size_t *) nullptr);
   for(size_t i=0; i<rank; ++i) {
     index[i] = 1;
   }

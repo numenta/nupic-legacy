@@ -42,7 +42,7 @@ Input::Input(Region& region, NTA_BasicType dataType, bool isRegionLevel) :
   region_(region), isRegionLevel_(isRegionLevel), 
   zeroCopyEnabled_(false), initialized_(false),  data_(dataType), name_("Unnamed")
 {
-  if (&region == NULL)
+  if (&region == nullptr)
   {
     NTA_THROW << "Attempt to create Input with a null region";
   }
@@ -52,9 +52,9 @@ Input::~Input()
 {
   uninitialize();
   std::vector<Link*> linkscopy = links_;
-  for (std::vector<Link*>::iterator i = linkscopy.begin(); i != linkscopy.end(); i++)
+  for (auto & elem : linkscopy)
   {
-    removeLink(*i);
+    removeLink(elem);
   }
 }
 
@@ -78,7 +78,7 @@ Input::addLink(const std::string& linkType, const std::string& linkParams, Outpu
     }
   }
 
-  Link *link = new Link(linkType, linkParams, srcOutput, this);
+  auto link = new Link(linkType, linkParams, srcOutput, this);
   links_.push_back(link);
   
   srcOutput->addLink(link);
@@ -93,7 +93,7 @@ Input::removeLink(Link*& link)
 
   // removeLink should only be called internally -- if it 
   // does not exist, it is a logic error
-  std::vector<Link*>::iterator linkiter = links_.begin();
+  auto linkiter = links_.begin();
   for(; linkiter!= links_.end(); linkiter++)
   {
     if (*linkiter == link)
@@ -113,7 +113,7 @@ Input::removeLink(Link*& link)
   link->getSrc().removeLink(link);
   links_.erase(linkiter);
   delete link;
-  link = NULL;
+  link = nullptr;
 }
     
 Link* Input::findLink(const std::string& srcRegionName, 
@@ -130,7 +130,7 @@ Link* Input::findLink(const std::string& srcRegionName,
     }
   }
   // Link not found
-  return NULL;
+  return nullptr;
 }
 
 void
@@ -138,9 +138,9 @@ Input::prepare()
 {
   // Each link copies data into its section of the overall input
   // TODO: initialization check?
-  for (std::vector<Link*>::iterator l = links_.begin(); l != links_.end(); l++)
+  for (auto & elem : links_)
   {
-    (*l)->compute();
+    (elem)->compute();
   }
 }
     

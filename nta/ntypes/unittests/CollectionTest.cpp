@@ -64,7 +64,7 @@ namespace nta
 
   void CollectionTest::testCollectionWith_1_Item()
   {
-    Item * p = new Item(5);
+    auto  p = new Item(5);
     Collection<Item *> c;
     TEST(c.contains("x") == false);
     c.add("x", p);

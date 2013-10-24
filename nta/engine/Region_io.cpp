@@ -44,18 +44,18 @@ namespace nta
 
 Output* Region::getOutput(const std::string& name) const
 {
-  OutputMap::const_iterator o = outputs_.find(name);
+  auto o = outputs_.find(name);
   if (o == outputs_.end())
-    return NULL;
+    return nullptr;
   return o->second;
 }
 
 
 Input* Region::getInput(const std::string& name) const
 {
-  InputMap::const_iterator i = inputs_.find(name);
+  auto i = inputs_.find(name);
   if (i == inputs_.end())
-    return NULL;
+    return nullptr;
   return i->second;
 }
 
@@ -76,7 +76,7 @@ Region::getOutputs() const
 size_t
 Region::getOutputCount(const std::string& outputName) const
 {
-  OutputMap::const_iterator oi = outputs_.find(outputName);
+  auto oi = outputs_.find(outputName);
   if (oi == outputs_.end())
     NTA_THROW << "getOutputSize -- unknown output '" << outputName << "' on region " << getName();
   return oi->second->getData().getCount();
@@ -86,7 +86,7 @@ Region::getOutputCount(const std::string& outputName) const
 size_t
 Region::getInputCount(const std::string& inputName) const
 {
-  InputMap::const_iterator ii = inputs_.find(inputName);
+  auto ii = inputs_.find(inputName);
   if (ii == inputs_.end())
     NTA_THROW << "getInputSize -- unknown input '" << inputName << "' on region " << getName();
   return ii->second->getData().getCount();
@@ -96,7 +96,7 @@ Region::getInputCount(const std::string& inputName) const
 ArrayRef
 Region::getOutputData(const std::string& outputName) const
 {
-  OutputMap::const_iterator oi = outputs_.find(outputName);
+  auto oi = outputs_.find(outputName);
   if (oi == outputs_.end())
     NTA_THROW << "getOutputData -- unknown output '" << outputName << "' on region " << getName();
 
@@ -109,7 +109,7 @@ Region::getOutputData(const std::string& outputName) const
 ArrayRef
 Region::getInputData(const std::string& inputName) const
 {
-  InputMap::const_iterator ii = inputs_.find(inputName);
+  auto ii = inputs_.find(inputName);
   if (ii == inputs_.end())
     NTA_THROW << "getInput -- unknown input '" << inputName << "' on region " << getName();
 
