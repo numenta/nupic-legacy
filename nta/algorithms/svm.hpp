@@ -130,7 +130,7 @@ namespace nta {
 
 	inline svm_problem(int n_dims, int size, bool recover, float =0)
 	  : recover_(recover), n_dims_(n_dims), 
-            x_(size, (feature_type*)0), y_(size, 0)
+            x_(size, (feature_type*)nullptr), y_(size, 0)
 	{}
 
 	inline svm_problem(std::istream& inStream)
@@ -156,7 +156,7 @@ namespace nta {
 
 	inline void resize(int n) 
 	{
-	  x_.resize(n, 0);
+	  x_.resize(n, nullptr);
 	  y_.resize(n, 0);
 	}
 
@@ -172,7 +172,7 @@ namespace nta {
 #ifdef NTA_PLATFORM_win32
           feature_type *new_x = (feature_type*) _aligned_malloc(4*n_dims(), 16);
 #else
-	  feature_type *new_x = new feature_type [n_dims()];
+	  auto new_x = new feature_type [n_dims()];
 #endif
 	  std::copy(x, x + n_dims(), new_x);
 	  x_.push_back(new_x);
@@ -243,7 +243,7 @@ namespace nta {
 	inline svm_problem01(int n_dims, int size, bool recover, float threshold = .9)
 	  : recover_(recover), n_dims_(n_dims), threshold_(threshold),
 	    nnz_(size, 0),
-	    x_(size, (feature_type*)0), y_(size, 0),
+	    x_(size, (feature_type*)nullptr), y_(size, 0),
 	    buf_(n_dims)
 	{}
 
@@ -267,7 +267,7 @@ namespace nta {
 	inline void resize(int n) 
 	{
 	  nnz_.resize(n, 0);
-	  x_.resize(n, 0);
+	  x_.resize(n, nullptr);
 	  y_.resize(n, 0);
 	}
 
@@ -293,7 +293,7 @@ namespace nta {
 	    ++x_it; 
 	  }
     
-	  feature_type* new_x = new feature_type[nnz];
+	  auto  new_x = new feature_type[nnz];
 	  std::copy(buf_.begin(), buf_.begin() + nnz, new_x);
 
 	  nnz_.push_back(nnz);
@@ -343,7 +343,7 @@ namespace nta {
       struct decision_function
       {
 	inline decision_function()
-	  : alpha(NULL), rho(0)
+	  : alpha(nullptr), rho(0)
 	{}
 
 	inline ~decision_function()
@@ -382,7 +382,7 @@ namespace nta {
 
         svm_model()
           : n_dims_(0), 
-            sv_mem(NULL), sv(), sv_coef(), 
+            sv_mem(nullptr), sv(), sv_coef(), 
             rho(), label(), n_sv(), probA(), probB(), w()
         {}
 
@@ -405,17 +405,17 @@ namespace nta {
       public:
 	Solver() 
 	  : active_size(0),
-	    y(NULL),
-	    G(NULL),
-	    alpha_status(NULL),
-	    alpha(NULL),
-	    Q(NULL),
-	    QD(NULL),
+	    y(nullptr),
+	    G(nullptr),
+	    alpha_status(nullptr),
+	    alpha(nullptr),
+	    Q(nullptr),
+	    QD(nullptr),
 	    eps(0),
 	    C(0),
-	    p(NULL),
-	    active_set(NULL),
-	    G_bar(NULL),
+	    p(nullptr),
+	    active_set(nullptr),
+	    G_bar(nullptr),
 	    l(0),
 	    unshrinked(false)
 	{}
@@ -531,7 +531,7 @@ namespace nta {
 		  lru_delete(old);
 		  free(old->data);
 		  size += old->len;
-		  old->data = 0;
+		  old->data = nullptr;
 		  old->len = 0;
 		}
 	
@@ -578,7 +578,7 @@ namespace nta {
 		      lru_delete(h);
 		      free(h->data);
 		      size += h->len;
-		      h->data = 0;
+		      h->data = nullptr;
 		      h->len = 0;
 		    }
 		}
@@ -632,7 +632,7 @@ namespace nta {
       public:
 	QMatrix(const svm_problem& prob, float g, int kernel, int cache_size)
 	  : l(prob.size()), n(prob.n_dims()), 
-	    kernel_function(0),
+	    kernel_function(nullptr),
 	    gamma(g),
 	    x(new feature_type* [l]), x_square(new feature_type[l]),
 	    y(new signed char[l]),
@@ -750,7 +750,7 @@ namespace nta {
       public:
 	QMatrix01(const svm_problem01& prob, float g, int kernel, int cache_size)
 	  : l(prob.size()), n(prob.n_dims()),
-	    kernel_function(0),
+	    kernel_function(nullptr),
 	    gamma(g),
 	    nnz(prob.nnz_), x(prob.x_.begin(), prob.x_.end()), x_square(new float[l]),
 	    y(new signed char[l]),
@@ -909,8 +909,8 @@ namespace nta {
 		   int seed =-1)
 	  : param_(kernel, probability, gamma, C, eps, cache_size, shrinking),
 	    problem_(new problem_type(n_dims, true, threshold)),
-	    model_(NULL), rng_(seed != -1 ? seed : 0),
-	    x_tmp_(NULL), dec_values_(NULL),
+	    model_(nullptr), rng_(seed != -1 ? seed : 0),
+	    x_tmp_(nullptr), dec_values_(nullptr),
             with_sse(checkSSE())
 	{}
 
@@ -947,9 +947,9 @@ namespace nta {
 	inline ~svm()
 	{
 	  delete problem_;
-	  problem_ = NULL;
+	  problem_ = nullptr;
 	  delete model_;
-	  model_ = NULL;
+	  model_ = nullptr;
 
 #ifdef NTA_PLATFORM_win32
           _aligned_free(x_tmp_);
@@ -957,9 +957,9 @@ namespace nta {
 	  delete [] x_tmp_;
 #endif
 
-	  x_tmp_ = NULL;
+	  x_tmp_ = nullptr;
 	  delete [] dec_values_;
-	  dec_values_ = NULL;
+	  dec_values_ = nullptr;
 	}
 
 	svm_model* train(const problem_type&, const svm_parameter&);
@@ -970,7 +970,7 @@ namespace nta {
 	inline void discard_problem()
 	{
 	  delete problem_;
-	  problem_ = NULL;
+	  problem_ = nullptr;
 	}
 
 	template <typename InIter>
@@ -1037,7 +1037,7 @@ namespace nta {
 	  
 	  if (svm_.model_) {
 	    delete svm_.model_;
-	    svm_.model_ = NULL;
+	    svm_.model_ = nullptr;
 	  }
 
 	  svm_.model_ = svm_.train(*svm_.problem_, svm_.param_);
@@ -1119,7 +1119,7 @@ namespace nta {
 
 	  if (svm_.model_) {
 	    delete svm_.model_;
-	    svm_.model_ = NULL;
+	    svm_.model_ = nullptr;
 	  }
 
 	  svm_.model_ = svm_.train(*svm_.problem_, svm_.param_);

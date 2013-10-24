@@ -97,13 +97,13 @@ namespace nta {
         CState()
         {
           _nCells = 0;
-          _pData = NULL;
+          _pData = nullptr;
           _fMemoryAllocatedByPython = false;
           _version = VERSION;
         }
         ~CState()
         {
-          if (_fMemoryAllocatedByPython == false  &&  _pData != NULL)
+          if (_fMemoryAllocatedByPython == false  &&  _pData != nullptr)
             delete [] _pData;
         }
         CState& operator=(const CState& o)
@@ -126,7 +126,7 @@ namespace nta {
         void usePythonMemory(Byte* pData, const UInt nCells)
         {
           // delete a prior allocation
-          if (_fMemoryAllocatedByPython == false  &&  _pData != NULL)
+          if (_fMemoryAllocatedByPython == false  &&  _pData != nullptr)
             delete [] _pData;
 
           // use the supplied memory and remember its size
@@ -266,9 +266,9 @@ namespace nta {
           }
           outStream << _countOn << " ";
           outStream << _cellsOn.size() << " ";
-          for (UInt i = 0; i < _cellsOn.size(); ++i)
+          for (auto & elem : _cellsOn)
           {
-            outStream << _cellsOn[i] << " ";
+            outStream << elem << " ";
           }
           outStream << "end" << std::endl;
         }
@@ -528,8 +528,8 @@ namespace nta {
         inline void getSrcCellIndices(std::vector<UInt>& srcCells) const
         {
           NTA_ASSERT(srcCells.size() == 0);
-          for (UInt i= 0; i < _synapses.size(); i++) {
-            srcCells.push_back(_synapses[i].srcCellIdx());
+          for (auto & elem : _synapses) {
+            srcCells.push_back(elem.srcCellIdx());
           }
         }
 
@@ -797,8 +797,8 @@ namespace nta {
          */
         static bool atDutyCycleTier(UInt iteration)
         {
-          for (UInt i= 0; i < _numTiers; i++) {
-            if (iteration == _dutyCycleTiers[i]) return true;
+          for (auto & _dutyCycleTier : _dutyCycleTiers) {
+            if (iteration == _dutyCycleTier) return true;
           }
           return false;
         }
