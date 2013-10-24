@@ -32,11 +32,11 @@ from nupic.research import TP10X2
 from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
+from SPRegion import getDefaultSPImp, getSPClass
 
 from nupic.bindings.algorithms import FDRCSpatial as CPPSP
 from nupic.bindings.math import GetNTAReal
 
-gDefaultSpatialImp = 'py'
 gDefaultTemporalImp = 'py'
 
 
@@ -55,21 +55,6 @@ def _getTPClass(temporalImp):
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', and 'trivial'" % (temporalImp))
 
-
-##############################################################################
-def _getSPClass(spatialImp):
-  """ Return the class corresponding to the given spatialImp string
-  """
-
-  if spatialImp == 'newpy':
-    return PyFlatSpatialPooler
-  elif spatialImp == 'cpp':
-    return CPPFlatSpatialPooler
-  elif spatialImp == 'py':
-    return FDRCSpatial2
-  else:
-    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py' and "
-              "'cpp'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -160,7 +145,7 @@ def _getAdditionalSpecs(spatialImp, temporalImp, kwargs={}):
     else:
       return ''
 
-  FDRSpatialClass = _getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass(spatialImp)
   FDRTemporalClass = _getTPClass(temporalImp)
 
   spatialSpec = {}
@@ -580,7 +565,7 @@ class CLARegion(PyRegion):
                outputCloningHeight=0,
                saveMasterCoincImages = 0,
                temporalImp='py', #'py', 'simple' or 'cpp'
-               spatialImp='oldpy',   #'py', 'cpp', or 'oldpy'
+               spatialImp=getDefaultSPImp(),   #'py', 'cpp', or 'oldpy'
                computeTopDown = 0,
                nMultiStepPrediction = 0,
 
@@ -603,7 +588,7 @@ class CLARegion(PyRegion):
         kwargs[name] = (int(height), int(width))
 
     # Which FDR Temporal implementation?
-    FDRCSpatialClass = _getSPClass(spatialImp)
+    FDRCSpatialClass = getSPClass(spatialImp)
     FDRTemporalClass = _getTPClass(temporalImp)
 
     # Pull out the spatial and temporal arguments automatically
@@ -906,7 +891,7 @@ class CLARegion(PyRegion):
     autoArgs.pop('seed')
 
 
-    FDRCSpatialClass = _getSPClass(self.spatialImp)
+    FDRCSpatialClass = getSPClass(self.spatialImp)
     self._sfdr =  FDRCSpatialClass(
       cloneMap=self._cloneMap,
       numCloneMasters=self._numCloneMasters,
@@ -1470,7 +1455,7 @@ class CLARegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, t, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp,
+    s, t, o = _getAdditionalSpecs(spatialImp=getDefaultSPImp(),
                                   temporalImp=gDefaultTemporalImp)
     spec['parameters'].update(s)
     spec['parameters'].update(t)
