@@ -61,12 +61,12 @@ def _getSPClass(spatialImp):
   """ Return the class corresponding to the given spatialImp string
   """
 
-  if spatialImp == 'py':
+  if spatialImp == 'newpy':
     return PyFlatSpatialPooler
   elif spatialImp == 'cpp':
     return CPPFlatSpatialPooler
-  elif spatialImp == 'oldpy':
-    raise "old spatial pooler not supported"
+  elif spatialImp == 'py':
+    return FDRCSpatial2
   else:
     raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py' and "
               "'cpp'" % (spatialImp))
@@ -1470,7 +1470,8 @@ class CLARegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, t, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp,temporalImp=gDefaultTemporalImp)
+    s, t, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp,
+                                  temporalImp=gDefaultTemporalImp)
     spec['parameters'].update(s)
     spec['parameters'].update(t)
     spec['parameters'].update(o)
