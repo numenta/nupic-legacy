@@ -25,7 +25,6 @@ import os
 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
-from nupic.research import TP_R
 
 from nupic.support import getArgumentDescriptions
 
@@ -44,8 +43,6 @@ def _getTPClass(temporalImp):
     return TP.TP
   elif temporalImp == 'cpp':
     return TP10X2.TP10X2
-  elif temporalImp == 'r':
-    return TP_R.TP_R
   elif temporalImp == 'trivial':
     return TPTrivial.TPTrivial
   else:
