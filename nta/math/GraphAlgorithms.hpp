@@ -39,6 +39,7 @@
 #include <boost/graph/bandwidth.hpp>
 #include <boost/graph/connected_components.hpp>
 
+#include <nta/types/types.hpp> // nta::UInt32
 namespace nta {
 
   //--------------------------------------------------------------------------------
