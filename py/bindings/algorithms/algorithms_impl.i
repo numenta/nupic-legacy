@@ -96,6 +96,8 @@ using namespace nta;
 #define CHECKSIZE(var) \
   NTA_ASSERT((var)->descr->elsize == 4) << " elsize:" << (var)->descr->elsize
 
+%}
+
 
 // This dummy inline function exists only to force the linker
 // to keep the gaborCompute() function in the resulting
