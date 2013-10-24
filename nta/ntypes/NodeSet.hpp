@@ -25,7 +25,10 @@
 #define NTA_NODESET_HPP
 
 #include <set>
+
 #include <stddef.h> // size_t
+#include <nta/utils/Log.hpp> // defines NTA_THROW macro
+
 namespace nta
 {
   /**
