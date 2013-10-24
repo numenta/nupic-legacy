@@ -25,6 +25,7 @@
 #define NTA_SCANNING_HPP
 
 #include <stddef.h> //size_t
+#include <math.h> // exp
 
 // Performs the time-intensive steps of ScanControlNode.getAlpha
 void computeAlpha(size_t xstep, size_t ystep,
