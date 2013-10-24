@@ -47,7 +47,7 @@ bool Env::get(const std::string& name, std::string& value)
   // pool it is given. But we have to set it up because the API
   // requires it and might use it in the future. 
   apr_pool_t *poolP;
-  status = apr_pool_create(&poolP, NULL);
+  status = apr_pool_create(&poolP, nullptr);
   if (status != APR_SUCCESS) {
     NTA_THROW << "Env::get -- Unable to create a pool" << " name = " << name;
     return false;
@@ -79,7 +79,7 @@ void Env::set(const std::string& name, const std::string& value)
   }
   
   apr_pool_t *poolP;
-  status = apr_pool_create(&poolP, NULL);
+  status = apr_pool_create(&poolP, nullptr);
   if (status != APR_SUCCESS) {
     NTA_THROW << "Env::set -- Unable to create a pool." << " name = " << name <<
                                                       " value = " << value;
@@ -107,7 +107,7 @@ void Env::unset(const std::string& name)
   }
   
   apr_pool_t *poolP;
-  status = apr_pool_create(&poolP, NULL);
+  status = apr_pool_create(&poolP, nullptr);
   if (status != APR_SUCCESS) {
     NTA_THROW << "Env::unset -- Unable to create a pool." << " name = " << name;
     return;
@@ -123,7 +123,7 @@ void Env::unset(const std::string& name)
   
 }
 
-char ** Env::environ_ = NULL;
+char ** Env::environ_ = nullptr;
 
 #if defined(NTA_PLATFORM_darwin64) || defined(NTA_PLATFORM_darwin86)
 #include <crt_externs.h>
@@ -134,7 +134,7 @@ extern char **environ;
 
 char **Env::getenv()
 {
-  if (environ_ != NULL)
+  if (environ_ != nullptr)
     return environ_;
 
 #if defined(NTA_PLATFORM_darwin64) || defined(NTA_PLATFORM_darwin86)

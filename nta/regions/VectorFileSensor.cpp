@@ -95,7 +95,7 @@ VectorFileSensor::VectorFileSensor(BundleIO& bundle, Region* region) :
 
 void VectorFileSensor::initialize()
 {
-  NTA_CHECK(region_ != NULL);
+  NTA_CHECK(region_ != nullptr);
   dataOut_ = region_->getOutputData("dataOut");
   categoryOut_ = region_->getOutputData("categoryOut");
   resetOut_ = region_->getOutputData("resetOut");
@@ -172,7 +172,7 @@ inline const char *checkExtensions(const std::string &filename,
 
     ++extensions;
   }
-  return 0;
+  return nullptr;
 }
 
 //--------------------------------------------------------------------------------
@@ -203,7 +203,7 @@ std::string VectorFileSensor::executeCommand(const std::vector<std::string>& arg
     else 
     {
       // Check for some common extensions.
-      const char *csvExtensions[] = { ".csv", ".CSV", 0 };
+      const char *csvExtensions[] = { ".csv", ".CSV", nullptr };
       if(checkExtensions(filename, csvExtensions)) 
       {
         cout << "Reading CSV file" << endl;
@@ -494,7 +494,7 @@ void VectorFileSensor::deserialize(BundleIO& bundle)
 
 Spec* VectorFileSensor::createSpec()
 {
-  Spec * ns = new Spec;
+  auto  ns = new Spec;
   ns->description = 
   "VectorFileSensor is a basic sensor for reading files containing vectors.\n"
   "\n"

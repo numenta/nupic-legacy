@@ -418,18 +418,18 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   numInputs_ = 1;
   inputDimensions_.clear();
-  for (size_t i = 0; i < inputDimensions.size(); ++i)
+  for (auto & inputDimension : inputDimensions)
   {
-    numInputs_ *= inputDimensions[i];
-    inputDimensions_.push_back(inputDimensions[i]);
+    numInputs_ *= inputDimension;
+    inputDimensions_.push_back(inputDimension);
   }
 
   numColumns_ = 1;
   columnDimensions_.clear();
-  for (size_t i = 0; i < columnDimensions.size(); ++i)
+  for (auto & columnDimension : columnDimensions)
   {
-    numColumns_ *= columnDimensions[i];
-    columnDimensions_.push_back(columnDimensions[i]);
+    numColumns_ *= columnDimension;
+    columnDimensions_.push_back(columnDimension);
   }
 
   NTA_ASSERT(numColumns_ > 0);
@@ -540,8 +540,8 @@ void SpatialPooler::toDense_(vector<UInt>& sparse,
                             UInt n)
 {
   std::fill(dense,dense+n, 0);
-  for (UInt i = 0; i < sparse.size(); i++) {
-    UInt index = sparse[i];
+  for (auto & elem : sparse) {
+    UInt index = elem;
     dense[index] = 1;
   }
 }
@@ -616,10 +616,10 @@ vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential,
 void SpatialPooler::clip_(vector<Real>& perm, bool trim=false)
 {
   Real minVal = trim ? synPermTrimThreshold_ : synPermMin_;
-  for (UInt i = 0; i < perm.size(); i++)
+  for (auto & elem : perm)
   {
-    perm[i] = perm[i] > synPermMax_ ? synPermMax_ : perm[i];
-    perm[i] = perm[i] < minVal ? synPermMin_ : perm[i];
+    elem = elem > synPermMax_ ? synPermMax_ : elem;
+    elem = elem < minVal ? synPermMin_ : elem;
   }
 }
 
@@ -657,8 +657,8 @@ void SpatialPooler::updatePermanencesForColumn_(vector<Real>& perm,
 UInt SpatialPooler::countConnected_(vector<Real>& perm)
 {
   UInt numConnected = 0;
-  for (UInt i = 0; i < perm.size(); i++) {
-     if (perm[i] > synPermConnected_) {
+  for (auto & elem : perm) {
+     if (elem > synPermConnected_) {
        ++numConnected;
      }
    }
@@ -676,8 +676,8 @@ UInt SpatialPooler::raisePermanencesToThreshold_(vector<Real>& perm,
     if (numConnected >= stimulusThreshold_)
       break;
 
-    for (UInt i = 0; i < potential.size(); i++) {
-      UInt index = potential[i];
+    for (auto & elem : potential) {
+      UInt index = elem;
       perm[index] += synPermBelowStimulusInc_;
     }
   }
@@ -738,8 +738,8 @@ void SpatialPooler::updateMinDutyCyclesLocal_()
     neighbors.push_back(i);
     Real maxActiveDuty = 0;
     Real maxOverlapDuty = 0;
-    for (UInt j = 0; j <  neighbors.size(); j++) {
-      UInt index = neighbors[j];
+    for (auto & neighbor : neighbors) {
+      UInt index = neighbor;
       maxActiveDuty = max(maxActiveDuty, activeDutyCycles_[index]);
       maxOverlapDuty = max(maxOverlapDuty, overlapDutyCycles_[index]);
     }
@@ -805,8 +805,8 @@ Real SpatialPooler::avgConnectedSpanForColumn2D_(UInt column)
 
   vector<UInt> connectedSparse = connectedSynapses_.getSparseRow(column);
   vector<UInt> rows, cols;
-  for (UInt i = 0; i < connectedSparse.size(); i++) {
-    UInt index = connectedSparse[i];
+  for (auto & elem : connectedSparse) {
+    UInt index = elem;
     rows.push_back(conv.toRow(index));
     cols.push_back(conv.toCol(index));
   }
@@ -840,8 +840,8 @@ Real SpatialPooler::avgConnectedSpanForColumnND_(UInt column)
   }
 
   vector<UInt> columnCoord;
-  for (UInt i = 0; i < connectedSparse.size(); i++) {
-    conv.toCoord(connectedSparse[i],columnCoord);
+  for (auto & elem : connectedSparse) {
+    conv.toCoord(elem,columnCoord);
     for (UInt j = 0; j < columnCoord.size(); j++) {
       maxCoord[j] = max(maxCoord[j], columnCoord[j]);
       minCoord[j] = min(minCoord[j], columnCoord[j]);
@@ -874,8 +874,8 @@ void SpatialPooler::adaptSynapses_(UInt inputVector[],
     potential.resize(potentialPools_.nNonZerosOnRow(i));
     potential = potentialPools_.getSparseRow(column);
     permanences_.getRowToDense(column, perm);
-    for (UInt j = 0; j < potential.size(); j++) {
-        UInt index = potential[j];
+    for (auto & elem : potential) {
+        UInt index = elem;
         perm[index] += permChanges[index];
     }
     updatePermanencesForColumn_(perm, column, true);
@@ -893,8 +893,8 @@ void SpatialPooler::bumpUpWeakColumns_()
     potential.resize(potentialPools_.nNonZerosOnRow(i));
     potential = potentialPools_.getSparseRow(i);
     permanences_.getRowToDense(i, perm);
-    for (UInt j = 0; j < potential.size(); j++) {
-      UInt index = potential[j];
+    for (auto & elem : potential) {
+      UInt index = elem;
       perm[index] += synPermBelowStimulusInc_;
     }
     updatePermanencesForColumn_(perm, i, false);
@@ -1005,7 +1005,7 @@ void SpatialPooler::addToWinners_(UInt index, Real score,
                                   vector<pair<UInt, Real> >& winners)
 {
   pair<UInt, Real> val = make_pair(index, score);
-  for (vector<pair<UInt, Real> >::iterator it = winners.begin();
+  for (auto it = winners.begin();
        it != winners.end(); it++) {
     if (score > it->second) {
       winners.insert(it, val);
@@ -1044,8 +1044,8 @@ void SpatialPooler::inhibitColumnsLocal_(vector<Real>& overlaps, Real density,
                     neighbors);
     UInt numActive = (UInt) (0.5 + (density * (neighbors.size() + 1)));
     UInt numBigger = 0;
-    for (UInt i = 0; i < neighbors.size(); i++) {
-      if (overlaps[neighbors[i]] > overlaps[column]) {
+    for (auto & neighbor : neighbors) {
+      if (overlaps[neighbor] > overlaps[column]) {
         numBigger++;
       }
     }
@@ -1117,9 +1117,9 @@ void SpatialPooler::cartesianProduct_(vector<vector<UInt> >& vecs,
   }
 
   if (vecs.size() == 1) {
-    for (UInt i = 0; i < vecs[0].size(); i++) {
+    for (auto & elem : vecs[0]) {
       vector<UInt> v;
-      v.push_back(vecs[0][i]);
+      v.push_back(elem);
       product.push_back(v);
     }
     return;
@@ -1130,10 +1130,10 @@ void SpatialPooler::cartesianProduct_(vector<vector<UInt> >& vecs,
 
   vector<vector<UInt> > prod;
   cartesianProduct_(vecs, prod);
-  for (UInt i = 0; i < v.size(); i++) {
-    for (UInt j = 0; j < prod.size(); j++) {
-      vector<UInt> coord = prod[j];
-      coord.push_back(v[i]);
+  for (auto & elem : v) {
+    for (auto & prod_j : prod) {
+      vector<UInt> coord = prod_j;
+      coord.push_back(elem);
       product.push_back(coord);
     }
   }
@@ -1175,8 +1175,8 @@ void SpatialPooler::getNeighborsND_(
 
   vector<vector<UInt> > neighborCoords;
   cartesianProduct_(rangeND, neighborCoords);
-  for (UInt i = 0; i < neighborCoords.size(); i++) {
-    UInt index = conv.toIndex(neighborCoords[i]);
+  for (auto & neighborCoord : neighborCoords) {
+    UInt index = conv.toIndex(neighborCoord);
     if (index != column) {
       neighbors.push_back(index);
     }
@@ -1243,14 +1243,14 @@ void SpatialPooler::save(ostream& outStream)
 
   // Store vectors.
   outStream << inputDimensions_.size() << " ";
-  for (UInt i = 0; i < inputDimensions_.size(); i++) {
-    outStream << inputDimensions_[i] << " ";
+  for (auto & elem : inputDimensions_) {
+    outStream << elem << " ";
   }
   outStream << endl;
 
   outStream << columnDimensions_.size() << " ";
-  for (UInt i = 0; i < columnDimensions_.size(); i++) {
-    outStream << columnDimensions_[i] << " ";
+  for (auto & elem : columnDimensions_) {
+    outStream << elem << " ";
   }
   outStream << endl;
 
@@ -1286,8 +1286,8 @@ void SpatialPooler::save(ostream& outStream)
     pot.resize(potentialPools_.nNonZerosOnRow(i));
     pot = potentialPools_.getSparseRow(i);
     outStream << pot.size() << endl;
-    for (UInt j = 0; j < pot.size(); j++) {
-      outStream << pot[j] << " ";
+    for (auto & elem : pot) {
+      outStream << elem << " ";
     }
     outStream << endl;
   }
@@ -1298,8 +1298,8 @@ void SpatialPooler::save(ostream& outStream)
     perm.resize(permanences_.nNonZerosOnRow(i));
     outStream << perm.size() << endl;
     permanences_.getRowToSparse(i, perm.begin());
-    for (UInt j = 0; j < perm.size(); j++) {
-      outStream << perm[j].first << " " << perm[j].second << " ";
+    for (auto & elem : perm) {
+      outStream << elem.first << " " << elem.second << " ";
     }
     outStream << endl;
   }

@@ -98,12 +98,12 @@ extern "C"
   {
     try
     {
-      NTA_CHECK(nodeParams != NULL);
-      NTA_CHECK(region != NULL);
+      NTA_CHECK(nodeParams != nullptr);
+      NTA_CHECK(region != nullptr);
 
       ValueMap * valueMap = static_cast<nta::ValueMap *>(nodeParams);
       Region * r = static_cast<nta::Region*>(region);
-      RegionImpl * p = NULL;
+      RegionImpl * p = nullptr;
       p = new nta::PyRegion(module, *valueMap, r);
 
       return p;
@@ -111,11 +111,11 @@ extern "C"
     catch (nta::Exception & e)
     {
       *exception = new nta::Exception(e);
-      return NULL;
+      return nullptr;
     }
     catch (...)
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -125,22 +125,22 @@ extern "C"
   {
     try
     {
-      NTA_CHECK(region != NULL);
+      NTA_CHECK(region != nullptr);
 
       Region * r = static_cast<nta::Region*>(region);
       BundleIO *b = static_cast<nta::BundleIO*>(bundle);
-      RegionImpl * p = NULL;
+      RegionImpl * p = nullptr;
       p = new PyRegion(module, *b, r);
       return p;
     }
     catch (nta::Exception & e)
     {
       *exception = new nta::Exception(e);
-      return NULL;
+      return nullptr;
     }
     catch (...)
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -162,11 +162,11 @@ extern "C"
     catch (nta::Exception & e)
     {
       *exception = new nta::Exception(e);
-      return NULL;
+      return nullptr;
     }
     catch (...)
     {
-      return NULL;
+      return nullptr;
     }
   }
 
@@ -288,7 +288,7 @@ PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * re
   module_(module)
 {
   
-  NTA_CHECK(region != NULL);
+  NTA_CHECK(region != nullptr);
 
   std::string className = Path::getExtension(module_);
 
@@ -313,12 +313,10 @@ PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region) :
 
 PyRegion::~PyRegion()
 {
-  for (std::map<std::string, Array*>::iterator i = inputArrays_.begin();
-       i != inputArrays_.end();
-       i++)
+  for (auto & elem : inputArrays_)
   {
-    delete i->second;
-    i->second = NULL;
+    delete elem.second;
+    elem.second = nullptr;
   }
 
 }
@@ -1049,9 +1047,9 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 static size_t getMaxInputCount(const nta::Input::SplitterMap & sm)
 {
   size_t maxInputCount = 0;
-  for (size_t i = 0; i < sm.size(); ++i)
+  for (auto & elem : sm)
   {
-    size_t inputCount = sm[i].size();
+    size_t inputCount = elem.size();
     if (inputCount > maxInputCount)
       maxInputCount = inputCount;
   }

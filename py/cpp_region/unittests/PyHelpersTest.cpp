@@ -50,11 +50,11 @@ void PyHelpersTest::RunTests()
   {
     {
       // NULL pointer
-      PyObject * p  = NULL;
+      PyObject * p  = nullptr;
       SHOULDFAIL(py::Ptr(p, /* allowNULL: */false));
 
       py::Ptr pp1(p, /* allowNULL: */true);
-      TEST((PyObject *)pp1 == NULL);
+      TEST((PyObject *)pp1 == nullptr);
       TEST(pp1.isNULL());
     }
 
@@ -73,7 +73,7 @@ void PyHelpersTest::RunTests()
     {
       PyObject * p = PyTuple_New(1);
       TEST(p->ob_refcnt == 1);
-      py::Ptr pp(NULL, /* allowNULL */ true);
+      py::Ptr pp(nullptr, /* allowNULL */ true);
       TEST(pp.isNULL());
       NTA_DEBUG << "*** Before assign";
       pp.assign(p);
@@ -319,13 +319,13 @@ void PyHelpersTest::RunTests()
       py::Dict d;
       TEST(PyDict_Size(d) == 0);
 
-      TEST(d.getItem("blah") == NULL);
+      TEST(d.getItem("blah") == nullptr);
     }
 
     // Failed External PyObject *
     {
       // NULL object
-      SHOULDFAIL(py::Dict(NULL));
+      SHOULDFAIL(py::Dict(nullptr));
 
       // Wrong type (must be a dictionary)
       py::String s("1234");

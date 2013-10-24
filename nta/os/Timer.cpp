@@ -110,7 +110,7 @@ static inline void initTime()
   if (initialTicks_ == 0)
   {
     struct timeval t;
-    ::gettimeofday(&t, NULL);
+    ::gettimeofday(&t, nullptr);
     initialTicks_ = nta::UInt64((t.tv_sec * 1e6) + t.tv_usec);
   }
 }
@@ -118,7 +118,7 @@ static inline void initTime()
 static inline nta::UInt64 getCurrentTime()
 {
   struct timeval t;
-  ::gettimeofday(&t, NULL);
+  ::gettimeofday(&t, nullptr);
   nta::UInt64 ticks = nta::UInt64((t.tv_sec * 1e6) + t.tv_usec);
   return ticks - initialTicks_;
 }

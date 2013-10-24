@@ -41,7 +41,7 @@ namespace nta
   
   NTA_Size staticReadBufferGetSize(NTA_ReadBufferHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     ReadBuffer * rb = reinterpret_cast<ReadBuffer *>(handle);
     return rb->getSize();
@@ -49,7 +49,7 @@ namespace nta
 
   const NTA_Byte * staticGetData(NTA_ReadBufferHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     ReadBuffer * rb = reinterpret_cast<ReadBuffer *>(handle);
     return rb->getData();
@@ -57,7 +57,7 @@ namespace nta
 
   void staticReset(NTA_ReadBufferHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     ReadBuffer * rb = reinterpret_cast<ReadBuffer *>(handle);
     return rb->reset();
@@ -207,7 +207,7 @@ namespace nta
   }
 
   ReadBuffer::ReadBuffer(const char * bytes, Size size, bool copy) : 
-    bytes_(copy ? new Byte[size] : NULL),
+    bytes_(copy ? new Byte[size] : nullptr),
     memStream_(copy ? bytes_.get() : bytes, size)
   {
     // Copy the buffer to the internal bytes_ array (because 
@@ -427,7 +427,7 @@ namespace nta
     ) const
   {
     NTA_ASSERT(fDealloc || !fAlloc); // Assume new/delete if unspecified.
-    value = 0;
+    value = nullptr;
     size = 0;
     Int32 result = findWithLeadingWhitespace(*this, "<s", 16);
     if(result != 0) return result;
@@ -440,7 +440,7 @@ namespace nta
     result = findWithLeadingWhitespace(*this, '>', 16);
     if(result != 0) return result;
     if(size) {
-      char *allocated = 0;
+      char *allocated = nullptr;
       if(fAlloc) allocated = fAlloc(size);
       else allocated = new char[size];
       try {
@@ -448,7 +448,7 @@ namespace nta
         value = allocated;
       }
       catch(...) {
-        value = 0;
+        value = nullptr;
         size = 0;
         if(fDealloc) fDealloc(allocated);
         else if(fAlloc) { } // Leak (prevented by initial assertion).
@@ -470,7 +470,7 @@ namespace nta
   // -----------------------------------------=
   static const NTA_ReadBuffer * staticNext(NTA_ReadBufferIteratorHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     ReadBufferIterator * rbi = static_cast<ReadBufferIterator *>(reinterpret_cast<IReadBufferIterator *>(handle));
     return static_cast<const ReadBuffer *>(rbi->next());
@@ -478,7 +478,7 @@ namespace nta
 
   static void staticReset(NTA_ReadBufferIteratorHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     ReadBufferIterator * rbi = static_cast<ReadBufferIterator *>(reinterpret_cast<IReadBufferIterator *>(handle));
     return rbi->reset();
@@ -497,7 +497,7 @@ namespace nta
   const IReadBuffer * ReadBufferIterator::next()
   {
     if (index_ == readBufferVec_.size())
-      return NULL;
+      return nullptr;
       
     return readBufferVec_[index_++];
   }
@@ -513,7 +513,7 @@ namespace nta
   // -----------------------------------------
   NTA_Int32 staticWriteUInt32(NTA_WriteBufferHandle handle, NTA_UInt32 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -521,8 +521,8 @@ namespace nta
   
   NTA_Int32 staticWriteUInt32Array(NTA_WriteBufferHandle handle, const NTA_UInt32 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -531,7 +531,7 @@ namespace nta
 
   NTA_Int32 staticWriteInt32(NTA_WriteBufferHandle handle, NTA_Int32 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -539,8 +539,8 @@ namespace nta
 
   NTA_Int32 staticWriteInt32Array(NTA_WriteBufferHandle handle, const NTA_Int32 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -549,7 +549,7 @@ namespace nta
 
   NTA_Int32 staticWriteInt64(NTA_WriteBufferHandle handle, NTA_Int64 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -557,8 +557,8 @@ namespace nta
   
   NTA_Int32 staticWriteInt64Array(NTA_WriteBufferHandle handle, const NTA_Int64 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -567,7 +567,7 @@ namespace nta
 
   NTA_Int32 staticWriteUInt64(NTA_WriteBufferHandle handle, NTA_UInt64 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -575,8 +575,8 @@ namespace nta
   
   NTA_Int32 staticWriteUInt64Array(NTA_WriteBufferHandle handle, const NTA_UInt64 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -585,7 +585,7 @@ namespace nta
 
   NTA_Int32 staticWriteReal32(NTA_WriteBufferHandle handle, NTA_Real32 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -593,8 +593,8 @@ namespace nta
   
   NTA_Int32 staticWriteReal32Array(NTA_WriteBufferHandle handle, const NTA_Real32 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -603,7 +603,7 @@ namespace nta
 
   NTA_Int32 staticWriteReal64(NTA_WriteBufferHandle handle, NTA_Real64 value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -611,8 +611,8 @@ namespace nta
 
   NTA_Int32 staticWriteReal64Array(NTA_WriteBufferHandle handle, const NTA_Real64 * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -621,7 +621,7 @@ namespace nta
 
   NTA_Int32 staticWriteByte(NTA_WriteBufferHandle handle, NTA_Byte value)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->write(value);
@@ -629,8 +629,8 @@ namespace nta
 
   NTA_Int32 staticWriteByteArray(NTA_WriteBufferHandle handle, const NTA_Byte * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     NTA_CHECK(size > 0);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
@@ -639,8 +639,8 @@ namespace nta
 
   NTA_Int32 staticWriteString(NTA_WriteBufferHandle handle, const NTA_Byte * value, NTA_Size size)
   {
-    NTA_CHECK(handle != NULL);
-    NTA_CHECK(value != NULL);
+    NTA_CHECK(handle != nullptr);
+    NTA_CHECK(value != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->writeString(value, size);
@@ -648,7 +648,7 @@ namespace nta
 
   const Byte * staticGetData(NTA_WriteBufferHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->getData();
@@ -656,7 +656,7 @@ namespace nta
   
   NTA_Size staticWriteBufferGetSize(NTA_WriteBufferHandle handle)
   {
-    NTA_CHECK(handle != NULL);
+    NTA_CHECK(handle != nullptr);
     
     WriteBuffer * wb = reinterpret_cast<WriteBuffer *>(handle);
     return wb->getSize();
@@ -772,9 +772,9 @@ namespace nta
   {
     NTA_Int32 result = write("<s n=", 5);
     if(result != 0) return result;
-    result = writeT(size, 0);
+    result = writeT(size, nullptr);
     if(result != 0) return result;
-    result = writeT('>', 0);
+    result = writeT('>', nullptr);
     if(result != 0) return result;
     if(size) {
       result = write(value, size);
@@ -792,7 +792,7 @@ namespace nta
     }
     catch (...)
     {
-      return NULL;
+      return nullptr;
     }
   }
 

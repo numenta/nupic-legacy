@@ -57,16 +57,16 @@ namespace nta {
 
   void FlatSpatialPoolerTest::print_vec(vector<UInt> vec)
   {
-    for (UInt i = 0; i < vec.size(); i++) {
-      cout << vec[i] << " ";
+    for (auto & elem : vec) {
+      cout << elem << " ";
     }
     cout << endl;
   }
 
   void FlatSpatialPoolerTest::print_vec(vector<Real> vec)
   {
-    for (UInt i = 0; i < vec.size(); i++) {
-      cout << vec[i] << " ";
+    for (auto & elem : vec) {
+      cout << elem << " ";
     }
     cout << endl;
   }
@@ -229,8 +229,8 @@ namespace nta {
 
     fsp.selectHighTierColumns_(overlapsPct, highTier);
     highTierDense.assign(numColumns, 0);
-    for (UInt i = 0; i < highTier.size(); i++) {
-      highTierDense[highTier[i]] = 1;
+    for (auto & elem : highTier) {
+      highTierDense[elem] = 1;
     }
     NTA_CHECK(check_vector_eq(trueHighTier1, highTierDense));
 
@@ -242,8 +242,8 @@ namespace nta {
 
     fsp.selectHighTierColumns_(overlapsPct, highTier);
     highTierDense.assign(numColumns, 0);
-    for (UInt i = 0; i < highTier.size(); i++) {
-      highTierDense[highTier[i]] = 1;
+    for (auto & elem : highTier) {
+      highTierDense[elem] = 1;
     }
     NTA_CHECK(check_vector_eq(trueHighTier2, highTierDense));
 
@@ -255,8 +255,8 @@ namespace nta {
 
     fsp.selectHighTierColumns_(overlapsPct, highTier);
     highTierDense.assign(numColumns, 0);
-    for (UInt i = 0; i < highTier.size(); i++) {
-      highTierDense[highTier[i]] = 1;
+    for (auto & elem : highTier) {
+      highTierDense[elem] = 1;
     }
     NTA_CHECK(check_vector_eq(trueHighTier3, highTierDense));
 
@@ -268,8 +268,8 @@ namespace nta {
 
     fsp.selectHighTierColumns_(overlapsPct, highTier);
     highTierDense.assign(numColumns, 0);
-    for (UInt i = 0; i < highTier.size(); i++) {
-      highTierDense[highTier[i]] = 1;
+    for (auto & elem : highTier) {
+      highTierDense[elem] = 1;
     }
     NTA_CHECK(check_vector_eq(trueHighTier4, highTierDense));
   }

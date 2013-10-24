@@ -47,7 +47,7 @@ void RegionTest::RunTests()
   // test getNetwork()
   {
     Region r1("r", "TestNode", "");
-    TEST(r1.getNetwork() == NULL);
+    TEST(r1.getNetwork() == nullptr);
 
     Network * net = (Network *)1234;
     Region r2("r", "TestNode", "", net);
@@ -58,7 +58,7 @@ void RegionTest::RunTests()
 void RegionTest::testWithNodeType(const std::string& nodeType)
 {
 
-  Region *rP = NULL;
+  Region *rP = nullptr;
 
   SHOULDFAIL ( rP = new Region("r1", "nosuchnode", "") );
   
@@ -133,7 +133,7 @@ void RegionTest::testWithNodeType(const std::string& nodeType)
       // check default values
       TESTEQUAL((size_t)4, a.getCount());
       Int64 *buf = (Int64*) a.getBuffer();
-      TEST(buf != NULL);
+      TEST(buf != nullptr);
       for (UInt64 i = 0; i < 4; i++)
         TESTEQUAL((Int64)(i*64), buf[i]);
       

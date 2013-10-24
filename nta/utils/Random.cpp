@@ -33,8 +33,8 @@
 #include <cmath> // For ldexp.
 
 using namespace nta;
-Random* Random::theInstanceP_ = NULL;
-RandomSeedFuncPtr Random::seeder_ = NULL;
+Random* Random::theInstanceP_ = nullptr;
+RandomSeedFuncPtr Random::seeder_ = nullptr;
 
 const UInt32 Random::MAX32 = (UInt32)((Int32)(-1));
 const UInt64 Random::MAX64 = (UInt64)((Int64)(-1));
@@ -81,7 +81,7 @@ namespace nta
 
 Random::Random(const Random& r)
 {
-  NTA_CHECK(r.impl_ != NULL);
+  NTA_CHECK(r.impl_ != nullptr);
   seed_ = r.seed_;
   impl_ = new RandomImpl(*r.impl_);
 }
@@ -102,7 +102,7 @@ Random& Random::operator=(const Random& other)
     seed_ = other.seed_;
     if (impl_)
       delete impl_;
-    NTA_CHECK(other.impl_ != NULL);
+    NTA_CHECK(other.impl_ != nullptr);
     impl_ = new RandomImpl(*other.impl_);
   }
   return *this;
@@ -122,11 +122,11 @@ Random::Random(UInt64 seed)
   // be allocated in a recursive call to the Random
   // constructor, with seed = 0 and 
   RandomSeedFuncPtr seeder = getSeeder();
-  NTA_CHECK(seeder != NULL);
+  NTA_CHECK(seeder != nullptr);
   if (seed == 0) {
     if (seeder == badSeeder) {
       // we are constructing the singleton
-      seed_ = (UInt64)time(NULL);
+      seed_ = (UInt64)time(nullptr);
     } else {
       seed_ = seeder();
     }
@@ -141,9 +141,9 @@ Random::Random(UInt64 seed)
 
 RandomSeedFuncPtr Random::getSeeder()
 {
-  if (seeder_ == NULL)
+  if (seeder_ == nullptr)
   {
-    NTA_CHECK(theInstanceP_ == NULL);
+    NTA_CHECK(theInstanceP_ == nullptr);
     // set the seeder to something not NULL
     // so the constructor below will not
     // see a NULL pointer and call us recursively.
@@ -156,17 +156,17 @@ RandomSeedFuncPtr Random::getSeeder()
 
 void Random::initSeeder(const RandomSeedFuncPtr r)
 {
-  NTA_CHECK(r != NULL);
+  NTA_CHECK(r != nullptr);
   seeder_ = r;
 }
 
 
 void Random::shutdown()
 {
-  if (theInstanceP_ != NULL)
+  if (theInstanceP_ != nullptr)
   {
     delete theInstanceP_;
-    theInstanceP_ = NULL;
+    theInstanceP_ = nullptr;
   }
 }
 
@@ -287,7 +287,7 @@ namespace nta
   {
     outStream << "random-v1 ";
     outStream << r.seed_ << " ";
-    NTA_CHECK(r.impl_ != NULL);
+    NTA_CHECK(r.impl_ != nullptr);
     outStream << *r.impl_;
     outStream << " endrandom-v1";
     return outStream;
@@ -358,7 +358,7 @@ namespace nta
   NTA_UInt64 GetRandomSeed()
   {
     Random* r = nta::Random::theInstanceP_;
-    NTA_CHECK(r != NULL);
+    NTA_CHECK(r != nullptr);
     NTA_UInt64 result = r->getUInt64();
     return result;
   }

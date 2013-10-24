@@ -48,7 +48,7 @@ namespace nta {
   {
     vector<UInt> steps;
     steps.push_back(1);
-    FastCLAClassifier* c = new FastCLAClassifier(steps, 0.1, 0.1, 0);
+    auto  c = new FastCLAClassifier(steps, 0.1, 0.1, 0);
 
     vector<UInt> input1;
     input1.push_back(1);
@@ -66,7 +66,7 @@ namespace nta {
 
     bool found0 = false;
     bool found1 = false;
-    for (map<Int, vector<Real64>*>::const_iterator it = result2.begin();
+    for (auto it = result2.begin();
          it != result2.end(); ++it)
     {
       if (it->first == 0)
