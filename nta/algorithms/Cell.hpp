@@ -236,7 +236,7 @@ namespace nta {
         /**
          * TODO: write
          */
-        bool invariants(Cells4* =NULL) const
+        bool invariants(Cells4* =nullptr) const
         {
           return true;
         }
