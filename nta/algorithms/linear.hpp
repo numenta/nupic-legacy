@@ -61,6 +61,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NTA_LIBLINEAR_H
 #define NTA_LIBLINEAR_H
 
+#include <stddef.h> 
+#include <stdlib.h>     /* malloc, calloc, realloc, free */
+
 namespace nta {
   namespace algorithms {
     namespace linear {
