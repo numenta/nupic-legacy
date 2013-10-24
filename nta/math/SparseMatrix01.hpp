@@ -39,6 +39,7 @@
 #include <set>
 #include <map>
 
+#include "nta/math/SparseMatrix.hpp" // for ITERATE_ON_ALL_ROWS
 //----------------------------------------------------------------------
 
 // Work around terrible Windows legacy issue - min and max global macros!!!
