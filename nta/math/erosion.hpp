@@ -28,6 +28,8 @@
 #ifndef NTA_EROSION_HPP
 #define NTA_EROSION_HPP
 
+#include <stddef.h> //size_t
+
 /*
  * Python bindings are used used in GaborNode
  */
