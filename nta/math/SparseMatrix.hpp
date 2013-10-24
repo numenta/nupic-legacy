@@ -575,9 +575,9 @@ namespace nta {
 
         nrows_max_ = std::max<size_type>(2 * nrows_max_, new_nrow);
 
-        size_type *nnzr_new = new size_type[nrows_max_];
-        size_type **ind_new = new size_type*[nrows_max_];
-        value_type **nz_new = new value_type*[nrows_max_];
+        auto nnzr_new = new size_type[nrows_max_];
+        auto ind_new = new size_type*[nrows_max_];
+        auto nz_new = new value_type*[nrows_max_];
 
         std::copy(nnzr_, nnzr_ + nrows_, nnzr_new);
         std::copy(ind_, ind_ + nrows_, ind_new);
@@ -2537,8 +2537,8 @@ namespace nta {
       ITERATE_ON_ALL_ROWS {
         size_type nnzr = nnzr_[row];
         if (nnzr > 0) {
-          size_type* new_ind = new size_type[nnzr];
-          value_type* new_nz = new value_type[nnzr];
+          auto  new_ind = new size_type[nnzr];
+          auto  new_nz = new value_type[nnzr];
           std::copy(ind_[row], ind_[row] + nnzr, new_ind);
           std::copy(nz_[row], nz_[row] + nnzr, new_nz);
           ind_[row] = new_ind;
@@ -3178,7 +3178,7 @@ namespace nta {
       value_type *nz_it = nz_mem_;
       size_type count = 0, last_row = 0;
 
-      size_type *old_nnzr = new size_type [old_nrows];
+      auto old_nnzr = new size_type [old_nrows];
       std::copy(nnzr_, nnzr_ + old_nrows, old_nnzr);
 
       nrows_max_ = std::max<size_type>(8, new_nrows);
@@ -3708,8 +3708,8 @@ namespace nta {
         size_type row = *ind_it;
         size_type old_nnzr = nnzr_[row];
         size_type new_nnzr = old_nnzr + 1;
-        size_type *new_ind = new size_type [new_nnzr];
-        value_type * new_nz = new value_type [new_nnzr];
+        auto new_ind = new size_type [new_nnzr];
+        auto  new_nz = new value_type [new_nnzr];
         std::copy(ind_[row], ind_[row] + old_nnzr, new_ind);
         std::copy(nz_[row], nz_[row] + old_nnzr, new_nz);
         delete [] ind_[row];
@@ -3758,8 +3758,8 @@ namespace nta {
           new_non_zeros = true;
           size_type old_nnzr = nnzr_[row];
           size_type new_nnzr = old_nnzr + 1;
-          size_type *new_ind = new size_type [new_nnzr];
-          value_type * new_nz = new value_type [new_nnzr];
+          auto new_ind = new size_type [new_nnzr];
+          auto  new_nz = new value_type [new_nnzr];
           std::copy(ind_[row], ind_[row] + old_nnzr, new_ind);
           std::copy(nz_[row], nz_[row] + old_nnzr, new_nz);
           delete [] ind_[row];
