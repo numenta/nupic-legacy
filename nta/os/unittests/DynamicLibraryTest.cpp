@@ -49,13 +49,13 @@ static Path getPath(const std::string & s)
 
 void DynamicLibraryTest::RunTests()
 {
-  DynamicLibrary * d = NULL;
+  DynamicLibrary * d = nullptr;
 
   // Try to load "empty" library
   {
     string errorString;
     d = DynamicLibrary::load("", errorString);
-    TEST2("Shouldn't be able to load \"\" library", d == NULL); 
+    TEST2("Shouldn't be able to load \"\" library", d == nullptr); 
     TEST2("Should have non-empty error string", errorString.size() != 0);
   }
    
@@ -70,7 +70,7 @@ void DynamicLibraryTest::RunTests()
     d = DynamicLibrary::load(s, errorString);
   }
 
-  TEST2("Shouldn't be able to load non-existent library", d == NULL);
+  TEST2("Shouldn't be able to load non-existent library", d == nullptr);
   delete d; // just to satisfy coverity, not really needed, but harmless
 
   // Try to load corrupt library (this source file)
@@ -86,7 +86,7 @@ void DynamicLibraryTest::RunTests()
     string errorString;
     d = DynamicLibrary::load(std::string(path), errorString);
   }
-  TEST2("Shouldn't be able to load corrupt library", d == NULL);
+  TEST2("Shouldn't be able to load corrupt library", d == nullptr);
 
   // Load good library (very inelegant way to handle different suffix on mac and linux)
   s = "lib/libcpp_region.dylib";
@@ -103,7 +103,7 @@ void DynamicLibraryTest::RunTests()
   {
     string errorString;
     d = DynamicLibrary::load(std::string(path), errorString);
-    TEST2("Should be able to load good library", d != NULL);
+    TEST2("Should be able to load good library", d != nullptr);
     TEST2("Should have empty error string", errorString.empty());
     if (!errorString.empty())
     {
@@ -115,11 +115,11 @@ void DynamicLibraryTest::RunTests()
   if (d) {
     // Get existing symbol
     void * sym = d->getSymbol("NTA_initPython");
-    TEST2("Should be able to get 'NTA_initPython' symbol", sym != NULL);
+    TEST2("Should be able to get 'NTA_initPython' symbol", sym != nullptr);
     
     // Get non-existing symbol
     sym = d->getSymbol("non exisitng symbol");
-    TEST2("Should NOT be able to get 'non exisitng symbol' symbol", sym == NULL);
+    TEST2("Should NOT be able to get 'non exisitng symbol' symbol", sym == nullptr);
     delete d;    
   }
 }

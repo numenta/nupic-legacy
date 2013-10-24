@@ -34,7 +34,7 @@ namespace nta {
                                Mode mode, Real var, Real maxD, bool prodModeScaling)
     : mode_(mode), maxDistance_(maxD), k2_(Real(-.5/(var*var))),
       boundaries_(boundaries),
-      W_(NULL), W01_(NULL), 
+      W_(nullptr), W01_(nullptr), 
       counts_(),
       scale_(-1),
       prodModeScaling_(prodModeScaling)
@@ -90,7 +90,7 @@ namespace nta {
   SpatialPooler::SpatialPooler(std::istream& inStream)
     : mode_(dot), maxDistance_(1), k2_((Real)1.0),
       boundaries_(),
-      W_(NULL), W01_(NULL), 
+      W_(nullptr), W01_(nullptr), 
       counts_(), 
       scale_(-1),
       prodModeScaling_(true)
@@ -168,7 +168,7 @@ namespace nta {
         << "SpatialPooler::saveState(): "
         << "- Bad stream";
 
-      NTA_CHECK(W_ != NULL || W01_ != NULL)
+      NTA_CHECK(W_ != nullptr || W01_ != nullptr)
         << "SpatialPooler::saveState(): "
         << "- Null coincidence matrix";
     }
@@ -184,14 +184,14 @@ namespace nta {
           << (unsigned int)prodModeScaling_ << " ";
 
     state << boundaries_.size() << " ";
-    for (UInt i = 0; i < boundaries_.size(); ++i)
-      state << boundaries_[i] << " ";
+    for (auto & elem : boundaries_)
+      state << elem << " ";
 
     switch (mode_) {
     case gaussian:
       state << counts_.size() << " ";
-      for (UInt i = 0; i < counts_.size(); ++i)
-        state << counts_[i] << " ";
+      for (auto & elem : counts_)
+        state << elem << " ";
       W_->toCSR(state);
       break;
     case dot:

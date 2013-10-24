@@ -266,10 +266,10 @@ namespace nta {
 	float delta, snorm, one=1.0f;
 	float alpha, f, fnew, prered, actred, gs;
 	int search = 1, iter = 1, inc = 1;
-	float *s = new float[n];
-	float *r = new float[n];
-	float *w_new = new float[n];
-	float *g = new float[n];
+	auto s = new float[n];
+	auto r = new float[n];
+	auto w_new = new float[n];
+	auto g = new float[n];
 
 	for (i=0; i<n; i++)
 	  w[i] = 0;
@@ -358,8 +358,8 @@ namespace nta {
 	int i, inc = 1;
 	int n = fun_obj->get_nr_variable();
 	float one = 1.0f;
-	float *d = new float[n];
-	float *Hd = new float[n];
+	auto d = new float[n];
+	auto Hd = new float[n];
 	float rTr, rnewTrnew, alpha, beta, cgtol;
 
 	for (i=0; i<n; i++)
@@ -498,7 +498,7 @@ namespace nta {
 	  int i;
 	  int l=prob->l;
 	  int n=prob->n;
-	  float *wa = new float[l];
+	  auto wa = new float[l];
 
 	  subXv(s, wa);
 	  for(i=0;i<sizeI;i++)
@@ -650,7 +650,7 @@ namespace nta {
 	{
 	  int l=prob->l;
 	  int n=prob->n;
-	  float *wa = new float[l];
+	  auto wa = new float[l];
 
 	  Xv(s, wa);
 	  
@@ -783,7 +783,7 @@ namespace nta {
       {
 	float eps=param->eps;
 
-	function *fun_obj=NULL;
+	function *fun_obj=nullptr;
 	switch(param->solver_type)
 	  {
 	  case L2_LR:
@@ -862,9 +862,9 @@ namespace nta {
 	model_->bias = prob->bias;
 
 	int nr_class;
-	int *label = NULL;
-	int *start = NULL;
-	int *count = NULL;
+	int *label = nullptr;
+	int *start = nullptr;
+	int *count = nullptr;
 	int *perm = Malloc(int,l);
 
 	// group training data of the same class
@@ -949,7 +949,7 @@ namespace nta {
       {
 	const char *solver_type_table[]=
 	{
-	  "L2_LR", "L1_LR", "L2LOSS_SVM", NULL
+	  "L2_LR", "L1_LR", "L2LOSS_SVM", nullptr
 	};
 
 	int i;
@@ -962,7 +962,7 @@ namespace nta {
 	else
 	  n=nr_feature;
 	FILE *fp = fopen(model_file_name,"w");
-	if(fp==NULL) return -1;
+	if(fp==nullptr) return -1;
 
 	int nr_classifier;
 	if(model_->nr_class==2)
@@ -999,11 +999,11 @@ namespace nta {
       {
 	const char *solver_type_table[]=
 	{
-	  "L2_LR", "L1_LR", "L2LOSS_SVM", NULL
+	  "L2_LR", "L1_LR", "L2LOSS_SVM", nullptr
 	};
 
 	FILE *fp = fopen(model_file_name,"r");
-	if(fp==NULL) return NULL;
+	if(fp==nullptr) return nullptr;
 
 	int i;
 	int nr_feature;
@@ -1013,7 +1013,7 @@ namespace nta {
 	model *model_ = Malloc(model,1);
 	parameter& param = model_->param;
 
-	model_->label = NULL;
+	model_->label = nullptr;
 
 	char cmd[81];
 	while(1)
@@ -1033,13 +1033,13 @@ namespace nta {
 			break;
 		      }
 		  }
-		if(solver_type_table[i] == NULL)
+		if(solver_type_table[i] == nullptr)
 		  {
 		    fprintf(stderr,"unknown solver type.\n");
 		    free(model_->label);
 		    free(model_);
 		    fclose(fp);
-		    return NULL;
+		    return nullptr;
 		  }
 	      }
 	    else if(strcmp(cmd,"nr_class")==0)
@@ -1078,7 +1078,7 @@ namespace nta {
 		fprintf(stderr,"unknown text in model file: [%s]\n",cmd);
 		free(model_);
 		fclose(fp);
-		return NULL;
+		return nullptr;
 	      }
 	  }
 
@@ -1107,7 +1107,7 @@ namespace nta {
 	  }
 	
 	if (ferror(fp) != 0 || fclose(fp) != 0) 
-	  return NULL;
+	  return nullptr;
 
 	return model_;
       }

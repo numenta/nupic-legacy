@@ -263,9 +263,9 @@ void testCppLinking(std::string linkPolicy, std::string linkParams)
     if (verbose)
     {
       std::cout << "Node " << node << ": ";
-      for (size_t i = 0; i < r2NodeInput.size(); i++)
+      for (auto & elem : r2NodeInput)
       {
-        std::cout << r2NodeInput[i] << " ";
+        std::cout << elem << " ";
       }
       std::cout << "" << std::endl;
     }
@@ -355,9 +355,9 @@ void testPynodeLinking()
     if (verbose)
     {
       std::cout << "Node " << node << ": ";
-      for (size_t i = 0; i < r2NodeInput.size(); i++)
+      for (auto & elem : r2NodeInput)
       {
-        std::cout << r2NodeInput[i] << " ";
+        std::cout << elem << " ";
       }
       std::cout << "" << std::endl;
     }

@@ -75,7 +75,7 @@ namespace nta
     NTA_CHECK(!path.empty()) << "Can't get the info of an empty path";
 
     apr_status_t res;
-    apr_pool_t * pool = NULL;
+    apr_pool_t * pool = nullptr;
     
   #ifdef WIN32 
     res = ::apr_pool_create(&pool, NULL);
@@ -826,7 +826,7 @@ namespace nta
 
     std::string epath = "UnknownExecutablePath";
 #ifndef NTA_PLATFORM_win32
-    char *buf = new char[1000];
+    auto buf = new char[1000];
     UInt32 bufsize = 1000;
     // sets bufsize to actual length. 
 #if defined(NTA_PLATFORM_darwin86) || defined(NTA_PLATFORM_darwin64)

@@ -57,10 +57,10 @@ SharedPythonOStream::SharedPythonOStream(size_t maxSize)
   // Use Python to allocate the memory.
   Py_ssize_t bufferSize = NextPythonSize(maxSize);
 
-  PyObject * pys = PyString_FromStringAndSize(0, bufferSize);
+  PyObject * pys = PyString_FromStringAndSize(nullptr, bufferSize);
 
   // Access the pointers.
-  char *buffer=0;
+  char *buffer=nullptr;
   Py_ssize_t n=0;
   PyString_AsStringAndSize(pys, &buffer, &n);
   

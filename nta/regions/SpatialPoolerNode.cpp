@@ -52,7 +52,7 @@ namespace nta
 
 Spec* SpatialPoolerNode::createSpec()
 {
-  Spec *ns = new Spec;
+  auto ns = new Spec;
   
   ns->description = 
     "The spatial pooler finds spatial coincidences patterns between the outputs "
@@ -444,8 +444,8 @@ SpatialPoolerNode::SpatialPoolerNode(const ValueMap& params, Region* region)
     poolersAllocated_(false),
 
     // non-serialized attributes
-    bottomUpIn_(NULL), 
-    topDownIn_(NULL),
+    bottomUpIn_(nullptr), 
+    topDownIn_(nullptr),
     bottomUpOut_(NTA_BasicType_Real),
     topDownOut_(NTA_BasicType_Real),
     // bottomUpInputVector_ -- default constructor
@@ -506,7 +506,7 @@ SpatialPoolerNode::~SpatialPoolerNode()
 {
   for (UInt i = 0; i != poolers_.size(); ++i) {
     delete poolers_[i];
-    poolers_[i] = NULL;
+    poolers_[i] = nullptr;
   }
 }
 
@@ -515,7 +515,7 @@ void SpatialPoolerNode::initialize()
 {
   const char* where = "SpatialPoolerNode, in initialize: ";
   
-  NTA_CHECK(region_ != NULL);
+  NTA_CHECK(region_ != nullptr);
   nodeCount_ = region_->getDimensions().getCount();
 
   bottomUpOut_ = region_->getOutputData("bottomUpOut");
@@ -560,7 +560,7 @@ void SpatialPoolerNode::initialize()
     SparsePoolerInputMasks input_masks(tmp);
     for (UInt i = 0; i < actualNumNodes; i++)
     {
-      SparsePooler *sp = 
+      auto sp = 
         new SparsePooler( 
           input_masks,
           normalize_, 
@@ -603,10 +603,9 @@ void SpatialPoolerNode::compute()
       // from the set of enabled baby nodes only (not necessarily
       // all baby nodes).
       vector<UInt> cand;
-      for (NodeSet::const_iterator i = getEnabledNodes().begin();
-           i != getEnabledNodes().end(); i++)
+      for (const auto & elem : getEnabledNodes())
       {
-        cand.push_back(*i);
+        cand.push_back(elem);
       }
       
       // If we are rejecting some presentations without looking at them,
@@ -644,10 +643,9 @@ void SpatialPoolerNode::compute()
 
     } else { // not cloned
 
-      for (NodeSet::const_iterator i = getEnabledNodes().begin();
-           i != getEnabledNodes().end(); i++)
+      for (auto node : getEnabledNodes())
       {
-        size_t node = *i;
+        
         
         // If one of the baby poolers has filled up its quota
         // we will skip to the next baby pooler. 
@@ -673,10 +671,9 @@ void SpatialPoolerNode::compute()
       
   } else if (mode_ == Inference) {
 
-    for (NodeSet::const_iterator i = getEnabledNodes().begin();
-         i != getEnabledNodes().end(); i++)
+    for (auto node : getEnabledNodes())
     {
-      size_t node = *i;
+      
       
       bottomUpIn_->getInputForNode(node, bottomUpInputVector_);
       // size of each output is maxNPrototypes_
@@ -714,8 +711,8 @@ void SpatialPoolerNode::setParameterString(const std::string& paramName, Int64 i
 
   if (paramName == "sparsify") {
     SparsePooler::SparsificationMode mode = SparsePooler::convertSparsificationMode(s);
-    for(std::vector<nta::SparsePooler*>::iterator i = poolers_.begin(); i!=poolers_.end(); ++i)
-      (*i)->setSparsificationMode(mode);
+    for(auto & elem : poolers_)
+      (elem)->setSparsificationMode(mode);
   } else {
     NTA_THROW << "Unknown string parameter '" << paramName << "'";
   }

@@ -102,7 +102,7 @@ Network::~Network()
   {
     std::pair<std::string, Region*>& item =  regions_.getByIndex(i);
     delete item.second;
-    item.second = NULL;
+    item.second = nullptr;
   }
 }
 
@@ -114,7 +114,7 @@ Region* Network::addRegion(const std::string& name,
   if (regions_.contains(name))
     NTA_THROW << "Region with name '" << name << "' already exists in network";
 
-  Region *r = new Region(name, nodeType, nodeParams, this);
+  auto r = new Region(name, nodeType, nodeParams, this);
   regions_.add(name, r);
   initialized_ = false;
     
@@ -147,7 +147,7 @@ Region* Network::addRegionFromBundle(const std::string& name,
               << " does not exist";
   
   BundleIO bundle(bundlePath, label, name, /* isInput: */ true );
-  Region *r = new Region(name, nodeType, dimensions, bundle, this);
+  auto r = new Region(name, nodeType, dimensions, bundle, this);
   regions_.add(name, r);
   initialized_ = false;
     
@@ -265,10 +265,10 @@ Network::removeRegion(const std::string& name)
   r->uninitialize();
   regions_.remove(name);
 
-  std::vector<std::set<Region*> >::iterator phase = phaseInfo_.begin();
+  auto phase = phaseInfo_.begin();
   for (; phase != phaseInfo_.end(); phase++)
   {
-    std::set<Region*>::iterator toremove = phase->find(r);
+    auto toremove = phase->find(r);
     if (toremove != phase->end())
       phase->erase(toremove);
   }
@@ -312,7 +312,7 @@ Network::link(const std::string& srcRegionName, const std::string& destRegionNam
     outputName = srcSpec->getDefaultOutputName();
   
   Output* srcOutput = srcRegion->getOutput(outputName);
-  if (srcOutput == NULL)
+  if (srcOutput == nullptr)
     NTA_THROW << "Network::link -- output " << outputName 
               << " does not exist on region " << srcRegionName;
 
@@ -325,7 +325,7 @@ Network::link(const std::string& srcRegionName, const std::string& destRegionNam
     inputName = destInputName;
 
   Input* destInput = destRegion->getInput(inputName);
-  if (destInput == NULL)
+  if (destInput == nullptr)
   {
     NTA_THROW << "Network::link -- input '" << inputName 
               << " does not exist on region " << destRegionName;
@@ -360,7 +360,7 @@ Network::removeLink(const std::string& srcRegionName, const std::string& destReg
     inputName = destInputName;
 
   Input* destInput = destRegion->getInput(inputName);
-  if (destInput == NULL)
+  if (destInput == nullptr)
   {
     NTA_THROW << "Network::unlink -- input '" << inputName 
               << " does not exist on region " << destRegionName;
@@ -371,7 +371,7 @@ Network::removeLink(const std::string& srcRegionName, const std::string& destReg
     outputName = srcSpec->getDefaultOutputName();
   Link* link = destInput->findLink(srcRegionName, outputName);
 
-  if (link == NULL)
+  if (link == nullptr)
     NTA_THROW << "Network::unlink -- no link exists from region " << srcRegionName 
               << " output " << outputName << " to region " << destRegionName 
               << " input " << destInput->getName();
@@ -401,10 +401,9 @@ Network::run(int n)
     // compute on all enabled regions in phase order
     for (UInt32 phase = minEnabledPhase_; phase <= maxEnabledPhase_; phase++)
     {
-      for (std::set<Region*>::iterator i = phaseInfo_[phase].begin();
-           i != phaseInfo_[phase].end(); i++)
+      for (auto r : phaseInfo_[phase])
       {
-        Region *r = *i;
+        
         r->prepareInputs();
         r->compute();
       }
@@ -692,11 +691,9 @@ void Network::saveToBundle(const std::string& name)
       // implement as a sequence by hand. 
       out << YAML::Key << "phases" << YAML::Value << YAML::BeginSeq;
       std::set<UInt32> phases = r->getPhases();
-      for (std::set<UInt32>::const_iterator phase = phases.begin();
-           phase != phases.end();
-           phase++)
+      for (const auto & phases_phase : phases)
       {
-        out << *phase;
+        out << phases_phase;
       }
       out << YAML::EndSeq;
 
@@ -712,16 +709,12 @@ void Network::saveToBundle(const std::string& name)
     {
       Region *r = regions_.getByIndex(regionIndex).second;
       const std::map<const std::string, Input*> inputs = r->getInputs();
-      for (std::map<const std::string, Input*>::const_iterator input = inputs.begin();
-           input != inputs.end();
-           input++)
+      for (const auto & inputs_input : inputs)
       {
-        const std::vector<Link*>& links = input->second->getLinks();
-        for (std::vector<Link*>::const_iterator link = links.begin();
-             link != links.end(); 
-             link++)
+        const std::vector<Link*>& links = inputs_input.second->getLinks();
+        for (const auto & links_link : links)
         {
-          Link& l = *(*link);
+          Link& l = *(links_link);
           out << YAML::BeginMap;
           out << YAML::Key << "type" << YAML::Value << l.getLinkType();
           out << YAML::Key << "params" << YAML::Value << l.getLinkParams();
@@ -798,7 +791,7 @@ void Network::loadFromBundle(const std::string& name)
 
   // Extra version
   const YAML::Node *node = doc.FindValue("Version");
-  if (node == NULL)
+  if (node == nullptr)
     NTA_THROW << "Invalid network structure file -- no version";
   
   int version;
@@ -808,7 +801,7 @@ void Network::loadFromBundle(const std::string& name)
   
   // Regions
   const YAML::Node *regions = doc.FindValue("Regions");
-  if (regions == NULL)
+  if (regions == nullptr)
     NTA_THROW << "Invalid network structure file -- no regions";
 
   if (regions->GetType() != YAML::CT_SEQUENCE)
@@ -825,14 +818,14 @@ void Network::loadFromBundle(const std::string& name)
     
     // 1. name
     node = (*region).FindValue("name");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region has no name";
     std::string name;
     *node >> name;
 
     // 2. nodeType
     node = (*region).FindValue("nodeType");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region " 
                 << name << " has no node type";
     std::string nodeType;
@@ -840,7 +833,7 @@ void Network::loadFromBundle(const std::string& name)
 
     // 3. dimensions
     node = (*region).FindValue("dimensions");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region "
                 << name << " has no dimensions";
     if ((*node).GetType() != YAML::CT_SEQUENCE)
@@ -856,7 +849,7 @@ void Network::loadFromBundle(const std::string& name)
 
     // 4. phases
     node = (*region).FindValue("phases");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region"
                 << name << "has no phases";
     if ((*node).GetType() != YAML::CT_SEQUENCE)
@@ -873,7 +866,7 @@ void Network::loadFromBundle(const std::string& name)
     
     // 5. label
     node = (*region).FindValue("label");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region"
                 << name << "has no label";
     std::string label;
@@ -886,7 +879,7 @@ void Network::loadFromBundle(const std::string& name)
   }
 
   const YAML::Node *links = doc.FindValue("Links");
-  if (links == NULL)
+  if (links == nullptr)
     NTA_THROW << "Invalid network structure file -- no links";
 
   if (links->GetType() != YAML::CT_SEQUENCE)
@@ -903,21 +896,21 @@ void Network::loadFromBundle(const std::string& name)
     
     // 1. type
     node = (*link).FindValue("type");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have a type";
     std::string linkType;
     *node >> linkType;
 
     // 2. params
     node = (*link).FindValue("params");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have params";
     std::string params;
     *node >> params;
 
     // 3. srcRegion (name)
     node = (*link).FindValue("srcRegion");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have a srcRegion";
     std::string srcRegionName;
     *node >> srcRegionName;
@@ -925,21 +918,21 @@ void Network::loadFromBundle(const std::string& name)
 
     // 4. srcOutput
     node = (*link).FindValue("srcOutput");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have a srcOutput";
     std::string srcOutputName;
     *node >> srcOutputName;
 
     // 5. destRegion
     node = (*link).FindValue("destRegion");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have a destRegion";
     std::string destRegionName;
     *node >> destRegionName;
 
     // 6. destInput
     node = (*link).FindValue("destInput");
-    if (node == NULL)
+    if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- link does not have a destInput";
     std::string destInputName;
     *node >> destInputName;
@@ -953,11 +946,11 @@ void Network::loadFromBundle(const std::string& name)
     Region* destRegion = regions_.getByName(destRegionName);
 
     Output* srcOutput = srcRegion->getOutput(srcOutputName);
-    if (srcOutput == NULL)
+    if (srcOutput == nullptr)
       NTA_THROW << "Invalid network structure file -- link specifies source output '" << srcOutputName << "' but no such name exists";
 
     Input* destInput = destRegion->getInput(destInputName);
-    if (destInput == NULL)
+    if (destInput == nullptr)
       NTA_THROW << "Invalid network structure file -- link specifies destination input '" << destInputName << "' but no such name exists";
 
     // Create the link itself
