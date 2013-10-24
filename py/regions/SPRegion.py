@@ -34,8 +34,14 @@ from PyRegion import PyRegion
 
 gDefaultSpatialImp = 'oldpy'
 
+
 ##############################################################################
-def _getSPClass(spatialImp):
+def getDefaultSPImp():
+  return gDefaultSpatialImp
+
+
+##############################################################################
+def getSPClass(spatialImp):
   """ Return the class corresponding to the given spatialImp string
   """
 
@@ -137,8 +143,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
   # Get arguments from FDRCSpatial2 constructor, figure out types of variables
   # and populate spatialSpec
   spatialSpec = {}
-  # FDRSpatialClass = _getSPClass(spatialImp)
-  FDRSpatialClass = _getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass(spatialImp)
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
 
   for argTuple in sArgTuples:
@@ -332,7 +337,7 @@ class SPRegion(PyRegion):
 
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
-    self._FDRCSpatialClass = _getSPClass(spatialImp)
+    self._FDRCSpatialClass = getSPClass(spatialImp)
     sArgTuples = _buildArgs(self._FDRCSpatialClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial arg names for later use
