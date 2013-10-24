@@ -1537,6 +1537,481 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 }
 }
 
+//--------------------------------------------------------------------------------
+// Optimizations for FDRCSpatial2
+%inline {
+
+  // Compute overlaps
+  inline void cpp_overlap(PyObject* py_cloneMapFlat,
+                          PyObject* py_inputSlices,
+                          PyObject* py_coincSlices,
+                          PyObject* py_inputShaped,
+                          PyObject* py_masterConnectedM,
+                          nta::Real32 stimulusThreshold,
+                          PyObject* py_overlaps)
+  {
+    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
+    CHECKSIZE(_cloneMap);
+    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
+    nta::UInt32 nColumns = _cloneMap->dimensions[0];
+
+    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
+    CHECKSIZE(_inputSlices);
+    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+
+    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
+    CHECKSIZE(_coincSlices);
+    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
+    //nta::UInt32 coincNCols = _coincSlices->dimensions[1];
+
+    PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
+    CHECKSIZE(_inputShaped);
+    nta::Real32* inputShaped = (nta::Real32*)(_inputShaped->data);
+    nta::UInt32 inputNCols = _inputShaped->dimensions[1];
+
+    PyArrayObject* _masterConnectedM = (PyArrayObject*) py_masterConnectedM;
+    // A bool's size is one byte both in Python and C++
+    bool* masterConnectedM = (bool*)(_masterConnectedM->data);
+    nta::UInt32 masterNRows = _masterConnectedM->dimensions[1];
+    nta::UInt32 masterNCols = _masterConnectedM->dimensions[2];
+    nta::UInt32 masterSize = masterNRows * masterNCols;
+
+    PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
+    CHECKSIZE(_overlaps);
+    nta::Real32* overlaps = (nta::Real32*)(_overlaps->data);
+
+    nta::UInt32 inputStartC_p = 0, inputStopC_p = 0;
+    nta::Real32 inputSum = 0.0;
+
+    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+
+      nta::UInt32 masterNum = cloneMap[columnNum];
+
+      nta::UInt32 inputStartR = inputSlices[4*columnNum];
+      nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
+      nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
+      nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+
+      nta::UInt32 coincStartR = coincSlices[4*columnNum];
+      //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
+      nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
+      //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+
+      bool* masterConnected = masterConnectedM + masterNum * masterSize;
+
+      overlaps[columnNum] = 0;
+
+      nta::UInt32 r_input, c_input, r_coinc, c_coinc;
+
+      if (inputStartC == 0) {
+
+        inputSum = 0;
+
+        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
+          for (c_input = inputStartC; c_input != inputStopC; ++c_input)
+            inputSum += inputShaped[r_input*inputNCols+c_input];
+
+      } else {
+
+        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
+          for (c_input = inputStartC_p; c_input < inputStartC; ++c_input)
+            inputSum -= inputShaped[r_input*inputNCols+c_input];
+
+        for (r_input = inputStartR; r_input != inputStopR; ++r_input)
+          for (c_input = inputStopC_p; c_input < inputStopC; ++c_input)
+            inputSum += inputShaped[r_input*inputNCols+c_input];
+      }
+
+      inputStartC_p = inputStartC;
+      inputStopC_p = inputStopC;
+
+      if (inputSum < stimulusThreshold)
+        continue;
+
+      nta::Real32 sum = 0.0;
+
+      for (r_input = inputStartR, r_coinc = coincStartR;
+           r_input != inputStopR; ++r_input, ++r_coinc)
+        for (c_input = inputStartC, c_coinc = coincStartC;
+             c_input != inputStopC; ++c_input, ++c_coinc)
+          sum += inputShaped[r_input*inputNCols+c_input]
+            * masterConnected[r_coinc*masterNCols+c_coinc];
+
+      if (sum >= stimulusThreshold)
+        overlaps[columnNum] = sum;
+    }
+  }
+
+
+
+  // Compute overlaps taking an array of SparseBinaryMatrices
+  // WORK IN PROGRESS..NOT DONE YET....
+  inline void cpp_overlap_sbm(PyObject* py_cloneMapFlat,
+                          PyObject* py_inputSlices,
+                          PyObject* py_coincSlices,
+                          PyObject* py_inputShaped,
+                          PyObject* py_masterConnectedM,
+                          nta::Real32 stimulusThreshold,
+                          PyObject* py_overlaps)
+  {
+
+    /*
+    static int attach = 1;
+    if (attach) {
+      pid_t pid = ::getpid();
+      std::cout << "Waiting for connect to process ID " <<  pid << "...";
+      std::string str;
+      std::cin >> str;
+      std::cout << "Connected.";
+      attach = 0;
+    }
+
+    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
+    CHECKSIZE(_cloneMap);
+    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
+    nta::UInt32 nColumns = _cloneMap->dimensions[0];
+
+    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
+    CHECKSIZE(_inputSlices);
+    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+
+    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
+    CHECKSIZE(_coincSlices);
+    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
+    //nta::UInt32 coincNCols = _coincSlices->dimensions[1];
+
+    PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
+    CHECKSIZE(_inputShaped);
+    nta::Real32* inputShaped = (nta::Real32*)(_inputShaped->data);
+    nta::UInt32 inputNCols = _inputShaped->dimensions[1];
+
+
+    typedef nta::SparseBinaryMatrix<nta::UInt32,nta::UInt32>* SBM32Ptr;
+
+    PyObject* p = PyList_GET_ITEM(py_masterConnectedM, 0);
+
+
+    nta::UInt32 masterNRows = masterConnectedM->nRows();
+    masterConnectedM = (SBM32Ptr)(PyList_GET_ITEM(_masterConnectedM, 1))
+    nta::UInt32 masterNRows2 = masterConnectedM->nRows();
+
+
+    PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
+    CHECKSIZE(_overlaps);
+    nta::Real32* overlaps = (nta::Real32*)(_overlaps->data);
+
+    nta::UInt32 inputStartC_p = 0, inputStopC_p = 0;
+    nta::Real32 inputSum = 0.0;
+
+    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+
+      nta::UInt32 masterNum = cloneMap[columnNum];
+
+      nta::UInt32 inputStartR = inputSlices[4*columnNum];
+      nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
+      nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
+      nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+
+      nta::UInt32 coincStartR = coincSlices[4*columnNum];
+      //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
+      nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
+      //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+
+      SBM32Ptr masterConnected = masterConnectedM[masterNum];
+
+      overlaps[columnNum] = 0;
+
+      nta::UInt32 r_input, c_input, r_coinc, c_coinc;
+      nta::Real32 sum = 0.0;
+
+      for (r_input = inputStartR, r_coinc = coincStartR;
+           r_input != inputStopR; ++r_input, ++r_coinc)
+        for (c_input = inputStartC, c_coinc = coincStartC;
+             c_input != inputStopC; ++c_input, ++c_coinc)
+          sum += inputShaped[r_input*inputNCols+c_input]
+                 * masterConnected[r_coinc*masterNCols+c_coinc];
+
+      if (sum >= stimulusThreshold)
+        overlaps[columnNum] = sum;
+    }
+    */
+  }
+
+
+
+  // Update duty cycles
+  inline void cpp_updateDutyCycles(nta::UInt32 dutyCyclePeriod,
+                                   PyObject* py_cloneMapFlat,
+                                   PyObject* py_onCells,
+                                   PyObject* py_dutyCycles)
+  {
+    PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
+    CHECKSIZE(_cloneMap);
+    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
+
+    PyArrayObject* _onCells = (PyArrayObject*) py_onCells;
+    CHECKSIZE(_onCells);
+    nta::UInt32* onCells = (nta::UInt32*)(_onCells->data);
+    nta::UInt32 nColumns = _onCells->dimensions[0];
+
+    PyArrayObject* _dutyCycles = (PyArrayObject*) py_dutyCycles;
+    CHECKSIZE(_dutyCycles);
+    nta::Real32* dutyCycles = (nta::Real32*)(_dutyCycles->data);
+
+    nta::Real32 dcp = (nta::Real32) dutyCyclePeriod;
+    nta::Real32 dcp_1 = dcp - 1.0;
+
+    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+      nta::UInt32 masterNum = cloneMap[columnNum];
+      dutyCycles[masterNum] =
+        (dcp_1 * dutyCycles[masterNum] + onCells[columnNum]) / dcp;
+    }
+  }
+
+  // Adjust master valid permanence
+  // This code implements a bit more, commented out for now
+  inline void adjustMasterValidPermanence(nta::UInt32 columnNum,
+                                          nta::UInt32 masterNum,
+                                          nta::UInt32 inputNCols,
+                                          nta::UInt32 masterNCols,
+                                          //nta::Real32 stimulusThreshold,
+                                          nta::Real32 synPermActiveInc,
+                                          nta::Real32 synPermInactiveDec,
+                                          nta::Real32 synPermActiveSharedDec,
+                                          //nta::Real32 synPermBelowStimulusInc,
+                                          //nta::Real32 synPermConnected,
+                                          //nta::Real32 synPermMin,
+                                          //nta::Real32 synPermMax,
+                                          PyObject* py_inputShaped,
+                                          PyObject* py_inputUse,
+                                          PyObject* py_inputSlices,
+                                          PyObject* py_coincSlices,
+                                          PyObject* py_synPermBoostFactors,
+                                          PyObject* py_masterPermanence)
+                                          //PyObject* py_masterPotential)
+  {
+    PyArrayObject* _input = (PyArrayObject*) py_inputShaped;
+    nta::Real32* input = (nta::Real32*)(_input->data);
+
+    PyArrayObject* _inputUse = (PyArrayObject*) py_inputUse;
+    nta::UInt32* inputUse = (nta::UInt32*)(_inputUse->data);
+
+    PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
+    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+
+    PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
+    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
+
+    PyArrayObject* _spbf = (PyArrayObject*) py_synPermBoostFactors;
+    nta::Real32* spbf = (nta::Real32*)(_spbf->data);
+
+    PyArrayObject* _mpe = (PyArrayObject*) py_masterPermanence;
+    nta::Real32* perm = (nta::Real32*)(_mpe->data);
+
+    //PyArrayObject* _mpo = (PyArrayObject*) py_masterPotential;
+    //bool* potential = (bool*)(_mpo->data);
+
+    nta::UInt32 inputStartR = inputSlices[4*columnNum];
+    nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
+    nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
+    nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+
+    nta::UInt32 coincStartR = coincSlices[4*columnNum];
+    //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
+    nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
+    //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+
+    nta::UInt32 r_input = inputStartR, c_input = inputStartC;
+    nta::UInt32 r_coinc = coincStartR, c_coinc = coincStartC;
+
+    // Vectors to remember the indices of the potential synapses
+    // and which syns are connected
+    //std::vector<nta::UInt32> potentialV;
+    //std::vector<nta::UInt32> connectedSyns;
+
+    for (; r_input != inputStopR; ++r_input, ++r_coinc) {
+
+      c_input = inputStartC;
+      c_coinc = coincStartC;
+
+      for (; c_input != inputStopC; ++c_input, ++c_coinc) {
+
+        nta::UInt32 mp_idx = r_coinc*masterNCols + c_coinc;
+
+        // Skip updates of permanence based on input
+        // if not even a potential synapse
+        //if (potential[mp_idx]) {
+
+          // Remember index of potential synapes for later
+          //potentialV.push_back(mp_idx);
+          nta::UInt32 input_idx = r_input*inputNCols + c_input;
+
+          // Decrease permanence on inactive inputs
+          if (input[input_idx] == 0.0) {
+
+            perm[mp_idx] -= synPermInactiveDec;
+
+          } else { // Active inputs
+
+            // Increase permanence on active inputs
+            perm[mp_idx] += spbf[masterNum] * synPermActiveInc;
+
+            // Decrease dupe inputs
+            if (inputUse[input_idx] > 1)
+              perm[mp_idx] -= synPermActiveSharedDec;
+          }
+
+          // Clip
+          //if (perm[mp_idx] < synPermMin)
+          //  perm[mp_idx] = synPermMin;
+
+          //if (perm[mp_idx] > synPermMax)
+          //  perm[mp_idx] = synPermMax;
+
+          //} // End permanence updates based on inputs
+
+        // Find connected synapses
+        //if (perm[mp_idx] >= synPermConnected)
+        //  connectedSyns.push_back(mp_idx);
+
+      }
+    } // End loops on this master
+
+    // Bump up all (potential) permanences a bit if the number of connected
+    // synapes is below stimulusThreshold
+    /* while (connectedSyns.size() < stimulusThreshold) { */
+
+    /*   for (size_t k = 0; k != potentialV.size(); ++k) { */
+    /*     bool isCandidate = perm[potentialV[k]] < stimulusThreshold; */
+    /*     perm[potentialV[k]] += synPermBelowStimulusInc; */
+    /*     if (isCandidate && perm[potentialV[k]] >= synPermConnected) */
+    /*       connectedSyns.push_back(potentialV[k]); */
+    /*   } */
+    /* } */
+  }
+
+  //--------------------------------------------------------------------------------
+  inline nta::UInt32 getSegmentActivityLevel(PyObject* py_seg, PyObject* py_state,
+                                             bool connectedSynapsesOnly,
+                                             nta::Real32 connectedPerm)
+  {
+    PyArrayObject* _state = (PyArrayObject*) py_state;
+    nta::Byte* state = (nta::Byte*) _state->data;
+    nta::UInt32 stride0 = _state->strides[0];
+
+    nta::py::List seg;
+    seg.assign(py_seg);
+    Py_ssize_t n = seg.getCount();
+    nta::UInt32 activity = 0;
+
+    if (connectedSynapsesOnly)
+      for (Py_ssize_t i = 0; i < n; ++i) {
+        nta::py::List syn;
+        syn.assign(seg.fastGetItem(i));
+        nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+        if (p >= connectedPerm) {
+          nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+          nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+          activity += state[c * stride0 + j];
+        }
+      }
+    else
+      for (Py_ssize_t i = 0; i < n; ++i) {
+        nta::py::List syn;
+        syn.assign(seg.fastGetItem(i));
+        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        activity += state[c * stride0 + j];
+      }
+
+    return activity;
+  }
+
+  //--------------------------------------------------------------------------------
+  inline nta::Real32
+    getSegmentAvgPermanence(PyObject* py_seg, nta::Real32 connectedPerm)
+  {
+     nta::py::List seg;
+     seg.assign(py_seg);
+     Py_ssize_t n = seg.getCount();
+     nta::Real32 avg_p = 0;
+     nta::UInt32 count = 0;
+
+     for (Py_ssize_t i = 0; i < n; ++i) {
+       nta::py::List syn;
+       syn.assign(seg.fastGetItem(i));
+       nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+       if (p >= connectedPerm) {
+        ++count;
+        avg_p += p;
+       }
+     }
+
+    return avg_p / count;
+  }
+
+  //--------------------------------------------------------------------------------
+  inline nta::Real32
+    getSegmentSumActivePermanence(PyObject* py_seg, PyObject* py_state,
+                                  nta::Real32 connectedPerm)
+  {
+    PyArrayObject* _state = (PyArrayObject*) py_state;
+    nta::Byte* state = (nta::Byte*) _state->data;
+    nta::UInt32 stride0 = _state->strides[0];
+
+    nta::py::List seg;
+    seg.assign(py_seg);
+    Py_ssize_t n = seg.getCount();
+    nta::Real32 sum_p = 0;
+
+    for (Py_ssize_t i = 0; i < n; ++i) {
+      nta::py::List syn;
+      syn.assign(seg.fastGetItem(i));
+      nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+      if (p >= connectedPerm) {
+        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        sum_p += state[c * stride0 + j]*p;
+      }
+    }
+
+    return sum_p;
+  }
+
+  //--------------------------------------------------------------------------------
+  inline bool isSegmentActive(PyObject* py_seg, PyObject* py_state,
+                              nta::Real32 connectedPerm,
+                              nta::UInt32 activationThreshold)
+  {
+    PyArrayObject* _state = (PyArrayObject*) py_state;
+    nta::Byte* state = (nta::Byte*) _state->data;
+    nta::UInt32 stride0 = _state->strides[0];
+
+    nta::py::List seg;
+    seg.assign(py_seg);
+    Py_ssize_t n = seg.getCount();
+    nta::UInt32 activity = 0;
+
+    if (n < (Py_ssize_t) activationThreshold)
+      return false;
+
+    for (Py_ssize_t i = 0; i < n; ++i) {
+      nta::py::List syn;
+      syn.assign(seg.fastGetItem(i));
+      nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+      if (p >= connectedPerm) {
+        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        activity += state[c * stride0 + j];
+        if (activity >= activationThreshold)
+          return true;
+      }
+    }
+
+    return false;
+  }
+}
+
 
 //--------------------------------------------------------------------------------
 // NEW ALGORITHMS (Cells4)
