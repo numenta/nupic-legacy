@@ -56,13 +56,13 @@ namespace nta {
     {}
 
     Dense(Int nr, Int nc, Int nzr, bool small =false, bool emptyRows =false, 
-	  TRandom* r = 0)
+	  TRandom* r = nullptr)
       : nrows(nr), ncols(nc),
         m(nr*nc, 0)
     {
       if (small)
       {
-        NTA_CHECK(r != 0) 
+        NTA_CHECK(r != nullptr) 
 	  << "Random number generator required for Dense() constructor"
 	  << " when small is true";
       }
