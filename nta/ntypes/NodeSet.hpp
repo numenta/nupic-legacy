@@ -25,7 +25,7 @@
 #define NTA_NODESET_HPP
 
 #include <set>
-
+#include <stddef.h> // size_t
 namespace nta
 {
   /**
