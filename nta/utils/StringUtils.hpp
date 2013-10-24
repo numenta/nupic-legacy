@@ -56,13 +56,13 @@ namespace nta
      * @param fail         a bool pointer that if not NULL gets set to true if the conversion fails
      * @retval    boolean value
      */
-    static bool toBool(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static UInt32 toUInt32(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static Int32 toInt32(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static UInt64 toUInt64(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static Real32 toReal32(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static Real64 toReal64(const std::string& s, bool throwOnError = false, bool * fail = NULL);
-    static size_t toSizeT(const std::string& s, bool throwOnError = false, bool * fail = NULL);
+    static bool toBool(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static UInt32 toUInt32(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static Int32 toInt32(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static UInt64 toUInt64(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static Real32 toReal32(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static Real64 toReal64(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
+    static size_t toSizeT(const std::string& s, bool throwOnError = false, bool * fail = nullptr);
 
     static bool startsWith(const std::string& s, const std::string& prefix);
     static bool endsWith(const std::string& s, const std::string& ending);

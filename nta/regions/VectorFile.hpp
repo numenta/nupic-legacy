@@ -122,9 +122,9 @@ namespace nta
 
     /// Save vectors, unscaled, to a file with the specified format.
     void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
-      Int64 begin=0, const char *lineEndings=0);
+      Int64 begin=0, const char *lineEndings=nullptr);
     void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
-       Int64 begin, Int64 end, const char *lineEndings=0);
+       Int64 begin, Int64 end, const char *lineEndings=nullptr);
 
   private:
     std::vector<Real *> fileVectors_;     // list of vectors
