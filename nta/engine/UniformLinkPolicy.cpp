@@ -1202,7 +1202,7 @@ UniformLinkPolicy::getInputBoundsForNode(Coordinate nodeCoordinate,
   }
   }
 
-  return std::make_pair<Fraction, Fraction>(lowerIndex, upperIndex);
+  return std::pair<Fraction, Fraction>(lowerIndex, upperIndex);
 }
 
 std::pair<Fraction, Fraction>
