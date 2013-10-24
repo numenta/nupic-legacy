@@ -2119,7 +2119,7 @@ namespace nta {
         std::sort(x.begin(), x.begin() + nnzpr);
       size_t offset = i*nnzpr;
       for (size_t j = 0; j != nnzpr; ++j)
-        a[offset + j] = std::make_pair<T1,T2>(x[j], init_nz_val);
+        a[offset + j] = std::pair<T1,T2>(x[j], init_nz_val);
     }
   }
 
@@ -2198,7 +2198,7 @@ namespace nta {
       size_t offset = i*nnzpr;
       std::set<size_t>::const_iterator it = b.begin();
       for (size_t j = 0; j != nnzpr; ++j, ++it)
-        a[offset + j] = std::make_pair<T1,T2>(*it, init_nz_val);
+        a[offset + j] = std::pair<T1,T2>(*it, init_nz_val);
     }
     
     /*
