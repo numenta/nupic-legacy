@@ -28,6 +28,8 @@
 #ifndef NTA_ROTATION_HPP
 #define NTA_ROTATION_HPP
 
+#include <stddef.h> //size_t
+
 /*
  * Used in GaborFilter
  */

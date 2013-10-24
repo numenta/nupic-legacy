@@ -28,6 +28,8 @@
 #ifndef NTA_CONVOLUTION_HPP
 #define NTA_CONVOLUTION_HPP
 
+#include <stddef.h>
+
 //--------------------------------------------------------------------------------
 /**
  * Computes convolutions in 2D, for separable kernels.
