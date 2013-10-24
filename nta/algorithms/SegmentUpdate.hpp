@@ -26,6 +26,8 @@
 
 #include <nta/types/types.hpp>
 #include <vector>
+#include <iostream> //for ostream, istream
+
 using namespace nta;
 
 
