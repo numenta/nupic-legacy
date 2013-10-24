@@ -139,7 +139,7 @@ namespace nta {
     void testEqual(const char *testName, const char* file, int line, 
                    const T1& expectedValue, const T2& actualValue) 
     { 
-      testResult* result = new testResult;
+      auto  result = new testResult;
       result->disabled = false;
 
       std::stringstream ss;
@@ -187,7 +187,7 @@ namespace nta {
 
     void disable(const std::string& testName, const char* file, int line)
     {
-      testResult* result = new testResult;
+      auto  result = new testResult;
       result->disabled = true;
 
       std::stringstream ss;

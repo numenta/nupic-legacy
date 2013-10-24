@@ -825,7 +825,7 @@ namespace nta
     *                           the node input that are outside the actual input bounds. 
     * @retval [Byte *] pointer to internal byte array.
     */ 
-    virtual const Byte * begin(Int32 nodeIdx=allNodes, const Byte* sentinelP=0) = 0;
+    virtual const Byte * begin(Int32 nodeIdx=allNodes, const Byte* sentinelP=nullptr) = 0;
 
    /**
     * Get the end pointer to the input's byte array
@@ -1273,7 +1273,7 @@ inline void _ReadString_dealloc(NTA_Byte *p)
 
 inline std::string ReadStringFromBuffer(const IReadBuffer &buf)
 {
-  NTA_Byte *value = 0;
+  NTA_Byte *value = nullptr;
   NTA_UInt32 size = 0;
   NTA_Int32 result = buf.readString(value, size, 
       _ReadString_alloc, _ReadString_dealloc); 

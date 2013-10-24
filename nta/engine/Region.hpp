@@ -349,14 +349,14 @@ namespace nta
     Region(const std::string& name,
            const std::string& type,
            const std::string& nodeParams,
-           Network * network = NULL);
+           Network * network = nullptr);
 
     // New region from serialized state
     Region(const std::string& name, 
            const std::string& type, 
            const Dimensions& dimensions, 
            BundleIO& bundle,
-           Network * network = NULL);
+           Network * network = nullptr);
 
     virtual ~Region();
 
