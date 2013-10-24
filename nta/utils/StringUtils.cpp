@@ -167,32 +167,6 @@ size_t StringUtils::toSizeT(const std::string& s, bool throwOnError, bool * fail
   return i;
 }
 
-#if 0
-double StringUtils::toDouble(const std::string& s, bool throwOnError, bool * fail)
-{
-  if (fail)
-    *fail = false;
-  double d;
-  std::istringstream ss(s);
-
-  ss >> d;
-  if (ss.fail() || !ss.eof())
-  {
-    if (throwOnError) 
-    {
-      NTA_THROW << "StringUtils::toDouble -- invalid string \"" << s << "\"";
-    }
-    else
-    {
-      if (fail)
-        *fail = true;
-    }
-  }
-  return d;
-}
-#endif
-
-
 bool StringUtils::startsWith(const std::string& s, const std::string& prefix)
 {
   return s.find(prefix) == 0;

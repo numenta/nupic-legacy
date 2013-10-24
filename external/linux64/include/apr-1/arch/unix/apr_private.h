@@ -14,10 +14,6 @@
 
 /* Define as function which can be used for conversion of strings to
    apr_int64_t */
-#define APR_INT64_STRFN strtol
-
-/* Define as function used for conversion of strings to apr_off_t */
-#define APR_OFF_T_STRFN strtol
 
 /* Define to one of `_getb67', `GETB67', `getb67' for Cray-2 and Cray-YMP
    systems. This function is required for `alloca.c' support on those systems.
