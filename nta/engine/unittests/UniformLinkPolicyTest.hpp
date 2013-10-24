@@ -33,6 +33,7 @@
 #include <nta/test/Tester.hpp>
 #include <nta/ntypes/Dimensions.hpp>
 #include <nta/types/Fraction.hpp>
+#include <utility>
 
 //----------------------------------------------------------------------
 
@@ -58,9 +59,9 @@ namespace nta {
       std::pair<Fraction, Fraction> bounds;
 
       CoordBounds(Coordinate c, size_t dim, std::pair<Fraction, Fraction> b) :
-        coord(c),
+        coord(std::move(c)),
         dimension(dim),
-        bounds(b)
+        bounds(std::move(b))
       {
       }
     };

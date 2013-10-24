@@ -99,8 +99,8 @@ namespace nta
     Int32 readString(
         NTA_Byte * &value, 
         NTA_UInt32 &size,
-        NTA_Byte *(*fAlloc)(NTA_UInt32 size)=0,
-        void (*fDealloc)(NTA_Byte *)=0
+        NTA_Byte *(*fAlloc)(NTA_UInt32 size)=nullptr,
+        void (*fDealloc)(NTA_Byte *)=nullptr
       ) const;
     
     template <typename T>

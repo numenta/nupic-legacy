@@ -60,7 +60,7 @@ namespace nta
       dataType(dataTypeParam),
       dataTypeSize(dataTypeSizeParam),
       allocationSize(allocationSizeParam),
-      dataTypeText(dataTypeTextParam),
+      dataTypeText(std::move(dataTypeTextParam)),
       testUsesInvalidParameters(testUsesInvalidParametersParam) { }
   };
 

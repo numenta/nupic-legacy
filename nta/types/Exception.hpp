@@ -30,6 +30,7 @@
 
 #include <nta/types/types.hpp>
 #include <stdexcept>
+#include <utility>
 
 //----------------------------------------------------------------------
 
@@ -83,15 +84,15 @@ namespace nta
      *
      * @param message [const std::string &] the description of exception
      */
-    Exception(const std::string & filename, 
+    Exception(std::string  filename, 
               UInt32 lineno, 
-              const std::string & message,
-              const std::string & stacktrace = "") :
+              std::string  message,
+              std::string  stacktrace = "") :
       std::runtime_error(""),
-      filename_(filename),
+      filename_(std::move(filename)),
       lineno_(lineno),
-      message_(message),
-      stackTrace_(stacktrace)
+      message_(std::move(message)),
+      stackTrace_(std::move(stacktrace))
     {
     }
     
