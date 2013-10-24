@@ -378,7 +378,6 @@ void Cells4::inferBacktrack(const std::vector<UInt> & activeColumns)
       badPatterns.push_back(startOffset);
     }
     else {
-      candConfidence = totalConfidence;
       candStartOffset = startOffset;
       
       // If we got to here, startOffset is a candidate starting point.
@@ -1727,9 +1726,6 @@ void Cells4::adaptSegment(const SegmentUpdate& update)
       std::cout << std::endl;
     }
 
-#if 0                                       // Art testing 2011-08-14; this call appears unnecessary
-    _learnActivity.add(cellIdx, synapses.size());
-#endif
 
     addOutSynapses(cellIdx, segIdx, update.begin(), update.end());
 
