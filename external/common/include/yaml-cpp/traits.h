@@ -1,7 +1,9 @@
-#pragma once
-
 #ifndef TRAITS_H_62B23520_7C8E_11DE_8A39_0800200C9A66
 #define TRAITS_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+
+#if defined(_MSC_VER) || (defined(__GNUC__) && (__GNUC__ == 3 && __GNUC_MINOR__ >= 4) || (__GNUC__ >= 4)) // GCC supports "pragma once" correctly since 3.4
+#pragma once
+#endif
 
 
 namespace YAML
@@ -17,8 +19,13 @@ namespace YAML
 	template <> struct is_numeric <unsigned long int> { enum { value = true }; };
 	template <> struct is_numeric <short int> { enum { value = true }; };
 	template <> struct is_numeric <unsigned short int> { enum { value = true }; };
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
+	template <> struct is_numeric <__int64> { enum { value = true }; };
+	template <> struct is_numeric <unsigned __int64> { enum { value = true }; };
+#else
 	template <> struct is_numeric <long long> { enum { value = true }; };
 	template <> struct is_numeric <unsigned long long> { enum { value = true }; };
+#endif
 	template <> struct is_numeric <float> { enum { value = true }; };
 	template <> struct is_numeric <double> { enum { value = true }; };
 	template <> struct is_numeric <long double> { enum { value = true }; };
