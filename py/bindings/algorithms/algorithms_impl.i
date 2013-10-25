@@ -70,6 +70,7 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/svm.hpp>
 #include <nta/algorithms/linear.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
+#include <nta/algorithms/FDRCSpatial.hpp>
 #include <nta/algorithms/spatial_pooler.hpp>
 #include <nta/algorithms/flat_spatial_pooler.hpp>
 
@@ -97,8 +98,116 @@ using namespace nta;
 #define CHECKSIZE(var) \
   NTA_ASSERT((var)->descr->elsize == 4) << " elsize:" << (var)->descr->elsize
 
+
+// TODO: This __really__ belongs somewhere else, but no other good place for it.
+
+/* FDRCSpatialInfer
+   ----------------
+   This runs core FDRCSpatial inference algorithm for the pynode version.
+
+   Roughly, this is a right-vector product with the coincidence matrix and
+   the input vector.  We can't use a normal matrix multiply, though, because
+   we support cloning.
+
+   This is called via ctypes.
+
+   @param  input                         The input array.  Should be 0/1.
+                                         Should be inputWidth*inputHeight big.
+   @param  inputWidth                    The width of the input array.
+   @param  inputHeight                   The height of the input array.
+   @param  cloneMap                      A map that is numColumns big indicating
+                                         which clone master should be used for
+                                         each column.
+   @param  tlYXArr                       A map that is numColumns*2 big that
+                                         can be used to find (y, x) for each
+                                         column.
+   @param  numColumns                    The number of columns.
+   @param  masterLearnedCoincidencesArr  An array that is (numMasterCoincs *
+                                         2 * coincSize) big that indicates
+                                         where the mater coinc matrices should
+                                         have 1's.  Else, they have 0.  For
+                                         each master coincidence, we have an
+                                         array of coincSize y values, then
+                                         coincSize x values.  If a given
+                                         master is less than coincSize big,
+                                         it will be passed with -1.
+   @param  coincSize                     The number of non-zeros in each coinc.
+   @param  denseOutput                   We'll place the dense output here.
+   @param  masterBoredomFactors          An array of floats, one per master,
+                                         that indicates how bored that master
+                                         is.  All coincidences with that master
+                                         will have their outputs multiplied by
+                                         this number.  If you don't want to use
+                                         the "boredom" features, set all to 1.0
+*/
+
+#ifdef __cplusplus
+extern "C" {
+#endif  // __cplusplus
+
+NTA_EXPORT
+void FDRCSpatialInfer(const float* input, int inputWidth, int inputHeight,
+                      const int* cloneMap,
+                      const int* tlYXArr, int numColumns,
+                      const int* masterLearnedCoincidencesArr, int coincSize,
+                      float* denseOutput,
+                      float* masterBoredomFactors)
+{
+  for (int columnNum = numColumns-1; columnNum >= 0; columnNum--) {
+
+    int masterNum = *(cloneMap++);
+    int tlY = *(tlYXArr++);
+    int tlX = *(tlYXArr++);
+    const int* yArr = masterLearnedCoincidencesArr + (masterNum * 2 * coincSize);
+    const int* xArr = yArr + coincSize;
+    float columnSum = 0;
+    float boredomFactor = masterBoredomFactors[masterNum];
+
+    for (int i = coincSize-1; i >= 0; i--) {
+
+      int dx = *(xArr++);
+
+      if (dx == -1) {
+
+        break;
+
+      } else {
+
+        int dy = *(yArr++);
+        int x = tlX + dx;
+        int y = tlY + dy;
+
+        //std::cout << x << "/" << y << "/" << (y*inputWidth + x) << " ";
+
+        columnSum += input[(y * inputWidth) + x];
+      }
+    }
+    //std::cout << std::endl;
+
+    (*denseOutput++) = columnSum * boredomFactor;
+  }
+}
+
+#ifdef __cplusplus
+}
+#endif  // __cplusplus
+
 %}
 
+// %pythoncode %{
+//   import numpy
+//   from nupic.bindings import math
+// %}
+
+%naturalvar;
+
+
+// Hack to keep the linker from stripping (I think this is needed)...
+%inline {
+void forceRetentionOfFDRCSpatialInfer(void) {
+  FDRCSpatialInfer(NULL, 0, 0, NULL, NULL, 0, NULL, 0, NULL, NULL);
+}
+}
 
 // This dummy inline function exists only to force the linker
 // to keep the gaborCompute() function in the resulting
