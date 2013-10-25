@@ -2372,9 +2372,7 @@ class HypersearchV2(object):
                           OPTIONAL - JSON encoded string with
                                       contents of base description.py file
       description:        OPTIONAL - JSON description of the search
-      useStreams:         OPTIONAL - True or False (default True)
-      createCheckpoints:  OPTIONAL - default is to set this to the value of
-                                      useStreams. 
+      createCheckpoints:  OPTIONAL - Whether to create checkpoints
       useTerminators      OPTIONAL - True of False (default config.xml). When set
                                      to False, the model and swarm terminators
                                      are disabled
@@ -2444,9 +2442,8 @@ class HypersearchV2(object):
     self.logger.info("searchParams: \n%s" % (pprint.pformat(
         clippedObj(searchParams))))
 
-    self._useStreams = self._searchParams.get('useStreams', True)
-    self._createCheckpoints = self._searchParams.get('createCheckpoints', 
-                                                     self._useStreams)
+    self._createCheckpoints = self._searchParams.get('createCheckpoints',
+                                                     False)
     self._maxModels = self._searchParams.get('maxModels', None)
     if self._maxModels == -1:
       self._maxModels = None
@@ -2518,10 +2515,7 @@ class HypersearchV2(object):
             (anomalyParams['autoDetectWaitRecords'] is None)):
           streamDef = self._getStreamDef(searchParamObj['description'])
           
-          if self._useStreams:
-            from grokengine.cluster.database.stream_reader import StreamReader
-          else:
-            from nupic.data.stream_reader import StreamReader
+          from nupic.data.stream_reader import StreamReader
             
           try:
             streamReader = StreamReader(streamDef, isBlocking=False, 
@@ -3999,7 +3993,6 @@ class HypersearchV2(object):
                     predictedField=self._predictedField,
                     reportKeys=self._reportKeys,
                     optimizeKey=self._optimizeKey,
-                    useStreams=self._useStreams,
                     jobsDAO=jobsDAO,
                     modelCheckpointGUID=modelCheckpointGUID,
                     logLevel=logLevel,
@@ -4015,7 +4008,6 @@ class HypersearchV2(object):
         (cmpReason, cmpMsg) = runDummyModel(
                       modelID=modelID,
                       jobID=jobID,
-                      useStreams=self._useStreams,
                       params=dummyParams,
                       predictedField=self._predictedField,
                       reportKeys=self._reportKeys,

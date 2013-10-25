@@ -43,6 +43,9 @@ before_install:
 
 install:
   - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make) fi
+  # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
+  # See: https://github.com/travis-ci/travis-cookbooks/issues/155
+  - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
   - mkdir -p $NUPIC/cmake_build && cd $NUPIC/cmake_build && cmake ..
 
 script:
@@ -76,4 +79,4 @@ script:
 
 after_script:
 - tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
-- travis-artifacts upload --path build-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG
+- travis-artifacts upload --path nupic-linux64-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG

@@ -69,9 +69,11 @@
 %template(UInt32Set) std::set<nta::UInt32>;
 
 
+//32bit fix -  Already seen by swig on linux32 where size_t is the same size as unsigned int
 #if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
 %template(Dimset) std::vector<size_t>;
 #endif
+
 %include <nta/ntypes/Dimensions.hpp>
 %include <nta/ntypes/Array.hpp>
 %include <nta/ntypes/ArrayRef.hpp>

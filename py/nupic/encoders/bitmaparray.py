@@ -21,6 +21,7 @@
 
 from base import *
 from nupic.data.fieldmeta import FieldMetaType
+import random
 
 ############################################################################
 class BitmapArrayEncoder(Encoder):
@@ -37,7 +38,7 @@ class BitmapArrayEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w, name="bitmaparray", verbosity=0):
+  def __init__(self, n, w, onbits=0, name="bitmaparray", verbosity=0):
     """
     n is the total bits in input
     w is the number of bits used to encode each input bit
@@ -45,6 +46,7 @@ class BitmapArrayEncoder(Encoder):
 
     self.n = n
     self.w = w
+    self.onbits = onbits
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
@@ -82,6 +84,23 @@ class BitmapArrayEncoder(Encoder):
     for i in input:
       for j in xrange(0,self.w):
         output[(int(i)*self.w)+j] = 1
+
+    if self.onbits > 0:
+      random.seed(hash(str(output)))
+      t = self.onbits - output.sum()
+      while t > 0:
+        """ turn on more bits to normalize """
+        i = random.randint(0,self.n-1)
+        if output[i] == 0:
+          output[i] = 1
+          t -= 1
+
+      while t < 0:
+        """ turn off some bits to normalize """
+        i = random.randint(0,self.n-1)
+        if output[i] == 1:
+          output[i] = 0
+          t += 1
 
     if self.verbosity >= 2:
       print "input:", input, "index:", index, "output:", output

@@ -40,14 +40,14 @@ class SDRRandomEncoderTest(unittest.TestCase):
 
       for _ in range(100):
         out = s.encode(0)
-        assert out.shape == (fieldWidth,)
-        assert out.sum() == bitsOn
+        self.assertEqual(out.shape, (fieldWidth,))
+        self.assertEqual(out.sum(), bitsOn)
         #print out
 
       x = s.decode(out)
       print x
-      assert isinstance(x[0], dict)
-      assert "foo" in x[0]
+      self.assertIsInstance(x[0], dict)
+      self.assertTrue("foo" in x[0])
 
 ###########################################
 if __name__ == '__main__':
