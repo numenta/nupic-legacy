@@ -69,6 +69,7 @@ _ALGORITHMS = _algorithms
 #include <nta/math/SparseBinaryMatrix.hpp>
 #include <nta/algorithms/svm.hpp>
 #include <nta/algorithms/linear.hpp>
+#include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/spatial_pooler.hpp>
 #include <nta/algorithms/flat_spatial_pooler.hpp>
 
@@ -1025,6 +1026,272 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 }
 
+//--------------------------------------------------------------------------------
+// FDR
+//--------------------------------------------------------------------------------
+%include <nta/algorithms/FDRSpatial.hpp>
+
+ // Functions to speed-up Python continuous FDR SP and TP
+%inline {
+
+  // Continuous cell sweep found in FDR continuous SP
+  inline PyObject* CSPSweep(nta::UInt32 cfx, nta::UInt32 cfy,
+                            nta::UInt32 stimulusThreshold,
+                            nta::UInt32 inhibitionRadius,
+                            PyObject* py_denseOutput,
+                            PyObject* py_afterInhibition)
+  {
+    PyArrayObject* denseOutput = (PyArrayObject*) py_denseOutput;
+    CHECKSIZE(denseOutput);
+    nta::Real32* denseOutput_begin = (nta::Real32*)(denseOutput->data);
+    nta::Real32* denseOutput_end = denseOutput_begin + denseOutput->dimensions[0];
+
+    PyArrayObject* afterInhibition = (PyArrayObject*) py_afterInhibition;
+    CHECKSIZE(afterInhibition);
+    nta::Real32* afterInhibition_begin = (nta::Real32*)(afterInhibition->data);
+    nta::Real32* afterInhibition_end = afterInhibition_begin + afterInhibition->dimensions[0];
+
+    std::vector<nta::UInt32> activeElements;
+
+    nta::algorithms::csp_sweep(cfx, cfy, stimulusThreshold, inhibitionRadius,
+                               denseOutput_begin, denseOutput_end,
+                               activeElements,
+                               afterInhibition_begin, afterInhibition_end);
+
+    nta::NumpyVectorT<nta::UInt32> ae(activeElements.size());
+    for (size_t i = 0; i != activeElements.size(); ++i)
+      ae.set(i, activeElements[i]);
+    return ae.forPython();
+  }
+}
+
+//--------------------------------------------------------------------------------
+%extend nta::algorithms::FDRSpatial
+{
+  %pythoncode %{
+    def __init__(self, *args):
+        self.this = _ALGORITHMS.new_FDRSpatial(*args)
+
+    def __getstate__(self):
+      """
+      Used by the pickling mechanism to get state that will be saved.
+      """
+      return (self.toPyString(),)
+
+    def __setstate__(self, tup):
+      """
+      Used by the pickling mechanism to restore state that was saved.
+      """
+      self.this = _ALGORITHMS.new_FDRSpatial()
+      self.thisown = 1
+      self.fromPyString(tup[0])
+  %}
+
+  inline void setCMFromDense(PyObject* py_dense)
+  {
+    PyArrayObject* x = (PyArrayObject*)py_dense;
+    CHECKSIZE(x);
+    nta::Real32* x_data = (nta::Real32*) x->data;
+    self->set_cm_from_dense(x_data, x_data + x->dimensions[0] * x->dimensions[1]);
+  }
+
+  inline void compute(nta::UInt32 i, PyObject* py_x, PyObject* py_y,
+                      bool doLearn, bool doInfer)
+  {
+    PyArrayObject* x = (PyArrayObject*)py_x;
+    CHECKSIZE(x);
+    PyArrayObject* y = (PyArrayObject*)py_y;
+    CHECKSIZE(y);
+    nta::Real32* x_data = (nta::Real32*) x->data;
+    nta::Real32* y_res = (nta::Real32*) y->data;
+
+    self->compute(i,
+                  x_data, x_data + x->dimensions[0],
+                  y_res, y_res + y->dimensions[0],
+                  doLearn, doInfer);
+  }
+
+  inline PyObject* getDenseCoincidence(nta::UInt32 row) const
+  {
+    nta::NumpyVectorT<nta::Real32> c(self->nCols());
+    self->get_cm_row_dense(row, c.begin(), c.end());
+    return c.forPython();
+  }
+
+  inline PyObject* getSparseCoincidence(nta::UInt32 row) const
+  {
+    nta::NumpyVectorT<nta::UInt32> cpp_ind(self->nNonZerosPerRow());
+    nta::NumpyVectorT<nta::Real32> cpp_nz(self->nNonZerosPerRow());
+    self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin());
+    PyObject *toReturn = PyTuple_New(2);
+    PyTuple_SET_ITEM(toReturn, 0, cpp_ind.forPython());
+    PyTuple_SET_ITEM(toReturn, 1, cpp_nz.forPython());
+    return toReturn;
+  }
+
+  inline PyObject* overlaps(PyObject* py_x, PyObject* py_output)
+  {
+    PyArrayObject* x = (PyArrayObject*)py_x;
+    CHECKSIZE(x);
+    nta::Real32* x_data = (nta::Real32*) x->data;
+    PyArrayObject* output = (PyArrayObject*)py_output;
+    CHECKSIZE(output);
+    nta::Real32* output_data = (nta::Real32*) output->data;
+    std::vector<nta::Real32> y(self->nRows());
+    size_t n = self->overlaps(x_data, output_data, y.begin());
+    nta::NumpyVectorT<nta::Real32> py_y(n);
+    for (size_t i = 0; i != n; ++i)
+      py_y.set(i, y[i]);
+    return py_y.forPython();
+  }
+
+  inline PyObject* toPyString() const
+  {
+    SharedPythonOStream py_s(self->persistent_size());
+    std::ostream& s = py_s.getStream();
+    self->save(s);
+    return py_s.close();
+  }
+
+  inline bool fromPyString(PyObject *s)
+  {
+    Py_ssize_t n = 0;
+    char *buf = 0;
+    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
+    if((res == 0) && (n > 0)) {
+      std::istringstream s(std::string(buf, n));
+      self->load(s);
+      return true;
+    } else {
+      throw std::runtime_error("Failed to load FDRSpatial");
+      return false;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------
+// Continuous FDR
+//--------------------------------------------------------------------------------
+%include <nta/algorithms/FDRCSpatial.hpp>
+
+//--------------------------------------------------------------------------------
+%extend nta::algorithms::FDRCSpatial
+{
+  %pythoncode %{
+    def __init__(self, *args):
+        self.this = _ALGORITHMS.new_FDRCSpatial(*args)
+
+    def __getstate__(self):
+      """
+      Used by the pickling mechanism to get state that will be saved.
+      """
+      return (self.toPyString(),)
+
+    def __setstate__(self, tup):
+      """
+      Used by the pickling mechanism to restore state that was saved.
+      """
+      self.this = _ALGORITHMS.new_FDRCSpatial()
+      self.thisown = 1
+      self.fromPyString(tup[0])
+  %}
+
+  inline void compute(PyObject* py_x, PyObject* py_y, bool doLearn, bool doInfer)
+  {
+    PyArrayObject* x = (PyArrayObject*)py_x;
+    CHECKSIZE(x);
+    PyArrayObject* y = (PyArrayObject*)py_y;
+    CHECKSIZE(y);
+    nta::Real32* x_data = (nta::Real32*) x->data;
+    nta::Real32* y_data = (nta::Real32*) y->data;
+
+    self->compute(x_data, x_data + x->dimensions[0],
+                  y_data, y_data + y->dimensions[0],
+                  doLearn, doInfer);
+  }
+
+  inline PyObject* getSparseCoincidence(nta::UInt32 row, bool learnt =false) const
+  {
+    nta::UInt32 n = learnt ?
+      self->getNSamplingBitsPerCoincidence() :
+      self->getBitPoolSizePerCoincidence();
+
+    nta::NumpyVectorT<nta::UInt32> cpp_ind(n);
+    nta::NumpyVectorT<nta::Real32> cpp_nz(n);
+    self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin(), learnt);
+
+    PyObject *toReturn = PyTuple_New(2);
+    PyTuple_SET_ITEM(toReturn, 0, cpp_ind.forPython());
+    PyTuple_SET_ITEM(toReturn, 1, cpp_nz.forPython());
+    return toReturn;
+  }
+
+  inline PyObject* getHistogram(nta::UInt32 c) const
+  {
+    nta::NumpyVectorT<nta::UInt32> cpp_ind(self->getBitPoolSizePerCoincidence());
+    nta::NumpyVectorT<nta::Real32> cpp_nz(self->getBitPoolSizePerCoincidence());
+    self->get_cm_row_sparse(c, cpp_ind.begin(), cpp_nz.begin());
+    return cpp_nz.forPython();
+  }
+
+  inline PyObject* getMasterLearnedCoincidence(nta::UInt32 m)
+  {
+    nta::UInt32 n = self->getNSamplingBitsPerCoincidence();
+    nta::NumpyVectorT<nta::UInt32> py_rows(n);
+    nta::NumpyVectorT<nta::UInt32> py_cols(n);
+    self->getMasterLearnedCoincidence(m, py_rows.begin(), py_cols.begin());
+    PyObject* toReturn = PyTuple_New(2);
+    PyTuple_SET_ITEM(toReturn, 0, py_rows.forPython());
+    PyTuple_SET_ITEM(toReturn, 1, py_cols.forPython());
+    return toReturn;
+  }
+
+  inline PyObject* getMasterHistogram(nta::UInt32 m)
+  {
+    nta::UInt32 n = self->getBitPoolSizePerCoincidence();
+    std::vector<nta::UInt32> rows(n), cols(n);
+    std::vector<nta::Real32> vals(n);
+    self->getMasterHistogram(m, rows.begin(), cols.begin(), vals.begin());
+    nta::NumpyVectorT<nta::Real32> mat(self->getRFSide() * self->getRFSide());
+    for (size_t i = 0; i != n; ++i)
+      mat.set(rows[i] * self->getRFSide() + cols[i], vals[i]);
+    return mat.forPython();
+  }
+
+  inline PyObject* getDenseOutput() const
+  {
+    nta::NumpyVectorT<nta::Real32> y(self->getNColumns());
+    self->get_dense_output(y.begin());
+    return y.forPython();
+  }
+
+  inline PyObject* toPyString() const
+  {
+    SharedPythonOStream py_s(self->persistent_size());
+    std::ostream& s = py_s.getStream();
+    self->save(s);
+    return py_s.close();
+  }
+
+  inline bool fromPyString(PyObject *s)
+  {
+    Py_ssize_t n = 0;
+    char *buf = 0;
+    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
+    if((res == 0) && (n > 0)) {
+      std::istringstream s(std::string(buf, n));
+      self->load(s);
+      return true;
+    } else {
+      throw std::runtime_error("Failed to load FDRCSpatial");
+      return false;
+    }
+  }
+}
+
+//--------------------------------------------------------------------------------
+// LearningSet for continuous FDR TP
+//--------------------------------------------------------------------------------
 #ifdef OLD_ALGORITHMS
 %extend nta::algorithms::LearningSet
 {
