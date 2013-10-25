@@ -28,9 +28,9 @@ from nupic.research.TP10X2 import TP10X2
 
 import tp_test
 
+# Run the Python TP test against the TP10X2.
 tp_test.TP = TP10X2
-
-TP10X2Test = tp_test.TPTest
+TPTest = tp_test.TPTest
 
 
 

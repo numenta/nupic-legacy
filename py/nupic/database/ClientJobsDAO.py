@@ -2404,9 +2404,24 @@ class ClientJobsDAO(object):
                      particleHash, self._connectionID)
         try:
           numRowsAffected = conn.cursor.execute(query, sqlParams)
-        except pymysql.IntegrityError, e:
-          if e.args[0] != mysqlerrors.DUP_ENTRY:
+        except Exception, e:
+          # NOTE: We have seen instances where some package in the calling
+          #  chain tries to interpret the exception message using unicode.
+          #  Since the exception message contains binary data (the hashes), this
+          #  can in turn generate a Unicode translation exception. So, we catch
+          #  ALL exceptions here and look for the string "Duplicate entry" in
+          #  the exception args just in case this happens. For example, the 
+          #  Unicode exception we might get is:
+          #   (<type 'exceptions.UnicodeDecodeError'>, UnicodeDecodeError('utf8', "Duplicate entry '1000-?.\x18\xb1\xd3\xe0CO\x05\x8b\xf80\xd7E5\xbb' for key 'job_id'", 25, 26, 'invalid start byte'))
+          # 
+          #  If it weren't for this possible Unicode translation error, we 
+          #  could watch for only the exceptions we want, like this:  
+          #  except pymysql.IntegrityError, e:
+          #    if e.args[0] != mysqlerrors.DUP_ENTRY:
+          #      raise
+          if "Duplicate entry" not in str(e):
             raise
+          
           # NOTE: duplicate entry scenario: however, we can't discern
           # whether it was inserted by another process or this one, because an
           # intermittent failure may have caused us to retry

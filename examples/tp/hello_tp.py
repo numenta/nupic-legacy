@@ -60,7 +60,7 @@ def formatRow(x):
 #######################################################################
 #
 # Step 1: create Temporal Pooler instance with appropriate parameters
-tp = TP(numberOfCols=50, cellsPerColumn=1,
+tp = TP(numberOfCols=50, cellsPerColumn=2,
                 initialPerm=0.5, connectedPerm=0.5,
                 minThreshold=10, newSynapseCount=10,
                 permanenceInc=0.1, permanenceDec=0.0,
@@ -76,11 +76,11 @@ tp = TP(numberOfCols=50, cellsPerColumn=1,
 # must be numberOfCols wide. Here we create a simple sequence of 5 vectors
 # representing the sequence A -> B -> C -> D -> E
 x = numpy.zeros((5,tp.numberOfCols), dtype="uint32")
-x[0,0:10]  = 1   # Input SDR representing "A"
-x[1,10:20] = 1   # Input SDR representing "B"
-x[2,20:30] = 1   # Input SDR representing "C"
-x[3,30:40] = 1   # Input SDR representing "D"
-x[4,40:50] = 1   # Input SDR representing "E"
+x[0,0:10]  = 1   # Input SDR representing "A", corresponding to columns 0-9
+x[1,10:20] = 1   # Input SDR representing "B", corresponding to columns 10-19
+x[2,20:30] = 1   # Input SDR representing "C", corresponding to columns 20-29
+x[3,30:40] = 1   # Input SDR representing "D", corresponding to columns 30-39
+x[4,40:50] = 1   # Input SDR representing "E", corresponding to columns 40-49
 
 
 #######################################################################
@@ -96,6 +96,12 @@ for i in range(10):
     # here we just perform learning but you can perform prediction/inference and
     # learning in the same step if you want (online learning).
     tp.compute(x[j], enableLearn = True, computeInfOutput = False)
+
+    # This function prints the segments associated with every cell.    
+    # If you really want to understand the TP, uncomment this line. By following
+    # every step you can get an excellent understanding for exactly how the TP
+    # learns.
+    #tp.printCells()
 
   # The reset command tells the TP that a sequence just ended and essentially
   # zeros out all the states. It is not strictly necessary but it's a bit
@@ -122,12 +128,23 @@ for j in range(5):
   # What you should notice is that the columns where active state is 1
   # represent the SDR for the current input pattern and the columns where
   # predicted state is 1 represent the SDR for the next expected pattern
+  print "\nAll the active and predicted cells:"
   tp.printStates(printPrevious = False, printLearnState = False)
+  
+  # tp.getPredictedState() gets the predicted cells.
+  # predictedCells[c][i] represents the state of the i'th cell in the c'th
+  # column. To see if a column is predicted, we can simply take the OR
+  # across all the cells in that column. In numpy we can do this by taking 
+  # the max along axis 1.
+  print "\n\nThe following columns are predicted by the temporal pooler. This"
+  print "should correspond to columns in the *next* item in the sequence."
+  predictedCells = tp.getPredictedState()
+  print formatRow(predictedCells.max(axis=1).nonzero())
 
 
 #######################################################################
 #
-# This command prints the segments associated with every single cell
-# This is commented out because it prints a ton of stuff.
+# This command prints the segments associated with every single cell. This is
+# commented out because it prints a ton of stuff. 
 #tp.printCells()
 

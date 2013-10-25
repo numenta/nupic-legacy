@@ -415,15 +415,6 @@ namespace nta {
 	return(cg_iter);
       }
 
-      float TRON::norm_inf(int n, float *x)
-      {
-	float dmax = fabs(x[0]);
-	for (int i=1; i<n; i++)
-	  if (fabs(x[i]) >= dmax)
-	    dmax = fabs(x[i]);
-	return(dmax);
-      }
-
       //--------------------------------------------------------------------------------
       class l2loss_svm_fun : public function
       {

@@ -296,7 +296,7 @@ void Cells4::inferBacktrack(const std::vector<UInt> & activeColumns)
   // How much input history have we accumulated? Is it enough to backtrack?
   // The current input is always at the end of self._prevInfPatterns, but
   // it is also evaluated as a potential starting point
-  if (_prevInfPatterns.size() == 0) return;
+  if (_prevInfPatterns.empty()) return;
 
   TIMER(infBacktrackTimer.start());
 
@@ -378,7 +378,6 @@ void Cells4::inferBacktrack(const std::vector<UInt> & activeColumns)
       badPatterns.push_back(startOffset);
     }
     else {
-      candConfidence = totalConfidence;
       candStartOffset = startOffset;
       
       // If we got to here, startOffset is a candidate starting point.
@@ -688,7 +687,7 @@ UInt Cells4::getCellForNewSegment(UInt colIdx)
   }
 
   // If we found one, return with it
-  if (candidateCellIdxs.size() > 0)
+  if (!candidateCellIdxs.empty())
   {
     candidateCellIdx =
                 candidateCellIdxs[_rng.getUInt32(candidateCellIdxs.size())];
@@ -1727,9 +1726,6 @@ void Cells4::adaptSegment(const SegmentUpdate& update)
       std::cout << std::endl;
     }
 
-#if 0                                       // Art testing 2011-08-14; this call appears unnecessary
-    _learnActivity.add(cellIdx, synapses.size());
-#endif
 
     addOutSynapses(cellIdx, segIdx, update.begin(), update.end());
 
@@ -1751,7 +1747,7 @@ void Cells4::_rebalance()
   _nIterationsSinceRebalance = _nLrnIterations;
 
   for (UInt cellIdx = 0; cellIdx != _nCells; ++cellIdx) {
-    if (_cells[cellIdx].size() > 0) {
+    if (!_cells[cellIdx].empty()) {
       _cells[cellIdx].rebalanceSegments();
     }
   }
@@ -2105,7 +2101,7 @@ bool Cells4::invariants(bool verbose) const
     // column has no incoming segments
     for (UInt colIdx = 0; colIdx != _nColumns; ++colIdx) {
       UInt cellIdx = colIdx * _nCellsPerCol;
-      consistent &= (_cells[cellIdx].size() == 0);
+      consistent &= (_cells[cellIdx].empty());
     }
 
     if (!consistent && verbose) {
@@ -2585,7 +2581,7 @@ Cells4::chooseCellsToLearnFrom(UInt cellIdx, UInt segIdx,
   // if we found fewer cells than requested, return all of them
   // The new ones are sorted, but we need to sort again if there were
   // any old ones.
-  bool fSortNeeded = srcCells.size() > 0;   // may be overridden below
+  bool fSortNeeded = !srcCells.empty();   // may be overridden below
   if (nbrCells <= nSynToAdd) {
     // since we use all of vecPruned, we don't need a random number
     srcCells.reserve(nbrCells + srcCells.size());

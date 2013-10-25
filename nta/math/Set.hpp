@@ -23,6 +23,8 @@
 
 /** @file
  * Our own set object, to beat Python, at least when computing intersection.
+ * TODO: this file is currently superceded by built-in python set(), keeping as a reference, 
+ * and we should test which is faster for intersection workload, which is heavily used.
  */
 
 #ifndef NTA_MATH_SET_HPP

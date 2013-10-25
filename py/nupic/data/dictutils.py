@@ -22,6 +22,12 @@
 import copy
 
 
+
+def identityConversion(value, _keys):
+  return value
+
+
+
 class DictObj(dict):
   """Dictionary that allows attribute-like access to its elements.
   Attributes are read-only."""
@@ -50,7 +56,7 @@ def rUpdate(original, updates):
         original[k] = v
 
 
-def rCopy(d, f, discardNoneKeys=True, deepCopy=True):
+def rCopy(d, f=identityConversion, discardNoneKeys=True, deepCopy=True):
   """Recursively copies a dict and returns the result.
 
   Args:

@@ -38,13 +38,8 @@
 
 #include <boost/concept_check.hpp>
 
-#ifdef NUPIC2
 #include <nta/types/types.hpp>
 #include <nta/math/utils.hpp>
-#else
-#include <nta/types/types.hpp>
-#include <nta/common/utils.hpp>
-#endif
 
 #ifdef WIN32
 #undef min
@@ -119,7 +114,7 @@ namespace nta {
    *   numeric_limits<float>::epsilon() == 1.19209e-7
    *   numeric_limits<double>::epsilon() == 2.22045e-16
    */
-  static nta::Real Epsilon = nta::Real(1e-6);
+  static const nta::Real Epsilon = nta::Real(1e-6);
 
   //--------------------------------------------------------------------------------
   /**

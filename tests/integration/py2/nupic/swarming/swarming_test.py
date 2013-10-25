@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -40,13 +40,14 @@ import tempfile
 
 from optparse import OptionParser
 
-from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
-from nupic.swarming import HypersearchWorker
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
-import nupic.support
+from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
     TestCaseBase as HelperTestCaseBase)
+from nupic.swarming import HypersearchWorker
+from nupic.swarming.api import getSwarmModelParams, createAndStartSwarm
+from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
 DEFAULT_JOB_TIMEOUT_SEC = 60 * 2
 
@@ -61,18 +62,6 @@ g_myEnv = None
 # This value for the swarm maturity window gives more repeatable results for
 #  unit tests that use multiple workers
 g_repeatableSwarmMaturityWindow = 5
-
-
-################################################################################
-def _generatePersistentJobGUID():
-  """Generates a "persistentJobGUID" value.
-
-  Parameters:
-  ----------------------------------------------------------------------
-  retval:          A persistentJobGUID value
-
-  """
-  return "JOB_UUID1-" + str(uuid.uuid1())
 
 
 
@@ -225,7 +214,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
   ############################################################################
   def _generateHSJobParams(self,
                            expDirectory=None,
-                           useStreams=False,
                            hsImp='v2',
                            maxModels=2,
                            predictionCacheMaxRecords=None,
@@ -237,8 +225,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     Parameters:
     ---------------------------------------------------------------------
-    useStreams:    If true, generate stream cache for the model
-                   If false, generate csv file for the model
     predictionCacheMaxRecords:
                    If specified, determine the maximum number of records in
                    the prediction cache.
@@ -255,12 +241,11 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       permutationsPyContents = open(permutationsPyPath, 'rb').read()
       descriptionPyContents = open(descriptionPyPath, 'rb').read()
 
-      jobParams = {'persistentJobGUID' : _generatePersistentJobGUID(),
-                'permutationsPyContents': permutationsPyContents,
-                'descriptionPyContents': descriptionPyContents,
-                'useStreams': useStreams,
-                'maxModels': maxModels,
-                'hsVersion': hsImp}
+      jobParams = {'persistentJobGUID' : generatePersistentJobGUID(),
+                   'permutationsPyContents': permutationsPyContents,
+                   'descriptionPyContents': descriptionPyContents,
+                   'maxModels': maxModels,
+                   'hsVersion': hsImp}
 
       if predictionCacheMaxRecords is not None:
         jobParams['predictionCacheMaxRecords'] = predictionCacheMaxRecords
@@ -315,7 +300,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       jobParams = {
         "persistentJobGUID": _generatePersistentJobGUID(),
         "description":expDesc,
-        "useStreams": useStreams,
         "maxModels": maxModels,
         "hsVersion": hsImp,
       }
@@ -627,10 +611,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
   ############################################################################
   def runPermutations(self, expDirectory, hsImp='v2', maxModels=2,
                       maxNumWorkers=4, loggingLevel=logging.INFO,
-                      useStreams=False, onCluster=False, env=None,
-                      waitForCompletion=True, continueJobId=None,
-                      dataPath=None, maxRecords=None, timeoutSec=None,
-                      ignoreErrModels=False, predictionCacheMaxRecords=None, **kwargs):
+                      onCluster=False, env=None, waitForCompletion=True,
+                      continueJobId=None, dataPath=None, maxRecords=None,
+                      timeoutSec=None, ignoreErrModels=False,
+                      predictionCacheMaxRecords=None, **kwargs):
     """ This runs permutations on the given experiment using just 1 worker
 
     Parameters:
@@ -671,8 +655,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     
     # ----------------------------------------------------------------
     # Prepare the jobParams
-    jobParams = self._generateHSJobParams(useStreams=useStreams,
-                                          expDirectory=expDirectory,
+    jobParams = self._generateHSJobParams(expDirectory=expDirectory,
                                           hsImp=hsImp, maxModels=maxModels,
                                           maxRecords=maxRecords,
                                           dataPath=dataPath,
@@ -2477,8 +2460,8 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     terminatedSwarms = jobResults['terminatedSwarms']
 
-    from grokengine.support.configuration import Configuration;
-    swarmMaturityWindow = int(Configuration.get('nupic.hypersearch.swarmMaturityWindow'))
+    swarmMaturityWindow = int(configuration.Configuration.get(
+        'nupic.hypersearch.swarmMaturityWindow'))
 
     prefix = 'modelParams|sensorParams|encoders|'
     for swarm, (generation, scores) in terminatedSwarms.iteritems():
@@ -2509,8 +2492,8 @@ class SwarmTerminatorTests(ExperimentTestBaseClass):
     jobResults = json.loads(jobResultsStr)
     terminatedSwarms = jobResults['terminatedSwarms']
 
-    from grokengine.support.configuration import Configuration;
-    swarmMaturityWindow = int(Configuration.get('nupic.hypersearch.swarmMaturityWindow'))
+    swarmMaturityWindow = int(configuration.Configuration.get(
+        'nupic.hypersearch.swarmMaturityWindow'))
 
     prefix = 'modelParams|sensorParams|encoders|'
     for swarm, (generation, scores) in terminatedSwarms.iteritems():
@@ -2692,7 +2675,7 @@ def setUpModule():
   # Init the NuPic logging configuration from the nupic-logging.conf configuration
   #  file. This is found either in the NTA_CONF_DIR directory (if defined) or
   #  in the 'conf' subdirectory of the NuPic install location.
-  nupic.support.initLogging(verbose=True)
+  initLogging(verbose=True)
   
   global g_myEnv
   # Setup our environment
