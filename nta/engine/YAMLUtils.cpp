@@ -40,14 +40,14 @@ namespace YAMLUtils
 /*
  * These functions are used internally by toValue and toValueMap
  */
-static void toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s);
-static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a);
+static void _toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s);
+static void _toArray(const YAML::Node& node, boost::shared_ptr<Array>& a);
 static Value toValue(const YAML::Node& node, NTA_BasicType dataType);
 
 
-static void toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s)
+static void _toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s)
 {
-  NTA_CHECK(node.GetType() == YAML::CT_SCALAR);
+  NTA_CHECK(node.Type() == YAML::NodeType::Scalar);
   switch(s->getType())
   {
   case NTA_BasicType_Byte:
@@ -89,9 +89,9 @@ static void toScalar(const YAML::Node& node, boost::shared_ptr<Scalar>& s)
   }
 }
     
-static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
+static void _toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
 {
-  NTA_CHECK(node.GetType() == YAML::CT_SEQUENCE);
+  NTA_CHECK(node.Type() == YAML::NodeType::Sequence);
       
   a->allocateBuffer(node.size());
   void* buffer = a->getBuffer();
@@ -99,7 +99,7 @@ static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
   for (size_t i = 0; i < node.size(); i++)
   {
     const YAML::Node& item = node[i];
-    NTA_CHECK(item.GetType() == YAML::CT_SCALAR);
+    NTA_CHECK(item.Type() == YAML::NodeType::Scalar);
     switch(a->getType())
     {
     case NTA_BasicType_Byte:
@@ -139,11 +139,11 @@ static void toArray(const YAML::Node& node, boost::shared_ptr<Array>& a)
 
 static Value toValue(const YAML::Node& node, NTA_BasicType dataType)
 {
-  if (node.GetType() == YAML::CT_MAP || node.GetType() == YAML::CT_NONE)
+  if (node.Type() == YAML::NodeType::Map || node.Type() == YAML::NodeType::Null)
   {
     NTA_THROW << "YAML string does not not represent a value.";
   }
-  if (node.GetType() == YAML::CT_SCALAR)
+  if (node.Type() == YAML::NodeType::Scalar)
   {
     if (dataType == NTA_BasicType_Byte)
     {
@@ -155,14 +155,14 @@ static Value toValue(const YAML::Node& node, NTA_BasicType dataType)
       return v;
     } else {
       boost::shared_ptr<Scalar> s(new Scalar(dataType));
-      toScalar(node, s);
+      _toScalar(node, s);
       Value v(s);
       return v;
     }
   } else {
     // array
     boost::shared_ptr<Array> a(new Array(dataType));
-    toArray(node, a);
+    _toArray(node, a);
     Value v(a);
     return v;
   }
@@ -242,7 +242,7 @@ ValueMap toValueMap(const char* yamlstring,
       NTA_THROW << "Unable to find document in YAML string";
 
     // A ValueMap is specified as a dictionary
-    if (doc.GetType() != YAML::CT_MAP)
+    if (doc.Type() != YAML::NodeType::Map)
     {
       std::string ys(yamlstring);
       if (ys.size() > 30)
@@ -260,7 +260,7 @@ ValueMap toValueMap(const char* yamlstring,
   YAML::Iterator i;
   for (i = doc.begin(); i != doc.end(); i++)
   {
-    const std::string key = i.first().Read<std::string>();
+    const std::string key = i.first().to<std::string>();
     if (!parameters.contains(key))
     {
       std::stringstream ss;
