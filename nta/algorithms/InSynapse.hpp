@@ -49,7 +49,9 @@ namespace nta {
       {
       private:
         UInt _srcCellIdx;
-        Real _permanence;
+	typedef unsigned char synapse_t;
+        synapse_t _permanence; // resolves to float
+	static const NTA_Real32 GRAIN = 255;
 
       public:
         inline InSynapse()
@@ -57,9 +59,9 @@ namespace nta {
             _permanence(0)
         {}
 
-        inline InSynapse(UInt srcCellIdx, Real permanence)
+        inline InSynapse(UInt srcCellIdx, NTA_Real32 permanence)
           : _srcCellIdx(srcCellIdx),
-            _permanence(permanence)
+            _permanence(static_cast<synapse_t>(permanence*GRAIN))
         {}
 
         inline InSynapse(const InSynapse& o)
@@ -75,9 +77,9 @@ namespace nta {
         }
 
         inline UInt srcCellIdx() const { return _srcCellIdx; } const
-        inline Real& permanence() const { return _permanence; }
-        inline Real& permanence() { return _permanence; }
-
+        inline NTA_Real32 permanence() { return static_cast<NTA_Real32>(_permanence/GRAIN); }
+	inline NTA_Real32 permanence() const { return static_cast<NTA_Real32>(_permanence/GRAIN); }
+	inline void permanence(NTA_Real32 val) { _permanence = static_cast<synapse_t>(val*GRAIN); } 
         inline void print(std::ostream& outStream) const;
       };
 

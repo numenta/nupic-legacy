@@ -54,7 +54,7 @@ void printSynapse(UInt srcCellIdx, UInt nCellsPerCol)
 
 
 //----------------------------------------------------------------------
-Segment::Segment(const InSynapses& _s, Real frequency, bool seqSegFlag,
+Segment::Segment(const InSynapses& _s, bool seqSegFlag,
         Real permConnected, UInt iteration)
   : _totalActivations(1),
     _positiveActivations(1),
@@ -62,7 +62,6 @@ Segment::Segment(const InSynapses& _s, Real frequency, bool seqSegFlag,
     _lastPosDutyCycle(1.0 / iteration),
     _lastPosDutyCycleIteration(iteration),
     _seqSegFlag(seqSegFlag),
-    _frequency(frequency),
     _synapses(_s),
     _nConnected(0)
 {
@@ -79,7 +78,6 @@ Segment& Segment::operator=(const Segment& o)
 {
   if (&o != this) {
     _seqSegFlag = o._seqSegFlag;
-    _frequency = o._frequency;
     _synapses = o._synapses;
     _nConnected = o._nConnected;
     _totalActivations = o._totalActivations;
@@ -102,7 +100,6 @@ Segment::Segment(const Segment& o)
     _lastPosDutyCycle(o._lastPosDutyCycle),
     _lastPosDutyCycleIteration(o._lastPosDutyCycleIteration),
     _seqSegFlag(o._seqSegFlag),
-    _frequency(o._frequency),
     _synapses(o._synapses),
     _nConnected(o._nConnected)
 {
@@ -238,16 +235,16 @@ void Segment::decaySynapses(Real decay, std::vector<UInt>& removed,
   del.clear();                              // purge residual data
 
   for (UInt i = 0; i != _synapses.size(); ++i) {
+    NTA_Real32 perm = _synapses[i].permanence(); 
+    int wasConnected = static_cast<int>(perm >= permConnected);
 
-    int wasConnected = (int) (_synapses[i].permanence() >= permConnected);
-
-    if (_synapses[i].permanence() < decay) {
+    if (perm < decay) {
 
       removed.push_back(_synapses[i].srcCellIdx());
       del.push_back(i);
 
     } else if (doDecay) {
-      _synapses[i].permanence() -= decay;
+      _synapses[i].permanence(perm-decay); //! further perm!=syn.permanence()
     }
 
     int isConnected = (int) (_synapses[i].permanence() >= permConnected);
@@ -294,7 +291,7 @@ void Segment::decaySynapses2(Real decay, std::vector<UInt>& removed,
 
     } else {
 
-      _synapses[i].permanence() -= decay;
+      _synapses[i].permanence(_synapses[i].permanence()-decay);
 
       // If it was connected and is now below permanence, reduce connected count
       if ( (_synapses[i].permanence() + decay >= permConnected)

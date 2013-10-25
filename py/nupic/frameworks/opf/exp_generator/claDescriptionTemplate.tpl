@@ -187,7 +187,7 @@ config = {
             #  > 0 for fixed-size CLA
             # -1 for non-fixed-size CLA
             #
-            # TODO: for Ron: once the appropriate value is placed in TP
+            # TODO: for Ron: once the appropriate value is placed in TP 
             # constructor, see if we should eliminate this parameter from
             # description.py.
             'maxSynapsesPerSegment': 32,
