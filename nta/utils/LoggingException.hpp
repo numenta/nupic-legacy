@@ -30,6 +30,7 @@
 
 #include <nta/types/Exception.hpp>
 #include <sstream>
+#include <vector> 
 
 namespace nta
 {
@@ -57,6 +58,9 @@ namespace nta
       }
       return lmessage_.c_str();
     }
+
+    // for Index.hpp: 
+    LoggingException& operator<<(std::vector<unsigned int, std::allocator<unsigned int> >  v);
 
     template <typename T> LoggingException& operator<<(const T& obj)
     {
