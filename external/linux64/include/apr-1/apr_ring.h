@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -69,8 +69,8 @@
  */
 #define APR_RING_ENTRY(elem)						\
     struct {								\
-	struct elem *next;						\
-	struct elem *prev;						\
+	struct elem * volatile next;					\
+	struct elem * volatile prev;					\
     }
 
 /**
@@ -90,8 +90,8 @@
  */
 #define APR_RING_HEAD(head, elem)					\
     struct head {							\
-	struct elem *next;						\
-	struct elem *prev;						\
+	struct elem * volatile next;					\
+	struct elem * volatile prev;					\
     }
 
 /**
@@ -157,7 +157,7 @@
  * @param link The name of the APR_RING_ENTRY in the element struct
  */
 #define APR_RING_SENTINEL(hp, elem, link)				\
-    (struct elem *)((char *)(hp) - APR_OFFSETOF(struct elem, link))
+    (struct elem *)((char *)(&(hp)->next) - APR_OFFSETOF(struct elem, link))
 
 /**
  * The first element of the ring
@@ -377,6 +377,30 @@
 #define APR_RING_REMOVE(ep, link)					\
     APR_RING_UNSPLICE((ep), (ep), link)
 
+/**
+ * Iterate over a ring
+ * @param ep The current element
+ * @param head The head of the ring
+ * @param elem The name of the element struct
+ * @param link The name of the APR_RING_ENTRY in the element struct
+ */
+#define APR_RING_FOREACH(ep, head, elem, link)                          \
+    for (ep = APR_RING_FIRST(head);                                     \
+         ep != APR_RING_SENTINEL(head, elem, link);                     \
+         ep = APR_RING_NEXT(ep, link))
+
+/**
+ * Iterate over a ring safe against removal of the current element
+ * @param ep1 The current element
+ * @param ep2 Iteration cursor
+ * @param head The head of the ring
+ * @param elem The name of the element struct
+ * @param link The name of the APR_RING_ENTRY in the element struct
+ */
+#define APR_RING_FOREACH_SAFE(ep1, ep2, head, elem, link)               \
+    for (ep1 = APR_RING_FIRST(head), ep2 = APR_RING_NEXT(ep1, link);    \
+         ep1 != APR_RING_SENTINEL(head, elem, link);                    \
+         ep1 = ep2, ep2 = APR_RING_NEXT(ep1, link))
 
 /* Debugging tools: */
 

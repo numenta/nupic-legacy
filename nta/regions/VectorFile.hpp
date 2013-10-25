@@ -110,7 +110,7 @@ namespace nta
 
     // Return true iff a labeled file was read in
     inline bool isLabeled() const 
-    { return ( (elementLabels_.size()>0) && (vectorLabels_.size()>0) ); }
+    { return (! (elementLabels_.empty() || vectorLabels_.empty()) ); }
 
     /// Save the scale and offset vectors to this stream
     void saveState(std::ostream &str);
@@ -121,9 +121,9 @@ namespace nta
     void readState(std::istream& state);
 
     /// Save vectors, unscaled, to a file with the specified format.
-    void saveVectors(std::ostream &out, Size nColumns, Int32 fileFormat, 
+    void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
       Int64 begin=0, const char *lineEndings=0);
-    void saveVectors(std::ostream &out, Size nColumns, Int32 fileFormat, 
+    void saveVectors(std::ostream &out, Size nColumns, UInt32 fileFormat, 
        Int64 begin, Int64 end, const char *lineEndings=0);
 
   private:

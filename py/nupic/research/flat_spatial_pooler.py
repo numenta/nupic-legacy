@@ -40,6 +40,23 @@ class FlatSpatialPooler(SpatialPooler):
   inhibition.
   """
 
+
+  def setMinDistance(self, minDistance):
+    self._minDistance = minDistance
+
+  
+  def getMinDistance(self):
+    return self._minDistance
+
+
+  def setRandomSP(self, randomSP):
+    self._randomSP = randomSP
+
+
+  def getRandomSP(self):
+    return self._randomSP
+
+
   def __init__(self,
                inputShape=(32, 32),
                inputBorder=8,
@@ -76,12 +93,14 @@ class FlatSpatialPooler(SpatialPooler):
                randomSP=False,
               ):
 
+    numInputs = numpy.array(inputShape).prod()
+    numColumns = numpy.array(coincidencesShape).prod()
     super(FlatSpatialPooler, self).__init__(
       inputDimensions=numpy.array(inputShape),
       columnDimensions=numpy.array(coincidencesShape),
-      potentialRadius=coincInputRadius,
-      potentialPct=coincInputPoolPct,
-      globalInhibition=globalInhibition,
+      potentialRadius=numInputs,
+      potentialPct=0.5,
+      globalInhibition=True,
       localAreaDensity=localAreaDensity,
       numActiveColumnsPerInhArea=numActivePerInhArea,
       stimulusThreshold=stimulusThreshold,
@@ -154,7 +173,7 @@ class FlatSpatialPooler(SpatialPooler):
   #   self._boostFactors *= maxBoost
 
 
-  def compute(self, inputVector, learn=True):
+  def compute(self, inputArray, learn, activeArray):
     """
     This is the primary public method of the SpatialPooler class. This 
     function takes a input vector and outputs the indices of the active columns 
@@ -180,13 +199,17 @@ class FlatSpatialPooler(SpatialPooler):
                     values of the synapses, and hence modifying the 'state' 
                     of the model. setting learning to 'off' might be useful
                     for indicating separate training vs. testing sets. 
+    infer:          OBSOLTETE. include in method signature for backwards 
+                    compatibility.
+    computeAnomaly: OBSOLTETE. include in method signature for backwards
+                    compatibility
     """
     if self._randomSP:
       learn=False
 
-    assert (numpy.size(inputVector) == self._numInputs)
+    assert (numpy.size(inputArray) == self._numInputs)
     self._updateBookeepingVars(learn)
-    inputVector = numpy.array(inputVector, dtype=realDType)
+    inputVector = numpy.array(inputArray, dtype=realDType)
     overlaps = self._calculateOverlap(inputVector)
     overlapsPct = self._calculateOverlapPct(overlaps)
     highTierColumns = self._selectHighTierColumns(overlapsPct)
@@ -201,6 +224,7 @@ class FlatSpatialPooler(SpatialPooler):
     if learn:
       vipOverlaps[virginColumns] = vipBonus
     vipOverlaps[highTierColumns] += vipBonus
+
     activeColumns = self._inhibitColumns(vipOverlaps)
 
     if learn:
@@ -215,9 +239,10 @@ class FlatSpatialPooler(SpatialPooler):
     else:
       activeColumns = self._stripNeverLearned(activeColumns)
 
-    activeArray = numpy.zeros(self._numColumns)
-    activeArray[activeColumns] = 1
-    return activeArray
+    activeArray.fill(0)
+    if activeColumns.size > 0:
+      activeArray[activeColumns] = 1
+
 
 
   def _selectVirginColumns(self):
@@ -230,11 +255,11 @@ class FlatSpatialPooler(SpatialPooler):
 
   def _selectHighTierColumns(self, overlapsPct):
     """
-    returns the set of high tier columns. High tier columns are columns who have
-    learned to represent a particular input pattern. How well a column 
+    returns the set of high tier columns. High tier columns are columns who 
+    have learned to represent a particular input pattern. How well a column 
     represents an input pattern is represented by the percent of connected 
     synapses connected to inputs bits which are turned on. 'self._minDistance'
-    determines with how much precision a column must learn to represent an input
-    pattern in order to be considered a 'high tier' column.
+    determines with how much precision a column must learn to represent an 
+    input pattern in order to be considered a 'high tier' column.
     """
     return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
