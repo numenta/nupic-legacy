@@ -81,34 +81,11 @@ PyObject *PySparseTensor::__str__() const
 
 string PySparseTensor::__getstate__() const
 {
-#if 1
   stringstream s;
   tensor_.toStream(s);
   return s.str();
-#else
-  stringstream s;
-  PyTensorIndex bounds = tensor_.getBounds();
-  size_t n = bounds.size();
-  s << n << " ";
-  for(size_t i=0; i<n; ++i)
-    s << bounds[i] << " ";
-  s << "\n";
-  size_t nz = tensor_.getNNonZeros();
-  s << nz << "\n";
-  STBase::const_iterator i = tensor_.begin();
-  STBase::const_iterator end = tensor_.end();
-  for(; i!=end; ++i) {
-    const PyTensorIndex &key = i->first;
-    const nta::Real &value = i->second;
-    for(size_t j=0; j<n; ++j)
-      s << key[j] << " ";
-    s << value << "\n";
-  }
-  return s.str();
-#endif
 }
 
-#if 1
 inline STBase SparseTensorFromString(const string &s) {
   size_t rank = 0;
   {
@@ -129,48 +106,6 @@ inline STBase SparseTensorFromString(const string &s) {
 PySparseTensor::PySparseTensor(const string &s)
   : tensor_(SparseTensorFromString(s))
 {}
-
-#else
-inline STBase SparseTensorFromStream(istream &s)
-{
-  size_t n = 0;
-  s >> n;
-  PyTensorIndex bounds(n, (const size_t *) 0);
-  for(size_t i=0; i<n; ++i) {
-    bounds[i] = 0;
-    s >> bounds[i];
-  }
-  STBase tensor(bounds);
-  size_t m = 0;
-  s >> m;
-  PyTensorIndex key(n, (const size_t *) 0);
-  for(size_t i=0; i<m; ++i) {
-    for(size_t j=0; j<n; ++j) {
-      key[j] = 0;
-      s >> key[j];
-    }
-    nta::Real value = 0;
-    s >> value;
-    tensor.set(key, value);
-  }
-  return tensor;
-}
-
-template<typename T>
-struct PtrMgr
-{
-  T *p_;
-  PtrMgr(T *p) : p_(p) {}
-  ~PtrMgr() { delete p_; }
-  operator T &() const { return *p_; }
-};
-
-PySparseTensor::PySparseTensor(const string &s)
-  : tensor_(SparseTensorFromStream(
-      PtrMgr<istream>(new stringstream(s))
-    ))
-{}
-#endif
 
 double PySparseTensor::marginalize() const
 {

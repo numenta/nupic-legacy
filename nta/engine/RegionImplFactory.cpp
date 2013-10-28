@@ -35,7 +35,6 @@
 #include <nta/ntypes/BundleIO.hpp>
 #include <nta/engine/YAMLUtils.hpp>
 #include <nta/engine/TestNode.hpp>
-#include <nta/regions/SpatialPoolerNode.hpp>
 #include <nta/regions/VectorFileEffector.hpp>
 #include <nta/regions/VectorFileSensor.hpp>
 #include <nta/utils/Log.hpp>
@@ -367,9 +366,6 @@ RegionImpl* RegionImplFactory::createRegionImpl(const std::string nodeType,
   if (nodeType == "TestNode")
   {
     mn = new TestNode(vm, region);
-  } else if (nodeType == "SpatialPoolerNode")
-  {
-    mn = new SpatialPoolerNode(vm, region);
   } else if (nodeType == "VectorFileEffector")
   {
     mn = new VectorFileEffector(vm, region);
@@ -400,9 +396,6 @@ RegionImpl* RegionImplFactory::deserializeRegionImpl(const std::string nodeType,
   if (nodeType == "TestNode")
   {
     mn = new TestNode(bundle, region);
-  } else if (nodeType == "SpatialPoolerNode")
-  {
-    mn = new SpatialPoolerNode(bundle, region);
   } else if (nodeType == "VectorFileEffector")
   {
     mn = new VectorFileEffector(bundle, region);
@@ -472,10 +465,6 @@ Spec * RegionImplFactory::getSpec(const std::string nodeType)
   if (nodeType == "TestNode")
   {
     ns = TestNode::createSpec();
-  } 
-  else if (nodeType == "SpatialPoolerNode")
-  {
-    ns = SpatialPoolerNode::createSpec();
   } 
   else if (nodeType == "VectorFileEffector")
   {
