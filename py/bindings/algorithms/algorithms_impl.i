@@ -88,6 +88,15 @@ _ALGORITHMS = _algorithms
 #include <lang/py/support/PythonStream.hpp>
 #include <lang/py/support/PyHelpers.hpp>
 
+// workaround for undefined SWIGPY_SLICE_ARG with swig 2.0.3 and more with gcc <4.8
+#include <iostream>
+#if PY_VERSION_HEX >= 0x03020000
+# define SWIGPY_SLICE_ARG(obj) ((PyObject*) (obj))
+#else
+# define SWIGPY_SLICE_ARG(obj) ((PySliceObject*) (obj))
+#endif
+
+
 /// %template(_InSynapse) nta::algorithms::Cells3::InSynapse<nta::UInt32, nta::Real32>;
 /// %template(Segment3_32) nta::algorithms::Cells3::Segment<nta::UInt32, nta::Real32>;
 /// %template(Cell3_32) nta::algorithms::Cells3::Cell<nta::UInt32, nta::Real32>;
