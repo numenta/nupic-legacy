@@ -99,6 +99,10 @@ MODEL_PARAMS = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
+	    # Spatial Pooler implementation selector, see getSPClass 
+	    # in py/regions/SPRegion.py for details
+	    'spatialImp' : 'cpp', # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
+
             'globalInhibition': 1,
 
             # Number of cell columns in the cortical region (same number for
