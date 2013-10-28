@@ -1319,7 +1319,7 @@ class CLARegion(PyRegion):
       self.saveMasterCoincidenceImage()
 
 
-    if (self._FDRCSpatialClass == FDRCSpatial2):
+    if (self._sfdr.__class__ == FDRCSpatial2):
       # Backwards compatability
       output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
       self._spatialPoolerOutput[:] = output[:]
