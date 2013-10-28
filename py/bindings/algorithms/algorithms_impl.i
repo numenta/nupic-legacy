@@ -69,10 +69,11 @@ _ALGORITHMS = _algorithms
 #include <nta/math/SparseBinaryMatrix.hpp>
 #include <nta/algorithms/svm.hpp>
 #include <nta/algorithms/linear.hpp>
-#include <nta/algorithms/Grouper.hpp>
 #include <nta/algorithms/SparsePooler.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
+#include <nta/algorithms/spatial_pooler.hpp>
+#include <nta/algorithms/flat_spatial_pooler.hpp>
 
 #include <nta/algorithms/Cells4.hpp>
 #include <nta/algorithms/classifier_result.hpp>
@@ -678,213 +679,6 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 }
 
 //--------------------------------------------------------------------------------
-// AHC GROUPER
-//--------------------------------------------------------------------------------
-%include <nta/algorithms/Grouper.hpp>
-
-%ignore nta::Grouper::getTam;
-%ignore nta::Grouper::getCollapsedTAM;
-
-%extend nta::Grouper
-{
-  PyObject* learn(PyObject* py_x, int baby_idx =0)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(0);
-    self->learn(x.begin(), y.begin(), baby_idx);
-    return y.forPython();
-  }
-
-  PyObject* infer(PyObject* py_x, int baby_idx =0)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(10000);
-    self->infer(x.begin(), x.end(), y.begin(), baby_idx);
-    return y.forPython();
-  }
-
-  PyObject* predict(int n_steps, int mode, int baby_idx =0)
-  {
-    std::vector<std::vector<nta::Real32> > future(n_steps);
-    self->predict(baby_idx, (nta::Grouper::PredictionMode)mode, future);
-    int dims[] = { int(future.size()), int(future[0].size()) };
-    nta::NumpyMatrix out(dims);
-    for (size_t i = 0; i != future.size(); ++i) {
-      for (size_t j = 0; j != future[i].size(); ++j) {
-    *(out.addressOf(0,0) + i*future[0].size() + j) = future[i][j];
-      }
-    }
-    return out.forPython();
-  }
-
-  PyObject* sampleFromGroup(int flag, int grp_idx, int n_steps)
-  {
-    std::vector<std::vector<nta::Real32> > future(n_steps);
-    std::vector<nta::Real32> u;
-    self->sampleFromGroup(grp_idx, (nta::Grouper::SamplingMode)flag, u, future);
-    int dims[] = { int(future.size()), int(future[0].size()) };
-    nta::NumpyMatrix out(dims);
-    for (size_t i = 0; i != future.size(); ++i) {
-      for (size_t j = 0; j != future[i].size(); ++j) {
-    *(out.addressOf(0,0) + i*future[0].size() + j) = future[i][j];
-      }
-    }
-    return out.forPython();
-  }
-
-  std::string getGroups(bool collapsed =true)
-  {
-    std::ostringstream outStream;
-    self->getGroupsString(outStream, collapsed);
-    return outStream.str();
-  }
-
-  inline PyObject* AHCMerges() const
-  {
-    const size_t n_merges = self->getAHCMerges().size();
-    PyObject *x = PyList_New(n_merges);
-
-    for (size_t i = 0; i != n_merges; ++i) {
-      PyObject *obj =
-       nta::createPair32(self->getAHCMerges()[i].first,
-                         self->getAHCMerges()[i].second);
-      PyList_SetItem(x, i, obj); // Does steal a reference to object.
-    }
-
-    return x;
-  }
-
-  inline PyObject* getPyMerges() const
-  {
-    const size_t n_merges = self->getAHCMerges().size();
-    PyObject *x = PyList_New(n_merges);
-
-    for (size_t i = 0; i != n_merges; ++i) {
-      PyObject *obj =
-       nta::createPair32(self->getAHCMerges()[i].first,
-                         self->getAHCMerges()[i].second);
-      PyList_SetItem(x, i, obj); // Does steal a reference to object.
-    }
-
-    return x;
-  }
-
-  nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >
-    tam()
-  {
-    nta::Grouper::IntegerTAM m = self->getTam();
-    nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > > ret;
-    ret.copy(m);
-    return ret;
-  }
-
-  nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >
-    collapsedTam()
-  {
-    nta::Grouper::IntegerTAM m = self->getCollapsedTAM();
-    nta::TAM<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > > ret;
-    ret.copy(m);
-    return ret;
-  }
-
-  std::string getPyHOTS2C()
-  {
-    std::map<nta::UInt32, nta::UInt32> s2c = self->getTam().getHOTS2C();
-    std::map<nta::UInt32, nta::UInt32>::const_iterator it;
-    std::ostringstream outStream;
-    for (it = s2c.begin(); it != s2c.end(); ++it)
-      outStream << it-> first << " " << it->second << " ";
-    return outStream.str();
-  }
-
-  nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >
-    getPyHOTC2S()
-  {
-    nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > c2s;
-    c2s.copy(self->getTam().getHOTC2S());
-    return c2s;
-  }
-
-  SparseMatrix32 tbiWeights(int grp_idx)
-  {
-    SparseMatrix32 ret(self->getTBIWeights(grp_idx));
-    return ret;
-  }
-
-  PyObject* tbiOutputs(int grp_idx, int baby_idx =0)
-  {
-    nta::Grouper::TBICellOutputs& o = self->getTBICellOutputs(grp_idx, baby_idx);
-    nta::NumpyVectorT<nta::Real32> v(o.size());
-    std::copy(o.begin(), o.end(), v.begin());
-    return v.forPython();
-  }
-
-  bool setTAMFromCSR(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->setTAMFromCSR(s);
-      return true;
-    }
-    else {
-      throw std::runtime_error("Failed to read SparseMatrix state from string.");
-      return false;
-    }
-  }
-
-  bool setTAMStateFromCSR(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->setTAMStateFromCSR(s);
-      return true;
-    }
-    else {
-      throw std::runtime_error("Failed to read SparseMatrix state from string.");
-      return false;
-    }
-  }
-
-  std::string __getstate__()
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  %pythoncode %{
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_Grouper(1,1,1,1,1,1,1,0)
-      self.thisown = 1
-      self.load(inString)
-  %}
-
-  inline void load(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->readState(inStream);
-  }
-
-  inline std::string __str__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  inline std::string __repr__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-}
-
-//--------------------------------------------------------------------------------
 // SPARSE POOLER
 //--------------------------------------------------------------------------------
 %include <nta/algorithms/SparsePooler.hpp>
@@ -1007,387 +801,9 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
  ///%template(Int_Seg_32) std::pair<nta::UInt32, nta::algorithms::Segment<nta::UInt32,nta::Real32>*>;
 
 // Already seen by swig on linux32 where size_t is the same size as unsigned int
-#ifndef NTA_PLATFORM_linux32
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
 %template(Size_T_Vector) std::vector<size_t>;
 #endif
-
-//--------------------------------------------------------------------------------
-#ifdef OLD_ALGORITHMS
-%extend nta::algorithms::Segment<nta::UInt32, nta::Real32>
-{
-  %pythoncode %{
-    def __init__(self, *args):
-      self.this = _ALGORITHMS.new_Segment_32()
-
-    #def __str__(self):
-    #  return self.to_string().__str__()
-
-    def __eq__(self, o):
-      return self.this == o.this
-
-    def __ne__(self, o):
-       return self.this != o.this
-
-    def __hash__(self):
-       return self.hash()
-  %}
-
-  inline nta::UInt32 nSynapses() const { return self->n_synapses(); }
-  inline nta::UInt32 cellIndex() const { return self->cell_index(); }
-  inline nta::UInt32 getDepth() const { return self->get_depth(); }
-
-  inline nta::algorithms::Branch<nta::UInt32,nta::Real32>* getBranch() const
-    {
-      return self->branch();
-    }
-
-  inline void incrementSynapsesStrength(PyObject* py_ind,
-                                        nta::Real32 increment,
-                                        nta::Real32 max_val =-1.0,
-                                        nta::Real32 min_val =1.0)
-  {
-    nta::NumpyVectorT<nta::UInt32> ind(py_ind);
-    self->increment_synapses_strength(ind.begin(), ind.end(), increment, max_val, min_val);
-  }
-
-  inline void addSynapses(PyObject* py_ind, nta::Real32 init_value)
-  {
-    nta::NumpyVectorT<nta::UInt32> ind(py_ind);
-    self->add_synapses(ind.begin(), ind.end(), init_value);
-  }
-
-  inline void addSynapses(PyObject* py_ind, PyObject* py_strengths)
-  {
-    nta::NumpyVectorT<nta::UInt32> ind(py_ind);
-    nta::NumpyVectorT<nta::Real32> st(py_strengths);
-    self->add_synapses_and_strengths(ind.begin(), ind.end(), st.begin(), st.end());
-  }
-
-  inline PyObject* getSynapses() const
-  {
-    size_t n = (size_t) self->n_synapses();
-    nta::NumpyVectorT<nta::UInt32> ind(n);
-    nta::NumpyVectorT<nta::Real32> cnt(n);
-    self->get_synapses(ind.begin(), ind.end(), cnt.begin(), cnt.end());
-    PyObject *result = PyTuple_New(2);
-    PyTuple_SET_ITEM(result, 0, ind.forPython());
-    PyTuple_SET_ITEM(result, 1, cnt.forPython());
-    return result;
-  }
-
-  inline std::vector<nta::UInt32> getSynapseIndices() const
-  {
-    std::vector<nta::UInt32> inds;
-    self->get_synapse_indices(inds);
-    return inds;
-  }
-
-  inline std::vector<nta::Real32> getSynapseStrengths() const
-  {
-    std::vector<nta::Real32> strengths;
-    self->get_synapse_strengths(strengths);
-    return strengths;
-  }
-
-  inline nta::algorithms::Segment<nta::UInt32,nta::Real32>* getUpSegment() const
-  {
-    return self->get_up_segment();
-  }
-
-  inline std::vector<std::pair<nta::UInt32, nta::Real32> >
-    getUpSynapses(int window_size =-1) const
-    {
-      std::vector<std::pair<nta::UInt32, nta::Real32> > up_synapses;
-      self->get_up_synapses(up_synapses, window_size);
-      return up_synapses;
-    }
-
-} // end extend Segment
-
-//--------------------------------------------------------------------------------
-%extend nta::algorithms::Branch<nta::UInt32, nta::Real32>
-{
-  %pythoncode %{
-    def __init__(self, *args):
-      self.this = _ALGORITHMS.new_Branch_32(*args)
-
-    #def __str__(self):
-    #  return self.to_string().__str__()
-
-    #def __eq__(self, o):
-    #  return self.this == o.this
-
-    #def __ne__(self, o):
-    #   return self.this != o.this
-  %}
-
-  inline nta::UInt32 nSegments() const { return self->n_segments(); }
-  inline nta::UInt32 nSynapses() const { return self->n_synapses(); }
-
-  inline nta::algorithms::Segment<nta::UInt32,nta::Real32>*
-    createSegment(PyObject* py_ind =NULL,
-                  nta::Real32 init_strength =1,
-                  nta::UInt32 timeSlot =0)
-  {
-    if (py_ind == NULL)
-      return self->create_segment();
-    else {
-      nta::NumpyVectorT<nta::UInt32> ind(py_ind);
-      std::vector<std::pair<nta::UInt32, nta::Real32> > synapses(ind.size());
-      for (int i = 0; i != ind.size(); ++i)
-        synapses[i] = std::make_pair(ind.get(i), init_strength);
-      typedef nta::algorithms::Segment<nta::UInt32,nta::Real32>* SegPtr;
-      SegPtr seg = self->create_segment(timeSlot, synapses);
-      return seg;
-    }
-  }
-
-  inline void
-    removeSegment(nta::algorithms::Segment<nta::UInt32,nta::Real32>* seg)
-  {
-    self->remove_segment(seg);
-  }
-
-  inline void
-    removeSegment(nta::UInt32 seg_idx)
-  {
-    self->remove_segment(seg_idx);
-  }
-
-  inline void cutAtSegment(nta::algorithms::Segment<nta::UInt32,nta::Real32>* seg)
-  {
-    self->cut_at_segment(seg);
-  }
-
-  inline void cutAtSegment(nta::UInt32 seg_idx)
-  {
-    self->cut_at_segment(seg_idx);
-  }
-
-  inline nta::UInt32 segIndex(nta::algorithms::Segment<nta::UInt32,nta::Real32>* seg) const
-  {
-    return self->seg_index(seg);
-  }
-
-  inline nta::algorithms::Segment<nta::UInt32,nta::Real32>* getSegment(nta::UInt32 idx) const
-    {
-      return self->get_segment(idx);
-    }
-
-  //--------------------------------------------------------------------------------
-  /**
-   * FOR UNIT TESTS ONLY
-   *
-   * This just calls first_activation_dfs after allocating a buffer, so that we
-   * can unit test first_activation_dfs from Python.
-   */
-  inline PyObject*
-    first_activation_dfs(size_type window,
-                         value_type threshold, value_type hiloThreshold,
-                         const std::vector<nta::UInt32>& activities)
-  {
-    std::vector<nta::Real32> buffer(1024);
-    std::pair<nta::algorithms::Segment<nta::UInt32,nta::Real32>*, int> p;
-
-    if (window == 1)
-      p = self->first_activation_dfs(threshold, hiloThreshold, activities,
-                                     buffer);
-    else
-      p = self->first_activation_dfs_with_window(window, threshold, hiloThreshold,
-                                                 activities, buffer);
-
-    PyObject *result = PyTuple_New(2);
-
-    if (p.first) {
-      PyTuple_SET_ITEM(result, 0, PyInt_FromLong(p.first->index()));
-      PyTuple_SET_ITEM(result, 1, PyInt_FromLong(p.second));
-    } else {
-      PyTuple_SET_ITEM(result, 0, PyInt_FromLong(-1));
-      PyTuple_SET_ITEM(result, 1, PyInt_FromLong(0));
-    }
-
-    return result;
-  }
-
-  //--------------------------------------------------------------------------------
-
-} // end extend Branch
-
-//--------------------------------------------------------------------------------
-%extend nta::algorithms::Cell<nta::UInt32,nta::Real32>
-{
-  %pythoncode %{
-    def __init__(self, *args):
-      self.this = _ALGORITHMS.new_Cell_32()
-
-    def __str__(self):
-      return self.to_string().__str__()
-  %}
-
-} // end extend Cell
-
-//--------------------------------------------------------------------------------
-%extend nta::algorithms::Cells<nta::UInt32,nta::Real32>
-{
-  %pythoncode %{
-    def __init__(self, *args):
-      if len(args) > 0:
-        self.this = _ALGORITHMS.new_Cells_32(*args)
-      else:
-        self.this = _ALGORITHMS.new_Cells_32()
-
-    def __str__(self):
-      return self.to_string().__str__()
-
-    def __getstate__(self):
-      """
-      Used by the pickling mechanism to get state that will be saved.
-      """
-      return (self.toPyString(),)
-
-    def __setstate__(self,tup):
-      """
-      Used by the pickling mechanism to restore state that was saved.
-      """
-      self.this = _ALGORITHMS.new_Cells_32()
-      self.thisown = 1
-      self.fromPyString(tup[0])
-  %}
-
-  inline nta::UInt32 nCells() const { return self->n_cells(); }
-  inline nta::UInt32 nSynapses() const { return self->n_synapses(); }
-  inline nta::UInt32 nSegments() const { return self->n_segments(); }
-
-  inline nta::algorithms::Cell<nta::UInt32,nta::Real32>
-    getCell(nta::UInt32 idx) const
-    {
-      return self->get_cell(idx);
-    }
-
-  inline PyObject* getAllCellSynapses(nta::UInt32 cellIdx) const
-  {
-    size_t n = (size_t) self->n_synapses_cell(cellIdx);
-    nta::NumpyVectorT<nta::UInt32> ind(n);
-    nta::NumpyVectorT<nta::Real32> cnt(n);
-    self->get_all_cell_synapses(cellIdx, ind.begin(), cnt.begin());
-    PyObject *result = PyTuple_New(2);
-    PyTuple_SET_ITEM(result, 0, ind.forPython());
-    PyTuple_SET_ITEM(result, 1, cnt.forPython());
-    return result;
-  }
-
-  inline std::pair<nta::UInt32, nta::algorithms::Segment<nta::UInt32,nta::Real32>*>
-    leastUsedFirstSeg(nta::UInt32 begin, nta::UInt32 end) const
-  {
-    return self->least_used_first_seg(begin, end);
-  }
-
-  inline std::vector<nta::UInt32>
-    computeActivations(size_t window_size,
-                       size_t threshold,
-                       PyObject* py_activations,
-                       PyObject* py_lat_activations_0,
-                       PyObject* py_lat_activations,
-                       std::vector<nta::algorithms::Segment<nta::UInt32,nta::Real32>*>& active_segs,
-                       nta::Real32 synHiloThreshold =0,
-                       size_t baby =0)
-  {
-    PyArrayObject* _activations = (PyArrayObject*) py_activations;
-    nta::Real32* activations = (nta::Real32*) (_activations->data);
-    nta::ByteVector cpp_activations(activations, _activations->dimensions[0]);
-
-    PyArrayObject* _lat_activations_0 = (PyArrayObject*) py_lat_activations_0;
-    nta::Int32* cpp_lat0 = (nta::Int32*) (_lat_activations_0->data);
-
-    PyArrayObject* _lat_activations = (PyArrayObject*) py_lat_activations;
-    nta::Int32* cpp_lat = (nta::Int32*) (_lat_activations->data);
-
-    self->compute_activations(window_size,
-                              threshold,
-                              cpp_activations,
-                              cpp_lat0,
-                              cpp_lat,
-                              active_segs,
-                              synHiloThreshold,
-                              baby);
-
-    std::vector<nta::UInt32> active_cells(active_segs.size());
-    for (size_t i = 0; i != active_segs.size(); ++i)
-      active_cells[i] = active_segs[i]->cell_index();
-
-    return active_cells;
-  }
-
-  inline void decaySynapses(nta::Real32 k, nta::Real32 minValue, nta::UInt32 mode =2)
-  {
-    self->decay_synapses(k, minValue, mode);
-  }
-
-  inline PyObject* analyzeSegments()
-  {
-    std::vector<std::pair<int,int> > syn_per_seg;
-    std::vector<std::pair<int,int> > seg_per_branch;
-    self->analyze_segments(syn_per_seg, seg_per_branch);
-    PyObject *result = PyTuple_New(2);
-    PyObject* sps = PyTuple_New(syn_per_seg.size());
-    for (size_t i = 0; i != syn_per_seg.size(); ++i) {
-      PyObject* p = PyTuple_New(2);
-      PyTuple_SET_ITEM(p, 0, PyInt_FromLong(syn_per_seg[i].first));
-      PyTuple_SET_ITEM(p, 1, PyInt_FromLong(syn_per_seg[i].second));
-      PyTuple_SET_ITEM(sps, i, p);
-    }
-    PyObject* spb = PyTuple_New(seg_per_branch.size());
-    for (size_t i = 0; i != seg_per_branch.size(); ++i) {
-      PyObject* p = PyTuple_New(2);
-      PyTuple_SET_ITEM(p, 0, PyInt_FromLong(seg_per_branch[i].first));
-      PyTuple_SET_ITEM(p, 1, PyInt_FromLong(seg_per_branch[i].second));
-      PyTuple_SET_ITEM(spb, i, p);
-    }
-    PyTuple_SET_ITEM(result, 0, sps);
-    PyTuple_SET_ITEM(result, 1, spb);
-    return result;
-  }
-
-  inline PyObject* toPyString() const
-  {
-    SharedPythonOStream py_s(self->persistent_size());
-    std::ostream& s = py_s.getStream();
-    self->save(s);
-    return py_s.close();
-  }
-
-  inline bool fromPyString(PyObject *s)
-  {
-    Py_ssize_t n = 0;
-    char *buf = 0;
-    int res = PyString_AsStringAndSize(s, &buf, &n); // Reference-neutral.
-    if((res == 0) && (n > 0)) {
-      std::istringstream s(std::string(buf, n));
-      self->load(s);
-      return true;
-    } else {
-      throw std::runtime_error("Failed to load Cells");
-      return false;
-    }
-  }
-
-} // end extend Cells
-
-//--------------------------------------------------------------------------------
-%pythoncode %{
-  def Segment(*args, **keywords):
-     return Segment_32(*args)
-
-  def SegVector(*args, **keywordS):
-     return SegVector_32(*args)
-
-  def Branch(*args, **keywords):
-     return Branch_32(*args)
-
-  def Cells(*args, **keywords):
-     return Cells_32(*args)
-%}
-#endif // OLD_ALGORITHMS
 
 //--------------------------------------------------------------------------------
 // Some functions, faster than numpy.
@@ -1720,436 +1136,6 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 
 //--------------------------------------------------------------------------------
 // LearningSet for continuous FDR TP
-//--------------------------------------------------------------------------------
-#ifdef OLD_ALGORITHMS
-%extend nta::algorithms::LearningSet
-{
-  %pythoncode %{
-
-    def __init__(self, *args):
-      this = _ALGORITHMS.new_LearningSet(*args)
-      try:
-        self.this.append(this)
-      except:
-        self.this = this
-  %}
-
-  inline int
-    getCandidates(nta::UInt32 dst_cell,
-                  PyObject* py_src_cells, PyObject* py_candidates) const
-  {
-    PyArrayObject* _src_cells = (PyArrayObject*) py_src_cells;
-    CHECKSIZE(_src_cells);
-    nta::UInt32* src_cells = (nta::UInt32*)(_src_cells->data);
-    nta::UInt32 n_src_cells = _src_cells->dimensions[0];
-
-    PyArrayObject* _candidates = (PyArrayObject*) py_candidates;
-    CHECKSIZE(_candidates);
-    nta::UInt32* cands = (nta::UInt32*)(_candidates->data);
-    nta::UInt32 n_cands = 0;
-
-    self->candidates(dst_cell, n_src_cells, src_cells, n_cands, cands);
-
-    return n_cands;
-  }
-
-} // end extend nta::LearningSet
-
-//--------------------------------------------------------------------------------
-%extend nta::algorithms::PySynapses
-{
-  %pythoncode %{
-
-    def __init__(self, *args):
-      self.this = _ALGORITHMS.new_PySynapses(*args)
-
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_PySynapses()
-      self.loadFromString(inString)
-  %}
-
-  void loadFromString(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->load(inStream);
-  }
-
-  PyObject* __getstate__()
-  {
-    SharedPythonOStream py_s(self->persistent_size());
-    std::ostream& s = py_s.getStream();
-    self->save(s);
-    return py_s.close();
-  }
-
-  inline void
-    addSynapses(nta::UInt32 destCellIdx, nta::UInt32 destSegmentIdx,
-                nta::UInt32 nSourceCells, PyObject* py_srcCellIdxArr)
-  {
-    nta::UInt32* srcCellIdxArr = (nta::UInt32*) ((PyArrayObject*)py_srcCellIdxArr)->data;
-    CHECKSIZE((PyArrayObject*)py_srcCellIdxArr);
-
-    self->addSynapses(destCellIdx, destSegmentIdx, nSourceCells, srcCellIdxArr);
-  }
-
-  inline PyObject *
-  getSynapseOnCellSegment(nta::UInt32 cellIdx, nta::UInt32 segmentIdx,
-                          nta::UInt32 synapseIdx)
-  {
-    nta::Real32 permanence;
-    nta::Int16  dRow;
-    nta::Int16  dCol;
-
-    self->getSynapseOnCellSegment(cellIdx, segmentIdx, synapseIdx,
-                                  permanence, dRow, dCol);
-
-    PyObject *toReturn = PyTuple_New(3);
-    PyTuple_SET_ITEM(toReturn, 0, PyFloat_FromDouble(permanence));
-    PyTuple_SET_ITEM(toReturn, 1, PyInt_FromLong(dRow));
-    PyTuple_SET_ITEM(toReturn, 2, PyInt_FromLong(dCol));
-
-    return toReturn;
-  }
-
-  inline PyObject *
-  getSynapseOnMasterSegment(nta::UInt32 masterNum, nta::UInt32 segmentIdx,
-                            nta::UInt32 synapseIdx)
-  {
-    nta::Real32 permanence;
-    nta::Int16  dRow;
-    nta::Int16  dCol;
-
-    self->getSynapseOnMasterSegment(masterNum, segmentIdx, synapseIdx,
-                                    permanence, dRow, dCol);
-
-    PyObject *toReturn = PyTuple_New(3);
-    PyTuple_SET_ITEM(toReturn, 0, PyFloat_FromDouble(permanence));
-    PyTuple_SET_ITEM(toReturn, 1, PyInt_FromLong(dRow));
-    PyTuple_SET_ITEM(toReturn, 2, PyInt_FromLong(dCol));
-
-    return toReturn;
-  }
-
-
-  inline nta::UInt32
-  getAbsSynapsesOnCellSegment(nta::UInt32 cellIdx, nta::UInt32 segmentIdx,
-                              PyObject* py_srcCellIndices,
-                              PyObject* py_srcPermanences)
-  {
-    nta::UInt32* srcCellIndices = (nta::UInt32*) ((PyArrayObject*)py_srcCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_srcCellIndices);
-    nta::Real32* srcPermanences = (nta::Real32*) ((PyArrayObject*)py_srcPermanences)->data;
-    CHECKSIZE((PyArrayObject*)py_srcPermanences);
-
-    return self->getAbsSynapsesOnCellSegment(cellIdx, segmentIdx,
-                                             srcCellIndices, srcPermanences);
-  }
-
-  inline nta::UInt32
-  computeSegmentActivations(
-    nta::SparseMatrix<nta::UInt32,nta::Real32>& segActivations,
-    PyObject* py_bestCellIndices, PyObject* py_bestSegmentIndices,
-    PyObject* py_bestCellActivations,
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 thresholdForBest, nta::UInt32 thresholdForActive) const
-  {
-    const nta::UInt32* input = (const nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    CHECKSIZE((PyArrayObject*)py_input);
-    nta::UInt32* pBestCellIndices = (nta::UInt32*) ((PyArrayObject*)py_bestCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellIndices);
-    nta::UInt32* pBestSegmentIndices = (nta::UInt32*) ((PyArrayObject*)py_bestSegmentIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestSegmentIndices);
-    nta::UInt32* pBestCellActivations = (nta::UInt32*) ((PyArrayObject*)py_bestCellActivations)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellActivations);
-
-    return self->computeSegmentActivations(&segActivations,
-                                           pBestCellIndices, pBestSegmentIndices,
-                                           pBestCellActivations,
-                                           nInputs, input, thresholdForBest,
-                                           thresholdForActive);
-  }
-
-  inline nta::UInt32
-  computeBestSegmentActivations(
-    PyObject* py_bestCellIndices, PyObject* py_bestSegmentIndices,
-    PyObject* py_bestCellActivations,
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 threshold) const
-  {
-    const nta::UInt32* input = (const nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    CHECKSIZE((PyArrayObject*)py_input);
-    nta::UInt32* pBestCellIndices = (nta::UInt32*) ((PyArrayObject*)py_bestCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellIndices);
-    nta::UInt32* pBestSegmentIndices = (nta::UInt32*) ((PyArrayObject*)py_bestSegmentIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestSegmentIndices);
-    nta::UInt32* pBestCellActivations = (nta::UInt32*) ((PyArrayObject*)py_bestCellActivations)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellActivations);
-
-    return self->computeSegmentActivations(NULL,
-                                           pBestCellIndices, pBestSegmentIndices,
-                                           pBestCellActivations,
-                                           nInputs, input, threshold,
-                                           0xFFFFFFFF);
-  }
-
-  inline nta::UInt32
-  update(
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 nInstructions, PyObject* py_instructions,
-    PyObject* py_touchedSegments)
-  {
-    typedef const nta::Int32 (*InstructionsT)[3];
-    typedef nta::UInt32      (*TouchedSegmentsT)[2];
-
-    const nta::UInt32* input = (const nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    CHECKSIZE((PyArrayObject*)py_input);
-    const nta::UInt32* instructions = (const nta::UInt32*) ((PyArrayObject*)py_instructions)->data;
-    CHECKSIZE((PyArrayObject*)py_instructions);
-    nta::UInt32* touchedSegments = (nta::UInt32*) ((PyArrayObject*)py_touchedSegments)->data;
-    CHECKSIZE((PyArrayObject*)py_touchedSegments);
-
-    return self->update(nInputs, input, nInstructions,
-                        (InstructionsT)instructions,
-                        (TouchedSegmentsT)touchedSegments);
-  }
-
-  inline void saveToFile(const std::string& filename)
-  {
-    std::ofstream save_file(filename.c_str());
-    self->save(save_file);
-    save_file.close();
-  }
-
-  inline void loadFromFile(const std::string& filename)
-  {
-    std::ifstream load_file(filename.c_str());
-    self->load(load_file);
-    load_file.close();
-  }
-
-}; // end extend::nta::algorithms::PySynapses
-
-//--------------------------------------------------------------------------------
-
-%extend nta::algorithms::CellUpdater
-{
-  %pythoncode %{
-
-    def __init__(self, *args):
-      this = _ALGORITHMS.new_CellUpdater(*args)
-      try:
-        self.this.append(this)
-      except:
-        self.this = this
-  %}
-
-  inline void
-    update(PyObject* py_whatToDo, PyObject* py_buInput, PyObject* py_segsToCells)
-  {
-    nta::Int32* whatToDo = (nta::Int32*) ((PyArrayObject*)py_whatToDo)->data;
-    CHECKSIZE((PyArrayObject*)py_whatToDo);
-    nta::Real32* buInput = (nta::Real32*) ((PyArrayObject*)py_buInput)->data;
-    CHECKSIZE((PyArrayObject*)py_buInput);
-    nta::Int32* segsToCells = (nta::Int32*) ((PyArrayObject*)py_segsToCells)->data;
-    CHECKSIZE((PyArrayObject*)py_segsToCells);
-
-    self->update(whatToDo, buInput, segsToCells);
-  }
-};
-
-//--------------------------------------------------------------------------------
-#endif // OLD_ALGORITHMS
-/// %include <nta/algorithms/Cells2.hpp>
-
-/// %template(Cells2_32) nta::algorithms::Cells2::Cells<nta::UInt32, nta::Int16, nta::Real32>;
-#ifdef OLD_ALGORITHMS
-
-//--------------------------------------------------------------------------------
-%extend nta::algorithms::Cells2::Cells<nta::UInt32, nta::Int16, nta::Real32>
-{
-  %pythoncode %{
-
-    def __init__(self, *args):
-      self.this = _ALGORITHMS.new_Cells2_32(*args)
-
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_Cells2_32()
-      self.loadFromString(inString)
-  %}
-
-  void loadFromString(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->load(inStream);
-  }
-
-  PyObject* __getstate__()
-  {
-    SharedPythonOStream py_s(self->persistent_size());
-    std::ostream& s = py_s.getStream();
-    self->save(s);
-    return py_s.close();
-  }
-
-  inline void
-    addSynapses(nta::UInt32 destCellIdx, nta::UInt32 destSegmentIdx,
-                nta::UInt32 nSourceCells, PyObject* py_srcCellIdxArr)
-  {
-    nta::UInt32* srcCellIdxArr = (nta::UInt32*) ((PyArrayObject*)py_srcCellIdxArr)->data;
-    CHECKSIZE((PyArrayObject*)py_srcCellIdxArr);
-
-    self->addSynapses(destCellIdx, destSegmentIdx, nSourceCells, srcCellIdxArr);
-  }
-
-  inline PyObject *
-  getSynapseOnCellSegment(nta::UInt32 cellIdx, nta::UInt32 segmentIdx,
-                          nta::UInt32 synapseIdx) const
-  {
-    nta::Real32 permenance;
-    nta::Int16  dRow;
-    nta::Int16  dCol;
-
-    self->getSynapseOnCellSegment(cellIdx, segmentIdx, synapseIdx,
-                                  permenance, dRow, dCol);
-
-    PyObject *toReturn = PyTuple_New(3);
-    PyTuple_SET_ITEM(toReturn, 0, PyFloat_FromDouble(permenance));
-    PyTuple_SET_ITEM(toReturn, 1, PyInt_FromLong(dRow));
-    PyTuple_SET_ITEM(toReturn, 2, PyInt_FromLong(dCol));
-
-    return toReturn;
-  }
-
-  inline PyObject *
-  getSynapseOnMasterSegment(nta::UInt32 masterNum, nta::UInt32 segmentIdx,
-                            nta::UInt32 synapseIdx) const
-  {
-    nta::Real32 permenance;
-    nta::Int16  dRow;
-    nta::Int16  dCol;
-
-    self->getSynapseOnMasterSegment(masterNum, segmentIdx, synapseIdx,
-                                    permenance, dRow, dCol);
-
-    PyObject *toReturn = PyTuple_New(3);
-    PyTuple_SET_ITEM(toReturn, 0, PyFloat_FromDouble(permenance));
-    PyTuple_SET_ITEM(toReturn, 1, PyInt_FromLong(dRow));
-    PyTuple_SET_ITEM(toReturn, 2, PyInt_FromLong(dCol));
-
-    return toReturn;
-  }
-
-  inline nta::UInt32
-  getAbsSynapsesOnCellSegment(nta::UInt32 cellIdx, nta::UInt32 segmentIdx,
-                              PyObject* py_srcCellIndices,
-                              PyObject* py_srcPermanences) const
-  {
-    nta::UInt32* srcCellIndices = (nta::UInt32*) ((PyArrayObject*)py_srcCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_srcCellIndices);
-    nta::Real32* srcPermanences = (nta::Real32*) ((PyArrayObject*)py_srcPermanences)->data;
-    CHECKSIZE((PyArrayObject*)py_srcPermanences);
-
-    return self->getAbsSynapsesOnCellSegment(cellIdx, segmentIdx,
-                                             srcCellIndices, srcPermanences);
-  }
-
-  inline nta::UInt32
-  computeSegmentActivations(
-    nta::SparseMatrix<nta::UInt32,nta::Real32>& segActivations,
-    PyObject* py_bestCellIndices, PyObject* py_bestSegmentIndices,
-    PyObject* py_bestCellActivations,
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 thresholdForBest, nta::UInt32 thresholdForActive)
-  {
-    nta::UInt32* input = (nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    CHECKSIZE((PyArrayObject*)py_input);
-    nta::UInt32* input_end = input + nInputs;
-    nta::UInt32* pBestCellIndices = (nta::UInt32*) ((PyArrayObject*)py_bestCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellIndices);
-    nta::UInt32* pBestSegmentIndices = (nta::UInt32*) ((PyArrayObject*)py_bestSegmentIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestSegmentIndices);
-    nta::UInt32* pBestCellActivations = (nta::UInt32*) ((PyArrayObject*)py_bestCellActivations)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellActivations);
-
-    return self->computeSegmentActivations(input, input_end,
-                                           &segActivations,
-                                           pBestCellIndices,
-                                           pBestSegmentIndices,
-                                           pBestCellActivations,
-                                           thresholdForBest,
-                                           thresholdForActive);
-  }
-
-  inline nta::UInt32
-  computeBestSegmentActivations(
-    PyObject* py_bestCellIndices, PyObject* py_bestSegmentIndices,
-    PyObject* py_bestCellActivations,
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 threshold)
-  {
-    nta::UInt32* input = (nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    CHECKSIZE((PyArrayObject*)py_input);
-    nta::UInt32* input_end = input + nInputs;
-    nta::UInt32* pBestCellIndices = (nta::UInt32*) ((PyArrayObject*)py_bestCellIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellIndices);
-    nta::UInt32* pBestSegmentIndices = (nta::UInt32*) ((PyArrayObject*)py_bestSegmentIndices)->data;
-    CHECKSIZE((PyArrayObject*)py_bestSegmentIndices);
-    nta::UInt32* pBestCellActivations = (nta::UInt32*) ((PyArrayObject*)py_bestCellActivations)->data;
-    CHECKSIZE((PyArrayObject*)py_bestCellActivations);
-
-    return self->computeSegmentActivations(input, input_end,
-                                           NULL,
-                                           pBestCellIndices,
-                                           pBestSegmentIndices,
-                                           pBestCellActivations,
-                                           threshold,
-                                           0xFFFFFFFF);
-  }
-
-  inline nta::UInt32
-  update(
-    nta::UInt32 nInputs, PyObject* py_input,
-    nta::UInt32 nInstructions, PyObject* py_instructions,
-    PyObject* py_touchedSegments)
-  {
-    nta::UInt32* input = (nta::UInt32*) ((PyArrayObject*)py_input)->data;
-    nta::UInt32* input_end = input + nInputs;
-    CHECKSIZE((PyArrayObject*)py_input);
-    nta::Int32* instructions = (nta::Int32*) ((PyArrayObject*)py_instructions)->data;
-    CHECKSIZE((PyArrayObject*)py_instructions);
-    nta::UInt32* touchedSegments = (nta::UInt32*) ((PyArrayObject*)py_touchedSegments)->data;
-    CHECKSIZE((PyArrayObject*)py_touchedSegments);
-
-    return self->update(input, input_end,
-                        nInstructions, instructions,
-                        touchedSegments);
-  }
-
-  inline void saveToFile(const std::string& filename)
-  {
-    std::ofstream save_file(filename.c_str());
-    self->save(save_file);
-    save_file.close();
-  }
-
-  inline void loadFromFile(const std::string& filename)
-  {
-    std::ifstream load_file(filename.c_str());
-    self->load(load_file);
-    load_file.close();
-  }
-
-}; // end extend::nta::algorithms::Cells2::Cells
-
-
-%pythoncode %{
-
-  def Cells2(*args, **keywords):
-     return Cells2_32(*args)
-%}
-
-#endif //OLD_ALGORITHMS
-
 //--------------------------------------------------------------------------------
 %extend nta::algorithms::Inhibition
 {
@@ -2918,6 +1904,250 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 }
 
+%include <nta/algorithms/spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::SpatialPooler
+{
+  %pythoncode %{
+    import numpy
+    from nupic.bindings.math import (SM32 as SparseMatrix,
+                                     SM_01_32_32 as SparseBinaryMatrix)
+
+    def __init__(self,
+                 inputDimensions=[32,32],
+                 columnDimensions=[64,64],
+                 potentialRadius=16,
+                 potentialPct=0.5,
+                 globalInhibition=False,
+                 localAreaDensity=-1.0,
+                 numActiveColumnsPerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermConnected=0.10,
+                 minPctOverlapDutyCycle=0.001,
+                 minPctActiveDutyCycle=0.001,
+                 dutyCyclePeriod=1000,
+                 maxBoost=10.0,
+                 seed=-1,
+                 spVerbosity=0):
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      _ALGORITHMS.SpatialPooler_initialize(
+        self, inputDimensions, columnDimensions, potentialRadius, potentialPct, 
+        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
+        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
+        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
+        seed, spVerbosity)
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ spatial pooler with the
+      # string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ spatial pooler and populate it from the serialized
+      # string.
+      self.this = _ALGORITHMS.new_SpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
+  %}
+
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
+  void loadFromString(const std::string& inString)
+  {
+    std::istringstream inStream(inString);
+    self->load(inStream);
+  }
+
+
+  PyObject* getCState()
+  {
+    SharedPythonOStream py_s(self->persistentSize());
+    std::ostream& s = py_s.getStream();
+    // TODO: Consider writing floats as binary instead.
+    s.flags(ios::scientific);
+    s.precision(numeric_limits<double>::digits10 + 1);
+    self->save(s);
+    return py_s.close();
+  }
+
+  inline void setBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void getBoostFactors(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getBoostFactors((nta::Real*) x->data);
+  }
+
+  inline void setOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+
+  inline void setMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinOverlapDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinOverlapDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void setMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setMinActiveDutyCycles((nta::Real*) x->data);
+  }
+
+  inline void getMinActiveDutyCycles(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getMinActiveDutyCycles((nta::Real*) x->data);
+  }  
+
+  inline void setPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void getPotential(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPotential(column, (nta::UInt*) x->data);
+  }
+
+  inline void setPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->setPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getPermanence(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getPermanence(column, (nta::Real*) x->data);
+  }
+
+  inline void getConnectedSynapses(UInt column, PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedSynapses(column, (nta::UInt*) x->data);
+  }
+
+  inline void getConnectedCounts(PyObject* py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->getConnectedCounts((nta::UInt*) x->data);
+  }
+
+}
+
+
+%include <nta/algorithms/flat_spatial_pooler.hpp>
+
+%extend nta::algorithms::spatial_pooler::FlatSpatialPooler
+{
+  %pythoncode %{ 
+    import numpy
+
+    def __init__(self,
+                 inputShape=(32, 32),
+                 inputBorder=8,
+                 inputDensity=1.0,
+                 coincidencesShape=(48, 48),
+                 coincInputRadius=16,
+                 coincInputPoolPct=1.0,
+                 gaussianDist=False,
+                 commonDistributions=False,
+                 localAreaDensity=-1.0,
+                 numActivePerInhArea=10.0,
+                 stimulusThreshold=0,
+                 synPermInactiveDec=0.01,
+                 synPermActiveInc=0.1,
+                 synPermActiveSharedDec=0.0,
+                 synPermOrphanDec=0.0,
+                 synPermConnected=0.10,
+                 minPctDutyCycleBeforeInh=0.001,
+                 minPctDutyCycleAfterInh=0.001,
+                 dutyCyclePeriod=1000,
+                 maxFiringBoost=10.0,
+                 maxSSFiringBoost=2.0,
+                 maxSynPermBoost=10.0,
+                 minDistance=0.0,
+                 cloneMap=None,
+                 numCloneMasters=-1,
+                 seed=-1,
+                 spVerbosity=0,
+                 printPeriodicStats=0,
+                 testMode=False,
+                 globalInhibition=False,
+                 spReconstructionParam="unweighted_mean",
+                 useHighTier=True,
+                 randomSP=False,
+              ):
+      
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
+        self,
+        numInputs=numpy.prod(inputShape),
+        numColumns=numpy.prod(coincidencesShape),
+        localAreaDensity=localAreaDensity,
+        numActiveColumnsPerInhArea=numActivePerInhArea,
+        stimulusThreshold=stimulusThreshold,
+        synPermInactiveDec=synPermInactiveDec,
+        synPermActiveInc=synPermActiveInc,
+        synPermConnected=synPermConnected,
+        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
+        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
+        dutyCyclePeriod=dutyCyclePeriod,
+        maxBoost=maxFiringBoost,
+        seed=seed,
+        spVerbosity=spVerbosity
+      )
+  %}
+}
 
 %include <nta/algorithms/fast_cla_classifier.hpp>
 

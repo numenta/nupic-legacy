@@ -452,6 +452,15 @@ class CLAClassifierTest(unittest.TestCase):
     self.assertAlmostEqual(result['actualValues'][0], 34.7)
 
 
+  def test_pFormatArray(self):
+    from nupic.algorithms.CLAClassifier import _pFormatArray
+    pretty = _pFormatArray(range(10))
+    self.assertIsInstance(pretty, basestring)
+    self.assertEqual(pretty[0], "[")
+    self.assertEqual(pretty[-1], "]")
+    self.assertEqual(len(pretty.split(" ")), 12)
+
+
   def _checkValue(self, retval, index, value, probability):
     self.assertEqual(retval['actualValues'][index], value)
     self.assertEqual(retval[1][index], probability)

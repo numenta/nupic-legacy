@@ -199,7 +199,6 @@ namespace nta {
 
       private:
 	int trcg(float delta, float *g, float *s, float *r);
-	float norm_inf(int n, float *x);
 
 	float eps;
 	int max_iter;

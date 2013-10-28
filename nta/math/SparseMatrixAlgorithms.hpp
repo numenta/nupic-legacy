@@ -29,11 +29,7 @@
 #define NTA_SM_ALGORITHMS_HPP
 
 #include <vector>
-#ifdef NUPIC2
 #include <nta/utils/Random.hpp>
-#else
-#include <nta/common/Random.hpp>
-#endif
 
 //--------------------------------------------------------------------------------
 namespace nta {

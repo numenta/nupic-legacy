@@ -27,6 +27,7 @@ AC_INIT([NuPIC], 1.0.0)
 # This directory is where libtoolize and automake put their scripts
 # must come before AM_INIT_AUTOMAKE
 AC_CONFIG_AUX_DIR([build_system/unix])
+AC_LANG([C++])
 
 # Find out what system we're on.
 # Must be called before AM_INIT_AUTOMAKE
@@ -129,6 +130,20 @@ case "${target}" in
         nta_platform_mpi_extra_libs=""
         nta_platform_pyldflags="-bundle -undefined dynamic_lookup -fPIC"
         nta_platform_pyembed=""
+	;;
+     armv6l-*-*linux*)
+        nta_platform="linux32arm"
+        nta_platform_cxxflags="-fPIC -DPIC -ffloat-store -D_PY27"
+        nta_platform_asflags=""
+        nta_platform_debug_flag="-g"
+        nta_platform_ldflags="-static-libgcc"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_mpi_extra_libs="-lrt"
+	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
+	nta_platform_pyldflags="-pthread -shared"
+	nta_platform_pyembed="-Wl,--export-dynamic"
+	AC_MSG_RESULT([linux32 on arm])
 	;;
      i*86-*-*linux*)
         nta_platform="linux32"

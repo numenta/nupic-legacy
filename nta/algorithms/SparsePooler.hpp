@@ -31,11 +31,7 @@
 #include <vector>
 #include <iostream>
 
-#ifdef NUPIC2
 #include <nta/utils/Random.hpp>
-#else
-#include <nta/common/Random.hpp>
-#endif
 
 #include <nta/math/stl_io.hpp>
 #include <nta/math/array_algo.hpp>

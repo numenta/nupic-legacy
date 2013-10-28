@@ -34,13 +34,6 @@
       "required":false
     },
     
-    "useStreams":{
-      "type":"boolean",
-      "description":"True if we use HBase tables to stream in data. False if data is read/written to files",
-      "default":true,
-      "required":false
-    },
-    
     "createCheckpoints":{
       "type":"boolean",
       "description":"True to create checkpoints of best models. ",

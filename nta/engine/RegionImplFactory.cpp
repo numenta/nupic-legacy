@@ -36,7 +36,6 @@
 #include <nta/engine/YAMLUtils.hpp>
 #include <nta/engine/TestNode.hpp>
 #include <nta/regions/SpatialPoolerNode.hpp>
-#include <nta/regions/TemporalPoolerNode.hpp>
 #include <nta/regions/VectorFileEffector.hpp>
 #include <nta/regions/VectorFileSensor.hpp>
 #include <nta/utils/Log.hpp>
@@ -135,6 +134,8 @@ namespace nta
 #elif defined(NTA_PLATFORM_linux64)
       const char * filename = "libcpp_region.so";
 #elif defined(NTA_PLATFORM_linux32)
+      const char * filename = "libcpp_region.so";
+#elif defined(NTA_PLATFORM_linux32arm)
       const char * filename = "libcpp_region.so";
 #elif defined(NTA_PLATFORM_win32)
       const char * filename = "cpp_region.dll";
@@ -369,9 +370,6 @@ RegionImpl* RegionImplFactory::createRegionImpl(const std::string nodeType,
   } else if (nodeType == "SpatialPoolerNode")
   {
     mn = new SpatialPoolerNode(vm, region);
-  } else if (nodeType == "TemporalPoolerNode")
-  {
-    mn = new TemporalPoolerNode(vm, region);
   } else if (nodeType == "VectorFileEffector")
   {
     mn = new VectorFileEffector(vm, region);
@@ -405,9 +403,6 @@ RegionImpl* RegionImplFactory::deserializeRegionImpl(const std::string nodeType,
   } else if (nodeType == "SpatialPoolerNode")
   {
     mn = new SpatialPoolerNode(bundle, region);
-  } else if (nodeType == "TemporalPoolerNode")
-  {
-    mn = new TemporalPoolerNode(bundle, region);
   } else if (nodeType == "VectorFileEffector")
   {
     mn = new VectorFileEffector(bundle, region);
@@ -482,10 +477,6 @@ Spec * RegionImplFactory::getSpec(const std::string nodeType)
   {
     ns = SpatialPoolerNode::createSpec();
   } 
-  else if (nodeType == "TemporalPoolerNode")
-  {
-    ns = TemporalPoolerNode::createSpec();
-  }
   else if (nodeType == "VectorFileEffector")
   {
     ns = VectorFileEffector::createSpec();

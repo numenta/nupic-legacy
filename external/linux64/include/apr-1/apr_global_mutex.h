@@ -1,9 +1,9 @@
-/* Copyright 2000-2005 The Apache Software Foundation or its licensors, as
- * applicable.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+/* Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -121,6 +121,20 @@ APR_DECLARE(apr_status_t) apr_global_mutex_unlock(apr_global_mutex_t *mutex);
 APR_DECLARE(apr_status_t) apr_global_mutex_destroy(apr_global_mutex_t *mutex);
 
 /**
+ * Return the name of the lockfile for the mutex, or NULL
+ * if the mutex doesn't use a lock file
+ */
+APR_DECLARE(const char *) apr_global_mutex_lockfile(apr_global_mutex_t *mutex);
+
+/**
+ * Display the name of the mutex, as it relates to the actual method used
+ * for the underlying apr_proc_mutex_t, if any.  NULL is returned if
+ * there is no underlying apr_proc_mutex_t.
+ * @param mutex the name of the mutex
+ */
+APR_DECLARE(const char *) apr_global_mutex_name(apr_global_mutex_t *mutex);
+
+/**
  * Get the pool used by this global_mutex.
  * @return apr_pool_t the pool
  */
@@ -140,6 +154,8 @@ APR_POOL_DECLARE_ACCESSOR(global_mutex);
 #define apr_global_mutex_trylock    apr_proc_mutex_trylock
 #define apr_global_mutex_unlock     apr_proc_mutex_unlock
 #define apr_global_mutex_destroy    apr_proc_mutex_destroy
+#define apr_global_mutex_lockfile   apr_proc_mutex_lockfile
+#define apr_global_mutex_name       apr_proc_mutex_name
 #define apr_global_mutex_pool_get   apr_proc_mutex_pool_get
 
 #endif
