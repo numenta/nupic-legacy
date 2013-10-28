@@ -35,9 +35,7 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  - git remote add upstream https://github.com/numenta/nupic.git
-  - git fetch upstream master
-  - git merge upstream/master
+  - git merge master
   - git clone https://github.com/numenta/nupic-linux64.git
   - (cd nupic-linux64 && git reset --hard d8f87d0c0a6a29157be87ed47ed1e544c8b4589e)
   - source nupic-linux64/bin/activate
