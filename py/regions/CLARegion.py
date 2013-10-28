@@ -24,7 +24,8 @@ import sys
 import os
 
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
-from nupic.research.flat_spatial_pooler import PyFlatSpatialPooler
+from nupic.research.flat_spatial_pooler import (
+    FlatSpatialPooler as PyFlatSpatialPooler)
 from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
