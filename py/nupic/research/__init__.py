@@ -26,5 +26,4 @@ Numenta algorithms that are in early development.
 """
 
 from nupic.bindings.math import NearestNeighbor
-from nupic.bindings.math import TAM
 from nupic.bindings.algorithms import svm_01, svm_dense

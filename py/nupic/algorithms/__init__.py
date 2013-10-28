@@ -26,5 +26,4 @@ algorithms that are used inside Numenta-supplied regions.
 """
 
 from nupic.bindings.math import NearestNeighbor
-from nupic.bindings.math import TAM
 from nupic.bindings.algorithms import svm_01, svm_dense
