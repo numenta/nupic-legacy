@@ -781,9 +781,10 @@ void Network::loadFromBundle(const std::string& name)
   if (!success)
     NTA_THROW << "Unable to find YAML document in network structure file " 
               << networkStructureFilename;
-  if (doc.GetType() != YAML::CT_MAP)
+
+  if (doc.Type() != YAML::NodeType::Map)
     NTA_THROW << "Invalid network structure file -- does not contain a map";
-  
+
   // Should contain Version, Regions, Links
   if (doc.size() != 3)
     NTA_THROW << "Invalid network structure file -- contains " 
@@ -804,13 +805,13 @@ void Network::loadFromBundle(const std::string& name)
   if (regions == nullptr)
     NTA_THROW << "Invalid network structure file -- no regions";
 
-  if (regions->GetType() != YAML::CT_SEQUENCE)
+  if (regions->Type() != YAML::NodeType::Sequence)
     NTA_THROW << "Invalid network structure file -- regions element is not a list";
   
   for (YAML::Iterator region = regions->begin(); region != regions->end(); region++)
   {
     // Each region is a map -- extract the 5 values in the map
-    if ((*region).GetType() != YAML::CT_MAP)
+    if ((*region).Type() != YAML::NodeType::Map)
       NTA_THROW << "Invalid network structure file -- bad region (not a map)";
     
     if ((*region).size() != 5)
@@ -836,7 +837,7 @@ void Network::loadFromBundle(const std::string& name)
     if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region "
                 << name << " has no dimensions";
-    if ((*node).GetType() != YAML::CT_SEQUENCE)
+    if ((*node).Type() != YAML::NodeType::Sequence)
       NTA_THROW << "Invalid network structure file -- region "
                 << name << " dimensions specified incorrectly";
     Dimensions dimensions;
@@ -852,7 +853,7 @@ void Network::loadFromBundle(const std::string& name)
     if (node == nullptr)
       NTA_THROW << "Invalid network structure file -- region"
                 << name << "has no phases";
-    if ((*node).GetType() != YAML::CT_SEQUENCE)
+    if ((*node).Type() != YAML::NodeType::Sequence)
       NTA_THROW << "Invalid network structure file -- region "
                 << name << " phases specified incorrectly";
 
@@ -882,13 +883,13 @@ void Network::loadFromBundle(const std::string& name)
   if (links == nullptr)
     NTA_THROW << "Invalid network structure file -- no links";
 
-  if (links->GetType() != YAML::CT_SEQUENCE)
+  if (links->Type() != YAML::NodeType::Sequence)
     NTA_THROW << "Invalid network structure file -- links element is not a list";
 
   for (YAML::Iterator link = links->begin(); link != links->end(); link++)
   {
     // Each link is a map -- extract the 5 values in the map
-    if ((*link).GetType() != YAML::CT_MAP)
+    if ((*link).Type() != YAML::NodeType::Map)
       NTA_THROW << "Invalid network structure file -- bad link (not a map)";
     
     if ((*link).size() != 6)
