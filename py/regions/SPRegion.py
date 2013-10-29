@@ -902,6 +902,9 @@ class SPRegion(PyRegion):
 
     self.__dict__.update(state)
     self._loaded = True
+    # Backwards compatibility
+    if not hasattr(self, "_FDRCSpatialClass"):
+      self._FDRCSpatialClass = self._sfdr.__class__
     # Initialize all non-persistent base members, as well as give
     # derived class an opportunity to do the same.
     self._initializeEphemeralMembers()
