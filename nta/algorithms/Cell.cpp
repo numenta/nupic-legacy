@@ -63,7 +63,6 @@ void Cell::setSegmentOrder(bool matchPythonOrder)
  * the memory allocated), or by allocating a new one.
  */
 UInt Cell::getFreeSegment(const Segment::InSynapses& synapses,
-                    Real initFrequency,
                     bool sequenceSegmentFlag,
                     Real permConnected,
                     UInt iteration)
@@ -101,7 +100,7 @@ UInt Cell::getFreeSegment(const Segment::InSynapses& synapses,
   NTA_ASSERT(_segments[segIdx].empty()); // important in case we push_back
 
   _segments[segIdx] =
-  Segment(synapses, initFrequency, sequenceSegmentFlag,
+  Segment(synapses, sequenceSegmentFlag,
           permConnected, iteration);
 
   return segIdx;

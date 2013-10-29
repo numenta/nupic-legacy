@@ -92,7 +92,7 @@ namespace nta {
       class CState
       {
       public:
-        static const UInt VERSION = 1;
+        static const NTA_UInt16 VERSION = 2; // latest "API" version
 
         CState()
         {
@@ -170,7 +170,7 @@ namespace nta {
         {
           UInt version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
@@ -274,9 +274,9 @@ namespace nta {
         }
         void load(std::istream& inStream)
         {
-          UInt version;
+          NTA_UInt16 version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
@@ -296,12 +296,12 @@ namespace nta {
           inStream >> token;
           NTA_CHECK(token == "end");
         }
-        UInt version() const
+        NTA_UInt16 version() const
         {
           return _version;
         }
       private:
-        UInt _version;
+        NTA_UInt16 _version;
         std::vector<UInt> _cellsOn;
         UInt _countOn;                      // how many cells are On
         bool _isSorted;                     // avoid unnecessary sorting
@@ -352,7 +352,6 @@ namespace nta {
 
       private:
         bool       _seqSegFlag;    // sequence segment flag
-        Real       _frequency;     // frequency [UNUSED IN LATEST IMPLEMENTATION]
         InSynapses _synapses;      // incoming connections to this segment
         UInt       _nConnected;    // number of current connected synapses
 
@@ -366,13 +365,12 @@ namespace nta {
             _lastPosDutyCycle(0.0),
             _lastPosDutyCycleIteration(0),
             _seqSegFlag(false),
-            _frequency(0),
             _synapses(),
             _nConnected(0)
         {}
 
         //----------------------------------------------------------------------
-        Segment(const InSynapses& _s, Real frequency, bool seqSegFlag,
+        Segment(const InSynapses& _s, bool seqSegFlag,
                 Real permConnected, UInt iteration);
 
         //-----------------------------------------------------------------------
@@ -413,12 +411,9 @@ namespace nta {
 
           if (!is_sorted(indices, true, true))
             std::cout << "Indices are not sorted" << std::endl;
-
-          if (_frequency < 0)
-            std::cout << "Frequency is less than zero" << std::endl;
 #endif
 
-          return _frequency >= 0 && is_sorted(indices, true, true);
+          return is_sorted(indices, true, true);
         }
 
         //-----------------------------------------------------------------------
@@ -447,8 +442,6 @@ namespace nta {
         inline bool empty() const { return _synapses.empty(); }
         inline UInt size() const { return _synapses.size(); }
         inline bool isSequenceSegment() const { return _seqSegFlag; }
-        inline Real& frequency() { return _frequency; }
-        inline Real getFrequency() const { return _frequency; }
         inline UInt nConnected() const { return _nConnected; }
         inline UInt getTotalActivations() const { return _totalActivations;}
         inline UInt getPositiveActivations() const { return _positiveActivations;}
@@ -456,30 +449,6 @@ namespace nta {
         inline Real getLastPosDutyCycle() const    { return _lastPosDutyCycle;}
         inline UInt getLastPosDutyCycleIteration() const
                     { return _lastPosDutyCycleIteration;}
-
-        //-----------------------------------------------------------------------
-        /**
-         * Checks whether the given src cellIdx is already contained in this segment
-         * or not.
-         * TODO: optimize with at least a binary search
-         */
-        inline bool has(UInt srcCellIdx) const
-        {
-          NTA_ASSERT(srcCellIdx != (UInt) -1);
-
-          UInt lo = 0;
-          UInt hi = _synapses.size();
-          while (lo < hi) {
-            const UInt test = (lo + hi)/2;
-            if (_synapses[test].srcCellIdx() < srcCellIdx)
-              lo = test + 1;
-            else if (_synapses[test].srcCellIdx() > srcCellIdx)
-              hi = test;
-            else
-              return true;
-          }
-          return false;
-        }
 
         //-----------------------------------------------------------------------
         /**
@@ -544,7 +513,6 @@ namespace nta {
           _synapses.clear();
           _synapses.resize(0);
           _seqSegFlag = false;
-          _frequency = 0;
           _nConnected = 0;
         }
 
@@ -819,7 +787,6 @@ namespace nta {
           NTA_ASSERT(invariants());
           outStream << size() << ' '
                     << _seqSegFlag << ' '
-                    << _frequency << ' '
                     << _nConnected << ' '
                     << _totalActivations << ' '
                     << _positiveActivations << ' '
@@ -836,7 +803,6 @@ namespace nta {
           UInt n = 0;
           inStream >> n
                    >> _seqSegFlag
-                   >> _frequency
                    >> _nConnected
                    >> _totalActivations
                    >> _positiveActivations

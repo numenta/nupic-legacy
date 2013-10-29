@@ -128,7 +128,6 @@ namespace nta {
          */
         // TODO: rename method to "addToFreeSegment" ??
         UInt getFreeSegment(const Segment::InSynapses& synapses,
-                            Real initFrequency,
                             bool sequenceSegmentFlag,
                             Real permConnected,
                             UInt iteration);
