@@ -105,6 +105,11 @@ config = {
         'spEnable': $SP_ENABLE,
 
         'spParams': {
+            # Spatial pooler implementation to use.
+            # Options: "oldpy" (default but deprecated), "py" (good for
+            # experimentation but slow), and "cpp" (optimized).
+            'spatialImp': 'oldpy',
+
             # SP diagnostic output verbosity control;
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
