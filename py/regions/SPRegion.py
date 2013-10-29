@@ -25,7 +25,8 @@ import os
 
 from nupic.bindings.math import GetNTAReal
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
-from nupic.research.flat_spatial_pooler import FlatSpatialPooler
+from nupic.research.flat_spatial_pooler import FlatSpatialPooler as PyFlatSpatialPooler
+from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 
@@ -33,15 +34,21 @@ from PyRegion import PyRegion
 
 gDefaultSpatialImp = 'oldpy'
 
+
 ##############################################################################
-def _getSPClass(spatialImp):
+def getDefaultSPImp():
+  return gDefaultSpatialImp
+
+
+##############################################################################
+def getSPClass(spatialImp):
   """ Return the class corresponding to the given spatialImp string
   """
 
   if spatialImp == 'py':
-    return FlatSpatialPooler
+    return PyFlatSpatialPooler
   elif spatialImp == 'cpp':
-    raise RuntimeError("Spatial pooler not yet implemented in C++")
+    return CPPFlatSpatialPooler
   elif spatialImp == 'oldpy':
     return FDRCSpatial2
   else:
@@ -136,8 +143,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
   # Get arguments from FDRCSpatial2 constructor, figure out types of variables
   # and populate spatialSpec
   spatialSpec = {}
-  # FDRSpatialClass = _getSPClass(spatialImp)
-  FDRSpatialClass = _getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass(spatialImp)
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
 
   for argTuple in sArgTuples:
@@ -329,10 +335,9 @@ class SPRegion(PyRegion):
     if columnCount <= 0 or inputWidth <=0:
       raise TypeError("Parameters columnCount and inputWidth must be > 0")
 
-
     # Pull out the spatial arguments automatically
     # These calls whittle down kwargs and create instance variables of SPRegion
-    self._FDRCSpatialClass = _getSPClass(spatialImp)
+    self._FDRCSpatialClass = getSPClass(spatialImp)
     sArgTuples = _buildArgs(self._FDRCSpatialClass.__init__, self, kwargs)
 
     # Make a list of automatic spatial arg names for later use
@@ -606,10 +611,18 @@ class SPRegion(PyRegion):
     # if we are in learning mode and trainingStep is set appropriately.
 
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
-    self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
-                                                   learn=self.learningMode,
-                                                   infer=self.inferenceMode,
-                                                   computeAnomaly=self.anomalyMode)
+    
+    if (self._FDRCSpatialClass == FDRCSpatial2):
+      # Backwards compatability
+      self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
+                                                     learn=self.learningMode,
+                                                     infer=self.inferenceMode,
+                                                     computeAnomaly=self.anomalyMode)
+    else:  
+      inputVector = numpy.array(rfInput[0]).astype('uint32')
+      outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
+      self._sfdr.compute(inputVector, self.learningMode, outputVector)
+      self._spatialPoolerOutput[:] = outputVector[:]
 
     # Direct logging of SP outputs if requested
     if self._fpLogSP:
@@ -889,6 +902,9 @@ class SPRegion(PyRegion):
 
     self.__dict__.update(state)
     self._loaded = True
+    # Backwards compatibility
+    if not hasattr(self, "_FDRCSpatialClass"):
+      self._FDRCSpatialClass = self._sfdr.__class__
     # Initialize all non-persistent base members, as well as give
     # derived class an opportunity to do the same.
     self._initializeEphemeralMembers()

@@ -69,7 +69,6 @@ _ALGORITHMS = _algorithms
 #include <nta/math/SparseBinaryMatrix.hpp>
 #include <nta/algorithms/svm.hpp>
 #include <nta/algorithms/linear.hpp>
-#include <nta/algorithms/SparsePooler.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
 #include <nta/algorithms/spatial_pooler.hpp>
@@ -666,110 +665,6 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
                  xcount, ycount, weightWidth, sharpness,
                  (float*)(data->data), (float*)(values->data),
                  (float*)(counts->data), (float*)(weights->data));
-  }
-}
-
-//--------------------------------------------------------------------------------
-// SPARSE POOLER
-//--------------------------------------------------------------------------------
-%include <nta/algorithms/SparsePooler.hpp>
-
-%extend nta::SparsePoolerInputMasks
-{
-  std::string __getstate__()
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  %pythoncode %{
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_SparsePoolerInputMasks()
-      self.thisown = 1
-      self.load(inString)
-  %}
-
-  inline void load(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->readState(inStream);
-  }
-
-  inline std::string __str__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  inline std::string __repr__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-}
-
-%extend nta::SparsePooler
-{
-  PyObject* learn(PyObject* py_x)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(0);
-    self->learn(x.begin(), x.end(), y.begin());
-    return y.forPython();
-  }
-
-  PyObject* infer(PyObject* py_x)
-  {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(10000);
-    self->infer(x.begin(), x.end(), y.begin(), y.end());
-    return y.forPython();
-  }
-
-  std::string __getstate__()
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  %pythoncode %{
-    def __setstate__(self, inString):
-      self.this = _ALGORITHMS.new_SparsePooler()
-      self.thisown = 1
-      self.load(inString)
-  %}
-
-  inline void load(const std::string& inString)
-  {
-    std::istringstream inStream(inString);
-    self->readState(inStream);
-  }
-
-  inline PyObject* prototypes(int i) const
-  {
-    SparseMatrix32 p = self->getPrototypes(i);
-    int dims[] = { int(p.nRows()), int(p.nCols()) };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
-    for (size_t i = 0; i != p.nRows(); ++i)
-      for (size_t j = 0; j != p.nCols(); ++j)
-    *(out.addressOf(0,0) + i*p.nCols() + j) = p.get(i,j);
-    return out.forPython();
-  }
-
-  inline std::string __str__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
-  }
-
-  inline std::string __repr__() const
-  {
-    std::ostringstream outStream;
-    self->saveState(outStream);
-    return outStream.str();
   }
 }
 
