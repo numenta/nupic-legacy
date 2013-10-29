@@ -442,9 +442,8 @@ def vectorsFromSeqList(seqList, patternMatrix):
 
 ###############################################################################
 # difference smaller than this value makes no effect. 
-# was 0.001, iff we use _permanence of type unsigned char (1/255) this needs to be set to
-# 0.01 instead.  
-_epsilon=0.01
+# default 0.001 
+_epsilon=0.001
 
 ###############################################################################
 # The following three functions are used in tests to compare two different
