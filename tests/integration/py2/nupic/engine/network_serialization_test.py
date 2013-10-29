@@ -20,7 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Unit tests NuPIC networks."""
+"""Test for serializing NuPIC networks."""
 
 import filecmp
 import json
@@ -35,7 +35,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 
-class NetworkTest(unittest.TestCase):
+class NetworkSerializationTest(unittest.TestCase):
 
 
   def testSerialization(self):
