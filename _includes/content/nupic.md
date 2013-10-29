@@ -60,9 +60,9 @@ Starting in July, we will seriously consider incoming Pull Requests on our codeb
 
 Source Code
 -----------
-We're rocking [Github](http://github.com/numenta/nupic).
+We keep our source code on [Github](http://github.com/numenta/nupic).
 
 
 Issue Tracking
 --------------
-We use JIRA for issue tracking at [issues.numenta.org](http://issues.numenta.org).
+We use Github Issues for [issue tracking](https://github.com/numenta/nupic/issues) and [Huboard](https://huboard.com/numenta/nupic) for agile planning.
