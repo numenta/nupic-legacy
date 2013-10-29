@@ -16,13 +16,11 @@ We believe the technology behind [NuPIC]({{ site.baseurl }}/nupic.html) is an im
 
 Before your [pull requests](https://help.github.com/articles/using-pull-requests) will be reviewed by our team of committers, you'll need to sign our [Contributor License]({{ site.baseurl }}/licenses/cl/). You can see the current list of contributors who've signed our CL [here]( {{site.baseurl }}/tools/contributors.html).
 
+
 ## Issue Tracker
 
-Our ticket tracker is at [issues.numenta.org](https://issues.numenta.org). You can see all existing tickets [here](https://issues.numenta.org/browse/NPC). If you are interested in our sprint planning, you can see exactly what we're working on in our [scrum view](https://issues.numenta.org/secure/RapidBoard.jspa?rapidView=2). Wondering what we're planning on working on? You can tell in our [backlog](https://issues.numenta.org/secure/RapidBoard.jspa?rapidView=2&view=planning).
+Our ticket tracker is [on Github](https://github.com/numenta/nupic/issues). We separate our sprints into "Milestones". If you are interested in our sprint planning, you can see exactly what we're working on in [Huboard](https://huboard.com/numenta/nupic).
 
-Do you have a feature request or bug report? Please [sign up for a JIRA account](https://issues.numenta.org/secure/Signup!default.jspa) so you can [create tickets](https://issues.numenta.org/secure/CreateIssue!default.jspa) yourself.
-
-Looking for some low-hanging fruit to get your feet wet? Here's a [list of tasks for newbies](https://issues.numenta.org/issues/?jql=labels%20%3D%20newbie) to the project. If you're interested in working on some of them, let us know on our mailing list.
 
 ## Mailing Lists
 
