@@ -24,18 +24,20 @@ import sys
 import os
 
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
-from nupic.research.flat_spatial_pooler import FlatSpatialPooler
+from nupic.research.flat_spatial_pooler import (
+    FlatSpatialPooler as PyFlatSpatialPooler)
+from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
 
 from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
+from SPRegion import getDefaultSPImp, getSPClass
 
 from nupic.bindings.algorithms import FDRCSpatial as CPPSP
 from nupic.bindings.math import GetNTAReal
 
-gDefaultSpatialImp = 'py'
 gDefaultTemporalImp = 'py'
 
 
@@ -54,21 +56,6 @@ def _getTPClass(temporalImp):
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', and 'trivial'" % (temporalImp))
 
-
-##############################################################################
-def _getSPClass(spatialImp):
-  """ Return the class corresponding to the given spatialImp string
-  """
-
-  if spatialImp == 'py':
-    return FlatSpatialPooler
-  elif spatialImp == 'cpp':
-    raise RuntimeError("Spatial pooler not yet implemented in C++")
-  elif spatialImp == 'oldpy':
-    return FDRCSpatial2
-  else:
-    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'oldpy'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -159,7 +146,7 @@ def _getAdditionalSpecs(spatialImp, temporalImp, kwargs={}):
     else:
       return ''
 
-  FDRSpatialClass = _getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass(spatialImp)
   FDRTemporalClass = _getTPClass(temporalImp)
 
   spatialSpec = {}
@@ -579,7 +566,7 @@ class CLARegion(PyRegion):
                outputCloningHeight=0,
                saveMasterCoincImages = 0,
                temporalImp='py', #'py', 'simple' or 'cpp'
-               spatialImp='oldpy',   #'py', 'cpp', or 'oldpy'
+               spatialImp=getDefaultSPImp(),   #'py', 'cpp', or 'oldpy'
                computeTopDown = 0,
                nMultiStepPrediction = 0,
 
@@ -602,7 +589,7 @@ class CLARegion(PyRegion):
         kwargs[name] = (int(height), int(width))
 
     # Which FDR Temporal implementation?
-    FDRCSpatialClass = _getSPClass(spatialImp)
+    FDRCSpatialClass = getSPClass(spatialImp)
     FDRTemporalClass = _getTPClass(temporalImp)
 
     # Pull out the spatial and temporal arguments automatically
@@ -905,7 +892,7 @@ class CLARegion(PyRegion):
     autoArgs.pop('seed')
 
 
-    FDRCSpatialClass = _getSPClass(self.spatialImp)
+    FDRCSpatialClass = getSPClass(self.spatialImp)
     self._sfdr =  FDRCSpatialClass(
       cloneMap=self._cloneMap,
       numCloneMasters=self._numCloneMasters,
@@ -1331,8 +1318,19 @@ class CLARegion(PyRegion):
         (self._iterations%self.saveMasterCoincImages == 0):
       self.saveMasterCoincidenceImage()
 
-    output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
-    self._spatialPoolerOutput[:] = output[:]
+
+    if (self._sfdr.__class__ == FDRCSpatial2):
+      # Backwards compatability
+      output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
+      self._spatialPoolerOutput[:] = output[:]
+
+    else:  
+      inputVector = numpy.array(rfInput[0]).astype('uint32')
+      outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
+      self._sfdr.compute(inputVector, learnFlag, outputVector)
+      self._spatialPoolerOutput[:] = outputVector[:]
+
+
 
     # This is queried by the node inspectors to indicate that it is safe
     #  to ask for the variables they need.
@@ -1458,7 +1456,8 @@ class CLARegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, t, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp,temporalImp=gDefaultTemporalImp)
+    s, t, o = _getAdditionalSpecs(spatialImp=getDefaultSPImp(),
+                                  temporalImp=gDefaultTemporalImp)
     spec['parameters'].update(s)
     spec['parameters'].update(t)
     spec['parameters'].update(o)
