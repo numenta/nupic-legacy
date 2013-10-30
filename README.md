@@ -56,6 +56,11 @@ Add the following to your .bashrc file. Change the paths as needed.
     # setting $NTA.
     source $NUPIC/env.sh
 
+Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
+compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
+
+    pip install -r external/common/requirements.txt
+
 Build and install NuPIC:
 
     $NUPIC/build.sh
