@@ -4,6 +4,9 @@ title: 2013 Fall Hackathon Index
 ---
 
 <style>
+    dl.hack {
+        margin-top: 20px;
+    }
     dl.hack dt {
         font-size: 16pt;
         font-weight: bold;
@@ -18,6 +21,9 @@ title: 2013 Fall Hackathon Index
 <section>
 
 <h1>2013 Fall Hackathon Index</h1>
+
+<h2 id="countdown-label"></h2>
+<div id="countdown"></div>
 
 <dl class="hack">
 
@@ -55,4 +61,66 @@ title: 2013 Fall Hackathon Index
         <p>This is the best starting point for new NuPIC users to build and run NuPIC in their local environment. Contains instructions for building and running, as well as some sample applications.</p>
     </dl>
 
+    <dt>
+        Communication During the Hackathon
+    </dt>
+    <dl>
+        <p>You're encouraged to use the normal NuPIC OS channels of communication during the hackathon. This community is well-informed and should be able to help you with answers to questions and ideas about implementations. Please use the resources below and take advantage of our great community.</p>
+        <ul>
+            <li>IRC at <a href="irc://irc.freenode.net/nupic">Freenode #nupic</a></li>
+            <li><a href="http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org" target="_blank">NuPIC Mailing List</a></li>
+            <li><a href="https://github.com/numenta/nupic/issues" target="_blank">File Bugs</a></li>
+        </ul>
+    </dl>
+
 </dl>
+
+
+<script src="{{ site.baseurl }}/javascripts/countdown.js"></script>
+<script>
+    (function() {
+        var now = new Date();
+        var hackStart = new Date(2013, 10, 2, 10);
+        var hackEnd = new Date(2013, 10, 3, 16);
+        var $label = $("#countdown-label");
+        var width = 600;
+        var height = 100;
+        var label;
+        var deadline;
+
+        function countdownFromDate(d) {
+            var ampm = "pm";
+            var hours;
+            hours = d.getHours();
+            if (hours < 11) {
+                ampm = "am";
+            } else {
+                hours -= 12;
+            }
+            new Countdown({
+                year: d.getFullYear(),
+                month: d.getMonth() + 1,
+                day: d.getDate(),
+                hour: hours,
+                minutes: d.getMinutes(),
+                seconds: d.getSeconds(),
+                ampm: ampm,
+                width: width,
+                height: height,
+                target: "countdown",
+                rangeHi: "day"
+            });
+
+        }
+
+        if (now.getTime() > hackStart.getTime()) {
+            label = "Hacking time left before demos:";
+            deadline = hackEnd;
+        } else {
+            label = "Time until Hackathon Starts:";
+            deadline = hackStart;
+        }
+        countdownFromDate(deadline);
+        $label.html(label);
+    })();
+</script>
