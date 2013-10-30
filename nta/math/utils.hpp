@@ -73,8 +73,14 @@ namespace nta {
     else return 0;
   }
 
+/*
+  the following code is known to cause -Wstrict-aliasing warning, so silence it here
+*/
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
   inline bool IsSystemLittleEndian()
     { static const char test[2] = { 1, 0 }; return (*(short *) test) == 1; }
+#pragma GCC diagnostic pop // return back to defaults
 
   template<typename T>
   inline void SwapBytesInPlace(T *pxIn, Size n)
