@@ -1,0 +1,28 @@
+---
+layout: default
+title: 2013 Fall Hackathon Schedule
+---
+
+<section>
+  {% capture content %}
+  {% include content/hackathon/2013/nov.md %}
+  {% endcapture %}
+  {{ content | markdownify }}
+</section>
+
+<script src="{{ site.baseurl }}/javascripts/jump-menu.js" type="text/javascript"></script>
+<script src="{{ site.baseurl }}/javascripts/add-anchors.js" type="text/javascript"></script>
+<script src="{{ site.baseurl }}/javascripts/auto-reload.js" type="text/javascript"></script>
+<script type="text/javascript">
+    $(function() {
+        // If URL contains ?short, we hide stuff for monitor presentation
+        if (window.location.href.indexOf('?short') > 0) {
+            $('header,blockquote,h3,.jump-menu').remove();
+            $('section').css({width:"inherit", float:"none"});
+            window.NTA.autoReload(60);
+        } else {
+            NTA.addAnchors('h2,h3');
+        }
+    });
+</script>
+

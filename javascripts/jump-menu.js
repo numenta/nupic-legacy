@@ -2,7 +2,7 @@ $(function() {
 
     var $headers = $('h2'),
         $anchor = $('#jump-menu'),
-        $jumpMenu = $('<section><nav><ul></ul></nav></section>'),
+        $jumpMenu = $('<section class="jump-menu"><nav><ul></ul></nav></section>'),
         $ul = $jumpMenu.find('ul');
 
     if (! $anchor.length) {
