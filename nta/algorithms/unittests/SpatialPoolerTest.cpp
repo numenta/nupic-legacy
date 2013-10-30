@@ -1883,15 +1883,21 @@ namespace nta {
 
             trueNeighbors2Wrap[wc_][zc_][yc_][xc_] = 1;
 
-            if (wc < 0 || wc >= (Int) dimensions[0] ||
+            if (wc < 0 || wc >= (Int) dimensions[0] ||  // *)
                 zc < 0 || zc >= (Int) dimensions[1] ||
                 yc < 0 || yc >= (Int) dimensions[2] ||
                 xc < 0 || xc >= (Int) dimensions[3]) {
               continue;
             }
-
+// gcc 4.6 / 4.7 has a bug here, issues warning -Warray-bounds which is not true, see *), so suppress it
+#if (__GNUC__ == 4 && ( __GNUC_MINOR__ == 6 || __GNUC_MINOR__ == 7) )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
             trueNeighbors2[wc][zc][yc][xc] = 1;
-
+#if (__GNUC__ == 4 && ( __GNUC_MINOR__ == 6 || __GNUC_MINOR__ == 7) )
+#pragma GCC diagnostic pop
+#endif
           }
         }
       }
