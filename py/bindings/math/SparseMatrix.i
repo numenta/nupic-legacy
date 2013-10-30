@@ -446,7 +446,7 @@ def __div__(self, other):
 
   PyObject *toDense() const 
   {
-    int dims[] = { self->nRows(), self->nCols() };
+    int dims[] = { static_cast<int>(self->nRows()), static_cast<int>(self->nCols()) };
     nta::NumpyMatrixT<nta::Real ## N2> out(dims);
     self->toDense(out.addressOf(0, 0));
     return out.forPython();
@@ -974,7 +974,7 @@ def __div__(self, other):
     self->whereGreater(begin_row, end_row, begin_col, end_col, value, 
 		       std::back_inserter(rows), std::back_inserter(cols));
 
-    int dims[] = {rows.size(), 2};
+    int dims[] = {static_cast<int>(rows.size()), 2};
     nta::NumpyMatrixT<nta::UInt ## N1> toReturn(dims);
     for (size_t i = 0; i != rows.size(); ++i) {  
       toReturn.set(i, 0, rows[i]);
@@ -1004,7 +1004,7 @@ def __div__(self, other):
                             std::back_inserter(rows), std::back_inserter(cols));
     
     
-    int dims[] = {rows.size(), 2};
+    int dims[] = {static_cast<int>(rows.size()), 2};
     nta::NumpyMatrixT<nta::UInt ## N1> toReturn(dims);
     for (size_t i = 0; i != rows.size(); ++i) {  
       toReturn.set(i, 0, rows[i]);
@@ -3295,7 +3295,7 @@ def __setstate__(self, inString):
 
   inline PyObject* toDense() const 
   {
-    int dims[] = { self->nRows(), self->nCols() };
+    int dims[] = { static_cast<int>(self->nRows()), static_cast<int>(self->nCols()) };
     nta::NumpyMatrixT<nta::UInt32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
