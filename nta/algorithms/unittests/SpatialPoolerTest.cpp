@@ -1355,7 +1355,6 @@ namespace nta {
     Real density;
     UInt inhibitionRadius;
     UInt numColumns;
-    UInt numColumnsPerInhArea;
 
     density = 0.3;
     numColumns = 10;
