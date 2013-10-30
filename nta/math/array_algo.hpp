@@ -164,9 +164,6 @@ namespace nta {
   nearlyEqualVector(const Container1& c1, const Container2& c2,
                     const typename Container1::value_type& epsilon =nta::Epsilon)
   {
-    typedef typename Container1::value_type T1;
-    typedef typename Container2::value_type T2;
-
     if (c1.size() != c2.size())
       return false;
 
