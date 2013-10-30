@@ -124,7 +124,7 @@ There will be an optional focus on NLP issues with NuPIC, and we're creating som
 
 * * * 
 
-For further preparation details, [see our wiki](https://github.com/numenta/nupic/wiki/Nov-2013-Hackathon-Preparation).
+For further preparation details, [see our wiki](https://github.com/numenta/nupic/wiki/Getting-Started).
 
 
 ## YOW! 2013 Australia Developer Conference
