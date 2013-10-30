@@ -161,11 +161,10 @@ namespace nta
     bool isRegionLevel_;
 
 
-    // Use a vector of links because order is
-    // important.
+    // Use a vector of links because order is important.
     std::vector<Link*> links_;
 
-    bool zeroCopyEnabled_;
+    bool zeroCopyEnabled_; // TODO implement optimizations for zero-copy
 
     // volatile (non-serialized) state
     bool initialized_;
@@ -186,8 +185,6 @@ namespace nta
      * the next link starts at offset 0 + size(link[0])
      */
     std::vector<size_t> linkOffsets_;
-
-    size_t size_; // computed from links
 
     // Useful for us to know our own name
     std::string name_;
