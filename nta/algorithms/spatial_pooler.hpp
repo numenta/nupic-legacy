@@ -59,7 +59,7 @@ namespace nta {
         public:
           SpatialPooler();
 
-          ~SpatialPooler() {}
+          virtual ~SpatialPooler() {}
 
           virtual UInt version() const {
             return version_;

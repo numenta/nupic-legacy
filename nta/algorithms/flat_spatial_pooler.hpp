@@ -59,7 +59,7 @@ namespace nta {
         public:
           FlatSpatialPooler() {}
 
-          ~FlatSpatialPooler() {}
+          virtual ~FlatSpatialPooler() {}
 
           virtual void save(ostream& outStream);
           virtual void load(istream& inStream);
