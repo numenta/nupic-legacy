@@ -1672,8 +1672,8 @@ namespace nta {
         << "normal_range: Invalid input range";
     }
 
-    typedef typename std::iterator_traits<It>::value_type value_type;
-    // implement numerical recipes' method
+    //typedef typename std::iterator_traits<It>::value_type value_type;
+    //TODO implement numerical recipes' method
   }
 
   //--------------------------------------------------------------------------------
@@ -2569,8 +2569,6 @@ namespace nta {
       NTA_ASSERT(begin <= zone_begin && zone_end <= end)
         << "mask 1: Mask incompatible with vector";
     } // End pre-conditions
-
-    typedef typename std::iterator_traits<InIter>::value_type value_type;
 
     if (maskOutside) {
       std::fill(begin, zone_begin, v);
@@ -4756,7 +4754,6 @@ namespace nta {
         << "sample: Invalid range for pdf";
     }
 
-    typedef typename std::iterator_traits<It1>::value_type value_type;
     typedef typename std::iterator_traits<It2>::value_type size_type2;
 
     size_t size = (size_t) (pdf_end - pdf_begin);
