@@ -47,7 +47,7 @@ Soon after Jeff's talk, [Carin Meier](https://twitter.com/carinmeier) presented 
 
 Scott and I also presented [a technical session](http://www.oscon.com/oscon2013/public/schedule/detail/30342) about [NuPIC]({{ site.baseurl }}/nupic.html). OSCON staff have not made the video available yet, but it is supposed to be available sometime in November. 
 
-__*Watch for the NuPIC Technical video in this space as soon as it is posted.*__
+#### <a href="http://www.youtube.com/watch?v=5r1vZ1ymrQE" rel="prettyPhoto" title="NuPIC at OSCON 2013">Watch the Introduction to NuPIC video here.</a>
 
 After the session, the Q/A was running long, so we stayed around and answered questions in the hallway for another 30 minutes. As portrayed in [an attendee's blog post](http://blog.profitbricks.com/oscon-keynote-day-1-recap/), *"the line to talk to Jeff and his engineers afterward was 7 people deep at least."*
 
