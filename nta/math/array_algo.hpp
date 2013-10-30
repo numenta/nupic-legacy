@@ -5469,7 +5469,6 @@ namespace nta {
                                    It1 curr_begin, It1 curr_end)
   {
     typedef nta::UInt32 size_type;
-    typedef nta::Real32 value_type;
     
     size_type input_size = (size_type)(input_end - input_begin);
 
