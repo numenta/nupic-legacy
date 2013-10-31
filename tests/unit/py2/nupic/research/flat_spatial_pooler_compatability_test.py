@@ -264,11 +264,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     for i in xrange(numRecords):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
-      # Why is each record being copied?
       inputVector = inputMatrix[i,:]
       cppSp = self.convertSP(pySp, i+1)
-      # Why learn on only half (on average) of the records?
-      # This makes the test non-deterministic
       learn = (numpy.random.rand() > 0.5)
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
