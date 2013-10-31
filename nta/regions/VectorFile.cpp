@@ -710,7 +710,7 @@ void VectorFile::resetScaling(UInt nElements)
   }
 }
 
-const size_t VectorFile::getElementCount() const
+size_t VectorFile::getElementCount() const
 { 
   return scaleVector_.size(); 
 }
