@@ -246,7 +246,7 @@ namespace nta { namespace py
 
   PyObject * String::createString_(const char * s, size_t size)
   {
-    NTA_CHECK(size >= 0) << "String length must not be negative";
+    //NTA_CHECK(size >= 0) << "String length must not be negative"; // Wextra: uint >= 0, keep here if size_t changed from uint!
     if (size == 0)
     {
       NTA_CHECK(s) << "The input string must not be NULL when size == 0";
