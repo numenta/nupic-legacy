@@ -218,13 +218,14 @@ namespace nta {
       NTA_ASSERT(x <= x_end);
     }
 
-    // On win32, the asm syntax is not correct.
-#if defined(NTA_PLATFORM_darwin86) && defined(NTA_ASM)
 
     // This test can be moved to compile time using a template with an int
     // parameter, and partial specializations that will match the static
     // const int SSE_LEVEL. 
     if (SSE_LEVEL >= 41) { // ptest is a SSE 4.1 instruction
+
+  // On win32, the asm syntax is not correct.
+#if defined(NTA_PLATFORM_darwin86) && defined(NTA_ASM)
 
       // n is the total number of floats to process.
       // n1 is the number of floats we can process in parallel using SSE.
