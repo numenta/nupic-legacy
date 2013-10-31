@@ -58,9 +58,7 @@ void RegionTest::RunTests()
 void RegionTest::testWithNodeType(const std::string& nodeType)
 {
 
-  Region *rP = NULL;
-  SHOULDFAIL ( rP = new Region("r1", "nosuchnode", "") );
-  if(false && (rP > 0)  ) {  } // dummy code, but somehow #pragma ignore not working here, so "use" rP for -Wunused-but-set-variable
+  SHOULDFAIL ( new Region("r1", "nosuchnode", "") );
 
 
   Region r("r1", nodeType, "");
