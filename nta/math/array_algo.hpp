@@ -283,28 +283,29 @@ namespace nta {
       
         if (result == 1)
           return false;
-      }
+      } // n1>0 end
       
       // Complete computation by iterating over "stragglers" one by one.
       for (int i = n1; i != n; ++i)
         if (*(x+i) > 0)
           return false;
       return true;
-    
-    } else {
+
+#else // darwin
+    for (; x != x_end; ++x)
+      if (*x > 0)
+        return false;
+    return true;
+#endif
+
+    } else { // not SSE4.2
     
       for (; x != x_end; ++x)
         if (*x > 0)
           return false;
       return true;
     }
-#else
-    for (; x != x_end; ++x)
-      if (*x > 0)
-        return false;
-    return true;
-#endif
-  }
+  } //end method
 
   //--------------------------------------------------------------------------------
   /**
