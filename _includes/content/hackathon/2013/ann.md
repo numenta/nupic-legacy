@@ -1,4 +1,6 @@
 
-# Hackathon Announcements
 
-Important announcements will be posted here, but there aren't any important announcements yet... so nothing is posted. 
+### Register your hack!
+
+In order to take part in the demos, you must [register your project]({{ site.baseurl }}/events/hackathon/2013/nov).
+
