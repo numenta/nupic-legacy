@@ -164,8 +164,8 @@ if NTA_PYTHON_SUPPORT
 
   # Minimal functional subset
   NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
-    -I$(NTA_NUMPY_INCLUDE) \
-    -I$(PYTHON_SYS_INCLUDE)
+    -isystem$(NTA_NUMPY_INCLUDE) \
+    -isystem$(PYTHON_SYS_INCLUDE)
 
 else
   NTA_PYEMBEDFLAGS =
