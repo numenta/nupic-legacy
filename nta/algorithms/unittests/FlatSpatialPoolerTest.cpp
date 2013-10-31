@@ -329,7 +329,7 @@ namespace nta {
 
     string command = string("rm -f ") + filename;
     int ret = system(command.c_str());
-    NTA_ASSERT(ret == 0) << " FlatSpatialPooler.serialization failed. " << std::endl;
+    NTA_ASSERT(ret == 0); // << " FlatSpatialPooler.serialization failed. " << std::endl;
   }
     
 } // end namespace nta

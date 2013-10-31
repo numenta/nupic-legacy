@@ -2389,7 +2389,7 @@ namespace nta {
 
     string command = string("rm -f ") + filename;
     int ret = system(command.c_str());
-    NTA_ASSERT(ret == 0) << "SpatialPoolerTest: execution of command " << command << " failed " << std::endl;
+    NTA_ASSERT(ret == 0); // "SpatialPoolerTest: execution of command " << command << " failed " << std::endl;
   }
     
 } // end namespace nta
