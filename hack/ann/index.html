@@ -16,20 +16,68 @@ title: 2013 Fall Hackathon Announcements
 </style>
 
 <section>
+  <!-- <h1>Hackathon Announcements</h1> -->
+  <h2 id="countdown-label"></h2>
+  <div id="countdown"></div>
+  <br/><br/>
   {% capture content %}
   {% include content/hackathon/2013/ann.md %}
   {% endcapture %}
   {{ content | markdownify }}
 </section>
 
-<script src="{{ site.baseurl }}/javascripts/jump-menu.js" type="text/javascript"></script>
-<script src="{{ site.baseurl }}/javascripts/add-anchors.js" type="text/javascript"></script>
+
 <script src="{{ site.baseurl }}/javascripts/auto-reload.js" type="text/javascript"></script>
+<script src="{{ site.baseurl }}/javascripts/countdown.js" type="text/javascript"></script>
 
 <script type="text/javascript">
     $(function() {
         // $('header,blockquote,h3,.jump-menu').remove();
         $('section').css({width:"inherit", float:"none"});
         window.NTA.autoReload(60);
+
+        var now = new Date();
+        var hackStart = new Date(2013, 10, 2, 10);
+        var hackEnd = new Date(2013, 10, 3, 16);
+        var $label = $("#countdown-label");
+        var width = 800;
+        var height = 100;
+        var label;
+        var deadline;
+
+        function countdownFromDate(d) {
+            var ampm = "pm";
+            var hours;
+            hours = d.getHours();
+            if (hours < 11) {
+                ampm = "am";
+            } else {
+                hours -= 12;
+            }
+            new Countdown({
+                year: d.getFullYear(),
+                month: d.getMonth() + 1,
+                day: d.getDate(),
+                hour: hours,
+                minutes: d.getMinutes(),
+                seconds: d.getSeconds(),
+                ampm: ampm,
+                width: width,
+                height: height,
+                target: "countdown",
+                rangeHi: "day"
+            });
+
+        }
+
+        if (now.getTime() > hackStart.getTime()) {
+            label = "Hacking time left before demos:";
+            deadline = hackEnd;
+        } else {
+            label = "Hackathon starts in:";
+            deadline = hackStart;
+        }
+        countdownFromDate(deadline);
+        $label.html(label);
     });
 </script>
