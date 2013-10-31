@@ -32,7 +32,7 @@ import tempfile
 import unittest2 as unittest
 
 import numpy
-from pkg_resources import resource_stream
+from pkg_resources import resource_filename
 
 from nupic.research import fdrutilities
 from nupic.research.TP import TP
@@ -132,7 +132,7 @@ class TPTest(unittest.TestCase):
     tp2 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
              False, 1960, 0, False, '', 3, 10, 5, 0, 32, 128, 32, 'normal')
 
-    with resource_stream(__name__, 'data/tp_input.csv') as fin:
+    with open(resource_filename(__name__, 'data/tp_input.csv'), 'r') as fin:
       reader = csv.reader(fin)
       records = []
       for bottomUpInStr in fin:

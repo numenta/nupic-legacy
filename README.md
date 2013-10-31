@@ -39,6 +39,7 @@ Dependencies:
  * GCC (4.6-4.8)
  * Make
  * [pip](http://www.pip-installer.org/en/latest/installing.html)
+ * Freetype
 
 Add the following to your .bashrc file. Change the paths as needed.
 
@@ -54,6 +55,11 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Set up the rest of the necessary env variables. Must be done after
     # setting $NTA.
     source $NUPIC/env.sh
+
+Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
+compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
+
+    pip install -r external/common/requirements.txt
 
 Build and install NuPIC:
 
