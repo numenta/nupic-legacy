@@ -247,7 +247,7 @@ class FlatSpatialPooler(SpatialPooler):
 
   def _selectVirginColumns(self):
     """
-    retursn a set of virgin columns. Virgin columns are columns that have never 
+    returns a set of virgin columns. Virgin columns are columns that have never 
     been active.
     """
     return numpy.where(self._activeDutyCycles == 0)[0]
