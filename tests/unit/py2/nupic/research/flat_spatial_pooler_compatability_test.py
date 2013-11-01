@@ -251,13 +251,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
 
   def runSideBySide(self, params):
-    pySp = self.createSp("py",params)
+    pySp = self.createSp("py", params)
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
-    cppSp = self.createSp("cpp",params)
-    self.compare(pySp,cppSp)
+    cppSp = self.createSp("cpp", params)
+    self.compare(pySp, cppSp)
     threshold = 0.8
-    inputMatrix = (numpy.random.rand(numRecords,numInputs) > 
+    # Create numRecords records, each numInputs long, where each input
+    # is an unsigned 32 bit integer of either 0 or 1
+    inputMatrix = (numpy.random.rand(numRecords, numInputs) > 
       threshold).astype(uintType)
     for i in xrange(numRecords):
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
@@ -268,7 +270,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
-      self.compare(pySp,cppSp)
+      self.compare(pySp, cppSp)
 
 
   def runSerialize(self, imp, params):
