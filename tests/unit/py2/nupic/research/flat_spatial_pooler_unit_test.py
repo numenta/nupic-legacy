@@ -23,6 +23,7 @@
 from mock import Mock, patch, ANY, call
 import numpy
 import unittest2 as unittest
+from copy import copy
 
 from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
@@ -30,7 +31,9 @@ from nupic.bindings.math import (count_gte,
                                  SM32 as SparseMatrix)
 from nupic.research.flat_spatial_pooler import FlatSpatialPooler
 
-
+# Globals
+realType = GetNTAReal()
+uintType = "uint32"
 
 class FlatSpatialPoolerTest(unittest.TestCase):
 
@@ -93,7 +96,62 @@ class FlatSpatialPoolerTest(unittest.TestCase):
     trueVIPColumns = []
     self.assertListEqual(trueVIPColumns, list(vipColumns))
 
+  def testRandomSPDoesNotLearn(self):
+    
+    sp = FlatSpatialPooler(inputShape=5,
+                           coincidencesShape=10,
+                           randomSP=True)
+    inputArray = (numpy.random.rand(5) > 0.5).astype(uintType)
+    activeArray = numpy.zeros(sp._numColumns).astype(realType)
+    # Should start off at 0
+    self.assertEqual(sp._iterationNum, 0)
+    self.assertEqual(sp._iterationLearnNum, 0)
+    
+    # Store the initialized state
+    initialPerms = copy(sp._permanences)
+    
+    sp.compute(inputArray, False, activeArray)
+    # Should have incremented general counter but not learning counter
+    self.assertEqual(sp._iterationNum, 1)
+    self.assertEqual(sp._iterationLearnNum, 0)
+    
+    # Should not learn even if learning set to True
+    sp.compute(inputArray, True, activeArray)
+    self.assertEqual(sp._iterationNum, 2)
+    self.assertEqual(sp._iterationLearnNum, 0)
+    
+    # Check the initial perm state was not modified either
+    self.assertEqual(sp._permanences, initialPerms)
 
+  def testActiveColumnsEqualNumActive(self):
+    '''
+    After feeding in a record the number of active columns should
+    always be equal to numActivePerInhArea
+    '''
+
+    for i in [1, 10, 50]:
+      numActive = i
+      inputShape = 10
+      sp = FlatSpatialPooler(inputShape=inputShape,
+                             coincidencesShape=100,
+                             numActivePerInhArea=numActive)
+      inputArray = (numpy.random.rand(inputShape) > 0.5).astype(uintType)
+      inputArray2 = (numpy.random.rand(inputShape) > 0.8).astype(uintType)
+      activeArray = numpy.zeros(sp._numColumns).astype(realType)
+  
+      # Random SP
+      sp._randomSP = True
+      sp.compute(inputArray, False, activeArray)
+      sp.compute(inputArray2, False, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
+      
+      # Default, learning on
+      sp._randomSP = False
+      sp.compute(inputArray, True, activeArray)
+      sp.compute(inputArray2, True, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
+    
+    
 
 if __name__ == "__main__":
   unittest.main()
