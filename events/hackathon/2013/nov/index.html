@@ -7,21 +7,24 @@ title: 2013 Fall Hackathon Event Page
 
 <h1>2013 Fall Hackathon</h1>
 
-<h2 id="hack-registration">Hack Registration</h2>
-
-<iframe src="https://docs.google.com/forms/d/1ogN1XXLs7DLn9aE8unewy4_rUjTYi9GtHOK_-jOEkuY/viewform?embedded=true#start=embed" width="760" height="800" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
-
 <h2 id="registered-hacks">Registered Hacks</h2>
+<div align="center">
+    <iframe width='900' height='300' frameborder='0' src='https://docs.google.com/spreadsheet/pub?key=0At9vQZHZRc_gdG04cEUyVlctMmdkcXNZU29YdGJXX0E&gid=0&range=b1%3AH100&output=html'></iframe>
+</div>
 
-<iframe width='760' height='700' frameborder='0' src='https://docs.google.com/spreadsheet/pub?key=0At9vQZHZRc_gdEpFOXhRdTZsZjNrQ3BYMVRWWENJVEE&output=html&widget=true'></iframe>
+<br/><br/>
+
+<h2 id="hack-registration">Hack Registration</h2>
+<p>Hacks registered using the form below will show up the the spreadsheet above after a few minutes.</p>
+<div align="center">
+    <iframe src="https://docs.google.com/forms/d/1ogN1XXLs7DLn9aE8unewy4_rUjTYi9GtHOK_-jOEkuY/viewform?embedded=true#start=embed" width="760" height="940" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+</div>
 
 </section>
 
-
-<script src="{{ site.baseurl }}/javascripts/jump-menu.js" type="text/javascript"></script>
-<script src="{{ site.baseurl }}/javascripts/add-anchors.js" type="text/javascript"></script>
 <script type="text/javascript">
     $(function() {
-        NTA.addAnchors();
+        $('header,blockquote,h3,.jump-menu').remove();
+        $('section').css({width:"inherit", float:"none"});
     });
 </script>
