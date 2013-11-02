@@ -6,6 +6,8 @@ title: 2013 Fall Hackathon Schedule
   @media (min-width: 1500px) {
     body {
       float: left;
+      margin: 0;
+      padding: 0;
       zoom:1.5;
       -moz-transform: scale(1.5);
       -moz-transform-origin: 0 0;
@@ -33,6 +35,7 @@ title: 2013 Fall Hackathon Schedule
         if (window.location.href.indexOf('?short') > 0) {
             $('header,blockquote,h3,.jump-menu').remove();
             $('section').css({width:"inherit", float:"none"});
+            $('h1').hide();
             window.NTA.autoReload(60);
         } else {
             NTA.addAnchors('h2,h3');
