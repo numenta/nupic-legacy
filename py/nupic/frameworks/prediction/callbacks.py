@@ -23,10 +23,13 @@ from nupic.data.record_stream import RecordStreamIface
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 import os
 import pprint
-if "NTA_AUTOBUILD_NO_DISPLAY" not in os.environ:
+import sys
+try:
   import matplotlib
   matplotlib.use('agg', warn=False)
   import pylab
+except ImportError:
+  pass
 
 """A callback (aka "hook function") for the Prediction Framework is invoked by
 the framework as:
@@ -390,11 +393,13 @@ def _initPylab():
   global _pylabInitialized
   if _pylabInitialized:
     return
-  _pylabInitialized = True
 
-  pylab.ion()
-  pylab.figure(2)
-  pylab.figure(1)
+  if "pylab" in sys.modules:
+    _pylabInitialized = True
+
+    pylab.ion()
+    pylab.figure(2)
+    pylab.figure(1)
 
 
 ##########################################################
