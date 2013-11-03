@@ -7,8 +7,6 @@ lang/py/bindings/__init__.py   lib/python${PythonVersion}/site-packages/nupic/bi
 # Pull in the pieces of nupic that we want
 py/nupic/algorithms    lib/python${PythonVersion}/site-packages/nupic/algorithms
 py/nupic/frameworks    lib/python${PythonVersion}/site-packages/nupic/frameworks
-py/nupic/analysis      lib/python${PythonVersion}/site-packages/nupic/analysis
-py/nupic/image         lib/python${PythonVersion}/site-packages/nupic/image
 py/nupic/research      lib/python${PythonVersion}/site-packages/nupic/research
 py/nupic/data          lib/python${PythonVersion}/site-packages/nupic/data
 py/nupic/database      lib/python${PythonVersion}/site-packages/nupic/database
