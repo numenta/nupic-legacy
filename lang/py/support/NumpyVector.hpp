@@ -56,9 +56,6 @@ namespace nta {
   class NumpyArray
   {
 
-    //NumpyArray(const NumpyArray &); // Verboten.
-    //NumpyArray &operator=(const NumpyArray &); // Verboten.
-
   protected:
     const PyArrayObject *p_;
     int dtype_;
