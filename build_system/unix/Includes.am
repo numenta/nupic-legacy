@@ -51,7 +51,11 @@ NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
 if NTA_OPTIMIZATION_ENABLED
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
   # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
-  NTA_CXX_OPTFLAGS = -O3 -pipe -DNTA_ASM -Wno-cpp -Wno-type-limits -Werror -Wno-error=cpp -Wno-error=format= -Wno-error=unused-parameter -Wno-unknown-warning-option
+  NTA_CXX_OPTFLAGS = -O3 -pipe -DNTA_ASM
+  # warning related flags
+  NTA_CXX_OPTFLAGS += -Wall -Wextra -Wunused -Werror \
+   -Wno-unused-parameter -Wno-cpp -Wno-type-limits -Wno-error=cpp -Wno-error=format= \
+   -Wno-error=unused-parameter -Wno-unknown-warning-option
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
@@ -94,9 +98,7 @@ endif
 NTA_CXXFLAGS_BASE += @nta_platform_cxxflags@
 NTA_CXXFLAGS_BASE += -DNTA_PLATFORM_@nta_platform@
 
-NTA_CXXFLAGS_BASE += \
-       -Wall -Wextra -Wunused -Wno-unused-parameter \
-       -DBOOST_NO_WREGEX
+NTA_CXXFLAGS_BASE += -DBOOST_NO_WREGEX
 
 ################################################################
 
