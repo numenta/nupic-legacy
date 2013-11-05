@@ -36,7 +36,7 @@ Currently supported platforms:
 
 Dependencies:
  * Python (2.6-2.7) (with development headers)
- * GCC (4.6-4.8)
+ * GCC (4.6-4.8), or Clang
  * Make
  * [pip](http://www.pip-installer.org/en/latest/installing.html)
  

@@ -164,7 +164,7 @@ namespace nta {
           M = i_[i];
       return M;
     }
-
+    
     /**
      * Indexing operator.
      *
