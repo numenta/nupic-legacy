@@ -55,7 +55,7 @@ if NTA_OPTIMIZATION_ENABLED
   # warning related flags
   NTA_CXX_OPTFLAGS += -Wall -Wextra -Wunused -Werror \
    -Wno-unused-parameter -Wno-cpp -Wno-type-limits -Wno-error=cpp -Wno-error=format= \
-   -Wno-error=unused-parameter -Wno-unknown-warning-option
+   -Wno-error=unused-parameter
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
