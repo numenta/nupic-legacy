@@ -52,6 +52,9 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 AC_PROG_CXX
 
+# set clang/gcc variable, based on CC= CXX=, used for compiler flags
+AM_CONDITIONAL(USING_CLANG, test x$CC = "xclang")
+
 # Enable .S files
 AM_PROG_AS
 
