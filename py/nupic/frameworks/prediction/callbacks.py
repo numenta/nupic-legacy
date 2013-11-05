@@ -28,8 +28,9 @@ try:
   import matplotlib
   matplotlib.use('agg', warn=False)
   import pylab
+  pylabAvailable = True
 except:
-  pass
+  pylabAvailable = False
 
 """A callback (aka "hook function") for the Prediction Framework is invoked by
 the framework as:
@@ -391,15 +392,14 @@ def _initPylab():
   Initialize pylab for plotting
   """
   global _pylabInitialized
-  if _pylabInitialized:
-    return
 
-  if "pylab" in sys.modules:
-    _pylabInitialized = True
-
+  if pylabAvailable and not _pylabInitialized:
     pylab.ion()
     pylab.figure(2)
     pylab.figure(1)
+
+    _pylabInitialized = True
+
 
 
 ##########################################################
