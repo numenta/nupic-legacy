@@ -28,7 +28,7 @@ try:
   import matplotlib
   matplotlib.use('agg', warn=False)
   import pylab
-except ImportError:
+except:
   pass
 
 """A callback (aka "hook function") for the Prediction Framework is invoked by
