@@ -30,6 +30,7 @@
 
 #include <nta/types/Exception.hpp>
 #include <sstream>
+#include <vector> 
 
 namespace nta
 {
@@ -57,6 +58,17 @@ namespace nta
       }
       return lmessage_.c_str();
     }
+
+    // for Index.hpp: // because stringstream cant take << vector
+    LoggingException& operator<<(std::vector<unsigned int, std::allocator<unsigned int> >  v)
+    {
+      lmessageValid_ = false;
+      ss_ << "[";
+      for(int i=0; i<v.size(); i++)
+        ss_ << v[i] << " ";
+      ss_ << "]";
+      return *this;
+    } 
 
     template <typename T> LoggingException& operator<<(const T& obj)
     {
