@@ -198,7 +198,7 @@ _MATH = _math
 // For unpickling.
 %pythoncode %{
 def __setstate__(self, state):
-  self.this = _math.new_Random(1)
+  self.this = _MATH.new_Random(1)
   self.thisown = 1
   self.setState(state)
 %}
