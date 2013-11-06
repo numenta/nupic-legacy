@@ -53,7 +53,7 @@ if NTA_OPTIMIZATION_ENABLED
   # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
   NTA_CXX_OPTFLAGS = -O3 -pipe -DNTA_ASM
   # warning related flags
-  NTA_CXX_OPTFLAGS += -Wall -Wextra -Wunused -Werror \
+  NTA_CXX_OPTFLAGS += -Wall -Wextra -Wunused  \
    -Wno-unused-parameter -Wno-cpp -Wno-type-limits -Wno-error=cpp -Wno-error=format= \
    -Wno-error=unused-parameter
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
@@ -64,9 +64,9 @@ endif
 
 # put clang/gcc specific flags here (nested ifs do not work!)
 if USING_CLANG # clang
-    NTA_CXX_OPTFLAGS += ""
+    NTA_CXX_OPTFLAGS += -Wno-unknown-warning-option
 else # gcc
-    NTA_CXX_OPTFLAGS += -falign-loops=16
+    NTA_CXX_OPTFLAGS += -falign-loops=16 -Werror
 endif
 
 #
