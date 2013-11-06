@@ -28,9 +28,6 @@ from nupic.bindings.math import SM32
 import pylab
 from pylab import figure, plot, xlabel, ylabel, title, axis, draw, close, legend, show, grid, savefig, show
 import time
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
 from copy import deepcopy
 
 #=============================================================================
