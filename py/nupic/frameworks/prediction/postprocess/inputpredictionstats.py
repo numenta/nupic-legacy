@@ -26,10 +26,6 @@ import pprint
 from copy import deepcopy
 import math
 
-# This allows us to generate plots even when running on a system without a display
-#if not 'DISPLAY' in os.environ:
-import matplotlib
-matplotlib.use('Agg', warn=True)
 import pylab
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -388,7 +384,6 @@ class TemporalHistogram(object):
       offsets, absErrors, \
         avgScalars, avgPredScalars = zip(*map(summarizeScore, fieldScores))
 
-      print "***** matplotlib called from inputpredictionstats.getStats() version: %s  location: %s  backend: %s" % (matplotlib.__version__, matplotlib.__file__, matplotlib.get_backend())
       fig = pylab.figure()
 
       axes = fig.add_subplot(2,1,1)
