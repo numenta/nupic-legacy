@@ -297,6 +297,6 @@ This was a really fun event to plan, and it emphasizes what a great community we
 > Open Source Community Flag-Bearer <br/>
 > Numenta, Inc.
 
-[Comments on Reddit]()
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1q2ef6/nupic_2013_fall_hackathon_outcome/)
 
 <small><strong>By the way!</strong> You can see all the videos and photos taken at this hackathon on our <a href="http://www.youtube.com/channel/UC8-ttzWLgXZOGuhUyrPlUuA">YouTube channel</a> and <a href="http://www.flickr.com/photos/107852893@N04/">Flickr page</a>.</small>
