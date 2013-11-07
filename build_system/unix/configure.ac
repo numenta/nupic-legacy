@@ -134,7 +134,7 @@ case "${target}" in
         nta_platform_pyldflags="-bundle -undefined dynamic_lookup -fPIC"
         nta_platform_pyembed=""
 	;;
-     armv6l-*-*linux*)
+     armv6l-*-*linux* | armv7l-*-*linux*)
         nta_platform="linux32arm"
         nta_platform_cxxflags="-fPIC -DPIC -ffloat-store -D_PY27"
         nta_platform_asflags=""
