@@ -53,7 +53,7 @@ category: blog
 
 <div class="image">
     <a href="http://www.flickr.com/photos/107852893@N04/10709117774/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm4.staticflickr.com/3744/10709117774_e17c6e635a_z.jpg" width="640" height="150" alt="NuPIC 2013 Fall Hackathon"></a>
-    <p>A panoramic view of the Hackathon space at Tagged.</p>
+    <p>A panoramic view of the hackathon space at Tagged.</p>
 </div>
 
 Last weekend's hackathon was a lot of fun. Thanks to everyone for coming out. We gave several educational presentations and held some working sessions. The participation from the attendees was outstanding. 
@@ -65,7 +65,7 @@ Thanks again to <a href="http://about.tagged.com">Tagged</a>, who generously don
     <p>Jeff Hawkins talking about sensor-motor integration in the neocortex.</p>
 </div>
 
-We had over 50 people attend the hackathon across the United States and Europe, most of whom stuck around for the demos after the 30-hour hack period. In all, we had <a href="#demos">7 impressive demos</a>! Only a couple were <em>natural language processing</em> hacks, but that's okay. It was great to see NuPIC users making their ideas a reality in whatever direction they chose to apply it.
+We had over 50 people attend the hackathon from across the United States and Europe, most of whom stuck around for the demos after the 30-hour hack period. In all, we had <a href="#demos">7 impressive demos</a>! Only a couple were <em>natural language processing</em> hacks, but that's okay. It was great to see NuPIC users making their ideas a reality in whichever direction they chose to apply it.
 
 <div class="image">
     <a href="http://www.flickr.com/photos/107852893@N04/10709055775/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm8.staticflickr.com/7325/10709055775_72897d1031_z.jpg" width="640" height="480" alt="NuPIC 2013 Fall Hackathon"></a>
@@ -110,7 +110,7 @@ Here's what some attendees had to say on our <a href="http://www.meetup.com/nume
 
 <h2 id="videos"><a href="#videos">Videos</a></h2>
 
-We tried to record everything we could, which in included all the sessions (minus one because of a technical glitch). My apologies for the poor audio and video in some of these. We had a wireless microphone failure because of unanticipated RF interference. We attempted to live-stream everything on YouTube via Google Hangout, which meant we sacrificed quality. For future hackathons, I plan to have better tools in place.
+We tried to record everything we could, which included all the sessions (minus one because of a technical glitch). My apologies for the poor audio and video in some of these. We had a wireless microphone failure because of unanticipated RF interference. We attempted to live-stream everything on YouTube via Google Hangout, which meant we sacrificed quality. For future hackathons, I plan to have better tools in place.
 
 #### <a href="http://www.youtube.com/watch?v=QNF-gONtSmA" rel="prettyPhoto" title="2013 NuPIC Fall Hackathon Kickoff Presentation">2013 NuPIC Fall Hackathon Kickoff Presentation</a>
 
@@ -241,7 +241,7 @@ In addition to the <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&start=285
         </li>
     </ul>
 
-    <p>This team the CLA to learn to control a quadcopter. Their objective was to pilot the quadcopter by controlling its vertical speed to fly to a desired altitude and hover there. The supervised learning approach involved having the CLA watch an expert flyer and learn those sequences, and use its prediction of those sequences to directly control the copter in the face of noise.</p>
+    <p>This team taught the CLA to learn to control a quadcopter. Their objective was to pilot the quadcopter by controlling its vertical speed to fly to a desired altitude and hover there. The supervised learning approach involved having the CLA watch an expert flyer and learn those sequences, and use its prediction of those sequences to directly control the copter in the face of noise.</p>
 
 </div>
 
@@ -289,7 +289,7 @@ In addition to the <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&start=285
 
 Lastly, our CEO and Chairman of the Grok/Numenta Board, Donna Dubinsky, said <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&amp;start=8506" rel="prettyPhoto" title="Thanks, from Donna Dubinsky">a few inspirational words</a> at the end of the hackathon. Thanks, Donna!
 
-This was a really fun event to plan, and it emphasizes what a great community we have with NuPIC. Thank you, everyone, for helping make this open source project what it is today. I am looking forward to planning our next hackathon this Spring!
+This was a really fun event to plan, and it emphasizes what a great community we have with NuPIC. Thank you everyone, for helping make this open source project what it is today. I am looking forward to planning our next hackathon this Spring!
 
 <br/>
 
