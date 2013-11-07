@@ -128,7 +128,7 @@ We tried to record everything we could, which included all the sessions (minus o
 
 > Most of the changes on our senses are due, wholly or in part, to our own actions. Therefore, the neocortex learns a sensory-motor model of the world. In this talk, Jeff discussed some of what we know about how the neocortex generates behavior and how we might construct a simple sensory-motor system based on the Cortical Learning Algorithm. It is a good starting point for anyone wanting to add motor output to the CLA.
 
-#### <a href="http://www.youtube.com/watch?v=g9UYCH29AEo" rel="prettyPhoto" title="Q&A Session">Q&A Session</a>
+#### <a href="http://www.youtube.com/watch?v=g9UYCH29AEo" rel="prettyPhoto" title="Q&amp;A Session">Q&amp;A Session</a>
 
 > This was an informal question and answer session between some hackathon attendees and Jeff and Subutai.
 
