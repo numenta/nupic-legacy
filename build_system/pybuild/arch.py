@@ -27,7 +27,7 @@ def getArch() :
   Return the NuPIC architecture name.
   Note that this is redundant with the calculation in configure.ac (<-- TODO so remove?) 
   """
-  if sys.platform == "linux2":
+  if sys.platform == "linux2" or sys.platform == "linux3":
     #
     # platform.processor() vs. platform.machine() is a bit of a mystery
     # On linux systems, they ultimately translate to uname -p and uname -m, respectively.
@@ -37,11 +37,11 @@ def getArch() :
     # uname -p may also return "athlon" or other random words. 
     # 
     cpu = platform.machine()
-    if cpu not in ["i686", "i386", "x86_64", "armv6l"]:
+    if cpu not in ["i686", "i386", "x86_64", "armv6l", "armv7l"]:
       cpu = platform.processor()
     if cpu in ["i686", "i386"]:
       return "linux32"
-    elif cpu == "armv6l":
+    elif cpu == "armv6l" or cpu == "armv7l":
       return "linux32arm"
     elif cpu == "x86_64":
       return "linux64"
