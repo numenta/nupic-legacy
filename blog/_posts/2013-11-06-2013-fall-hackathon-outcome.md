@@ -116,7 +116,7 @@ We tried to record everything we could, which included all the sessions (minus o
 
 > Jeff and I got the event rolling. This includes protocol information, thank-yous, and guidance for hackers.
 
-#### <a href="http://www.youtube.com/watch?v=QNF-gONtSmA&start=1260" rel="prettyPhoto" title="NLP With NuPIC">NLP With NuPIC</a>
+#### <a href="http://www.youtube.com/watch?v=QNF-gONtSmA&amp;start=1260" rel="prettyPhoto" title="NLP With NuPIC">NLP With NuPIC</a>
 
 > I'd done some NLP work before the hackathon in order to help others get started doing some work with NuPIC, NLP, and especially the CEPT API for word SDRs. In this presentation, I present some of the initial progress I made.
 
@@ -141,7 +141,7 @@ We tried to record everything we could, which included all the sessions (minus o
 <br />
 <h2 id="demos"><a href="#demos">Hack Demos</a></h2>
 
-In addition to the <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&start=285" rel="prettyPhoto" title="2013 NuPIC Fall Hackathon Demos">full video of all our hackathon demonstrations</a>, I've broken out each hack below with further information about the participants and source code.
+In addition to the <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&amp;start=285" rel="prettyPhoto" title="2013 NuPIC Fall Hackathon Demos">full video of all our hackathon demonstrations</a>, I've broken out each hack below with further information about the participants and source code.
 
 <div class="demo">
     <a href="http://www.flickr.com/photos/107852893@N04/10709118104/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm3.staticflickr.com/2866/10709118104_d73caba352_n.jpg" width="240" height="320" alt="NuPIC 2013 Fall Hackathon"></a>
