@@ -39,8 +39,7 @@ Dependencies:
  * GCC (4.6-4.8), or Clang
  * Make
  * [pip](http://www.pip-installer.org/en/latest/installing.html)
- * Freetype
-
+ 
 Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
