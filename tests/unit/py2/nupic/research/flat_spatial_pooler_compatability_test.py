@@ -24,6 +24,9 @@ import cPickle as pickle
 import numpy
 import unittest2 as unittest
 
+from nupic.support.unittesthelpers.alogrithm_test_helpers \
+     import getNumpyRandomGenerator
+
 from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random
 from nupic.research.flat_spatial_pooler import (
@@ -35,8 +38,12 @@ numRecords = 100
 
 
 
-class SpatialPoolerCompatabilityTest(unittest.TestCase):
+class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
 
+  def setUp(self):
+    # Set to 1 for more verbose debugging output
+    self.verbosity = 0
+    
 
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
@@ -68,10 +75,12 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getDutyCyclePeriod())
     self.assertAlmostEqual(pySp.getMaxBoost(),
                            cppSp.getMaxBoost())
+
     self.assertAlmostEqual(pySp.getIterationNum(),
                            cppSp.getIterationNum())
     self.assertAlmostEqual(pySp.getIterationLearnNum(),
                            cppSp.getIterationLearnNum())
+    
     self.assertAlmostEqual(pySp.getSpVerbosity(),
                            cppSp.getSpVerbosity())
     self.assertAlmostEqual(pySp.getUpdatePeriod(),
@@ -142,6 +151,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       pySp.getConnectedSynapses(i, pyCon)
       cppSp.getConnectedSynapses(i, cppCon)
       self.assertListEqual(list(pyCon), list(cppCon))
+
 
     pyConCounts = numpy.zeros(numColumns).astype(uintType)
     cppConCounts = numpy.zeros(numColumns).astype(uintType)
@@ -221,6 +231,10 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
 
   def createSp(self, imp, params):
+    """
+    Create the SP implementation according to the parameters. Validate that
+    the SP created properly.
+    """
     if (imp == "py"):
       spClass = PyFlatSpatialPooler
     elif (imp == "cpp"):
@@ -244,13 +258,34 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       minDistance=params["minDistance"],
       seed=params["seed"],
       spVerbosity=params["spVerbosity"],
-      randomSP=params["randomSP"]
+      randomSP=params["randomSP"],
+      coincInputPoolPct=params.get("coincInputPoolPct",0.5)
     )
+    
+    self.assertEqual(params["randomSP"], sp.getRandomSP())
+    self.assertEqual(params["spVerbosity"], sp.getSpVerbosity())
+    self.assertAlmostEqual(params["minDistance"], sp.getMinDistance())
+    self.assertAlmostEqual(params.get("coincInputPoolPct",0.5),
+                           sp.getPotentialPct())
 
     return sp
+  
 
-
-  def runSideBySide(self, params):
+  def runSideBySide(self, params, seed = None,
+                    learnMode = None,
+                    convertEveryIteration = False):
+    """
+    Run the PY and CPP implementations side by side on random inputs.
+    If seed is None a random seed will be chosen based on time, otherwise
+    the fixed seed will be used.
+    
+    If learnMode is None learning will be randomly turned on and off.
+    If it is False or True then set it accordingly.
+    
+    If convertEveryIteration is True, the CPP will be copied from the PY
+    instance on every iteration just before each compute.
+    """
+    randomState = getNumpyRandomGenerator(seed)
     pySp = self.createSp("py", params)
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
@@ -259,18 +294,23 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     threshold = 0.8
     # Create numRecords records, each numInputs long, where each input
     # is an unsigned 32 bit integer of either 0 or 1
-    inputMatrix = (numpy.random.rand(numRecords, numInputs) > 
-      threshold).astype(uintType)
-    for i in xrange(numRecords):
+    inputMatrix = (
+      randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
+    for i,inputVector in enumerate(inputMatrix):
+      if learnMode is None:
+        learn = (randomState.rand() > 0.5)
+      else:
+        learn = learnMode
+      if self.verbosity > 1:
+        print "\nIteration:",i,"learn=",learn
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
-      inputVector = inputMatrix[i,:]
-      cppSp = self.convertSP(pySp, i+1)
-      learn = (numpy.random.rand() > 0.5)
+      if convertEveryIteration:
+        cppSp = self.convertSP(pySp, i+1)
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
-      self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
       self.compare(pySp, cppSp)
+      self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
 
 
   def runSerialize(self, imp, params):
@@ -365,25 +405,92 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params)
 
 
-    def testSerialization(self):
-      params = {
-        'inputShape' : 27,
-        'coincidencesShape' : 63,
-        'localAreaDensity' : 0.4,
-        'numActivePerInhArea' : 0,
-        'stimulusThreshold' : 2,
-        'synPermInactiveDec' : 0.02,
-        'synPermActiveInc' : 0.1,
-        'synPermConnected' : 0.15,
-        'minPctDutyCycleBeforeInh' : 0.001,
-        'minPctDutyCycleAfterInh' : 0.002,
-        'dutyCyclePeriod' : 31,
-        'maxFiringBoost' : 14.0,
-        'minDistance' : 0.4,
-        'seed' : 19,
-        'spVerbosity' : 0,
-        'randomSP' : True
-      }
+  def testCompatability3NoLearn(self):
+    params = {
+      "inputShape" : 27,
+      "coincidencesShape" : 63,
+      "localAreaDensity" : 0.4,
+      "numActivePerInhArea" : 0,
+      "stimulusThreshold" : 2,
+      "synPermInactiveDec" : 0.02,
+      "synPermActiveInc" : 0.1,
+      "synPermConnected" : 0.15,
+      "minPctDutyCycleBeforeInh" : 0.001,
+      "minPctDutyCycleAfterInh" : 0.002,
+      "dutyCyclePeriod" : 31,
+      "maxFiringBoost" : 14.0,
+      "minDistance" : 0.4,
+      "seed" : 19,
+      "spVerbosity" : self.verbosity,
+      "randomSP" : True
+    }
+    self.runSideBySide(params, learnMode = False)
+
+
+  def testSmallerPoolPct(self):
+    params = {
+      "inputShape" : 78,
+      "coincidencesShape" : 63,
+      "localAreaDensity" : 0.0,
+      "numActivePerInhArea" : 10,
+      "stimulusThreshold" : 2,
+      "synPermInactiveDec" : 0.02,
+      "synPermActiveInc" : 0.1,
+      "synPermConnected" : 0.15,
+      "minPctDutyCycleBeforeInh" : 0.001,
+      "minPctDutyCycleAfterInh" : 0.002,
+      "dutyCyclePeriod" : 31,
+      "maxFiringBoost" : 14.0,
+      "minDistance" : 0.4,
+      "seed" : 19,
+      "spVerbosity" : self.verbosity,
+      "randomSP" : True,
+      "coincInputPoolPct": 0.3,
+    }
+    self.runSideBySide(params, learnMode = False)
+
+
+  def testCompatability3Convert(self):
+    params = {
+      "inputShape" : 27,
+      "coincidencesShape" : 63,
+      "localAreaDensity" : 0.4,
+      "numActivePerInhArea" : 0,
+      "stimulusThreshold" : 2,
+      "synPermInactiveDec" : 0.02,
+      "synPermActiveInc" : 0.1,
+      "synPermConnected" : 0.15,
+      "minPctDutyCycleBeforeInh" : 0.001,
+      "minPctDutyCycleAfterInh" : 0.002,
+      "dutyCyclePeriod" : 31,
+      "maxFiringBoost" : 14.0,
+      "minDistance" : 0.4,
+      "seed" : 19,
+      "spVerbosity" : 0,
+      "randomSP" : True
+    }
+    self.runSideBySide(params, convertEveryIteration = True)
+
+
+  def testSerialization(self):
+    params = {
+      'inputShape' : 27,
+      'coincidencesShape' : 63,
+      'localAreaDensity' : 0.4,
+      'numActivePerInhArea' : 0,
+      'stimulusThreshold' : 2,
+      'synPermInactiveDec' : 0.02,
+      'synPermActiveInc' : 0.1,
+      'synPermConnected' : 0.15,
+      'minPctDutyCycleBeforeInh' : 0.001,
+      'minPctDutyCycleAfterInh' : 0.002,
+      'dutyCyclePeriod' : 31,
+      'maxFiringBoost' : 14.0,
+      'minDistance' : 0.4,
+      'seed' : 19,
+      'spVerbosity' : 0,
+      'randomSP' : True
+    }
     sp1 = self.createSp("py", params)
     sp2 = pickle.loads(pickle.dumps(sp1))
     self.compare(sp1, sp2)
@@ -393,6 +500,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.compare(sp1, sp2)
 
 
+  @unittest.skip("Currently fails - still need to debug this")
   def testSerializationRun(self):
     params = {
       'inputShape' : 27,

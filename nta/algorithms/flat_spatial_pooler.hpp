@@ -90,6 +90,7 @@ namespace nta {
           virtual void initializeFlat(
             UInt numInputs,
             UInt numColumns,
+            Real potentialPct = 0.5,
             Real localAreaDensity=0,
             UInt numActiveColumnsPerInhArea=10,
             UInt stimulusThreshold=0,
@@ -104,6 +105,13 @@ namespace nta {
             bool randomSP=false,
             Int seed=-1,
             UInt spVerbosity=0);
+
+          //-------------------------------------------------------------------
+          // Debugging helpers
+          //-------------------------------------------------------------------
+
+          // Print the creation parameters specific to this class
+          void printFlatParameters();
 
 
         protected:
