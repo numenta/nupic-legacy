@@ -3,6 +3,49 @@ layout: default
 title: NuPIC Community
 ---
 
+<style>
+    .rssFeed a {
+        color: #444;
+        text-decoration: none;
+    }
+    .rssFeed a:hover {
+        color: #000;
+        text-decoration: underline;
+    }
+
+    .rssHeader { padding: 0.2em 0; }
+
+    .rssBody { border: 1px solid #999; }
+    .rssBody ul { list-style: none; }
+    .rssBody ul, .rssRow, .rssRow h4, .rssRow p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .rssRow { padding: 0.8em; }
+    .rssRow h4 { font-size: 1.1em; }
+    .rssRow div {
+        font-size: 90%;
+        color: #666;
+        margin: 0.2em 0 0.4em 0;
+    }
+
+    .odd { background-color: #DDD; }
+    .even { background-color: #CCC }
+
+    .rssRow .rssMedia {
+        padding: 0.5em;
+        font-size: 1em;
+    }
+    .flickr_badge_image {margin:0px;display:inline;}
+    .flickr_badge_image img {border: 1px solid #666666 !important; padding:1px; margin:2px;}
+    #flickr_badge_wrapper {width:420px;text-align:left}
+
+    table td {
+        border: 0;
+    }
+</style>
+
 <div id="fb-root"></div>
 <script>(function(d, s, id) {
   var js, fjs = d.getElementsByTagName(s)[0];
@@ -13,8 +56,88 @@ title: NuPIC Community
 }(document, 'script', 'facebook-jssdk'));</script>
 
 <section>
-  {% capture community %}
-  {% include content/community.md %}
-  {% endcapture %}
-  {{ community | markdownify }}
+
+    <section>
+        <nav class="toc">
+            <ul>
+                <li><a href="#get_involved">Get Involved</a></li>
+                <li><a href="#issue_tracker">File Bugs</a></li>
+                <li><a href="#mailing_lists">Mailing Lists</a></li>
+                <li><a href="#irc">IRC</a></li>
+                <li><a href="#social_media">Social Media</a></li>
+            </ul>
+        </nav>
+    </section>
+
+    <h3 id="get_involved">Get Involved</h3>
+
+    <p/>We believe the technology behind <a href="{{ site.baseurl }}/nupic.html">NuPIC</a> is an important advance in machine learning and will be a critical component of machine intelligence.  We want to share it with everyone and support research and further development of these algorithms. There are many directions the algorithms within NuPIC could take, and we encourage you to get involved. Please read below to find out how you can interact with our development team and existing community members to push this technology into the future.
+
+    <p/>Before your <a href="https://help.github.com/articles/using-pull-requests">pull requests</a> will be reviewed by our team of committers, you'll need to sign our <a href="{{ site.baseurl }}/licenses/cl/">Contributor License</a>. You can see the current list of contributors who've signed our CL <a href="{{site.baseurl }}/tools/contributors.html">here</a>.
+
+    <h2 id="issue_tracker">Issue Tracker</h2>
+
+    <p/>Our ticket tracker is <a href="https://github.com/numenta/nupic/issues">on Github</a>. We separate our sprints into "Milestones". If you are interested in our sprint planning, you can see exactly what we're working on in <a href="https://huboard.com/numenta/nupic">Huboard</a>.
+
+
+    <h2 id="mailing_lists">Mailing Lists</h2>
+
+    <p/>We'd prefer to facilitate all public conversations about NuPIC and its associated technologies on our primary mailing list: <strong><a href="http://numenta.org/lists">nupic@lists.numenta.org</a></strong>.
+
+    <h2 id="irc">IRC</h2>
+
+    <p/>We monitor the <strong><a href="irc://irc.freenode.net/nupic">#nupic</a></strong> IRC channel on <strong>irc.freenode.net</strong>. Drop in for a chat anytime.
+
+    <h2 id="social_media">Social Media</h2>
+
+    <h3><a href="http://twiter.com/numenta">Twitter</a></h3>
+
+    <a class="twitter-timeline" href="https://twitter.com/numenta" data-widget-id="332947348261060608">Tweets by @numenta</a>
+
+    <br/>
+    <br/>
+
+    <h3><a href="https://www.facebook.com/pages/Numenta/321559142118">Facebook</a></h3>
+
+    <div>
+        <div class="fb-follow" data-href="https://www.facebook.com/pages/Numenta/321559142118" data-show-faces="true" data-width="450"></div>
+    </div>
+
+    <br/>
+    <br/>
+
+    <h3><a href="http://www.flickr.com/photos/107852893@N04/">Flickr</a></h3>
+
+    <div id="flickr_badge_wrapper"><script type="text/javascript" src="http://www.flickr.com/badge_code_v2.gne?count=10&display=latest&size=s&layout=x&source=user&user=107852893@N04"></script></div><br/><br/>
+
+    <h3><a href="http://stackoverflow.com/tags/nupic/info">Stackoverflow</a></h3>
+
+    <p/>The latest questions about NuPIC on Stackoverflow are listed here.
+
+    <table><tbody><tr>
+        <td><img src="{{ site.baseurl }}/images/stackoverflow.png"></td>
+        <td><div id="so-feed"></div></td>
+    </tr></tbody></table>
+    
+    <br/><br/>
+
+    <h3><a href="http://plus.google.com/+NumentaOrg">Google+</a></h3>
+
+    <div class="g-page" data-href="//plus.google.com/100642636108337517466" data-rel="publisher"></div>
+
 </section>
+
+<script type="text/javascript" src="{{ site.baseurl }}/javascripts/jquery.zrssfeed.min.js"></script>
+
+<script type="text/javascript">
+  $(function() {
+    var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+    po.src = 'https://apis.google.com/js/plusone.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+
+    $('#so-feed').rssfeed('http://stackoverflow.com/feeds/tag?tagnames=nupic&sort=newest', {limit: 5, header: false});
+  });
+  !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");
+</script>
+
+<script></script>
