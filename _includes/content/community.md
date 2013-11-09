@@ -32,7 +32,7 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
 
 ## Social Media
 
-### Numenta on Twitter
+### Twitter
 
 <a class="twitter-timeline" href="https://twitter.com/numenta" data-widget-id="332947348261060608">Tweets by @numenta</a>
 <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
@@ -40,7 +40,7 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
 <br/>
 <br/>
 
-<h3>Numenta on Facebook</h3>
+<h3>Facebook</h3>
 
 <div>
     <div class="fb-follow" data-href="https://www.facebook.com/pages/Numenta/321559142118" data-show-faces="true" data-width="450"></div>
@@ -49,7 +49,13 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
 <br/>
 <br/>
 
-<h3>Numenta on Google+</h3>
+<h3>Flickr</h3>
+
+<h3>Stackoverflow</h3>
+
+<div id="so-feed"></div>
+
+<h3>Google+</h3>
 
 <div class="g-page" data-href="//plus.google.com/100642636108337517466" data-rel="publisher"></div>
 
@@ -59,4 +65,7 @@ We monitor the **<a href="irc://irc.freenode.net/nupic">#nupic</a>** IRC channel
     po.src = 'https://apis.google.com/js/plusone.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
   })();
+  $(function() {
+    $('#so-feed').rssfeed('http://stackoverflow.com/feeds/tag?tagnames=nupic&sort=newest', {limit: 5});
+  });
 </script>
