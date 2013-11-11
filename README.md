@@ -90,4 +90,4 @@ data sets. One example is the hotgym prediction client:
 
     python $NUPIC/examples/opf/clients/hotgym/hotgym.py
 
-Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page.
+Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page. 
