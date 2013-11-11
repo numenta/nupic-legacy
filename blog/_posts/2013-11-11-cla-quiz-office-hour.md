@@ -78,4 +78,4 @@ These questions a bit over your head? Looking for a primer on these technologies
 > Open Source Community Flag-Bearer <br/>
 > Numenta, Inc.
 
-[Comments on Reddit]()
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1qdu8i/cla_quiz_office_hour/)
