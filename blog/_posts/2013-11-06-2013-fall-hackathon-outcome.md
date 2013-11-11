@@ -108,7 +108,7 @@ Here's what some attendees had to say on our <a href="http://www.meetup.com/nume
 </div>
 
 
-<h2 id="videos"><a href="#videos">Videos</a></h2>
+<h3 id="videos"><a href="#videos">Videos</a></h3>
 
 We tried to record everything we could, which included all the sessions (minus one because of a technical glitch). My apologies for the poor audio and video in some of these. We had a wireless microphone failure because of unanticipated RF interference. We attempted to live-stream everything on YouTube via Google Hangout, which meant we sacrificed quality. For future hackathons, I plan to have better tools in place.
 
@@ -139,7 +139,7 @@ We tried to record everything we could, which included all the sessions (minus o
 
 <br />
 <br />
-<h2 id="demos"><a href="#demos">Hack Demos</a></h2>
+<h3 id="demos"><a href="#demos">Hack Demos</a></h3>
 
 In addition to the <a href="http://www.youtube.com/watch?v=X4XjYXFRIAQ&amp;start=285" rel="prettyPhoto" title="2013 NuPIC Fall Hackathon Demos">full video of all our hackathon demonstrations</a>, I've broken out each hack below with further information about the participants and source code.
 

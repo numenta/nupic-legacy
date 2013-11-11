@@ -8,7 +8,7 @@ Tomorrow at 4PM Pacific, we're holding an [Office Hour](https://plus.google.com/
 
 If you're interested in taking part, or just joining in to listen, please use your Google account and request an RSVP to our [Office Hour](https://plus.google.com/b/100642636108337517466/events/crmrf6k58s77hlgk4v30bll8hp8). We'll be happy to invite you. If you can't make it, the video will be posted on YouTube (link will be provided soon).
 
-## The CLA Quiz
+### The CLA Quiz
 
 <ol start="0">
     <li>
@@ -56,7 +56,7 @@ If you're interested in taking part, or just joining in to listen, please use yo
 <br/>
 <br/>
 
-### Whoa! that's deep
+#### Whoa! that's deep
 
 These questions a bit over your head? Looking for a primer on these technologies before you attend? Here are some resources:
 
