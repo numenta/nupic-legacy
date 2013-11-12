@@ -81,11 +81,12 @@ class MultiEncoderTest(unittest.TestCase):
       self.assertEqual(topDownOut[2].scalar, 2)
       self.assertEqual(topDownOut[2].encoding.sum(), 3)
 
+############################################################################
   def testMultiEncoder_overloaded(self):
     """testing overloaded encode/decode functions..."""
     e = ME()
   
-    e.addEncoder("age", ScalarEncoder(w=3, resolution=1, minval=1, maxval=120, periodic=True, name="age"))
+    e.addEncoder("age", ScalarEncoder(w=3, resolution=1, minval=1, maxval=120, periodic=False, name="age"))
     e.addEncoder("firstname", SDRCategoryEncoder(n=10, w=5, categoryList=["Mark", "Anna", "John", "Eve"]))
 
     #DictObj
@@ -99,24 +100,24 @@ class MultiEncoderTest(unittest.TestCase):
     res_NpyArr = e.encode(numpy.array([18, "Eve"]))
 
     #check encodings
-    assert( (res_Dict == res_List).all() && (res_List == res_NpyArr).all() )
+    assert( (res_Dict == res_List).all() and (res_List == res_NpyArr).all() )
 
     #decode
     l = [21, "Mark"]
     le = e.encode(l)
     #outputMode='Dict' (default)
     res = e.decode(le)
-    assert( isinstance(res, DictObj) && res['age'] == 21 && res['firstname'] == "Mark")
+    assert( isinstance(res, DictObj) and res['age'] == 21 and res['firstname'] == "Mark")
 
     #'List'
     e.outputMode = 'List'
     res = e.decode(le)
-    assert( isinstance(res, list) && res[0] == 21 && res[1] == "Mark")
+    assert( isinstance(res, list) and res[0] == 21 and res[1] == "Mark")
 
     #'NumpyArray'
     e.outputMode = 'NumpyArray'
     res = e.decode(le)
-    assert( isinstance(res, numpy.ndarray) && res[0] == 21 && res[1] == "Mark")
+    assert( isinstance(res, numpy.ndarray) and res[0] == 21 and res[1] == "Mark")
   
   ################################################################################
   def testSimpleVector(self):
