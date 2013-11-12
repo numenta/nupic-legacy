@@ -47,10 +47,9 @@ class MultiEncoder(Encoder):
 
 
   def __init__(self, encoderDescriptions=None, outputMode='Dict'):
-  """constructs MultiEncoder; 
+    """constructs MultiEncoder; 
      params: (optional) encoderDescriptions - add these encoders; 
-     params: (optional) outputMode - one of {'Dict','List','NumpyArray'} specify type of output
-  """
+     params: (optional) outputMode - one of {'Dict','List','NumpyArray'} specify type of output"""
     self.width = 0
     self.encoders = []
     self.description = []
@@ -61,11 +60,10 @@ class MultiEncoder(Encoder):
 
   ############################################################################
   def decode(self, encoded, ff=''):
-  """decode (encoded) SDR, output depends on value of self.outputMode: 
+    """decode (encoded) SDR, output depends on value of self.outputMode: 
      'Dict' - standard behavior, return a dict (DictObj)
      'List' - return python's list
-     'NumpyArray' - return numpy.array
-  """
+     'NumpyArray' - return numpy.array"""
     if self.outputMode == 'Dict':
       return super(MultiEncoder, self).decode(encoded, ff)
     else:   
@@ -87,7 +85,7 @@ class MultiEncoder(Encoder):
       
   ############################################################################
   def addEncoder(self, fieldName, encoder):
-  """ add encoder to the pool, 
+    """ add encoder to the pool, 
       fieldName is the variable this encoder will cover, encoder is the encoder instance;
       Note: 'NumpyArray' and 'List' do not! use name-variable pairs, so variable representation depends on order when added."""
 
@@ -102,7 +100,7 @@ class MultiEncoder(Encoder):
   ############################################################################
   # overloaded function encodeIntoArray, calls specific encodeIntoArray_* as needed
   def encodeIntoArray(self, obj, output):
-  """encode, 
+    """encode, 
      accepts any of: DictObj, list, numpy.array
      returns SDR"""
     if(isinstance(obj, DictObj)):
@@ -202,7 +200,7 @@ class MultiEncoder(Encoder):
 
 ################################################################################
 class SimpleVector(MultiEncoder): 
-"""SimpleVector represents an array/vector of numbers; 
+  """SimpleVector represents an array/vector of numbers; 
    represented by ScalarEncoders, it's a convenience wrapper around MultiEncoder, 
    output is as numpy array, so it can be used for other processing."""
    
