@@ -43,15 +43,31 @@ class MultiEncoder(Encoder):
   of sub-encoders, each of which encodes a separate component."""
 
 
-  def __init__(self, encoderDescriptions=None, mode=None):
+  def __init__(self, encoderDescriptions=None, outputMode='Dict'):
     self.width = 0
     self.encoders = []
     self.description = []
     self.name = ''
     if encoderDescriptions is not None:
       self.addMultipleEncoders(encoderDescriptions)
-    self.mode=mode
+    self.outputMode = outputMode
 
+
+  def decode(self, encoded, ff=''):
+    if self.outputMode == 'Dict':
+      return super(MultiEncoder, self).decode(encoded, ff)
+    else:   
+      dec = self.topDownCompute(encoded)
+      result = []
+      for i in range(0,len(self.encoders)):
+        result.append(dec[i].value)
+
+      if self.outputMode == 'NumpyArray':
+        result = numpy.array(result)
+      # else: # 'List'
+      return result
+      
+    
   ############################################################################
   def setFieldStats(self, fieldName, fieldStatistics ):
     for (name, encoder, offset) in self.encoders:
