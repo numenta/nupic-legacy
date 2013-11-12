@@ -216,7 +216,8 @@ class SimpleVector(MultiEncoder):
     """
 
     super(SimpleVector, self).__init__(None, outputMode)
-    
+    self.scalar_resolution = resolution
+ 
     if fieldNames is not None and len(fieldNames)!=length:
       raise Exception("if fieldNames is specified, it must be a list of size == length")
 
@@ -224,4 +225,4 @@ class SimpleVector(MultiEncoder):
       name = "idx" + str(i)
       if(fieldNames is not None):
         name = fieldNames[i]
-      self.addEncoder(name, ScalarEncoder(w, minVal, maxVal, resolution, periodic=False))
+      self.addEncoder(name, ScalarEncoder(w, minVal, maxVal, resolution=self.scalar_resolution))
