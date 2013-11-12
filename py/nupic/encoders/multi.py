@@ -106,18 +106,19 @@ class MultiEncoder(Encoder):
     if(isinstance(obj, DictObj)):
       return self.encodeIntoArray_DictObj(obj, output)
     elif(isinstance(obj,list)):
-      return self.encodeIntoArray_NumpyArray(numpy.array(obj), output) # cast to ndarray and call
+      return self.encodeIntoArray_List(obj, output)
     elif(isinstance(obj,numpy.ndarray)):
-      return self.encodeIntoArray_NumpyArray(obj, output)
+      # TODO: numpy.array cannot contain a string, it can! but then all vals are converted to str->problem
+      return self.encodeIntoArray_List(obj.tolist(), output) # cast and call
     else:
       raise Exception("obj type must be one of: list, numpy.ndarray, DictObj")
 
       
   ############################################################################
   # encodes list ([1, 2, 3]), or numpy.ndarray (numpy.array([1, 2, 3]) 
-  def encodeIntoArray_NumpyArray(self, vals, output):
-    if not (isinstance(vals, numpy.ndarray) and len(vals)==len(self.encoders)):
-      raise Exception("vals must be specified and must be a numpy.ndarray of length == self.encoders (%d)" % len(self.encoders))
+  def encodeIntoArray_List(self, vals, output):
+    if not (isinstance(vals, list) and len(vals)==len(self.encoders)):
+      raise Exception("vals must be specified and must be a list of length == self.encoders (%d)" % len(self.encoders))
 
     d = {}
     for i in range(0,len(vals)):
