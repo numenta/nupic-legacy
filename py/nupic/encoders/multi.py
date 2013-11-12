@@ -205,7 +205,7 @@ class SimpleVector(MultiEncoder):
    represented by ScalarEncoders, it's a convenience wrapper around MultiEncoder, 
    output is as numpy array, so it can be used for other processing."""
    
-  def __init__(self, length, minVal, maxVal, outputMode='NumpyArray', w=7, resolution=3, verbosity=0, fieldNames=None):
+  def __init__(self, length, minVal, maxVal, outputMode='NumpyArray', w=7, verbosity=0, fieldNames=None):
     """param length: how many values/numbers the array holds; array.size()
        param minVal, maxVal : range of all values
        param (opt) outputMode: see MultiEncoder, output type
@@ -216,7 +216,6 @@ class SimpleVector(MultiEncoder):
     """
 
     super(SimpleVector, self).__init__(None, outputMode)
-    self.scalar_resolution = resolution
  
     if fieldNames is not None and len(fieldNames)!=length:
       raise Exception("if fieldNames is specified, it must be a list of size == length")
@@ -225,4 +224,4 @@ class SimpleVector(MultiEncoder):
       name = "idx" + str(i)
       if(fieldNames is not None):
         name = fieldNames[i]
-      self.addEncoder(name, ScalarEncoder(w, minVal, maxVal, resolution=self.scalar_resolution))
+      self.addEncoder(name, ScalarEncoder(w, minVal, maxVal, resolution=1))
