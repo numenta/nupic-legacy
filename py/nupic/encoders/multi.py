@@ -179,3 +179,19 @@ class MultiEncoder(Encoder):
                 "some required constructor parameters. Parameters "
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
+
+
+################################################################################
+class SimpleVector(MultiEncoder): 
+
+  def __init__(self, lenght, minVal, maxVal, outputMode='NumpyArray', w=7, verbosity=0, fieldNames=None):
+    super(SimpleVector, self).__init__(None, outputMode)
+    
+    if fieldNames is not None and len(fieldNames)!=lenght:
+      raise Exception("if fieldNames is specified, it must be a list of size == lenght")
+
+    for i in range(0,lenght):
+      name = "idx" + str(i)
+      if(fieldNames is not None):
+        name = fieldNames[i]
+      self.addEncoder(name, ScalarEncoder(w, minVal, maxVal, resolution=3, periodic=False))
