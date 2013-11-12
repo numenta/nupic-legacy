@@ -103,7 +103,7 @@ class MultiEncoder(Encoder):
     """encode, 
      accepts any of: DictObj, list, numpy.array
      returns SDR"""
-    if(isinstance(obj, DictObj)):
+    if(isinstance(obj, dict)):
       return self.encodeIntoArray_DictObj(obj, output)
     elif(isinstance(obj,list)):
       return self.encodeIntoArray_List(obj, output)
