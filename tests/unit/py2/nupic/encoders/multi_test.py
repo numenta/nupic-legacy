@@ -25,7 +25,7 @@
 import numpy
 import unittest2 as unittest
 
-from nupic.encoders.multi import MultiEncoder
+from nupic.encoders.multi import MultiEncoder as ME
 from nupic.encoders import *
 from nupic.data.dictutils import DictObj
 
@@ -80,6 +80,53 @@ class MultiEncoderTest(unittest.TestCase):
       self.assertEqual(topDownOut[2].value, "pass")
       self.assertEqual(topDownOut[2].scalar, 2)
       self.assertEqual(topDownOut[2].encoding.sum(), 3)
+
+  def testMultiEncoder_overloaded(self):
+    """testing overloaded encode/decode functions..."""
+    e = ME()
+  
+    e.addEncoder("age", ScalarEncoder(w=3, resolution=1, minval=1, maxval=120, periodic=True, name="age"))
+    e.addEncoder("firstname", SDRCategoryEncoder(n=10, w=5, categoryList=["Mark", "Anna", "John", "Eve"]))
+
+    #DictObj
+    d = DictObj(age=18, firstname="Eve")
+    res_Dict = e.encode(d)
+  
+    #List
+    res_List = e.encode([18, "Eve"])
+  
+    #Array
+    res_NpyArr = e.encode(numpy.array([18, "Eve"]))
+
+    #check encodings
+    assert( (res_Dict == res_List).all() && (res_List == res_NpyArr).all() )
+
+    #decode
+    l = [21, "Mark"]
+    le = e.encode(l)
+    #outputMode='Dict' (default)
+    res = e.decode(le)
+    assert( isinstance(res, DictObj) && res['age'] == 21 && res['firstname'] == "Mark")
+
+    #'List'
+    e.outputMode = 'List'
+    res = e.decode(le)
+    assert( isinstance(res, list) && res[0] == 21 && res[1] == "Mark")
+
+    #'NumpyArray'
+    e.outputMode = 'NumpyArray'
+    res = e.decode(le)
+    assert( isinstance(res, numpy.ndarray) && res[0] == 21 && res[1] == "Mark")
+  
+  ################################################################################
+  def testSimpleVector(self):
+    """testing SimpleVector..."""
+    from nupic.encoders.multi import SimpleVector as Vec
+    v = Vec(5, 0, 10, outputMode='List')
+    data = [1, 2, 3, 4, 5]
+    enc = v.encode(data)
+    dec = v.decode(enc)
+    assert (data == dec).all()
 
 ###########################################
 if __name__ == '__main__':
