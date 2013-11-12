@@ -33,6 +33,9 @@ from nupic.encoders.scalarspace import ScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
 from nupic.encoders.utils import bitsToString 
 
+from nupic.data import dictutils
+from nupic.data.dictutils import DictObj
+import numpy
 
 class MultiEncoder(Encoder):
   """A MultiEncoder encodes a dictionary or object with
@@ -40,13 +43,14 @@ class MultiEncoder(Encoder):
   of sub-encoders, each of which encodes a separate component."""
 
 
-  def __init__(self, encoderDescriptions=None):
+  def __init__(self, encoderDescriptions=None, mode=None):
     self.width = 0
     self.encoders = []
     self.description = []
     self.name = ''
     if encoderDescriptions is not None:
       self.addMultipleEncoders(encoderDescriptions)
+    self.mode=mode
 
   ############################################################################
   def setFieldStats(self, fieldName, fieldStatistics ):
@@ -64,7 +68,33 @@ class MultiEncoder(Encoder):
     self._flattenedFieldTypeList = None
 
   ############################################################################
+  # overloaded function encodeIntoArray, calls specific encodeIntoArray_* as needed
   def encodeIntoArray(self, obj, output):
+    if(isinstance(obj, DictObj)):
+      return self.encodeIntoArray_DictObj(obj, output)
+    elif(isinstance(obj,list)):
+      return self.encodeIntoArray_NumpyArray(numpy.array(obj), output) # cast to ndarray and call
+    elif(isinstance(obj,numpy.ndarray)):
+      return self.encodeIntoArray_NumpyArray(obj, output)
+    else:
+      raise Exception("obj type must be one of: list, numpy.ndarray, DictObj")
+
+      
+  ############################################################################
+  # encodes list ([1, 2, 3]), or numpy.ndarray (numpy.array([1, 2, 3]) 
+  def encodeIntoArray_NumpyArray(self, vals, output):
+    if not (isinstance(vals, numpy.ndarray) and len(vals)==len(self.encoders)):
+      raise Exception("vals must be specified and must be a numpy.ndarray of length == self.encoders (%d)" % len(self.encoders))
+
+    d = {}
+    for i in range(0,len(vals)):
+      name = self.encoders[i][0]
+      dictutils.rUpdate(d, { str(name) : vals[i] })
+    self.encodeIntoArray_DictObj(d, output)
+
+  ############################################################################
+  # encodes DictObj dictionary ({"name": value}) 
+  def encodeIntoArray_DictObj(self, obj, output):
     for name, encoder, offset in self.encoders:
         encoder.encodeIntoArray(self._getInputValue(obj, name), output[offset:])
 
