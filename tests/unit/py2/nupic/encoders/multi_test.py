@@ -131,7 +131,7 @@ class MultiEncoderTest(unittest.TestCase):
     data = [1, 2, 3, 4, 5]
     enc = v.encode(data)
     dec = v.decode(enc)
-    assert (data == dec).all()
+    assert (data == dec)
 
 ###########################################
 if __name__ == '__main__':
