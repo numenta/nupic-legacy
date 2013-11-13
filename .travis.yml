@@ -2,9 +2,6 @@ branches:
   except:
     - gh-pages
 language: python
-compiler:
-  - gcc
-  - clang
 python:
   - "2.6"
   - "2.7"
@@ -28,6 +25,9 @@ env:
         ZDEgrBeE7f9yTjD3Va4uvkEakNcNKTgNTJ8VWT9QUZdmEvlgvGWRvCbUZHQc
         P+tJ/UVBATmEx5RHf0NqKFyfkC/VeA8C3D4ekCnbB11WF/4i8CCGCrhui9Mx
         cfgr20Rz8KuuC/TZklPjVCy+0dXS3o2CL7u2b7XDGYzBYPxayjU=
+  matrix:
+    - CC=clang
+    - CC=gcc
 
 notifications:
   irc:
@@ -39,6 +39,8 @@ before_install:
   - git clone https://github.com/numenta/nupic-linux64.git
   - (cd nupic-linux64 && git reset --hard 9e4df07ee03184d670a8801b76f206785e2a8b2e)
   - source nupic-linux64/bin/activate
+  - if [ "$CC" = "gcc" ]; then export CXX=g++; fi
+  - if [ "$CC" = "clang" ]; then export CXX=clang++; fi
   - gem install travis-artifacts > /dev/null
 
 install:
