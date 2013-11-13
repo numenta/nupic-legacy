@@ -6,7 +6,7 @@ category: blog
 
 Tomorrow at 4PM Pacific, we're holding an [Office Hour](https://plus.google.com/b/100642636108337517466/events/crmrf6k58s77hlgk4v30bll8hp8) for anyone interested to join in and talk about the [Cortical Learning Algorithms]({{ site.baseurl/cla-white-paper.html }}), as implemented by Numenta within [NuPIC]({{ site.baseurl/nupic.html }}). Jeff Hawkins and Numenta VP of Engineering Subutai Ahmad will be at this event to go through the _CLA Quiz_, a serious of challenging questions about how NuPIC algorithms work. These questions were originally created for new employees and interns to research in order to better understand the CLA. Tomorrow, we're going to be asking you!
 
-If you're interested in taking part, or just joining in to listen, please use your Google account and request an RSVP to our [Office Hour](https://plus.google.com/b/100642636108337517466/events/crmrf6k58s77hlgk4v30bll8hp8). We'll be happy to invite you. If you can't make it, the video will be posted on YouTube (link will be provided soon).
+If you're interested in taking part, or just joining in to listen, please use your Google account and request an RSVP to our [Office Hour](https://plus.google.com/b/100642636108337517466/events/crmrf6k58s77hlgk4v30bll8hp8). We'll be happy to invite you. If you can't make it, the video will be <a href="http://www.youtube.com/watch?v=rSpYyUN4iP0" rel="prettyPhoto" title="NLP With NuPIC">posted on YouTube</a>.
 
 ### The CLA Quiz
 
