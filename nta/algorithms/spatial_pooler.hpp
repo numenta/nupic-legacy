@@ -324,7 +324,6 @@ namespace nta {
           vector<Real> boostedOverlaps_;
           vector<UInt> activeColumns_;
 
-        private:
           UInt version_;
           Random rng_;
 
