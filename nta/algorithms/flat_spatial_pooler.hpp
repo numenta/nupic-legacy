@@ -121,9 +121,6 @@ namespace nta {
           vector<UInt> highTier_;
           vector<UInt> virgin_;
 
-        private:
-          UInt version_;
-
       };
     } // end namespace spatial_pooler
   } // end namespace algorithms

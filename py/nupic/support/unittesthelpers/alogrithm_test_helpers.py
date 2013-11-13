@@ -39,10 +39,10 @@ def getNumpyRandomGenerator(seed):
   the actual seed and stack trace so that test failures are replicable.
   """
   if seed is None:
-    seed = int(time.time())
+    seed = int(time.time()*10)
   print "Seed set to:",seed,"called by",
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2],"->",callStack[1][2]
+  print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
   return numpy.random.RandomState(seed)
 
 
