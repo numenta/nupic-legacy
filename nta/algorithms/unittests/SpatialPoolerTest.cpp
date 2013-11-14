@@ -733,7 +733,7 @@ namespace nta {
     colDim.push_back(10);
     sp.initialize(inputDim, colDim);
 
-    UInt trueAvgConnectedSpan1[7] = {3, 3, 4.5, 3, 2.5, 2, 0};
+    UInt trueAvgConnectedSpan1[7] = {3, 3, static_cast<UInt>(4.5), 3, static_cast<UInt>(2.5), 2, 0};
 
     for (UInt i = 0; i < numColumns; i++) {
       sp.setPermanence(i, permArr1[i]);
