@@ -43,7 +43,7 @@ NTA_LINKFLAGS =  -L$(externaldir)/lib @nta_platform_ldflags@
 
 # NTA_INTERNAL tells us that the code is being built under the build system
 
-NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL
+NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL -std=c++0x
 
 #
 # Optimization can be set at configure time
