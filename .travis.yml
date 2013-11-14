@@ -2,8 +2,6 @@ branches:
   except:
     - gh-pages
 language: python
-compiler:
-  - gcc
 python:
   - "2.6"
   - "2.7"
@@ -27,6 +25,9 @@ env:
         ZDEgrBeE7f9yTjD3Va4uvkEakNcNKTgNTJ8VWT9QUZdmEvlgvGWRvCbUZHQc
         P+tJ/UVBATmEx5RHf0NqKFyfkC/VeA8C3D4ekCnbB11WF/4i8CCGCrhui9Mx
         cfgr20Rz8KuuC/TZklPjVCy+0dXS3o2CL7u2b7XDGYzBYPxayjU=
+  matrix:
+    - CC=clang
+    - CC=gcc
 
 notifications:
   irc:
@@ -36,16 +37,18 @@ notifications:
 
 before_install:
   - git clone https://github.com/numenta/nupic-linux64.git
-  - (cd nupic-linux64 && git reset --hard d8f87d0c0a6a29157be87ed47ed1e544c8b4589e)
+  - (cd nupic-linux64 && git reset --hard 9e4df07ee03184d670a8801b76f206785e2a8b2e)
   - source nupic-linux64/bin/activate
-  - printenv | sort
-  - gem install travis-artifacts
+  - if [ "$CC" = "gcc" ]; then export CXX=g++; fi
+  - if [ "$CC" = "clang" ]; then export CXX=clang++; fi
+  - gem install travis-artifacts > /dev/null
 
 install:
-  - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make) fi
+  - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make > /dev/null) fi
   # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
+  - pip install -q -r $NUPIC/external/common/requirements.txt
   - "$NUPIC/build.sh"
 
 script:
@@ -54,7 +57,7 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  - "$NUPIC/run_tests.sh --all --coverage"
+  - "$NUPIC/run_tests.sh --all"
 
   # run all example files
     # examples/bindings

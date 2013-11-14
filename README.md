@@ -32,14 +32,13 @@ Currently supported platforms:
  * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
- * VM images ([vagrant](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine))
+ * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 Dependencies:
  * Python (2.6-2.7) (with development headers)
- * GCC (4.6-4.8)
+ * GCC (4.6-4.8), or Clang
  * Make
- * [pip](http://www.pip-installer.org/en/latest/installing.html)
-
+ 
 Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
@@ -54,6 +53,11 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Set up the rest of the necessary env variables. Must be done after
     # setting $NTA.
     source $NUPIC/env.sh
+
+Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
+compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
+
+    pip install -r external/common/requirements.txt
 
 Build and install NuPIC:
 
@@ -86,4 +90,4 @@ data sets. One example is the hotgym prediction client:
 
     python $NUPIC/examples/opf/clients/hotgym/hotgym.py
 
-Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page.
+Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page. 

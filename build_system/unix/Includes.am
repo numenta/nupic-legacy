@@ -51,11 +51,18 @@ NTA_CXXFLAGS_BASE = $(NTA_INCLUDEFLAGS) -fvisibility=hidden -DNTA_INTERNAL -std=
 if NTA_OPTIMIZATION_ENABLED
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
   # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
-  NTA_CXX_OPTFLAGS = -O3 -falign-loops=16 -pipe -DNTA_ASM
+  NTA_CXX_OPTFLAGS = -O3 -pipe -DNTA_ASM
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O0 -fno-inline
+endif
+
+# put clang/gcc specific flags here (nested ifs do not work!)
+if USING_CLANG # clang
+    NTA_CXX_OPTFLAGS += ""
+else # gcc
+    NTA_CXX_OPTFLAGS += -falign-loops=16
 endif
 
 #
