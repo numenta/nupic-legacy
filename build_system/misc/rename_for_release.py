@@ -42,6 +42,7 @@ if __name__ == "__main__":
   for arch,archiveType in [("linux64", "tgz"), 
                            ("linux32", "tgz"), 
                            ("linux32arm", "tgz"), 
+                           ("linux32armv7", "tgz"),
                            ("darwin86", "tgz"),
                            ("win32", "zip")]:
     oldname = "nupic-%s-%s" % (oldStamp, arch)

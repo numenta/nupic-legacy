@@ -41,8 +41,10 @@ def getArch() :
       cpu = platform.processor()
     if cpu in ["i686", "i386"]:
       return "linux32"
-    elif cpu == "armv6l" or cpu == "armv7l":
+    elif cpu == "armv6l":
       return "linux32arm"
+    elif cpu == "armv7l":
+      return "linux32armv7"
     elif cpu == "x86_64":
       return "linux64"
     else:
