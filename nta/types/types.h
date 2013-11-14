@@ -89,7 +89,7 @@ typedef  unsigned int         NTA_UInt32;
 typedef  long long            NTA_Int64;
 typedef  unsigned long long   NTA_UInt64;
 
-#elif defined(NTA_PLATFORM_linux32arm)
+#elif defined(NTA_PLATFORM_linux32arm) || defined(NTA_PLATFORM_linux32armv7)
 typedef  int                  NTA_Int32;
 typedef  unsigned int         NTA_UInt32;
 typedef  long long            NTA_Int64;

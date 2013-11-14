@@ -134,7 +134,7 @@ namespace nta
       const char * filename = "libcpp_region.so";
 #elif defined(NTA_PLATFORM_linux32)
       const char * filename = "libcpp_region.so";
-#elif defined(NTA_PLATFORM_linux32arm)
+#elif defined(NTA_PLATFORM_linux32arm) || defined(NTA_PLATFORM_linux32armv7)
       const char * filename = "libcpp_region.so";
 #elif defined(NTA_PLATFORM_win32)
       const char * filename = "cpp_region.dll";
