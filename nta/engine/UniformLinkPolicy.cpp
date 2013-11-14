@@ -1202,7 +1202,7 @@ UniformLinkPolicy::getInputBoundsForNode(Coordinate nodeCoordinate,
   }
   }
 
-  return std::make_pair<Fraction, Fraction>(lowerIndex, upperIndex);
+  return std::pair<Fraction, Fraction>(lowerIndex, upperIndex);
 }
 
 std::pair<Fraction, Fraction>
@@ -1310,7 +1310,7 @@ void UniformLinkPolicy::populateInputElements(
     {
       Coordinate nodeCoordinate;
       std::pair<size_t, size_t> elementOffset =
-        std::make_pair<size_t, size_t>(std::numeric_limits<size_t>::max(),
+        std::pair<size_t, size_t>(std::numeric_limits<size_t>::max(),
                                        std::numeric_limits<size_t>::min());
 
       for(size_t x = 0; x < subCoordinate.size(); x++)
@@ -1392,7 +1392,7 @@ void UniformLinkPolicy::populateInputElements(
           default:
           {
             nodeCoordinate.push_back(0);
-            elementOffset = std::make_pair<size_t, size_t>(0,0);
+            elementOffset = std::pair<size_t, size_t>(0,0);
 
             break;
           }
@@ -1477,7 +1477,7 @@ void UniformLinkPolicy::populateInputElements(
           default:
           {
             nodeCoordinate.push_back(0);
-            elementOffset = std::make_pair<size_t, size_t>(0,0);
+            elementOffset = std::pair<size_t, size_t>(0,0);
 
             break;
           }

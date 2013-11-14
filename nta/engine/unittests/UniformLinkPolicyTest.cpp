@@ -366,22 +366,22 @@ void UniformLinkPolicyTest::RunTests()
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(0,0),
                   0,
-                  std::make_pair<size_t, size_t>(0, 1)));
+                  std::pair<size_t, size_t>(0, 1)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(1,0),
                   0,
-                  std::make_pair<size_t, size_t>(2, 3)));
+                  std::pair<size_t, size_t>(2, 3)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(2,0),
                   0,
-                  std::make_pair<size_t, size_t>(4, 5)));
+                  std::pair<size_t, size_t>(4, 5)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(3,0),
                   0,
-                  std::make_pair<size_t, size_t>(6, 7)));
+                  std::pair<size_t, size_t>(6, 7)));
 
     TEST(
       setDimensionsAndCheckBounds(srcLinkSide,
@@ -402,22 +402,22 @@ void UniformLinkPolicyTest::RunTests()
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(0,0),
                   0,
-                  std::make_pair<size_t, size_t>(0, 1)));
+                  std::pair<size_t, size_t>(0, 1)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(1,0),
                   0,
-                  std::make_pair<size_t, size_t>(2, 3)));
+                  std::pair<size_t, size_t>(2, 3)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(2,0),
                   0,
-                  std::make_pair<size_t, size_t>(4, 5)));
+                  std::pair<size_t, size_t>(4, 5)));
 
     expectedBoundVec.push_back(
       CoordBounds(makeCoordinate(3,0),
                   0,
-                  std::make_pair<size_t, size_t>(6, 8)));
+                  std::pair<size_t, size_t>(6, 8)));
 
     TEST(
       setDimensionsAndCheckBounds(srcLinkSide,
