@@ -28,11 +28,11 @@ from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         unittest)
 
 
-class UtilsTest(TestCaseBase):
+class FieldMetaTest(TestCaseBase):
   """FieldMetaInfo unit tests."""
 
   ###############################################################################
-  def testFieldMetaInfo():
+  def testFieldMetaInfo(self):
     """
     """
     # Create a single FieldMetaInfo instance from a File field's meta-data tuple
