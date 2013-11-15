@@ -38,7 +38,12 @@ Dependencies:
  * Python (2.6-2.7) (with development headers)
  * GCC (4.6-4.8), or Clang
  * Make
- 
+
+The dependencies are included in platform-specific repositories for convenience:
+
+* [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
+* [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
+
 Add the following to your .bashrc file. Change the paths as needed.
 
     # Installation path
