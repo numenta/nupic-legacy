@@ -24,11 +24,9 @@
 
 
 from nupic.data.fieldmeta import (FieldMetaInfo, FieldMetaType, FieldMetaSpecial)
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        unittest)
+import unittest2 as unittest
 
-
-class FieldMetaTest(TestCaseBase):
+class FieldMetaTest(unittest.TestCase):
   """FieldMetaInfo unit tests."""
 
   ###############################################################################
