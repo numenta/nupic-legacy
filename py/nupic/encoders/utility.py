@@ -35,5 +35,14 @@ class UtilityEncoder(MultiEncoder):
     return self._parent.decode(encoded, parentFieldNames)
   
 
-    
+  ######################################################################
+  ## class specific methods: 
+  def _appendToInput(input_orig, scode): 
+    """appends the score (result of feval(input)) to the original input"""
+    if isinstance(input_orig, dict): 
+      input_orig["utility"]=score
+    elif isinstance(input_orig, list): 
+      input_orig.append(score)
+    else:
+      raise Exception("")    
     
