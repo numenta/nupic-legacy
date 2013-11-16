@@ -160,7 +160,7 @@ case "${target}" in
 	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
 	nta_platform_pyldflags="-pthread -shared"
 	nta_platform_pyembed="-Wl,--export-dynamic"
-	AC_MSG_RESULT([linux32 on arm])
+	AC_MSG_RESULT([linux32 on armv7 architecture])
 	;;
      i*86-*-*linux*)
         nta_platform="linux32"
