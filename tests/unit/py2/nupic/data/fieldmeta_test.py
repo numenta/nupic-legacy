@@ -22,36 +22,35 @@
 
 """Unit tests for nupic.data.fieldmeta."""
 
-
-from nupic.data.fieldmeta import (FieldMetaInfo, FieldMetaType, FieldMetaSpecial)
 import unittest2 as unittest
+
+from nupic.data.fieldmeta import FieldMetaInfo, FieldMetaType, FieldMetaSpecial
+
+
 
 class FieldMetaTest(unittest.TestCase):
   """FieldMetaInfo unit tests."""
 
-  ###############################################################################
-  def testFieldMetaInfo(self):
-    """
-    """
-    # Create a single FieldMetaInfo instance from a File field's meta-data tuple
-    e = ('pounds', FieldMetaType.float, FieldMetaSpecial.none)
-    m = FieldMetaInfo.createFromFileFieldElement(e)
-    print "COMPARING %s WITH %s..." % (e, m)
-    assert e == m
-    print "ok\n"
 
-    # Create a list of FieldMetaInfo instances from a list of File meta-data tuples
-    el = [('pounds', FieldMetaType.float, FieldMetaSpecial.none),
-          ('price', FieldMetaType.float, FieldMetaSpecial.none),
-          ('id', FieldMetaType.string, FieldMetaSpecial.sequence),
-          ('date', FieldMetaType.datetime, FieldMetaSpecial.timestamp),
+  def testFieldMetaInfo(self):
+    # Create a single FieldMetaInfo instance from a File field"s meta-data tuple
+    e = ("pounds", FieldMetaType.float, FieldMetaSpecial.none)
+    m = FieldMetaInfo.createFromFileFieldElement(e)
+
+    self.assertEqual(e, m)
+
+    # Create a list of FieldMetaInfo instances from a list of File meta-data
+    # tuples
+    el = [("pounds", FieldMetaType.float, FieldMetaSpecial.none),
+          ("price", FieldMetaType.float, FieldMetaSpecial.none),
+          ("id", FieldMetaType.string, FieldMetaSpecial.sequence),
+          ("date", FieldMetaType.datetime, FieldMetaSpecial.timestamp),
          ]
     ml = FieldMetaInfo.createListFromFileFieldList(el)
-    print "COMPARING %s WITH %s..." % (el, ml)
-    assert el == ml
-    print "ok"
-    return
+
+    self.assertEqual(el, ml)
 
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
   unittest.main()
