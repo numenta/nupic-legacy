@@ -101,4 +101,3 @@ class FieldMetaSpecial(object):
   sequence = 'S'
   timestamp = 'T'
   category = 'C'
-
