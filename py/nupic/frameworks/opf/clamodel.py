@@ -82,26 +82,6 @@ def requireAnomalyModel(func):
 
 
 ###############################################################
-class NetworkInfo(object):
-  """ Data type used as return value type by
-  CLAModel.__createCLANetwork()
-  """
-
-  def __init__(self, net, statsCollectors):
-    """
-    net:          The CLA Network instance
-    statsCollectors:
-                  Sequence of 0 or more CLAStatistic-based instances
-    """
-    self.net = net
-    self.statsCollectors = statsCollectors
-    return
-
-  def __repr__(self):
-    return "NetworkInfo(net=%r, statsCollectors=%r)" % (
-              self.net, self.statsCollectors)
-
-
 class CLAModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
@@ -952,7 +932,6 @@ class CLAModel(Model):
     """ Create a CLA network and return it.
 
     description:  CLA Model description dictionary (TODO: define schema)
-    Returns:      NetworkInfo instance;
     """
 
     isTemporal = self._hasTP
@@ -1069,21 +1048,8 @@ class CLAModel(Model):
     # Stats collector is used to collect statistics about the various regions as
     # it goes along. The concept is very useful for debugging but not used
     # anymore.
-    # TODO: remove, including NetworkInfo, DutyCycleStatistic, CLAStatistic
+    # Was removed during cleanup of this file. Can still be found in git history for clamodel.py
     
-    #--------------------------------------------------
-    # Create stats collectors for this network
-    #
-    # TODO: need to extract stats requests from description
-    stats = []
-    # Suppressing DutyCycleStatistic as there is no need for it at this time.
-    #stats.append(DutyCycleStatistic())
-
-    ## Why do we need a separate tiny class for NetworkInfo??
-    result = NetworkInfo(net=n, statsCollectors=stats)
-
-    return result
-
 
 
   #############################################################################
@@ -1442,57 +1408,3 @@ class DataBuffer(object):
     return self.stack.pop()
 
 
-
-
-###############################################################################
-class CLAStatistic(object):
-
-  __metaclass__ = ABCMeta
-
-  @abstractmethod
-  def compute(self, net):
-    """
-        Compute the statistic represented by this object
-        args:
-            net: the CLA network that we wish to compute statistics for
-        return:
-            nothing
-    """
-
-  @abstractmethod
-  def getStats(self):
-    """
-        return:
-            a dict of key/value pairs of the form {<stat_name> : <stat_value>, ...}
-    """
-
-
-###############################################################################
-class DutyCycleStatistic(CLAStatistic):
-
-  def __init__(self):
-    self.numSamples = 0
-    self.coincActiveCount = None
-
-  def compute(self, net):
-    self.numSamples += 1
-    sensor = net.regions['sensor']
-    # initialize if necessary
-    if self.coincActiveCount is None:
-      self.coincActiveCount = numpy.zeros(sensor.getSelf().encoder.getWidth())
-
-    ## TODO: this call is possibly wrong...need to verify
-    buOutputNZ = numpy.nonzero(net.regions['SP'].getOutputData('topDownOut'))
-    #print numpy.nonzero(net.regions['SP'].getOutputData('topDownOut'))
-
-    self.coincActiveCount[buOutputNZ] += 1
-
-    return
-
-
-  def getStats(self):
-    ret = dict()
-    ret['cellDutyCycleAvg'] = self.coincActiveCount.mean() / self.numSamples
-    ret['cellDutyCycleMin'] = self.coincActiveCount.min() / self.numSamples
-    ret['cellDutyCycleMax'] = self.coincActiveCount.max() / self.numSamples
-    return ret
