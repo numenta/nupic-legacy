@@ -143,7 +143,7 @@ class ScalarEncoder(Encoder):
 
   ############################################################################
   def __init__(self, w, minval, maxval, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False):
+                resolution=0, name=None, verbosity=0, clipInput=False, forced=False):
     """
 
     w -- number of bits to set in output
@@ -163,6 +163,8 @@ class ScalarEncoder(Encoder):
 
     clipInput -- if true, non-periodic inputs smaller than minval or greater
             than maxval will be clipped to minval/maxval
+
+    forced -- if true, skip some safety checks (for compatibility reasons), default false
 
     See class documentation for more information.
     """
@@ -223,7 +225,8 @@ class ScalarEncoder(Encoder):
     self._bucketValues = None
 
     # checks for likely mistakes in encoder settings
-    self._checkReasonableSettings()
+    if not forced:
+      self._checkReasonableSettings()
 
 
   ############################################################################
