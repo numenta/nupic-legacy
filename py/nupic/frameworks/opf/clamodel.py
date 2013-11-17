@@ -400,10 +400,7 @@ class CLAModel(Model):
     inferences = {}
 
     # TODO: Reconstruction and temporal classification not used. Remove
-    if self._isReconstructionModel():  
-      inferences = self._reconstructionCompute()
-      tpTopDownComputed = True
-    elif self._isMultiStepModel():
+    if self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
     # For temporal classification. Not used, and might not work anymore
     elif self._isClassificationModel():  
@@ -500,18 +497,6 @@ class CLAModel(Model):
     tp.compute()
 
 
-  def _isReconstructionModel(self):
-    inferenceType = self.getInferenceType()
-    inferenceArgs = self.getInferenceArgs()
-
-    if inferenceType == InferenceType.TemporalNextStep:
-      return True
-
-    if inferenceArgs:
-      return inferenceArgs.get('useReconstruction', False)
-    return False
-
-
   def _isMultiStepModel(self):
     return self.getInferenceType() in (InferenceType.NontemporalMultiStep,
                                        InferenceType.NontemporalClassification,
@@ -568,46 +553,6 @@ class CLAModel(Model):
     inference[InferenceElement.classConfidences] = {0: classConfidences}
 
     return inference
-
-
-  def _reconstructionCompute(self):
-    if not self.isInferenceEnabled():
-      return {}
-
-    tp = self._getTPRegion()
-    sp = self._getSPRegion()
-    sensor = self._getSensorRegion()
-
-    # TP Top-down flow
-    self._tpTopDownCompute()
-
-    #--------------------------------------------------
-    # SP Top-down flow
-    sp.setParameter('topDownMode', True)
-    sp.prepareInputs()
-    sp.compute()
-
-    #--------------------------------------------------
-    # Sensor Top-down flow
-    sensor.setParameter('topDownMode', True)
-    sensor.prepareInputs()
-    sensor.compute()
-
-    # Need to call getOutputValues() instead of going through getOutputData()
-    # because the return values may contain strings, which cannot be passed
-    # through the Region.cpp code.
-
-    # predictionRow is a list of values, one for each field. The value is
-    #  in the same type as the original input to the encoder and may be a
-    #  string for category fields for example.
-    predictionRow = copy.copy(sensor.getSelf().getOutputValues('temporalTopDownOut'))
-    predictionFieldEncodings = sensor.getSelf().getOutputValues('temporalTopDownEncodings')
-
-    inferences =  {}
-    inferences[InferenceElement.prediction] =  tuple(predictionRow)
-    inferences[InferenceElement.encodings] = tuple(predictionFieldEncodings)
-
-    return inferences
 
 
   def _anomalyCompute(self, computeTPTopDown):
