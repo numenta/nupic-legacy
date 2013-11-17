@@ -399,12 +399,8 @@ class CLAModel(Model):
     tpTopDownComputed = False
     inferences = {}
 
-    # TODO: Reconstruction and temporal classification not used. Remove
     if self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
-    # For temporal classification. Not used, and might not work anymore
-    elif self._isClassificationModel():  
-      inferences = self._classifcationCompute()
 
     results.inferences.update(inferences)
 
@@ -504,10 +500,6 @@ class CLAModel(Model):
                                        InferenceType.TemporalAnomaly)
 
 
-  def _isClassificationModel(self):
-    return self.getInferenceType() in (InferenceType.TemporalClassification)
-
-
   def _multiStepCompute(self, rawInput):
     patternNZ = None
     if self._getTPRegion() is not None:
@@ -532,27 +524,6 @@ class CLAModel(Model):
                                         inputTSRecordIdx=inputTSRecordIdx,
                                         rawInput=rawInput)
 
-
-  def _classifcationCompute(self):
-    inference = {}
-    classifier = self._getClassifierRegion()
-    classifier.setParameter('inferenceMode', True)
-    classifier.setParameter('learningMode', self.isLearningEnabled())
-    classifier.prepareInputs()
-    classifier.compute()
-
-    # What we get out is the score for each category. The argmax is
-    # then the index of the winning category
-    classificationDist = classifier.getOutputData('categoriesOut')
-    classification = classificationDist.argmax()
-    probabilities = classifier.getOutputData('categoryProbabilitiesOut')
-    numCategories = classifier.getParameter('activeOutputCount')
-    classConfidences = dict(zip(xrange(numCategories), probabilities))
-
-    inference[InferenceElement.classification] = classification
-    inference[InferenceElement.classConfidences] = {0: classConfidences}
-
-    return inference
 
 
   def _anomalyCompute(self, computeTPTopDown):
