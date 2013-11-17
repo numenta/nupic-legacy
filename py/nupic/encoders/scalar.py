@@ -385,7 +385,7 @@ class ScalarEncoder(Encoder):
 
     if bucketIdx is None:
       # None is returned for missing value
-      output[0:self.n] = 0
+      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead? 
 
     else:
       # The bucket index is the index of the first bit to set in the output
@@ -540,9 +540,9 @@ class ScalarEncoder(Encoder):
 
     return ({fieldName: (ranges, desc)}, [fieldName])
 
+  #############################################################################
   def _generateRangeDescription(self, ranges):
-    # -------------------------------------------------------------------------
-    # Form a text description of the ranges
+    """generate description from a text description of the ranges"""
     desc = ""
     numRanges = len(ranges)
     for i in xrange(numRanges):
