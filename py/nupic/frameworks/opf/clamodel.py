@@ -1102,28 +1102,6 @@ class CLAModel(Model):
     self.__logger = initLogger(self)
 
 
-    # =========================================================================
-    # TODO: Temporary migration solution
-    if not hasattr(self, "_Model__inferenceType"):
-      self.__restoringFromV1 = True
-      self._hasSP = True
-      if self.__temporalNetInfo is not None:
-        self._Model__inferenceType = InferenceType.TemporalNextStep
-        self._netInfo = self.__temporalNetInfo
-        self._hasTP = True
-      else:
-        raise RuntimeError("The Nontemporal inference type is not supported")
-
-      self._Model__inferenceArgs = {}
-      self._Model__learningEnabled = True
-      self._Model__inferenceEnabled = True
-      
-      # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
-      
-
       
     # -----------------------------------------------------------------------
     # Migrate from v2 
