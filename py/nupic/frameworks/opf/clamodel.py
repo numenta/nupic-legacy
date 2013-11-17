@@ -992,48 +992,6 @@ class CLAModel(Model):
     sensor.disabledEncoder = MultiEncoder(disabledEncoders)
     sensor.dataSource = DataBuffer()
 
-    # This is old functionality that would automatically reset the TP state
-    # at a regular interval, such as every week for daily data, every day for
-    # hourly data, etc.
-    # TODO: remove, not being used anymore
-    if sensorParams['sensorAutoReset']: 
-      sensorAutoResetDict = sensorParams['sensorAutoReset']
-
-      supportedUnits = set(('days', 'hours', 'minutes', 'seconds',
-                            'milliseconds', 'microseconds', 'weeks'))
-      units = set(sensorAutoResetDict.keys())
-      assert units.issubset(supportedUnits), \
-             "Unexpected units: %s" % (units - supportedUnits)
-
-      dd = defaultdict(lambda: 0,  sensorAutoResetDict)
-      # class timedelta([days[, seconds[, microseconds[, milliseconds[, minutes[,
-      #                 hours[, weeks]]]]]]])
-      if not (0 == dd['days'] == dd['hours'] == dd['minutes'] == dd['seconds'] \
-              == dd['milliseconds'] == dd['microseconds'] == dd['weeks']):
-        timeDelta = timedelta(days=dd['days'],
-                              hours=dd['hours'],
-                              minutes=dd['minutes'],
-                              seconds=dd['seconds'],
-                              milliseconds=dd['milliseconds'],
-                              microseconds=dd['microseconds'],
-                              weeks=dd['weeks'])
-
-        self.__logger.debug(
-          "Adding AutoResetFilter; sensorAutoResetDict: %r, timeDelta: %r" % (
-            sensorAutoResetDict, timeDelta))
-
-        # see if sensor already has an autoreset filter
-        filter = None
-        for f in sensor.preEncodingFilters:
-          if isinstance(f, AutoResetFilter):
-            filter = f
-            break
-        if filter is None:
-          filter = AutoResetFilter()
-          sensor.preEncodingFilters.append(filter)
-
-        filter.setInterval(timeDelta)
-
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
 
