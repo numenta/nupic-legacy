@@ -171,9 +171,6 @@ class CLAModel(Model):
     self.__logger.debug("Instantiating %s." % self.__myClassName)
 
 
-    # TODO: VERBOSITY should be deprecated since we now have logging with levels
-    self.__VERBOSITY = 0
-
     self._minLikelihoodThreshold = minLikelihoodThreshold
     self._maxPredictionsPerStep = maxPredictionsPerStep
 
