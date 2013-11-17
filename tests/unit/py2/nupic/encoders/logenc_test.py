@@ -38,8 +38,8 @@ class LogEncoderTest(unittest.TestCase):
   ############################################################################
   def testLogEncoder(self):
       print "Testing LogEncoder...",
-
-      l = LogEncoder(w=5, resolution=1, minval=1, maxval=10000, name="amount")
+      # use of forced=True is not recommended, but is used in the example for readibility, see scalar.py
+      l = LogEncoder(w=5, resolution=1, minval=1, maxval=10000, name="amount", forced=True)
       self.assertEqual(l.getDescription(), [("amount", 0)])
 
       # -------------------------------------------------------------------

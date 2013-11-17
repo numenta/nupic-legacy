@@ -58,7 +58,8 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       print "\t*Testing uniform distribution*"
 
       data = numpy.linspace( 1, 10, 10, endpoint = True)
-      enc = NonUniformScalarEncoder(w=7,n=16, data=data, verbosity=3)
+      # forced=True is not recommended, but used here for readibility, see scalar.py
+      enc = NonUniformScalarEncoder(w=7,n=16, data=data, verbosity=3, forced=True)
       expectedEncoding = numpy.zeros(16)
       expectedEncoding[:7] = 1
       for i in range(1,10):
@@ -76,7 +77,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       data = numpy.append(data, numpy.linspace(10,20,200))
       # Shuffle the data so that the order doesn't matter
       numpy.random.shuffle(data)
-      enc = NonUniformScalarEncoder(w = 7, n=9, data=data)
+      enc = NonUniformScalarEncoder(w = 7, n=9, data=data, forced=True)
 
       testEncoding(5, [1,1,1,1,1,1,1,0,0], enc)
       testEncoding(9, [1,1,1,1,1,1,1,0,0], enc)
@@ -95,7 +96,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       weights= 4 * numpy.ones_like(data)
       data = numpy.append(data, numpy.linspace(10,20,200))
       weights = numpy.append(weights, numpy.ones(200))
-      enc = NonUniformScalarEncoder(w = 7, n=9, data=data, weights=weights)
+      enc = NonUniformScalarEncoder(w = 7, n=9, data=data, weights=weights, forced=True)
 
       testEncoding(3, [1,1,1,1,1,1,1,0,0], enc)
       testEncoding(5, [0,1,1,1,1,1,1,1,0], enc)
@@ -112,7 +113,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       data = numpy.concatenate([numpy.repeat(10, 30),
                                                   numpy.repeat(5, 20),
                                                   numpy.repeat(20, 35)])
-      enc = NonUniformScalarEncoder(w=7, n=100, data=data, verbosity=2)
+      enc = NonUniformScalarEncoder(w=7, n=100, data=data, verbosity=2, forced=True)
       result = numpy.zeros(100, dtype=defaultDtype)
       result[0:7] = 1
       testEncoding(5, result, enc)
@@ -153,7 +154,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       ## Test top-down decoding
       print "\t*Testing top-down decoding*"
       data = numpy.random.random_sample(400)
-      enc = NonUniformScalarEncoder(w=7, n=9, data=data, verbosity=3)
+      enc = NonUniformScalarEncoder(w=7, n=9, data=data, verbosity=3, forced=True)
       print enc.dump()
       output = numpy.array([1,1,1,1,1,1,1,0,0], dtype=defaultDtype)
       for i in xrange(enc.n - enc.w + 1):
@@ -171,7 +172,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
         [ 214.118,  216.956],
         [ 216.956,  219.133]]
 
-      enc = NonUniformScalarEncoder(w=7, n=13, bins=bins)
+      enc = NonUniformScalarEncoder(w=7, n=13, bins=bins, forced=True)
 
       # -----------------------------------------
       # Test TD compute on

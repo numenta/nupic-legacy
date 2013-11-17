@@ -33,12 +33,14 @@ class AdaptiveScalarTest(unittest.TestCase):
 
 
     def setUp(self):
+      # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
       self._l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False)
+                                periodic=False, forced=True) 
 
     def testMissingValues(self):
       """missing values"""
-      mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
+      # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readib.
+      mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False, forced=True)
       empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
       print "\nEncoded missing data \'None\' as %s" % empty
       self.assertEqual(empty.sum(), 0)
@@ -112,7 +114,7 @@ class AdaptiveScalarTest(unittest.TestCase):
     def testNonPeriodicEncoderMinMaxNotSpec(self):
       """Non-periodic encoder, min and max not specified"""
       l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=None, maxval=None,
-                                periodic=False)
+                                periodic=False, forced=True)
                                 
       def _verify(v, encoded, expV=None):
         if expV is None:
@@ -146,7 +148,7 @@ class AdaptiveScalarTest(unittest.TestCase):
 
       #"""Test switching learning off"""
       l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False)
+                                periodic=False, forced=True)
       _verify(1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
       _verify(10, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
       _verify(20, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -171,9 +173,9 @@ class AdaptiveScalarTest(unittest.TestCase):
                 enc.windowSize, enc._learningEnabled, enc.recordNum, 
                 enc.radius, enc.rangeInternal, enc.padding, enc.nInternal)
       sfs = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False)
+                                periodic=False, forced=True)
       reg = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=100,
-                                periodic=False)
+                                periodic=False, forced=True)
       self.assertTrue(_dumpParams(sfs) != _dumpParams(reg), "Params should not be equal, "\
                 "since the two encoders were instantiated with different values.")
       # set the min and the max using sFS to 1,100 respectively.

@@ -45,7 +45,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
       bitsOn = 10
 
       s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = categories,
-                             name="foo", verbosity=0)
+                             name="foo", verbosity=0, forced=True)
 
       # internal check
       self.assertEqual(s.sdrs.shape, (32, fieldWidth))
@@ -151,7 +151,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
 
 
       # Test autogrow
-      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = None, name="bar")
+      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = None, name="bar", forced=True)
 
       es = s.encode("ES")
       self.assertEqual(es.shape, (fieldWidth,))
@@ -192,7 +192,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
       self.assertTrue("ES" in newcategories)
       newcategories.append("ES")
       try:
-        s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = newcategories, name="foo")
+        s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = newcategories, name="foo", forced=True)
       except RuntimeError, e:
         caughtException = True
       if not caughtException:
@@ -212,7 +212,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
       fieldWidth = 100
       bitsOn = 10
 
-      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2)
+      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2, forced=True)
 
       encoded = numpy.zeros(fieldWidth)
       self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")

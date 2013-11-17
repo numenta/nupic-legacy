@@ -128,7 +128,7 @@ class TestSPFrequency(unittest.TestCase):
     # Setting up the encodings
     if encoder=='scalar':
       enc = scalar.ScalarEncoder(name='car', w=w, n=n, minval=minVal,
-                                 maxval=maxVal, periodic=False)
+                                 maxval=maxVal, periodic=False, forced=True) # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
       for y in xrange(numColors):
         temp = enc.encode(rnd.random()*maxVal)
         colors.append(numpy.array(temp, dtype=realDType))
