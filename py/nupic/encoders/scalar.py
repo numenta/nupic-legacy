@@ -201,7 +201,7 @@ class ScalarEncoder(Encoder):
 
     # There are three different ways of thinking about the representation. Handle
     # each case here.
-    _initEncoder(w, minval, maxval, n, radius, resolution)
+    self._initEncoder(w, minval, maxval, n, radius, resolution)
 
     # nInternal represents the output area excluding the possible padding on each
     #  side
@@ -221,6 +221,9 @@ class ScalarEncoder(Encoder):
     # This list is created by getBucketValues() the first time it is called,
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
+
+    # checks for likely mistakes in encoder settings
+    self._checkReasonableSettings()
 
 
   ############################################################################
@@ -264,6 +267,22 @@ class ScalarEncoder(Encoder):
 
       nfloat = self.w * (self.range / self.radius) + 2 * self.padding
       self.n = int(math.ceil(nfloat))
+
+  ############################################################################
+  def _checkReasonableSettings(self):
+    """(helper function) check if the settings are reasonable for SP to work"""
+    # checks for likely mistakes in encoder settings
+    #
+    #  -- this is just to catch bad parameter choices
+    if (self.n/self.w) < 2: # w is 50% of total len
+      raise RuntimeError("Number of ON bits in SDR (%d) must be much smaller than "
+                         "the output width (%d)" % (self.w, self.n))
+
+    # Another arbitrary cutoff to catch likely mistakes
+    if self.w < 3:
+      raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2"
+                         % self.w)
+
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
