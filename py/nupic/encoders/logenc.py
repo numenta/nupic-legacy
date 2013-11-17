@@ -40,11 +40,12 @@ class LogEncoder(Encoder):
     resolution -- encoder resolution, in terms of scaled values. Default: 1 decibel
     minval -- must be greater than 0. Lower values are reset to this value
     maxval -- Higher values are reset to this value
+    forced: (default False), is True, skip some safety checks
   """
 
 
   def __init__(self, w = 5, resolution = 1.0, minval=0.10, maxval=10000,
-                name="log", verbosity=0):
+                name="log", verbosity=0, forced=False):
 
     self.encoders = None
     self.verbosity = verbosity
@@ -61,7 +62,7 @@ class LogEncoder(Encoder):
     self.encoder = ScalarEncoder(w=w, minval = self.minScaledValue,
                     maxval=self.maxScaledValue,
                     periodic=False,
-                    resolution=float(resolution))
+                    resolution=float(resolution), forced=forced)
     self.width = self.encoder.getWidth()
     self.description = [(name, 0)]
     self.name = name
