@@ -278,7 +278,7 @@ class ScalarEncoder(Encoder):
 
 
   ############################################################################
-  def recalcParams(self):
+  def _recalcParams(self):
     self.rangeInternal = float(self.maxval - self.minval)
 
     if not self.periodic:
