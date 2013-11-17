@@ -275,15 +275,8 @@ class ScalarEncoder(Encoder):
   def _checkReasonableSettings(self):
     """(helper function) check if the settings are reasonable for SP to work"""
     # checks for likely mistakes in encoder settings
-    #
-    #  -- this is just to catch bad parameter choices
-    if (self.n/self.w) < 2: # w is 50% of total len
-      raise RuntimeError("Number of ON bits in SDR (%d) must be much smaller than "
-                         "the output width (%d)" % (self.w, self.n))
-
-    # Another arbitrary cutoff to catch likely mistakes
-    if self.w < 3:
-      raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2"
+    if self.w <= 21:
+      raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
                          % self.w)
 
 
