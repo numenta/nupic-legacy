@@ -62,9 +62,9 @@ class SDRCategoryEncoder(Encoder):
     # enable certain experiments.
     #
     # "5" is arbitrary -- this is just to catch bad parameter choices
-    #if self.w >= self.n - 4:
-    #  raise RuntimeError("Number of bits in SDR (%d) must be much smaller than "
-    #                     "the output width (%d)" % (self.w, self.n))
+    if (self.n/self.w) < 2: # w is 50% of total len
+      raise RuntimeError("Number of ON bits in SDR (%d) must be much smaller than "
+                         "the output width (%d)" % (self.w, self.n))
 
     # Another arbitrary cutoff to catch likely mistakes
     if self.w < 3:
