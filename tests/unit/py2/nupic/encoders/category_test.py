@@ -41,7 +41,8 @@ class CategoryEncoderTest(unittest.TestCase):
       print "Testing CategoryEncoder...",
       categories = ["ES", "GB", "US"]
 
-      e = CategoryEncoder(w=3, categoryList=categories)
+      # forced: is not recommended, but is used here for readability. see scalar.py
+      e = CategoryEncoder(w=3, categoryList=categories, forced=True) 
       output = e.encode("US")
       self.assertTrue((output == numpy.array([0,0,0,0,0,0,0,0,0,1,1,1], dtype=defaultDtype)).all())
 
@@ -129,7 +130,8 @@ class CategoryEncoderTest(unittest.TestCase):
       # -------------------------------------------------------------
       # Test with width = 1
       categories = ["cat1", "cat2", "cat3", "cat4", "cat5"]
-      e = CategoryEncoder(w=1, categoryList=categories)
+        # forced: is not recommended, but is used here for readability. see scalar.py
+      e = CategoryEncoder(w=1, categoryList=categories, forced=True)
       for cat in categories:
         output = e.encode(cat)
         topDown = e.topDownCompute(output)
@@ -144,7 +146,8 @@ class CategoryEncoderTest(unittest.TestCase):
       # -------------------------------------------------------------
       # Test with width = 9, removing some bits end the encoded output
       categories = ["cat%d" % (x) for x in range(1, 10)]
-      e = CategoryEncoder(w=9, categoryList=categories)
+       # forced: is not recommended, but is used here for readability. see scalar.py
+      e = CategoryEncoder(w=9, categoryList=categories, forced=True)
       for cat in categories:
         output = e.encode(cat)
         topDown = e.topDownCompute(output)
