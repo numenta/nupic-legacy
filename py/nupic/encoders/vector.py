@@ -1,14 +1,37 @@
+# ----------------------------------------------------------------------
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
+# ----------------------------------------------------------------------
+
+
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType
 import numpy
 
 class VectorEncoder(Encoder):
-  """represents an array of values of the same type"""
+  """represents an array/vector of values of the same type (scalars, or date, ..);"""
 
-  def __init__(self, length, encoder, name='vector'):
+  def __init__(self, length, encoder, name='vector', typeCastFn=None):
     """param length: size of the vector, number of elements
        param encoder: instance of encoder used for coding of the elements
+       param typeCastFn: function to convert decoded output (as string) back to original values
        NOTE: this constructor cannot be used in description.py, as it depands passing of an object!
     """
 
@@ -16,11 +39,14 @@ class VectorEncoder(Encoder):
       raise Exception("Length must be int > 0")
     if not isinstance(encoder, Encoder):
       raise Exception("Must provide an encoder")
+    if typeCastFn is not None and not isinstance(typeCastFn, type):
+      raise Exception("if typeCastFn is provided, it must be a function")
 
     self._len = length
     self._enc = encoder
     self._w = encoder.getWidth()
     self._name = name
+    self._typeCastFn = typeCastFn
 
 
   def encodeIntoArray(self, input, output):
@@ -36,7 +62,9 @@ class VectorEncoder(Encoder):
     ret = []
     w = self._w
     for i in xrange(self._len):
-      tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0] # dict.values().first_element
+      tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0][1] # dict.values().first_element.scalar_value
+      if self._typeCastFn is not None:
+        tmp = self._typeCastFn(tmp)
       ret.append(tmp)
     return ret
  
@@ -78,7 +106,7 @@ class VectorEncoderOPF(VectorEncoder):
 
     sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
                        name=name, verbosity=verbosity, clipInput=clipInput)
-    super(VectorEncoderOPF, self).__init__(length, sc)
+    super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=float)
 
 
 #################################################################################################
@@ -88,6 +116,6 @@ class SimpleVectorEncoder(VectorEncoder):
 
   def __init__(self, length=5):
     sc = ScalarEncoder(5, 0, 100, n=40)
-    super(SimpleVectorEncoder, self).__init__(length, sc)
+    super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=float)
 
 
