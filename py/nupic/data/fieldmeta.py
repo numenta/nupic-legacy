@@ -90,6 +90,7 @@ class FieldMetaType(object):
   integer = 'int'
   float = 'float'
   boolean = 'bool'
+  list = 'list'
 
 
 class FieldMetaSpecial(object):
