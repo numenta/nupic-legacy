@@ -537,6 +537,8 @@ class Encoder(object):
     """ Return a pretty print string representing the return value from
     decode()
     """
+    if isinstance(decodeResults, numpy.ndarray) or isinstance(decodeResults, list): # List/NumpyArray mode in MultiEncoder
+      return str(decodeResults)
 
     (fieldsDict, fieldsOrder) = decodeResults
 
