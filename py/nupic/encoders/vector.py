@@ -28,8 +28,7 @@ class VectorEncoder(Encoder):
       raise Exception("input must be list if size %d" % self._len)
     for e in range(self._len):
       tmp = self._enc.encode(input[e])
-      print "out", output, "tt", tmp
-      numpy.concatenate((output,tmp))
+      output[e*self._w:(e+1)*self._w]=tmp
     return output
   
 
@@ -37,7 +36,9 @@ class VectorEncoder(Encoder):
     ret = []
     w = self._w
     for i in xrange(self._len):
-      ret[i*w:(i+1)*w-1]=self._enc.decode(encoded[i*w:(i+1)*w-1]) 
+      tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0] # dict.values().first_element
+      ret.append(tmp)
+    return ret
  
   ########################################################
   # the boring stuff
@@ -59,5 +60,24 @@ class VectorEncoder(Encoder):
     if not (isinstance(input, list) and len(input)==self._len):
       raise Exception("Input must be a list of size %d" % self._len) 
     return [0]
+
+
+
+###############################################################################################
+class VectorEncoderOPF(VectorEncoder):
+  """Vector encoder using ScalarEncoder; 
+     usecase: in OPF description.py files, see above why VectorEncoder 
+     cannot be used there directly. """
+
+  def __init__(self, length, w, minval, maxval, periodic=False, n=0, radius=0,
+                resolution=0, name=None, verbosity=0, clipInput=False):
+    """instance of VectorEncoder using ScalarEncoder as base, 
+       use-case: in OPF description.py files, where you cannot use VectorEncoder directly (see above);
+       param length: #elements in the vector, 
+       param: rest of params is from ScalarEncoder, see scalar.py for details"""
+
+    sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
+                       name=name, verbosity=verbosity, clipInput=clipInput)
+    super(VectorEncoderOPF, self).__init__(length, sc)
 
 
