@@ -81,3 +81,13 @@ class VectorEncoderOPF(VectorEncoder):
     super(VectorEncoderOPF, self).__init__(length, sc)
 
 
+#################################################################################################
+class SimpleVectorEncoder(VectorEncoder):
+  """Vector encoder for beginners, easy to create and play with;
+     encodes list of 5 elements, numbers 0-100"""
+
+  def __init__(self, length=5):
+    sc = ScalarEncoder(5, 0, 100, n=40)
+    super(SimpleVectorEncoder, self).__init__(length, sc)
+
+
