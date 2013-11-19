@@ -64,7 +64,8 @@ class VectorEncoderTest(unittest.TestCase):
     #decode
     dec = v.decode(enc)
     print "decoded=", dec
-    assert data==dec
+    res= dec[0]['vector'][0]
+    assert data==res
 
   def testVectorEncoderOPFInstance(self):
     # for calling from OPF, use this:
