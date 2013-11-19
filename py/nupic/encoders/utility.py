@@ -45,11 +45,6 @@ class UtilityEncoder(MultiEncoder):
     output[:] = merged
     return output
 
-  def decode(self, encoded, parentFieldNames=''):
-    """takes the extended input from above, and recovers back values for orig input and utility"""
-    return self._parent.decode(encoded, parentFieldNames)
-
-  
   def getScoreIN(self, input):
     """compute score of the feedforward input"""
     if self.evaluate is not None:
