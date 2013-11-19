@@ -74,7 +74,7 @@ class UtilityEncoderTest(unittest.TestCase):
     dec = self.utilityEnc.decode(enc)
     print "decoded=", dec
 
-    res = self.dataEnc.getData(dec)
+    res = self.utilityEnc.getData(dec)
     assert res==self.data
 
 
