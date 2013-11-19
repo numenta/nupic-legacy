@@ -22,7 +22,7 @@
 import numpy
 
 def similar(a, b, eps=0.001):
-  return (numpy.abs(a - b) < 0.001).all()
+  return (numpy.abs(a - b) < eps).all()
 
 
 def lscsum(lx, epsilon=None):
