@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
-from nupic.encoders.utility import UtilityEncoder
+from nupic.encoders.utility import UtilityEncoder, SimpleUtilityEncoder
 
 class UtilityEncoderTest(unittest.TestCase):
   """testing Utility encoder"""
@@ -95,34 +95,17 @@ class UtilityEncoderTest(unittest.TestCase):
        We can achieve the goal by encoding "rules"/physics laws/ground truths on the
        feval function's score cleverly."""
 
-    dimX=5
-    dimY=5
-    from collections import namedtuple
-    Point = namedtuple('Point', 'x y')
-    pos = Point(3,3)
-    target = Point(1,4)
-    #action 1==walk 0==noop, 2==eat
-    Agent = namedtuple('Agent', 'hunger hostile pos action target')
-    bot = Agent(hunger=0, hostile=0, pos=pos, action=0, target=target, _visited=[])
 
-    def _thinkRules(ag):
-      sc = 50
-
-      # dont die
-      if(ag.hunger>=8 and ag.action!=2):
-        return 0 # worst possible score
-      if(ag.hunger>=8 and ag.action==2):
-        return 100 # best idea to eat, when dying!
-
-      # effects of actions
-      if(ag.action==1): #walk
-        sc += 10 # better to do sth than just sit
-        _walk(ag, dimX, dimY)
-      elif(ag.action==2): #eat
-        _eat(ag)
-      # else: noop
-
-
+  def testSimpleUtilityEncoder(self):
+    """making it simple.."""
+    ut = SimpleUtilityEncoder()
+    assert isinstance(ut, SimpleUtilityEncoder)
+    def scoring(listA):
+      """average value"""
+      return sum(listA)/float(len(listA))
+    ut.setEvaluationFn(scoring)
+    data = [1,2,3,4,5]
+    assert ut.getScoreIN(data) == 3.0
 
 ##########################################################
 if __name__ == '__main__':
