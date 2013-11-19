@@ -62,11 +62,10 @@ class UtilityEncoder(MultiEncoder):
     """get the score from the encoded representation"""
     # get the score's portion of data
     score_bits = encoded[self._offset:self.getWidth()]
-    dec = self._utility.topDownCompute(encoded)
+    dec = self._utility.topDownCompute(score_bits)
     scores = []
-    print "encoded=",encoded
-    print "score bits=", score_bits
-    print "dec=",dec
+    #print "score bits=", score_bits
+    #print "dec=",dec
     for re in dec: # case where SDR returned more scores (mixure of SDRs probably)
       scores.append(re.value)
     return scores
