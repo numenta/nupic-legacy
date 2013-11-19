@@ -1,6 +1,6 @@
 
-from nupic.encoders.multi import MultiEncoder as ME
-
+from nupic.encoders.multi import MultiEncoder
+from nupic.encoders.base import Encoder
 
 def _thisIsFunction():
   """just a helper for type comparisons, we need instance of a function"""
@@ -10,12 +10,14 @@ class UtilityEncoder(MultiEncoder):
   """UtilityEncoder act transparently; use input and apply it to encoder, 
      in addition, provide a new field utility (aka \'usefulness\'/goodness/fitness/evaluation) of the input"""
   
-  def __init__(self, inputEncoder, utilityEncoder, feval=None, name='utility'):
+  def __init__(self, inputEncoder, utilityEncoder, feval=None, name=None):
     """param inputEncoder: original encoder, accepts input; 
        param feval: an evaluation function: must handle all inputs for inputEncoder, its output must be acceptable by utilityEncoder; util=feval(input);
        param utilityEncoder: encoder, maps output of feval to some values. Must take all outputs of feval"""
-    if not(isinstance(encoder,Encoder)  and isinstance(utility, Encoder)):
+    if not(isinstance(inputEncoder,Encoder)  and isinstance(utilityEncoder, Encoder)):
       raise Exception("must provide an encoder and a function that takes encoder's output and transforms to utility encoder's input")
+    if name == "utility":
+      raise Exception("name: \'utility\' is reserved for the utility field. Use some other name.")
 
     super(UtilityEncoder,self).__init__()
 
@@ -29,7 +31,7 @@ class UtilityEncoder(MultiEncoder):
     self._parent = super(UtilityEncoder, self)
     self._name = name
 
-  def encodeIntoArray(self, input, output)
+  def encodeIntoArray(self, input, output):
     """on the original input, first compute the utility and then append it as "input" for encoding; 
        the feval function is applied before any encoding"""
     score = self.getScoreIN(input)
@@ -57,7 +59,7 @@ class UtilityEncoder(MultiEncoder):
     self._utility.topDownCompute(encoded).value 
 
 
-  def setEvaluationFn(self):
+  def setEvaluationFn(self, feval):
     """set the feval function;
        an evaluation function: must handle all inputs from inputEncoder, 
        its output must be acceptable by utilityEncoder; util=feval(input)"""
