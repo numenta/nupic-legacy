@@ -38,8 +38,12 @@ class UtilityEncoder(MultiEncoder):
     score = self.getScoreIN(input)
     encoded_in = self._encoder.encode(input)
     encoded_score = self._utility.encode(score)
+    #print "enc_IN=", encoded_in
+    #print "enc_SC=", encoded_score
     merged = numpy.concatenate( (encoded_in, encoded_score) )
-    return merged
+    #print "enc_merge=", merged
+    output[:] = merged
+    return output
 
   def decode(self, encoded, parentFieldNames=''):
     """takes the extended input from above, and recovers back values for orig input and utility"""
@@ -58,7 +62,14 @@ class UtilityEncoder(MultiEncoder):
     """get the score from the encoded representation"""
     # get the score's portion of data
     score_bits = encoded[self._offset:self.getWidth()]
-    return self._utility.topDownCompute(encoded).value 
+    dec = self._utility.topDownCompute(encoded)
+    scores = []
+    print "encoded=",encoded
+    print "score bits=", score_bits
+    print "dec=",dec
+    for re in dec: # case where SDR returned more scores (mixure of SDRs probably)
+      scores.append(re.value)
+    return scores
 
 
   def setEvaluationFn(self, feval):
