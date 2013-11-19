@@ -55,7 +55,6 @@ class VectorEncoder(Encoder):
     for e in range(self._len):
       tmp = self._enc.encode(input[e])
       output[e*self._w:(e+1)*self._w]=tmp
-    return output
   
 
   def decode(self, encoded, parentFieldName=''):
@@ -66,8 +65,17 @@ class VectorEncoder(Encoder):
       if self._typeCastFn is not None:
         tmp = self._typeCastFn(tmp)
       ret.append(tmp)
-    return ret
- 
+    
+    # Return result as EncoderResult
+    if parentFieldName != '':
+      fieldName = "%s.%s" % (parentFieldName, self._name)
+    else:
+      fieldName = self._name
+    ranges = ret
+    desc = ret
+    return ({fieldName: (ranges, desc)}, [fieldName])
+
+   
   ########################################################
   # the boring stuff
 
