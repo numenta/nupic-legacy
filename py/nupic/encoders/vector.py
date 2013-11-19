@@ -75,7 +75,12 @@ class VectorEncoder(Encoder):
     desc = ret
     return ({fieldName: (ranges, desc)}, [fieldName])
 
-   
+  def getData(self, decoded):
+    """get the data part (vector) from the decode() output format; 
+       use when you want to work with the data manually"""
+    fieldname = decoded[1][0]
+    return decoded[0][fieldname][0]
+       
   ########################################################
   # the boring stuff
 

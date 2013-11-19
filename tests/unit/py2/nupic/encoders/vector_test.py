@@ -64,7 +64,7 @@ class VectorEncoderTest(unittest.TestCase):
     #decode
     dec = v.decode(enc)
     print "decoded=", dec
-    res= dec[0]['vector'][0]
+    res= v.getData(dec)
     assert data==res
 
   def testVectorEncoderOPFInstance(self):
