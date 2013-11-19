@@ -1,6 +1,7 @@
 
 from nupic.encoders.multi import MultiEncoder
 from nupic.encoders.base import Encoder
+import numpy
 
 def _thisIsFunction():
   """just a helper for type comparisons, we need instance of a function"""
@@ -26,7 +27,7 @@ class UtilityEncoder(MultiEncoder):
     
     self._utility = utilityEncoder
     self._encoder = inputEncoder
-    self.eval = self.setEvaluationFn(feval)
+    self.setEvaluationFn(feval)
     self._offset = self._encoder.getWidth()
     self._parent = super(UtilityEncoder, self)
     self._name = name
@@ -35,9 +36,10 @@ class UtilityEncoder(MultiEncoder):
     """on the original input, first compute the utility and then append it as "input" for encoding; 
        the feval function is applied before any encoding"""
     score = self.getScoreIN(input)
-    merged_input = [input, score]
-    output = self._parent.encode(merged_input)
-
+    encoded_in = self._encoder.encode(input)
+    encoded_score = self._utility.encode(score)
+    merged = numpy.concatenate( (encoded_in, encoded_score) )
+    return merged
 
   def decode(self, encoded, parentFieldNames=''):
     """takes the extended input from above, and recovers back values for orig input and utility"""
@@ -46,8 +48,8 @@ class UtilityEncoder(MultiEncoder):
   
   def getScoreIN(self, input):
     """compute score of the feedforward input"""
-    if self.eval is not None:
-      return self.eval(input)
+    if self.evaluate is not None:
+      return self.evaluate(input)
     else:
       return None
 
@@ -56,7 +58,7 @@ class UtilityEncoder(MultiEncoder):
     """get the score from the encoded representation"""
     # get the score's portion of data
     score_bits = encoded[self._offset:self.getWidth()]
-    self._utility.topDownCompute(encoded).value 
+    return self._utility.topDownCompute(encoded).value 
 
 
   def setEvaluationFn(self, feval):
@@ -65,6 +67,4 @@ class UtilityEncoder(MultiEncoder):
        its output must be acceptable by utilityEncoder; util=feval(input)"""
     if not(type(feval)==type(_thisIsFunction) or feval is None):
       raise Exception("feval must be a function (or None for disabled)")
-
-    self.eval=feval
-
+    self.evaluate=feval
