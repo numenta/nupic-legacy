@@ -77,6 +77,52 @@ class UtilityEncoderTest(unittest.TestCase):
     res = self.utilityEnc.getData(dec)
     assert res==self.data
 
+  def testDemo1(self):
+    """Alife: agent perceives its inner and outer environment and reacts;
+       states:
+         hunger(0=full, 10=starving);
+         hostile env (0=lovely place, 3=hell);
+         pos_x, pos_y coordinates in the world;
+       actions:
+         walk (random direction, for simplicity)
+         eat  (reduce hunger)
+         noop (idle)
+       external states:
+         target (x,y) -- desired position
+       goal: 
+         "Stay alive and explore to find the target." 
+
+       We can achieve the goal by encoding "rules"/physics laws/ground truths on the
+       feval function's score cleverly."""
+
+    dimX=5
+    dimY=5
+    from collections import namedtuple
+    Point = namedtuple('Point', 'x y')
+    pos = Point(3,3)
+    target = Point(1,4)
+    #action 1==walk 0==noop, 2==eat
+    Agent = namedtuple('Agent', 'hunger hostile pos action target')
+    bot = Agent(hunger=0, hostile=0, pos=pos, action=0, target=target, _visited=[])
+
+    def _thinkRules(ag):
+      sc = 50
+
+      # dont die
+      if(ag.hunger>=8 and ag.action!=2):
+        return 0 # worst possible score
+      if(ag.hunger>=8 and ag.action==2):
+        return 100 # best idea to eat, when dying!
+
+      # effects of actions
+      if(ag.action==1): #walk
+        sc += 10 # better to do sth than just sit
+        _walk(ag, dimX, dimY)
+      elif(ag.action==2): #eat
+        _eat(ag)
+      # else: noop
+
+
 
 ##########################################################
 if __name__ == '__main__':
