@@ -65,6 +65,10 @@ class UtilityEncoder(MultiEncoder):
       scores.append(re.value)
     return scores
 
+  def getData(self, decoded):
+    """extract the data part of the decode()'s output"""
+    fieldName = decoded[1][0]
+    return decoded[0][fieldName][0]
 
   def setEvaluationFn(self, feval):
     """set the feval function;
