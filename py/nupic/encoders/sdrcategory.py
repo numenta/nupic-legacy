@@ -66,7 +66,7 @@ class SDRCategoryEncoder(Encoder):
                            "the output width (%d)" % (self.w, self.n))
 
       # Another arbitrary cutoff to catch likely mistakes
-      if self.w <= 21:
+      if self.w < 21:
         raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2, and should be >= 21, pass forced=True to init() to override this check"
                            % self.w)
 
