@@ -40,12 +40,6 @@ mkdir -p "$NUPIC_INSTALL"
 
 pushd `dirname $0`
 
-# Clean up source location.
-python build_system/setup.py --clean
-
-# Re-build and re-install any python modules
-PIP_IGNORE_INSTALLED=1
-
 # Do the build.
 ./build.sh "$NUPIC_INSTALL"
 
