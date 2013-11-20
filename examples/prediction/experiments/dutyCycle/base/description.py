@@ -74,11 +74,11 @@ config = dict(
   
   encodingFieldStyleA = 'sdr',   # contiguous, sdr
   encodingFieldWidthA = 50,
-  encodingOnBitsA = 5,
+  encodingOnBitsA = 21,
 
   encodingFieldStyleB = 'sdr',   # contiguous, sdr, zero
   encodingFieldWidthB = 50,     # 15, None means set same as A
-  encodingOnBitsB = 5,          # 3, None means set same as A
+  encodingOnBitsB = 23,          # 3, None means set same as A
   )
 
 updateConfigFromSubConfig(config)
