@@ -130,10 +130,10 @@ config = {
             'encoders': {   
               'address': { 
                 'fieldname': u'address',
-                 'n': 100,
+                 'n': 300,
                  'name': u'address',
                  'type': 'SDRCategoryEncoder',
-                 'w': 7
+                 'w': 21
               },
               '_classifierInput': {   
                  'name': u'_classifierInput',
@@ -142,16 +142,16 @@ config = {
                  'clipInput': True,
                  'maxval': 200,
                  'minval': 0,
-                 'n': 500,
+                 'n': 1500,
                  'type': 'ScalarEncoder',
-                 'w': 7
+                 'w': 21
               },
               'gym': {   
                 'fieldname': u'gym',
-                'n': 100,
+                'n': 300,
                 'name': u'gym',
                 'type': 'SDRCategoryEncoder',
-                'w': 7
+                'w': 21
               },
               'timestamp_dayOfWeek': {   
                 'dayOfWeek': (7, 3),
