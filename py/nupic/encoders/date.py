@@ -59,14 +59,14 @@ class DateEncoder(Encoder):
 
   customDays TODO: what is it? 
 
-  forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
+  forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
 
 
 
   """
   ############################################################################
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
-                name = '', forced=False):
+                name = '', forced=True):
 
     self.width = 0
     self.description = []
