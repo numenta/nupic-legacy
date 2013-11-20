@@ -133,10 +133,10 @@ config = {
                                    'fieldname': u'consumption',
                                    'maxval': 200,
                                    'minval': 0,
-                                   'n': 500,
+                                   'n': 1500,
                                    'name': u'consumption',
                                    'type': 'ScalarEncoder',
-                                   'w': 7
+                                   'w': 21
                 },
             },
 
