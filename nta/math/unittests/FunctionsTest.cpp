@@ -35,10 +35,10 @@ using namespace std;
 void FunctionsTest::RunTests()
 // functions are: fact,  binomial; and important tresholds are 171, 2000, 171 respectively 
 {
- int low=5;
- int tr_low=170;
- int tr_hi=172;
- int high=300;
+  int low=5;
+  int tr_low=170;
+  int tr_hi=172;
+  int high=300;
 
   // test fact
   cout << "testing fact():" << endl;
