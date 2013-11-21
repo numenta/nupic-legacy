@@ -116,17 +116,25 @@ We tried to record everything we could, which included all the sessions (minus o
 
 > Jeff and I got the event rolling. This includes protocol information, thank-yous, and guidance for hackers.
 
+- [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/Kickoff.pdf)
+
 #### <a href="http://www.youtube.com/watch?v=QNF-gONtSmA&amp;start=1260" rel="prettyPhoto" title="NLP With NuPIC">NLP With NuPIC</a>
 
 > I'd done some NLP work before the hackathon in order to help others get started doing some work with NuPIC, NLP, and especially the CEPT API for word SDRs. In this presentation, I present some of the initial progress I made.
+
+- [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/nupic_nlp.pdf)
 
 #### <a href="http://www.youtube.com/watch?v=QBs-2_wl_JM" rel="prettyPhoto" title="CLA Deep Dive">CLA Deep Dive</a>
 
 > Subutai Ahmad, Grok/Numenta VP of Engineering, detailed some aspects of the CLA. He discussed an interesting property of SDR's affecting temporal pooling and hierarchies. The interactive session included a lot of Q&A
 
+- [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/November_2013_hackathon_subutai.pdf)
+
 #### <a href="http://www.youtube.com/watch?v=v9LWbV3QO5A" rel="prettyPhoto" title="Sensor-Motor Integration in the Neocortex">Sensor-Motor Integration in the Neocortex</a>
 
 > Most of the changes on our senses are due, wholly or in part, to our own actions. Therefore, the neocortex learns a sensory-motor model of the world. In this talk, Jeff discussed some of what we know about how the neocortex generates behavior and how we might construct a simple sensory-motor system based on the Cortical Learning Algorithm. It is a good starting point for anyone wanting to add motor output to the CLA.
+
+- [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/Sensori-motor%20Nov%202013%20hackathon.pdf)
 
 #### <a href="http://www.youtube.com/watch?v=g9UYCH29AEo" rel="prettyPhoto" title="Q&amp;A Session">Q&amp;A Session</a>
 
