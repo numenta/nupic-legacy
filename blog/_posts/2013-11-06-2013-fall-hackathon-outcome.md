@@ -52,7 +52,7 @@ category: blog
 </style>
 
 <div class="image">
-    <a href="http://www.flickr.com/photos/107852893@N04/10709312963/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm4.staticflickr.com/3744/10709117774_e17c6e635a_z.jpg" width="640" height="150" alt="NuPIC 2013 Fall Hackathon"></a>
+    <a href="http://www.flickr.com/photos/107852893@N04/10709312963/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm6.staticflickr.com/5548/10709312963_a32cf4a7fb_z.jpg" width="640" height="150" alt="NuPIC 2013 Fall Hackathon"></a>
     <p>A panoramic view of the hackathon space at Tagged.</p>
 </div>
 
@@ -61,7 +61,7 @@ Last weekend's hackathon was a lot of fun. Thanks to everyone for coming out. We
 Thanks again to <a href="http://about.tagged.com">Tagged</a>, who generously donated some of their workspace to us for the event. The Tagged offices are very cool, and in a great part of San Francisco.
 
 <div class="image">
-    <a href="http://www.flickr.com/photos/107852893@N04/10939550336/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm6.staticflickr.com/5490/10709146004_8b2a119e87_z.jpg" width="640" height="425" alt="NuPIC 2013 Fall Hackathon"></a>
+    <a href="http://www.flickr.com/photos/107852893@N04/10981929444/" title="NuPIC 2013 Fall Hackathon by numenta, on Flickr"><img src="http://farm4.staticflickr.com/3808/10981929444_a357663da7_z.jpg" width="640" height="425" alt="NuPIC 2013 Fall Hackathon"></a>
     <p>Jeff Hawkins talking about sensor-motor integration in the neocortex.</p>
 </div>
 
