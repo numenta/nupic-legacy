@@ -34,16 +34,17 @@ class PassThruEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, multiply=1, onbits=0, name="passthru", verbosity=0):
+  def __init__(self, n, w=None, multiply=1, name="passthru", verbosity=0):
     """
-    n is the total bits in output (must equal input bits * multiplexer)
+    n -- is the total #bits in output (must equal input bits * multiply)
     multiply -- each input bit is represented as multiply-bits in the output
-    onbits is used to normalize the sparsity of the output
+    w -- is used to normalize the sparsity of the output, exactly w bits ON,
+         if None (default) - do not alter the input, just pass it further.
     """
 
     self.n = n
     self.m = multiply
-    self.onbits = onbits
+    self.w = w
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
@@ -80,9 +81,9 @@ class PassThruEncoder(Encoder):
         for j in xrange(0,self.m):
           output[(int(i)*self.m)+j] = 1
 
-    if self.onbits > 0:
+    if self.w is not None: # require w bits ON sparsity in SDR
       random.seed(hash(str(output)))
-      t = self.onbits - output.sum()
+      t = self.w - output.sum()
       while t > 0:
         """ turn on more bits to normalize """
         i = random.randint(0,self.n-1)
