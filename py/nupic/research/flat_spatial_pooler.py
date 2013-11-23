@@ -63,7 +63,7 @@ class FlatSpatialPooler(SpatialPooler):
                inputDensity=1.0,
                coincidencesShape=(48, 48),
                coincInputRadius=16,
-               coincInputPoolPct=1.0,
+               coincInputPoolPct=0.5,
                gaussianDist=False,
                commonDistributions=False,
                localAreaDensity=-1.0,
@@ -93,14 +93,16 @@ class FlatSpatialPooler(SpatialPooler):
                randomSP=False,
               ):
 
+    assert useHighTier, "useHighTier must be True in flat_spatial_pooler"
+
     numInputs = numpy.array(inputShape).prod()
     numColumns = numpy.array(coincidencesShape).prod()
     super(FlatSpatialPooler, self).__init__(
       inputDimensions=numpy.array(inputShape),
       columnDimensions=numpy.array(coincidencesShape),
       potentialRadius=numInputs,
-      potentialPct=0.5,
-      globalInhibition=True,
+      potentialPct=coincInputPoolPct,
+      globalInhibition=True, # Global inhibition always true in the flat pooler
       localAreaDensity=localAreaDensity,
       numActiveColumnsPerInhArea=numActivePerInhArea,
       stimulusThreshold=stimulusThreshold,
@@ -126,51 +128,6 @@ class FlatSpatialPooler(SpatialPooler):
 
     # set of columns to be 'hungry' for learning
     self._boostFactors *= maxFiringBoost
-
-  # This constructor is a minimal, stripped down version of the 
-  # constructure above. The constructor above is only used to 
-  # provid backwards compatibility to the old spatial pooler.
-  # def __init__(self,
-  #              numInputs,
-  #              numColumns,
-  #              localAreaDensity=0.1,
-  #              numActiveColumnsPerInhArea=-1,
-  #              stimulusThreshold=0,
-  #              minDistance=0.0,
-  #              maxBoost=10.0,
-  #              seed=-1,
-  #              spVerbosity=0,
-  #              randomSP=False,
-  #              ):
-
-  #   super(FlatSpatialPooler,self).__init__(
-  #       inputDimensions=numInputs,
-  #       columnDimensions=numColumns,
-  #       potentialRadius=numInputs,
-  #       potentialPct=0.5,
-  #       globalInhibition=True,
-  #       localAreaDensity=localAreaDensity,
-  #       numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-  #       stimulusThreshold=stimulusThreshold,
-  #       seed=seed
-  #     )
-
-  #   #verify input is valid
-  #   assert(numColumns > 0)
-  #   assert(numInputs > 0)
-
-  #   # save arguments
-  #   self._numInputs = numInputs
-  #   self._numColumns = numColumns
-  #   self._minDistance = minDistance
-  #   self._randomSP = randomSP
-
-
-  #   #set active duty cycles to ones, because they set anomaly scores to 0
-  #   self._activeDutyCycles = numpy.ones(self._numColumns)
-
-  #   # set of columns to be 'hungry' for learning
-  #   self._boostFactors *= maxBoost
 
 
   def compute(self, inputArray, learn, activeArray):
@@ -214,12 +171,14 @@ class FlatSpatialPooler(SpatialPooler):
     overlapsPct = self._calculateOverlapPct(overlaps)
     highTierColumns = self._selectHighTierColumns(overlapsPct)
     virginColumns = self._selectVirginColumns()
-
+    
     if learn:
       vipOverlaps = self._boostFactors * overlaps
     else:
       vipOverlaps = overlaps.copy()
 
+    # Ensure one of the high tier columns win
+    # If learning is on, ensure an unlearned column wins
     vipBonus = max(vipOverlaps) + 1.0
     if learn:
       vipOverlaps[virginColumns] = vipBonus
@@ -263,3 +222,4 @@ class FlatSpatialPooler(SpatialPooler):
     input pattern in order to be considered a 'high tier' column.
     """
     return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+

@@ -90,6 +90,7 @@ namespace nta {
           virtual void initializeFlat(
             UInt numInputs,
             UInt numColumns,
+            Real potentialPct = 0.5,
             Real localAreaDensity=0,
             UInt numActiveColumnsPerInhArea=10,
             UInt stimulusThreshold=0,
@@ -105,6 +106,13 @@ namespace nta {
             Int seed=-1,
             UInt spVerbosity=0);
 
+          //-------------------------------------------------------------------
+          // Debugging helpers
+          //-------------------------------------------------------------------
+
+          // Print the creation parameters specific to this class
+          void printFlatParameters();
+
 
         protected:
           Real minDistance_;
@@ -112,9 +120,6 @@ namespace nta {
 
           vector<UInt> highTier_;
           vector<UInt> virgin_;
-
-        private:
-          UInt version_;
 
       };
     } // end namespace spatial_pooler
