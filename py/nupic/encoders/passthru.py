@@ -110,7 +110,7 @@ class PassThruEncoder(Encoder):
       fieldName = "%s.%s" % (parentFieldName, self.name)
     else:
       fieldName = self.name
-    return ({fieldName: ([[0, 0]], 'input')}, [fieldName])
+    return ({fieldName: ([[0, 0]], 'input')}, [fieldName])  #TODO: these methods should be properly implemented
 
 
   ############################################################################
