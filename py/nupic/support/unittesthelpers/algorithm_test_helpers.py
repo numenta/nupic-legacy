@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# This script helper routines for testing algorithms
+"""This script contains helper routines for testing algorithms"""
 
 import numpy
 import time

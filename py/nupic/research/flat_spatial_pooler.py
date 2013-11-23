@@ -89,9 +89,11 @@ class FlatSpatialPooler(SpatialPooler):
                testMode=False,
                globalInhibition=False,
                spReconstructionParam="unweighted_mean",
-               useHighTier=True, # Ignored: always True in this class
+               useHighTier=True,
                randomSP=False,
               ):
+
+    assert useHighTier, "useHighTier must be True in flat_spatial_pooler"
 
     numInputs = numpy.array(inputShape).prod()
     numColumns = numpy.array(coincidencesShape).prod()

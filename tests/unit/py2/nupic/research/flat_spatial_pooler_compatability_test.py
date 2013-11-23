@@ -24,8 +24,8 @@ import cPickle as pickle
 import numpy
 import unittest2 as unittest
 
-from nupic.support.unittesthelpers.alogrithm_test_helpers \
-     import getNumpyRandomGenerator
+from nupic.support.unittesthelpers.algorithm_test_helpers import (
+  getNumpyRandomGenerator )
 
 from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random
@@ -34,7 +34,7 @@ from nupic.research.flat_spatial_pooler import (
 
 realType = GetNTAReal()
 uintType = "uint32"
-gNumRecords = 100
+NUM_RECORDS = 100
 
 
 
@@ -266,7 +266,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       seed=params["seed"],
       spVerbosity=params["spVerbosity"],
       randomSP=params["randomSP"],
-      coincInputPoolPct=params.get("coincInputPoolPct",0.5)
+      coincInputPoolPct=params.get("coincInputPoolPct",0.5),
     )
     
     self.assertEqual(params["randomSP"], sp.getRandomSP())
@@ -293,10 +293,10 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     If convertEveryIteration is True, the CPP will be copied from the PY
     instance on every iteration just before each compute.
     
-    If numRecords is None, use the default global value gNumRecords
+    If numRecords is None, use the default global value NUM_RECORDS
     """
     if numRecords is None:
-      numRecords = gNumRecords
+      numRecords = NUM_RECORDS
     randomState = getNumpyRandomGenerator(seed)
     pySp = self.createSp("py", params)
     numColumns = pySp.getNumColumns()
@@ -335,7 +335,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     is identical to the unpickled instance.
     """
     if numRecords is None:
-      numRecords = gNumRecords
+      numRecords = NUM_RECORDS
     randomState = getNumpyRandomGenerator(seed)
     sp1 = self.createSp(imp, params)
     numColumns = sp1.getNumColumns() 
