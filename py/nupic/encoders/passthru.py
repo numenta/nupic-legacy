@@ -76,9 +76,8 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
-    for i, v in enumerate(input):
-        for j in xrange(0,self.m):
-          output[(int(i)*self.m)+j] = input(i)
+    for v in input:
+      output.append([v]*self.m)
 
     if self.w is not None: # require w bits ON sparsity in SDR
       random.seed(hash(str(output)))
