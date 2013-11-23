@@ -34,15 +34,15 @@ class PassThruEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w, onbits=0, name="passthru", verbosity=0):
+  def __init__(self, n, multiply=1, onbits=0, name="passthru", verbosity=0):
     """
-    n is the total bits in output (must equal input bits * w)
-    w is the number of bits that are turned on for each on bit
+    n is the total bits in output (must equal input bits * multiplexer)
+    multiply -- each input bit is represented as multiply-bits in the output
     onbits is used to normalize the sparsity of the output
     """
 
     self.n = n
-    self.w = w
+    self.m = multiply
     self.onbits = onbits
     self.verbosity = verbosity
     self.description = [(name, 0)]
@@ -77,8 +77,8 @@ class PassThruEncoder(Encoder):
     """ See method description in base.py """
     for i, v in enumerate(input):
       if v != 0:
-        for j in xrange(0,self.w):
-          output[(int(i)*self.w)+j] = 1
+        for j in xrange(0,self.m):
+          output[(int(i)*self.m)+j] = 1
 
     if self.onbits > 0:
       random.seed(hash(str(output)))
