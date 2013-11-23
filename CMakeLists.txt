@@ -14,8 +14,14 @@ find_package(PythonLibs 2.6 REQUIRED)
 #
 # Find out version of Python
 #
-execute_process(COMMAND python -c "import sys;sys.stdout.write(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))"
+execute_process(COMMAND python -c "import sys;print str(sys.version_info[0]) + '.' + str(sys.version_info[1])"
                 OUTPUT_VARIABLE PYTHON_VERSION)
+
+#
+# Find out path of Numpy headers
+#
+execute_process(COMMAND python -c "import numpy;print numpy.get_include()"
+                OUTPUT_VARIABLE NUMPY_INCLUDE_DIRS)
 
 # PIP is used for python modules
 # TODO: find_program(PIP_EXECUTABLE pip PATHS ENV PATH)
