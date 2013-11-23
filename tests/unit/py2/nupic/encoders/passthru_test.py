@@ -64,11 +64,14 @@ class PassThruEncoderTest(unittest.TestCase):
   def testEncodeBitArray(self):
     """Send bitmap as numpy bit array"""
     e = self._encoder(self.n, multiply=self.m, name=self.name)
-    bitmap = numpy.zeros(self.n, dtype=numpy.uint8)
+    bitmap = numpy.zeros(self.n/self.m, dtype=numpy.uint8)
     bitmap[3] = 1
     bitmap[5] = 1
     out = e.encode(bitmap)
-    self.assertEqual(out.sum(), sum(bitmap)*self.m)
+    sum_expected = sum(bitmap)*self.m
+    sum_real = out.sum()
+    print "bitmap=", bitmap, "out=", out
+    self.assertEqual(sum_real, sum_expected)
 
 
   def testClosenessScores(self):
@@ -125,7 +128,7 @@ class PassThruEncoderTest(unittest.TestCase):
 
 
   def testRobustness(self):
-    """Encode bitmaps with robustness (w) set"""
+    """Encode bitmaps with robustness (m) set"""
     self.n = 27 
     self.m = 3
     self.testEncodeArray()
