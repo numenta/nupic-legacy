@@ -43,7 +43,7 @@ class PassThruEncoder(Encoder):
     """
 
     self.n = n
-    self.m = multiply
+    self.m = int(multiply)
     self.w = w
     self.verbosity = verbosity
     self.description = [(name, 0)]
@@ -77,9 +77,8 @@ class PassThruEncoder(Encoder):
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
     for i, v in enumerate(input):
-      if v != 0:
         for j in xrange(0,self.m):
-          output[(int(i)*self.m)+j] = 1
+          output[(int(i)*self.m)+j] = input(i)
 
     if self.w is not None: # require w bits ON sparsity in SDR
       random.seed(hash(str(output)))
