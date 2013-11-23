@@ -26,7 +26,7 @@ import unittest2 as unittest
 import time
 import traceback
 
-from nupic.support.unittesthelpers.alogrithm_test_helpers \
+from nupic.support.unittesthelpers.algorithm_test_helpers \
      import getNumpyRandomGenerator, convertSP
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
@@ -276,7 +276,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity": 0
     }
     # These seeds cause problems if learning is on
-    #self.runSideBySide(params, seed = 1383769306)
     #self.runSideBySide(params, seed = 1383769306)
     self.runSideBySide(params)
 
