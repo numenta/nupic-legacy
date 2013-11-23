@@ -49,6 +49,7 @@ class PassThruEncoder(Encoder):
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
+    self.forced = forced
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
@@ -77,16 +78,13 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
-    if forced:
+    if self.forced:
       return input # total identity
 
-    o = []
-    for v in input:
-      tmp = [v]*self.m
-      o.append(tmp[:])
+    if len(input)*self.m != len(output):
+      raise Exception("Wrong input size")
 
-    print "o=",o,"typ",type(o), type(output)
-    output[:]=numpy.array(o)
+    output[:]=numpy.repeat(input, self.m).tolist()
 
     if self.w is not None: # require w bits ON sparsity in SDR
       random.seed(hash(str(output)))
