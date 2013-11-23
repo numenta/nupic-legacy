@@ -4,12 +4,10 @@ set(CMAKE_CXX_FLAGS "${NTA_CXXFLAGS} -DNUPIC2")
 
 add_library(libregions
   SpatialPoolerNode.cpp
-  TemporalPoolerNode.cpp
   VectorFile.cpp
   VectorFileEffector.cpp
   VectorFileSensor.cpp
   SpatialPoolerNode.hpp
-  TemporalPoolerNode.hpp
   VectorFile.hpp
   VectorFileEffector.hpp
   VectorFileSensor.hpp
