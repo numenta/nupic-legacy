@@ -10,7 +10,6 @@ add_library(libalgorithms
   CondProbTable.cpp
   fast_cla_classifier.cpp
   gaborNode.cpp
-  Grouper.cpp
   imageSensorLite.cpp
   InSynapse.cpp
   linear.cpp
@@ -23,7 +22,6 @@ add_library(libalgorithms
   arrayBuffer.hpp
   bit_history.hpp
   Cell.hpp
-  Cells2.hpp
   Cells4.hpp
   classifier_result.hpp
   CondProbTable.hpp
@@ -31,8 +29,6 @@ add_library(libalgorithms
   FDRCSpatial.hpp
   FDRSpatial.hpp
   gaborNode.hpp
-  Grouper.hpp
-  Grouper_t.hpp
   imageSensorLite.hpp
   InSynapse.hpp
   linear.hpp
@@ -46,5 +42,4 @@ add_library(libalgorithms
   SpatialPooler_t.hpp
   svm.hpp
   svm_t.hpp
-  Zeta1Grouper_t.hpp
 )
