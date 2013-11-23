@@ -34,12 +34,13 @@ class PassThruEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w=None, multiply=1, name="passthru", verbosity=0):
+  def __init__(self, n, w=None, multiply=1, name="passthru", forced=False, verbosity=0):
     """
     n -- is the total #bits in output (must equal input bits * multiply)
     multiply -- each input bit is represented as multiply-bits in the output
     w -- is used to normalize the sparsity of the output, exactly w bits ON,
          if None (default) - do not alter the input, just pass it further.
+    forced -- if forced, encode will accept any data, and just return it back.
     """
 
     self.n = n
@@ -76,6 +77,9 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
+    if forced:
+      return input # total identity
+
     o = []
     for v in input:
       tmp = [v]*self.m
