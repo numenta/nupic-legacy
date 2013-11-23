@@ -47,28 +47,29 @@ Next steps:
 
 import numpy
 # The library to handle the mic input
-import pyaudio
+import pyaudio 
 
 # The BitmapArray encoder encodes an array of indices into an SDR
 # (This will convert that array of the strongest frequencies)
 from nupic.encoders.bitmaparray import BitmapArrayEncoder
-# This is the C++ optimized temporal pooler that I noticed Ian & Matt using
+# This is the C++ optimized temporal pooler that I noticed iandanforth & rhyolight using
 from nupic.research.TP10X2 import TP10X2 as TP
 
+# The number of columns in the input and therefore the TP
+# 210 seems to be the max of our mic input transformed through the FFT
+# If 210 is exceeded, the program will give you an 'out of bounds' error
+# Next step: round off the FFT based on this number
+numInput = 21
+numCols = numInput * 10
+
 # The fast fourier transform algorithm
-def fft(audio, BUFFERSIZE, trimBy=10, logScale=False, divBy=100):
+def fft(audio, buffersize):
 	data=audio.flatten()
 	left,right=numpy.split(numpy.abs(numpy.fft.fft(data)),2)
 	ys=numpy.add(left,right[::-1])
-	if logScale:
-		ys=numpy.multiply(20,numpy.log10(ys))
-	# xs=numpy.arange(BUFFERSIZE/2,dtype=float)
-	if trimBy:
-		i=int((BUFFERSIZE/2)/trimBy)
-		ys=ys[:i]
-		# xs=numpy.around(xs[:i]*RATE/BUFFERSIZE,decimals=0)
-	if divBy:
-		ys=numpy.around(ys/float(divBy),decimals=0)
+	i=int((buffersize/2)/10)
+	ys=ys[:i]
+	ys=numpy.around(ys/float(100),decimals=0)
 	return ys 
 
 
@@ -85,7 +86,7 @@ def fft(audio, BUFFERSIZE, trimBy=10, logScale=False, divBy=100):
 # How does that compare to total on bits in A?
 #
 # Outputs 0 is there's no difference between P and A.
-# Outputs 1 is P and A are totally distinct.
+# Outputs 1 if P and A are totally distinct.
 #
 # Not a perfect metric - it doesn't credit proximity
 # Next step: combine with a metric for a spatial pooler
@@ -98,22 +99,18 @@ def calcAnomaly(actual, predicted):
 	return delta_score / actual_score
 	
 # Basic print out method to visualize the anomaly score
-# Zero represented as 1 '#'
+# Scale is from one hashtag to 50
 def hashtagAnomaly(anomaly):
 	hash = '#'
 	for i in range(int(anomaly / 0.02)):
 		hash += '#'
+	for j in range(int((1 - anomaly) / 0.02)):
+		hash += '.'
 	return hash
 	
 #######################
 # The meat & potatoes #
 #######################
-
-# The number of columns in the input and therefore the TP
-# 210 seems to be the max of our mic input transformed through the FFT
-# If 210 is exceeded, the program will give you an 'out of bounds' error
-# Next step: round off the FFT based on this number
-numCols = 210
 
 # The call to create the temporal pooler region
 tp = TP(numberOfCols=numCols, cellsPerColumn=4,
@@ -129,40 +126,40 @@ tp = TP(numberOfCols=numCols, cellsPerColumn=4,
 # From the encoder's __init__ method:
 #   1st arg: the total bits in input
 #   2nd arg: the number of bits used to encode each input bit
-_encoder = BitmapArrayEncoder	
-e = _encoder(numCols, 1)
+encoder = BitmapArrayEncoder	
+e = encoder(numCols, 1)
 
 # Sampling details
-# RATE: The sampling rate in Hz of my soundcard
-# BUFFERSIZE: The size of the array to which we will save audio segments
+# rate: The sampling rate in Hz of my soundcard
+# buffersize: The size of the array to which we will save audio segments
 # secToRecord: The length of each sampling
-RATE=44100
-BUFFERSIZE=2**12 #4096 is a good buffer size
+rate=44100
+buffersize=2**12 #4096 is a good buffer size
 secToRecord=.1
 
 # Figuring out how to breakup the audio from the input
-buffersToRecord=int(RATE*secToRecord/BUFFERSIZE)
+buffersToRecord=int(rate*secToRecord/buffersize)
 if buffersToRecord==0: buffersToRecord=1
-samplesToRecord=int(BUFFERSIZE*buffersToRecord)
-chunksToRecord=int(samplesToRecord/BUFFERSIZE)
-secPerPoint=1.0/RATE
+samplesToRecord=int(buffersize*buffersToRecord)
+chunksToRecord=int(samplesToRecord/buffersize)
+secPerPoint=1.0/rate
 
 # Creating the audio stream from our mic
 p = pyaudio.PyAudio()
-inStream = p.open(format=pyaudio.paInt32,channels=1,rate=RATE,input=True,frames_per_buffer=BUFFERSIZE)
+inStream = p.open(format=pyaudio.paInt32,channels=1,rate=rate,input=True,frames_per_buffer=buffersize)
 
 # Setting up the array that will handle the timeseries of audio data from our input
-audio=numpy.empty((chunksToRecord*BUFFERSIZE),dtype="uint32")
+audio=numpy.empty((chunksToRecord*buffersize),dtype="uint32")
 
 # Record and pass the TP forever
 while True:
 	for i in range(chunksToRecord):
-		audioString=inStream.read(BUFFERSIZE)
-		audio[i*BUFFERSIZE:(i+1)*BUFFERSIZE]=numpy.fromstring(audioString,dtype="uint32")
+		audioString=inStream.read(buffersize)
+		audio[i*buffersize:(i+1)*buffersize]=numpy.fromstring(audioString,dtype="uint32")
 	# Getting an int array of all the frequencies in our audio via the fast fourier transform
-	ys = fft(audio, BUFFERSIZE)
+	ys = fft(audio, buffersize)
 	# Getting the 21 strongest frequencies (21 is 10% of our input length)
-	ys = numpy.sort(ys.argsort()[-21:])
+	ys = numpy.sort(ys.argsort()[-numInput:])
 	# Encoding our array of frequency indices into an SDR via the BitmapArrayEncoder
 	actual = e.encode(ys)
 	# Casting the SDR as a float for the TP
@@ -170,9 +167,9 @@ while True:
 	# Passing the SDR to the TP
 	tp.compute(actual, enableLearn = True, computeInfOutput = True)
 	# Collecting the prediction SDR
-	predicted_columns = tp.getPredictedState().max(axis=1)
+	predicted = tp.getPredictedState().max(axis=1)
 	# Passing the prediction & actual SDRs to the anomaly calculator
-	anomaly = calcAnomaly(actual, predicted_columns)
-	print actual
+	anomaly = calcAnomaly(actual, predicted)
+	print predicted
 	print hashtagAnomaly(anomaly)
 	
