@@ -493,6 +493,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   updateInhibitionRadius_();
 
+  if (spVerbosity_ > 1) {
+    printParameters();
+    std::cout << "CPP SP seed             = " << seed << std::endl;
+  }
 }
 
 void SpatialPooler::compute(UInt inputArray[], bool learn,
@@ -955,7 +959,13 @@ void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps,
 {
   overlapPct.assign(numColumns_,0);
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapPct[i] = ((Real) overlaps[i]) / connectedCounts_[i];
+    if (connectedCounts_[i] != 0) {
+      overlapPct[i] = ((Real) overlaps[i]) / connectedCounts_[i];
+    } else {
+      // The intent here is to see if a cell matches its input well.
+      // Therefore if nothing is connected the overlapPct is set to 0.
+      overlapPct[i] = 0;
+    }
   }
 }
 
@@ -1435,3 +1445,55 @@ void SpatialPooler::load(istream& inStream)
   boostedOverlaps_.resize(numColumns_);
 
 }
+
+//----------------------------------------------------------------------
+// Debugging helpers
+//----------------------------------------------------------------------
+
+// Print the main SP creation parameters
+void SpatialPooler::printParameters()
+{
+  std::cout << "------------CPP SpatialPooler Parameters ------------------\n";
+  std::cout
+    << "numActiveColumnsPerInhArea_ = "
+                << numActiveColumnsPerInhArea_ << std::endl
+    << "potentialPct_               = " << potentialPct_ << std::endl
+    << "globalInhibition_           = " << globalInhibition_ << std::endl
+    << "localAreaDensity_           = " << localAreaDensity_ << std::endl
+
+    << "stimulusThreshold_          = " << stimulusThreshold_ << std::endl
+    << "synPermInactiveDec_         = " << synPermInactiveDec_ << std::endl
+    << "synPermActiveInc_           = " << synPermActiveInc_ << std::endl
+    << "synPermConnected_           = " << synPermConnected_ << std::endl
+    << "minPctOverlapDutyCycles_    = " << minPctOverlapDutyCycles_ << std::endl
+    << "minPctActiveDutyCycles_     = " << minPctActiveDutyCycles_ << std::endl
+    << "dutyCyclePeriod_            = " << dutyCyclePeriod_ << std::endl
+    << "maxBoost_                   = " << maxBoost_ << std::endl
+    << "spVerbosity                 = " << spVerbosity_ << std::endl
+    << "version                     = " << version_ << std::endl;
+}
+
+void SpatialPooler::printState(vector<UInt> &state)
+{
+  std::cout << "[  ";
+  for (UInt i = 0; i != state.size(); ++i) {
+    if (i > 0 && i % 10 == 0) {
+      std::cout << "\n   ";
+    }
+    std::cout << state[i] << " ";
+  }
+  std::cout << "]\n";
+}
+
+void SpatialPooler::printState(vector<Real> &state)
+{
+  std::cout << "[  ";
+  for (UInt i = 0; i != state.size(); ++i) {
+    if (i > 0 && i % 10 == 0) {
+      std::cout << "\n   ";
+    }
+    std::printf("%6.3f ", state[i]);
+  }
+  std::cout << "]\n";
+}
+
