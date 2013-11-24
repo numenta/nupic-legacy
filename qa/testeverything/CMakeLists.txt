@@ -45,7 +45,9 @@ add_executable(testeverything
   TestEverythingMain.cpp
 )
 set_target_properties(testeverything PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
-set_target_properties(testeverything PROPERTIES PREFIX "../")
+if (MSVC)
+  set_target_properties(testeverything PROPERTIES PREFIX "../")
+endif()
 
 set(CMAKE_EXE_LINKER_FLAGS "${NTA_LINKFLAGS} ${NTA_PYEMBEDFLAGS}")
 
