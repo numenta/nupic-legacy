@@ -9,7 +9,9 @@ add_library(libcpp_region SHARED
   PyRegion.hpp
 )
 set_target_properties(libcpp_region PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
-set_target_properties(libcpp_region PROPERTIES PREFIX "../")
+if (WIN32)
+  set_target_properties(libcpp_region PROPERTIES PREFIX "../")
+endif()
 
 # Do not append version number to .so file name
 set(CMAKE_SHARED_LINKER_FLAGS "-avoid-version ${NTA_LINKFLAGS} ${NTA_PYEMBEDFLAGS}")
