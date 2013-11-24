@@ -4,8 +4,11 @@ set(CMAKE_CXX_FLAGS "${NTA_CXXFLAGS} -DNUPIC2")
 
 add_executable(testeverything
   ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/CondProbTableTest.cpp
+  ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/CondProbTableTest.cpp
   ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/FastCLAClassifierTest.cpp
+  ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/FlatSpatialPoolerTest.cpp
   ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/NearestNeighborUnitTest.cpp
+  ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/SpatialPoolerTest.cpp
   ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/SpatialPoolerUnitTest.cpp
   ${CMAKE_SOURCE_DIR}/nta/algorithms/unittests/TAMUnitTest.cpp
   ${CMAKE_SOURCE_DIR}/nta/engine/unittests/InputTest.cpp
