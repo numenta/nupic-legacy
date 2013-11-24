@@ -9,7 +9,7 @@ add_library(libcpp_region SHARED
   PyRegion.hpp
 )
 set_target_properties(libcpp_region PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
-if (WIN32)
+if (MSVC)
   set_target_properties(libcpp_region PROPERTIES PREFIX "../")
 endif()
 
