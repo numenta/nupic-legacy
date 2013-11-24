@@ -9,6 +9,7 @@ add_library(libalgorithms
   classifier_result.cpp
   CondProbTable.cpp
   fast_cla_classifier.cpp
+  flat_spatial_pooler.cpp
   gaborNode.cpp
   imageSensorLite.cpp
   InSynapse.cpp
@@ -17,6 +18,7 @@ add_library(libalgorithms
   Segment.cpp
   SegmentUpdate.cpp
   SparsePooler.cpp
+  spatial_pooler.cpp
   SpatialPooler.cpp
   svm.cpp
   arrayBuffer.hpp
@@ -28,6 +30,7 @@ add_library(libalgorithms
   fast_cla_classifier.hpp
   FDRCSpatial.hpp
   FDRSpatial.hpp
+  flat_spatial_pooler.hpp
   gaborNode.hpp
   imageSensorLite.hpp
   InSynapse.hpp
