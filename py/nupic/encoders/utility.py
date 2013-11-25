@@ -48,7 +48,7 @@ class UtilityEncoder(MultiEncoder):
   def encodeIntoArray(self, input, output):
     """on the original input, first compute the utility and then append it as "input" for encoding; 
        the feval function is applied before any encoding"""
-    input = _handleNBack(input)
+    input = self._handleNBack(input)
     score = self.getScoreIN(input)
     encoded_in = self._encoder.encode(input)
     encoded_score = self._utility.encode(score)
@@ -114,9 +114,9 @@ class SimpleUtilityEncoder(UtilityEncoder):
   utility is a scalar, 0..100, resolution 1"""
 
   def __init__(self, length=5, feedbackDelay=0, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
-    dataS = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
+    dataS = ScalarEncoder(21, minval, maxval, resolution=resolution, name='idx')
     dataV = VectorEncoder(length, dataS, name='data')
-    scoreS = ScalarEncoder(5, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
+    scoreS = ScalarEncoder(21, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
     super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, feedbackDelay=feedbackDelay, name='simpleUtility', forced=forced)
     print "feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
 
