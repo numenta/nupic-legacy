@@ -11,29 +11,35 @@ def _thisIsFunction():
 
 class UtilityEncoder(MultiEncoder):
   """UtilityEncoder act transparently; use input and apply it to encoder, 
-     in addition, provide a new field utility (aka \'usefulness\'/goodness/fitness/evaluation) of the input"""
+     in addition, provide a new field utility (aka \'usefulness\'/goodness/fitness/evaluation) of the input; 
+     for use in OPF, provide forced=True and make necessary steps manualy; see below."""
   
-  def __init__(self, inputEncoder, utilityEncoder, feval=None, feedbackDelay=0, name=None):
+  def __init__(self, inputEncoder, utilityEncoder, feval=None, feedbackDelay=0, name=None, forced=False):
     """param inputEncoder: original encoder, accepts input; 
        param feval: an evaluation function: must handle all inputs for inputEncoder, its output must be acceptable by utilityEncoder; util=feval(input);
        param utilityEncoder: encoder, maps output of feval to some values. Must take all outputs of feval;
        param feedbackDelay: (int) #of steps input sensors/actions are away from score default 0), that means:
-                 if set to 1, current score is linked with state&action taken 1-step ago; eg: now score(dry)=100 links with state(raining) and action(open umbrella)"""
+                 if set to 1, current score is linked with state&action taken 1-step ago; eg: now score(dry)=100 links with state(raining) and action(open umbrella);
+       param forced: used to allow this encoder in OPF description.py (set input/utilityEncoder to None), some steps need to be applied by hand (default False)"""
 
-    if not(isinstance(inputEncoder,Encoder)  and isinstance(utilityEncoder, Encoder)):
+    if (not forced) and not(isinstance(inputEncoder,Encoder)  and isinstance(utilityEncoder, Encoder)):
       raise Exception("must provide an encoder and a function that takes encoder's output and transforms to utility encoder's input")
     if name == "utility":
       raise Exception("name: \'utility\' is reserved for the utility field. Use some other name.")
 
     super(UtilityEncoder,self).__init__()
 
-    self.addEncoder(name, inputEncoder)
-    self.addEncoder('utility', utilityEncoder)
+    if not forced:
+      self.addEncoder(name, inputEncoder)
+      self.addEncoder('utility', utilityEncoder)
     
-    self._utility = utilityEncoder
-    self._encoder = inputEncoder
+      self._utility = utilityEncoder
+      self._encoder = inputEncoder
+      self._offset = self._encoder.getWidth()
+    else:
+      print "WARNING: UtilityEncoder constructed from OPF - initialization incomplete! You need to take care of some steps to make it work!"
+
     self.setEvaluationFn(feval)
-    self._offset = self._encoder.getWidth()
     self._parent = super(UtilityEncoder, self)
     self._name = name
     self.delay = feedbackDelay
@@ -107,10 +113,10 @@ class SimpleUtilityEncoder(UtilityEncoder):
   data is a vector of numbers; defaults=5elements, -5..5, resolution=1;
   utility is a scalar, 0..100, resolution 1"""
 
-  def __init__(self, length=5, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1):
+  def __init__(self, length=5, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
     dataS = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
     dataV = VectorEncoder(length, dataS, name='data')
     scoreS = ScalarEncoder(5, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
-    super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, name='simpleUtility')
+    super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, name='simpleUtility', forced=forced)
     print "feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
 
