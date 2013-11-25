@@ -38,7 +38,7 @@ class UtilityEncoderTest(unittest.TestCase):
     self.scoreEnc = ScalarEncoder(3, 0, 100, resolution=0.5, name='score')
 
     # encoder for the input (data) part
-    elem = ScalarEncoder(5,-5,50,resolution=1, forced=True)
+    elem = ScalarEncoder(5,-5,50,resolution=1)
     self.dataEnc = VectorEncoder(len(self.data), elem, typeCastFn=float, name='data')
 
     # utility encoder
