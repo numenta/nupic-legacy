@@ -720,7 +720,6 @@ class SpatialPooler(object):
     inputVector = numpy.array(inputVector, dtype=realDType)
     inputVector.reshape(-1)
     overlaps = self._calculateOverlap(inputVector)
-    overlapsPct = self._calculateOverlapPct(overlaps)
 
     if learn:
       boostedOverlaps = self._boostFactors * overlaps
