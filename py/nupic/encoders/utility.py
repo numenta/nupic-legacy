@@ -113,10 +113,10 @@ class SimpleUtilityEncoder(UtilityEncoder):
   data is a vector of numbers; defaults=5elements, -5..5, resolution=1;
   utility is a scalar, 0..100, resolution 1"""
 
-  def __init__(self, length=5, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
+  def __init__(self, length=5, feedbackDelay=0, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
     dataS = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
     dataV = VectorEncoder(length, dataS, name='data')
     scoreS = ScalarEncoder(5, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
-    super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, name='simpleUtility', forced=forced)
+    super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, feedbackDelay=feedbackDelay, name='simpleUtility', forced=forced)
     print "feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
 
