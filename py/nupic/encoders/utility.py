@@ -13,10 +13,13 @@ class UtilityEncoder(MultiEncoder):
   """UtilityEncoder act transparently; use input and apply it to encoder, 
      in addition, provide a new field utility (aka \'usefulness\'/goodness/fitness/evaluation) of the input"""
   
-  def __init__(self, inputEncoder, utilityEncoder, feval=None, name=None):
+  def __init__(self, inputEncoder, utilityEncoder, feval=None, feedbackDelay=0, name=None):
     """param inputEncoder: original encoder, accepts input; 
        param feval: an evaluation function: must handle all inputs for inputEncoder, its output must be acceptable by utilityEncoder; util=feval(input);
-       param utilityEncoder: encoder, maps output of feval to some values. Must take all outputs of feval"""
+       param utilityEncoder: encoder, maps output of feval to some values. Must take all outputs of feval;
+       param feedbackDelay: (int) #of steps input sensors/actions are away from score default 0), that means:
+                 if set to 1, current score is linked with state&action taken 1-step ago; eg: now score(dry)=100 links with state(raining) and action(open umbrella)"""
+
     if not(isinstance(inputEncoder,Encoder)  and isinstance(utilityEncoder, Encoder)):
       raise Exception("must provide an encoder and a function that takes encoder's output and transforms to utility encoder's input")
     if name == "utility":
@@ -33,10 +36,13 @@ class UtilityEncoder(MultiEncoder):
     self._offset = self._encoder.getWidth()
     self._parent = super(UtilityEncoder, self)
     self._name = name
+    self.delay = feedbackDelay
+    self._bufferedState = [] # list of prev states #TODO: make work for arbitrary n-back (now fixed for 0/1) 
 
   def encodeIntoArray(self, input, output):
     """on the original input, first compute the utility and then append it as "input" for encoding; 
        the feval function is applied before any encoding"""
+    input = _handleNBack(input)
     score = self.getScoreIN(input)
     encoded_in = self._encoder.encode(input)
     encoded_score = self._utility.encode(score)
@@ -79,6 +85,20 @@ class UtilityEncoder(MultiEncoder):
     if not(type(feval)==type(_thisIsFunction) or feval is None):
       raise Exception("feval must be a function (or None for disabled)")
     self.evaluate=feval
+
+  def _handleNBack(self,state):
+    """handle the possible delay between score & state; 
+       use buffer of inputs for that
+       param state: the input state to be remembered (buffered)"""
+       if(self.delay==0): #nothing changes
+         return state
+       elif(self.delay==1):
+         tmp = self._bufferedState[0]
+         self._bufferedState[0] = state
+         return tmp
+       else:
+         raise Exception("NBack >1 not yet implemented")
+       
 
 
 ######################################################
