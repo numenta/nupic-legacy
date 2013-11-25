@@ -38,7 +38,7 @@ class UtilityEncoderTest(unittest.TestCase):
     self.scoreEnc = ScalarEncoder(3, 0, 100, resolution=0.5, name='score')
 
     # encoder for the input (data) part
-    elem = ScalarEncoder(5,-5,50,resolution=1)
+    elem = ScalarEncoder(5,-5,50,resolution=1, forced=True)
     self.dataEnc = VectorEncoder(len(self.data), elem, typeCastFn=float, name='data')
 
     # utility encoder
@@ -94,7 +94,7 @@ class UtilityEncoderTest(unittest.TestCase):
 
        We can achieve the goal by encoding "rules"/physics laws/ground truths on the
        feval function's score cleverly."""
-
+    pass
 
   def testSimpleUtilityEncoder(self):
     """making it simple.."""
