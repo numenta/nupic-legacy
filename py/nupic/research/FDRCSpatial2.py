@@ -386,7 +386,7 @@ class FDRCSpatial2(object):
     self._inferenceIterNum = 0    # Number of inference iterations
 
     # Print creation parameters
-    if spVerbosity >= 3:
+    if spVerbosity >= 2:
       self.printParams()
       print "seed =", seed
 
@@ -2525,6 +2525,7 @@ class FDRCSpatial2(object):
     print "maxFiringBoost =", self.maxFiringBoost
     print "maxSSFiringBoost =", self.maxSSFiringBoost
     print "maxSynPermBoost =", self.maxSynPermBoost
+    print "useHighTier =",self.useHighTier
     print "minDistance =", self.minDistance
     print "spVerbosity =", self.spVerbosity
     print "printPeriodicStats =", self.printPeriodicStats
