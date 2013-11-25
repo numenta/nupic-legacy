@@ -96,14 +96,14 @@ class UtilityEncoder(MultiEncoder):
     """handle the possible delay between score & state; 
        use buffer of inputs for that
        param state: the input state to be remembered (buffered)"""
-       if(self.delay==0): #nothing changes
-         return state
-       elif(self.delay==1):
-         tmp = self._bufferedState[0]
-         self._bufferedState[0] = state
-         return tmp
-       else:
-         raise Exception("NBack >1 not yet implemented")
+    if(self.delay==0): #nothing changes
+      return state
+    elif(self.delay==1):
+      tmp = self._bufferedState[0]
+      self._bufferedState[0] = state
+      return tmp
+    else:
+      raise Exception("NBack >1 not yet implemented")
        
 
 
