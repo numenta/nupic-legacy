@@ -111,14 +111,14 @@ class VectorEncoderOPF(VectorEncoder):
      cannot be used there directly. """
 
   def __init__(self, length, w, minval, maxval, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False):
+                resolution=0, name=None, verbosity=0, clipInput=False, forced=False):
     """instance of VectorEncoder using ScalarEncoder as base, 
        use-case: in OPF description.py files, where you cannot use VectorEncoder directly (see above);
        param length: #elements in the vector, 
        param: rest of params is from ScalarEncoder, see scalar.py for details"""
 
     sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
-                       name=name, verbosity=verbosity, clipInput=clipInput)
+                       name=name, verbosity=verbosity, clipInput=clipInput, forced=forced)
     super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=float)
 
 
