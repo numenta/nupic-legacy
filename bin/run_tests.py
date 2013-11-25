@@ -36,10 +36,10 @@ import pytest
 try:
   pytestXdistAvailable = bool(get_distribution("pytest-xdist"))
 except DistributionNotFound:
-  pytestXdistAvailable = False
-  print "WARNING: `pytest-xdist` is not installed.  Certain testing features" \
-    " are disabled without it.  The complete list of python requirements can" \
-    " be found in external/common/requirements.txt."
+  print "ERROR: `pytest-xdist` is not installed.  Certain testing features" \
+    " are not available without it.  The complete list of python" \
+    " requirements can be found in external/common/requirements.txt."
+  sys.exit(1)
 
 
 def collect_set(option, opt_str, value, parser):
@@ -102,9 +102,7 @@ parser.add_option(
   action="store_true",
   default=False,
   dest="integration")
-if pytestXdistAvailable:
-  # See https://pypi.python.org/pypi/pytest-xdist#parallelization
-  parser.add_option(
+parser.add_option(
     "-n",
     "--num",
     dest="processes")
@@ -162,20 +160,19 @@ def main(parser, parse_args):
 
   # Translate spec args to py.test args
 
-  args = ["--verbose"]
-
-  if pytestXdistAvailable:
-    # See https://pypi.python.org/pypi/pytest-xdist#boxed
-    args.append("--boxed")
+  args = [
+    "--boxed", # See https://pypi.python.org/pypi/pytest-xdist#boxed
+    "--verbose"
+  ]
 
   root = "tests"
 
   if options.coverage:
     args.append("--cov=nupic")
 
-  if hasattr(options, "processes"):
-    if options.processes is not None:
-      args.extend(["-n", options.processes])
+  if options.processes is not None:
+    # See https://pypi.python.org/pypi/pytest-xdist#parallelization
+    args.extend(["-n", options.processes])
 
   if options.markexpresson is not None:
     args.extend(["-m", options.markexpresson])
