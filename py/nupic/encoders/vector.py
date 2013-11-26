@@ -51,8 +51,8 @@ class VectorEncoder(Encoder):
     self.encoders = None
 
   def encodeIntoArray(self, input, output):
-    if not isinstance(input, list) and len(input)==self._len:
-      raise Exception("input must be list if size %d" % self._len)
+    if not (isinstance(input, list) and len(input)==self._len):
+      raise Exception("input must be list if size %d (it is %d)" % (self._len, len(input)))
     for e in range(self._len):
       tmp = self._enc.encode(input[e])
       output[e*self._w:(e+1)*self._w]=tmp
