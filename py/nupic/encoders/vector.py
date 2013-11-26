@@ -47,7 +47,7 @@ class VectorEncoder(Encoder):
     self._w = encoder.getWidth()
     self._name = name
     self._typeCastFn = typeCastFn
-
+    self.encoders = None
 
   def encodeIntoArray(self, input, output):
     if not isinstance(input, list) and len(input)==self._len:
