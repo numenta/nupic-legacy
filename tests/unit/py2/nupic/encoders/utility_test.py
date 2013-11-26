@@ -106,6 +106,7 @@ class UtilityEncoderTest(unittest.TestCase):
     ut.setEvaluationFn(scoring)
     data = [1,2,3,4,5]
     assert ut.getScoreIN(data) == 3.0
+    ut.encode(data)
 
 ##########################################################
 if __name__ == '__main__':
