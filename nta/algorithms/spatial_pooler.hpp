@@ -264,6 +264,19 @@ namespace nta {
 
           void seed_(UInt64 seed);
 
+          //-------------------------------------------------------------------
+          // Debugging helpers
+          //-------------------------------------------------------------------
+
+          // Print the main SP creation parameters
+          void printParameters();
+          
+          // Print the given UInt array in a nice format
+          void printState(vector<UInt> &state);
+
+          // Print the given Real array in a nice format
+          void printState(vector<Real> &state);
+
         protected:
           UInt numInputs_;
           UInt numColumns_;
@@ -311,7 +324,6 @@ namespace nta {
           vector<Real> boostedOverlaps_;
           vector<UInt> activeColumns_;
 
-        private:
           UInt version_;
           Random rng_;
 
