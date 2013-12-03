@@ -144,6 +144,8 @@ We tried to record everything we could, which included all the sessions (minus o
 
 > Francisco Webber talked about his service that provides text comparison and association services, as well as SDRs for English words. He described in great detail how these SDRs are created, and talked about how they are being used by Phase 6 in their effort to apply this technology to better English education opportunities.
 
+- [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/CEPT_Word_SDRs.pdf)
+
 
 <br />
 <br />
