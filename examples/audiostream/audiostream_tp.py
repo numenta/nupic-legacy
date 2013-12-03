@@ -40,7 +40,7 @@ General algorithm:
 	the next frequency pattern.
 	
 Next steps:
- Implement real-time visualization
+ X Implement real-time visualization
  Implement anomaly smoother (or make TP pull from a longer history)
  Implement spatial pooler
   Need boosting to account for how the bandpass filter falls on the spectrum
@@ -49,7 +49,7 @@ Next steps:
 
 import numpy
 import pyaudio
-import matplotlib.pyplot as mpl
+import matplotlib.pyplot as plt
 
 # The BitmapArray encoder encodes an array of indices into an SDR
 # (This will convert that array of the strongest frequencies)
@@ -197,6 +197,12 @@ print "Passband filter (Hz):\t" + str(highHertz) + " - " + str(lowHertz)
 print "Buffersize:\t\t" + str(buffersize)
 print "Buffer/columns:\t\t" + str(bufToCol)
 
+plt.ion()
+bin = range(highpass,lowpass)
+xs = numpy.arange(len(bin))*rate/buffersize + highHertz
+graph = plt.plot(xs,xs)[0]
+plt.ylim(0, 1000000000000)
+
 # Record and pass the TP forever
 while True:
 	# for the multiples of buffers that we're sampling at once
@@ -214,14 +220,8 @@ while True:
 	rfs = fs/bufToCol
 	# Pick out the unique indices (we've reduced the mapping)
 	ufs = numpy.unique(rfs)
-	if(False):
-		# Convert the indices back to frequencies for debugging
-		print fs * rate/buffersize + highHertz
-		# Develop an x-axis for the plot, and convert back to frequencies
-		bin = numpy.arange(ys.size)*rate/buffersize + highHertz
-		mpl.plot(bin,ys)
-		mpl.show()
-		quit()
+	graph.set_ydata(ys)
+	plt.draw()
 	# Encoding our array of frequency indices into an SDR via the BitmapArrayEncoder
 	actualInt = e.encode(ufs)
 	# Casting the SDR as a float for the TP
