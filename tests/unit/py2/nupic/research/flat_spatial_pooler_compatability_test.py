@@ -542,7 +542,6 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     sppy2 = pickle.loads(pickle.dumps(sppy1))
     self.compare(sppy1, sppy2)
 
-    print "-------------"
     spcpp1 = self.createSp("cpp", params)
     spcpp2 = pickle.loads(pickle.dumps(spcpp1))
     self.compare(spcpp1, spcpp2)
