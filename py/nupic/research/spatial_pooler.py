@@ -1080,19 +1080,30 @@ class SpatialPooler(object):
   def _initPermConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is
-    initialized in a non-connected state
+    initialized in a connected state
     """
-    return (self._synPermConnected + self._random.getReal64() * 
+    p =  (self._synPermConnected + self._random.getReal64() * 
       self._synPermActiveInc / 4.0)
+    
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations
+    p = int(p*100000) / 100000.0
+    return p
 
 
   def _initPermNonConnected(self):
     """
-    Retrusn a randomly generated permanence value for a synapses that is to be 
+    Returns a randomly generated permanence value for a synapses that is to be 
     initialized in a non-connected state.
     """
-    return self._synPermConnected * self._random.getReal64()
+    p = self._synPermConnected * self._random.getReal64()
 
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations
+    p = int(p*100000) / 100000.0
+    return p
 
   def _initPermanence(self, potential, connectedPct):
     """
@@ -1114,7 +1125,7 @@ class SpatialPooler(object):
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a 
     # column's potential pool will be connected. This number is
-    # given by the parameter "potentialPct"
+    # given by the parameter "connectedPct"
     numPotential = numpy.nonzero(potential)[0].size
     perm = numpy.zeros(self._numInputs)
     for i in xrange(self._numInputs):

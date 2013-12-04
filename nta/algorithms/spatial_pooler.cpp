@@ -589,12 +589,16 @@ vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
 
 Real SpatialPooler::initPermConnected_()
 {
-  return synPermConnected_ + rng_.getReal64() * synPermActiveInc_ / 4.0;
+  Real p = synPermConnected_ + rng_.getReal64() * synPermActiveInc_ / 4.0;
+  p = ((Real) ((Int) (p * 100000))) / 100000.0;
+  return p;
 }
 
 Real SpatialPooler::initPermNonConnected_()
 {
-  return synPermConnected_ * rng_.getReal64();
+  Real p = synPermConnected_ * rng_.getReal64();
+  p = ((Real) ((Int) (p * 100000))) / 100000.0;
+  return p;
 }
 
 vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential,
