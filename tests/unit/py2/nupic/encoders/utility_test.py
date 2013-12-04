@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
-from nupic.encoders.utility import UtilityEncoder, SimpleUtilityEncoder
+from nupic.encoders.extras.utility import UtilityEncoder, SimpleUtilityEncoder
 
 class UtilityEncoderTest(unittest.TestCase):
   """testing Utility encoder"""
