@@ -35,15 +35,23 @@ General algorithm:
 4. Those frequencies are encoded into an SDR
 5. That SDR is passed to the temporal pooler
 6. The temporal pooler provides a prediction
-7. We calculate an anomaly score off that prediction against the next input
-8. A low anomaly score means that the temporal pooler is properly predicting 
+7. An anomaly score is calculated off that prediction against the next input
+	A low anomaly score means that the temporal pooler is properly predicting 
 	the next frequency pattern.
 	
+Print outs include:
+	An array comparing the actual and predicted TP inputs
+		A - actual
+		P - predicted
+		E - expected (both A & P)
+	A hashbar representing the anomaly score
+	Plot of the frequency domain in real-time	
+	
 Next steps:
- X Implement real-time visualization
- Implement anomaly smoother (or make TP pull from a longer history)
+ Benchmark different parameters (especially TP parameters)
+ 	Use annoying_test and Online Tone Generator http://onlinetonegenerator.com/
+ Implement anomaly smoothing
  Implement spatial pooler
-  Need boosting to account for how the bandpass filter falls on the spectrum
  Look into better algorithms to pick out the frequency peaks (sound fingerprinting)
 """
 
@@ -58,7 +66,7 @@ from nupic.encoders.bitmaparray import BitmapArrayEncoder
 from nupic.research.TP10X2 import TP10X2 as TP
 
 # The number of columns in the input and therefore the TP
-numCols = 2**8 # 2**8 = 256
+numCols = 2**9 # 2**9 = 512
 sparsity = 0.10
 numInput = int(numCols * sparsity)
 
@@ -79,14 +87,13 @@ buffersize=2**12
 secToRecord=.1
 buffersToRecord=int(rate*secToRecord/buffersize)
 if not buffersToRecord: buffersToRecord=1
-bufToCol = buffersize / 2 / numCols
 
 # Filters in Hertz
 #  highHertz: lower limit of the bandpass filter, in Hertz
 #  lowHertz: upper limit of the bandpass filter, in Hertz
 #    max lowHertz = (buffersize / 2 - 1) * rate / buffersize
-highHertz = 1000
-lowHertz = 22000
+highHertz = 500
+lowHertz = 10000
 
 # Convert filters from Hertz to bins
 #  highpass: convert the highHertz into a bin for the FFT
@@ -102,11 +109,11 @@ lowpass = min(int(lowHertz * buffersize / rate), buffersize/2 - 1)
 tp = TP(numberOfCols=numCols, cellsPerColumn=4,
 		initialPerm=0.5, connectedPerm=0.5,
 		minThreshold=10, newSynapseCount=10,
-		permanenceInc=0.1, permanenceDec=0.05,
+		permanenceInc=0.1, permanenceDec=0.07,
 		activationThreshold=8,
-		globalDecay=0.01, burnIn=2,
+		globalDecay=0.02, burnIn=2,
 		checkSynapseConsistency=False,
-		pamLength=10)
+		pamLength=100)
 
 # Fast fourier transform conditioning
 # Output:
@@ -127,6 +134,8 @@ tp = TP(numberOfCols=numCols, cellsPerColumn=4,
 def fft(audio):
 	left,right = numpy.split(numpy.abs(numpy.fft.fft(audio)),2)
 	output = left[highpass:lowpass]
+	# Convert power to decibels
+	# output = numpy.multiply(20,numpy.log10(output))
 	return output 
 
 # Calculates the anomaly of two SDRs
@@ -193,14 +202,17 @@ print "Max size of input:\t" + str(numInput)
 
 print "Sampling rate (Hz):\t" + str(rate)
 print "Passband filter (Hz):\t" + str(highHertz) + " - " + str(lowHertz)
+print "Passband filter (bin):\t" + str(highpass) + " - " + str(lowpass)
+print "Bin difference:\t\t" + str(lowpass - highpass)
 
 print "Buffersize:\t\t" + str(buffersize)
-print "Buffer/columns:\t\t" + str(bufToCol)
 
 plt.ion()
 bin = range(highpass,lowpass)
+# Create x-axis of the bandpass filter's range
 xs = numpy.arange(len(bin))*rate/buffersize + highHertz
 graph = plt.plot(xs,xs)[0]
+# Rescale the y-axis (1E12)
 plt.ylim(0, 1000000000000)
 
 # Record and pass the TP forever
@@ -217,11 +229,9 @@ while True:
 	# Get the indices of our top frequencies (top numInput)
 	fs = numpy.sort(ys.argsort()[-numInput:])
 	# Scale those indicies so that they fit to our number of columns
-	rfs = fs/bufToCol
+	rfs = fs.astype(numpy.float32) / (lowpass - highpass) * numCols
 	# Pick out the unique indices (we've reduced the mapping)
 	ufs = numpy.unique(rfs)
-	graph.set_ydata(ys)
-	plt.draw()
 	# Encoding our array of frequency indices into an SDR via the BitmapArrayEncoder
 	actualInt = e.encode(ufs)
 	# Casting the SDR as a float for the TP
@@ -235,3 +245,6 @@ while True:
 	anomaly = calcAnomaly(actualInt, predictedInt)
 	print '.' .join(compare)
 	print hashtagAnomaly(anomaly)
+	# Update the frequency plot
+	graph.set_ydata(ys)
+	plt.draw()
