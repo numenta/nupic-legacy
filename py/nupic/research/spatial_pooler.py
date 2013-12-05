@@ -71,19 +71,18 @@ class SpatialPooler(object):
     """
     Parameters:
     ----------------------------
-    inputDimensions:      A number, list or numpy array representing the 
-                          dimensions of the input vector. Format is [height, 
-                          width, depth, ...], where each value represents the 
-                          size of the dimension. For a topology of one dimesion 
-                          with 100 inputs use 100, or [100]. For a two 
-                          dimensional topology of 10x5 use [10,5]. 
-    columnDimensions:     A number, list or numpy array representing the 
-                          dimensions of the columns in the region. Format is 
-                          [height, width, depth, ...], where each value 
-                          represents the size of the dimension. For a topology 
-                          of one dimesion with 2000 columns use 2000, or 
-                          [2000]. For a three dimensional topology of 32x64x16 
-                          use [32, 64, 16]. 
+    inputDimensions:      A list representing the dimensions of the input
+                          vector. Format is [height, width, depth, ...], where
+                          each value represents the size of the dimension. For a
+                          topology of one dimesion with 100 inputs use 100, or
+                          [100]. For a two dimensional topology of 10x5 use
+                          [10,5]. 
+    columnDimensions:     A list representing the dimensions of the columns in
+                          the region. Format is [height, width, depth, ...],
+                          where each value represents the size of the dimension.
+                          For a topology of one dimesion with 2000 columns use
+                          2000, or [2000]. For a three dimensional topology of
+                          32x64x16 use [32, 64, 16]. 
     potentialRadius:      This parameter deteremines the extent of the input 
                           that each column can potentially be connected to. 
                           This can be thought of as the input bits that
@@ -708,12 +707,13 @@ class SpatialPooler(object):
     learn:          a boolean value indicating whether learning should be 
                     performed. Learning entails updating the  permanence 
                     values of the synapses, and hence modifying the 'state' 
-                    of the model. setting learning to 'off' might be useful
-                    for indicating separate training vs. testing sets. 
+                    of the model. Setting learning to 'off' freezes the SP
+                    and has many uses. For example, you might want to feed in
+                    various inputs and examine the resulting SDR's.
     activeArray:    an array whose size is equal to the number of columns. 
                     Before the function returns this array will be populated 
                     with 1's at the indices of the active columns, and 0's 
-                    everywhere else.
+                    everywhere else.  
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -721,11 +721,13 @@ class SpatialPooler(object):
     inputVector.reshape(-1)
     overlaps = self._calculateOverlap(inputVector)
 
+    # Apply boosting when learning is on
     if learn:
       boostedOverlaps = self._boostFactors * overlaps
     else:
       boostedOverlaps = overlaps
 
+    # Apply inhibition to determine the winning columns
     activeColumns = self._inhibitColumns(boostedOverlaps)
 
     if learn:
@@ -1080,7 +1082,12 @@ class SpatialPooler(object):
   def _initPermConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is
-    initialized in a connected state
+    initialized in a connected state. The basic idea here is to initialize
+    permanence values very close to synPermConnected so that a small number of
+    learning steps could make it disconnected or connected.
+    
+    Note: experimentation was done a long time ago on the best way to initialize
+    permanence values, but the history for this particular scheme has been lost.
     """
     p =  (self._synPermConnected + self._random.getReal64() * 
       self._synPermActiveInc / 4.0)
@@ -1222,16 +1229,16 @@ class SpatialPooler(object):
   def _updateBoostFactors(self):
     """
     Update the boost factors for all columns. The boost factors are used to 
-    artificially increase the overlap of inactive columns to improve their 
-    chances of becoming active, and hence encourage participation of more 
-    columns in the learning process. This is a line defined as: y = mx + b
-    boost = (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this
-    means that columns that have been active enough have a boost factor of 1,
-    meaning their overlap is not boosted. Columns whose active duty cycle drops
-    too much below that of their neighbors are boosted depending on how 
-    infrequently they have been active. The more infrequent, the more they are 
-    boosted. The exact boost factor is linearly interpolated between the points 
-    (dutyCycle:0, boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0). 
+    increase the overlap of inactive columns to improve their chances of
+    becoming active. and hence encourage participation of more columns in the
+    learning process. This is a line defined as: y = mx + b boost =
+    (1-maxBoost)/minDuty * dutyCycle + maxFiringBoost. Intuitively this means
+    that columns that have been active enough have a boost factor of 1, meaning
+    their overlap is not boosted. Columns whose active duty cycle drops too much
+    below that of their neighbors are boosted depending on how infrequently they
+    have been active. The more infrequent, the more they are boosted. The exact
+    boost factor is linearly interpolated between the points (dutyCycle:0,
+    boost:maxFiringBoost) and (dutyCycle:minDuty, boost:1.0). 
 
             boostFactor
                 ^
@@ -1242,7 +1249,7 @@ class SpatialPooler(object):
                 |   
                 +--------------------> activeDutyCycle
                    |
-            minActiveDutyCucle
+            minActiveDutyCycle
     """
     
     mask = numpy.where(self._minActiveDutyCycles > 0)[0]
@@ -1276,15 +1283,14 @@ class SpatialPooler(object):
     This function determines each column's overlap with the current input 
     vector. The overlap of a column is the number of synapses for that column
     that are connected (permance value is greater than '_synPermConnected') 
-    to input bits which are turned on. overlap values that are lower than
-    the 'stimulusThreshold' are ignored. The implementation takes advandage of 
+    to input bits which are turned on. Overlap values that are lower than
+    the 'stimulusThreshold' are ignored. The implementation takes advantage of 
     the SpraseBinaryMatrix class to perform this calculation efficiently.
 
     Parameters:
     ----------------------------
-    inputVector:    a numpy array of 0's and 1's thata comprises the input to 
-                    the spatial pooler. There exists an entry in the array 
-                    for every input bit.    
+    inputVector:    a numpy array of 0's and 1's that comprises the input to 
+                    the spatial pooler.
     """
     overlaps = numpy.zeros(self._numColumns).astype(realDType)
     self._connectedSynapses.rightVecSumAtNZ_fast(inputVector, overlaps)

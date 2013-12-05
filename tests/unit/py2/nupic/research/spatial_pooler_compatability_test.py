@@ -27,7 +27,7 @@ import time
 import traceback
 
 from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import getNumpyRandomGenerator, convertSP
+     import getNumpyRandomGenerator, convertSP, CreateSP
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
@@ -39,6 +39,10 @@ numRecords = 100
 
 
 class SpatialPoolerCompatabilityTest(unittest.TestCase):
+  """
+  Tests to ensure that the PY and CPP implementations of the spatial pooler
+  are functionally identical.
+  """
 
   def setUp(self):
     # Set to 1 for more verbose debugging output
@@ -157,37 +161,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListEqual(list(pyConCounts), list(cppConCounts))
 
 
-  def createSp(self, imp, params):
-    if (imp == "py"):
-      spClass = PySpatialPooler
-    elif (imp == "cpp"):
-      spClass = CPPSpatialPooler
-    else:
-      raise RuntimeError("unrecognized implementation")
-
-    sp = spClass(
-      inputDimensions=params["inputDimensions"],
-      columnDimensions=params["columnDimensions"],
-      potentialRadius=params["potentialRadius"],
-      potentialPct=params["potentialPct"],
-      globalInhibition=params["globalInhibition"],
-      localAreaDensity=params["localAreaDensity"],
-      numActiveColumnsPerInhArea=params["numActiveColumnsPerInhArea"],
-      stimulusThreshold=params["stimulusThreshold"],
-      synPermInactiveDec=params["synPermInactiveDec"],
-      synPermActiveInc=params["synPermActiveInc"],
-      synPermConnected=params["synPermConnected"],
-      minPctOverlapDutyCycle=params["minPctOverlapDutyCycle"],
-      minPctActiveDutyCycle=params["minPctActiveDutyCycle"],
-      dutyCyclePeriod=params["dutyCyclePeriod"],
-      maxBoost=params["maxBoost"],
-      seed=params["seed"],
-      spVerbosity=params["spVerbosity"]
-    )
-    
-    return sp
-
-
   def runSideBySide(self, params, seed = None,
                     learnMode = None,
                     convertEveryIteration = False):
@@ -203,8 +176,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     instance on every iteration just before each compute.
     """
     randomState = getNumpyRandomGenerator(seed)
-    cppSp = self.createSp("cpp", params)
-    pySp = self.createSp("py", params)
+    cppSp = CreateSP("cpp", params)
+    pySp = CreateSP("py", params)
     self.compare(pySp, cppSp)
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
@@ -239,7 +212,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def runSerialize(self, imp, params, seed = None):
     randomState = getNumpyRandomGenerator(seed)
-    sp1 = self.createSp(imp, params)
+    sp1 = CreateSP(imp, params)
     numColumns = sp1.getNumColumns() 
     numInputs = sp1.getNumInputs()
     threshold = 0.8
@@ -378,11 +351,11 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'seed' : 19,
       'spVerbosity' : 0
     }
-    sp1 = self.createSp("py", params)
+    sp1 = CreateSP("py", params)
     sp2 = pickle.loads(pickle.dumps(sp1))
     self.compare(sp1, sp2)
 
-    sp1 = self.createSp("cpp", params)
+    sp1 = CreateSP("cpp", params)
     sp2 = pickle.loads(pickle.dumps(sp1))
     self.compare(sp1, sp2)
 

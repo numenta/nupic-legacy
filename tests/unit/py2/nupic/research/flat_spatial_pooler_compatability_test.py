@@ -536,7 +536,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       'minDistance' : 0.4,
       'seed' : 19,
       'spVerbosity' : 1,
-      'randomSP' : 1
+      'randomSP' : True
     }
     sppy1 = self.createSp("py", params)
     sppy2 = pickle.loads(pickle.dumps(sppy1))
