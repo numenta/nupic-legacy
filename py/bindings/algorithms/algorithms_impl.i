@@ -2035,6 +2035,26 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         seed=seed,
         spVerbosity=spVerbosity
       )
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ flat spatial pooler with
+      # the string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ flat spatial pooler and populate it from the
+      # serialized string.
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
   %}
 }
 
