@@ -27,6 +27,7 @@ import traceback
 
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
+from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 
 realType = GetNTAReal()
 uintType = "uint32"
@@ -40,7 +41,7 @@ def getNumpyRandomGenerator(seed):
   """
   if seed is None:
     seed = int((time.time()%10000)*10)
-  print "Seed set to:",seed,"called by",
+  print "Numpy seed set to:",seed,"called by",
   callStack = traceback.extract_stack(limit=3)
   print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
   return numpy.random.RandomState(seed)
@@ -116,3 +117,45 @@ def convertSP(pySp, newSeed):
   pySp._random = NupicRandom(newSeed)
   cppSp.seed_(newSeed)
   return cppSp
+
+
+
+def CreateSP(imp, params):
+  """
+  Helper class for creating an instance of the appropriate spatial pooler using
+  given parameters.
+
+  Parameters:
+  ----------------------------
+  imp:       Either 'py' or 'cpp' for creating the appropriate instance.
+  params:    A dict with various constructor parameters for the SP.
+  """
+  if (imp == "py"):
+    spClass = PySpatialPooler
+  elif (imp == "cpp"):
+    spClass = CPPSpatialPooler
+  else:
+    raise RuntimeError("unrecognized implementation")
+
+  sp = spClass(
+    inputDimensions=params["inputDimensions"],
+    columnDimensions=params["columnDimensions"],
+    potentialRadius=params["potentialRadius"],
+    potentialPct=params.get("potentialPct", 0.5),
+    globalInhibition=params.get("globalInhibition", True),
+    localAreaDensity=params.get("localAreaDensity", -1.0),
+    numActiveColumnsPerInhArea=params["numActiveColumnsPerInhArea"],
+    stimulusThreshold=params.get("stimulusThreshold", 0),
+    synPermInactiveDec=params.get("synPermInactiveDec", 0.01),
+    synPermActiveInc=params.get("synPermActiveInc", 0.1),
+    synPermConnected=params.get("synPermConnected", 0.1),
+    minPctOverlapDutyCycle=params.get("minPctOverlapDutyCycle",0.0),
+    minPctActiveDutyCycle=params["minPctActiveDutyCycle"],
+    dutyCyclePeriod=params["dutyCyclePeriod"],
+    maxBoost=params.get("maxBoost",10),
+    seed=params["seed"],
+    spVerbosity=params.get("spVerbosity", 0),
+  )
+  
+  return sp
+

@@ -35,6 +35,17 @@ using namespace nta;
 using namespace nta::algorithms::spatial_pooler;
 
 
+// Round f to 5 digits of precision. This is used to set
+// permanence values and help avoid small amounts of drift between
+// platforms/implementations
+static Real round5_(const Real f)
+{
+  Real p = ((Real) ((Int) (f * 100000))) / 100000.0;
+  return p;
+}
+
+
+
 class CoordinateConverter2D {
 
   public:
@@ -590,15 +601,13 @@ vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
 Real SpatialPooler::initPermConnected_()
 {
   Real p = synPermConnected_ + rng_.getReal64() * synPermActiveInc_ / 4.0;
-  p = ((Real) ((Int) (p * 100000))) / 100000.0;
-  return p;
+  return round5_(p);
 }
 
 Real SpatialPooler::initPermNonConnected_()
 {
   Real p = synPermConnected_ * rng_.getReal64();
-  p = ((Real) ((Int) (p * 100000))) / 100000.0;
-  return p;
+  return round5_(p);
 }
 
 vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential,
