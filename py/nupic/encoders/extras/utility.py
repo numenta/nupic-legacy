@@ -118,5 +118,5 @@ class SimpleUtilityEncoder(UtilityEncoder):
     dataV = VectorEncoder(length, dataS, name='data')
     scoreS = ScalarEncoder(21, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
     super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, feedbackDelay=feedbackDelay, name='simpleUtility', forced=forced)
-    print "feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
+    print "WARNING: feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
 
