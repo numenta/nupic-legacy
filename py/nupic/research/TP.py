@@ -133,17 +133,26 @@ class TP(ConsolePrinterMixin):
                   must be set to 0. When this is used (> 0), maxSegmentsPerCell
                   must also be > 0.
 
-    @param outputType   Can be one of the following: 'normal', 'activeState',
+    @param outputType Can be one of the following: 'normal', 'activeState',
                   'activeState1CellPerCol'.
-                  'normal': output the OR of the active and predicted state
-                  'activeState': output only the active state
+                  'normal': output the OR of the active and predicted state. 
+                  'activeState': output only the active state. 
                   'activeState1CellPerCol': output only the active state, and at
                   most 1 cell/column. If more than 1 cell is active in a column,
                   the one with the highest confidence is sent up.
+                  Default is 'normal'.
 
     @param trivialPredictionMethods List (as string) of trivial predictions to compute alongside
                   the full TP. See TrivialPredictor.py for a list of allowed
-                  methods
+                  methods.
+
+    @param doPooling If True, pooling is enabled. False is the default.
+
+    @param burnIn Used for evaluating the prediction score. Default is 2.
+
+    @param collectStats If True, collect training / inference stats. Default is
+                        False.
+
     """
 
     ## @todo document
