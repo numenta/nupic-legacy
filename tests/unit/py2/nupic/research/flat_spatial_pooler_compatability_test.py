@@ -317,12 +317,18 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
         print "\nIteration:",i,"learn=",learn
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
-      if convertEveryIteration:
-        cppSp = self.convertSP(pySp, i+1)
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.compare(pySp, cppSp)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
+
+      # The permanence values for the two implementations drift ever so slowly
+      # over time due to numerical precision issues. This causes different
+      # permanences
+      # By converting the SP's we reset the permanence values
+      if convertEveryIteration or ((i+1)%30 == 0):
+        cppSp = self.convertSP(pySp, i+1)
+
 
 
   def runSerialize(self, imp, params,
@@ -392,10 +398,8 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity" : 0,
       "randomSP" : False
     }
-    # We test a few combinations including some seeds that used to fail
-    self.runSideBySide(params, seed = 1383877441, convertEveryIteration = True)
-    self.runSideBySide(params, seed = 1383877441, learnMode = False)
-    self.runSideBySide(params, seed = 1383885721, learnMode = False)
+    # We test a few combinations
+    self.runSideBySide(params, learnMode = False)
     self.runSideBySide(params, convertEveryIteration = True)
 
 
@@ -515,7 +519,6 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
-  @unittest.skip("Currently fails - still in the process of debugging")
   def testSerialization(self):
     params = {
       'inputShape' : 27,
@@ -532,14 +535,13 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       'maxFiringBoost' : 14.0,
       'minDistance' : 0.4,
       'seed' : 19,
-      'spVerbosity' : 0,
+      'spVerbosity' : 1,
       'randomSP' : True
     }
     sppy1 = self.createSp("py", params)
     sppy2 = pickle.loads(pickle.dumps(sppy1))
     self.compare(sppy1, sppy2)
 
-    print "-------------"
     spcpp1 = self.createSp("cpp", params)
     spcpp2 = pickle.loads(pickle.dumps(spcpp1))
     self.compare(spcpp1, spcpp2)
@@ -548,7 +550,6 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     self.compare(sppy1, spcpp2)
 
 
-  @unittest.skip("Currently fails - still in the process of debugging")
   def testSerializationRun(self):
     params = {
       'inputShape' : 27,
@@ -565,14 +566,14 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       'maxFiringBoost' : 14.0,
       'minDistance' : 0.4,
       'seed' : 19,
-      'spVerbosity' : 3,
+      'spVerbosity' : 1,
       'randomSP' : False
     }
-    #self.runSerialize("py", params, seed = 1383932185)
-    #self.runSerialize("cpp", params, learnMode = False, seed = 1383932185)
+    self.runSerialize("py", params)
+    self.runSerialize("cpp", params)
     params['randomSP'] = True
-    self.runSerialize("cpp", params, learnMode = False, seed = 1383932185)
-    #self.runSerialize("cpp", params, seed = 1383932185)
+    self.runSerialize("cpp", params)
+    self.runSerialize("py", params)
 
 
 

@@ -375,9 +375,6 @@ class FDRCSpatial2(object):
     self.useHighTier= useHighTier != 0
     self.randomSP = randomSP != 0
 
-    if not self.useHighTier:
-      self.minPctDutyCycleAfterInh = 0
-
     self.fileCount = 0
     self._runIter = 0
 
