@@ -851,7 +851,7 @@ IMAGE_PATH             =
 # code is scanned, but not when the output code is generated. If lines are added
 # or removed, the anchors will not be placed correctly.
 
-INPUT_FILTER           = "python /Users/mtaylor/.local/bin/doxypy.py"
+INPUT_FILTER           = "python /usr/local/bin/doxypy.py"
 
 # The FILTER_PATTERNS tag can be used to specify filters on a per file pattern
 # basis. Doxygen will compare the file name with each pattern and apply the
