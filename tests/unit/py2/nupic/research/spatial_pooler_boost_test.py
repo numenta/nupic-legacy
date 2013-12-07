@@ -34,6 +34,9 @@ from nupic.research.spatial_pooler import SpatialPooler
 
 uintType = "uint32"
 
+# set a single seed for running both implementations
+SEED = int((time.time()%10000)*10)
+
 
 def ComputeOverlap(x,y):
   """
@@ -80,11 +83,12 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   never become active and these columns should have duty cycle of 0. Any
   columns which have won, should have duty cycles >= 0.2.
   
-  Phase 2: Over the next 5 iterations, boosting should stay at 1 for all
-  columns. The winning columns should be very similar (identical?) to the
-  columns that won before. Some of the columns should never become active. At
-  the end of the this phase, all these columns should have activity level
-  around 0.1.
+  Phase 2: Over the next 45 iterations, boosting should stay at 1 for all
+  columns since minActiveDutyCycle is only calculated after 50 iterations. The
+  winning columns should be very similar (identical?) to the columns that won
+  before. About half of the columns should never become active. At the end of
+  the this phase, most of these columns should have activity level around 0.2.
+  It's ok for some columns to have higher activity levels.
   
   Phase 3: Over the next 5 iterations boosting should start to increase
   gradually for almost half of the columns. At this point boosting should
@@ -126,7 +130,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     # by the SP.
     self.lastSDR = {}
     
-    
+    self.spImplementation = "None"
+
 
     # Setup the SP creation parameters we will use
     self.params = {
@@ -138,13 +143,15 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       'minPctActiveDutyCycle':      0.1,
       'dutyCyclePeriod':            10,
       'maxBoost':                   10.0,  # TEMP FOR DEBUGGING
-      'seed':                       int((time.time()%10000)*10),
+      'seed':                       SEED,
     }
+    print "SP seed set to:",self.params['seed']
 
   def debugPrint(self):
     """
     Helpful debug print statements while debugging this test.
     """
+
     minDutyCycle = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getMinActiveDutyCycles(minDutyCycle)
     
@@ -153,18 +160,26 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
     boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getBoostFactors(boost)
+    print "SP implementation:", self.spImplementation
     print "Learning iteration:", self.sp.getIterationNum()
     print "Min duty cycles:",minDutyCycle[0]
     print "Active duty cycle", activeDutyCycle
+    print "Average non-zero active duty cycle:", (
+      activeDutyCycle[activeDutyCycle>0].mean() )
     print
     print "Boost factor for sp:",boost
+    print
+    print "Last winning iteration for each column"
+    print self.winningIteration
+    print "Number of winning columns:", (
+      self.columnDimensions - (self.winningIteration==0).sum() )
     
     
   def boostTestPhase1(self):
     
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
 
-    # With learning off and no prior training we should get no winners
+    # Do one training batch through the input patterns
     for idx,v in enumerate(self.x):
       y.fill(0)
       self.sp.compute(v, True, y)
@@ -189,7 +204,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
                      "Inactive columns have positive duty cycle.")
     self.assertGreaterEqual(dutyCycles[self.winningIteration > 0].min(),
                             0.2,
-                            "Inactive columns have positive duty cycle.")
+                            "Active columns have duty cycle that is too low.")
 
     # Verify that all SDR's are unique
     self.assertTrue(AreAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
@@ -206,13 +221,67 @@ class SpatialPoolerBoostTest(unittest.TestCase):
                           2, "One of the last three SDRs has high overlap")
     
 
+  def boostTestPhase2(self):
+    
+    y = numpy.zeros(self.columnDimensions, dtype = uintType)
+
+    # Do 9 training batch through the input patterns
+    for i in range(9):
+      for idx,v in enumerate(self.x):
+        y.fill(0)
+        self.sp.compute(v, True, y)
+        self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
+        self.lastSDR[idx] = y.copy()
+        
+    # The boost factor for all columns should be at 1.
+    boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    self.sp.getBoostFactors(boost)
+    self.assertEqual((boost==1).sum(), self.columnDimensions,
+      "Boost factors are not all 1")
+    
+    # Roughly half of the columns should have never been active.
+    self.assertGreaterEqual((self.winningIteration==0).sum(),
+      0.4*self.columnDimensions,
+      "More than 60% of the columns have been active")
+    
+    # All the never-active columns should have duty cycle of 0
+    dutyCycles = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    self.sp.getActiveDutyCycles(dutyCycles)
+    self.assertEqual(dutyCycles[self.winningIteration == 0].sum(),0,
+                     "Inactive columns have positive duty cycle.")
+
+    # The average at-least-once-active columns should have duty cycle >= 0.15
+    # and <= 0.25
+    avg = (dutyCycles[dutyCycles>0].mean() )
+    self.assertGreaterEqual(avg, 0.15,
+                "Average on-columns duty cycle is too low.")
+    self.assertLessEqual(avg, 0.25,
+                "Average on-columns duty cycle is too high.")
+
+    # Verify that all SDR's are unique
+    self.assertTrue(AreAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
+    
+    # Verify that the first two SDR's have reasonable overlap
+    self.assertGreater(ComputeOverlap(self.lastSDR[0], self.lastSDR[1]), 4,
+                       "First two SDR's don't overlap much")
+
+    # Verify the last three SDR's have low overlap with everyone else
+    for i in [2, 3, 4]:
+      for j in range(5):
+        if (i!=j):
+          self.assertLess( ComputeOverlap(self.lastSDR[i], self.lastSDR[j]),
+                          2, "One of the last three SDRs has high overlap")
+
+
   def boostTestLoop(self, imp):
     """Main test loop."""
     self.sp = CreateSP(imp,self.params)
+    self.spImplementation = imp
     self.winningIteration.fill(0)
     self.lastSDR = {}
     
     self.boostTestPhase1()
+    self.boostTestPhase2()
 
   def testBoostingPY(self):
     self.boostTestLoop("py")
