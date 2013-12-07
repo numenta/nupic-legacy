@@ -90,9 +90,11 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   the this phase, most of these columns should have activity level around 0.2.
   It's ok for some columns to have higher activity levels.
   
-  Phase 3: Over the next 5 iterations boosting should start to increase
-  gradually for almost half of the columns. At this point boosting should
-  be less than maxBoost for all columns.
+  Phase 3: At this point about half or fewer columns have never won. These
+  should get boosted to maxBoost and start to win. As each one wins, their
+  boost gets lowered to 1. After 5 iterations, the number of columns that
+  have never won should be 0.  Because of this artifically induced thrashing
+  behavior, all the inputs should now have pretty distinct patterns.
   
   Phase 4: Boost factor should continue to increase until some new columns
   start to win. As soon as a new column wins, the boost value for that column
@@ -103,6 +105,8 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   
   Phase 6: Run for 10 iterations without learning on. Boost values and winners
   should not change.
+  
+  TODO: Need to design a similar test with more than 50 distinct patterns. 
   
   """
 
@@ -160,12 +164,17 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
     boost = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
     self.sp.getBoostFactors(boost)
+    print "\n--------- ITERATION", (
+      self.sp.getIterationNum() ),"-----------------------"
     print "SP implementation:", self.spImplementation
-    print "Learning iteration:", self.sp.getIterationNum()
-    print "Min duty cycles:",minDutyCycle[0]
-    print "Active duty cycle", activeDutyCycle
+    print "Learning iteration:", 
+    print "minactiveDutyCycle (lower cycles cause boosting to start):",(
+      minDutyCycle[0] )
+    print "Max/min active duty cycle:", (
+      activeDutyCycle.max(), activeDutyCycle.min() )
     print "Average non-zero active duty cycle:", (
       activeDutyCycle[activeDutyCycle>0].mean() )
+    print "Active duty cycle", activeDutyCycle
     print
     print "Boost factor for sp:",boost
     print
@@ -266,6 +275,32 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.verifySDRProperties()
 
 
+  def boostTestPhase3(self):
+    
+    # Get duty cycles and the number of columns that have never won so far.
+    # The latter should decrease.
+    dutyCyclesBefore = numpy.zeros(self.columnDimensions, dtype = GetNTAReal())
+    self.sp.getActiveDutyCycles(dutyCyclesBefore)
+    numLosersBefore = (self.winningIteration==0).sum()
+
+    # Do another training batch through the input patterns
+    y = numpy.zeros(self.columnDimensions, dtype = uintType)
+    for idx,v in enumerate(self.x):
+      y.fill(0)
+      self.sp.compute(v, True, y)
+      self.winningIteration[y.nonzero()[0]] = self.sp.getIterationLearnNum()
+      self.lastSDR[idx] = y.copy()
+    
+    # The number of losers should be 0
+    numLosersAfter = (self.winningIteration==0).sum()
+    self.assertEqual(numLosersAfter, 0)
+
+    # Verify that the first two SDR's have little overlap
+    self.assertLess(ComputeOverlap(self.lastSDR[0], self.lastSDR[1]), 2,
+                       "First two SDR's do overlap when they shouldn't")
+    return
+
+
   def boostTestLoop(self, imp):
     """Main test loop."""
     self.sp = CreateSP(imp,self.params)
@@ -275,6 +310,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     
     self.boostTestPhase1()
     self.boostTestPhase2()
+    self.boostTestPhase3()
 
   def testBoostingPY(self):
     self.boostTestLoop("py")
