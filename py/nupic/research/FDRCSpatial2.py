@@ -1003,6 +1003,10 @@ class FDRCSpatial2(object):
       self._nupicRandomState = self.random.getState()
       self._iterNum = 0
 
+    # For backward compatibility
+    if not hasattr(self, 'requestedDutyCyclePeriod'):
+      self.requestedDutyCyclePeriod = 1000
+      
     # Init our random number generators
     random.setstate(self._randomState)
     numpy.random.set_state(self._numpyRandomState)

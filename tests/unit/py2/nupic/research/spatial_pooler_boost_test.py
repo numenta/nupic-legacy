@@ -173,8 +173,25 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     print self.winningIteration
     print "Number of winning columns:", (
       self.columnDimensions - (self.winningIteration==0).sum() )
+
     
+  def verifySDRProperties(self):
+    """Verify that all SDRs have the properties desired for this test."""
+    # Verify that all SDR's are unique
+    self.assertTrue(AreAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
     
+    # Verify that the first two SDR's have reasonable overlap
+    self.assertGreater(ComputeOverlap(self.lastSDR[0], self.lastSDR[1]), 4,
+                       "First two SDR's don't overlap much")
+    
+    # Verify the last three SDR's have low overlap with everyone else.
+    for i in [2, 3, 4]:
+      for j in range(5):
+        if (i!=j):
+          self.assertLess( ComputeOverlap(self.lastSDR[i], self.lastSDR[j]),
+                          2, "One of the last three SDRs has high overlap")
+
+
   def boostTestPhase1(self):
     
     y = numpy.zeros(self.columnDimensions, dtype = uintType)
@@ -206,19 +223,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
                             0.2,
                             "Active columns have duty cycle that is too low.")
 
-    # Verify that all SDR's are unique
-    self.assertTrue(AreAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
-    
-    # Verify that the first two SDR's have reasonable overlap
-    self.assertGreater(ComputeOverlap(self.lastSDR[0], self.lastSDR[1]), 4,
-                       "First two SDR's don't overlap much")
-    
-    # Verify the last three SDR's have low overlap with everyone else
-    for i in [2, 3, 4]:
-      for j in range(5):
-        if (i!=j):
-          self.assertLess( ComputeOverlap(self.lastSDR[i], self.lastSDR[j]),
-                          2, "One of the last three SDRs has high overlap")
+    self.verifySDRProperties()
     
 
   def boostTestPhase2(self):
@@ -258,19 +263,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
     self.assertLessEqual(avg, 0.25,
                 "Average on-columns duty cycle is too high.")
 
-    # Verify that all SDR's are unique
-    self.assertTrue(AreAllSDRsUnique(self.lastSDR), "All SDR's are not unique")
-    
-    # Verify that the first two SDR's have reasonable overlap
-    self.assertGreater(ComputeOverlap(self.lastSDR[0], self.lastSDR[1]), 4,
-                       "First two SDR's don't overlap much")
-
-    # Verify the last three SDR's have low overlap with everyone else
-    for i in [2, 3, 4]:
-      for j in range(5):
-        if (i!=j):
-          self.assertLess( ComputeOverlap(self.lastSDR[i], self.lastSDR[j]),
-                          2, "One of the last three SDRs has high overlap")
+    self.verifySDRProperties()
 
 
   def boostTestLoop(self, imp):
