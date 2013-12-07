@@ -145,10 +145,6 @@ class SpatialPooler(object):
     synPermActiveInc:     The amount by which an active synapse is incremented 
                           in each round. Specified as a percent of a
                           fully grown synapse.
-    synPermActiveSharedDec: The amount by which to decrease the permanence of 
-                          an active synapse which is connected to another 
-                          column that is active at the same time. Specified as 
-                          a percent of a fully grown synapse.
     synPermOrphanDec:     The amount by which to decrease the permanence of an 
                           active synapse on a column which has high overlap 
                           with the input, but was inhibited (an "orphan" 
