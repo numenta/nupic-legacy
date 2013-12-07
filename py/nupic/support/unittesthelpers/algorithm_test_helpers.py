@@ -123,12 +123,15 @@ def convertSP(pySp, newSeed):
 def CreateSP(imp, params):
   """
   Helper class for creating an instance of the appropriate spatial pooler using
-  given parameters.
+  given parameters. P
 
   Parameters:
   ----------------------------
   imp:       Either 'py' or 'cpp' for creating the appropriate instance.
-  params:    A dict with various constructor parameters for the SP.
+  params:    A dict for overriding constructor parameters. The keys must
+             correspond to contructor parameter names.
+  
+  Returns the SP object.
   """
   if (imp == "py"):
     spClass = PySpatialPooler
@@ -137,25 +140,7 @@ def CreateSP(imp, params):
   else:
     raise RuntimeError("unrecognized implementation")
 
-  sp = spClass(
-    inputDimensions=params["inputDimensions"],
-    columnDimensions=params["columnDimensions"],
-    potentialRadius=params["potentialRadius"],
-    potentialPct=params.get("potentialPct", 0.5),
-    globalInhibition=params.get("globalInhibition", True),
-    localAreaDensity=params.get("localAreaDensity", -1.0),
-    numActiveColumnsPerInhArea=params["numActiveColumnsPerInhArea"],
-    stimulusThreshold=params.get("stimulusThreshold", 0),
-    synPermInactiveDec=params.get("synPermInactiveDec", 0.01),
-    synPermActiveInc=params.get("synPermActiveInc", 0.1),
-    synPermConnected=params.get("synPermConnected", 0.1),
-    minPctOverlapDutyCycle=params.get("minPctOverlapDutyCycle",0.0),
-    minPctActiveDutyCycle=params["minPctActiveDutyCycle"],
-    dutyCyclePeriod=params["dutyCyclePeriod"],
-    maxBoost=params.get("maxBoost",10),
-    seed=params["seed"],
-    spVerbosity=params.get("spVerbosity", 0),
-  )
+  sp = spClass(**params)
   
   return sp
 

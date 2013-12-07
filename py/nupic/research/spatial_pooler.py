@@ -672,9 +672,9 @@ class SpatialPooler(object):
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._activeDutyCycles = numpy.zeros(numColumns, dtype=realDType)
     self._minOverlapDutyCycles = numpy.zeros(numColumns, 
-                                             dtype=realDType) + 1e-6
+                                             dtype=realDType)
     self._minActiveDutyCycles = numpy.zeros(numColumns,
-                                            dtype=realDType) + 1e-6
+                                            dtype=realDType)
     self._boostFactors = numpy.ones(numColumns, dtype=realDType)
 
     # The inhibition radius determines the size of a column's local 
@@ -684,14 +684,17 @@ class SpatialPooler(object):
     # average number of connected synapses per column.
     self._inhibitionRadius = 0
     self._updateInhibitionRadius()
+    
+    if self._spVerbosity > 0:
+      self.printParameters()
   
 
   def compute(self, inputVector, learn, activeArray):
     """
     This is the primary public method of the SpatialPooler class. This 
-    function takes a input vector and outputs the indices of the active columns 
-    along with the anomaly score for the that input. If 'learn' is set to True,
-    this method also updates the permanences of the columns.
+    function takes a input vector and outputs the indices of the active columns.
+    If 'learn' is set to True, this method also updates the permanences of the
+    columns.
 
     Parameters:
     ----------------------------
@@ -1578,3 +1581,28 @@ class SpatialPooler(object):
       self._random = NupicRandom(seed)
     else:
       self._random = NupicRandom()
+
+
+  def printParameters(self):
+    """
+    Useful for debugging.
+    """
+    print "------------PY  SpatialPooler Parameters ------------------"
+    print "numInputs                  = ", self.getNumInputs()
+    print "numColumns                 = ", self.getNumColumns()
+    print "columnDimensions           = ", self._columnDimensions
+    print "numActiveColumnsPerInhArea = ", self.getNumActiveColumnsPerInhArea()
+    print "potentialPct               = ", self.getPotentialPct()
+    print "globalInhibition           = ", self.getGlobalInhibition()
+    print "localAreaDensity           = ", self.getLocalAreaDensity()
+    print "stimulusThreshold          = ", self.getStimulusThreshold()
+    print "synPermActiveInc           = ", self.getSynPermActiveInc()
+    print "synPermInactiveDec         = ", self.getSynPermInactiveDec()
+    print "synPermConnected           = ", self.getSynPermConnected()
+    print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
+    print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
+    print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
+    print "maxBoost                   = ", self.getMaxBoost()
+    print "spVerbosity                = ", self.getSpVerbosity()
+    print "version                    = ", self._version
+
