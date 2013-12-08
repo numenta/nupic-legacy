@@ -20,28 +20,28 @@ To stop it, use KeyboardInterrupt (CRTL+C).
 ## General algorithm:
 
 1. Mic input is received (voltages in the time domain)
-1. Mic input is transformed into the frequency domain, using fast fourier transform
-1. The few strongest frequencies (in Hz) are identified
-1. Those frequencies are encoded into an SDR
-1. That SDR is passed to the temporal pooler
-1. The temporal pooler provides a prediction
-1. An anomaly score is calculated off that prediction against the next input
+2. Mic input is transformed into the frequency domain, using fast fourier transform
+3. The few strongest frequencies (in Hz) are identified
+4. Those frequencies are encoded into an SDR
+5. That SDR is passed to the temporal pooler
+6. The temporal pooler provides a prediction
+7. An anomaly score is calculated off that prediction against the next input
     A low anomaly score means that the temporal pooler is properly predicting 
     the next frequency pattern.
 
 ## Print outs include:
 
-    An array comparing the actual and predicted TP inputs
-        A - actual
-        P - predicted
-        E - expected (both A & P)
-    A hashbar representing the anomaly score
-    Plot of the frequency domain in real-time   
+1. An array comparing the actual and predicted TP inputs
+	A - actual
+	P - predicted
+	E - expected (both A & P)
+2. A hashbar representing the anomaly score
+3. Plot of the frequency domain in real-time   
 
 ## Next steps:
 
-- Benchmark different parameters (especially TP parameters)
-    - Use annoying_test and Online Tone Generator http://onlinetonegenerator.com/
-- Implement anomaly smoothing
-- Implement spatial pooler
-- Look into better algorithms to pick out the frequency peaks (sound fingerprinting)
+1. Benchmark different parameters (especially TP parameters)
+	Use annoying_test and Online Tone Generator http://onlinetonegenerator.com/
+2. Implement anomaly smoothing
+3. Implement spatial pooler
+4. Look into better algorithms to pick out the frequency peaks (sound fingerprinting)
