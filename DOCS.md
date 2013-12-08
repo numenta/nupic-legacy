@@ -1,6 +1,6 @@
 # Documentation
 
-See online docs, built off head of the `master` branch, ~~here~~.
+See online docs, built off head of the `master` branch, [here](http://issues.numenta.org:8888).
 
 ## Building Docs Yourself
 
