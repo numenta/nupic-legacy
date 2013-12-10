@@ -36,6 +36,7 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
+  - printenv | sort
   - echo $TRAVIS_BUILD_DIR
   - echo $NUPIC
   - ls -l $NUPIC
