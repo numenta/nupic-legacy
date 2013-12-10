@@ -3481,10 +3481,8 @@ class Segment(object):
     synapses (lowest permanence freed up first) before we start to free up
     active ones.
 
-    Parameters:
-    --------------------------------------------------------------------
-    numToFree:        number of synapses to free up
-    inactiveSynapseIndices: list of the inactive synapse indices.
+    @param numToFree              number of synapses to free up
+    @param inactiveSynapseIndices list of the inactive synapse indices.
     """
     # Make sure numToFree isn't larger than the total number of syns we have
     assert (numToFree <= len(self.syns))
