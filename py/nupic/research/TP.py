@@ -3302,13 +3302,13 @@ class Segment(object):
   the synapses it owns.
   """
 
-  # These are iteration count tiers used when computing segment duty cycle
+  ## These are iteration count tiers used when computing segment duty cycle.
   dutyCycleTiers =  [0,       100,      320,    1000,
                      3200,    10000,    32000,  100000,
                      320000]
 
-  # This is the alpha used in each tier. dutyCycleAlphas[n] is used when
-  #  iterationIdx > dutyCycleTiers[n]
+  ## This is the alpha used in each tier. dutyCycleAlphas[n] is used when
+  #  `iterationIdx > dutyCycleTiers[n]`.
   dutyCycleAlphas = [None,    0.0032,    0.0010,  0.00032,
                      0.00010, 0.000032,  0.00001, 0.0000032,
                      0.0000010]
@@ -3358,19 +3358,23 @@ class Segment(object):
     providing good predictions.
 
     @param active   True if segment just provided a good prediction
+    
     @param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 
-    NOTE: This method relies on different schemes to compute the duty cycle
+    @returns The duty cycle, a measure of how often this segment is
+    providing good predictions.
+
+    **NOTE:** This method relies on different schemes to compute the duty cycle
     based on how much history we have. In order to support this tiered
-    approach IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER
-    (self.dutyCycleTiers)
+    approach **IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER**
+    (@ref dutyCycleTiers).
 
     When we don't have a lot of history yet (first tier), we simply return
     number of positive activations / total number of iterations
 
     After a certain number of iterations have accumulated, it converts into
-    a moving average calcuation, which is updated only when requested
+    a moving average calculation, which is updated only when requested
     since it can be a bit expensive to compute on every iteration (it uses
     the pow() function).
 
@@ -3383,8 +3387,8 @@ class Segment(object):
 
         dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
 
-    We use the alphas and tiers as defined in self.dutyCycleAlphas and
-    self.dutyCycleTiers.
+    We use the alphas and tiers as defined in @ref dutyCycleAlphas and
+    @ref dutyCycleTiers.
     """
     # For tier #0, compute it from total number of positive activations seen
     if self.tp.lrnIterationIdx <= self.dutyCycleTiers[1]:
