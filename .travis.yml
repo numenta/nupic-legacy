@@ -7,7 +7,7 @@ python:
   - "2.7"
 env:
   global:
-    - NUPIC=$TRAVIS_BUILD_DIR
+    - NUPIC=$PWD/$TRAVIS_REPO_SLUG
     - NTA=$HOME/nta/eng
 
     # For S3 upload from travis-artifacts
