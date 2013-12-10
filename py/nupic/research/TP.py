@@ -3357,10 +3357,8 @@ class Segment(object):
     this segment. This is a measure of how often this segment is
     providing good predictions.
 
-    Parameters:
-    ----------------------------------------------------------
-    active:   True if segment just provided a good prediction
-    readOnly: If True, compute the updated duty cycle, but don't change
+    @param active   True if segment just provided a good prediction
+    @param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 
     NOTE: This method relies on different schemes to compute the duty cycle
