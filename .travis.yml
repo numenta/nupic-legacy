@@ -42,7 +42,7 @@ before_install:
   - ls -l $NUPIC
   - ls -l $NUPIC/external
   - ls -l $NUPIC/external/common
-  - ls -l $NUPIC/external/requirements.txt
+  - ls -l $NUPIC/external/common/requirements.txt
   - git rev-parse FETCH_HEAD
   - git clone https://github.com/numenta/nupic-linux64.git
   - (cd nupic-linux64 && git reset --hard 9e4df07ee03184d670a8801b76f206785e2a8b2e)
