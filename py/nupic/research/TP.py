@@ -3376,12 +3376,12 @@ class Segment(object):
 
     The duty cycle is computed as follows:
 
-    dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
+        dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
 
     If the value[t] has been 0 for a number of steps in a row, you can apply
     all of the updates at once using:
 
-    dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
+        dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
 
     We use the alphas and tiers as defined in self.dutyCycleAlphas and
     self.dutyCycleTiers.
