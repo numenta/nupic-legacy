@@ -27,7 +27,7 @@ import time
 import traceback
 
 from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import getNumpyRandomGenerator, convertSP, CreateSP
+     import getNumpyRandomGenerator, CreateSP, convertPermanences
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
@@ -46,7 +46,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def setUp(self):
     # Set to 1 for more verbose debugging output
-    self.verbosity = 2
+    self.verbosity = 1
     
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
@@ -135,7 +135,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
-      if self.verbosity > 1: print "Column:",i
+      if self.verbosity > 2: print "Column:",i
       pyPot = numpy.zeros(numInputs).astype(uintType)
       cppPot = numpy.zeros(numInputs).astype(uintType)
       pySp.getPotential(i, pyPot)
@@ -203,11 +203,12 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       self.compare(pySp,cppSp)
 
       # The permanence values for the two implementations drift ever so slowly
-      # over time due to numerical precision issues. This causes different
-      # permanences
-      # By converting the SP's we reset the permanence values
-      if convertEveryIteration or ((i+1)%30 == 0):
-        cppSp = convertSP(pySp, i+1)
+      # over time due to numerical precision issues. This occasionally causes
+      # different permanences to be connected. By transferring the permanence
+      # values every so often, we can avoid this drift but still check that
+      # the logic is applied equally for both implementations.
+      if convertEveryIteration or ((i+1)%10 == 0):
+        convertPermanences(pySp, cppSp)
 
 
   def runSerialize(self, imp, params, seed = None):
@@ -257,15 +258,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity": 0
     }
     # This seed used to cause problems if learnMode is set to None
-    #self.runSideBySide(params, seed = 63862, learnMode = True)
-    #self.runSideBySide(params, seed = 63862)
+    self.runSideBySide(params, seed = 63862)
 
-    # This should fail
+    # These seeds used to fail
     self.runSideBySide(params, seed = 62605)
+    self.runSideBySide(params, seed = 30440)
+    self.runSideBySide(params, seed = 49457)
 
     self.runSideBySide(params)
 
-  @unittest.skip("Temporary while debugging travis failure")
   def testCompatabilityNoLearn(self):
     params = {
       "inputDimensions": [4,4],
@@ -289,7 +290,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, seed = None, learnMode = False)
 
 
-  @unittest.skip("Temporary while debugging travis failure")
   def testCompatability2(self):
     params = {
       "inputDimensions": [12,7],
@@ -313,7 +313,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
-  @unittest.skip("Temporary while debugging travis failure")
   def testCompatability3(self):
     params = {
       "inputDimensions": [2,4,5,2],
@@ -337,7 +336,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
-  @unittest.skip("Temporary while debugging travis failure")
   def testSerialization(self):
     params = {
       'inputDimensions' : [2,4,5,2],
@@ -367,7 +365,6 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.compare(sp1, sp2)
 
 
-  @unittest.skip("Temporary while debugging travis failure")
   def testSerializationRun(self):
     params = {
       'inputDimensions' : [2,4,5,2],
