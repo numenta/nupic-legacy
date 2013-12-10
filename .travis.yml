@@ -7,7 +7,7 @@ python:
   - "2.7"
 env:
   global:
-    - NUPIC=$TRAVIS_BUILD_DIR
+    - NUPIC=$TRAVIS_BUILD_DIR/numenta/nupic
     - NTA=$HOME/nta/eng
 
     # For S3 upload from travis-artifacts
@@ -36,6 +36,7 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
+  - git rev-parse FETCH_HEAD
   - git clone https://github.com/numenta/nupic-linux64.git
   - (cd nupic-linux64 && git reset --hard 9e4df07ee03184d670a8801b76f206785e2a8b2e)
   - source nupic-linux64/bin/activate
