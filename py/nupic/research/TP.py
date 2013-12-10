@@ -3367,7 +3367,7 @@ class Segment(object):
     (self.dutyCycleTiers)
 
     When we don't have a lot of history yet (first tier), we simply return
-      number of positive activations / total number of iterations
+    number of positive activations / total number of iterations
 
     After a certain number of iterations have accumulated, it converts into
     a moving average calcuation, which is updated only when requested
