@@ -3357,10 +3357,8 @@ class Segment(object):
     this segment. This is a measure of how often this segment is
     providing good predictions.
 
-    Parameters:
-    ----------------------------------------------------------
-    active:   True if segment just provided a good prediction
-    readOnly: If True, compute the updated duty cycle, but don't change
+    @param active   True if segment just provided a good prediction
+    @param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 
     NOTE: This method relies on different schemes to compute the duty cycle
@@ -3369,7 +3367,7 @@ class Segment(object):
     (self.dutyCycleTiers)
 
     When we don't have a lot of history yet (first tier), we simply return
-      number of positive activations / total number of iterations
+    number of positive activations / total number of iterations
 
     After a certain number of iterations have accumulated, it converts into
     a moving average calcuation, which is updated only when requested
@@ -3378,12 +3376,12 @@ class Segment(object):
 
     The duty cycle is computed as follows:
 
-    dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
+        dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
 
     If the value[t] has been 0 for a number of steps in a row, you can apply
     all of the updates at once using:
 
-    dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
+        dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
 
     We use the alphas and tiers as defined in self.dutyCycleAlphas and
     self.dutyCycleTiers.
@@ -3481,10 +3479,8 @@ class Segment(object):
     synapses (lowest permanence freed up first) before we start to free up
     active ones.
 
-    Parameters:
-    --------------------------------------------------------------------
-    numToFree:        number of synapses to free up
-    inactiveSynapseIndices: list of the inactive synapse indices.
+    @param numToFree              number of synapses to free up
+    @param inactiveSynapseIndices list of the inactive synapse indices.
     """
     # Make sure numToFree isn't larger than the total number of syns we have
     assert (numToFree <= len(self.syns))
@@ -3534,11 +3530,9 @@ class Segment(object):
   def addSynapse(self, srcCellCol, srcCellIdx, perm):
     """Add a new synapse
 
-    Parameters:
-    --------------------------------------------------------------------
-    srcCellCol:   source cell column
-    srcCellIdx:   source cell index within the column
-    perm:         initial permanence
+    @param srcCellCol source cell column
+    @param srcCellIdx source cell index within the column
+    @param perm       initial permanence
     """
     self.syns.append([int(srcCellCol), int(srcCellIdx), numpy.float32(perm)])
 
@@ -3546,13 +3540,11 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    Parameters:
-    --------------------------------------------------------------------
-    tp:       The owner TP
-    synapses: List of synapse indices to update
-    delta:    How much to add to each permanence
+    @param tp       The owner TP
+    @param synapses List of synapse indices to update
+    @param delta    How much to add to each permanence
 
-    retval:   True if synapse reached 0
+    @returns   True if synapse reached 0
     """
     reached0 = False
 
