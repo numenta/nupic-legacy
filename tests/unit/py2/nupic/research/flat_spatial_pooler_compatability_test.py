@@ -237,6 +237,26 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     return cppSp
 
 
+  def debugPrint(self, sp, name):
+    """
+    Helpful debug print statements while debugging this test.
+    """
+    minDutyCycle = numpy.zeros(sp.getNumColumns(), dtype = GetNTAReal())
+    sp.getMinActiveDutyCycles(minDutyCycle)
+    
+    activeDutyCycle = numpy.zeros(sp.getNumColumns(), dtype = GetNTAReal())
+    sp.getActiveDutyCycles(activeDutyCycle)
+    
+    boost = numpy.zeros(sp.getNumColumns(), dtype = GetNTAReal())
+    sp.getBoostFactors(boost)
+    print "====================\n",name
+    print "Learning iteration:", sp.getIterationNum()
+    print "Min duty cycles:",minDutyCycle[0]
+    print "Active duty cycle", activeDutyCycle
+    print
+    print "Boost factor for sp:",boost
+
+
   def createSp(self, imp, params):
     """
     Create the SP implementation according to the parameters. Validate that
@@ -535,7 +555,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       'maxFiringBoost' : 14.0,
       'minDistance' : 0.4,
       'seed' : 19,
-      'spVerbosity' : 1,
+      'spVerbosity' : 0,
       'randomSP' : True
     }
     sppy1 = self.createSp("py", params)
@@ -566,7 +586,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       'maxFiringBoost' : 14.0,
       'minDistance' : 0.4,
       'seed' : 19,
-      'spVerbosity' : 1,
+      'spVerbosity' : 0,
       'randomSP' : False
     }
     self.runSerialize("py", params)

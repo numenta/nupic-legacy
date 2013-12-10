@@ -46,7 +46,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def setUp(self):
     # Set to 1 for more verbose debugging output
-    self.verbosity = 1
+    self.verbosity = 2
     
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
@@ -257,11 +257,15 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity": 0
     }
     # This seed used to cause problems if learnMode is set to None
-    self.runSideBySide(params, seed = 63862, learnMode = True)
-    self.runSideBySide(params, seed = 63862)
+    #self.runSideBySide(params, seed = 63862, learnMode = True)
+    #self.runSideBySide(params, seed = 63862)
+
+    # This should fail
+    self.runSideBySide(params, seed = 62605)
+
     self.runSideBySide(params)
 
-
+  @unittest.skip("Temporary while debugging travis failure")
   def testCompatabilityNoLearn(self):
     params = {
       "inputDimensions": [4,4],
@@ -285,6 +289,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, seed = None, learnMode = False)
 
 
+  @unittest.skip("Temporary while debugging travis failure")
   def testCompatability2(self):
     params = {
       "inputDimensions": [12,7],
@@ -308,6 +313,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
+  @unittest.skip("Temporary while debugging travis failure")
   def testCompatability3(self):
     params = {
       "inputDimensions": [2,4,5,2],
@@ -331,6 +337,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSideBySide(params, convertEveryIteration = True)
 
 
+  @unittest.skip("Temporary while debugging travis failure")
   def testSerialization(self):
     params = {
       'inputDimensions' : [2,4,5,2],
@@ -360,6 +367,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.compare(sp1, sp2)
 
 
+  @unittest.skip("Temporary while debugging travis failure")
   def testSerializationRun(self):
     params = {
       'inputDimensions' : [2,4,5,2],
