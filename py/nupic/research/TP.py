@@ -3544,13 +3544,11 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    Parameters:
-    --------------------------------------------------------------------
-    tp:       The owner TP
-    synapses: List of synapse indices to update
-    delta:    How much to add to each permanence
+    @param tp       The owner TP
+    @param synapses List of synapse indices to update
+    @param delta    How much to add to each permanence
 
-    retval:   True if synapse reached 0
+    @returns   True if synapse reached 0
     """
     reached0 = False
 
