@@ -151,7 +151,7 @@ def convertSP(pySp, newSeed):
 def CreateSP(imp, params):
   """
   Helper class for creating an instance of the appropriate spatial pooler using
-  given parameters. P
+  given parameters. 
 
   Parameters:
   ----------------------------
