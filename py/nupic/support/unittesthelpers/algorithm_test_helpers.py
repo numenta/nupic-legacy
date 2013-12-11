@@ -41,9 +41,9 @@ def getNumpyRandomGenerator(seed = None):
   """
   if seed is None:
     seed = int((time.time()%10000)*10)
-  print "Numpy seed set to:",seed,"called by",
+  print "Numpy seed set to:", seed, "called by",
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
+  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
   return numpy.random.RandomState(seed)
 
 
@@ -51,9 +51,9 @@ def getNumpyRandomGenerator(seed = None):
 def getSeed():
   """Generate and log a 32-bit compatible seed value."""
   seed = int((time.time()%10000)*10)
-  print "Seed set to:",seed,"called by",
+  print "New seed generated as:", seed, "called by",
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
+  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
   return seed
 
   
@@ -67,7 +67,7 @@ def convertSP(pySp, newSeed):
   inputDim = pySp._inputDimensions
   numInputs = pySp.getNumInputs()
   numColumns = pySp.getNumColumns()
-  cppSp = CPPSpatialPooler(inputDim,columnDim)
+  cppSp = CPPSpatialPooler(inputDim, columnDim)
   cppSp.setPotentialRadius(pySp.getPotentialRadius())
   cppSp.setPotentialPct(pySp.getPotentialPct())
   cppSp.setGlobalInhibition(pySp.getGlobalInhibition())
