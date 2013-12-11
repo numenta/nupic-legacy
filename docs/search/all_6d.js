@@ -6,5 +6,6 @@ var searchData=
   ['maxsegmentspercell',['maxSegmentsPerCell',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#aabc5d7a1f4a485d85d313f804eebc357',1,'nupic::research::TP::TP']]],
   ['maxseqlength',['maxSeqLength',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#abdccea269207e3dd6f620ba483b950b3',1,'nupic::research::TP::TP']]],
   ['maxsynapsespersegment',['maxSynapsesPerSegment',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a75048730597ac829d01725b3f747d395',1,'nupic::research::TP::TP']]],
+  ['main',['main',['../md_main.html',1,'']]],
   ['minthreshold',['minThreshold',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#ad9ac87e3b72e2983cfa19436dd9418c2',1,'nupic::research::TP::TP']]]
 ];
