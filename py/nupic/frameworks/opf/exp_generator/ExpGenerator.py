@@ -164,8 +164,11 @@ def _handleShowSchemaOption():
 
 
 ##############################################################################
-def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion):
-  """ Parses and validates the --description option args and executes the request
+def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
+                             claDescriptionTemplateFile):
+  """
+  Parses and validates the --description option args and executes the
+  request
 
   Parameters:
   -----------------------------------------------------------------------
@@ -174,7 +177,9 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion):
   usageStr:   program usage string
   hsVersion:  which version of hypersearch permutations file to generate, can
                 be 'v1' or 'v2'
+  claDescriptionTemplateFile: Filename containing the template description
   retval:     nothing
+  
 
   """
   # convert --description arg from JSON string to dict
@@ -188,15 +193,19 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion):
 
   #print "PARSED JSON ARGS=\n%s" % (json.dumps(args, indent=4))
 
-  filesDescription = _generateExperiment(args, outDir, hsVersion=hsVersion)
+  filesDescription = _generateExperiment(args, outDir, hsVersion=hsVersion,
+                    claDescriptionTemplateFile = claDescriptionTemplateFile)
 
   pprint.pprint(filesDescription)
 
   return
 
 ##############################################################################
-def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion):
-  """ Parses and validates the --descriptionFromFile option and executes the request
+def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
+                             claDescriptionTemplateFile):
+  """
+  Parses and validates the --descriptionFromFile option and executes the
+  request
 
   Parameters:
   -----------------------------------------------------------------------
@@ -205,6 +214,7 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion):
   usageStr:   program usage string
   hsVersion:  which version of hypersearch permutations file to generate, can
                 be 'v1' or 'v2'
+  claDescriptionTemplateFile: Filename containing the template description
   retval:     nothing
   """
 
@@ -220,7 +230,8 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion):
          "ARG=<%s>") % (str(e), filename), usageStr))
 
   _handleDescriptionOption(JSONStringFromFile, outDir, usageStr,
-                           hsVersion=hsVersion)
+        hsVersion=hsVersion,
+        claDescriptionTemplateFile = claDescriptionTemplateFile)
   return
 
 ############################################################################
@@ -1031,7 +1042,8 @@ def _getExperimentDescriptionSchema():
 
 
 #############################################################################
-def _generateExperiment(options, outputDirPath, hsVersion):
+def _generateExperiment(options, outputDirPath, hsVersion,
+                             claDescriptionTemplateFile):
   """ Executes the --description option, which includes:
 
       1. Perform provider compatibility checks
@@ -1051,6 +1063,7 @@ def _generateExperiment(options, outputDirPath, hsVersion):
 
   hsVersion:  which version of hypersearch permutations file to generate, can
                 be 'v1' or 'v2'
+  claDescriptionTemplateFile: Filename containing the template description
 
 
   Returns:    on success, returns a dictionary per _experimentResultsJSONSchema;
@@ -1592,7 +1605,7 @@ def _generateExperiment(options, outputDirPath, hsVersion):
 
   print "Generating experiment files in directory: %s..." % (outputDirPath)
   descriptionPyPath = os.path.join(outputDirPath, "description.py")
-  _generateFileFromTemplates(['claDescriptionTemplate.tpl', controlTemplate],
+  _generateFileFromTemplates([claDescriptionTemplateFile, controlTemplate],
                               descriptionPyPath,
                               tokenReplacements)
 
@@ -1999,6 +2012,12 @@ def expGenerator(args):
     help = "Tells ExpGenerator to open the given filename and use it's " \
            "contents as the JSON formatted experiment description.")
 
+  parser.add_option("--claDescriptionTemplateFile",
+    dest = 'claDescriptionTemplateFile',
+    default = 'claDescriptionTemplate.tpl',
+    help = "The file containing the template description file for " \
+           " ExpGenerator [default: %default]")
+
   parser.add_option("--showSchema",
                     action="store_true", dest="showSchema",
                     help="Prints the JSON schemas for the --description arg.")
@@ -2045,11 +2064,13 @@ def expGenerator(args):
 
   elif options.description:
     _handleDescriptionOption(options.description, options.outDir,
-           parser.get_usage(), hsVersion=options.version)
+           parser.get_usage(), hsVersion=options.version,
+           claDescriptionTemplateFile = options.claDescriptionTemplateFile)
 
   elif options.descriptionFromFile:
     _handleDescriptionFromFileOption(options.descriptionFromFile,
-            options.outDir, parser.get_usage(), hsVersion=options.version)
+          options.outDir, parser.get_usage(), hsVersion=options.version,
+          claDescriptionTemplateFile = options.claDescriptionTemplateFile)
 
   else:
     raise _InvalidCommandArgException(
