@@ -47,11 +47,29 @@ def getNumpyRandomGenerator(seed):
   return numpy.random.RandomState(seed)
 
 
+def convertPermanences(sourceSP, destSP):
+  """
+  Transfer the permanences from source to dest SP's. This is used in test
+  routines to counteract some drift between implementations.
+  We assume the two SP's have identical configurations/parameters.
+  """
+  numColumns = sourceSP.getNumColumns()
+  numInputs = sourceSP.getNumInputs()
+  for i in xrange(numColumns):
+    potential = numpy.zeros(numInputs).astype(uintType)
+    sourceSP.getPotential(i, potential)
+    destSP.setPotential(i, potential)
+
+    perm = numpy.zeros(numInputs).astype(realType)
+    sourceSP.getPermanence(i, perm)
+    destSP.setPermanence(i, perm)
+
+  
 
 def convertSP(pySp, newSeed):
   """
   Given an instance of a python spatial_pooler return an instance of the CPP
-  spatial_pooler.
+  spatial_pooler with identical parameters.
   """
   columnDim = pySp._columnDimensions
   inputDim = pySp._inputDimensions
