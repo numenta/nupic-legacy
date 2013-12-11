@@ -89,6 +89,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classnupic_1_1research_1_1_t_p_1_1_segment-members.html">List of all members</a>  </div>
   <div class="headertitle">
 <div class="title">nupic.research.TP.Segment Class Reference</div>  </div>
@@ -117,6 +118,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad86ed414c274376266ab5f1b4c378814"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#ad86ed414c274376266ab5f1b4c378814">updateSynapses</a></td></tr>
 <tr class="memdesc:ad86ed414c274376266ab5f1b4c378814"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update a set of synapses in the segment.  <a href="#ad86ed414c274376266ab5f1b4c378814"></a><br/></td></tr>
 <tr class="separator:ad86ed414c274376266ab5f1b4c378814"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a1414b23d4e5875c342ae6e13e3cc533f"><td class="memItemLeft" align="right" valign="top">list&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#a1414b23d4e5875c342ae6e13e3cc533f">dutyCycleTiers</a></td></tr>
+<tr class="memdesc:a1414b23d4e5875c342ae6e13e3cc533f"><td class="mdescLeft">&#160;</td><td class="mdescRight">These are iteration count tiers used when computing segment duty cycle.  <a href="#a1414b23d4e5875c342ae6e13e3cc533f"></a><br/></td></tr>
+<tr class="separator:a1414b23d4e5875c342ae6e13e3cc533f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2534da83b4f72e45c16e522bab6fd7bf"><td class="memItemLeft" align="right" valign="top">list&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#a2534da83b4f72e45c16e522bab6fd7bf">dutyCycleAlphas</a></td></tr>
+<tr class="memdesc:a2534da83b4f72e45c16e522bab6fd7bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">This is the alpha used in each tier.  <a href="#a2534da83b4f72e45c16e522bab6fd7bf"></a><br/></td></tr>
+<tr class="separator:a2534da83b4f72e45c16e522bab6fd7bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The <a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html" title="The Segment class is a container for all of the segment variables and the synapses it owns...">Segment</a> class is a container for all of the segment variables and the synapses it owns. </p>
@@ -224,19 +234,20 @@ Public Member Functions</h2></td></tr>
 <p>This is a measure of how often this segment is providing good predictions.</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">active</td><td>True if segment just provided a good prediction </td></tr>
+    <tr><td class="paramname">active</td><td>True if segment just provided a good prediction</td></tr>
     <tr><td class="paramname">readOnly</td><td>If True, compute the updated duty cycle, but don't change the cached value. This is used by debugging print statements.</td></tr>
   </table>
   </dd>
 </dl>
-<p>NOTE: This method relies on different schemes to compute the duty cycle based on how much history we have. In order to support this tiered approach IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER (self.dutyCycleTiers)</p>
+<dl class="section return"><dt>Returns</dt><dd>The duty cycle, a measure of how often this segment is providing good predictions.</dd></dl>
+<p><b>NOTE:</b> This method relies on different schemes to compute the duty cycle based on how much history we have. In order to support this tiered approach <b>IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER</b> (<a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#a1414b23d4e5875c342ae6e13e3cc533f">dutyCycleTiers</a>).</p>
 <p>When we don't have a lot of history yet (first tier), we simply return number of positive activations / total number of iterations</p>
-<p>After a certain number of iterations have accumulated, it converts into a moving average calcuation, which is updated only when requested since it can be a bit expensive to compute on every iteration (it uses the pow() function).</p>
+<p>After a certain number of iterations have accumulated, it converts into a moving average calculation, which is updated only when requested since it can be a bit expensive to compute on every iteration (it uses the pow() function).</p>
 <p>The duty cycle is computed as follows: </p>
 <pre class="fragment">dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
 </pre><p>If the value[t] has been 0 for a number of steps in a row, you can apply all of the updates at once using: </p>
 <pre class="fragment">dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
-</pre><p>We use the alphas and tiers as defined in self.dutyCycleAlphas and self.dutyCycleTiers. </p>
+</pre><p>We use the alphas and tiers as defined in <a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#a2534da83b4f72e45c16e522bab6fd7bf">dutyCycleAlphas</a> and <a class="el" href="classnupic_1_1research_1_1_t_p_1_1_segment.html#a1414b23d4e5875c342ae6e13e3cc533f">dutyCycleTiers</a>. </p>
 
 </div>
 </div>
@@ -331,13 +342,65 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a class="anchor" id="a2534da83b4f72e45c16e522bab6fd7bf"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">list nupic.research.TP.Segment.dutyCycleAlphas</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;[<span class="keywordtype">None</span>,    0.0032,    0.0010,  0.00032,</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;                     0.00010, 0.000032,  0.00001, 0.0000032,</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;                     0.0000010]</div>
+</div><!-- fragment -->
+<p>This is the alpha used in each tier. </p>
+<p>dutyCycleAlphas[n] is used when <code>iterationIdx &gt; dutyCycleTiers[n]</code>. </p>
+
+</div>
+</div>
+<a class="anchor" id="a1414b23d4e5875c342ae6e13e3cc533f"></a>
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">list nupic.research.TP.Segment.dutyCycleTiers</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line"><a name="l00001"></a><span class="lineno">    1</span>&#160;[0,       100,      320,    1000,</div>
+<div class="line"><a name="l00002"></a><span class="lineno">    2</span>&#160;                     3200,    10000,    32000,  100000,</div>
+<div class="line"><a name="l00003"></a><span class="lineno">    3</span>&#160;                     320000]</div>
+</div><!-- fragment -->
+<p>These are iteration count tiers used when computing segment duty cycle. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>py/nupic/research/<a class="el" href="_t_p_8py.html">TP.py</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Dec 10 2013 17:20:06 for NuPIC by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Dec 11 2013 00:00:19 for NuPIC by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.2
 </small></address>
