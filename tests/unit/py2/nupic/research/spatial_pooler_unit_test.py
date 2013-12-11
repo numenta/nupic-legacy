@@ -24,6 +24,8 @@ from mock import Mock, patch, ANY, call
 import numpy
 import unittest2 as unittest
 
+from nupic.support.unittesthelpers.algorithm_test_helpers import (
+  getNumpyRandomGenerator, getSeed )
 from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
                                  SM_01_32_32 as SparseBinaryMatrix,
@@ -31,12 +33,12 @@ from nupic.bindings.math import (count_gte,
 from nupic.research.spatial_pooler import SpatialPooler
 
 
-
 class SpatialPoolerTest(unittest.TestCase):
   """Unit Tests for SpatialPooler class."""
 
 
   def setUp(self):
+    
     self._sp = SpatialPooler(
         inputDimensions = [5],
         columnDimensions = [5],
@@ -53,7 +55,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctActiveDutyCycle = 0.1,
         dutyCyclePeriod = 10,
         maxBoost = 10.0,
-        seed = -1,
+        seed = getSeed(),
         spVerbosity = 0,
     )
 
@@ -78,7 +80,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctActiveDutyCycle = 0.1,
         dutyCyclePeriod = 10,
         maxBoost = 10.0,
-        seed = -1,
+        seed = getSeed(),
         spVerbosity = 0)
 
     sp._potentialPools = SparseBinaryMatrix(
@@ -115,7 +117,7 @@ class SpatialPoolerTest(unittest.TestCase):
         minPctActiveDutyCycle = 0.1,
         dutyCyclePeriod = 10,
         maxBoost = 10.0,
-        seed = -1,
+        seed = getSeed(),
         spVerbosity = 0)
 
     sp._inhibitColumns = Mock(return_value = numpy.array(range(5)))
@@ -198,11 +200,11 @@ class SpatialPoolerTest(unittest.TestCase):
     sp = self._sp
     sp._inhibitColumnsGlobal = Mock(return_value = 1)
     sp._inhibitColumnsLocal = Mock(return_value = 2)
-    numpy.random.rand = Mock(return_value = 0)
+    randomState = getNumpyRandomGenerator()
     sp._numColumns = 5
     sp._inhibitionRadius = 10
     sp._columnDimensions = [5]
-    overlaps = numpy.random.random(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns)
 
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
@@ -227,7 +229,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inhibitionRadius = 7
     # 0.1 * (2*9+1)**2 = 22.5
     trueDensity = sp._localAreaDensity
-    overlaps = numpy.random.random(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
     self.assertEqual(True,sp._inhibitColumnsLocal.called)    
@@ -244,7 +246,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 4
     trueDensity = 3.0/81.0
-    overlaps = numpy.random.random(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns)
     # 3.0 / (((2*4) + 1) ** 2)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
@@ -263,7 +265,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._globalInhibition = False
     sp._inhibitionRadius = 1
     trueDensity = 0.5
-    overlaps = numpy.random.random(sp._numColumns)
+    overlaps = randomState.random_sample(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False,sp._inhibitColumnsGlobal.called)
     self.assertEqual(True,sp._inhibitColumnsLocal.called)
@@ -966,7 +968,7 @@ class SpatialPoolerTest(unittest.TestCase):
     connectedPct = 1
     mask = numpy.array([1,1,1,0,0,0,0,0,1,1])
     perm = sp._initPermanence(mask,connectedPct)
-    connected = (perm > sp._synPermConnected).astype(int)
+    connected = (perm >= sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 5)
     maxThresh = sp._synPermConnected + sp._synPermActiveInc/4
@@ -974,7 +976,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     connectedPct = 0
     perm = sp._initPermanence(mask,connectedPct)
-    connected = (perm > sp._synPermConnected).astype(int)
+    connected = (perm >= sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 0)
 
@@ -983,7 +985,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._numInputs = 100
     mask = numpy.ones(100)
     perm = sp._initPermanence(mask,connectedPct)
-    connected = (perm > sp._synPermConnected).astype(int)
+    connected = (perm >= sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertGreater(numcon, 0)
     self.assertLess(numcon, sp._numInputs)
@@ -991,7 +993,7 @@ class SpatialPoolerTest(unittest.TestCase):
     minThresh = sp._synPermActiveInc / 2.0
     connThresh = sp._synPermConnected
     self.assertEqual(numpy.logical_and((perm >= minThresh),
-                                       (perm <= connThresh)).any(),True)
+                                       (perm < connThresh)).any(),True)
 
 
   def testInitPermanence2(self):

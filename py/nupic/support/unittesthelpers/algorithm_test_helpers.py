@@ -33,7 +33,7 @@ realType = GetNTAReal()
 uintType = "uint32"
 
 
-def getNumpyRandomGenerator(seed):
+def getNumpyRandomGenerator(seed = None):
   """
   Return a numpy random number generator with the given seed.
   If seed is None, set it randomly based on time. Regardless we log
@@ -48,6 +48,16 @@ def getNumpyRandomGenerator(seed):
 
 
 
+def getSeed():
+  """Generate and log a 32-bit compatible seed value."""
+  seed = int((time.time()%10000)*10)
+  print "Seed set to:",seed,"called by",
+  callStack = traceback.extract_stack(limit=3)
+  print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
+  return seed
+
+  
+  
 def convertSP(pySp, newSeed):
   """
   Given an instance of a python spatial_pooler return an instance of the CPP
