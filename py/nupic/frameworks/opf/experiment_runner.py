@@ -719,14 +719,14 @@ class _TaskRunner(object):
 
     reportMetrics = PeriodicActivityRequest(
       repeating=True,
-      period=25,
+      period=1000,
       cb=MetricsReportCb(self))
 
     periodicActivities.append(reportMetrics)
 
     # Iteration progress
     class IterationProgressCb(object):
-      PROGRESS_UPDATE_PERIOD_TICKS = 100
+      PROGRESS_UPDATE_PERIOD_TICKS = 1000
 
       def __init__(self, taskLabel, requestedIterationCount, logger):
         self.__taskLabel = taskLabel
