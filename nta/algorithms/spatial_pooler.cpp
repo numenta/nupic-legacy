@@ -477,6 +477,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   iterationNum_ = 0;
   iterationLearnNum_ = 0;
 
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    tieBreaker_[i] = 0.01 * rng_.getReal64();
+  }
 
   potentialPools_.resize(numColumns_, numInputs_);
   permanences_.resize(numColumns_, numInputs_);
@@ -485,8 +489,8 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   overlapDutyCycles_.assign(numColumns_, 0);
   activeDutyCycles_.assign(numColumns_, 0);
-  minOverlapDutyCycles_.assign(numColumns_, 1e-6);
-  minActiveDutyCycles_.assign(numColumns_, 1e-6);
+  minOverlapDutyCycles_.assign(numColumns_, 0.0);
+  minActiveDutyCycles_.assign(numColumns_, 0.0);
   boostFactors_.assign(numColumns_, 1);
   overlaps_.resize(numColumns_);
   overlapsPct_.resize(numColumns_);
@@ -504,9 +508,9 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   updateInhibitionRadius_();
 
-  if (spVerbosity_ > 1) {
+  if (spVerbosity_ > 0) {
     printParameters();
-    std::cout << "CPP SP seed             = " << seed << std::endl;
+    std::cout << "CPP SP seed                 = " << seed << std::endl;
   }
 }
 
@@ -998,7 +1002,7 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
   vector<Real> overlapsWithNoise;
   overlapsWithNoise.resize(numColumns_);
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapsWithNoise[i] = overlaps[i] + 0.1 * rng_.getReal64();
+    overlapsWithNoise[i] = overlaps[i] + tieBreaker_[i];
   }
 
   if (globalInhibition_ ||
@@ -1302,6 +1306,11 @@ void SpatialPooler::save(ostream& outStream)
   }
   outStream << endl;
 
+  for (UInt i = 0; i < numColumns_; i++) {
+    outStream << tieBreaker_[i] << " ";
+  }
+  outStream << endl;
+
 
   // Store matrices.
   for (UInt i = 0; i < numColumns_; i++) {
@@ -1416,6 +1425,11 @@ void SpatialPooler::load(istream& inStream)
     inStream >> minActiveDutyCycles_[i];
   }
 
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    inStream >> tieBreaker_[i];
+  }
+
 
   // Store matrices.
   potentialPools_.resize(numColumns_, numInputs_);
@@ -1468,22 +1482,27 @@ void SpatialPooler::printParameters()
 {
   std::cout << "------------CPP SpatialPooler Parameters ------------------\n";
   std::cout
-    << "numActiveColumnsPerInhArea_ = "
-                << numActiveColumnsPerInhArea_ << std::endl
-    << "potentialPct_               = " << potentialPct_ << std::endl
-    << "globalInhibition_           = " << globalInhibition_ << std::endl
-    << "localAreaDensity_           = " << localAreaDensity_ << std::endl
-
-    << "stimulusThreshold_          = " << stimulusThreshold_ << std::endl
-    << "synPermInactiveDec_         = " << synPermInactiveDec_ << std::endl
-    << "synPermActiveInc_           = " << synPermActiveInc_ << std::endl
-    << "synPermConnected_           = " << synPermConnected_ << std::endl
-    << "minPctOverlapDutyCycles_    = " << minPctOverlapDutyCycles_ << std::endl
-    << "minPctActiveDutyCycles_     = " << minPctActiveDutyCycles_ << std::endl
-    << "dutyCyclePeriod_            = " << dutyCyclePeriod_ << std::endl
-    << "maxBoost_                   = " << maxBoost_ << std::endl
-    << "spVerbosity                 = " << spVerbosity_ << std::endl
-    << "version                     = " << version_ << std::endl;
+    << "iterationNum                = " << getIterationNum() << std::endl
+    << "iterationLearnNum           = " << getIterationLearnNum() << std::endl
+    << "numInputs                   = " << getNumInputs() << std::endl
+    << "numColumns                  = " << getNumColumns() << std::endl
+    << "numActiveColumnsPerInhArea  = "
+                << getNumActiveColumnsPerInhArea() << std::endl
+    << "potentialPct                = " << getPotentialPct() << std::endl
+    << "globalInhibition            = " << getGlobalInhibition() << std::endl
+    << "localAreaDensity            = " << getLocalAreaDensity() << std::endl
+    << "stimulusThreshold           = " << getStimulusThreshold() << std::endl
+    << "synPermActiveInc            = " << getSynPermActiveInc() << std::endl
+    << "synPermInactiveDec          = " << getSynPermInactiveDec() << std::endl
+    << "synPermConnected            = " << getSynPermConnected() << std::endl
+    << "minPctOverlapDutyCycles     = "
+                << getMinPctOverlapDutyCycles() << std::endl
+    << "minPctActiveDutyCycles      = "
+                << getMinPctActiveDutyCycles() << std::endl
+    << "dutyCyclePeriod             = " << getDutyCyclePeriod() << std::endl
+    << "maxBoost                    = " << getMaxBoost() << std::endl
+    << "spVerbosity                 = " << getSpVerbosity() << std::endl
+    << "version                     = " << version() << std::endl;
 }
 
 void SpatialPooler::printState(vector<UInt> &state)
