@@ -27,7 +27,7 @@ import time
 import traceback
 
 from nupic.support.unittesthelpers.algorithm_test_helpers \
-     import getNumpyRandomGenerator, convertSP, CreateSP
+     import getNumpyRandomGenerator, CreateSP, convertPermanences
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
@@ -135,7 +135,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
-      if self.verbosity > 1: print "Column:",i
+      if self.verbosity > 2: print "Column:",i
       pyPot = numpy.zeros(numInputs).astype(uintType)
       cppPot = numpy.zeros(numInputs).astype(uintType)
       pySp.getPotential(i, pyPot)
@@ -203,11 +203,12 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       self.compare(pySp,cppSp)
 
       # The permanence values for the two implementations drift ever so slowly
-      # over time due to numerical precision issues. This causes different
-      # permanences
-      # By converting the SP's we reset the permanence values
-      if convertEveryIteration or ((i+1)%30 == 0):
-        cppSp = convertSP(pySp, i+1)
+      # over time due to numerical precision issues. This occasionally causes
+      # different permanences to be connected. By transferring the permanence
+      # values every so often, we can avoid this drift but still check that
+      # the logic is applied equally for both implementations.
+      if convertEveryIteration or ((i+1)%10 == 0):
+        convertPermanences(pySp, cppSp)
 
 
   def runSerialize(self, imp, params, seed = None):
@@ -257,10 +258,14 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "spVerbosity": 0
     }
     # This seed used to cause problems if learnMode is set to None
-    self.runSideBySide(params, seed = 63862, learnMode = True)
     self.runSideBySide(params, seed = 63862)
-    self.runSideBySide(params)
 
+    # These seeds used to fail
+    self.runSideBySide(params, seed = 62605)
+    self.runSideBySide(params, seed = 30440)
+    self.runSideBySide(params, seed = 49457)
+
+    self.runSideBySide(params)
 
   def testCompatabilityNoLearn(self):
     params = {
