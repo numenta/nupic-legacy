@@ -195,7 +195,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
       for j in range(5):
         if (i!=j):
           self.assertLess(_computeOverlap(self.lastSDR[i], self.lastSDR[j]),
-                          7, "One of the last three SDRs has high overlap")
+                          10, "One of the last three SDRs has high overlap")
 
 
   def boostTestPhase1(self):
