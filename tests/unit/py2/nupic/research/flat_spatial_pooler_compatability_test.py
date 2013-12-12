@@ -25,7 +25,7 @@ import numpy
 import unittest2 as unittest
 
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
-  getNumpyRandomGenerator )
+  getNumpyRandomGenerator, convertPermanences )
 
 from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random
@@ -167,76 +167,6 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListEqual(list(pyConCounts), list(cppConCounts))
 
 
-  def convertSP(self, pySp, newSeed):
-    columnDim = pySp._columnDimensions
-    inputDim = pySp._inputDimensions
-    numInputs = pySp.getNumInputs()
-    numColumns = pySp.getNumColumns()
-    cppSp = CPPFlatSpatialPooler(inputShape=inputDim,
-      coincidencesShape=columnDim)
-    cppSp.setPotentialRadius(pySp.getPotentialRadius())
-    cppSp.setPotentialPct(pySp.getPotentialPct())
-    cppSp.setGlobalInhibition(pySp.getGlobalInhibition())
-
-    numActiveColumnsPerInhArea = pySp.getNumActiveColumnsPerInhArea()
-    localAreaDensity = pySp.getLocalAreaDensity()
-    if (localAreaDensity > 0):
-      cppSp.setLocalAreaDensity(localAreaDensity)
-    else:
-      cppSp.setNumActiveColumnsPerInhArea(numActiveColumnsPerInhArea)
-
-    cppSp.setStimulusThreshold(pySp.getStimulusThreshold())
-    cppSp.setInhibitionRadius(pySp.getInhibitionRadius())
-    cppSp.setDutyCyclePeriod(pySp.getDutyCyclePeriod())
-    cppSp.setMaxBoost(pySp.getMaxBoost())
-    cppSp.setIterationNum(pySp.getIterationNum())
-    cppSp.setIterationLearnNum(pySp.getIterationLearnNum())
-    cppSp.setSpVerbosity(pySp.getSpVerbosity())
-    cppSp.setUpdatePeriod(pySp.getUpdatePeriod())
-    cppSp.setSynPermTrimThreshold(pySp.getSynPermTrimThreshold())
-    cppSp.setSynPermActiveInc(pySp.getSynPermActiveInc())
-    cppSp.setSynPermInactiveDec(pySp.getSynPermInactiveDec())
-    cppSp.setSynPermBelowStimulusInc(pySp.getSynPermBelowStimulusInc())
-    cppSp.setSynPermConnected(pySp.getSynPermConnected())
-    cppSp.setMinPctOverlapDutyCycles(pySp.getMinPctOverlapDutyCycles())
-    cppSp.setMinPctActiveDutyCycles(pySp.getMinPctActiveDutyCycles())
-    cppSp.setMinDistance(pySp.getMinDistance())
-    cppSp.setRandomSP(pySp.getRandomSP())
-
-    boostFactors = numpy.zeros(numColumns).astype(realType)
-    pySp.getBoostFactors(boostFactors)
-    cppSp.setBoostFactors(boostFactors)
-
-    overlapDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getOverlapDutyCycles(overlapDuty)
-    cppSp.setOverlapDutyCycles(overlapDuty)
-
-    activeDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getActiveDutyCycles(activeDuty)
-    cppSp.setActiveDutyCycles(activeDuty)
-
-    minOverlapDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinOverlapDutyCycles(minOverlapDuty)
-    cppSp.setMinOverlapDutyCycles(minOverlapDuty)
-
-    minActiveDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinActiveDutyCycles(minActiveDuty)
-    cppSp.setMinActiveDutyCycles(minActiveDuty)
-
-    for i in xrange(numColumns):
-      potential = numpy.zeros(numInputs).astype(uintType)
-      pySp.getPotential(i, potential)
-      cppSp.setPotential(i, potential)
-
-      perm = numpy.zeros(numInputs).astype(realType)
-      pySp.getPermanence(i, perm)
-      cppSp.setPermanence(i, perm)
-
-    pySp._random = Random(newSeed)
-    cppSp.seed_(newSeed)
-    return cppSp
-
-
   def debugPrint(self, sp, name):
     """
     Helpful debug print statements while debugging this test.
@@ -343,11 +273,12 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
 
       # The permanence values for the two implementations drift ever so slowly
-      # over time due to numerical precision issues. This causes different
-      # permanences
-      # By converting the SP's we reset the permanence values
-      if convertEveryIteration or ((i+1)%30 == 0):
-        cppSp = self.convertSP(pySp, i+1)
+      # over time due to numerical precision issues. This occasionally causes
+      # different permanences to be connected. By transferring the permanence
+      # values every so often, we can avoid this drift but still check that
+      # the logic is applied equally for both implementations.
+      if convertEveryIteration or ((i+1)%10 == 0):
+        convertPermanences(pySp, cppSp)
 
 
 
@@ -419,7 +350,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
       "randomSP" : False
     }
     # We test a few combinations
-    self.runSideBySide(params, learnMode = False)
+    self.runSideBySide(params, learnMode=False)
     self.runSideBySide(params, convertEveryIteration = True)
 
 

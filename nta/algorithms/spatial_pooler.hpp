@@ -323,6 +323,7 @@ namespace nta {
           vector<Real> overlapsPct_;
           vector<Real> boostedOverlaps_;
           vector<UInt> activeColumns_;
+          vector<Real> tieBreaker_;
 
           UInt version_;
           Random rng_;

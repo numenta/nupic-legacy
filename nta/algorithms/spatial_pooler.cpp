@@ -477,6 +477,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   iterationNum_ = 0;
   iterationLearnNum_ = 0;
 
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    tieBreaker_[i] = 0.01 * rng_.getReal64();
+  }
 
   potentialPools_.resize(numColumns_, numInputs_);
   permanences_.resize(numColumns_, numInputs_);
@@ -998,7 +1002,7 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
   vector<Real> overlapsWithNoise;
   overlapsWithNoise.resize(numColumns_);
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapsWithNoise[i] = overlaps[i] + 0.1 * rng_.getReal64();
+    overlapsWithNoise[i] = overlaps[i] + tieBreaker_[i];
   }
 
   if (globalInhibition_ ||
@@ -1302,6 +1306,11 @@ void SpatialPooler::save(ostream& outStream)
   }
   outStream << endl;
 
+  for (UInt i = 0; i < numColumns_; i++) {
+    outStream << tieBreaker_[i] << " ";
+  }
+  outStream << endl;
+
 
   // Store matrices.
   for (UInt i = 0; i < numColumns_; i++) {
@@ -1414,6 +1423,11 @@ void SpatialPooler::load(istream& inStream)
   minActiveDutyCycles_.resize(numColumns_);
   for (UInt i = 0; i < numColumns_; i++) {
     inStream >> minActiveDutyCycles_[i];
+  }
+
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    inStream >> tieBreaker_[i];
   }
 
 
