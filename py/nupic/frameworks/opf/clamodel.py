@@ -1134,16 +1134,14 @@ class CLAModel(Model):
             sensorAutoResetDict, timeDelta))
 
         # see if sensor already has an autoreset filter
-        filter = None
-        for f in sensor.preEncodingFilters:
-          if isinstance(f, AutoResetFilter):
-            filter = f
+        for filter_ in send.preEncodingFilters:
+          if isinstance(filter_, AutoResetFilter):
             break
-        if filter is None:
-          filter = AutoResetFilter()
-          sensor.preEncodingFilters.append(filter)
+        else:
+          filter_ = AutoResetFilter()
+          sensor.preEncodingFilters.append(filter_)
 
-        filter.setInterval(timeDelta)
+        filter_.setInterval(timedelta)
 
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
