@@ -72,7 +72,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not (self.getInferenceType() == InferenceType.TemporalAnomaly):
+    if not (self.getInferenceType() is InferenceType.TemporalAnomaly):
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -121,9 +121,9 @@ class CLAModel(Model):
       sensorParams={},
       spEnable=True,
       spParams={},
-      
+
       # TODO: We can't figure out what this is. Remove?
-      trainSPNetOnlyIfRequested=False,  
+      trainSPNetOnlyIfRequested=False,
       tpEnable=True,
       tpParams={},
       clParams={},
@@ -181,16 +181,16 @@ class CLAModel(Model):
     # enable/disable//SP/TP//Learning methods)
     self.__spLearningEnabled = bool(spEnable)
     self.__tpLearningEnabled = bool(tpEnable)
-    
+
     # Explicitly exclude the TP if this type of inference doesn't require it
     if not InferenceType.isTemporal(self.getInferenceType()) \
-       or self.getInferenceType() == InferenceType.NontemporalMultiStep:
+       or self.getInferenceType() is InferenceType.NontemporalMultiStep:
       tpEnable = False
 
     self._netInfo = None
     self._hasSP = spEnable
     self._hasTP = tpEnable
-    
+
     self._classifierInputEncoder = None
     self._predictedFieldIdx = None
     self._predictedFieldName = None
@@ -204,11 +204,11 @@ class CLAModel(Model):
 
 
     # Initialize Spatial Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.NontemporalAnomaly:
+    if self.getInferenceType() is InferenceType.NontemporalAnomaly:
       self._getSPRegion().setParameter('anomalyMode', True)
 
     # Initialize Temporal Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if self.getInferenceType() is InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
       self._prevPredictedColumns = numpy.array([])
 
@@ -400,13 +400,13 @@ class CLAModel(Model):
     inferences = {}
 
     # TODO: Reconstruction and temporal classification not used. Remove
-    if self._isReconstructionModel():  
+    if self._isReconstructionModel():
       inferences = self._reconstructionCompute()
       tpTopDownComputed = True
     elif self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
     # For temporal classification. Not used, and might not work anymore
-    elif self._isClassificationModel():  
+    elif self._isClassificationModel():
       inferences = self._classifcationCompute()
 
     results.inferences.update(inferences)
@@ -436,7 +436,7 @@ class CLAModel(Model):
   def _getSensorInputRecord(self, inputRecord):
     """
     inputRecord - dict containing the input to the sensor
-    
+
     Return a 'SensorInput' object, which represents the 'parsed'
     representation of the input record
     """
@@ -504,7 +504,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
 
-    if inferenceType == InferenceType.TemporalNextStep:
+    if inferenceType is InferenceType.TemporalNextStep:
       return True
 
     if inferenceArgs:
@@ -613,7 +613,7 @@ class CLAModel(Model):
   def _anomalyCompute(self, computeTPTopDown):
     """
     Compute Anomaly score, if required
-      computeTPTopDown: If True, first perform a  
+      computeTPTopDown: If True, first perform a
 
     """
     inferenceType = self.getInferenceType()
@@ -693,7 +693,7 @@ class CLAModel(Model):
                   each time unless there are missing records. If there is no
                   aggregation interval or timestamp in the data, this will be
                   None.
-    rawInput:   The raw input to the sensor, as a dict. 
+    rawInput:   The raw input to the sensor, as a dict.
     """
 
     sensor = self._getSensorRegion()
@@ -711,7 +711,7 @@ class CLAModel(Model):
         raise RuntimeError("This experiment description is missing "
               "the 'predictedField' in its config, which is required "
               "for multi-step prediction inference.")
-      
+
       # This is getting index of predicted field if being fed to CLA.
       self._predictedFieldName = predictedFieldName
       encoderList = sensor.getSelf().encoder.getEncoderList()
@@ -722,15 +722,15 @@ class CLAModel(Model):
       else:
         # Predicted field was not fed into the network, only to the classifier
         self._predictedFieldIdx = None
-      
-      # In a multi-step model, the classifier input encoder is separate from 
-      #  the other encoders and always disabled from going into the bottom of 
+
+      # In a multi-step model, the classifier input encoder is separate from
+      #  the other encoders and always disabled from going into the bottom of
       # the network.
       if sensor.getSelf().disabledEncoder is not None:
         encoderList = sensor.getSelf().disabledEncoder.getEncoderList()
       else:
         encoderList = []
-      if len(encoderList) >= 1:  
+      if len(encoderList) >= 1:
         fieldNames = sensor.getSelf().disabledEncoder.getScalarNames()
         self._classifierInputEncoder = encoderList[fieldNames.index(
                                                         predictedFieldName)]
@@ -739,8 +739,8 @@ class CLAModel(Model):
         #  classifier, so use the one that goes into the bottom of the network
         encoderList = sensor.getSelf().encoder.getEncoderList()
         self._classifierInputEncoder = encoderList[self._predictedFieldIdx]
-        
-        
+
+
 
     # Get the actual value and the bucket index for this sample. The
     #  predicted field may not be enabled for input to the network, so we
@@ -748,7 +748,7 @@ class CLAModel(Model):
     # TODO: All this logic could be simpler if in the encoder itself
     absoluteValue = rawInput[predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
-    
+
     # Convert the absolute values to deltas if necessary
     # The bucket index should be handled correctly by the underlying delta encoder
     if self._classifierInputEncoder.isDelta():
@@ -762,7 +762,7 @@ class CLAModel(Model):
     else:
       actualValue = absoluteValue
 
-    if type(actualValue) is float and math.isnan(actualValue):
+    if isinstance(actualValue, float) and math.isnan(actualValue):
       actualValue = SENTINEL_VALUE_FOR_MISSING_DATA
 
 
@@ -774,7 +774,7 @@ class CLAModel(Model):
     classifier.setParameter('learningMode', needLearning)
     classificationIn = {'bucketIdx': bucketIdx,
                         'actValue': actualValue}
-    
+
     # Handle missing records
     if inputTSRecordIdx is not None:
       recordNum = inputTSRecordIdx
@@ -864,7 +864,7 @@ class CLAModel(Model):
         # Get the prediction history for this number of timesteps.
         # The prediction history is a store of the previous best predicted values.
         # This is used to get the final shift from the current absolute value.
-        if not hasattr(self,'_ms_predHistories'):
+        if not hasattr(self, '_ms_predHistories'):
           self._ms_predHistories = dict()
         predHistories = self._ms_predHistories
         if not steps in predHistories:
@@ -875,15 +875,15 @@ class CLAModel(Model):
         # an offset from the current absolute value
         sumDelta = sum(predHistory)
         offsetDict = dict()
-        for (k,v) in likelihoodsDict.iteritems():
-          if not k == None:
+        for (k, v) in likelihoodsDict.iteritems():
+          if k is not None:
             # Reconstruct the absolute value based on the current actual value,
             # the best predicted values from the previous iterations,
             # and the current predicted delta
             offsetDict[absoluteValue+float(k)+sumDelta] = v
 
         # Push the current best delta to the history buffer for reconstructing the final delta
-        if not bestActValue is None:
+        if bestActValue is not None:
           predHistory.append(bestActValue)
         # If we don't need any more values in the predictionHistory, pop off
         # the earliest one.
@@ -981,7 +981,7 @@ class CLAModel(Model):
     fieldNames = encoder.getScalarNames()
     fieldTypes = encoder.getDecoderOutputFieldTypes()
     assert len(fieldNames) == len(fieldTypes)
-    
+
     # Also include the classifierOnly field?
     encoder = self._getClassifierOnlyEncoder()
     if includeClassifierOnlyField and encoder is not None:
@@ -1087,24 +1087,24 @@ class CLAModel(Model):
     sensor = n.regions['sensor'].getSelf()
 
     enabledEncoders = copy.deepcopy(sensorParams['encoders'])
-    for name,params in enabledEncoders.items():
+    for name, params in enabledEncoders.items():
       if params is not None:
-        classifierOnly = params.pop('classifierOnly', False)  
+        classifierOnly = params.pop('classifierOnly', False)
         if classifierOnly:
           enabledEncoders.pop(name)
-      
+
     # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
     # SP or TP Regions. This is to handle the case where the predicted field
     # is not fed through the SP/TP. We typically just have one of these now.
     disabledEncoders = copy.deepcopy(sensorParams['encoders'])
-    for name,params in disabledEncoders.items():
+    for name, params in disabledEncoders.items():
       if params is None:
         disabledEncoders.pop(name)
       else:
         classifierOnly = params.pop('classifierOnly', False)
         if not classifierOnly:
           disabledEncoders.pop(name)
-        
+
     encoder = MultiEncoder(enabledEncoders)
 
     sensor.encoder = encoder
@@ -1115,7 +1115,7 @@ class CLAModel(Model):
     # at a regular interval, such as every week for daily data, every day for
     # hourly data, etc.
     # TODO: remove, not being used anymore
-    if sensorParams['sensorAutoReset']: 
+    if sensorParams['sensorAutoReset']:
       sensorAutoResetDict = sensorParams['sensorAutoReset']
 
       supportedUnits = set(('days', 'hours', 'minutes', 'seconds',
@@ -1142,16 +1142,14 @@ class CLAModel(Model):
             sensorAutoResetDict, timeDelta))
 
         # see if sensor already has an autoreset filter
-        filter = None
-        for f in sensor.preEncodingFilters:
-          if isinstance(f, AutoResetFilter):
-            filter = f
+        for filter_ in send.preEncodingFilters:
+          if isinstance(filter_, AutoResetFilter):
             break
-        if filter is None:
-          filter = AutoResetFilter()
-          sensor.preEncodingFilters.append(filter)
+        else:
+          filter_ = AutoResetFilter()
+          sensor.preEncodingFilters.append(filter_)
 
-        filter.setInterval(timeDelta)
+        filter_.setInterval(timedelta)
 
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
@@ -1167,7 +1165,7 @@ class CLAModel(Model):
       n.link("sensor", "SP", "UniformLink", "")
       n.link("sensor", "SP", "UniformLink", "", srcOutput="resetOut",
              destInput="resetIn")
-      
+
       n.link("SP", "sensor", "UniformLink", "", srcOutput="spatialTopDownOut",
              destInput="spatialTopDownIn")
       n.link("SP", "sensor", "UniformLink", "", srcOutput="temporalTopDownOut",
@@ -1231,7 +1229,7 @@ class CLAModel(Model):
     # it goes along. The concept is very useful for debugging but not used
     # anymore.
     # TODO: remove, including NetworkInfo, DutyCycleStatistic, CLAStatistic
-    
+
     #--------------------------------------------------
     # Create stats collectors for this network
     #
@@ -1312,16 +1310,16 @@ class CLAModel(Model):
       self._Model__inferenceArgs = {}
       self._Model__learningEnabled = True
       self._Model__inferenceEnabled = True
-      
+
       # Remove obsolete members
       self.__dict__.pop("_CLAModel__encoderNetInfo", None)
       self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
-      
 
-      
+
+
     # -----------------------------------------------------------------------
-    # Migrate from v2 
+    # Migrate from v2
     if not hasattr(self, "_netInfo"):
       self._hasSP = False
       self._hasTP = False
@@ -1334,7 +1332,7 @@ class CLAModel(Model):
         self._netInfo = self.__temporalNetInfo
         self._hasSP = True
         self._hasTP = True
-      
+
       # Remove obsolete members
       self.__dict__.pop("_CLAModel__encoderNetInfo", None)
       self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
@@ -1373,7 +1371,7 @@ class CLAModel(Model):
     self._netInfo.net.save(outputDir)
 
     self.__logger.info("Finished serializing network")
-    
+
     return
 
 
@@ -1408,7 +1406,7 @@ class CLAModel(Model):
     # NuPIC doesn't initialize the network until you try to run it
     # but users may want to access components in a setup callback
     self._netInfo.net.initialize()
-    
+
 
     # Used for backwards compatibility for anomaly classification models.
     # Previous versions used the CLAModelClassifierHelper class for utilizing
@@ -1430,15 +1428,15 @@ class CLAModel(Model):
         else:
           anomalyClParams['anomalyThreshold'] = (
             self._classifier_helper.getAutoDetectThreshold())
-        
-        spEnable = (self._getSPRegion() is not None)       
+
+        spEnable = (self._getSPRegion() is not None)
         tpEnable = True
-  
-        # Store original KNN region 
+
+        # Store original KNN region
         knnRegion = self._getAnomalyClassifier().getSelf()
-        
+
         # Add new KNNAnomalyClassifierRegion
-        self._addAnomalyClassifierRegion(self._netInfo.net, anomalyClParams, 
+        self._addAnomalyClassifierRegion(self._netInfo.net, anomalyClParams,
                                          spEnable, tpEnable)
 
         # Restore state
@@ -1446,7 +1444,7 @@ class CLAModel(Model):
         self._getAnomalyClassifier().getSelf()._recordsCache = (
             self._classifier_helper.saved_states)
         self._getAnomalyClassifier().getSelf().saved_categories = (
-            self._classifier_helper.saved_categories)        
+            self._classifier_helper.saved_categories)
         self._getAnomalyClassifier().getSelf()._knnclassifier = knnRegion
 
         # Set TP to output neccessary information
@@ -1476,9 +1474,9 @@ class CLAModel(Model):
     network - network to add the AnomalyClassifier region
     params - parameters to pass to the region
     spEnable - True if network has an SP region
-    tpEnable - True if network has a TP region; Currently requires True 
+    tpEnable - True if network has a TP region; Currently requires True
     """
-    
+
     allParams = copy.deepcopy(params)
     knnParams = dict(k=1,
                      distanceMethod='rawOverlap',
@@ -1532,7 +1530,7 @@ class CLAModel(Model):
     Returns:      Absolute directory path for saving CLA Network
     """
     if self.__restoringFromV1:
-      if self.getInferenceType() == InferenceType.TemporalNextStep:
+      if self.getInferenceType() is InferenceType.TemporalNextStep:
         leafName = 'temporal'+ "-network.nta"
       else:
         leafName = 'nonTemporal'+ "-network.nta"
