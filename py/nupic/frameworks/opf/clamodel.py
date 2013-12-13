@@ -72,7 +72,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not (self.getInferenceType() == InferenceType.TemporalAnomaly):
+    if not (self.getInferenceType() is InferenceType.TemporalAnomaly):
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -184,7 +184,7 @@ class CLAModel(Model):
     
     # Explicitly exclude the TP if this type of inference doesn't require it
     if not InferenceType.isTemporal(self.getInferenceType()) \
-       or self.getInferenceType() == InferenceType.NontemporalMultiStep:
+       or self.getInferenceType() is InferenceType.NontemporalMultiStep:
       tpEnable = False
 
     self._netInfo = None
@@ -204,11 +204,11 @@ class CLAModel(Model):
 
 
     # Initialize Spatial Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.NontemporalAnomaly:
+    if self.getInferenceType() is InferenceType.NontemporalAnomaly:
       self._getSPRegion().setParameter('anomalyMode', True)
 
     # Initialize Temporal Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if self.getInferenceType() is InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
       self._prevPredictedColumns = numpy.array([])
 
@@ -504,7 +504,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
 
-    if inferenceType == InferenceType.TemporalNextStep:
+    if inferenceType is InferenceType.TemporalNextStep:
       return True
 
     if inferenceArgs:
@@ -754,7 +754,7 @@ class CLAModel(Model):
     else:
       actualValue = absoluteValue
 
-    if type(actualValue) is float and math.isnan(actualValue):
+    if isinstance(actualValue, float) and math.isnan(actualValue):
       actualValue = SENTINEL_VALUE_FOR_MISSING_DATA
 
 
@@ -867,15 +867,15 @@ class CLAModel(Model):
         # an offset from the current absolute value
         sumDelta = sum(predHistory)
         offsetDict = dict()
-        for (k,v) in likelihoodsDict.iteritems():
-          if not k == None:
+        for (k, v) in likelihoodsDict.iteritems():
+          if k is not None:
             # Reconstruct the absolute value based on the current actual value,
             # the best predicted values from the previous iterations,
             # and the current predicted delta
             offsetDict[absoluteValue+float(k)+sumDelta] = v
 
         # Push the current best delta to the history buffer for reconstructing the final delta
-        if not bestActValue is None:
+        if bestActValue is not None:
           predHistory.append(bestActValue)
         # If we don't need any more values in the predictionHistory, pop off
         # the earliest one.
@@ -1524,7 +1524,7 @@ class CLAModel(Model):
     Returns:      Absolute directory path for saving CLA Network
     """
     if self.__restoringFromV1:
-      if self.getInferenceType() == InferenceType.TemporalNextStep:
+      if self.getInferenceType() is InferenceType.TemporalNextStep:
         leafName = 'temporal'+ "-network.nta"
       else:
         leafName = 'nonTemporal'+ "-network.nta"
