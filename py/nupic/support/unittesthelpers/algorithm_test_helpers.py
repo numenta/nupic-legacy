@@ -33,7 +33,7 @@ realType = GetNTAReal()
 uintType = "uint32"
 
 
-def getNumpyRandomGenerator(seed):
+def getNumpyRandomGenerator(seed = None):
   """
   Return a numpy random number generator with the given seed.
   If seed is None, set it randomly based on time. Regardless we log
@@ -41,23 +41,51 @@ def getNumpyRandomGenerator(seed):
   """
   if seed is None:
     seed = int((time.time()%10000)*10)
-  print "Numpy seed set to:",seed,"called by",
+  print "Numpy seed set to:", seed, "called by",
   callStack = traceback.extract_stack(limit=3)
-  print callStack[0][2],"line",callStack[0][1],"->",callStack[1][2]
+  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
   return numpy.random.RandomState(seed)
 
 
+def convertPermanences(sourceSP, destSP):
+  """
+  Transfer the permanences from source to dest SP's. This is used in test
+  routines to counteract some drift between implementations.
+  We assume the two SP's have identical configurations/parameters.
+  """
+  numColumns = sourceSP.getNumColumns()
+  numInputs = sourceSP.getNumInputs()
+  for i in xrange(numColumns):
+    potential = numpy.zeros(numInputs).astype(uintType)
+    sourceSP.getPotential(i, potential)
+    destSP.setPotential(i, potential)
 
+    perm = numpy.zeros(numInputs).astype(realType)
+    sourceSP.getPermanence(i, perm)
+    destSP.setPermanence(i, perm)
+
+  
+
+def getSeed():
+  """Generate and log a 32-bit compatible seed value."""
+  seed = int((time.time()%10000)*10)
+  print "New seed generated as:", seed, "called by",
+  callStack = traceback.extract_stack(limit=3)
+  print callStack[0][2], "line", callStack[0][1], "->", callStack[1][2]
+  return seed
+
+  
+  
 def convertSP(pySp, newSeed):
   """
   Given an instance of a python spatial_pooler return an instance of the CPP
-  spatial_pooler.
+  spatial_pooler with identical parameters.
   """
   columnDim = pySp._columnDimensions
   inputDim = pySp._inputDimensions
   numInputs = pySp.getNumInputs()
   numColumns = pySp.getNumColumns()
-  cppSp = CPPSpatialPooler(inputDim,columnDim)
+  cppSp = CPPSpatialPooler(inputDim, columnDim)
   cppSp.setPotentialRadius(pySp.getPotentialRadius())
   cppSp.setPotentialPct(pySp.getPotentialPct())
   cppSp.setGlobalInhibition(pySp.getGlobalInhibition())
@@ -123,12 +151,15 @@ def convertSP(pySp, newSeed):
 def CreateSP(imp, params):
   """
   Helper class for creating an instance of the appropriate spatial pooler using
-  given parameters.
+  given parameters. 
 
   Parameters:
   ----------------------------
   imp:       Either 'py' or 'cpp' for creating the appropriate instance.
-  params:    A dict with various constructor parameters for the SP.
+  params:    A dict for overriding constructor parameters. The keys must
+             correspond to contructor parameter names.
+  
+  Returns the SP object.
   """
   if (imp == "py"):
     spClass = PySpatialPooler
@@ -137,25 +168,7 @@ def CreateSP(imp, params):
   else:
     raise RuntimeError("unrecognized implementation")
 
-  sp = spClass(
-    inputDimensions=params["inputDimensions"],
-    columnDimensions=params["columnDimensions"],
-    potentialRadius=params["potentialRadius"],
-    potentialPct=params.get("potentialPct", 0.5),
-    globalInhibition=params.get("globalInhibition", True),
-    localAreaDensity=params.get("localAreaDensity", -1.0),
-    numActiveColumnsPerInhArea=params["numActiveColumnsPerInhArea"],
-    stimulusThreshold=params.get("stimulusThreshold", 0),
-    synPermInactiveDec=params.get("synPermInactiveDec", 0.01),
-    synPermActiveInc=params.get("synPermActiveInc", 0.1),
-    synPermConnected=params.get("synPermConnected", 0.1),
-    minPctOverlapDutyCycle=params.get("minPctOverlapDutyCycle",0.0),
-    minPctActiveDutyCycle=params["minPctActiveDutyCycle"],
-    dutyCyclePeriod=params["dutyCyclePeriod"],
-    maxBoost=params.get("maxBoost",10),
-    seed=params["seed"],
-    spVerbosity=params.get("spVerbosity", 0),
-  )
+  sp = spClass(**params)
   
   return sp
 
