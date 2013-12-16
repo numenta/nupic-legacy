@@ -16,25 +16,27 @@ Issue tracker at [issues.numenta.org](https://issues.numenta.org/browse/NPC).
 
 For more detailed documentation, see the [OPF wiki page](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework).
 
-__Encoders__ turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar values.
+*__Encoders__* turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar values.
 
-__Models__ take sequences of SDRs and make predictions.  The CLA is implemented as an OPF model.
+*__Models__* take sequences of SDRs and make predictions.  The CLA is implemented as an OPF model.
 
-__Metrics__ take input values and predictions and output scalar representations of the quality of the predictions.  Different metrics are suitable for different problems.
+*__Metrics__* take input values and predictions and output scalar representations of the quality of the predictions.  Different metrics are suitable for different problems.
 
-__Clients__ take input data and feed it through encoders, models, and metrics and store or report the resulting predictions or metric results.
+*__Clients__* take input data and feed it through encoders, models, and metrics and store or report the resulting predictions or metric results.
 
 ## Installation
 
 For all installation options, see the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started) wiki page.
 
-Currently supported platforms:
+#### Currently supported platforms:
+
  * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
-Dependencies:
+#### Dependencies:
+
  * Python (2.6-2.7) (with development headers)
  * GCC (4.6-4.8), or Clang
  * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
@@ -53,18 +55,18 @@ compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requi
 
 ### Using command line
 
-Generate build files:
+#### Generate build files:
 
     mkdir (source)/build
     cd (source)/build
     ccmake ../(source)
 
-Build:
+#### Build:
 
     cd (source)/build
     make
     
-Run the C++ tests:
+#### Run the C++ tests:
 
     cd (source)/bin
     htmtest
@@ -72,7 +74,7 @@ Run the C++ tests:
 
 ### Using graphical interface
 
-Generate the IDE solution:
+#### Generate the IDE solution:
 
  * Open CMake executable.
  * Specify the source folder.
@@ -80,12 +82,12 @@ Generate the IDE solution:
  * Click 'Generate'.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, ie Visual Studio is available only on CMake for Windows).
 
-Build:
+#### Build:
 
  * Open 'Nupic.*proj' solution file located on build folder.
  * Run 'ALL_BUILD' project from your IDE.
 
-Run the C++ tests:
+#### Run the C++ tests:
 
  * Run 'HtmTest' and 'TestEverything' projects from your IDE (check 'output' panel to see the results).
 
