@@ -22,4 +22,4 @@ I feel this structure can work well for the independent developer.  You have no 
 > CEO <br/>
 > Grok
 
-[Comments on Reddit](http://www.reddit.com/r/MachineLearning/)
+[Comments on Reddit](http://www.reddit.com/r/MachineLearning/comments/1t1h8o/nupic_commercial_licenses/)
