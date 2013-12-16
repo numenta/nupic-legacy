@@ -1142,7 +1142,7 @@ class CLAModel(Model):
             sensorAutoResetDict, timeDelta))
 
         # see if sensor already has an autoreset filter
-        for filter_ in send.preEncodingFilters:
+        for filter_ in sensor.preEncodingFilters:
           if isinstance(filter_, AutoResetFilter):
             break
         else:
