@@ -72,7 +72,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not (self.getInferenceType() is InferenceType.TemporalAnomaly):
+    if not (self.getInferenceType() == InferenceType.TemporalAnomaly):
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -184,7 +184,7 @@ class CLAModel(Model):
     
     # Explicitly exclude the TP if this type of inference doesn't require it
     if not InferenceType.isTemporal(self.getInferenceType()) \
-       or self.getInferenceType() is InferenceType.NontemporalMultiStep:
+       or self.getInferenceType() == InferenceType.NontemporalMultiStep:
       tpEnable = False
 
     self._netInfo = None
@@ -204,11 +204,11 @@ class CLAModel(Model):
 
 
     # Initialize Spatial Anomaly detection parameters
-    if self.getInferenceType() is InferenceType.NontemporalAnomaly:
+    if self.getInferenceType() == InferenceType.NontemporalAnomaly:
       self._getSPRegion().setParameter('anomalyMode', True)
 
     # Initialize Temporal Anomaly detection parameters
-    if self.getInferenceType() is InferenceType.TemporalAnomaly:
+    if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
       self._prevPredictedColumns = numpy.array([])
 
@@ -504,7 +504,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
 
-    if inferenceType is InferenceType.TemporalNextStep:
+    if inferenceType == InferenceType.TemporalNextStep:
       return True
 
     if inferenceArgs:
@@ -1524,7 +1524,7 @@ class CLAModel(Model):
     Returns:      Absolute directory path for saving CLA Network
     """
     if self.__restoringFromV1:
-      if self.getInferenceType() is InferenceType.TemporalNextStep:
+      if self.getInferenceType() == InferenceType.TemporalNextStep:
         leafName = 'temporal'+ "-network.nta"
       else:
         leafName = 'nonTemporal'+ "-network.nta"
