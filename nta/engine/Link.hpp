@@ -90,7 +90,7 @@ namespace nta
     Link(const std::string& linkType, const std::string& linkParams, 
          Output* srcOutput, Input* destInput);
 
-
+    /** Destructor */
     ~Link();
 
     /**
