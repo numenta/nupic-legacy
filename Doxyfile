@@ -751,6 +751,8 @@ INPUT                  = docs \
                          nta/engine/Output.hpp \
                          nta/engine/Input.hpp \
                          nta/ntypes/Dimensions.hpp \
+                         nta/types/types.h \
+                         nta/types/types.hpp \
                          py/nupic/research/__init__.py \
                          py/nupic/research/TP10X2.py \
                          py/nupic/research/TPTrivial.py \
