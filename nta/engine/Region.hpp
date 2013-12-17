@@ -42,9 +42,6 @@
 #include <nta/ntypes/Dimensions.hpp>
 #include <nta/os/Timer.hpp>
 
-/** @namespace nta
- * Contains the primary NuPIC API.
- */
 namespace nta
 {
   class RegionImpl;
