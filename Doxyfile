@@ -747,6 +747,9 @@ INPUT                  = docs \
                          nta/engine/NuPIC.hpp \
                          nta/engine/Network.hpp \
                          nta/engine/Region.hpp \
+                         nta/engine/Link.hpp \
+                         nta/engine/Output.hpp \
+                         nta/engine/Input.hpp \
                          nta/ntypes/Dimensions.hpp \
                          py/nupic/research/__init__.py \
                          py/nupic/research/TP10X2.py \
