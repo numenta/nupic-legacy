@@ -1,4 +1,3 @@
-
 # Numenta Platform for Intelligent Computing (NuPIC)
 
 NuPIC is a Python / C++ open source project that implements the [CLA]({{ site.baseurl }}/cla.html) as described in the [CLA White Paper]({{ site.baseurl }}/cla-white-paper.html). For an introduction to the project, watch the presentation below, given at the Open Source Conference (OSCON) in 2013.
@@ -38,7 +37,7 @@ We keep our source code on [Github](http://github.com/numenta/nupic).
 
 ## Build Status
 
-We run continuous integration with [Travis-CI](https://travis-ci.org/numenta/nupic). 
+We run continuous integration with [Travis-CI](https://travis-ci.org/numenta/nupic). You can see detailed status of our build pipeline at [status.numenta.org](http://status.numenta.org).
 
 [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 
