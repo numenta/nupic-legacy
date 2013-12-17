@@ -37,7 +37,23 @@ class FlatSpatialPooler(SpatialPooler):
   """
   This class implements the flat spatial pooler. This version of the spatial 
   pooler contains no toplogy information. It uses global coverage and global
-  inhibition.
+  inhibition. It implements 'high tier' learning.
+  
+  High tier learning gives preference to unlearned columns. An unlearned
+  column will always win unless another column has learned to perfectly
+  represent an input pattern.  Once this initial phase has passed, it should
+  behave like the normal spatial pooler. This option is useful if you might
+  encounter very small datasets where you might want a unique representation
+  for every input, regardless of similarity.
+  
+  The randomSP option allows you to use a flat spatial pooler without invoking
+  any learning. This is extremely useful for understanding the properties of a
+  basic SP that is initialized with random permanences. A randomSP will give
+  reasonable SDR's and is easier to analyze and reason about. (A properly
+  trained SP should give even better SDR's.) You can't achieve this function
+  with SpatialPooler because it normally strips out unlearned columns when
+  learning is turned off. If the randomSP functionality is generally useful, we
+  might move this option to SpatialPooler.
   """
 
 
@@ -63,7 +79,7 @@ class FlatSpatialPooler(SpatialPooler):
                inputDensity=1.0,
                coincidencesShape=(48, 48),
                coincInputRadius=16,
-               coincInputPoolPct=1.0,
+               coincInputPoolPct=0.5,
                gaussianDist=False,
                commonDistributions=False,
                localAreaDensity=-1.0,
@@ -93,14 +109,16 @@ class FlatSpatialPooler(SpatialPooler):
                randomSP=False,
               ):
 
+    assert useHighTier, "useHighTier must be True in flat_spatial_pooler"
+
     numInputs = numpy.array(inputShape).prod()
     numColumns = numpy.array(coincidencesShape).prod()
     super(FlatSpatialPooler, self).__init__(
       inputDimensions=numpy.array(inputShape),
       columnDimensions=numpy.array(coincidencesShape),
       potentialRadius=numInputs,
-      potentialPct=0.5,
-      globalInhibition=True,
+      potentialPct=coincInputPoolPct,
+      globalInhibition=True, # Global inhibition always true in the flat pooler
       localAreaDensity=localAreaDensity,
       numActiveColumnsPerInhArea=numActivePerInhArea,
       stimulusThreshold=stimulusThreshold,
@@ -126,62 +144,23 @@ class FlatSpatialPooler(SpatialPooler):
 
     # set of columns to be 'hungry' for learning
     self._boostFactors *= maxFiringBoost
-
-  # This constructor is a minimal, stripped down version of the 
-  # constructure above. The constructor above is only used to 
-  # provid backwards compatibility to the old spatial pooler.
-  # def __init__(self,
-  #              numInputs,
-  #              numColumns,
-  #              localAreaDensity=0.1,
-  #              numActiveColumnsPerInhArea=-1,
-  #              stimulusThreshold=0,
-  #              minDistance=0.0,
-  #              maxBoost=10.0,
-  #              seed=-1,
-  #              spVerbosity=0,
-  #              randomSP=False,
-  #              ):
-
-  #   super(FlatSpatialPooler,self).__init__(
-  #       inputDimensions=numInputs,
-  #       columnDimensions=numColumns,
-  #       potentialRadius=numInputs,
-  #       potentialPct=0.5,
-  #       globalInhibition=True,
-  #       localAreaDensity=localAreaDensity,
-  #       numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
-  #       stimulusThreshold=stimulusThreshold,
-  #       seed=seed
-  #     )
-
-  #   #verify input is valid
-  #   assert(numColumns > 0)
-  #   assert(numInputs > 0)
-
-  #   # save arguments
-  #   self._numInputs = numInputs
-  #   self._numColumns = numColumns
-  #   self._minDistance = minDistance
-  #   self._randomSP = randomSP
-
-
-  #   #set active duty cycles to ones, because they set anomaly scores to 0
-  #   self._activeDutyCycles = numpy.ones(self._numColumns)
-
-  #   # set of columns to be 'hungry' for learning
-  #   self._boostFactors *= maxBoost
+    
+    # For high tier to work we need to set the min duty cycles to be non-zero
+    # This will ensure that columns with 0 active duty cycle get high boost
+    # in the beginning.
+    self._minOverlapDutyCycles.fill(1e-6)
+    self._minActiveDutyCycles.fill(1e-6)
+    
+    if self._spVerbosity > 0:
+      self.printFlatParameters()
 
 
   def compute(self, inputArray, learn, activeArray):
     """
-    This is the primary public method of the SpatialPooler class. This 
-    function takes a input vector and outputs the indices of the active columns 
-    along with the anomaly score for the that input. This implementation 
-    extends the basic spatial pooler's compute method to give preferences to 
-    Columns, columns that have perfectly learned to represent an input
-    pattern. If 'learn' is set to True, and randomSP is set to false, this 
-    method also updates the permanences of the columns.
+    This is the primary public method of the SpatialPooler class. This function
+    takes a input vector and outputs the indices of the active columns. If
+    'learn' is set to True, and randomSP is set to false, this method also
+    updates the permanences of the columns.
 
     Parameters:
     ----------------------------
@@ -197,12 +176,9 @@ class FlatSpatialPooler(SpatialPooler):
     learn:          a boolean value indicating whether learning should be 
                     performed. Learning entails updating the  permanence 
                     values of the synapses, and hence modifying the 'state' 
-                    of the model. setting learning to 'off' might be useful
-                    for indicating separate training vs. testing sets. 
-    infer:          OBSOLTETE. include in method signature for backwards 
-                    compatibility.
-    computeAnomaly: OBSOLTETE. include in method signature for backwards
-                    compatibility
+                    of the model. Setting learning to 'off' freezes the SP
+                    and has many uses. For example, you might want to feed in
+                    various inputs and examine the resulting SDR's.
     """
     if self._randomSP:
       learn=False
@@ -214,12 +190,14 @@ class FlatSpatialPooler(SpatialPooler):
     overlapsPct = self._calculateOverlapPct(overlaps)
     highTierColumns = self._selectHighTierColumns(overlapsPct)
     virginColumns = self._selectVirginColumns()
-
+    
     if learn:
       vipOverlaps = self._boostFactors * overlaps
     else:
       vipOverlaps = overlaps.copy()
 
+    # Ensure one of the high tier columns win
+    # If learning is on, ensure an unlearned column wins
     vipBonus = max(vipOverlaps) + 1.0
     if learn:
       vipOverlaps[virginColumns] = vipBonus
@@ -263,3 +241,10 @@ class FlatSpatialPooler(SpatialPooler):
     input pattern in order to be considered a 'high tier' column.
     """
     return numpy.where(overlapsPct >= (1.0 - self._minDistance))[0]
+
+
+  def printFlatParameters(self):
+    """Print parameters specific to this class."""
+    print "            PY FlatSpatialPooler Parameters"
+    print "minDistance                = ", self.getMinDistance()
+    print "randomSP                   = ", self.getRandomSP()

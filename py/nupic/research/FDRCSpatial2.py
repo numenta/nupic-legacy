@@ -363,6 +363,7 @@ class FDRCSpatial2(object):
     self.minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
     self.minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
     self.dutyCyclePeriod = dutyCyclePeriod
+    self.requestedDutyCyclePeriod = dutyCyclePeriod
     self.maxFiringBoost = maxFiringBoost
     self.maxSSFiringBoost = maxSSFiringBoost
     self.maxSynPermBoost = maxSynPermBoost
@@ -375,9 +376,6 @@ class FDRCSpatial2(object):
     self.useHighTier= useHighTier != 0
     self.randomSP = randomSP != 0
 
-    if not self.useHighTier:
-      self.minPctDutyCycleAfterInh = 0
-
     self.fileCount = 0
     self._runIter = 0
 
@@ -386,7 +384,7 @@ class FDRCSpatial2(object):
     self._inferenceIterNum = 0    # Number of inference iterations
 
     # Print creation parameters
-    if spVerbosity >= 3:
+    if spVerbosity >= 2:
       self.printParams()
       print "seed =", seed
 
@@ -753,7 +751,10 @@ class FDRCSpatial2(object):
       # and _dutyCycleAfterInh represent real firing percentage at the
       # beginning of learning. This will effect boosting and let unlearned
       # coincidences have high boostFactor at beginning.
-      self.dutyCyclePeriod = min(self._iterNum + 1, 1000)
+      self.dutyCyclePeriod = min(self._iterNum + 1,
+                                 self.requestedDutyCyclePeriod)
+
+      # Compute a moving average of the duty cycle before inhibition
       self._dutyCycleBeforeInh = (
           ((self.dutyCyclePeriod - 1) * self._dutyCycleBeforeInh + denseOn) /
           self.dutyCyclePeriod)
@@ -895,14 +896,13 @@ class FDRCSpatial2(object):
       self._bumpUpWeakCoincidences()
 
       # Update each cell's after-inhibition duty cycle
-      # TODO: As the on-cells are sparse after inhibition, we can have
-      # a different updateDutyCycles function taking advantage of the sparsity
       if cloningOn:
         self._masterOnCells.fill(0)
         self._masterOnCells[onMasterIndices] = 1
         denseOn = self._masterOnCells
       else:
         denseOn = self._onCells
+      # Compute a moving average of the duty cycle after inhibition
       self._dutyCycleAfterInh = ((
           (self.dutyCyclePeriod - 1) * self._dutyCycleAfterInh + denseOn) /
           self.dutyCyclePeriod)
@@ -1003,6 +1003,10 @@ class FDRCSpatial2(object):
       self._nupicRandomState = self.random.getState()
       self._iterNum = 0
 
+    # For backward compatibility
+    if not hasattr(self, 'requestedDutyCyclePeriod'):
+      self.requestedDutyCyclePeriod = 1000
+      
     # Init our random number generators
     random.setstate(self._randomState)
     numpy.random.set_state(self._numpyRandomState)
@@ -1876,7 +1880,6 @@ class FDRCSpatial2(object):
     ------------------------------------------------------------------------
     boostFactors:   numpy array of boost factors, defined per master
     """
-
     if self._minDutyCycleAfterInh.sum() > 0:
       self._firingBoostFactors = (
           (1 - self.maxFiringBoost) /
@@ -2525,6 +2528,7 @@ class FDRCSpatial2(object):
     print "maxFiringBoost =", self.maxFiringBoost
     print "maxSSFiringBoost =", self.maxSSFiringBoost
     print "maxSynPermBoost =", self.maxSynPermBoost
+    print "useHighTier =",self.useHighTier
     print "minDistance =", self.minDistance
     print "spVerbosity =", self.spVerbosity
     print "printPeriodicStats =", self.printPeriodicStats

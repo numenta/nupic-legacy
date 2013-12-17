@@ -71,6 +71,19 @@ void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
 
   selectHighTierColumns_(overlapsPct_, highTier_);
   selectVirginColumns_(virgin_);
+  
+  if (spVerbosity_ > 2) {
+    std::cout << "---------CPP FlatSpatialPooler::compute() ------------\n";
+    std::cout << "iterationNum_ = " << iterationNum_ << std::endl;
+    std::cout << "minDistance_  = " << minDistance_ << std::endl;
+    std::cout << "overlapsPct:\n";
+    printState(overlapsPct_);
+    std::cout << "CPP highTier columns:\n";
+    printState(highTier_);
+    std::cout << "CPP virgin columns:\n";
+    printState(virgin_);
+    std::cout << "-----------------------------------------------------\n";
+  }
 
   if (learn) {
     boostOverlaps_(overlaps_, boostedOverlaps_);
@@ -81,6 +94,8 @@ void FlatSpatialPooler::compute(UInt inputArray[], bool learn,
   Real bonus = *max_element(boostedOverlaps_.begin(),
                             boostedOverlaps_.end()) + 1;
 
+  // Ensure one of the high tier columns win
+  // If learning is on, ensure an unlearned column wins
   if (learn) {
     addBonus_(boostedOverlaps_, bonus, virgin_, true);
   }
@@ -139,7 +154,8 @@ void FlatSpatialPooler::selectHighTierColumns_(vector<Real>& overlapsPct,
 }
 
 void FlatSpatialPooler::initializeFlat(
-    UInt numInputs, UInt numColumns, Real localAreaDensity,
+    UInt numInputs, UInt numColumns,
+    Real potentialPct, Real localAreaDensity,
     UInt numActiveColumnsPerInhArea, UInt stimulusThreshold,
     Real synPermInactiveDec, Real synPermActiveInc, Real synPermConnected,
     Real minPctOverlapDutyCycles, Real minPctActiveDutyCycles,
@@ -155,8 +171,8 @@ void FlatSpatialPooler::initializeFlat(
     inputDimensions,
     columnDimensions,
     numInputs,
-    0.5,
-    true,
+    potentialPct,
+    true,             // Global inhibition is always true in the flat pooler
     localAreaDensity,
     numActiveColumnsPerInhArea,
     stimulusThreshold,
@@ -175,6 +191,17 @@ void FlatSpatialPooler::initializeFlat(
 
   activeDutyCycles_.assign(numColumns_, 1);
   boostFactors_.assign(numColumns_, maxBoost);
+  
+  // For high tier to work we need to set the min duty cycles to be non-zero
+  // This will ensure that columns with 0 active duty cycle get high boost
+  // in the beginning.
+  minOverlapDutyCycles_.assign(numColumns_, 1e-6);
+  minActiveDutyCycles_.assign(numColumns_, 1e-6);
+
+  if (spVerbosity_ > 0) {
+    printFlatParameters();
+  }
+
 }
 
 
@@ -211,3 +238,16 @@ void FlatSpatialPooler::load(istream& inStream)
   NTA_CHECK(marker == "~FlatSpatialPooler");
 }
 
+
+//----------------------------------------------------------------------
+// Debugging helpers
+//----------------------------------------------------------------------
+
+// Print the creation parameters specific to this class
+void FlatSpatialPooler::printFlatParameters()
+{
+  std::cout << "            CPP FlatSpatialPooler Parameters\n";
+  std::cout
+    << "minDistance                 = " << getMinDistance() << std::endl
+    << "randomSP                    = " << getRandomSP() << std::endl;
+}

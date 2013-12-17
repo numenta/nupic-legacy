@@ -1984,7 +1984,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                  inputDensity=1.0,
                  coincidencesShape=(48, 48),
                  coincInputRadius=16,
-                 coincInputPoolPct=1.0,
+                 coincInputPoolPct=0.5,
                  gaussianDist=False,
                  commonDistributions=False,
                  localAreaDensity=-1.0,
@@ -2019,6 +2019,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         self,
         numInputs=numpy.prod(inputShape),
         numColumns=numpy.prod(coincidencesShape),
+        potentialPct = coincInputPoolPct,
         localAreaDensity=localAreaDensity,
         numActiveColumnsPerInhArea=numActivePerInhArea,
         stimulusThreshold=stimulusThreshold,
@@ -2029,9 +2030,31 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         minPctActiveDutyCycles=minPctDutyCycleAfterInh,
         dutyCyclePeriod=dutyCyclePeriod,
         maxBoost=maxFiringBoost,
+        minDistance=minDistance,
+        randomSP=randomSP,
         seed=seed,
         spVerbosity=spVerbosity
       )
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ flat spatial pooler with
+      # the string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ flat spatial pooler and populate it from the
+      # serialized string.
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
   %}
 }
 
