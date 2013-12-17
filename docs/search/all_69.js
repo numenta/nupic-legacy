@@ -7,6 +7,12 @@ var searchData=
   ['inferphase2',['inferPhase2',['../classnupic_1_1research_1_1_t_p10_x2_1_1_t_p10_x2.html#ada800bc3e3b35f2aa5d137341919e153',1,'nupic.research.TP10X2.TP10X2.inferPhase2()'],['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#af025d2919106e853aa891ff1f1807da4',1,'nupic.research.TP.TP.inferPhase2()']]],
   ['infpredictedstate',['infPredictedState',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#afd0571d0e964cf3b1d787201b1f6db99',1,'nupic::research::TP::TP']]],
   ['initialperm',['initialPerm',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a3ba6768976c619b6d0674162930a0853',1,'nupic::research::TP::TP']]],
+  ['isdontcare',['isDontcare',['../classnta_1_1_dimensions.html#aa298b799e384289a7eb38da1ec3ade89',1,'nta::Dimensions']]],
+  ['isones',['isOnes',['../classnta_1_1_dimensions.html#aeddeaa96691a0a061293784143e9a1cc',1,'nta::Dimensions']]],
+  ['isparametershared',['isParameterShared',['../classnta_1_1_region.html#aebb24231b42ba1bda00cfbb845f7b284',1,'nta::Region']]],
   ['issegmentactive',['isSegmentActive',['../classnupic_1_1research_1_1_t_p10_x2_1_1_t_p10_x2.html#ae2e52b3c6c538044ca896758a974fc97',1,'nupic.research.TP10X2.TP10X2.isSegmentActive()'],['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#ab7c420152fbb4d6c69f8341ef2afdb9d',1,'nupic.research.TP.TP.isSegmentActive()']]],
+  ['isspecified',['isSpecified',['../classnta_1_1_dimensions.html#a7561540fe5ebd098014ccb1d0f1d4906',1,'nta::Dimensions']]],
+  ['isunspecified',['isUnspecified',['../classnta_1_1_dimensions.html#abd1946eca277981a462dc200e6cfc6f6',1,'nta::Dimensions']]],
+  ['isvalid',['isValid',['../classnta_1_1_dimensions.html#a75243f3528376c999fb55d67c70d1fc4',1,'nta::Dimensions']]],
   ['iterationidx',['iterationIdx',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a4526b35c0068ba99b5aba90acf686820',1,'nupic::research::TP::TP']]]
 ];

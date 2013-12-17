@@ -1,6 +1,7 @@
 var searchData=
 [
   ['predict',['predict',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a524f679263261614b20bcdbaa48305fe',1,'nupic::research::TP::TP']]],
+  ['prepareinputs',['prepareInputs',['../classnta_1_1_region.html#a3f853f23396f68c761388bd29503f9eb',1,'nta::Region']]],
   ['printactiveindices',['printActiveIndices',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a4d00689676974c08361551814b7cac42',1,'nupic::research::TP::TP']]],
   ['printcell',['printCell',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a0c44d6e37c181e7eea072fa0896d7dde',1,'nupic::research::TP::TP']]],
   ['printcells',['printCells',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a93335740c12801287ca97fae6d0a7928',1,'nupic::research::TP::TP']]],
@@ -14,5 +15,6 @@ var searchData=
   ['printsegmentupdates',['printSegmentUpdates',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a55c0a8088c4485359a6ca4d634d27350',1,'nupic::research::TP::TP']]],
   ['printstate',['printState',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#aac052e0ef4d042cba6376aa6c30197fa',1,'nupic::research::TP::TP']]],
   ['printstates',['printStates',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a260ae8dfe12783f1c3691f5fc432388a',1,'nupic::research::TP::TP']]],
-  ['processsegmentupdates',['processSegmentUpdates',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a93111e6536217143d40fd2432c227f36',1,'nupic::research::TP::TP']]]
+  ['processsegmentupdates',['processSegmentUpdates',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a93111e6536217143d40fd2432c227f36',1,'nupic::research::TP::TP']]],
+  ['promote',['promote',['../classnta_1_1_dimensions.html#a84a4ae279e006d1bec36cdc989512d8d',1,'nta::Dimensions']]]
 ];
