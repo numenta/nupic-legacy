@@ -56,6 +56,7 @@ namespace nta
     Network();
     Network(const std::string& path);
 
+    /** Destructor */
     ~Network();
 
 
