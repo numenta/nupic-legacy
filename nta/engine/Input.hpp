@@ -24,8 +24,7 @@
 /** @file 
  * Definition of the Input class
  * This class is internal, and is not wrapped.
- *
-*/
+ */
 
 #ifndef NTA_INPUT_HPP
 #define NTA_INPUT_HPP
@@ -46,78 +45,105 @@ namespace nta
   class Output;
 
   /**
-   * Input represents a named input to a region (e.g. bottomUpIn)
+   * Input represents a named input to a Region (e.g. bottomUpIn)
    * 
    * Input is not available in the public API, but is visible by 
-   * the RegionImpl
+   * the RegionImpl.
    * 
    * TBD: identify methods that may be called by RegionImpl -- this
    * is the internal "public interface"
    */
-
   class Input
   {
   public:
+
+    /**
+     * TODO: document constructor
+     * @param region TODO: document
+     * @param type TODO: document
+     * @param isRegionLevel TODO: document
+     */
     Input(Region& region, NTA_BasicType type, bool isRegionLevel);
     ~Input();
 
-    /*
+    /**
      * Inputs need to know their own name for error messages
+     * @param name TODO: document
      */
     void setName(const std::string& name);
 
     const std::string& getName() const;
 
-    /*
+    /**
      * Create a new link and add it to this input
      * Also adds the link to the list of links on the output
+     * @param name TODO: linkType
+     * @param name TODO: linkParams
+     * @param name TODO: srcOutput
      */
     void
     addLink(const std::string& linkType, const std::string& linkParams, 
             Output* srcOutput);
     
-    /*
+    /**
      * Locate an existing link. Returns NULL if no link exists
-     * Called by Network::unlink and internally when adding a link
+     * Called by Network.removeLink() and internally when adding a link
+     * @param name TODO: srcRegionName
+     * @param name TODO: srcRegionName
+     * @returns TODO: document
      */
     Link* 
     findLink(const std::string& srcRegionName, 
              const std::string& srcOutputName);
 
-    /*
+    /**
      * Removing an existing link
      * Called in four cases
-     * 1. Network::unlink()
-     * 2. Network::removeRegion(srcRegion)
-     * 3. Network::removeRegion(destRegion)
-     * 4. Network::~Network()
+     * 1. Network.removeLink()
+     * 2. Network.removeRegion() when given srcRegion
+     * 3. Network.removeRegion() when given destRegion
+     * 4. Network.~Network()
      * 
      * It is an error to call this if our containing region 
-     * is unitialized. 
+     * is uninitialized. 
      * 
-     * Sets the link pointer to NULL on return (to avoid a dangling reference)
+     * Sets the Link pointer to NULL on return (to avoid a dangling reference)
+     *
+     * @param link Link to remove
      */
     void
     removeLink(Link*& link);
 
-    // Make input data available. Called by Region::prepareInputs()
+    /** Make input data available. Called by Region.prepareInputs() */
     void
     prepare();
     
+    /** TODO: document 
+     * @returns TODO: document
+     */
     const Array &
     getData() const;
     
+    /** TODO: document 
+     * @returns TODO: document
+     */
     Region&
     getRegion();
 
+    /** TODO: document 
+     * @returns TODO: document
+     */
     const std::vector<Link*>&
     getLinks();
 
+    /** TODO: document 
+     * @returns TODO: document
+     */
     bool
     isRegionLevel();
 
-    /*
-     * Called by Region::evaluateLinks() as part
+    /**
+     * Called by Region.evaluateLinks() as part
      * of network initialization.
      * 
      * 1. Tries to make sure that dimensions at both ends
@@ -128,30 +154,41 @@ namespace nta
      *    where links "induce" dimensions) or by raising an exception
      *    if they are inconsistent.
      *
+     * @returns TODO: document
      */
     size_t
     evaluateLinks();
 
-    // After the input has all the information it needs, 
-    // it is initialized by this method. Sets up volatile data 
-    // structures (e.g. the input buffer) are set up
-    // 
+    /** 
+     * After the input has all the information it needs, 
+     * it is initialized by this method. Sets up volatile data 
+     * structures (e.g. the input buffer) are set up
+     */ 
     void
     initialize();
 
+    /** TODO: document 
+     */
     bool
     isInitialized();
 
     /* ------------ Methods normally called by the RegionImpl ------------- */
 
-    // Get splitter map from an initialized input
-    // See documentation for Link::getSplitterMap for
-    // description of splitter map. 
+    /**
+     * Get splitter map from an initialized input
+     * See documentation for Link.getSplitterMap() for
+     * description of splitter map. 
+     *
+     * @todo There is no Link.getSplitterMap() function so the docs here are wrong.
+     */
     typedef std::vector< std::vector<size_t> > SplitterMap;
 
+    /** TODO: document 
+     * @returns TODO: document
+     */
     const SplitterMap& getSplitterMap() const;
 
-    // explicitly instantiated for various types
+    /** explicitly instantiated for various types */
     template <typename T> void getInputForNode(size_t nodeIndex, std::vector<T>& input) const;
 
   private:

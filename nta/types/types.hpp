@@ -35,24 +35,39 @@
 namespace nta 
 {
   // Basic types
+  /** TODO: document */
   typedef NTA_Byte            Byte;
+  /** TODO: document */
   typedef NTA_Int16           Int16;
+  /** TODO: document */
   typedef NTA_UInt16          UInt16;
+  /** TODO: document */
   typedef NTA_Int32           Int32;
+  /** TODO: document */
   typedef NTA_UInt32          UInt32;
+  /** TODO: document */
   typedef NTA_Int64           Int64;
+  /** TODO: document */
   typedef NTA_UInt64          UInt64;
+  /** TODO: document */
   typedef NTA_Real32          Real32;
+  /** TODO: document */
   typedef NTA_Real64          Real64;
+  /** TODO: document */
   typedef NTA_Handle          Handle;
+
   // Flexible types (depending on NTA_DOUBLE_PROCESION and NTA_BIG_INTEGER)
+  /** TODO: document */
   typedef NTA_Real Real;
+  /** TODO: document */
   typedef NTA_Int  Int;
+  /** TODO: document */
   typedef NTA_UInt UInt;
 
+  /** TODO: document */
   typedef NTA_Size            Size;
 
-  // enums
+  /** TODO: document */
   enum LogLevel
   {
     LogLevel_None = NTA_LogLevel_None,

@@ -23,8 +23,7 @@
 
 /** @file 
  * Definition of the Internal Output API
- *
-*/
+ */
 
 #ifndef NTA_OUTPUT_HPP
 #define NTA_OUTPUT_HPP
@@ -39,47 +38,94 @@ namespace nta
   class Region;
   class Array;
 
+  /**
+   * TODO: document
+   */
   class Output
   {
   public:
+
+    /**
+     * TODO: document
+     * @param region TODO: document
+     * @param type TODO: document
+     * @param isRegionLevel TODO: document
+     */
     Output(Region& region, NTA_BasicType type, bool isRegionLevel);
 
+    /**
+     * Destructor
+     */
     ~Output();
 
-    // Outputs need to know their own name
+    /**
+     * Outputs need to know their own name
+     * @param name TODO: document
+     */
     void setName(const std::string& name);
 
+    /**
+     * TODO: document
+     */
     const std::string& getName() const;
 
+    /**
+     * TODO: document
+     * @param size TODO: document
+     */
     void
     initialize(size_t size);
 
-    // does not take ownership
+    /**
+     * Does not take ownership
+     * @param link TODO: document
+     */
     void
     addLink(Link* link);
 
-    // Called only by Input::removeLink() even
-    // if triggered by removing the region that contains us
+    /**
+     * Called only by Input::removeLink() even
+     * if triggered by removing the region that contains us
+     * @ param Link TODO: document
+     */
     void
     removeLink(Link*);
 
-    // We cannot delete a region if there are any outgoing links
-    // This allows us to check in Network::removeRegion and 
-    // the network destructor;
+    /**
+     * We cannot delete a region if there are any outgoing links
+     * This allows us to check in Network::removeRegion and 
+     * the network destructor;
+     * @returns TODO: document
+     */
     bool
     hasOutgoingLinks();
 
-    // important to return a const array so caller can't
-    // reallocate the buffer.
+    /**
+     * important to return a const array so caller can't
+     * reallocate the buffer.
+     * @returns TODO: document
+     */
     const Array &
     getData() const;
 
+    /**
+     * TODO: document
+     * @returns TODO: document
+     */
     bool
     isRegionLevel() const;
 
+    /**
+     * TODO: document
+     * @returns TODO: document
+     */
     Region&
     getRegion() const;
 
+    /**
+     * TODO: document
+     * @returns TODO: document
+     */
     size_t
     getNodeOutputElementCount() const;
 
