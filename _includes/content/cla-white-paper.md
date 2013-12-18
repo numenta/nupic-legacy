@@ -5,6 +5,7 @@ The Cortical Learning Algorithm is fully detailed in the following white paper. 
 <br />
 [<img src="{{ site.baseurl }}/images/pdficon_small.png" /> Download the white paper]({{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms.pdf)
 <br />
+
 <ul>
 	<li><a href="{{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms_chn.pdf">Chinese Translation</a> - Yu Tianxiang</li>
 	<li><a href="{{ site.baseurl }}/resources/HTM_CorticalLearningAlgorithms_de.pdf">German Translation</a> - Ingmar Baetge </li>
