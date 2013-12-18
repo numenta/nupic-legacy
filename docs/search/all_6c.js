@@ -5,8 +5,11 @@ var searchData=
   ['learnedseqlength',['learnedSeqLength',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a8a32e3e95e0c9a915d8d49b3ae937dd9',1,'nupic::research::TP::TP']]],
   ['learnphase1',['learnPhase1',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a582379eb8bd60a201aacfbb3524fcc2a',1,'nupic::research::TP::TP']]],
   ['learnphase2',['learnPhase2',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a1e2681b9f640db6d909f84ebdd47ec67',1,'nupic::research::TP::TP']]],
-  ['link',['link',['../classnta_1_1_network.html#accf63e1ee22dc7bf4b4eea30a6c1f303',1,'nta::Network']]],
+  ['link',['link',['../classnta_1_1_network.html#accf63e1ee22dc7bf4b4eea30a6c1f303',1,'nta::Network::link()'],['../classnta_1_1_link.html#a9bf1cf796dc236992fe25c2d0b6a8176',1,'nta::Link::Link()']]],
+  ['link',['Link',['../classnta_1_1_link.html',1,'nta']]],
+  ['link_2ehpp',['Link.hpp',['../_link_8hpp.html',1,'']]],
   ['loadfromfile',['loadFromFile',['../classnupic_1_1research_1_1_t_p10_x2_1_1_t_p10_x2.html#a46cdfd33e9e00bb10bd361182c0687d3',1,'nupic.research.TP10X2.TP10X2.loadFromFile()'],['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a4a1e8de0c1b9777764bc1af439490d87',1,'nupic.research.TP.TP.loadFromFile()']]],
+  ['loglevel',['LogLevel',['../namespacenta.html#a50ca7957941b2bd1ef0e4fb800311dd7',1,'nta']]],
   ['lrnactivestate',['lrnActiveState',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a85ae3a57a2bb648d3e3345830c82a502',1,'nupic::research::TP::TP']]],
   ['lrniterationidx',['lrnIterationIdx',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#ab2bd514b9f9bb71014ba0616b780fd93',1,'nupic::research::TP::TP']]],
   ['lrnpredictedstate',['lrnPredictedState',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#af1d42c09c6578e3cf8398aebbc304d4a',1,'nupic::research::TP::TP']]]

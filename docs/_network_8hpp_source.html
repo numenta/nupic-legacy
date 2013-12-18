@@ -59,6 +59,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
+      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -66,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -116,7 +117,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;<span class="preprocessor">#include &lt;string&gt;</span></div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;<span class="preprocessor">#include &lt;vector&gt;</span></div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;<span class="preprocessor">#include &lt;set&gt;</span></div>
-<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &lt;nta/types/types.hpp&gt;</span></div>
+<div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8hpp.html">nta/types/types.hpp</a>&gt;</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &lt;nta/ntypes/Collection.hpp&gt;</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
 <div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="keyword">namespace </span>nta</div>
@@ -136,151 +137,151 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00056"></a><span class="lineno">   56</span>&#160;    <a class="code" href="classnta_1_1_network.html">Network</a>();</div>
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;    <a class="code" href="classnta_1_1_network.html">Network</a>(<span class="keyword">const</span> std::string&amp; path);</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;</div>
-<div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160;    ~<a class="code" href="classnta_1_1_network.html">Network</a>();</div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="classnta_1_1_network.html#af34a7623751def90a096325195543bda">~Network</a>();</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;</div>
-<div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    <a class="code" href="classnta_1_1_region.html">Region</a>*</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <a class="code" href="classnta_1_1_network.html#ab5fe4564b71d1578e3fb32fc281c67b9">addRegion</a>(<span class="keyword">const</span> std::string&amp; name, </div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;              <span class="keyword">const</span> std::string&amp; nodeType, </div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;              <span class="keyword">const</span> std::string&amp; nodeParams);</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;</div>
-<div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;    <a class="code" href="classnta_1_1_region.html">Region</a>*</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="classnta_1_1_network.html#aba161d5a8abffede800520787dfe1a92">addRegionFromBundle</a>(<span class="keyword">const</span> std::string&amp; name, </div>
-<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;                        <span class="keyword">const</span> std::string&amp; nodeType, </div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classnta_1_1_dimensions.html">Dimensions</a>&amp; dimensions, </div>
-<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                        <span class="keyword">const</span> std::string&amp; bundlePath, </div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                        <span class="keyword">const</span> std::string&amp; label);</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <a class="code" href="classnta_1_1_network.html#ad036234504a5396bc05b238324b4e6fe">removeRegion</a>(<span class="keyword">const</span> std::string&amp; name);</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <a class="code" href="classnta_1_1_network.html#accf63e1ee22dc7bf4b4eea30a6c1f303">link</a>(<span class="keyword">const</span> std::string&amp; srcName, <span class="keyword">const</span> std::string&amp; destName, </div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;         <span class="keyword">const</span> std::string&amp; linkType, <span class="keyword">const</span> std::string&amp; linkParams, </div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;         <span class="keyword">const</span> std::string&amp; srcOutput=<span class="stringliteral">&quot;&quot;</span>, <span class="keyword">const</span> std::string&amp; destInput=<span class="stringliteral">&quot;&quot;</span>);</div>
-<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;</div>
+<div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <a class="code" href="classnta_1_1_region.html">Region</a>*</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    <a class="code" href="classnta_1_1_network.html#ab5fe4564b71d1578e3fb32fc281c67b9">addRegion</a>(<span class="keyword">const</span> std::string&amp; name, </div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;              <span class="keyword">const</span> std::string&amp; nodeType, </div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;              <span class="keyword">const</span> std::string&amp; nodeParams);</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <a class="code" href="classnta_1_1_region.html">Region</a>*</div>
+<div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;    <a class="code" href="classnta_1_1_network.html#aba161d5a8abffede800520787dfe1a92">addRegionFromBundle</a>(<span class="keyword">const</span> std::string&amp; name, </div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;                        <span class="keyword">const</span> std::string&amp; nodeType, </div>
+<div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;                        <span class="keyword">const</span> <a class="code" href="classnta_1_1_dimensions.html">Dimensions</a>&amp; dimensions, </div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;                        <span class="keyword">const</span> std::string&amp; bundlePath, </div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;                        <span class="keyword">const</span> std::string&amp; label);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;    <a class="code" href="classnta_1_1_network.html#ad036234504a5396bc05b238324b4e6fe">removeRegion</a>(<span class="keyword">const</span> std::string&amp; name);</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;    <a class="code" href="classnta_1_1_network.html#accf63e1ee22dc7bf4b4eea30a6c1f303">link</a>(<span class="keyword">const</span> std::string&amp; srcName, <span class="keyword">const</span> std::string&amp; destName, </div>
+<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;         <span class="keyword">const</span> std::string&amp; linkType, <span class="keyword">const</span> std::string&amp; linkParams, </div>
+<div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;         <span class="keyword">const</span> std::string&amp; srcOutput=<span class="stringliteral">&quot;&quot;</span>, <span class="keyword">const</span> std::string&amp; destInput=<span class="stringliteral">&quot;&quot;</span>);</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;</div>
-<div class="line"><a name="l00118"></a><span class="lineno">  118</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <a class="code" href="classnta_1_1_network.html#a2fd9d95877c087ddc62f5619a65de5d2">removeLink</a>(<span class="keyword">const</span> std::string&amp; srcName, <span class="keyword">const</span> std::string&amp; destName, </div>
-<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;               <span class="keyword">const</span> std::string&amp; srcOutputName=<span class="stringliteral">&quot;&quot;</span>, <span class="keyword">const</span> std::string&amp; destInputName=<span class="stringliteral">&quot;&quot;</span>); </div>
-<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;  </div>
-<div class="line"><a name="l00125"></a><span class="lineno">  125</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <a class="code" href="classnta_1_1_network.html#a1e85006a45d240f996319bfea388a68f">initialize</a>();</div>
-<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;</div>
+<div class="line"><a name="l00119"></a><span class="lineno">  119</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00120"></a><span class="lineno">  120</span>&#160;    <a class="code" href="classnta_1_1_network.html#a2fd9d95877c087ddc62f5619a65de5d2">removeLink</a>(<span class="keyword">const</span> std::string&amp; srcName, <span class="keyword">const</span> std::string&amp; destName, </div>
+<div class="line"><a name="l00121"></a><span class="lineno">  121</span>&#160;               <span class="keyword">const</span> std::string&amp; srcOutputName=<span class="stringliteral">&quot;&quot;</span>, <span class="keyword">const</span> std::string&amp; destInputName=<span class="stringliteral">&quot;&quot;</span>); </div>
+<div class="line"><a name="l00122"></a><span class="lineno">  122</span>&#160;  </div>
+<div class="line"><a name="l00126"></a><span class="lineno">  126</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00127"></a><span class="lineno">  127</span>&#160;    <a class="code" href="classnta_1_1_network.html#a1e85006a45d240f996319bfea388a68f">initialize</a>();</div>
 <div class="line"><a name="l00128"></a><span class="lineno">  128</span>&#160;</div>
-<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="comment">// -------------- access to components -----------------</span></div>
-<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00137"></a><span class="lineno">  137</span>&#160;    <span class="keyword">const</span> Collection&lt;Region*&gt;&amp;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <a class="code" href="classnta_1_1_network.html#afb780fdce639fd6b2db9d29a3311bdb4">getRegions</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;  </div>
-<div class="line"><a name="l00145"></a><span class="lineno">  145</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <a class="code" href="classnta_1_1_network.html#a6f057938022e8a09be82223019308979">setPhases</a>(<span class="keyword">const</span> std::string&amp; name, std::set&lt;UInt32&gt;&amp; phases);</div>
-<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    </div>
-<div class="line"><a name="l00153"></a><span class="lineno">  153</span>&#160;    std::set&lt;UInt32&gt;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="classnta_1_1_network.html#ac0869d189bc79ce0f0b019a43f2c68b0">getPhases</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;</div>
+<div class="line"><a name="l00129"></a><span class="lineno">  129</span>&#160;</div>
+<div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="comment">//</span></div>
+<div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <span class="comment">// -------------- access to components -----------------</span></div>
+<div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;    <span class="comment">//</span></div>
+<div class="line"><a name="l00133"></a><span class="lineno">  133</span>&#160;</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <span class="keyword">const</span> Collection&lt;Region*&gt;&amp;</div>
+<div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <a class="code" href="classnta_1_1_network.html#afb780fdce639fd6b2db9d29a3311bdb4">getRegions</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;  </div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <a class="code" href="classnta_1_1_network.html#a6f057938022e8a09be82223019308979">setPhases</a>(<span class="keyword">const</span> std::string&amp; name, std::set&lt;UInt32&gt;&amp; phases);</div>
+<div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;    </div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    std::set&lt;UInt32&gt;</div>
+<div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <a class="code" href="classnta_1_1_network.html#ac0869d189bc79ce0f0b019a43f2c68b0">getPhases</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00161"></a><span class="lineno">  161</span>&#160;    UInt32 <a class="code" href="classnta_1_1_network.html#a885f53b1d984326be7a29b209415dcd8">getMinPhase</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;</div>
+<div class="line"><a name="l00157"></a><span class="lineno">  157</span>&#160;</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> <a class="code" href="classnta_1_1_network.html#a885f53b1d984326be7a29b209415dcd8">getMinPhase</a>() <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;</div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    UInt32 <a class="code" href="classnta_1_1_network.html#aab8a907cf448501044659e91926e7a58">getMaxPhase</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    </div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <span class="comment">// </span></div>
-<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="comment">// -------------- run -----------------</span></div>
-<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;</div>
+<div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
+<div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> <a class="code" href="classnta_1_1_network.html#aab8a907cf448501044659e91926e7a58">getMaxPhase</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    </div>
+<div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <span class="comment">// </span></div>
+<div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="comment">// -------------- run -----------------</span></div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="comment">//</span></div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;</div>
-<div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <a class="code" href="classnta_1_1_network.html#a24a58a4e3730b7876a101776a1f399ed">run</a>(<span class="keywordtype">int</span> n);</div>
-<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;</div>
-<div class="line"><a name="l00188"></a><span class="lineno"><a class="code" href="classnta_1_1_network.html#a8168f6297d7794bf7439950a819c537d">  188</a></span>&#160;    <span class="keyword">typedef</span> void (*<a class="code" href="classnta_1_1_network.html#a8168f6297d7794bf7439950a819c537d">runCallbackFunction</a>)(<a class="code" href="classnta_1_1_network.html">Network</a>*, UInt64 iteration, <span class="keywordtype">void</span>*);</div>
-<div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;    <span class="keyword">typedef</span> std::pair&lt;runCallbackFunction, void*&gt; callbackItem;</div>
-<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;</div>
-<div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    Collection&lt;callbackItem&gt;&amp; <a class="code" href="classnta_1_1_network.html#adb638ad6f8cb47495a6f061c4f28d84a">getCallbacks</a>();</div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;</div>
-<div class="line"><a name="l00201"></a><span class="lineno">  201</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <a class="code" href="classnta_1_1_network.html#a1dc78732c0e7dcbc437ba3427f4e0a59">setMinEnabledPhase</a>(UInt32 minPhase);</div>
-<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;</div>
-<div class="line"><a name="l00208"></a><span class="lineno">  208</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <a class="code" href="classnta_1_1_network.html#a7d13af20c83c35eeddff5892bb42f4fe">setMaxEnabledPhase</a>(UInt32 minPhase);</div>
-<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    </div>
-<div class="line"><a name="l00215"></a><span class="lineno">  215</span>&#160;    UInt32</div>
-<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="classnta_1_1_network.html#a3d5c7c02b724a6121f6e13ce50efbfdc">getMinEnabledPhase</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    </div>
-<div class="line"><a name="l00222"></a><span class="lineno">  222</span>&#160;    UInt32</div>
-<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <a class="code" href="classnta_1_1_network.html#a690eca97e28659923e03a41929b4b97d">getMaxEnabledPhase</a>() <span class="keyword">const</span>;</div>
-<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;</div>
-<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="comment">// ------------ serialization -------------</span></div>
-<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="comment">//</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;</div>
-<div class="line"><a name="l00233"></a><span class="lineno">  233</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnta_1_1_network.html#a61520e69ae554d65995c2b0fb9d6b945">save</a>(<span class="keyword">const</span> std::string&amp; name);</div>
-<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;</div>
-<div class="line"><a name="l00238"></a><span class="lineno">  238</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <a class="code" href="classnta_1_1_network.html#a96c887e9752d20683feb967852b36b43">enableProfiling</a>();</div>
-<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;</div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <a class="code" href="classnta_1_1_network.html#a50a5c60fc96312c72c013e1e0ff11a4e">disableProfiling</a>();</div>
-<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;</div>
-<div class="line"><a name="l00250"></a><span class="lineno">  250</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <a class="code" href="classnta_1_1_network.html#add2c45b4977417ce518b6a9c1dcc7489">resetProfiling</a>();</div>
-<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;</div>
-<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;  <span class="keyword">private</span>:</div>
-<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;</div>
+<div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;</div>
+<div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;    <a class="code" href="classnta_1_1_network.html#a24a58a4e3730b7876a101776a1f399ed">run</a>(<span class="keywordtype">int</span> n);</div>
+<div class="line"><a name="l00182"></a><span class="lineno">  182</span>&#160;</div>
+<div class="line"><a name="l00189"></a><span class="lineno"><a class="code" href="classnta_1_1_network.html#a8168f6297d7794bf7439950a819c537d">  189</a></span>&#160;    <span class="keyword">typedef</span> void (*<a class="code" href="classnta_1_1_network.html#a8168f6297d7794bf7439950a819c537d">runCallbackFunction</a>)(<a class="code" href="classnta_1_1_network.html">Network</a>*, <a class="code" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">UInt64</a> iteration, <span class="keywordtype">void</span>*);</div>
+<div class="line"><a name="l00190"></a><span class="lineno">  190</span>&#160;    <span class="keyword">typedef</span> std::pair&lt;runCallbackFunction, void*&gt; callbackItem;</div>
+<div class="line"><a name="l00191"></a><span class="lineno">  191</span>&#160;</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    Collection&lt;callbackItem&gt;&amp; <a class="code" href="classnta_1_1_network.html#adb638ad6f8cb47495a6f061c4f28d84a">getCallbacks</a>();</div>
+<div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
+<div class="line"><a name="l00202"></a><span class="lineno">  202</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <a class="code" href="classnta_1_1_network.html#a1dc78732c0e7dcbc437ba3427f4e0a59">setMinEnabledPhase</a>(<a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> minPhase);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;</div>
+<div class="line"><a name="l00209"></a><span class="lineno">  209</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00210"></a><span class="lineno">  210</span>&#160;    <a class="code" href="classnta_1_1_network.html#a7d13af20c83c35eeddff5892bb42f4fe">setMaxEnabledPhase</a>(<a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> minPhase);</div>
+<div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    </div>
+<div class="line"><a name="l00216"></a><span class="lineno">  216</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a></div>
+<div class="line"><a name="l00217"></a><span class="lineno">  217</span>&#160;    <a class="code" href="classnta_1_1_network.html#a3d5c7c02b724a6121f6e13ce50efbfdc">getMinEnabledPhase</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00218"></a><span class="lineno">  218</span>&#160;    </div>
+<div class="line"><a name="l00223"></a><span class="lineno">  223</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a></div>
+<div class="line"><a name="l00224"></a><span class="lineno">  224</span>&#160;    <a class="code" href="classnta_1_1_network.html#a690eca97e28659923e03a41929b4b97d">getMaxEnabledPhase</a>() <span class="keyword">const</span>;</div>
+<div class="line"><a name="l00225"></a><span class="lineno">  225</span>&#160;</div>
+<div class="line"><a name="l00226"></a><span class="lineno">  226</span>&#160;    <span class="comment">//</span></div>
+<div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="comment">// ------------ serialization -------------</span></div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <span class="comment">//</span></div>
+<div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;</div>
+<div class="line"><a name="l00234"></a><span class="lineno">  234</span>&#160;    <span class="keywordtype">void</span> <a class="code" href="classnta_1_1_network.html#a61520e69ae554d65995c2b0fb9d6b945">save</a>(<span class="keyword">const</span> std::string&amp; name);</div>
+<div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;</div>
+<div class="line"><a name="l00239"></a><span class="lineno">  239</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00240"></a><span class="lineno">  240</span>&#160;    <a class="code" href="classnta_1_1_network.html#a96c887e9752d20683feb967852b36b43">enableProfiling</a>();</div>
+<div class="line"><a name="l00241"></a><span class="lineno">  241</span>&#160;</div>
+<div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;    <a class="code" href="classnta_1_1_network.html#a50a5c60fc96312c72c013e1e0ff11a4e">disableProfiling</a>();</div>
+<div class="line"><a name="l00247"></a><span class="lineno">  247</span>&#160;</div>
+<div class="line"><a name="l00251"></a><span class="lineno">  251</span>&#160;    <span class="keywordtype">void</span></div>
+<div class="line"><a name="l00252"></a><span class="lineno">  252</span>&#160;    <a class="code" href="classnta_1_1_network.html#add2c45b4977417ce518b6a9c1dcc7489">resetProfiling</a>();</div>
+<div class="line"><a name="l00253"></a><span class="lineno">  253</span>&#160;</div>
+<div class="line"><a name="l00254"></a><span class="lineno">  254</span>&#160;  <span class="keyword">private</span>:</div>
 <div class="line"><a name="l00255"></a><span class="lineno">  255</span>&#160;</div>
-<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;    <span class="comment">// Both constructors use this common initialization method</span></div>
-<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="keywordtype">void</span> commonInit();</div>
-<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;</div>
-<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;    <span class="comment">// Used by the path-based constructor</span></div>
-<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="keywordtype">void</span> load(<span class="keyword">const</span> std::string&amp; path);</div>
-<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;</div>
-<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;    <span class="keywordtype">void</span> loadFromBundle(<span class="keyword">const</span> std::string&amp; path);</div>
-<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;</div>
-<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;    <span class="comment">// save() always calls this internal method, which creates</span></div>
-<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="comment">// a .nta bundle</span></div>
-<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="keywordtype">void</span> saveToBundle(<span class="keyword">const</span> std::string&amp; bundleName);</div>
-<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;</div>
-<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;    <span class="comment">// internal method using region pointer instead of name</span></div>
-<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="keywordtype">void</span> </div>
-<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    setPhases_(<a class="code" href="classnta_1_1_region.html">Region</a> *r, std::set&lt;UInt32&gt;&amp; phases);</div>
-<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;</div>
-<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;    <span class="comment">// default phase assignment for a new region</span></div>
-<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="keywordtype">void</span> setDefaultPhase_(<a class="code" href="classnta_1_1_region.html">Region</a>* region);</div>
-<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    </div>
-<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    <span class="comment">// whenever we modify a network or change phase</span></div>
-<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="comment">// information, we set enabled phases to min/max for</span></div>
-<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="comment">// the network</span></div>
-<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="keywordtype">void</span> resetEnabledPhases_();</div>
-<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;</div>
-<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;    <span class="keywordtype">bool</span> initialized_;</div>
-<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    Collection&lt;Region*&gt; regions_;</div>
-<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;</div>
-<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;    UInt32 minEnabledPhase_;</div>
-<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    UInt32 maxEnabledPhase_;</div>
-<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    </div>
-<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    <span class="comment">// This is main data structure used to choreograph</span></div>
-<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="comment">// network computation</span></div>
-<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    std::vector&lt; std::set&lt;Region*&gt; &gt; phaseInfo_;</div>
-<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;  </div>
-<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;    <span class="comment">// we invoke these callbacks at every iteration</span></div>
-<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    Collection&lt;callbackItem&gt; callbacks_;</div>
-<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    </div>
-<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    <span class="comment">//number of elapsed iterations</span></div>
-<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    UInt64 iteration_;</div>
-<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;  };</div>
-<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;</div>
-<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;} <span class="comment">// namespace nta</span></div>
-<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;</div>
-<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;<span class="preprocessor">#endif // NTA_NETWORK_HPP</span></div>
-<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="preprocessor"></span></div>
+<div class="line"><a name="l00256"></a><span class="lineno">  256</span>&#160;</div>
+<div class="line"><a name="l00257"></a><span class="lineno">  257</span>&#160;    <span class="comment">// Both constructors use this common initialization method</span></div>
+<div class="line"><a name="l00258"></a><span class="lineno">  258</span>&#160;    <span class="keywordtype">void</span> commonInit();</div>
+<div class="line"><a name="l00259"></a><span class="lineno">  259</span>&#160;</div>
+<div class="line"><a name="l00260"></a><span class="lineno">  260</span>&#160;    <span class="comment">// Used by the path-based constructor</span></div>
+<div class="line"><a name="l00261"></a><span class="lineno">  261</span>&#160;    <span class="keywordtype">void</span> load(<span class="keyword">const</span> std::string&amp; path);</div>
+<div class="line"><a name="l00262"></a><span class="lineno">  262</span>&#160;</div>
+<div class="line"><a name="l00263"></a><span class="lineno">  263</span>&#160;    <span class="keywordtype">void</span> loadFromBundle(<span class="keyword">const</span> std::string&amp; path);</div>
+<div class="line"><a name="l00264"></a><span class="lineno">  264</span>&#160;</div>
+<div class="line"><a name="l00265"></a><span class="lineno">  265</span>&#160;    <span class="comment">// save() always calls this internal method, which creates</span></div>
+<div class="line"><a name="l00266"></a><span class="lineno">  266</span>&#160;    <span class="comment">// a .nta bundle</span></div>
+<div class="line"><a name="l00267"></a><span class="lineno">  267</span>&#160;    <span class="keywordtype">void</span> saveToBundle(<span class="keyword">const</span> std::string&amp; bundleName);</div>
+<div class="line"><a name="l00268"></a><span class="lineno">  268</span>&#160;</div>
+<div class="line"><a name="l00269"></a><span class="lineno">  269</span>&#160;    <span class="comment">// internal method using region pointer instead of name</span></div>
+<div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordtype">void</span> </div>
+<div class="line"><a name="l00271"></a><span class="lineno">  271</span>&#160;    setPhases_(<a class="code" href="classnta_1_1_region.html">Region</a> *r, std::set&lt;UInt32&gt;&amp; phases);</div>
+<div class="line"><a name="l00272"></a><span class="lineno">  272</span>&#160;</div>
+<div class="line"><a name="l00273"></a><span class="lineno">  273</span>&#160;    <span class="comment">// default phase assignment for a new region</span></div>
+<div class="line"><a name="l00274"></a><span class="lineno">  274</span>&#160;    <span class="keywordtype">void</span> setDefaultPhase_(<a class="code" href="classnta_1_1_region.html">Region</a>* region);</div>
+<div class="line"><a name="l00275"></a><span class="lineno">  275</span>&#160;    </div>
+<div class="line"><a name="l00276"></a><span class="lineno">  276</span>&#160;    <span class="comment">// whenever we modify a network or change phase</span></div>
+<div class="line"><a name="l00277"></a><span class="lineno">  277</span>&#160;    <span class="comment">// information, we set enabled phases to min/max for</span></div>
+<div class="line"><a name="l00278"></a><span class="lineno">  278</span>&#160;    <span class="comment">// the network</span></div>
+<div class="line"><a name="l00279"></a><span class="lineno">  279</span>&#160;    <span class="keywordtype">void</span> resetEnabledPhases_();</div>
+<div class="line"><a name="l00280"></a><span class="lineno">  280</span>&#160;</div>
+<div class="line"><a name="l00281"></a><span class="lineno">  281</span>&#160;    <span class="keywordtype">bool</span> initialized_;</div>
+<div class="line"><a name="l00282"></a><span class="lineno">  282</span>&#160;    Collection&lt;Region*&gt; regions_;</div>
+<div class="line"><a name="l00283"></a><span class="lineno">  283</span>&#160;</div>
+<div class="line"><a name="l00284"></a><span class="lineno">  284</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> minEnabledPhase_;</div>
+<div class="line"><a name="l00285"></a><span class="lineno">  285</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> maxEnabledPhase_;</div>
+<div class="line"><a name="l00286"></a><span class="lineno">  286</span>&#160;    </div>
+<div class="line"><a name="l00287"></a><span class="lineno">  287</span>&#160;    <span class="comment">// This is main data structure used to choreograph</span></div>
+<div class="line"><a name="l00288"></a><span class="lineno">  288</span>&#160;    <span class="comment">// network computation</span></div>
+<div class="line"><a name="l00289"></a><span class="lineno">  289</span>&#160;    std::vector&lt; std::set&lt;Region*&gt; &gt; phaseInfo_;</div>
+<div class="line"><a name="l00290"></a><span class="lineno">  290</span>&#160;  </div>
+<div class="line"><a name="l00291"></a><span class="lineno">  291</span>&#160;    <span class="comment">// we invoke these callbacks at every iteration</span></div>
+<div class="line"><a name="l00292"></a><span class="lineno">  292</span>&#160;    Collection&lt;callbackItem&gt; callbacks_;</div>
+<div class="line"><a name="l00293"></a><span class="lineno">  293</span>&#160;    </div>
+<div class="line"><a name="l00294"></a><span class="lineno">  294</span>&#160;    <span class="comment">//number of elapsed iterations</span></div>
+<div class="line"><a name="l00295"></a><span class="lineno">  295</span>&#160;    <a class="code" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">UInt64</a> iteration_;</div>
+<div class="line"><a name="l00296"></a><span class="lineno">  296</span>&#160;  };</div>
+<div class="line"><a name="l00297"></a><span class="lineno">  297</span>&#160;</div>
+<div class="line"><a name="l00298"></a><span class="lineno">  298</span>&#160;} <span class="comment">// namespace nta</span></div>
+<div class="line"><a name="l00299"></a><span class="lineno">  299</span>&#160;</div>
+<div class="line"><a name="l00300"></a><span class="lineno">  300</span>&#160;<span class="preprocessor">#endif // NTA_NETWORK_HPP</span></div>
+<div class="line"><a name="l00301"></a><span class="lineno">  301</span>&#160;<span class="preprocessor"></span></div>
 </div><!-- fragment --></div><!-- contents -->
 
 <hr class="footer"/><small>
 <span class="qmi"><a href="http://github.com/skozlovf/doxygen-qmi-style">qmi style</a></span>
 <address class="footer">
-Generated on Wed Dec 18 2013 03:39:00 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
+Generated on Wed Dec 18 2013 05:21:37 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
 </small></address>
 </body>
 </html>

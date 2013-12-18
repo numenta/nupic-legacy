@@ -1,0 +1,19 @@
+var searchData=
+[
+  ['nta_5fbasictype_5fbyte',['NTA_BasicType_Byte',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca90884d2b3e9fd7ff9df2edeabf652c24',1,'types.h']]],
+  ['nta_5fbasictype_5fhandle',['NTA_BasicType_Handle',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca43855733d77d2aed00c906045b4406b2',1,'types.h']]],
+  ['nta_5fbasictype_5fint16',['NTA_BasicType_Int16',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca55430e47f4fd2158fbbca48be6ac9ebd',1,'types.h']]],
+  ['nta_5fbasictype_5fint32',['NTA_BasicType_Int32',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3cada0fb35896b9b242ed3c6ecccf8d4d2b',1,'types.h']]],
+  ['nta_5fbasictype_5fint64',['NTA_BasicType_Int64',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3cafd63882e780b2c7ae2409843e8a5dc30',1,'types.h']]],
+  ['nta_5fbasictype_5flast',['NTA_BasicType_Last',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca29e6162bdca2d677e08f54e381916a9f',1,'types.h']]],
+  ['nta_5fbasictype_5freal',['NTA_BasicType_Real',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca75744c2663d21ba52a111d5fef07504e',1,'types.h']]],
+  ['nta_5fbasictype_5freal32',['NTA_BasicType_Real32',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca98558902bc41080367cbaeb7c305462b',1,'types.h']]],
+  ['nta_5fbasictype_5freal64',['NTA_BasicType_Real64',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca367cd3711aef86fdb7e2e0a9d5f8a879',1,'types.h']]],
+  ['nta_5fbasictype_5fuint16',['NTA_BasicType_UInt16',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca601116c0881442bcf39e3c0d3946c0ef',1,'types.h']]],
+  ['nta_5fbasictype_5fuint32',['NTA_BasicType_UInt32',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca4fddf3befb8f3b028522c50a380af361',1,'types.h']]],
+  ['nta_5fbasictype_5fuint64',['NTA_BasicType_UInt64',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3caaa8c7f7db0a11149fa616b3ae3399abf',1,'types.h']]],
+  ['nta_5floglevel_5fminimal',['NTA_LogLevel_Minimal',['../types_8h.html#a5bfa21faa5dbfdd0dae1031e03c594e9a8e3b164558b2a6467d24ca5aede001c6',1,'types.h']]],
+  ['nta_5floglevel_5fnone',['NTA_LogLevel_None',['../types_8h.html#a5bfa21faa5dbfdd0dae1031e03c594e9a819d82b2e7c781be954a0999be7912dc',1,'types.h']]],
+  ['nta_5floglevel_5fnormal',['NTA_LogLevel_Normal',['../types_8h.html#a5bfa21faa5dbfdd0dae1031e03c594e9a9f09bf3c3f2d75079541f80b411afa06',1,'types.h']]],
+  ['nta_5floglevel_5fverbose',['NTA_LogLevel_Verbose',['../types_8h.html#a5bfa21faa5dbfdd0dae1031e03c594e9a76160d4c004bb423fb6ae912373e1598',1,'types.h']]]
+];

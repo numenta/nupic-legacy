@@ -67,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -80,7 +80,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
-<a href="#typedef-members">Typedefs</a>  </div>
+<a href="#typedef-members">Typedefs</a> &#124;
+<a href="#enum-members">Enumerations</a>  </div>
   <div class="headertitle">
 <div class="title">nta Namespace Reference</div>  </div>
 </div><!--header-->
@@ -94,6 +95,12 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_region.html">Region</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_link.html">Link</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_output.html">Output</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_input.html">Input</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_dimensions.html">Dimensions</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -101,10 +108,56 @@ Classes</h2></td></tr>
 Typedefs</h2></td></tr>
 <tr class="memitem:a102586c290f7b8dd43ab1fafef524485"><td class="memItemLeft" align="right" valign="top">typedef std::vector&lt; size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a102586c290f7b8dd43ab1fafef524485">Coordinate</a></td></tr>
 <tr class="separator:a102586c290f7b8dd43ab1fafef524485"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3517a4af0a262f32f1ec821d296ab8e"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#abdd585f6e9766b3266d7af0ff4bd7cfd">NTA_Byte</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#aa3517a4af0a262f32f1ec821d296ab8e">Byte</a></td></tr>
+<tr class="separator:aa3517a4af0a262f32f1ec821d296ab8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aecc9977c159d2fbceccc06d9b76959db"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a7fe939fa021f7bbb30a4512111c126a8">NTA_Int16</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#aecc9977c159d2fbceccc06d9b76959db">Int16</a></td></tr>
+<tr class="separator:aecc9977c159d2fbceccc06d9b76959db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91c8da0f22683493477e48644cfd118d"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a9fe48be1ee451c60ead67faca417a126">NTA_UInt16</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a91c8da0f22683493477e48644cfd118d">UInt16</a></td></tr>
+<tr class="separator:a91c8da0f22683493477e48644cfd118d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3c3da0a1f8c13ee2d808eac0dfca5e5"><td class="memItemLeft" align="right" valign="top">typedef NTA_Int32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#ac3c3da0a1f8c13ee2d808eac0dfca5e5">Int32</a></td></tr>
+<tr class="separator:ac3c3da0a1f8c13ee2d808eac0dfca5e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a308563b6e426dfe95be200878c94accf"><td class="memItemLeft" align="right" valign="top">typedef NTA_UInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a></td></tr>
+<tr class="separator:a308563b6e426dfe95be200878c94accf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7719a5670a0a75f8d5e304ac42596375"><td class="memItemLeft" align="right" valign="top">typedef NTA_Int64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a7719a5670a0a75f8d5e304ac42596375">Int64</a></td></tr>
+<tr class="separator:a7719a5670a0a75f8d5e304ac42596375"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa713df1be43bfaaa41b2736232cacbc9"><td class="memItemLeft" align="right" valign="top">typedef NTA_UInt64&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">UInt64</a></td></tr>
+<tr class="separator:aa713df1be43bfaaa41b2736232cacbc9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a66eec6b9d16d25233c3f86c63be66773"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a0f244150e02354edfa4c7ad2547e7303">NTA_Real32</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a66eec6b9d16d25233c3f86c63be66773">Real32</a></td></tr>
+<tr class="separator:a66eec6b9d16d25233c3f86c63be66773"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27177da23cbf7140aef1234af33f0cdf"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a57eeefc6d9dd719498bbc81e0b02defc">NTA_Real64</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a27177da23cbf7140aef1234af33f0cdf">Real64</a></td></tr>
+<tr class="separator:a27177da23cbf7140aef1234af33f0cdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad91dbf918bb30dfc6f9f08045db52e36"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#ae8b9cf615208eee68c58ba5ed8f4445b">NTA_Handle</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#ad91dbf918bb30dfc6f9f08045db52e36">Handle</a></td></tr>
+<tr class="separator:ad91dbf918bb30dfc6f9f08045db52e36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b438ee0b4c6d825ca71d8fbd8be4886"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a08a7e69dccdab41ab831c4f3ff895357">NTA_Real</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a0b438ee0b4c6d825ca71d8fbd8be4886">Real</a></td></tr>
+<tr class="separator:a0b438ee0b4c6d825ca71d8fbd8be4886"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17d4a8b25826d8927b44cdbb41109e1b"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#a785ab1bca607f8be87c981e22a1ee520">NTA_Int</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a17d4a8b25826d8927b44cdbb41109e1b">Int</a></td></tr>
+<tr class="separator:a17d4a8b25826d8927b44cdbb41109e1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a213121a770bfaeb2c7fd30f536d8d2e9"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#aa5f79157df72371298ab8d56a83abf7b">NTA_UInt</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a213121a770bfaeb2c7fd30f536d8d2e9">UInt</a></td></tr>
+<tr class="separator:a213121a770bfaeb2c7fd30f536d8d2e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3071615515475954e3167f6c5dcc661a"><td class="memItemLeft" align="right" valign="top">typedef <a class="el" href="types_8h.html#acddbfc116368052db5f7843f22259d93">NTA_Size</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a3071615515475954e3167f6c5dcc661a">Size</a></td></tr>
+<tr class="separator:a3071615515475954e3167f6c5dcc661a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="enum-members"></a>
+Enumerations</h2></td></tr>
+<tr class="memitem:a50ca7957941b2bd1ef0e4fb800311dd7"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespacenta.html#a50ca7957941b2bd1ef0e4fb800311dd7">LogLevel</a> </td></tr>
+<tr class="separator:a50ca7957941b2bd1ef0e4fb800311dd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Contains the primary <a class="el" href="classnta_1_1_nu_p_i_c.html">NuPIC</a> API. </p>
 </div><h2 class="groupheader">Typedef Documentation</h2>
+<a class="anchor" id="aa3517a4af0a262f32f1ec821d296ab8e"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#abdd585f6e9766b3266d7af0ff4bd7cfd">NTA_Byte</a> <a class="el" href="namespacenta.html#aa3517a4af0a262f32f1ec821d296ab8e">nta::Byte</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
 <a class="anchor" id="a102586c290f7b8dd43ab1fafef524485"></a>
 <div class="memitem">
 <div class="memproto">
@@ -118,12 +171,195 @@ Typedefs</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="ad91dbf918bb30dfc6f9f08045db52e36"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#ae8b9cf615208eee68c58ba5ed8f4445b">NTA_Handle</a> <a class="el" href="namespacenta.html#ad91dbf918bb30dfc6f9f08045db52e36">nta::Handle</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a17d4a8b25826d8927b44cdbb41109e1b"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a785ab1bca607f8be87c981e22a1ee520">NTA_Int</a> <a class="el" href="namespacenta.html#a17d4a8b25826d8927b44cdbb41109e1b">nta::Int</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="aecc9977c159d2fbceccc06d9b76959db"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a7fe939fa021f7bbb30a4512111c126a8">NTA_Int16</a> <a class="el" href="namespacenta.html#aecc9977c159d2fbceccc06d9b76959db">nta::Int16</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="ac3c3da0a1f8c13ee2d808eac0dfca5e5"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef NTA_Int32 <a class="el" href="namespacenta.html#ac3c3da0a1f8c13ee2d808eac0dfca5e5">nta::Int32</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a7719a5670a0a75f8d5e304ac42596375"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef NTA_Int64 <a class="el" href="namespacenta.html#a7719a5670a0a75f8d5e304ac42596375">nta::Int64</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a0b438ee0b4c6d825ca71d8fbd8be4886"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a08a7e69dccdab41ab831c4f3ff895357">NTA_Real</a> <a class="el" href="namespacenta.html#a0b438ee0b4c6d825ca71d8fbd8be4886">nta::Real</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a66eec6b9d16d25233c3f86c63be66773"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a0f244150e02354edfa4c7ad2547e7303">NTA_Real32</a> <a class="el" href="namespacenta.html#a66eec6b9d16d25233c3f86c63be66773">nta::Real32</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a27177da23cbf7140aef1234af33f0cdf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a57eeefc6d9dd719498bbc81e0b02defc">NTA_Real64</a> <a class="el" href="namespacenta.html#a27177da23cbf7140aef1234af33f0cdf">nta::Real64</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a3071615515475954e3167f6c5dcc661a"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#acddbfc116368052db5f7843f22259d93">NTA_Size</a> <a class="el" href="namespacenta.html#a3071615515475954e3167f6c5dcc661a">nta::Size</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a213121a770bfaeb2c7fd30f536d8d2e9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#aa5f79157df72371298ab8d56a83abf7b">NTA_UInt</a> <a class="el" href="namespacenta.html#a213121a770bfaeb2c7fd30f536d8d2e9">nta::UInt</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a91c8da0f22683493477e48644cfd118d"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef <a class="el" href="types_8h.html#a9fe48be1ee451c60ead67faca417a126">NTA_UInt16</a> <a class="el" href="namespacenta.html#a91c8da0f22683493477e48644cfd118d">nta::UInt16</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="a308563b6e426dfe95be200878c94accf"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef NTA_UInt32 <a class="el" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">nta::UInt32</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<a class="anchor" id="aa713df1be43bfaaa41b2736232cacbc9"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef NTA_UInt64 <a class="el" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">nta::UInt64</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
+<h2 class="groupheader">Enumeration Type Documentation</h2>
+<a class="anchor" id="a50ca7957941b2bd1ef0e4fb800311dd7"></a>
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="namespacenta.html#a50ca7957941b2bd1ef0e4fb800311dd7">nta::LogLevel</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>TODO: document </p>
+
+</div>
+</div>
 </div><!-- contents -->
 
 <hr class="footer"/><small>
 <span class="qmi"><a href="http://github.com/skozlovf/doxygen-qmi-style">qmi style</a></span>
 <address class="footer">
-Generated on Wed Dec 18 2013 03:39:00 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
+Generated on Wed Dec 18 2013 05:21:38 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
 </small></address>
 </body>
 </html>

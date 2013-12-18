@@ -6,6 +6,7 @@ var searchData=
   ['permanenceinc',['permanenceInc',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a7d5bb822a1c1b0267a400714bd5cc8bf',1,'nupic::research::TP::TP']]],
   ['permanencemax',['permanenceMax',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a93a864e3ddef42ffa88ab73eb78eaf8b',1,'nupic::research::TP::TP']]],
   ['predict',['predict',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a524f679263261614b20bcdbaa48305fe',1,'nupic::research::TP::TP']]],
+  ['prepare',['prepare',['../classnta_1_1_input.html#a48a10f9d1f49d16df539825436c404c6',1,'nta::Input']]],
   ['prepareinputs',['prepareInputs',['../classnta_1_1_region.html#a3f853f23396f68c761388bd29503f9eb',1,'nta::Region']]],
   ['printactiveindices',['printActiveIndices',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a4d00689676974c08361551814b7cac42',1,'nupic::research::TP::TP']]],
   ['printcell',['printCell',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a0c44d6e37c181e7eea072fa0896d7dde',1,'nupic::research::TP::TP']]],

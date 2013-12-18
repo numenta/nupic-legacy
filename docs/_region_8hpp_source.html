@@ -59,6 +59,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
       <li><a href="files.html"><span>File&#160;List</span></a></li>
+      <li><a href="globals.html"><span>File&#160;Members</span></a></li>
     </ul>
   </div>
 <!-- window showing the filter options -->
@@ -66,7 +67,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Enumerations</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Enumerator</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(9)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(10)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -116,7 +117,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;<span class="preprocessor">#include &lt;map&gt;</span></div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;<span class="preprocessor">#include &lt;set&gt;</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &lt;nta/types/types.hpp&gt;</span></div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;<span class="preprocessor">#include &lt;<a class="code" href="types_8hpp.html">nta/types/types.hpp</a>&gt;</span></div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;<span class="comment">// We need the full definitions because these</span></div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;<span class="comment">// objects are returned by value.</span></div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;<span class="preprocessor">#include &lt;nta/ntypes/Dimensions.hpp&gt;</span></div>
@@ -170,48 +171,48 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00130"></a><span class="lineno">  130</span>&#160;    <span class="keyword">static</span> <span class="keyword">const</span> Spec* </div>
 <div class="line"><a name="l00131"></a><span class="lineno">  131</span>&#160;    <a class="code" href="classnta_1_1_region.html#a9e30f1f51dc36f0dd22566d31b334f1f">getSpecFromType</a>(<span class="keyword">const</span> std::string&amp; nodeType);</div>
 <div class="line"><a name="l00132"></a><span class="lineno">  132</span>&#160;</div>
-<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    Int32</div>
+<div class="line"><a name="l00138"></a><span class="lineno">  138</span>&#160;    <a class="code" href="namespacenta.html#ac3c3da0a1f8c13ee2d808eac0dfca5e5">Int32</a></div>
 <div class="line"><a name="l00139"></a><span class="lineno">  139</span>&#160;    <a class="code" href="classnta_1_1_region.html#a54eb42f2c56b268fcad40bda8fb2a6a6">getParameterInt32</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00140"></a><span class="lineno">  140</span>&#160;</div>
-<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    UInt32</div>
+<div class="line"><a name="l00146"></a><span class="lineno">  146</span>&#160;    <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a></div>
 <div class="line"><a name="l00147"></a><span class="lineno">  147</span>&#160;    <a class="code" href="classnta_1_1_region.html#abd844a6ac266d71c57c6f7028547e8ee">getParameterUInt32</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00148"></a><span class="lineno">  148</span>&#160;</div>
-<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    Int64</div>
+<div class="line"><a name="l00154"></a><span class="lineno">  154</span>&#160;    <a class="code" href="namespacenta.html#a7719a5670a0a75f8d5e304ac42596375">Int64</a></div>
 <div class="line"><a name="l00155"></a><span class="lineno">  155</span>&#160;    <a class="code" href="classnta_1_1_region.html#a744cfb592fde875b081eb977ea966f81">getParameterInt64</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00156"></a><span class="lineno">  156</span>&#160;</div>
-<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    UInt64</div>
+<div class="line"><a name="l00162"></a><span class="lineno">  162</span>&#160;    <a class="code" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">UInt64</a></div>
 <div class="line"><a name="l00163"></a><span class="lineno">  163</span>&#160;    <a class="code" href="classnta_1_1_region.html#a0cff470e6949b19e1582d4c887b9e702">getParameterUInt64</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00164"></a><span class="lineno">  164</span>&#160;</div>
-<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    Real32</div>
+<div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;    <a class="code" href="namespacenta.html#a66eec6b9d16d25233c3f86c63be66773">Real32</a></div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    <a class="code" href="classnta_1_1_region.html#a94efa925be2a8cf48db584b64546b5d2">getParameterReal32</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;</div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    Real64</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <a class="code" href="namespacenta.html#a27177da23cbf7140aef1234af33f0cdf">Real64</a></div>
 <div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;    <a class="code" href="classnta_1_1_region.html#ae9321b9ad122f06e77773f839545b211">getParameterReal64</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;</div>
-<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    Handle</div>
+<div class="line"><a name="l00186"></a><span class="lineno">  186</span>&#160;    <a class="code" href="namespacenta.html#ad91dbf918bb30dfc6f9f08045db52e36">Handle</a></div>
 <div class="line"><a name="l00187"></a><span class="lineno">  187</span>&#160;    <a class="code" href="classnta_1_1_region.html#a2b3ddb49129da1263ce7ab3c7633c9c1">getParameterHandle</a>(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00188"></a><span class="lineno">  188</span>&#160;</div>
 <div class="line"><a name="l00189"></a><span class="lineno">  189</span>&#160;</div>
 <div class="line"><a name="l00195"></a><span class="lineno">  195</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <a class="code" href="classnta_1_1_region.html#abad4ab7e2bcee3de4b4a89f1323ce705">setParameterInt32</a>(<span class="keyword">const</span> std::string&amp; name, Int32 value);</div>
+<div class="line"><a name="l00196"></a><span class="lineno">  196</span>&#160;    <a class="code" href="classnta_1_1_region.html#abad4ab7e2bcee3de4b4a89f1323ce705">setParameterInt32</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#ac3c3da0a1f8c13ee2d808eac0dfca5e5">Int32</a> value);</div>
 <div class="line"><a name="l00197"></a><span class="lineno">  197</span>&#160;</div>
 <div class="line"><a name="l00203"></a><span class="lineno">  203</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <a class="code" href="classnta_1_1_region.html#a7c6f5b7c25613b8ac32c77c5d39606e5">setParameterUInt32</a>(<span class="keyword">const</span> std::string&amp; name, UInt32 value);</div>
+<div class="line"><a name="l00204"></a><span class="lineno">  204</span>&#160;    <a class="code" href="classnta_1_1_region.html#a7c6f5b7c25613b8ac32c77c5d39606e5">setParameterUInt32</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#a308563b6e426dfe95be200878c94accf">UInt32</a> value);</div>
 <div class="line"><a name="l00205"></a><span class="lineno">  205</span>&#160;</div>
 <div class="line"><a name="l00211"></a><span class="lineno">  211</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <a class="code" href="classnta_1_1_region.html#a1e5e8f649d3e1eb8f1ba1ae2c6acdc7d">setParameterInt64</a>(<span class="keyword">const</span> std::string&amp; name, Int64 value);</div>
+<div class="line"><a name="l00212"></a><span class="lineno">  212</span>&#160;    <a class="code" href="classnta_1_1_region.html#a1e5e8f649d3e1eb8f1ba1ae2c6acdc7d">setParameterInt64</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#a7719a5670a0a75f8d5e304ac42596375">Int64</a> value);</div>
 <div class="line"><a name="l00213"></a><span class="lineno">  213</span>&#160;</div>
 <div class="line"><a name="l00219"></a><span class="lineno">  219</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <a class="code" href="classnta_1_1_region.html#a2450f99aafe01ee889f82f4a095762c6">setParameterUInt64</a>(<span class="keyword">const</span> std::string&amp; name, UInt64 value);</div>
+<div class="line"><a name="l00220"></a><span class="lineno">  220</span>&#160;    <a class="code" href="classnta_1_1_region.html#a2450f99aafe01ee889f82f4a095762c6">setParameterUInt64</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#aa713df1be43bfaaa41b2736232cacbc9">UInt64</a> value);</div>
 <div class="line"><a name="l00221"></a><span class="lineno">  221</span>&#160;</div>
 <div class="line"><a name="l00227"></a><span class="lineno">  227</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <a class="code" href="classnta_1_1_region.html#a67515fc139134e9337d7d8e0c67410e5">setParameterReal32</a>(<span class="keyword">const</span> std::string&amp; name, Real32 value);</div>
+<div class="line"><a name="l00228"></a><span class="lineno">  228</span>&#160;    <a class="code" href="classnta_1_1_region.html#a67515fc139134e9337d7d8e0c67410e5">setParameterReal32</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#a66eec6b9d16d25233c3f86c63be66773">Real32</a> value);</div>
 <div class="line"><a name="l00229"></a><span class="lineno">  229</span>&#160;</div>
 <div class="line"><a name="l00235"></a><span class="lineno">  235</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <a class="code" href="classnta_1_1_region.html#aff2f20f4bb2b962f58808ac7e1e5a236">setParameterReal64</a>(<span class="keyword">const</span> std::string&amp; name, Real64 value);</div>
+<div class="line"><a name="l00236"></a><span class="lineno">  236</span>&#160;    <a class="code" href="classnta_1_1_region.html#aff2f20f4bb2b962f58808ac7e1e5a236">setParameterReal64</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#a27177da23cbf7140aef1234af33f0cdf">Real64</a> value);</div>
 <div class="line"><a name="l00237"></a><span class="lineno">  237</span>&#160;</div>
 <div class="line"><a name="l00243"></a><span class="lineno">  243</span>&#160;    <span class="keywordtype">void</span></div>
-<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <a class="code" href="classnta_1_1_region.html#a57e7391b170da8a00b8a9c87fd523c7a">setParameterHandle</a>(<span class="keyword">const</span> std::string&amp; name, Handle value);</div>
+<div class="line"><a name="l00244"></a><span class="lineno">  244</span>&#160;    <a class="code" href="classnta_1_1_region.html#a57e7391b170da8a00b8a9c87fd523c7a">setParameterHandle</a>(<span class="keyword">const</span> std::string&amp; name, <a class="code" href="namespacenta.html#ad91dbf918bb30dfc6f9f08045db52e36">Handle</a> value);</div>
 <div class="line"><a name="l00245"></a><span class="lineno">  245</span>&#160;</div>
 <div class="line"><a name="l00246"></a><span class="lineno">  246</span>&#160;</div>
 <div class="line"><a name="l00270"></a><span class="lineno">  270</span>&#160;    <span class="keywordtype">void</span></div>
@@ -293,10 +294,10 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;</div>
 <div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;</div>
 <div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;    <span class="comment">// Used by RegionImpl to get inputs/outputs</span></div>
-<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    Output*</div>
+<div class="line"><a name="l00460"></a><span class="lineno">  460</span>&#160;    <a class="code" href="classnta_1_1_output.html">Output</a>*</div>
 <div class="line"><a name="l00461"></a><span class="lineno">  461</span>&#160;    getOutput(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00462"></a><span class="lineno">  462</span>&#160;    </div>
-<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;    Input*</div>
+<div class="line"><a name="l00463"></a><span class="lineno">  463</span>&#160;    <a class="code" href="classnta_1_1_input.html">Input</a>*</div>
 <div class="line"><a name="l00464"></a><span class="lineno">  464</span>&#160;    getInput(<span class="keyword">const</span> std::string&amp; name) <span class="keyword">const</span>;</div>
 <div class="line"><a name="l00465"></a><span class="lineno">  465</span>&#160;</div>
 <div class="line"><a name="l00466"></a><span class="lineno">  466</span>&#160;    <span class="comment">// These are used only for serialization</span></div>
@@ -423,7 +424,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <hr class="footer"/><small>
 <span class="qmi"><a href="http://github.com/skozlovf/doxygen-qmi-style">qmi style</a></span>
 <address class="footer">
-Generated on Wed Dec 18 2013 03:39:00 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
+Generated on Wed Dec 18 2013 05:21:37 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
 </small></address>
 </body>
 </html>
