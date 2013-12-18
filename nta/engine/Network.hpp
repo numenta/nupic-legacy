@@ -21,10 +21,9 @@
  * ---------------------------------------------------------------------
  */
 
-// ---
-/// @file 
-/// Interface for the Network class
-// ---
+/** @file 
+ * Interface for the Network class
+ */
 
 #ifndef NTA_NETWORK_HPP
 #define NTA_NETWORK_HPP
@@ -44,10 +43,9 @@ namespace nta
   class Dimensions;
 
 
-  // --- @doc:begin
-  // name: description
-  // summary: A Network represents an HTM network. A network is a collection of regions.
-  // --- @doc:end
+  /**
+   * A Network represents an HTM network. A network is a collection of regions.
+   */
   class Network
   {
   public:
@@ -61,30 +59,26 @@ namespace nta
     ~Network();
 
 
-    // --- @doc:begin
-    // name: addRegion
-    // summary: Create a new region in a network
-    // arguments:
-    //  - name: Name of the region, Must be unique in the network
-    //  - nodeType: Type of node in the region, e.g. "FDRNode"
-    //  - nodeParams: A JSON-encoded string specifying writable params
-    // return: A pointer to the newly created region
-    // --- @doc:end
+    /**
+     * Create a new region in a network
+     * @param name Name of the region, Must be unique in the network
+     * @param nodeType Type of node in the region, e.g. "FDRNode"
+     * @param nodeParams A JSON-encoded string specifying writable params
+     * @returns A pointer to the newly created Region
+     */
     Region*
     addRegion(const std::string& name, 
               const std::string& nodeType, 
               const std::string& nodeParams);
 
-    // --- @doc:begin
-    // name: addRegionFromBundle
-    // summary: Create a new region from saved state
-    // arguments:
-    //  - name: Name of the region, Must be unique in the network
-    //  - nodeType: Type of node in the region, e.g. "FDRNode"
-    //  - dimensions: Dimensions of the region
-    //  - bundlePath: The path to the bundle
-    // return: A pointer to the newly created region
-    // --- @doc:end
+   /**
+    * Create a new region from saved state
+    * @param name Name of the region, Must be unique in the network
+    * @param nodeType Type of node in the region, e.g. "FDRNode"
+    * @param dimensions Dimensions of the region
+    * @param bundlePath The path to the bundle
+    * @returns A pointer to the newly created Region
+    */
     Region*
     addRegionFromBundle(const std::string& name, 
                         const std::string& nodeType, 
@@ -92,53 +86,42 @@ namespace nta
                         const std::string& bundlePath, 
                         const std::string& label);
 
-    // --- @doc:begin
-    // name: removeRegion
-    // summary: Removes a new region from the network
-    // arguments:
-    //  - name: Name of the region
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Removes a new region from the network
+    * @param name Name of the Region
+    */
     void
     removeRegion(const std::string& name);
 
-    // --- @doc:begin
-    // name: link
-    // summary: Create a link and add it to the network
-    // arguments:
-    //  - srcName: Name of the source region
-    //  - destName: Name of the destination region
-    //  - linkType: Type of the link
-    //  - linkParams: Parameters of the link
-    //  - srcOutput: Name of the source output
-    //  - destInput: Name of the destination input
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Create a link and add it to the network
+    * @param srcName Name of the source region
+    * @param destName Name of the destination region
+    * @param linkType Type of the link
+    * @param linkParams Parameters of the link
+    * @param srcOutput Name of the source output
+    * @param destInput Name of the destination input
+    */
     void
     link(const std::string& srcName, const std::string& destName, 
          const std::string& linkType, const std::string& linkParams, 
          const std::string& srcOutput="", const std::string& destInput="");
 
 
-    // --- @doc:begin
-    // name: removeLink
-    // summary: Removes a link 
-    // arguments:
-    //  - srcName: Name of the source region
-    //  - destName: Name of the destination region
-    //  - srcOutputName: Name of the source output
-    //  - destInputName: Name of the destination input
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Removes a link 
+    * @param srcName Name of the source region
+    * @param destName Name of the destination region
+    * @param srcOutputName Name of the source output
+    * @param destInputName Name of the destination input
+    */
     void
     removeLink(const std::string& srcName, const std::string& destName, 
                const std::string& srcOutputName="", const std::string& destInputName=""); 
   
-    // --- @doc:begin
-    // name: initialize
-    // summary: Initialize all elements of a network so that it can run
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Initialize all elements of a network so that it can run
+    */
     void
     initialize();
 
@@ -147,49 +130,41 @@ namespace nta
     // -------------- access to components -----------------
     //
 
-    // --- @doc:begin
-    // name: getRegions
-    // summary: Get all regions
-    // return: A collection of regions in the network
-    // --- @doc:end
+   /**
+    * Get all regions
+    * @returns A Collection of Region objects in the network
+    */
     const Collection<Region*>&
     getRegions() const;
   
-    // --- @doc:begin
-    // name: setPhases
-    // summary: Set phases for a region
-    // arguments:
-    //  - name: Name of the region
-    //  - phases: A tuple of phases (must be positive integers)
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Set phases for a region
+    * @param name Name of the region
+    * @param phases A tuple of phases (must be positive integers)
+    */
     void
     setPhases(const std::string& name, std::set<UInt32>& phases);
     
-    // --- @doc:begin
-    // name: getPhases
-    // summary: Get phases for a region
-    // arguments:
-    //  - name: Name of the region
-    // return: Set of phases for the region
-    // --- @doc:end
+   /**
+    * Get phases for a region
+    * @param name Name of the region
+    * @returns Set of phases for the region
+    */
     std::set<UInt32>
     getPhases(const std::string& name) const;
 
 
-    // --- @doc:begin
-    // name: getMinPhase
-    // summary: Get minumum phase for regions in this network. If no regions, then min = 0
-    // return: Minimum phase
-    // --- @doc:end
+   /**
+    * Get minumum phase for regions in this network. If no regions, then min = 0
+    * @returns Minimum phase
+    */
     UInt32 getMinPhase() const;
 
 
-    // --- @doc:begin
-    // name: getMaxPhase
-    // summary: Get maximum phase for regions in this network. If no regions, then max = 0
-    // return: Maximum phase
-    // --- @doc:end
+   /**
+    * Get maximum phase for regions in this network. If no regions, then max = 0
+    * @returns Maximum phase
+    */
     UInt32 getMaxPhase() const;
     
     // 
@@ -197,64 +172,53 @@ namespace nta
     //
 
 
-    // --- @doc:begin
-    // name: run
-    // summary: Run the network for the given number of iterations
-    // arguments:
-    //  - n: Number of iterations
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Run the network for the given number of iterations
+    * @param n Number of iterations
+    */
     void
     run(int n);
 
-    //  ---
-    /// You can attach a callback function to a network, and the callback
-    /// function is called after every iteration of net.run().
-    /// To add a callback, just get a reference to the callback collection
-    /// with getCallbacks, and add a callback
-    //  ---
+    /**
+     * You can attach a callback function to a network, and the callback
+     * function is called after every iteration of run().
+     * To add a callback, just get a reference to the callback collection
+     * with getCallbacks, and add a callback
+     */
     typedef void (*runCallbackFunction)(Network*, UInt64 iteration, void*);
     typedef std::pair<runCallbackFunction, void*> callbackItem;
-    // --- @doc:begin
-    // name: getCallbacks 
-    // summary: Get reference to callback collection
-    // return: Reference to callback collection
-    // --- @doc:end
+
+   /**
+    * Get reference to callback Collection
+    * @returns Reference to callback Collection
+    */
     Collection<callbackItem>& getCallbacks();
 
-    // --- @doc:begin
-    // name: setMinEnabledPhase
-    // summary: Set the minimum enabled phase for this network
-    // arguments:
-    //  - minPhase: Minimum enabled phase
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Set the minimum enabled phase for this network
+    * @param minPhase Minimum enabled phase
+    */
     void
     setMinEnabledPhase(UInt32 minPhase);
 
-    // --- @doc:begin
-    // name: setMaxEnabledPhase
-    // summary: Set the maximum enabled phase for this network
-    // arguments:
-    //  - minPhase: Maximum enabled phase
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Set the maximum enabled phase for this network
+    * @param minPhase Maximum enabled phase
+    */
     void
     setMaxEnabledPhase(UInt32 minPhase);
     
-    // --- @doc:begin
-    // name: getMinEnabledPhase
-    // summary: Get the minimum enabled phase for this network
-    // return: Minimum enabled phase for this network
-    // --- @doc:end
+   /**
+    * Get the minimum enabled phase for this network
+    * @returns Minimum enabled phase for this network
+    */
     UInt32
     getMinEnabledPhase() const;
     
-    // --- @doc:begin
-    // name: getMaxEnabledPhase
-    // summary: Get the maximum enabled phase for this network
-    // return: Maximum enabled phase for this network
-    // --- @doc:end
+   /**
+    * Get the maximum enabled phase for this network
+    * @returns Maximum enabled phase for this network
+    */
     UInt32
     getMaxEnabledPhase() const;
 
@@ -262,42 +226,33 @@ namespace nta
     // ------------ serialization -------------
     //
 
-    // --- @doc:begin
-    // name: save
-    // summary: Save the network to a network bundle (extension ".nta")
-    // arguments:
-    //  - name: Name of the bundle
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Save the network to a network bundle (extension ".nta")
+    * @param name Name of the bundle
+    */
     void save(const std::string& name);
 
-    // --- @doc:begin
-    // name: enableProfiling
-    // summary: Start profiling for all regions of this network
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Start profiling for all regions of this network
+    */
     void
     enableProfiling();
 
-    // --- @doc:begin
-    // name: disableProfiling
-    // summary: Stop profiling for all regions of this network
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Stop profiling for all regions of this network
+    */
     void
     disableProfiling();
 
-    // --- @doc:begin
-    // name: resetProfiling
-    // summary: Reset profiling timers for all regions of this network
-    // return: Nothing
-    // --- @doc:end
+   /**
+    * Reset profiling timers for all regions of this network
+    */
     void
     resetProfiling();
 
   private:
 
-    
+
     // Both constructors use this common initialization method
     void commonInit();
 
