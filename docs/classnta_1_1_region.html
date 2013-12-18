@@ -69,7 +69,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Pages</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>All</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Classes</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(2)"><span class="SelectionMark">&#160;</span>Namespaces</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(3)"><span class="SelectionMark">&#160;</span>Files</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(4)"><span class="SelectionMark">&#160;</span>Functions</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(5)"><span class="SelectionMark">&#160;</span>Variables</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(6)"><span class="SelectionMark">&#160;</span>Typedefs</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(7)"><span class="SelectionMark">&#160;</span>Friends</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(8)"><span class="SelectionMark">&#160;</span>Pages</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -97,7 +97,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:accc79e01906e4df385fcecff1e10dd7e"><td class="memItemLeft" align="right" valign="top">Network *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_region.html#accc79e01906e4df385fcecff1e10dd7e">getNetwork</a> ()</td></tr>
+<tr class="memitem:accc79e01906e4df385fcecff1e10dd7e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classnta_1_1_network.html">Network</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_region.html#accc79e01906e4df385fcecff1e10dd7e">getNetwork</a> ()</td></tr>
 <tr class="separator:accc79e01906e4df385fcecff1e10dd7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1faadad2e30d44d2a002564d169a755"><td class="memItemLeft" align="right" valign="top">const std::string &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classnta_1_1_region.html#af1faadad2e30d44d2a002564d169a755">getName</a> () const </td></tr>
 <tr class="separator:af1faadad2e30d44d2a002564d169a755"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,7 +184,7 @@ Static Public Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A region is one or more identical nodes in a network.</p>
 <h3>Constructors</h3>
-<p><a class="el" href="classnta_1_1_region.html">Region</a> constructors are not available in the public API. Internally regions are created and owned by Network. </p>
+<p><a class="el" href="classnta_1_1_region.html">Region</a> constructors are not available in the public API. Internally regions are created and owned by <a class="el" href="classnta_1_1_network.html">Network</a>. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a class="anchor" id="aee40798829b40c3d808ec661568ed800"></a>
 <div class="memitem">
@@ -455,7 +455,7 @@ Static Public Member Functions</h2></td></tr>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">Network* nta::Region::getNetwork </td>
+          <td class="memname"><a class="el" href="classnta_1_1_network.html">Network</a>* nta::Region::getNetwork </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
@@ -559,7 +559,7 @@ Static Public Member Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>get/setArray methods take a memory buffer. If buffer is not null, they copy into the supplied buffer; otherwise they ask Array to allocate an array and copy into it. NuPIC throws an exception if supplied array is not big enough.</p>
+<p>get/setArray methods take a memory buffer. If buffer is not null, they copy into the supplied buffer; otherwise they ask Array to allocate an array and copy into it. <a class="el" href="classnta_1_1_nu_p_i_c.html">NuPIC</a> throws an exception if supplied array is not big enough.</p>
 <dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>: auto-reallocate?</dd></dl>
 <p>A typical use might be that the caller would supply an unallocated buffer on the first call and then reuse the memory buffer on subsequent calls, i.e. </p>
 <pre class="fragment">{
@@ -1229,7 +1229,7 @@ Static Public Member Functions</h2></td></tr>
 <hr class="footer"/><small>
 <span class="qmi"><a href="http://github.com/skozlovf/doxygen-qmi-style">qmi style</a></span>
 <address class="footer">
-Generated on Tue Dec 17 2013 20:32:01 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
+Generated on Wed Dec 18 2013 03:39:00 for NuPIC by <a href="http://www.doxygen.org/index.html">doxygen</a> 1.8.2
 </small></address>
 </body>
 </html>

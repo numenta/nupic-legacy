@@ -4,5 +4,6 @@ var searchData=
   ['learnbacktrack',['learnBacktrack',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#ae0832142c322949cf71acec0e5dcefe8',1,'nupic::research::TP::TP']]],
   ['learnphase1',['learnPhase1',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a582379eb8bd60a201aacfbb3524fcc2a',1,'nupic::research::TP::TP']]],
   ['learnphase2',['learnPhase2',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a1e2681b9f640db6d909f84ebdd47ec67',1,'nupic::research::TP::TP']]],
+  ['link',['link',['../classnta_1_1_network.html#accf63e1ee22dc7bf4b4eea30a6c1f303',1,'nta::Network']]],
   ['loadfromfile',['loadFromFile',['../classnupic_1_1research_1_1_t_p10_x2_1_1_t_p10_x2.html#a46cdfd33e9e00bb10bd361182c0687d3',1,'nupic.research.TP10X2.TP10X2.loadFromFile()'],['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a4a1e8de0c1b9777764bc1af439490d87',1,'nupic.research.TP.TP.loadFromFile()']]]
 ];
