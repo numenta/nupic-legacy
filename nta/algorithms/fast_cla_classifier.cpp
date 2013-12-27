@@ -137,7 +137,7 @@ namespace nta
             {
               (*actValueVector)[i] = actualValues_[i];
             } else {
-              // if doing 0-step ahead prediction, we shouldn't use any 
+              // if doing 0-step ahead prediction, we shouldn't use any
               // knowledge of the classification input during inference
               if (steps_.at(0) == 0)
               {
