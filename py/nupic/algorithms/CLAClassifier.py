@@ -319,7 +319,7 @@ class CLAClassifier(object):
     infer:      if true, perform inference
 
     retval:     dict containing inference results, there is one entry for each
-                step in self.steps, where the key is the number of steps. and
+                step in self.steps, where the key is the number of steps, and
                 the value is an array containing the relative likelihood for
                 each bucketIdx starting from bucketIdx 0.
 
