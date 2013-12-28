@@ -38,23 +38,54 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
   Unit tests for RandomDistributedScalarEncoder class.
   """
 
+  def testEncoding(self):
+    """
+    Test basic encoding functionality.
+    """
+    
+    # w bits on
+    
+    # n bits wide
+    pass
+
+
   def testMissingValues(self):
       """
       Test that missing values and NaN return all zero's.
       """
-      mv = RandomDistributedScalarEncoder(name='mv', s=1.0)
-      empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
+      enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
+      empty = enc.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
       self.assertEqual(empty.sum(), 0)
 
-      empty = mv.encode(float("nan"))
+      empty = enc.encode(float("nan"))
       self.assertEqual(empty.sum(), 0)
 
 
   def testResolution(self):
     """
-    Test that numbers within the same resolution return the same encoding
+    Test that numbers within the same resolution return the same encoding.
+    Numbers outside the resolution should return different encodings.
     """
-    pass
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
+    
+    # Since 23.0 is the first encoded number, it will be the offset.
+    # Since s is 1, 22.9 and 23.4 should have the same bucket index and
+    # encoding.
+    e23 = enc.encode(23.0)
+    e23_1 = enc.encode(23.1)
+    e22_9 = enc.encode(22.9)
+    e24 = enc.encode(24.0)
+    self.assertEqual(e23.sum(), enc.w)
+    self.assertEqual((e23 == e23_1).sum(), enc.getWidth(),
+      "Numbers within resolution don't have the same encoding")
+    self.assertEqual((e23 == e22_9).sum(), enc.getWidth(),
+      "Numbers within resolution don't have the same encoding")
+    self.assertNotEqual((e23 == e24).sum(), enc.getWidth(),
+      "Numbers outside resolution have the same encoding")
+
+    e22_9 = enc.encode(22.5)
+    self.assertNotEqual((e23 == e22_9).sum(), enc.getWidth(),
+      "Numbers outside resolution have the same encoding")
 
 
   def testMaxBuckets(self):
@@ -107,11 +138,44 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     pass
   
   
+  def testOffset(self):
+    """
+    Test that offset is working properly
+    """
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
+    e23 = enc.encode(23.0)
+    self.assertEqual(enc._offset, 23.0,
+              "Offset not specified and not initialized to first input")
+
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, offset=25.0)
+    e23 = enc.encode(23.0)
+    self.assertEqual(enc._offset, 25.0,
+              "Offset not initialized to specified constructor parameter")
+  
+  
   def testSeed(self):
     """
-    Test that initializing twice with the same seed returns identical encodings.
+    Test that initializing twice with the same seed returns identical encodings
+    and different when not specified
     """
-    pass
+    enc1 = RandomDistributedScalarEncoder(name='enc', s=1.0, seed=42)
+    enc2 = RandomDistributedScalarEncoder(name='enc', s=1.0, seed=42)
+    enc3 = RandomDistributedScalarEncoder(name='enc', s=1.0, seed=-1)
+    enc4 = RandomDistributedScalarEncoder(name='enc', s=1.0, seed=-1)
+    
+    e1 = enc1.encode(23.0)
+    e2 = enc2.encode(23.0)
+    e3 = enc3.encode(23.0)
+    e4 = enc4.encode(23.0)
+    
+    self.assertEqual((e1 == e2).sum(), enc1.getWidth(),
+        "Same seed gives rise to different encodings")
+
+    self.assertNotEqual((e1 == e3).sum(), enc1.getWidth(),
+        "Different seeds gives rise to same encodings")
+  
+    self.assertNotEqual((e3 == e4).sum(), enc1.getWidth(),
+        "seeds of -1 give rise to same encodings")
   
   
   def testRepresnetationOK(self):
@@ -142,13 +206,6 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     pass
   
   
-  def testEncoding(self):
-    """
-    Test basic encoding functionality.
-    """
-    pass
-
-
   def testVerbosity(self):
     """
     Test that nothing is printed out when verbosity=0

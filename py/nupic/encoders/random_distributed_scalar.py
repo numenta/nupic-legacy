@@ -95,8 +95,9 @@ class RandomDistributedScalarEncoder(Encoder):
     
     @param offset A floating point offset used to map scalar inputs to bucket
                     indices. The middle bucket will correspond to numbers in the
-                    range [offset, offset+s).  If set to None, the very first
-                    input that is encoded will be used to determine the offset.
+                    range [offset - s/2, offset + s/2). If set to None, the very
+                    first input that is encoded will be used to determine the
+                    offset.
     
     @param seed The seed used for numpy's random number generator. If set to -1
                     the generator will be initialized without a fixed seed.
@@ -133,7 +134,7 @@ class RandomDistributedScalarEncoder(Encoder):
         self.random.seed(seed)
     
     # Internal parameters for bucket mapping
-    self._initializeBucketMap(1000)
+    self._initializeBucketMap(1000, offset)
     
     # A name used for debug printouts
     if name is not None:
@@ -170,7 +171,9 @@ class RandomDistributedScalarEncoder(Encoder):
     
     if self._offset is None:
       self._offset = input
-    bucketIdx = self._maxBuckets/2 + int( (input - self._offset) / self.s)
+    bucketIdx = (
+      self._maxBuckets/2 + int( round( (input - self._offset) / self.s) )
+      )
 
     return [bucketIdx]
 
@@ -379,7 +382,7 @@ class RandomDistributedScalarEncoder(Encoder):
         return False
 
 
-  def _initializeBucketMap(self, maxBuckets = 1000):
+  def _initializeBucketMap(self, maxBuckets, offset):
     """
     Initialize the bucket map assuming the given number of maxBuckets.
     """
@@ -393,9 +396,10 @@ class RandomDistributedScalarEncoder(Encoder):
     self.maxIndex    = self._maxBuckets / 2
     
     # The scalar offset used to map scalar values to bucket indices. The middle
-    # bucket will correspond to numbers in the range [offset, offset+s).
-    # The bucket index for a number x will be maxBuckets/2 + int((x-offset)/s)
-    self._offset     = None
+    # bucket will correspond to numbers in the range [offset-s/2, offset+s/2).
+    # The bucket index for a number x will be:
+    #            maxBuckets/2 + int( round( (x-offset)/s ) )
+    self._offset     = offset
 
     # This dictionary maps a bucket index into its bit representation
     # We initialize the class with a single bucket with index 0
