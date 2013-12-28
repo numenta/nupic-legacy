@@ -33,6 +33,15 @@ from nupic.encoders.random_distributed_scalar import (
   )
 
 
+def computeOverlap(x, y):
+  """
+  Given two binary arrays, compute their overlap. The overlap is the number
+  of bits where x[i] and y[i] are both 1
+  """
+  return ((x + y) == 2).sum()
+
+
+
 class RandomDistributedScalarEncoderTest(unittest.TestCase):
   """
   Unit tests for RandomDistributedScalarEncoder class.
@@ -42,23 +51,47 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     Test basic encoding functionality.
     """
+    # Initialize with non-default parameters and encode with a number close to
+    # the offset
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, w=23, n=500,
+                                         offset = 0.0)
+    e0 = enc.encode(-0.1)
     
-    # w bits on
-    
-    # n bits wide
-    pass
+    self.assertEqual(e0.sum(), 23, "Number of on bits is incorrect")
+    self.assertEqual(e0.size, 500, "Width of the vector is incorrect")
+    self.assertEqual(enc.getBucketIndices(0.0)[0], enc._maxBuckets / 2,
+                     "Offset doesn't correspond to middle bucket")
+    self.assertEqual(len(enc.bucketMap), 1, "Number of buckets is not 1")
+
+    # Encode with a number that is s away from offset. Now we should have two
+    # buckets and this encoding should be one bit away from e0
+    e1 = enc.encode(1.0)
+    self.assertEqual(len(enc.bucketMap), 2, "Number of buckets is not 2")
+    self.assertEqual(e1.sum(), 23, "Number of on bits is incorrect")
+    self.assertEqual(e1.size, 500, "Width of the vector is incorrect")
+    self.assertEqual(computeOverlap(e0, e1), 22,
+                     "Overlap is not equal to w-1")
+
+    # Encode with a number that is s*w away from offset. Now we should have many
+    # buckets and this encoding should have very little overlap with e0
+    e25 = enc.encode(25.0)
+    self.assertGreater(len(enc.bucketMap), 23, "Number of buckets is not 2")
+    self.assertEqual(e25.sum(), 23, "Number of on bits is incorrect")
+    self.assertEqual(e25.size, 500, "Width of the vector is incorrect")
+    self.assertLess(computeOverlap(e0, e25), 4,
+                     "Overlap is too high")
 
 
   def testMissingValues(self):
-      """
-      Test that missing values and NaN return all zero's.
-      """
-      enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
-      empty = enc.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-      self.assertEqual(empty.sum(), 0)
+    """
+    Test that missing values and NaN return all zero's.
+    """
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
+    empty = enc.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
+    self.assertEqual(empty.sum(), 0)
 
-      empty = enc.encode(float("nan"))
-      self.assertEqual(empty.sum(), 0)
+    empty = enc.encode(float("nan"))
+    self.assertEqual(empty.sum(), 0)
 
 
   def testResolution(self):
@@ -109,19 +142,19 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     # n must be >= 6*w
     with self.assertRaises(ValueError):
-      enc = RandomDistributedScalarEncoder(name='mv', s=1.0, n=int(5.9*21))
+      RandomDistributedScalarEncoder(name='mv', s=1.0, n=int(5.9*21))
 
     # n must be an int
     with self.assertRaises(ValueError):
-      enc = RandomDistributedScalarEncoder(name='mv', s=1.0, n=5.9*21)
+      RandomDistributedScalarEncoder(name='mv', s=1.0, n=5.9*21)
 
     # w can't be negative
     with self.assertRaises(ValueError):
-      enc = RandomDistributedScalarEncoder(name='mv', s=1.0, w=-1)
+      RandomDistributedScalarEncoder(name='mv', s=1.0, w=-1)
 
     # s can't be negative
     with self.assertRaises(ValueError):
-      enc = RandomDistributedScalarEncoder(name='mv', s=-2)
+      RandomDistributedScalarEncoder(name='mv', s=-2)
 
  
   def testStatistics(self):
@@ -135,7 +168,9 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     Test that the getWidth() method works.
     """
-    pass
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, n=500)
+    self.assertEqual(enc.getWidth(), 500,
+                     "getWidth doesn't return the correct result")
   
   
   def testOffset(self):
@@ -143,12 +178,12 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that offset is working properly
     """
     enc = RandomDistributedScalarEncoder(name='enc', s=1.0)
-    e23 = enc.encode(23.0)
+    enc.encode(23.0)
     self.assertEqual(enc._offset, 23.0,
               "Offset not specified and not initialized to first input")
 
     enc = RandomDistributedScalarEncoder(name='enc', s=1.0, offset=25.0)
-    e23 = enc.encode(23.0)
+    enc.encode(23.0)
     self.assertEqual(enc._offset, 25.0,
               "Offset not initialized to specified constructor parameter")
   
@@ -176,9 +211,9 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
   
     self.assertNotEqual((e3 == e4).sum(), enc1.getWidth(),
         "seeds of -1 give rise to same encodings")
-  
-  
-  def testRepresnetationOK(self):
+
+
+  def testRepresentationOK(self):
     """
     Test that the internal method _newRepresentationOK works as expected.
     """
@@ -190,34 +225,34 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that the internal method _newRepresentation works as expected.
     """
     pass
-  
-  
+
+
   def testCountOverlapIndices(self):
     """
     Test that the internal method _countOverlapIndices works as expected.
     """
     pass
-  
-  
+
+
   def testCountOverlap(self):
     """
     Test that the internal method _countOverlap works as expected.
     """
     pass
-  
-  
+
+
   def testVerbosity(self):
     """
     Test that nothing is printed out when verbosity=0
     """
-    self._stdout = sys.stdout
-    sys.stdout = self._stringio = StringIO()
+    _stdout = sys.stdout
+    sys.stdout = _stringio = StringIO()
     enc = RandomDistributedScalarEncoder(name='mv', s=1.0, verbosity=0)
-    output = numpy.zeros(enc.getWidth(),dtype=defaultDtype)
+    output = numpy.zeros(enc.getWidth(), dtype=defaultDtype)
     enc.encodeIntoArray(23.0, output)
     enc.getBucketIndices(23.0)
-    sys.stdout = self._stdout
-    self.assertEqual(len(self._stringio.getvalue()), 0,
+    sys.stdout = _stdout
+    self.assertEqual(len(_stringio.getvalue()), 0,
                      "zero verbosity doesn't lead to zero output")
     
     

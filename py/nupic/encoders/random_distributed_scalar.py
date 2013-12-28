@@ -22,8 +22,7 @@
 import math
 import numpy
 
-from nupic.encoders.base import Encoder, EncoderResult
-from nupic.bindings.math import SM32, GetNTAReal
+from nupic.encoders.base import Encoder
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 
@@ -32,7 +31,7 @@ from nupic.data.fieldmeta import FieldMetaType
 class RandomDistributedScalarEncoder(Encoder):
   """
   A scalar encoder encodes a numeric (floating point) value into an array
-  of bits. 
+  of bits.
 
   This class maps a scalar value into a random distributed representation that
   is suitable as scalar input into the spatial pooler. The encoding scheme is
@@ -131,7 +130,7 @@ class RandomDistributedScalarEncoder(Encoder):
 
     self.random = numpy.random.RandomState()
     if seed != -1:
-        self.random.seed(seed)
+      self.random.seed(seed)
     
     # Internal parameters for bucket mapping
     self._initializeBucketMap(1000, offset)
@@ -160,19 +159,19 @@ class RandomDistributedScalarEncoder(Encoder):
     return [(self.name, 0)]
 
 
-  def getBucketIndices(self, input):
+  def getBucketIndices(self, x):
     """ See method description in base.py """
 
-    if type(input) is float and math.isnan(input):
-      input = SENTINEL_VALUE_FOR_MISSING_DATA
+    if type(x) is float and math.isnan(x):
+      x = SENTINEL_VALUE_FOR_MISSING_DATA
 
-    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
+    if x == SENTINEL_VALUE_FOR_MISSING_DATA:
       return [None]
     
     if self._offset is None:
-      self._offset = input
+      self._offset = x
     bucketIdx = (
-      self._maxBuckets/2 + int( round( (input - self._offset) / self.s) )
+      self._maxBuckets/2 + int( round( (x - self._offset) / self.s) )
       )
 
     return [bucketIdx]
@@ -184,26 +183,29 @@ class RandomDistributedScalarEncoder(Encoder):
     index does not exist, it is created. If the index falls outside our range
     we clip it.
     """
-    if index < 0: index = 0
-    if index > self._maxBuckets: index = self._maxBuckets
+    if index < 0:
+      index = 0
+
+    if index > self._maxBuckets:
+      index = self._maxBuckets
+
     if not self.bucketMap.has_key(index):
       if self.verbosity >= 2:
-        print "Adding additional buckets to handle index=",index
+        print "Adding additional buckets to handle index=", index
       self._createBucket(index)
     return self.bucketMap[index]
 
 
-  def encodeIntoArray(self, input, output, learn=True):
+  def encodeIntoArray(self, x, output):
     """ See method description in base.py """
 
     # Get the bucket index to use
-    bucketIdx = self.getBucketIndices(input)[0]
+    bucketIdx = self.getBucketIndices(x)[0]
 
     # None is returned for missing value in which case we return all 0's.
     output[0:self.n] = 0
     if bucketIdx is not None:
       output[self.mapBucketIndexToNonZeroBits(bucketIdx)] = 1
-
 
 
   def decode(self, encoded, parentFieldName=''):
@@ -215,16 +217,6 @@ class RandomDistributedScalarEncoder(Encoder):
   def getBucketValues(self):
     """ See the function description in base.py """
     raise Exception("unimplemented")
-
-
-
-  def getBucketInfo(self, buckets):
-    """ See the function description in base.py """
-
-    print buckets
-    raise Exception("TODO: Need to implement.")
-    
-    return False
 
 
   def topDownCompute(self, encoded):
@@ -307,12 +299,12 @@ class RandomDistributedScalarEncoder(Encoder):
     midIdx = self._maxBuckets/2
     
     # Start by checking the overlap at minIndex
-    runningOverlap = self._countOverlap(self.bucketMap[self.minIndex],newRep)
-    if not self._overlapOK(self.minIndex, newIndex, overlap = runningOverlap):
+    runningOverlap = self._countOverlap(self.bucketMap[self.minIndex], newRep)
+    if not self._overlapOK(self.minIndex, newIndex, overlap=runningOverlap):
       return False
     
     # Compute running overlaps all the way to the midpoint
-    for i in range(self.minIndex+1,midIdx+1):
+    for i in range(self.minIndex+1, midIdx+1):
       # This is the bit that is going to change
       newBit = (i-1)%self.w
       
@@ -321,22 +313,21 @@ class RandomDistributedScalarEncoder(Encoder):
       if newRepBinary[self.bucketMap[i][newBit]]:   runningOverlap += 1
       
       # Verify our rules
-      if not self._overlapOK(i, newIndex, overlap = runningOverlap):
+      if not self._overlapOK(i, newIndex, overlap=runningOverlap):
         return False
       
     # At this point, runningOverlap contains the overlap for midIdx
     # Compute running overlaps all the way to maxIndex
-    runningRep = self.bucketMap[midIdx]
-    for i in range(midIdx+1,self.maxIndex+1):
+    for i in range(midIdx+1, self.maxIndex+1):
       # This is the bit that is going to change
-      newBit = i%self.w   
+      newBit = i%self.w
 
       # Update our running overlap
       if newRepBinary[self.bucketMap[i-1][newBit]]: runningOverlap -= 1
-      if newRepBinary[self.bucketMap[i][newBit]]: runningOverlap += 1
+      if newRepBinary[self.bucketMap[i][newBit]]:   runningOverlap += 1
 
       # Verify our rules
-      if not self._overlapOK(i, newIndex, overlap = runningOverlap):
+      if not self._overlapOK(i, newIndex, overlap=runningOverlap):
         return False
 
     return True
@@ -356,7 +347,8 @@ class RandomDistributedScalarEncoder(Encoder):
 
   def _countOverlap(self, rep1, rep2):
     """
-    Return the overlap between two representations
+    Return the overlap between two representations. rep1 and rep2 are lists of
+    non-zero indices.
     """
     overlap = 0
     for e in rep1:
@@ -369,7 +361,7 @@ class RandomDistributedScalarEncoder(Encoder):
     Return True if the given overlap between bucket indices i and j are
     acceptable. If overlap is not specified, calculate it from the bucketMap
     """
-    if overlap is None: overlap = self._countOverlapIndices(i,j)
+    if overlap is None: overlap = self._countOverlapIndices(i, j)
     if abs(i-j) < self.w:
       if overlap == (self.w - abs(i-j)):
         return True
