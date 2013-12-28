@@ -53,18 +53,32 @@ MODEL_PARAMS = {
             # >=3: even more info (see compute() in py/regions/RecordSensor.py)
             'verbosity' : 0,
 
-            # Example:
-            #     dsEncoderSchema = [
-            #       DeferredDictLookup('__field_name_encoder'),
-            #     ],
-            #
-            # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   'consumption': {   'clipInput': True,
-                                   'fieldname': u'consumption',
-                                   'n': 100,
-                                   'name': u'consumption',
-                                   'type': 'AdaptiveScalarEncoder',
-                                   'w': 21},
+            # Include the encoders we use
+            'encoders': {
+                u'consumption':    { 
+                    'fieldname': u'consumption',
+                    's': 0.88,
+                    'seed': 1,
+                    'verbosity': 3,
+                    'name': u'consumption',
+                    'type': 'RandomDistributedScalarEncoder',
+                    },
+                    
+                # Here for testing purposes. Will be removed.
+                #u'consumption':    {  'clipInput': True,
+                #    'fieldname': u'consumption',
+                #    'maxval': 100.0,
+                #    'minval': 0.0,
+                #    'n': 134,
+                #    'name': u'consumption',
+                #    'type': 'ScalarEncoder',
+                #    'w': 21},
+                #'consumption': {   'clipInput': True,
+                #                   'fieldname': u'consumption',
+                #                   'n': 100,
+                #                   'name': u'consumption',
+                #                   'type': 'AdaptiveScalarEncoder',
+                #                   'w': 21},
                 'timestamp_dayOfWeek': {   'dayOfWeek': (21, 1),
                                            'fieldname': u'timestamp',
                                            'name': u'timestamp_dayOfWeek',
@@ -99,9 +113,10 @@ MODEL_PARAMS = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-	    # Spatial Pooler implementation selector, see getSPClass 
-	    # in py/regions/SPRegion.py for details
-	    'spatialImp' : 'cpp', # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
+            # Spatial Pooler implementation selector, see getSPClass 
+            # in py/regions/SPRegion.py for details
+            # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
+            'spatialImp' : 'cpp', 
 
             'globalInhibition': 1,
 
@@ -123,7 +138,7 @@ MODEL_PARAMS = {
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
             # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 0.5,
+            'coincInputPoolPct': 0.85,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -138,7 +153,7 @@ MODEL_PARAMS = {
 
             'synPermActiveInc': 0.1,
 
-            'synPermInactiveDec': 0.01,
+            'synPermInactiveDec': 0.01, 
         },
 
         # Controls whether TP is enabled or disabled;
@@ -245,6 +260,8 @@ MODEL_PARAMS = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
+            
+            'implementation': 'cpp',
         },
 
         'trainSPNetOnlyIfRequested': False,

@@ -31,7 +31,8 @@ from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder
 from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
 # multiencoder must be imported last because it imports * from this module!
-from nupic.encoders.utils import bitsToString 
+from nupic.encoders.utils import bitsToString
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
 
 class MultiEncoder(Encoder):
