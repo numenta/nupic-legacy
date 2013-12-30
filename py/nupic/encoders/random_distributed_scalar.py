@@ -21,6 +21,7 @@
 
 import math
 import numpy
+import pprint
 
 from nupic.encoders.base import Encoder
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -49,16 +50,16 @@ class RandomDistributedScalarEncoder(Encoder):
   overlap by a linearly decreasing number of bits.
   
   2) Dissimilar scalars should have very low overlap so that the SP does not
-  confuse representations. We arbitrarily (and safely) define "very low" to be
-  2 bits of overlap or lower. Specifically, buckets that are more than w
-  indices apart should have at most 2 bits of overlap.
+  confuse representations. Specifically, buckets that are more than w indices
+  apart should have at most maxOverlap bits of overlap. We arbitrarily (and
+  safely) define "very low" to be 2 bits of overlap or lower. 
 
   Properties 1 and 2 lead to the following overlap rules for buckets i and j:
 
       If abs(i-j) < w then:
         overlap(i,j) = w - abs(i-j)
       else:
-        overlap(i,j) <= 2
+        overlap(i,j) <= maxOverlap
 
   3) The representation for a scalar must not change during the lifetime of
   the object. Specifically, as new buckets are created and the min/max range
@@ -127,6 +128,9 @@ class RandomDistributedScalarEncoder(Encoder):
     self.w = w
     self.n = n
     self.s = float(s)
+    
+    # The largest overlap we allow for non-adjacent encodings
+    self._maxOverlap = 2  
 
     self.random = numpy.random.RandomState()
     if seed != -1:
@@ -186,8 +190,8 @@ class RandomDistributedScalarEncoder(Encoder):
     if index < 0:
       index = 0
 
-    if index > self._maxBuckets:
-      index = self._maxBuckets
+    if index > self._maxBuckets-1:
+      index = self._maxBuckets-1
 
     if not self.bucketMap.has_key(index):
       if self.verbosity >= 2:
@@ -206,29 +210,6 @@ class RandomDistributedScalarEncoder(Encoder):
     output[0:self.n] = 0
     if bucketIdx is not None:
       output[self.mapBucketIndexToNonZeroBits(bucketIdx)] = 1
-
-
-  def decode(self, encoded, parentFieldName=''):
-    """ See the function description in base.py
-    """
-    raise Exception("unimplemented")
-
-
-  def getBucketValues(self):
-    """ See the function description in base.py """
-    raise Exception("unimplemented")
-
-
-  def topDownCompute(self, encoded):
-    """ See the function description in base.py
-    """
-    raise Exception("unimplemented")
-
-
-  def closenessScores(self, expValues, actValues, fractional=True):
-    """ See the function description in base.py
-    """
-    raise Exception("unimplemented")
 
 
   def _createBucket(self, index):
@@ -291,6 +272,11 @@ class RandomDistributedScalarEncoder(Encoder):
     rules. Since we know that neighboring representations differ by at most
     one bit, we compute running overlaps.
     """
+    if newRep.size != self.w:
+      return False
+    if (newIndex < self.minIndex-1) or (newIndex > self.maxIndex+1):
+      raise ValueError("newIndex must be within one of existing indices")
+    
     # A binary representation of newRep. We will use this to test containment
     newRepBinary = numpy.array([False]*self.n)
     newRepBinary[newRep] = True
@@ -368,7 +354,7 @@ class RandomDistributedScalarEncoder(Encoder):
       else:
         return False
     else:
-      if overlap <= 2:
+      if overlap <= self._maxOverlap:
         return True
       else:
         return False
@@ -412,4 +398,6 @@ class RandomDistributedScalarEncoder(Encoder):
     print "  offset:   %s" % str(self._offset)
     print "  numTries: %d" % self.numTries
     print "  name:     %s" % self.name
-
+    if self.verbosity > 2:
+      print "  All buckets:     "
+      pprint.pprint(self.bucketMap)
