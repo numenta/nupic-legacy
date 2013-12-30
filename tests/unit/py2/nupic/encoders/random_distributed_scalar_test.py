@@ -22,15 +22,19 @@
 
 from cStringIO import StringIO
 import sys
-
+import unittest2 as unittest
 import numpy
+
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-import unittest2 as unittest
-
+from nupic.data.fieldmeta import FieldMetaType
+from nupic.support.unittesthelpers.algorithm_test_helpers import getSeed
 from nupic.encoders.random_distributed_scalar import (
   RandomDistributedScalarEncoder
   )
+
+# Disable warnings about accessing protected members
+# pylint: disable=W0212
 
 
 def computeOverlap(x, y):
@@ -42,6 +46,17 @@ def computeOverlap(x, y):
 
 
 
+def validateEncoder(enc, subsampling):
+  """
+  Given an encoder, calculate overlaps statistics and ensure everything is ok.
+  We don't check every possible combination for speed reasons.
+  """
+  for i in range(enc.minIndex, enc.maxIndex+1, 1):
+    for j in range(i+1, enc.maxIndex+1, subsampling):
+      if not enc._overlapOK(i, j):
+        return False
+  return True
+
 class RandomDistributedScalarEncoderTest(unittest.TestCase):
   """
   Unit tests for RandomDistributedScalarEncoder class.
@@ -49,7 +64,10 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
   def testEncoding(self):
     """
-    Test basic encoding functionality.
+    Test basic encoding functionality. Create encodings without crashing and
+    check they contain the correct number of on and off bits. Check some
+    encodings for expected overlap. Test that encodings for old values don't
+    change once we generate new buckets.
     """
     # Initialize with non-default parameters and encode with a number close to
     # the offset
@@ -80,6 +98,15 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual(e25.size, 500, "Width of the vector is incorrect")
     self.assertLess(computeOverlap(e0, e25), 4,
                      "Overlap is too high")
+    
+    # Test encoding consistency. The encodings for previous numbers
+    # shouldn't change even though we have added additional buckets
+    self.assertEqual((e0 == enc.encode(-0.1)).sum(), 500,
+      "Encodings are not consistent - they have changed after new buckets "
+      "have been created")
+    self.assertEqual((e1 == enc.encode(1.0)).sum(), 500,
+      "Encodings are not consistent - they have changed after new buckets "
+      "have been created")
 
 
   def testMissingValues(self):
@@ -104,10 +131,10 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     # Since 23.0 is the first encoded number, it will be the offset.
     # Since s is 1, 22.9 and 23.4 should have the same bucket index and
     # encoding.
-    e23 = enc.encode(23.0)
+    e23   = enc.encode(23.0)
     e23_1 = enc.encode(23.1)
     e22_9 = enc.encode(22.9)
-    e24 = enc.encode(24.0)
+    e24   = enc.encode(24.0)
     self.assertEqual(e23.sum(), enc.w)
     self.assertEqual((e23 == e23_1).sum(), enc.getWidth(),
       "Numbers within resolution don't have the same encoding")
@@ -121,21 +148,37 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
       "Numbers outside resolution have the same encoding")
 
 
-  def testMaxBuckets(self):
+  def testMapBucketIndexToNonZeroBits(self):
     """
-    Test that max buckets are handled properly.
+    Test that mapBucketIndexToNonZeroBits works and that max buckets and
+    clipping are handled properly.
     """
-    pass
+    enc = RandomDistributedScalarEncoder(s=1.0, w=11, n=150)
+    # Set a low number of max buckets
+    enc._initializeBucketMap(10, None)
+    enc.encode(0.0)
+    enc.encode(-7.0)
+    enc.encode(7.0)
+    
+    self.assertEqual(len(enc.bucketMap), enc._maxBuckets,
+      "_maxBuckets exceeded")
+    self.assertTrue(
+      (enc.mapBucketIndexToNonZeroBits(-1) == enc.bucketMap[0]).all(),
+      "mapBucketIndexToNonZeroBits did not handle negative index")
+    self.assertTrue(
+      (enc.mapBucketIndexToNonZeroBits(1000) == enc.bucketMap[9]).all(),
+      "mapBucketIndexToNonZeroBits did not handle negative index")
 
+    e23 = enc.encode(23.0)
+    e6  = enc.encode(6)
+    self.assertEqual((e23 == e6).sum(), enc.getWidth(),
+      "Values not clipped correctly during encoding")
 
-  def testEncodingConsistency(self):
-    """
-    Test that encodings for old values don't change once we generate new
-    buckets.
-    """
-    pass
-  
-  
+    e_8 = enc.encode(-8)
+    e_7  = enc.encode(-7)
+    self.assertEqual((e_8 == e_7).sum(), enc.getWidth(),
+      "Values not clipped correctly during encoding")
+
   def testParameterChecks(self):
     """
     Test that some bad construction parameters get handled.
@@ -157,20 +200,40 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
       RandomDistributedScalarEncoder(name='mv', s=-2)
 
  
-  def testStatistics(self):
+  def testOverlapStatistics(self):
     """
-    Check that the statistics for the encodings are within reasonable range.
+    Check that the overlaps for the encodings are within the expected range.
+    Here we ask the encoder to create a bunch of representations under somewhat
+    stressful conditions, and then verify they are correct. We rely on the fact
+    that the _overlapOK and _countOverlapIndices methods are working correctly.
     """
-    pass
+    seed = getSeed()
+
+    # Generate about 600 encodings. Set n relatively low to increase
+    # chance of false overlaps
+    enc = RandomDistributedScalarEncoder(s=1.0, w=11, n=150, seed = seed)
+    enc.encode(0.0)
+    enc.encode(-300.0)
+    enc.encode(300.0)
+    self.assertTrue(validateEncoder(enc, subsampling=3),
+                    "Illegal overlap encountered in encoder")
   
   
-  def testGetWidth(self):
+  def testGetMethods(self):
     """
-    Test that the getWidth() method works.
+    Test that the getWidth, getDescription, and getDecoderOutputFieldTypes
+    methods work.
     """
-    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, n=500)
+    enc = RandomDistributedScalarEncoder(name='theName', s=1.0, n=500)
     self.assertEqual(enc.getWidth(), 500,
                      "getWidth doesn't return the correct result")
+
+    self.assertEqual(enc.getDescription(), [('theName', 0)],
+                     "getDescription doesn't return the correct result")
+  
+    self.assertEqual(enc.getDecoderOutputFieldTypes(),
+                (FieldMetaType.float, ),
+                "getDecoderOutputFieldTypes doesn't return the correct result")
   
   
   def testOffset(self):
@@ -213,32 +276,123 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
         "seeds of -1 give rise to same encodings")
 
 
-  def testRepresentationOK(self):
-    """
-    Test that the internal method _newRepresentationOK works as expected.
-    """
-    pass
-  
-  
-  def testNewRepresentation(self):
-    """
-    Test that the internal method _newRepresentation works as expected.
-    """
-    pass
-
-
   def testCountOverlapIndices(self):
     """
     Test that the internal method _countOverlapIndices works as expected.
     """
-    pass
+    # Create a fake set of encodings.
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, w=5, n=5*20)
+    midIdx = enc._maxBuckets/2
+    enc.bucketMap[midIdx-2] = numpy.array(range(3, 8))
+    enc.bucketMap[midIdx-1] = numpy.array(range(4, 9))
+    enc.bucketMap[midIdx]   = numpy.array(range(5, 10))
+    enc.bucketMap[midIdx+1] = numpy.array(range(6, 11))
+    enc.bucketMap[midIdx+2] = numpy.array(range(7, 12))
+    enc.bucketMap[midIdx+3] = numpy.array(range(8, 13))
+    enc.minIndex = midIdx - 2
+    enc.maxIndex = midIdx + 3
+
+    # Indices must exist
+    with self.assertRaises(ValueError):
+      enc._countOverlapIndices(midIdx-3, midIdx-2)
+    with self.assertRaises(ValueError):
+      enc._countOverlapIndices(midIdx-2, midIdx-3)
+
+    # Test some overlaps
+    self.assertEqual(enc._countOverlapIndices(midIdx-2, midIdx-2), 5,
+                     "_countOverlapIndices didn't work")
+    self.assertEqual(enc._countOverlapIndices(midIdx-1, midIdx-2), 4,
+                     "_countOverlapIndices didn't work")
+    self.assertEqual(enc._countOverlapIndices(midIdx+1, midIdx-2), 2,
+                     "_countOverlapIndices didn't work")
+    self.assertEqual(enc._countOverlapIndices(midIdx-2, midIdx+3), 0,
+                     "_countOverlapIndices didn't work")
+
+
+  def testOverlapOK(self):
+    """
+    Test that the internal method _overlapOK works as expected.
+    """
+    # Create a fake set of encodings.
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, w=5, n=5*20)
+    midIdx = enc._maxBuckets/2
+    enc.bucketMap[midIdx-3] = numpy.array(range(4, 9))  # Not ok with midIdx-1
+    enc.bucketMap[midIdx-2] = numpy.array(range(3, 8))
+    enc.bucketMap[midIdx-1] = numpy.array(range(4, 9))
+    enc.bucketMap[midIdx]   = numpy.array(range(5, 10))
+    enc.bucketMap[midIdx+1] = numpy.array(range(6, 11))
+    enc.bucketMap[midIdx+2] = numpy.array(range(7, 12))
+    enc.bucketMap[midIdx+3] = numpy.array(range(8, 13))
+    enc.minIndex = midIdx - 3
+    enc.maxIndex = midIdx + 3
+    
+    self.assertTrue(enc._overlapOK(midIdx, midIdx-1),
+                    "_overlapOK didn't work")
+    self.assertTrue(enc._overlapOK(midIdx-2, midIdx+3),
+                    "_overlapOK didn't work")
+    self.assertFalse(enc._overlapOK(midIdx-3, midIdx-1),
+                    "_overlapOK didn't work")
+
+    # We'll just use our own numbers
+    self.assertTrue(enc._overlapOK(100, 50, 0),
+                "_overlapOK didn't work for far values")
+    self.assertTrue(enc._overlapOK(100, 50, enc._maxOverlap),
+                "_overlapOK didn't work for far values")
+    self.assertFalse(enc._overlapOK(100, 50, enc._maxOverlap+1),
+                "_overlapOK didn't work for far values")
+    self.assertTrue(enc._overlapOK(50, 50, 5),
+                "_overlapOK didn't work for near values")
+    self.assertTrue(enc._overlapOK(48, 50, 3),
+                "_overlapOK didn't work for near values")
+    self.assertTrue(enc._overlapOK(46, 50, 1),
+                "_overlapOK didn't work for near values")
+    self.assertTrue(enc._overlapOK(45, 50, enc._maxOverlap),
+                "_overlapOK didn't work for near values")
+    self.assertFalse(enc._overlapOK(48, 50, 4),
+                "_overlapOK didn't work for near values")
+    self.assertFalse(enc._overlapOK(48, 50, 2),
+                "_overlapOK didn't work for near values")
+    self.assertFalse(enc._overlapOK(46, 50, 2),
+                "_overlapOK didn't work for near values")
+    self.assertFalse(enc._overlapOK(50, 50, 6),
+                "_overlapOK didn't work for near values")
 
 
   def testCountOverlap(self):
     """
     Test that the internal method _countOverlap works as expected.
     """
-    pass
+    enc = RandomDistributedScalarEncoder(name='enc', s=1.0, n=500)
+
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 5, 6])
+    self.assertEqual(enc._countOverlap(r1, r2), 6,
+                     "_countOverlap result is incorrect")
+
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 5, 7])
+    self.assertEqual(enc._countOverlap(r1, r2), 5,
+                     "_countOverlap result is incorrect")
+
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([6, 5, 4, 3, 2, 1])
+    self.assertEqual(enc._countOverlap(r1, r2), 6,
+                     "_countOverlap result is incorrect")
+
+    r1 = numpy.array([1, 2, 8, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3, 4, 9, 6])
+    self.assertEqual(enc._countOverlap(r1, r2), 4,
+                     "_countOverlap result is incorrect")
+
+    r1 = numpy.array([1, 2, 3, 4, 5, 6])
+    r2 = numpy.array([1, 2, 3])
+    self.assertEqual(enc._countOverlap(r1, r2), 3,
+                     "_countOverlap result is incorrect")
+
+    r1 = numpy.array([7, 8, 9, 10, 11, 12])
+    r2 = numpy.array([1, 2, 3, 4, 5, 6])
+    self.assertEqual(enc._countOverlap(r1, r2), 0,
+                     "_countOverlap result is incorrect")
 
 
   def testVerbosity(self):
