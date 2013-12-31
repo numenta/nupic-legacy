@@ -1,7 +1,7 @@
 
 # The Cortical Learning Algorithm (CLA)
 
-> For a detailed explanation of the CLA and how it relates to [Hierarchal Temporal Memory](http://en.wikipedia.org/wiki/Hierarchical_temporal_memory), read the [CLA White Paper](cla-white-paper.html).
+> For a detailed explanation of the CLA and how it relates to [Hierarchical Temporal Memory](http://en.wikipedia.org/wiki/Hierarchical_temporal_memory), read the [CLA White Paper](cla-white-paper.html).
 
 There are many things humans find easy to do that computers are currently unable to do. Tasks such as visual pattern recognition, understanding spoken language, recognizing and manipulating objects by touch, and navigating in a complex world are easy for humans. Yet despite decades of research, we have few viable algorithms for achieving human-like performance on a computer.
 
@@ -11,7 +11,7 @@ In humans, these capabilities are largely performed by the neocortex. The Cortic
 
 Most machine learning techniques are relatively static.  A model is constructed from a training data set, verified on a testing data set, and then applied to real-world data. However the patterns and structure in the world changes over time. Therefore previously accurate models must be regularly retrained with new data, repeating the time and expense of the original process.
 
-The CLA on the other hand is an online learning system.  It does not require conventional training and testing data sets. Instead, the CLA learns continuously with each new data point.  The CLA is constantly making predictions which are continually verified as more data arrives.  As the underlying patterns in the data change the CLA adjusts accordingly.  An online learning system such as the CLA forces you to think about many things differently than you do with algorithms that relay on static training data sets.
+The CLA on the other hand is an online learning system.  It does not require conventional training and testing data sets. Instead, the CLA learns continuously with each new data point.  The CLA is constantly making predictions which are continually verified as more data arrives.  As the underlying patterns in the data change the CLA adjusts accordingly.  An online learning system such as the CLA forces you to think about many things differently than you do with algorithms that rely on static training data sets.
 
 ## Sparse Distributed Representations
 
