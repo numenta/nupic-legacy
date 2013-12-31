@@ -24,16 +24,20 @@ from base import Encoder, EncoderResult
 from scalar import ScalarEncoder
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaType
 
 
 class LogEncoder(Encoder):
-  """A Log encoder represents a floating point value on a logarithmic (decibel)
+  """
+  This class wraps the ScalarEncoder class.
+
+  A Log encoder represents a floating point value on a logarithmic (decibel)
   scale.
 
   valueToEncode = 10 * log10(input)
 
   The default resolution (minimum difference in scaled values which is guaranteed
-  to propduce different outputs) is 1 decibel. For example, the scaled values 10
+  to produce different outputs) is 1 decibel. For example, the scaled values 10
   and 11 will be distinguishable in the output. In terms of the original input
   values, this means 10^1 (10) and 10^1.1 (12.5) will be distinguishable.
 
@@ -42,26 +46,51 @@ class LogEncoder(Encoder):
     maxval -- Higher values are reset to this value
   """
 
+  def __init__(self,
+               w=5,
+               minval=0.10,
+               maxval=10000,
+               periodic=False,
+               n=0,
+               radius=0,
+               resolution=0,
+               name="log",
+               verbosity=0,
+               clipInput=False):
 
-  def __init__(self, w = 5, resolution = 1.0, minval=0.10, maxval=10000,
-                name="log", verbosity=0):
+    # Limit minval as log10(0) is undefined.
+    if minval < 0.1:
+      minval = 0.1
 
     self.encoders = None
     self.verbosity = verbosity
+
+    # Scale values for calculations within the class
     self.minScaledValue = int(10 * math.log10(minval))
     self.maxScaledValue = int(math.ceil(10 * math.log10(maxval)))
     assert self.maxScaledValue > self.minScaledValue
+        
+    self.n = n
+    self.clipInput = clipInput
 
+    
     self.minval = 10 ** (self.minScaledValue / 10.0)
     self.maxval = 10 ** (self.maxScaledValue / 10.0)
+    assert self.minval == minval
+    assert self.maxval == maxval
 
     # Note: passing resolution=1 causes the test to topDownCompute
     # test to fail.  Fixed for now by always converting to float,
     # but should find the root cause.
-    self.encoder = ScalarEncoder(w=w, minval = self.minScaledValue,
-                    maxval=self.maxScaledValue,
-                    periodic=False,
-                    resolution=float(resolution))
+    self.encoder = ScalarEncoder(w=w,
+                                 minval=self.minScaledValue,
+                                 maxval=self.maxScaledValue,
+                                 periodic=False,
+                                 n=self.n,
+                                 radius=radius,
+                                 resolution=resolution,
+                                 verbosity=self.verbosity,
+                                 clipInput=self.clipInput)
     self.width = self.encoder.getWidth()
     self.description = [(name, 0)]
     self.name = name
@@ -79,13 +108,21 @@ class LogEncoder(Encoder):
     return self.description
 
   ############################################################################
-  def _getScaledValue(self, input):
-    """ Convert the input, which is in normal space, into log space
+  def getDecoderOutputFieldTypes(self):
     """
-    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
+    Encoder class virtual method override
+    """
+    return (FieldMetaType.float, )
+
+  ############################################################################
+  def _getScaledValue(self, inpt):
+    """
+    Convert the input, which is in normal space, into log space
+    """
+    if inpt == SENTINEL_VALUE_FOR_MISSING_DATA:
       return None
     else:
-      val = input
+      val = inpt
       if val < self.minval:
         val = self.minval
       elif val > self.maxval:
@@ -95,12 +132,13 @@ class LogEncoder(Encoder):
       return scaledVal
 
   ############################################################################
-  def getBucketIndices(self, input):
-    """ See the function description in base.py
+  def getBucketIndices(self, inpt):
+    """
+    See the function description in base.py
     """
 
     # Get the scaled value
-    scaledVal = self._getScaledValue(input)
+    scaledVal = self._getScaledValue(inpt)
 
     if scaledVal is None:
       return [None]
@@ -108,12 +146,13 @@ class LogEncoder(Encoder):
       return self.encoder.getBucketIndices(scaledVal)
 
   ############################################################################
-  def encodeIntoArray(self, input, output):
-    """ See the function description in base.py
+  def encodeIntoArray(self, inpt, output):
+    """
+    See the function description in base.py
     """
 
     # Get the scaled value
-    scaledVal = self._getScaledValue(input)
+    scaledVal = self._getScaledValue(inpt)
 
     if scaledVal is None:
       output[0:] = 0
@@ -121,12 +160,13 @@ class LogEncoder(Encoder):
       self.encoder.encodeIntoArray(scaledVal, output)
 
       if self.verbosity >= 2:
-        print "input:", input, "scaledVal:", scaledVal, "output:", output
+        print "input:", inpt, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
 
   ############################################################################
   def decode(self, encoded, parentFieldName=''):
-    """ See the function description in base.py
+    """
+    See the function description in base.py
     """
 
     # Get the scalar values from the underlying scalar encoder
@@ -164,7 +204,9 @@ class LogEncoder(Encoder):
 
   ############################################################################
   def getBucketValues(self):
-    """ See the function description in base.py """
+    """
+    See the function description in base.py
+    """
 
     # Need to re-create?
     if self._bucketValues is None:
@@ -178,7 +220,8 @@ class LogEncoder(Encoder):
 
   ############################################################################
   def getBucketInfo(self, buckets):
-    """ See the function description in base.py
+    """
+    See the function description in base.py
     """
 
     scaledResult = self.encoder.getBucketInfo(buckets)[0]
@@ -190,7 +233,8 @@ class LogEncoder(Encoder):
 
   ############################################################################
   def topDownCompute(self, encoded):
-    """ See the function description in base.py
+    """
+    See the function description in base.py
     """
 
     scaledResult = self.encoder.topDownCompute(encoded)[0]
@@ -202,7 +246,8 @@ class LogEncoder(Encoder):
 
   ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
-    """ See the function description in base.py
+    """
+    See the function description in base.py
     """
 
     # Compute the percent error in log space
