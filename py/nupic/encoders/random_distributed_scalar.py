@@ -112,7 +112,7 @@ class RandomDistributedScalarEncoder(Encoder):
     """
 
     # Validate inputs
-    if (w <= 0) or (w%2 == 0) or (not isinstance(w, int)):
+    if (w <= 0) or (w%2 == 0):
       raise ValueError("w must be an odd positive integer")
 
     if (s <= 0):
