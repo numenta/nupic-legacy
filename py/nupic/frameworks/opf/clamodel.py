@@ -832,31 +832,6 @@ class CLAModel(Model):
       likelihoodsDict = CLAModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
 
-      # For the special case of timeStep=1, plug in the legacy fields
-      #   prediction and encodings. This is only for legacy networks;
-      # TODO: remove, we don't need this legacy network support anymore.
-      if steps == 1:
-        # predictionRow and predictionFieldEncodings are expected to be
-        #  lists of items, one item for each encoder. The CLAClassifier only
-        #  computes one field, the predicted field, so create an array with
-        #  place holders for the other fields
-        bestBucketIdx = likelihoodsVec.argmax()
-
-        predictionRow = [None] * self._numFields
-        if self._predictedFieldIdx is not None:
-          predictionRow[self._predictedFieldIdx] = bestActValue
-        inferences[InferenceElement.prediction] = predictionRow
-
-        predictionFieldEncodings = [None] * self._numFields
-        if self._predictedFieldIdx is not None:
-          bucketInfo = self._classifierInputEncoder.getBucketInfo(
-                                                    [bestBucketIdx])[0]
-          predictionFieldEncodings[self._predictedFieldIdx] = \
-                                                    bucketInfo.encoding
-        inferences[InferenceElement.encodings] = predictionFieldEncodings
-
-
-
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
       #  by the sum of the deltas
