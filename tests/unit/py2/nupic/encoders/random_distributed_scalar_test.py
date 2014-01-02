@@ -42,7 +42,7 @@ def computeOverlap(x, y):
   Given two binary arrays, compute their overlap. The overlap is the number
   of bits where x[i] and y[i] are both 1
   """
-  return ((x + y) == 2).sum()
+  return (x & y).sum()
 
 
 
