@@ -57,9 +57,8 @@ MODEL_PARAMS = {
             'encoders': {
                 u'consumption':    { 
                     'fieldname': u'consumption',
-                    's': 0.88,
+                    'resolution': 0.88,
                     'seed': 1,
-                    'verbosity': 3,
                     'name': u'consumption',
                     'type': 'RandomDistributedScalarEncoder',
                     },

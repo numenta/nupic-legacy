@@ -39,7 +39,8 @@ class RandomDistributedScalarEncoder(Encoder):
   designed to replace a simple ScalarEncoder. It preserves the important
   properties around overlapping representations. Unlike ScalarEncoder the min
   and max range can be dynamically increased without any negative effects. The
-  only required parameter is s, which determines the resolution of input values.
+  only required parameter is resolution, which determines the resolution of
+  input values.
   
   Scalar values are mapped to a bucket. The class maintains a random distributed
   encoding for each bucket. The following properties are maintained by
@@ -69,17 +70,16 @@ class RandomDistributedScalarEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, s, w=21, n=400, name=None, offset = None,
+  def __init__(self, resolution, w=21, n=400, name=None, offset = None,
                seed=42, verbosity=0):
     """
 
-    @param s A floating point positive number denoting the resolution of the
-                    output representation.  Numbers in the range [0, s) will
-                    fall into the same bucket and thus have an identical
-                    representation. Numbers in the range [s, 2s) will fall into
-                    the next bucket and have a representation that overlaps the
-                    representation for [0, s) by w-1 bits. s is a required
-                    parameter.
+    @param resolution A floating point positive number denoting the resolution 
+                    of the output representation. Numbers within
+                    [offset-resolution/2, offset+resolution/2] will fall into
+                    the same bucket and thus have an identical representation.
+                    Adjacent buckets will differ in one bit. resolution is a
+                    required parameter.
 
     @param w Number of bits to set in output. w must be odd to avoid centering
                     problems.  w must be large enough that spatial pooler
@@ -95,9 +95,9 @@ class RandomDistributedScalarEncoder(Encoder):
     
     @param offset A floating point offset used to map scalar inputs to bucket
                     indices. The middle bucket will correspond to numbers in the
-                    range [offset - s/2, offset + s/2). If set to None, the very
-                    first input that is encoded will be used to determine the
-                    offset.
+                    range [offset - resolution/2, offset + resolution/2). If set
+                    to None, the very first input that is encoded will be used
+                    to determine the offset.
     
     @param seed The seed used for numpy's random number generator. If set to -1
                     the generator will be initialized without a fixed seed.
@@ -115,8 +115,8 @@ class RandomDistributedScalarEncoder(Encoder):
     if (w <= 0) or (w%2 == 0):
       raise ValueError("w must be an odd positive integer")
 
-    if (s <= 0):
-      raise ValueError("s must be a positive number")
+    if (resolution <= 0):
+      raise ValueError("resolution must be a positive number")
 
     if (n <= 6*w) or (not isinstance(n, int)):
       raise ValueError("n must be an int strictly greater than 6*w. For "
@@ -127,7 +127,7 @@ class RandomDistributedScalarEncoder(Encoder):
     self.verbosity = verbosity
     self.w = w
     self.n = n
-    self.s = float(s)
+    self.resolution = float(resolution)
     
     # The largest overlap we allow for non-adjacent encodings
     self._maxOverlap = 2  
@@ -143,7 +143,7 @@ class RandomDistributedScalarEncoder(Encoder):
     if name is not None:
       self.name = name
     else:
-      self.name = "[%s]" % (self.s)
+      self.name = "[%s]" % (self.resolution)
       
     if self.verbosity > 0:
       self.dump()
@@ -174,9 +174,15 @@ class RandomDistributedScalarEncoder(Encoder):
     
     if self._offset is None:
       self._offset = x
+
     bucketIdx = (
-      self._maxBuckets/2 + int( round( (x - self._offset) / self.s) )
+      self._maxBuckets/2 + int( round( (x - self._offset) / self.resolution) )
       )
+    
+    if bucketIdx < 0:
+      bucketIdx = 0
+    elif bucketIdx >= self._maxBuckets:
+      bucketIdx = self._maxBuckets-1
 
     return [bucketIdx]
 
@@ -190,7 +196,7 @@ class RandomDistributedScalarEncoder(Encoder):
     if index < 0:
       index = 0
 
-    if index > self._maxBuckets-1:
+    if index >= self._maxBuckets:
       index = self._maxBuckets-1
 
     if not self.bucketMap.has_key(index):
@@ -374,9 +380,10 @@ class RandomDistributedScalarEncoder(Encoder):
     self.maxIndex    = self._maxBuckets / 2
     
     # The scalar offset used to map scalar values to bucket indices. The middle
-    # bucket will correspond to numbers in the range [offset-s/2, offset+s/2).
+    # bucket will correspond to numbers in the range
+    # [offset-resolution/2, offset+resolution/2).
     # The bucket index for a number x will be:
-    #            maxBuckets/2 + int( round( (x-offset)/s ) )
+    #            maxBuckets/2 + int( round( (x-offset)/resolution ) )
     self._offset     = offset
 
     # This dictionary maps a bucket index into its bit representation
@@ -390,14 +397,14 @@ class RandomDistributedScalarEncoder(Encoder):
 
   def dump(self):
     print "RandomDistributedScalarEncoder:"
-    print "  minIndex: %d" % self.minIndex
-    print "  maxIndex: %d" % self.maxIndex
-    print "  w:        %d" % self.w
-    print "  n:        %d" % self.getWidth()
-    print "  s:        %g" % self.s
-    print "  offset:   %s" % str(self._offset)
-    print "  numTries: %d" % self.numTries
-    print "  name:     %s" % self.name
+    print "  minIndex:   %d" % self.minIndex
+    print "  maxIndex:   %d" % self.maxIndex
+    print "  w:          %d" % self.w
+    print "  n:          %d" % self.getWidth()
+    print "  resolution: %g" % self.resolution
+    print "  offset:     %s" % str(self._offset)
+    print "  numTries:   %d" % self.numTries
+    print "  name:       %s" % self.name
     if self.verbosity > 2:
       print "  All buckets:     "
       pprint.pprint(self.bucketMap)
