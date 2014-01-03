@@ -4,11 +4,35 @@ NuPIC Media
 
 <div id="jump-menu"></div>
 
+## <a href="http://www.youtube.com/watch?v=QBs-2_wl_JM" rel="prettyPhoto" title="CLA Deep Dive">CLA Deep Dive</a>
+
+### [2013 Fall Hackathon]({{ site.baseurl }}/blog/2013/11/06/2013-fall-hackathon-outcome.html)
+
+Subutai Ahmad, Grok/Numenta VP of Engineering, detailed some aspects of the CLA at our [2013 Fall Hackathon]({{ site.baseurl }}/blog/2013/11/06/2013-fall-hackathon-outcome.html). He discussed an interesting property of SDR's affecting temporal pooling and hierarchies. The interactive session included a lot of Q&A. [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/November_2013_hackathon_subutai.pdf).
+
+### [Top](#nupic_media)
+
+* * *
+
+## <a href="http://www.youtube.com/watch?v=QNF-gONtSmA&amp;start=1260" rel="prettyPhoto" title="NLP With NuPIC">NLP With NuPIC</a>
+
+### [2013 Fall Hackathon]({{ site.baseurl }}/blog/2013/11/06/2013-fall-hackathon-outcome.html)
+
+Matt Taylor did some NLP work before the [2013 Fall Hackathon]({{ site.baseurl }}/blog/2013/11/06/2013-fall-hackathon-outcome.html) in order to help others get started doing some work with NuPIC, NLP, and especially the CEPT API for word SDRs. In this presentation, he presents some of his initial progress. [Slides]({{ site.baseurl }}/resources/hackathon/2013-10/nupic_nlp.pdf).
+
+### [Top](#nupic_media)
+
+* * *
+
 ## <a href="http://www.youtube.com/watch?v=5r1vZ1ymrQE" rel="prettyPhoto" title="NuPIC at OSCON 2013">Introduction to NuPIC</a>
 
 ### OSCON, 2013
 
 In this hands-on session, we introduce NuPIC's Online Prediction Framework (OPF) and demonstrate how one creates models using an OPF client. We set up some live streaming data to pass into the client and watch as NuPIC makes online inferences, learning the changing patterns in the streaming data set. NuPIC and the OPF have been applied to many scenarios and form the foundation for Numenta's commercial product, Grok. To master NuPIC you will have to become comfortable with concepts such as sparse distributed representations and on-line learning. 
+
+### [Top](#nupic_media)
+
+* * *
 
 ## <a href="http://www.youtube.com/watch?v=4y43qwS8fl4" rel="prettyPhoto" title="">Building Brains to Understand the World's Data</a>
 
