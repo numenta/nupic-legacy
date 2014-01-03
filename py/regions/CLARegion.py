@@ -521,7 +521,7 @@ class CLARegion(PyRegion):
   of coincidence detectors and temporal poolers.
 
   Uses the FDRCSpatial and FDRTemporal classes to do most of the work. This node
-  has just one FDRCSpatial and FDRTemporal instance for the enitire level and
+  has just one FDRCSpatial and FDRTemporal instance for the entire level and
   does *not* support the concept of "baby nodes" within it.
 
   The output from the FDRCSpatial instances is saved in spatialPoolerOutput.
