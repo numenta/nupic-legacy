@@ -1,10 +1,12 @@
 
 # Upcoming Events
 
-## [CLA Quiz Office Hour](/blog/2013/11/11/cla-quiz-office-hour.html)
+## NuPIC Office Hour
 
-See [this blog post](/blog/2013/11/11/cla-quiz-office-hour.html) and [event details here](https://plus.google.com/b/100642636108337517466/events/crmrf6k58s77hlgk4v30bll8hp8).
+Coming soon.
 
-## YOW! 2013 Australia Developer Conference
+# Recurring Events
 
-Jeff will be [giving a keynote](http://a.confui.com/public/conferences/517fce8207933939cd000001/locations/517fce8207933939cd000002/speakers/51b468804bedc23264000006?framehost=http://yowconference.com.au) on _Computing Like the Brain: The Path to Machine Intelligence_ at [YOW!](http://yowconference.com.au/) in Melbourne, Brisbane, and Sydney at various dates between **Dec 5 - 13**. See the [YOW! website](http://yowconference.com.au/) for registration information and more details. 
+## NuPIC Sprint Planning
+
+This event occurs every other Friday at 3PM Pacific Time. See the calendar above for details. You can receive invitations to these events by adding [Numenta](https://plus.google.com/+NumentaOrg/posts) to your Google+ circles.
