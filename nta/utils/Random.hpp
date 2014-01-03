@@ -35,6 +35,14 @@
 
 typedef NTA_UInt64 (*RandomSeedFuncPtr)();
 
+// Workaround for terrible Windows legacy issue - min and max global macros
+#ifdef min
+    #undef min
+#endif
+#ifdef max
+    #undef max
+#endif
+
 namespace nta {
   /**
    * @b Responsibility

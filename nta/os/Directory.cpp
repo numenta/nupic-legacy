@@ -24,7 +24,6 @@
 /** @file 
 */
 
-#include <unistd.h>
 #include <string>
 #include <algorithm>
 #include <nta/os/Directory.hpp>
@@ -38,6 +37,7 @@
   #include <windows.h>
   #include <tchar.h>
 #else
+  #include <unistd.h>
   #include <sys/stat.h>
 #endif
 

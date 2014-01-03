@@ -31,9 +31,9 @@
 
 using namespace std;
 
-// Work around terrible Windows legacy issue - min and max global macros!!!
+// Workaround for terrible Windows legacy issue - min and max global macros
 #ifdef max
-#undef max
+    #undef max
 #endif
 
 namespace nta {    

@@ -43,6 +43,10 @@ Implementation of the Network class
 #include <nta/ntypes/BundleIO.hpp>
 #include <yaml-cpp/yaml.h>
 
+// Workaround for terrible Windows legacy issue - min and max global macros
+#ifdef max
+    #undef max
+#endif
 
 namespace nta
 {
