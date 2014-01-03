@@ -74,7 +74,11 @@ namespace nta
           dcNew = dc + (alpha_ / denom);
         }
 
-        if (denom  < 0.00001 or dcNew > DUTY_CYCLE_UPDATE_INTERVAL)
+        #ifdef WIN32
+           if (denom  < 0.00001 || dcNew > DUTY_CYCLE_UPDATE_INTERVAL)
+        #else
+           if (denom  < 0.00001 or dcNew > DUTY_CYCLE_UPDATE_INTERVAL)
+        #endif
         {
           // Update all duty cycles to the current iteration.
           Real64 exp = pow(1.0 - alpha_, iteration - lastTotalUpdate_);

@@ -367,7 +367,11 @@ namespace nta
 
     while(components.size())
     {
-      std::swap<int>(numerator_, denominator_);
+      #ifdef WIN32
+         std::swap(numerator_, denominator_);
+      #else
+         std::swap<int>(numerator_, denominator_);
+      #endif
       numerator_ += denominator_ * components.back();
       components.pop_back();
     }

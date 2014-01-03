@@ -312,13 +312,9 @@ namespace nta
     ReadBuffer * r = const_cast<ReadBuffer *>(this);
     try
     {
-    #ifdef WIN32
-      size = r->memStream_._Readsome_s(bytes, size, (std::streamsize)size);
-    #else
       size = r->memStream_.readsome(bytes, size);
-    #endif
       return 0;
-    }
+	}
     catch (...)
     {
       size = 0;
