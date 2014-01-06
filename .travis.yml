@@ -32,7 +32,7 @@ env:
 notifications:
   irc:
     channels:
-      - "irc.freenode.net#nupic"
+      - "irc.freenode.net#nupic-hackers"
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:

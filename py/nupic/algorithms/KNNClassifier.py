@@ -292,7 +292,7 @@ class KNNClassifier(object):
     return numRemoved
 
 
-  # Used to increement iteration for models that dont learn each timestep
+  # Used to increment iteration for models that don't learn each timestep
   def doIteration(self):
     self._iterationIdx += 1
 

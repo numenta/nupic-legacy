@@ -35,6 +35,17 @@ using namespace nta;
 using namespace nta::algorithms::spatial_pooler;
 
 
+// Round f to 5 digits of precision. This is used to set
+// permanence values and help avoid small amounts of drift between
+// platforms/implementations
+static Real round5_(const Real f)
+{
+  Real p = ((Real) ((Int) (f * 100000))) / 100000.0;
+  return p;
+}
+
+
+
 class CoordinateConverter2D {
 
   public:
@@ -466,6 +477,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
   iterationNum_ = 0;
   iterationLearnNum_ = 0;
 
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    tieBreaker_[i] = 0.01 * rng_.getReal64();
+  }
 
   potentialPools_.resize(numColumns_, numInputs_);
   permanences_.resize(numColumns_, numInputs_);
@@ -474,8 +489,8 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   overlapDutyCycles_.assign(numColumns_, 0);
   activeDutyCycles_.assign(numColumns_, 0);
-  minOverlapDutyCycles_.assign(numColumns_, 1e-6);
-  minActiveDutyCycles_.assign(numColumns_, 1e-6);
+  minOverlapDutyCycles_.assign(numColumns_, 0.0);
+  minActiveDutyCycles_.assign(numColumns_, 0.0);
   boostFactors_.assign(numColumns_, 1);
   overlaps_.resize(numColumns_);
   overlapsPct_.resize(numColumns_);
@@ -493,6 +508,10 @@ void SpatialPooler::initialize(vector<UInt> inputDimensions,
 
   updateInhibitionRadius_();
 
+  if (spVerbosity_ > 0) {
+    printParameters();
+    std::cout << "CPP SP seed                 = " << seed << std::endl;
+  }
 }
 
 void SpatialPooler::compute(UInt inputArray[], bool learn,
@@ -585,12 +604,14 @@ vector<UInt> SpatialPooler::mapPotential1D_(UInt column, bool wrapAround)
 
 Real SpatialPooler::initPermConnected_()
 {
-  return synPermConnected_ + rng_.getReal64() * synPermActiveInc_ / 4.0;
+  Real p = synPermConnected_ + rng_.getReal64() * synPermActiveInc_ / 4.0;
+  return round5_(p);
 }
 
 Real SpatialPooler::initPermNonConnected_()
 {
-  return synPermConnected_ * rng_.getReal64();
+  Real p = synPermConnected_ * rng_.getReal64();
+  return round5_(p);
 }
 
 vector<Real> SpatialPooler::initPermanence_(vector<UInt>& potential,
@@ -955,7 +976,13 @@ void SpatialPooler::calculateOverlapPct_(vector<UInt>& overlaps,
 {
   overlapPct.assign(numColumns_,0);
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapPct[i] = ((Real) overlaps[i]) / connectedCounts_[i];
+    if (connectedCounts_[i] != 0) {
+      overlapPct[i] = ((Real) overlaps[i]) / connectedCounts_[i];
+    } else {
+      // The intent here is to see if a cell matches its input well.
+      // Therefore if nothing is connected the overlapPct is set to 0.
+      overlapPct[i] = 0;
+    }
   }
 }
 
@@ -975,7 +1002,7 @@ void SpatialPooler::inhibitColumns_(vector<Real>& overlaps,
   vector<Real> overlapsWithNoise;
   overlapsWithNoise.resize(numColumns_);
   for (UInt i = 0; i < numColumns_; i++) {
-    overlapsWithNoise[i] = overlaps[i] + 0.1 * rng_.getReal64();
+    overlapsWithNoise[i] = overlaps[i] + tieBreaker_[i];
   }
 
   if (globalInhibition_ ||
@@ -1279,6 +1306,11 @@ void SpatialPooler::save(ostream& outStream)
   }
   outStream << endl;
 
+  for (UInt i = 0; i < numColumns_; i++) {
+    outStream << tieBreaker_[i] << " ";
+  }
+  outStream << endl;
+
 
   // Store matrices.
   for (UInt i = 0; i < numColumns_; i++) {
@@ -1393,6 +1425,11 @@ void SpatialPooler::load(istream& inStream)
     inStream >> minActiveDutyCycles_[i];
   }
 
+  tieBreaker_.resize(numColumns_);
+  for (UInt i = 0; i < numColumns_; i++) {
+    inStream >> tieBreaker_[i];
+  }
+
 
   // Store matrices.
   potentialPools_.resize(numColumns_, numInputs_);
@@ -1435,3 +1472,60 @@ void SpatialPooler::load(istream& inStream)
   boostedOverlaps_.resize(numColumns_);
 
 }
+
+//----------------------------------------------------------------------
+// Debugging helpers
+//----------------------------------------------------------------------
+
+// Print the main SP creation parameters
+void SpatialPooler::printParameters()
+{
+  std::cout << "------------CPP SpatialPooler Parameters ------------------\n";
+  std::cout
+    << "iterationNum                = " << getIterationNum() << std::endl
+    << "iterationLearnNum           = " << getIterationLearnNum() << std::endl
+    << "numInputs                   = " << getNumInputs() << std::endl
+    << "numColumns                  = " << getNumColumns() << std::endl
+    << "numActiveColumnsPerInhArea  = "
+                << getNumActiveColumnsPerInhArea() << std::endl
+    << "potentialPct                = " << getPotentialPct() << std::endl
+    << "globalInhibition            = " << getGlobalInhibition() << std::endl
+    << "localAreaDensity            = " << getLocalAreaDensity() << std::endl
+    << "stimulusThreshold           = " << getStimulusThreshold() << std::endl
+    << "synPermActiveInc            = " << getSynPermActiveInc() << std::endl
+    << "synPermInactiveDec          = " << getSynPermInactiveDec() << std::endl
+    << "synPermConnected            = " << getSynPermConnected() << std::endl
+    << "minPctOverlapDutyCycles     = "
+                << getMinPctOverlapDutyCycles() << std::endl
+    << "minPctActiveDutyCycles      = "
+                << getMinPctActiveDutyCycles() << std::endl
+    << "dutyCyclePeriod             = " << getDutyCyclePeriod() << std::endl
+    << "maxBoost                    = " << getMaxBoost() << std::endl
+    << "spVerbosity                 = " << getSpVerbosity() << std::endl
+    << "version                     = " << version() << std::endl;
+}
+
+void SpatialPooler::printState(vector<UInt> &state)
+{
+  std::cout << "[  ";
+  for (UInt i = 0; i != state.size(); ++i) {
+    if (i > 0 && i % 10 == 0) {
+      std::cout << "\n   ";
+    }
+    std::cout << state[i] << " ";
+  }
+  std::cout << "]\n";
+}
+
+void SpatialPooler::printState(vector<Real> &state)
+{
+  std::cout << "[  ";
+  for (UInt i = 0; i != state.size(); ++i) {
+    if (i > 0 && i % 10 == 0) {
+      std::cout << "\n   ";
+    }
+    std::printf("%6.3f ", state[i]);
+  }
+  std::cout << "]\n";
+}
+
