@@ -1,6 +1,6 @@
 (function() {
     var csvUrl = '../resources/contributors.csv';
-    var headings = ['Name', 'Github', 'Committer', 'Reviewer'];
+    var headings = ['Name', 'Github', 'Committer', 'Reviewer', 'Commits'];
     var tmpl = Handlebars.compile($("#contributor-table").html());
 
     function csvToJson(csv) {
@@ -24,57 +24,47 @@
         return contributors;
     }
 
+    // Get contributor listing for initial table load.
     $.ajax(csvUrl).done(function(csv) {
-        function addCommits(commitData) {
-            console.log(commitData)
-            var contribs = csvToJson(csv).map(function(thisContributor){
-                var thisContributorCommitData = $.grep(commitData['numenta/nupic'], function(nextObj){
-                    return nextObj.login == thisContributor.Github
-                });
-                if (thisContributorCommitData.length) {
-                    thisContributor.Commits = thisContributorCommitData.shift().commits;
-                    if (thisContributor.Commits == 0) {
-                        thisContributor.Commits = '';
-                    }
-                }
-                return thisContributor;
+        var $commitTable,
+            contribs = csvToJson(csv).map(function(contributor) {
+                contributor.Commits = '';
+                return contributor;
             });
-            headings.push('Commits');
-            $('#contributors').html(tmpl({headings: headings, contributors: contribs}));
+        
+        // Fill HTML template for table structure.
+        $('#contributors').html(tmpl({
+            headings: headings, 
+            contributors: contribs
+        }));
 
-            $(document).ready(function() {
-                $("table").tablesorter({ 
-                    sortList: [[3,0],[2,0],[0,0]] 
-                });
-                $("#tableHeaderCommitter").width(88);
-                $("#tableHeaderReviewer").width(78);
-                $("#tableHeaderCommits").width(77);
-                $(".tableHeaderTriangle").fadeOut(1000);
-                $("th").hover(function(){
-                    //if($('thead').data('hover')) {
-                        $(".tableHeaderTriangle").stop().fadeIn(100);
-                    //}
-                },function(){
-                    setTimeout(function(){
-                        if(!($('thead').data('hover'))) {
-                            $(".tableHeaderTriangle").stop();
-                            $(".tableHeaderTriangle").fadeOut(500);
-                        }
-                    },1000);
-                });
-                $("thead").hover(
-                    function() { $.data(this, 'hover', true); },
-                    function() { $.data(this, 'hover', false); }
-                ).data('hover', false);
-            });
-
-        }
+        // Initialize the tablesorter object.
+        $commitTable = $('table');
+        $commitTable.tablesorter({ 
+            sortList: [[3,0],[2,0],[0,0]] 
+        });
+        
+        // Get the commit stats for incremental commit data injection into table.
         $.ajax({
             url: 'http://issues.numenta.org:8081/contribStats',
             dataType: 'jsonp',
             data: { repo: 'numenta/nupic' },
-            success: function(data) { addCommits(data); },
-            jsonp: "callback"
+            jsonp: "callback",
+            success: function(data) {
+                // Inject commit stats for each record for committer
+                data['numenta/nupic'].forEach(function(contributor) {
+                    $commitTable.find('#' + contributor.login + ' td.commits')
+                        .removeClass('small-loader')
+                        .html(contributor.commits);
+                });
+                // Remove loader icon and replace empty commits with zero for 
+                // proper sorting
+                $commitTable.find('tr td.small-loader')
+                    .removeClass('small-loader')
+                    .html('0');
+                // Trigger update on tablesorter for re-sort
+                $commitTable.trigger('update');
+            }
         });
     });
 
