@@ -163,6 +163,12 @@ div.notice {
     font-weight: bold;
 }
 
+.small-loader {
+    background-image: url(/images/small-ajax-loader.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 section.media img {
     border: 1px solid black;
 }
