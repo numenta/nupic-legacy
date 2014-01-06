@@ -148,6 +148,20 @@ case "${target}" in
 	nta_platform_pyembed="-Wl,--export-dynamic"
 	AC_MSG_RESULT([linux32 on arm])
 	;;
+     armv7l-*-*linux*)
+        nta_platform="linux32armv7"
+        nta_platform_cxxflags="-fPIC -DPIC -ffloat-store -D_PY27"
+        nta_platform_asflags=""
+        nta_platform_debug_flag="-g"
+        nta_platform_ldflags="-static-libgcc"
+	nta_platform_libs="-lm -lstdc++ -lpthread -ldl -lutil -lrt -lcrypt"
+	nta_platform_mpi_extra_libs="-lrt"
+	nta_platform_python_libs="-lpython\$(PYTHON_VERSION)"
+	nta_platform_testldflags="-Wl,-R\$(libdir)/test"
+	nta_platform_pyldflags="-pthread -shared"
+	nta_platform_pyembed="-Wl,--export-dynamic"
+	AC_MSG_RESULT([linux32 on armv7 architecture])
+	;;
      i*86-*-*linux*)
         nta_platform="linux32"
         nta_platform_cxxflags="-fPIC -DPIC -ffloat-store"
