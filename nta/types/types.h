@@ -120,7 +120,7 @@ typedef  long long            NTA_Int64;
 /** TODO: document */
 typedef  unsigned long long   NTA_UInt64;
 
-#elif defined(NTA_PLATFORM_linux32arm)
+#elif defined(NTA_PLATFORM_linux32arm) || defined(NTA_PLATFORM_linux32armv7)
 /** TODO: document */
 typedef  int                  NTA_Int32;
 /** TODO: document */
