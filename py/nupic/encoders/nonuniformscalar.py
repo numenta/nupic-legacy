@@ -81,7 +81,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
     sortedValues = data[sortedIndices]
     sortedWeights = weights[sortedIndices]
     cumWeights = numpy.cumsum(sortedWeights)
-    avgBinWeight = cumWeights[-1] / nBins
+    avgBinWeight = cumWeights[-1] / float(nBins)
 
     #Prepend 0s to the values and weights because we
     #are actually dealing with intervals, not values

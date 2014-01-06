@@ -363,6 +363,7 @@ class FDRCSpatial2(object):
     self.minPctDutyCycleBeforeInh = minPctDutyCycleBeforeInh
     self.minPctDutyCycleAfterInh = minPctDutyCycleAfterInh
     self.dutyCyclePeriod = dutyCyclePeriod
+    self.requestedDutyCyclePeriod = dutyCyclePeriod
     self.maxFiringBoost = maxFiringBoost
     self.maxSSFiringBoost = maxSSFiringBoost
     self.maxSynPermBoost = maxSynPermBoost
@@ -375,9 +376,6 @@ class FDRCSpatial2(object):
     self.useHighTier= useHighTier != 0
     self.randomSP = randomSP != 0
 
-    if not self.useHighTier:
-      self.minPctDutyCycleAfterInh = 0
-
     self.fileCount = 0
     self._runIter = 0
 
@@ -386,7 +384,7 @@ class FDRCSpatial2(object):
     self._inferenceIterNum = 0    # Number of inference iterations
 
     # Print creation parameters
-    if spVerbosity >= 3:
+    if spVerbosity >= 1:
       self.printParams()
       print "seed =", seed
 
@@ -753,7 +751,10 @@ class FDRCSpatial2(object):
       # and _dutyCycleAfterInh represent real firing percentage at the
       # beginning of learning. This will effect boosting and let unlearned
       # coincidences have high boostFactor at beginning.
-      self.dutyCyclePeriod = min(self._iterNum + 1, 1000)
+      self.dutyCyclePeriod = min(self._iterNum + 1,
+                                 self.requestedDutyCyclePeriod)
+
+      # Compute a moving average of the duty cycle before inhibition
       self._dutyCycleBeforeInh = (
           ((self.dutyCyclePeriod - 1) * self._dutyCycleBeforeInh + denseOn) /
           self.dutyCyclePeriod)
@@ -895,14 +896,13 @@ class FDRCSpatial2(object):
       self._bumpUpWeakCoincidences()
 
       # Update each cell's after-inhibition duty cycle
-      # TODO: As the on-cells are sparse after inhibition, we can have
-      # a different updateDutyCycles function taking advantage of the sparsity
       if cloningOn:
         self._masterOnCells.fill(0)
         self._masterOnCells[onMasterIndices] = 1
         denseOn = self._masterOnCells
       else:
         denseOn = self._onCells
+      # Compute a moving average of the duty cycle after inhibition
       self._dutyCycleAfterInh = ((
           (self.dutyCyclePeriod - 1) * self._dutyCycleAfterInh + denseOn) /
           self.dutyCyclePeriod)
@@ -932,7 +932,7 @@ class FDRCSpatial2(object):
         self._periodicStatsComputeEnd(onCellIndices, flatInput.nonzero()[0])
 
     # Verbose print other stats
-    if self.spVerbosity >= 2:
+    if self.spVerbosity >= 3:
       cloning = (self.numCloneMasters != self._coincCount)
       print " #connected on entry:  ", fdru.numpyStr(
           connectedCountsOnEntry, '%d ', includeIndices=True)
@@ -967,7 +967,7 @@ class FDRCSpatial2(object):
                                          '%.4f ', includeIndices=True)
       print
 
-    elif self.spVerbosity >= 1:
+    elif self.spVerbosity >= 2:
       print "SP: learn: ", learn
       print "SP: active outputs(%d):  " % (len(onCellIndices)), onCellIndices
 
@@ -1003,6 +1003,10 @@ class FDRCSpatial2(object):
       self._nupicRandomState = self.random.getState()
       self._iterNum = 0
 
+    # For backward compatibility
+    if not hasattr(self, 'requestedDutyCyclePeriod'):
+      self.requestedDutyCyclePeriod = 1000
+      
     # Init our random number generators
     random.setstate(self._randomState)
     numpy.random.set_state(self._numpyRandomState)
@@ -1071,6 +1075,8 @@ class FDRCSpatial2(object):
         The minimum learned coincidence size
     'coincidenceSizeMax':
         The maximum learned coincidence size
+    'coincidenceSizeSum':
+        The sum of all coincidence sizes (total number of connected synapses)
     'dcBeforeInhibitionAvg':
         The average of duty cycle before inhbition of all coincidences
     'dcBeforeInhibitionMin':
@@ -1112,6 +1118,8 @@ class FDRCSpatial2(object):
         self._masterConnectedCoincSizes.min())
     self._learningStats['coincidenceSizeMax'] = (
         self._masterConnectedCoincSizes.max())
+    self._learningStats['coincidenceSizeSum'] = (
+        self._masterConnectedCoincSizes.sum())
 
     if not self._doneLearning:
       self._learningStats['dcBeforeInhibitionAvg'] = (
@@ -1876,7 +1884,6 @@ class FDRCSpatial2(object):
     ------------------------------------------------------------------------
     boostFactors:   numpy array of boost factors, defined per master
     """
-
     if self._minDutyCycleAfterInh.sum() > 0:
       self._firingBoostFactors = (
           (1 - self.maxFiringBoost) /
@@ -1988,7 +1995,7 @@ class FDRCSpatial2(object):
         explainedInputs = self._inputLayout[inputSlice][masterValidConnected]
         self._stats['explainedInputsCurIteration'].update(explainedInputs)
 
-      if self.spVerbosity >= 3:
+      if self.spVerbosity >= 4:
         print " adapting cell:%d [%d:%d] (master:%d)" % (columnNum,
                     columnNum // self.coincidencesShape[1],
                     columnNum % self.coincidencesShape[1],
@@ -2058,7 +2065,7 @@ class FDRCSpatial2(object):
         self._stats['numLearns'][masterNum] += 1
 
       # Verbose?
-      if self.spVerbosity >= 3:
+      if self.spVerbosity >= 4:
         print " done cell:%d [%d:%d] (master:%d)" % (columnNum,
                     columnNum // self.coincidencesShape[1],
                     columnNum % self.coincidencesShape[1],
@@ -2287,7 +2294,7 @@ class FDRCSpatial2(object):
                                                     self._iterNum)
 
     # If it's not time to print them out, return now.
-    if (self._iterNum % self.printPeriodicStats) != 0:
+    if (self._iterNum % self.printPeriodicStats) != 1:
       return
 
     numSamples = float(self._stats['numSamples'])
@@ -2361,10 +2368,11 @@ class FDRCSpatial2(object):
         self._learningStats['inhibitionRadius'])
     print "  target density:               %.5f %%" % (
         self._learningStats['targetDensityPct'])
-    print "  avg/min/max coinc. size:      %-6.1f / %-6d / %-6d" % (
+    print "  avg/min/max/sum coinc. size:      %-6.1f / %-6d / %-6d / %-8d" % (
         self._learningStats['coincidenceSizeAvg'],
         self._learningStats['coincidenceSizeMin'],
-        self._learningStats['coincidenceSizeMax'])
+        self._learningStats['coincidenceSizeMax'],
+        self._learningStats['coincidenceSizeSum'])
     print "  avg/min/max DC before inh:    %-6.4f / %-6.4f / %-6.4f" % (
         self._learningStats['dcBeforeInhibitionAvg'],
         self._learningStats['dcBeforeInhibitionMin'],
@@ -2389,6 +2397,8 @@ class FDRCSpatial2(object):
         max(1,self._learningStats['activeCountAvg']))
     print "  # of unique input pats seen:  %d" % (
         self._learningStats['numUniqueInputsSeen'])
+    print "  # of unused columns:  %d" % (
+        (self._dutyCycleAfterInh==0).sum())    
 
     # Reset the stats for the next period.
     self._periodicStatsReset()
@@ -2525,6 +2535,7 @@ class FDRCSpatial2(object):
     print "maxFiringBoost =", self.maxFiringBoost
     print "maxSSFiringBoost =", self.maxSSFiringBoost
     print "maxSynPermBoost =", self.maxSynPermBoost
+    print "useHighTier =",self.useHighTier
     print "minDistance =", self.minDistance
     print "spVerbosity =", self.spVerbosity
     print "printPeriodicStats =", self.printPeriodicStats

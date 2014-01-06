@@ -90,6 +90,7 @@ class FieldMetaType(object):
   integer = 'int'
   float = 'float'
   boolean = 'bool'
+  list = 'list'
 
 
 class FieldMetaSpecial(object):
@@ -101,35 +102,3 @@ class FieldMetaSpecial(object):
   sequence = 'S'
   timestamp = 'T'
   category = 'C'
-
-
-
-
-###############################################################################
-def test():
-  """
-  """
-  # Create a single FieldMetaInfo instance from a File field's meta-data tuple
-  e = ('pounds', FieldMetaType.float, FieldMetaSpecial.none)
-  m = FieldMetaInfo.createFromFileFieldElement(e)
-  print "COMPARING %s WITH %s..." % (e, m)
-  assert e == m
-  print "ok\n"
-
-  # Create a list of FieldMetaInfo instances from a list of File meta-data tuples
-  el = [('pounds', FieldMetaType.float, FieldMetaSpecial.none),
-        ('price', FieldMetaType.float, FieldMetaSpecial.none),
-        ('id', FieldMetaType.string, FieldMetaSpecial.sequence),
-        ('date', FieldMetaType.datetime, FieldMetaSpecial.timestamp),
-       ]
-  ml = FieldMetaInfo.createListFromFileFieldList(el)
-  print "COMPARING %s WITH %s..." % (el, ml)
-  assert el == ml
-  print "ok"
-
-  return
-
-
-###############################################################################
-if __name__ == "__main__":
-  test()

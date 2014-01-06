@@ -25,15 +25,24 @@
 
 #include <set>
 
+/** @namespace nta
+ * Contains the primary NuPIC API.
+ */
 namespace nta
 {
   class Network;
 
+  /**
+   * Contains initialization and shutdown operations
+   */
   class NuPIC 
   {
   public:
+    /** TODO: document */
     static void init();
+    /** TODO: document */
     static void shutdown();
+    /** TODO: document */
     static bool isInitialized();
   private:
     /**

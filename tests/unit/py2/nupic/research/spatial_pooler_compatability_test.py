@@ -23,7 +23,11 @@
 import cPickle as pickle
 import numpy
 import unittest2 as unittest
+import time
+import traceback
 
+from nupic.support.unittesthelpers.algorithm_test_helpers \
+     import getNumpyRandomGenerator, CreateSP, convertPermanences
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
@@ -35,8 +39,15 @@ numRecords = 100
 
 
 class SpatialPoolerCompatabilityTest(unittest.TestCase):
+  """
+  Tests to ensure that the PY and CPP implementations of the spatial pooler
+  are functionally identical.
+  """
 
-
+  def setUp(self):
+    # Set to 1 for more verbose debugging output
+    self.verbosity = 1
+    
   def assertListAlmostEqual(self, alist, blist):
     self.assertEqual(len(alist), len(blist))
     for a, b in zip(alist, blist):
@@ -124,6 +135,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
     for i in xrange(pySp.getNumColumns()):
+      if self.verbosity > 2: print "Column:",i
       pyPot = numpy.zeros(numInputs).astype(uintType)
       cppPot = numpy.zeros(numInputs).astype(uintType)
       pySp.getPotential(i, pyPot)
@@ -149,138 +161,69 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertListEqual(list(pyConCounts), list(cppConCounts))
 
 
-  def convertSP(self, pySp, newSeed):
-    columnDim = pySp._columnDimensions
-    inputDim = pySp._inputDimensions
-    numInputs = pySp.getNumInputs()
-    numColumns = pySp.getNumColumns()
-    cppSp = CPPSpatialPooler(inputDim,columnDim)
-    cppSp.setPotentialRadius(pySp.getPotentialRadius())
-    cppSp.setPotentialPct(pySp.getPotentialPct())
-    cppSp.setGlobalInhibition(pySp.getGlobalInhibition())
-
-    numActiveColumnsPerInhArea = pySp.getNumActiveColumnsPerInhArea()
-    localAreaDensity = pySp.getLocalAreaDensity()
-    if (numActiveColumnsPerInhArea > 0):
-      cppSp.setNumActiveColumnsPerInhArea(numActiveColumnsPerInhArea)
-    else:
-      cppSp.setLocalAreaDensity(localAreaDensity)
-
-    cppSp.setStimulusThreshold(pySp.getStimulusThreshold())
-    cppSp.setInhibitionRadius(pySp.getInhibitionRadius())
-    cppSp.setDutyCyclePeriod(pySp.getDutyCyclePeriod())
-    cppSp.setMaxBoost(pySp.getMaxBoost())
-    cppSp.setIterationNum(pySp.getIterationNum())
-    cppSp.setIterationLearnNum(pySp.getIterationLearnNum())
-    cppSp.setSpVerbosity(pySp.getSpVerbosity())
-    cppSp.setUpdatePeriod(pySp.getUpdatePeriod())
-    cppSp.setSynPermTrimThreshold(pySp.getSynPermTrimThreshold())
-    cppSp.setSynPermActiveInc(pySp.getSynPermActiveInc())
-    cppSp.setSynPermInactiveDec(pySp.getSynPermInactiveDec())
-    cppSp.setSynPermBelowStimulusInc(pySp.getSynPermBelowStimulusInc())
-    cppSp.setSynPermConnected(pySp.getSynPermConnected())
-    cppSp.setMinPctOverlapDutyCycles(pySp.getMinPctOverlapDutyCycles())
-    cppSp.setMinPctActiveDutyCycles(pySp.getMinPctActiveDutyCycles())
-
-    boostFactors = numpy.zeros(numColumns).astype(realType)
-    pySp.getBoostFactors(boostFactors)
-    cppSp.setBoostFactors(boostFactors)
-
-    overlapDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getOverlapDutyCycles(overlapDuty)
-    cppSp.setOverlapDutyCycles(overlapDuty)
-
-    activeDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getActiveDutyCycles(activeDuty)
-    cppSp.setActiveDutyCycles(activeDuty)
-
-    minOverlapDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinOverlapDutyCycles(minOverlapDuty)
-    cppSp.setMinOverlapDutyCycles(minOverlapDuty)
-
-    minActiveDuty = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinActiveDutyCycles(minActiveDuty)
-    cppSp.setMinActiveDutyCycles(minActiveDuty)
-
-    for i in xrange(numColumns):
-      potential = numpy.zeros(numInputs).astype(uintType)
-      pySp.getPotential(i, potential)
-      cppSp.setPotential(i, potential)
-
-      perm = numpy.zeros(numInputs).astype(realType)
-      pySp.getPermanence(i, perm)
-      cppSp.setPermanence(i, perm)
-
-    pySp._random = NupicRandom(newSeed)
-    cppSp.seed_(newSeed)
-    return cppSp
-
-
-  def createSp(self, imp, params):
-    if (imp == "py"):
-      spClass = PySpatialPooler
-    elif (imp == "cpp"):
-      spClass = CPPSpatialPooler
-    else:
-      raise RuntimeError("unrecognized implementation")
-
-    sp = spClass(
-      inputDimensions=params["inputDimensions"],
-      columnDimensions=params["columnDimensions"],
-      potentialRadius=params["potentialRadius"],
-      potentialPct=params["potentialPct"],
-      globalInhibition=params["globalInhibition"],
-      localAreaDensity=params["localAreaDensity"],
-      numActiveColumnsPerInhArea=params["numActiveColumnsPerInhArea"],
-      stimulusThreshold=params["stimulusThreshold"],
-      synPermInactiveDec=params["synPermInactiveDec"],
-      synPermActiveInc=params["synPermActiveInc"],
-      synPermConnected=params["synPermConnected"],
-      minPctOverlapDutyCycle=params["minPctOverlapDutyCycle"],
-      minPctActiveDutyCycle=params["minPctActiveDutyCycle"],
-      dutyCyclePeriod=params["dutyCyclePeriod"],
-      maxBoost=params["maxBoost"],
-      seed=params["seed"],
-      spVerbosity=params["spVerbosity"]
-    )
-    return sp
-
-
-  def runSideBySide(self, params):
-    seed = 5
-    pySp = self.createSp("py", params)
-    cppSp = self.createSp("cpp", params)
+  def runSideBySide(self, params, seed = None,
+                    learnMode = None,
+                    convertEveryIteration = False):
+    """
+    Run the PY and CPP implementations side by side on random inputs.
+    If seed is None a random seed will be chosen based on time, otherwise
+    the fixed seed will be used.
+    
+    If learnMode is None learning will be randomly turned on and off.
+    If it is False or True then set it accordingly.
+    
+    If convertEveryIteration is True, the CPP will be copied from the PY
+    instance on every iteration just before each compute.
+    """
+    randomState = getNumpyRandomGenerator(seed)
+    cppSp = CreateSP("cpp", params)
+    pySp = CreateSP("py", params)
     self.compare(pySp, cppSp)
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
     threshold = 0.8
     inputMatrix = (
-      numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
+      randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
+    
+    # Run side by side for numRecords iterations
     for i in xrange(numRecords):
+      if learnMode is None:
+        learn = (randomState.rand() > 0.5)
+      else:
+        learn = learnMode
+      if self.verbosity > 1:
+        print "Iteration:",i,"learn=",learn
       PyActiveArray = numpy.zeros(numColumns).astype(uintType)
       CppActiveArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
-      cppSp = self.convertSP(pySp, i+1)
-      learn = (numpy.random.rand() > 0.5)
+      
       pySp.compute(inputVector, learn, PyActiveArray)
       cppSp.compute(inputVector, learn, CppActiveArray)
       self.assertListEqual(list(PyActiveArray), list(CppActiveArray))
       self.compare(pySp,cppSp)
 
+      # The permanence values for the two implementations drift ever so slowly
+      # over time due to numerical precision issues. This occasionally causes
+      # different permanences to be connected. By transferring the permanence
+      # values every so often, we can avoid this drift but still check that
+      # the logic is applied equally for both implementations.
+      if convertEveryIteration or ((i+1)%10 == 0):
+        convertPermanences(pySp, cppSp)
 
-  def runSerialize(self, imp, params):
-    seed = 5
-    sp1 = self.createSp(imp, params)
+
+  def runSerialize(self, imp, params, seed = None):
+    randomState = getNumpyRandomGenerator(seed)
+    sp1 = CreateSP(imp, params)
     numColumns = sp1.getNumColumns() 
     numInputs = sp1.getNumInputs()
     threshold = 0.8
     inputMatrix = (
-      numpy.random.rand(numRecords,numInputs) > threshold).astype(uintType)
+      randomState.rand(numRecords,numInputs) > threshold).astype(uintType)
 
     for i in xrange(numRecords/2):
       activeArray = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:] 
-      learn = (numpy.random.rand() > 0.5) 
+      learn = (randomState.rand() > 0.5) 
       sp1.compute(inputVector, learn, activeArray)
 
     sp2 = pickle.loads(pickle.dumps(sp1))
@@ -288,7 +231,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       activeArray1 = numpy.zeros(numColumns).astype(uintType)
       activeArray2 = numpy.zeros(numColumns).astype(uintType)
       inputVector = inputMatrix[i,:]
-      learn = (numpy.random.rand() > 0.5)
+      learn = (randomState.rand() > 0.5)
       sp1.compute(inputVector, learn, activeArray1)
       sp2.compute(inputVector, learn, activeArray2)
       self.assertListEqual(list(activeArray1), list(activeArray2))
@@ -314,7 +257,37 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "seed": 4,
       "spVerbosity": 0
     }
+    # This seed used to cause problems if learnMode is set to None
+    self.runSideBySide(params, seed = 63862)
+
+    # These seeds used to fail
+    self.runSideBySide(params, seed = 62605)
+    self.runSideBySide(params, seed = 30440)
+    self.runSideBySide(params, seed = 49457)
+
     self.runSideBySide(params)
+
+  def testCompatabilityNoLearn(self):
+    params = {
+      "inputDimensions": [4,4],
+      "columnDimensions": [5,3],
+      "potentialRadius": 20,
+      "potentialPct": 0.5,
+      "globalInhibition": True,
+      "localAreaDensity": 0,
+      "numActiveColumnsPerInhArea": 5,
+      "stimulusThreshold": 0,
+      "synPermInactiveDec": 0.01,
+      "synPermActiveInc": 0.1,
+      "synPermConnected": 0.10,
+      "minPctOverlapDutyCycle": 0.001,
+      "minPctActiveDutyCycle": 0.001,
+      "dutyCyclePeriod": 30,
+      "maxBoost": 10.0,
+      "seed": 4,
+      "spVerbosity": 0
+    }
+    self.runSideBySide(params, seed = None, learnMode = False)
 
 
   def testCompatability2(self):
@@ -337,7 +310,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "seed": 6,
       "spVerbosity": 0
     }
-    self.runSideBySide(params)
+    self.runSideBySide(params, convertEveryIteration = True)
 
 
   def testCompatability3(self):
@@ -360,7 +333,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "seed": 19,
       "spVerbosity": 0
     }
-    self.runSideBySide(params)
+    self.runSideBySide(params, convertEveryIteration = True)
 
 
   def testSerialization(self):
@@ -383,11 +356,11 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       'seed' : 19,
       'spVerbosity' : 0
     }
-    sp1 = self.createSp("py", params)
+    sp1 = CreateSP("py", params)
     sp2 = pickle.loads(pickle.dumps(sp1))
     self.compare(sp1, sp2)
 
-    sp1 = self.createSp("cpp", params)
+    sp1 = CreateSP("cpp", params)
     sp2 = pickle.loads(pickle.dumps(sp1))
     self.compare(sp1, sp2)
 

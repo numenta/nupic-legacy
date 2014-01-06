@@ -19,7 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Temporal pooler implementation.
+""" @file TP.py
+
+Temporal pooler implementation.
 
 This is the Python implementation and is used as the base class for the C++
 implementation.
@@ -49,14 +51,17 @@ dtype = GetNTAReal()
 
 
 class TP(ConsolePrinterMixin):
-  """Class implementing the temporal pooler algorithm as described in the
+  """
+  Class implementing the temporal pooler algorithm as described in the
   published Cortical Learning Algorithm documentation.  The implementation here
   attempts to closely match the pseudocode in the documentation. This
   implementation does contain several additional bells and whistles such as
   a column confidence measure.
+
+  @todo Document other constructor parameters.
+  @todo Have some higher level flags for fast learning, HiLo, Pooling, etc.
   """
 
-  # TODO: Have some higher level flags for fast learning, HiLo, Pooling, etc.
   def __init__(self,
                numberOfCols=500,
                cellsPerColumn=10,
@@ -69,39 +74,27 @@ class TP(ConsolePrinterMixin):
                permanenceMax=1.0,
                globalDecay=0.10,
                activationThreshold=12,
-               doPooling=False,  # allows to turn off pooling
+               doPooling=False,
                segUpdateValidDuration=5,
-               burnIn=2,  # Used for evaluating the prediction score
-               collectStats=False,  # If true, collect training/inference stats
+               burnIn=2,
+               collectStats=False,
                seed=42,
                verbosity=VERBOSITY,
                checkSynapseConsistency=False,  # for cpp only -- ignored
-
-               # List (as string) of trivial predictions to compute alongside
-               # the full TP. See TrivialPredictor.py for a list of allowed
-               # methods
                trivialPredictionMethods= '',
                pamLength=1,
                maxInfBacktrack=10,
                maxLrnBacktrack=5,
                maxAge=100000,
                maxSeqLength=32,
-
-               # Fixed size mode params
                maxSegmentsPerCell=-1,
                maxSynapsesPerSegment=-1,
-
-               # Output type
                outputType='normal',
               ):
-    """Construct the TP
+    """
+    Construct the TP
 
-    TODO: Document other constructor parameters....
-
-    Parameters:
-    -------------------------------------------------------------------
-    ....
-    pamLength:    Number of time steps to remain in "Pay Attention Mode" after
+    @param pamLength Number of time steps to remain in "Pay Attention Mode" after
                   we detect we've reached the end of a learned sequence. Setting
                   this to 0 disables PAM mode. When we are in PAM mode, we do
                   not burst unpredicted columns during learning, which in turn
@@ -115,41 +108,54 @@ class TP(ConsolePrinterMixin):
                   elements of that sequence will not be learned as part of that
                   2nd sequence.
 
-    maxAge:       Controls global decay. Global decay will only decay segments
+    @param maxAge Controls global decay. Global decay will only decay segments
                   that have not been activated for maxAge iterations, and will
                   only do the global decay loop every maxAge iterations. The
                   default (maxAge=1) reverts to the behavior where global decay
                   is applied every iteration to every segment. Using maxAge > 1
                   can significantly speed up the TP when global decay is used.
 
-    maxSeqLength: If not 0, we will never learn more than maxSeqLength inputs
+    @param maxSeqLength If not 0, we will never learn more than maxSeqLength inputs
                   in a row without starting over at start cells. This sets an
                   upper bound on the length of learned sequences and thus is
                   another means (besides maxAge and globalDecay) by which to
                   limit how much the TP tries to learn.
 
-    maxSegmentsPerCell: The maximum number of segments allowed on a cell. This
+    @param maxSegmentsPerCell The maximum number of segments allowed on a cell. This
                   is used to turn on "fixed size CLA" mode. When in effect,
                   globalDecay is not applicable and must be set to 0 and
                   maxAge must be set to 0. When this is used (> 0),
                   maxSynapsesPerSegment must also be > 0.
 
-    maxSynapsesPerSegment: The maximum number of synapses allowed in a segment.
+    @param maxSynapsesPerSegment The maximum number of synapses allowed in a segment.
                   This is used to turn on "fixed size CLA" mode. When in effect,
                   globalDecay is not applicable and must be set to 0 and maxAge
                   must be set to 0. When this is used (> 0), maxSegmentsPerCell
                   must also be > 0.
 
-    outputType:   Can be one of the following: 'normal', 'activeState',
+    @param outputType Can be one of the following: 'normal', 'activeState',
                   'activeState1CellPerCol'.
-                  'normal': output the OR of the active and predicted state
-                  'activeState': output only the active state
+                  'normal': output the OR of the active and predicted state. 
+                  'activeState': output only the active state. 
                   'activeState1CellPerCol': output only the active state, and at
                   most 1 cell/column. If more than 1 cell is active in a column,
                   the one with the highest confidence is sent up.
-    ...
+                  Default is 'normal'.
+
+    @param trivialPredictionMethods List (as string) of trivial predictions to compute alongside
+                  the full TP. See TrivialPredictor.py for a list of allowed
+                  methods.
+
+    @param doPooling If True, pooling is enabled. False is the default.
+
+    @param burnIn Used for evaluating the prediction score. Default is 2.
+
+    @param collectStats If True, collect training / inference stats. Default is
+                        False.
 
     """
+
+    ## @todo document
     self.version = TP_VERSION
 
     ConsolePrinterMixin.__init__(self, verbosity)
@@ -174,32 +180,57 @@ class TP(ConsolePrinterMixin):
       self._random = Random(numpy.random.randint(256))
 
     # Store creation parameters
+    ## @todo document
     self.numberOfCols = numberOfCols
+    ## @todo document
     self.cellsPerColumn = cellsPerColumn
     self._numberOfCells = numberOfCols * cellsPerColumn
+    ## @todo document
     self.initialPerm = numpy.float32(initialPerm)
+    ## @todo document
     self.connectedPerm = numpy.float32(connectedPerm)
+    ## @todo document
     self.minThreshold = minThreshold
+    ## @todo document
     self.newSynapseCount = newSynapseCount
+    ## @todo document
     self.permanenceInc = numpy.float32(permanenceInc)
+    ## @todo document
     self.permanenceDec = numpy.float32(permanenceDec)
+    ## @todo document
     self.permanenceMax = numpy.float32(permanenceMax)
+    ## @todo document
     self.globalDecay = numpy.float32(globalDecay)
+    ## @todo document
     self.activationThreshold = activationThreshold
+    ## Allows to turn off pooling
     self.doPooling = doPooling
+    ## @todo document
     self.segUpdateValidDuration = segUpdateValidDuration
+    ## Used for evaluating the prediction score
     self.burnIn = burnIn
+    ## If true, collect training/inference stats
     self.collectStats = collectStats
+    ## @todo document
     self.seed = seed
+    ## @todo document
     self.verbosity = verbosity
+    ## @todo document
     self.pamLength = pamLength
+    ## @todo document
     self.maxAge = maxAge
+    ## @todo document
     self.maxInfBacktrack = maxInfBacktrack
+    ## @todo document
     self.maxLrnBacktrack = maxLrnBacktrack
+    ## @todo document
     self.maxSeqLength = maxSeqLength
+    ## @todo document
     self.maxSegmentsPerCell = maxSegmentsPerCell
+    ## @todo document
     self.maxSynapsesPerSegment = maxSynapsesPerSegment
     assert outputType in ('normal', 'activeState', 'activeState1CellPerCol')
+    ## @todo document
     self.outputType = outputType
 
     # No point having larger expiration if we are not doing pooling
@@ -207,9 +238,10 @@ class TP(ConsolePrinterMixin):
       self.segUpdateValidDuration = 1
 
     # Create data structures
+    ## @todo document
     self.activeColumns = [] # list of indices of active columns
 
-    # Cells are indexed by column and index in the column
+    ## Cells are indexed by column and index in the column
     # Every self.cells[column][index] contains a list of segments
     # Each segment is a structure of class Segment
     self.cells = []
@@ -218,12 +250,16 @@ class TP(ConsolePrinterMixin):
       for _ in xrange(self.cellsPerColumn):
         self.cells[c].append([])
 
+    ## @todo document
     self.lrnIterationIdx = 0
+    ## @todo document
     self.iterationIdx = 0
-    self.segID = 0 # unique segment id, so we can put segments in hashes
+    ## unique segment id, so we can put segments in hashes
+    self.segID = 0 
+    ## @todo document
     self.currentOutput = None # for checkPrediction
 
-    # pamCounter gets reset to pamLength whenever we detect that the learning
+    ## pamCounter gets reset to pamLength whenever we detect that the learning
     # state is making good predictions (at least half the columns predicted).
     # Whenever we do not make a good prediction, we decrement pamCounter.
     # When pamCounter reaches 0, we start the learn state over again at start
@@ -233,24 +269,26 @@ class TP(ConsolePrinterMixin):
 
     # Trivial prediction algorithms
     if len(trivialPredictionMethods.strip()) > 0:
+      ## @todo document
       self.trivialPredictor = TrivialPredictor(numberOfCols, verbosity,
                                                trivialPredictionMethods)
     else:
+      ## @todo document
       self.trivialPredictor = None
 
-    # If True, the TP will compute a signature for each sequence
+    ## If True, the TP will compute a signature for each sequence
     self.collectSequenceStats = False
 
-    # This gets set when we receive a reset and cleared on the first compute
+    ## This gets set when we receive a reset and cleared on the first compute
     # following a reset.
     self.resetCalled = False
 
-    # We keep track of the average input density here
+    ## We keep track of the average input density here
     self.avgInputDensity = None
 
-    # We keep track of the length of the sequence currently being learned as
-    # well as a moving average of all learned sequence length here.
+    ## Keeps track of the length of the sequence currently being learned.
     self.learnedSeqLength = 0
+    ## Keeps track of the moving average of all learned sequence length.
     self.avgLearnedSeqLength = 0.0
 
     # Set attributes intialized later on.
@@ -260,11 +298,17 @@ class TP(ConsolePrinterMixin):
 
     # Set attributes that are initialized in _initEphemerals.
     self._stats = None
+    ## @todo document
     self.cellConfidence = None
+    ## @todo document
     self.colConfidence = None
+    ## @todo document
     self.lrnActiveState = None
+    ## @todo document
     self.infActiveState = None
+    ## @todo document
     self.lrnPredictedState = None
+    ## @todo document
     self.infPredictedState = None
     self._internalStats = None
 
@@ -276,7 +320,9 @@ class TP(ConsolePrinterMixin):
 
 
   def _getEphemeralMembers(self):
-    """List of our member variables that we don't need to be saved."""
+    """
+    List of our member variables that we don't need to be saved.
+    """
     return []
 
 
@@ -284,7 +330,7 @@ class TP(ConsolePrinterMixin):
     """
     Initialize all ephemeral members after being restored to a pickled state.
     """
-    # We store the lists of segments updates, per cell, so that they can be
+    ## We store the lists of segments updates, per cell, so that they can be
     # applied later during learning, when the cell gets bottom-up activation.
     # We store one list per cell. The lists are identified with a hash key which
     # is a tuple (column index, cell index).
@@ -342,7 +388,7 @@ class TP(ConsolePrinterMixin):
 
 
   def __getstate__(self):
-    """
+    """ @internal
     Return serializable state.  This function will return a version of the
     __dict__ with all "ephemeral" members stripped out.  "Ephemeral" members
     are defined as those that do not need to be (nor should be) stored
@@ -359,7 +405,7 @@ class TP(ConsolePrinterMixin):
 
 
   def __setstate__(self, state):
-    """
+    """ @internal
     Set the state of ourself from a serialized state.
     """
     self.setRandomState(state['_random'])
@@ -373,7 +419,7 @@ class TP(ConsolePrinterMixin):
 
 
   def __getattr__(self, name):
-    """
+    """ @internal
     Patch __getattr__ so that we can catch the first access to 'cells' and load.
 
     This function is only called when we try to access an attribute that doesn't
@@ -454,24 +500,30 @@ class TP(ConsolePrinterMixin):
 
 
   def saveToFile(self, filePath):
-    """Implemented in TP10X2"""
+    """
+    Implemented in TP10X2.TP10X2.saveToFile
+    """
     pass
 
 
   def loadFromFile(self, filePath):
-    """Implemented in TP10X2"""
+    """
+    Implemented in TP10X2.TP10X2.loadFromFile
+    """
     pass
 
 
   def setRandomSeed(self, seed):
-    """ Seed the random number generator.
+    """ @internal 
+    Seed the random number generator.
     This is used during unit testing to generate repeatable results.
     """
     self._random = Random(seed)
 
 
   def getRandomState(self):
-    """Return the random number state.
+    """ @internal 
+    Return the random number state.
 
     This is used during unit testing to generate repeatable results.
     """
@@ -479,7 +531,7 @@ class TP(ConsolePrinterMixin):
 
 
   def setRandomState(self, state):
-    """Set the random number state.
+    """ @internal Set the random number state.
 
     This is used during unit testing to generate repeatable results.
     """
@@ -487,7 +539,8 @@ class TP(ConsolePrinterMixin):
 
 
   def reset(self,):
-    """Reset the state of all cells.
+    """
+    Reset the state of all cells.
 
     This is normally used between sequences while training. All internal states
     are reset to 0.
@@ -545,7 +598,8 @@ class TP(ConsolePrinterMixin):
 
 
   def resetStats(self):
-    """Reset the learning and inference stats. This will usually be called by
+    """
+    Reset the learning and inference stats. This will usually be called by
     user code at the start of each inference run (for a particular data set).
     """
     self._stats = dict()
@@ -582,35 +636,38 @@ class TP(ConsolePrinterMixin):
 
 
   def getStats(self):
-    """Return the current learning and inference stats. This returns a dict
+    """
+    Return the current learning and inference stats. This returns a dict
     containing all the learning and inference stats we have collected since the
-    last resetStats(). If collectStats is False, then None is returned.
+    last resetStats(). If @ref collectStats is False, then None is returned.
 
-    The following keys are returned in the dict when collectStats is True:
+    @returns dict
 
-      nPredictions:           the number of predictions. This is the total
+    The following keys are returned in the dict when @ref collectStats is True:
+
+      @retval nPredictions the number of predictions. This is the total
                               number of inferences excluding burn-in and the
                               last inference.
 
-      curPredictionScore:     the score for predicting the current input
+      @retval curPredictionScore the score for predicting the current input
                               (predicted during the previous inference)
 
-      curMissing:             the number of bits in the current input that were
+      @retval curMissing the number of bits in the current input that were
                               not predicted to be on.
 
-      curExtra:               the number of bits in the predicted output that
+      @retval curExtra the number of bits in the predicted output that
                               are not in the next input
 
-      predictionScoreTotal:   the sum of every prediction score to date
+      @retval predictionScoreTotal the sum of every prediction score to date
 
-      predictionScoreAvg:     predictionScoreTotal / nPredictions
+      @retval predictionScoreAvg predictionScoreTotal / nPredictions
 
-      pctMissingTotal:        the total number of bits that were missed over all
+      @retval pctMissingTotal the total number of bits that were missed over all
                               predictions
 
-      pctMissingAvg:          pctMissingTotal / nPredictions
+      @retval pctMissingAvg pctMissingTotal / nPredictions
 
-      prevSequenceSignature:  signature for the sequence immediately preceding
+      @retval prevSequenceSignature signature for the sequence immediately preceding
                               the last reset. 'None' if collectSequenceStats is
                               False
     """
@@ -672,18 +729,16 @@ class TP(ConsolePrinterMixin):
 
   def _updateStatsInferEnd(self, stats, bottomUpNZ, predictedState,
                            colConfidence):
-    """Called at the end of learning and inference, this routine will update
-    a number of stats in our _internalStats dictionary, including:
-      1. Our computed prediction score
-      2. ...
+    """
+    Called at the end of learning and inference, this routine will update
+    a number of stats in our _internalStats dictionary, including our computed 
+    prediction score.
 
-    Parameters:
-    ------------------------------------------------------------------
-    stats:            internal stats dictionary
-    bottomUpNZ:       list of the active bottom-up inputs
-    predictedState:   The columns we predicted on the last time step (should
-                        match the current bottomUpNZ in the best case)
-    colConfidence:    Column confidences we determined on the last time step
+    @param stats            internal stats dictionary
+    @param bottomUpNZ       list of the active bottom-up inputs
+    @param predictedState   The columns we predicted on the last time step (should
+                            match the current bottomUpNZ in the best case)
+    @param colConfidence    Column confidences we determined on the last time step
     """
     # Return if not collecting stats
     if not self.collectStats:
@@ -741,7 +796,11 @@ class TP(ConsolePrinterMixin):
 
 
   def printState(self, aState):
-    """Print an integer array that is the same shape as activeState."""
+    """
+    Print an integer array that is the same shape as activeState.
+    
+    @param aState TODO: document
+    """
     def formatRow(var, i):
       s = ''
       for c in range(self.numberOfCols):
@@ -756,7 +815,12 @@ class TP(ConsolePrinterMixin):
 
 
   def printConfidence(self, aState, maxCols = 20):
-    """Print a floating point array that is the same shape as activeState."""
+    """
+    Print a floating point array that is the same shape as activeState.
+    
+    @param aState TODO: document
+    @param maxCols TODO: document
+    """
     def formatFPRow(var, i):
       s = ''
       for c in range(min(maxCols, self.numberOfCols)):
@@ -771,7 +835,12 @@ class TP(ConsolePrinterMixin):
 
 
   def printColConfidence(self, aState, maxCols = 20):
-    """Print up to maxCols number from a flat floating point array."""
+    """
+    Print up to maxCols number from a flat floating point array.
+    
+    @param aState TODO: document
+    @param maxCols TODO: document
+    """
     def formatFPRow(var):
       s = ''
       for c in range(min(maxCols, self.numberOfCols)):
@@ -784,6 +853,9 @@ class TP(ConsolePrinterMixin):
     print formatFPRow(aState)
 
   def printStates(self, printPrevious = True, printLearnState = True):
+    """
+    @todo document
+    """
     def formatRow(var, i):
       s = ''
       for c in range(self.numberOfCols):
@@ -820,6 +892,9 @@ class TP(ConsolePrinterMixin):
 
 
   def printOutput(self, y):
+    """
+    @todo document
+    """
     print "Output"
     for i in xrange(self.cellsPerColumn):
       for c in xrange(self.numberOfCols):
@@ -828,6 +903,9 @@ class TP(ConsolePrinterMixin):
 
 
   def printInput(self, x):
+    """
+    @todo document
+    """
     print "Input"
     for c in xrange(self.numberOfCols):
       print int(x[c]),
@@ -835,7 +913,9 @@ class TP(ConsolePrinterMixin):
 
 
   def printParameters(self):
-    """Print the parameter settings for the TP."""
+    """
+    Print the parameter settings for the TP.
+    """
     print "numberOfCols=", self.numberOfCols
     print "cellsPerColumn=", self.cellsPerColumn
     print "minThreshold=", self.minThreshold
@@ -855,8 +935,13 @@ class TP(ConsolePrinterMixin):
 
 
   def printActiveIndices(self, state, andValues=False):
-    """Print the list of [column, cellIdx] indices for each of the active
-    cells in state. """
+    """
+    Print the list of [column, cellIdx] indices for each of the active
+    cells in state. 
+    
+    @param state TODO: document
+    @param andValues TODO: document
+    """
     if len(state.shape) == 2:
       (cols, cellIdxs) = state.nonzero()
     else:
@@ -887,8 +972,12 @@ class TP(ConsolePrinterMixin):
 
 
   def printComputeEnd(self, output, learn=False):
-    """Called at the end of inference to print out various diagnostic
+    """
+    Called at the end of inference to print out various diagnostic
     information based on the current verbosity level.
+    
+    @param output TODO: document
+    @param learn TODO: document
     """
     if self.verbosity >= 3:
       print "----- computeEnd summary: "
@@ -957,6 +1046,9 @@ class TP(ConsolePrinterMixin):
 
 
   def printSegmentUpdates(self):
+    """
+    @todo document
+    """
     print "=== SEGMENT UPDATES ===, Num = ", len(self.segmentUpdates)
     for key, updateList in self.segmentUpdates.iteritems():
       c, i = key[0], key[1]
@@ -964,7 +1056,10 @@ class TP(ConsolePrinterMixin):
 
 
   def printCell(self, c, i, onlyActiveSegments=False):
-
+    """
+    @todo document
+    """
+    
     if len(self.cells[c][i]) > 0:
       print "Column", c, "Cell", i, ":",
       print len(self.cells[c][i]), "segment(s)"
@@ -977,6 +1072,9 @@ class TP(ConsolePrinterMixin):
 
 
   def printCells(self, predictedOnly=False):
+    """
+    @todo document
+    """
     if predictedOnly:
       print "--- PREDICTED CELLS ---"
     else:
@@ -992,59 +1090,90 @@ class TP(ConsolePrinterMixin):
 
 
   def getNumSegmentsInCell(self, c, i):
-    """Return the total number of synapses in cell (c, i)"""
+    """
+    @param c column index
+    @param i cell index within column
+    @returns the total number of synapses in cell (c, i)
+    """
     return len(self.cells[c][i])
 
 
   def getNumSynapses(self):
-    """Return the total number of synapses"""
+    """
+    @returns the total number of synapses
+    """
     nSyns = self.getSegmentInfo()[1]
     return nSyns
 
 
   def getNumStrongSynapses(self):
-    """Return the total number of strong synapses"""
-    # TODO: implement this, it is used by the node's getParameter() call
+    """
+    @todo implement this, it is used by the node's getParameter() call
+    """
     return 0
 
 
   def getNumStrongSynapsesPerTimeSlot(self):
-    """Return the total number of strong synapses per time slot"""
-    # TODO: implement this, it is used by the node's getParameter() call
+    """
+    @todo implement this, it is used by the node's getParameter() call
+    """
     return 0
 
 
   def getNumSynapsesPerSegmentMax(self):
-    """Return the max # of synapses seen in any one segment"""
-    # TODO: implement this, it is used by the node's getParameter() call
+    """
+    @todo implement this, it is used by the node's getParameter() call, it should return the max # of synapses seen in any one segment.
+    """
     return 0
 
 
   def getNumSynapsesPerSegmentAvg(self):
-    """Return the average number of synapses per segment"""
+    """
+    @returns the average number of synapses per segment
+    """
     return float(self.getNumSynapses()) / max(1, self.getNumSegments())
 
 
   def getNumSegments(self):
-    """Return the total number of segments"""
+    """
+    @returns the total number of segments
+    """
     nSegs = self.getSegmentInfo()[0]
     return nSegs
 
 
   def getNumCells(self):
-    """Return the total number of cells"""
+    """
+    @returns the total number of cells
+    """
     return self.numberOfCols * self.cellsPerColumn
 
 
   def getSegmentOnCell(self, c, i, segIdx):
-    """Return the segment on cell (c, i) with index sidx.
+    """
+    @param c column index
+    @param i cell index in column
+    @param segIdx TODO: document
+
+    @returns list representing the the segment on cell (c, i) with index sidx.
+    
     Returns the segment as following list:
-      [  [segmentID, sequenceSegmentFlag, positive activations,
-          total activations, last active iteration,
-          lastPosDutyCycle, lastPosDutyCycleIteration],
-         [col1, idx1, perm1],
-         [col2, idx2, perm2], ...
-      ]
+
+        [  [segmentID, sequenceSegmentFlag, positiveActivations,
+            totalActivations, lastActiveIteration,
+            lastPosDutyCycle, lastPosDutyCycleIteration],
+           [col1, idx1, perm1],
+           [col2, idx2, perm2], ...
+        ]
+
+    @retval segmentId TODO: document
+    @retval sequenceSegmentFlag TODO: document
+    @retval positiveActivations TODO: document
+    @retval totalActivations TODO: document
+    @retval lastActiveIteration TODO: document
+    @retval lastPosDutyCycle TODO: document
+    @retval lastPosDutyCycleIteration TODO: document
+    @retval [col1, idx1, perm1] TODO: document
     """
     seg = self.cells[c][i][segIdx]
     retlist = [[seg.segID, seg.isSequenceSeg, seg.positiveActivations,
@@ -1055,7 +1184,9 @@ class TP(ConsolePrinterMixin):
 
 
   class SegmentUpdate(object):
-    """Class used to carry instructions for updating a segment."""
+    """
+    Class used to carry instructions for updating a segment.
+    """
 
     def __init__(self, c, i, seg=None, activeSynapses=[]):
       self.columnIdx = c
@@ -1093,6 +1224,10 @@ class TP(ConsolePrinterMixin):
     Store a dated potential segment update. The "date" (iteration index) is used
     later to determine whether the update is too old and should be forgotten.
     This is controlled by parameter segUpdateValidDuration.
+
+    @param c TODO: document
+    @param i TODO: document
+    @param segUpdate TODO: document
     """
     # Sometimes we might be passed an empty update
     if segUpdate is None or len(segUpdate.activeSynapses) == 0:
@@ -1109,11 +1244,10 @@ class TP(ConsolePrinterMixin):
 
 
   def removeSegmentUpdate(self, updateInfo):
-    """Remove a segment update (called when seg update expires or is processed)
+    """
+    Remove a segment update (called when seg update expires or is processed)
 
-    Parameters:
-    --------------------------------------------------------------
-    updateInfo:     (creationDate, SegmentUpdate)
+    @param updateInfo tuple (creationDate, SegmentUpdate)
     """
     # An updateInfo contains (creationDate, SegmentUpdate)
     (creationDate, segUpdate) = updateInfo
@@ -1183,8 +1317,13 @@ class TP(ConsolePrinterMixin):
     
     predictedCells[c][i] represents the state of the i'th cell in the c'th
     column.
+
+    @returns numpy array of predicted cells, representing the current predicted
+    state. predictedCells[c][i] represents the state of the i'th cell in the c'th
+    column.
     """
     return self.infPredictedState['t']
+
 
   def predict(self, nSteps):
     """
@@ -1192,21 +1331,19 @@ class TP(ConsolePrinterMixin):
     from the current TP state. The TP is returned to its original state at the
     end before returning.
 
-    1) We save the TP state.
-    2) Loop for nSteps
-          a) Turn-on with lateral support from the current active cells
-          b) Set the predicted cells as the next step's active cells. This step
-             in learn and infer methods use input here to correct the predictions.
-             We don't use any input here.
-    3) Revert back the TP state to the time before prediction
+    -# We save the TP state.
+    -# Loop for nSteps
+      -# Turn-on with lateral support from the current active cells
+      -# Set the predicted cells as the next step's active cells. This step
+         in learn and infer methods use input here to correct the predictions.
+         We don't use any input here.
+    -# Revert back the TP state to the time before prediction
 
-    Parameters:
-    --------------------------------------------
-    nSteps:      The number of future time steps to be predicted
-    retval:      all the future predictions - a numpy array of type "float32" and
-                 shape (nSteps, numberOfCols).
-                 The ith row gives the tp prediction for each column at
-                 a future timestep (t+i+1).
+    @param nSteps The number of future time steps to be predicted
+    @returns      all the future predictions - a numpy array of type "float32" and
+                  shape (nSteps, numberOfCols).
+                  The ith row gives the tp prediction for each column at
+                  a future timestep (t+i+1).
     """
     # Save the TP dynamic state, we will use to revert back in the end
     pristineTPDynamicState = self._getTPDynamicState()
@@ -1306,39 +1443,43 @@ class TP(ConsolePrinterMixin):
 
 
   def getAvgLearnedSeqLength(self):
-    """Return our moving average of learned sequence length."""
+    """
+    @returns Moving average of learned sequence length
+    """
     return self.avgLearnedSeqLength
 
 
   def inferBacktrack(self, activeColumns):
-    """This "backtracks" our inference state, trying to see if we can lock onto
+    """
+    This "backtracks" our inference state, trying to see if we can lock onto
     the current set of inputs by assuming the sequence started up to N steps
     ago on start cells.
 
-    This will adjust infActiveState['t'] if it does manage to lock on to a
+    @param activeColumns The list of active column indices
+
+    This will adjust @ref infActiveState['t'] if it does manage to lock on to a
     sequence that started earlier. It will also compute infPredictedState['t']
-    based on the possibly updated infActiveState['t'], so there is no need to
+    based on the possibly updated @ref infActiveState['t'], so there is no need to
     call inferPhase2() after calling inferBacktrack().
 
     This looks at:
-        - infActiveState['t']
-    This updates/modifies:
-        - infActiveState['t']
-        - infPredictedState['t']
-        - colConfidence['t']
-        - cellConfidence['t']
+        - @ref infActiveState['t']
 
-    Parameters:
-    --------------------------------------------------------------------
-    activeColumns:    The list of active column indices
+    This updates/modifies:
+        - @ref infActiveState['t']
+        - @ref infPredictedState['t']
+        - @ref colConfidence['t']
+        - @ref cellConfidence['t']
 
     How it works:
     -------------------------------------------------------------------
     This method gets called from updateInferenceState when we detect either of
     the following two conditions:
-      1.) The current bottom-up input had too many un-expected columns
-      2.) We fail to generate a sufficient number of predicted columns for the
-          next time step.
+    
+    -# The current bottom-up input had too many un-expected columns
+    -# We fail to generate a sufficient number of predicted columns for the
+       next time step.
+
     Either of these two conditions indicate that we have fallen out of a
     learned sequence.
 
@@ -1361,18 +1502,18 @@ class TP(ConsolePrinterMixin):
     following example, where you have learned the following sub-sequences which
     have the given frequencies:
 
-                  ? - Q - C - D - E      10X      seq 0
-                  ? - B - C - D - F      1X       seq 1
-                  ? - B - C - H - I      2X       seq 2
-                  ? - B - C - D - F      3X       seq 3
-          ? - Z - A - B - C - D - J      2X       seq 4
-          ? - Z - A - B - C - H - I      1X       seq 5
-          ? - Y - A - B - C - D - F      3X       seq 6
+                      ? - Q - C - D - E      10X      seq 0
+                      ? - B - C - D - F      1X       seq 1
+                      ? - B - C - H - I      2X       seq 2
+                      ? - B - C - D - F      3X       seq 3
+              ? - Z - A - B - C - D - J      2X       seq 4
+              ? - Z - A - B - C - H - I      1X       seq 5
+              ? - Y - A - B - C - D - F      3X       seq 6
 
-        ----------------------------------------
-      W - X - Z - A - B - C - D          <= input history
-                              ^
-                              current time step
+            ----------------------------------------
+          W - X - Z - A - B - C - D          <= input history
+                                  ^
+                                  current time step
 
     Suppose, in the current time step, the input pattern is D and you have not
     predicted D, so you need to backtrack. Suppose we can backtrack up to 6
@@ -1381,13 +1522,13 @@ class TP(ConsolePrinterMixin):
     implement the backtrack to give us this right answer? The current
     implementation takes the following approach:
 
-    1.) Start from the farthest point in the past.
-    2.) For each starting point S, calculate the confidence of the current
-          input, conf(startingPoint=S), assuming we followed that sequence.
-          Note that we must have learned at least one sequence that starts at
-          point S.
-    3.) If conf(startingPoint=S) is significantly different from
-          conf(startingPoint=S-1), then choose S-1 as the starting point.
+    -# Start from the farthest point in the past.
+    -# For each starting point S, calculate the confidence of the current
+       input, conf(startingPoint=S), assuming we followed that sequence.
+       Note that we must have learned at least one sequence that starts at
+       point S.
+    -# If conf(startingPoint=S) is significantly different from
+       conf(startingPoint=S-1), then choose S-1 as the starting point.
 
     The assumption here is that starting point S-1 is the starting point of
     a learned sub-sequence that includes the current input in it's path and
@@ -1396,6 +1537,7 @@ class TP(ConsolePrinterMixin):
 
     From the statistics in the above table, we can compute what the confidences
     will be for each possible starting point:
+
         startingPoint           confidence of D
         -----------------------------------------
         B (t-2)               4/6  = 0.667   (seq 1,3)/(seq 1,2,3)
@@ -1558,23 +1700,22 @@ class TP(ConsolePrinterMixin):
 
 
   def inferPhase1(self, activeColumns, useStartCells):
-    """Update the inference active state from the last set of predictions
+    """
+    Update the inference active state from the last set of predictions
     and the current bottom-up.
 
     This looks at:
-        - infPredictedState['t-1']
+        - @ref infPredictedState['t-1']
     This modifies:
-        - infActiveState['t']
+        - @ref infActiveState['t']
 
-    Parameters:
-    ------------------------------------------------------------------
-    activeColumns:  list of active bottom-ups
-    useStartCells:  If true, ignore previous predictions and simply turn on
+    @param activeColumns  list of active bottom-ups
+    @param useStartCells  If true, ignore previous predictions and simply turn on
                       the start cells in the active columns
-    retval:         True if the current input was sufficiently predicted, OR
-                      if we started over on startCells.
+    @returns        True if the current input was sufficiently predicted, OR
+                    if we started over on startCells.
                     False indicates that the current input was NOT predicted,
-                      and we are now bursting on most columns.
+                    and we are now bursting on most columns.
     """
     # Init to zeros to start
     self.infActiveState['t'].fill(0)
@@ -1609,7 +1750,8 @@ class TP(ConsolePrinterMixin):
 
 
   def inferPhase2(self):
-    """Phase 2 for the inference state. The computes the predicted state, then
+    """
+    Phase 2 for the inference state. The computes the predicted state, then
     checks to insure that the predicted state is not over-saturated, i.e.
     look too close like a burst. This indicates that there were so many
     separate paths learned from the current input columns to the predicted
@@ -1618,18 +1760,17 @@ class TP(ConsolePrinterMixin):
     we detect this situation, we instead turn on only the start cells in the
     current active columns and re-generate the predicted state from those.
 
-    This looks at:
-        - infActiveState['t']
-    This modifies:
-        - infPredictedState['t']
-        - colConfidence['t']
-        - cellConfidence['t']
+    @returns True if we have a decent guess as to the next input.
+             Returing False from here indicates to the caller that we have
+             reached the end of a learned sequence.
 
-    Parameters:
-    ------------------------------------------------------------------
-    retval: True if we have a decent guess as to the next input.
-            Returing False from here indicates to the caller that we have
-              reached the end of a learned sequence.
+    This looks at:
+        - @ref infActiveState['t']
+
+    This modifies:
+        - @ref infPredictedState['t']
+        - @ref colConfidence['t']
+        - @ref cellConfidence['t']
     """
     # Init to zeros to start
     self.infPredictedState['t'].fill(0)
@@ -1680,11 +1821,9 @@ class TP(ConsolePrinterMixin):
 
 
   def updateInferenceState(self, activeColumns):
-    """Update the inference state. Called from compute() on every iteration
-
-    Parameters:
-    --------------------------------------------------------------
-    activeColumns:    The list of active column indices
+    """
+    Update the inference state. Called from compute() on every iteration.
+    @param activeColumns The list of active column indices.
     """
     # Copy t to t-1
     self.infActiveState['t-1'][:, :] = self.infActiveState['t'][:, :]
@@ -1726,7 +1865,8 @@ class TP(ConsolePrinterMixin):
 
 
   def learnBacktrackFrom(self, startOffset, readOnly=True):
-    """A utility method called from learnBacktrack. This will backtrack
+    """ @internal
+    A utility method called from learnBacktrack. This will backtrack
     starting from the given startOffset in our prevLrnPatterns queue.
 
     It returns True if the backtrack was successful and we managed to get
@@ -1737,18 +1877,17 @@ class TP(ConsolePrinterMixin):
 
     This updates/modifies:
         - lrnActiveState['t']
+
     This trashes:
         - lrnPredictedState['t']
         - lrnPredictedState['t-1']
         - lrnActiveState['t-1']
 
-    Parameters:
-    --------------------------------------------------------------------
-    startOffset:      Start offset within the prevLrnPatterns input history
-    retval:           True if we managed to lock on to a sequence that started
-                        earlier.
-                      If False, we lost predictions somewhere along the way
-                        leading up to the current time.
+    @param startOffset Start offset within the prevLrnPatterns input history
+    @returns           True if we managed to lock on to a sequence that started
+                       earlier.
+                       If False, we lost predictions somewhere along the way
+                       leading up to the current time.
     """
     # How much input history have we accumulated?
     # The current input is always at the end of self._prevInfPatterns (at
@@ -1821,41 +1960,43 @@ class TP(ConsolePrinterMixin):
     return inSequence
 
   def learnBacktrack(self):
-    """This "backtracks" our learning state, trying to see if we can lock onto
+    """
+    This "backtracks" our learning state, trying to see if we can lock onto
     the current set of inputs by assuming the sequence started up to N steps
     ago on start cells.
 
-    This will adjust lrnActiveState['t'] if it does manage to lock on to a
+    This will adjust @ref lrnActiveState['t'] if it does manage to lock on to a
     sequence that started earlier.
 
-    This updates/modifies:
-        - lrnActiveState['t']
-
-    This trashes:
-        - lrnActiveState['t-1']
-        - lrnPredictedState['t']
-        - lrnPredictedState['t-1']
-
-    Parameters:
-    --------------------------------------------------------------------
-    retval:           >0 if we managed to lock on to a sequence that started
-                        earlier. The value returned is how many steps in the
-                        past we locked on.
+    @returns          >0 if we managed to lock on to a sequence that started
+                      earlier. The value returned is how many steps in the
+                      past we locked on.
                       If 0 is returned, the caller needs to change active
-                        state to start on start cells.
+                      state to start on start cells.
 
     How it works:
     -------------------------------------------------------------------
     This method gets called from updateLearningState when we detect either of
     the following two conditions:
-      1.) Our PAM counter expired
-      2.) We reached the max allowed learned sequence length
+    
+    -# Our PAM counter (@ref pamCounter) expired
+    -# We reached the max allowed learned sequence length
+
     Either of these two conditions indicate that we want to start over on start
     cells.
 
     Rather than start over on start cells on the current input, we can
     accelerate learning by backtracking a few steps ago and seeing if perhaps
     a sequence we already at least partially know already started.
+
+    This updates/modifies:
+        - @ref lrnActiveState['t']
+
+    This trashes:
+        - @ref lrnActiveState['t-1']
+        - @ref lrnPredictedState['t']
+        - @ref lrnPredictedState['t-1']
+
     """
     # How much input history have we accumulated?
     # The current input is always at the end of self._prevInfPatterns (at
@@ -1930,27 +2071,25 @@ class TP(ConsolePrinterMixin):
 
 
   def learnPhase1(self, activeColumns, readOnly=False):
-    """Compute the learning active state given the predicted state and
+    """
+    Compute the learning active state given the predicted state and
     the bottom-up input.
 
+    @param activeColumns list of active bottom-ups
+    @param readOnly      True if being called from backtracking logic.
+                         This tells us not to increment any segment
+                         duty cycles or queue up any updates.
+    @returns True if the current input was sufficiently predicted, OR
+             if we started over on startCells. False indicates that the current 
+             input was NOT predicted, well enough to consider it as "inSequence"
+
     This looks at:
-        - lrnActiveState['t-1']
-        - lrnPredictedState['t-1']
+        - @ref lrnActiveState['t-1']
+        - @ref lrnPredictedState['t-1']
 
     This modifies:
-        - lrnActiveState['t']
-        - lrnActiveState['t-1']
-
-    Parameters:
-    ------------------------------------------------------------------
-    activeColumns: list of active bottom-ups
-    readOnly:      True if being called from backtracking logic.
-                   This tells us not to increment any segment
-                       duty cycles or queue up any updates.
-    retval:        True if the current input was sufficiently predicted, OR
-                     if we started over on startCells.
-                   False indicates that the current input was NOT predicted,
-                     well enough to consider it as "inSequence"
+        - @ref lrnActiveState['t']
+        - @ref lrnActiveState['t-1']
     """
     # Save previous active state and start out on a clean slate
     self.lrnActiveState['t'].fill(0)
@@ -2015,23 +2154,23 @@ class TP(ConsolePrinterMixin):
 
 
   def learnPhase2(self, readOnly=False):
-    """Compute the predicted segments given the current set of active cells.
+    """
+    Compute the predicted segments given the current set of active cells.
+
+    @param readOnly       True if being called from backtracking logic.
+                          This tells us not to increment any segment
+                          duty cycles or queue up any updates.
 
     This computes the lrnPredictedState['t'] and queues up any segments that
     became active (and the list of active synapses for each segment) into
     the segmentUpdates queue
 
-    Parameters:
-    --------------------------------------------------
-    readOnly:             True if being called from backtracking logic.
-                          This tells us not to increment any segment
-                              duty cycles or queue up any updates.
-
     This looks at:
-        - lrnActiveState['t']
+        - @ref lrnActiveState['t']
+
     This modifies:
-        - lrnPredictedState['t']
-        - segmentUpdates
+        - @ref lrnPredictedState['t']
+        - @ref segmentUpdates
     """
     # Clear out predicted state to start with
     self.lrnPredictedState['t'].fill(0)
@@ -2073,11 +2212,9 @@ class TP(ConsolePrinterMixin):
 
 
   def updateLearningState(self, activeColumns):
-    """Update the learning state. Called from compute() on every iteration
-
-    Parameters:
-    --------------------------------------------------
-    activeColumns:      list of active column indices
+    """
+    Update the learning state. Called from compute() on every iteration
+    @param activeColumns List of active column indices
     """
     # Copy predicted and active states into t-1
     self.lrnPredictedState['t-1'][:, :] = self.lrnPredictedState['t'][:, :]
@@ -2180,16 +2317,17 @@ class TP(ConsolePrinterMixin):
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
-    """Handle one compute, possibly learning.
+    """
+    Handle one compute, possibly learning.
 
-    Parameters:
-    -------------------------------------------------------------
-    bottomUpInput:    The bottom-up input, typically from a spatial pooler
-    enableLearn:      If true, perform learning
-    computeInfOutput: If None, default behavior is to disable the inference
-                        output when enableLearn is on.
-                      If true, compute the inference output
-                      If false, do not compute the inference output
+    @param bottomUpInput     The bottom-up input, typically from a spatial pooler
+    @param enableLearn       If true, perform learning
+    @param computeInfOutput  If None, default behavior is to disable the inference
+                             output when enableLearn is on.
+                             If true, compute the inference output
+                             If false, do not compute the inference output
+
+    @returns TODO: document
 
     It is an error to have both enableLearn and computeInfOutput set to False
 
@@ -2319,16 +2457,23 @@ class TP(ConsolePrinterMixin):
 
 
   def infer(self, bottomUpInput):
+    """
+    @todo document
+    """
     return self.compute(bottomUpInput, enableLearn=False)
 
 
   def learn(self, bottomUpInput, computeInfOutput=None):
+    """
+    @todo document
+    """
     return self.compute(bottomUpInput, enableLearn=True,
                         computeInfOutput=computeInfOutput)
 
 
   def updateSegmentDutyCycles(self):
-    """This gets called on every compute. It determines if it's time to
+    """
+    This gets called on every compute. It determines if it's time to
     update the segment duty cycles. Since the duty cycle calculation is a
     moving average based on a tiered alpha, it is important that we update
     all segments on each tier boundary.
@@ -2343,29 +2488,26 @@ class TP(ConsolePrinterMixin):
 
 
   def columnConfidences(self, cellConfidences=None):
-    """Compute the column confidences given the cell confidences. If
+    """
+    Compute the column confidences given the cell confidences. If
     None is passed in for cellConfidences, it uses the stored cell confidences
     from the last compute.
 
-    Parameters:
-    ----------------------------
-    cellConfidencs      : cell confidences to use, or None to use the
-                          the current cell confidences.
+    @param cellConfidences Cell confidences to use, or None to use the
+                           the current cell confidences.
 
-    retval:             : Column confidence scores.
+    @returns Column confidence scores
     """
     return self.colConfidence['t']
 
 
   def topDownCompute(self, topDownIn=None):
-    """Top-down compute - generate expected input given output of the TP
+    """
+    Top-down compute - generate expected input given output of the TP
 
-    Parameters:
-    ----------------------------
-    topDownIn           : top down input from the level above us
+    @param topDownIn top down input from the level above us
 
-    retval:             : best estimate of the TP input that would have
-                          generated bottomUpOut.
+    @returns best estimate of the TP input that would have generated bottomUpOut.
     """
     # For now, we will assume there is no one above us and that bottomUpOut is
     # simply the output that corresponds to our currently stored column
@@ -2377,20 +2519,20 @@ class TP(ConsolePrinterMixin):
 
   def trimSegmentsInCell(self, colIdx, cellIdx, segList, minPermanence,
                          minNumSyns):
-    """This method goes through a list of segments for a given cell and
+    """
+    This method goes through a list of segments for a given cell and
     deletes all synapses whose permanence is less than minPermanence and deletes
     any segments that have less than minNumSyns synapses remaining.
 
-    Parameters:
-    --------------------------------------------------------------
-    colIdx:             Column index
-    cellIdx:            cell index within the column
-    segList:            List of segment references
-    minPermanence:      Any syn whose permamence is 0 or < minPermanence will
-                        be deleted.
-    minNumSyns:         Any segment with less than minNumSyns synapses remaining
-                        in it will be deleted.
-    retval:             (numSegsRemoved, numSynsRemoved)
+    @param colIdx        Column index
+    @param cellIdx       Cell index within the column
+    @param segList       List of segment references
+    @param minPermanence Any syn whose permamence is 0 or < minPermanence will
+                         be deleted.
+    @param minNumSyns    Any segment with less than minNumSyns synapses remaining
+                         in it will be deleted.
+
+    @returns tuple (numSegsRemoved, numSynsRemoved)
     """
     # Fill in defaults
     if minPermanence is None:
@@ -2428,19 +2570,18 @@ class TP(ConsolePrinterMixin):
 
 
   def trimSegments(self, minPermanence=None, minNumSyns=None):
-    """This method deletes all synapses whose permanence is less than
+    """
+    This method deletes all synapses whose permanence is less than
     minPermanence and deletes any segments that have less than
     minNumSyns synapses remaining.
 
-    Parameters:
-    --------------------------------------------------------------
-    minPermanence:      Any syn whose permamence is 0 or < minPermanence will
-                        be deleted. If None is passed in, then
-                        self.connectedPerm is used.
-    minNumSyns:         Any segment with less than minNumSyns synapses remaining
-                        in it will be deleted. If None is passed in, then
-                        self.activationThreshold is used.
-    retval:             (numSegsRemoved, numSynsRemoved)
+    @param minPermanence Any syn whose permamence is 0 or < minPermanence will
+                         be deleted. If None is passed in, then
+                         self.connectedPerm is used.
+    @param minNumSyns    Any segment with less than minNumSyns synapses remaining
+                         in it will be deleted. If None is passed in, then
+                         self.activationThreshold is used.
+    @returns             tuple (numSegsRemoved, numSynsRemoved)
     """
     # Fill in defaults
     if minPermanence is None:
@@ -2470,13 +2611,15 @@ class TP(ConsolePrinterMixin):
   def cleanUpdatesList(self, col, cellIdx, seg):
     """
     Removes any update that would be for the given col, cellIdx, segIdx.
+    
     NOTE: logically, we need to do this when we delete segments, so that if
     an update refers to a segment that was just deleted, we also remove
     that update from the update list. However, I haven't seen it trigger
     in any of the unit tests yet, so it might mean that it's not needed
     and that situation doesn't occur, by construction.
-    todo: check if that situation occurs.
     """
+    # TODO: check if the situation described in the docstring above actually 
+    #       occurs.
     for key, updateList in self.segmentUpdates.iteritems():
       c, i = key[0], key[1]
       if c == col and i == cellIdx:
@@ -2486,8 +2629,9 @@ class TP(ConsolePrinterMixin):
 
 
   def finishLearning(self):
-    """Called when learning has been completed. This method just calls
-    trimSegments. (finishLearning is here for backward compatibility)
+    """
+    Called when learning has been completed. This method just calls
+    trimSegments(). (finishLearning is here for backward compatibility)
     """
     # Keep weakly formed synapses around because they contain confidence scores
     # for paths out of learned sequenced and produce a better prediction than
@@ -2510,58 +2654,52 @@ class TP(ConsolePrinterMixin):
 
   def checkPrediction2(self, patternNZs, output=None, colConfidence=None,
                        details=False):
-    """This function will replace checkPrediction.
+    """ 
+    This function will replace checkPrediction.
 
     This function produces goodness-of-match scores for a set of input patterns,
-    by checking for their presense in the current and predicted output of the
+    by checking for their presence in the current and predicted output of the
     TP. Returns a global count of the number of extra and missing bits, the
     confidence scores for each input pattern, and (if requested) the
     bits in each input pattern that were not present in the TP's prediction.
 
-    TODO: Add option to check predictedState only.
+    @param patternNZs a list of input patterns that we want to check for. Each
+                      element is a list of the non-zeros in that pattern.
+    @param output     The output of the TP. If not specified, then use the
+                      TP's current output. This can be specified if you are
+                      trying to check the prediction metric for an output from
+                      the past.
+    @param colConfidence The column confidences. If not specified, then use the
+                         TP's current self.colConfidence. This can be specified if you
+                         are trying to check the prediction metrics for an output
+                         from the past.
+    @param details    if True, also include details of missing bits per pattern.
 
-    Parameters:
-    ==========
-    patternNZs:    a list of input patterns that we want to check for. Each
-                   element is a list of the non-zeros in that pattern.
-    output:        The output of the TP. If not specified, then use the
-                   TP's current output. This can be specified if you are
-                   trying to check the prediction metric for an output from
-                   the past.
-    colConfidence: The column confidences. If not specified, then use the
-                   TP's current self.colConfidence. This can be specified if you
-                   are trying to check the prediction metrics for an output
-                   from the past.
-    details:       if True, also include details of missing bits per pattern.
+    @returns  list containing:
 
-    Return value:
-    ============
-    The following list is returned:
+              [
+                totalExtras,
+                totalMissing,
+                [conf_1, conf_2, ...],
+                [missing1, missing2, ...]
+              ]
 
-    [
-      totalExtras,
-      totalMissing,
-      [conf_1, conf_2, ...],
-      [missing1, missing2, ...]
-    ]
-
-    totalExtras:   a global count of the number of 'extras', i.e. bits that
-                   are on in the current output but not in the or of all the
-                   passed in patterns
-
-    totalMissing:  a global count of all the missing bits, i.e. the bits that
-                   are on in the or of the patterns, but not in the current
-                   output
-
-    conf_i         the confidence score for the i'th pattern inpatternsToCheck
+    @retval totalExtras a global count of the number of 'extras', i.e. bits that
+                        are on in the current output but not in the or of all the
+                        passed in patterns
+    @retval totalMissing a global count of all the missing bits, i.e. the bits 
+                         that are on in the or of the patterns, but not in the 
+                         current output
+    @retval conf_i the confidence score for the i'th pattern inpatternsToCheck
                    This consists of 3 items as a tuple:
-                     (predictionScore, posPredictionScore, negPredictionScore)
-
-
-    missing_i      the bits in the i'th pattern that were missing
-                   in the output. This list is only returned if details is
-                   True.
+                   (predictionScore, posPredictionScore, negPredictionScore)
+    @retval missing_i the bits in the i'th pattern that were missing
+                      in the output. This list is only returned if details is 
+                      True.
     """
+
+    # TODO: Add option to check predictedState only.
+
     # Get the non-zeros in each pattern
     numPatterns = len(patternNZs)
 
@@ -2646,6 +2784,9 @@ class TP(ConsolePrinterMixin):
 
     Notes: studied various cutoffs, none of which seem to be worthwhile
            list comprehension didn't help either
+
+    @param seg TODO: document
+    @param activeState TODO: document
     """
     # Computing in C - *much* faster
     return isSegmentActive(seg.syns, activeState,
@@ -2654,9 +2795,14 @@ class TP(ConsolePrinterMixin):
 
   def getSegmentActivityLevel(self, seg, activeState,
                               connectedSynapsesOnly=False):
-    """This routine computes the activity level of a segment given activeState.
+    """
+    This routine computes the activity level of a segment given activeState.
     It can tally up only connected synapses (permanence >= connectedPerm), or
     all the synapses of the segment, at either t or t-1.
+
+    @param seg TODO: document
+    @param activeState TODO: document
+    @param connectedSynapsesOnly TODO: document
     """
     # Computing in C - *much* faster
     return getSegmentActivityLevel(seg.syns, activeState, connectedSynapsesOnly,
@@ -2664,16 +2810,15 @@ class TP(ConsolePrinterMixin):
 
 
   def getBestMatchingCell(self, c, activeState, minThreshold):
-    """Find weakly activated cell in column with at least minThreshold active
+    """
+    Find weakly activated cell in column with at least minThreshold active
     synapses.
 
-    Parameters:
-    --------------------------------------------------------------
-    c:              which column to look at
-    activeState:    the active cells
-    minThreshold:   minimum number of synapses required
+    @param c            which column to look at
+    @param activeState  the active cells
+    @param minThreshold minimum number of synapses required
 
-    retval:         (cellIdx, segment, numActiveSynapses)
+    @returns tuple (cellIdx, segment, numActiveSynapses)
     """
     # Collect all cells in column c that have at least minThreshold in the most
     # activated segment
@@ -2707,12 +2852,17 @@ class TP(ConsolePrinterMixin):
 
 
   def getBestMatchingSegment(self, c, i, activeState):
-    """For the given cell, find the segment with the largest number of active
+    """
+    For the given cell, find the segment with the largest number of active
     synapses. This routine is aggressive in finding the best match. The
     permanence value of synapses is allowed to be below connectedPerm. The number
     of active synapses is allowed to be below activationThreshold, but must be
     above minThreshold. The routine returns the segment index. If no segments are
     found, then an index of -1 is returned.
+
+    @param c TODO: document
+    @param i TODO: document
+    @param activeState TODO: document
     """
     maxActivity, which = self.minThreshold, -1
 
@@ -2730,17 +2880,16 @@ class TP(ConsolePrinterMixin):
 
 
   def getCellForNewSegment(self, colIdx):
-    """Return the index of a cell in this column which is a good candidate
+    """
+    Return the index of a cell in this column which is a good candidate
     for adding a new segment.
 
     When we have fixed size resources in effect, we insure that we pick a
     cell which does not already have the max number of allowed segments. If
     none exists, we choose the least used segment in the column to re-allocate.
 
-    Parameters:
-    --------------------------------------------------------------
-    colIdx:              which column to look at
-    retval:              cellIdx
+    @param colIdx which column to look at
+    @returns cell index
     """
     # Not fixed size CLA, just choose a cell randomly
     if self.maxSegmentsPerCell < 0:
@@ -2806,7 +2955,8 @@ class TP(ConsolePrinterMixin):
 
 
   def getSegmentActiveSynapses(self, c, i, s, activeState, newSynapses=False):
-    """Return a segmentUpdate data structure containing a list of proposed
+    """
+    Return a segmentUpdate data structure containing a list of proposed
     changes to segment s. Let activeSynapses be the list of active synapses
     where the originating cells have their activeState output = 1 at time step
     t. (This list is empty if s is None since the segment doesn't exist.)
@@ -2814,6 +2964,12 @@ class TP(ConsolePrinterMixin):
     is true, then newSynapseCount - len(activeSynapses) synapses are added to
     activeSynapses. These synapses are randomly chosen from the set of cells
     that have learnState = 1 at timeStep.
+
+    @param c TODO: document
+    @param i TODO: document
+    @param s TODO: document
+    @param activeState TODO: document
+    @param newSynapses TODO: document
     """
     activeSynapses = []
 
@@ -2844,13 +3000,14 @@ class TP(ConsolePrinterMixin):
 
 
   def chooseCellsToLearnFrom(self, c, i, s, n, activeState):
-    """Choose n random cells to learn from.
+    """
+    Choose n random cells to learn from.
 
     This function is called several times while learning with timeStep = t-1, so
     we cache the set of candidates for that case. It's also called once with
     timeStep = t, and we cache that set of candidates.
 
-    Returns tuples of (column index, cell index).
+    @returns tuple (column index, cell index).
     """
     if n <= 0:
       return []
@@ -2888,13 +3045,16 @@ class TP(ConsolePrinterMixin):
 
 
   def processSegmentUpdates(self, activeColumns):
-    """Go through the list of accumulated segment updates and process them
+    """
+    Go through the list of accumulated segment updates and process them
     as follows:
 
     if the segment update is too old, remove the update
     else if the cell received bottom-up, update its permanences
     else if it's still being predicted, leave it in the queue
     else remove it.
+
+    @param activeColumns TODO: document
     """
     # The segmentUpdates dict has keys which are the column,cellIdx of the
     # owner cell. The values are lists of segment updates for that cell
@@ -2957,7 +3117,8 @@ class TP(ConsolePrinterMixin):
 
 
   def adaptSegment(self, segUpdate):
-    """This function applies segment update information to a segment in a
+    """
+    This function applies segment update information to a segment in a
     cell.
 
     Synapses on the active list get their permanence counts incremented by
@@ -2966,11 +3127,9 @@ class TP(ConsolePrinterMixin):
 
     We also increment the positiveActivations count of the segment.
 
-    Parameters:
-    -----------------------------------------------------------
-    segUpdate:                SegmentUpdate instance
-    retval:                   True if some synapses were decremented to 0
-                                and the segment is a candidate for trimming
+    @param segUpdate SegmentUpdate instance
+    @returns True if some synapses were decremented to 0 and the segment is a 
+             candidate for trimming
     """
     # This will be set to True if detect that any syapses were decremented to
     #  0
@@ -3058,20 +3217,29 @@ class TP(ConsolePrinterMixin):
     permanence values in the current TP. If requested, also returns information
     regarding the number of currently active segments and synapses.
 
-    The method returns the following tuple:
+    @returns tuple described below:
 
-    (
-      nSegments,        # total number of segments
-      nSynapses,        # total number of synapses
-      nActiveSegs,      # total no. of active segments
-      nActiveSynapses,  # total no. of active synapses
-      distSegSizes,     # a dict where d[n] = number of segments with n synapses
-      distNSegsPerCell, # a dict where d[n] = number of cells with n segments
-      distPermValues,   # a dict where d[p] = number of synapses with perm = p/10
-      distAges,         # a list of tuples (ageRange, numSegments)
-    )
+        (
+          nSegments,
+          nSynapses,
+          nActiveSegs,
+          nActiveSynapses,
+          distSegSizes,
+          distNSegsPerCell,
+          distPermValues,
+          distAges
+        )
 
-    nActiveSegs and nActiveSynapses are 0 if collectActiveData is False
+    @retval nSegments        total number of segments
+    @retval nSynapses        total number of synapses
+    @retval nActiveSegs      total no. of active segments (0 if collectActiveData
+                             is False)
+    @retval nActiveSynapses  total no. of active synapses 0 if collectActiveData
+                             is False
+    @retval distSegSizes     a dict where d[n] = number of segments with n synapses
+    @retval distNSegsPerCell a dict where d[n] = number of cells with n segments
+    @retval distPermValues   a dict where d[p] = number of synapses with perm = p/10
+    @retval distAges         a list of tuples (ageRange, numSegments)
     """
     nSegments, nSynapses = 0, 0
     nActiveSegs, nActiveSynapses = 0, 0
@@ -3134,13 +3302,13 @@ class Segment(object):
   the synapses it owns.
   """
 
-  # These are iteration count tiers used when computing segment duty cycle
+  ## These are iteration count tiers used when computing segment duty cycle.
   dutyCycleTiers =  [0,       100,      320,    1000,
                      3200,    10000,    32000,  100000,
                      320000]
 
-  # This is the alpha used in each tier. dutyCycleAlphas[n] is used when
-  #  iterationIdx > dutyCycleTiers[n]
+  ## This is the alpha used in each tier. dutyCycleAlphas[n] is used when
+  #  `iterationIdx > dutyCycleTiers[n]`.
   dutyCycleAlphas = [None,    0.0032,    0.0010,  0.00032,
                      0.00010, 0.000032,  0.00001, 0.0000032,
                      0.0000010]
@@ -3189,36 +3357,38 @@ class Segment(object):
     this segment. This is a measure of how often this segment is
     providing good predictions.
 
-    Parameters:
-    ----------------------------------------------------------
-    active:   True if segment just provided a good prediction
-    readOnly: If True, compute the updated duty cycle, but don't change
+    @param active   True if segment just provided a good prediction
+    
+    @param readOnly If True, compute the updated duty cycle, but don't change
                the cached value. This is used by debugging print statements.
 
-    NOTE: This method relies on different schemes to compute the duty cycle
+    @returns The duty cycle, a measure of how often this segment is
+    providing good predictions.
+
+    **NOTE:** This method relies on different schemes to compute the duty cycle
     based on how much history we have. In order to support this tiered
-    approach IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER
-    (self.dutyCycleTiers)
+    approach **IT MUST BE CALLED ON EVERY SEGMENT AT EACH DUTY CYCLE TIER**
+    (@ref dutyCycleTiers).
 
     When we don't have a lot of history yet (first tier), we simply return
-      number of positive activations / total number of iterations
+    number of positive activations / total number of iterations
 
     After a certain number of iterations have accumulated, it converts into
-    a moving average calcuation, which is updated only when requested
+    a moving average calculation, which is updated only when requested
     since it can be a bit expensive to compute on every iteration (it uses
     the pow() function).
 
     The duty cycle is computed as follows:
 
-    dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
+        dc[t] = (1-alpha) * dc[t-1] + alpha * value[t]
 
     If the value[t] has been 0 for a number of steps in a row, you can apply
     all of the updates at once using:
 
-    dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
+        dc[t] = (1-alpha)^(t-lastT) * dc[lastT]
 
-    We use the alphas and tiers as defined in self.dutyCycleAlphas and
-    self.dutyCycleTiers.
+    We use the alphas and tiers as defined in @ref dutyCycleAlphas and
+    @ref dutyCycleTiers.
     """
     # For tier #0, compute it from total number of positive activations seen
     if self.tp.lrnIterationIdx <= self.dutyCycleTiers[1]:
@@ -3313,10 +3483,8 @@ class Segment(object):
     synapses (lowest permanence freed up first) before we start to free up
     active ones.
 
-    Parameters:
-    --------------------------------------------------------------------
-    numToFree:        number of synapses to free up
-    inactiveSynapseIndices: list of the inactive synapse indices.
+    @param numToFree              number of synapses to free up
+    @param inactiveSynapseIndices list of the inactive synapse indices.
     """
     # Make sure numToFree isn't larger than the total number of syns we have
     assert (numToFree <= len(self.syns))
@@ -3366,11 +3534,9 @@ class Segment(object):
   def addSynapse(self, srcCellCol, srcCellIdx, perm):
     """Add a new synapse
 
-    Parameters:
-    --------------------------------------------------------------------
-    srcCellCol:   source cell column
-    srcCellIdx:   source cell index within the column
-    perm:         initial permanence
+    @param srcCellCol source cell column
+    @param srcCellIdx source cell index within the column
+    @param perm       initial permanence
     """
     self.syns.append([int(srcCellCol), int(srcCellIdx), numpy.float32(perm)])
 
@@ -3378,13 +3544,11 @@ class Segment(object):
   def updateSynapses(self, synapses, delta):
     """Update a set of synapses in the segment.
 
-    Parameters:
-    --------------------------------------------------------------------
-    tp:       The owner TP
-    synapses: List of synapse indices to update
-    delta:    How much to add to each permanence
+    @param tp       The owner TP
+    @param synapses List of synapse indices to update
+    @param delta    How much to add to each permanence
 
-    retval:   True if synapse reached 0
+    @returns   True if synapse reached 0
     """
     reached0 = False
 
