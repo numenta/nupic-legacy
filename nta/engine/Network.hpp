@@ -121,7 +121,10 @@ namespace nta
                const std::string& srcOutputName="", const std::string& destInputName=""); 
   
    /**
-    * Initialize all elements of a network so that it can run
+    * Initialize all elements of a network so that it can run. This can be called
+    * after the Network structure has been set and before Network.run(). However,
+    * if you don't call it, Network.run() will call it for you. Also sets up 
+    * various memory buffers, etc. once the Network structure has been finalized.
     */
     void
     initialize();
@@ -174,7 +177,9 @@ namespace nta
 
 
    /**
-    * Run the network for the given number of iterations
+    * Run the network for the given number of iterations of compute for each 
+    * Region in the correct order. For each iteration, Region.compute() is called.
+    * 
     * @param n Number of iterations
     */
     void
