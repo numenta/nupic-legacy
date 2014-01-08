@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 import math
+import numpy
 from base import Encoder, EncoderResult
 from scalar import ScalarEncoder
 
