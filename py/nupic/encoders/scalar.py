@@ -142,8 +142,17 @@ class ScalarEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, w, minval, maxval, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False):
+  def __init__(self,
+               w,
+               minval,
+               maxval,
+               periodic=False,
+               n=0,
+               radius=0,
+               resolution=0,
+               name=None,
+               verbosity=0,
+               clipInput=False):
     """
 
     w -- number of bits to set in output
@@ -564,13 +573,13 @@ class ScalarEncoder(Encoder):
 
       # The input scalar value corresponding to each possible output encoding
       if self.periodic:
-        self._topDownValues = numpy.arange(self.minval + self.resolution / 2,
+        self._topDownValues = numpy.arange(self.minval + self.resolution / 2.0,
                                            self.maxval,
                                            self.resolution)
       else:
         #Number of values is (max-min)/resolutions
         self._topDownValues = numpy.arange(self.minval,
-                                           self.maxval + self.resolution / 2 ,
+                                           self.maxval + self.resolution / 2.0,
                                            self.resolution)
 
       # Each row represents an encoded output pattern
