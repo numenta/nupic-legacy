@@ -41,7 +41,7 @@ before_install:
   - source nupic-linux64/bin/activate
   - if [ "$CC" = "gcc" ]; then export CXX=g++; fi
   - if [ "$CC" = "clang" ]; then export CXX=clang++; fi
-  - gem install travis-artifacts > /dev/null
+  - travis_retry gem install travis-artifacts > /dev/null
 
 install:
   - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make > /dev/null) fi
