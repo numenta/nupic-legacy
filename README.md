@@ -65,6 +65,10 @@ compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requi
 
     pip install -r external/common/requirements.txt
 
+_Note_: If using pip 1.5 or later:
+
+    pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
+
 Build and install NuPIC:
 
     $NUPIC/build.sh
