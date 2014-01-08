@@ -130,7 +130,6 @@ class MultiEncoder(Encoder):
         fieldName   = fieldParams.pop('fieldname')
         encoderName = fieldParams.pop('type')
         try:
-          print fieldParams
           self.addEncoder(fieldName, eval(encoderName)(**fieldParams))
         except TypeError, e:
           print ("#### Error in constructing %s encoder. Possibly missing "

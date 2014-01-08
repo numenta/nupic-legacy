@@ -22,8 +22,6 @@
 # ----------------------------------------------------------------------
 import os
 import numpy
-numpy.set_printoptions(linewidth=1000)
-import time
 from PyRegion import PyRegion
 from datetime import datetime, timedelta
 from nupic.data.fieldmeta import FieldMetaType
@@ -206,12 +204,6 @@ class RecordSensor(PyRegion):
 
     # lastRecord is the last record returned. Used for debugging only
     self.lastRecord = None
-    
-    # A log of encoded values for external analysis
-    logFilename = "encodedScalarValues-%s.log" % (str(time.time()))
-    logDir = "/Users/iandanforth/Dropbox/numenta/mercury/grok-projects/mer951/logs"
-    logPath = os.path.join(logDir, logFilename)
-    self.encodedValuesLog = open(logPath, 'w')
 
   def __setstate__(self, state):
     # Default value for older versions being deserialized.
@@ -301,10 +293,6 @@ class RecordSensor(PyRegion):
 
       # Encode the processed records
       self.encoder.encodeIntoArray(data, outputs["dataOut"])
-      
-      # Log the encoded versions of the values
-      self.encodedValuesLog.write(str(outputs["dataOut"]))
-      self.encodedValuesLog.write("\n")
 
       # Write out the scalar values obtained from the data source. These
       #  are often logged to a file
