@@ -30,9 +30,23 @@
 #include <iosfwd>
 #include <sstream>
 
-/**
- * Data structure for sharing an ostream with a Python string.
- */
+///////////////////////////////////////////////////////////////////
+/// Provides a stream that outputs a PyString on class close()
+///
+/// @b Responsibility
+/// Must make a PyString object that contains the same string as
+/// was passed to the ostream returned by getStream()
+///
+/// @b Description
+/// After instantiation, a call to getStream() returns an ostream
+/// that collects the characters fed to it. Any subsequent call
+/// to close() will return a PyObject * to a PyString that 
+/// contains the current contents of the ostream.
+/// 
+/// @note
+/// A close() before a getStream() will return an empty PyString.
+/// 
+///////////////////////////////////////////////////////////////////
 class SharedPythonOStream
 {
 public:
@@ -41,8 +55,8 @@ public:
   PyObject *close();
 
 private:
-	size_t target_size;
-	std::stringstream ss;
+	size_t target_size_;
+	std::stringstream ss_;
 };
 
 //------------------------------------------------------------------
