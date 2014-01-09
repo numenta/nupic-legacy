@@ -37,7 +37,7 @@ class SharedPythonOStream
 {
 public:
   SharedPythonOStream(size_t maxSize);
-  std::ostream &getStream() const;
+  std::ostream &getStream();
   PyObject *close();
 
 private:
