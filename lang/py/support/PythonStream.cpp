@@ -39,26 +39,26 @@ static size_t NextPythonSize(size_t n)
 
 // -------------------------------------------------------------
 SharedPythonOStream::SharedPythonOStream(size_t maxSize) :
-	target_size(NextPythonSize(maxSize)),
-	ss(std::ios_base::out)
+	target_size_(NextPythonSize(maxSize)),
+	ss_(std::ios_base::out)
 {
 }
 
 // -------------------------------------------------------------
 std::ostream &SharedPythonOStream::getStream()
 {
-	return ss;
+	return ss_;
 }
 
 // -------------------------------------------------------------
 PyObject * SharedPythonOStream::close()
 {
-	ss.flush();
+	ss_.flush();
 
-	if (ss.str().length() > target_size)
+	if (ss_.str().length() > target_size_)
     throw std::runtime_error("Stream output larger than allocated buffer.");
 
-  return PyString_FromStringAndSize(ss.str().c_str(), ss.str().length());
+  return PyString_FromStringAndSize(ss_.str().c_str(), ss_.str().length());
 }
 
 #endif // NTA_PYTHON_SUPPORT
