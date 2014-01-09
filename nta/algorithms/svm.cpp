@@ -87,19 +87,9 @@ namespace nta {
 	  << C << ' '
 	  << eps << ' '
 	  << cache_size << ' '
-	  << shrinking << ' ';
-	
-	int n = b.str().size();
-	
-	char buffer[32];
-
-	n += sprintf(buffer, "%lu ", (unsigned long) weight_label.size());
-	for (size_t i = 0; i != weight_label.size(); ++i)
-	  n += sprintf(buffer, "%d ", weight_label[i]);
-
-	n += sprintf(buffer, "%lu ", (unsigned long) weight.size());
-	for (size_t i = 0; i != weight.size(); ++i)
-	  n += sprintf(buffer, "%e ", weight[i]);
+	  << shrinking << ' '
+		<< weight_label << ' '
+		<< weight << ' ';
 
 	return n;
       }
@@ -113,10 +103,10 @@ namespace nta {
 		  << C << ' '
 		  << eps << ' '
 		  << cache_size << ' '
-		  << shrinking << ' '
-                  << weight_label << ' '
-                  << weight << ' ';
-      }
+			<< shrinking << ' '
+			<< weight_label << ' '
+			<< weight << ' ';
+			}
 
       //--------------------------------------------------------------------------------
       void svm_parameter::load(std::istream& inStream)
@@ -128,9 +118,9 @@ namespace nta {
 		 >> eps
 		 >> cache_size
 		 >> shrinking
-                 >> weight_label
-                 >> weight;
-      }
+		 >> weight_label
+		 >> weight;
+			}
 
       //--------------------------------------------------------------------------------
       int svm_problem::persistent_size() const

@@ -28,9 +28,7 @@
 
 #include <lang/py/support/PyHelpers.hpp>
 #include <iosfwd>
-#include <boost/shared_ptr.hpp>
-
-struct SharedPythonOStreamInternals;
+#include <sstream>
 
 /**
  * Data structure for sharing an ostream with a Python string.
@@ -43,7 +41,8 @@ public:
   PyObject *close();
 
 private:
-  boost::shared_ptr<SharedPythonOStreamInternals> p_;
+	size_t target_size;
+	std::stringstream ss;
 };
 
 //------------------------------------------------------------------
