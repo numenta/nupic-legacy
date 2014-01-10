@@ -26,30 +26,36 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder, EncoderResult
 
-"""A scalar encoder based loosely on arithmetic coding.
-
-This encoder uses a moving window of scalar values and keeps an equal
-number of values in each bucket. So a new value will typically not have
-a significant impact on the representations of values. If there are not
-an even number of values per bucket then the left-most buckets will
-contain an extra value.
-
-NOTE: This encoder is not completely implemented.
-
-Reference:
-http://en.wikipedia.org/wiki/Arithmetic_coding
-
-TODO: Perhaps arithmetic coding isn't the best analogy?
-"""
-
 DEFAULT_DTYPE = numpy.uint8
 
 
 class ArithmeticEncoder(Encoder):
-  """Scalar encoder based on arithmetic encoding."""
+  """
+  A scalar encoder based loosely on arithmetic coding.
 
+  This encoder uses a moving window of scalar values and keeps an equal
+  number of values in each bucket. So a new value will typically not have
+  a significant impact on the representations of values. If there are not
+  an even number of values per bucket then the left-most buckets will
+  contain an extra value.
+
+  **NOTE:** This encoder is not completely implemented.
+
+  [Wikipedia on arithmetic coding](http://en.wikipedia.org/wiki/Arithmetic_coding)
+
+  TODO: Perhaps arithmetic coding isn't the best analogy?
+  """
 
   def __init__(self, w, n, periodic=False, window=200, name=None, verbosity=0):
+    """
+    TODO: document
+    @param w TODO: document
+    @param n TODO: document
+    @param periodic TODO: document
+    @param window TODO: document
+    @param name TODO: document
+    @param verbosity TODO: document
+    """
     self.w = w
     self.n = n
     self.periodic = periodic
@@ -72,15 +78,17 @@ class ArithmeticEncoder(Encoder):
 
 
   def getDecoderOutputFieldTypes(self):
-    """Return the output field type.
-
-    Overrides base class implementation.
+    """
+    [overrides nupic.encoders.base.Encoder.getDecoderOutputFieldTypes]
+    @return output field type
     """
     return (FieldMetaType.float,)
 
 
   def getBucketInfo(self, buckets):
-    """Required base class override."""
+    """
+    [overrides overrides nupic.encoders.base.Encoder.getBucketInfo]
+    """
     b = self.buckets[buckets[0]]
     encoding = numpy.zeros(self.n, dtype=DEFAULT_DTYPE)
     self._encode(encoding, [buckets[0]])
@@ -88,14 +96,23 @@ class ArithmeticEncoder(Encoder):
 
 
   def getWidth(self):
+    """
+    TODO: document
+    """
     return self.n
 
 
   def isDelta(self):
+    """
+    TODO: document
+    """
     pass
 
 
   def getBucketIndices(self, inputValue):
+    """
+    TODO: document
+    """
     for i, bucket in enumerate(self.buckets):
       if inputValue < bucket.maxVal:
         assert inputValue >= bucket.minVal
@@ -104,7 +121,10 @@ class ArithmeticEncoder(Encoder):
 
 
   def getBucketValues(self):
-    """TODO: What values go in the return value?"""
+    """
+    TODO: document
+    TODO: What values go in the return value?
+    """
     values = []
     for bucket in self.buckets:
       if bucket.minVal == float('-inf') and bucket.maxVal == float('inf'):
@@ -152,7 +172,8 @@ class ArithmeticEncoder(Encoder):
 
 
   def _rebalance(self):
-    """Adjust values to keep the same number of values in each bucket.
+    """
+    Adjust values to keep the same number of values in each bucket.
 
     This function only works if there is only one value out of place.
     """
@@ -226,7 +247,12 @@ class ArithmeticEncoder(Encoder):
 
 
   def encodeIntoArray(self, inputValue, outputArray):
-    """Encode inputValue and write the output bit array to outputArray."""
+    """
+    Encode inputValue and write the output bit array to outputArray.
+
+    @param inputValue TODO: document
+    @param outputArray TODO: document
+    """
     if inputValue == SENTINEL_VALUE_FOR_MISSING_DATA:
       outputArray[:self.n] = 0
     else:
@@ -236,14 +262,30 @@ class ArithmeticEncoder(Encoder):
 
 
   def decode(self, encoded, parentFieldName=''):
+    """
+    [overrides overrides nupic.encoders.base.Encoder.decode]
+    Not implemented, but required override.
+    """
     raise NotImplementedError()
 
 
   def topDownCompute(self, encoded):
+    """
+    [overrides overrides nupic.encoders.base.Encoder.topDownCompute]
+    Not implemented, but required override.
+    """
     raise NotImplementedError()
 
 
   def closenessScores(self, expValues, actValues, fractional=True):
+    """
+    TODO: document
+
+    @param expValues TODO: document
+    @param actValues TODO: document
+    @param fractional TODO: document
+    @returns TODO: document
+    """
     expValue = expValues[0]
     actValue = actValues[0]
     #if self.periodic:
@@ -266,6 +308,10 @@ class ArithmeticEncoder(Encoder):
 
 
   def getDescription(self):
+    """
+    TODO: document
+    @returns TODO: document
+    """
     return [(self.name, 0)]
 
 
@@ -322,13 +368,19 @@ class ArithmeticEncoder(Encoder):
 
 
 class Bucket(object):
-  """A single bucket that holds values and tracks its range."""
-
+  """
+  A single bucket that holds values and tracks its range.
+  """
 
   __slots__ = ('version', 'minVal', 'maxVal', 'values')
 
 
   def __init__(self, minVal, maxVal, values):
+    """
+    @param minVal minimum bucket value
+    @param maxVal maximum bucket value
+    @param values initial bucket values
+    """
     self.version = 0
     self.minVal = minVal
     self.maxVal = maxVal
@@ -370,11 +422,19 @@ class Bucket(object):
 
 
   def add(self, value):
+    """
+    Adds a value to the bucket.
+    @param value to add
+    """
     self.values.append(value)
     self.values.sort()
 
 
   def remove(self, value):
+    """
+    Removes a value from the bucket.
+    @param value to remove
+    """
     self.values.remove(value)
     if self.minVal > float('-inf'):
       if len(self.values) > 0:
