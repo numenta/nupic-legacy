@@ -756,7 +756,8 @@ INPUT                  = docs \
                          py/nupic/research/__init__.py \
                          py/nupic/research/TP10X2.py \
                          py/nupic/research/TPTrivial.py \
-                         py/nupic/research/TP.py
+                         py/nupic/research/TP.py \
+                         py/nupic/encoders
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
