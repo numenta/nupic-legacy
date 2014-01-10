@@ -617,7 +617,7 @@ class Encoder(object):
   ############################################################################
   def getBucketInfo(self, buckets):
     """ 
-    Returns a list of EncoderResult named tuples describing the inputs for
+    Returns a list of EncoderResult namedtuples describing the inputs for
     each sub-field that correspond to the bucket indices passed in 'buckets'.
     To get the associated field names for each of the values, call getScalarNames().
 
@@ -673,37 +673,36 @@ class Encoder(object):
 
   ############################################################################
   def topDownCompute(self, encoded):
-    """ Returns a list of EncoderResult namedtuples describing the top-down
+    """ 
+    Returns a list of EncoderResult namedtuples describing the top-down
     best guess inputs for each sub-field given the encoded output. These are the
     values which are most likely to generate the given encoded output.
     To get the associated field names for each of the values, call
     getScalarNames().
 
-    Parameters:
-    ------------------------------------------------------------------------
-    encoded:      The encoded output. Typically received from the topDown outputs
-                    from the spatial pooler just above us.
-    retval:       A list of EncoderResult namedtuples. Each EncoderResult has
-                  three attributes:
+    @param encoded The encoded output. Typically received from the topDown outputs
+                   from the spatial pooler just above us.
 
-                  1) value:         This is the best-guess value for the sub-field
-                                    in a format that is consistent with the type
-                                    specified by getDecoderOutputFieldTypes().
-                                    Note that this value is not necessarily
-                                    numeric.
+    @returns A list of EncoderResult namedtuples. Each EncoderResult has
+             three attributes:
 
-                  2) scalar:        The scalar representation of this best-guess
-                                    value. This number is consistent with what
-                                    is returned by getScalars(). This value is
-                                    always an int or float, and can be used for
-                                    numeric comparisons
+             -# value:         This is the best-guess value for the sub-field
+                               in a format that is consistent with the type
+                               specified by getDecoderOutputFieldTypes().
+                               Note that this value is not necessarily
+                               numeric.
 
-                  3) encoding       This is the encoded bit-array (numpy array)
-                                    that represents the best-guess value.
-                                    That is, if 'value' was passed to
-                                    encode(), an identical bit-array should be
-                                    returned
+             -# scalar:        The scalar representation of this best-guess
+                               value. This number is consistent with what
+                               is returned by getScalars(). This value is
+                               always an int or float, and can be used for
+                               numeric comparisons.
 
+             -# encoding       This is the encoded bit-array (numpy array)
+                               that represents the best-guess value.
+                               That is, if 'value' was passed to
+                               encode(), an identical bit-array should be
+                               returned.
     """
 
 
@@ -736,7 +735,8 @@ class Encoder(object):
 
   ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
-    """ Compute closeness scores between the expected scalar value(s) and actual
+    """ 
+    Compute closeness scores between the expected scalar value(s) and actual
     scalar value(s). The expected scalar values are typically those obtained
     from the getScalars() method. The actual scalar values are typically those
     returned from the topDownCompute() method.
@@ -753,14 +753,13 @@ class Encoder(object):
     a category encoder may return either 1 or 0, if the scalar matches exactly
     or not. A scalar encoder might return a percentage match, etc.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    expValues:    Array of expected scalar values, typically obtained from the
-                    getScalars() method
-    actValues:    Array of actual values, typically obtained from topDownCompute()
-    retval:       Array of closeness scores, one per item in expValues (or
-                    actValues).
+    @param expValues Array of expected scalar values, typically obtained from
+                     getScalars()
+    @param actValues Array of actual values, typically obtained from 
+                     topDownCompute()
 
+    @returns Array of closeness scores, one per item in expValues (or
+             actValues).
     """
 
 
@@ -796,10 +795,12 @@ class Encoder(object):
 
 
 
-
   ############################################################################
   def getDisplayWidth(self):
-    """Calculate width of display for bits plus blanks between fields.
+    """
+    Calculate width of display for bits plus blanks between fields.
+
+    @returns width of display for bits plus blanks between fields
     """
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
@@ -811,6 +812,12 @@ class Encoder(object):
     between fields (for display)
     If leftpad is one, then there is a dummy value at element 0
     of the arrays, and we should start our counting from 1 rather than 0
+
+    @param inarray TODO: document
+    @param outarray TODO: document
+    @param scale TODO: document
+    @param blank TODO: document
+    @param leftpad TODO: document
     """
     description = self.getDescription() + [("end", self.getWidth())]
 
