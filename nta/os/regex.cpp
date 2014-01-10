@@ -27,7 +27,7 @@
 #include <nta/os/regex.hpp>
 #include <nta/utils/Log.hpp>
 #ifdef WIN32
-  #include <pcre/pcreposix.h>
+  #include <regex>
 #else
   #include <regex.h>
 #endif
@@ -48,6 +48,7 @@ namespace nta
       if (re[re.length()-1] != '$') 
         exactRegExp += '$';
       
+#ifndef WIN32
       regex_t r;
       int res = ::regcomp(&r, exactRegExp.c_str(), REG_EXTENDED|REG_NOSUB);
       NTA_CHECK(res == 0) 
@@ -57,6 +58,9 @@ namespace nta
       res = regexec(&r, text.c_str(), (size_t) 0, NULL, 0);
       ::regfree(&r);
       return res == 0; 
+#else
+	  return std::regex_match(text, std::regex(exactRegExp));
+#endif
     }
   }
 }
