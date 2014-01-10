@@ -20,10 +20,10 @@
 # ----------------------------------------------------------------------
 
 import math
-from base import Encoder, EncoderResult
-from scalar import ScalarEncoder
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.base import Encoder, EncoderResult
+from nupic.encoders.scalar import ScalarEncoder
 
 
 class LogEncoder(Encoder):

@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import *
-from nupic.data.fieldmeta import FieldMetaType
 import random
+
+from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import *
+
 
 ############################################################################
 class BitmapArrayEncoder(Encoder):
