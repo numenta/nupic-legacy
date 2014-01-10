@@ -19,6 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
+from collections import deque
+
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import Encoder, EncoderResult
+
 """A scalar encoder based loosely on arithmetic coding.
 
 This encoder uses a moving window of scalar values and keeps an equal
@@ -35,16 +42,7 @@ http://en.wikipedia.org/wiki/Arithmetic_coding
 TODO: Perhaps arithmetic coding isn't the best analogy?
 """
 
-from collections import deque
-
-import numpy
-
-from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
-from nupic.encoders.base import Encoder, EncoderResult
-
 DEFAULT_DTYPE = numpy.uint8
-
 
 
 class ArithmeticEncoder(Encoder):

@@ -21,11 +21,11 @@
 
 import math
 import numpy
-from base import Encoder, EncoderResult
-from scalar import ScalarEncoder
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import Encoder, EncoderResult
+from nupic.encoders.scalar import ScalarEncoder
 
 
 class LogEncoder(Encoder):
