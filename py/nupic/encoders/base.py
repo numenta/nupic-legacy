@@ -20,9 +20,11 @@
 # ----------------------------------------------------------------------
 
 import numpy
-defaultDtype = numpy.uint8
 from utils import bitsToString
 from collections import namedtuple
+
+
+defaultDtype = numpy.uint8
 
 """Classes for encoding different types of values into bitstrings for HTM input"""
 

@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
 import random
+
 from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import Encoder
+
 
 ############################################################################
 class SDRRandomEncoder(Encoder):

@@ -19,11 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder, EncoderResult
-from scalar import ScalarEncoder
+import numpy
+
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-import numpy
+from nupic.encoders.base import Encoder, EncoderResult
+from nupic.encoders.scalar import ScalarEncoder
 
 
 class CategoryEncoder(Encoder):
