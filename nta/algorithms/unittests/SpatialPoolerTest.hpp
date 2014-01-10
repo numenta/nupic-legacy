@@ -52,10 +52,15 @@ namespace nta {
     bool check_vector_eq(Real arr[], vector<Real> vec);
     bool check_vector_eq(UInt arr1[], UInt arr2[], UInt n);
     bool check_vector_eq(Real arr1[], Real arr2[], UInt n);
-    bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
+	bool check_vector_eq(Real arr[], vector<Real> vec, UInt n);
+	bool check_vector_eq(UInt arr[], vector<UInt> vec, UInt n);
+	bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2);
+	bool check_vector_eq(vector<Real> vec1, vector<Real> vec2, UInt n);
+	bool check_vector_eq(vector<UInt> vec1, vector<UInt> vec2, UInt n);
     void check_spatial_eq(SpatialPooler sp1, SpatialPooler sp2);
     bool almost_eq(Real a, Real b);
     bool findVector(UInt needle[], UInt n, vector<vector<UInt> > haystack);
+	void clearVector(vector<UInt> &vect);
     void testMapPotential();
     void testInitPermConnected();
     void testInitPermNonConnected();
