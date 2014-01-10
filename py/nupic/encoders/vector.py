@@ -19,11 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
 
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType
-import numpy
+
 
 class VectorEncoder(Encoder):
   """represents an array/vector of values of the same type (scalars, or date, ..);"""

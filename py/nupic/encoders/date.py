@@ -19,12 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
 import datetime
-from scalar import ScalarEncoder
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.base import Encoder
+from nupic.encoders.scalar import ScalarEncoder
 
 
 class DateEncoder(Encoder):
