@@ -2885,7 +2885,7 @@ class HypersearchV2(object):
         
       if classifierOnlyEncoder is None or self._inputPredictedField=="yes":
         # If we don't have a separate encoder for the classifier (legacy
-        #  MultiStep) or the caller explicity wants to include the predicted
+        #  MultiStep) or the caller explicitly wants to include the predicted
         #  field, then use the legacy temporal search methodology. 
         self._searchType = HsSearchType.legacyTemporal
       else:

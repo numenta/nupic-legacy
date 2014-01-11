@@ -393,7 +393,7 @@ class SparseMatrixTest(unittest.TestCase):
       mt = m.getTransposed()
       a = numpy.transpose(a)
       if numpy.any(a != mt.toDense()):
-        error('tranpose 3')
+        error('transpose 3')
 
   #--------------------------------------------------------------------------------
   def test_aX_plus_bXY(self):

@@ -255,7 +255,7 @@ class OPFMetricsTest(unittest.TestCase):
     movingModeAvgErr = getModule(MetricSpec("moving_mode", None, None,
       {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mode_window":3,
            "errorMetric":"avg_err"}))
-    #Should initiall assymptote to .5
+    #Should initially assymptote to .5
     #Then after 900 should go to 1.0 as the predictions will always be offset
     gt = [i/4 for i in range(900)]
     gt.extend([2*i/4 for i in range(100)])

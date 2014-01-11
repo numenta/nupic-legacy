@@ -446,7 +446,7 @@ def getDatasetsImpl(baseDatasets, generate, config):
 ###############################################################################
 def getDescriptionImpl(datasets, config):
   """ Implementation for description.py getDescription() entry point function.
-  Builds an experiment description dictionary as required by LPF (Lightwieght
+  Builds an experiment description dictionary as required by LPF (Lightweight
   Prediction Framework).  Hardcoded data that is less likely to vary between
   experiments is augmented with data from the config dictionary.
   See getBaseDatasets() and getDatasets().

@@ -33,7 +33,7 @@ def analyzeOverlaps(activeCoincsFile, encodingsFile, dataset):
   
   Note:
   * The files spBUOut and sensorBUOut are assumed to be in the output format
-  used for LPF experiment ouputs.
+  used for LPF experiment outputs.
   * BU outputs for some sample datasets are provided. Specify the name of the
   dataset as an option while running this script. 
   '''
@@ -44,7 +44,7 @@ def analyzeOverlaps(activeCoincsFile, encodingsFile, dataset):
 
   patterns = set([])
   encodings = set([])
-  coincs = []    #The set of all coincidences that have won atleast once
+  coincs = []    #The set of all coincidences that have won at least once
   reUsedCoincs = []
   
   firstLine = inputs[0].split(' ')

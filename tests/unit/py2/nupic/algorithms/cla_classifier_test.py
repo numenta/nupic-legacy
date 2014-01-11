@@ -433,7 +433,7 @@ class CLAClassifierTest(unittest.TestCase):
   def testMissingRecordInitialization(self):
     """
     Test missing record edge TestCase
-    Test an edge case in the classifier iniitialization when there is a missing
+    Test an edge case in the classifier initialization when there is a missing
     record in the first n records, where n is the # of prediction steps.
     """
     c = self._classifier([2], 0.1, 0.1, 0)
