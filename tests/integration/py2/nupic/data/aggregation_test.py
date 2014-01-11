@@ -418,8 +418,8 @@ class DataOutputMyFile(object):
 #      timestamp, b, c = r
 #      values.append((b, c))
 #
-#    assert values[5] == (2.0, 200) # aggregated just a single recrod due to the gap
-#    assert values[6] == (3.0, 200) # aggregated just a single recrod due to the gap
+#    assert values[5] == (2.0, 200) # aggregated just a single record due to the gap
+#    assert values[6] == (3.0, 200) # aggregated just a single record due to the gap
 #    assert values[7] == (0.5, 600)
 #
 #
@@ -521,8 +521,8 @@ class DataOutputMyFile(object):
 #      timestamp, b, c = r
 #      values.append((b, c))
 #
-#    assert values[5] == (2.0, 200) # aggregated just a single recrod due to the gap
-#    assert values[6] == (3.0, 200) # aggregated just a single recrod due to the gap
+#    assert values[5] == (2.0, 200) # aggregated just a single record due to the gap
+#    assert values[6] == (3.0, 200) # aggregated just a single record due to the gap
 #    assert values[7] == (0.5, 600)
 
 
