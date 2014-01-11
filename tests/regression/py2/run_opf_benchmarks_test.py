@@ -1501,7 +1501,7 @@ if __name__ == "__main__":
 
   tests = options.searches
   if not OPFBenchmarkRunner.getTests(tests):
-    raise Exception("Incorrect formating of option \n %s" % helpString)
+    raise Exception("Incorrect formatting of option \n %s" % helpString)
 
   OPFBenchmarkRunner.listOfBenchmarks = options.benchmarks.lower().split(',')
   OPFBenchmarkRunner.filesOnly = options.filesOnly
