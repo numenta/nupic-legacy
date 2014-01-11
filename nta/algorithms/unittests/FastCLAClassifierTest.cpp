@@ -55,7 +55,7 @@ namespace nta {
     input1.push_back(5);
     input1.push_back(9);
     ClassifierResult result1;
-    c.fastCompute(0, input1, 4, 34.7, false, true, true, &result1);
+    c->fastCompute(0, input1, 4, 34.7, false, true, true, &result1);
 
     // Create a vector of input bit indices
     vector<UInt> input2;
@@ -63,7 +63,7 @@ namespace nta {
     input2.push_back(5);
     input2.push_back(9);
     ClassifierResult result2;
-    c.fastCompute(1, input2, 4, 34.7, false, true, true, &result2);
+    c->fastCompute(1, input2, 4, 34.7, false, true, true, &result2);
 
     {
       bool foundMinus1 = false;
