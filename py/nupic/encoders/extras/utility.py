@@ -5,9 +5,6 @@ import numpy
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
 
-def _thisIsFunction():
-  """just a helper for type comparisons, we need instance of a function"""
-  pass
 
 class UtilityEncoder(MultiEncoder):
   """UtilityEncoder act transparently; use input and apply it to encoder, 
@@ -88,7 +85,7 @@ class UtilityEncoder(MultiEncoder):
     """set the feval function;
        an evaluation function: must handle all inputs from inputEncoder, 
        its output must be acceptable by utilityEncoder; util=feval(input)"""
-    if not(type(feval)==type(_thisIsFunction) or feval is None):
+    if not(type(feval)==type(types.FunctionType) or feval is None):
       raise Exception("feval must be a function (or None for disabled)")
     self.evaluate=feval
 
