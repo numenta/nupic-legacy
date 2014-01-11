@@ -30,9 +30,11 @@ fn="drop all 'A's"
 Output: encoded('XAXAXA''XXX')
 """
 
+import numpy
+
 from nupic.encoders.multi import MultiEncoder
 from nupic.encoders.base import Encoder
-import numpy
+
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
 
