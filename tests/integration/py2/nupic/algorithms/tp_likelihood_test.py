@@ -203,7 +203,7 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
 
 def _createDataset(numSequences, originalSequences, relativeFrequencies):
   """Given a set of sequences, create a dataset consisting of numSequences
-  sequences. The i'th pattern in this dataset is chosed from originalSequences
+  sequences. The i'th pattern in this dataset is chosen from originalSequences
   according to the relative frequencies specified in relativeFrequencies."""
 
   dataSet = []
