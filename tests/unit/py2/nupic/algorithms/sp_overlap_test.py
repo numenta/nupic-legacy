@@ -152,7 +152,7 @@ class TestSPFrequency(unittest.TestCase):
       reUsed = activeCoincIndices.intersection(patterns)
 
       if len(reUsed) == 0:
-        # The set of all coincidences that have won atleast once
+        # The set of all coincidences that have won at least once
         coincs.append((i, activeCoincIndices, colors[i]))
       else:
         reUsedCoincs.append((i, activeCoincIndices, colors[i]))

@@ -44,7 +44,7 @@ def analyzeOverlaps(activeCoincsFile, encodingsFile, dataset):
 
   patterns = set([])
   encodings = set([])
-  coincs = []    #The set of all coincidences that have won atleast once
+  coincs = []    #The set of all coincidences that have won at least once
   reUsedCoincs = []
   
   firstLine = inputs[0].split(' ')
