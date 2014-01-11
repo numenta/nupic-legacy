@@ -140,7 +140,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     
     assert env is not None
     
-    # If already have a path, catenate to it
+    # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
       newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
     else:
