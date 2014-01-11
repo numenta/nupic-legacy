@@ -37,7 +37,7 @@ class DateEncoderTest(unittest.TestCase):
 
   
   def setUp(self):
-    ##TODO: comment and code dont match - weekend?!!
+    ##TODO: comment and code don't match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
     self._e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
     # in the middle of fall, thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
