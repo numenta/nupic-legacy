@@ -347,7 +347,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     # the Positive Prediction Score
     patternConfidenceScores = numpy.array([x[1] for x in predictionScore2])
     # Normalize so that the sum is 1.0. This makes us independent of any
-    #  potential scaling differences in the column confidence calcuations of
+    #  potential scaling differences in the column confidence calculations of
     #  various TP implementations.
     patternConfidenceScores /= patternConfidenceScores.sum()
 
