@@ -41,7 +41,7 @@ class LogEncoderTest(unittest.TestCase):
 
     # Create the encoder
     le = LogEncoder(w=5,
-                   resolution=1,
+                   resolution=0.1,
                    minval=1,
                    maxval=10000,
                    name="amount")
@@ -58,8 +58,8 @@ class LogEncoderTest(unittest.TestCase):
     #######################################################################
     # Verify the encoder ends up with the correct width
     #
-    # 10^0 -> 10^4 => 0 decibels -> 40 decibels;
-    # 41 possible decibel values plus padding = 4 = width 45
+    # 10^0 -> 10^4 => 0 -> 4; With a resolution of 0.1
+    # 41 possible values plus padding = 4 = width 45
     self.assertEqual(le.getWidth(), 45)
     
     #######################################################################
@@ -103,31 +103,32 @@ class LogEncoderTest(unittest.TestCase):
     (ranges, _) = fieldsDict.values()[0]
     self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0],
                                                            [1, 1]))
-
+    
     #######################################################################
     # Verify an input representing a missing value is handled properly
     mvOutput = le.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
     self.assertEqual(sum(mvOutput), 0)
-
+    
     #######################################################################
     # Test top-down for all values
     value = le.minval
     while value <= le.maxval:
-
+      
       output = le.encode(value)
       topDown = le.topDownCompute(output)
-
+      
       # Do the scaling by hand here.
-      scaledVal = 10 * math.log10(value)
+      scaledVal = math.log10(value)
+      
       # Find the range of values that would also produce this top down
       # output.
-      minTopDown = math.pow(10, (scaledVal - le.encoder.resolution) / 10.0)
-      maxTopDown = math.pow(10, (scaledVal + le.encoder.resolution) / 10.0)
-
+      minTopDown = math.pow(10, (scaledVal - le.encoder.resolution))
+      maxTopDown = math.pow(10, (scaledVal + le.encoder.resolution))
+      
       # Verify the range surrounds this scaled val
       self.assertTrue(topDown.value >= minTopDown and
                       topDown.value <= maxTopDown)
-
+      
       # Test bucket support
       bucketIndices = le.getBucketIndices(value)
       topDown = le.getBucketInfo(bucketIndices)[0]
@@ -145,11 +146,11 @@ class LogEncoderTest(unittest.TestCase):
       bucketValues = le.getBucketValues()
       self.assertEqual(topDown.value,
                        bucketValues[bucketIndices[0]])
-
+      
       # Next value
       scaledVal += le.encoder.resolution / 4.0
-      value = math.pow(10, scaledVal / 10.0)
-
+      value = math.pow(10, scaledVal)
+    
     #######################################################################
     # Verify next power of 10 encoding
     output = le.encode(100)
@@ -166,14 +167,14 @@ class LogEncoderTest(unittest.TestCase):
     (ranges, _) = fieldsDict.values()[0]
     self.assertTrue(len(ranges) == 1 and
                     numpy.array_equal(ranges[0], [100, 100]))
-
+    
     #######################################################################
     # Verify next power of 10 encoding
     output = le.encode(10000)
     expected = 40 * [0] + [1, 1, 1, 1, 1]
     expected = numpy.array(expected, dtype='uint8')
     self.assertTrue((output == expected).all())
-
+    
     # Test reverse lookup
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
@@ -181,6 +182,92 @@ class LogEncoderTest(unittest.TestCase):
     (ranges, _) = fieldsDict.values()[0]
     self.assertTrue(len(ranges) == 1 and
                     numpy.array_equal(ranges[0], [10000, 10000]))
+
+
+  def testGetBucketValues(self):
+    '''
+    Verify that the values of buckets are as expected for given
+    init params
+    '''
+    
+    # Create the encoder
+    le = LogEncoder(w=5,
+                   resolution=0.1,
+                   minval=1,
+                   maxval=10000,
+                   name="amount")
+    
+    # Build our expected values
+    inc = 0.1
+    exp = 0
+    expected = []
+    # Incrementing to exactly 4.0 runs into fp issues
+    while exp <= 4.0001:
+      val = 10 ** exp
+      expected.append(val)
+      exp += inc
+      
+    expected = numpy.array(expected)
+    actual = numpy.array(le.getBucketValues())
+    
+    numpy.testing.assert_almost_equal(expected, actual, 7)
+    
+  def testInitWithRadius(self):
+    '''
+    Verifies you can use radius to specify a log encoder
+    '''
+    
+    # Create the encoder
+    le = LogEncoder(w=1,
+                   radius=1,
+                   minval=1,
+                   maxval=10000,
+                   name="amount")
+    
+    
+    self.assertEqual(le.encoder.n, 5)
+    
+    #######################################################################
+    # Verify a a couple powers of 10 are encoded as expected
+    value = 1.0
+    output = le.encode(value)
+    expected = [1, 0, 0, 0, 0]
+    # Convert to numpy array
+    expected = numpy.array(expected, dtype='uint8')
+    self.assertTrue((output == expected).all())
+    
+    value = 100.0
+    output = le.encode(value)
+    expected = [0, 0, 1, 0, 0]
+    # Convert to numpy array
+    expected = numpy.array(expected, dtype='uint8')
+    self.assertTrue((output == expected).all())
+
+  
+  def testInitWithN(self):
+    '''
+    Verifies you can use N to specify a log encoder
+    '''
+    # Create the encoder
+    n = 100
+    le = LogEncoder(n=n)
+    self.assertEqual(le.encoder.n, n)
+  
+  
+  def testMinvalMaxVal(self):
+    '''
+    Verifies unusual instances of minval and maxval are handled properly
+    '''
+    
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=-100)
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=1e-07)
+    
+    le = LogEncoder(n=100, minval=42, maxval=1.3e12)
+    
+    expectedRadius = 0.631578947368
+    expectedResolution = 0.126315789474
+    self.assertAlmostEqual(le.encoder.radius, expectedRadius)
+    self.assertAlmostEqual(le.encoder.resolution, expectedResolution)
 
 
 ###########################################
