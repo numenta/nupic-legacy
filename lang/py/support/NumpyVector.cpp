@@ -1,10 +1,9 @@
 #ifdef NTA_PYTHON_SUPPORT
 
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -78,7 +77,7 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
 
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int32, PyArray_INT32);
 
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
 // size_t (above) is the same as UInt32 on linux32
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt32, PyArray_UINT32);
 #endif

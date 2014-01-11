@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -319,7 +319,7 @@ class CLAClassifier(object):
     infer:      if true, perform inference
 
     retval:     dict containing inference results, there is one entry for each
-                step in self.steps, where the key is the number of steps. and
+                step in self.steps, where the key is the number of steps, and
                 the value is an array containing the relative likelihood for
                 each bucketIdx starting from bucketIdx 0.
 

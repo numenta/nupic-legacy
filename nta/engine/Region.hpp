@@ -1,8 +1,7 @@
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -55,119 +54,191 @@ namespace nta
   class Timer;
   class Network;
 
-  // --- @doc:begin
-  // name: description
-  // summary: A region is one or more identical nodes in a network.
-  // --- @doc:end
+  /**
+   * A region is one or more identical nodes in a network.
+   *
+   * ### Constructors
+   * Region constructors are not available in the public API. 
+   * Internally regions are created and owned by Network.
+   */
   class Region 
   {
   public:
 
-    /* -------------- constructors, etc. ----------------- */
-    // Region constructors are not available in the public API. 
-    // Internally regions are created and owned by Network.
-
     /* -------------- region information ----------------- */
-    
-    // --- @doc:begin
-    // name: getNetwork
-    // summary: Get the network containing this region
-    // return: The network containing this region
-    // --- @doc:end    
+
+    /**
+     * Get the network containing this region.
+     * @returns The network containing this region
+     */
     Network * 
     getNetwork();
 
-    // --- @doc:begin
-    // name: getName
-    // summary: Get the name of the region
-    // return: The region's name
-    // --- @doc:end    
+    /**
+     * Get the name of the region
+     * @returns the region's name
+     */
     const std::string&
     getName() const;
 
 
-    // --- @doc:begin
-    // name: getDimensions
-    // summary: Get the dimensions of the region
-    // return: The region's dimensions
-    // --- @doc:end    
+    /**
+     * Get the dimensions of the region
+     * @returns the region's dimensions
+     */
     const Dimensions&
     getDimensions() const;
 
-    // --- @doc:begin
-    // name: setDimensions
-    // summary: Assign width and height to the region
-    // arguments:
-    //  - dimensions: a Dimensions object that describes the width and height
-    // return: Nothing
-    // --- @doc:end    
+    /**
+     * Assign width and height to the region
+     * @param dimensions a Dimensions object that describes the width and height
+     */
     void
     setDimensions(Dimensions & dimensions);
 
     /* -------------- inputs/outputs ----------------- */
-    // Copies data into the inputs of this region, using
-    // the links that are attached to each input. 
+
+    /**
+     * Copies data into the inputs of this region, using
+     * the links that are attached to each input. 
+     */
     void
     prepareInputs();
-  
-    
 
     /* -------------- Element interface methods  ----------------- */
 
-    // --- @doc:begin
-    // name: getType
-    // summary: Get the type of the region
-    // return: The node type as a string
-    // --- @doc:end    
+    /**
+     * Get the type of the region
+     * @returns The node type as a string
+     */
     const std::string&
     getType() const;
 
-    // --- @doc:begin
-    // name: getSpec
-    // summary: Get the spec of the region
-    // return: The spec that describes this region
-    // --- @doc:end    
+    /**
+     * Get the spec of the region
+     * @returns The spec that describes this region
+     */
     const Spec* 
     getSpec() const;
 
-    // --- @doc:begin
-    // name: getSpecFromType
-    // summary: Get the Spec of a region type without an instance
-    // arguments:
-    //  - nodeType: a region type as a string
-    // return: The Spec that describes this region type
-    // --- @doc:end    
+    /**
+     * Get the Spec of a region type without an instance
+     * @param nodeType a region type as a string
+     * @returns The Spec that describes this region type
+     */
     static const Spec* 
     getSpecFromType(const std::string& nodeType);
 
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     Int32
     getParameterInt32(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     UInt32
     getParameterUInt32(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     Int64
     getParameterInt64(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     UInt64
     getParameterUInt64(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     Real32
     getParameterReal32(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     Real64
     getParameterReal64(const std::string& name) const;
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @returns TODO: document
+     */
     Handle
     getParameterHandle(const std::string& name) const;
 
 
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterInt32(const std::string& name, Int32 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterUInt32(const std::string& name, UInt32 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterInt64(const std::string& name, Int64 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterUInt64(const std::string& name, UInt64 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterReal32(const std::string& name, Real32 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterReal64(const std::string& name, Real64 value);
+
+    /**
+     * TODO: document
+     * @param name TODO: document
+     * @param value TODO: document
+     */
     void
     setParameterHandle(const std::string& name, Handle value);
 
@@ -177,17 +248,23 @@ namespace nta
      * not null, they copy into the supplied buffer; otherwise
      * they ask Array to allocate an array and copy into it. 
      * NuPIC throws an exception if supplied array is not big enough.  
-     * TODO: auto-reallocate?
+     *
+     * @todo: auto-reallocate?
+     *
      * A typical use might be that the caller would supply an 
      * unallocated buffer on the first call and then reuse the memory
      * buffer on subsequent calls, i.e.
      * 
-     * {
-     *   Array buffer(NTA_BasicTypeInt64); // no buffer allocated
-     *   getParameterArray("foo", array);  // buffer is allocated, and owned
-     *                                     // by array object
-     *   getParameterArray("foo", buffer); // uses already-allocated buffer
-     * }    // Array destructor called -- frees the buffer
+     *     {
+     *       Array buffer(NTA_BasicTypeInt64); // no buffer allocated
+     *       getParameterArray("foo", array);  // buffer is allocated, and owned
+     *                                         // by array object
+     *       getParameterArray("foo", buffer); // uses already-allocated buffer
+     *     }    // Array destructor called -- frees the buffer
+     * 
+     * @param name TODO: document
+     * @param array TODO: document
+     * @returns TODO: document
      */
     void
     getParameterArray(const std::string& name, Array & array) const;
@@ -196,6 +273,9 @@ namespace nta
      * Caller must initialize the array argument to setParameterArray 
      * Depending on how the buffer was allocated
      * the array owns its buffer.
+     * 
+     * @param name TODO: document
+     * @param array TODO: document
      */
     void
     setParameterArray(const std::string& name, const Array & array);
@@ -209,137 +289,144 @@ namespace nta
      * the node) but getParameterString requires a second copy so that there
      * are temporarily three copies of the data in memory (in the node, 
      * in an internal Array object, and in the string returned to the user)
+     * 
+     * @param name TODO: document
+     * @param s TODO: document
      */
-
     void
     setParameterString(const std::string& name, const std::string& s);
     
+    /**
+     * TODO: document
+     * @param name TODO: document
+     */
     std::string
     getParameterString(const std::string& name);
 
+    /**
+     * TODO: document
+     * @param name TODO: document
+     */
     bool
     isParameterShared(const std::string& name) const;
 
-    // --- @doc:begin
-    // name: getInputData
-    // summary: Get the input data into the output array.
-    // description: |
-    //   Get the data of an input and store it or point to it in the
-    //   the output array. The actual behavior is controlled by the 'copy'
-    //   argument (see below).
-    //
-    // arguments:
-    //  - inputName: The name of the target input
-    //  - array: |
-    //      An output ArrayRef that will contain the input data after
-    //      the call returns. It is an error to supply an array with
-    //      an empty buffer.
-    //
-    // return: array that contains the input data.
-    // --- @doc:end
+    /**
+     * Get the input data into the output array.
+     * 
+     * ### Description
+     * Get the data of an input and store it or point to it in the
+     * the output array. The actual behavior is controlled by the 'copy'
+     * argument (see below).
+     *
+     * @todo The param `array` below doesn't make sense
+     *
+     * @param inputName The name of the target input
+     * @param array An output ArrayRef that will contain the input data after
+     *              the call returns. It is an error to supply an array with
+     *              an empty buffer.
+     *
+     * @returns array that contains the input data.
+     */
     virtual ArrayRef
     getInputData(const std::string& inputName) const;
 
-    // --- @doc:begin
-    // name: getOutputData
-    // summary: Get the output data into the output array.
-    // description: |
-    //   Get the data of an output and store it or point to it in the
-    //   the output array. The actual behavior is controlled by the 'copy'
-    //   argument (see below).
-    //
-    // arguments:
-    //  - outputName: The name of the target output
-    //  - array: |
-    //      An output ArrayRef that will contain the output data after
-    //      the call returns.
-    //
-    // return: array that contains the output data.
-    // --- @doc:end
+    /**
+     * Get the output data into the output array.
+     * 
+     * ### Description
+     * Get the data of an output and store it or point to it in the
+     * the output array. The actual behavior is controlled by the 'copy'
+     * argument (see below).
+     *
+     * @todo The param `array` below doesn't make sense
+     * 
+     * @param outputName The name of the target output
+     * @param array An output ArrayRef that will contain the output data after
+     *              the call returns.
+     *
+     * @returns array that contains the output data.
+     */
     virtual ArrayRef
     getOutputData(const std::string& outputName) const;
 
-    // are getOutput/InputCount needed? count can be obtained from the array objects. 
+    /**
+     * TODO: document
+     * 
+     * @todo are getOutput/InputCount needed? count can be obtained from the array objects. 
+     * 
+     * @param outputName TODO: document
+     * @returns TODO: document
+     */
     virtual size_t
     getOutputCount(const std::string& outputName) const;
 
+    /**
+     * TODO: document
+     * @param inputName TODO: document
+     * @returns TODO: document
+     */
     virtual size_t
     getInputCount(const std::string& inputName) const;
 
-    // run
+    /**
+     * TODO: document
+     */
     virtual void
     enable();
 
+    /**
+     * TODO: document
+     */
     virtual void
     disable();
 
-    // --- @doc:begin
-    // name: executeCommand
-    // summary: Request the undelying region to execute a command.
-    //
-    // arguments:
-    //  - args: |
-    //      A list of strings that the actual region will interpret. The first
-    //      string is the command name. The other arguments are optional.
-    //
-    // return: |
-    //   The result value  of command execution is a string determined by the
-    //    underlying region.
-    // --- @doc:end
+    /**
+     * Request the underlying region to execute a command.
+     *
+     * @param args A list of strings that the actual region will interpret. 
+     *              The first string is the command name. The other arguments 
+     *              are optional.
+     *
+     * @returns The result value  of command execution is a string determined 
+     *          by the underlying region.
+     */
     virtual std::string
     executeCommand(const std::vector<std::string>& args);
 
-    // --- @doc:begin
-    // name: compute
-    // summary: Perform one step of the region computation.
-    // arguments: None
-    // return: Nothing
-    // --- @doc:end    
+    /**
+     * Perform one step of the region computation.
+     */
     void
     compute();
 
-    // Profiling functionality
-    // --- @doc:begin
-    // name: enableProfiling
-    // summary: Enable profiling of the compute and execute operations
-    // arguments: None
-    // return: Nothing
-    // --- @doc:end    
+    /**
+     * Enable profiling of the compute and execute operations
+     */
     void
     enableProfiling();
 
-    // --- @doc:begin
-    // name: disableProfiling
-    // summary: Disable profiling of the compute and execute operations
-    // arguments: None
-    // return: Nothing
-    // --- @doc:end    
+    /**
+     * Disable profiling of the compute and execute operations
+     */
     void
     disableProfiling();
 
-    // --- @doc:begin
-    // name: resetProfiling
-    // summary: Reset the compute and execute timers
-    // arguments: None
-    // return: Nothing
-    // --- @doc:end    
+    /**
+     * Reset the compute and execute timers
+     */
     void
     resetProfiling();
 
-    // --- @doc:begin
-    // name: getComputeTimer
-    // summary: Get the timer used to profile the compute operation
-    // arguments: None
-    // return: The Timer object used to profile the compute operation
-    // --- @doc:end    
+    /**
+     * Get the timer used to profile the compute operation
+     * @returns The Timer object used to profile the compute operation
+     */
     const Timer& getComputeTimer() const;
 
-    // --- @doc:begin
-    // name: getExecuteTimer
-    // summary: Get the timer used to profile the execute operation
-    // arguments: None
-    // return: The Timer object used to profile the execute operation
-    // --- @doc:end    
+    /**
+     * Get the timer used to profile the execute operation
+     * @returns The Timer object used to profile the execute operation
+     */
     const Timer& getExecuteTimer() const;
 
 #ifdef NTA_INTERNAL
