@@ -55,7 +55,7 @@ class EventMonitorIface(object):
     ---------------------------------------------------------------------
     retval:         EventLoop instance that was passed in via _joinLoop; None
                     is returned before EventLoop registration or after
-                    _leaveLoop() is handled by this EventMonitor intance.
+                    _leaveLoop() is handled by this EventMonitor instance.
     """
 
 
@@ -165,7 +165,7 @@ class _EventMonitorHelper(EventMonitorIface):
     ---------------------------------------------------------------------
     retval:         EventLoop instance that was passed in via _joinLoop; None
                     is returned before EventLoop registration or after
-                    _leaveLoop() is handled by this EventMonitor intance.
+                    _leaveLoop() is handled by this EventMonitor instance.
     """
 
     return self.__loop
