@@ -289,7 +289,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
       Mock(ROWID=12, anomalyLabel=["Test"], setByUser=True)]
     results = self.helper.addLabel(11, 12, "Added")
 
-    # Verifies records were udpated
+    # Verifies records were updated
     self.assertEqual(results, None)
     self.assertTrue('Added' in self.helper.saved_states[1].anomalyLabel)
     self.assertTrue(self.helper.saved_states[1].setByUser)

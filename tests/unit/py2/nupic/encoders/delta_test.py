@@ -40,7 +40,7 @@ class DeltaEncoderTest(unittest.TestCase):
 
 ###########################################
   def testDeltaEncoder(self):
-      """simple detla reconstruction test"""
+      """simple delta reconstruction test"""
       for i in range(5):
         encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
       self._dencoder.setStateLock(True)

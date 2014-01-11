@@ -43,7 +43,7 @@ class MultiEncoderTest(unittest.TestCase):
       # should be 7 bits wide
       e.addEncoder("dow", ScalarEncoder(w=3, resolution=1, minval=1, maxval=8,
                     periodic=True, name="day of week"))
-      # sould be 14 bits wide
+      # should be 14 bits wide
       e.addEncoder("myval", ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
                     periodic=False, name="aux"))
       self.assertEqual(e.getWidth(), 21)

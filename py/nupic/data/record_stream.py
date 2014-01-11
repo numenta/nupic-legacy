@@ -28,7 +28,7 @@ import datetime
 ##############################################################################
 ##############################################################################
 class RecordStreamIface(object):
-  """This is the interface for the record input/ouput storage classes."""
+  """This is the interface for the record input/output storage classes."""
 
   __metaclass__ = ABCMeta
 

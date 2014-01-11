@@ -1320,7 +1320,7 @@ class CLARegion(PyRegion):
 
 
     if (self._sfdr.__class__ == FDRCSpatial2):
-      # Backwards compatability
+      # Backwards compatibility
       output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
       self._spatialPoolerOutput[:] = output[:]
 

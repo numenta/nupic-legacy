@@ -613,7 +613,7 @@ class SPRegion(PyRegion):
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
     
     if (self._FDRCSpatialClass == FDRCSpatial2):
-      # Backwards compatability
+      # Backwards compatibility
       self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
                                                      learn=self.learningMode,
                                                      infer=self.inferenceMode,
