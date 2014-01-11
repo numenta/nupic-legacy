@@ -1430,7 +1430,7 @@ if __name__ == "__main__":
                     type="string", help="What is the maximum number of fields "
                     "to add per sprint. This dictates how many fields"
                     "are used at each sprint to generate the new swarms."
-                    " Can be a comma seperated list for the "
+                    " Can be a comma separated list for the "
                     "different branching limits that you want to test. "
                     "All means no limit on branching, None is config default "
                     "[default: %default].")
