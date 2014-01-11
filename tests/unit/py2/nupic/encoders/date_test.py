@@ -48,7 +48,7 @@ class DateEncoderTest(unittest.TestCase):
     seasonExpected = [0,0,0,0,0,0,0,0,0,1,1,1]
 
     # week is MTWTFSS
-    # contrary to localtime documentation, Monaday = 0 (for python
+    # contrary to localtime documentation, Monday = 0 (for python
     #  datetime.datetime.timetuple()
     dayOfWeekExpected = [0,0,0,1,0,0,0]
 
