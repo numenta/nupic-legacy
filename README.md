@@ -32,6 +32,7 @@ Currently supported platforms:
  * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
+ * Chromebook (Ubuntu ARM, Crouton) (ARMv7)  
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 Dependencies:
@@ -63,6 +64,10 @@ Complete set of python requirements are documented in [requirements.txt](/extern
 compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
 
     pip install -r external/common/requirements.txt
+
+_Note_: If using pip 1.5 or later:
+
+    pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
 Build and install NuPIC:
 

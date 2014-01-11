@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -384,7 +384,7 @@ class FDRCSpatial2(object):
     self._inferenceIterNum = 0    # Number of inference iterations
 
     # Print creation parameters
-    if spVerbosity >= 2:
+    if spVerbosity >= 1:
       self.printParams()
       print "seed =", seed
 
@@ -932,7 +932,7 @@ class FDRCSpatial2(object):
         self._periodicStatsComputeEnd(onCellIndices, flatInput.nonzero()[0])
 
     # Verbose print other stats
-    if self.spVerbosity >= 2:
+    if self.spVerbosity >= 3:
       cloning = (self.numCloneMasters != self._coincCount)
       print " #connected on entry:  ", fdru.numpyStr(
           connectedCountsOnEntry, '%d ', includeIndices=True)
@@ -967,7 +967,7 @@ class FDRCSpatial2(object):
                                          '%.4f ', includeIndices=True)
       print
 
-    elif self.spVerbosity >= 1:
+    elif self.spVerbosity >= 2:
       print "SP: learn: ", learn
       print "SP: active outputs(%d):  " % (len(onCellIndices)), onCellIndices
 
@@ -1075,6 +1075,8 @@ class FDRCSpatial2(object):
         The minimum learned coincidence size
     'coincidenceSizeMax':
         The maximum learned coincidence size
+    'coincidenceSizeSum':
+        The sum of all coincidence sizes (total number of connected synapses)
     'dcBeforeInhibitionAvg':
         The average of duty cycle before inhbition of all coincidences
     'dcBeforeInhibitionMin':
@@ -1116,6 +1118,8 @@ class FDRCSpatial2(object):
         self._masterConnectedCoincSizes.min())
     self._learningStats['coincidenceSizeMax'] = (
         self._masterConnectedCoincSizes.max())
+    self._learningStats['coincidenceSizeSum'] = (
+        self._masterConnectedCoincSizes.sum())
 
     if not self._doneLearning:
       self._learningStats['dcBeforeInhibitionAvg'] = (
@@ -1991,7 +1995,7 @@ class FDRCSpatial2(object):
         explainedInputs = self._inputLayout[inputSlice][masterValidConnected]
         self._stats['explainedInputsCurIteration'].update(explainedInputs)
 
-      if self.spVerbosity >= 3:
+      if self.spVerbosity >= 4:
         print " adapting cell:%d [%d:%d] (master:%d)" % (columnNum,
                     columnNum // self.coincidencesShape[1],
                     columnNum % self.coincidencesShape[1],
@@ -2061,7 +2065,7 @@ class FDRCSpatial2(object):
         self._stats['numLearns'][masterNum] += 1
 
       # Verbose?
-      if self.spVerbosity >= 3:
+      if self.spVerbosity >= 4:
         print " done cell:%d [%d:%d] (master:%d)" % (columnNum,
                     columnNum // self.coincidencesShape[1],
                     columnNum % self.coincidencesShape[1],
@@ -2290,7 +2294,7 @@ class FDRCSpatial2(object):
                                                     self._iterNum)
 
     # If it's not time to print them out, return now.
-    if (self._iterNum % self.printPeriodicStats) != 0:
+    if (self._iterNum % self.printPeriodicStats) != 1:
       return
 
     numSamples = float(self._stats['numSamples'])
@@ -2364,10 +2368,11 @@ class FDRCSpatial2(object):
         self._learningStats['inhibitionRadius'])
     print "  target density:               %.5f %%" % (
         self._learningStats['targetDensityPct'])
-    print "  avg/min/max coinc. size:      %-6.1f / %-6d / %-6d" % (
+    print "  avg/min/max/sum coinc. size:      %-6.1f / %-6d / %-6d / %-8d" % (
         self._learningStats['coincidenceSizeAvg'],
         self._learningStats['coincidenceSizeMin'],
-        self._learningStats['coincidenceSizeMax'])
+        self._learningStats['coincidenceSizeMax'],
+        self._learningStats['coincidenceSizeSum'])
     print "  avg/min/max DC before inh:    %-6.4f / %-6.4f / %-6.4f" % (
         self._learningStats['dcBeforeInhibitionAvg'],
         self._learningStats['dcBeforeInhibitionMin'],
@@ -2392,6 +2397,8 @@ class FDRCSpatial2(object):
         max(1,self._learningStats['activeCountAvg']))
     print "  # of unique input pats seen:  %d" % (
         self._learningStats['numUniqueInputsSeen'])
+    print "  # of unused columns:  %d" % (
+        (self._dutyCycleAfterInh==0).sum())    
 
     # Reset the stats for the next period.
     self._periodicStatsReset()

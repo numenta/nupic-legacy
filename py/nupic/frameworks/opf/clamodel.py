@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -831,31 +831,6 @@ class CLAModel(Model):
       # minLikelihoodThreshold, but don't leave an empty dict.
       likelihoodsDict = CLAModel._removeUnlikelyPredictions(
           likelihoodsDict, minLikelihoodThreshold, maxPredictionsPerStep)
-
-      # For the special case of timeStep=1, plug in the legacy fields
-      #   prediction and encodings. This is only for legacy networks;
-      # TODO: remove, we don't need this legacy network support anymore.
-      if steps == 1:
-        # predictionRow and predictionFieldEncodings are expected to be
-        #  lists of items, one item for each encoder. The CLAClassifier only
-        #  computes one field, the predicted field, so create an array with
-        #  place holders for the other fields
-        bestBucketIdx = likelihoodsVec.argmax()
-
-        predictionRow = [None] * self._numFields
-        if self._predictedFieldIdx is not None:
-          predictionRow[self._predictedFieldIdx] = bestActValue
-        inferences[InferenceElement.prediction] = predictionRow
-
-        predictionFieldEncodings = [None] * self._numFields
-        if self._predictedFieldIdx is not None:
-          bucketInfo = self._classifierInputEncoder.getBucketInfo(
-                                                    [bestBucketIdx])[0]
-          predictionFieldEncodings[self._predictedFieldIdx] = \
-                                                    bucketInfo.encoding
-        inferences[InferenceElement.encodings] = predictionFieldEncodings
-
-
 
       # ---------------------------------------------------------------------
       # If we have a delta encoder, we have to shift our predicted output value
