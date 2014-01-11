@@ -1761,7 +1761,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
   def testSmartSpeculationSpatialClassification(self, onCluster=True, 
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
-    classification models. This also appies to temporal models where the
+    classification models. This also applies to temporal models where the
     predicted field is optional (or excluded) since Hypersearch treats them
     the same. 
     """
