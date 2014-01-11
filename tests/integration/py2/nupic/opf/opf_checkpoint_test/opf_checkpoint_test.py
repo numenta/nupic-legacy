@@ -265,7 +265,7 @@ class MyTestCaseBase(HelperTestCaseBase):
 
   def _testSamePredictions(self, experiment, predSteps, checkpointAt,
                            predictionsFilename, additionalFields=None):
-    """ Test that we get the same predictions out from the followng two
+    """ Test that we get the same predictions out from the following two
     scenarios:
 
     a_plus_b: Run the network for 'a' iterations followed by 'b' iterations
