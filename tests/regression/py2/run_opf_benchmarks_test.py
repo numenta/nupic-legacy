@@ -1455,7 +1455,7 @@ if __name__ == "__main__":
                     " are cancelled")
   parser.add_option("--metaOptimize", dest="metaOptimize", default=None,
                     type="string", help="Dictionary of default swarm "
-                    "parameters you want to moodify. Options are inertia, "
+                    "parameters you want to modify. Options are inertia, "
                     "cogRate, socRate, minParticlesPerSwarm "
                     "[default: %default].")
   parser.add_option("--trainFraction", dest="trainFraction", default=1.0,
