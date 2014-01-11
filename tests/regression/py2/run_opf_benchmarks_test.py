@@ -1418,7 +1418,7 @@ if __name__ == "__main__":
                     "each will be allocated maxWorkers number of workers. "
                     "[default: %default].")
   parser.add_option("--maxWorkers", dest="maxWorkers", default=None, type="int",
-                    help="Maximum number of workers to use simmultaneously"
+                    help="Maximum number of workers to use simultaneously"
                     "[default: %default].")
   parser.add_option("--benchmarks", dest="benchmarks",
                     default="hotgymsc",
