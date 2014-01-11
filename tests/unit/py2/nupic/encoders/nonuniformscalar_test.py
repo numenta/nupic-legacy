@@ -88,7 +88,7 @@ class NonUniformScalarEncoderTest(unittest.TestCase):
       del enc
 
       ## -----------------------------------------
-      ## Make sure the encoder works with non-uniform wieghts
+      ## Make sure the encoder works with non-uniform weights
       ## bins and very skewed distributions
       print "\t*Testing weighted distribution*"
       data = numpy.linspace(0, 10, 100)
