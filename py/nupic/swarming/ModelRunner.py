@@ -741,7 +741,7 @@ class OPFModelRunner(object):
     If so:
       1) Write it's checkpoint
       2) Record this model as the best
-      3) Delete the previous best's ouput cache
+      3) Delete the previous best's output cache
     Otherwise:
       1) Delete our output cache
      """
