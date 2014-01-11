@@ -40,7 +40,7 @@ class DateEncoderTest(unittest.TestCase):
     ##TODO: comment and code don't match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
     self._e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
-    # in the middle of fall, thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
+    # in the middle of fall, Thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
     self._d = datetime.datetime(2010, 11, 4, 14, 55)
     self._bits = self._e.encode(self._d)
     # season is aaabbbcccddd (1 bit/month) # TODO should be <<3?
