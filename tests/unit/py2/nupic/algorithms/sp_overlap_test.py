@@ -75,7 +75,7 @@ class TestSPFrequency(unittest.TestCase):
 
   @unittest.skip("Not working...")
   def testCategoryLong(self):
-    """Test that the most frequent possible option is chosen for a catergory
+    """Test that the most frequent possible option is chosen for a category
     encoded field. Run through many different numbers of patterns and random
     seeds"""
     for n in [52, 70, 80, 90, 100, 110]:
