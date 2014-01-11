@@ -32,24 +32,38 @@ class LogEncoder(Encoder):
   """
   This class wraps the ScalarEncoder class.
 
-  A Log encoder represents a floating point value on a logarithmic (decibel)
-  scale.
+  A Log encoder represents a floating point value on a logarithmic scale.
 
-  valueToEncode = 10 * log10(input)
+  valueToEncode = log10(input) 
+  
+    w -- number of bits to set in output
+    minval -- minimum input value. must be greater than 0. Lower values are
+              reset to this value
+    maxval -- maximum input value (input is strictly less if periodic == True)
+    periodic -- If true, then the input value "wraps around" such that minval =
+              maxval For a periodic value, the input must be strictly less than
+              maxval, otherwise maxval is a true upper bound.
+    
+    Exactly one of n, radius, resolution must be set. "0" is a special
+    value that means "not set".
 
-  The default resolution (minimum difference in scaled values which is guaranteed
-  to produce different outputs) is 1 decibel. For example, the scaled values 10
-  and 11 will be distinguishable in the output. In terms of the original input
-  values, this means 10^1 (10) and 10^1.1 (12.5) will be distinguishable.
-
-    resolution -- encoder resolution, in terms of scaled values. Default: 1 decibel
-    minval -- must be greater than 0. Lower values are reset to this value
-    maxval -- Higher values are reset to this value
+    n -- number of bits in the representation (must be > w)
+    radius -- inputs separated by more than this distance in log space will have
+              non-overlapping representations
+    resolution -- The minimum change in scaled value needed to produce a change
+                  in encoding. This should be specified in log space. For
+                  example, the scaled values 10 and 11 will be distinguishable
+                  in the output. In terms of the original input values, this
+                  means 10^1 (1) and 10^1.1 (1.25) will be distinguishable.
+    name -- an optional string which will become part of the description
+    verbosity -- level of debugging output you want the encoder to provide.
+    clipInput -- if true, non-periodic inputs smaller than minval or greater
+                  than maxval will be clipped to minval/maxval
   """
 
   def __init__(self,
                w=5,
-               minval=0.10,
+               minval=1e-07,
                maxval=10000,
                periodic=False,
                n=0,
@@ -57,37 +71,38 @@ class LogEncoder(Encoder):
                resolution=0,
                name="log",
                verbosity=0,
-               clipInput=False):
+               clipInput=True):
+
+    # Lower bound for log encoding near machine precision limit
+    lowLimit = 1e-07
 
     # Limit minval as log10(0) is undefined.
-    if minval < 0.1:
-      minval = 0.1
+    if minval < lowLimit:
+      minval = lowLimit
+
+    # Check that minval is still lower than maxval
+    if not minval < maxval:
+      raise ValueError("Max val must be larger than min val or the lower limit "
+                       "for this encoder %.7f" % lowLimit)
 
     self.encoders = None
     self.verbosity = verbosity
 
     # Scale values for calculations within the class
-    self.minScaledValue = int(10 * math.log10(minval))
-    self.maxScaledValue = int(math.ceil(10 * math.log10(maxval)))
-    assert self.maxScaledValue > self.minScaledValue
-        
-    self.n = n
-    self.clipInput = clipInput
+    self.minScaledValue = int(math.log10(minval))
+    self.maxScaledValue = int(math.ceil(math.log10(maxval)))
+    if not self.maxScaledValue > self.minScaledValue:
+      raise ValueError("Max val must be larger, in log space, than min val.")
 
-    
-    self.minval = 10 ** (self.minScaledValue / 10.0)
-    self.maxval = 10 ** (self.maxScaledValue / 10.0)
-    assert self.minval == minval
-    assert self.maxval == maxval
+    self.clipInput = clipInput    
+    self.minval = minval
+    self.maxval = maxval
 
-    # Note: passing resolution=1 causes the test to topDownCompute
-    # test to fail.  Fixed for now by always converting to float,
-    # but should find the root cause.
     self.encoder = ScalarEncoder(w=w,
                                  minval=self.minScaledValue,
                                  maxval=self.maxScaledValue,
                                  periodic=False,
-                                 n=self.n,
+                                 n=n,
                                  radius=radius,
                                  resolution=resolution,
                                  verbosity=self.verbosity,
@@ -129,7 +144,7 @@ class LogEncoder(Encoder):
       elif val > self.maxval:
         val = self.maxval
 
-      scaledVal = 10 * math.log10(val)
+      scaledVal = math.log10(val)
       return scaledVal
 
   ############################################################################
@@ -182,8 +197,8 @@ class LogEncoder(Encoder):
     (inRanges, inDesc) = fieldsDict.values()[0]
     outRanges = []
     for (minV, maxV) in inRanges:
-      outRanges.append((math.pow(10, minV / 10.0),
-                        math.pow(10, maxV / 10.0)))
+      outRanges.append((math.pow(10, minV),
+                        math.pow(10, maxV)))
 
     # Generate a text description of the ranges
     desc = ""
@@ -214,7 +229,7 @@ class LogEncoder(Encoder):
       scaledValues = self.encoder.getBucketValues()
       self._bucketValues = []
       for scaledValue in scaledValues:
-        value = math.pow(10, scaledValue / 10.0)
+        value = math.pow(10, scaledValue)
         self._bucketValues.append(value)
 
     return self._bucketValues
@@ -227,7 +242,7 @@ class LogEncoder(Encoder):
 
     scaledResult = self.encoder.getBucketInfo(buckets)[0]
     scaledValue = scaledResult.value
-    value = math.pow(10, scaledValue / 10.0)
+    value = math.pow(10, scaledValue)
 
     return [EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)]
@@ -240,7 +255,7 @@ class LogEncoder(Encoder):
 
     scaledResult = self.encoder.topDownCompute(encoded)[0]
     scaledValue = scaledResult.value
-    value = math.pow(10, scaledValue / 10.0)
+    value = math.pow(10, scaledValue)
 
     return EncoderResult(value=value, scalar=value,
                          encoding = scaledResult.encoding)
@@ -253,12 +268,12 @@ class LogEncoder(Encoder):
 
     # Compute the percent error in log space
     if expValues[0] > 0:
-      expValue = 10 * math.log10(expValues[0])
+      expValue = math.log10(expValues[0])
     else:
       expValue = self.minScaledValue
 
     if actValues  [0] > 0:
-      actValue = 10 * math.log10(actValues[0])
+      actValue = math.log10(actValues[0])
     else:
       actValue = self.minScaledValue
 
