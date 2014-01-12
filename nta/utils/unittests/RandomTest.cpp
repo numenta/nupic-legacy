@@ -38,8 +38,6 @@ RandomTest::RandomTest() {};
 
 RandomTest::~RandomTest() {};
 
-#include "random_private_orig.c"
-
 // Expected values with seed of 148
 // Comparing against expected values ensures the same result
 // on all platforms. 
