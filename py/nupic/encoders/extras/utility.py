@@ -40,7 +40,15 @@ from nupic.encoders.vector import VectorEncoder
 
 
 class UtilityEncoder(MultiEncoder):
-  """UtilityEncoder act transparently; use input and apply it to encoder, 
+  """
+  UtilityEncoder is a special kind of encoder that allows preprocessing of the original data, it let's you apply a function to the original input and attach it along with it
+  as the encoder's output. This encoder consists of two basic encoders (it's a MultiEncoder), it has an "original" part, and a "utility" part - that is the new, attached part. 
+
+  We'll describe the functionality on a simple (and silly) example: 
+
+  *) In the normal case, we would have a scalar encoder that transforms numbers to some bit-vector representation suitable for the algorithm. 
+  
+UtilityEncoder act transparently; use input and apply it to encoder, 
      in addition, provide a new field utility (aka \'usefulness\'/goodness/fitness/evaluation) of the input; 
      for use in OPF, provide forced=True and make necessary steps manualy; see below."""
   
