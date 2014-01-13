@@ -89,8 +89,9 @@ class LogEncoder(Encoder):
     self.verbosity = verbosity
 
     # Scale values for calculations within the class
-    self.minScaledValue = int(math.log10(minval))
-    self.maxScaledValue = int(math.ceil(math.log10(maxval)))
+    self.minScaledValue = math.log10(minval)
+    self.maxScaledValue = math.log10(maxval)
+    
     if not self.maxScaledValue > self.minScaledValue:
       raise ValueError("Max val must be larger, in log space, than min val.")
 
