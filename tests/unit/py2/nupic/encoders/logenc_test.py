@@ -264,8 +264,8 @@ class LogEncoderTest(unittest.TestCase):
     
     le = LogEncoder(n=100, minval=42, maxval=1.3e12)
     
-    expectedRadius = 0.631578947368
-    expectedResolution = 0.126315789474
+    expectedRadius = 0.552141792732 
+    expectedResolution = 0.110428358546
     self.assertAlmostEqual(le.encoder.radius, expectedRadius)
     self.assertAlmostEqual(le.encoder.resolution, expectedResolution)
 
