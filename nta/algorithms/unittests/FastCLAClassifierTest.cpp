@@ -78,14 +78,14 @@ namespace nta {
                      false, foundMinus1);
           foundMinus1 = true;
           TESTEQUAL2("Expected five buckets since it has only seen bucket 4 "
-                     "(so it has buckets 0-4).", 5, it->second->size());
+                     "(so it has buckets 0-4).", (long unsigned int)5, it->second->size());
           TEST2("Incorrect actual value for bucket 4",
                 fabs(it->second->at(4) - 34.7) < 0.000001);
         } else if (it->first == 1) {
           // Check the one-step prediction
           TESTEQUAL2("already found key 1 in classifier result", false, found1);
           found1 = true;
-          TESTEQUAL2("expected five bucket predictions", 5, it->second->size());
+          TESTEQUAL2("expected five bucket predictions", (long unsigned int)5, it->second->size());
           TEST2("incorrect prediction for bucket 0",
                 fabs(it->second->at(0) - 0.2) < 0.000001);
           TEST2("incorrect prediction for bucket 1",
