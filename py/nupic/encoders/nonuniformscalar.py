@@ -73,7 +73,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
   def ComputeBins(cls, nBins, data, weights=None, verbosity = 0):
     data = numpy.array(data)
     bins = numpy.zeros((nBins, 2))
-    #If no weights were specified, default to uniformly wieghted
+    #If no weights were specified, default to uniformly weighted
     if weights is None:
       weights = numpy.ones(data.shape, dtype = defaultDtype)
 

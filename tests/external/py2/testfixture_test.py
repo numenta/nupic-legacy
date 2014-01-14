@@ -26,7 +26,7 @@ writing, we were using an unreleased version of pytest that added support for
 the unittest setUpModule fixture and friends. Some of our tests rely on
 setUpModule. Once, there was a conflict with pytest installation in our build
 system, and an older version of pytest was installed that didn't support
-setUpModule, which resulted in suble side-effects in some of these tests.
+setUpModule, which resulted in subtle side-effects in some of these tests.
 """
 
 import unittest2 as unittest

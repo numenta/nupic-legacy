@@ -140,7 +140,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     
     assert env is not None
     
-    # If already have a path, catenate to it
+    # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
       newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
     else:
@@ -1761,7 +1761,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
   def testSmartSpeculationSpatialClassification(self, onCluster=True, 
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
-    classification models. This also appies to temporal models where the
+    classification models. This also applies to temporal models where the
     predicted field is optional (or excluded) since Hypersearch treats them
     the same. 
     """

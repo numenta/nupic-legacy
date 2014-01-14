@@ -203,7 +203,7 @@ def _computeTPMetric(tp=None, sequences=None, useResets=True, verbosity=1):
 
 def _createDataset(numSequences, originalSequences, relativeFrequencies):
   """Given a set of sequences, create a dataset consisting of numSequences
-  sequences. The i'th pattern in this dataset is chosed from originalSequences
+  sequences. The i'th pattern in this dataset is chosen from originalSequences
   according to the relative frequencies specified in relativeFrequencies."""
 
   dataSet = []
@@ -347,7 +347,7 @@ class TPLikelihoodTest(testcasebase.TestCaseBase):
     # the Positive Prediction Score
     patternConfidenceScores = numpy.array([x[1] for x in predictionScore2])
     # Normalize so that the sum is 1.0. This makes us independent of any
-    #  potential scaling differences in the column confidence calcuations of
+    #  potential scaling differences in the column confidence calculations of
     #  various TP implementations.
     patternConfidenceScores /= patternConfidenceScores.sum()
 

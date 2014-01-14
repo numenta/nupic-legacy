@@ -93,7 +93,7 @@ class SpatialPoolerBoostTest(unittest.TestCase):
   Phase 3: At this point about half or fewer columns have never won. These
   should get boosted to maxBoost and start to win. As each one wins, their
   boost gets lowered to 1. After 2 batches, the number of columns that
-  have never won should be 0.  Because of the artifically induced thrashing
+  have never won should be 0.  Because of the artificially induced thrashing
   behavior in this test, all the inputs should now have pretty distinct
   patterns. During this process, as soon as a new column wins, the boost value
   for that column should be set back to 1.
