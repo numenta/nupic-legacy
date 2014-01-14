@@ -465,7 +465,7 @@ class PositiveTests(MyTestCaseBase):
 
 if __name__ == "__main__":
   # Init the NuPic logging configuration from the nupic-logging.conf
-  # configuration file. This is found either in the NTA_CONF_DIR directory (if
+  # configuration file. This is found either in the NTA_CONF_PATH directory (if
   # defined) or in the 'conf' subdirectory of the NuPic install location.
   initLogging(verbose=True)
 

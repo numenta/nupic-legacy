@@ -58,7 +58,7 @@ mkdir -p /tmp/$TAG
 export PYTHONPATH=$BUILD/lib/python2.6/site-packages:$WORKSPACE/build_system
 export NTA=$BUILD
 unset NTA_LOG_DIR
-unset NTA_CONF_DIR
+unset NTA_CONF_PATH
 export NTA_WORK_DIR=/tmp/$TAG
 source $NTA/tools/nupic-env.sh autotest > source.out 2>&1
 
