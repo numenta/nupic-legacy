@@ -44,9 +44,9 @@ class Configuration(ConfigurationBase):
   to read and write custom, persistent parameters. The custom settings will be
   stored in the nupic-custom.xml file.
 
-  If the environment variable 'NTA_CONF_DIR' is defined, then the configuration
-  files are expected to be in the NTA_CONF_DIR search path, which is a ':'
-  separated list of directories. If NTA_CONF_DIR is not defined, then it is
+  If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
+  files are expected to be in the NTA_CONF_PATH search path, which is a ':'
+  separated list of directories. If NTA_CONF_PATH is not defined, then it is
   assumed to be NTA/conf/default (typically ~/nta/current/conf/default).
   """
 
@@ -160,7 +160,7 @@ class _CustomConfigurationFileWrapper(object):
 
   # Stores the path to the file
   # If none, findConfigFile is used to find path to file; defaults to
-  # NTA_CONF_DIR[0]
+  # NTA_CONF_PATH[0]
   _path = None
 
   @classmethod
