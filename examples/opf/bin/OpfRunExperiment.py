@@ -34,9 +34,6 @@ import nupic.support
 
 def main():
   """Run according to options in sys.argv"""
-  # Init the NuPic logging configuration from the nupic-logging.conf configuration
-  # file. This is found either in the NTA_CONF_PATH directory (if defined) or
-  # in the 'conf' subdirectory of the NuPic install location.
   nupic.support.initLogging(verbose=True)
 
   # Initialize pseudo-random number generators (PRNGs)
