@@ -1,5 +1,6 @@
 var searchData=
 [
+  ['remove',['remove',['../classnupic_1_1encoders_1_1arithmetic__encoder_1_1_bucket.html#a97e764861fd69598c96756461138cdf0',1,'nupic::encoders::arithmetic_encoder::Bucket']]],
   ['removelink',['removeLink',['../classnta_1_1_network.html#a2fd9d95877c087ddc62f5619a65de5d2',1,'nta::Network::removeLink()'],['../classnta_1_1_output.html#abbf058f05bc36cbdf6611f6e3a11265a',1,'nta::Output::removeLink()'],['../classnta_1_1_input.html#aaecfbd555acf0b4ee2e508506caf364d',1,'nta::Input::removeLink()']]],
   ['removeregion',['removeRegion',['../classnta_1_1_network.html#ad036234504a5396bc05b238324b4e6fe',1,'nta::Network']]],
   ['removesegmentupdate',['removeSegmentUpdate',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#ac2f856cdc92c1a38513c5c948cb41535',1,'nupic::research::TP::TP']]],

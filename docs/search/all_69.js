@@ -16,6 +16,7 @@ var searchData=
   ['int16',['Int16',['../namespacenta.html#aecc9977c159d2fbceccc06d9b76959db',1,'nta']]],
   ['int32',['Int32',['../namespacenta.html#ac3c3da0a1f8c13ee2d808eac0dfca5e5',1,'nta']]],
   ['int64',['Int64',['../namespacenta.html#a7719a5670a0a75f8d5e304ac42596375',1,'nta']]],
+  ['isdelta',['isDelta',['../classnupic_1_1encoders_1_1arithmetic__encoder_1_1_arithmetic_encoder.html#aa293cf7c964397541664f6cfbaf1c119',1,'nupic.encoders.arithmetic_encoder.ArithmeticEncoder.isDelta()'],['../classnupic_1_1encoders_1_1base_1_1_encoder.html#a3256910b91fcc35ff00b372669924cce',1,'nupic.encoders.base.Encoder.isDelta()']]],
   ['isdontcare',['isDontcare',['../classnta_1_1_dimensions.html#aa298b799e384289a7eb38da1ec3ade89',1,'nta::Dimensions']]],
   ['isinitialized',['isInitialized',['../classnta_1_1_nu_p_i_c.html#a57f85d63691a9806f1c37ae468a0061a',1,'nta::NuPIC::isInitialized()'],['../classnta_1_1_input.html#a2bf43c360842db27437990c74337ac77',1,'nta::Input::isInitialized()']]],
   ['isinputcontiguous',['isInputContiguous',['../classnta_1_1_link.html#ae7f9af098c6c9b91f8de44cefd1616eb',1,'nta::Link']]],

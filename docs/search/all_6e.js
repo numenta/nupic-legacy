@@ -4,6 +4,7 @@ var searchData=
   ['network',['Network',['../classnta_1_1_nu_p_i_c.html#a88b59289ffd793fecd040d32e397b1e9',1,'nta::NuPIC']]],
   ['network_2ehpp',['Network.hpp',['../_network_8hpp.html',1,'']]],
   ['newsynapsecount',['newSynapseCount',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a7d317b11b1f52d31257d1b14b6aba373',1,'nupic::research::TP::TP']]],
+  ['nonuniformscalarencoder',['NonUniformScalarEncoder',['../classnupic_1_1encoders_1_1nonuniformscalar_1_1_non_uniform_scalar_encoder.html',1,'nupic::encoders::nonuniformscalar']]],
   ['nta',['nta',['../namespacenta.html',1,'']]],
   ['nta_5fbasictype',['NTA_BasicType',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3c',1,'NTA_BasicType():&#160;types.h'],['../types_8h.html#a505945efd9c3840fa8c5745a2081fcaa',1,'NTA_BasicType():&#160;types.h']]],
   ['nta_5fbasictype_5fbyte',['NTA_BasicType_Byte',['../types_8h.html#a421524fed763bb1c1b094f3ef3a69d3ca90884d2b3e9fd7ff9df2edeabf652c24',1,'types.h']]],

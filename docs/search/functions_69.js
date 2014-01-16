@@ -7,6 +7,7 @@ var searchData=
   ['init',['init',['../classnta_1_1_nu_p_i_c.html#a0eb243c76e5cf6ce80b141bfefa06ac9',1,'nta::NuPIC']]],
   ['initialize',['initialize',['../classnta_1_1_network.html#a1e85006a45d240f996319bfea388a68f',1,'nta::Network::initialize()'],['../classnta_1_1_link.html#a8baa6d02e1baf023fb889e8f9d30de4e',1,'nta::Link::initialize()'],['../classnta_1_1_output.html#ae2929ec63aa4a6082ea3038a2deaa823',1,'nta::Output::initialize()'],['../classnta_1_1_input.html#a6e0456c6db9deddb23fd012009cb1bd2',1,'nta::Input::initialize()']]],
   ['input',['Input',['../classnta_1_1_input.html#af4b3683299c83dd1ed7ed3099d781f72',1,'nta::Input']]],
+  ['isdelta',['isDelta',['../classnupic_1_1encoders_1_1arithmetic__encoder_1_1_arithmetic_encoder.html#aa293cf7c964397541664f6cfbaf1c119',1,'nupic.encoders.arithmetic_encoder.ArithmeticEncoder.isDelta()'],['../classnupic_1_1encoders_1_1base_1_1_encoder.html#a3256910b91fcc35ff00b372669924cce',1,'nupic.encoders.base.Encoder.isDelta()']]],
   ['isdontcare',['isDontcare',['../classnta_1_1_dimensions.html#aa298b799e384289a7eb38da1ec3ade89',1,'nta::Dimensions']]],
   ['isinitialized',['isInitialized',['../classnta_1_1_nu_p_i_c.html#a57f85d63691a9806f1c37ae468a0061a',1,'nta::NuPIC::isInitialized()'],['../classnta_1_1_input.html#a2bf43c360842db27437990c74337ac77',1,'nta::Input::isInitialized()']]],
   ['isinputcontiguous',['isInputContiguous',['../classnta_1_1_link.html#ae7f9af098c6c9b91f8de44cefd1616eb',1,'nta::Link']]],

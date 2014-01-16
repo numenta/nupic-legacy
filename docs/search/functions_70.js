@@ -1,5 +1,7 @@
 var searchData=
 [
+  ['pprint',['pprint',['../classnupic_1_1encoders_1_1base_1_1_encoder.html#affcbd63126728cfdabdcde77e5c685c0',1,'nupic::encoders::base::Encoder']]],
+  ['pprintheader',['pprintHeader',['../classnupic_1_1encoders_1_1base_1_1_encoder.html#a1e445299e6c247b6f88cf31263c52c59',1,'nupic::encoders::base::Encoder']]],
   ['predict',['predict',['../classnupic_1_1research_1_1_t_p_1_1_t_p.html#a524f679263261614b20bcdbaa48305fe',1,'nupic::research::TP::TP']]],
   ['prepare',['prepare',['../classnta_1_1_input.html#a48a10f9d1f49d16df539825436c404c6',1,'nta::Input']]],
   ['prepareinputs',['prepareInputs',['../classnta_1_1_region.html#a3f853f23396f68c761388bd29503f9eb',1,'nta::Region']]],
