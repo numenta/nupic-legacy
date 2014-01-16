@@ -114,7 +114,7 @@ class Encoder(object):
       self._learningEnabled = learningEnabled
 
   ############################################################################
-  def setFieldStats(self,fieldName,fieldStatistics ):
+  def setFieldStats(self, fieldName, fieldStatistics ):
     """ 
     This method is called by the model to set the statistics like min and
     max for the underlying encoders if this information is available.
@@ -129,14 +129,14 @@ class Encoder(object):
     pass
 
   ############################################################################
-  def encode(self, input):
+  def encode(self, inputData):
     """
     TODO: document
-    @param input TODO: document
+    @param inputData TODO: document
     @returns TODO: document
     """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
-    self.encodeIntoArray(input, output)
+    self.encodeIntoArray(inputData, output)
     return output
 
   ############################################################################
