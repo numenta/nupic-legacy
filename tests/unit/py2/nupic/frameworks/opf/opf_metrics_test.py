@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -255,7 +255,7 @@ class OPFMetricsTest(unittest.TestCase):
     movingModeAvgErr = getModule(MetricSpec("moving_mode", None, None,
       {"verbosity" : OPFMetricsTest.VERBOSITY, "window":100, "mode_window":3,
            "errorMetric":"avg_err"}))
-    #Should initiall assymptote to .5
+    #Should initially assymptote to .5
     #Then after 900 should go to 1.0 as the predictions will always be offset
     gt = [i/4 for i in range(900)]
     gt.extend([2*i/4 for i in range(100)])

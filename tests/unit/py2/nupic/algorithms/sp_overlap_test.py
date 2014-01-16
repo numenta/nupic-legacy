@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -75,7 +75,7 @@ class TestSPFrequency(unittest.TestCase):
 
   @unittest.skip("Not working...")
   def testCategoryLong(self):
-    """Test that the most frequent possible option is chosen for a catergory
+    """Test that the most frequent possible option is chosen for a category
     encoded field. Run through many different numbers of patterns and random
     seeds"""
     for n in [52, 70, 80, 90, 100, 110]:
@@ -152,7 +152,7 @@ class TestSPFrequency(unittest.TestCase):
       reUsed = activeCoincIndices.intersection(patterns)
 
       if len(reUsed) == 0:
-        # The set of all coincidences that have won atleast once
+        # The set of all coincidences that have won at least once
         coincs.append((i, activeCoincIndices, colors[i]))
       else:
         reUsedCoincs.append((i, activeCoincIndices, colors[i]))
