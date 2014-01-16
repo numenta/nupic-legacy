@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -37,10 +37,10 @@ class DateEncoderTest(unittest.TestCase):
 
   
   def setUp(self):
-    ##TODO: comment and code dont match - weekend?!!
+    ##TODO: comment and code don't match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
     self._e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
-    # in the middle of fall, thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
+    # in the middle of fall, Thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
     self._d = datetime.datetime(2010, 11, 4, 14, 55)
     self._bits = self._e.encode(self._d)
     # season is aaabbbcccddd (1 bit/month) # TODO should be <<3?
@@ -48,7 +48,7 @@ class DateEncoderTest(unittest.TestCase):
     seasonExpected = [0,0,0,0,0,0,0,0,0,1,1,1]
 
     # week is MTWTFSS
-    # contrary to localtime documentation, Monaday = 0 (for python
+    # contrary to localtime documentation, Monday = 0 (for python
     #  datetime.datetime.timetuple()
     dayOfWeekExpected = [0,0,0,1,0,0,0]
 

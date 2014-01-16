@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -418,8 +418,8 @@ class DataOutputMyFile(object):
 #      timestamp, b, c = r
 #      values.append((b, c))
 #
-#    assert values[5] == (2.0, 200) # aggregated just a single recrod due to the gap
-#    assert values[6] == (3.0, 200) # aggregated just a single recrod due to the gap
+#    assert values[5] == (2.0, 200) # aggregated just a single record due to the gap
+#    assert values[6] == (3.0, 200) # aggregated just a single record due to the gap
 #    assert values[7] == (0.5, 600)
 #
 #
@@ -521,8 +521,8 @@ class DataOutputMyFile(object):
 #      timestamp, b, c = r
 #      values.append((b, c))
 #
-#    assert values[5] == (2.0, 200) # aggregated just a single recrod due to the gap
-#    assert values[6] == (3.0, 200) # aggregated just a single recrod due to the gap
+#    assert values[5] == (2.0, 200) # aggregated just a single record due to the gap
+#    assert values[6] == (3.0, 200) # aggregated just a single record due to the gap
 #    assert values[7] == (0.5, 600)
 
 

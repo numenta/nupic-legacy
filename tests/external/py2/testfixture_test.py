@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ writing, we were using an unreleased version of pytest that added support for
 the unittest setUpModule fixture and friends. Some of our tests rely on
 setUpModule. Once, there was a conflict with pytest installation in our build
 system, and an older version of pytest was installed that didn't support
-setUpModule, which resulted in suble side-effects in some of these tests.
+setUpModule, which resulted in subtle side-effects in some of these tests.
 """
 
 import unittest2 as unittest
