@@ -18,9 +18,9 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+from nupic.encoders.base import Encoder
 from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
-from base import Encoder
 
 
 class ScalarSpaceEncoder(Encoder):
