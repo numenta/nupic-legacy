@@ -77,7 +77,7 @@ namespace nta
         found = Env::get("PYTHONPATH", pythonPath);
         if (!found)
         {
-          NTA_THROW << "Unable to find the pynode dynamic library because neither NTA_ROOTDIR not PYTHONPATH is set";
+          NTA_THROW << "Unable to find the pynode dynamic library because neither NTA_ROOTDIR nor PYTHONPATH is set";
         }
         found = false;
 #ifdef NTA_PLATFORM_win32
