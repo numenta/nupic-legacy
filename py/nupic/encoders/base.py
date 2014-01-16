@@ -91,14 +91,14 @@ class Encoder(object):
     return False
 
   ############################################################################
-  def encodeIntoArray(self, input, output):
+  def encodeIntoArray(self, inputData, output):
     """
-    Encodes input and puts the encoded value into the numpy output array, which is
-    a 1-D array of length returned by getWidth()
+    Encodes inputData and puts the encoded value into the numpy output array, 
+    which is a 1-D array of length returned by getWidth()
     
     **Must be overridden by subclasses.**
 
-    @param input data to encode
+    @param inputData data to encode
     @param output numpy 1-D array of same length returned by getWidth()
     """
     raise Exception("encodeIntoArray must be implemented by all subclasses")
@@ -241,10 +241,10 @@ class Encoder(object):
 
 
   ############################################################################
-  def getScalars(self, input):
+  def getScalars(self, inputData):
     """ 
     Returns a numpy array containing the sub-field scalar value(s) for
-    each sub-field of the input. To get the associated field names for each of
+    each sub-field of the inputData. To get the associated field names for each of
     the scalar values, call getScalarNames().
 
     For a simple scalar encoder, the scalar value is simply the input unmodified.
@@ -254,10 +254,10 @@ class Encoder(object):
 
     The intent of the scalar representation of a sub-field is to provide a
     baseline for measuring error differences. You can compare the scalar value
-    of the input with the scalar value returned from topDownCompute() on a
+    of the inputData with the scalar value returned from topDownCompute() on a
     top-down representation to evaluate prediction accuracy, for example.
 
-    @param input The data from the source. This is typically a object with 
+    @param inputData The data from the source. This is typically a object with 
                  members
     @returns array of scalar values
     """
@@ -266,16 +266,16 @@ class Encoder(object):
 
     if self.encoders is not None:
       for (name, encoder, offset) in self.encoders:
-        values = encoder.getScalars(self._getInputValue(input, name))
+        values = encoder.getScalars(self._getInputValue(inputData, name))
         retVals = numpy.hstack((retVals, values))
     else:
-      retVals = numpy.hstack((retVals, input))
+      retVals = numpy.hstack((retVals, inputData))
 
     return retVals
 
 
   ############################################################################
-  def getEncodedValues(self, input):
+  def getEncodedValues(self, inputData):
     """
     Returns the input in the same format as is returned by topDownCompute().
     For most encoder types, this is the same as the input data.
@@ -286,7 +286,7 @@ class Encoder(object):
     This method is essentially the same as getScalars() except that it returns
     strings
 
-    @param input The input data in the format it is received from the data source
+    @param inputData The input data in the format it is received from the data source
     
     @returns A list of values, in the same format and in the same order as they 
     are returned by topDownCompute.
@@ -296,28 +296,28 @@ class Encoder(object):
 
     if self.encoders is not None:
       for(name, encoders, offset) in self.encoders:
-        values = encoders.getEncodedValues(self._getInputValue(input, name))
+        values = encoders.getEncodedValues(self._getInputValue(inputData, name))
 
         if _isSequence(values):
           retVals.extend(values)
         else:
           retVals.append(values)
     else:
-      if _isSequence(input):
-        retVals.extend(input)
+      if _isSequence(inputData):
+        retVals.extend(inputData)
       else:
-        retVals.append(input)
+        retVals.append(inputData)
 
     return tuple(retVals)
 
   ############################################################################
-  def getBucketIndices(self, input):
+  def getBucketIndices(self, inputData):
     """ 
     Returns an array containing the sub-field bucket indices for
-    each sub-field of the input. To get the associated field names for each of
+    each sub-field of the inputData. To get the associated field names for each of
     the buckets, call getScalarNames().
 
-    @param input The data from the source. This is typically a object with 
+    @param inputData The data from the source. This is typically a object with 
                  members.
     @returns array of bucket indices
     """
@@ -326,7 +326,7 @@ class Encoder(object):
 
     if self.encoders is not None:
       for (name, encoder, offset) in self.encoders:
-        values = encoder.getBucketIndices(self._getInputValue(input, name))
+        values = encoder.getBucketIndices(self._getInputValue(inputData, name))
         retVals.extend(values)
     else:
       assert False, "Should be implemented in base classes that are not " \
