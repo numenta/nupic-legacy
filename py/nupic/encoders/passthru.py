@@ -19,10 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
-from nupic.data.fieldmeta import FieldMetaType
 import numpy
 import random
+
+from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import Encoder
+
 
 ############################################################################
 class PassThruEncoder(Encoder):
