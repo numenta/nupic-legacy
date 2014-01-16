@@ -19,12 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
+
+from nupic.bindings.math import SM32, GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.base import Encoder, EncoderResult
-from nupic.bindings.math import SM32, GetNTAReal
-import numpy
+
 
 class NonUniformScalarEncoder(ScalarEncoder):
   """
