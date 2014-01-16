@@ -24,6 +24,7 @@
  * @file
  */
 
+#define TIMER_TEST_MS 100
 
 #include "TimerTest.hpp"
 #include <nta/utils/Log.hpp>
@@ -46,7 +47,7 @@ void TimerTest::RunTests()
   TEST(t1.getStartCount() == 0);
   TESTEQUAL("[Elapsed: 0 Starts: 0]", t1.toString());
 
-  usleep(500);
+  usleep(TIMER_TEST_MS);
 
   TEST(t2.isStarted());
   TEST(t2.getStartCount() == 1);
@@ -54,7 +55,7 @@ void TimerTest::RunTests()
   Real64 t2elapsed = t2.getElapsed();
 
   t1.start();
-  usleep(500);
+  usleep(TIMER_TEST_MS);
   t1.stop();
 
   t2.stop();
