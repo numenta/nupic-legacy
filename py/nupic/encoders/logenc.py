@@ -20,10 +20,15 @@
 # ----------------------------------------------------------------------
 
 import math
+<<<<<<< HEAD
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
+=======
+
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+>>>>>>> fa710d18e34f6bcd6837a395daaaab621f937306
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 
