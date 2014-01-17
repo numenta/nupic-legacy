@@ -30,7 +30,7 @@
 #include <nta/utils/Log.hpp>
 #include <nta/os/Timer.hpp>
 #include <math.h> // fabs
-#include <unistd.h>
+#include <apr-1/apr_time.h>
 
 using namespace nta;
 
@@ -47,7 +47,7 @@ void TimerTest::RunTests()
   TEST(t1.getStartCount() == 0);
   TESTEQUAL("[Elapsed: 0 Starts: 0]", t1.toString());
 
-  usleep(TIMER_TEST_MS);
+  apr_sleep(TIMER_TEST_MS);
 
   TEST(t2.isStarted());
   TEST(t2.getStartCount() == 1);
@@ -55,7 +55,7 @@ void TimerTest::RunTests()
   Real64 t2elapsed = t2.getElapsed();
 
   t1.start();
-  usleep(TIMER_TEST_MS);
+  apr_sleep(TIMER_TEST_MS);
   t1.stop();
 
   t2.stop();
