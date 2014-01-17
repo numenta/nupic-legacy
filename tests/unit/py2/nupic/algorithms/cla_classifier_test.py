@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -433,7 +433,7 @@ class CLAClassifierTest(unittest.TestCase):
   def testMissingRecordInitialization(self):
     """
     Test missing record edge TestCase
-    Test an edge case in the classifier iniitialization when there is a missing
+    Test an edge case in the classifier initialization when there is a missing
     record in the first n records, where n is the # of prediction steps.
     """
     c = self._classifier([2], 0.1, 0.1, 0)

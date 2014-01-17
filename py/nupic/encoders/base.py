@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,9 +20,11 @@
 # ----------------------------------------------------------------------
 
 import numpy
-defaultDtype = numpy.uint8
 from utils import bitsToString
 from collections import namedtuple
+
+
+defaultDtype = numpy.uint8
 
 """Classes for encoding different types of values into bitstrings for HTM input"""
 
@@ -48,23 +50,21 @@ def _isSequence(obj):
 class Encoder(object):
   """
   An encoder takes a value and encodes it with a partial sparse representation
-  of bits.  The Encoder superclass implements
-  - encode(input) - returns a numpy array encoding the input; syntactic sugar
+  of bits.  The Encoder superclass implements:
+  - encode() - returns a numpy array encoding the input; syntactic sugar
     on top of encodeIntoArray. If pprint, prints the encoding to the terminal
   - pprintHeader() -- prints a header describing the encoding to the terminal
-  - pprint(array) -- prints an encoding to the terminal
+  - pprint() -- prints an encoding to the terminal
 
-  Methods/properties that must be implemented by subclasses
+  Methods/properties that must be implemented by subclasses:
   - getDecoderOutputFieldTypes() -- must be implemented by leaf encoders; returns
-    [fieldmeta.FieldMetaType.XXXXX] (e.g., [FieldMetaType.float])
+    \[`nupic.data.fieldmeta.FieldMetaType.XXXXX`\] (e.g., \[nupic.data.fieldmetaFieldMetaType.float\])
   - getWidth() -- returns the output width, in bits
-  - encodeIntoArray(input, output) -- encodes input and puts the encoded value
+  - encodeIntoArray() -- encodes input and puts the encoded value
     into the numpy output array, which is a 1-D array of length returned
     by getWidth()
   - getDescription() -- returns a list of (name, offset) pairs describing the
     encoded output
-
-
   """
 
   ############################################################################
@@ -74,58 +74,82 @@ class Encoder(object):
 
   ############################################################################
   def getWidth(self):
+    """
+    Should return the output width, in bits.
+
+    **Must be overridden by subclasses.**
+
+    @returns output width in bits
+    """
     raise Exception("getWidth must be implemented by all subclasses")
 
   ############################################################################
   def isDelta(self):
-    #A function that returns true if the underlying encoder works on deltas
+    """
+    @returns true if the underlying encoder works on deltas
+    """
     return False
 
   ############################################################################
-  def encodeIntoArray(self, input, output):
+  def encodeIntoArray(self, inputData, output):
+    """
+    Encodes inputData and puts the encoded value into the numpy output array, 
+    which is a 1-D array of length returned by getWidth()
+    
+    **Must be overridden by subclasses.**
+
+    @param inputData data to encode
+    @param output numpy 1-D array of same length returned by getWidth()
+    """
     raise Exception("encodeIntoArray must be implemented by all subclasses")
 
   ############################################################################
   def setLearning(self, learningEnabled):
+    """ 
+    Set whether learning is enabled.
+
+    @param learningEnabled whether learning should be enabled
+    """
     if hasattr(self,"_learningEnabled"):
       self._learningEnabled = learningEnabled
 
   ############################################################################
-  def setFieldStats(self,fieldName,fieldStatistics ):
-    """ This method is called by the model to set the statistics like min and
+  def setFieldStats(self, fieldName, fieldStatistics ):
+    """ 
+    This method is called by the model to set the statistics like min and
     max for the underlying encoders if this information is available.
     
-    Parameters:
-      
-      fieldName: name of the field this encoder is encoding, provided by
+    @param fieldName name of the field this encoder is encoding, provided by
           multiencoder
 
-      fieldStatistics: dictionary of dictionaries with the first level being
+    @param fieldStatistics dictionary of dictionaries with the first level being
           the fieldname and the second index the statistic ie:
           fieldStatistics['pounds']['min']
-
     """
     pass
+
   ############################################################################
-  def encode(self, input):
+  def encode(self, inputData):
+    """
+    TODO: document
+    @param inputData TODO: document
+    @returns TODO: document
+    """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
-    self.encodeIntoArray(input, output)
+    self.encodeIntoArray(inputData, output)
     return output
 
   ############################################################################
   def getScalarNames(self, parentFieldName=''):
-    """ Return the field names for each of the scalar values returned by
+    """ 
+    Return the field names for each of the scalar values returned by
     getScalars.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    parentFieldName:  The name of the encoder which is our parent. This name is
-                  prefixed to each of the field names within this encoder to
-                  form the keys of the dict() in the retval.
+    @param parentFieldName The name of the encoder which is our parent. This name 
+           is prefixed to each of the field names within this encoder to form the 
+           keys of the dict() in the retval.
 
-    retval:       array of field names
-
-
+    @returns array of field names
     """
 
     names = []
@@ -147,9 +171,12 @@ class Encoder(object):
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
-    """ Returns a sequence of field types corresponding to the elements in the
-    decoded output field array.  The types are defined by
-    fieldmeta.FieldMetaType
+    """ 
+    Returns a sequence of field types corresponding to the elements in the
+    decoded output field array.  The types are defined by 
+    nupic.data.fieldmeta.FieldMetaType.
+
+    @returns list of nupic.data.fieldmeta.FieldMetaType objects
     """
     if hasattr(self, '_flattenedFieldTypeList') and \
           self._flattenedFieldTypeList is not None:
@@ -169,14 +196,19 @@ class Encoder(object):
 
 
   ############################################################################
-  #setting this to true freezes the state of the encoder
-  #This is separate from the learning state which affects changing parameters.
   def setStateLock(self,lock):
+    """
+    Setting this to true freezes the state of the encoder
+    This is separate from the learning state which affects changing parameters.
+    Implemented in subclasses.
+    """
     pass
 
   ############################################################################
   def _getInputValue(self, obj, fieldname):
-    """Gets the value of a given field from the input record"""
+    """
+    Gets the value of a given field from the input record
+    """
     if isinstance(obj, dict):
       return obj[fieldname]
     else:
@@ -184,8 +216,11 @@ class Encoder(object):
 
   ############################################################################
   def getEncoderList(self):
-    """ Returns a reference to each sub-encoder in this encoder. They are
-    returned in the same order as they are for getScalarNames and getScalars
+    """ 
+    @returns a reference to each sub-encoder in this encoder. They are
+             returned in the same order as they are for getScalarNames() and 
+             getScalars().
+
     """
     if hasattr(self, '_flattenedEncoderList') and \
         self._flattenedEncoderList is not None:
@@ -206,9 +241,10 @@ class Encoder(object):
 
 
   ############################################################################
-  def getScalars(self, input):
-    """ Returns a numpy array containing the sub-field scalar value(s) for
-    each sub-field of the input. To get the associated field names for each of
+  def getScalars(self, inputData):
+    """ 
+    Returns a numpy array containing the sub-field scalar value(s) for
+    each sub-field of the inputData. To get the associated field names for each of
     the scalar values, call getScalarNames().
 
     For a simple scalar encoder, the scalar value is simply the input unmodified.
@@ -218,33 +254,30 @@ class Encoder(object):
 
     The intent of the scalar representation of a sub-field is to provide a
     baseline for measuring error differences. You can compare the scalar value
-    of the input with the scalar value returned from topDownCompute() on a
+    of the inputData with the scalar value returned from topDownCompute() on a
     top-down representation to evaluate prediction accuracy, for example.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    input:        The data from the source. This is typically a object with
-                   members.
-    retval:       array of scalar values
-
-
+    @param inputData The data from the source. This is typically a object with 
+                 members
+    @returns array of scalar values
     """
 
     retVals = numpy.array([])
 
     if self.encoders is not None:
       for (name, encoder, offset) in self.encoders:
-        values = encoder.getScalars(self._getInputValue(input, name))
+        values = encoder.getScalars(self._getInputValue(inputData, name))
         retVals = numpy.hstack((retVals, values))
     else:
-      retVals = numpy.hstack((retVals, input))
+      retVals = numpy.hstack((retVals, inputData))
 
     return retVals
 
 
   ############################################################################
-  def getEncodedValues(self, input):
-    """Returns the input in the same format as is returned by topDownCompute().
+  def getEncodedValues(self, inputData):
+    """
+    Returns the input in the same format as is returned by topDownCompute().
     For most encoder types, this is the same as the input data.
     For instance, for scalar and category types, this corresponds to the numeric
     and string values, respectively, from the inputs. For datetime encoders, this
@@ -253,55 +286,47 @@ class Encoder(object):
     This method is essentially the same as getScalars() except that it returns
     strings
 
-
-    Parameters:
-    -----------------------------------------------------------------------
-    input :               The input data in the format it is recieved from the
-                          data source
-
-    Returns:              A list of values, in the same format and in the same order
-                          as they are returned by topDownCompute.
+    @param inputData The input data in the format it is received from the data source
+    
+    @returns A list of values, in the same format and in the same order as they 
+    are returned by topDownCompute.
     """
 
     retVals = []
 
     if self.encoders is not None:
       for(name, encoders, offset) in self.encoders:
-        values = encoders.getEncodedValues(self._getInputValue(input, name))
+        values = encoders.getEncodedValues(self._getInputValue(inputData, name))
 
         if _isSequence(values):
           retVals.extend(values)
         else:
           retVals.append(values)
     else:
-      if _isSequence(input):
-        retVals.extend(input)
+      if _isSequence(inputData):
+        retVals.extend(inputData)
       else:
-        retVals.append(input)
+        retVals.append(inputData)
 
     return tuple(retVals)
 
   ############################################################################
-  def getBucketIndices(self, input):
-    """ Returns an array containing the sub-field bucket indices for
-    each sub-field of the input. To get the associated field names for each of
+  def getBucketIndices(self, inputData):
+    """ 
+    Returns an array containing the sub-field bucket indices for
+    each sub-field of the inputData. To get the associated field names for each of
     the buckets, call getScalarNames().
 
-
-    Parameters:
-    ------------------------------------------------------------------------
-    input:        The data from the source. This is typically a object with
-                   members.
-    retval:       array of bucket indices
-
-
+    @param inputData The data from the source. This is typically a object with 
+                 members.
+    @returns array of bucket indices
     """
 
     retVals = []
 
     if self.encoders is not None:
       for (name, encoder, offset) in self.encoders:
-        values = encoder.getBucketIndices(self._getInputValue(input, name))
+        values = encoder.getBucketIndices(self._getInputValue(inputData, name))
         retVals.extend(values)
     else:
       assert False, "Should be implemented in base classes that are not " \
@@ -312,8 +337,14 @@ class Encoder(object):
 
   ############################################################################
   def scalarsToStr(self, scalarValues, scalarNames=None):
-    """ Return a pretty print string representing the return values from
-    getScalars and getScalarNames()
+    """ 
+    Return a pretty print string representing the return values from
+    getScalars and getScalarNames().
+
+    @param scalarValues input values to encode to string
+    @param scalarNames optional input of scalar names to convert. If None, gets
+                       scalar names from getScalarNames()
+    @returns string representation of scalar values
     """
 
     if scalarNames is None:
@@ -332,27 +363,28 @@ class Encoder(object):
 
   ############################################################################
   def getDescription(self):
-    """ This returns a list of tuples, each containing (name, offset).
+    """ 
+    This returns a list of tuples, each containing (name, offset).
     The 'name' is a string description of each sub-field, and offset is the bit
     offset of the sub-field for that encoder.
 
     For now, only the 'multi' and 'date' encoders have multiple (name, offset)
     pairs. All other encoders have a single pair, where the offset is 0.
+
+    **Must be overridden by subclasses.**
+
+    @returns list of tuples containing (name, offset)
     """
     raise Exception("getDescription must be implemented by all subclasses")
 
 
   ############################################################################
   def getFieldDescription(self, fieldName):
-    """ Return the offset and length of a given field within the encoded
-    output.
+    """ 
+    Return the offset and length of a given field within the encoded output.
 
-    Parameters:
-    ----------------------------------------------------
-    fieldName:      Name of the field
-    retval:         (offset, width)
-                    offset and width of the field within the encoded output
-
+    @param fieldName      Name of the field
+    @returns tuple(offset, width) of the field within the encoded output
     """
 
     # Find which field it's in
@@ -371,15 +403,14 @@ class Encoder(object):
 
   ############################################################################
   def encodedBitDescription(self, bitOffset, formatted=False):
-    """ Return a description of the given bit in the encoded output.
+    """ 
+    Return a description of the given bit in the encoded output.
     This will include the field name and the offset within the field.
 
-    Parameters:
-    ----------------------------------------------------
-    bitOffset:      Offset of the bit to get the description of
-    formatted:      If True, the bitOffset is w.r.t. formatted output,
-                    which includes separators
-    retval:         (fieldName, offsetWithinField)
+    @param bitOffset      Offset of the bit to get the description of
+    @param formatted      If True, the bitOffset is w.r.t. formatted output,
+                          which includes separators
+    @returns             tuple(fieldName, offsetWithinField)
     """
 
     # Find which field it's in
@@ -411,8 +442,11 @@ class Encoder(object):
 
   ############################################################################
   def pprintHeader(self, prefix=""):
-    """ Pretty-print a header that labels the sub-fields of the encoded
+    """ 
+    Pretty-print a header that labels the sub-fields of the encoded
     output. This can be used in conjuction with pprint.
+
+    @param prefix printed before the header if specified
     """
     print prefix,
     description = self.getDescription() + [("end", self.getWidth())]
@@ -430,7 +464,11 @@ class Encoder(object):
 
   ############################################################################
   def pprint(self, output, prefix=""):
-    """ Pretty-print the encoded output using ascii art.
+    """ 
+    Pretty-print the encoded output using ascii art.
+
+    @param output to print
+    @param prefix printed before the header if specified
     """
     print prefix,
     description = self.getDescription() + [("end", self.getWidth())]
@@ -443,7 +481,8 @@ class Encoder(object):
 
   ############################################################################
   def decode(self, encoded, parentFieldName=''):
-    """ Takes an encoded output and does its best to work backwards and generate
+    """ 
+    Takes an encoded output and does its best to work backwards and generate
     the input that would have generated it.
 
     In cases where the encoded output contains more ON bits than an input
@@ -460,45 +499,47 @@ class Encoder(object):
     If you want to pretty print the return value from this method, use the
     decodedToStr() method.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    encoded:      The encoded output that you want decode
-    parentFieldName:  The name of the encoder which is our parent. This name is
-                  prefixed to each of the field names within this encoder to
-                  form the keys of the dict() in the retval.
+    @param encoded      The encoded output that you want decode
+    @param parentFieldName The name of the encoder which is our parent. This name 
+           is prefixed to each of the field names within this encoder to form the 
+           keys of the dict() in the retval.
 
-    retval:       (fieldsDict, fieldOrder)
-                  fieldsDict is a dict() where the keys represent field names
-                  (only 1 if this is a simple encoder, > 1 if this is a multi
-                  or date encoder) and the values are the result of decoding each
-                  field. If there are  no bits in encoded that would have been
-                  generated by a field, it won't be present in the dict. The
-                  key of each entry in the dict is formed by joining the passed in
-                  parentFieldName with the child encoder name using a '.'.
+    @returns tuple(fieldsDict, fieldOrder) (see below for details)
+             
+    fieldsDict is a dict() where the keys represent field names
+    (only 1 if this is a simple encoder, > 1 if this is a multi
+    or date encoder) and the values are the result of decoding each
+    field. If there are  no bits in encoded that would have been
+    generated by a field, it won't be present in the dict. The
+    key of each entry in the dict is formed by joining the passed in
+    parentFieldName with the child encoder name using a '.'.
 
-                  Each 'value' in fieldsDict consists of (ranges, desc), where
-                  ranges is a list of one or more (minVal, maxVal) ranges of
-                  input that would generate bits in the encoded output and 'desc'
-                  is a pretty print description of the ranges. For encoders like
-                  the category encoder, the 'desc' will contain the category
-                  names that correspond to the scalar values included in the
-                  ranges.
+    Each 'value' in fieldsDict consists of (ranges, desc), where
+    ranges is a list of one or more (minVal, maxVal) ranges of
+    input that would generate bits in the encoded output and 'desc'
+    is a pretty print description of the ranges. For encoders like
+    the category encoder, the 'desc' will contain the category
+    names that correspond to the scalar values included in the
+    ranges.
 
-                  The fieldOrder is a list of the keys from fieldsDict, in the
-                  same order as the fields appear in the encoded output.
-                  # TODO: when we switch to Python 2.7 or 3.x, use OrderedDict
+    The fieldOrder is a list of the keys from fieldsDict, in the
+    same order as the fields appear in the encoded output.
+
+    TODO: when we switch to Python 2.7 or 3.x, use OrderedDict
 
     Example retvals for a scalar encoder:
-     {'amount':  ( [[1,3], [7,10]], '1-3, 7-10' )}
-     {'amount':  ( [[2.5,2.5]],     '2.5'       )}
+
+        {'amount':  ( [[1,3], [7,10]], '1-3, 7-10' )}
+        {'amount':  ( [[2.5,2.5]],     '2.5'       )}
 
     Example retval for a category encoder:
-     {'country': ( [[1,1], [5,6]], 'US, GB, ES' )}
+
+        {'country': ( [[1,1], [5,6]], 'US, GB, ES' )}
 
     Example retval for a multi encoder:
-     {'amount':  ( [[2.5,2.5]],     '2.5'       ),
-      'country': ( [[1,1], [5,6]],  'US, GB, ES' )}
 
+        {'amount':  ( [[2.5,2.5]],     '2.5'       ),
+         'country': ( [[1,1], [5,6]],  'US, GB, ES' )}
 
     """
 
@@ -534,8 +575,8 @@ class Encoder(object):
 
   ############################################################################
   def decodedToStr(self, decodeResults):
-    """ Return a pretty print string representing the return value from
-    decode()
+    """ 
+    Return a pretty print string representing the return value from decode().
     """
 
     (fieldsDict, fieldsOrder) = decodeResults
@@ -555,7 +596,8 @@ class Encoder(object):
 
   ############################################################################
   def getBucketValues(self):
-    """ Returns a list of items, one for each bucket defined by this encoder.
+    """ 
+    Returns a list of items, one for each bucket defined by this encoder.
     Each item is the value assigned to that bucket, this is the same as the
     EncoderResult.value that would be returned by getBucketInfo() for that
     bucket and is in the same format as the input that would be passed to
@@ -564,44 +606,41 @@ class Encoder(object):
     This call is faster than calling getBucketInfo() on each bucket individually
     if all you need are the bucket values.
 
-    Parameters:
-    ----------------------------------------------------------------------
-    retval:   list of items, each item representing the bucket value for
-                that bucket.
+    **Must be overridden by subclasses.**
+
+    @returns list of items, each item representing the bucket value for that 
+             bucket.
     """
     raise Exception("getBucketValues must be implemented by all subclasses")
 
 
   ############################################################################
   def getBucketInfo(self, buckets):
-    """ Returns a list of EncoderResult namedtuples describing the inputs for
+    """ 
+    Returns a list of EncoderResult namedtuples describing the inputs for
     each sub-field that correspond to the bucket indices passed in 'buckets'.
     To get the associated field names for each of the values, call getScalarNames().
 
-    Parameters:
-    ------------------------------------------------------------------------
-    buckets:      The list of bucket indices, one for each sub-field encoder.
-                  These bucket indices for example may have been retrieved
-                  from the getBucketIndices() call.
-    retval:       A list of EncoderResult namedtuples. Each EncoderResult has
-                  three attributes:
+    @param buckets The list of bucket indices, one for each sub-field encoder.
+                   These bucket indices for example may have been retrieved
+                   from the getBucketIndices() call.
+    @retuns A list of EncoderResult namedtuples. Each EncoderResult has
+            three attributes:
 
-                  1) value:         This is the value for the sub-field
-                                    in a format that is consistent with the type
-                                    specified by getDecoderOutputFieldTypes().
-                                    Note that this value is not necessarily
-                                    numeric.
-
-                  2) scalar:        The scalar representation of value. This
-                                    number is consistent with what is returned
-                                    by getScalars(). This value is always an
-                                    int or float, and can be used for
-                                    numeric comparisons
-
-                  3) encoding       This is the encoded bit-array (numpy array)
-                                    that represents 'value'. That is, if 'value'
-                                    was passed to encode(), an identical
-                                    bit-array should be returned
+            -# value:         This is the value for the sub-field
+                              in a format that is consistent with the type
+                              specified by getDecoderOutputFieldTypes().
+                              Note that this value is not necessarily
+                              numeric.
+            -# scalar:        The scalar representation of value. This
+                              number is consistent with what is returned
+                              by getScalars(). This value is always an
+                              int or float, and can be used for
+                              numeric comparisons
+            -# encoding       This is the encoded bit-array (numpy array)
+                              that represents 'value'. That is, if 'value'
+                              was passed to encode(), an identical
+                              bit-array should be returned
 
     """
 
@@ -634,37 +673,36 @@ class Encoder(object):
 
   ############################################################################
   def topDownCompute(self, encoded):
-    """ Returns a list of EncoderResult namedtuples describing the top-down
+    """ 
+    Returns a list of EncoderResult namedtuples describing the top-down
     best guess inputs for each sub-field given the encoded output. These are the
     values which are most likely to generate the given encoded output.
     To get the associated field names for each of the values, call
     getScalarNames().
 
-    Parameters:
-    ------------------------------------------------------------------------
-    encoded:      The encoded output. Typically received from the topDown outputs
-                    from the spatial pooler just above us.
-    retval:       A list of EncoderResult namedtuples. Each EncoderResult has
-                  three attributes:
+    @param encoded The encoded output. Typically received from the topDown outputs
+                   from the spatial pooler just above us.
 
-                  1) value:         This is the best-guess value for the sub-field
-                                    in a format that is consistent with the type
-                                    specified by getDecoderOutputFieldTypes().
-                                    Note that this value is not necessarily
-                                    numeric.
+    @returns A list of EncoderResult namedtuples. Each EncoderResult has
+             three attributes:
 
-                  2) scalar:        The scalar representation of this best-guess
-                                    value. This number is consistent with what
-                                    is returned by getScalars(). This value is
-                                    always an int or float, and can be used for
-                                    numeric comparisons
+             -# value:         This is the best-guess value for the sub-field
+                               in a format that is consistent with the type
+                               specified by getDecoderOutputFieldTypes().
+                               Note that this value is not necessarily
+                               numeric.
 
-                  3) encoding       This is the encoded bit-array (numpy array)
-                                    that represents the best-guess value.
-                                    That is, if 'value' was passed to
-                                    encode(), an identical bit-array should be
-                                    returned
+             -# scalar:        The scalar representation of this best-guess
+                               value. This number is consistent with what
+                               is returned by getScalars(). This value is
+                               always an int or float, and can be used for
+                               numeric comparisons.
 
+             -# encoding       This is the encoded bit-array (numpy array)
+                               that represents the best-guess value.
+                               That is, if 'value' was passed to
+                               encode(), an identical bit-array should be
+                               returned.
     """
 
 
@@ -697,7 +735,8 @@ class Encoder(object):
 
   ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
-    """ Compute closeness scores between the expected scalar value(s) and actual
+    """ 
+    Compute closeness scores between the expected scalar value(s) and actual
     scalar value(s). The expected scalar values are typically those obtained
     from the getScalars() method. The actual scalar values are typically those
     returned from the topDownCompute() method.
@@ -714,14 +753,13 @@ class Encoder(object):
     a category encoder may return either 1 or 0, if the scalar matches exactly
     or not. A scalar encoder might return a percentage match, etc.
 
-    Parameters:
-    ------------------------------------------------------------------------
-    expValues:    Array of expected scalar values, typically obtained from the
-                    getScalars() method
-    actValues:    Array of actual values, typically obtained from topDownCompute()
-    retval:       Array of closeness scores, one per item in expValues (or
-                    actValues).
+    @param expValues Array of expected scalar values, typically obtained from
+                     getScalars()
+    @param actValues Array of actual values, typically obtained from 
+                     topDownCompute()
 
+    @returns Array of closeness scores, one per item in expValues (or
+             actValues).
     """
 
 
@@ -757,10 +795,12 @@ class Encoder(object):
 
 
 
-
   ############################################################################
   def getDisplayWidth(self):
-    """Calculate width of display for bits plus blanks between fields.
+    """
+    Calculate width of display for bits plus blanks between fields.
+
+    @returns width of display for bits plus blanks between fields
     """
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
@@ -772,6 +812,12 @@ class Encoder(object):
     between fields (for display)
     If leftpad is one, then there is a dummy value at element 0
     of the arrays, and we should start our counting from 1 rather than 0
+
+    @param inarray TODO: document
+    @param outarray TODO: document
+    @param scale TODO: document
+    @param blank TODO: document
+    @param leftpad TODO: document
     """
     description = self.getDescription() + [("end", self.getWidth())]
 

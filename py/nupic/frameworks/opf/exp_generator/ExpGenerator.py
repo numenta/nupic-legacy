@@ -1,8 +1,8 @@
 #! /usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -56,7 +56,7 @@ from nupic.support.configuration import Configuration
 from nupic.support.enum import Enum
 
 
-##############################################################################
+#############################################################################
 # Global constants
 
 # Space characters representing one level of indent in our generated python
@@ -66,19 +66,20 @@ _ONE_INDENT = ' ' * _INDENT_STEP
 _ILLEGAL_FIELDNAME_CHARACTERS = "\\"
 METRIC_WINDOW = int(Configuration.get("nupic.opf.metricWindow"))
 
-################################################################################
+#############################################################################
 # Enum to characterize potential generation environments
 OpfEnvironment = Enum(Grok='grok',
                       Experiment='opfExperiment')
 
-##############################################################################
+
+#############################################################################
 class _ExpGeneratorException(Exception):
   """ Base class for all ExpGenerator-specific exceptions
   """
   pass
 
 
-##############################################################################
+#############################################################################
 class _CreateDirectoryException(_ExpGeneratorException):
   """ Raised on error creating the experiment directory
 
@@ -98,7 +99,7 @@ class _CreateDirectoryException(_ExpGeneratorException):
     self.reason = reason
 
 
-##############################################################################
+#############################################################################
 class _InvalidFunctionArgException(_ExpGeneratorException):
   """
   This exception may be raised in response to invalid or incompatible function
@@ -106,7 +107,8 @@ class _InvalidFunctionArgException(_ExpGeneratorException):
   """
   pass
 
-##############################################################################
+
+#############################################################################
 class _InvalidCommandArgException(_ExpGeneratorException):
   """
   This exception may be raised in response to invalid or incompatible command
@@ -117,7 +119,7 @@ class _InvalidCommandArgException(_ExpGeneratorException):
   pass
 
 
-##############################################################################
+#############################################################################
 class _ErrorReportingException(_ExpGeneratorException):
   """
   This exception may be raised by our error result reporting code.  When
@@ -138,12 +140,14 @@ class _ErrorReportingException(_ExpGeneratorException):
                                 ("Encountered error: '%s' while reporting " + \
                                 "error: '%s'.") \
                                 % (problem, precursor))
-##############################################################################
+
+
+#############################################################################
 class FieldTypeError(_ExpGeneratorException):
   pass
 
 
-##############################################################################
+#############################################################################
 def _makeUsageErrorStr(errorString, usageString):
   """ Combines an error string and usage string into a regular format, so they
   all look consistent.
@@ -151,8 +155,7 @@ def _makeUsageErrorStr(errorString, usageString):
   return "ERROR: %s (%s)" % (errorString, usageString)
 
 
-
-##############################################################################
+#############################################################################
 def _handleShowSchemaOption():
   """ Displays command schema to stdout and exit program
   """
@@ -162,8 +165,7 @@ def _handleShowSchemaOption():
   return
 
 
-
-##############################################################################
+#############################################################################
 def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
                              claDescriptionTemplateFile):
   """
@@ -200,7 +202,8 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
 
   return
 
-##############################################################################
+
+#############################################################################
 def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
                              claDescriptionTemplateFile):
   """
@@ -234,7 +237,8 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
         claDescriptionTemplateFile = claDescriptionTemplateFile)
   return
 
-############################################################################
+
+#############################################################################
 def _isInt(x, precision = 0.0001):
   """
   Return (isInt, intValue) for a given floating point number.
@@ -252,8 +256,7 @@ def _isInt(x, precision = 0.0001):
   return (abs(x - xInt) < precision * x, xInt)
 
 
-
-############################################################################
+#############################################################################
 def _isString(obj):
   """
   returns whether or not the object is a string
@@ -301,6 +304,7 @@ def _indentLines(str, indentLevels = 1, indentFirstLine=True):
 
   return result
 
+
 #############################################################################
 def _isCategory(fieldType):
   """Prediction function for determining whether a function is a categorical
@@ -312,6 +316,7 @@ def _isCategory(fieldType):
     return True
   if fieldType == 'int' or fieldType=='float':
     return False
+
 
 #############################################################################
 def _generateMetricSpecString(inferenceElement, metric,
@@ -590,7 +595,7 @@ def _generateEncoderStringsV1(includedFields):
   encoderSpecsList = []
   for encoderChoices in encoderChoicesList:
     # Use the last choice as the default in the base file because the 1st is
-    #  often None
+    # often None
     encoder = encoderChoices[-1]
 
     # Check for bad characters
@@ -679,7 +684,7 @@ def _generatePermEncoderStr(options, encoderDict):
   else:
     # Scalar encoders
     if encoderDict["type"] in ["ScalarSpaceEncoder", "AdaptiveScalarEncoder",
-                             "ScalarEncoder"]:
+                             "ScalarEncoder", "LogEncoder"]:
       permStr = "PermuteEncoder("
       for key, value in encoderDict.items():
         if key == "fieldname":
@@ -762,8 +767,7 @@ def _generatePermEncoderStr(options, encoderDict):
                           (encoderDict["type"]))
       
   return permStr
-  
-  
+
 
 #############################################################################
 def _generateEncoderStringsV2(includedFields, options):
@@ -865,7 +869,8 @@ def _generateEncoderStringsV2(includedFields, options):
       if ('minValue' in fieldInfo and 'maxValue' in fieldInfo) \
             and (encoderDict['type'] == 'AdaptiveScalarEncoder'):
         encoderDict['type'] = 'ScalarEncoder'
-         
+      
+      # Defaults may have been over-ridden by specifying an encoder type
       if 'encoderType' in fieldInfo:
         encoderDict['type'] = fieldInfo['encoderType']
 
@@ -935,7 +940,7 @@ def _generateEncoderStringsV2(includedFields, options):
       if options["inferenceArgs"]["inputPredictedField"] == "no":
         encoderDictsList.remove(encoderDict)
 
-  #Remove any encoders not in fixedFields
+  # Remove any encoders not in fixedFields
   if options.get('fixedFields') is not None:
     tempList=[]
     for encoderDict in encoderDictsList:
@@ -985,7 +990,7 @@ def _generateEncoderStringsV2(includedFields, options):
   return (encoderSpecsStr, permEncoderChoicesStr)
 
 
-############################################################################
+#############################################################################
 def _handleJAVAParameters(options):
   """ Handle legacy options (TEMPORARY) """
 
@@ -1014,7 +1019,7 @@ def _handleJAVAParameters(options):
       options['inferenceArgs']['predictedField'] = options['predictionField']
 
 
-############################################################################
+#############################################################################
 def _getPropertyValue(schema, propertyName, options):
   """Checks to see if property is specified in 'options'. If not, reads the
   default value from the schema"""
@@ -1027,6 +1032,7 @@ def _getPropertyValue(schema, propertyName, options):
       options[propertyName] = None
 
 
+#############################################################################
 def _getExperimentDescriptionSchema():
   """
   Returns the experiment description schema. This implementation loads it in
@@ -1627,8 +1633,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   print "done."
 
 
-
-################################################################################
+#############################################################################
 def _generateMetricsSubstitutions(options, tokenReplacements):
   """Generate the token substitution for metrics related fields.
   This includes:
@@ -1661,7 +1666,8 @@ def _generateMetricsSubstitutions(options, tokenReplacements):
   tokenReplacements['\$PERM_OPTIMIZE_SETTING'] \
                                         = permOptimizeSettingStr
 
-################################################################################
+
+#############################################################################
 def _generateMetricSpecs(options):
   """ Generates the Metrics for a given InferenceType
 
@@ -1902,7 +1908,7 @@ def _generateMetricSpecs(options):
   return metricSpecStrings, optimizeMetricLabel
 
 
-############################################################################
+#############################################################################
 def _generateExtraMetricSpecs(options):
   """Generates the non-default metrics specified by the expGenerator params """
   global _metricSpecSchema
@@ -1928,7 +1934,8 @@ def _generateExtraMetricSpecs(options):
 
   return results
 
-################################################################################
+
+#############################################################################
 def _getPredictedField(options):
   """ Gets the predicted field and it's datatype from the options dictionary
 
@@ -1953,7 +1960,7 @@ def _getPredictedField(options):
   return predictedField, predictedFieldType
 
 
-############################################################################
+#############################################################################
 def _generateInferenceArgs(options, tokenReplacements):
   """ Generates the token substitutions related to the predicted field
   and the supplemental arguments for prediction
@@ -1985,7 +1992,8 @@ def _generateInferenceArgs(options, tokenReplacements):
 
   tokenReplacements['\$PREDICTION_FIELD'] = predictedField
 
-##############################################################################
+
+#############################################################################
 def expGenerator(args):
   """ Parses, validates, and executes command-line options;
 
@@ -2079,6 +2087,6 @@ def expGenerator(args):
 
 
 
-#########################################################################
+#############################################################################
 if __name__ == '__main__':
   expGenerator(sys.argv[1:])

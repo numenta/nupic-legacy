@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -140,7 +140,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     
     assert env is not None
     
-    # If already have a path, catenate to it
+    # If already have a path, concatenate to it
     if "NTA_DATA_PATH" in env:
       newPath = "%s:%s" % (env["NTA_DATA_PATH"], g_myEnv.testSrcDataDir)
     else:
@@ -1761,7 +1761,7 @@ class MultiNodeTests(ExperimentTestBaseClass):
   def testSmartSpeculationSpatialClassification(self, onCluster=True, 
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
-    classification models. This also appies to temporal models where the
+    classification models. This also applies to temporal models where the
     predicted field is optional (or excluded) since Hypersearch treats them
     the same. 
     """

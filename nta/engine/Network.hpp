@@ -1,8 +1,7 @@
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -121,7 +120,10 @@ namespace nta
                const std::string& srcOutputName="", const std::string& destInputName=""); 
   
    /**
-    * Initialize all elements of a network so that it can run
+    * Initialize all elements of a network so that it can run. This can be called
+    * after the Network structure has been set and before Network.run(). However,
+    * if you don't call it, Network.run() will call it for you. Also sets up 
+    * various memory buffers, etc. once the Network structure has been finalized.
     */
     void
     initialize();
@@ -174,7 +176,9 @@ namespace nta
 
 
    /**
-    * Run the network for the given number of iterations
+    * Run the network for the given number of iterations of compute for each 
+    * Region in the correct order. For each iteration, Region.compute() is called.
+    * 
     * @param n Number of iterations
     */
     void

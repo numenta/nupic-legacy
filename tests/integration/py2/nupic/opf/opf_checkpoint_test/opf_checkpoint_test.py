@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -265,7 +265,7 @@ class MyTestCaseBase(HelperTestCaseBase):
 
   def _testSamePredictions(self, experiment, predSteps, checkpointAt,
                            predictionsFilename, additionalFields=None):
-    """ Test that we get the same predictions out from the followng two
+    """ Test that we get the same predictions out from the following two
     scenarios:
 
     a_plus_b: Run the network for 'a' iterations followed by 'b' iterations

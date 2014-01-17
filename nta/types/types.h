@@ -1,8 +1,7 @@
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -120,7 +119,7 @@ typedef  long long            NTA_Int64;
 /** TODO: document */
 typedef  unsigned long long   NTA_UInt64;
 
-#elif defined(NTA_PLATFORM_linux32arm)
+#elif defined(NTA_PLATFORM_linux32arm) || defined(NTA_PLATFORM_linux32armv7)
 /** TODO: document */
 typedef  int                  NTA_Int32;
 /** TODO: document */

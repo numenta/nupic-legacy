@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
+
+from nupic.bindings.math import SM32, GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.base import Encoder, EncoderResult
-from nupic.bindings.math import SM32, GetNTAReal
-import numpy
+
 
 class NonUniformScalarEncoder(ScalarEncoder):
   """
@@ -73,7 +75,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
   def ComputeBins(cls, nBins, data, weights=None, verbosity = 0):
     data = numpy.array(data)
     bins = numpy.zeros((nBins, 2))
-    #If no weights were specified, default to uniformly wieghted
+    #If no weights were specified, default to uniformly weighted
     if weights is None:
       weights = numpy.ones(data.shape, dtype = defaultDtype)
 
