@@ -112,7 +112,7 @@ inline void CheckInit()
   { NumpyArray::init(); }
 
 NumpyArray::NumpyArray(int nd, const int *ndims, int dtype)
-  : p_(0), dtype_(dtype)
+  : p_(nullptr), dtype_(dtype)
 {
 
   // declare static to avoid new/delete with every call
@@ -140,7 +140,7 @@ NumpyArray::NumpyArray(int nd, const int *ndims, int dtype)
 }
 
 NumpyArray::NumpyArray(PyObject *p, int dtype, int requiredDimension)
-  : p_(0), dtype_(dtype)
+  : p_(nullptr), dtype_(dtype)
 {
   CheckInit();
 
@@ -164,7 +164,7 @@ NumpyArray::NumpyArray(PyObject *p, int dtype, int requiredDimension)
 NumpyArray::~NumpyArray()
 {
   PyObject *generic = (PyObject *) p_;
-  p_ = 0;
+  p_ = nullptr;
   Py_CLEAR(generic);
 }
 
@@ -212,7 +212,7 @@ PyObject *NumpyArray::forPython() {
     PyObject *toReturn = PyArray_Return((PyArrayObject *)p_);
     return toReturn;
   }
-  else return 0;
+  else return nullptr;
 }
 
 #endif // NTA_PYTHON_SUPPORT

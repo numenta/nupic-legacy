@@ -188,7 +188,7 @@ void BufferTest::testEvenMoreComplicatedSerialization()
   // Read number of Xs
   rb.read(size);
   // Allocate array of Xs
-  X * xo = new X[size];
+  auto  xo = new X[size];
   for (Size i = 0; i < size; ++i)
   {
     rb.read(xo[i].a);
@@ -279,7 +279,7 @@ void BufferTest::testComplicatedSerialization()
   // Read number of Xs
   rb.read(size);
   // Allocate array of Xs
-  X * xo = new X[size];
+  auto  xo = new X[size];
   for (Size i = 0; i < size; ++i)
   {
     rb.read(xo[i].a);
@@ -321,9 +321,9 @@ void BufferTest::testArrayMethods()
 
     UInt32 result[4];
     std::fill(result, result+4, 0);
-    for (UInt32 i = 0; i < 4; ++i)
+    for (auto & elem : result)
     {
-      TEST(result[i]== 0);
+      TEST(elem== 0);
     }
   
     reader.read((UInt32 *)result, 3);
@@ -345,9 +345,9 @@ void BufferTest::testArrayMethods()
 
     Int32 result[4];
     std::fill(result, result+4, 0);
-    for (Int32 i = 0; i < 4; ++i)
+    for (auto & elem : result)
     {
-      TEST(result[i]== 0);
+      TEST(elem== 0);
     }
   
     reader.read((Int32 *)result, 3);
@@ -369,9 +369,9 @@ void BufferTest::testArrayMethods()
 
     Real32 result[4];
     std::fill(result, result+4, (Real32)0);
-    for (UInt32 i = 0; i < 4; ++i)
+    for (auto & elem : result)
     {
-      TEST(result[i]== 0);
+      TEST(elem== 0);
     }
   
     reader.read((Real32 *)result, 3);

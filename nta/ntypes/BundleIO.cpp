@@ -31,8 +31,8 @@ namespace nta
     isInput_(isInput),
     bundlePath_(bundlePath), 
     regionName_(regionName),
-    ostream_(NULL), 
-    istream_(NULL)
+    ostream_(nullptr), 
+    istream_(nullptr)
   {
     if (! Path::exists(bundlePath_))
       NTA_THROW << "Network bundle " << bundlePath << " does not exist";
@@ -47,14 +47,14 @@ namespace nta
       if (istream_->is_open())
         istream_->close();
       delete istream_;
-      istream_ = NULL;
+      istream_ = nullptr;
     }
     if (ostream_)
     {
       if (ostream_->is_open())
         ostream_->close();
       delete ostream_;
-      ostream_ = NULL;
+      ostream_ = nullptr;
     }
   }
 
@@ -104,10 +104,10 @@ namespace nta
   {
     // Catch implementation errors and make it easier to 
     // support direct serialization to/from archives
-    if (isInput_ && istream_ != NULL && istream_->is_open())
+    if (isInput_ && istream_ != nullptr && istream_->is_open())
       NTA_THROW << "Internal Error: istream_ has not been closed";
     
-    if (!isInput_ && ostream_ != NULL && ostream_->is_open())
+    if (!isInput_ && ostream_ != nullptr && ostream_->is_open())
       NTA_THROW << "Internal Error: ostream_ has not been closed";
   }
 

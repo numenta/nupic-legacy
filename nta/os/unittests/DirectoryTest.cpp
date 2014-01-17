@@ -51,7 +51,7 @@ static std::string getCurrDir()
 
 #else
   char * s = ::getcwd(buff, APR_PATH_MAX);
-  NTA_CHECK(s != NULL) << OS::getErrorMessage();
+  NTA_CHECK(s != nullptr) << OS::getErrorMessage();
 #endif
   return buff;  
 }
@@ -171,22 +171,22 @@ void DirectoryTest::RunTests()
     {
       Directory::Iterator di("A");
       Directory::Entry entry;
-      Directory::Entry * e = NULL;
+      Directory::Entry * e = nullptr;
 
       vector<string> subdirs;
       e = di.next(entry);
-      TEST(e != NULL);
+      TEST(e != nullptr);
       TEST(e->type == Directory::Entry::DIRECTORY);
       subdirs.push_back(e->path);
       string first = e->path;
       
       e = di.next(entry);
-      TEST(e != NULL);
+      TEST(e != nullptr);
       TEST(e->type == Directory::Entry::DIRECTORY);
       subdirs.push_back(e->path);
       
       e = di.next(entry);
-      TEST(e == NULL);
+      TEST(e == nullptr);
       
       // Get around different directory iteration orders on different platforms
       std::sort(subdirs.begin(), subdirs.end());
@@ -196,7 +196,7 @@ void DirectoryTest::RunTests()
       // check that after reset first entry is returned again
       di.reset();
       e = di.next(entry);
-      TEST(e != NULL);
+      TEST(e != nullptr);
       TEST(e->type == Directory::Entry::DIRECTORY);
       TEST(e->path == first);		
     }  	

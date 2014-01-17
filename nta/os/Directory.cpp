@@ -62,7 +62,7 @@ namespace nta
       char cwd[APR_PATH_MAX];
       cwd[0] = '\0';
       char * res = ::getcwd(cwd, APR_PATH_MAX);
-      NTA_CHECK(res != NULL) << "Couldn't get current working directory. Error code: " << errno;
+      NTA_CHECK(res != nullptr) << "Couldn't get current working directory. Error code: " << errno;
       return std::string(cwd);
     #endif
     }
@@ -70,7 +70,7 @@ namespace nta
     bool empty(const std::string & path)
     {
       Entry dummy;
-      return Iterator(path).next(dummy) == 0;
+      return Iterator(path).next(dummy) == nullptr;
     }
     
     void setCWD(const std::string & path)
@@ -141,7 +141,7 @@ namespace nta
           }
           else
           {
-            apr_status_t st = ::apr_file_remove(fullPath, NULL);
+            apr_status_t st = ::apr_file_remove(fullPath, nullptr);
             if(st != APR_SUCCESS) {
               if(noThrow) success = false;
               else {
@@ -262,7 +262,7 @@ namespace nta
 
     void Iterator::init(const std::string & path)
     {
-      apr_status_t res = ::apr_pool_create(&pool_, NULL);
+      apr_status_t res = ::apr_pool_create(&pool_, nullptr);
       NTA_CHECK(res == 0) << "Can't create pool";
       std::string absolutePath = Path::makeAbsolute(path);
       res = ::apr_dir_open(&handle_, absolutePath.c_str(), pool_);
@@ -293,7 +293,7 @@ namespace nta
       
       // No more entries
       if (APR_STATUS_IS_ENOENT(res))
-        return NULL;
+        return nullptr;
         
       if (res != 0)
       {

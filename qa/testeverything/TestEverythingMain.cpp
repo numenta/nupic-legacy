@@ -96,7 +96,7 @@ int main (int argc, const char * const argv[], char *env[])
 
   // initialize APR
   apr_status_t    result;
-  result = apr_app_initialize(&argc, &argv, 0 /*env*/);
+  result = apr_app_initialize(&argc, &argv, nullptr /*env*/);
   if (result) 
     NTA_THROW << "error initializing APR. Err code: " << result;
 
@@ -132,11 +132,10 @@ int main (int argc, const char * const argv[], char *env[])
   totalPassed = 0;
   std::vector<std::string> hardfailTests;
   std::vector< failInfo > criticalfailTests;
-  for(Testers::iterator iter=allTesters.begin(); 
-      iter != allTesters.end(); ++iter)
+  for(auto & allTester : allTesters)
   {
-    Tester* t = iter->second;
-    t->setName(iter->first);
+    Tester* t = allTester.second;
+    t->setName(allTester.first);
     t->runTestsWithExceptionHandling();
     totalTests += t->testCount();
     totalPassed += t->passCount();
@@ -182,11 +181,9 @@ int main (int argc, const char * const argv[], char *env[])
   }
   std::cout << "* Total critical failures = " << criticalFailures << "\n";
   if (criticalfailTests.size() > 0) {
-    for (std::vector< failInfo >::iterator i = criticalfailTests.begin(); 
-         i != criticalfailTests.end(); 
-         i++) {
-      std::cout << "    FAILED: " << i->first << "\n";
-      std::cout << "       MSG: " << i->second << "\n";
+    for (auto & criticalfailTest : criticalfailTests) {
+      std::cout << "    FAILED: " << criticalfailTest.first << "\n";
+      std::cout << "       MSG: " << criticalfailTest.second << "\n";
     }
   }
   double testsRun = totalTests - totalDisabled + criticalFailures;
@@ -198,7 +195,7 @@ int main (int argc, const char * const argv[], char *env[])
   for(i=0; i<allTesters.size(); i++)
   {
     delete allTesters[i].second;
-    allTesters[i].second = NULL;
+    allTesters[i].second = nullptr;
   }
   
   // Do not return number of failures. Retval = 256 will be interpreted as exit status 0!

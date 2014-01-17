@@ -43,7 +43,7 @@ VectorFileEffector::VectorFileEffector(const ValueMap& params, Region* region) :
   RegionImpl(region),
   dataIn_(NTA_BasicType_Real32),
   filename_(""),
-  outFile_(0)
+  outFile_(nullptr)
 {
   if (params.contains("outputFile"))
     filename_ = *params.getString("outputFile");
@@ -56,7 +56,7 @@ VectorFileEffector::VectorFileEffector(BundleIO& bundle, Region* region) :
   RegionImpl(region),
   dataIn_(NTA_BasicType_Real32),
   filename_(""),
-  outFile_(0)
+  outFile_(nullptr)
 {
 }
 
@@ -70,7 +70,7 @@ VectorFileEffector::~VectorFileEffector()
 
 void VectorFileEffector::initialize()
 {
-  NTA_CHECK(region_ != NULL);
+  NTA_CHECK(region_ != nullptr);
   // We have no outputs or parameters; just need our input. 
   dataIn_ = region_->getInputData("dataIn");
 
@@ -89,7 +89,7 @@ void VectorFileEffector::compute()
     return;
   
   // Don't write if there is no open file. 
-  if (outFile_ == 0)
+  if (outFile_ == nullptr)
   {
     NTA_WARN << "VectorFileEffector compute() called, but there is no open file";
     return;
@@ -103,7 +103,7 @@ void VectorFileEffector::compute()
   }
   
   Real *inputVec = (Real*)(dataIn_.getBuffer());
-  NTA_CHECK(inputVec != NULL);
+  NTA_CHECK(inputVec != nullptr);
   OFStream &outFile = *outFile_;
   for(Size offset = 0; offset < dataIn_.getCount(); ++offset)
   {
@@ -119,7 +119,7 @@ void VectorFileEffector::closeFile()
   if (outFile_)
   {
     outFile_->close();
-    outFile_ = 0;
+    outFile_ = nullptr;
     filename_ = "";
   }
 }
@@ -136,7 +136,7 @@ void VectorFileEffector::openFile(const std::string& filename)
   if (outFile_->fail())
   {
     delete outFile_;
-    outFile_ = 0;
+    outFile_ = nullptr;
     NTA_THROW << "VectorFileEffector::openFile -- unable to create or open file: " << filename.c_str();
   }
   filename_ = filename;
@@ -174,7 +174,7 @@ std::string VectorFileEffector::executeCommand(const std::vector<std::string>& a
   if (args[0] == "flushFile")
   {
     // Ensure we have a valid file before flushing, otherwise fail silently.
-    if (!((outFile_ == 0) || (outFile_->fail())))
+    if (!((outFile_ == nullptr) || (outFile_->fail())))
     {
       outFile_->flush();
     }
@@ -184,7 +184,7 @@ std::string VectorFileEffector::executeCommand(const std::vector<std::string>& a
   } else if (args[0] == "echo")
   {
     // Ensure we have a valid file before flushing, otherwise fail silently.
-    if ((outFile_ == 0) || (outFile_->fail()))
+    if ((outFile_ == nullptr) || (outFile_->fail()))
     {
       NTA_THROW << "VectorFileEffector: echo command failed because there is no file open";
     }
@@ -207,7 +207,7 @@ std::string VectorFileEffector::executeCommand(const std::vector<std::string>& a
 Spec* VectorFileEffector::createSpec()
 {
 
-  Spec *ns = new Spec;
+  auto ns = new Spec;
   ns->description = 
         "VectorFileEffector is a node that simply writes its\n"
         "input vectors to a text file. The target filename is specified\n"

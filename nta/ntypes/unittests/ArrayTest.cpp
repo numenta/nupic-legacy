@@ -176,7 +176,7 @@ void nta::ArrayTest::testArrayCreation()
               testCase->first +
               " - When not passed a size, a newly created ArrayBase should "
               "have a NULL buffer",
-            buf == NULL);
+            buf == nullptr);
       TESTEQUAL2("Test case: " +
                   testCase->first +
                   " - When not passed a size, a newly created ArrayBase should "
@@ -328,7 +328,7 @@ void nta::ArrayTest::testBufferRelease()
             testCase->first +
             " - ArrayBase should no longer hold a reference to a locally allocated "
             "buffer after calling releaseBuffer",
-          NULL == a.getBuffer());
+          nullptr == a.getBuffer());
   }    
 }
 

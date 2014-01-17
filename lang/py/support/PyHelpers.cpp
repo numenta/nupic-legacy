@@ -79,9 +79,9 @@ namespace nta { namespace py
     if (!PyErr_Occurred())
       return;
 
-    PyObject * exceptionClass = NULL; 
-    PyObject * exceptionValue = NULL; 
-    PyObject * exceptionTraceback = NULL; 
+    PyObject * exceptionClass = nullptr; 
+    PyObject * exceptionValue = nullptr; 
+    PyObject * exceptionTraceback = nullptr; 
 
     // Get the Python exception info
     PyErr_Fetch(&exceptionClass,
@@ -148,7 +148,7 @@ namespace nta { namespace py
   PyObject * Ptr::release()
   {
     PyObject * result = p_;
-    p_ = NULL;
+    p_ = nullptr;
     return result;
   }
 
@@ -208,7 +208,7 @@ namespace nta { namespace py
 
   bool Ptr::isNULL()
   {
-    return p_ == NULL;
+    return p_ == nullptr;
   }
 
 
@@ -238,7 +238,7 @@ namespace nta { namespace py
   String::operator const char * ()
   {
     if (!p_)
-      return NULL;
+      return nullptr;
 
     return PyString_AsString(p_);
   }
@@ -350,7 +350,7 @@ namespace nta { namespace py
   // --- 
   // Implementation of Float class
   // ---
-  Float::Float(const char * n) : Ptr(PyFloat_FromString(String(n), NULL))
+  Float::Float(const char * n) : Ptr(PyFloat_FromString(String(n), nullptr))
   {
   }
 
@@ -573,7 +573,7 @@ namespace nta { namespace py
     PyObject * pModule = PyImport_Import(name);
     checkPyError(__LINE__);
 
-    if (pModule == NULL || !(PyModule_Check(pModule)))
+    if (pModule == nullptr || !(PyModule_Check(pModule)))
     {
       NTA_THROW << "Unable to import module: " << moduleName;
     }
@@ -633,7 +633,7 @@ namespace nta { namespace py
   // Wraps an instance of a Python object
   
   // A constructor that takes an existing PyObject * (can be NULL too)
-  Instance::Instance(PyObject * p) : Ptr(p, p == NULL)
+  Instance::Instance(PyObject * p) : Ptr(p, p == nullptr)
   {
   }
 

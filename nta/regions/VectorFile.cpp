@@ -62,7 +62,7 @@ void VectorFile::clear(bool clearScaling)
   
   for(Size i=0; i<n; ++i) {
     if(own_[i]) delete[] fileVectors_[i];
-    fileVectors_[i] = 0;
+    fileVectors_[i] = nullptr;
   }
   fileVectors_.clear();
   own_.clear();
@@ -161,7 +161,7 @@ void VectorFile::appendFile(const string &fileName,
             inFile >> vectorLabel;
           }
   
-          NTA_Real *b = new NTA_Real[elementCount];
+          auto b = new NTA_Real[elementCount];
           for (Size i= 0; i < elementCount; ++i) {
             inFile >> b[i];
           }
@@ -248,7 +248,7 @@ void VectorFile::saveVectors(ostream &out, Size nColumns, UInt32 fileFormat,
 
   // Setup iterators for the rows.
   vector<Real *>::const_iterator i=(fileVectors_.begin() + size_t(begin));
-  vector<Real *>::const_iterator iend = i + size_t(end - begin);
+  auto iend = i + size_t(end - begin);
 
   switch(fileFormat) {
     case 0:
@@ -341,7 +341,7 @@ void VectorFile::saveVectors(ostream &out, Size nColumns, UInt32 fileFormat,
       const bool needConversion = (sizeof(Real32) == sizeof(Real));
       
       if(needSwap || needConversion) {
-        Real32 *buffer = new Real32[nColumns];
+        auto buffer = new Real32[nColumns];
         try {
           for(; i!=iend; ++i) {
             if(needConversion) {
@@ -382,7 +382,7 @@ public:
   {
     if(!file_) throw runtime_error("Unable to open file '" + filename + "'.");
   }
-  ~AutoReleaseFile() { ::gzclose((gzFile)file_); file_ = 0; }
+  ~AutoReleaseFile() { ::gzclose((gzFile)file_); file_ = nullptr; }
   void read(void *out, int n)
   {
     int result = gzread((gzFile)file_, out, n);
@@ -421,7 +421,7 @@ void VectorFile::appendFloat32File(const string &filename,
     throw logic_error("Invalid number of row labels.");
   }
 
-  Real *block = 0;
+  Real *block = nullptr;
 
   try {
     // Set up the ownership.
@@ -434,7 +434,7 @@ void VectorFile::appendFloat32File(const string &filename,
 
     // Set all the row pointers.
     fileVectors_.resize(offset + nRows);
-    vector<Real *>::iterator cur = fileVectors_.begin() + offset;
+    auto cur = fileVectors_.begin() + offset;
     Real *pEnd = block + (nRows * expectedElements);
     for(Real *pBlock=block; pBlock!=pEnd; pBlock+=expectedElements) {
       *(cur++) = pBlock;
@@ -484,7 +484,7 @@ void VectorFile::appendCSVFile(IFStream &inFile, Size expectedElements)
     while (!inFile.eof())
     {
       Size elementsFound = 0;
-      Real *b = new Real[expectedElements];
+      auto b = new Real[expectedElements];
       // Read and parse a single line
       string sLine;            // We'll use string for robust line parsing
       stringstream converted;  // We'll use stringstream for robust ascii text to Real conversion
@@ -521,12 +521,12 @@ void VectorFile::appendCSVFile(IFStream &inFile, Size expectedElements)
         fileVectors_.push_back(b);
         own_.push_back(true);
         vectorLabels_.push_back(string());
-        b = 0;
+        b = nullptr;
       }
       else 
       {
         delete [] b;
-        b = 0;
+        b = nullptr;
       }
     }
 
@@ -589,9 +589,9 @@ void VectorFile::appendIDXFile(const string &filename,
   // is only one of many possible configurations.
 
   int readRow = vectorSize * elSize;
-  char *readBuffer = new char[readRow];
+  auto readBuffer = new char[readRow];
 
-  Real *block = new Real[nRows * expectedElements];
+  auto block = new Real[nRows * expectedElements];
   Real *pBlock = block;
   
   int copy = (expectedElements < vectorSize) ? expectedElements : vectorSize;
@@ -676,7 +676,7 @@ void VectorFile::appendIDXFile(const string &filename,
 
     // Set all the row pointers.
     fileVectors_.resize(offset + nRows);
-    vector<Real *>::iterator cur = fileVectors_.begin() + offset;
+    auto cur = fileVectors_.begin() + offset;
     Real *pEnd = block + (nRows * expectedElements);
     for(Real *pCur=block; pCur!=pEnd; pCur+=expectedElements)
       *(cur++) = pCur;
@@ -690,7 +690,7 @@ void VectorFile::appendIDXFile(const string &filename,
     throw;
   }
 
-  delete[] readBuffer; readBuffer = 0;
+  delete[] readBuffer; readBuffer = nullptr;
   // Don't delete block, as it is owned by fileVectors_ now.
 }
 

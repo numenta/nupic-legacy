@@ -65,8 +65,8 @@ TRandom::TRandom(std::string name)
     // Don't seed subsequent ones from time() because several random 
     // number generators may be initialized within the same second. 
     // Instead, use the global rng.  
-    if (theInstanceP_ == NULL) {
-      seed = (UInt64)time(NULL);
+    if (theInstanceP_ == nullptr) {
+      seed = (UInt64)time(nullptr);
     } else {
       seed = (*Random::getSeeder())();
     }

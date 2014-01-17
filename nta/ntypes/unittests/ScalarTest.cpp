@@ -100,7 +100,7 @@ void ScalarTest::RunTests()
   //Test Handle
   a = Scalar(NTA_BasicType_Handle);
   SHOULDFAIL(a.getValue<UInt64>());
-  TESTEQUAL((Handle)0, a.getValue<Handle>());
+  TESTEQUAL((Handle)nullptr, a.getValue<Handle>());
   TESTEQUAL(NTA_BasicType_Handle, a.getType());
   int x = 10;
   a.value.handle = &x;

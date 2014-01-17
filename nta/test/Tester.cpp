@@ -55,8 +55,8 @@ namespace nta {
   Tester::~Tester()
   {
     // free up all of the testResult structures that have been allocated
-    for (unsigned int i = 0; i < allTestResults_.size(); i++) {
-      delete allTestResults_[i];
+    for (auto & elem : allTestResults_) {
+      delete elem;
     }
   }
 
@@ -130,9 +130,9 @@ namespace nta {
       showall = true;
     }
   
-    for(unsigned int i= 0; i < allTestResults_.size(); i++)
+    for(auto & elem : allTestResults_)
     {
-      testResult* r = allTestResults_[i];
+      testResult* r = elem;
       if (showall == true || r->pass == false || r->disabled == true) {
         logTestResult(r);
       }

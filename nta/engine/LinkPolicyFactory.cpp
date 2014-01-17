@@ -35,7 +35,7 @@ LinkPolicy* LinkPolicyFactory::createLinkPolicy(const std::string policyType,
                                              const std::string policyParams,
                                              Link* link)
 {
-  LinkPolicy *lp = NULL;
+  LinkPolicy *lp = nullptr;
   if (policyType == "TestFanIn2")
   {
     lp = new TestFanIn2LinkPolicy(policyParams, link);

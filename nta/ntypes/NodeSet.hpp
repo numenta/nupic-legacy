@@ -25,6 +25,9 @@
 
 #include <set>
 
+#include <stddef.h> // size_t
+#include <nta/utils/Log.hpp> // defines NTA_THROW macro
+
 namespace nta
 {
   /**
@@ -90,7 +93,7 @@ namespace nta
 
     void remove(size_t index)
     {
-      iterator f = set_.find(index);
+      auto f = set_.find(index);
       if (f == set_.end())
         return;
       set_.erase(f);

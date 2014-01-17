@@ -76,8 +76,8 @@ void Link::commonConstructorInit_(const std::string& linkType, const std::string
   destOffset_ = 0;
   srcOffset_ = 0;
   srcSize_ = 0;
-  src_ = NULL;
-  dest_ = NULL;
+  src_ = nullptr;
+  dest_ = nullptr;
   initialized_ = false;
 
 
@@ -98,8 +98,8 @@ void Link::initialize(size_t destinationOffset)
   // and initialized. 
   
   // Make sure we have been attached to a real network
-  NTA_CHECK(src_ != NULL);
-  NTA_CHECK(dest_ != NULL);
+  NTA_CHECK(src_ != nullptr);
+  NTA_CHECK(dest_ != nullptr);
 
   // Confirm that our dimensions are consistent with the 
   // dimensions of the regions we're connecting. 
@@ -167,7 +167,7 @@ void Link::initialize(size_t destinationOffset)
 
 void Link::setSrcDimensions(Dimensions& dims)
 {
-  NTA_CHECK(src_ != NULL && dest_ != NULL) 
+  NTA_CHECK(src_ != nullptr && dest_ != nullptr) 
     << "Link::setSrcDimensions() can only be called on a connected link";
 
   size_t nodeElementCount = src_->getNodeOutputElementCount();
@@ -183,7 +183,7 @@ void Link::setSrcDimensions(Dimensions& dims)
 
 void Link::setDestDimensions(Dimensions& dims)
 {
-  NTA_CHECK(src_ != NULL && dest_ != NULL) 
+  NTA_CHECK(src_ != nullptr && dest_ != nullptr) 
     << "Link::setDestDimensions() can only be called on a connected link";
 
   size_t nodeElementCount = src_->getNodeOutputElementCount();
@@ -258,8 +258,8 @@ const std::string Link::toString() const
 // called only by Input::addLink()
 void Link::connectToNetwork(Output *src, Input *dest)
 {
-  NTA_CHECK(src != NULL);
-  NTA_CHECK(dest != NULL);
+  NTA_CHECK(src != nullptr);
+  NTA_CHECK(dest != nullptr);
 
   src_ = src;
   dest_ = dest;
@@ -270,14 +270,14 @@ void Link::connectToNetwork(Output *src, Input *dest)
 Output& Link::getSrc() const
 
 { 
-  NTA_CHECK(src_ != NULL) 
+  NTA_CHECK(src_ != nullptr) 
     << "Link::getSrc() can only be called on a connected link";
   return *src_; 
 }
 
 Input& Link::getDest() const
 { 
-  NTA_CHECK(dest_ != NULL) 
+  NTA_CHECK(dest_ != nullptr) 
     << "Link::getDest() can only be called on a connected link";
   return *dest_; 
 }

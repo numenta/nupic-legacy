@@ -120,8 +120,8 @@ Cells4::~Cells4()
 static void printActiveColumns(std::ostream& out, const std::vector<UInt> & activeColumns)
 {
   out << "[";
-  for (UInt i= 0; i < activeColumns.size(); i++) {
-    out << " " << activeColumns[i];
+  for (auto & activeColumn : activeColumns) {
+    out << " " << activeColumn;
   }
   out << "]";
 }
@@ -349,8 +349,8 @@ void Cells4::inferBacktrack(const std::vector<UInt> & activeColumns)
       // predicting the current input
       if (offset == currentTimeStepsOffset) {
         totalConfidence = 0;
-        for (UInt i= 0; i < activeColumns.size(); i++) {
-          totalConfidence += _colConfidenceT[activeColumns[i]];
+        for (auto & activeColumn : activeColumns) {
+          totalConfidence += _colConfidenceT[activeColumn];
         }
       }
 
@@ -502,8 +502,8 @@ bool Cells4::learnBacktrackFrom(UInt startOffset, bool readOnly)
     // Apply segment updates from the last set of predictions
     if (!readOnly) {
       memset(_tmpInputBuffer, 0, _nColumns * sizeof(_tmpInputBuffer[0]));
-      for (UInt i= 0; i < _prevLrnPatterns[offset].size(); i++) {
-        _tmpInputBuffer[_prevLrnPatterns[offset][i]] = 1;
+      for (auto & elem : _prevLrnPatterns[offset]) {
+        _tmpInputBuffer[elem] = 1;
       }
       processSegmentUpdates(_tmpInputBuffer, _learnPredictedStateT);
     }
@@ -512,8 +512,8 @@ bool Cells4::learnBacktrackFrom(UInt startOffset, bool readOnly)
     // Compute activeState[t] given bottom-up and predictedState[t-1]
     if (offset == startOffset) {
       _learnActiveStateT.resetAll();
-      for (UInt i= 0; i < _prevLrnPatterns[offset].size(); i++) {
-        UInt cellIdx = _prevLrnPatterns[offset][i]*_nCellsPerCol;
+      for (auto & elem : _prevLrnPatterns[offset]) {
+        UInt cellIdx = elem*_nCellsPerCol;
         _learnActiveStateT.set(cellIdx);
         inSequence = true;
       }
@@ -761,8 +761,8 @@ bool Cells4::learnPhase1(const std::vector<UInt> & activeColumns, bool readOnly)
   _learnActiveStateT.resetAll();
 
   UInt numUnpredictedColumns = 0;
-  for (UInt i= 0; i < activeColumns.size(); i++) {
-    UInt cell0 = activeColumns[i]*_nCellsPerCol;
+  for (auto & activeColumn : activeColumns) {
+    UInt cell0 = activeColumn*_nCellsPerCol;
 
     // Find any predicting cell in this column (there is at most one)
     UInt numPredictedCells = 0, predictingCell = _nCellsPerCol;
@@ -788,7 +788,7 @@ bool Cells4::learnPhase1(const std::vector<UInt> & activeColumns, bool readOnly)
       if (! readOnly)
       {
         std::pair<UInt, UInt> p;
-        p = getBestMatchingCellT1(activeColumns[i], _learnActiveStateT1, _minThreshold);
+        p = getBestMatchingCellT1(activeColumn, _learnActiveStateT1, _minThreshold);
         UInt cellIdx = p.first, segIdx = p.second;
 
         // If we found a sequence segment, reinforce it
@@ -797,7 +797,7 @@ bool Cells4::learnPhase1(const std::vector<UInt> & activeColumns, bool readOnly)
 
           if (_verbosity >= 4) {
             std::cout << "Learn branch 0, found segment match: ";
-            std::cout << "   learning on col=" << activeColumns[i]
+            std::cout << "   learning on col=" << activeColumn
             << ", cellIdx=" << cellIdx << "\n";
           }
           _learnActiveStateT.set(cellIdx);
@@ -816,13 +816,13 @@ bool Cells4::learnPhase1(const std::vector<UInt> & activeColumns, bool readOnly)
 
         // If no close match exists, create a new one
         else {
-          UInt newCellIdx = getCellForNewSegment(activeColumns[i]);
+          UInt newCellIdx = getCellForNewSegment(activeColumn);
 
           if (_verbosity >= 4) {
             std::cout << "Learn branch 1, no match: ";
-            std::cout << "   learning on col=" << activeColumns[i]
+            std::cout << "   learning on col=" << activeColumn
                       << ", newCellIdxInCol="
-                      << newCellIdx - getCellIdx(activeColumns[i], 0)
+                      << newCellIdx - getCellIdx(activeColumn, 0)
                       << "\n";
           }
           _learnActiveStateT.set(newCellIdx);
@@ -993,8 +993,8 @@ void Cells4::updateLearningState(const std::vector<UInt> & activeColumns,
     // backtrack
     if (_resetCalled || backsteps==0) {
       _learnActiveStateT.resetAll();
-      for (UInt i= 0; i < activeColumns.size(); i++) {
-        UInt cell0 = activeColumns[i]*_nCellsPerCol;
+      for (auto & activeColumn : activeColumns) {
+        UInt cell0 = activeColumn*_nCellsPerCol;
         _learnActiveStateT.set(cell0);
       }
 
@@ -1105,8 +1105,8 @@ bool Cells4::inferPhase1(const std::vector<UInt> & activeColumns,
   UInt numPredictedColumns = 0;
   if (useStartCells)
   {
-    for (UInt i= 0; i < activeColumns.size(); i++) {
-      UInt cellIdx = activeColumns[i] * _nCellsPerCol;
+    for (auto & activeColumn : activeColumns) {
+      UInt cellIdx = activeColumn * _nCellsPerCol;
       _infActiveStateT.set(cellIdx);
     }
 
@@ -1115,8 +1115,8 @@ bool Cells4::inferPhase1(const std::vector<UInt> & activeColumns,
   // turn on all cells (burst the column)
   else
   {
-    for (UInt i= 0; i < activeColumns.size(); i++) {
-      UInt cellIdx = activeColumns[i] * _nCellsPerCol;
+    for (auto & activeColumn : activeColumns) {
+      UInt cellIdx = activeColumn * _nCellsPerCol;
       UInt numPredictingCells = 0;
 
       for (UInt ci = cellIdx; ci < cellIdx + _nCellsPerCol; ci++)
@@ -1926,9 +1926,9 @@ void Cells4::save(std::ostream& outStream) const
 
   // Additions in version 2.
   outStream << _segmentUpdates.size() << " ";
-  for (UInt i = 0; i < _segmentUpdates.size(); ++i)
+  for (auto & elem : _segmentUpdates)
   {
-    _segmentUpdates[i].save(outStream);
+    elem.save(outStream);
   }
 
   NTA_CHECK(_nCells == _cells.size());
@@ -2751,8 +2751,8 @@ void Cells4::dumpPrevPatterns(std::deque<std::vector<UInt> > &patterns)
 {
   for (UInt p = 0; p < patterns.size(); p++) {
     std::cout << "Pattern " << p << ": ";
-    for (UInt i= 0; i < patterns[p].size(); i++) {
-      std::cout << patterns[p][i] << " ";
+    for (auto & elem : patterns[p]) {
+      std::cout << elem << " ";
     }
     std::cout << std::endl;
   }

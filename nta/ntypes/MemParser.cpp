@@ -47,7 +47,7 @@ MemParser::MemParser(std::istream& in, UInt32 bytes)
     // -----------------------------------------------------------------------------
     std::string  data;
     const int  chunkSize = 0x10000;
-    char* chunkP = new char[chunkSize];
+    auto  chunkP = new char[chunkSize];
     while (!in.eof()) {
       in.read(chunkP, chunkSize);
       NTA_CHECK (in.good() || in.eof()) 
@@ -57,7 +57,7 @@ MemParser::MemParser(std::istream& in, UInt32 bytes)
     
     bytes_ = (UInt32)data.size();
     bufP_ = new char[bytes_+1];
-    NTA_CHECK (bufP_ != NULL) << "MemParser::MemParser() - out of memory";
+    NTA_CHECK (bufP_ != nullptr) << "MemParser::MemParser() - out of memory";
     ::memmove ((void*)bufP_, data.data(), bytes_);
     ((char*)bufP_)[bytes_] = 0;
     
@@ -70,7 +70,7 @@ MemParser::MemParser(std::istream& in, UInt32 bytes)
     // -----------------------------------------------------------------------------
     bytes_ = bytes;
     bufP_ = new char[bytes_+1];  
-    NTA_CHECK (bufP_ != NULL) << "MemParser::MemParser() - out of memory";
+    NTA_CHECK (bufP_ != nullptr) << "MemParser::MemParser() - out of memory";
     
     in.read ((char*)bufP_, bytes);
     ((char*)bufP_)[bytes] = 0;

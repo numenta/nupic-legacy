@@ -53,7 +53,7 @@ namespace nta
         << "regcomp() failed to compile the regular expression: "
         << re << " . The error code is: " << res;
         
-      res = regexec(&r, text.c_str(), (size_t) 0, NULL, 0);
+      res = regexec(&r, text.c_str(), (size_t) 0, nullptr, 0);
       ::regfree(&r);
       return res == 0; 
     }

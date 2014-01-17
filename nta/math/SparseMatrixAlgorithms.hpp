@@ -29,6 +29,7 @@
 
 #include <vector>
 #include <nta/utils/Random.hpp>
+#include "nta/math/math.hpp" //for Log2
 
 //--------------------------------------------------------------------------------
 namespace nta {

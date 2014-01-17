@@ -64,7 +64,7 @@ namespace nta
     if (name.empty()) 
     {
       errorString = "Empty path.";
-      return NULL;
+      return nullptr;
     }
 
     //if (!Path::exists(name))
@@ -73,7 +73,7 @@ namespace nta
     //  return NULL;
     //}
     
-    void * handle = NULL;
+    void * handle = nullptr;
   
     #ifdef WIN32
       mode; // ignore on Windows
@@ -99,7 +99,7 @@ namespace nta
         errorString += "Failed to load \"" + name + '"';
         if(dlErrorString.size())
           errorString += ": " + dlErrorString;
-        return NULL;
+        return nullptr;
       }
 
     #endif

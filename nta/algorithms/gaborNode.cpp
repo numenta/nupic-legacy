@@ -568,14 +568,14 @@ void _doConvolution_alpha( const NUMPY_ARRAY * psBufferIn,
   int nFilterIndex;
   int nResponse;
   int nNumPixels = 0;
-  const int * pnInput = NULL;
-  const int * pnInputRow = NULL;
-  const int * pnInputPtr = NULL;
-  const int * pnGaborPtr = NULL;
-  const float * pfAlpha = NULL;
-  const float * pfAlphaRow = NULL;
-  const float * pfAlphaRowPtr = NULL;
-  int * pnOutputRow = NULL;
+  const int * pnInput = nullptr;
+  const int * pnInputRow = nullptr;
+  const int * pnInputPtr = nullptr;
+  const int * pnGaborPtr = nullptr;
+  const float * pfAlpha = nullptr;
+  const float * pfAlphaRow = nullptr;
+  const float * pfAlphaRowPtr = nullptr;
+  int * pnOutputRow = nullptr;
 
   // Decide which statistics to keep.
   // There are four cases:
@@ -1241,11 +1241,11 @@ void _doConvolution_bbox( const NUMPY_ARRAY * psBufferIn,
   int nFilterIndex;
   int nResponse;
   int nNumPixels = 0;
-  const int * pnInput = NULL;
-  const int * pnInputRow = NULL;
-  const int * pnInputPtr = NULL;
-  const int * pnGaborPtr = NULL;
-  int * pnOutputRow = NULL;
+  const int * pnInput = nullptr;
+  const int * pnInputRow = nullptr;
+  const int * pnInputPtr = nullptr;
+  const int * pnGaborPtr = nullptr;
+  int * pnOutputRow = nullptr;
 
   // Decide which statistics to keep.
   // There are four cases:
@@ -1922,11 +1922,11 @@ void _postProcess( const NUMPY_ARRAY * psBufferIn,
   unsigned int nSingleBin;
   int nDualBin;
   float fGain, fGainPos = 0.0f, fGainNeg = 0.0f;
-  float * pfOutputRowPos = NULL;
-  float * pfOutputRowNeg = NULL;
-  float * pfOutputPos = NULL;
-  float * pfOutputNeg = NULL;
-  int * pnInputRow = NULL;
+  float * pfOutputRowPos = nullptr;
+  float * pfOutputRowNeg = nullptr;
+  float * pfOutputPos = nullptr;
+  float * pfOutputNeg = nullptr;
+  int * pnInputRow = nullptr;
 
   // Locate start of first input plane
   int * pnInputBase = (int *)psBufferIn->pData;
@@ -1962,7 +1962,7 @@ void _postProcess( const NUMPY_ARRAY * psBufferIn,
   int nTotalLeftovers = IMAGESET_COLS(psOutput) - (nTotalQuadsPerRow << 2);
 
   // Access the post-processing LUT
-  const float * pfPostProcLUT = NULL;
+  const float * pfPostProcLUT = nullptr;
   int nNumLutBins = 0;
   int nMaxLutBin = 0;
   unsigned int nOverflowMask = 0x0;
@@ -2636,8 +2636,8 @@ void _postProcess( const NUMPY_ARRAY * psBufferIn,
 void _zeroOutputs(const NUMPY_ARRAY * psOutput) {
 
   int k, j, i;
-  float * pfOutputRow = NULL;
-  float * pfOutputPtr = NULL;
+  float * pfOutputRow = nullptr;
+  float * pfOutputPtr = nullptr;
 
   // Locate start of first output plane
   float * pfOutputBase = (float *)psOutput->pData;

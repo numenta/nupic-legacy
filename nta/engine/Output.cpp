@@ -59,7 +59,7 @@ Output::initialize(size_t count)
   // reinitialization is ok
   // might happen if initial initialization failed with an 
   // exception (elsewhere) and was retried. 
-  if (data_->getBuffer() != NULL)
+  if (data_->getBuffer() != nullptr)
     return;
 
   nodeOutputElementCount_ = count;
@@ -85,7 +85,7 @@ Output::addLink(Link* link)
   // Make sure we don't add the same link twice
   // It is a logic error if we add the same link twice here, since
   // this method should only be called from Input::addLink
-  std::set<Link*>::iterator linkIter = links_.find(link);
+  auto linkIter = links_.find(link);
   NTA_CHECK(linkIter == links_.end());
 
   links_.insert(link);
@@ -94,7 +94,7 @@ Output::addLink(Link* link)
 void
 Output::removeLink(Link* link)
 {
-  std::set<Link*>::iterator linkIter = links_.find(link);
+  auto linkIter = links_.find(link);
   // Should only be called internally. Logic error if link not found
   NTA_CHECK(linkIter != links_.end());
   // Output::removeLink is only called from Input::removeLink so we don't

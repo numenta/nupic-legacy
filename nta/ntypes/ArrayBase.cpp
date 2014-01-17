@@ -51,7 +51,7 @@ ArrayBase::ArrayBase(NTA_BasicType type, void* buffer, size_t count) :
  * ask the ArrayBase to allocate a buffer via allocateBuffer.
  */
 ArrayBase::ArrayBase(NTA_BasicType type) :
-  buffer_(NULL), count_(0), type_(type), own_(false)
+  buffer_(nullptr), count_(0), type_(type), own_(false)
 {
   if(!BasicType::isValid(type))
   {
@@ -74,7 +74,7 @@ ArrayBase::~ArrayBase()
 void
 ArrayBase::allocateBuffer(size_t count)
 {
-  if (buffer_ != NULL)
+  if (buffer_ != nullptr)
   {
     NTA_THROW << "allocateBuffer -- buffer already set. Use releaseBuffer first";
   }
@@ -91,7 +91,7 @@ ArrayBase::allocateBuffer(size_t count)
 void
 ArrayBase::setBuffer(void *buffer, size_t count)
 {
-  if (buffer_ != NULL)
+  if (buffer_ != nullptr)
   {
     NTA_THROW << "setBuffer -- buffer already set. Use releaseBuffer first";
   }
@@ -103,11 +103,11 @@ ArrayBase::setBuffer(void *buffer, size_t count)
 void
 ArrayBase::releaseBuffer()
 {
-  if (buffer_ == NULL)
+  if (buffer_ == nullptr)
     return;
   if (own_)
     delete[] buffer_;
-  buffer_ = NULL;
+  buffer_ = nullptr;
   count_ = 0;
 }
        

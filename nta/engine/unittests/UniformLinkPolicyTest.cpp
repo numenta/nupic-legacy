@@ -91,16 +91,16 @@ bool UniformLinkPolicyTest::setDimensionsAndCheckBounds(
 
   bool allBoundsEqual = true;
 
-  for(size_t i = 0; i < checkBoundsVec.size(); i++)
+  for(auto & elem : checkBoundsVec)
   {
     std::pair<Fraction, Fraction> testBounds;
 
-    testBounds = test.getInputBoundsForNode(checkBoundsVec[i].coord,
-                                            checkBoundsVec[i].dimension);
+    testBounds = test.getInputBoundsForNode(elem.coord,
+                                            elem.dimension);
 
-    TEST(testBounds == checkBoundsVec[i].bounds);
+    TEST(testBounds == elem.bounds);
 
-    if(testBounds != checkBoundsVec[i].bounds)
+    if(testBounds != elem.bounds)
     {
       allBoundsEqual = false;
     }

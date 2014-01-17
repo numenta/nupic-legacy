@@ -111,9 +111,9 @@ namespace nta
         // Normalize the duty cycles.
         if (total > 0.0)
         {
-          for (UInt i = 0; i < votes->size(); ++i)
+          for (auto & vote : *votes)
           {
-            (*votes)[i] = (*votes)[i] / total;
+            vote = vote / total;
           }
         }
       }
@@ -133,10 +133,9 @@ namespace nta
 
         // Save the bucket duty cycles.
         outStream << stats_.size() << " ";
-        for (map<int, Real64>::const_iterator it = stats_.begin();
-             it != stats_.end(); ++it)
+        for (const auto & elem : stats_)
         {
-          outStream << it->first << " " << it->second << " ";
+          outStream << elem.first << " " << elem.second << " ";
         }
         outStream << endl;
 

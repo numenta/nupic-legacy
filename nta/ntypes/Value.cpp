@@ -136,7 +136,7 @@ void ValueMap::add(const std::string& key, const Value& value)
   {
     NTA_THROW << "Key '" << key << "' specified twice";
   }
-  Value* vp = new Value(value);
+  auto  vp = new Value(value);
 
   map_.insert(std::make_pair(key, vp));
 }
@@ -185,38 +185,38 @@ ValueMap::ValueMap()
 
 ValueMap::~ValueMap()
 {
-  for (iterator i = map_.begin(); i != map_.end(); i++)
+  for (auto & elem : map_)
   {
-    delete i->second;
-    i->second = NULL;
+    delete elem.second;
+    elem.second = nullptr;
   }
   map_.clear();
 }
 
 ValueMap::ValueMap(const ValueMap& rhs)
 {
-  for (iterator i = map_.begin(); i != map_.end(); i++)
+  for (auto & elem : map_)
   {
-    delete i->second;
-    i->second = NULL;
+    delete elem.second;
+    elem.second = nullptr;
   }
   map_.clear();
 
-  for( const_iterator i = rhs.begin(); i != rhs.end(); i++)
+  for(const auto & rh : rhs)
   {
-    Value* vp = new Value(*(i->second));
+    auto  vp = new Value(*(rh.second));
 
-    map_.insert(std::make_pair(i->first, vp));
+    map_.insert(std::make_pair(rh.first, vp));
   }
 }
 
 void ValueMap::dump() const
 {
   NTA_DEBUG << "===== Value Map:";
-  for (ValueMap::const_iterator i = map_.begin(); i != map_.end(); i++)
+  for (const auto & elem : map_)
   {
-    std::string key = i->first;
-    Value* value = i->second;
+    std::string key = elem.first;
+    Value* value = elem.second;
     NTA_DEBUG << "key: " << key
               << " datatype: "  << BasicType::getName(value->getType())
               << " category: " << value->getCategory();
@@ -233,7 +233,7 @@ bool ValueMap::contains(const std::string& key) const
 
 Value& ValueMap::getValue(const std::string& key) const
 {
-  const_iterator item = map_.find(key);
+  auto item = map_.find(key);
   if (item == map_.end())
   {
     NTA_THROW << "No value '" << key << "' found in Value Map";
@@ -244,7 +244,7 @@ Value& ValueMap::getValue(const std::string& key) const
 
 template <typename T> T ValueMap::getScalarT(const std::string& key, T defaultValue) const
 {
-  const_iterator item = map_.find(key);
+  auto item = map_.find(key);
   if (item == map_.end())
   {
     return defaultValue;

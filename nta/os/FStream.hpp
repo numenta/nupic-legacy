@@ -153,7 +153,7 @@ class ZLib
 {
 public:
   static void *fopen(const std::string &filename, const std::string &mode,
-    std::string *errorMessage=0);
+    std::string *errorMessage=nullptr);
 };
 
 
