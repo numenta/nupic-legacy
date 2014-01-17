@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -613,7 +613,7 @@ class SPRegion(PyRegion):
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
     
     if (self._FDRCSpatialClass == FDRCSpatial2):
-      # Backwards compatability
+      # Backwards compatibility
       self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
                                                      learn=self.learningMode,
                                                      infer=self.inferenceMode,

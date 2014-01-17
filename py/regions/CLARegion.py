@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -521,7 +521,7 @@ class CLARegion(PyRegion):
   of coincidence detectors and temporal poolers.
 
   Uses the FDRCSpatial and FDRTemporal classes to do most of the work. This node
-  has just one FDRCSpatial and FDRTemporal instance for the enitire level and
+  has just one FDRCSpatial and FDRTemporal instance for the entire level and
   does *not* support the concept of "baby nodes" within it.
 
   The output from the FDRCSpatial instances is saved in spatialPoolerOutput.
@@ -1320,7 +1320,7 @@ class CLARegion(PyRegion):
 
 
     if (self._sfdr.__class__ == FDRCSpatial2):
-      # Backwards compatability
+      # Backwards compatibility
       output = self._sfdr.compute(rfInput[0], learnFlag, inferFlag)
       self._spatialPoolerOutput[:] = output[:]
 

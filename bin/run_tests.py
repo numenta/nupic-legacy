@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,10 +23,23 @@ import os
 import sys
 
 from datetime import datetime
+from pkg_resources import (
+  DistributionNotFound,
+  get_distribution
+)
 from optparse import OptionParser
 
 import pytest
 
+
+
+try:
+  pytestXdistAvailable = bool(get_distribution("pytest-xdist"))
+except DistributionNotFound:
+  print "ERROR: `pytest-xdist` is not installed.  Certain testing features" \
+    " are not available without it.  The complete list of python" \
+    " requirements can be found in external/common/requirements.txt."
+  sys.exit(1)
 
 
 def collect_set(option, opt_str, value, parser):
@@ -90,9 +103,9 @@ parser.add_option(
   default=False,
   dest="integration")
 parser.add_option(
-  "-n",
-  "--num",
-  dest="processes")
+    "-n",
+    "--num",
+    dest="processes")
 parser.add_option(
   "-r",
   "--results",
@@ -147,7 +160,10 @@ def main(parser, parse_args):
 
   # Translate spec args to py.test args
 
-  args = ["--boxed", "--verbose"]
+  args = [
+    "--boxed", # See https://pypi.python.org/pypi/pytest-xdist#boxed
+    "--verbose"
+  ]
 
   root = "tests"
 
@@ -155,6 +171,7 @@ def main(parser, parse_args):
     args.append("--cov=nupic")
 
   if options.processes is not None:
+    # See https://pypi.python.org/pypi/pytest-xdist#parallelization
     args.extend(["-n", options.processes])
 
   if options.markexpresson is not None:

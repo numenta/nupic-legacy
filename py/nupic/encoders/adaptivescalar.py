@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,10 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from scalar import ScalarEncoder
-from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import numpy as np
 import math
+
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.scalar import ScalarEncoder
+
 
 class AdaptiveScalarEncoder(ScalarEncoder):
   """
@@ -33,12 +35,14 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   Initialization of an adapive encoder using resolution or radius is not supported;
   it must be intitialized with n. This n is kept constant while the min and max of the
   encoder changes.
+  
   The adaptive encoder must be have periodic set to false.
-  The adaptive encoder my be initiliazed with a minval and maxvak or with 'None'
+  
+  The adaptive encoder may be initialized with a minval and maxval or with `None`
   for each of these. In the latter case, the min and max are set as the 1st and 99th
   percentile over a window of the past 100 records.
 
-  Note: the sliding window may record duplicates of the values in the dataset,
+  **Note:** the sliding window may record duplicates of the values in the dataset,
   and therefore does not reflect the statistical distribution of the input data
   and may not be used to calculate the median, mean etc.
   """
@@ -46,7 +50,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   ############################################################################
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True):
-    """[ScalarEncoder class method override]"""
+    """
+    [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
+    """
     self._learningEnabled = True
     if periodic:
       #Adaptive scalar encoders take non-periodic inputs only
@@ -80,6 +86,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def setFieldStats(self, fieldName, fieldStats):
+    """
+    TODO: document
+    """
     #If the stats are not fully formed, ignore.
     if fieldStats[fieldName]['min'] == None or \
       fieldStats[fieldName]['max'] == None:
@@ -94,7 +103,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   def _setMinAndMax(self, input, learn):
     """
     Potentially change the minval and maxval using input.
-    **The learn flag is currently not supported by cla regions.
+    **The learn flag is currently not supported by cla regions.**
     """
 
     if len(self.slidingWindow)>=self.windowSize:
@@ -131,7 +140,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def getBucketIndices(self, input, learn=None):
-    """[ScalarEncoder class method override]"""
+    """
+    [overrides nupic.encoders.scalar.ScalarEncoder.getBucketIndices]
+    """
 
     self.recordNum +=1
     if learn is None:
@@ -148,7 +159,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def encodeIntoArray(self, input, output,learn=None):
-    """[ScalarEncoder class method override]"""
+    """
+    [overrides nupic.encoders.scalar.ScalarEncoder.encodeIntoArray]
+    """
 
     self.recordNum +=1
     if learn is None:
@@ -163,7 +176,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def getBucketInfo(self, buckets):
-    """[ScalarEncoder class method override]"""
+    """
+    [overrides nupic.encoders.scalar.ScalarEncoder.getBucketInfo]
+    """
 
     if self.minval is None or self.maxval is None:
       return [EncoderResult(value=0, scalar=0,
@@ -173,7 +188,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def topDownCompute(self, encoded):
-    """[ScalarEncoder class method override]"""
+    """
+    [overrides nupic.encoders.scalar.ScalarEncoder.topDownCompute]
+    """
 
     if self.minval is None or self.maxval is None:
       return [EncoderResult(value=0, scalar=0,
@@ -182,6 +199,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def dump(self):
+    """
+    Prints details about current state to stdout.
+    """
     print "AdaptiveScalarEncoder:"
     print "  min: %f" % self.minval
     print "  max: %f" % self.maxval

@@ -18,6 +18,8 @@ test.out
 **/numenta-web-common.jar
 *.swp
 
+html/
+
 Servers/
 
 examples/prediction/data/extra/nfl/nfl2010.csv

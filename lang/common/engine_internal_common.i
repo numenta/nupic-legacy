@@ -1,10 +1,9 @@
 
 %{
-/**
- * ----------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -70,7 +69,7 @@
 
 
 //32bit fix -  Already seen by swig on linux32 where size_t is the same size as unsigned int
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm)  && !defined(NTA_PLATFORM_linux32armv7)
 %template(Dimset) std::vector<size_t>;
 #endif
 

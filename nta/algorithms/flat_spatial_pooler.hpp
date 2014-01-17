@@ -1,7 +1,7 @@
-/*----------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -90,6 +90,7 @@ namespace nta {
           virtual void initializeFlat(
             UInt numInputs,
             UInt numColumns,
+            Real potentialPct = 0.5,
             Real localAreaDensity=0,
             UInt numActiveColumnsPerInhArea=10,
             UInt stimulusThreshold=0,
@@ -105,6 +106,13 @@ namespace nta {
             Int seed=-1,
             UInt spVerbosity=0);
 
+          //-------------------------------------------------------------------
+          // Debugging helpers
+          //-------------------------------------------------------------------
+
+          // Print the creation parameters specific to this class
+          void printFlatParameters();
+
 
         protected:
           Real minDistance_;
@@ -112,9 +120,6 @@ namespace nta {
 
           vector<UInt> highTier_;
           vector<UInt> virgin_;
-
-        private:
-          UInt version_;
 
       };
     } // end namespace spatial_pooler

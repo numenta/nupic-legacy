@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,10 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
-from nupic.data.fieldmeta import FieldMetaType
 import numpy
 import random
+
+from nupic.data.fieldmeta import FieldMetaType
+from nupic.encoders.base import Encoder
+
 
 ############################################################################
 class PassThruEncoder(Encoder):
@@ -34,19 +36,22 @@ class PassThruEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w, onbits=0, name="passthru", verbosity=0):
+  def __init__(self, n, w=None, multiply=1, name="passthru", forced=False, verbosity=0):
     """
-    n is the total bits in output (must equal input bits * w)
-    w is the number of bits that are turned on for each on bit
-    onbits is used to normalize the sparsity of the output
+    n -- is the total #bits in output (must equal input bits * multiply)
+    multiply -- each input bit is represented as multiply-bits in the output
+    w -- is used to normalize the sparsity of the output, exactly w bits ON,
+         if None (default) - do not alter the input, just pass it further.
+    forced -- if forced, encode will accept any data, and just return it back.
     """
 
     self.n = n
+    self.m = int(multiply)
     self.w = w
-    self.onbits = onbits
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
+    self.forced = forced
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
@@ -75,14 +80,17 @@ class PassThruEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
-    for i, v in enumerate(input):
-      if v != 0:
-        for j in xrange(0,self.w):
-          output[(int(i)*self.w)+j] = 1
+    if self.forced:
+      return input # total identity
 
-    if self.onbits > 0:
+    if len(input)*self.m != len(output):
+      raise Exception("Wrong input size")
+
+    output[:]=numpy.repeat(input, self.m).tolist()
+
+    if self.w is not None: # require w bits ON sparsity in SDR
       random.seed(hash(str(output)))
-      t = self.onbits - output.sum()
+      t = self.w - output.sum()
       while t > 0:
         """ turn on more bits to normalize """
         i = random.randint(0,self.n-1)
@@ -111,7 +119,7 @@ class PassThruEncoder(Encoder):
       fieldName = "%s.%s" % (parentFieldName, self.name)
     else:
       fieldName = self.name
-    return ({fieldName: ([[0, 0]], 'input')}, [fieldName])
+    return ({fieldName: ([[0, 0]], 'input')}, [fieldName])  #TODO: these methods should be properly implemented
 
 
   ############################################################################
