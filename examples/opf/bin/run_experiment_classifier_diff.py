@@ -37,9 +37,6 @@ from nupic.support import initLogging
 
 def main():
   """Run according to options in sys.argv and diff classifiers."""
-  # Init the NuPic logging configuration from the nupic-logging.conf
-  # configuration file. This is found either in the NTA_CONF_DIR directory
-  # (if defined) or in the 'conf' subdirectory of the NuPic install location.
   initLogging(verbose=True)
 
   # Initialize PRNGs

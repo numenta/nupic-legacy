@@ -2671,10 +2671,6 @@ class _ArgParser(object):
 def setUpModule():
   print "\nCURRENT DIRECTORY:", os.getcwd()
 
-
-  # Init the NuPic logging configuration from the nupic-logging.conf configuration
-  #  file. This is found either in the NTA_CONF_DIR directory (if defined) or
-  #  in the 'conf' subdirectory of the NuPic install location.
   initLogging(verbose=True)
   
   global g_myEnv
