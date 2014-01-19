@@ -534,7 +534,6 @@ def main(argv):
         "represents the desired logging level (10=logging.DEBUG, "
         "20=logging.INFO, etc.) [default: %default].")
 
-
   # Evaluate command line arguments
   (options, args) = parser.parse_args(argv[1:])
   if len(args) != 0:
@@ -547,12 +546,7 @@ def main(argv):
   if (options.jobID is None and options.params is None):
     raise RuntimeError("Either --jobID or --params must be specified.")
 
-  # -------------------------------------------------------------------------
-  # Init the NuPic logging configuration from the nupic-logging.conf configuration
-  #  file. This is found either in the NTA_CONF_DIR directory (if defined) or
-  #  in the 'conf' subdirectory of the NuPic install location.
   initLogging(verbose=True)
-
 
   # Instantiate the HypersearchWorker and run it
   hst = HypersearchWorker(options, argv[1:])
@@ -610,9 +604,8 @@ def main(argv):
 
   return jobID
 
-
-
 #############################################################################
+
 if __name__ == "__main__":
   logging.setLoggerClass(ExtendedLogger)
   buildID = Configuration.get('nupic.software.buildNumber', 'N/A')
