@@ -74,7 +74,3 @@ configure.ac
 # /py/nupic/frameworks/prediction/
 /py/nupic/frameworks/prediction/.project
 /py/nupic/frameworks/prediction/.pydevproject
-
-# tool config
-/tools/pbworks_worklog_config
-/tools/syncEverything
