@@ -15,15 +15,11 @@ trunk.sln
 test.out
 *~
 *.DS_Store
-**/numenta-web-common.jar
 *.swp
 
 html/
 
 Servers/
-
-examples/prediction/data/extra/nfl/nfl2010.csv
-examples/prediction/data/extra/nfl/nfl2010_train.csv
 
 # Build artifacts and .bashrc artifacts
 build/
@@ -35,21 +31,8 @@ build_system/unix/install-sh
 build_system/unix/ltmain.sh
 build_system/unix/missing
 build_system/unix/py-compile
-conf/matrix/hadoop/
-conf/matrix/hbase/
-conf/matrix/nupic-site.xml
-conf/matrix/api/
-conf/default/hadoop/
-conf/default/hbase/
 conf/default/nupic-site.xml
-conf/default/rabbitmq/
-conf/matrix/rabbitmq/
-conf/matrix/rio_cfg.json
 configure.ac
-java/build/
-sandbox/
-external/common/lib/java/nupic.jar
-
 
 # /
 /.gdb_history
@@ -57,26 +40,6 @@ external/common/lib/java/nupic.jar
 # /examples/prediction/
 /examples/prediction/log_hotgym.txt
 /examples/prediction/log.txt
-
-# /examples/prediction/experiments/ford/
-/examples/prediction/experiments/ford/gshaw-demo.zip
-/examples/prediction/experiments/ford/is_alert.png
-/examples/prediction/experiments/ford/report.txt
-/examples/prediction/experiments/ford/sample_enviro.png
-/examples/prediction/experiments/ford/sample_physio.png
-/examples/prediction/experiments/ford/sample_sequences.png
-/examples/prediction/experiments/ford/sample_vehic.png
-/examples/prediction/experiments/ford/test_vec.png
-/examples/prediction/experiments/ford/test_vecs.png
-/examples/prediction/experiments/ford/test_vecs2.png
-/examples/prediction/experiments/ford/networks
-/examples/prediction/experiments/ford/inference
-/examples/prediction/experiments/ford/imgs
-/examples/prediction/experiments/ford/log_post.txt
-/examples/prediction/experiments/ford/log_post2.txt
-/examples/prediction/experiments/ford/log_post3.txt
-/examples/prediction/experiments/ford/log_post4.txt
-/examples/prediction/experiments/ford/results.pkl
 
 # /examples/prediction/experiments/hotgym/base/
 /examples/prediction/experiments/hotgym/base/inference
@@ -111,11 +74,3 @@ external/common/lib/java/nupic.jar
 # /py/nupic/frameworks/prediction/
 /py/nupic/frameworks/prediction/.project
 /py/nupic/frameworks/prediction/.pydevproject
-
-# tool config
-/tools/pbworks_worklog_config
-/tools/syncEverything
-
-# sandboxes
-/sandbox
-/localsandbox
