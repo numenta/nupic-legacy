@@ -441,6 +441,11 @@ def vectorsFromSeqList(seqList, patternMatrix):
   return vectors
 
 ###############################################################################
+# difference smaller than this value makes no effect. 
+# default 0.001 
+_epsilon=0.001
+
+###############################################################################
 # The following three functions are used in tests to compare two different
 # TP instances.
 def sameTPParams(tp1, tp2):
@@ -461,9 +466,9 @@ def sameSynapse(syn, synapses):
   """Given a synapse and a list of synapses, check whether this synapse
   exist in the list.  A synapse is represented as [col, cell, permanence].
   A synapse matches if col and cell are identical and the permanence value is
-  within 0.001."""
+  within 0.01 (_epsilon)."""
   for s in synapses:
-    if (s[0]==syn[0]) and (s[1]==syn[1]) and (abs(s[2]-syn[2]) <= 0.001):
+    if (s[0]==syn[0]) and (s[1]==syn[1]) and (abs(s[2]-syn[2]) <= _epsilon):
       return True
   return False
 
@@ -474,12 +479,14 @@ def sameSegment(seg1, seg2):
   # check sequence segment, total activations etc. In case any are floats,
   # check that they are within 0.001.
   for field in [1, 2, 3, 4, 5, 6]:
-    if abs(seg1[0][field] - seg2[0][field]) > 0.001:
-      result = False
+    if abs(seg1[0][field] - seg2[0][field]) > _epsilon:
+      print "Segment values are too different! (> ", _epsilon, ") ", seg1[0][field], " vs. ", seg2[0][field]
+      return False
 
   # Compare number of synapses
   if len(seg1[1:]) != len(seg2[1:]):
-    result = False
+    print "Segments do not have same number for synapses!"
+    return False
 
   # Now compare synapses, ignoring order of synapses
   for syn in seg2[1:]:
@@ -493,7 +500,8 @@ def sameSegment(seg1, seg2):
         result = False
       res = sameSynapse(syn, seg2[1:])
       if res == False:
-        result = False
+        print "Two synapses differ!"
+        return False
 
   return result
 
@@ -520,24 +528,24 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
 
   if (tp1.activeState['t'] != tp2.activeState['t']).any():
     print 'Active states diverge', numpy.where(tp1.activeState['t'] != tp2.activeState['t'])
-    result = False
+    return False
 
   if (tp1.predictedState['t'] - tp2.predictedState['t']).any():
     print 'Predicted states diverge', numpy.where(tp1.predictedState['t'] != tp2.predictedState['t'])
-    result = False
+    return False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
     print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
-    result = False
+    return False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
     print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
     tp1.printCells()
     tp2.printCells()
-    result = False
+    return False
 
   # Check that each cell has the same number of segments and synapses
   for c in xrange(tp1.numberOfCols):
@@ -545,7 +553,7 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
         print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
-        result = False
+        return False
 
   # If the above tests pass, then check each segment and report differences
   # Note that segments in tp1 can be in a different order than tp2. Here we
@@ -572,7 +580,7 @@ def tpDiff(tp1, tp2, verbosity = 0, relaxSegmentTests =True):
               tp1.printCell(c,i)
               print "Py"
               tp2.printCell(c,i)
-            result = False
+            return False
 
   if result == True and (verbosity > 1):
     print "TP's match"
@@ -611,31 +619,31 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
 
     if (tp1.infActiveState['t'] != tp2.infActiveState['t']).any():
       print 'Active states diverged', numpy.where(tp1.infActiveState['t'] != tp2.infActiveState['t'])
-      result = False
+      return False
 
     if (tp1.infPredictedState['t'] - tp2.infPredictedState['t']).any():
       print 'Predicted states diverged', numpy.where(tp1.infPredictedState['t'] != tp2.infPredictedState['t'])
-      result = False
+      return False
 
     if checkLearn and (tp1.lrnActiveState['t'] - tp2.lrnActiveState['t']).any():
       print 'lrnActiveState[t] diverged', numpy.where(tp1.lrnActiveState['t'] != tp2.lrnActiveState['t'])
-      result = False
+      return False
 
     if checkLearn and (tp1.lrnPredictedState['t'] - tp2.lrnPredictedState['t']).any():
       print 'lrnPredictedState[t] diverged', numpy.where(tp1.lrnPredictedState['t'] != tp2.lrnPredictedState['t'])
-      result = False
+      return False
 
     if checkLearn and abs(tp1.getAvgLearnedSeqLength() - tp2.getAvgLearnedSeqLength()) > 0.01:
       print "Average learned sequence lengths differ: ",
       print tp1.getAvgLearnedSeqLength()," vs ", tp2.getAvgLearnedSeqLength()
-      result = False
+      return False
 
   # TODO: check confidence at T (confT)
 
   # Now check some high level learned parameters.
   if tp1.getNumSegments() != tp2.getNumSegments():
     print "Number of segments are different", tp1.getNumSegments(), tp2.getNumSegments()
-    result = False
+    return False
 
   if tp1.getNumSynapses() != tp2.getNumSynapses():
     print "Number of synapses are different", tp1.getNumSynapses(), tp2.getNumSynapses()
@@ -652,7 +660,7 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
       if tp1.getNumSegmentsInCell(c, i) != tp2.getNumSegmentsInCell(c, i):
         print "Num segments different in cell:",c,i,
         print tp1.getNumSegmentsInCell(c, i), tp2.getNumSegmentsInCell(c, i)
-        result = False
+        return False
 
   # If the above tests pass, then check each segment and report differences
   # Note that segments in tp1 can be in a different order than tp2. Here we
@@ -674,12 +682,12 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
               break
           if res == False:
             print "\nSegments are different for cell:",c,i
-            result = False
             if verbosity >= 0:
               print "%s : " % tp1Label,
               tp1.printCell(c,i)
               print "\n%s  : " % tp2Label,
               tp2.printCell(c,i)
+            return False
 
   if result == True and (verbosity > 1):
     print "TP's match"

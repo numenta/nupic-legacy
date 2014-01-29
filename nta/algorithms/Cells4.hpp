@@ -319,7 +319,7 @@ namespace nta {
         UInt _pamCounter;           // pamCounter gets reset to pamLength
                                     // whenever we detect that the learning
                                     // state is making good predictions
-        UInt _version;
+        NTA_UInt16 _version;
 
         //-----------------------------------------------------------------------
         /**
@@ -435,7 +435,7 @@ namespace nta {
         ~Cells4();
 
         //----------------------------------------------------------------------
-        UInt version() const
+        NTA_UInt16 version() const
         {
           return _version;
         }

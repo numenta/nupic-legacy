@@ -169,7 +169,7 @@ namespace nta {
         {
           UInt version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
@@ -273,9 +273,9 @@ namespace nta {
         }
         void load(std::istream& inStream)
         {
-          UInt version;
+          NTA_UInt16 version;
           inStream >> version;
-          NTA_CHECK(version == 1);
+          NTA_CHECK(version == VERSION);
           inStream >> _fMemoryAllocatedByPython
                    >> _nCells;
           for (UInt i = 0; i < _nCells; ++i)
@@ -295,12 +295,12 @@ namespace nta {
           inStream >> token;
           NTA_CHECK(token == "end");
         }
-        UInt version() const
+        NTA_UInt16 version() const
         {
           return _version;
         }
       private:
-        UInt _version;
+        NTA_UInt16 _version;
         std::vector<UInt> _cellsOn;
         UInt _countOn;                      // how many cells are On
         bool _isSorted;                     // avoid unnecessary sorting
@@ -455,30 +455,6 @@ namespace nta {
         inline Real getLastPosDutyCycle() const    { return _lastPosDutyCycle;}
         inline UInt getLastPosDutyCycleIteration() const
                     { return _lastPosDutyCycleIteration;}
-
-        //-----------------------------------------------------------------------
-        /**
-         * Checks whether the given src cellIdx is already contained in this segment
-         * or not.
-         * TODO: optimize with at least a binary search
-         */
-        inline bool has(UInt srcCellIdx) const
-        {
-          NTA_ASSERT(srcCellIdx != (UInt) -1);
-
-          UInt lo = 0;
-          UInt hi = _synapses.size();
-          while (lo < hi) {
-            const UInt test = (lo + hi)/2;
-            if (_synapses[test].srcCellIdx() < srcCellIdx)
-              lo = test + 1;
-            else if (_synapses[test].srcCellIdx() > srcCellIdx)
-              hi = test;
-            else
-              return true;
-          }
-          return false;
-        }
 
         //-----------------------------------------------------------------------
         /**
