@@ -24,7 +24,7 @@
  * @file
  */
 
-#define TIMER_TEST_MS 100
+#define SLEEP_MICROSECONDS (100 * 1000)
 
 #include "TimerTest.hpp"
 #include <nta/utils/Log.hpp>
@@ -34,7 +34,7 @@
 
 using namespace nta;
 
-void TimerTest::RunTests() 
+void TimerTest::RunTests()
 {
 // Tests are minimal because we have no way to run performance-sensitive tests in a controlled
 // environment.
@@ -47,7 +47,7 @@ void TimerTest::RunTests()
   TEST(t1.getStartCount() == 0);
   TESTEQUAL("[Elapsed: 0 Starts: 0]", t1.toString());
 
-  apr_sleep(TIMER_TEST_MS);
+  apr_sleep(SLEEP_MICROSECONDS);
 
   TEST(t2.isStarted());
   TEST(t2.getStartCount() == 1);
@@ -55,7 +55,7 @@ void TimerTest::RunTests()
   Real64 t2elapsed = t2.getElapsed();
 
   t1.start();
-  apr_sleep(TIMER_TEST_MS);
+  apr_sleep(SLEEP_MICROSECONDS);
   t1.stop();
 
   t2.stop();
