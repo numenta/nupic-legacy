@@ -24,7 +24,7 @@
  * @file
  */
 
-#define SLEEP_MICROSECONDS 100
+#define SLEEP_MICROSECONDS (100 * 1000)
 
 #include "TimerTest.hpp"
 #include <nta/utils/Log.hpp>
