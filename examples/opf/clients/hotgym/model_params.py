@@ -63,10 +63,6 @@ MODEL_PARAMS = {
                     'type': 'RandomDistributedScalarEncoder',
                     },
                     
-                'timestamp_dayOfWeek': {   'dayOfWeek': (21, 1),
-                                           'fieldname': u'timestamp',
-                                           'name': u'timestamp_dayOfWeek',
-                                           'type': 'DateEncoder'},
                 'timestamp_timeOfDay': {   'fieldname': u'timestamp',
                                            'name': u'timestamp_timeOfDay',
                                            'timeOfDay': (21, 1),
@@ -74,7 +70,8 @@ MODEL_PARAMS = {
                 'timestamp_weekend': {   'fieldname': u'timestamp',
                                          'name': u'timestamp_weekend',
                                          'type': 'DateEncoder',
-                                         'weekend': 21}},
+                                         'weekend': 21}
+                    },
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -99,8 +96,9 @@ MODEL_PARAMS = {
 
             # Spatial Pooler implementation selector, see getSPClass 
             # in py/regions/SPRegion.py for details
-            # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp', 
+            # 'oldpy' (default, old), 'SpatialPooler' (C++, faster),
+            # 'PYSpatialPooler' (Python, slower)
+            'spatialImp' : 'SpatialPooler', 
 
             'globalInhibition': 1,
 
@@ -135,9 +133,9 @@ MODEL_PARAMS = {
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.04,
 
-            'synPermInactiveDec': 0.01, 
+            'synPermInactiveDec': 0.005
         },
 
         # Controls whether TP is enabled or disabled;
