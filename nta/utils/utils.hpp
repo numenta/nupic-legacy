@@ -31,11 +31,14 @@
 
 namespace utils 
 {
-  inline bool isSystemLittleEndian()
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+  inline bool isSystemLittleEndian() // TODO same fn is in nta/math/utils.hpp, deduplicate!
   {
     static const char test[2] = { 1, 0 };
     return (*(short *) test) == 1;
   }
+#pragma GCC diagnostic pop
 
   template<typename T>
   inline void swapBytesInPlace(T *pxIn, nta::Size n)

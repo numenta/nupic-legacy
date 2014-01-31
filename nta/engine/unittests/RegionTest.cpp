@@ -57,10 +57,9 @@ void RegionTest::RunTests()
 void RegionTest::testWithNodeType(const std::string& nodeType)
 {
 
-  Region *rP = NULL;
+  SHOULDFAIL ( new Region("r1", "nosuchnode", "") );
 
-  SHOULDFAIL ( rP = new Region("r1", "nosuchnode", "") );
-  
+
   Region r("r1", nodeType, "");
 
   TEST(r.getName() == "r1");

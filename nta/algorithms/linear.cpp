@@ -261,7 +261,7 @@ namespace nta {
 	float sigma1 = 0.25f, sigma2 = 0.5f, sigma3 = 4.0f;
 
 	int n = fun_obj->get_nr_variable();
-	int i, cg_iter;
+	int i;
 	float delta, snorm, one=1.0f;
 	float alpha, f, fnew, prered, actred, gs;
 	int search = 1, iter = 1, inc = 1;
@@ -286,7 +286,7 @@ namespace nta {
 
 	while (iter <= max_iter && search)
 	  {
-	    cg_iter = trcg(delta, g, s, r);
+	    trcg(delta, g, s, r); // must be called, modifies parameters
 
 	    memcpy(w_new, w, sizeof(float)*n);
 	    daxpy_(&n, &one, s, &inc, w_new, &inc);

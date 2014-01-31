@@ -63,8 +63,8 @@ namespace nta
     {
       lmessageValid_ = false;
       ss_ << "[";
-      for(int i=0; i<v.size(); i++)
-        ss_ << v[i] << " ";
+      for(auto vec : v)
+        ss_ << vec << " ";
       ss_ << "]";
       return *this;
     } 

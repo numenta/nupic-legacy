@@ -163,9 +163,6 @@ namespace nta {
   nearlyEqualVector(const Container1& c1, const Container2& c2,
                     const typename Container1::value_type& epsilon =nta::Epsilon)
   {
-    typedef typename Container1::value_type T1;
-    typedef typename Container2::value_type T2;
-
     if (c1.size() != c2.size())
       return false;
 
@@ -220,13 +217,14 @@ namespace nta {
       NTA_ASSERT(x <= x_end);
     }
 
-    // On win32, the asm syntax is not correct.
-#if defined(NTA_PLATFORM_darwin86) && defined(NTA_ASM)
 
     // This test can be moved to compile time using a template with an int
     // parameter, and partial specializations that will match the static
     // const int SSE_LEVEL. 
     if (SSE_LEVEL >= 41) { // ptest is a SSE 4.1 instruction
+
+  // On win32, the asm syntax is not correct.
+#if defined(NTA_PLATFORM_darwin86) && defined(NTA_ASM)
 
       // n is the total number of floats to process.
       // n1 is the number of floats we can process in parallel using SSE.
@@ -284,28 +282,29 @@ namespace nta {
       
         if (result == 1)
           return false;
-      }
+      } // n1>0 end
       
       // Complete computation by iterating over "stragglers" one by one.
       for (int i = n1; i != n; ++i)
         if (*(x+i) > 0)
           return false;
       return true;
-    
-    } else {
+
+#else // darwin
+    for (; x != x_end; ++x)
+      if (*x > 0)
+        return false;
+    return true;
+#endif
+
+    } else { // not SSE4.2
     
       for (; x != x_end; ++x)
         if (*x > 0)
           return false;
       return true;
     }
-#else
-    for (; x != x_end; ++x)
-      if (*x > 0)
-        return false;
-    return true;
-#endif
-  }
+  } //end method
 
   //--------------------------------------------------------------------------------
   /**
@@ -1674,8 +1673,8 @@ namespace nta {
         << "normal_range: Invalid input range";
     }
 
-    typedef typename std::iterator_traits<It>::value_type value_type;
-    // implement numerical recipes' method
+    //typedef typename std::iterator_traits<It>::value_type value_type;
+    //TODO implement numerical recipes' method
   }
 
   //--------------------------------------------------------------------------------
@@ -2571,8 +2570,6 @@ namespace nta {
       NTA_ASSERT(begin <= zone_begin && zone_end <= end)
         << "mask 1: Mask incompatible with vector";
     } // End pre-conditions
-
-    typedef typename std::iterator_traits<InIter>::value_type value_type;
 
     if (maskOutside) {
       std::fill(begin, zone_begin, v);
@@ -4758,7 +4755,6 @@ namespace nta {
         << "sample: Invalid range for pdf";
     }
 
-    typedef typename std::iterator_traits<It1>::value_type value_type;
     typedef typename std::iterator_traits<It2>::value_type size_type2;
 
     size_t size = (size_t) (pdf_end - pdf_begin);
@@ -5474,7 +5470,6 @@ namespace nta {
                                    It1 curr_begin, It1 curr_end)
   {
     typedef nta::UInt32 size_type;
-    typedef nta::Real32 value_type;
     
     size_type input_size = (size_type)(input_end - input_begin);
 

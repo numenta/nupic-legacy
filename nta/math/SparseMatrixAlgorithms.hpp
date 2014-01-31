@@ -813,7 +813,6 @@ namespace nta {
       }
 
       typedef typename SM::size_type size_type;
-      typedef typename SM01::nz_index_type size_type2;
       typedef typename SM::value_type value_type;
 
       const size_type M = A.nRows();

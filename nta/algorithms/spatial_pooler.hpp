@@ -68,7 +68,7 @@ namespace nta {
         public:
           SpatialPooler();
 
-          ~SpatialPooler() {}
+          virtual ~SpatialPooler() {}
 
           /**
           Initialize the spatial pooler using the given parameters.

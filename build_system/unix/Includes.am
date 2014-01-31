@@ -30,7 +30,7 @@ externaldir = $(top_srcdir)/external/@nta_platform@
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-NTA_INCLUDEFLAGS = -I$(top_srcdir) -I$(top_srcdir)/external/common/include -I$(externaldir)/include
+NTA_INCLUDEFLAGS = -I$(top_srcdir) -isystem$(top_srcdir)/external/common/include -isystem$(externaldir)/include
 
 #
 # All executables and plugins are linked with these flags
@@ -52,6 +52,10 @@ if NTA_OPTIMIZATION_ENABLED
   # -ftree-vectorize conflicts with -no-tree-aliasing on leopard, so removed
   # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
   NTA_CXX_OPTFLAGS = -O3 -pipe -DNTA_ASM
+  # warning related flags
+  NTA_CXX_OPTFLAGS += -Wall -Wextra -Wunused  \
+   -Wno-unused-parameter -Wno-cpp -Wno-type-limits -Wno-error=cpp -Wno-error=format= \
+   -Wno-error=unused-parameter
   NTA_PYTHON_BINDINGS_OPTFLAGS = -O1
 else
   NTA_CXX_OPTFLAGS = -O0 -fno-inline
@@ -60,9 +64,9 @@ endif
 
 # put clang/gcc specific flags here (nested ifs do not work!)
 if USING_CLANG # clang
-    NTA_CXX_OPTFLAGS += ""
+    NTA_CXX_OPTFLAGS += -Wno-unknown-warning-option
 else # gcc
-    NTA_CXX_OPTFLAGS += -falign-loops=16
+    NTA_CXX_OPTFLAGS += -falign-loops=16 -Werror
 endif
 
 #
@@ -94,9 +98,7 @@ endif
 NTA_CXXFLAGS_BASE += @nta_platform_cxxflags@
 NTA_CXXFLAGS_BASE += -DNTA_PLATFORM_@nta_platform@
 
-NTA_CXXFLAGS_BASE += \
-       -Wall -Wreturn-type -Wunused-variable -Wno-deprecated \
-       -DBOOST_NO_WREGEX
+NTA_CXXFLAGS_BASE += -DBOOST_NO_WREGEX
 
 ################################################################
 
@@ -171,8 +173,8 @@ if NTA_PYTHON_SUPPORT
 
   # Minimal functional subset
   NTA_CXXFLAGS_BASE += $(NTA_PYTHON_CXXFLAGS) \
-    -I$(NTA_NUMPY_INCLUDE) \
-    -I$(PYTHON_SYS_INCLUDE)
+    -isystem$(NTA_NUMPY_INCLUDE) \
+    -isystem$(PYTHON_SYS_INCLUDE)
 
 else
   NTA_PYEMBEDFLAGS =

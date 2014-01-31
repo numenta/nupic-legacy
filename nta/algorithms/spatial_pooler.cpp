@@ -49,14 +49,13 @@ static Real round5_(const Real f)
 class CoordinateConverter2D {
 
   public:
-    CoordinateConverter2D(UInt nrows, UInt ncols) :
-      nrows_(nrows), ncols_(ncols) {}
+    CoordinateConverter2D(UInt nrows, UInt ncols) : //TODO param nrows is unused
+      ncols_(ncols) {}
     UInt toRow(UInt index) { return index / ncols_; };
     UInt toCol(UInt index) { return index % ncols_; };
     UInt toIndex(UInt row, UInt col) { return row * ncols_ + col; };
 
   private:
-    UInt nrows_;
     UInt ncols_;
 };
 

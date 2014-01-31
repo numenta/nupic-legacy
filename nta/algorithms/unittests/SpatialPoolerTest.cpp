@@ -733,7 +733,7 @@ namespace nta {
     colDim.push_back(10);
     sp.initialize(inputDim, colDim);
 
-    UInt trueAvgConnectedSpan1[7] = {3, 3, static_cast<UInt>(4.5), 3, static_cast<UInt>(2.5), 2, 0};
+    UInt trueAvgConnectedSpan1[7] = {3, 3, 4, 3, 2, 2, 0};
 
     for (UInt i = 0; i < numColumns; i++) {
       sp.setPermanence(i, permArr1[i]);
@@ -1355,7 +1355,6 @@ namespace nta {
     Real density;
     UInt inhibitionRadius;
     UInt numColumns;
-    UInt numColumnsPerInhArea;
 
     density = 0.3;
     numColumns = 10;
@@ -1884,15 +1883,21 @@ namespace nta {
 
             trueNeighbors2Wrap[wc_][zc_][yc_][xc_] = 1;
 
-            if (wc < 0 || wc >= (Int) dimensions[0] ||
+            if (wc < 0 || wc >= (Int) dimensions[0] ||  // *)
                 zc < 0 || zc >= (Int) dimensions[1] ||
                 yc < 0 || yc >= (Int) dimensions[2] ||
                 xc < 0 || xc >= (Int) dimensions[3]) {
               continue;
             }
-
+// gcc 4.6 / 4.7 has a bug here, issues warning -Warray-bounds which is not true, see *), so suppress it
+#if (__GNUC__ == 4 && ( __GNUC_MINOR__ == 6 || __GNUC_MINOR__ == 7) )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
             trueNeighbors2[wc][zc][yc][xc] = 1;
-
+#if (__GNUC__ == 4 && ( __GNUC_MINOR__ == 6 || __GNUC_MINOR__ == 7) )
+#pragma GCC diagnostic pop
+#endif
           }
         }
       }
@@ -2383,7 +2388,8 @@ namespace nta {
 
 
     string command = string("rm -f ") + filename;
-    system(command.c_str());
+    int ret = system(command.c_str());
+    NTA_ASSERT(ret == 0); // "SpatialPoolerTest: execution of command " << command << " failed " << std::endl;
   }
     
 } // end namespace nta

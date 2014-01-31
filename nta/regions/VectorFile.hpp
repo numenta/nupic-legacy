@@ -79,10 +79,10 @@ namespace nta
     void getRawVector(const UInt i, Real *out, UInt offset, Size count);
     
     /// Return the number of stored vectors
-    const size_t vectorCount() { return fileVectors_.size(); }
+    size_t vectorCount() const { return fileVectors_.size(); }
 
     /// Return the size of each vevtor (number of elements per vector)
-    const size_t getElementCount() const;
+    size_t getElementCount() const;
     
     /// Set the scale and offset vectors to correspond to standard form
     /// Sets the offset component of each element to be -mean

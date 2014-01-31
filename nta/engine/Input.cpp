@@ -39,7 +39,7 @@ namespace nta
 
 Input::Input(Region& region, NTA_BasicType dataType, bool isRegionLevel) :
   region_(region), isRegionLevel_(isRegionLevel), 
-  zeroCopyEnabled_(false), initialized_(false),  data_(dataType), name_("Unnamed")
+  initialized_(false),  data_(dataType), name_("Unnamed")
 {
   if (&region == NULL)
   {

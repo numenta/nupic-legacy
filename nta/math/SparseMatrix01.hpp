@@ -143,7 +143,7 @@ namespace nta {
      * We also forbid the default constructor, which would create
      * empty matrices of little use.
      */
-    NO_DEFAULTS(SparseMatrix01);
+    NO_DEFAULTS(SparseMatrix01)
 
     //--------------------------------------------------------------------------------
     /**
