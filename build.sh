@@ -76,14 +76,22 @@ function doMake {
   exitOnError $?
 }
 
-function syncCoreSubmodule {
-  rm -rf $NUPIC/nta
-  mkdir $NUPIC/nta
-  git submodule update --init
+function cleanUpCoreSubmodule {
+  # Someone might have removed the submodule directory, so let's put it back
+  # before running any submodule commands.
+  if [[ ! -d $NUPIC/nta ]] ; then
+    mkdir $NUPIC/nta
+  fi
+  pushd $NUPIC
+  git submodule foreach git clean -fd
+  popd
 }
 
-function cleanUpCoreSubmodule {
-  git submodule foreach git reset --hard
+function syncCoreSubmodule {
+  cleanUpCoreSubmodule
+  pushd $NUPIC
+  git submodule update --init
+  popd
 }
 
 function cleanUpDirectories {
