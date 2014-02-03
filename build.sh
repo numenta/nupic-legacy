@@ -76,10 +76,14 @@ function doMake {
   exitOnError $?
 }
 
-function syncCore {
+function syncCoreSubmodule {
   rm -rf $NUPIC/nta
   mkdir $NUPIC/nta
   git submodule update --init
+}
+
+function cleanUpCoreSubmodule {
+  git submodule foreach git reset --hard
 }
 
 function cleanUpDirectories {
@@ -95,7 +99,7 @@ function cleanUpEnv {
 # Redirect stdout to a file but still print stderr.
 mkdir -p `dirname $STDOUT`
 {
-  syncCore
+  syncCoreSubmodule
   prepDirectories
 
   pythonSetup
@@ -104,6 +108,7 @@ mkdir -p `dirname $STDOUT`
 
   cleanUpDirectories
   cleanUpEnv
+  cleanUpCoreSubmodule
 } 2>&1 > $STDOUT
 
 echo
