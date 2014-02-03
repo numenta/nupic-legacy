@@ -76,6 +76,12 @@ function doMake {
   exitOnError $?
 }
 
+function syncCore {
+  rm -rf $NUPIC/nta
+  mkdir $NUPIC/nta
+  git submodule update --init
+}
+
 function cleanUpDirectories {
   popd
   [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
@@ -89,6 +95,7 @@ function cleanUpEnv {
 # Redirect stdout to a file but still print stderr.
 mkdir -p `dirname $STDOUT`
 {
+  syncCore
   prepDirectories
 
   pythonSetup
