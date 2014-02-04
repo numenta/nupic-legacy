@@ -1,25 +1,36 @@
-#!/usr/bin/env python
-
 # ----------------------------------------------------------------------
-#  Copyright (C) 2007 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2014, Numenta, Inc.  Unless you have purchased from
+# Numenta, Inc. a separate commercial license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
 ## @file
-This file defines the k Nearest Neighbor classifier node.
+This file generates data for the PCA/KNN classifier tests
 """
 
-import numpy
 import logging
+import numpy
 
 LOGGER = logging.getLogger(__name__)
 
-#---------------------------------------------------------------------------------
+
+
 def generate(numDims, numClasses, k, numPatternsPerClass,
              numPatterns, numTests, numSVDSamples, keep):
 
@@ -42,19 +53,20 @@ def generate(numDims, numClasses, k, numPatternsPerClass,
 
   for i in range(numClasses):
     pt = 5*i*numpy.ones((numDims))
-    for j in range(numPatternsPerClass):
+    for _j in range(numPatternsPerClass):
       data0[c] = pt+5*numpy.random.random((numDims))
-      class0[c] = i; c += 1
+      class0[c] = i
+      c += 1
 
-  if 0:
+  if 0: # Change this to visualize the output
     import pylab
     pylab.ion()
     pylab.figure()
-    u,s,vt = pylab.svd(data0[:numPatterns])
+    _u, _s, vt = pylab.svd(data0[:numPatterns])
     tmp = numpy.zeros((numPatterns, 2))
     for i in range(numPatterns):
       tmp[i] = numpy.dot(vt, data0[i])[:2]
-    pylab.scatter(tmp[:,0], tmp[:,1])
+    pylab.scatter(tmp[:, 0], tmp[:, 1])
 
   ind = numpy.random.permutation(numPatterns + numTests)
   train_data = data0[ind[:numPatterns]]
@@ -63,6 +75,3 @@ def generate(numDims, numClasses, k, numPatternsPerClass,
   test_class = class0[ind[numPatterns:]]
 
   return train_data, train_class, test_data, test_class
-
-
-#---------------------------------------------------------------------------------
