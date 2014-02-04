@@ -289,58 +289,14 @@ def test_pca_knn(short = 0):
     print 'PCA/-kNN test passed'
 
 
-#---------------------------------------------------------------------------------
-def stress_test():
-
-  dim = 1000 # up to 100000
-  numPatterns = 10000 # up to 10000
-  numClasses = 100
-  numTests = 1000
-
-  knn = KNNClassifier(k=10, numSVDSamples=2000, numSVDDims=5)
-
-  print 'Training'
-  for i in range(numPatterns):
-    if i % 100 == 0:
-      print i
-    pattern = (numpy.random.rand(dim) > 0.8).astype(RealNumpyDType)
-    cat = numpy.random.randint(0,numClasses-1)
-    knn.learn(pattern, cat)
-
-  print 'Testing'
-  for i in range(numTests):
-    if i % 100 == 0:
-      print i
-    pattern = (numpy.random.rand(dim) > 0.7).astype(RealNumpyDType)
-    winner, inferenceResult, dist, categoryDist = knn.infer(pattern)
-
-
-#---------------------------------------------------------------------------------
-def profile_stress_test():
-
-  import cProfile
-  import pstats
-
-  cProfile.run("stress_test()", 'prof')
-  p = pstats.Stats('prof')
-  p.strip_dirs().sort_stats('cumulative').print_stats(20)
-
-
 #===============================================================================
 # When invoked from command line, run the tests
 #===============================================================================
 if __name__ == '__main__':
-  if len(sys.argv)==2 and sys.argv[1]=="--short":
-    testKNNClassifier(0)
-    test_pca_knn(0)
-  else:
-    testKNNClassifier(0)
-    test_pca_knn(0)
-    testKNNClassifier(1)
-    test_pca_knn(1)
-    testKNNClassifier(2)
-    test_pca_knn(2)
-    profile_stress_test()
+  testKNNClassifier(0)
+  test_pca_knn(0)
+  testKNNClassifier(1)
+  test_pca_knn(1)
 
 
 #---------------------------------------------------------------------------------
