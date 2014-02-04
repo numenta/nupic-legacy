@@ -76,6 +76,24 @@ function doMake {
   exitOnError $?
 }
 
+function cleanUpCoreSubmodule {
+  # Someone might have removed the submodule directory, so let's put it back
+  # before running any submodule commands.
+  if [[ ! -d $NUPIC/nta ]] ; then
+    mkdir $NUPIC/nta
+  fi
+  pushd $NUPIC
+  git submodule foreach git clean -fd
+  popd
+}
+
+function syncCoreSubmodule {
+  cleanUpCoreSubmodule
+  pushd $NUPIC
+  git submodule update --init
+  popd
+}
+
 function cleanUpDirectories {
   popd
   [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
@@ -89,6 +107,7 @@ function cleanUpEnv {
 # Redirect stdout to a file but still print stderr.
 mkdir -p `dirname $STDOUT`
 {
+  syncCoreSubmodule
   prepDirectories
 
   pythonSetup
@@ -97,6 +116,7 @@ mkdir -p `dirname $STDOUT`
 
   cleanUpDirectories
   cleanUpEnv
+  cleanUpCoreSubmodule
 } 2>&1 > $STDOUT
 
 echo
