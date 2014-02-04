@@ -46,8 +46,8 @@ def createPattern(c, numDimensions):
   return v
 
 
-def testCategories(numSamples = 100, numDimensions = 500):
-  """A small test """
+def simulateCategories(numSamples = 100, numDimensions = 500):
+  """Simulate running KNN classifier on many disjoint categories"""
 
   failures = ""
   LOGGER.info("Testing the sparse KNN Classifier on many disjoint categories")
@@ -114,7 +114,7 @@ class KNNCategoriesTest(unittest.TestCase):
     # What the heck, let's just set the random seed
     numpy.random.seed(42)
 
-    failures, _knn = testCategories()
+    failures, _knn = simulateCategories()
 
     self.assertEqual(len(failures), 0,
       "Tests failed: \n" + failures)

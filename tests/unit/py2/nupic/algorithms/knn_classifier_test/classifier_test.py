@@ -36,7 +36,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 
-def testKMoreThanOne():
+def simulateKMoreThanOne():
   """A small test with k=3"""
 
   failures = ""
@@ -79,7 +79,7 @@ def testKMoreThanOne():
   return failures
 
 
-def testClassifier(knn, patternDict, testName):
+def simulateClassifier(knn, patternDict, testName):
   """Train this classifier instance with the given patterns."""
 
   failures = ""
@@ -145,7 +145,7 @@ def getNumTestPatterns(short=0):
 class KNNClassifierTest(unittest.TestCase):
   """Tests for k Nearest Neighbor classifier"""
 
-  def _testKNNClassifier(self, short = 0):
+  def runTestKNNClassifier(self, short = 0):
     """ Test the KNN classifier in this module. short can be:
         0 (short), 1 (medium), or 2 (long)
     """
@@ -163,7 +163,7 @@ class KNNClassifierTest(unittest.TestCase):
       f.write(str(seed_value))
       f.write('\n')
       f.close()
-    failures += testKMoreThanOne()
+    failures += simulateKMoreThanOne()
 
     LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
@@ -181,13 +181,13 @@ class KNNClassifierTest(unittest.TestCase):
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
     knn = KNNClassifier(k=1)
-    failures += testClassifier(knn, patternDict, \
+    failures += simulateClassifier(knn, patternDict, \
       "KNN Classifier with L2 norm test")
 
     LOGGER.info("\nTesting KNN Classifier with L1 norm")
 
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
-    failures += testClassifier(knnL1, patternDict, \
+    failures += simulateClassifier(knnL1, patternDict, \
       "KNN Classifier with L1 norm test")
 
     numPatterns, numClasses = getNumTestPatterns(short)
@@ -205,7 +205,7 @@ class KNNClassifierTest(unittest.TestCase):
     LOGGER.info("\nTesting KNN on sparse patterns")
 
     knnDense = KNNClassifier(k=1)
-    failures += testClassifier(knnDense, patternDict, \
+    failures += simulateClassifier(knnDense, patternDict, \
       "KNN Classifier on sparse pattern test")
 
     self.assertEqual(len(failures), 0,
@@ -217,7 +217,7 @@ class KNNClassifierTest(unittest.TestCase):
       f.close()
 
 
-  def _testPCAKNN(self, short = 0):
+  def runTestPCAKNN(self, short = 0):
 
     LOGGER.info('\nTesting PCA/k-NN classifier')
     LOGGER.info('Mode=%s', short)
@@ -288,19 +288,19 @@ class KNNClassifierTest(unittest.TestCase):
 
 
   def testKNNClassifierShort(self):
-    self._testKNNClassifier(0)
+    self.runTestKNNClassifier(0)
 
 
   def testPCAKNNShort(self):
-    self._testPCAKNN(0)
+    self.runTestPCAKNN(0)
 
 
   def testKNNClassifierMedium(self):
-    self._testKNNClassifier(1)
+    self.runTestKNNClassifier(1)
 
 
   def testPCAKNNMedium(self):
-    self._testPCAKNN(1)
+    self.runTestPCAKNN(1)
 
 
 
