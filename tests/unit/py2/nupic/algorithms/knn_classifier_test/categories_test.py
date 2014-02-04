@@ -20,14 +20,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""
-## @file
-This file contains a test of how k Nearest Neighbor classifier handles
-categories.
-"""
-import sys
 import numpy
 from nupic.algorithms.KNNClassifier import KNNClassifier
+import unittest2 as unittest
+
+
 
 def createPattern(c, numDimensions):
   """
@@ -43,7 +40,7 @@ def createPattern(c, numDimensions):
     v[c-1] = numpy.random.random()
   return v
 
-#---------------------------------------------------------------------------------
+
 def testCategories(numSamples = 100, numDimensions = 500):
   """A small test """
 
@@ -99,27 +96,25 @@ def testCategories(numSamples = 100, numDimensions = 500):
 
   return failures,knn
 
-#===============================================================================
-# When invoked from command line, run the tests
-#===============================================================================
-if __name__ == '__main__':
 
-  # We need determinism!
-  #
-  # "Life is like a game of cards. The hand you are dealt is determinism; the
-  # way you play it is free will." Jawaharlal Nehru
-  #
-  # What the heck, let's just set the random seed
-  numpy.random.seed(42)
 
-  if len(sys.argv)==2 and sys.argv[1]=="--long":
-    failures,knn = testCategories(10000,10000)
-  else:
+class KNNCategoriesTest(unittest.TestCase):
+  """Tests how k Nearest Neighbor classifier handles categories"""
+  def testCategories(self):
+    # We need determinism!
+    #
+    # "Life is like a game of cards. The hand you are dealt is determinism; the
+    # way you play it is free will." Jawaharlal Nehru
+    #
+    # What the heck, let's just set the random seed
+    numpy.random.seed(42)
+
     failures,knn = testCategories()
 
-  if len(failures) != 0:
-    raise Exception("Tests failed: \n" + failures)
-  else: print "Tests passed."
+    self.assertEqual(len(failures), 0,
+      "Tests failed: \n" + failures)
 
 
-#---------------------------------------------------------------------------------
+
+if __name__ == "__main__":
+  unittest.main()
