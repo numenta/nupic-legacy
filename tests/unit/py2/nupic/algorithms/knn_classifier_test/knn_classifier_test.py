@@ -33,7 +33,8 @@ from nupic.algorithms.KNNClassifier import KNNClassifier
 
 import pca_knn_data
 
-#---------------------------------------------------------------------------------
+
+
 def testKMoreThanOne():
   """A small test with k=3"""
 
@@ -71,7 +72,6 @@ def testKMoreThanOne():
   return failures
 
 
-#---------------------------------------------------------------------------------
 def testClassifier(knn, patternDict, testName):
   """Train this classifier instance with the given patterns."""
 
@@ -113,7 +113,6 @@ def testClassifier(knn, patternDict, testName):
   return failures
 
 
-#---------------------------------------------------------------------------------
 def getNumTestPatterns(short=0):
   """Return the number of patterns and classes the test should use."""
 
@@ -135,7 +134,6 @@ def getNumTestPatterns(short=0):
   return numPatterns, numClasses
 
 
-#---------------------------------------------------------------------------------
 def testKNNClassifier(short = 0):
   """ Test the KNN classifier in this module. short can be:
       0 (short), 1 (medium), or 2 (long)
@@ -217,7 +215,6 @@ def testKNNClassifier(short = 0):
   f.close()
 
 
-#---------------------------------------------------------------------------------
 def test_pca_knn(short = 0):
 
   print '\nTesting PCA/k-NN classifier'
@@ -298,6 +295,7 @@ def test_pca_knn(short = 0):
     print 'PCA/-kNN test passed'
 
 
+
 #===============================================================================
 # When invoked from command line, run the tests
 #===============================================================================
@@ -306,6 +304,3 @@ if __name__ == '__main__':
   test_pca_knn(0)
   testKNNClassifier(1)
   test_pca_knn(1)
-
-
-#---------------------------------------------------------------------------------
