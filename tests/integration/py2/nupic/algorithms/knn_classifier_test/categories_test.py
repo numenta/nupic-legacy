@@ -31,19 +31,22 @@ LOGGER = logging.getLogger(__name__)
 
 
 
-def createPattern(c, numDimensions):
-  """
-  Create a sparse pattern from category c with the given number of dimensions.
-  The pattern is created by setting element c to be a high random number.
-  Element c-1 and c+1 are set to low random numbers. numDimensions must be > c.
-  """
+class KNNCategoriesTest(unittest.TestCase):
+  """Tests how k Nearest Neighbor classifier handles categories"""
+  def testCategories(self):
+    # We need determinism!
+    #
+    # "Life is like a game of cards. The hand you are dealt is determinism; the
+    # way you play it is free will." Jawaharlal Nehru
+    #
+    # What the heck, let's just set the random seed
+    numpy.random.seed(42)
 
-  v = numpy.zeros(numDimensions)
-  v[c] = 5*numpy.random.random() + 10
-  v[c+1] = numpy.random.random()
-  if c > 0:
-    v[c-1] = numpy.random.random()
-  return v
+    failures, _knn = simulateCategories()
+
+    self.assertEqual(len(failures), 0,
+      "Tests failed: \n" + failures)
+
 
 
 def simulateCategories(numSamples = 100, numDimensions = 500):
@@ -102,22 +105,19 @@ def simulateCategories(numSamples = 100, numDimensions = 500):
   return failures, knn
 
 
+def createPattern(c, numDimensions):
+  """
+  Create a sparse pattern from category c with the given number of dimensions.
+  The pattern is created by setting element c to be a high random number.
+  Element c-1 and c+1 are set to low random numbers. numDimensions must be > c.
+  """
 
-class KNNCategoriesTest(unittest.TestCase):
-  """Tests how k Nearest Neighbor classifier handles categories"""
-  def testCategories(self):
-    # We need determinism!
-    #
-    # "Life is like a game of cards. The hand you are dealt is determinism; the
-    # way you play it is free will." Jawaharlal Nehru
-    #
-    # What the heck, let's just set the random seed
-    numpy.random.seed(42)
-
-    failures, _knn = simulateCategories()
-
-    self.assertEqual(len(failures), 0,
-      "Tests failed: \n" + failures)
+  v = numpy.zeros(numDimensions)
+  v[c] = 5*numpy.random.random() + 10
+  v[c+1] = numpy.random.random()
+  if c > 0:
+    v[c-1] = numpy.random.random()
+  return v
 
 
 
