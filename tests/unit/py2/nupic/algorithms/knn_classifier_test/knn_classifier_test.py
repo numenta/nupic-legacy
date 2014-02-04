@@ -25,9 +25,12 @@ import time
 import cPickle
 from nupic.regions.PyRegion import RealNumpyDType
 from nupic.algorithms.KNNClassifier import KNNClassifier
+import logging
 import unittest2 as unittest
 
 import pca_knn_data
+
+LOGGER = logging.getLogger(__name__)
 
 
 
@@ -35,7 +38,7 @@ def testKMoreThanOne():
   """A small test with k=3"""
 
   failures = ""
-  print "Testing the sparse KNN Classifier with k=3"
+  LOGGER.info("Testing the sparse KNN Classifier with k=3")
   knn = KNNClassifier(k=3)
 
   v = numpy.zeros((6,2))
@@ -64,7 +67,7 @@ def testKMoreThanOne():
   winner, inferenceResult, dist, categoryDist = knn.infer(v[5])
   if winner != 1: failures += "Inference failed with k=3\n"
 
-  if len(failures) == 0: print "Tests passed."
+  if len(failures) == 0: LOGGER.info("Tests passed.")
   return failures
 
 
@@ -74,36 +77,36 @@ def testClassifier(knn, patternDict, testName):
   failures = ""
   numPatterns = len(patternDict)
 
-  print "Training the classifier"
+  LOGGER.info("Training the classifier")
   tick = time.time()
   for i in patternDict.keys():
     knn.learn(patternDict[i]['pattern'], patternDict[i]['category'])
   tock = time.time()
-  print "Time Elapsed", tock-tick
+  LOGGER.info("Time Elapsed %s", tock-tick)
   knnString = cPickle.dumps(knn)
-  print "Size of the classifier is", len(knnString)
+  LOGGER.info("Size of the classifier is %s", len(knnString))
 
-  print "Testing the classifier on the training set"
+  LOGGER.info("Testing the classifier on the training set")
   error_count = 0
   tick = time.time()
-  print "Number of patterns: %s" % len(patternDict)
+  LOGGER.info("Number of patterns: %s", len(patternDict))
   for i in patternDict.keys():
-    # print "Testing %s - %s %s" % (len(i), patternDict[i]['category'], len(patternDict[i]['pattern']))
-    print "Testing %s - %s %s" % (i, patternDict[i]['category'], len(patternDict[i]['pattern']))
+    # LOGGER.info("Testing %s - %s %s" % (len(i), patternDict[i]['category'], len(patternDict[i]['pattern'])))
+    LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], len(patternDict[i]['pattern']))
     winner, inferenceResult, dist, categoryDist \
       = knn.infer(patternDict[i]['pattern'])
     if winner != patternDict[i]['category']:
       error_count += 1
   tock = time.time()
-  print "Time Elapsed", tock-tick
+  LOGGER.info("Time Elapsed %s", tock-tick)
 
   error_rate = float(error_count)/numPatterns
-  print "Error rate is ", error_rate
+  LOGGER.info("Error rate is %s", error_rate)
 
   if error_rate == 0:
-    print testName + " passed"
+    LOGGER.info(testName + " passed")
   else:
-    print testName + " failed"
+    LOGGER.info(testName + " failed")
     failures += testName + " failed\n"
 
   return failures
@@ -113,20 +116,20 @@ def getNumTestPatterns(short=0):
   """Return the number of patterns and classes the test should use."""
 
   if short==0:
-    print "Running short tests"
+    LOGGER.info("Running short tests")
     numPatterns = numpy.random.randint(300,600)
     numClasses = numpy.random.randint(50,150)
   elif short==1:
-    print "\nRunning medium tests"
+    LOGGER.info("\nRunning medium tests")
     numPatterns = numpy.random.randint(500,1500)
     numClasses = numpy.random.randint(50,150)
   else:
-    print "\nRunning long tests"
+    LOGGER.info("\nRunning long tests")
     numPatterns = numpy.random.randint(500,3000)
     numClasses = numpy.random.randint(30,1000)
 
-  print "number of patterns is", numPatterns
-  print "number of classes is ", numClasses
+  LOGGER.info("number of patterns is %s", numPatterns)
+  LOGGER.info("number of classes is %s", numClasses)
   return numPatterns, numClasses
 
 
@@ -147,7 +150,7 @@ class KNNClassifierTest(unittest.TestCase):
       # seed_value = 1276437656
       #seed_value = 1277136651
       numpy.random.seed(seed_value)
-      print 'Seed used: %d' %seed_value
+      LOGGER.info('Seed used: %d' % seed_value)
       f = open('seedval', 'a')
       f.write(str(seed_value))
       f.write('\n')
@@ -155,7 +158,7 @@ class KNNClassifierTest(unittest.TestCase):
     failures += testKMoreThanOne()
 
 
-    print "\nTesting KNN Classifier on dense patterns"
+    LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = numpy.random.rand(numPatterns,100)
     patternDict = dict()
@@ -177,14 +180,14 @@ class KNNClassifierTest(unittest.TestCase):
     #     patternDict[iString]['category'] = randCategory
 
 
-    print "\nTesting KNN Classifier with L2 norm"
+    LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
     knn = KNNClassifier(k=1)
     failures += testClassifier(knn, patternDict, "KNN Classifier with L2 norm test")
 
 
     return
-    print "\nTesting KNN Classifier with L1 norm"
+    LOGGER.info("\nTesting KNN Classifier with L1 norm")
 
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
     failures += testClassifier(knnL1, patternDict, "KNN Classifier with L1 norm test")
@@ -203,7 +206,7 @@ class KNNClassifierTest(unittest.TestCase):
         patternDict[iString]['category'] = randCategory
 
 
-    print "\nTesting KNN on sparse patterns"
+    LOGGER.info("\nTesting KNN on sparse patterns")
 
     knnDense = KNNClassifier(k=1)
     failures += testClassifier(knnDense, patternDict, "KNN Classifier on sparse pattern test")
@@ -218,8 +221,8 @@ class KNNClassifierTest(unittest.TestCase):
 
   def _testPCAKNN(self, short = 0):
 
-    print '\nTesting PCA/k-NN classifier'
-    print 'Mode=', short,
+    LOGGER.info('\nTesting PCA/k-NN classifier')
+    LOGGER.info('Mode=%s', short)
 
     numDims = 10
     numClasses = 10
@@ -240,14 +243,14 @@ class KNNClassifierTest(unittest.TestCase):
     knn = KNNClassifier(k=k)
 
 
-    print 'Training PCA k-NN'
+    LOGGER.info('Training PCA k-NN')
 
     for i in range(numPatterns):
       knn.learn(train_data[i], train_class[i])
       pca_knn.learn(train_data[i], train_class[i])
 
 
-    print 'Testing PCA k-NN'
+    LOGGER.info('Testing PCA k-NN')
 
     numWinnerFailures = 0
     numInferenceFailures = 0
@@ -259,14 +262,6 @@ class KNNClassifierTest(unittest.TestCase):
       winner, inference, dist, categoryDist = knn.infer(test_data[i])
       pca_winner, pca_inference, pca_dist, pca_categoryDist \
         = pca_knn.infer(test_data[i])
-
-      if 0:
-        print '>>', test_class[i], winner, pca_winner,
-        if winner != test_class[i]:
-          print 'k-NN wrong',
-        if pca_winner != test_class[i]:
-          print 'PCA/k-NN wrong',
-        print
 
       if winner != test_class[i]:
         numAbsErrors += 1
@@ -285,10 +280,10 @@ class KNNClassifierTest(unittest.TestCase):
     s2 = 100*float(numTests - numInferenceFailures) / float(numTests)
     s3 = 100*float(numTests - numDistFailures) / float(numTests)
 
-    print 'PCA/k-NN success rate=', s0, '%'
-    print 'Winner success=', s1, '%'
-    print 'Inference success=', s2, '%'
-    print 'Distance success=', s3, '%'
+    LOGGER.info('PCA/k-NN success rate=%s%s', s0, '%')
+    LOGGER.info('Winner success=%s%s', s1, '%')
+    LOGGER.info('Inference success=%s%s', s2, '%')
+    LOGGER.info('Distance success=%s%s', s3, '%')
 
     self.assertEqual(s1, 100.0,
       "PCA/k-NN test failed")
