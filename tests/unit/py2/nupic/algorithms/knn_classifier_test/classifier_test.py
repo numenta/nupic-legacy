@@ -20,13 +20,15 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
+import logging
 import time
+import unittest2 as unittest
+
 import cPickle
+import numpy
+
 from nupic.regions.PyRegion import RealNumpyDType
 from nupic.algorithms.KNNClassifier import KNNClassifier
-import logging
-import unittest2 as unittest
 
 import pca_knn_data
 
