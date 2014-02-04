@@ -43,13 +43,13 @@ def testKMoreThanOne():
   LOGGER.info("Testing the sparse KNN Classifier with k=3")
   knn = KNNClassifier(k=3)
 
-  v = numpy.zeros((6,2))
-  v[0] = [1.0,0.0]
-  v[1] = [1.0,0.2]
-  v[2] = [1.0,0.2]
-  v[3] = [1.0,2.0]
-  v[4] = [1.0,4.0]
-  v[5] = [1.0,4.5]
+  v = numpy.zeros((6, 2))
+  v[0] = [1.0, 0.0]
+  v[1] = [1.0, 0.2]
+  v[2] = [1.0, 0.2]
+  v[3] = [1.0, 2.0]
+  v[4] = [1.0, 4.0]
+  v[5] = [1.0, 4.5]
   knn.learn(v[0], 0)
   knn.learn(v[1], 0)
   knn.learn(v[2], 0)
@@ -57,19 +57,25 @@ def testKMoreThanOne():
   knn.learn(v[4], 1)
   knn.learn(v[5], 1)
 
-  winner, inferenceResult, dist, categoryDist = knn.infer(v[0])
-  if winner != 0: failures += "Inference failed with k=3\n"
+  winner, _inferenceResult, _dist, _categoryDist = knn.infer(v[0])
+  if winner != 0:
+    failures += "Inference failed with k=3\n"
 
-  winner, inferenceResult, dist, categoryDist = knn.infer(v[2])
-  if winner != 0: failures += "Inference failed with k=3\n"
+  winner, _inferenceResult, _dist, _categoryDist = knn.infer(v[2])
+  if winner != 0:
+    failures += "Inference failed with k=3\n"
 
-  winner, inferenceResult, dist, categoryDist = knn.infer(v[3])
-  if winner != 0: failures += "Inference failed with k=3\n"
+  winner, _inferenceResult, _dist, _categoryDist = knn.infer(v[3])
+  if winner != 0:
+    failures += "Inference failed with k=3\n"
 
-  winner, inferenceResult, dist, categoryDist = knn.infer(v[5])
-  if winner != 1: failures += "Inference failed with k=3\n"
+  winner, _inferenceResult, _dist, _categoryDist = knn.infer(v[5])
+  if winner != 1:
+    failures += "Inference failed with k=3\n"
 
-  if len(failures) == 0: LOGGER.info("Tests passed.")
+  if len(failures) == 0:
+    LOGGER.info("Tests passed.")
+
   return failures
 
 
@@ -93,16 +99,16 @@ def testClassifier(knn, patternDict, testName):
   tick = time.time()
   LOGGER.info("Number of patterns: %s", len(patternDict))
   for i in patternDict.keys():
-    # LOGGER.info("Testing %s - %s %s" % (len(i), patternDict[i]['category'], len(patternDict[i]['pattern'])))
-    LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], len(patternDict[i]['pattern']))
-    winner, inferenceResult, dist, categoryDist \
+    LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
+      len(patternDict[i]['pattern']))
+    winner, _inferenceResult, _dist, _categoryDist \
       = knn.infer(patternDict[i]['pattern'])
     if winner != patternDict[i]['category']:
       error_count += 1
   tock = time.time()
   LOGGER.info("Time Elapsed %s", tock-tick)
 
-  error_rate = float(error_count)/numPatterns
+  error_rate = float(error_count) / numPatterns
   LOGGER.info("Error rate is %s", error_rate)
 
   if error_rate == 0:
@@ -119,16 +125,16 @@ def getNumTestPatterns(short=0):
 
   if short==0:
     LOGGER.info("Running short tests")
-    numPatterns = numpy.random.randint(300,600)
-    numClasses = numpy.random.randint(50,150)
+    numPatterns = numpy.random.randint(300, 600)
+    numClasses = numpy.random.randint(50, 150)
   elif short==1:
     LOGGER.info("\nRunning medium tests")
-    numPatterns = numpy.random.randint(500,1500)
-    numClasses = numpy.random.randint(50,150)
+    numPatterns = numpy.random.randint(500, 1500)
+    numClasses = numpy.random.randint(50, 150)
   else:
     LOGGER.info("\nRunning long tests")
-    numPatterns = numpy.random.randint(500,3000)
-    numClasses = numpy.random.randint(30,1000)
+    numPatterns = numpy.random.randint(500, 3000)
+    numClasses = numpy.random.randint(30, 1000)
 
   LOGGER.info("number of patterns is %s", numPatterns)
   LOGGER.info("number of classes is %s", numClasses)
@@ -152,7 +158,7 @@ class KNNClassifierTest(unittest.TestCase):
       # seed_value = 1276437656
       #seed_value = 1277136651
       numpy.random.seed(seed_value)
-      LOGGER.info('Seed used: %d' % seed_value)
+      LOGGER.info('Seed used: %d', seed_value)
       f = open('seedval', 'a')
       f.write(str(seed_value))
       f.write('\n')
@@ -162,13 +168,13 @@ class KNNClassifierTest(unittest.TestCase):
 
     LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
-    patterns = numpy.random.rand(numPatterns,100)
+    patterns = numpy.random.rand(numPatterns, 100)
     patternDict = dict()
 
     # Assume there are no repeated patterns -- if there are, then
     # numpy.random would be completely broken.
     for i in xrange(numPatterns):
-      randCategory = numpy.random.randint(0,numClasses-1)
+      randCategory = numpy.random.randint(0, numClasses-1)
       patternDict[i] = dict()
       patternDict[i]['pattern'] = patterns[i]
       patternDict[i]['category'] = randCategory
@@ -185,24 +191,26 @@ class KNNClassifierTest(unittest.TestCase):
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
     knn = KNNClassifier(k=1)
-    failures += testClassifier(knn, patternDict, "KNN Classifier with L2 norm test")
+    failures += testClassifier(knn, patternDict, \
+      "KNN Classifier with L2 norm test")
 
 
     return
     LOGGER.info("\nTesting KNN Classifier with L1 norm")
 
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
-    failures += testClassifier(knnL1, patternDict, "KNN Classifier with L1 norm test")
+    failures += testClassifier(knnL1, patternDict, \
+      "KNN Classifier with L1 norm test")
 
 
     numPatterns, numClasses = getNumTestPatterns(short)
-    patterns = (numpy.random.rand(numPatterns,25) > 0.7).astype(RealNumpyDType)
+    patterns = (numpy.random.rand(numPatterns, 25) > 0.7).astype(RealNumpyDType)
     patternDict = dict()
 
     for i in patterns:
       iString = str(i.tolist())
       if not patternDict.has_key(iString):
-        randCategory = numpy.random.randint(0,numClasses-1)
+        randCategory = numpy.random.randint(0, numClasses-1)
         patternDict[iString] = dict()
         patternDict[iString]['pattern'] = i
         patternDict[iString]['category'] = randCategory
@@ -211,7 +219,8 @@ class KNNClassifierTest(unittest.TestCase):
     LOGGER.info("\nTesting KNN on sparse patterns")
 
     knnDense = KNNClassifier(k=1)
-    failures += testClassifier(knnDense, patternDict, "KNN Classifier on sparse pattern test")
+    failures += testClassifier(knnDense, patternDict, \
+      "KNN Classifier on sparse pattern test")
 
     self.assertEqual(len(failures), 0,
       "Tests failed: \n" + failures)
