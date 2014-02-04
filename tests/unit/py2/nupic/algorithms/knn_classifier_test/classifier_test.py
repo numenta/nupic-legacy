@@ -165,7 +165,6 @@ class KNNClassifierTest(unittest.TestCase):
       f.close()
     failures += testKMoreThanOne()
 
-
     LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = numpy.random.rand(numPatterns, 100)
@@ -179,15 +178,6 @@ class KNNClassifierTest(unittest.TestCase):
       patternDict[i]['pattern'] = patterns[i]
       patternDict[i]['category'] = randCategory
 
-    # for i in patterns:
-    #   iString = str(i.tolist())
-    #   if not patternDict.has_key(iString):
-    #     randCategory = numpy.random.randint(0,numClasses-1)
-    #     patternDict[iString] = dict()
-    #     patternDict[iString]['pattern'] = i
-    #     patternDict[iString]['category'] = randCategory
-
-
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
     knn = KNNClassifier(k=1)
@@ -200,7 +190,6 @@ class KNNClassifierTest(unittest.TestCase):
     failures += testClassifier(knnL1, patternDict, \
       "KNN Classifier with L1 norm test")
 
-
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = (numpy.random.rand(numPatterns, 25) > 0.7).astype(RealNumpyDType)
     patternDict = dict()
@@ -212,7 +201,6 @@ class KNNClassifierTest(unittest.TestCase):
         patternDict[iString] = dict()
         patternDict[iString]['pattern'] = i
         patternDict[iString]['category'] = randCategory
-
 
     LOGGER.info("\nTesting KNN on sparse patterns")
 
