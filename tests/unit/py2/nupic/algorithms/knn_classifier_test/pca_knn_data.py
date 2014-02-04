@@ -15,22 +15,25 @@ This file defines the k Nearest Neighbor classifier node.
 """
 
 import numpy
+import logging
+
+LOGGER = logging.getLogger(__name__)
 
 #---------------------------------------------------------------------------------
 def generate(numDims, numClasses, k, numPatternsPerClass,
              numPatterns, numTests, numSVDSamples, keep):
 
-  print 'N dims=', numDims
-  print 'N classes=', numClasses
-  print 'k=', k
-  print 'N vectors per class=', numPatternsPerClass
-  print 'N training vectors=', numPatterns
-  print 'N test vectors=', numTests
-  print 'N SVD samples=', numSVDSamples
-  print 'N reduced dims=', int(keep*numDims)
+  LOGGER.info('N dims=%s', numDims)
+  LOGGER.info('N classes=%s', numClasses)
+  LOGGER.info('k=%s', k)
+  LOGGER.info('N vectors per class=%s', numPatternsPerClass)
+  LOGGER.info('N training vectors=%s', numPatterns)
+  LOGGER.info('N test vectors=%s', numTests)
+  LOGGER.info('N SVD samples=%s', numSVDSamples)
+  LOGGER.info('N reduced dims=%s', int(keep*numDims))
 
 
-  print 'Generating data'
+  LOGGER.info('Generating data')
 
   numpy.random.seed(42)
   data0 = numpy.zeros((numPatterns + numTests, numDims))
