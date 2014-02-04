@@ -53,27 +53,27 @@ def testCategories(numSamples = 100, numDimensions = 500):
   LOGGER.info("Testing the sparse KNN Classifier on many disjoint categories")
   knn = KNNClassifier(k=1, distanceNorm=1.0, useSparseMemory = True)
 
-  for i in range(0,numSamples):
+  for i in range(0, numSamples):
 
     # select category randomly and generate vector
-    c = 2*numpy.random.randint(0,50) + 50
+    c = 2*numpy.random.randint(0, 50) + 50
     v = createPattern(c, numDimensions)
     knn.learn(v, c)
 
   # Go through each category and ensure we have at least one from each!
-  for i in range(0,50):
+  for i in range(0, 50):
     c = 2*i+50
     v = createPattern(c, numDimensions)
     knn.learn(v, c)
 
   errors = 0
-  for i in range(0,numSamples):
+  for i in range(0, numSamples):
 
     # select category randomly and generate vector
-    c = 2*numpy.random.randint(0,50) + 50
+    c = 2*numpy.random.randint(0, 50) + 50
     v = createPattern(c, numDimensions)
 
-    inferCat, kir, kd, kcd = knn.infer(v)
+    inferCat, _kir, _kd, _kcd = knn.infer(v)
     if inferCat != c:
       LOGGER.info("Mistake with %s %s %s %s %s", v[v.nonzero()], \
         "mapped to category", inferCat, "instead of category", c)
@@ -84,13 +84,13 @@ def testCategories(numSamples = 100, numDimensions = 500):
 
   # Test closest methods
   errors = 0
-  for i in range(0,10):
+  for i in range(0, 10):
 
     # select category randomly and generate vector
-    c = 2*numpy.random.randint(0,50) + 50
+    c = 2*numpy.random.randint(0, 50) + 50
     v = createPattern(c, numDimensions)
 
-    p = knn.closestTrainingPattern(v,c)
+    p = knn.closestTrainingPattern(v, c)
     if not (c in p.nonzero()[0]):
       LOGGER.info("Mistake %s %s", p.nonzero(), v.nonzero())
       LOGGER.info("%s %s", p[p.nonzero()], v[v.nonzero()])
@@ -99,7 +99,7 @@ def testCategories(numSamples = 100, numDimensions = 500):
   if errors != 0:
     failures += "Failure in closestTrainingPattern method\n"
 
-  return failures,knn
+  return failures, knn
 
 
 
@@ -114,7 +114,7 @@ class KNNCategoriesTest(unittest.TestCase):
     # What the heck, let's just set the random seed
     numpy.random.seed(42)
 
-    failures,knn = testCategories()
+    failures, _knn = testCategories()
 
     self.assertEqual(len(failures), 0,
       "Tests failed: \n" + failures)
