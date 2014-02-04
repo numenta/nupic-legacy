@@ -25,13 +25,10 @@
 This file contains tests for the k Nearest Neighbor classifier.
 """
 
-import sys
 import numpy
 import time
 import cPickle
-import random
 from nupic.regions.PyRegion import RealNumpyDType
-from nupic.bindings.math import NearestNeighbor
 from nupic.algorithms.KNNClassifier import KNNClassifier
 
 import pca_knn_data
