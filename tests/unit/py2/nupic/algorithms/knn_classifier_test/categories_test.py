@@ -22,7 +22,10 @@
 
 import numpy
 from nupic.algorithms.KNNClassifier import KNNClassifier
+import logging
 import unittest2 as unittest
+
+LOGGER = logging.getLogger(__name__)
 
 
 
@@ -45,7 +48,7 @@ def testCategories(numSamples = 100, numDimensions = 500):
   """A small test """
 
   failures = ""
-  print "Testing the sparse KNN Classifier on many disjoint categories"
+  LOGGER.info("Testing the sparse KNN Classifier on many disjoint categories")
   knn = KNNClassifier(k=1, distanceNorm=1.0, useSparseMemory = True)
 
   for i in range(0,numSamples):
@@ -70,9 +73,9 @@ def testCategories(numSamples = 100, numDimensions = 500):
 
     inferCat, kir, kd, kcd = knn.infer(v)
     if inferCat != c:
-      print "Mistake with",v[v.nonzero()],"mapped to category",inferCat,\
-            "instead of category",c
-      print "   ",v.nonzero()
+      LOGGER.info("Mistake with %s %s %s %s %s", v[v.nonzero()], \
+        "mapped to category", inferCat, "instead of category", c)
+      LOGGER.info("   %s", v.nonzero())
       errors += 1
   if errors != 0:
     failures += "Failure in handling non-consecutive category indices\n"
@@ -87,8 +90,8 @@ def testCategories(numSamples = 100, numDimensions = 500):
 
     p = knn.closestTrainingPattern(v,c)
     if not (c in p.nonzero()[0]):
-      print "Mistake",p.nonzero(), v.nonzero()
-      print p[p.nonzero()], v[v.nonzero()]
+      LOGGER.info("Mistake %s %s", p.nonzero(), v.nonzero())
+      LOGGER.info("%s %s", p[p.nonzero()], v[v.nonzero()])
       errors += 1
 
   if errors != 0:
