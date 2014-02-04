@@ -194,8 +194,6 @@ class KNNClassifierTest(unittest.TestCase):
     failures += testClassifier(knn, patternDict, \
       "KNN Classifier with L2 norm test")
 
-
-    return
     LOGGER.info("\nTesting KNN Classifier with L1 norm")
 
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
@@ -225,9 +223,10 @@ class KNNClassifierTest(unittest.TestCase):
     self.assertEqual(len(failures), 0,
       "Tests failed: \n" + failures)
 
-    f = open('seedval', 'a')
-    f.write('Pass\n')
-    f.close()
+    if short == 2:
+      f = open('seedval', 'a')
+      f.write('Pass\n')
+      f.close()
 
 
   def _testPCAKNN(self, short = 0):
