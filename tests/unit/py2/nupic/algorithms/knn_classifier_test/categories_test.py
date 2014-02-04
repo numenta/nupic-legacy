@@ -20,10 +20,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
-from nupic.algorithms.KNNClassifier import KNNClassifier
 import logging
 import unittest2 as unittest
+
+import numpy
+
+from nupic.algorithms.KNNClassifier import KNNClassifier
 
 LOGGER = logging.getLogger(__name__)
 
