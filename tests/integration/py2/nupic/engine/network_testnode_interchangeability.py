@@ -42,7 +42,7 @@ messages tests for the three node network):
 
 import unittest2 as unittest
 
-from nupic.engine import Network, Dimensions, Array
+from nupic.engine import Network, Dimensions
 
 
 
@@ -72,8 +72,8 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     print 'test(level1: %s, level2: %s)' % (nodeType1, nodeType2)
     net = Network()
     level1 = net.addRegion("level1", nodeType1, "{int32Param: 15}")
-    dims = Dimensions([6,4])
-    level1.setDimensions(dims);
+    dims = Dimensions([6, 4])
+    level1.setDimensions(dims)
 
     level2 = net.addRegion("level2", nodeType2, "{real64Param: 128.23}")
 
@@ -130,7 +130,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     for i in xrange(6):
       if l2output[2*i] != 8:
         print l2output[2*i]
-        from dbgp.client import brk; brk(port=9019)
+        # from dbgp.client import brk; brk(port=9019)
 
       self.assertEqual(l2output[2*i], 8)      # size of input for each node is 8
       self.assertEqual(l2output[2*i+1], outputVals[i])
@@ -169,8 +169,8 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     net = Network()
     level1 = net.addRegion("level1", nodeType1, "")
     level2 = net.addRegion("level2", nodeType2, "")
-    dims = Dimensions([3,2])
-    level2.setDimensions(dims);
+    dims = Dimensions([3, 2])
+    level2.setDimensions(dims)
     net.link("level1", "level2", "TestFanIn2", "")
     net.initialize()
 
