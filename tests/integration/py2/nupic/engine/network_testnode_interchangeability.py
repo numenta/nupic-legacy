@@ -53,7 +53,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     self.runNodesTest('py.TestNode', 'TestNode')
 
 
-  def testNodesTestNodeAndTestNode(self):
+  def testNodesTestNodeAndPyTestNode(self):
     self.runNodesTest('TestNode', 'py.TestNode')
 
 
