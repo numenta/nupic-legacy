@@ -91,6 +91,11 @@ class MyTestEnvironment(object):
     return
 
 
+  def cleanUp(self):
+    shutil.rmtree(self.testOutDir, ignore_errors=True)
+    return
+
+
 
 class ExperimentTestBaseClass(HelperTestCaseBase):
 
@@ -126,8 +131,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     called if the setUp() succeeds, regardless of the outcome of the test
     method. The default implementation does nothing.
     """
-    # Reset our log items
     self.resetExtraLogItems()
+    g_myEnv.cleanUp()
 
 
   def shortDescription(self):
