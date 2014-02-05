@@ -1,33 +1,36 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
-#! /usr/bin/env python
-#  Copyright (C) 2011 Numenta Inc, All rights reserved,
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc, No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
 #
-# NOTE: This test may be executed individually via test_release.py; e.g.,:
-#   python test_release.py --short ~/nta/current ~/nta/trunk --test=expGenerator_test
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
 #
-# TODO: Need to verify generated description.py and permutation.py for proper
-#       side-effects (not just datasets)
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
-import sys
-import os
+import copy
 import imp
-import subprocess
-import re
 import json
+import logging
+from optparse import OptionParser
+import os
 import pprint
 import shutil
-import copy
-import StringIO
-from optparse import OptionParser
-import logging
-import string
+import subprocess
+import sys
+import unittest2 as unittest
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming.utils import generatePersistentJobGUID
@@ -46,11 +49,11 @@ from nupic.support.unittesthelpers.testcasebase import (
 
 g_debug = False
 
-
 # Our __main__ entry block sets this to an instance of MyTestEnvironment()
 g_myEnv = None
 
-################################################################################
+
+
 class MyTestEnvironment(object):
 
   def __init__(self, options):
@@ -88,7 +91,6 @@ class MyTestEnvironment(object):
 
 
 
-############################################################################
 class ExperimentTestBaseClass(HelperTestCaseBase):
 
   # We will load the description.py and permutations.py files as modules
@@ -104,7 +106,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     return name
 
 
-  ############################################################################
   def setUp(self):
     """ Method called to prepare the test fixture. This is called by the
     unittest framework immediately before calling the test method; any exception
@@ -115,7 +116,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     pass
 
 
-  ############################################################################
   def tearDown(self):
     """ Method called immediately after the test method has been called and the
     result recorded. This is called even if the test method raised an exception,
@@ -129,14 +129,13 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.resetExtraLogItems()
 
 
-  ############################################################################
   def shortDescription(self):
     """ Override to force unittest framework to use test method names instead
     of docstrings in the report.
     """
     return None
 
-  ############################################################################
+
   def checkPythonScript(self, scriptAbsPath):
     assert(os.path.isabs(scriptAbsPath))
 
@@ -149,7 +148,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     mod = imp.load_source(self.newScriptImportName(), scriptAbsPath)
     return mod
 
-  ############################################################################
+
   def getModules(self, expDesc, hsVersion='v2'):
     """ This does the following:
 
@@ -203,7 +202,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
 
 
-  ############################################################################
   def runBaseDescriptionAndPermutations(self, expDesc, hsVersion, maxModels=2):
     """ This does the following:
 
@@ -278,7 +276,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     return results
 
-  ##########################################################################
+
   def assertIsInt(self, x, msg=None):
 
     xInt = int(round(x))
@@ -287,7 +285,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.assertLess(abs(x - xInt), 0.0001 * x, msg)
 
 
-  ############################################################################
   def assertValidSwarmingAggregations(self, expDesc, expectedAttempts):
     """ Test that the set of aggregations produced for a swarm are correct
 
@@ -396,10 +393,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
                      (expectedAttempts, aggAttempts))
 
 
-############################################################################
+
 class PositiveExperimentTests(ExperimentTestBaseClass):
 
-  ############################################################################
+
   def test_ShowSchema(self):
     """ Test showing the schema
     """
@@ -415,7 +412,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def test_PredictionElement(self):
     """ Test correct behavior in response to different settings in the
     prediction element
@@ -477,7 +473,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     return
-  ############################################################################
+
+
   def assertMetric(self, base, perm, predictedField,
                    optimizeMetric, grokScore,
                    moving_baseline,
@@ -509,7 +506,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                                    predictedField),
                        msg="got: %s" % perm.minimize)
 
-  ############################################################################
+
   def test_Metrics(self):
     """ Test to make sure that the correct metrics are generated """
 
@@ -576,7 +573,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                      ".*")
 
 
-  ############################################################################
   def test_IncludedFields(self):
     """ Test correct behavior in response to different settings in the
     includedFields element
@@ -760,7 +756,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def test_Aggregation(self):
     """ Test that aggregation gets pulled out of the streamDef as it should
     """
@@ -863,7 +859,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def test_ResetPeriod(self):
     """ Test that reset period gets handled correctly
     """
@@ -928,7 +924,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def test_RunningExperimentHSv2(self):
     """ Try running a basic Hypersearch V2 experiment and permutations
     """
@@ -975,7 +970,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def test_MultiStep(self):
     """ Test the we correctly generate a multi-step prediction experiment
     """
@@ -1192,7 +1186,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     return
 
-  ############################################################################
+
   def test_DeltaEncoders(self):
     dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
 
@@ -1267,7 +1261,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(encoderPerm.kwArgs['space'], "delta")
 
 
-  ############################################################################
   def test_AggregationSwarming(self):
     """ Test the we correctly generate a multi-step prediction experiment that
     uses aggregation swarming
@@ -1411,7 +1404,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     print "Got expected exception: ", cm.exception
 
 
-  ############################################################################
   def test_SwarmSize(self):
     """ Test correct behavior in response to different settings in the
     swarmSize element
@@ -1553,7 +1545,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     return
 
 
-  ############################################################################
   def test_FixedFields(self):
     """ Test correct behavior in response to setting the fixedFields swarming
     option.
@@ -1610,7 +1601,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertFalse(hasattr(perms, 'fixedFields'))
 
 
-  ############################################################################
   def test_FastSwarmModelParams(self):
     """ Test correct behavior in response to setting the fastSwarmModelParams
     swarming option.
@@ -1739,7 +1729,6 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         expDesc['anomalyParams'])
 
 
-  ############################################################################
   def test_NontemporalClassification(self):
     """ Test the we correctly generate a Nontemporal classification experiment
     """
@@ -1881,7 +1870,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     return
 
-############################################################################
+
+
 def _executeExternalCmdAndReapStdout(args):
   """
   args:     Args list as defined for the args parameter in subprocess.Popen()
@@ -1920,8 +1910,6 @@ def _executeExternalCmdAndReapStdout(args):
   return result
 
 
-
-############################################################################
 def _debugOut(text):
   global g_debug
   if g_debug:
@@ -1931,7 +1919,6 @@ def _debugOut(text):
   return
 
 
-############################################################################
 def _getTestList():
   """ Get the list of tests that can be run from this module"""
 
@@ -1946,9 +1933,6 @@ def _getTestList():
 
 
 
-############################################################################
-############################################################################
-############################################################################
 if __name__ == '__main__':
 
   print "\nCURRENT DIRECTORY:", os.getcwd()
