@@ -60,6 +60,11 @@ Add the following to your .bashrc file. Change the paths as needed.
     # setting $NTA.
     source $NUPIC/env.sh
 
+If you plan on making changes to NuPIC, add the following to your .bashrc file.
+
+    # Build in Developer mode
+    export NTAX_DEVELOPER_BUILD=1
+
 Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
 compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
 
