@@ -40,9 +40,12 @@ messages tests for the three node network):
  - Linking correctly maps outputs to inputs
 """
 
+import logging
 import unittest2 as unittest
 
 from nupic.engine import Network, Dimensions
+
+LOGGER = logging.getLogger(__name__)
 
 
 
@@ -69,7 +72,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     # =====================================================
     # Build and run the network
     # =====================================================
-    print 'test(level1: %s, level2: %s)' % (nodeType1, nodeType2)
+    LOGGER.info('test(level1: %s, level2: %s)', nodeType1, nodeType2)
     net = Network()
     level1 = net.addRegion("level1", nodeType1, "{int32Param: 15}")
     dims = Dimensions([6, 4])
@@ -84,7 +87,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     # net.initialize()
 
     net.run(1)
-    print "Successfully created network and ran for one iteration"
+    LOGGER.info("Successfully created network and ran for one iteration")
 
     # =====================================================
     # Check everything
@@ -129,7 +132,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     outputVals.append(5 + (16 + 17 + 22 + 23))
     for i in xrange(6):
       if l2output[2*i] != 8:
-        print l2output[2*i]
+        LOGGER.info(l2output[2*i])
         # from dbgp.client import brk; brk(port=9019)
 
       self.assertEqual(l2output[2*i], 8)      # size of input for each node is 8
@@ -139,7 +142,7 @@ class NetworkTestNodeInterchangeabilityTest(unittest.TestCase):
     # =====================================================
     # Run for one more iteration
     # =====================================================
-    print "Running for a second iteration"
+    LOGGER.info("Running for a second iteration")
     net.run(1)
 
     # =====================================================
