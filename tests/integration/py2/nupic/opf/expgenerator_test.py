@@ -482,30 +482,30 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                    one_gram,
                    trivialMetric,
                    legacyMetric=None):
-      taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
+    taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
 
-      for metricSpec in taskMetrics:
-        self.assertTrue(metricSpec.metric in [optimizeMetric,moving_baseline,one_gram,
-                                               grokScore,trivialMetric,
-                                               legacyMetric],
-                        "Unrecognized Metric type: %s"% metricSpec.metric)
-        if metricSpec.metric == trivialMetric:
-            self.assertEqual(metricSpec.metric, trivialMetric)
-            self.assertEqual(metricSpec.inferenceElement,
-                             InferenceElement.prediction)
-        elif metricSpec.metric == moving_baseline:
-            self.assertTrue("errorMetric" in metricSpec.params)
-        elif metricSpec.metric == one_gram:
-            self.assertTrue("errorMetric" in metricSpec.params)
-        elif metricSpec.metric == legacyMetric:
-          pass
-        else:
-          self.assertEqual(metricSpec.metric, optimizeMetric)
+    for metricSpec in taskMetrics:
+      self.assertTrue(metricSpec.metric in [optimizeMetric,moving_baseline,one_gram,
+                                             grokScore,trivialMetric,
+                                             legacyMetric],
+                      "Unrecognized Metric type: %s"% metricSpec.metric)
+      if metricSpec.metric == trivialMetric:
+          self.assertEqual(metricSpec.metric, trivialMetric)
+          self.assertEqual(metricSpec.inferenceElement,
+                           InferenceElement.prediction)
+      elif metricSpec.metric == moving_baseline:
+          self.assertTrue("errorMetric" in metricSpec.params)
+      elif metricSpec.metric == one_gram:
+          self.assertTrue("errorMetric" in metricSpec.params)
+      elif metricSpec.metric == legacyMetric:
+        pass
+      else:
+        self.assertEqual(metricSpec.metric, optimizeMetric)
 
-      self.assertEqual(perm.minimize, "prediction:%s:window=%d:field=%s" % \
-                                  (optimizeMetric, ExpGenerator.METRIC_WINDOW,
-                                   predictedField),
-                       msg="got: %s" % perm.minimize)
+    self.assertEqual(perm.minimize, "prediction:%s:window=%d:field=%s" % \
+                                (optimizeMetric, ExpGenerator.METRIC_WINDOW,
+                                 predictedField),
+                     msg="got: %s" % perm.minimize)
 
 
   def test_Metrics(self):
