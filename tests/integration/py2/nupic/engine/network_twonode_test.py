@@ -170,6 +170,7 @@ class NetworkTwoNodeTest(unittest.TestCase):
     net.link("level1", "level2", "TestFanIn2", "")
     try:
       net.initialize()
+      self.fail("Expected an exception")
     except:
       pass
     LOGGER.info("=====")
@@ -179,6 +180,7 @@ class NetworkTwoNodeTest(unittest.TestCase):
     net.link("level2", "level3", "TestFanIn2", "")
     try:
       net.initialize()
+      self.fail("Expected an exception")
     except:
       pass
 
