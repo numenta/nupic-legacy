@@ -46,6 +46,8 @@ from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
 
+LOGGER = logging.getLogger(__name__)
+
 
 
 g_debug = False
@@ -80,8 +82,8 @@ class MyTestEnvironment(object):
     shutil.rmtree(self.testOutDir, ignore_errors=True)
     os.makedirs(self.testOutDir)
 
-    print "Generating experiment description files in:", \
-                  os.path.abspath(self.testOutDir)
+    LOGGER.info("Generating experiment description files in: %s", \
+                  os.path.abspath(self.testOutDir))
 
     # Where to find out datasets
     self.datasetSrcDir = os.path.join(installRootDir, "share", "prediction",
@@ -179,11 +181,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       desription=expDesc
       )
 
-    #print "Job params JSON:"
-    #print "------------------------------------------------"
-    #print json.dumps(jobParams)
-    #print "------------------------------------------------"
-
 
     #------------------------------------------------------------------
     # Call ExpGenerator to generate the base description and permutations
@@ -241,10 +238,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     # Try running the base experiment
     args = [g_myEnv.testOutDir]
     from nupic.frameworks.opf.experiment_runner import runExperiment
-    print
-    print "=================================================================="
-    print "RUNNING EXPERIMENT"
-    print "=================================================================="
+    LOGGER.info("")
+    LOGGER.info("============================================================")
+    LOGGER.info("RUNNING EXPERIMENT")
+    LOGGER.info("============================================================")
     runExperiment(args)
 
 
@@ -260,10 +257,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     self.resetExtraLogItems()
     self.addExtraLogItem({'params':jobParams})
 
-    print
-    print "=================================================================="
-    print "RUNNING PERMUTATIONS"
-    print "=================================================================="
+    LOGGER.info("")
+    LOGGER.info("============================================================")
+    LOGGER.info("RUNNING PERMUTATIONS")
+    LOGGER.info("============================================================")
 
     jobID = HypersearchWorker.main(args)
 
@@ -385,8 +382,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
       aggAttempts.append((int(round(multipleOfMinAgg)), int(requiredSteps)))
 
     # Print summary of aggregation attempts
-    print "This swarm will try the following (minAggregationMultiple, " \
-      "predictionSteps) combinations:", aggAttempts
+    LOGGER.info("This swarm will try the following \
+      (minAggregationMultiple, predictionSteps) combinations: %s", aggAttempts)
 
 
     # ----------------------------------------------------------------------
@@ -747,7 +744,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     try:
       (base, perms) = self.getModules(expDesc)
     except:
-      print "Passed: Threw exception for bad fieldname."
+      LOGGER.info("Passed: Threw exception for bad fieldname.")
 
     # --------------------------------------------------------------------
     ## Now test without backslash
@@ -1382,7 +1379,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     with self.assertRaises(Exception) as cm:
       self.assertValidSwarmingAggregations(expDesc = expDescTmp,
                       expectedAttempts = [(1, 16), (2, 8), (4, 4), (8, 2)])
-    print "Got expected exception: ", cm.exception
+    LOGGER.info("Got expected exception: %s", cm.exception)
 
     # computeInterval must be an integer multiple of minAggregation
     expDescTmp = copy.deepcopy(expDesc)
@@ -1391,7 +1388,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     with self.assertRaises(Exception) as cm:
       self.assertValidSwarmingAggregations(expDesc = expDescTmp,
                       expectedAttempts = [(1, 16), (2, 8), (4, 4), (8, 2)])
-    print "Got expected exception: ", cm.exception
+    LOGGER.info("Got expected exception: %s", cm.exception)
 
     # More than 1 predictionSteps passed in
     expDescTmp = copy.deepcopy(expDesc)
@@ -1399,7 +1396,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     with self.assertRaises(Exception) as cm:
       self.assertValidSwarmingAggregations(expDesc = expDescTmp,
                       expectedAttempts = [(1, 16), (2, 8), (4, 4), (8, 2)])
-    print "Got expected exception: ", cm.exception
+    LOGGER.info("Got expected exception: %s", cm.exception)
 
     # No stream aggregation
     expDescTmp = copy.deepcopy(expDesc)
@@ -1407,7 +1404,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     with self.assertRaises(Exception) as cm:
       self.assertValidSwarmingAggregations(expDesc = expDescTmp,
                       expectedAttempts = [(1, 16), (2, 8), (4, 4), (8, 2)])
-    print "Got expected exception: ", cm.exception
+    LOGGER.info("Got expected exception: %s", cm.exception)
 
 
   def test_SwarmSize(self):
@@ -1919,8 +1916,7 @@ def _executeExternalCmdAndReapStdout(args):
 def _debugOut(text):
   global g_debug
   if g_debug:
-    print text
-    sys.stdout.flush()
+    LOGGER.info(text)
 
   return
 
@@ -1940,8 +1936,7 @@ def _getTestList():
 
 
 if __name__ == '__main__':
-
-  print "\nCURRENT DIRECTORY:", os.getcwd()
+  LOGGER.info("\nCURRENT DIRECTORY: %s", os.getcwd())
 
   helpString = \
   """%prog [options] [suitename.testname | suitename]...
