@@ -137,7 +137,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
 
   def checkPythonScript(self, scriptAbsPath):
-    assert(os.path.isabs(scriptAbsPath))
+    self.assertTrue(os.path.isabs(scriptAbsPath))
 
     self.assertTrue(os.path.isfile(scriptAbsPath),
                     ("Expected python script to be present here: <%s>") % \
