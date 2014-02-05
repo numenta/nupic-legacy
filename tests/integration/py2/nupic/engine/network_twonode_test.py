@@ -34,7 +34,7 @@
 import logging
 import unittest2 as unittest
 
-from nupic.engine import Network, Dimensions, Array
+from nupic.engine import Network, Dimensions
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,8 +50,8 @@ class NetworkTwoNodeTest(unittest.TestCase):
 
     net = Network()
     level1 = net.addRegion("level1", "TestNode", "{int32Param: 15}")
-    dims = Dimensions([6,4])
-    level1.setDimensions(dims);
+    dims = Dimensions([6, 4])
+    level1.setDimensions(dims)
 
     level2 = net.addRegion("level2", "TestNode", "{real64Param: 128.23}")
 
@@ -106,7 +106,7 @@ class NetworkTwoNodeTest(unittest.TestCase):
     outputVals.append(4 + (14 + 15 + 20 + 21))
     outputVals.append(5 + (16 + 17 + 22 + 23))
     for i in xrange(6):
-      self.assertEquals(l2output[2*i], 8)      # size of input for each node is 8
+      self.assertEquals(l2output[2*i], 8) # size of input for each node is 8
       self.assertEquals(l2output[2*i+1], outputVals[i])
 
 
@@ -143,8 +143,8 @@ class NetworkTwoNodeTest(unittest.TestCase):
     net = Network()
     level1 = net.addRegion("level1", "TestNode", "")
     level2 = net.addRegion("level2", "TestNode", "")
-    dims = Dimensions([3,2])
-    level2.setDimensions(dims);
+    dims = Dimensions([3, 2])
+    level2.setDimensions(dims)
     net.link("level1", "level2", "TestFanIn2", "")
     net.initialize()
 
@@ -164,9 +164,9 @@ class NetworkTwoNodeTest(unittest.TestCase):
     net = Network()
     level1 = net.addRegion("level1", "TestNode", "")
     level2 = net.addRegion("level2", "TestNode", "")
-    level3 = net.addRegion("level3", "TestNode", "")
-    dims = Dimensions([6,4])
-    level1.setDimensions(dims);
+    _level3 = net.addRegion("level3", "TestNode", "")
+    dims = Dimensions([6, 4])
+    level1.setDimensions(dims)
     net.link("level1", "level2", "TestFanIn2", "")
     try:
       net.initialize()
@@ -176,7 +176,8 @@ class NetworkTwoNodeTest(unittest.TestCase):
     LOGGER.info("=====")
 
     LOGGER.info("======")
-    LOGGER.info("Creating a link with incompatible dimensions. Error message follows")
+    LOGGER.info("Creating a link with incompatible dimensions. \
+      Error message follows")
     net.link("level2", "level3", "TestFanIn2", "")
     try:
       net.initialize()
