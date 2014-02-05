@@ -38,6 +38,7 @@ LOGGER = logging.getLogger(__name__)
 
 class KNNClassifierTest(unittest.TestCase):
   """Tests for k Nearest Neighbor classifier"""
+  
 
   def runTestKNNClassifier(self, short = 0):
     """ Test the KNN classifier in this module. short can be:

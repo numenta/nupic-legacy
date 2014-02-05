@@ -33,6 +33,8 @@ LOGGER = logging.getLogger(__name__)
 
 class KNNCategoriesTest(unittest.TestCase):
   """Tests how k Nearest Neighbor classifier handles categories"""
+
+  
   def testCategories(self):
     # We need determinism!
     #
