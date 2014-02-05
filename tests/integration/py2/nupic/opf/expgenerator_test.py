@@ -85,7 +85,7 @@ class MyTestEnvironment(object):
 
     # Where to find out datasets
     self.datasetSrcDir = os.path.join(installRootDir, "share", "prediction",
-                                 "data", "extra", "qa")
+                                 "data", "extra")
 
 
     return
@@ -420,7 +420,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -581,7 +581,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -764,7 +764,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "TestAggregation",
@@ -867,7 +867,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -931,7 +931,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
 
     streamDef = dict(
       version = 1,
@@ -977,7 +977,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1189,7 +1189,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def test_DeltaEncoders(self):
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
 
     streamDef = dict(
       version = 1,
@@ -1289,7 +1289,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       })
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1412,7 +1412,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1553,7 +1553,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1609,7 +1609,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1666,7 +1666,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
@@ -1735,7 +1735,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "qa_hotgym.csv")
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
