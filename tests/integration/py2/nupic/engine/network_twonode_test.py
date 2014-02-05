@@ -31,9 +31,12 @@
  - Linking correctly maps outputs to inputs
 """
 
+import logging
 import unittest2 as unittest
 
 from nupic.engine import Network, Dimensions, Array
+
+LOGGER = logging.getLogger(__name__)
 
 
 
@@ -59,7 +62,7 @@ class NetworkTwoNodeTest(unittest.TestCase):
     # net.initialize()
 
     net.run(1)
-    print "Successfully created network and ran for one iteration"
+    LOGGER.info("Successfully created network and ran for one iteration")
 
     # =====================================================
     # Check everything
@@ -110,7 +113,7 @@ class NetworkTwoNodeTest(unittest.TestCase):
     # =====================================================
     # Run for one more iteration
     # =====================================================
-    print "Running for a second iteration"
+    LOGGER.info("Running for a second iteration")
     net.run(1)
 
     # =====================================================
@@ -152,11 +155,11 @@ class NetworkTwoNodeTest(unittest.TestCase):
     #
     # We get nice error messages when network can't be initialized
     #
-    print "====="
-    print "Creating a 3 level network in which levels 1 and 2 have"
-    print "dimensions but network initialization will fail because"
-    print "level3 does not have dimensions"
-    print "Error message follows:"
+    LOGGER.info("=====")
+    LOGGER.info("Creating a 3 level network in which levels 1 and 2 have")
+    LOGGER.info("dimensions but network initialization will fail because")
+    LOGGER.info("level3 does not have dimensions")
+    LOGGER.info("Error message follows:")
 
     net = Network()
     level1 = net.addRegion("level1", "TestNode", "")
@@ -169,18 +172,15 @@ class NetworkTwoNodeTest(unittest.TestCase):
       net.initialize()
     except:
       pass
-    print "====="
+    LOGGER.info("=====")
 
-    print "======"
-    print "Creating a link with incompatible dimensions. Error message follows"
+    LOGGER.info("======")
+    LOGGER.info("Creating a link with incompatible dimensions. Error message follows")
     net.link("level2", "level3", "TestFanIn2", "")
     try:
       net.initialize()
     except:
       pass
-    print "====="
-
-    print "All tests passed"
 
 
 
