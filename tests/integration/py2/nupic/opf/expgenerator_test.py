@@ -28,6 +28,7 @@ from optparse import OptionParser
 import os
 import pprint
 import shutil
+import string
 import subprocess
 import sys
 import unittest2 as unittest
