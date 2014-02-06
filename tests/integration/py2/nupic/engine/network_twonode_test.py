@@ -135,11 +135,10 @@ class NetworkTwoNodeTest(unittest.TestCase):
     # Demonstrate a few other features
     # =====================================================
 
+  def testLinkingDownwardDimensions(self):
     #
     # Linking can induce dimensions downward
     #
-
-
     net = Network()
     level1 = net.addRegion("level1", "TestNode", "")
     level2 = net.addRegion("level2", "TestNode", "")
