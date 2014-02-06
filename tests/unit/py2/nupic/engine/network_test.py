@@ -403,14 +403,6 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(r2dims[1], 2)
 
 
-  def test_knn_classifier(self):
-    n = engine.Network()
-
-    r = n.addRegion('r', 'py.KNNClassifierRegion', '{k: 3, maxCategoryCount: 2}')
-
-    #n.run(1)
-
-
 
 if __name__=='__main__':
   unittest.main()
