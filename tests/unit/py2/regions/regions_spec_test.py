@@ -122,17 +122,17 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
       self.fail("Got unexpected exception")
 
 
-  # TODO: (#616) Disable tests for now, to add error checking in
-  #   commandSpec later.
-  # def testInvalidCommandSpec(self):
-  #   with self.assertRaises(Exception):
-  #     _x = CommandSpec()
+  @unittest.skip("(#616) Disabled for now,"
+    "to add error checking in commandSpec later.")
+  def testInvalidCommandSpec(self):
+    with self.assertRaises(Exception):
+      _x = CommandSpec()
 
-  #   with self.assertRaises(Exception):
-  #     _x = CommandSpec(description=None)
+    with self.assertRaises(Exception):
+      _x = CommandSpec(description=None)
 
-  #   with self.assertRaises(Exception):
-  #     _x = CommandSpec(description=3)
+    with self.assertRaises(Exception):
+      _x = CommandSpec(description=3)
 
 
   def testValidCommandSpec(self):
