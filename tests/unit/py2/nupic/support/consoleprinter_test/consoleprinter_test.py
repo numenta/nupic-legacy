@@ -76,18 +76,10 @@ class ConsolePrinterTest(unittest.TestCase):
       c1.cPrint(0, "Message with %s and %s", "no newline", "args", newline=False)
       c1.cPrint(0, " Message with %s and %s", "newline", "args")
 
-
       print "Done"
 
-    caughtException = False
-    try:
+    with self.assertRaises(KeyError):
       c1.cPrint(0, "Message", badkw="badvalue")
-    except KeyError, e:
-      caughtException = True
-    if not caughtException:
-      raise Exception("Bad keyword for cPrint should have been caught")
-
-
 
     referenceFilename = os.path.join(mydir, "testconsoleprinter_output.txt")
     expected = open(referenceFilename).readlines()
@@ -96,13 +88,10 @@ class ConsolePrinterTest(unittest.TestCase):
     print ("Comparing files '%s'" % referenceFilename)
     print ("and             '%s'" % filename)
 
-
-    if len(expected) != len(actual):
-      raise Exception("Expected %d lines of output got %d lines" % (len(expected), len(actual)))
+    self.assertEqual(len(expected), len(actual))
 
     for i in xrange(len(expected)):
-      if expected[i].strip() != actual[i].strip():
-        raise Exception("Line %d of output differs from expected" % i)
+      self.assertEqual(expected[i].strip(), actual[i].strip())
 
     # Clean up
     os.remove(filename)
