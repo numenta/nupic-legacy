@@ -24,8 +24,6 @@ import os
 import sys
 import unittest2 as unittest
 
-from PIL import Image
-
 import nupic.engine as engine
 
 
@@ -37,44 +35,45 @@ class NetworkTest(unittest.TestCase):
     n = engine.Network()
 
     # Test trying to add non-existent node
-    try:
+    with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.NonExistingNode', '')
-      assert False
-    except Exception, e:
-      assert str(e) == 'Matching Python module for py.NonExistingNode not found.'
+
+    self.assertEqual(str(cm.exception),
+                     'Matching Python module for py.NonExistingNode not found.')
 
     # Test failure during import
-    try:
+    with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.UnimportableNode', '')
-      assert False
-    except SyntaxError, e:
-      assert str(e) == 'invalid syntax (UnimportableNode.py, line 5)'
+
+    self.assertEqual(str(cm.exception),
+      'invalid syntax (UnimportableNode.py, line 5)')
 
     # Test failure in the __init__() method
-    try:
+    with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.TestNode', '{ failInInit: 1 }')
-      assert False
-    except Exception, e:
-      assert str(e) == 'TestNode.__init__() Failing on purpose as requested'
+
+    self.assertEqual(str(cm.exception),
+      'TestNode.__init__() Failing on purpose as requested')
 
     # Test failure inside the compute() method
-    try:
+    with self.assertRaises(Exception) as cm:
       r = n.addRegion('r', 'py.TestNode', '{ failInCompute: 1 }')
       r.dimensions = engine.Dimensions([4, 4])
       n.initialize()
       n.run(1)
-      assert False
-    except AssertionError, e:
-      assert str(e) == 'TestNode.compute() Failing on purpose as requested'
+
+    self.assertEqual(str(cm.exception),
+      'TestNode.compute() Failing on purpose as requested')
 
     # Test failure in the static getSpec
     from nupic.regions.TestNode import TestNode
     TestNode._failIngetSpec = True
-    try:
+
+    with self.assertRaises(Exception) as cm:
       TestNode.getSpec()
-      assert False
-    except AssertionError, e:
-      assert str(e) == 'Failing in TestNode.getSpec() as requested'
+
+    self.assertEqual(str(cm.exception),
+      'Failing in TestNode.getSpec() as requested')
 
     del TestNode._failIngetSpec
 
@@ -82,22 +81,22 @@ class NetworkTest(unittest.TestCase):
   def test_getSpecFromType(self):
     ns = engine.Region.getSpecFromType('py.CLARegion')
     p = ns.parameters['breakPdb']
-    assert p.accessMode == 'ReadWrite'
+    self.assertEqual(p.accessMode, 'ReadWrite')
 
 
   def test_one_region_network(self):
     n = engine.Network()
 
     print "Number of regions in new network: %d" % len(n.regions)
-    assert len(n.regions) == 0
+    self.assertEqual(len(n.regions), 0)
 
     print "Adding level1SP"
     level1SP = n.addRegion("level1SP", "TestNode", "")
     print "Current dimensions are: %s" % level1SP.dimensions
     print "Number of regions in network: %d" % len(n.regions)
 
-    assert len(n.regions) == 1
-    assert len(n.regions) == len(n.regions)
+    self.assertEqual(len(n.regions), 1)
+    self.assertEqual(len(n.regions), len(n.regions))
 
     print 'Node type: ', level1SP.type
     #print 'Nodespec is:'
@@ -107,13 +106,8 @@ class NetworkTest(unittest.TestCase):
     print "Current dimensions are: %s" % level1SP.dimensions
     caughtException = False
 
-    try:
+    with self.assertRaises(Exception):
       n.initialize()
-    except:
-      caughtException = True
-      print "Got exception as expected"
-
-    assert caughtException
 
     # Test Dimensions
     level1SP.dimensions = engine.Dimensions([4,4])
@@ -123,17 +117,17 @@ class NetworkTest(unittest.TestCase):
 
     # Test Array
     a = engine.Array('Int32', 10)
-    assert a.getType() == 'Int32'
-    assert len(a) == 10
+    self.assertEqual(a.getType(), 'Int32')
+    self.assertEqual(len(a), 10)
     import nupic
-    assert type(a) == nupic.bindings.engine_internal.Int32Array
+    self.assertEqual(type(a), nupic.bindings.engine_internal.Int32Array)
 
     for i in range(len(a)):
       a[i] = i
 
     for i in range(len(a)):
-      assert type(a[i]) == int, "type(a) is %s expected int" % type(a)
-      assert a[i] == i
+      self.assertEqual(type(a[i]), int)
+      self.assertEqual(a[i], i)
       print i,
     print
 
@@ -146,17 +140,17 @@ class NetworkTest(unittest.TestCase):
 
     for i in range(len(a)):
       print a[i], ord('A') + i
-      assert ord(a[i]) == ord('A') + i
+      self.assertEqual(ord(a[i]), ord('A') + i)
     print
 
     print 'before asNumpyarray()'
     na = a.asNumpyArray()
     print 'after asNumpyarray()'
 
-    assert na.shape == (15,)
+    self.assertEqual(na.shape, (15,))
     print 'na.shape:', na.shape
     na = na.reshape(5,3)
-    assert na.shape == (5, 3)
+    self.assertEqual(na.shape, (5, 3))
     print 'na.shape:', na.shape
     for i in range(5):
       for j in range(3):
@@ -226,11 +220,8 @@ class NetworkTest(unittest.TestCase):
     # --- Test input/output access
     #
     # Getting access via zero-copy
-    try:
+    with self.assertRaises(Exception):
       level1SP.getOutputData('doesnotexist')
-      assert False
-    except:
-      pass
 
     output = level1SP.getOutputData('bottomUpOut')
     print 'Element count in bottomUpOut is ', len(output)
@@ -247,10 +238,10 @@ class NetworkTest(unittest.TestCase):
     # Make sure the original output, the numpy array and the reshaped numpy view
     # are all in sync and access the same underlying memory.
     numpy_output2[1,0] = 5555
-    assert output[4] == 5555
+    self.assertEqual(output[4], 5555)
 
     output[5] = 3333
-    assert numpy_output2[1, 1] == 3333
+    self.assertEqual(numpy_output2[1, 1], 3333)
     numpy_output2[1,2] = 4444
 
     # --- Test doc strings
@@ -291,19 +282,16 @@ class NetworkTest(unittest.TestCase):
     names = []
     for name in n.regions:
       names.append(name)
-    assert names == ['region1', 'region2']
+    self.assertEqual(names, ['region1', 'region2'])
     print n.getPhases('region1')
-    assert n.getPhases('region1') == (0,)
-    assert n.getPhases('region2') == (1,)
+    self.assertEqual(n.getPhases('region1'), (0,))
+    self.assertEqual(n.getPhases('region2'), (1,))
 
     n.link("region1", "region2", "TestFanIn2", "")
 
     print "Initialize should fail..."
-    try:
+    with self.assertRaises(Exception):
       n.initialize()
-      assert False
-    except:
-      pass
 
     print "Setting region1 dims"
     r1dims = engine.Dimensions([6,4])
@@ -313,16 +301,13 @@ class NetworkTest(unittest.TestCase):
     n.initialize()
 
     r2dims = region2.dimensions
-    assert len(r2dims) == 2
-    assert r2dims[0] == 3
-    assert r2dims[1] == 2
+    self.assertEqual(len(r2dims), 2)
+    self.assertEqual(r2dims[0], 3)
+    self.assertEqual(r2dims[1], 2)
 
     # Negative test
-    try:
+    with self.assertRaises(Exception):
       region2.setDimensions(r1dims)
-      assert False
-    except:
-      pass
 
 
   def test_inputs_and_outputs(self):
@@ -365,12 +350,12 @@ class NetworkTest(unittest.TestCase):
     n.initialize()
 
     result = r.getParameterReal64('real64Param')
-    assert result == 64.1
+    self.assertEqual(result, 64.1)
 
     r.setParameterReal64('real64Param', 77.7)
 
     result = r.getParameterReal64('real64Param')
-    assert result == 77.7
+    self.assertEqual(result, 77.7)
 
 
   def test_pynode_get_node_spec(self):
@@ -386,13 +371,13 @@ class NetworkTest(unittest.TestCase):
 
     ns = r.spec
 
-    assert len(ns.inputs) == 1
+    self.assertEqual(len(ns.inputs), 1)
     i = ns.inputs['bottomUpIn']
-    assert i.description == 'Primary input for the node'
+    self.assertEqual(i.description, 'Primary input for the node')
 
-    assert len(ns.outputs) == 1
+    self.assertEqual(len(ns.outputs), 1)
     i = ns.outputs['bottomUpOut']
-    assert i.description == 'Primary output for the node'
+    self.assertEqual(i.description, 'Primary output for the node')
 
 
   def test_two_region_pynode_network(self):
@@ -404,11 +389,8 @@ class NetworkTest(unittest.TestCase):
     n.link("region1", "region2", "TestFanIn2", "")
 
     print "Initialize should fail..."
-    try:
+    with self.assertRaises(Exception):
       n.initialize()
-      assert False
-    except:
-      pass
 
     print "Setting region1 dims"
     r1dims = engine.Dimensions([6,4])
@@ -418,9 +400,9 @@ class NetworkTest(unittest.TestCase):
     n.initialize()
 
     r2dims = region2.dimensions
-    assert len(r2dims) == 2
-    assert r2dims[0] == 3
-    assert r2dims[1] == 2
+    self.assertEqual(len(r2dims), 2)
+    self.assertEqual(r2dims[0], 3)
+    self.assertEqual(r2dims[1], 2)
 
 
   def test_knn_classifier(self):
