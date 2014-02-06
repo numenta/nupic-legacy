@@ -30,183 +30,152 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
 
 
   def testInvalidInputSpec(self):
-    try:
-      x = InputSpec()
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = InputSpec()
 
-    try:
-      x = InputSpec(dataType='int', count=-4)
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = InputSpec(dataType='int', count=-4)
 
-    try:
-      x = InputSpec(description=555, dataType='int', count=4)
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = InputSpec(description=555, dataType='int', count=4)
 
 
   def testValidInputSpec(self):
-    x = InputSpec(dataType='int', count=4)
-    x.invariant()
+    try:
+      x = InputSpec(dataType='int', count=4)
+      x.invariant()
 
-    x = InputSpec(description='description',
-                  dataType='int',
-                  count=3,
-                  required=True,
-                  regionLevel=True,
-                  isDefaultInput=True,
-                  requireSplitterMap=True)
-    x.invariant()
+      x = InputSpec(description='description',
+                    dataType='int',
+                    count=3,
+                    required=True,
+                    regionLevel=True,
+                    isDefaultInput=True,
+                    requireSplitterMap=True)
+      x.invariant()
+    except:
+      self.fail("Got unexpected exception")
 
 
   def testInvalidOutputSpec(self):
-    try:
-      x = OutputSpec()
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = OutputSpec()
 
-    try:
-      x = OutputSpec(dataType='int', count=4, isDefaultOutput='Sure')
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = OutputSpec(dataType='int', count=4, isDefaultOutput='Sure')
 
-    try:
-      x = OutputSpec(description=555, dataType='int', count=4)
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = OutputSpec(description=555, dataType='int', count=4)
 
 
   def testValidOutputSpec(self):
-    x = OutputSpec(dataType='int', count=4)
-    x.invariant()
+    try:
+      x = OutputSpec(dataType='int', count=4)
+      x.invariant()
 
-    x = OutputSpec(description='description',
-                  dataType='int',
-                  count=3,
-                  regionLevel=True,
-                  isDefaultOutput=True)
-    x.invariant()
+      x = OutputSpec(description='description',
+                    dataType='int',
+                    count=3,
+                    regionLevel=True,
+                    isDefaultOutput=True)
+      x.invariant()
+    except:
+      self.fail("Got unexpected exception")
 
 
   def testInvalidParameterSpec(self):
-    try:
-      x = ParameterSpec()
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = ParameterSpec()
 
-    try:
-      x = ParameterSpec(dataType='int', count=4, defaultValue='not an int')
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = ParameterSpec(dataType='int', count=4, defaultValue='not an int')
 
-    try:
-      x = ParameterSpec(description=555, dataType='int')
-      assert False
-    except:
-      pass
+    with self.assertRaises(Exception):
+      _x = ParameterSpec(description=555, dataType='int')
 
-    try:
-      x = ParameterSpec(dataType='int',
+    with self.assertRaises(Exception):
+      _x = ParameterSpec(dataType='int',
                         accessMode='no such mode')
-      assert False
-    except:
-      pass
 
-    try:
-      x = ParameterSpec(dataType='int',
+    with self.assertRaises(Exception):
+      _x = ParameterSpec(dataType='int',
                         defaultValue=5,
                         accessMode='Read')
-      assert False
-    except:
-      pass
 
 
   def testValidParameterSpec(self):
-    x = ParameterSpec(dataType='int', accessMode='Read')
-    x.invariant()
-
-    x = ParameterSpec(description='description',
-                  dataType='int',
-                  count=3,
-                  defaultValue=-6,
-                  accessMode='Create')
-    x.invariant()
-
-
-  def testInvalidCommandSpec(self):
     try:
-      x = CommandSpec()
-      assert False
-    except:
-      pass
+      x = ParameterSpec(dataType='int', accessMode='Read')
+      x.invariant()
 
-    try:
-      x = CommandSpec(description=None)
-      assert False
+      x = ParameterSpec(description='description',
+                    dataType='int',
+                    count=3,
+                    defaultValue=-6,
+                    accessMode='Create')
+      x.invariant()
     except:
-      pass
+      self.fail("Got unexpected exception")
 
-    try:
-      x = CommandSpec(description=3)
-      assert False
-    except:
-      pass
+
+  # TODO: (#616) Disable tests for now, to add error checking in
+  #   commandSpec later.
+  # def testInvalidCommandSpec(self):
+  #   with self.assertRaises(Exception):
+  #     _x = CommandSpec()
+
+  #   with self.assertRaises(Exception):
+  #     _x = CommandSpec(description=None)
+
+  #   with self.assertRaises(Exception):
+  #     _x = CommandSpec(description=3)
 
 
   def testValidCommandSpec(self):
-    x = CommandSpec('')
-    x.invariant()
-    x = CommandSpec(description='')
-    x.invariant()
-    x = CommandSpec(description='this is a command')
-    x.invariant()
-
-
-  def testInvalidSpec(self):
     try:
-      x = Spec()
-      assert False
+      x = CommandSpec('')
+      x.invariant()
+      x = CommandSpec(description='')
+      x.invariant()
+      x = CommandSpec(description='this is a command')
+      x.invariant()
     except:
-      pass
+      self.fail("Got unexpected exception")
 
-    try:
-      x = Spec(description=3)
-      assert False
-    except:
-      pass
 
-    try:
-      x = Spec(description='123', singleNodeOnly=3)
-      assert False
-    except:
-      pass
+  # TODO: (#617) Disable tests for now, to add error checking in
+  #   Spec initializer later.
+  # def testInvalidSpec(self):
+  #   with self.assertRaises(Exception):
+  #     _x = Spec()
+
+  #   with self.assertRaises(Exception):
+  #     _x = Spec(description=3)
+
+  #   with self.assertRaises(Exception):
+  #     _x = Spec(description='123', singleNodeOnly=3)
 
 
   def testValidSpec(self):
-    x = Spec(description='123', singleNodeOnly=True)
-    x.invariant()
+    try:
+      x = Spec(description='123', singleNodeOnly=True)
+      x.invariant()
 
-    x = Spec(description='123', singleNodeOnly=True)
-    x.commands = dict(command1=CommandSpec('A command'),
-                      command2=CommandSpec('Another command'))
-    x.invariant()
+      x = Spec(description='123', singleNodeOnly=True)
+      x.commands = dict(command1=CommandSpec('A command'),
+                        command2=CommandSpec('Another command'))
+      x.invariant()
+    except:
+      self.fail("Got unexpected exception")
 
 
   def testSpec_toDict(self):
     x = Spec(description='123', singleNodeOnly=True)
     d = x.toDict()
-    assert d['description'] == '123'
-    assert d['singleNodeOnly']
-    assert d['inputs'] == d['outputs'] == d['parameters'] == d['commands'] == {}
+    self.assertEqual(d['description'], '123')
+    self.assertTrue(d['singleNodeOnly'])
+    self.assertTrue(d['inputs'] == d['outputs']
+                    == d['parameters'] == d['commands'] == {})
 
     x.inputs = dict(i1=InputSpec(dataType='int'),
                     i2=InputSpec(dataType='str', isDefaultInput=True))
@@ -219,45 +188,45 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
     d = x.toDict()
     print d
     inputs = d['inputs']
-    assert len(inputs) == 2
+    self.assertEqual(len(inputs), 2)
     i1 = inputs['i1']
-    assert i1['count'] == 1
-    assert not i1['isDefaultInput']
-    assert i1['description'] == ''
-    assert i1['dataType'] == 'int'
-    assert not i1['required']
-    assert i1['requireSplitterMap']
-    assert not i1['regionLevel']
+    self.assertEqual(i1['count'], 1)
+    self.assertFalse(i1['isDefaultInput'])
+    self.assertEqual(i1['description'], '')
+    self.assertEqual(i1['dataType'], 'int')
+    self.assertFalse(i1['required'])
+    self.assertTrue(i1['requireSplitterMap'])
+    self.assertFalse(i1['regionLevel'])
 
     i2 = inputs['i2']
-    assert i2['count'] == 1
-    assert i2['isDefaultInput']
-    assert i2['description'] == ''
-    assert i2['dataType'] == 'str'
-    assert not i2['required']
-    assert i2['requireSplitterMap']
-    assert not i2['regionLevel']
+    self.assertEqual(i2['count'], 1)
+    self.assertTrue(i2['isDefaultInput'])
+    self.assertEqual(i2['description'], '')
+    self.assertEqual(i2['dataType'], 'str')
+    self.assertFalse(i2['required'])
+    self.assertTrue(i2['requireSplitterMap'])
+    self.assertFalse(i2['regionLevel'])
 
     outputs = d['outputs']
-    assert len(outputs) == 1
+    self.assertEqual(len(outputs), 1)
     o = outputs['o']
-    assert o['count'] == 8
-    assert not o['isDefaultOutput']
-    assert o['description'] == ''
-    assert o['dataType'] == 'float'
-    assert not o['regionLevel']
+    self.assertEqual(o['count'], 8)
+    self.assertFalse(o['isDefaultOutput'])
+    self.assertEqual(o['description'], '')
+    self.assertEqual(o['dataType'], 'float')
+    self.assertFalse(o['regionLevel'])
 
     parameters = d['parameters']
-    assert len(parameters) == 1
+    self.assertEqual(len(parameters), 1)
     p = parameters['p']
-    assert p['description'] == 'param'
-    assert p['dataType'] == 'float'
-    assert p['accessMode'] == 'Create'
-    assert p['defaultValue'] == 3.14
-    assert p['count'] == 1
-    assert p['constraints'] == ''
+    self.assertEqual(p['description'], 'param')
+    self.assertEqual(p['dataType'], 'float')
+    self.assertEqual(p['accessMode'], 'Create')
+    self.assertEqual(p['defaultValue'], 3.14)
+    self.assertEqual(p['count'], 1)
+    self.assertEqual(p['constraints'], '')
 
-    assert d['commands'] == {}
+    self.assertEqual(d['commands'], {})
 
 
 
