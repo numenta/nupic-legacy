@@ -168,22 +168,14 @@ class NetworkTwoNodeTest(unittest.TestCase):
     dims = Dimensions([6, 4])
     level1.setDimensions(dims)
     net.link("level1", "level2", "TestFanIn2", "")
-    try:
-      net.initialize()
-      self.fail("Expected an exception")
-    except:
-      pass
+    self.assertRaises(RuntimeError, net.initialize)
     LOGGER.info("=====")
 
     LOGGER.info("======")
     LOGGER.info("Creating a link with incompatible dimensions. \
       Error message follows")
     net.link("level2", "level3", "TestFanIn2", "")
-    try:
-      net.initialize()
-      self.fail("Expected an exception")
-    except:
-      pass
+    self.assertRaises(RuntimeError, net.initialize)
 
 
 
