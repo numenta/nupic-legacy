@@ -20,8 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import os
-import sys
 import unittest2 as unittest
 
 import nupic.engine as engine
