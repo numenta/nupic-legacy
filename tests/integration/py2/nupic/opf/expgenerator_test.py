@@ -90,9 +90,6 @@ class MyTestEnvironment(object):
                                  "data", "extra")
 
 
-    return
-
-
   def cleanUp(self):
     shutil.rmtree(self.testOutDir, ignore_errors=True)
     return
