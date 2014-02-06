@@ -29,15 +29,16 @@ from nupic import engine
 class NetworkTest(unittest.TestCase):
 
 
-  def test_errorHandling(self):
+  def testErrorHandling(self):
     n = engine.Network()
 
     # Test trying to add non-existent node
     with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.NonExistingNode', '')
 
-    self.assertEqual(str(cm.exception),
-                     'Matching Python module for py.NonExistingNode not found.')
+    self.assertEqual(cm.exception.message,
+                     "Matching Python module for " +
+                     "py.NonExistingNode not found.")
 
     # Test failure during import
     with self.assertRaises(Exception) as cm:
@@ -76,13 +77,13 @@ class NetworkTest(unittest.TestCase):
     del TestNode._failIngetSpec
 
 
-  def test_getSpecFromType(self):
+  def testGetSpecFromType(self):
     ns = engine.Region.getSpecFromType('py.CLARegion')
     p = ns.parameters['breakPdb']
     self.assertEqual(p.accessMode, 'ReadWrite')
 
 
-  def test_one_region_network(self):
+  def testOneRegionNetwork(self):
     n = engine.Network()
 
     print "Number of regions in new network: %d" % len(n.regions)
@@ -97,11 +98,9 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(len(n.regions), len(n.regions))
 
     print 'Node type: ', level1SP.type
-    #print 'Nodespec is:'
-    #print getSpecString(level1SP.getSpec())
 
-    print "Attempting to initialize net when \
-           one region has unspecified dimensions"
+    print("Attempting to initialize net when "
+           "one region has unspecified dimensions")
     print "Current dimensions are: %s" % level1SP.dimensions
 
     with self.assertRaises(Exception):
@@ -271,7 +270,7 @@ class NetworkTest(unittest.TestCase):
       print "Time for 1M getParameter calls: %.2f seconds" % (t2 - t1)
 
 
-  def test_two_region_network(self):
+  def testTwoRegionNetwork(self):
     n = engine.Network()
 
     region1 = n.addRegion("region1", "TestNode", "")
@@ -308,7 +307,7 @@ class NetworkTest(unittest.TestCase):
       region2.setDimensions(r1dims)
 
 
-  def test_inputs_and_outputs(self):
+  def testInputsAndOutputs(self):
     n = engine.Network()
 
     region1 = n.addRegion("region1", "TestNode", "")
@@ -329,14 +328,14 @@ class NetworkTest(unittest.TestCase):
     print 'r2_input:', r2_input
 
 
-  def test_node_spec(self):
+  def testNodeSpec(self):
     n = engine.Network()
     r = n.addRegion("region", "TestNode", "")
 
     print r.getSpec()
 
 
-  def test_pynode_get_set_parameter(self):
+  def testPyNodeGetSetParameter(self):
     n = engine.Network()
 
     r = n.addRegion("region", "py.TestNode", "")
@@ -356,7 +355,7 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(result, 77.7)
 
 
-  def test_pynode_get_node_spec(self):
+  def testPyNodeGetNodeSpec(self):
     n = engine.Network()
 
     r = n.addRegion("region", "py.TestNode", "")
@@ -378,7 +377,7 @@ class NetworkTest(unittest.TestCase):
     self.assertEqual(i.description, 'Primary output for the node')
 
 
-  def test_two_region_pynode_network(self):
+  def testTwoRegionPyNodeNetwork(self):
     n = engine.Network()
 
     region1 = n.addRegion("region1", "py.TestNode", "")
@@ -404,5 +403,5 @@ class NetworkTest(unittest.TestCase):
 
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
   unittest.main()
