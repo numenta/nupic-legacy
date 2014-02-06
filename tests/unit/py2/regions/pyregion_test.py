@@ -33,27 +33,26 @@ class PyRegionTest(unittest.TestCase):
     class NoInit(PyRegion):
       pass
 
-    try:
-      ni = NoInit()
-    except TypeError, e:
-      assert str(e) == "Can't instantiate abstract class NoInit with abstract methods __init__, compute, initialize"
+    with self.assertRaises(Exception) as cw:
+      _ni = NoInit()
+
+    self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
+      "NoInit with abstract methods __init__, compute, initialize")
 
     class X(PyRegion):
       def __init__(self):
         self.x = 5
 
     # Test unimplemented getSpec (results in NotImplementedError)
-    try:
+    with self.assertRaises(Exception):
       X.getSpec()
-      assert False
-    except NotImplementedError:
-      pass
 
     # Test unimplemented abstract methods (x can't be instantiated)
-    try:
-      x = X()
-    except TypeError, e:
-      assert str(e) == "Can't instantiate abstract class X with abstract methods compute, initialize"
+    with self.assertRaises(Exception) as cw:
+      _x = X()
+
+    self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
+      "X with abstract methods compute, initialize")
 
     # Test unimplemented @not_implemented methods
     class Y(PyRegion):
@@ -68,33 +67,32 @@ class PyRegionTest(unittest.TestCase):
     y = Y()
 
     # Can call the default getParameter() from PyRegion
-    assert y.getParameter('zzz', -1) == 5
+    self.assertEqual(y.getParameter('zzz', -1), 5)
 
     # Accessing an attribute whose name starts with '_' via getParameter()
-    try:
-      y.getParameter('_zzz', -1) == 5
-      assert False
-    except Exception, e:
-      assert str(e) == 'Parameter name must not start with an underscore'
+    with self.assertRaises(Exception) as cw:
+      _ = y.getParameter('_zzz', -1) == 5
+
+    self.assertEqual(str(cw.exception), "Parameter name must not " +
+      "start with an underscore")
 
     # Calling not implemented method result in NotImplementedError
-    try:
-      y.setParameter('zzz', 4)
-      assert False
-    except NotImplementedError, e:
-      assert str(e) == \
-      'The unimplemented method setParameter() was called by PyRegionTest.testClass()'
+    with self.assertRaises(Exception) as cw:
+      y.setParameter('zzz', 4, 5)
+
+    self.assertEqual(str(cw.exception), "The unimplemented method " +
+      "setParameter() was called by PyRegionTest.testClass()")
 
     class Z(object):
       def __init__(self):
         y = Y()
         y.setParameter('zzz, 4')
 
-    try:
-      z = Z()
-    except NotImplementedError, e:
-      assert str(e) == \
-      'The unimplemented method setParameter() was called by Z.__init__()'
+    with self.assertRaises(Exception) as cw:
+      _z = Z()
+
+    self.assertEqual(str(cw.exception), "The unimplemented method " +
+      "setParameter() was called by Z.__init__()")
 
 
 
