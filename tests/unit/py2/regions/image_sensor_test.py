@@ -35,8 +35,8 @@ class ImageSensorTest(unittest.TestCase):
     net = Network()
 
     # Add sensor
-    sensor = net.addRegion("sensor", "py.ImageSensor", \
-      "{width: 100, height: 50}")
+    sensor = net.addRegion("sensor", "py.ImageSensor",
+        "{width: 100, height: 50}")
     pysensor = sensor.getSelf()
 
     # Verify set parameters
@@ -65,5 +65,5 @@ class ImageSensorTest(unittest.TestCase):
 
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
