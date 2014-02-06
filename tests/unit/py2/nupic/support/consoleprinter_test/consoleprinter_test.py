@@ -73,7 +73,8 @@ class ConsolePrinterTest(unittest.TestCase):
       c1.cPrint(0, "Message %s two %s", "with", "args")
       c1.cPrint(0, "Message with no newline", newline=False)
       c1.cPrint(0, " Message with newline")
-      c1.cPrint(0, "Message with %s and %s", "no newline", "args", newline=False)
+      c1.cPrint(0, "Message with %s and %s",
+                "no newline", "args", newline=False)
       c1.cPrint(0, " Message with %s and %s", "newline", "args")
 
       print "Done"
