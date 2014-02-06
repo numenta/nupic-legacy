@@ -22,7 +22,11 @@
 
 import unittest2 as unittest
 
-from nupic.regions.Spec import *
+from nupic.regions.Spec import (Spec,
+                                InputSpec,
+                                OutputSpec,
+                                ParameterSpec,
+                                CommandSpec)
 
 
 
