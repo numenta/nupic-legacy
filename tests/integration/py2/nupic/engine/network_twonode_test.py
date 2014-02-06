@@ -131,10 +131,6 @@ class NetworkTwoNodeTest(unittest.TestCase):
       self.assertEquals(l2output[2*i+1], outputVals[i] + 4)
 
 
-    # =====================================================
-    # Demonstrate a few other features
-    # =====================================================
-
   def testLinkingDownwardDimensions(self):
     #
     # Linking can induce dimensions downward
