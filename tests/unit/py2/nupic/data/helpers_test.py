@@ -99,7 +99,7 @@ class HelpersTest(unittest.TestCase):
     # Create the compressed file
     import gzip
     f = gzip.GzipFile(fullPathCompressed, 'w')
-    f.write('1,2,3\n')
+    f.write("1,2,3\n")
     f.close()
     self.assertTrue(os.path.isfile(fullPathCompressed))
 
@@ -117,5 +117,5 @@ class HelpersTest(unittest.TestCase):
 
 
 
-if __name__=='__main__':
+if __name__ == "__main__":
   unittest.main()
