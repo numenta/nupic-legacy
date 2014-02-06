@@ -104,6 +104,9 @@ class ConsolePrinterTest(unittest.TestCase):
       if expected[i].strip() != actual[i].strip():
         raise Exception("Line %d of output differs from expected" % i)
 
+    # Clean up
+    os.remove(filename)
+
 
 
 if __name__ == "__main__":
