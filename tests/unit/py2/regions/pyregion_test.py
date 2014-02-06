@@ -26,10 +26,36 @@ from nupic.regions.PyRegion import PyRegion
 
 
 
+# Classes used for testing
+
+class X(PyRegion):
+  def __init__(self):
+    self.x = 5
+
+
+
+class Y(PyRegion):
+  def __init__(self):
+    self.zzz = 5
+    self._zzz = 3
+  def initialize(self): pass
+  def compute(self): pass
+  def getOutputElementCount(self): pass
+
+
+
+class Z(object):
+  def __init__(self):
+    y = Y()
+    y.setParameter('zzz, 4')
+
+
+
 class PyRegionTest(unittest.TestCase):
 
 
-  def testClass(self):
+  def testNoInit(self):
+    """Test unimplemented init method"""
     class NoInit(PyRegion):
       pass
 
@@ -39,10 +65,9 @@ class PyRegionTest(unittest.TestCase):
     self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
       "NoInit with abstract methods __init__, compute, initialize")
 
-    class X(PyRegion):
-      def __init__(self):
-        self.x = 5
 
+  def testUnimplementedAbstractMethods(self):
+    """Test unimplemented abstract methods"""
     # Test unimplemented getSpec (results in NotImplementedError)
     with self.assertRaises(NotImplementedError):
       X.getSpec()
@@ -54,15 +79,8 @@ class PyRegionTest(unittest.TestCase):
     self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
       "X with abstract methods compute, initialize")
 
-    # Test unimplemented @not_implemented methods
-    class Y(PyRegion):
-      def __init__(self):
-        self.zzz = 5
-        self._zzz = 3
-      def initialize(self): pass
-      def compute(self): pass
-      def getOutputElementCount(self): pass
-
+  def testUnimplementedNotImplementedMethods(self):
+    """Test unimplemented @not_implemented methods"""
     # Can instantiate because all abstract methods are implemented
     y = Y()
 
@@ -81,13 +99,11 @@ class PyRegionTest(unittest.TestCase):
       y.setParameter('zzz', 4, 5)
 
     self.assertEqual(str(cw.exception), "The unimplemented method " +
-      "setParameter() was called by PyRegionTest.testClass()")
+      "setParameter() was called by " +
+      "PyRegionTest.testUnimplementedNotImplementedMethods()")
 
-    class Z(object):
-      def __init__(self):
-        y = Y()
-        y.setParameter('zzz, 4')
-
+  def testCallUnimplementedMethod(self):
+    """Test calling an unimplemented method"""
     with self.assertRaises(NotImplementedError) as cw:
       _z = Z()
 
