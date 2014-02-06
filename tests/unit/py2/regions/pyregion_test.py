@@ -33,7 +33,7 @@ class PyRegionTest(unittest.TestCase):
     class NoInit(PyRegion):
       pass
 
-    with self.assertRaises(Exception) as cw:
+    with self.assertRaises(TypeError) as cw:
       _ni = NoInit()
 
     self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
@@ -44,11 +44,11 @@ class PyRegionTest(unittest.TestCase):
         self.x = 5
 
     # Test unimplemented getSpec (results in NotImplementedError)
-    with self.assertRaises(Exception):
+    with self.assertRaises(NotImplementedError):
       X.getSpec()
 
     # Test unimplemented abstract methods (x can't be instantiated)
-    with self.assertRaises(Exception) as cw:
+    with self.assertRaises(TypeError) as cw:
       _x = X()
 
     self.assertEqual(str(cw.exception), "Can't instantiate abstract class " +
@@ -77,7 +77,7 @@ class PyRegionTest(unittest.TestCase):
       "start with an underscore")
 
     # Calling not implemented method result in NotImplementedError
-    with self.assertRaises(Exception) as cw:
+    with self.assertRaises(NotImplementedError) as cw:
       y.setParameter('zzz', 4, 5)
 
     self.assertEqual(str(cw.exception), "The unimplemented method " +
@@ -88,7 +88,7 @@ class PyRegionTest(unittest.TestCase):
         y = Y()
         y.setParameter('zzz, 4')
 
-    with self.assertRaises(Exception) as cw:
+    with self.assertRaises(NotImplementedError) as cw:
       _z = Z()
 
     self.assertEqual(str(cw.exception), "The unimplemented method " +
