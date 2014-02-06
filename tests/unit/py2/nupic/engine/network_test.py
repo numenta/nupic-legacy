@@ -100,15 +100,15 @@ class NetworkTest(unittest.TestCase):
     #print 'Nodespec is:'
     #print getSpecString(level1SP.getSpec())
 
-    print "Attempting to initialize net when one region has unspecified dimensions"
+    print "Attempting to initialize net when \
+           one region has unspecified dimensions"
     print "Current dimensions are: %s" % level1SP.dimensions
-    caughtException = False
 
     with self.assertRaises(Exception):
       n.initialize()
 
     # Test Dimensions
-    level1SP.dimensions = engine.Dimensions([4,4])
+    level1SP.dimensions = engine.Dimensions([4, 4])
     print "Set dimensions of level1SP to %s" % str(level1SP.dimensions)
 
     n.initialize()
@@ -147,12 +147,12 @@ class NetworkTest(unittest.TestCase):
 
     self.assertEqual(na.shape, (15,))
     print 'na.shape:', na.shape
-    na = na.reshape(5,3)
+    na = na.reshape(5, 3)
     self.assertEqual(na.shape, (5, 3))
     print 'na.shape:', na.shape
     for i in range(5):
       for j in range(3):
-        print chr(na[i,j]), ' ',
+        print chr(na[i, j]), ' ',
       print
     print
 
@@ -182,7 +182,7 @@ class NetworkTest(unittest.TestCase):
     print '---'
     print 'Testing get/setParameterArray'
     a = engine.Array('Int64', 4)
-    level1SP.getParameterArray("int64ArrayParam", a);
+    level1SP.getParameterArray("int64ArrayParam", a)
     print 'level1SP.int64ArrayParam size = ', len(a)
     print 'level1SP.int64ArrayParam = [ ',
     for i in range(len(a)):
@@ -196,7 +196,7 @@ class NetworkTest(unittest.TestCase):
     for i in range(4):
       a2[i] = i + 1
 
-    level1SP.setParameterArray('int64ArrayParam', a2);
+    level1SP.setParameterArray('int64ArrayParam', a2)
 
     # get the value of int64ArrayParam after the setParameter call.
     # The array a owns its buffer, so we can call releaseBuffer if we
@@ -235,12 +235,12 @@ class NetworkTest(unittest.TestCase):
 
     # Make sure the original output, the numpy array and the reshaped numpy view
     # are all in sync and access the same underlying memory.
-    numpy_output2[1,0] = 5555
+    numpy_output2[1, 0] = 5555
     self.assertEqual(output[4], 5555)
 
     output[5] = 3333
     self.assertEqual(numpy_output2[1, 1], 3333)
-    numpy_output2[1,2] = 4444
+    numpy_output2[1, 2] = 4444
 
     # --- Test doc strings
     # TODO: commented out because I'm not sure what to do with these
@@ -292,7 +292,7 @@ class NetworkTest(unittest.TestCase):
       n.initialize()
 
     print "Setting region1 dims"
-    r1dims = engine.Dimensions([6,4])
+    r1dims = engine.Dimensions([6, 4])
     region1.setDimensions(r1dims)
 
     print "Initialize should now succeed"
@@ -313,7 +313,7 @@ class NetworkTest(unittest.TestCase):
 
     region1 = n.addRegion("region1", "TestNode", "")
     region2 = n.addRegion("region2", "TestNode", "")
-    region1.setDimensions(engine.Dimensions([6,4]))
+    region1.setDimensions(engine.Dimensions([6, 4]))
     n.link("region1", "region2", "TestFanIn2", "")
     n.initialize()
 
@@ -342,7 +342,7 @@ class NetworkTest(unittest.TestCase):
     r = n.addRegion("region", "py.TestNode", "")
 
     print "Setting region1 dims"
-    r.dimensions = engine.Dimensions([6,4])
+    r.dimensions = engine.Dimensions([6, 4])
 
     print "Initialize should now succeed"
     n.initialize()
@@ -362,7 +362,7 @@ class NetworkTest(unittest.TestCase):
     r = n.addRegion("region", "py.TestNode", "")
 
     print "Setting region1 dims"
-    r.setDimensions(engine.Dimensions([6,4]))
+    r.setDimensions(engine.Dimensions([6, 4]))
 
     print "Initialize should now succeed"
     n.initialize()
@@ -391,7 +391,7 @@ class NetworkTest(unittest.TestCase):
       n.initialize()
 
     print "Setting region1 dims"
-    r1dims = engine.Dimensions([6,4])
+    r1dims = engine.Dimensions([6, 4])
     region1.setDimensions(r1dims)
 
     print "Initialize should now succeed"
