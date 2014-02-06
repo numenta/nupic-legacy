@@ -1,0 +1,16 @@
+Running with default verbosity
+message at level 0
+message at level 1
+
+Running with verbosity 2
+message at level 0
+message at level 1
+message at level 2
+
+Running with verbosity 0
+message at level 0
+
+Message with two args
+Message with no newline  Message with newline
+Message with no newline and args  Message with newline and args
+Done
