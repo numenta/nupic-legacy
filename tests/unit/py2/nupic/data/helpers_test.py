@@ -37,11 +37,11 @@ class HelpersTest(unittest.TestCase):
     dd = zip(*dd)[0]
 
     # Make sure the local data is there
-    self.assertTrue(('data') in dd)
+    self.assertTrue(("data") in dd)
     # Make sure there are no duplicates
     self.assertEqual(len(set(dd)), len(dd))
 
-    nta_data_path = os.environ.get('NTA_DATA_PATH', None)
+    ntaDataPath = os.environ.get('NTA_DATA_PATH', None)
     os.environ['NTA_DATA_PATH'] = 'XXX:YYY'
 
     dd =  _getDataDirs()
@@ -49,25 +49,21 @@ class HelpersTest(unittest.TestCase):
 
     self.assertTrue('XXX' in dd and 'YYY' in dd)
 
-    if nta_data_path is None:
+    if ntaDataPath is None:
       del os.environ['NTA_DATA_PATH']
     else:
-      os.environ['NTA_DATA_PATH'] = nta_data_path
+      os.environ['NTA_DATA_PATH'] = ntaDataPath
 
 
   def testFindDataset(self):
     # Test non-existing dataset (relative path)
-    try:
+    with self.assertRaises(Exception):
       findDataset('no_such_dataset.csv')
-      self.fail("Shoudn't have found dataset")
-    except:
-      pass
+
     # Test non-existing dataset (absolute path)
-    try:
+    with self.assertRaises(Exception):
       findDataset('/no_such_dataset.csv')
-      self.fail("Shoudn't have found dataset")
-    except:
-      pass
+
     # Test existing dataset (relative path)
     if not os.path.isdir('data'):
       os.makedirs('data')
