@@ -22,7 +22,7 @@
 
 import unittest2 as unittest
 
-import nupic.engine as engine
+from nupic import engine
 
 
 
