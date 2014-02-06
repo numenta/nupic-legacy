@@ -33,18 +33,18 @@ import subprocess
 import sys
 import unittest2 as unittest
 
-from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.swarming.utils import generatePersistentJobGUID
-from nupic.swarming import HypersearchWorker
-from nupic.swarming.permutationhelpers import PermuteChoices
-from nupic.frameworks.opf.exp_generator import ExpGenerator
 from nupic.data import dictutils
-from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
+from nupic.swarming import HypersearchWorker
+from nupic.swarming.permutationhelpers import PermuteChoices
+from nupic.swarming.utils import generatePersistentJobGUID
+from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
+from nupic.frameworks.opf.exp_generator import ExpGenerator
+from nupic.frameworks.opf.opfutils import (InferenceType,
+                                           InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
 
