@@ -186,7 +186,6 @@ class KNNAnomalyClassifierRegionTest(unittest.TestCase):
                                         accessMode='Create'))
 
     d = x.toDict()
-    print d
     inputs = d['inputs']
     self.assertEqual(len(inputs), 2)
     i1 = inputs['i1']
