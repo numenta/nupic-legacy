@@ -62,7 +62,7 @@ Add the following to your .bashrc file. Change the paths as needed.
 
 If you plan on making changes to NuPIC, add the following to your .bashrc file.
 
-    # Build in Developer mode
+    # Developer mode: make build use symbolic links from source for Python files instead of copying files
     export NTAX_DEVELOPER_BUILD=1
 
 Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
