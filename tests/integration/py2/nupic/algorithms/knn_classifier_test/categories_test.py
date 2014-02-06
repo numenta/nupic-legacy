@@ -47,16 +47,16 @@ class KNNCategoriesTest(unittest.TestCase):
     failures, _knn = simulateCategories()
 
     self.assertEqual(len(failures), 0,
-      "Tests failed: \n" + failures)
+                     "Tests failed: \n" + failures)
 
 
 
-def simulateCategories(numSamples = 100, numDimensions = 500):
+def simulateCategories(numSamples=100, numDimensions=500):
   """Simulate running KNN classifier on many disjoint categories"""
 
   failures = ""
   LOGGER.info("Testing the sparse KNN Classifier on many disjoint categories")
-  knn = KNNClassifier(k=1, distanceNorm=1.0, useSparseMemory = True)
+  knn = KNNClassifier(k=1, distanceNorm=1.0, useSparseMemory=True)
 
   for i in range(0, numSamples):
 
