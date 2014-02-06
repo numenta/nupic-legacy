@@ -173,13 +173,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     """
 
     #------------------------------------------------------------------
-    # Print out example JSON for documentation purposes
-    jobParams = dict(
-      desription=expDesc
-      )
-
-
-    #------------------------------------------------------------------
     # Call ExpGenerator to generate the base description and permutations
     #  files.
     shutil.rmtree(g_myEnv.testOutDir, ignore_errors=True)
@@ -228,7 +221,6 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     # Generate the description.py and permutations.py. These get generated
     # in the g_myEnv.testOutDir directory.
     self.getModules(expDesc, hsVersion=hsVersion)
-    descriptionPyPath = os.path.join(g_myEnv.testOutDir, "description.py")
     permutationsPyPath = os.path.join(g_myEnv.testOutDir, "permutations.py")
 
     # ----------------------------------------------------------------
@@ -454,17 +446,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test it out with no prediction element
-    (base, perms) = self.getModules(expDesc)
-
-    # Make sure we have temporal inference on and temporal optimizations
-    found = False
-    #import pdb; pdb.set_trace()
-    taskControl = base.control['tasks'][0]['taskControl']
-    iterationCycle = taskControl['iterationCycle'][0]
-    inferenceArgs = iterationCycle._IterationPhaseSpecLearnAndInfer__inferenceArgs
+    (_base, perms) = self.getModules(expDesc)
 
     # Make sure we have the right optimization designation
-    self.assertEqual(perms.minimize, "prediction:altMAPE:window=%d:field=consumption"\
+    self.assertEqual(perms.minimize,
+                    "prediction:altMAPE:window=%d:field=consumption" \
                      % ExpGenerator.METRIC_WINDOW,
                      msg="got: %s" % perms.minimize)
 
@@ -477,25 +463,26 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
   def assertMetric(self, base, perm, predictedField,
                    optimizeMetric, grokScore,
-                   moving_baseline,
-                   one_gram,
+                   movingBaseline,
+                   oneGram,
                    trivialMetric,
                    legacyMetric=None):
     taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
 
     for metricSpec in taskMetrics:
-      self.assertTrue(metricSpec.metric in [optimizeMetric,moving_baseline,one_gram,
-                                             grokScore,trivialMetric,
-                                             legacyMetric],
+      self.assertTrue(metricSpec.metric in [optimizeMetric,
+                                            movingBaseline, oneGram,
+                                            grokScore, trivialMetric,
+                                            legacyMetric],
                       "Unrecognized Metric type: %s"% metricSpec.metric)
       if metricSpec.metric == trivialMetric:
-          self.assertEqual(metricSpec.metric, trivialMetric)
-          self.assertEqual(metricSpec.inferenceElement,
-                           InferenceElement.prediction)
-      elif metricSpec.metric == moving_baseline:
-          self.assertTrue("errorMetric" in metricSpec.params)
-      elif metricSpec.metric == one_gram:
-          self.assertTrue("errorMetric" in metricSpec.params)
+        self.assertEqual(metricSpec.metric, trivialMetric)
+        self.assertEqual(metricSpec.inferenceElement,
+                         InferenceElement.prediction)
+      elif metricSpec.metric == movingBaseline:
+        self.assertTrue("errorMetric" in metricSpec.params)
+      elif metricSpec.metric == oneGram:
+        self.assertTrue("errorMetric" in metricSpec.params)
       elif metricSpec.metric == legacyMetric:
         pass
       else:
@@ -549,16 +536,18 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     }
 
 
-    # Make sure we have the right metric type (avg_err for categories, aae for scalars)
+    # Make sure we have the right metric type
+    #   (avg_err for categories, aae for scalars)
     (base, perms) = self.getModules(expDesc)
     self.assertMetric(base, perms, expDesc['inferenceArgs']['predictedField'],
                       'avg_err',
                       'moving_mode',
                       'one_gram',
-                      InferenceElement.prediction, 
+                      InferenceElement.prediction,
                       "trivial")
-    self.assertEqual(base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
-                     ".*")
+    self.assertEqual(
+      base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
+      ".*")
 
     # =========================================================================
     # Test scalar predicted field
@@ -569,8 +558,9 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertMetric(base, perms, expDesc['inferenceArgs']['predictedField'],
                       'altMAPE',"moving_mean","one_gram",
                       InferenceElement.encodings, "trivial", legacyMetric="aae")
-    self.assertEqual(base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
-                     ".*")
+    self.assertEqual(
+      base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
+      ".*")
 
 
   def test_IncludedFields(self):
@@ -619,7 +609,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test it out with all fields
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected encoders
     actEncoderFields = set()
@@ -647,7 +637,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
           "fieldType": "float",
         },
       ]
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected encoders
     actEncoderFields = set()
@@ -671,7 +661,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
           "maxValue" : 42.42,
         },
       ]
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected encoders
     actEncoderFields = set()
@@ -690,7 +680,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # Make sure we have the right optimization designation
     self.assertEqual(actEncoderFields, set(['consumption']))
     self.assertEqual(actEncoderNames, set(['consumption']))
-    # Because both min and max were specifed, the encoder should be  non-adaptive
+    # Because both min and max were specifed,
+    #   the encoder should be  non-adaptive
     self.assertEqual(actEncoderTypes, set(['ScalarEncoder']))
     self.assertEqual(minValues, set([42]))
     self.assertEqual(maxValues, set([42.42]))
@@ -705,7 +696,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
           "encoderType": 'AdaptiveScalarEncoder',
         },
       ]
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected encoders
     actEncoderFields = set()
@@ -739,7 +730,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                                   'fieldType':'float'}]
 
     try:
-      (base, perms) = self.getModules(expDesc)
+      (base, _perms) = self.getModules(expDesc)
     except:
       LOGGER.info("Passed: Threw exception for bad fieldname.")
 
@@ -826,7 +817,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test with aggregation
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected aggregation
     aggInfo = base.config['aggregationInfo']
@@ -837,7 +828,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # --------------------------------------------------------------------
     # Test with no aggregation
     expDesc['streamDef'].pop('aggregation')
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected aggregation
     aggInfo = base.config['aggregationInfo']
@@ -907,7 +898,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test with reset period
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected reset info
     resetInfo = base.config['modelParams']['sensorParams']['sensorAutoReset']
@@ -916,7 +907,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # --------------------------------------------------------------------
     # Test no reset period
     expDesc.pop('resetPeriod')
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected reset info
     resetInfo = base.config['modelParams']['sensorParams']['sensorAutoReset']
@@ -1039,7 +1030,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['classifierOnly'], True)
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
-                     ['_classifierInput']['fieldname'], 
+                     ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
     
 
@@ -1051,7 +1042,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
 
     # Should permute over the _classifier_input encoder params
-    self.assertIn('_classifierInput', 
+    self.assertIn('_classifierInput',
                   perms.permutations['modelParams']['sensorParams']['encoders'])
 
     # Should set inputPredictedField to "auto" (the default)
@@ -1103,8 +1094,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     self.assertIn('alpha', perms.permutations['modelParams']['clParams'])
     self.assertNotIn('inferenceType', perms.permutations['modelParams'])
-    self.assertNotIn('activationThreshold', perms.permutations['modelParams']['tpParams'])
-    self.assertNotIn('minThreshold', perms.permutations['modelParams']['tpParams'])
+    self.assertNotIn('activationThreshold',
+                     perms.permutations['modelParams']['tpParams'])
+    self.assertNotIn('minThreshold',
+                     perms.permutations['modelParams']['tpParams'])
 
     # Make sure the right metrics were put in
     metrics = base.control['metrics']
@@ -1180,11 +1173,9 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     expDesc2["inferenceArgs"]["inputPredictedField"] = "no"
     (base, perms) = self.getModules(expDesc2)
 
-    self.assertNotIn('consumption', 
-             base.config['modelParams']['sensorParams']['encoders'].keys())
-
-
-    return
+    self.assertNotIn(
+      'consumption',
+      base.config['modelParams']['sensorParams']['encoders'].keys())
 
 
   def test_DeltaEncoders(self):
@@ -1253,8 +1244,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     }
 
     (base, perms) = self.getModules(expDesc)
-    encoder = base.config["modelParams"]["sensorParams"]["encoders"]["consumption"]
-    encoderPerm = perms.permutations["modelParams"]["sensorParams"]["encoders"]["consumption"]
+    encoder = base.config["modelParams"]["sensorParams"] \
+      ["encoders"]["consumption"]
+    encoderPerm = perms.permutations["modelParams"]["sensorParams"] \
+      ["encoders"]["consumption"]
 
     self.assertEqual(encoder["type"], "ScalarSpaceEncoder")
     self.assertEqual(encoder["space"], "delta")
@@ -1343,7 +1336,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     #  the last 5
     expDescTmp = copy.deepcopy(expDesc)
     expDescTmp['streamDef']['aggregation']['minutes'] = 1
-    expDescTmp['inferenceArgs']['predictionSteps'] = [4*60/1] # 4 hours / 1 minute
+    expDescTmp['inferenceArgs']['predictionSteps'] = \
+      [4*60/1] # 4 hours / 1 minute
     self.assertValidSwarmingAggregations(expDesc = expDescTmp,
           expectedAttempts = [(24, 10), (30, 8), (40, 6), (60, 4), (120, 2)])
 
@@ -1389,7 +1383,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # More than 1 predictionSteps passed in
     expDescTmp = copy.deepcopy(expDesc)
-    expDescTmp['inferenceArgs']['predictionSteps'] = [1,16]
+    expDescTmp['inferenceArgs']['predictionSteps'] = [1, 16]
     with self.assertRaises(Exception) as cm:
       self.assertValidSwarmingAggregations(expDesc = expDescTmp,
                       expectedAttempts = [(1, 16), (2, 8), (4, 4), (8, 2)])
@@ -1535,14 +1529,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Test running it
-    modelResults = self.runBaseDescriptionAndPermutations(expDesc, hsVersion='v2',
-                                           maxModels=None)
+    modelResults = self.runBaseDescriptionAndPermutations(
+      expDesc, hsVersion='v2', maxModels=None)
     self.assertEqual(len(modelResults), 1, "Expected to get %d model "
           "results but only got %d" % (1, len(modelResults)))
-
-
-
-    return
 
 
   def test_FixedFields(self):
@@ -1589,7 +1579,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test out using fieldFields
-    (base, perms) = self.getModules(expDesc)
+    (_base, perms) = self.getModules(expDesc)
     self.assertEqual(perms.fixedFields, ['consumption', 'timestamp'],
                      msg="got: %s" % perms.fixedFields)
 
@@ -1597,7 +1587,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # Should be excluded from permutations script if not part of the JSON
     #  description
     expDesc.pop('fixedFields')
-    (base, perms) = self.getModules(expDesc)
+    (_base, perms) = self.getModules(expDesc)
     self.assertFalse(hasattr(perms, 'fixedFields'))
 
 
@@ -1647,7 +1637,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     # Test out using fieldFields
-    (base, perms) = self.getModules(expDesc)
+    (_base, perms) = self.getModules(expDesc)
     self.assertEqual(perms.fastSwarmModelParams, fastSwarmModelParams,
                      msg="got: %s" % perms.fastSwarmModelParams)
 
@@ -1702,7 +1692,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     }
 
     # --------------------------------------------------------------------
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected info in the base description file
     self.assertEqual(base.control['inferenceArgs']['predictionSteps'],
@@ -1716,7 +1706,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Only TemporalAnomaly models will have and use anomalyParams
     expDesc['inferenceType'] = 'TemporalNextStep'
-    (base, perms) = self.getModules(expDesc)
+    (base, _perms) = self.getModules(expDesc)
 
     # Make sure we have the expected info in the base description file
     self.assertEqual(base.control['inferenceArgs']['predictionSteps'],
@@ -1795,10 +1785,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['classifierOnly'], True)
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
-                     ['_classifierInput']['fieldname'], 
+                     ['_classifierInput']['fieldname'],
                      expDesc['inferenceArgs']['predictedField'])
     
-    self.assertNotIn('consumption', 
+    self.assertNotIn('consumption',
              base.config['modelParams']['sensorParams']['encoders'].keys())
 
     
@@ -1834,25 +1824,25 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # --------------------------------------
-    # If we specify NonTemporalClassification, we should get the same 
+    # If we specify NonTemporalClassification, we should get the same
     #   description and permutations files
     expDesc2 = copy.deepcopy(expDesc)
     expDesc2['inferenceType'] = 'NontemporalClassification'
-    (newBase, newPerms) = self.getModules(expDesc2)
+    (newBase, _newPerms) = self.getModules(expDesc2)
     self.assertEqual(base.config, newBase.config)
 
 
     # --------------------------------------
-    # If we specify NonTemporalClassification, prediction steps MUST be [0] 
+    # If we specify NonTemporalClassification, prediction steps MUST be [0]
     expDesc2 = copy.deepcopy(expDesc)
     expDesc2['inferenceType'] = 'NontemporalClassification'
     expDesc2['inferenceArgs']['predictionSteps'] = [1]
     gotException = False
     try:
-      (newBase, newPerms) = self.getModules(expDesc2)
+      (newBase, _newPerms) = self.getModules(expDesc2)
     except:
       gotException = True
-    self.assertTrue(gotException)  
+    self.assertTrue(gotException)
     
     
     # --------------------------------------
@@ -1862,10 +1852,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     expDesc2["inferenceArgs"]["inputPredictedField"] = "yes"
     gotException = False
     try:
-      (newBase, newPerms) = self.getModules(expDesc2)
+      (newBase, _newPerms) = self.getModules(expDesc2)
     except:
       gotException = True
-    self.assertTrue(gotException)  
+    self.assertTrue(gotException)
     
 
     return
@@ -1894,8 +1884,8 @@ def _executeExternalCmdAndReapStdout(args):
   _debugOut(("Process started for <%s>") % (args,))
 
   (stdoutData, stderrData) = p.communicate()
-  _debugOut(("Process completed for <%s>: exit status=%s, stdoutDataType=%s, " + \
-             "stdoutData=<%s>, stderrData=<%s>") % \
+  _debugOut(("Process completed for <%s>: exit status=%s, " +
+             "stdoutDataType=%s, stdoutData=<%s>, stderrData=<%s>") % \
                 (args, p.returncode, type(stdoutData), stdoutData, stderrData))
 
   result = dict(
@@ -1911,7 +1901,6 @@ def _executeExternalCmdAndReapStdout(args):
 
 
 def _debugOut(text):
-  global g_debug
   if g_debug:
     LOGGER.info(text)
 
@@ -1952,8 +1941,9 @@ if __name__ == '__main__':
 
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
-  parser.add_option("--installDir", dest="installDir", default=os.environ['NTA'],
-        help="Path to the NTA install directory [default: %default].")
+  parser.add_option(
+    "--installDir", dest="installDir", default=os.environ['NTA'],
+    help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
         help="Verbosity level, either 0, 1, 2, or 3 [default: %default].")
