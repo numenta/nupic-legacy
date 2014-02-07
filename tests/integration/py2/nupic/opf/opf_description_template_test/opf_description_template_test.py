@@ -13,8 +13,6 @@
 import os
 import sys
 import pprint
-import pickle
-import csv
 import unittest2 as unittest
 
 from nupic.support.unittesthelpers.testcasebase import (
