@@ -31,126 +31,123 @@ class NetworkSugarTest(unittest.TestCase):
 
   def testPhases(self):
     n = net.Network()
-    assert n.minPhase == 0
-    assert n.maxPhase == 0
-    assert n.minEnabledPhase == 0
-    assert n.maxEnabledPhase == 0
+    self.assertEqual(n.minPhase, 0)
+    self.assertEqual(n.maxPhase, 0)
+    self.assertEqual(n.minEnabledPhase, 0)
+    self.assertEqual(n.maxEnabledPhase, 0)
 
     r1 = n.addRegion('r1', 'TestNode', '')
     r2 = n.addRegion('r2', 'TestNode', '')
 
-    assert n.minPhase == 0
-    assert n.maxPhase == 1
-    assert n.minEnabledPhase == 0
-    assert n.maxEnabledPhase == 1
+    self.assertEqual(n.minPhase, 0)
+    self.assertEqual(n.maxPhase, 1)
+    self.assertEqual(n.minEnabledPhase, 0)
+    self.assertEqual(n.maxEnabledPhase, 1)
 
     n.setPhases('r1', (1, 4))
     n.setPhases('r2', (2, 3))
-    assert n.minPhase == 1
-    assert n.maxPhase == 4
-    assert n.minEnabledPhase == 1
-    assert n.maxEnabledPhase == 4
+    self.assertEqual(n.minPhase, 1)
+    self.assertEqual(n.maxPhase, 4)
+    self.assertEqual(n.minEnabledPhase, 1)
+    self.assertEqual(n.maxEnabledPhase, 4)
 
     n.minEnabledPhase = 2
     n.maxEnabledPhase = 3
-    assert n.minPhase == 1
-    assert n.maxPhase == 4
-    assert n.minEnabledPhase == 2
-    assert n.maxEnabledPhase == 3
+    self.assertEqual(n.minPhase, 1)
+    self.assertEqual(n.maxPhase, 4)
+    self.assertEqual(n.minEnabledPhase, 2)
+    self.assertEqual(n.maxEnabledPhase, 3)
 
 
   def testRegionCollection(self):
     n = net.Network()
 
     regions = n.regions
-    assert len(regions) == 0
+    self.assertEqual(len(regions), 0)
 
     r1 = n.addRegion('r1', 'TestNode', '')
     r2 = n.addRegion('r2', 'TestNode', '')
-    assert r1 is not None
+    self.assertTrue(r1 is not None)
 
-    assert len(regions) == 2
+    self.assertEqual(len(regions), 2)
 
     # test the 'in' operator
-    assert 'r1' in regions
-    assert 'r2' in regions
-    assert not 'r3' in regions
+    self.assertTrue('r1' in regions)
+    self.assertTrue('r2' in regions)
+    self.assertFalse('r3' in regions)
 
     # test [] operator
-    assert regions['r1'] == r1
-    assert regions['r2'] == r2
-    try:
-      regions['r3']
-      assert False
-    except KeyError:
-      pass
+    self.assertEqual(regions['r1'], r1)
+    self.assertEqual(regions['r2'], r2)
+    with self.assertRaises(KeyError):
+      _ = regions['r3']
 
     # for iteration
     for i, r in enumerate(regions):
       if i == 0:
-        assert r == 'r1'
+        self.assertEqual(r, 'r1')
       elif i == 1:
-        assert r == 'r2'
+        self.assertEqual(r, 'r2')
       else:
-        assert False
+        self.fail("Expected i == 0 or i == 1")
 
     # test .keys()
     keys = regions.keys()
-    assert keys == set(['r1', 'r2'])
+    self.assertEqual(keys, set(['r1', 'r2']))
 
     # test .values()
     values = regions.values()
-    assert len(values) == 2
+    self.assertEqual(len(values), 2)
     v1 = values.pop()
     v2 = values.pop()
-    assert (v1, v2) == (r1, r2) or (v1, v2) == (r2, r1)
+    self.assertTrue((v1, v2) == (r1, r2) or (v1, v2) == (r2, r1))
 
     # test .items()
     items = regions.items()
-    assert len(items) == 2
+    self.assertEqual(len(items), 2)
     i1 = items.pop()
     i2 = items.pop()
-    assert (i1, i2) == (('r1', r1), ('r2',r2)) or (('r2',r2), ('r1', r1))
+    self.assertTrue((i1, i2) == (('r1', r1), ('r2',r2)) or (('r2',r2), ('r1', r1)))
 
 
   def testRegion(self):
     r = net.Network().addRegion('r', 'py.TestNode', '')
 
     print r.spec
-    assert r.type == 'py.TestNode'
-    assert r.name == 'r'
-    assert r.dimensions.isUnspecified()
+    self.assertEqual(r.type, 'py.TestNode')
+    self.assertEqual(r.name, 'r')
+    self.assertTrue(r.dimensions.isUnspecified())
 
 
   def testSpec(self):
     ns = net.Region.getSpecFromType('py.TestNode')
-    assert ns.description == 'The node spec of the NuPIC 2 Python TestNode'
+    self.assertEqual(ns.description, 'The node spec of the NuPIC 2 Python TestNode')
 
     n = net.Network()
     r = n.addRegion('r', 'py.TestNode', '')
 
     ns2 = r.spec
-    assert ns.singleNodeOnly == ns2.singleNodeOnly
-    assert ns.description == ns2.description
-    assert ns.inputs == ns2.inputs
-    assert ns.outputs == ns2.outputs
-    assert ns.parameters == ns2.parameters
-    assert ns.commands == ns2.commands
+    self.assertEqual(ns.singleNodeOnly, ns2.singleNodeOnly)
+    self.assertEqual(ns.description, ns2.description)
+    self.assertEqual(ns.inputs, ns2.inputs)
+    self.assertEqual(ns.outputs, ns2.outputs)
+    self.assertEqual(ns.parameters, ns2.parameters)
+    self.assertEqual(ns.commands, ns2.commands)
 
 
   def testTimer(self):
     t = net.Timer()
-    assert t.elapsed == 0
-    assert t.startCount == 0
-    assert str(t) == "[Elapsed: 0 Starts: 0]"
+    self.assertEqual(t.elapsed, 0)
+    self.assertEqual(t.startCount, 0)
+    self.assertEqual(str(t), "[Elapsed: 0 Starts: 0]")
     t.start()
     # Dummy time
     j = 0
     for i in xrange(0, 1000):
       j = i
     t.stop()
-    assert t.elapsed > 0
-    assert t.startCount == 1
+    self.assertTrue(t.elapsed > 0)
+    self.assertEqual(t.startCount, 1)
 
 
 
