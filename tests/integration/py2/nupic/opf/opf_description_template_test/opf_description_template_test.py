@@ -26,6 +26,7 @@ from nupic.support.unittesthelpers.testcasebase import (
 
 # Our __main__ entry block sets this to an instance of MyTestEnvironment()
 g_myEnv = None
+g_debug = False
 
 
 
@@ -95,7 +96,8 @@ class MyTestEnvironment(object):
                                                   "experiments")
     assert os.path.exists(self.__opfExperimentsParentDir), \
            "%s is not present in filesystem" % self.__opfExperimentsParentDir
-    _debugOut("self.__opfExperimentsParentDir=<%s>" % self.__opfExperimentsParentDir)
+    _debugOut("self.__opfExperimentsParentDir=<%s>"
+        % self.__opfExperimentsParentDir)
 
 
   def getOpfRunExperimentPyPath(self):
@@ -235,7 +237,8 @@ class PositiveTests(MyTestCaseBase):
 
     modelDesc = expIface.getModelDescription()
 
-    tpActivationThreshold = modelDesc['modelParams']['tpParams']['activationThreshold']
+    tpActivationThreshold = modelDesc['modelParams'] \
+        ['tpParams']['activationThreshold']
 
     expectedValue = 12
     self.assertEqual(tpActivationThreshold, expectedValue,
@@ -275,8 +278,8 @@ def _executeExternalCmdAndReapOutputs(args):
   _debugOut(("Process started for <%s>") % (args,))
 
   (stdoutData, stderrData) = p.communicate()
-  _debugOut(("Process completed for <%s>: exit status=%s, stdoutDataType=%s, " + \
-             "stdoutData=<%s>, stderrData=<%s>") % \
+  _debugOut(("Process completed for <%s>: exit status=%s, " + \
+             "stdoutDataType=%s, stdoutData=<%s>, stderrData=<%s>") % \
                 (args, p.returncode, type(stdoutData), stdoutData, stderrData))
 
   result = dict(
@@ -291,19 +294,15 @@ def _executeExternalCmdAndReapOutputs(args):
   return result
 
 
-g_debug = False
-
 def _debugOut(msg):
-  import sys
-  global g_debug
   if g_debug:
-    callerTraceback = whois_callers_caller()
+    callerTraceback = whoisCallersCaller()
     print "OPF TestDescriptionTemplate (f=%s;line=%s): %s" % \
             (callerTraceback.function, callerTraceback.lineno, msg,)
     sys.stdout.flush()
 
 
-def whois_callers_caller():
+def whoisCallersCaller():
   """
   Returns: Traceback namedtuple for our caller's caller
   """
