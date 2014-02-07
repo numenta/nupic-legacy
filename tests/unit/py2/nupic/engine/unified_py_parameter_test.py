@@ -54,7 +54,6 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
 
     for paramName, initval, paramtype, newval in scalars:
       # Check the initial value for each parameter.
-      print "Parameter = %s" % paramName
       x = l1.getParameter(paramName)
       self.assertEqual(type(x), paramtype)
       if initval is None:
@@ -88,7 +87,6 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
     l1= n.addRegion("l1", "TestNode", "")
 
     for paramName, initval, paramtype in arrays:
-      print "Parameter = %s" % paramName
       x = l1.getParameter(paramName)
       self.assertTrue(isinstance(x, nupic.bindings.engine_internal.Array))
       self.assertEqual(x.getType(), paramtype)
