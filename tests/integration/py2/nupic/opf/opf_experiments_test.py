@@ -45,18 +45,18 @@ def getAllDirectoriesWithFile(path, filename, excludeDirs):
   """
   directoryList = []
   for dirpath, dirnames, filenames in os.walk(path):
-    for dir in dirnames[:]:
-      if dir in excludeDirs:
-        dirnames.remove(dir)
-        print "EXCLUDING %s..." % (os.path.join(dirpath, dir))
+    for d in dirnames[:]:
+      if d in excludeDirs:
+        dirnames.remove(d)
+        print "EXCLUDING %s..." % (os.path.join(dirpath, d))
         
       # If this directory is UNDER_DEVELOPMENT, exclude it
-      elif 'UNDER_DEVELOPMENT' in os.listdir(os.path.join(dirpath, dir)):
-        dirnames.remove(dir)
-        print "EXCLUDING %s..." % (os.path.join(dirpath, dir))
+      elif 'UNDER_DEVELOPMENT' in os.listdir(os.path.join(dirpath, d)):
+        dirnames.remove(d)
+        print "EXCLUDING %s..." % (os.path.join(dirpath, d))
 
-    for file in filenames:
-      if file==filename:
+    for f in filenames:
+      if f==filename:
         directoryList.append(dirpath)
   
   return directoryList
@@ -75,7 +75,7 @@ def getAllExperimentDirectories(excludedExperiments=[]):
                     excludeDirs=excludedDirectories)
 
 
-def runReducedExperiment(path, reduce=True):
+def runReducedExperiment(path, reduced=True):
   """
   Run the experiment in the <path> with a reduced iteration count
   """
@@ -83,7 +83,7 @@ def runReducedExperiment(path, reduce=True):
   initExperimentPrng()
   
   # Load experiment
-  if reduce:
+  if reduced:
     args = [path, '--testMode']
   else:
     args = [path]
@@ -134,15 +134,18 @@ class OPFExperimentsTest(unittest.TestCase):
     print "Successfully ran all experiments: %s" % (successExperiments)
 
 
+
 if __name__ == "__main__":
   description = \
       "Test all experiments in opf/experiments with reduced iterations.\
        Currently excludes %s in the default mode" % str(EXCLUDED_EXPERIMENTS)
   parser = OptionParser(description=description)
-  parser.add_option("-a", "--all", action="store_true", dest="runAllExperiments",
-                    default=False, help="Don't exclude any experiments.")
-  parser.add_option("-l", "--long", action="store_true", dest="runAllIterations",
-                    default=False, help="Don't reduce iterations.")
+  parser.add_option("-a", "--all", action="store_true",
+                    dest="runAllExperiments", default=False,
+                    help="Don't exclude any experiments.")
+  parser.add_option("-l", "--long", action="store_true",
+                    dest="runAllIterations", default=False,
+                    help="Don't reduce iterations.")
   (options, args) = parser.parse_args()
 
   if len(args) > 0:
