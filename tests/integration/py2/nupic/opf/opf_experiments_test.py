@@ -32,9 +32,9 @@ from nupic.frameworks.opf.experiment_runner import (
 
 
 # Globals
-excludedExperiments = [] # none for now
-predictionDir = os.path.join(os.environ['NTA'], 'share', 'opf')
-runAllIterations = False
+EXCLUDED_EXPERIMENTS = [] # none for now
+PREDICTION_DIR = os.path.join(os.environ['NTA'], 'share', 'opf')
+RUN_ALL_ITERATIONS = False
 
 
 
@@ -95,8 +95,8 @@ def runReducedExperiment(path, reduce=True):
 class OPFExperimentsTest(unittest.TestCase):
 
   def testExperiments(self):
-    os.chdir(predictionDir)
-    expDirPathList =  getAllExperimentDirectories(excludedExperiments)
+    os.chdir(PREDICTION_DIR)
+    expDirPathList =  getAllExperimentDirectories(EXCLUDED_EXPERIMENTS)
 
     if len(expDirPathList)==0:
       print "Unable to find any prediction experiments"
@@ -110,7 +110,7 @@ class OPFExperimentsTest(unittest.TestCase):
         continue
       print "Running experiment: %s" % expDirPath
       try:
-        if runAllIterations:
+        if RUN_ALL_ITERATIONS:
           runReducedExperiment(expDirPath, False)
         else:
           runReducedExperiment(expDirPath)
@@ -137,7 +137,7 @@ class OPFExperimentsTest(unittest.TestCase):
 if __name__ == "__main__":
   description = \
       "Test all experiments in opf/experiments with reduced iterations.\
-       Currently excludes %s in the default mode" % str(excludedExperiments)
+       Currently excludes %s in the default mode" % str(EXCLUDED_EXPERIMENTS)
   parser = OptionParser(description=description)
   parser.add_option("-a", "--all", action="store_true", dest="runAllExperiments",
                     default=False, help="Don't exclude any experiments.")
@@ -146,11 +146,11 @@ if __name__ == "__main__":
   (options, args) = parser.parse_args()
 
   if len(args) > 0:
-    predictionDir = args[0]
+    PREDICTION_DIR = args[0]
 
   if options.runAllExperiments:
-    excludedExperiments=[]
+    EXCLUDED_EXPERIMENTS=[]
 
-  runAllIterations = options.runAllIterations
+  RUN_ALL_ITERATIONS = options.runAllIterations
 
   unittest.main()
