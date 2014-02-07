@@ -74,11 +74,13 @@ _Note_: If using pip 1.5 or later:
 
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
+_Note_: If you get a "permission denied" error when using pip, add the --user flag.
+
 Build and install NuPIC:
 
     $NUPIC/build.sh
 
-NuPIC should now be installed in $NTA!
+NuPIC should now be installed in $NTA! If the build failed, check to make sure that $NUPIC is set, and the value is the proper path to the local NuPIC repo.
 
 ## Try it out!
 
