@@ -76,8 +76,12 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
 
   def testArrays(self):
     arrays = [
-      ("real32ArrayParam", [0*32, 1*32, 2*32, 3*32, 4*32, 5*32, 6*32, 7*32], "Real32"),
-      ("int64ArrayParam", [0*64, 1*64, 2*64, 3*64], "Int64")
+      ("real32ArrayParam",
+        [0*32, 1*32, 2*32, 3*32, 4*32, 5*32, 6*32, 7*32],
+       "Real32"),
+      ("int64ArrayParam",
+        [0*64, 1*64, 2*64, 3*64],
+        "Int64")
     ]
 
     n = Network()
