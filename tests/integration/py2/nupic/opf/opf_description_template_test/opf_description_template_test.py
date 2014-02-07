@@ -11,28 +11,27 @@
 # Tests OPF descriptionTemplate.py-based experiment/sub-experiment pair
 
 import os
-import sys
 import pprint
+import sys
 import unittest2 as unittest
-
-from nupic.support.unittesthelpers.testcasebase import (
-  TestCaseBase as HelperTestCaseBase)
 
 from nupic.frameworks.opf.opfhelpers import (
   loadExperimentDescriptionScriptFromDir,
   getExperimentDescriptionInterfaceFromModule
 )
+from nupic.support.unittesthelpers.testcasebase import (
+  TestCaseBase as HelperTestCaseBase)
+
 
 
 # Our __main__ entry block sets this to an instance of MyTestEnvironment()
 g_myEnv = None
 
 
-################################################################################
-################################################################################
+
 class MyTestEnvironment(object):
 
-  #========================
+
   def __init__(self):
 
     from optparse import OptionParser
@@ -98,15 +97,11 @@ class MyTestEnvironment(object):
            "%s is not present in filesystem" % self.__opfExperimentsParentDir
     _debugOut("self.__opfExperimentsParentDir=<%s>" % self.__opfExperimentsParentDir)
 
-    return
 
-
-  #========================
   def getOpfRunExperimentPyPath(self):
     return os.path.join(self.__opfBinDir, "OpfRunExperiment.py")
 
 
-  #========================
   def getOpfExperimentPath(self, experimentName):
     """
     experimentName:     e.g., "gym"; this string will be used to form
@@ -121,23 +116,16 @@ class MyTestEnvironment(object):
 
 
 
-
-
-################################################################################
-################################################################################
 class MyTestCaseBase(HelperTestCaseBase):
 
-  #========================
   def setUp(self):
     """ Method called to prepare the test fixture. This is called immediately
     before calling the test method; any exception raised by this method will be
     considered an error rather than a test failure. The default implementation
     does nothing.
     """
-    return
 
 
-  #========================
   def tearDown(self):
     """ Method called immediately after the test method has been called and the
     result recorded. This is called even if the test method raised an exception,
@@ -149,10 +137,8 @@ class MyTestCaseBase(HelperTestCaseBase):
     """
     # Reset our log items
     self.resetExtraLogItems()
-    return
 
 
-  #========================
   def shortDescription(self):
     """ Override to force unittest framework to use test method names instead
     of docstrings in the report.
@@ -160,8 +146,6 @@ class MyTestCaseBase(HelperTestCaseBase):
     return None
 
 
-
-  #========================
   def executePositiveOpfExperiment(self, experimentName, short=False):
     """ Executes a positive OPF RunExperiment test as a subprocess and validates
     its exit status.
@@ -185,7 +169,6 @@ class MyTestCaseBase(HelperTestCaseBase):
     return r
 
 
-  #========================
   def __executePositiveRunExperimentTest(self,
                                         runnerPath,
                                         experimentDirPath,
@@ -241,10 +224,6 @@ class MyTestCaseBase(HelperTestCaseBase):
 
 
 
-
-
-################################################################################
-################################################################################
 class PositiveTests(MyTestCaseBase):
 
   #========================
@@ -262,15 +241,10 @@ class PositiveTests(MyTestCaseBase):
     self.assertEqual(tpActivationThreshold, expectedValue,
                      "Expected tp activationThreshold=%s, but got %s" % (
                       expectedValue, tpActivationThreshold))
-    return
 
 
-  #========================
   def test_run_sub_experiment(self):
     self.executePositiveOpfExperiment(experimentName="gym", short=True)
-    return
-
-
 
 
 
@@ -278,9 +252,6 @@ class PositiveTests(MyTestCaseBase):
 # Support functions
 ################################################################################
 
-
-
-################################################################################
 def _executeExternalCmdAndReapOutputs(args):
   """
   args:     Args list as defined for the args parameter in subprocess.Popen()
@@ -320,10 +291,8 @@ def _executeExternalCmdAndReapOutputs(args):
   return result
 
 
-
-
 g_debug = False
-################################################################################
+
 def _debugOut(msg):
   import sys
   global g_debug
@@ -333,10 +302,7 @@ def _debugOut(msg):
             (callerTraceback.function, callerTraceback.lineno, msg,)
     sys.stdout.flush()
 
-  return
 
-
-################################################################################
 def whois_callers_caller():
   """
   Returns: Traceback namedtuple for our caller's caller
@@ -349,11 +315,7 @@ def whois_callers_caller():
 
 
 
-################################################################################
-################################################################################
-################################################################################
-if __name__ == '__main__':
-
+if __name__ == "__main__":
   g_myEnv = MyTestEnvironment()
 
   sys.argv.append("--verbose")
