@@ -315,9 +315,9 @@ def whois_callers_caller():
 
 
 
-if __name__ == "__main__":
-  g_myEnv = MyTestEnvironment()
+g_myEnv = MyTestEnvironment()
 
+if __name__ == "__main__":
   sys.argv.append("--verbose")
   unittest.longMessage = True
   unittest.main()
