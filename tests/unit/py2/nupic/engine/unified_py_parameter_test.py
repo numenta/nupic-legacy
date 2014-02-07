@@ -56,22 +56,22 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
       # Check the initial value for each parameter.
       print "Parameter = %s" % paramName
       x = l1.getParameter(paramName)
-      assert type(x) == paramtype
+      self.assertEqual(type(x), paramtype)
       if initval is None:
         continue
       if type(x) == float:
-        assert abs(x  - initval) < 0.00001
+        self.assertTrue(abs(x  - initval) < 0.00001)
       else:
-        assert x == initval
+        self.assertEqual(x, initval)
 
       # Now set the value, and check to make sure the value is updated
       l1.setParameter(paramName, newval)
       x = l1.getParameter(paramName)
-      assert type(x) == paramtype
+      self.assertEqual(type(x), paramtype)
       if type(x) == float:
-        assert abs(x  - newval) < 0.00001
+        self.assertTrue(abs(x  - newval) < 0.00001)
       else:
-        assert x == newval
+        self.assertEqual(x, newval)
 
 
   def testArrays(self):
@@ -79,29 +79,29 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
       ("real32ArrayParam", [0*32, 1*32, 2*32, 3*32, 4*32, 5*32, 6*32, 7*32], "Real32"),
       ("int64ArrayParam", [0*64, 1*64, 2*64, 3*64], "Int64")
     ]
-    
+
     n = Network()
     l1= n.addRegion("l1", "TestNode", "")
 
     for paramName, initval, paramtype in arrays:
       print "Parameter = %s" % paramName
       x = l1.getParameter(paramName)
-      assert isinstance(x, nupic.bindings.engine_internal.Array)
-      assert x.getType() == paramtype
-      assert len(x) == len(initval)
+      self.assertTrue(isinstance(x, nupic.bindings.engine_internal.Array))
+      self.assertEqual(x.getType(), paramtype)
+      self.assertEqual(len(x), len(initval))
       for i in xrange(len(x)):
-        assert x[i] == initval[i]
+        self.assertEqual(x[i], initval[i])
 
       for i in xrange(len(x)):
         x[i] = x[i] * 2
       l1.setParameter(paramName, x)
 
       x = l1.getParameter(paramName)
-      assert isinstance(x, nupic.bindings.engine_internal.Array)
-      assert x.getType() == paramtype
-      assert len(x) == len(initval)
+      self.assertTrue(isinstance(x, nupic.bindings.engine_internal.Array))
+      self.assertEqual(x.getType(), paramtype)
+      self.assertEqual(len(x), len(initval))
       for i in xrange(len(x)):
-        assert x[i] == 2 * initval[i]
+        self.assertEqual(x[i], 2 * initval[i])
 
 
 
