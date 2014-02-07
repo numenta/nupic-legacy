@@ -117,8 +117,11 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     raised by this method will be considered an error rather than a test
     failure. The default implementation does nothing.
     """
-
-    pass
+    global g_myEnv
+    if not g_myEnv:
+      # Setup environment
+      params = type('obj', (object,), {'installDir' : os.environ['NTA']})
+      g_myEnv = MyTestEnvironment(params)
 
 
   def tearDown(self):
