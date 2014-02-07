@@ -117,7 +117,7 @@ class NetworkSugarTest(unittest.TestCase):
     r = net.Network().addRegion('r', 'py.TestNode', '')
 
     print r.spec
-    assert r.nodeType == 'py.TestNode'
+    assert r.type == 'py.TestNode'
     assert r.name == 'r'
     assert r.dimensions.isUnspecified()
 
