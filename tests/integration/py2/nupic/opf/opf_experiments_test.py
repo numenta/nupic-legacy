@@ -98,9 +98,7 @@ class OPFExperimentsTest(unittest.TestCase):
     os.chdir(PREDICTION_DIR)
     expDirPathList =  getAllExperimentDirectories(EXCLUDED_EXPERIMENTS)
 
-    if len(expDirPathList)==0:
-      print "Unable to find any prediction experiments"
-      sys.exit(1)
+    self.assertTrue(len(expDirPathList) > 0)
 
     failedExperiments = []
     successExperiments = []
@@ -127,11 +125,7 @@ class OPFExperimentsTest(unittest.TestCase):
         print "Successfully ran experiment: %s" % expDirPath
         successExperiments.append(expDirPath)
 
-    if len(failedExperiments)>0:
-      print "The following experiments failed:", failedExperiments
-      sys.exit(1)
-
-    print "Successfully ran all experiments: %s" % (successExperiments)
+    self.assertEqual(len(failedExperiments), 0)
 
 
 
