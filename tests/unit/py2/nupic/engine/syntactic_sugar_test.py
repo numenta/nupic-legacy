@@ -36,8 +36,8 @@ class NetworkSugarTest(unittest.TestCase):
     self.assertEqual(n.minEnabledPhase, 0)
     self.assertEqual(n.maxEnabledPhase, 0)
 
-    r1 = n.addRegion('r1', 'TestNode', '')
-    r2 = n.addRegion('r2', 'TestNode', '')
+    _r1 = n.addRegion('r1', 'TestNode', '')
+    _r2 = n.addRegion('r2', 'TestNode', '')
 
     self.assertEqual(n.minPhase, 0)
     self.assertEqual(n.maxPhase, 1)
@@ -107,7 +107,8 @@ class NetworkSugarTest(unittest.TestCase):
     self.assertEqual(len(items), 2)
     i1 = items.pop()
     i2 = items.pop()
-    self.assertTrue((i1, i2) == (('r1', r1), ('r2',r2)) or (('r2',r2), ('r1', r1)))
+    self.assertTrue((i1, i2) == (('r1', r1), ('r2', r2)) or
+                                 (('r2', r2), ('r1', r1)))
 
 
   def testRegion(self):
@@ -121,7 +122,8 @@ class NetworkSugarTest(unittest.TestCase):
 
   def testSpec(self):
     ns = net.Region.getSpecFromType('py.TestNode')
-    self.assertEqual(ns.description, 'The node spec of the NuPIC 2 Python TestNode')
+    self.assertEqual(ns.description,
+                     'The node spec of the NuPIC 2 Python TestNode')
 
     n = net.Network()
     r = n.addRegion('r', 'py.TestNode', '')
@@ -142,9 +144,9 @@ class NetworkSugarTest(unittest.TestCase):
     self.assertEqual(str(t), "[Elapsed: 0 Starts: 0]")
     t.start()
     # Dummy time
-    j = 0
+    _j = 0
     for i in xrange(0, 1000):
-      j = i
+      _j = i
     t.stop()
     self.assertTrue(t.elapsed > 0)
     self.assertEqual(t.startCount, 1)
