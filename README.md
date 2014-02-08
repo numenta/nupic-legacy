@@ -32,7 +32,7 @@ Currently supported platforms:
  * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
- * Chromebook (Ubuntu ARM, Crouton) (ARMv7)  
+ * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 Dependencies:
@@ -59,6 +59,11 @@ Add the following to your .bashrc file. Change the paths as needed.
     # Set up the rest of the necessary env variables. Must be done after
     # setting $NTA.
     source $NUPIC/env.sh
+
+If you plan on making changes to NuPIC, add the following to your .bashrc file.
+
+    # Developer mode: make build use symbolic links from source for Python files instead of copying files
+    export NTAX_DEVELOPER_BUILD=1
 
 Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
 compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
@@ -100,4 +105,4 @@ data sets. One example is the hotgym prediction client:
 
     python $NUPIC/examples/opf/clients/hotgym/hotgym.py
 
-Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page. 
+Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page.
