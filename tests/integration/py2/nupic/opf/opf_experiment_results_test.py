@@ -70,8 +70,8 @@ class OPFExperimentsTest(unittest.TestCase):
     # The testdir is the directory that contains the experiments we will be
     #  running. When running in the auto-build setup, this will be a temporary
     #  directory that has had this script, as well as the specific experiments
-    #  we will be running, copied into it by the qa/autotest/prediction_results.py
-    #  script.
+    #  we will be running, copied into it by the
+    #  qa/autotest/prediction_results.py script.
     # When running stand-alone from the command line, we can simply point to the
     #  share/prediction directory in the install tree.
     if not os.path.exists(os.path.join(testDir, "experiments/classification")):
@@ -92,7 +92,7 @@ class OPFExperimentsTest(unittest.TestCase):
 
 
     # Generate any dynamically generated datasets now
-    command = ['python', os.path.join(testDir, 'experiments', 
+    command = ['python', os.path.join(testDir, 'experiments',
                                 'spatial_classification', 'make_datasets.py')]
     retval = call(command)
     self.assertEqual(retval, 0)
@@ -185,7 +185,8 @@ class OPFExperimentsTest(unittest.TestCase):
         }
       },
 
-      # Test missing record support. Should have 0 error by the end of the dataset
+      # Test missing record support.
+      # Should have 0 error by the end of the dataset
       { 'experimentDir': 'experiments/missing_record/simple_0',
         'results': {
           ('DefaultTask.NontemporalMultiStep.predictionLog.csv',
@@ -277,7 +278,7 @@ class OPFExperimentsTest(unittest.TestCase):
       },
 
 
-    ]  
+    ]
 
     anomalyTests = [
       # ----------------------------------------------------------------------
@@ -352,7 +353,6 @@ class OPFExperimentsTest(unittest.TestCase):
       # Check the results
       for (key, expValues) in test['results'].items():
         (logFilename, colName) = key
-        (minValue, maxValue) = expValues
 
         # Open the prediction log file
         logFile = FileRecordStream(os.path.join(expDirectory, 'inference',
