@@ -81,21 +81,21 @@ class OPFExperimentsTest(unittest.TestCase):
     command = ['python', os.path.join(testDir, 'experiments', 'classification',
                                        'makeDatasets.py')]
     retval = call(command)
-    assert (retval == 0)
+    self.assertEqual(retval, 0)
 
 
     # Generate any dynamically generated datasets now
     command = ['python', os.path.join(testDir, 'experiments', 'multistep',
                                        'make_datasets.py')]
     retval = call(command)
-    assert (retval == 0)
+    self.assertEqual(retval, 0)
 
 
     # Generate any dynamically generated datasets now
     command = ['python', os.path.join(testDir, 'experiments', 
                                 'spatial_classification', 'make_datasets.py')]
     retval = call(command)
-    assert (retval == 0)
+    self.assertEqual(retval, 0)
 
 
     # Run from the test directory so that we can find our experiments
@@ -343,8 +343,9 @@ class OPFExperimentsTest(unittest.TestCase):
       # zero and this is a negative test something went wrong.
       if retVal:
         print "Details of failed test: %s" % test
-        raise Exception('TestIdx %d, OPF experiment "%s" failed with return '
-                        'code %i.' % (testIdx, expDirectory, retVal))
+        print("TestIdx %d, OPF experiment '%s' failed with return code %i." %
+              (testIdx, expDirectory, retVal))
+      self.assertFalse(retVal)
 
 
       # -----------------------------------------------------------------------
@@ -357,9 +358,11 @@ class OPFExperimentsTest(unittest.TestCase):
         logFile = FileRecordStream(os.path.join(expDirectory, 'inference',
                                                 logFilename))
         colNames = [x[0] for x in logFile.getFields()]
-        assert colName in colNames, "TestIdx %d: %s not one of the columns in " \
+        if not colName in colNames:
+          print "TestIdx %d: %s not one of the columns in " \
             "prediction log file. Available column names are: %s" % (testIdx,
                     colName, colNames)
+        self.assertTrue(colName in colNames)
         colIndex = colNames.index(colName)
 
         # Read till we get to the last line
@@ -375,13 +378,15 @@ class OPFExperimentsTest(unittest.TestCase):
 
         print "Actual result for %s, %s:" % (expDirectory, colName), result
         print "Expected range:", expValues
-        if (expValues[0] is not None and result < expValues[0]) \
-            or (expValues[1] is not None and result > expValues[1]):
-          raise  Exception("TestIdx %d: Experiment %s failed. \nThe actual result"
+        failed = (expValues[0] is not None and result < expValues[0]) \
+            or (expValues[1] is not None and result > expValues[1])
+        if failed:
+          print ("TestIdx %d: Experiment %s failed. \nThe actual result"
              " for %s (%s) was outside the allowed range of %s" % (testIdx,
               expDirectory, colName, result, expValues))
         else:
           print "  Within expected range."
+        self.assertFalse(failed)
 
 
     # =======================================================================
