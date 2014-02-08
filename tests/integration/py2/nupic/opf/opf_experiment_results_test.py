@@ -349,18 +349,16 @@ def testExperimentResults(opfDir, testDir):
 
 ##############################################################################
 if __name__ == '__main__':
-
-  if len(sys.argv)!=2:
-    print "Usage: python %s install_dir" % (sys.argv[0])
-    print "Example: python %s ~/nta/current" % (sys.argv[0])
-    sys.exit()
-
-  installDir = os.path.abspath(sys.argv[1])
-  testDir = os.path.dirname(os.path.abspath(__file__))
-
-  # Find the path to the examples/opf directory. This is where
-  #  OpfRunExperiment resides.
-  opfDir = os.path.join(installDir, "share/opf")
+  opfDir = os.path.abspath(
+         os.path.join(os.path.dirname(__file__),
+                      os.path.pardir,
+                      os.path.pardir,
+                      os.path.pardir,
+                      os.path.pardir,
+                      os.path.pardir,
+                      "examples",
+                      "opf"))
+  testDir = opfDir
 
   # The testdir is the directory that contains the experiments we will be
   #  running. When running in the auto-build setup, this will be a temporary
