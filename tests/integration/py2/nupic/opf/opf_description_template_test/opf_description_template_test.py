@@ -59,6 +59,9 @@ class MyTestEnvironment(object):
                       dest="installDir",
                       action="store", type="string", default="",
                       metavar="<INSTALLDIR>")
+    parser.add_option("-a", "--all", action="store_true",
+                     dest="runAllExperiments", default=False,
+                     help="Don't exclude any experiments.")
 
     (options, remainingArgs) = parser.parse_args()
     _debugOut("remainingArgs: <%s>" % (remainingArgs,))
