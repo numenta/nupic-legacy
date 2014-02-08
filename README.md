@@ -74,7 +74,7 @@ _Note_: If using pip 1.5 or later:
 
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
-_Note_: If you get a "permission denied" error when using pip, add the --user flag.
+_Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with 'sudo' to install in the root directory.
 
 Build and install NuPIC:
 
