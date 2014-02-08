@@ -36,7 +36,7 @@ from nupic.data.file_record_stream import FileRecordStream
 
 
 
-class OPFExperimentsTest(unittest.TestCase):
+class OPFExperimentResultsTest(unittest.TestCase):
 
 
   def testExperimentResults(self):
