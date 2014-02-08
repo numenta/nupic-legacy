@@ -141,6 +141,10 @@ class MyTestCaseBase(HelperTestCaseBase):
     considered an error rather than a test failure. The default implementation
     does nothing.
     """
+    global g_myEnv
+    if not g_myEnv:
+      # Setup environment
+      g_myEnv = MyTestEnvironment()
 
 
   def tearDown(self):
@@ -329,9 +333,9 @@ def whoisCallersCaller():
 
 
 
-g_myEnv = MyTestEnvironment()
-
 if __name__ == "__main__":
+  g_myEnv = MyTestEnvironment()
+
   sys.argv.append("--verbose")
   unittest.longMessage = True
   unittest.main()
