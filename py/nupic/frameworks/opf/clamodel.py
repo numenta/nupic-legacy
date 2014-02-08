@@ -1104,17 +1104,17 @@ class CLAModel(Model):
       #                 hours[, weeks]]]]]]])
       if not (0 == dd['days'] == dd['hours'] == dd['minutes'] == dd['seconds'] \
               == dd['milliseconds'] == dd['microseconds'] == dd['weeks']):
-        timeDelta = timedelta(days=dd['days'],
-                              hours=dd['hours'],
-                              minutes=dd['minutes'],
-                              seconds=dd['seconds'],
-                              milliseconds=dd['milliseconds'],
-                              microseconds=dd['microseconds'],
-                              weeks=dd['weeks'])
+        interval = timedelta(days=dd['days'],
+                             hours=dd['hours'],
+                             minutes=dd['minutes'],
+                             seconds=dd['seconds'],
+                             milliseconds=dd['milliseconds'],
+                             microseconds=dd['microseconds'],
+                             weeks=dd['weeks'])
 
         self.__logger.debug(
           "Adding AutoResetFilter; sensorAutoResetDict: %r, timeDelta: %r" % (
-            sensorAutoResetDict, timeDelta))
+            sensorAutoResetDict, interval))
 
         # see if sensor already has an autoreset filter
         for filter_ in sensor.preEncodingFilters:
@@ -1124,7 +1124,7 @@ class CLAModel(Model):
           filter_ = AutoResetFilter()
           sensor.preEncodingFilters.append(filter_)
 
-        filter_.setInterval(timedelta)
+        filter_.setInterval(interval)
 
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
