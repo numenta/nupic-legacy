@@ -158,7 +158,7 @@ config = {
             'sensorAutoReset' : None,
         },
 
-        'spEnable': False,
+        'spEnable': True,
 
         'spParams': {
             # SP diagnostic output verbosity control;
@@ -284,7 +284,7 @@ config = {
             # connected synapses that are active due to infActiveState
             # None=use default
             # Replaces: tpActivationThreshold
-            'activationThreshold': 16,
+            'activationThreshold': 12,
 
             'outputType': 'normal',
 
