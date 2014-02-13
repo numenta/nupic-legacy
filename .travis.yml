@@ -53,7 +53,10 @@ install:
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
   - pip install -q -r $NUPIC/external/common/requirements.txt
-  - "$NUPIC/build.sh"
+  - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  - "cmake $NUPIC"
+  - "make -j3"
 
 script:
   # legacy binary tests
