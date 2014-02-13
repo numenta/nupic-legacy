@@ -6,9 +6,6 @@ python:
   - "2.6"
   - "2.7"
 
-git:
-  submodules: false
-
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
