@@ -62,6 +62,7 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
+  - "cd $NUPIC"
   - "$NUPIC/run_tests.sh --all"
 
   # run all example files
