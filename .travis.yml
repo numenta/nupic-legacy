@@ -57,6 +57,7 @@ install:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake $NUPIC"
   - "make -j3"
+  - "cd"
 
 script:
   # legacy binary tests
