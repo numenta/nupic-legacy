@@ -205,7 +205,7 @@ get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 # 'release' is a subdirectory created on repository root,
 # but if it already is specified on $NTA environment variable, simply re-use it!
 if("$ENV{NTA}" STREQUAL "")
-  set(CMAKE_INSTALL_PREFIX "${REPOSITORY_DIR}/release")
+  set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/nta/eng")
 else()
   set(CMAKE_INSTALL_PREFIX "$ENV{NTA}")
 endif()
@@ -530,7 +530,7 @@ endif()
 #
 if(NTA_PYTHON_SUPPORT)
 
-  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR}")
+  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR}")
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
@@ -1039,6 +1039,35 @@ endif()
 ###  Post configuration operations                                                                                       ###
 ###                                                                                                                      ###
 ############################################################################################################################
+
+#
+# Create file with unit tests used by TestEverything
+#
+set(FILES_RETURNED)
+get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.cpp")
+set(files ${FILES_RETURNED})
+set(file_content "")
+foreach(file ${files})
+  get_filename_component(test ${file} NAME_WE)
+  if(NOT ${test} MATCHES "TesterTest")
+    set(file_content "${file_content}ADD_TEST(${test});\n")
+  endif()
+endforeach()
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${file_content}")
+
+#
+# Create file with headers of unit tests used by TestEverything
+#
+set(FILES_RETURNED)
+get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.hpp")
+set(files ${FILES_RETURNED})
+set(file_content "")
+foreach(file ${files})
+  if(NOT ${file} MATCHES "TesterTest")
+    set(file_content "${file_content}#include \"${file}\"\n")
+  endif()
+endforeach()
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${file_content}")
 
 # Copy platform independent executable scripts
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
