@@ -1041,33 +1041,22 @@ endif()
 ############################################################################################################################
 
 #
-# Create file with unit tests used by TestEverything
-#
-set(FILES_RETURNED)
-get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.cpp")
-set(files ${FILES_RETURNED})
-set(file_content "")
-foreach(file ${files})
-  get_filename_component(test ${file} NAME_WE)
-  if(NOT ${test} MATCHES "TesterTest")
-    set(file_content "${file_content}ADD_TEST(${test});\n")
-  endif()
-endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${file_content}")
-
-#
-# Create file with headers of unit tests used by TestEverything
+# Create files with unit tests used by TestEverything
 #
 set(FILES_RETURNED)
 get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.hpp")
 set(files ${FILES_RETURNED})
-set(file_content "")
+set(addtests_content "")
+set(headers_content "")
 foreach(file ${files})
-  if(NOT ${file} MATCHES "TesterTest")
-    set(file_content "${file_content}#include \"${file}\"\n")
+  get_filename_component(test ${file} NAME_WE)
+  if(NOT ${test} MATCHES "TesterTest")
+    set(addtests_content "${addtests_content}ADD_TEST(${test});\n")
+    set(headers_content "${headers_content}#include \"${file}\"\n")
   endif()
 endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${file_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${addtests_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${headers_content}")
 
 # Copy platform independent executable scripts
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
