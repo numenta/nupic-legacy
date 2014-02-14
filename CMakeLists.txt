@@ -168,13 +168,21 @@ endmacro()
 # Set c and c++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
-set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=none]")
+set(SYSTEM_COMPILER "")
+if($ENV{CC} MATCHES "clang")
+  set(SYSTEM_COMPILER "CLANG")
+elseif($ENV{CC} MATCHES "gcc")
+  set(SYSTEM_COMPILER "GCC")
+endif()
+set(DEFAULT_COMPILER "${SYSTEM_COMPILER}" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=system compiler]")
 if("${DEFAULT_COMPILER}" STREQUAL "CLANG")
   set(CMAKE_C_COMPILER "clang")
   set(CMAKE_CXX_COMPILER "clang++")
 elseif("${DEFAULT_COMPILER}" STREQUAL "GCC")
   set(CMAKE_C_COMPILER "gcc")
   set(CMAKE_CXX_COMPILER "g++")
+else()
+  message(FATAL_ERROR "Only GCC or CLANG compilers are accepted by Nupic. If you have these compilers use DEFAULT_COMPILER option or CC environment variables to specify them.")
 endif()
 
 cmake_minimum_required(VERSION 2.8)
