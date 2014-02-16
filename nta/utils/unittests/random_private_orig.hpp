@@ -21,10 +21,10 @@
 * ---------------------------------------------------------------------
 */
 
-#ifndef NTA_RANDOM_PRIVATE_ORIG_H
-#define NTA_RANDOM_PRIVATE_ORIG_H
+#ifndef NTA_RANDOM_PRIVATE_ORIG_HPP
+#define NTA_RANDOM_PRIVATE_ORIG_HPP
 
 void mysrandom(unsigned long x);
 long myrandom();
 
-#endif // NTA_RANDOM_PRIVATE_ORIG_H
+#endif // NTA_RANDOM_PRIVATE_ORIG_HPP
