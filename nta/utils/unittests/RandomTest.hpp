@@ -31,7 +31,7 @@
 
 #include <nta/utils/Random.hpp>
 #include <nta/test/Tester.hpp>
-#include "random_private_orig.hpp"
+#include "random_private_orig.h"
 
 namespace nta {
   
