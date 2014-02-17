@@ -440,7 +440,7 @@ set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/c
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -std=c++0x -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
 
 #
 # All executables and plugins are linked with these flags
@@ -514,7 +514,7 @@ message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 # Set GNU c/c++ flags in case of CLang is off.
 #
 if("${DEFAULT_COMPILER}" STREQUAL "GCC")
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wsign-compare")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
