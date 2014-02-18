@@ -165,12 +165,12 @@ endmacro()
 ############################################################################################################################
 
 #
-# Set c and c++ compiler.
+# Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
-set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=system compiler]")
-if(NOT "${DEFAULT_COMPILER}" STREQUAL "")
-  set(CMAKE_CXX_COMPILER "${DEFAULT_COMPILER}")
+set(USER_CXX_COMPILER "" CACHE STRING "Default C++ compiler to be used (GCC / CLANG) [default=system compiler]")
+if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
+  set(CMAKE_CXX_COMPILER "${USER_CXX_COMPILER}")
 endif()
 
 cmake_minimum_required(VERSION 2.8)
@@ -178,7 +178,7 @@ project(Nupic CXX)
 
 # Check if default C/C++ compiler is GNU or CLANG, otherwise exit with error.  
 if(NOT(CMAKE_COMPILER_IS_GNUCXX OR ${CMAKE_CXX_COMPILER} MATCHES "clang"))
-  message(FATAL_ERROR "${CMAKE_CXX_COMPILER} compiler not supported yet. If you have GNU or CLANG C++ compiler installed on your machine change $CXX environment variable or pass its location through DEFAULT_COMPILER option.")
+  message(FATAL_ERROR "${CMAKE_CXX_COMPILER} compiler not supported yet. If you have GNU or CLANG C++ compiler installed on your machine change $CXX environment variable or pass its location through USER_CXX_COMPILER option.")
 endif()
 
 #
