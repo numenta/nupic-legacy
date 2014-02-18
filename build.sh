@@ -118,7 +118,7 @@ function cleanUpEnv {
 mkdir -p `dirname $STDOUT`
 {
   checkEnv
-  exit
+
   syncCoreSubmodule
   prepDirectories
 
