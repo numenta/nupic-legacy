@@ -168,17 +168,18 @@ endmacro()
 # Set c and c++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
-set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=none]")
-if("${DEFAULT_COMPILER}" STREQUAL "CLANG")
-  set(CMAKE_C_COMPILER "clang")
-  set(CMAKE_CXX_COMPILER "clang++")
-elseif("${DEFAULT_COMPILER}" STREQUAL "GCC")
-  set(CMAKE_C_COMPILER "gcc")
-  set(CMAKE_CXX_COMPILER "g++")
+set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=system compiler]")
+if(${DEFAULT_COMPILER} MATCHES "clang" OR ${DEFAULT_COMPILER} MATCHES "g[+][+]")
+  set(CMAKE_CXX_COMPILER "${DEFAULT_COMPILER}")
 endif()
 
 cmake_minimum_required(VERSION 2.8)
-project(Nupic)
+project(Nupic CXX)
+
+# Check if default C/C++ compiler is GNU or CLANG, otherwise exit with error.  
+if(NOT(CMAKE_COMPILER_IS_GNUCXX OR ${CMAKE_CXX_COMPILER} MATCHES "clang"))
+  message(FATAL_ERROR "${CMAKE_CXX_COMPILER} compiler not supported yet. If you have GNU or CLANG C++ compiler installed on your machine change $CXX environment variable or pass its location through DEFAULT_COMPILER option.")
+endif()
 
 #
 # Sets default locations.
@@ -513,7 +514,7 @@ message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 #
 # Set GNU c/c++ flags in case of CLang is off.
 #
-if("${DEFAULT_COMPILER}" STREQUAL "GCC")
+if(CMAKE_COMPILER_IS_GNUCXX)
   set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
