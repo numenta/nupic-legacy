@@ -515,7 +515,7 @@ message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 # Set GNU c/c++ flags in case of CLang is off.
 #
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE}")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
