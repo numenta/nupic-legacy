@@ -446,7 +446,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -lm -lpthread -ldl -lutil -lstdc++ ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 
 message(STATUS "Options:")
