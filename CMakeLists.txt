@@ -169,7 +169,7 @@ endmacro()
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
 set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=system compiler]")
-if(${DEFAULT_COMPILER} MATCHES "clang" OR ${DEFAULT_COMPILER} MATCHES "g[+][+]")
+if(NOT "${DEFAULT_COMPILER}" STREQUAL "")
   set(CMAKE_CXX_COMPILER "${DEFAULT_COMPILER}")
 endif()
 
