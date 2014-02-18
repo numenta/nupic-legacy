@@ -51,6 +51,16 @@ function exitOnError {
   fi
 }
 
+function checkEnv {
+  if [[ "${NTA}" == "${NUPIC}" ]] ; then
+    {
+      echo "\$NTA and \$NUPIC environment variables cannot have the same value."
+      echo "Please see the README for installation instructions."
+      exitOnError 1
+    }
+  fi
+}
+
 function prepDirectories {
   [[ -d $NUPIC_INSTALL ]] && echo "Warning: directory \"$NUPIC_INSTALL\" already exists and may contain (old) data. Consider removing it. "
   [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
@@ -107,6 +117,8 @@ function cleanUpEnv {
 # Redirect stdout to a file but still print stderr.
 mkdir -p `dirname $STDOUT`
 {
+  checkEnv
+  exit
   syncCoreSubmodule
   prepDirectories
 
