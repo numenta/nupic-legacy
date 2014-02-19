@@ -219,7 +219,8 @@ set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 #
 # Update repository submodules
 #
-execute_process(COMMAND ${PROJECT_SOURCE_DIR}/nta/git submodule update
+execute_process(COMMAND git submodule update
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/nta
                 RESULT_VARIABLE EXIT_CODE)
 if(NOT EXIT_CODE EQUAL 0)
   message(FATAL_ERROR "It was not possible update nupic.core.")
