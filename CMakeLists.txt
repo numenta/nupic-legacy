@@ -31,16 +31,13 @@
 
 # This macro updates a repository submodule
 macro (update_submodule submodule_dir)
-  message(STATUS "Copying from '${src}' to '${dst}'")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${src} ${dst})
-  
   execute_process(COMMAND git submodule init
                   WORKING_DIRECTORY ${submodule_dir}
                   RESULT_VARIABLE submodule_init_exit_code)
   execute_process(COMMAND git submodule update
                   WORKING_DIRECTORY ${submodule_dir}
                   RESULT_VARIABLE submodule_update_exit_code)
-  if((submodule_init_exit_code EQUAL 0) OR (submodule_update_exit_code EQUAL 0))
+  if(NOT(submodule_init_exit_code EQUAL 0 AND submodule_update_exit_code EQUAL 0))
     message(FATAL_ERROR "It was not possible update '${submodule_dir}' submodule.")
   endif()
 endmacro()
