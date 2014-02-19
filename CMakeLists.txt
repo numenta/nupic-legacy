@@ -29,6 +29,22 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
+# This macro updates a repository submodule
+macro (update_submodule submodule_dir)
+  message(STATUS "Copying from '${src}' to '${dst}'")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${src} ${dst})
+  
+  execute_process(COMMAND git submodule init
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE submodule_init_exit_code)
+  execute_process(COMMAND git submodule update
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE submodule_update_exit_code)
+  if((submodule_init_exit_code EQUAL 0) OR (submodule_update_exit_code EQUAL 0))
+    message(FATAL_ERROR "It was not possible update '${submodule_dir}' submodule.")
+  endif()
+endmacro()
+
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -218,15 +234,7 @@ set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 #
 # Update repository submodules
 #
-execute_process(COMMAND git submodule init
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/nta
-                RESULT_VARIABLE SUBMODULE_INIT_EXIT_CODE)
-execute_process(COMMAND git submodule update
-                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/nta
-                RESULT_VARIABLE SUBMODULE_UPDATE_EXIT_CODE)
-if((SUBMODULE_INIT_EXIT_CODE EQUAL 0) OR (SUBMODULE_UPDATE_EXIT_CODE EQUAL 0))
-  message(FATAL_ERROR "It was not possible update nupic.core.")
-endif()
+update_submodule("${PROJECT_SOURCE_DIR}/nta")
 
 #
 # Set OS flags
