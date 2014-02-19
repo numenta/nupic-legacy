@@ -59,10 +59,10 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 ## Build and test NuPIC:
 
 Important notes:
- * $REPOSITORY is the current location of the repository that you downloaded from GitHub. Usually its name is "nupic-master".
+ * $REPOSITORY is the current location of the repository that you downloaded from GitHub.
  * After CMake generation, two useful environment variables will be created:
-   * $NUPIC which references $REPOSITORY (ie directory with all source code)
-   * $NTA which references $HOME/nta/eng (ie directory with all executables and libraries generated from build process). In case of this variable already is set on your system, $REPOSITORY/release creation will be discarded, and $NTA will be re-used.
+   * $NUPIC, which is the same as $REPOSITORY
+   * $NTA, which references $HOME/nta/eng (the directory with all executables and libraries generated from build process). If this variable is already set, the $REPOSITORY/release will not be created, and $NTA will be used as the release directory.
 
 ### Using command line
 
@@ -76,7 +76,7 @@ Important notes:
     cd $REPOSITORY/build_system
     make -j3
     
-Note: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will can use during build in order to gain speed. However you can increase this number depending your CPU.
+> **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
 #### Run the C++ tests:
 
