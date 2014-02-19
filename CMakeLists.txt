@@ -217,6 +217,15 @@ set(TEMP_BUILD_DIR "/tmp/ntabuild")
 set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 
 #
+# Update repository submodules
+#
+execute_process(COMMAND ${PROJECT_SOURCE_DIR}/nta/git submodule update
+                RESULT_VARIABLE EXIT_CODE)
+if(NOT EXIT_CODE EQUAL 0)
+  message(FATAL_ERROR "It was not possible update nupic.core.")
+endif()
+
+#
 # Set OS flags
 #
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
