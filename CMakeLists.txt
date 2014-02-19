@@ -109,7 +109,6 @@ macro(generate_executable name cxx_flags source_files link_flags libraries)
   )
   set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
   set_target_properties(${name} PROPERTIES LINK_FLAGS "${link_flags}")
-  message("LINK: ${link_flags}")
 endmacro()
 
 # This macro generates a static library
