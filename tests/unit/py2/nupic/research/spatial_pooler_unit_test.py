@@ -141,7 +141,7 @@ class SpatialPoolerTest(unittest.TestCase):
     Given a specific input and initialization params the SP should return this
     exact output.
     
-    This test replicates mer-960 where the output differed between OSX and Linux
+    Previously output varied between platforms (OSX/Linux etc)
     '''
     
     expectedOutput = [10, 29, 110, 114, 210, 221, 253, 260, 289, 340, 393, 408,
