@@ -58,10 +58,6 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-If you are manually building, be sure to update the `nupic.core` submodule by running the following command first:
-
-    git submodule update
-
 Important notes:
  * $REPOSITORY is the current location of the repository that you downloaded from GitHub. Usually its name is "nupic-master".
  * After CMake generation, two useful environment variables will be created:
