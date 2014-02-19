@@ -30,9 +30,11 @@ import unittest2 as unittest
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
   getNumpyRandomGenerator, getSeed )
 from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
-                                 SM32 as SparseMatrix)
+                                 SM32 as SparseMatrix,
+                                 GetNTAReal)
 from nupic.research.spatial_pooler import SpatialPooler
 
+realDType = GetNTAReal()
 
 class SpatialPoolerTest(unittest.TestCase):
   """Unit Tests for SpatialPooler class."""
@@ -132,6 +134,69 @@ class SpatialPoolerTest(unittest.TestCase):
       potential = sp._potentialPools.getRow(i)
       perm = sp._permanences.getRow(i)
       self.assertEqual(list(perm), list(potential))
+
+
+  def testExactOutput(self):
+    '''
+    Given a specific input and initialization params the SP should return this
+    exact output.
+    
+    This test replicates mer-960 where the output differed between OSX and Linux
+    '''
+    
+    expectedOutput = [10, 29, 110, 114, 210, 221, 253, 260, 289, 340, 393, 408,
+                      473, 503, 534, 639, 680, 712, 739, 791, 905, 912, 961,
+                      1048, 1086, 1131, 1173, 1210, 1223, 1261, 1276, 1285,
+                      1302, 1617, 1679, 1712, 1721, 1780, 1920, 1951]
+    
+    sp = SpatialPooler(
+      inputDimensions = [1,188],
+      columnDimensions = [2048, 1],
+      potentialRadius = 94,
+      potentialPct = 0.5,
+      globalInhibition = 1,
+      localAreaDensity = -1.0,
+      numActiveColumnsPerInhArea = 40.0,
+      stimulusThreshold = 0,
+      synPermInactiveDec = 0.01,
+      synPermActiveInc = 0.1,
+      synPermConnected = 0.1,
+      minPctOverlapDutyCycle=0.001,
+      minPctActiveDutyCycle=0.001,
+      dutyCyclePeriod = 1000,
+      maxBoost = 10.0,
+      seed = 1956,
+      spVerbosity = 0
+      
+    )
+    
+
+    inputVector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0,
+                   1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0,
+                   1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                   1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                   0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    
+    inputArray = numpy.array(inputVector).astype(realDType)
+    
+    activeArray = numpy.zeros(2048)
+    
+    sp.compute(inputArray, 1, activeArray)
+    
+    # Get only the active column indices
+    spOutput = [i for i, v in enumerate(activeArray) if v != 0]
+    self.assertEqual(spOutput, expectedOutput)
 
 
   def testStripNeverLearned(self):
