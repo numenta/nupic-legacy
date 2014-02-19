@@ -110,7 +110,7 @@ Note: -j3 option specify '3' as the maximum number of parallel jobs/threads that
 ### Run the Python unit tests:
 
     cd $NUPIC
-    $NUPIC/run_tests.sh --all
+    $NUPIC/run_tests.sh
 
 ### Examples
 
