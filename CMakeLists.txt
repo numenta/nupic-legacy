@@ -29,6 +29,19 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
+# This macro updates a repository submodule
+macro (update_submodule submodule_dir)
+  execute_process(COMMAND git submodule init
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE submodule_init_exit_code)
+  execute_process(COMMAND git submodule update
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE submodule_update_exit_code)
+  if(NOT(submodule_init_exit_code EQUAL 0 AND submodule_update_exit_code EQUAL 0))
+    message(FATAL_ERROR "It was not possible update '${submodule_dir}' submodule.")
+  endif()
+endmacro()
+
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -109,7 +122,6 @@ macro(generate_executable name cxx_flags source_files link_flags libraries)
   )
   set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
   set_target_properties(${name} PROPERTIES LINK_FLAGS "${link_flags}")
-  message("LINK: ${link_flags}")
 endmacro()
 
 # This macro generates a static library
@@ -215,6 +227,11 @@ endif()
 set(TEMP_BUILD_DIR "/tmp/ntabuild")
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
+
+#
+# Update repository submodules
+#
+update_submodule("${PROJECT_SOURCE_DIR}/nta")
 
 #
 # Set OS flags
