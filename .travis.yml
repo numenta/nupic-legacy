@@ -7,7 +7,7 @@ python:
   - "2.7"
 
 git:
-  - submodules: false
+  submodules: false
 
 env:
   global:
