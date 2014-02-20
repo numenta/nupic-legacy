@@ -404,11 +404,6 @@ set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
 set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
 set_environment_variable(LD_LIBRARY_PATH "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" ON)
 set_environment_variable(DYLD_LIBRARY_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" ON)
-if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "")
-  set_environment_variable(NTAX_DEVELOPER_BUILD "1" OFF)
-else()
-  show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
-endif()
 # If $NTA (ie 'release' directory) already is set, don't change it!
 if("$ENV{NTA}" STREQUAL "")
   set_environment_variable(NTA "${CMAKE_INSTALL_PREFIX}" OFF)
@@ -423,6 +418,7 @@ if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
   message(STATUS "  (some variables will be updated only after login.)")
 endif()
+show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 
 #
 # Project details
