@@ -404,7 +404,7 @@ set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
 set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
 set_environment_variable(LD_LIBRARY_PATH "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" ON)
 set_environment_variable(DYLD_LIBRARY_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" ON)
-set_environment_variable(NTAX_DEVELOPER_BUILD "1")
+set_environment_variable(NTAX_DEVELOPER_BUILD "1" OFF)
 # If $NTA (ie 'release' directory) already is set, don't change it!
 if("$ENV{NTA}" STREQUAL "")
   set_environment_variable(NTA "${CMAKE_INSTALL_PREFIX}" OFF)
