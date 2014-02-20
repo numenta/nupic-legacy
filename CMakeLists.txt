@@ -29,16 +29,6 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
-# This macro updates a repository submodule
-macro (update_submodules)
-  execute_process(COMMAND git submodule update --init
-                  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-                  RESULT_VARIABLE submodule_update_exit_code)
-  if(NOT(submodule_update_exit_code EQUAL 0))
-    message(FATAL_ERROR "Updating submodules within ${PROJECT_SOURCE_DIR} failed.")
-  endif()
-endmacro()
-
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -228,7 +218,12 @@ set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 #
 # Update repository submodules
 #
-update_submodules()
+execute_process(COMMAND git submodule update --init
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                RESULT_VARIABLE EXIT_CODE)
+if(NOT EXIT_CODE EQUAL 0)
+  message(FATAL_ERROR "Updating submodules within ${PROJECT_SOURCE_DIR} failed.")
+endif()
 
 #
 # Set OS flags
@@ -323,7 +318,8 @@ message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}
 # Instead we just use a shell command to execute a simple python command, if exit code is 0 ('success') then we have python installed.
 #
 message(STATUS "Checking software tools...")
-execute_process(COMMAND python --version RESULT_VARIABLE EXIT_CODE)
+execute_process(COMMAND python --version
+                RESULT_VARIABLE EXIT_CODE)
 if(NOT EXIT_CODE EQUAL 0)
   message(FATAL_ERROR "System Python not found. You do not have a system version of Python or it is not set on environment path.")
 endif()
