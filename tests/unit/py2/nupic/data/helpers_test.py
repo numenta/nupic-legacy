@@ -38,8 +38,6 @@ class HelpersTest(unittest.TestCase):
 
     # Make sure the local data is there
     self.assertTrue(("data") in dd)
-    # Make sure there are no duplicates
-    self.assertEqual(len(set(dd)), len(dd))
 
     ntaDataPath = os.environ.get('NTA_DATA_PATH', None)
     os.environ['NTA_DATA_PATH'] = 'XXX:YYY'
