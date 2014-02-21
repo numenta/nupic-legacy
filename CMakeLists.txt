@@ -65,13 +65,23 @@ macro (set_environment_variable variable value incremental)
 endmacro()
 
 # These macros copy all source directories after the configuration is done
-macro (copy_directory src dst)
-  message(STATUS "Copying from '${src}' to '${dst}'")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${src} ${dst})
+# Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
+macro (copy suffix src dst)  
+  if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
+    message(STATUS "Linking from '${src}' to '${dst}'")
+    get_filename_component(dst_dir ${dst} PATH)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${dst_dir})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dst})
+  else()
+    message(STATUS "Copying from '${src}' to '${dst}'")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy${suffix} ${src} ${dst})
+  endif()
 endmacro()
 macro (copy_file src dst)
-  message(STATUS "Copying from '${src}' to '${dst}'")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${src} ${dst})
+  copy("" ${src} ${dst})
+endmacro()
+macro (copy_directory src dst)
+  copy("_directory" ${src} ${dst})
 endmacro()
 
 # This macro get all files from a directory and its subdirectories.
@@ -1054,30 +1064,19 @@ endif()
 # Create file with unit tests used by TestEverything
 #
 set(FILES_RETURNED)
-get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.cpp")
-set(files ${FILES_RETURNED})
-set(file_content "")
-foreach(file ${files})
-  get_filename_component(test ${file} NAME_WE)
-  if(NOT ${test} MATCHES "TesterTest")
-    set(file_content "${file_content}ADD_TEST(${test});\n")
-  endif()
-endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${file_content}")
-
-#
-# Create file with headers of unit tests used by TestEverything
-#
-set(FILES_RETURNED)
 get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.hpp")
 set(files ${FILES_RETURNED})
-set(file_content "")
+set(tests_file_content "")
+set(headers_file_content "")
 foreach(file ${files})
+  get_filename_component(test ${file} NAME_WE)
   if(NOT ${file} MATCHES "TesterTest")
-    set(file_content "${file_content}#include \"${file}\"\n")
+    set(tests_file_content "${tests_file_content}ADD_TEST(${test});\n")
+    set(headers_file_content "${headers_file_content}#include \"${file}\"\n")
   endif()
 endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${file_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${tests_file_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${headers_file_content}")
 
 # Copy platform independent executable scripts
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
