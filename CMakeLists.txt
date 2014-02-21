@@ -21,7 +21,7 @@
 # Contributor(s):
 #   David Ragazzi (@DavidRagazzi): Full conversion and adaptation from Autotools scripts
 # --------------------------------------------------------------------------------------------------------------------------
-
+ 
 
 ############################################################################################################################
 ###                                                                                                                      ###
@@ -65,13 +65,23 @@ macro (set_environment_variable variable value incremental)
 endmacro()
 
 # These macros copy all source directories after the configuration is done
-macro (copy_directory src dst)
-  message(STATUS "Copying from '${src}' to '${dst}'")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${src} ${dst})
+# Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
+macro (copy suffix src dst)  
+  if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
+    message(STATUS "Linking from '${src}' to '${dst}'")
+    get_filename_component(dst_dir ${dst} PATH)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${dst_dir})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dst})
+  else()
+    message(STATUS "Copying from '${src}' to '${dst}'")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy${suffix} ${src} ${dst})
+  endif()
 endmacro()
 macro (copy_file src dst)
-  message(STATUS "Copying from '${src}' to '${dst}'")
-  execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${src} ${dst})
+  copy("" ${src} ${dst})
+endmacro()
+macro (copy_directory src dst)
+  copy("_directory" ${src} ${dst})
 endmacro()
 
 # This macro get all files from a directory and its subdirectories.
@@ -165,20 +175,16 @@ endmacro()
 ############################################################################################################################
 
 #
-# Set c and c++ compiler.
+# Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
-set(DEFAULT_COMPILER "" CACHE STRING "Default C/C++ compiler to be used (GCC / CLANG) [default=none]")
-if("${DEFAULT_COMPILER}" STREQUAL "CLANG")
-  set(CMAKE_C_COMPILER "clang")
-  set(CMAKE_CXX_COMPILER "clang++")
-elseif("${DEFAULT_COMPILER}" STREQUAL "GCC")
-  set(CMAKE_C_COMPILER "gcc")
-  set(CMAKE_CXX_COMPILER "g++")
+set(USER_CXX_COMPILER "" CACHE STRING "Default C++ compiler to be used (GCC / CLANG) [default=system compiler]")
+if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
+  set(CMAKE_CXX_COMPILER "${USER_CXX_COMPILER}")
 endif()
 
 cmake_minimum_required(VERSION 2.8)
-project(Nupic)
+project(Nupic CXX)
 
 #
 # Sets default locations.
@@ -215,6 +221,16 @@ set(TEMP_BUILD_DIR "/tmp/ntabuild")
 set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 
 #
+# Update repository submodules
+#
+execute_process(COMMAND git submodule update --init
+                WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                RESULT_VARIABLE EXIT_CODE)
+if(NOT EXIT_CODE EQUAL 0)
+  message(FATAL_ERROR "Updating submodules within ${PROJECT_SOURCE_DIR} failed.")
+endif()
+
+#
 # Set OS flags
 #
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -241,13 +257,13 @@ else()
   set(NTA_PLATFORM_ARCH "32")
 endif()
 if(OSX)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET "${_CURRENT_OSX_VERSION}")
+  set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
   set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC -m64")
   set(NTA_PLATFORM_ASFLAGS "")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
   set(NTA_PLATFORM_LINKFLAGS "-Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "-liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -std=c++11 -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
   set(NTA_PLATFORM_MPI_EXTRA_LIBS "")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
@@ -257,11 +273,10 @@ elseif(LINUX)
     set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC -m64")
     set(NTA_PLATFORM_ASFLAGS "-msse2")
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
-    # NTA_PLATFORM_LINKFLAGS="-static-libgcc"
+    set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
     # pthread needed by libapr-1
-    set(NTA_PLATFORM_LIBS "-lm -lpthread -ldl -lutil -lstdc++")
+    set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -lm -lpthread -ldl -lutil")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
-    set(NTA_PLATFORM_LINKFLAGS_TEST "-Wl,-R\${libdir}/test")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
   else()    
@@ -269,10 +284,9 @@ elseif(LINUX)
     set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC -ffloat-store")
     set(NTA_PLATFORM_ASFLAGS "")
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
-    set(NTA_PLATFORM_LINKFLAGS "-static-libgcc")
-    set(NTA_PLATFORM_LIBS "-lm -lstdc++ -lpthread -ldl -lutil -lrt")
+    set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
+    set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -lm -lpthread -ldl -lutil -lrt")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
-    set(NTA_PLATFORM_LINKFLAGS_TEST "-Wl,-R\${libdir}/test")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
   endif()
@@ -284,7 +298,6 @@ elseif(WINDOWS)
   set(NTA_PLATFORM_LINKFLAGS "")
   set(NTA_PLATFORM_LIBS "")
   set(NTA_PLATFORM_MPI_EXTRA_LIBS "")
-  set(NTA_PLATFORM_LINKFLAGS_TEST "")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 else()
@@ -299,7 +312,6 @@ message(STATUS "  CXX flags: ${NTA_PLATFORM_CXXFLAGS}")
 message(STATUS "  AS flags: ${NTA_PLATFORM_ASFLAGS}")
 message(STATUS "  Debug flags: ${NTA_PLATFORM_DEBUGFLAGS}")
 message(STATUS "  LD flags: ${NTA_PLATFORM_LINKFLAGS}")
-message(STATUS "  Test library link flags: ${NTA_PLATFORM_LINKFLAGS_TEST}")
 message(STATUS "  Python extension link flags: ${NTA_PLATFORM_LINKFLAGS_PYMODULE}")
 message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}")
 
@@ -311,7 +323,8 @@ message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}
 # Instead we just use a shell command to execute a simple python command, if exit code is 0 ('success') then we have python installed.
 #
 message(STATUS "Checking software tools...")
-execute_process(COMMAND python --version RESULT_VARIABLE EXIT_CODE)
+execute_process(COMMAND python --version
+                RESULT_VARIABLE EXIT_CODE)
 if(NOT EXIT_CODE EQUAL 0)
   message(FATAL_ERROR "System Python not found. You do not have a system version of Python or it is not set on environment path.")
 endif()
@@ -407,9 +420,10 @@ else()
   show_environment_variable(NTA_DATA_PATH "$ENV{NTA_DATA_PATH}")
 endif()
 if(OSX)
-  set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${_CURRENT_OSX_VERSION}" OFF)
+  set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
   message(STATUS "  (some variables will be updated only after login.)")
 endif()
+show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 
 #
 # Project details
@@ -440,7 +454,7 @@ set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/c
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -std=c++0x -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
 
 #
 # All executables and plugins are linked with these flags
@@ -513,7 +527,8 @@ message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 #
 # Set GNU c/c++ flags in case of CLang is off.
 #
-if("${DEFAULT_COMPILER}" STREQUAL "GCC")
+if(CMAKE_COMPILER_IS_GNUCXX)
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
@@ -1044,30 +1059,19 @@ endif()
 # Create file with unit tests used by TestEverything
 #
 set(FILES_RETURNED)
-get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.cpp")
-set(files ${FILES_RETURNED})
-set(file_content "")
-foreach(file ${files})
-  get_filename_component(test ${file} NAME_WE)
-  if(NOT ${test} MATCHES "TesterTest")
-    set(file_content "${file_content}ADD_TEST(${test});\n")
-  endif()
-endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${file_content}")
-
-#
-# Create file with headers of unit tests used by TestEverything
-#
-set(FILES_RETURNED)
 get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.hpp")
 set(files ${FILES_RETURNED})
-set(file_content "")
+set(tests_file_content "")
+set(headers_file_content "")
 foreach(file ${files})
+  get_filename_component(test ${file} NAME_WE)
   if(NOT ${file} MATCHES "TesterTest")
-    set(file_content "${file_content}#include \"${file}\"\n")
+    set(tests_file_content "${tests_file_content}ADD_TEST(${test});\n")
+    set(headers_file_content "${headers_file_content}#include \"${file}\"\n")
   endif()
 endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${file_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${tests_file_content}")
+file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${headers_file_content}")
 
 # Copy platform independent executable scripts
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
