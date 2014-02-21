@@ -38,32 +38,12 @@ Currently supported platforms:
 Dependencies:
  * Python (2.6-2.7) (with development headers)
  * GCC (4.6-4.8), or Clang
- * Make
+ * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
 
 The dependencies are included in platform-specific repositories for convenience:
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
-
-Add the following to your .bashrc file. Change the paths as needed.
-
-    # Installation path
-    export NTA=$HOME/nta/eng
-    # Target source/repo path. Defaults to $PWD
-    export NUPIC=/path/to/repo
-    # Convenience variable for temporary build files
-    export BUILDDIR=/tmp/ntabuild
-    # Number of jobs to run in parallel (optional)
-    export MK_JOBS=3
-
-    # Set up the rest of the necessary env variables. Must be done after
-    # setting $NTA.
-    source $NUPIC/env.sh
-
-If you plan on making changes to NuPIC, add the following to your .bashrc file.
-
-    # Developer mode: make build use symbolic links from source for Python files instead of copying files
-    export NTAX_DEVELOPER_BUILD=1
 
 Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
 compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
@@ -76,25 +56,57 @@ _Note_: If using pip 1.5 or later:
 
 _Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with 'sudo'.
 
-Build and install NuPIC:
+## Build and test NuPIC:
 
-    $NUPIC/build.sh
+Important notes:
+ * $REPOSITORY is the current location of the repository that you downloaded from GitHub.
+ * After CMake generation, two useful environment variables will be created:
+   * $NUPIC, which is the same as $REPOSITORY
+   * $NTA, which references $HOME/nta/eng (the directory with all executables and libraries generated from build process). If this variable is already set, the $REPOSITORY/release will not be created, and $NTA will be used as the release directory.
 
-NuPIC should now be installed in $NTA! If the build failed, check to make sure that $NUPIC is set, and the value is the proper path to the local NuPIC repo.
+### Using command line
 
-## Try it out!
+#### Configure and generate build files:
 
-### Tests
+    cd $REPOSITORY/build_system
+    cmake $REPOSITORY
 
-Run the C++ tests:
+#### Build:
 
-    $NTA/bin/htmtest
-    $NTA/bin/testeverything
+    cd $REPOSITORY/build_system
+    make -j3
+    
+> **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
-Run the Python unit tests:
+#### Run the C++ tests:
 
-    cd $NTA
-    ./bin/run_tests.sh
+    cd $NTA/bin
+    htmtest
+    testeverything
+
+### Using graphical interface
+
+#### Generate the IDE solution:
+
+ * Open CMake executable.
+ * Specify the source folder ($REPOSITORY/source).
+ * Specify the build system folder ($REPOSITORY/build_system), ie where IDE solution will be created.
+ * Click 'Generate'.
+ * Choose the IDE that interest you (remember that IDE choice is limited to your OS, ie Visual Studio is available only on CMake for Windows).
+
+#### Build:
+
+ * Open 'Nupic.*proj' solution file generated on $REPOSITORY/build_system.
+ * Run 'ALL_BUILD' project from your IDE.
+
+#### Run the C++ tests:
+
+ * Run 'HtmTest' and 'TestEverything' projects from your IDE (check 'output' panel to see the results).
+
+### Run the Python unit tests:
+
+    cd $NUPIC
+    $NUPIC/run_tests.sh
 
 ### Examples
 
