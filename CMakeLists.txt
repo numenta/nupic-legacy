@@ -186,11 +186,6 @@ endif()
 cmake_minimum_required(VERSION 2.8)
 project(Nupic CXX)
 
-# Check if default C/C++ compiler is GNU or CLANG, otherwise exit with error.  
-if(NOT(CMAKE_COMPILER_IS_GNUCXX OR ${CMAKE_CXX_COMPILER} MATCHES "clang"))
-  message(FATAL_ERROR "${CMAKE_CXX_COMPILER} compiler not supported yet. If you have GNU or CLANG C++ compiler installed on your machine change $CXX environment variable or pass its location through USER_CXX_COMPILER option.")
-endif()
-
 #
 # Sets default locations.
 # 
