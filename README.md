@@ -89,7 +89,7 @@ Important notes:
 #### Generate the IDE solution:
 
  * Open CMake executable.
- * Specify the source folder ($REPOSITORY/source).
+ * Specify the source folder ($REPOSITORY).
  * Specify the build system folder ($REPOSITORY/build_system), ie where IDE solution will be created.
  * Click 'Generate'.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, ie Visual Studio is available only on CMake for Windows).
