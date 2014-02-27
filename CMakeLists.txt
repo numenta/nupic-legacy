@@ -216,7 +216,9 @@ else()
   set(CMAKE_INSTALL_PREFIX "$ENV{NTA}")
 endif()
 # 'ntabuild' is a subdirectory created on system temporary directory.
-set(TEMP_BUILD_DIR "/tmp/ntabuild")
+if("${TEMP_BUILD_DIR}" STREQUAL "")
+  set(TEMP_BUILD_DIR "/tmp/ntabuild")
+endif()
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 
@@ -441,6 +443,7 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Locations:")
 message(STATUS "  Source: ${PROJECT_SOURCE_DIR}")
 message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
+message(STATUS "  Build Directory: ${TEMP_BUILD_DIR}")
 message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 
 
