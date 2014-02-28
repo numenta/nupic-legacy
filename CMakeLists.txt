@@ -175,6 +175,13 @@ endmacro()
 ############################################################################################################################
 
 #
+# Cannot have same $NTA and $NuPIC
+#
+if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
+  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
+endif()
+
+#
 # Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
