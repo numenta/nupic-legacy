@@ -29,12 +29,6 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
-macro (check_nta_nupic_environment_variables_are_not_same)
-  if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
-    message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
-  endif()
-endmacro()
-
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -183,7 +177,9 @@ endmacro()
 #
 # Cannot have same $NTA and $NuPIC
 #
-check_nta_nupic_environment_variables_are_not_same()
+if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
+  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
+endif()
 
 #
 # Set C++ compiler.
