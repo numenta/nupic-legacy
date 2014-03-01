@@ -175,6 +175,13 @@ endmacro()
 ############################################################################################################################
 
 #
+# Cannot have same $NTA and $NuPIC
+#
+if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
+  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
+endif()
+
+#
 # Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
@@ -216,7 +223,9 @@ else()
   set(CMAKE_INSTALL_PREFIX "$ENV{NTA}")
 endif()
 # 'ntabuild' is a subdirectory created on system temporary directory.
-set(TEMP_BUILD_DIR "/tmp/ntabuild")
+if("${TEMP_BUILD_DIR}" STREQUAL "")
+  set(TEMP_BUILD_DIR "/tmp/ntabuild")
+endif()
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
 
@@ -441,6 +450,7 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Locations:")
 message(STATUS "  Source: ${PROJECT_SOURCE_DIR}")
 message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
+message(STATUS "  Build Directory: ${TEMP_BUILD_DIR}")
 message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 
 
