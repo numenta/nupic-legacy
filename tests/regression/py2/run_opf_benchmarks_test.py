@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -1418,7 +1418,7 @@ if __name__ == "__main__":
                     "each will be allocated maxWorkers number of workers. "
                     "[default: %default].")
   parser.add_option("--maxWorkers", dest="maxWorkers", default=None, type="int",
-                    help="Maximum number of workers to use simmultaneously"
+                    help="Maximum number of workers to use simultaneously"
                     "[default: %default].")
   parser.add_option("--benchmarks", dest="benchmarks",
                     default="hotgymsc",
@@ -1430,7 +1430,7 @@ if __name__ == "__main__":
                     type="string", help="What is the maximum number of fields "
                     "to add per sprint. This dictates how many fields"
                     "are used at each sprint to generate the new swarms."
-                    " Can be a comma seperated list for the "
+                    " Can be a comma separated list for the "
                     "different branching limits that you want to test. "
                     "All means no limit on branching, None is config default "
                     "[default: %default].")
@@ -1455,7 +1455,7 @@ if __name__ == "__main__":
                     " are cancelled")
   parser.add_option("--metaOptimize", dest="metaOptimize", default=None,
                     type="string", help="Dictionary of default swarm "
-                    "parameters you want to moodify. Options are inertia, "
+                    "parameters you want to modify. Options are inertia, "
                     "cogRate, socRate, minParticlesPerSwarm "
                     "[default: %default].")
   parser.add_option("--trainFraction", dest="trainFraction", default=1.0,
@@ -1501,7 +1501,7 @@ if __name__ == "__main__":
 
   tests = options.searches
   if not OPFBenchmarkRunner.getTests(tests):
-    raise Exception("Incorrect formating of option \n %s" % helpString)
+    raise Exception("Incorrect formatting of option \n %s" % helpString)
 
   OPFBenchmarkRunner.listOfBenchmarks = options.benchmarks.lower().split(',')
   OPFBenchmarkRunner.filesOnly = options.filesOnly

@@ -2,7 +2,7 @@
 asteval==0.9.1
 mock==1.0.1
 ordereddict==1.1
-PIL==1.1.7
+pillow==2.3.0
 psutil==1.0.1
 pylint==0.28.0
 pytest==2.4.2

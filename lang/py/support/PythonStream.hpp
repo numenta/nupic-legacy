@@ -3,11 +3,10 @@
 
 #ifdef NTA_PYTHON_SUPPORT
 
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,22 +27,35 @@
 
 #include <lang/py/support/PyHelpers.hpp>
 #include <iosfwd>
-#include <boost/shared_ptr.hpp>
+#include <sstream>
 
-struct SharedPythonOStreamInternals;
-
-/**
- * Data structure for sharing an ostream with a Python string.
- */
+///////////////////////////////////////////////////////////////////
+/// Provides a stream that outputs a PyString on class close()
+///
+/// @b Responsibility
+/// Must make a PyString object that contains the same string as
+/// was passed to the ostream returned by getStream()
+///
+/// @b Description
+/// After instantiation, a call to getStream() returns an ostream
+/// that collects the characters fed to it. Any subsequent call
+/// to close() will return a PyObject * to a PyString that 
+/// contains the current contents of the ostream.
+/// 
+/// @note
+/// A close() before a getStream() will return an empty PyString.
+/// 
+///////////////////////////////////////////////////////////////////
 class SharedPythonOStream
 {
 public:
   SharedPythonOStream(size_t maxSize);
-  std::ostream &getStream() const;
+  std::ostream &getStream();
   PyObject *close();
 
 private:
-  boost::shared_ptr<SharedPythonOStreamInternals> p_;
+	size_t target_size_;
+	std::stringstream ss_;
 };
 
 //------------------------------------------------------------------

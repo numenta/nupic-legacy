@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,6 +23,13 @@
 # Build NuPIC. This requires that the environment is set up as described in the
 # README.
 
+echo "---------- DEPRECATION WARNING ----------------------"
+echo "  THIS BUILD.SH SCRIPT IS DEPRECATED. PLEASE USE"
+echo "  CMAKE DIRECTLY AS SPECIFIED IN README"
+echo ""
+echo "  THIS IS YOUR LAST WARNING (WELL MAYBE NOT)"
+echo "---------------------------------------------------"
+
 # Set sane defaults
 [[ -z $NUPIC ]] && NUPIC=$PWD
 [[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
@@ -33,11 +40,12 @@ elif [[ ! -z $NTA ]] ; then
   NUPIC_INSTALL=$NTA
 else
   NUPIC_INSTALL=$HOME/nta/eng
+  $NTA=$HOME/nta/eng
 fi
 # location of compiled runable binary
 export NUPIC_INSTALL
 
-STDOUT="$BUILDDIR/stdout.txt"
+STDOUT="$NUPIC/build_system/stdout.txt"
 
 function exitOnError {
   if [[ !( "$1" == 0 ) ]] ; then
@@ -51,52 +59,32 @@ function exitOnError {
   fi
 }
 
-function prepDirectories {
+function runCMake {
   [[ -d $NUPIC_INSTALL ]] && echo "Warning: directory \"$NUPIC_INSTALL\" already exists and may contain (old) data. Consider removing it. "
   [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
+  mkdir -p $NUPIC/build_system
+  pushd $NUPIC/build_system
+  cmake -DCMAKE_VERBOSE_MAKEFILE=ON -DTEMP_BUILD_DIR=$BUILDDIR $NUPIC
   mkdir -p "$BUILDDIR/pip-build"
-  mkdir -p "$NUPIC_INSTALL"
-  pushd "$BUILDDIR"
 }
 
-function pythonSetup {
-  python "$NUPIC/build_system/setup.py" --autogen
-
-  export NTA_NUMPY_INCLUDE=`python -c 'import numpy; import sys; sys.stdout.write(numpy.get_include())'`
-}
-
-function doConfigure {
-  "$NUPIC/configure" --enable-optimization --enable-assertions=yes --prefix="$NUPIC_INSTALL"
-  exitOnError $?
-}
 
 function doMake {
   make -j $MK_JOBS
-  make install
   exitOnError $?
 }
 
-function cleanUpDirectories {
-  popd
-  [[ -d $BUILDDIR ]] && echo "Warning: directory \"$BUILDDIR\" already exists and may contain (old) data. Consider removing it. "
-}
-
-function cleanUpEnv {
+function cleanUp {
   unset NUPIC_INSTALL
-  unset NTA_NUMPY_INCLUDE
+  popd
 }
 
 # Redirect stdout to a file but still print stderr.
 mkdir -p `dirname $STDOUT`
 {
-  prepDirectories
-
-  pythonSetup
-  doConfigure
+  runCMake
   doMake
-
-  cleanUpDirectories
-  cleanUpEnv
+  cleanUp
 } 2>&1 > $STDOUT
 
 echo

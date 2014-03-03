@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -25,8 +25,8 @@ import os
 
 from nupic.bindings.math import GetNTAReal
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
-from nupic.research.flat_spatial_pooler import FlatSpatialPooler as PyFlatSpatialPooler
-from nupic.bindings.algorithms import FlatSpatialPooler as CPPFlatSpatialPooler
+from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
+from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
 import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 
@@ -46,14 +46,14 @@ def getSPClass(spatialImp):
   """
 
   if spatialImp == 'py':
-    return PyFlatSpatialPooler
+    return PYSpatialPooler
   elif spatialImp == 'cpp':
-    return CPPFlatSpatialPooler
+    return CPPSpatialPooler
   elif spatialImp == 'oldpy':
     return FDRCSpatial2
   else:
     raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'oldpy'" % (spatialImp))
+          "'cpp', 'oldpy'" % (spatialImp))
 
 ##############################################################################
 def _buildArgs(f, self=None, kwargs={}):
@@ -106,6 +106,15 @@ def _buildArgs(f, self=None, kwargs={}):
         argValue = argTuple[2]
       # Set as an instance variable if 'self' was passed in
       setattr(self, argName, argValue)
+      
+  # Translate some parameters for backward compatibility
+  if kwargs.has_key('numActivePerInhArea'):
+    setattr(self, 'numActiveColumnsPerInhArea', kwargs['numActivePerInhArea'])
+    kwargs.pop('numActivePerInhArea')
+    
+  if kwargs.has_key('coincInputPoolPct'):
+    setattr(self, 'potentialPct', kwargs['coincInputPoolPct'])
+    kwargs.pop('coincInputPoolPct')
 
   return argTuples
 
@@ -140,11 +149,15 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
     else:
       return ''
 
-  # Get arguments from FDRCSpatial2 constructor, figure out types of variables
-  # and populate spatialSpec
+  # Get arguments from spatial pooler constructors, figure out types of
+  # variables and populate spatialSpec. The old FDRCSpatialPooler and
+  # the new SpatialPooler classes have slightly different constructor argument
+  # names, so include them all as possible arguments.
   spatialSpec = {}
   FDRSpatialClass = getSPClass(spatialImp)
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
+  argTuplesNew = _buildArgs(CPPSpatialPooler.__init__)
+  sArgTuples.extend(argTuplesNew)
 
   for argTuple in sArgTuples:
     d = dict(
@@ -455,38 +468,53 @@ class SPRegion(PyRegion):
     # Retrieve the necessary extra arguments that were handled automatically
     autoArgs = dict((name, getattr(self, name))
                      for name in self._spatialArgNames)
-    autoArgs.pop('coincidencesShape')
-    autoArgs.pop('inputShape')
-    autoArgs.pop('inputBorder')
-    autoArgs.pop('coincInputRadius')
-    autoArgs.pop('cloneMap')
-    autoArgs.pop('numCloneMasters')
-
-    coincidencesShape = (self.columnCount, 1)
-    inputShape = (1, self.inputWidth)
-    inputBorder = inputShape[1]/2
-    if inputBorder*2 >= inputShape[1]:
-      inputBorder -= 1
-    coincInputRadius = inputShape[1]/2
-
-    cloneMap, numCloneMasters = fdru.makeCloneMap(
-        columnsShape=coincidencesShape,
-        outputCloningWidth=coincidencesShape[1],
-        outputCloningHeight=coincidencesShape[0]
+    
+    # Instantiate the spatial pooler class.
+    if ( (self._FDRCSpatialClass == CPPSpatialPooler) or
+         (self._FDRCSpatialClass == PYSpatialPooler) ):
+      
+      autoArgs['columnDimensions'] = [self.columnCount]
+      autoArgs['inputDimensions'] = [self.inputWidth]
+      autoArgs['potentialRadius'] = self.inputWidth
+    
+      self._sfdr = self._FDRCSpatialClass(
+        **autoArgs
       )
-
-    self._sfdr = self._FDRCSpatialClass(
-                              # These parameters are standard defaults for SPRegion
-                              # They can be overridden by explicit calls to
-                              # getParameter
-                              cloneMap=cloneMap,
-                              numCloneMasters=numCloneMasters,
-                              coincidencesShape=coincidencesShape,
-                              inputShape=inputShape,
-                              inputBorder=inputBorder,
-                              coincInputRadius = coincInputRadius,
-                              **autoArgs)
-
+      
+    else:
+      # Backward compatibility
+      autoArgs.pop('coincidencesShape')
+      autoArgs.pop('inputShape')
+      autoArgs.pop('inputBorder')
+      autoArgs.pop('coincInputRadius')
+      autoArgs.pop('cloneMap')
+      autoArgs.pop('numCloneMasters')
+  
+      coincidencesShape = (self.columnCount, 1)
+      inputShape = (1, self.inputWidth)
+      inputBorder = inputShape[1]/2
+      if inputBorder*2 >= inputShape[1]:
+        inputBorder -= 1
+      coincInputRadius = inputShape[1]/2
+  
+      cloneMap, numCloneMasters = fdru.makeCloneMap(
+          columnsShape=coincidencesShape,
+          outputCloningWidth=coincidencesShape[1],
+          outputCloningHeight=coincidencesShape[0]
+        )
+  
+      self._sfdr = self._FDRCSpatialClass(
+                                # These parameters are standard defaults for SPRegion
+                                # They can be overridden by explicit calls to
+                                # getParameter
+                                cloneMap=cloneMap,
+                                numCloneMasters=numCloneMasters,
+                                coincidencesShape=coincidencesShape,
+                                inputShape=inputShape,
+                                inputBorder=inputBorder,
+                                coincInputRadius = coincInputRadius,
+                                **autoArgs)
+  
 
   #############################################################################
   #
@@ -613,7 +641,7 @@ class SPRegion(PyRegion):
     # Run SFDR bottom-up compute and cache output in self._spatialPoolerOutput
     
     if (self._FDRCSpatialClass == FDRCSpatial2):
-      # Backwards compatability
+      # Backwards compatibility
       self._spatialPoolerOutput = self._sfdr.compute(rfInput[0],
                                                      learn=self.learningMode,
                                                      infer=self.inferenceMode,

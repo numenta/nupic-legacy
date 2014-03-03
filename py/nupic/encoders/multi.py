@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from base import Encoder
+from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from nupic.encoders.date import DateEncoder
@@ -30,8 +30,11 @@ from nupic.encoders.sdrrandom import SDRRandomEncoder
 from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder
 from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
+from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder, VectorEncoderOPF
+from nupic.encoders.passthru import PassThruEncoder
 # multiencoder must be imported last because it imports * from this module!
-from nupic.encoders.utils import bitsToString 
+from nupic.encoders.utils import bitsToString
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
 
 class MultiEncoder(Encoder):

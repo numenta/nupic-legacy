@@ -5,6 +5,10 @@ language: python
 python:
   - "2.6"
   - "2.7"
+
+git:
+  submodules: false
+
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
@@ -32,7 +36,7 @@ env:
 notifications:
   irc:
     channels:
-      - "irc.freenode.net#nupic"
+      - "irc.freenode.net#nupic-hackers"
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
@@ -41,7 +45,6 @@ before_install:
   - source nupic-linux64/bin/activate
   - if [ "$CC" = "gcc" ]; then export CXX=g++; fi
   - if [ "$CC" = "clang" ]; then export CXX=clang++; fi
-  - gem install travis-artifacts > /dev/null
 
 install:
   - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make > /dev/null) fi
@@ -49,7 +52,11 @@ install:
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
   - pip install -q -r $NUPIC/external/common/requirements.txt
-  - "$NUPIC/build.sh"
+  - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  - "cmake $NUPIC"
+  - "make -j3"
+  - "cd"
 
 script:
   # legacy binary tests
@@ -57,6 +64,7 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
+  - "cd $NUPIC"
   - "$NUPIC/run_tests.sh --all"
 
   # run all example files
@@ -80,5 +88,6 @@ script:
   - "python $NUPIC/examples/tp/tp_test.py"
 
 after_script:
-- tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
-- travis-artifacts upload --path nupic-linux64-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG
+  - travis_retry gem install travis-artifacts > /dev/null
+  - tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
+  - travis-artifacts upload --path nupic-linux64-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG
