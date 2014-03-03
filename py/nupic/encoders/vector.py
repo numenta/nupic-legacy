@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,11 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numpy
 
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType
-import numpy
+
 
 class VectorEncoder(Encoder):
   """represents an array/vector of values of the same type (scalars, or date, ..);"""
@@ -47,7 +48,7 @@ class VectorEncoder(Encoder):
     self._w = encoder.getWidth()
     self._name = name
     self._typeCastFn = typeCastFn
-
+    self.encoders = None
 
   def encodeIntoArray(self, input, output):
     if not isinstance(input, list) and len(input)==self._len:

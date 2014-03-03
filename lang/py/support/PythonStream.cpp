@@ -1,10 +1,9 @@
 #ifdef NTA_PYTHON_SUPPORT
 
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,7 +24,6 @@
 
 #include <lang/py/support/PythonStream.hpp>
 #include <nta/utils/Log.hpp>
-#include <strstream>
 
 /**
  * Bumps up size to a nicely aligned larger size.
@@ -39,60 +37,27 @@ static size_t NextPythonSize(size_t n)
 }
 
 // -------------------------------------------------------------
-struct SharedPythonOStreamInternals
+SharedPythonOStream::SharedPythonOStream(size_t maxSize) :
+	target_size_(NextPythonSize(maxSize)),
+	ss_(std::ios_base::out)
 {
-  SharedPythonOStreamInternals(PyObject * pys, char * buffer, size_t maxSize) :
-    pys(pys), 
-    s(buffer, maxSize)
-  {
-  }
-  
-  nta::py::Ptr pys;
-  std::strstream s;
-};
-
-// -------------------------------------------------------------
-SharedPythonOStream::SharedPythonOStream(size_t maxSize)
-{
-  // Use Python to allocate the memory.
-  Py_ssize_t bufferSize = NextPythonSize(maxSize);
-
-  PyObject * pys = PyString_FromStringAndSize(0, bufferSize);
-
-  // Access the pointers.
-  char *buffer=0;
-  Py_ssize_t n=0;
-  PyString_AsStringAndSize(pys, &buffer, &n);
-  
-  // Hang on to everything
-  p_ = boost::shared_ptr<SharedPythonOStreamInternals>(
-    new SharedPythonOStreamInternals(pys, buffer, maxSize));                                       
 }
 
-
 // -------------------------------------------------------------
-std::ostream &SharedPythonOStream::getStream() const
+std::ostream &SharedPythonOStream::getStream()
 {
-  if(!p_) throw std::runtime_error("Stream is closed.");
-  return p_->s;
+	return ss_;
 }
 
 // -------------------------------------------------------------
 PyObject * SharedPythonOStream::close()
 {
-  if (!p_)
-    throw std::runtime_error("Stream is closed.");
-  p_->s.flush();
-  p_->s.freeze();
-  size_t n = p_->s.pcount();
-  size_t size = PyString_Size(p_->pys);
-  if (size <= n) 
+	ss_.flush();
+
+	if (ss_.str().length() > target_size_)
     throw std::runtime_error("Stream output larger than allocated buffer.");
 
-  // Create a new Python string with the correct size
-  nta::py::String ss(p_->pys.release());
-  nta::py::String result((const char *)ss, n);
-  return result.release();
+  return PyString_FromStringAndSize(ss_.str().c_str(), ss_.str().length());
 }
 
 #endif // NTA_PYTHON_SUPPORT

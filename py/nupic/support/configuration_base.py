@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -45,9 +45,9 @@ class Configuration(object):
   """ This class can be used to fetch NuPic configuration settings which are
   stored in one or more XML files.
 
-  If the environment variable 'NTA_CONF_DIR' is defined, then the configuration
-  files are expected to be in the NTA_CONF_DIR search path, which is a ':'
-  separated list of directories. If NTA_CONF_DIR is not defined, then it is
+  If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
+  files are expected to be in the NTA_CONF_PATH search path, which is a ':'
+  separated list of directories. If NTA_CONF_PATH is not defined, then it is
   assumed to be NTA/conf/default (typically ~/nta/current/conf/default).
 
   """
@@ -356,7 +356,7 @@ class Configuration(object):
 
   @classmethod
   def findConfigFile(cls, filename):
-    """ Search the configuration path (specified via the NTA_CONF_DIR
+    """ Search the configuration path (specified via the NTA_CONF_PATH
     environment variable) for the given filename. If found, return the complete
     path to the file.
 
@@ -385,8 +385,8 @@ class Configuration(object):
       return cls._configPaths
       
     else:
-      if 'NTA_CONF_DIR' in os.environ:
-        configVar = os.environ['NTA_CONF_DIR']
+      if 'NTA_CONF_PATH' in os.environ:
+        configVar = os.environ['NTA_CONF_PATH']
         # Return as a list of paths
         configPaths = configVar.split(':')
       elif (

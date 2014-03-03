@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -48,7 +48,7 @@ class ConfigurationTest(unittest.TestCase):
     """configuration.Configuration relies on static methods
     which load files by name.  Since we need to be able to run tests and
     potentially change the content of those files between tests without
-    interferring with one another and with the system configuration, this
+    interfering with one another and with the system configuration, this
     setUp() function will allocate temporary files used only during the using
     conf/nupic-default.xml and conf/nupic-site.xml (relative to the unit tests)
     as templates.
@@ -525,19 +525,19 @@ class ConfigurationTest(unittest.TestCase):
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)
   @patch.object(configuration.os, 'environ', spec=dict)
-  def testGetConfigPathsForNoneWithNTA_CONF_DIRInEnv(
+  def testGetConfigPathsForNoneWithNTA_CONF_PATHInEnv(
       self, environ, configPaths):  # pylint: disable=W0613
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
-    env = {'NTA_CONF_DIR': ''}
+    env = {'NTA_CONF_PATH': ''}
     environ.__getitem__.side_effect = env.__getitem__
     environ.get.side_effect = env.get
     environ.__contains__.side_effect = env.__contains__
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
     self.assertEqual(len(result), 1)
-    self.assertEqual(result[0], env['NTA_CONF_DIR'])
+    self.assertEqual(result[0], env['NTA_CONF_PATH'])
 
-  def testSetConfigPathsForNoneWithNTA_CONF_DIRInEnv(self):
+  def testSetConfigPathsForNoneWithNTA_CONF_PATHInEnv(self):
     paths = [Mock()]
     configuration.Configuration.setConfigPaths(paths)
     self.assertEqual(
@@ -626,7 +626,7 @@ class ConfigurationTest(unittest.TestCase):
     env = {
       'USER': 'foo',
       'HOME': 'bar',
-      'NTA_CONF_DIR': tmpDir
+      'NTA_CONF_PATH': tmpDir
     }
     environ.__getitem__.side_effect = env.__getitem__
     environ.get.side_effect = env.get
@@ -695,7 +695,7 @@ class ConfigurationTest(unittest.TestCase):
       with open(resource_filename(__name__, 'conf/testFile3.xml')) as inp:
         outp.write(inp.read())
 
-    env['NTA_CONF_DIR'] = os.pathsep.join([tmpDir, tmpDir2])
+    env['NTA_CONF_PATH'] = os.pathsep.join([tmpDir, tmpDir2])
 
     # Test the resulting configuration
     self.assertEqual(configuration.Configuration.get('database.host'),

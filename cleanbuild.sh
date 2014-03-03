@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,6 @@
 # Do a clean build of NuPIC.
 
 # Set up sane defaults.
-[[ -z $BUILDDIR ]] && BUILDDIR=/tmp/ntabuild
 if [[ ! -z $1 ]] ; then
   NUPIC_INSTALL=$1
 elif [[ ! -z $NTA ]] ; then
@@ -32,16 +31,7 @@ else
   NUPIC_INSTALL=$HOME/nta/eng
 fi
 
-# Remove old build and install dirs and remake the directories.
-rm -rf "$BUILDDIR"
-mkdir -p "$BUILDDIR"
-rm -rf "$NUPIC_INSTALL"
-mkdir -p "$NUPIC_INSTALL"
-
 pushd `dirname $0`
-
-# Clean up source location.
-python build_system/setup.py --clean
 
 # Do the build.
 ./build.sh "$NUPIC_INSTALL"

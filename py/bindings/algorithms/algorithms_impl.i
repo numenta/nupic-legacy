@@ -1,8 +1,8 @@
 %pythoncode %{
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,11 +27,10 @@ _ALGORITHMS = _algorithms
 
 %{ // Includes necessary to compile the wrappers
 
-/*
- * ---------------------------------------------------------------------
+/* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
- * Numenta, Inc. a separate commercial license for this software code, the
+ * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
  * This program is free software: you can redistribute it and/or modify
@@ -687,7 +686,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
  ///%template(Int_Seg_32) std::pair<nta::UInt32, nta::algorithms::Segment<nta::UInt32,nta::Real32>*>;
 
 // Already seen by swig on linux32 where size_t is the same size as unsigned int
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) 
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
 %template(Size_T_Vector) std::vector<size_t>;
 #endif
 
@@ -2035,6 +2034,26 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         seed=seed,
         spVerbosity=spVerbosity
       )
+
+    def __getstate__(self):
+      # Save the local attributes but override the C++ flat spatial pooler with
+      # the string representation.
+      d = dict(self.__dict__)
+      d["this"] = self.getCState()
+      return d
+
+    def __setstate__(self, state):
+      # Create an empty C++ flat spatial pooler and populate it from the
+      # serialized string.
+      self.this = _ALGORITHMS.new_FlatSpatialPooler()
+      if isinstance(state, str):
+        self.loadFromString(state)
+        self.valueToCategory = {}
+      else:
+        self.loadFromString(state["this"])
+        # Use the rest of the state to set local Python attributes.
+        del state["this"]
+        self.__dict__.update(state)
   %}
 }
 

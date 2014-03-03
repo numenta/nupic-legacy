@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -30,6 +30,8 @@ from sdrrandom import SDRRandomEncoder
 from nonuniformscalar import NonUniformScalarEncoder
 from delta import DeltaEncoder
 from scalarspace import ScalarSpaceEncoder
+from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder
+from nupic.encoders.passthru import PassThruEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder
 from utils import bitsToString

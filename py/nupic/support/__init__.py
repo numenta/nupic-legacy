@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
-# Numenta, Inc. a separate commercial license for this software code, the
+# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
 # This program is free software: you can redistribute it and/or modify
@@ -353,9 +353,9 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   logging configuration file is named 'nupic-logging.conf' and is expected to be
   in the format defined by the python logging module.
 
-  If the environment variable 'NTA_CONF_DIR' is defined, then the logging
-  configuration file is expected to be in the NTA_CONF_DIR directory. If
-  NTA_CONF_DIR is not defined, then it is found in the 'conf/default'
+  If the environment variable 'NTA_CONF_PATH' is defined, then the logging
+  configuration file is expected to be in the NTA_CONF_PATH directory. If
+  NTA_CONF_PATH is not defined, then it is found in the 'conf/default'
   subdirectory of the NuPic installation directory (typically
   ~/nta/current/conf/default)
 
