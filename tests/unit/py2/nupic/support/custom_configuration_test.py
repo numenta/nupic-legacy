@@ -804,19 +804,19 @@ class ConfigurationCustomTest(unittest.TestCase):
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)
   @patch.object(configuration.os, 'environ', spec=dict)
-  def testGetConfigPathsForNoneWithNTA_CONF_DIRInEnv(
+  def testGetConfigPathsForNoneWithNTA_CONF_PATHInEnv(
       self, environ, configPaths):  # pylint: disable=W0613
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
-    env = {'NTA_CONF_DIR': ''}
+    env = {'NTA_CONF_PATH': ''}
     environ.__getitem__.side_effect = env.__getitem__
     environ.get.side_effect = env.get
     environ.__contains__.side_effect = env.__contains__
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
     self.assertEqual(len(result), 1)
-    self.assertEqual(result[0], env['NTA_CONF_DIR'])
+    self.assertEqual(result[0], env['NTA_CONF_PATH'])
 
-  def testSetConfigPathsForNoneWithNTA_CONF_DIRInEnv(self):
+  def testSetConfigPathsForNoneWithNTA_CONF_PATHInEnv(self):
     paths = [Mock()]
     configuration.Configuration.setConfigPaths(paths)
     self.assertEqual(
@@ -916,7 +916,7 @@ class ConfigurationCustomTest(unittest.TestCase):
     env = {
       'USER': 'foo',
       'HOME': 'bar',
-      'NTA_CONF_DIR': tmpDir
+      'NTA_CONF_PATH': tmpDir
     }
     environ.__getitem__.side_effect = env.__getitem__
     environ.get.side_effect = env.get
@@ -985,7 +985,7 @@ class ConfigurationCustomTest(unittest.TestCase):
       with open(resource_filename(__name__, 'conf/testFile3.xml')) as inp:
         fp.write(inp.read())
 
-    env['NTA_CONF_DIR'] = os.pathsep.join([tmpDir, tmpDir2])
+    env['NTA_CONF_PATH'] = os.pathsep.join([tmpDir, tmpDir2])
 
     # Test the resulting configuration
     self.assertEqual(configuration.Configuration.get('database.host'),

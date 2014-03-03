@@ -64,9 +64,6 @@ def main(argv):
   if len(args) != 0:
     raise RuntimeError("Expected no command line arguments but got: %s" % args)
 
-  # Init the NuPic logging configuration from the nupic-logging.conf configuration
-  # file. This is found either in the NTA_CONF_DIR directory (if defined) or
-  # in the 'conf' subdirectory of the NuPic install location.
   initLogging(verbose=True)
 
   # Open up the database client
