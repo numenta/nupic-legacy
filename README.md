@@ -68,6 +68,7 @@ Important notes:
 
 #### Configure and generate build files:
 
+    mkdir $REPOSITORY/build_system
     cd $REPOSITORY/build_system
     cmake $REPOSITORY
 
