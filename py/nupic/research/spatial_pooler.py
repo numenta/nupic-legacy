@@ -34,7 +34,7 @@ uintType = "uint32"
 
 class SpatialPooler(object):
   """
-  This class implements a the spatial pooler. It is in charge of handling the
+  This class implements the spatial pooler. It is in charge of handling the
   relationships between the columns of a region and the inputs bits. The
   primary public interface to this function is the "compute" method, which
   takes in an input vector and returns a list of activeColumns columns.
@@ -86,7 +86,7 @@ class SpatialPooler(object):
                           This can be thought of as the input bits that
                           are visible to each column, or a 'receptiveField' of
                           the field of vision. A large enough value will result
-                          in the 'global coverage', meaning that each column
+                          in 'global coverage', meaning that each column
                           can potentially be connected to every input bit. This
                           parameter defines a square (or hyper square) area: a
                           column will have a max square potential pool with
@@ -104,8 +104,8 @@ class SpatialPooler(object):
     globalInhibition:     If true, then during inhibition phase the winning
                           columns are selected as the most active columns from
                           the region as a whole. Otherwise, the winning columns
-                          are selected with resepct to their local
-                          neighborhoods. using global inhibition boosts
+                          are selected with respect to their local
+                          neighborhoods. Using global inhibition boosts
                           performance x60.
     localAreaDensity:     The desired density of active columns within a local
                           inhibition area (the size of which is set by the
