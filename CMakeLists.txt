@@ -472,7 +472,18 @@ set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/exte
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -std=c++11 -Wreturn-type -Wunused -Wno-unused-parameter -Werror -Wno-error=cpp -Wno-error=format=")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -std=c++11 -Wreturn-type -Wunused -Wno-unused-parameter -Werror")
+
+#
+# Compiler specific (clang, gcc, ..) flags can be set here
+#
+message(STATUS "using ${CMAKE_CXX_COMPILER_ID}")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+ message(STATUS "clang")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+ set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-error=cpp -Wno-error=format=") 
+endif()
+
 
 #
 # All executables and plugins are linked with these flags
