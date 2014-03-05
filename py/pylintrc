@@ -36,7 +36,7 @@ persistent=no
 
 # List of plugins (as comma separated values of python modules names) to load,
 # usually to register additional checkers.
-load-plugins=nupic.support.lint.executable,nupic.support.lint.whitespace
+load-plugins=nupic.support.lint.executable
 
 
 [MESSAGES CONTROL]
