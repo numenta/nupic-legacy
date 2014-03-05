@@ -466,18 +466,34 @@ message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/common/include -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/external/common/include -isystem${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -std=c++11 -Wreturn-type -Wunused -Wno-unused-parameter -Werror")
+
+#
+# Compiler specific (clang, gcc, ..) flags can be set here
+#
+message(STATUS "using ${CMAKE_CXX_COMPILER_ID}")
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+ message(STATUS "clang")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+ set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-error=cpp -Wno-error=format=") 
+endif()
+
 
 #
 # All executables and plugins are linked with these flags
 #
 set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
+
+#
+# Define custom preprocessor variables (#define XX in C++ code)
+#
+#add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
 
 
 message(STATUS "Options:")
@@ -567,7 +583,7 @@ if(NTA_PYTHON_SUPPORT)
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${PYTHON_INCLUDE_DIR}")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -isystem${NUMPY_INCLUDE_DIR} -isystem${PYTHON_INCLUDE_DIR}")
 
   # -falign-functions is necessary to avoid a compiler problem on
   # darwin. If you build without -falign-functions, exceptions
