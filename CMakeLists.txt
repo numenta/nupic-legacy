@@ -280,7 +280,7 @@ if(OSX)
   set(NTA_PLATFORM_ASFLAGS "")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
   set(NTA_PLATFORM_LINKFLAGS "-Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -std=c++11 -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -std=c++98 -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
   set(NTA_PLATFORM_MPI_EXTRA_LIBS "")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
@@ -292,7 +292,7 @@ elseif(LINUX)
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
     set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
     # pthread needed by libapr-1
-    set(NTA_PLATFORM_LIBS "-std=c++11 -lm -lpthread -ldl -lutil")
+    set(NTA_PLATFORM_LIBS "-std=c++98 -lm -lpthread -ldl -lutil")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
@@ -302,7 +302,7 @@ elseif(LINUX)
     set(NTA_PLATFORM_ASFLAGS "")
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
     set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
-    set(NTA_PLATFORM_LIBS "-std=c++11 -lm -lpthread -ldl -lutil -lrt")
+    set(NTA_PLATFORM_LIBS "-std=c++98 -lm -lpthread -ldl -lutil -lrt")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
@@ -466,19 +466,27 @@ message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/common/include -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/external/common/include -isystem${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused -Wno-unused-parameter")
 
 #
 # All executables and plugins are linked with these flags
 #
 set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
+#
+# Define custom preprocessor variables (#define XX in C++ code)
+#
+#add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
+#
+# the reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
+# cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
+add_definitions(-std=c++98) # smart flag setting for gcc/clang
 
 message(STATUS "Options:")
 
@@ -543,10 +551,10 @@ option(NTA_MPI_SUPPORT "--mpi=[ON/OFF] turn on MPI support [default=ON]" ON)
 message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 
 #
-# Set GNU c/c++ flags in case of CLang is off.
+# Compiler specific (clang, gcc, ..) flags can be set here
 #
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare -Wno-error=cpp -Wno-error=format= -Werror")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
@@ -567,7 +575,7 @@ if(NTA_PYTHON_SUPPORT)
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${PYTHON_INCLUDE_DIR}")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -isystem${NUMPY_INCLUDE_DIR} -isystem${PYTHON_INCLUDE_DIR}")
 
   # -falign-functions is necessary to avoid a compiler problem on
   # darwin. If you build without -falign-functions, exceptions
