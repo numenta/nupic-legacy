@@ -475,17 +475,6 @@ set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/exte
 set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused -Wno-unused-parameter")
 
 #
-# Compiler specific (clang, gcc, ..) flags can be set here
-#
-message(STATUS "using ${CMAKE_CXX_COMPILER_ID}")
-if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
- message(STATUS "clang")
-elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
- set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-error=cpp -Wno-error=format= -Werror") 
-endif()
-
-
-#
 # All executables and plugins are linked with these flags
 #
 set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
@@ -559,10 +548,10 @@ option(NTA_MPI_SUPPORT "--mpi=[ON/OFF] turn on MPI support [default=ON]" ON)
 message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 
 #
-# Set GNU c/c++ flags in case of CLang is off.
+# Compiler specific (clang, gcc, ..) flags can be set here
 #
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare -Wno-error=cpp -Wno-error=format= -Werror")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
