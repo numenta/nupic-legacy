@@ -375,7 +375,7 @@ string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
 set(PYTHON_SITE_PACKAGES_DIR "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages")
-FIND_PACKAGE(PythonLibs REQUIRED)
+FIND_PACKAGE(PythonLibs ${PYTHON_VERSION} REQUIRED)
 
 #
 # Finds out version of Numpy and headers's path.
