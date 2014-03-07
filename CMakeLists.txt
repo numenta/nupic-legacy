@@ -554,7 +554,7 @@ message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 # Compiler specific (clang, gcc, ..) flags can be set here
 #
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare -Wno-error=cpp -Wno-error=format= -Werror")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare -Wno-error=format=")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
 endif()
 
