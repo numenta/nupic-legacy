@@ -365,6 +365,7 @@ string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
 set(PYTHON_SITE_PACKAGES_DIR "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages")
+FIND_PACKAGE(PythonLibs REQUIRED)
 
 #
 # Finds out version of Numpy and headers's path.
@@ -394,6 +395,7 @@ message(STATUS "  Version: ${PYTHON_VERSION}")
 message(STATUS "  Include dir: ${PYTHON_INCLUDE_DIR}")
 message(STATUS "  Library dir: ${PYTHON_LIBRARY_DIR}")
 message(STATUS "  Site packages dir: ${PYTHON_SITE_PACKAGES_DIR}")
+message(STATUS "  Python lib: ${PYTHON_LIBRARY}")
 message(STATUS "Numpy details:")
 message(STATUS "  Version: ${NUMPY_VERSION}")
 message(STATUS "  Include dir: ${NUMPY_INCLUDE_DIR}")
@@ -982,6 +984,7 @@ set(LIBRARIES
   ${LIB_STATIC_UTILS}
   ${LIB_STATIC_TYPES}
   ${NTA_STANDARD_LIBS}
+  ${PYTHON_LIBRARY}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${LIBRARIES}")
 
