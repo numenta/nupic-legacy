@@ -340,7 +340,17 @@ message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}
 # Instead we just use a shell command to execute a simple python command, if exit code is 0 ('success') then we have python installed.
 #
 message(STATUS "Checking software tools...")
-execute_process(COMMAND python --version
+
+#
+# Check for user-defined PYTHON env variable
+#
+if(NOT "$ENV{PYTHON}" STREQUAL "")
+  set(PYTHON "$ENV{PYTHON}")
+else()
+  set(PYTHON "python")
+endif()
+
+execute_process(COMMAND ${PYTHON} --version
                 RESULT_VARIABLE EXIT_CODE)
 if(NOT EXIT_CODE EQUAL 0)
   message(FATAL_ERROR "System Python not found. You do not have a system version of Python or it is not set on environment path.")
@@ -350,7 +360,7 @@ endif()
 # Gives the version of Python necessary to get installation directories
 # for use with ${PYTHON_VERSION}, etc.
 #
-execute_process(COMMAND python -c "import sys;sys.stdout.write(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))"
+execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))"
                 OUTPUT_VARIABLE PYTHON_VERSION)
 if(NOT(${PYTHON_VERSION} EQUAL "2.6" OR ${PYTHON_VERSION} EQUAL "2.7"))
   message(FATAL_ERROR "Only these versions of Python are accepted: 2.6, 2.7")
@@ -359,20 +369,21 @@ endif()
 #
 # Find out where system installation of python is.
 #
-execute_process(COMMAND python -c "import sys;sys.stdout.write(sys.prefix)"
+execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(sys.prefix)"
                 OUTPUT_VARIABLE PYTHON_PREFIX)
 string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
 set(PYTHON_SITE_PACKAGES_DIR "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages")
+FIND_PACKAGE(PythonLibs ${PYTHON_VERSION} REQUIRED)
 
 #
 # Finds out version of Numpy and headers's path.
 #
-execute_process(COMMAND python -c "import sys;import numpy;sys.stdout.write(numpy.get_include())"
+execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.get_include())"
                 OUTPUT_VARIABLE NUMPY_INCLUDE_DIR)
 string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR})
-execute_process(COMMAND python -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
+execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
                 OUTPUT_VARIABLE NUMPY_VERSION)
 
 #
@@ -394,6 +405,8 @@ message(STATUS "  Version: ${PYTHON_VERSION}")
 message(STATUS "  Include dir: ${PYTHON_INCLUDE_DIR}")
 message(STATUS "  Library dir: ${PYTHON_LIBRARY_DIR}")
 message(STATUS "  Site packages dir: ${PYTHON_SITE_PACKAGES_DIR}")
+message(STATUS "  Python lib: ${PYTHON_LIBRARY}")
+message(STATUS "  Python command: ${PYTHON}")
 message(STATUS "Numpy details:")
 message(STATUS "  Version: ${NUMPY_VERSION}")
 message(STATUS "  Include dir: ${NUMPY_INCLUDE_DIR}")
@@ -982,6 +995,7 @@ set(LIBRARIES
   ${LIB_STATIC_UTILS}
   ${LIB_STATIC_TYPES}
   ${NTA_STANDARD_LIBS}
+  ${PYTHON_LIBRARY}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${LIBRARIES}")
 
