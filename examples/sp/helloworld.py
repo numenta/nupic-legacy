@@ -1,4 +1,3 @@
-"""A simple program that demonstrates the working of the spatial pooler"""
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have purchased from
@@ -20,13 +19,18 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.research.spatial_pooler import SpatialPooler as SP
+"""A simple program that demonstrates the working of the spatial pooler"""
+
 import numpy as np
 from random import randrange, random
+from nupic.research.spatial_pooler import SpatialPooler as SP
+
+
 
 class Example():
   
   """A class to hold our code. Going object oriented"""
+
   
   def __init__(self, inputShape, columnDimensions):
     """
@@ -49,8 +53,9 @@ class Example():
 		 globalInhibition = True,
 		 synPermActiveInc = 0.01
 		 )
+
     
-  def create_input(self):
+  def createInput(self):
     """create a random input vector"""
     
     #clear the inputArray to zero before creating a new input vector
@@ -59,6 +64,7 @@ class Example():
     for i in range(self.inputSize):
       #randrange returns 0 or 1
       self.inputArray[i] = randrange(2)
+
       
   def run(self):
     """Run the spatial pooler with the input vector"""
@@ -67,22 +73,23 @@ class Example():
     self.sp.compute(self.inputArray, True, self.activeArray)
     
     print self.activeArray.nonzero()
+
     
-  def add_noise(self,noise_level):
+  def addNoise(self, noiseLevel):
     """Flip the value of 10% of input bits (add noise)
       
       PARAMETERS
       ----------
-      noise_level : The percentage of total input bits that should be flipped """
+      noiseLevel : The percentage of total input bits that should be flipped """
     
-    for i in range(int(noise_level * self.inputSize)):
+    for i in range(int(noiseLevel * self.inputSize)):
       #0.1*self.inputSize represents 10% of the total input bits
       #random.random() returns a float between 0 and 1
       randomPosition = int(random() * self.inputSize)
       
       #Flipping the bit at the randomly picked position
       if self.inputArray[randomPosition] == 1:
-	self.inputArray[randomPosition] = 0
+        self.inputArray[randomPosition] = 0
 	
       else:
         self.inputArray[randomPosition] = 1
@@ -94,7 +101,7 @@ example = Example((32, 32), (64, 64))
 
 #Trying random vectors
 for i in range(3):
-  example.create_input()
+  example.createInput()
   example.run()
 
 print "-" * 75 + "Using identical input vectors" + "-" * 75  
@@ -106,11 +113,11 @@ for i in range(2):
 #Adding 10% noise to the input vector
 #Notice how the output SDR hardly changes at all
 print "-" * 75 + "After adding 10% noise to the input vector" + "-" * 75
-example.add_noise(0.1)
+example.addNoise(0.1)
 example.run()
 
-#Adding another 40% noise to the already modified input vector
+#Adding another 20% noise to the already modified input vector
 #The output SDR should differ considerably from that of the previous output
 print "-" * 75 + "After adding another 20% noise to the input vector" + "-" * 75
-example.add_noise(0.2)
+example.addNoise(0.2)
 example.run()
