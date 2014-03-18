@@ -294,6 +294,9 @@ config = {
         },
 
         'clParams': {
+            # Classifier implementation selection.
+            'implementation': 'cpp',
+            
             'regionName' : 'CLAClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
