@@ -103,23 +103,19 @@ class Example():
 	
 example = Example((32, 32), (64, 64))
 
-####################################################################################################################
 #Lesson 1
-print "\n \nThe following columns are a part of the SDR corresponding to our input vector"
-print "The set of columns are different each time because we randomize the input pattern each time"
+print "\n \nFollowing columns represent the SDR"
+print "Different set of columns each time since we randomize the input"
 print "Lesson - different input vectors give different SDRs\n\n"
-####################################################################################################################
 
 #Trying random vectors
 for i in range(3):
   example.createInput()
   example.run()
 
-####################################################################################################################
 #Lesson 2
-print "\n\nThe next 2 SDRs will be the same. This is because we give the same input vector to nupic to calculate SDR"
+print "\n\nIdentical SDRs because we give identical inputs"
 print "Lesson - identical inputs give identical SDRs\n\n"
-####################################################################################################################
 
 print "-" * 75 + "Using identical input vectors" + "-" * 75  
 
@@ -127,13 +123,11 @@ print "-" * 75 + "Using identical input vectors" + "-" * 75
 for i in range(2):
   example.run()
 
-####################################################################################################################  
 #Lesson 3
 print "\n\nNow we are changing the input vector slightly."
 print "We change a small percentage of 1s to 0s and 0s to 1s."
 print "The resulting SDRs are similar, but not identical to the original SDR"
 print "Lesson - Similar input vectors give similar SDRs\n\n"
-####################################################################################################################
 
 #Adding 10% noise to the input vector
 #Notice how the output SDR hardly changes at all
