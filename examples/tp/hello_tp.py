@@ -40,7 +40,7 @@ PLEASE READ THROUGH THE CODE COMMENTS - THEY EXPLAIN THE OUTPUT IN DETAIL
 import numpy
 
 # here we choose TP implementation: (uncomment one only)
-# This is the class correspondingn to the C++ optimized Temporal Pooler (default)
+# This is the class corresponding to the C++ optimized Temporal Pooler (default)
 from nupic.research.TP10X2 import TP10X2 as TP
 # This is simple implementation in Python
 #from nupic.research.TP import TP as TP

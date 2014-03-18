@@ -1,10 +1,22 @@
 # ----------------------------------------------------------------------
-# Copyright (C) 2012, Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2012-2014, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
 #
-# The information and source code contained herein is the
-# exclusive property of Numenta Inc.  No part of this software
-# may be used, reproduced, stored or distributed in any form,
-# without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 #
 # Numenta pylint configuration.
@@ -12,7 +24,6 @@
 # TODO:
 #   File layout ([#! line], copyright, module docstring, imports in correct order,
 #       everything else, and then __name__ == '__main__').
-#   "#!" line if there is a __main__ check
 #   Space after opening "#" in comments.
 
 [MASTER]
@@ -97,6 +108,10 @@ evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / stateme
 # Add a comment according to your evaluation note. This is used by the global
 # evaluation report (RP0004).
 comment=no
+
+# Template used to display messages. This is a python new-style format string
+# used to format the message information. See doc for all details
+msg-template={msg_id}, {line:3d}:{column:2d} - {msg} ({symbol})
 
 
 [BASIC]

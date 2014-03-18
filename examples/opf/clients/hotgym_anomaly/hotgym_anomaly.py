@@ -22,7 +22,7 @@
 
 """
 A simple client to create a CLA anomaly detection model for hotgym.
-The script prints out all records that have an abnoramlly high anomaly
+The script prints out all records that have an abnormally high anomaly
 score.
 """
 
