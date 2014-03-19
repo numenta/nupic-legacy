@@ -108,7 +108,7 @@ config = {
             # Spatial pooler implementation to use.
             # Options: "oldpy" (default but deprecated), "py" (good for
             # experimentation but slow), and "cpp" (optimized).
-            'spatialImp': 'oldpy',
+            'spatialImp': 'cpp',
 
             # SP diagnostic output verbosity control;
             # 0: silent; >=1: some info; >=2: more info;
@@ -147,11 +147,11 @@ config = {
             # is correct here as opposed to 'columns')
             'synPermConnected': $SP_PERM_CONNECTED,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.05,
 
-            'synPermInactiveDec': 0.01,
-
-            'randomSP': $SP_RANDOM,
+            'synPermInactiveDec': 0.0005,
+            
+            'maxBoost': 2.0
         },
 
         # Controls whether TP is enabled or disabled;
@@ -184,30 +184,15 @@ config = {
 
             # New Synapse formation count
             # NOTE: If None, use spNumActivePerInhArea
-            #
-            # TODO: need better explanation
             'newSynapseCount': 20,
 
             # Maximum number of synapses per segment
-            #  > 0 for fixed-size CLA
-            # -1 for non-fixed-size CLA
-            #
-            # TODO: for Ron: once the appropriate value is placed in TP
-            # constructor, see if we should eliminate this parameter from
-            # description.py.
             'maxSynapsesPerSegment': 32,
 
             # Maximum number of segments per cell
-            #  > 0 for fixed-size CLA
-            # -1 for non-fixed-size CLA
-            #
-            # TODO: for Ron: once the appropriate value is placed in TP
-            # constructor, see if we should eliminate this parameter from
-            # description.py.
             'maxSegmentsPerCell': 128,
 
             # Initial Permanence
-            # TODO: need better explanation
             'initialPerm': 0.21,
 
             # Permanence Increment
