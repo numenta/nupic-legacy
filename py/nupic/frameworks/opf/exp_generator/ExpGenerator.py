@@ -1704,14 +1704,6 @@ def _generateMetricSpecs(options):
                        InferenceType.NontemporalClassification,
                        'MultiStep'):
 
-    if inferenceType in (InferenceType.TemporalMultiStep,
-                         InferenceType.NontemporalMultiStep,
-                         InferenceType.NontemporalClassification,
-                         'MultiStep'):
-      isMultiStep = True
-    else:
-      isMultiStep = False
-
     predictedFieldName, predictedFieldType = _getPredictedField(options)
     isCategory = _isCategory(predictedFieldType)
     metricNames = ('avg_err',) if isCategory else ('aae', 'altMAPE')
@@ -1758,8 +1750,7 @@ def _generateMetricSpecs(options):
 
     # Add in the trivial metrics
     if options["runBaselines"] \
-          and inferenceType != InferenceType.NontemporalClassification \
-          and not isMultiStep:
+          and inferenceType != InferenceType.NontemporalClassification:
       for steps in predictionSteps:
         metricSpecStrings.append(
           _generateMetricSpecString(field=predictedFieldName,
@@ -1770,17 +1761,17 @@ def _generateMetricSpecs(options):
                                                   'steps': steps})
           )
 
-        #Add in the One-Gram baseline error metric
-        metricSpecStrings.append(
-          _generateMetricSpecString(field=predictedFieldName,
-                                    inferenceElement=InferenceElement.encodings,
-                                    metric="two_gram",
-                                    params={'window':metricWindow,
-                                                  "errorMetric":oneGramErrorMetric,
-                                                  'predictionField':predictedFieldName,
-                                                  'steps': steps})
-          )
-
+        ##Add in the One-Gram baseline error metric
+        #metricSpecStrings.append(
+        #  _generateMetricSpecString(field=predictedFieldName,
+        #                            inferenceElement=InferenceElement.encodings,
+        #                            metric="two_gram",
+        #                            params={'window':metricWindow,
+        #                                          "errorMetric":oneGramErrorMetric,
+        #                                          'predictionField':predictedFieldName,
+        #                                          'steps': steps})
+        #  )
+        #
         #Include the baseline moving mean/mode metric
         if isCategory:
           metricSpecStrings.append(
