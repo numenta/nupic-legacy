@@ -25,7 +25,7 @@ Framework (OPF).
 
 The Description API interface encapsulates the following two important sets of
 configuration parameters in OPF
-1) model creation paramters (via getDescription)
+1) model creation parameters (via getDescription)
 2) task control parameters (via getExperimentTasks)
 
 
