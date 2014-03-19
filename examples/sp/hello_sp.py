@@ -36,8 +36,8 @@ class Example():
     """
      Parameters:
      ----------
-     _inputShape	:	The size of the input. The product of the first and second elements of this parameter determines the size of the input vectors
-     _columnDimensions:	The size of the 2 dimensional array of columns
+     _inputShape	:	The size of the input. (m,n) will give a size m x n
+     _columnDimensions	:	The size of the 2 dimensional array of columns
      """
     self.inputShape = inputShape
     self.columnDimensions = columnDimensions
