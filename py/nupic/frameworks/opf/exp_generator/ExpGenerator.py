@@ -695,11 +695,7 @@ def _generatePermEncoderStr(options, encoderDict):
           continue
           
         if key == "n":
-          # Suggested to set minimum n to 50 for anomaly detection
-          minN = encoderDict["w"] + 7
-          if options["inferenceType"] in ["TemporalAnomaly", "NontemporalAnomaly"]:
-            minN = max(50, minN)
-          permStr += "n=PermuteInt(%d, %d), " % (minN, 
+          permStr += "n=PermuteInt(%d, %d), " % (encoderDict["w"] + 1, 
                                                  encoderDict["w"] + 500)
         elif key == "runDelta":
           if value and not "space" in encoderDict:
@@ -1348,10 +1344,6 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   tokenReplacements['\$ANOMALY_PARAMS'] = pprint.pformat(
       options['anomalyParams'], indent=2*_INDENT_STEP)
 
-  # Use random SP for TemporalAnomaly model type - improves performance
-  useRandomSP = (inferenceType == "TemporalAnomaly")
-  tokenReplacements['\$SP_RANDOM'] = str(int(useRandomSP))
-  
   tokenReplacements['\$ENCODER_SPECS'] = encoderSpecsStr
   tokenReplacements['\$SENSOR_AUTO_RESET'] = sensorAutoResetStr
 
@@ -1388,10 +1380,9 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # Option permuting over SP synapse decrement value
   tokenReplacements['\$PERM_SP_CHOICES'] = ""
   if options['spPermuteDecrement'] \
-        and options['inferenceType'] != 'NontemporalClassification' \
-        and not useRandomSP: 
+        and options['inferenceType'] != 'NontemporalClassification': 
     tokenReplacements['\$PERM_SP_CHOICES'] = \
-      _ONE_INDENT +"'synPermInactiveDec': PermuteFloat(0.005, 0.1),\n"
+      _ONE_INDENT +"'synPermInactiveDec': PermuteFloat(0.0003, 0.1),\n"
 
   # The TP permutation parameters are not required for non-temporal networks
   if options['inferenceType'] in ['NontemporalMultiStep',
@@ -1713,14 +1704,6 @@ def _generateMetricSpecs(options):
                        InferenceType.NontemporalClassification,
                        'MultiStep'):
 
-    if inferenceType in (InferenceType.TemporalMultiStep,
-                         InferenceType.NontemporalMultiStep,
-                         InferenceType.NontemporalClassification,
-                         'MultiStep'):
-      isMultiStep = True
-    else:
-      isMultiStep = False
-
     predictedFieldName, predictedFieldType = _getPredictedField(options)
     isCategory = _isCategory(predictedFieldType)
     metricNames = ('avg_err',) if isCategory else ('aae', 'altMAPE')
@@ -1729,72 +1712,45 @@ def _generateMetricSpecs(options):
     movingAverageBaselineName = 'moving_mode' if isCategory else 'moving_mean'
 
     # Multi-step metrics
-    if isMultiStep:
-      for metricName in metricNames:
-        metricSpec, metricLabel = \
-          _generateMetricSpecString(field=predictedFieldName,
-                   inferenceElement=InferenceElement.multiStepBestPredictions,
-                   metric='multiStep',
-                   params={'errorMetric': metricName,
-                                 'window':metricWindow,
-                                 'steps': predictionSteps},
+    for metricName in metricNames:
+      metricSpec, metricLabel = \
+        _generateMetricSpecString(field=predictedFieldName,
+                 inferenceElement=InferenceElement.multiStepBestPredictions,
+                 metric='multiStep',
+                 params={'errorMetric': metricName,
+                               'window':metricWindow,
+                               'steps': predictionSteps},
+                 returnLabel=True)
+      metricSpecStrings.append(metricSpec)
+
+    # If the custom error metric was specified, add that
+    if options["customErrorMetric"] is not None :
+      metricParams = dict(options["customErrorMetric"])
+      metricParams['errorMetric'] = 'custom_error_metric'
+      metricParams['steps'] = predictionSteps
+      # If errorWindow is not specified, make it equal to the default window
+      if not "errorWindow" in metricParams:
+        metricParams["errorWindow"] = metricWindow
+      metricSpec, metricLabel =_generateMetricSpecString(field=predictedFieldName,
+                   inferenceElement=InferenceElement.multiStepPredictions,
+                   metric="multiStep",
+                   params=metricParams,
                    returnLabel=True)
-        metricSpecStrings.append(metricSpec)
+      metricSpecStrings.append(metricSpec)
 
-      # If the custom error metric was specified, add that
-      if options["customErrorMetric"] is not None :
-        metricParams = dict(options["customErrorMetric"])
-        metricParams['errorMetric'] = 'custom_error_metric'
-        metricParams['steps'] = predictionSteps
-        # If errorWindow is not specified, make it equal to the default window
-        if not "errorWindow" in metricParams:
-          metricParams["errorWindow"] = metricWindow
-        metricSpec, metricLabel =_generateMetricSpecString(field=predictedFieldName,
-                     inferenceElement=InferenceElement.multiStepPredictions,
-                     metric="multiStep",
-                     params=metricParams,
-                     returnLabel=True)
-        metricSpecStrings.append(metricSpec)
+    # If this is the first specified step size, optimize for it. Be sure to
+    #  escape special characters since this is a regular expression
+    optimizeMetricSpec = metricSpec
+    metricLabel = metricLabel.replace('[', '\\[')
+    metricLabel = metricLabel.replace(']', '\\]')
+    optimizeMetricLabel = metricLabel
 
-      # If this is the first specified step size, optimize for it. Be sure to
-      #  escape special characters since this is a regular expression
-      optimizeMetricSpec = metricSpec
-      metricLabel = metricLabel.replace('[', '\\[')
-      metricLabel = metricLabel.replace(']', '\\]')
-      optimizeMetricLabel = metricLabel
-
-      if options["customErrorMetric"] is not None :
-        optimizeMetricLabel = ".*custom_error_metric.*"
-
-    # Legacy, single-step metrics
-    else:
-      for metricName in metricNames:
-        optimizeMetricSpec, optimizeMetricLabel = \
-          _generateMetricSpecString(field=predictedFieldName,
-                                   inferenceElement=InferenceElement.prediction,
-                                   metric=metricName,
-                                   params={'window':metricWindow},
-                                   returnLabel=True)
-        metricSpecStrings.append(optimizeMetricSpec)
-
-      # If the custom error metric was specified, add that
-      if options["customErrorMetric"] is not None :
-        # If errorWindow is not specified, make it equal to the default window
-        if not "errorWindow" in options["customErrorMetric"]:
-          options["customErrorMetric"]["errorWindow"] = metricWindow
-        optimizeMetricSpec, optimizeMetricLabel = \
-          _generateMetricSpecString(field=predictedFieldName,
-                                   inferenceElement=InferenceElement.prediction,
-                                   metric="custom_error_metric",
-                                   params=options["customErrorMetric"],
-                                   returnLabel=True)
-        metricSpecStrings.append(optimizeMetricSpec)
-
+    if options["customErrorMetric"] is not None :
+      optimizeMetricLabel = ".*custom_error_metric.*"
 
     # Add in the trivial metrics
     if options["runBaselines"] \
-          and inferenceType != InferenceType.NontemporalClassification \
-          and not isMultiStep:
+          and inferenceType != InferenceType.NontemporalClassification:
       for steps in predictionSteps:
         metricSpecStrings.append(
           _generateMetricSpecString(field=predictedFieldName,
@@ -1805,17 +1761,17 @@ def _generateMetricSpecs(options):
                                                   'steps': steps})
           )
 
-        #Add in the One-Gram baseline error metric
-        metricSpecStrings.append(
-          _generateMetricSpecString(field=predictedFieldName,
-                                    inferenceElement=InferenceElement.encodings,
-                                    metric="two_gram",
-                                    params={'window':metricWindow,
-                                                  "errorMetric":oneGramErrorMetric,
-                                                  'predictionField':predictedFieldName,
-                                                  'steps': steps})
-          )
-
+        ##Add in the One-Gram baseline error metric
+        #metricSpecStrings.append(
+        #  _generateMetricSpecString(field=predictedFieldName,
+        #                            inferenceElement=InferenceElement.encodings,
+        #                            metric="two_gram",
+        #                            params={'window':metricWindow,
+        #                                          "errorMetric":oneGramErrorMetric,
+        #                                          'predictionField':predictedFieldName,
+        #                                          'steps': steps})
+        #  )
+        #
         #Include the baseline moving mean/mode metric
         if isCategory:
           metricSpecStrings.append(

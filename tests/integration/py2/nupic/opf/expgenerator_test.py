@@ -427,9 +427,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      "inferenceType":"TemporalNextStep",
+      "inferenceType":"MultiStep",
       "inferenceArgs":{
-        "predictedField":"consumption"
+        "predictedField":"consumption",
+        "predictionSteps": [1]
       },
       'environment':OpfEnvironment.Experiment,
       "streamDef": streamDef,
@@ -453,9 +454,10 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Make sure we have the right optimization designation
     self.assertEqual(perms.minimize,
-                    "prediction:altMAPE:window=%d:field=consumption" \
-                     % ExpGenerator.METRIC_WINDOW,
-                     msg="got: %s" % perms.minimize)
+        ("multiStepBestPredictions:multiStep:errorMetric='altMAPE':"
+         "steps=\\[1\\]:window=%d:field=consumption")
+          % ExpGenerator.METRIC_WINDOW,
+          msg="got: %s" % perms.minimize)
 
     # Should not have any classifier info to permute over
     self.assertNotIn('clAlpha', perms.permutations)
@@ -470,10 +472,14 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                    oneGram,
                    trivialMetric,
                    legacyMetric=None):
-    taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
+    print "base.control"
+    pprint.pprint(base.control)
+    #taskMetrics = base.control['tasks'][0]['taskControl']['metrics']
+    taskMetrics = base.control['metrics']
 
     for metricSpec in taskMetrics:
-      self.assertTrue(metricSpec.metric in [optimizeMetric,
+      print metricSpec.metric
+      self.assertTrue(metricSpec.metric in ["multiStep", optimizeMetric,
                                             movingBaseline, oneGram,
                                             grokScore, trivialMetric,
                                             legacyMetric],
@@ -486,14 +492,22 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         self.assertTrue("errorMetric" in metricSpec.params)
       elif metricSpec.metric == oneGram:
         self.assertTrue("errorMetric" in metricSpec.params)
-      elif metricSpec.metric == legacyMetric:
+      elif metricSpec.metric == "multiStep":
         pass
       else:
         self.assertEqual(metricSpec.metric, optimizeMetric)
 
-    self.assertEqual(perm.minimize, "prediction:%s:window=%d:field=%s" % \
+    #optimizeString = "prediction:%s:window=%d:field=%s" % \
+    #                            (optimizeMetric, ExpGenerator.METRIC_WINDOW,
+    #                             predictedField)
+    optimizeString = ("multiStepBestPredictions:multiStep:"
+                     "errorMetric='%s':steps=\[1\]"
+                     ":window=%d:field=%s" % \
                                 (optimizeMetric, ExpGenerator.METRIC_WINDOW,
-                                 predictedField),
+                                 predictedField))
+    print "perm.minimize=",perm.minimize
+    print "optimizeString=",optimizeString
+    self.assertEqual(perm.minimize, optimizeString,
                      msg="got: %s" % perm.minimize)
 
 
@@ -506,7 +520,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     dataPath = os.path.join(g_myEnv.datasetSrcDir, "nfl", "qa_nfl.csv")
     streamDef = dict(
       version = 1,
-      info = "test_NoProviders",
+      info = "test_category_predicted_field",
       streams = [
         dict(source="file://%s" % (dataPath),
              info="nfl.csv",
@@ -516,11 +530,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      "inferenceType":"TemporalNextStep",
+      "inferenceType":"MultiStep",
       "inferenceArgs":{
-        "predictedField":"playType"
+        "predictedField":"playType",
+        "predictionSteps": [1]
       },
-      'environment':OpfEnvironment.Experiment,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -530,15 +544,14 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
           "fieldType": "string"
         },
         { "fieldName": "ydsToGo",
-          "fieldType": "int",
+          "fieldType": "float",
         },
         { "fieldName": "playType",
           "fieldType": "string",
         },
       ],
     }
-
-
+    
     # Make sure we have the right metric type
     #   (avg_err for categories, aae for scalars)
     (base, perms) = self.getModules(expDesc)
@@ -548,9 +561,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
                       'one_gram',
                       InferenceElement.prediction,
                       "trivial")
-    self.assertEqual(
-      base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
-      ".*")
+    self.assertEqual(base.control['loggedMetrics'][0], ".*")
 
     # =========================================================================
     # Test scalar predicted field
@@ -560,10 +571,8 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     (base, perms)  = self.getModules(expDesc)
     self.assertMetric(base, perms, expDesc['inferenceArgs']['predictedField'],
                       'altMAPE',"moving_mean","one_gram",
-                      InferenceElement.encodings, "trivial", legacyMetric="aae")
-    self.assertEqual(
-      base.control['tasks'][0]['taskControl']['loggedMetrics'][0],
-      ".*")
+                      InferenceElement.encodings, "trivial")
+    self.assertEqual(base.control['loggedMetrics'][0], ".*")
 
 
   def test_IncludedFields(self):
@@ -978,7 +987,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         dict(source="file://%s" % (dataPath),
              info="hotGym.csv",
              columns=["*"],
-             last_record=10),
+             last_record=20),
         ],
       aggregation = {
         'years': 0,
@@ -1003,7 +1012,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
         "predictedField":"consumption",
         "predictionSteps": [1, 5],
       },
-      "inferenceType":  "TemporalMultiStep",
+      "inferenceType":  "MultiStep",
       "streamDef":      streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1019,6 +1028,15 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # --------------------------------------------------------------------
     (base, perms) = self.getModules(expDesc)
+    
+    print "base.config['modelParams']:"
+    pprint.pprint(base.config['modelParams'])
+    print "perms.permutations"
+    pprint.pprint(perms.permutations)
+    print "perms.minimize"
+    pprint.pprint(perms.minimize)
+    print "expDesc"
+    pprint.pprint(expDesc)
 
     # Make sure we have the expected info in the base description file
     self.assertEqual(base.control['inferenceArgs']['predictionSteps'],
@@ -1026,7 +1044,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.control['inferenceArgs']['predictedField'],
                      expDesc['inferenceArgs']['predictedField'])
     self.assertEqual(base.config['modelParams']['inferenceType'],
-                     expDesc['inferenceType'])
+                     "TemporalMultiStep")
     
     # Make sure there is a '_classifier_input' encoder with classifierOnly
     #  set to True
@@ -1038,7 +1056,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     
 
     # And in the permutations file
-    self.assertNotIn('inferenceType', perms.permutations['modelParams'])
+    self.assertIn('inferenceType', perms.permutations['modelParams'])
     self.assertEqual(perms.minimize,
             "multiStepBestPredictions:multiStep:errorMetric='altMAPE':" \
             + "steps=\\[1, 5\\]:window=1000:field=consumption")

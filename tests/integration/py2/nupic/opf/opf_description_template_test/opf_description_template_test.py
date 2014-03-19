@@ -47,52 +47,20 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    from optparse import OptionParser
-
-    # Parse the args
-    #
-    parser = OptionParser()
-    parser.disable_interspersed_args()
-
-    parser.add_option("--installDir",
-                      help="[optional] Specifies the NUPIC <INSTALLDIR>. ",
-                      dest="installDir",
-                      action="store", type="string", default="",
-                      metavar="<INSTALLDIR>")
-    parser.add_option("-a", "--all", action="store_true",
-                     dest="runAllExperiments", default=False,
-                     help="Don't exclude any experiments.")
-
-    (options, remainingArgs) = parser.parse_args()
-    _debugOut("remainingArgs: <%s>" % (remainingArgs,))
-    _debugOut("parser.rargs: <%s>" % (parser.rargs,))
-
-    # Remove script-specific args from command-line so unittest
-    # doesn't get confused (other args may be for unittest)
-    sys.argv = remainingArgs
-
-    _debugOut("options.installDir: <%s>" % (options.installDir,))
-
-    if options.installDir:
-      examplesDir = os.path.abspath(os.path.join(options.installDir,
-                                                         "share"))
-    else:
-      examplesDir = os.path.abspath(
-        os.path.join(os.path.dirname(__file__),
-                     os.path.pardir,
-                     os.path.pardir,
-                     os.path.pardir,
-                     os.path.pardir,
-                     os.path.pardir,
-                     os.path.pardir,
-                     "examples"))
+    examplesDir = os.path.abspath(
+      os.path.join(os.path.dirname(__file__),
+                   os.path.pardir,
+                   os.path.pardir,
+                   os.path.pardir,
+                   os.path.pardir,
+                   os.path.pardir,
+                   os.path.pardir,
+                   "examples"))
 
     _debugOut("examplesDir=<%s>" % (examplesDir,))
 
     assert os.path.exists(examplesDir), \
            "%s is not present in filesystem" % examplesDir
-
-
 
     # This is where we find OPF binaries (e.g., OpfRunExperiment.py, etc.)
     # In the autobuild, it is a read-only directory
@@ -336,6 +304,5 @@ def whoisCallersCaller():
 if __name__ == "__main__":
   g_myEnv = MyTestEnvironment()
 
-  sys.argv.append("--verbose")
   unittest.longMessage = True
   unittest.main()
