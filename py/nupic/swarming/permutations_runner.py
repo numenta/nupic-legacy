@@ -23,6 +23,7 @@
 """
 
 import collections
+import imp
 import csv
 from datetime import datetime, timedelta
 import json
@@ -1074,6 +1075,14 @@ class _HyperSearchRunner(object):
         writer.writerow(colNames)
         row = [paramLabels[x] for x in colNames]
         writer.writerow(row)
+        fd.close()
+
+        print "Generating model params file..."
+        # Generate a model params file alongside the description.py
+        mod = imp.load_source('description', os.path.join(outDir, 'description.py'))
+        model_description = mod.descriptionInterface.getModelDescription()
+        fd = open(os.path.join(outDir, 'model_params.py'), 'wb')
+        fd.write("MODEL_PARAMS = %s" % pprint.pformat(model_description))
         fd.close()
 
       print
