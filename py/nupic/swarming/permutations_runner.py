@@ -41,7 +41,7 @@ import uuid
 
 from nupic.support import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
-from nupic.swarming import HypersearchWorker
+from nupic.swarming import HypersearchWorker, utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
@@ -1082,7 +1082,7 @@ class _HyperSearchRunner(object):
         mod = imp.load_source('description', os.path.join(outDir, 'description.py'))
         model_description = mod.descriptionInterface.getModelDescription()
         fd = open(os.path.join(outDir, 'model_params.py'), 'wb')
-        fd.write("MODEL_PARAMS = %s" % pprint.pformat(model_description))
+        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(), pprint.pformat(model_description)))
         fd.close()
 
       print
