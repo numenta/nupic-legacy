@@ -46,7 +46,7 @@ RUN mkdir $REPOSITORY/build_system
 WORKDIR $REPOSITORY/build_system
 RUN cmake $REPOSITORY
 
-# Build
+# Build with max 3 jobs/threads
 RUN make -j3
 
 # Cleanup
