@@ -4,7 +4,7 @@
 
 NuPIC is a library that provides the building blocks for online prediction systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
 
-For more information, see [numenta.org](http://numenta.org) or the [Github wiki](https://github.com/numenta/nupic/wiki).
+For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
 Issue tracker at [issues.numenta.org](https://issues.numenta.org/browse/NPC).
 
@@ -22,7 +22,7 @@ __Clients__ take input data and feed it through encoders, models, and metrics an
 
 ## Installation
 
-For all installation options, see the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started) wiki page.
+For all installation options, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
 
 Currently supported platforms:
  * Linux (32/64bit)
