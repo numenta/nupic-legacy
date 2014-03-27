@@ -84,6 +84,25 @@ macro (copy_directory src dst)
   copy("_directory" ${src} ${dst})
 endmacro()
 
+# This macro get all subdirectories from a directory.
+macro (get_directories_list current_dir dir_mask)
+  file(GLOB children RELATIVE ${current_dir} ${current_dir}/*)
+  foreach(child ${children})
+    if(IS_DIRECTORY ${current_dir}/${child})
+      get_directories_list(${current_dir}/${child} ${dir_mask})
+      set(can_return_item ON)
+      if(NOT "${dir_mask}" STREQUAL " ")
+        if(NOT ${current_dir} MATCHES ${dir_mask})
+          set(can_return_item OFF)
+        endif()
+      endif()
+      if(can_return_item)
+        set(ITEMS_RETURNED ${ITEMS_RETURNED} ${current_dir}/${child})
+      endif()
+    endif()
+  endforeach()
+endmacro()
+
 # This macro get all files from a directory and its subdirectories.
 macro (get_files_list current_dir dir_mask file_mask)
   file(GLOB children RELATIVE ${current_dir} ${current_dir}/*)
@@ -91,60 +110,120 @@ macro (get_files_list current_dir dir_mask file_mask)
     if(IS_DIRECTORY ${current_dir}/${child})
       get_files_list(${current_dir}/${child} ${dir_mask} ${file_mask})
     else()
-      set(can_return_file ON)
+      set(can_return_item ON)
       if(NOT "${dir_mask}" STREQUAL " ")
         if(NOT ${current_dir} MATCHES ${dir_mask})
-          set(can_return_file OFF)
+          set(can_return_item OFF)
         endif()
       endif()
       if(NOT "${file_mask}" STREQUAL " ")
         if(NOT ${child} MATCHES ${file_mask})
-          set(can_return_file OFF)
+          set(can_return_item OFF)
         endif()
       endif()
-      if(can_return_file)
-        set(FILES_RETURNED ${FILES_RETURNED} ${current_dir}/${child})
+      if(can_return_item)
+        set(ITEMS_RETURNED ${ITEMS_RETURNED} ${current_dir}/${child})
       endif()
     endif()
   endforeach()
 endmacro()
 
+# This macro get all source files from a directory and its subdirectories.
+macro(get_source_groups src_dir)
+  set(SOURCE_RETURNED)
+  set(ITEMS_RETURNED)
+
+  # Add root files as a blank source group
+  file(GLOB src_files
+    ${src_dir}/*.cpp
+    ${src_dir}/*.hpp
+    ${src_dir}/*.h
+  )
+  if(src_files)
+    set(SOURCE_RETURNED ${SOURCE_RETURNED} ${src_files})
+    source_group("" FILES ${src_files})
+  endif()
+
+  # Add every subdir as a source group
+  get_directories_list(${src_dir} " ")
+  set(src_sub_dirs ${ITEMS_RETURNED})
+  if(src_sub_dirs)
+    foreach(dir ${src_sub_dirs})
+      file(GLOB src_files
+        ${dir}/*.cpp
+        ${dir}/*.hpp
+        ${dir}/*.h
+      )
+      get_filename_component(src_group ${dir} NAME)
+      set(SOURCE_RETURNED ${SOURCE_RETURNED} ${src_files})
+      source_group(${src_group} FILES ${src_files})
+    endforeach()
+  endif()
+endmacro()
+
 # This macro generates a executable
-macro(generate_executable name cxx_flags source_files link_flags libraries)
+macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries)
+  get_source_groups(${src_dir})
   add_executable(${name}
-    ${source_files}
+    ${SOURCE_RETURNED}
   )
   target_link_libraries(${name}
     ${libraries}
   )
   set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
   set_target_properties(${name} PROPERTIES LINK_FLAGS "${link_flags}")
+  set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${output_dir})
+  foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
+  endforeach()
 endmacro()
 
 # This macro generates a static library
-macro(generate_static_library name cxx_flags source_files)
+macro(generate_static_library name src_dir output_dir cxx_flags)
+  get_source_groups(${src_dir})
   add_library(${name}
-    ${source_files}
+    ${SOURCE_RETURNED}
   )
   set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+  set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${output_dir})
+  foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set_target_properties(${name} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
+  endforeach()
 endmacro()
 
 # This macro generates a dynamic library
-macro(generate_dynamic_library name cxx_flags source_files link_flags libraries)
+macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags project_libraries external_libraries)
+  get_source_groups(${src_dir})
   add_library(${name} SHARED
-    ${source_files}
+    ${SOURCE_RETURNED}
   )
+
+  # All project libraries should included as whole into dynamic library
+  foreach(library ${project_libraries})
+    target_link_libraries(${name}
+      ${NTA_LINKFLAGS_ARCHIVES} ${library}
+    )
+  endforeach()
   target_link_libraries(${name}
-    ${libraries}
+    ${external_libraries}
   )
+
   set_target_properties(${name} PROPERTIES COMPILE_FLAGS "${cxx_flags}")
+  set_target_properties(${name} PROPERTIES LINKER_LANGUAGE "CXX")
   set_target_properties(${name} PROPERTIES LINK_FLAGS "${link_flags}")
+  set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${output_dir})
+  foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
+  endforeach()
 endmacro()
 
 # This macro generates a swig module
-macro(generate_swig_module name sub_dir swig_flags cxx_flags extra_source link_flags libraries)
+macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
   string(REPLACE " " ";" swig_flags ${swig_flags})
-  file(MAKE_DIRECTORY "${TEMP_BUILD_DIR}/${sub_dir}")
+  file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
   set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${name}_py.i")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
@@ -156,14 +235,42 @@ macro(generate_swig_module name sub_dir swig_flags cxx_flags extra_source link_f
 
   set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES COMPILE_FLAGS "${cxx_flags} -DSWIG_TYPE_TABLE=_nupic_${name}")
   set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES LINK_FLAGS "${link_flags}")
-  set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SWIG_OUTDIR})
+  set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${output_dir})
   foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
-    set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_SWIG_OUTDIR})
+    set_target_properties(${SWIG_MODULE_${name}_REAL_NAME} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
   swig_link_libraries(${name}
     ${libraries}
   )
+endmacro()
+
+# This macro generates imported library from submodules
+macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags)
+
+  # Build and set external libraries
+  message(STATUS "Building '${name}' library...")
+
+  # Clean 'build/scripts' subfolder at submodule folder
+  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${submodule_dir}/build/scripts)
+  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${submodule_dir}/build/scripts)
+  # Generate the Make scripts
+  execute_process(COMMAND ${CMAKE_COMMAND} ${submodule_dir}/src -DUSER_CXXFLAGS:STRING=${extra_cxxflags} -DUSER_LINKFLAGS:STRING=${extra_linkflags}
+                  WORKING_DIRECTORY ${submodule_dir}/build/scripts)
+  # Execute the Make scripts
+  execute_process(COMMAND make -j3
+                  WORKING_DIRECTORY ${submodule_dir}/build/scripts
+                  RESULT_VARIABLE EXIT_CODE)
+  if(NOT EXIT_CODE EQUAL 0)
+    message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
+  endif()
+  # Copy binaries outputted by submodule build process to 'external' folder
+  copy_directory(${submodule_dir}/build/release/lib ${REPOSITORY_DIR}/build/release/lib)
+  copy_directory(${submodule_dir}/build/release/include ${REPOSITORY_DIR}/build/release/include)
+
+  # Configure submodule libraries
+  add_library(${name} STATIC IMPORTED GLOBAL)
+  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/build/release/lib/lib${name}.${STATIC_LIB_EXTENSION}")
 endmacro()
 
 
@@ -175,13 +282,6 @@ endmacro()
 ############################################################################################################################
 
 #
-# Cannot have same $NTA and $NuPIC
-#
-if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
-  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
-endif()
-
-#
 # Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
@@ -191,7 +291,7 @@ if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
 endif()
 
 cmake_minimum_required(VERSION 2.8)
-project(Nupic CXX)
+project(nupic CXX)
 
 #
 # Sets default locations.
@@ -214,28 +314,32 @@ project(Nupic CXX)
 #
 # Repository root is the parent directory which this CMake file is located
 # This CMake file must be always on /repository/src subdirectory.
-get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
+#get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
+set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
 # 'release' is a subdirectory created on /build root,
 # but if it already is specified on $NTA environment variable, simply re-use it!
-if("$ENV{NTA}" STREQUAL "")
-  set(CMAKE_INSTALL_PREFIX "$ENV{HOME}/nta/eng")
-else()
-  set(CMAKE_INSTALL_PREFIX "$ENV{NTA}")
+if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
+  set(PROJECT_BUILD_RELEASE_DIR "${PROJECT_SOURCE_DIR}/build/release")
 endif()
-# 'ntabuild' is a subdirectory created on system temporary directory.
-if("${TEMP_BUILD_DIR}" STREQUAL "")
-  set(TEMP_BUILD_DIR "/tmp/ntabuild")
+# 'temp' is a subdirectory created on /build root
+if("${PROJECT_BUILD_TEMP_DIR}" STREQUAL "")
+  set(PROJECT_BUILD_TEMP_DIR "${PROJECT_SOURCE_DIR}/build/temp")
 endif()
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
-set(CMAKE_CURRENT_BINARY_DIR ${TEMP_BUILD_DIR})
+set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
 
 #
 # Clean directories before generate files
 #
 # Clean '/build/release'
-execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX})
-# Clean '/tmp/ntabuild'
-execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${TEMP_BUILD_DIR})
+execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR})
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/include)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/lib)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
+# Clean '/build/temp'
+execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR})
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
 
 #
 # Update repository submodules
@@ -374,7 +478,7 @@ execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(sys.prefix)"
 string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
-set(PYTHON_SITE_PACKAGES_DIR "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages")
+set(PYTHON_SITE_PACKAGES_DIR "${PROJECT_BUILD_RELEASE_DIR}/lib/python${PYTHON_VERSION}/site-packages")
 find_package(PythonLibs ${PYTHON_VERSION} REQUIRED)
 
 #
@@ -394,7 +498,7 @@ execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(n
 set(SWIG_EXECUTABLE "${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
 set(SWIG_DIR "${PROJECT_SOURCE_DIR}/external/common/share/swig/1.3.36")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
-string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
+#TODO: string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
 #
@@ -419,36 +523,20 @@ message(STATUS "  Version: ${SWIG_VERSION}")
 # Second, for multi-config builds (DEBUG or RELEASE, for example).
 #
 set(CMAKE_SWIG_OUTDIR "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${TEMP_BUILD_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
-foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-  string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
-  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-endforeach()
 
 #
 # Set environment variables of the operating system
 #
 message(STATUS "Checking environment...")
 message(STATUS "Environment variables:")
-set_environment_variable(PATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" ON)
+set_environment_variable(PATH "${PROJECT_BUILD_RELEASE_DIR}/bin" ON)
 set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
 set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
-set_environment_variable(LD_LIBRARY_PATH "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}" ON)
-set_environment_variable(DYLD_LIBRARY_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" ON)
-# If $NTA (ie 'release' directory) already is set, don't change it!
-if("$ENV{NTA}" STREQUAL "")
-  set_environment_variable(NTA "${CMAKE_INSTALL_PREFIX}" OFF)
-  set_environment_variable(NTA_ROOTDIR "${CMAKE_INSTALL_PREFIX}" OFF)
-  set_environment_variable(NTA_DATA_PATH "${CMAKE_INSTALL_PREFIX}/share/prediction/data" OFF)
-else()
-  show_environment_variable(NTA "$ENV{NTA}")
-  show_environment_variable(NTA_ROOTDIR "$ENV{NTA_ROOTDIR}")
-  show_environment_variable(NTA_DATA_PATH "$ENV{NTA_DATA_PATH}")
-endif()
+set_environment_variable(LD_LIBRARY_PATH "${PROJECT_BUILD_TEMP_DIR}/lib" ON)
+set_environment_variable(DYLD_LIBRARY_PATH "${PROJECT_BUILD_RELEASE_DIR}/lib" ON)
+set_environment_variable(NTA "${PROJECT_BUILD_RELEASE_DIR}" OFF)
+set_environment_variable(NTA_ROOTDIR "${PROJECT_BUILD_RELEASE_DIR}" OFF)
+set_environment_variable(NTA_DATA_PATH "${PROJECT_BUILD_RELEASE_DIR}/share/prediction/data" OFF)
 if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
   message(STATUS "  (some variables will be updated only after login.)")
@@ -463,8 +551,8 @@ message(STATUS "Project: ${PROJECT_NAME}")
 message(STATUS "Locations:")
 message(STATUS "  Source: ${PROJECT_SOURCE_DIR}")
 message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
-message(STATUS "  Build Directory: ${TEMP_BUILD_DIR}")
-message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "  Build Directory: ${PROJECT_BUILD_TEMP_DIR}")
+message(STATUS "  Release: ${PROJECT_BUILD_RELEASE_DIR}")
 
 
 ############################################################################################################################
@@ -479,7 +567,7 @@ message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/external/common/include -isystem${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${REPOSITORY_DIR}/build/release/include -I${PROJECT_SOURCE_DIR}/external/common/include -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -490,7 +578,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 #
 # Define custom preprocessor variables (#define XX in C++ code)
@@ -589,7 +677,7 @@ endif()
 #
 if(NTA_PYTHON_SUPPORT)
 
-  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR}")
+  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR} ${NTA_INCLUDEFLAGS}")
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
@@ -605,7 +693,7 @@ if(NTA_PYTHON_SUPPORT)
 
   set(NTA_LINKFLAGS_PYEMBED "${NTA_PLATFORM_LINKFLAGS_PYEMBED} ${NTA_LINKFLAGS_PY}")
 
-  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
+  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 endif()
 
@@ -670,307 +758,23 @@ set(NTA_STANDARD_LIBS
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
 set(LIB_STATIC_SUPPORT support)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/lang/py/support")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/NumpyVector.cpp
-  ${CURRENT_SOURCE_DIR}/PyArray.cpp
-  ${CURRENT_SOURCE_DIR}/PyHelpers.cpp
-  ${CURRENT_SOURCE_DIR}/PythonStream.cpp
-  ${CURRENT_SOURCE_DIR}/NumpyVector.hpp
-  ${CURRENT_SOURCE_DIR}/PyArray.hpp
-  ${CURRENT_SOURCE_DIR}/PyHelpers.hpp
-  ${CURRENT_SOURCE_DIR}/PythonStream.hpp
-  ${CURRENT_SOURCE_DIR}/WrappedVector.hpp
-)
-generate_static_library(${LIB_STATIC_SUPPORT} "${NTA_CXXFLAGS}" "${SOURCE}")
+generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/support" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
-# LibAlgorithms
+# LibNupicCore
 #
-set(LIB_STATIC_ALGORITHMS algorithms)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/algorithms")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/bit_history.cpp
-  ${CURRENT_SOURCE_DIR}/Cell.cpp
-  ${CURRENT_SOURCE_DIR}/Cells4.cpp
-  ${CURRENT_SOURCE_DIR}/classifier_result.cpp
-  ${CURRENT_SOURCE_DIR}/CondProbTable.cpp
-  ${CURRENT_SOURCE_DIR}/fast_cla_classifier.cpp
-  ${CURRENT_SOURCE_DIR}/flat_spatial_pooler.cpp
-  ${CURRENT_SOURCE_DIR}/gaborNode.cpp
-  ${CURRENT_SOURCE_DIR}/imageSensorLite.cpp
-  ${CURRENT_SOURCE_DIR}/InSynapse.cpp
-  ${CURRENT_SOURCE_DIR}/linear.cpp
-  ${CURRENT_SOURCE_DIR}/OutSynapse.cpp
-  ${CURRENT_SOURCE_DIR}/Segment.cpp
-  ${CURRENT_SOURCE_DIR}/SegmentUpdate.cpp
-  ${CURRENT_SOURCE_DIR}/spatial_pooler.cpp
-  ${CURRENT_SOURCE_DIR}/svm.cpp
-  ${CURRENT_SOURCE_DIR}/arrayBuffer.hpp
-  ${CURRENT_SOURCE_DIR}/bit_history.hpp
-  ${CURRENT_SOURCE_DIR}/Cell.hpp
-  ${CURRENT_SOURCE_DIR}/Cells4.hpp
-  ${CURRENT_SOURCE_DIR}/classifier_result.hpp
-  ${CURRENT_SOURCE_DIR}/CondProbTable.hpp
-  ${CURRENT_SOURCE_DIR}/fast_cla_classifier.hpp
-  ${CURRENT_SOURCE_DIR}/FDRCSpatial.hpp
-  ${CURRENT_SOURCE_DIR}/FDRSpatial.hpp
-  ${CURRENT_SOURCE_DIR}/flat_spatial_pooler.hpp
-  ${CURRENT_SOURCE_DIR}/gaborNode.hpp
-  ${CURRENT_SOURCE_DIR}/imageSensorLite.hpp
-  ${CURRENT_SOURCE_DIR}/InSynapse.hpp
-  ${CURRENT_SOURCE_DIR}/linear.hpp
-  ${CURRENT_SOURCE_DIR}/OutSynapse.hpp
-  ${CURRENT_SOURCE_DIR}/scanning.hpp
-  ${CURRENT_SOURCE_DIR}/Segment.hpp
-  ${CURRENT_SOURCE_DIR}/SegmentUpdate.hpp
-  ${CURRENT_SOURCE_DIR}/spatial_pooler.hpp
-  ${CURRENT_SOURCE_DIR}/svm.hpp
-  ${CURRENT_SOURCE_DIR}/svm_t.hpp
-)
-generate_static_library(${LIB_STATIC_ALGORITHMS} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibMath
-#
-set(LIB_STATIC_MATH math)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/math")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/SparseMatrixAlgorithms.cpp
-  ${CURRENT_SOURCE_DIR}/stl_io.cpp
-  ${CURRENT_SOURCE_DIR}/array2D.hpp
-  ${CURRENT_SOURCE_DIR}/array_algo.hpp
-  ${CURRENT_SOURCE_DIR}/convolution.hpp
-  ${CURRENT_SOURCE_DIR}/DenseMatrix.hpp
-  ${CURRENT_SOURCE_DIR}/Domain.hpp
-  ${CURRENT_SOURCE_DIR}/erosion.hpp
-  ${CURRENT_SOURCE_DIR}/functions.hpp
-  ${CURRENT_SOURCE_DIR}/GraphAlgorithms.hpp
-  ${CURRENT_SOURCE_DIR}/Index.hpp
-  ${CURRENT_SOURCE_DIR}/math.hpp
-  ${CURRENT_SOURCE_DIR}/NearestNeighbor.hpp
-  ${CURRENT_SOURCE_DIR}/rotation.hpp
-  ${CURRENT_SOURCE_DIR}/Set.hpp
-  ${CURRENT_SOURCE_DIR}/SparseBinaryMatrix.hpp
-  ${CURRENT_SOURCE_DIR}/SparseMatrix.hpp
-  ${CURRENT_SOURCE_DIR}/SparseMatrix01.hpp
-  ${CURRENT_SOURCE_DIR}/SparseMatrixAlgorithms.hpp
-  ${CURRENT_SOURCE_DIR}/SparseRLEMatrix.hpp
-  ${CURRENT_SOURCE_DIR}/SparseTensor.hpp
-  ${CURRENT_SOURCE_DIR}/stl_io.hpp
-  ${CURRENT_SOURCE_DIR}/types.hpp
-  ${CURRENT_SOURCE_DIR}/utils.hpp
-)
-generate_static_library(${LIB_STATIC_MATH} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibTypes
-#
-set(LIB_STATIC_TYPES types)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/types")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/BasicType.cpp
-  ${CURRENT_SOURCE_DIR}/Fraction.cpp
-  ${CURRENT_SOURCE_DIR}/BasicType.hpp
-  ${CURRENT_SOURCE_DIR}/Exception.hpp
-  ${CURRENT_SOURCE_DIR}/Fraction.hpp
-  ${CURRENT_SOURCE_DIR}/types.hpp
-  ${CURRENT_SOURCE_DIR}/types.h
-)
-generate_static_library(${LIB_STATIC_TYPES} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibTest
-#
-set(LIB_STATIC_TEST test)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/test")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/Tester.cpp
-  ${CURRENT_SOURCE_DIR}/Tester.hpp
-)
-generate_static_library(${LIB_STATIC_TEST} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibUtils
-#
-set(LIB_STATIC_UTILS utils)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/utils")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/LoggingException.cpp
-  ${CURRENT_SOURCE_DIR}/LogItem.cpp
-  ${CURRENT_SOURCE_DIR}/Random.cpp
-  ${CURRENT_SOURCE_DIR}/StringUtils.cpp
-  ${CURRENT_SOURCE_DIR}/TRandom.cpp
-  ${CURRENT_SOURCE_DIR}/Watcher.cpp
-  ${CURRENT_SOURCE_DIR}/Log.hpp
-  ${CURRENT_SOURCE_DIR}/LoggingException.hpp
-  ${CURRENT_SOURCE_DIR}/LogItem.hpp
-  ${CURRENT_SOURCE_DIR}/Random.hpp
-  ${CURRENT_SOURCE_DIR}/StringUtils.hpp
-  ${CURRENT_SOURCE_DIR}/TRandom.hpp
-  ${CURRENT_SOURCE_DIR}/utils.hpp
-  ${CURRENT_SOURCE_DIR}/Watcher.hpp
-)
-generate_static_library(${LIB_STATIC_UTILS} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibNTypes
-#
-set(LIB_STATIC_NTYPES ntypes)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/ntypes")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/ArrayBase.cpp
-  ${CURRENT_SOURCE_DIR}/Buffer.cpp
-  ${CURRENT_SOURCE_DIR}/BundleIO.cpp
-  ${CURRENT_SOURCE_DIR}/Collection.cpp
-  ${CURRENT_SOURCE_DIR}/Dimensions.cpp
-  ${CURRENT_SOURCE_DIR}/MemParser.cpp
-  ${CURRENT_SOURCE_DIR}/Scalar.cpp
-  ${CURRENT_SOURCE_DIR}/Value.cpp
-  ${CURRENT_SOURCE_DIR}/Array.hpp
-  ${CURRENT_SOURCE_DIR}/ArrayBase.hpp
-  ${CURRENT_SOURCE_DIR}/ArrayRef.hpp
-  ${CURRENT_SOURCE_DIR}/Buffer.hpp
-  ${CURRENT_SOURCE_DIR}/BundleIO.hpp
-  ${CURRENT_SOURCE_DIR}/Collection.hpp
-  ${CURRENT_SOURCE_DIR}/Dimensions.hpp
-  ${CURRENT_SOURCE_DIR}/MemParser.hpp
-  ${CURRENT_SOURCE_DIR}/MemStream.hpp
-  ${CURRENT_SOURCE_DIR}/NodeSet.hpp
-  ${CURRENT_SOURCE_DIR}/object_model.hpp
-  ${CURRENT_SOURCE_DIR}/Scalar.hpp
-  ${CURRENT_SOURCE_DIR}/Value.hpp
-  ${CURRENT_SOURCE_DIR}/object_model.h
-)
-generate_static_library(${LIB_STATIC_NTYPES} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibEngine
-#
-set(LIB_STATIC_ENGINE engine)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/engine")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/Collections.cpp
-  ${CURRENT_SOURCE_DIR}/Input.cpp
-  ${CURRENT_SOURCE_DIR}/Link.cpp
-  ${CURRENT_SOURCE_DIR}/LinkPolicyFactory.cpp
-  ${CURRENT_SOURCE_DIR}/Network.cpp
-  ${CURRENT_SOURCE_DIR}/NuPIC.cpp
-  ${CURRENT_SOURCE_DIR}/Output.cpp
-  ${CURRENT_SOURCE_DIR}/Region.cpp
-  ${CURRENT_SOURCE_DIR}/Region_io.cpp
-  ${CURRENT_SOURCE_DIR}/Region_parameters.cpp
-  ${CURRENT_SOURCE_DIR}/RegionImpl.cpp
-  ${CURRENT_SOURCE_DIR}/RegionImplFactory.cpp
-  ${CURRENT_SOURCE_DIR}/Spec.cpp
-  ${CURRENT_SOURCE_DIR}/TestFanIn2LinkPolicy.cpp
-  ${CURRENT_SOURCE_DIR}/TestNode.cpp
-  ${CURRENT_SOURCE_DIR}/UniformLinkPolicy.cpp
-  ${CURRENT_SOURCE_DIR}/YAMLUtils.cpp
-  ${CURRENT_SOURCE_DIR}/Input.hpp
-  ${CURRENT_SOURCE_DIR}/Link.hpp
-  ${CURRENT_SOURCE_DIR}/LinkPolicy.hpp
-  ${CURRENT_SOURCE_DIR}/LinkPolicyFactory.hpp
-  ${CURRENT_SOURCE_DIR}/Network.hpp
-  ${CURRENT_SOURCE_DIR}/NuPIC.hpp
-  ${CURRENT_SOURCE_DIR}/Output.hpp
-  ${CURRENT_SOURCE_DIR}/Region.hpp
-  ${CURRENT_SOURCE_DIR}/RegionImpl.hpp
-  ${CURRENT_SOURCE_DIR}/RegionImplFactory.hpp
-  ${CURRENT_SOURCE_DIR}/Spec.hpp
-  ${CURRENT_SOURCE_DIR}/TestFanIn2LinkPolicy.hpp
-  ${CURRENT_SOURCE_DIR}/TestNode.hpp
-  ${CURRENT_SOURCE_DIR}/UniformLinkPolicy.hpp
-  ${CURRENT_SOURCE_DIR}/YAMLUtils.hpp
-)
-generate_static_library(${LIB_STATIC_ENGINE} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibOS
-#
-set(LIB_STATIC_OS os)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/os")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/Directory.cpp
-  ${CURRENT_SOURCE_DIR}/DynamicLibrary.cpp
-  ${CURRENT_SOURCE_DIR}/Env.cpp
-  ${CURRENT_SOURCE_DIR}/FStream.cpp
-  ${CURRENT_SOURCE_DIR}/OS.cpp
-  ${CURRENT_SOURCE_DIR}/OSUnix.cpp
-  ${CURRENT_SOURCE_DIR}/OSWin.cpp
-  ${CURRENT_SOURCE_DIR}/Path.cpp
-  ${CURRENT_SOURCE_DIR}/regex.cpp
-  ${CURRENT_SOURCE_DIR}/Timer.cpp
-  ${CURRENT_SOURCE_DIR}/Directory.hpp
-  ${CURRENT_SOURCE_DIR}/DynamicLibrary.hpp
-  ${CURRENT_SOURCE_DIR}/Env.hpp
-  ${CURRENT_SOURCE_DIR}/FStream.hpp
-  ${CURRENT_SOURCE_DIR}/OS.hpp
-  ${CURRENT_SOURCE_DIR}/Path.hpp
-  ${CURRENT_SOURCE_DIR}/regex.hpp
-  ${CURRENT_SOURCE_DIR}/Timer.hpp
-)
-generate_static_library(${LIB_STATIC_OS} "${NTA_CXXFLAGS}" "${SOURCE}")
-
-#
-# LibRegions
-#
-set(LIB_STATIC_REGIONS regions)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/regions")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/VectorFile.cpp
-  ${CURRENT_SOURCE_DIR}/VectorFileEffector.cpp
-  ${CURRENT_SOURCE_DIR}/VectorFileSensor.cpp
-  ${CURRENT_SOURCE_DIR}/VectorFile.hpp
-  ${CURRENT_SOURCE_DIR}/VectorFileEffector.hpp
-  ${CURRENT_SOURCE_DIR}/VectorFileSensor.hpp
-)
-generate_static_library(${LIB_STATIC_REGIONS} "${NTA_CXXFLAGS}" "${SOURCE}")
+set(LIB_STATIC_NUPICCORE nupic.core)
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "" "")
 
 #
 # HtmTest
 #
 set(EXECUTABLE_HTMTEST htmtest)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/nta/apps/htmtest")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/htmtest.cpp
-)
 set(LIBRARIES
-  ${LIB_STATIC_ENGINE}
-  ${LIB_STATIC_REGIONS}
-  ${LIB_STATIC_ALGORITHMS}
   ${LIB_STATIC_SUPPORT}
-  ${LIB_STATIC_OS}
-  ${LIB_STATIC_MATH}
-  ${LIB_STATIC_NTYPES}
-  ${LIB_STATIC_UTILS}
-  ${LIB_STATIC_TYPES}
-  ${NTA_STANDARD_LIBS}
+  ${LIB_STATIC_NUPICCORE}
 )
-generate_executable(${EXECUTABLE_HTMTEST} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
-
-#
-# TestEverything
-#
-set(EXECUTABLE_TESTEVERYTHING testeverything)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/qa/testeverything")
-set(FILES_RETURNED)
-get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.cpp")
-set(SOURCE ${FILES_RETURNED} ${CURRENT_SOURCE_DIR}/TestEverythingMain.cpp)
-set(LIBRARIES
-  ${LIB_STATIC_ENGINE}
-  ${LIB_STATIC_REGIONS}
-  ${LIB_STATIC_ALGORITHMS}
-  ${LIB_STATIC_MATH}
-  ${LIB_STATIC_NTYPES}
-  ${LIB_STATIC_SUPPORT}
-  ${LIB_STATIC_OS}
-  ${LIB_STATIC_TEST}
-  ${LIB_STATIC_UTILS}
-  ${LIB_STATIC_TYPES}
-  ${NTA_STANDARD_LIBS}
-)
-generate_executable(${EXECUTABLE_TESTEVERYTHING} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${LIBRARIES}")
+generate_executable(${EXECUTABLE_HTMTEST} "${PROJECT_SOURCE_DIR}/tests/htmtest" "${PROJECT_BUILD_RELEASE_DIR}/bin" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
 
 #
 # LibCppRegion
@@ -979,25 +783,14 @@ generate_executable(${EXECUTABLE_TESTEVERYTHING} "${NTA_CXXFLAGS}" "${SOURCE}" "
 # loaded dynamically.
 #
 set(LIB_DYNAMIC_CPPREGION cpp_region)
-set(CURRENT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/py/cpp_region")
-set(SOURCE
-  ${CURRENT_SOURCE_DIR}/PyRegion.cpp
-  ${CURRENT_SOURCE_DIR}/PyRegion.hpp
-)
-set(LIBRARIES
-  ${LIB_STATIC_ENGINE}
-  ${LIB_STATIC_REGIONS}
-  ${LIB_STATIC_ALGORITHMS}
-  ${LIB_STATIC_MATH}
-  ${LIB_STATIC_NTYPES}
+set(PROJECT_LIBRARIES
   ${LIB_STATIC_SUPPORT}
-  ${LIB_STATIC_OS}
-  ${LIB_STATIC_UTILS}
-  ${LIB_STATIC_TYPES}
-  ${NTA_STANDARD_LIBS}
+  ${LIB_STATIC_NUPICCORE}
+)
+set(EXTERNAL_LIBRARIES
   ${PYTHON_LIBRARY}
 )
-generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${LIBRARIES}")
+generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${PROJECT_SOURCE_DIR}/py/cpp_region" "${PROJECT_BUILD_RELEASE_DIR}/lib" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
 
 if(NTA_PYTHON_SUPPORT)
   # This script is generated by swig.
@@ -1030,18 +823,10 @@ if(NTA_PYTHON_SUPPORT)
   #
   set(LIB_SHARED_ENGINEINTERNAL engine_internal)
   set(LIBRARIES
-    ${LIB_STATIC_ENGINE}
-    ${LIB_STATIC_REGIONS}
-    ${LIB_STATIC_ALGORITHMS}
     ${LIB_STATIC_SUPPORT}
-    ${LIB_STATIC_OS}
-    ${LIB_STATIC_MATH}
-    ${LIB_STATIC_NTYPES}
-    ${LIB_STATIC_UTILS}
-    ${LIB_STATIC_TYPES}
-    ${NTA_STANDARD_LIBS}
+    ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsMath
@@ -1052,14 +837,9 @@ if(NTA_PYTHON_SUPPORT)
   )
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
-    ${LIB_STATIC_OS}
-    ${LIB_STATIC_MATH}
-    ${LIB_STATIC_NTYPES}
-    ${LIB_STATIC_UTILS}
-    ${LIB_STATIC_TYPES}
-    ${NTA_STANDARD_LIBS}
+    ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_MATH} "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_MATH} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsAlgorithms
@@ -1067,15 +847,9 @@ if(NTA_PYTHON_SUPPORT)
   set(LIB_SHARED_ALGORITHMS algorithms)
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
-    ${LIB_STATIC_ALGORITHMS}
-    ${LIB_STATIC_OS}
-    ${LIB_STATIC_MATH}
-    ${LIB_STATIC_NTYPES}
-    ${LIB_STATIC_UTILS}
-    ${LIB_STATIC_TYPES}
-    ${NTA_STANDARD_LIBS}
+    ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ALGORITHMS} "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsIORange
@@ -1083,13 +857,9 @@ if(NTA_PYTHON_SUPPORT)
   set(LIB_SHARED_IORANGE iorange)
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
-    ${LIB_STATIC_OS}
-    ${LIB_STATIC_NTYPES}
-    ${LIB_STATIC_UTILS}
-    ${LIB_STATIC_TYPES}
-    ${NTA_STANDARD_LIBS}
+    ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_IORANGE} "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_IORANGE} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
 
@@ -1099,24 +869,6 @@ endif()
 ###  Post configuration operations                                                                                       ###
 ###                                                                                                                      ###
 ############################################################################################################################
-
-#
-# Create file with unit tests used by TestEverything
-#
-set(FILES_RETURNED)
-get_files_list(${PROJECT_SOURCE_DIR}/nta "unittests" "Test.hpp")
-set(files ${FILES_RETURNED})
-set(tests_file_content "")
-set(headers_file_content "")
-foreach(file ${files})
-  get_filename_component(test ${file} NAME_WE)
-  if(NOT ${file} MATCHES "TesterTest")
-    set(tests_file_content "${tests_file_content}ADD_TEST(${test});\n")
-    set(headers_file_content "${headers_file_content}#include \"${file}\"\n")
-  endif()
-endforeach()
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_addtests.hpp" "${tests_file_content}")
-file(WRITE "${PROJECT_SOURCE_DIR}/qa/testeverything/everything_headers.hpp" "${headers_file_content}")
 
 # Copy platform independent executable scripts
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
@@ -1139,21 +891,21 @@ copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/cross.py ${PYTHON_SITE_PACKAGES_DI
 copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/roc_utils.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/roc_utils.py)
 
 # Copy examples
-copy_directory(${PROJECT_SOURCE_DIR}/examples/prediction ${CMAKE_INSTALL_PREFIX}/share/prediction)
-copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${CMAKE_INSTALL_PREFIX}/share/opf)
+copy_directory(${PROJECT_SOURCE_DIR}/examples/prediction ${PROJECT_BUILD_RELEASE_DIR}/share/prediction)
+copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/share/opf)
 
 # Copy testing codes
-copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${CMAKE_INSTALL_PREFIX}/share/test/data)
-copy_directory(${PROJECT_SOURCE_DIR}/tests ${CMAKE_INSTALL_PREFIX}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/run_tests.sh ${CMAKE_INSTALL_PREFIX}/bin/run_tests.sh)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${CMAKE_INSTALL_PREFIX}/bin/run_swarm.py)
+copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${PROJECT_BUILD_RELEASE_DIR}/share/test/data)
+copy_directory(${PROJECT_SOURCE_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests)
+copy_file(${PROJECT_SOURCE_DIR}/run_tests.sh ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.sh)
+copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py)
+copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
 
 # Copy miscellaneous files
-copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${CMAKE_INSTALL_PREFIX}/share/doc/licenses)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${CMAKE_INSTALL_PREFIX}/conf/default/nupic-default.xml)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${CMAKE_INSTALL_PREFIX}/conf/default/nupic-logging.conf)
-copy_file(${PROJECT_SOURCE_DIR}/env.sh ${CMAKE_INSTALL_PREFIX}/env.sh)
+copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
+copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
+copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
+copy_file(${PROJECT_SOURCE_DIR}/env.sh ${PROJECT_BUILD_RELEASE_DIR}/env.sh)
 
 # Copy python API and regions
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/__init__.py)
