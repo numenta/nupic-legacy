@@ -175,13 +175,6 @@ endmacro()
 ############################################################################################################################
 
 #
-# Cannot have same $NTA and $NuPIC
-#
-if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
-  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
-endif()
-
-#
 # Set C++ compiler.
 # According to CMake documentation, this must be done before any language is set (ie before any project() or enable_language() command).
 #
@@ -454,6 +447,13 @@ if(OSX)
   message(STATUS "  (some variables will be updated only after login.)")
 endif()
 show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
+
+#
+# Cannot have same $NTA and $NuPIC
+#
+if("$ENV{NTA}" STREQUAL "$ENV{NUPIC}")
+  message(FATAL_ERROR "\$NTA environment variable cannot be the same as the \$NUPIC environment variable!")
+endif()
 
 #
 # Project details
