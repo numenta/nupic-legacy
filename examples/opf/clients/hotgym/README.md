@@ -21,3 +21,8 @@ The data we'll start with is [raw csv data](data/README.md) from several gyms in
 ### Choosing what to predict
 
 ### Executing a Swarm
+
+#### Constructing the [Swarm Description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description)
+
+
+
