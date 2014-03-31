@@ -5,6 +5,8 @@ import datetime
 INPUT = '../data/raw/gym_input.csv'
 LOCAL_DATA = 'local_data'
 data_out = {}
+low = 100.0
+high = 0.0
 
 
 def _create_output_header():
@@ -35,8 +37,15 @@ def _to_file_name(name):
 
 
 def _line_to_data(line):
+  global low, high
   # "   ","SITE_LOCATION_NAME","TIMESTAMP","TOTAL_KWH"
-  return [_convert_date(line[2]), float(line[3])]
+  kw_energy_consumption = float(line[3])
+  # update low and high values
+  if kw_energy_consumption > high:
+    high = kw_energy_consumption
+  if kw_energy_consumption < low:
+    low = kw_energy_consumption
+  return [_convert_date(line[2]), kw_energy_consumption]
 
 
 def _process_line(line):
@@ -50,10 +59,13 @@ def _write_data_files():
   if not os.path.exists(LOCAL_DATA):
     os.makedirs(LOCAL_DATA)
   for name, data in data_out.iteritems():
-    with open(os.path.join(LOCAL_DATA, _to_file_name(name)), 'wb') as file_out:
+    file_path = os.path.join(LOCAL_DATA, _to_file_name(name))
+    with open(file_path, 'wb') as file_out:
       writer = csv.writer(file_out)
       for line in data:
         writer.writerow(line);
+    print "Wrote output file: %s" % file_path
+
 
 
 def run():
@@ -65,6 +77,7 @@ def run():
       _process_line(line)
     # Now that all the data has been input and processed, write out the files.
     _write_data_files()
+    print "Low: %f\t\tHigh: %f" % (low, high)
 
 
 if __name__ == '__main__':
