@@ -280,7 +280,7 @@ if(OSX)
   set(NTA_PLATFORM_ASFLAGS "")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
   set(NTA_PLATFORM_LINKFLAGS "-Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -std=c++11 -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LIBS "-stdlib=libstdc++ -std=c++98 -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
   set(NTA_PLATFORM_MPI_EXTRA_LIBS "")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
@@ -292,7 +292,7 @@ elseif(LINUX)
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
     set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
     # pthread needed by libapr-1
-    set(NTA_PLATFORM_LIBS "-std=c++11 -lm -lpthread -ldl -lutil")
+    set(NTA_PLATFORM_LIBS "-std=c++98 -lm -lpthread -ldl -lutil")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
@@ -302,7 +302,7 @@ elseif(LINUX)
     set(NTA_PLATFORM_ASFLAGS "")
     set(NTA_PLATFORM_DEBUGFLAGS "-g")
     set(NTA_PLATFORM_LINKFLAGS "-Wl,--no-as-needed -static-libgcc")
-    set(NTA_PLATFORM_LIBS "-std=c++11 -lm -lpthread -ldl -lutil -lrt")
+    set(NTA_PLATFORM_LIBS "-std=c++98 -lm -lpthread -ldl -lutil -lrt")
     set(NTA_PLATFORM_MPI_EXTRA_LIBS "-lrt")
     set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -shared")
     set(NTA_PLATFORM_LINKFLAGS_PYEMBED "-Wl,--export-dynamic")
@@ -340,7 +340,17 @@ message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}
 # Instead we just use a shell command to execute a simple python command, if exit code is 0 ('success') then we have python installed.
 #
 message(STATUS "Checking software tools...")
-execute_process(COMMAND python --version
+
+#
+# Check for user-defined PYTHON env variable
+#
+if(NOT "$ENV{PYTHON}" STREQUAL "")
+  set(PYTHON "$ENV{PYTHON}")
+else()
+  set(PYTHON "python")
+endif()
+
+execute_process(COMMAND ${PYTHON} --version
                 RESULT_VARIABLE EXIT_CODE)
 if(NOT EXIT_CODE EQUAL 0)
   message(FATAL_ERROR "System Python not found. You do not have a system version of Python or it is not set on environment path.")
@@ -350,7 +360,7 @@ endif()
 # Gives the version of Python necessary to get installation directories
 # for use with ${PYTHON_VERSION}, etc.
 #
-execute_process(COMMAND python -c "import sys;sys.stdout.write(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))"
+execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(str(sys.version_info[0]) + '.' + str(sys.version_info[1]))"
                 OUTPUT_VARIABLE PYTHON_VERSION)
 if(NOT(${PYTHON_VERSION} EQUAL "2.6" OR ${PYTHON_VERSION} EQUAL "2.7"))
   message(FATAL_ERROR "Only these versions of Python are accepted: 2.6, 2.7")
@@ -359,20 +369,21 @@ endif()
 #
 # Find out where system installation of python is.
 #
-execute_process(COMMAND python -c "import sys;sys.stdout.write(sys.prefix)"
+execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(sys.prefix)"
                 OUTPUT_VARIABLE PYTHON_PREFIX)
 string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
 set(PYTHON_SITE_PACKAGES_DIR "${CMAKE_INSTALL_PREFIX}/lib/python${PYTHON_VERSION}/site-packages")
+find_package(PythonLibs ${PYTHON_VERSION} REQUIRED)
 
 #
 # Finds out version of Numpy and headers's path.
 #
-execute_process(COMMAND python -c "import sys;import numpy;sys.stdout.write(numpy.get_include())"
+execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.get_include())"
                 OUTPUT_VARIABLE NUMPY_INCLUDE_DIR)
 string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR})
-execute_process(COMMAND python -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
+execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
                 OUTPUT_VARIABLE NUMPY_VERSION)
 
 #
@@ -394,6 +405,8 @@ message(STATUS "  Version: ${PYTHON_VERSION}")
 message(STATUS "  Include dir: ${PYTHON_INCLUDE_DIR}")
 message(STATUS "  Library dir: ${PYTHON_LIBRARY_DIR}")
 message(STATUS "  Site packages dir: ${PYTHON_SITE_PACKAGES_DIR}")
+message(STATUS "  Python lib: ${PYTHON_LIBRARY}")
+message(STATUS "  Python command: ${PYTHON}")
 message(STATUS "Numpy details:")
 message(STATUS "  Version: ${NUMPY_VERSION}")
 message(STATUS "  Include dir: ${NUMPY_INCLUDE_DIR}")
@@ -466,19 +479,27 @@ message(STATUS "  Release: ${CMAKE_INSTALL_PREFIX}")
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -I${PROJECT_SOURCE_DIR}/external/common/include -I${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${PROJECT_SOURCE_DIR} -isystem${PROJECT_SOURCE_DIR}/external/common/include -isystem${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
 # and not as a separate program. Used for cppvision example.
 #
-set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused-variable -Wno-deprecated")
+set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFIG_H -DNTA_INTERNAL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DBOOST_NO_WREGEX -DNUPIC2 -fvisibility=hidden -Wall -Wreturn-type -Wunused -Wno-unused-parameter")
 
 #
 # All executables and plugins are linked with these flags
 #
 set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_SOURCE_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
+#
+# Define custom preprocessor variables (#define XX in C++ code)
+#
+#add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
+#
+# the reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
+# cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
+add_definitions(-std=c++98) # smart flag setting for gcc/clang
 
 message(STATUS "Options:")
 
@@ -543,11 +564,16 @@ option(NTA_MPI_SUPPORT "--mpi=[ON/OFF] turn on MPI support [default=ON]" ON)
 message(STATUS "  MPI Support: ${NTA_MPI_SUPPORT}")
 
 #
-# Set GNU c/c++ flags in case of CLang is off.
+# Compiler specific (clang, gcc, ..) flags can be set here
 #
 if(CMAKE_COMPILER_IS_GNUCXX)
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-sign-compare -Wno-error=format=")
   set(NTA_CXXFLAGS_OPTIMIZATION "${NTA_CXXFLAGS_OPTIMIZATION} -falign-loops=16")
+  # workaround for gcc 4.4 in Grok
+  execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+  if (GCC_VERSION VERSION_GREATER 4.6 OR GCC_VERSION VERSION_EQUAL 4.6)
+    set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -Wno-error=cpp -Werror")
+  endif()
 endif()
 
 #
@@ -567,7 +593,7 @@ if(NTA_PYTHON_SUPPORT)
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
-  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${PYTHON_INCLUDE_DIR}")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -isystem${NUMPY_INCLUDE_DIR} -isystem${PYTHON_INCLUDE_DIR}")
 
   # -falign-functions is necessary to avoid a compiler problem on
   # darwin. If you build without -falign-functions, exceptions
@@ -969,6 +995,7 @@ set(LIBRARIES
   ${LIB_STATIC_UTILS}
   ${LIB_STATIC_TYPES}
   ${NTA_STANDARD_LIBS}
+  ${PYTHON_LIBRARY}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${NTA_CXXFLAGS}" "${SOURCE}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${LIBRARIES}")
 

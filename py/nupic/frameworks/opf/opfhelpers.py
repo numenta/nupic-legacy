@@ -55,7 +55,7 @@ def loadExperimentDescriptionScriptFromDir(experimentDir):
 
   experimentDir:  experiment directory path
 
-  Returns:        modudle of the loaded experiment description scripts
+  Returns:        module of the loaded experiment description scripts
   """
   descriptionScriptPath = os.path.join(experimentDir, "description.py")
   module = _loadDescriptionFile(descriptionScriptPath)

@@ -122,7 +122,7 @@ def runExperiment(args, model=None):
   """Run a single OPF experiment
 
   NOTE: The caller is resposible for initializing python logging before calling
-  this runction (e.g., import nupic.support; nupic.support.initLogging())
+  this function (e.g., import nupic.support; nupic.support.initLogging())
 
   see also initExperimentPrng()
 
@@ -135,7 +135,7 @@ def runExperiment(args, model=None):
         to use instead of creating a new one.
 
   Returns:
-    referece to OPF Model instance that was constructed (this
+    reference to OPF Model instance that was constructed (this
     is provided to aid with debugging) or None, if none was
     created.
   """
