@@ -78,6 +78,14 @@ def _emit(verbosityLevel, info):
     print info
 
 
+def _is_json_string(str):
+  try:
+    json.loads(str);
+    return True;
+  except ValueError:
+    return False;
+
+
 def _escape(s):
   """Escape commas, tabs, newlines and dashes in a string
 
@@ -306,47 +314,65 @@ def runPermutations(args):
 
   # Get the permutations script's filepath
   if len(positionalArgs) != 1:
-    parser.error("You must supply the name of exactly one permutations script "
-                 "or JSON description file.")
+    parser.error("You must supply the name of exactly one permutations script, "
+                 "JSON description file, or description dictionary.")
 
   expDescJsonPath = None
   permutationsScriptPath = None
+  expDescJsonDict = None
 
-  fileArgPath = os.path.expanduser(positionalArgs[0])
-  fileArgPath = os.path.expandvars(fileArgPath)
-  fileArgPath = os.path.abspath(fileArgPath)
+  # If the first argument is JSON string, it contains the swarm description,
+  # so we assume it's not a file
+  if _is_json_string(positionalArgs[0]):
+    outDir = os.getcwd()
+    permWorkDir = outDir
+    outputLabel = 'swarm_desc'
+    expDescJson = positionalArgs[0]
 
-  permWorkDir = os.path.dirname(fileArgPath)
-
-  outputLabel = os.path.splitext(os.path.basename(fileArgPath))[0]
-
-  basename = os.path.basename(fileArgPath)
-  fileExtension = os.path.splitext(basename)[1]
-
-  # Setup interrupt handling
-  signal.signal(signal.SIGTERM, termHandler)
-  signal.signal(signal.SIGINT, termHandler)
-
-  if fileExtension == '.json':
-    expDescJsonPath = fileArgPath
-    
-    # Generate the description and permutations.py files in the same directory
-    #  for reference.
-    outDir = os.path.dirname(expDescJsonPath)
-    if not options.overwrite:
-      for name in ('description.py', 'permutations.py'):
-        if os.path.exists(os.path.join(outDir, name)):
-          raise RuntimeError("The %s file already exists and will be "
-            "overwritten by this tool. If it is OK to overwrite this file, "
-            "use the --overwrite option." % \
-            os.path.join(outDir, "description.py"))
+    expDescJson = expDescJson.splitlines()
+    expDescJson = ''.join(expDescJson)
+    expDescJsonDict = json.loads(expDescJson)
     expGenerator([
-      '--descriptionFromFile=%s' % (expDescJsonPath),
+      '--description=%s' % (expDescJson),
       '--outDir=%s' % (outDir)])
 
+  # Otherwise, we treat the first arg as a file
   else:
-    # Assume it's a permutations python script
-    permutationsScriptPath = fileArgPath
+    fileArgPath = os.path.expanduser(positionalArgs[0])
+    fileArgPath = os.path.expandvars(fileArgPath)
+    fileArgPath = os.path.abspath(fileArgPath)
+
+    permWorkDir = os.path.dirname(fileArgPath)
+
+    outputLabel = os.path.splitext(os.path.basename(fileArgPath))[0]
+
+    basename = os.path.basename(fileArgPath)
+    fileExtension = os.path.splitext(basename)[1]
+
+    # Setup interrupt handling
+    signal.signal(signal.SIGTERM, termHandler)
+    signal.signal(signal.SIGINT, termHandler)
+
+    if fileExtension == '.json':
+      expDescJsonPath = fileArgPath
+      
+      # Generate the description and permutations.py files in the same directory
+      #  for reference.
+      outDir = os.path.dirname(expDescJsonPath)
+      if not options.overwrite:
+        for name in ('description.py', 'permutations.py'):
+          if os.path.exists(os.path.join(outDir, name)):
+            raise RuntimeError("The %s file already exists and will be "
+              "overwritten by this tool. If it is OK to overwrite this file, "
+              "use the --overwrite option." % \
+              os.path.join(outDir, "description.py"))
+      expGenerator([
+        '--descriptionFromFile=%s' % (expDescJsonPath),
+        '--outDir=%s' % (outDir)])
+
+    else:
+      # Assume it's a permutations python script
+      permutationsScriptPath = fileArgPath
 
   # Set up cluster default values if required
   if(options.clusterDefault):
@@ -356,10 +382,11 @@ def runPermutations(args):
   grokOptions = dict(
     action = options.action,
 
-    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
-    #       MUST be specfied; the other MUST be None.
+    # NOTE: exactly one of expDescJsonPath, permutationsScriptPath,
+    #       or expDescJsonDict MUST be specfied; the others MUST be None.
     expDescJsonPath = expDescJsonPath,
     permutationsScriptPath = permutationsScriptPath,
+    expDescJsonDict = expDescJsonDict,
 
     # Path for storing hypersearch output (based on given file path arg)
     permWorkDir = permWorkDir,
@@ -1823,9 +1850,13 @@ class _ClientJobUtils(object):
     if forRunning:
       params['persistentJobGUID'] = str(uuid.uuid1())
 
+    # If a permutations script was provided:
     if options['permutationsScriptPath']:
-
       params['permutationsPyFilename'] = options['permutationsScriptPath']
+    # If search description was provided directly:
+    elif options['expDescJsonDict']:
+      params['description'] = options['expDescJsonDict']
+    # Else assume use the JSON file for search description.
     else:
       with open(name=options['expDescJsonPath'], mode="r") as fp:
         params['description'] = json.load(fp)
