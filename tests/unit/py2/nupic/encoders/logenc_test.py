@@ -196,7 +196,8 @@ class LogEncoderTest(unittest.TestCase):
                    resolution=0.1,
                    minval=1,
                    maxval=10000,
-                   name="amount")
+                   name="amount",
+		   forced=True)
     
     # Build our expected values
     inc = 0.1
@@ -223,7 +224,8 @@ class LogEncoderTest(unittest.TestCase):
                    radius=1,
                    minval=1,
                    maxval=10000,
-                   name="amount")
+                   name="amount",
+		   forced=True)
     
     
     self.assertEqual(le.encoder.n, 5)
@@ -251,7 +253,7 @@ class LogEncoderTest(unittest.TestCase):
     '''
     # Create the encoder
     n = 100
-    le = LogEncoder(n=n)
+    le = LogEncoder(n=n, forced=True)
     self.assertEqual(le.encoder.n, n)
   
   
@@ -260,10 +262,10 @@ class LogEncoderTest(unittest.TestCase):
     Verifies unusual instances of minval and maxval are handled properly
     '''
     
-    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=-100)
-    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=1e-07)
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=-100, forced=True)
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=1e-07, forced=True)
     
-    le = LogEncoder(n=100, minval=42, maxval=1.3e12)
+    le = LogEncoder(n=100, minval=42, maxval=1.3e12, forced=True)
     
     expectedRadius = 0.552141792732 
     expectedResolution = 0.110428358546
