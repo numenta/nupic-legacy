@@ -189,11 +189,13 @@ def runPermutations(args):
   helpString = (
       "\n\n%prog [options] permutationsScript\n"
       "%prog [options] expDescription.json\n\n"
+      "%prog [options] <JSON description string>\n\n"
       "This script runs permutations of an experiment via Grok engine, as "
-      "defined in a\npermutations.py script or an expGenerator experiment "
-      "description json file.\nIn the expDescription.json form, the json file "
-      "MUST have the file extension\n'.json' and MUST conform to "
-      "expGenerator/experimentDescriptionSchema.json.")
+      "defined in a\npermutations.py script, an expGenerator experiment "
+      "description JSON file, or an experiment description JSON string.\n"
+      "In the expDescription.json form, the json file "
+      "MUST have the file extension\n'.json'. Any provided JSON MUST conform "
+      "to expGenerator/experimentDescriptionSchema.json.")
 
   parser = optparse.OptionParser(usage=helpString)
 
@@ -315,7 +317,7 @@ def runPermutations(args):
   # Get the permutations script's filepath
   if len(positionalArgs) != 1:
     parser.error("You must supply the name of exactly one permutations script, "
-                 "JSON description file, or description dictionary.")
+                 "JSON description file, or description JSON string.")
 
   expDescJsonPath = None
   permutationsScriptPath = None
