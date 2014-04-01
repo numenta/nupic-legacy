@@ -31,6 +31,7 @@ Output: encoded('XAXAXA''XXX')
 """
 
 import numpy
+from types import FunctionType
 
 from nupic.encoders.multi import MultiEncoder
 from nupic.encoders.base import Encoder
@@ -126,8 +127,8 @@ UtilityEncoder act transparently; use input and apply it to encoder,
     """set the feval function;
        an evaluation function: must handle all inputs from inputEncoder, 
        its output must be acceptable by utilityEncoder; util=feval(input)"""
-    if not(type(feval)==type(types.FunctionType) or feval is None):
-      raise Exception("feval must be a function (or None for disabled)")
+    if not(type(feval)==FunctionType or feval is None):
+      raise Exception("feval must be a function (or None for disabled). type(feval)=",type(feval))
     self.evaluate=feval
 
   def _handleNBack(self,state):
