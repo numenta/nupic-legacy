@@ -110,7 +110,8 @@ class LogEncoder(Encoder):
                                  radius=radius,
                                  resolution=resolution,
                                  verbosity=self.verbosity,
-                                 clipInput=self.clipInput)
+                                 clipInput=self.clipInput,
+				 forced=forced)
     self.width = self.encoder.getWidth()
     self.description = [(name, 0)]
     self.name = name
