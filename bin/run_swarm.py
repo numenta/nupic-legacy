@@ -20,7 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This script is the command-line interface for running swarms in nupic."""
+""" @file run_swarm.py
+This script is the command-line interface for running swarms in nupic."""
+
 import sys
 import os
 import optparse
