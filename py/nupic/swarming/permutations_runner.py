@@ -19,14 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This script is the command-line interface for running swarms.
-"""
-
 import collections
 import imp
 import csv
 from datetime import datetime, timedelta
-import optparse
 import os
 import cPickle as pickle
 import pprint
@@ -44,10 +40,33 @@ from nupic.swarming import HypersearchWorker, utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
-
+g_currentVerbosityLevel = 0
 gCurrentSearch = None
+gDefaultOptions = {'expDescJsonPath': None,
+                  'expDescConfig': None,
+                  'permutationsScriptPath': None,
+                  'outputLabel': "swarm_out",
+                  'permWorkDir': None,
+                  'action': "run",
+                  'searchMethod': "v2",
+                  'timeout': None,
+                  'exports': None,
+                  'useTerminators': False,
+                  'maxWorkers': 2,
+                  'maxPermutations': None,
+                  'genTopNDescriptions': 1,
+                  'useEngine': False}
 
-def termHandler(signal, frame):
+
+
+class Verbosity(object):
+  WARNING = 0
+  INFO = 1
+  DEBUG = 2
+
+
+
+def _termHandler(signal, frame):
   global gCurrentSearch
   try:
     jobrunner = gCurrentSearch
@@ -59,22 +78,16 @@ def termHandler(signal, frame):
     cjdao.ClientJobsDAO.get().jobCancel(jobID)
 
 
-class Verbosity(object):
-  WARNING = 0
-  INFO = 1
-  DEBUG = 2
-
-
-g_currentVerbosityLevel = 0
-
 
 def _verbosityEnabled(verbosityLevel):
   return (verbosityLevel <= g_currentVerbosityLevel)
 
 
+
 def _emit(verbosityLevel, info):
   if _verbosityEnabled(verbosityLevel):
     print info
+
 
 
 def _escape(s):
@@ -89,6 +102,7 @@ def _escape(s):
   s = s.replace('\t', '\\t')
   s = s.replace(',', '\t')
   return s
+
 
 
 def _engineServicesRunning():
@@ -110,29 +124,16 @@ def _engineServicesRunning():
 
   return running
 
-  
-
-def main():
-  """Runs hypersearch with command-line args in sys.argv (see
-  runPermutations() for arg definitions)
-
-  Parameters:
-  ----------------------------------------------------------------------
-  retval:         for the actions 'run', 'pickup', and 'dryRun', returns the
-                  Hypersearch job ID (in ClinetJobs table); otherwise returns
-                  None
-  """
-  return runPermutations(sys.argv[1:])
 
 
-def runHypersearch(grokOptions, options):
+def _runHypersearch(runOptions):
   # Run HyperSearch
   startTime = time.time()
-  search = _HyperSearchRunner(grokOptions)
+  search = _HyperSearchRunner(runOptions)
   # Save in global for the signal handler.
   global gCurrentSearch
   gCurrentSearch = search
-  if options.action in ('run', 'dryRun'):
+  if runOptions['action'] in ('run', 'dryRun'):
     search.runNewSearch()
   else:
     search.pickupSearch()
@@ -140,8 +141,8 @@ def runHypersearch(grokOptions, options):
   # Generate reports
   # Print results and generate report csv file
   _HyperSearchRunner.generateReport(
-    options=grokOptions,
-    replaceReport=options.replaceReport,
+    options=runOptions,
+    replaceReport=runOptions['replaceReport'],
     hyperSearchJob=search.peekSearchJob(),
     metricsKeys=search.getDiscoveredMetricsKeys())
   secs = time.time() - startTime
@@ -152,322 +153,149 @@ def runHypersearch(grokOptions, options):
   print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
   jobID = search.peekSearchJob().getJobID()
   print "Hypersearch ClientJobs job ID: ", jobID
+
   #if _grokHyperSearchHasErrors(search.peekSearchJob()):
   #  # TODO: if job or some models failed, emit error messages
   #  sys.exit(1)
   #else:
   #  sys.exit(0)
+
   return jobID
 
-def newConstructOptions(expDescJsonPath=None,
-                        permutationsScriptPath=None,
-                        outputLabel="swarm_out",
-                        permWorkDir=None,
-                        action="run",
-                        searchMethod="v2",
-                        timeout=None,
-                        exports=None,
-                        useTerminators=False,
-                        maxWorkers=2,
-                        maxPermutations=None,
-                        genTopNDescriptions=1,
-                        useEngine=False
-                        ):
-  return dict(
-    action=action,
-    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
-    #       MUST be specfied; the other MUST be None.
-    expDescJsonPath=expDescJsonPath,
-    permutationsScriptPath=permutationsScriptPath,
-    # Path for storing hypersearch output (based on given file path arg)
-    permWorkDir=permWorkDir,
-    # Label derived from the given file path arg that may be incorporated into
-    # generated output file names
-    outputLabel=outputLabel,
-    searchMethod=searchMethod,
-    timeout=timeout,
-    exports=exports,
-    useTerminators=useTerminators,
-    maxNumWorkers=maxWorkers,
-    maxPermutations=maxPermutations,
-    genTopNDescriptions=genTopNDescriptions,
-    useEngine=useEngine == "yes",
-  )
-
-def constructOptions(expDescJsonPath, options, outputLabel, permWorkDir, permutationsScriptPath):
-  return dict(
-    action=options.action,
-    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
-    #       MUST be specfied; the other MUST be None.
-    expDescJsonPath=expDescJsonPath,
-    permutationsScriptPath=permutationsScriptPath,
-    # Path for storing hypersearch output (based on given file path arg)
-    permWorkDir=permWorkDir,
-    # Label derived from the given file path arg that may be incorporated into
-    # generated output file names
-    outputLabel=outputLabel,
-    searchMethod=options.searchMethod,
-    #stopOnError = options.stopOnErr,
-    #autoExperimentReorder = not options.noreorder,
-    #experimentRunOptions = options.runOptions,
-    #variableOverrides = options.override,
-    timeout=options.timeout,
-    exports=options.exports,
-    useTerminators=options.useTerminators,
-    maxNumWorkers=options.maxWorkers,
-    maxPermutations=options.maxPermutations,
-    genTopNDescriptions=options.genTopNDescriptions,
-    useEngine=options.useEngine == "yes",
-  )
 
 
-def generateExpFiles(expDescJsonPath, outDir, options):
+def _injectDefaultOptions(options):
+  global gDefaultOptions
+  return dict(gDefaultOptions, **options)
+
+
+
+def _validateOptions(options):
+  if 'expDescJsonPath' not in options \
+    and 'expDescConfig' not in options \
+    and 'permutationsScriptPath' not in options:
+    raise Exception("Options must contain one of the following: "
+                    "expDescJsonPath, expDescConfig, or "
+                    "permutationsScriptPath.")
+
+
+
+def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
+  # The expGenerator expects the JSON without newlines for an unknown reason.
+  expDescConfig = json.dumps(swarmDescriptionJson)
+  expDescConfig = expDescConfig.splitlines()
+  expDescConfig = ''.join(expDescConfig)
+
   expGenerator([
-    '--descriptionFromFile=%s' % (expDescJsonPath),
+    '--description=%s' % (expDescConfig),
     '--outDir=%s' % (outDir)])
 
 
-def runAction(options, runOptions):
+
+def _runAction(runOptions):
   return_value = None
+  action = runOptions['action']
   # Print Grok HyperSearch results from the current or last run
-  if options.action == 'report':
+  if action == 'report':
       _HyperSearchRunner.generateReport(
           options=runOptions,
-          replaceReport=options.replaceReport,
+          replaceReport=runOptions['replaceReport'],
           hyperSearchJob=None,
           metricsKeys=None)
 
   # Run HyperSearch via Grok
-  elif options.action in ('run', 'dryRun', 'pickup'):
-      return_value = runHypersearch(runOptions, options)
-
+  elif action in ('run', 'dryRun', 'pickup'):
+      return_value = _runHypersearch(runOptions)
   else:
-      raise Exception("Unhandled action: %s" % options.action)
+      raise Exception("Unhandled action: %s" % action)
   return return_value
 
 
-def run_with_json_file(expJsonFilePath, options, outputLabel, permWorkDir):
-  # Generate the description and permutations.py files in the same directory
-  #  for reference.
-  outDir = os.path.dirname(expJsonFilePath)
-  if not options.overwrite:
+def _checkOverwrite(options, outDir):
+  overwrite = options['overwrite']
+  if not overwrite:
     for name in ('description.py', 'permutations.py'):
       if os.path.exists(os.path.join(outDir, name)):
         raise RuntimeError("The %s file already exists and will be "
-                           "overwritten by this tool. If it is OK to overwrite this file, "
-                           "use the --overwrite option." % \
+                           "overwritten by this tool. If it is OK to overwrite "
+                           "this file, use the --overwrite option." % \
                            os.path.join(outDir, "description.py"))
-  generateExpFiles(expJsonFilePath, outDir, options)
-  runOptions = newConstructOptions(expDescJsonPath=expJsonFilePath,
-                                   outputLabel=outputLabel,
-                                   permWorkDir=permWorkDir,
-                                   action=options.action,
-                                   timeout=options.timeout,
-                                   exports=options.exports,
-                                   useTerminators=options.useTerminators,
-                                   maxWorkers=options.maxWorkers,
-                                   maxPermutations=options.maxPermutations,
-                                   genTopNDescriptions=options.genTopNDescriptions,
-                                   useEngine=options.useEngine)
-  return_value = runAction(options, runOptions)
-  return return_value
+  # The overwrite option has already been used, so should be removed from the
+  # config at this point.
+  del options['overwrite']
 
 
-def run_with_permutations_script(fileArgPath, options, outputLabel, permWorkDir):
-  # Assume it's a permutations python script
-  runOptions = newConstructOptions(permutationsScriptPath=fileArgPath,
-                                 outputLabel=outputLabel,
-                                 permWorkDir=permWorkDir,
-                                 action=options.action,
-                                 timeout=options.timeout,
-                                 exports=options.exports,
-                                 useTerminators=options.useTerminators,
-                                 maxWorkers=options.maxWorkers,
-                                 maxPermutations=options.maxPermutations,
-                                 genTopNDescriptions=options.genTopNDescriptions,
-                                 useEngine=options.useEngine)
 
-  return_value = runAction(options, runOptions)
-  return return_value
+def runWithConfig(expJsonConfig, outDir, optionsDict,
+                    outputLabel='default', permWorkDir=None, verbosity=1):
 
-
-def runPermutations(args):
-  """
-  The main function of the RunPermutations utility.
-  This utility will automatically generate and run multiple prediction framework
-  experiments that are permutations of a base experiment via the Grok engine.
-  For example, if you have an experiment that you want to test with 3 possible
-  values of variable A and 2 possible values of variable B, this utility will
-  automatically generate the experiment directories and description files for
-  each of the 6 different experiments.
-
-  Here is an example permutations file which is read by this script below. The
-  permutations file must be in the same directory as the description.py for the
-  base experiment that you want to permute. It contains a permutations dict, an
-  optional list of the result items to report on for each experiment, and an
-  optional result item to optimize for.
-
-  When an 'optimize' entry is provided, this tool will attempt to prioritize the
-  order in which the various permutations are run in order to improve the odds
-  of running the best permutations sooner. It does this by watching the results
-  for various parameter values and putting parameter values that give generally
-  better results at the head of the queue.
-
-  In addition, when the optimize key is provided, we periodically update the UI
-  with the best results obtained so far on that metric.
-
-  ---------------------------------------------------------------------------
-  permutations = dict(
-                  iterationCount = [1000, 5000],
-                  coincCount = [50, 100],
-                  trainTP = [False],
-                  )
-
-  report = ['.*reconstructErrAvg',
-            '.*inputPredScore.*',
-            ]
-
-  optimize = 'postProc_gym1_baseline:inputPredScore'
-
-  Parameters:
-  ----------------------------------------------------------------------
-  args:           Command-line args; the equivalent of sys.argv[1:]
-  retval:         for the actions 'run', 'pickup', and 'dryRun', returns the
-                  Hypersearch job ID (in ClinetJobs table); otherwise returns
-                  None
-  """
   global g_currentVerbosityLevel
-  
-  # First, see if the engine services are running because this impacts what
-  #  our default options are
-  engineRunning = _engineServicesRunning()
+  g_currentVerbosityLevel = verbosity
 
-  helpString = (
-      "\n\n%prog [options] permutationsScript\n"
-      "%prog [options] expDescription.json\n\n"
-      "This script runs permutations of an experiment via Grok engine, as "
-      "defined in a\npermutations.py script or an expGenerator experiment "
-      "description json file.\nIn the expDescription.json form, the json file "
-      "MUST have the file extension\n'.json' and MUST conform to "
-      "expGenerator/experimentDescriptionSchema.json.")
+  # Generate the description and permutations.py files in the same directory
+  #  for reference.
+  if permWorkDir is None:
+    permWorkDir = os.getcwd()
 
-  parser = optparse.OptionParser(usage=helpString)
+  _checkOverwrite(optionsDict, outDir)
 
-  parser.add_option(
-    "--replaceReport", dest="replaceReport", action="store_true", default=False,
-    help="Replace existing csv report file if it exists. Default is to "
-         "append to the existing file. [default: %default].")
+  _generateExpFilesFromSwarmDescription(expJsonConfig, outDir)
 
-  parser.add_option(
-    "--action", dest="action", default="run",
-    choices=['run', 'pickup', 'report', 'dryRun'],
-    help="Which action to perform. Possible actions are run, pickup, choices, "
-         "report, list. "
-         "run: run a new HyperSearch via Grok. "
-         "pickup: pick up the latest run of a HyperSearch job. "
-         "dryRun: run a single HypersearchWorker inline within the application "
-         "process without the Grok infrastructure to flush out bugs in "
-         "description and permutations scripts; defaults to "
-         "maxPermutations=1: use --maxPermutations to change this; "
-         "report: just print results from the last or current run. "
-         "[default: %default].")
+  optionsDict['expDescConfig'] = expJsonConfig
+  optionsDict['outputLabel'] = outputLabel
+  optionsDict['permWorkDir'] = permWorkDir
 
-  parser.add_option(
-    "--maxPermutations", dest="maxPermutations", default=None, type="int",
-    help="Maximum number of models to search. Applies only to the 'run' and "
-    "'dryRun' actions. [default: %default].")
+  runOptions = _injectDefaultOptions(optionsDict)
+  _validateOptions(runOptions)
 
-  parser.add_option(
-    "--exports", dest="exports", default=None, type="string",
-    help="json dump of environment variable settings that should be applied"
-    "for the job before running. [default: %default].")
+  return _runAction(runOptions)
 
-  parser.add_option(
-    "--useTerminators", dest="useTerminators", action='store_true',
-    default=False, help="Use early model terminators in HyperSearch"
-         "[default: %default].")
 
-  parser.add_option(
-      "--clusterDefault", dest="clusterDefault", action='store_true',
-      default=False, help="Use default search values. Overwrites all search "
-      "options [default: %default].")
 
-  parser.add_option(
-      "--maxWorkers", dest="maxWorkers", default=2, type="int",
-      help="Maximum number of concurrent workers to launch. Applies only to "
-      "the 'run' action. [default: %default].")
-
-  parser.add_option(
-    "-v", dest="verbosityCount", action="count", default=0,
-    help="Increase verbosity of the output.  Specify multiple times for "
-         "increased verbosity. e.g., -vv is more verbose than -v.")
-
-  parser.add_option(
-    "--timeout", dest="timeout", default=None,type="int",
-     help="Time out for this search in minutes"
-         "[default: %default].")
-
-  parser.add_option(
-    "--useEngine", dest="useEngine", default="yes" if engineRunning else "no",
-    choices=["yes", "no"], help="If set to 'yes', the grok engine will be used "
-    "and the swarm can run across multiple machines. If set to 'no', then "
-    "the engine is not required and swarming will run multiple processes on the "
-    "local machine only. [default: %default].")
-
-  parser.add_option(
-    "--overwrite", default=False, action="store_true",
-    help="If 'yes', overwrite existing description.py and permutations.py"
-         " (in the same directory as the <expDescription.json> file) if they"
-         " already exist. [default: %default].")
-
-  parser.add_option(
-    "--genTopNDescriptions", dest="genTopNDescriptions", default=1, type="int",
-    help="Generate description files for the top N models. Each one will be"
-         " placed into it's own subdirectory under the base description file."
-         "[default: %default].")
-
-  (options, positionalArgs) = parser.parse_args(args)
-
-  # Process the options
-  g_currentVerbosityLevel = options.verbosityCount
-
-  # Get the permutations script's filepath
-  if len(positionalArgs) != 1:
-    parser.error("You must supply the name of exactly one permutations script "
-                 "or JSON description file.")
-
-  expDescJsonPath = None
-
-  fileArgPath = os.path.expanduser(positionalArgs[0])
-  fileArgPath = os.path.expandvars(fileArgPath)
-  fileArgPath = os.path.abspath(fileArgPath)
-
-  permWorkDir = os.path.dirname(fileArgPath)
-
-  outputLabel = os.path.splitext(os.path.basename(fileArgPath))[0]
-
-  basename = os.path.basename(fileArgPath)
-  fileExtension = os.path.splitext(basename)[1]
+def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
+  verbosity = options.verbosityCount
+  optionsDict = vars(options)
+  del optionsDict['verbosityCount']
 
   # Setup interrupt handling
-  signal.signal(signal.SIGTERM, termHandler)
-  signal.signal(signal.SIGINT, termHandler)
+  signal.signal(signal.SIGTERM, _termHandler)
+  signal.signal(signal.SIGINT, _termHandler)
 
-  # Set up cluster default values if required
-  if(options.clusterDefault):
-    options.useTerminators = None
-    options.searchMethod = "v2"
+  with open(expJsonFilePath, 'rb') as jsonFile:
+    expJsonConfig = json.loads(jsonFile.read())
 
-  if fileExtension == '.json':
-    return_value = run_with_json_file(fileArgPath, options, outputLabel, permWorkDir)
-  else:
-    return_value = run_with_permutations_script(fileArgPath, options, outputLabel, permWorkDir)
-
-  return return_value
+  outDir = os.path.dirname(expJsonFilePath)
+  return runWithConfig(expJsonConfig, outDir, optionsDict,
+                       outputLabel=outputLabel, permWorkDir=permWorkDir,
+                       verbosity=verbosity)
 
 
 
-def setUpExports(exports):
+def runWithPermutationsScript(fileArgPath, options,
+                                 outputLabel, permWorkDir):
+  global g_currentVerbosityLevel
+  # Process the options
+  g_currentVerbosityLevel = options.verbosityCount
+  # Setup interrupt handling
+  signal.signal(signal.SIGTERM, _termHandler)
+  signal.signal(signal.SIGINT, _termHandler)
+
+  optionsDict = vars(options)
+  del optionsDict['verbosityCount']
+
+  optionsDict['permutationsScriptPath'] = fileArgPath
+  optionsDict['outputLabel'] = outputLabel
+  optionsDict['permWorkDir'] = permWorkDir
+
+  # Assume it's a permutations python script
+  runOptions = _injectDefaultOptions(optionsDict)
+  _validateOptions(runOptions)
+
+  return _runAction(runOptions)
+
+
+
+def _setUpExports(exports):
   ret = ""
   if  exports is None:
     return ret
@@ -760,11 +588,11 @@ class _HyperSearchRunner(object):
       jobID = HypersearchWorker.main(args)
 
     else:
-      cmdLine = setUpExports(self._options['exports'])
+      cmdLine = _setUpExports(self._options['exports'])
       # Begin the new search. The {JOBID} string is replaced by the actual
       # jobID returned from jobInsert.
       cmdLine += "$HYPERSEARCH"
-      maxWorkers = self._options['maxNumWorkers']
+      maxWorkers = self._options['maxWorkers']
 
       jobID = self.__cjDAO.jobInsert(
         client='GRP',
@@ -1105,10 +933,12 @@ class _HyperSearchRunner(object):
 
         print "Generating model params file..."
         # Generate a model params file alongside the description.py
-        mod = imp.load_source('description', os.path.join(outDir, 'description.py'))
+        mod = imp.load_source('description', os.path.join(outDir,
+                                                          'description.py'))
         model_description = mod.descriptionInterface.getModelDescription()
         fd = open(os.path.join(outDir, 'model_params.py'), 'wb')
-        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(), pprint.pformat(model_description)))
+        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(),
+                                            pprint.pformat(model_description)))
         fd.close()
 
       print
@@ -1589,16 +1419,16 @@ class _GrokJob(object):
 
 
     def getCompletionReason(self):
-      """Returns JobCompletionReason.
+      """Returns _JobCompletionReason.
       NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
       ----------------------------------------------------------------------
-      retval:         JobCompletionReason instance
+      retval:         _JobCompletionReason instance
       """
       assert self.isFinished(), "Too early to tell: %s" % self
-      return JobCompletionReason(self.__jobInfo.completionReason)
+      return _JobCompletionReason(self.__jobInfo.completionReason)
 
 
     def getCompletionMsg(self):
@@ -1706,7 +1536,7 @@ class _GrokJob(object):
 
 
 
-class JobCompletionReason(object):
+class _JobCompletionReason(object):
   """Represents completion reason for Client Jobs and Models"""
 
 
@@ -1850,10 +1680,11 @@ class _ClientJobUtils(object):
       params['persistentJobGUID'] = str(uuid.uuid1())
 
     if options['permutationsScriptPath']:
-
       params['permutationsPyFilename'] = options['permutationsScriptPath']
+    elif options['expDescConfig']:
+      params['description'] = options['expDescConfig']
     else:
-      with open(name=options['expDescJsonPath'], mode="r") as fp:
+      with open(options['expDescJsonPath'], mode="r") as fp:
         params['description'] = json.load(fp)
 
     return params
@@ -2314,16 +2145,16 @@ class _GrokModelInfo(object):
 
 
   def getCompletionReason(self):
-    """Returns ModelCompletionReason.
+    """Returns _ModelCompletionReason.
 
     NOTE: it's an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         ModelCompletionReason instance
+    retval:         _ModelCompletionReason instance
     """
     assert self.isFinished(), "Too early to tell: %s" % self
-    return ModelCompletionReason(self.__rawInfo.completionReason)
+    return _ModelCompletionReason(self.__rawInfo.completionReason)
 
 
   def getCompletionMsg(self):
@@ -2367,5 +2198,5 @@ class _GrokModelInfo(object):
 
 
 
-class ModelCompletionReason(JobCompletionReason):
+class _ModelCompletionReason(_JobCompletionReason):
   pass
