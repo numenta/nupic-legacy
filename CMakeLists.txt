@@ -703,7 +703,7 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 #
 # LibNupicCore
 #
-set(LIB_STATIC_NUPICCORE nupic.core)
+set(LIB_STATIC_NUPICCORE nupic_core)
 generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "")
 
 #
