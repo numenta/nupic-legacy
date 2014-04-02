@@ -26,7 +26,6 @@ import collections
 import imp
 import csv
 from datetime import datetime, timedelta
-import json
 import optparse
 import os
 import cPickle as pickle
@@ -126,6 +125,171 @@ def main():
   return runPermutations(sys.argv[1:])
 
 
+def runHypersearch(grokOptions, options):
+  # Run HyperSearch
+  startTime = time.time()
+  search = _HyperSearchRunner(grokOptions)
+  # Save in global for the signal handler.
+  global gCurrentSearch
+  gCurrentSearch = search
+  if options.action in ('run', 'dryRun'):
+    search.runNewSearch()
+  else:
+    search.pickupSearch()
+
+  # Generate reports
+  # Print results and generate report csv file
+  _HyperSearchRunner.generateReport(
+    options=grokOptions,
+    replaceReport=options.replaceReport,
+    hyperSearchJob=search.peekSearchJob(),
+    metricsKeys=search.getDiscoveredMetricsKeys())
+  secs = time.time() - startTime
+  hours = int(secs) / (60 * 60)
+  secs -= hours * (60 * 60)
+  minutes = int(secs) / 60
+  secs -= minutes * 60
+  print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
+  jobID = search.peekSearchJob().getJobID()
+  print "Hypersearch ClientJobs job ID: ", jobID
+  #if _grokHyperSearchHasErrors(search.peekSearchJob()):
+  #  # TODO: if job or some models failed, emit error messages
+  #  sys.exit(1)
+  #else:
+  #  sys.exit(0)
+  return jobID
+
+def newConstructOptions(expDescJsonPath=None,
+                        permutationsScriptPath=None,
+                        outputLabel="swarm_out",
+                        permWorkDir=None,
+                        action="run",
+                        searchMethod="v2",
+                        timeout=None,
+                        exports=None,
+                        useTerminators=False,
+                        maxWorkers=2,
+                        maxPermutations=None,
+                        genTopNDescriptions=1,
+                        useEngine=False
+                        ):
+  return dict(
+    action=action,
+    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
+    #       MUST be specfied; the other MUST be None.
+    expDescJsonPath=expDescJsonPath,
+    permutationsScriptPath=permutationsScriptPath,
+    # Path for storing hypersearch output (based on given file path arg)
+    permWorkDir=permWorkDir,
+    # Label derived from the given file path arg that may be incorporated into
+    # generated output file names
+    outputLabel=outputLabel,
+    searchMethod=searchMethod,
+    timeout=timeout,
+    exports=exports,
+    useTerminators=useTerminators,
+    maxNumWorkers=maxWorkers,
+    maxPermutations=maxPermutations,
+    genTopNDescriptions=genTopNDescriptions,
+    useEngine=useEngine == "yes",
+  )
+
+def constructOptions(expDescJsonPath, options, outputLabel, permWorkDir, permutationsScriptPath):
+  return dict(
+    action=options.action,
+    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
+    #       MUST be specfied; the other MUST be None.
+    expDescJsonPath=expDescJsonPath,
+    permutationsScriptPath=permutationsScriptPath,
+    # Path for storing hypersearch output (based on given file path arg)
+    permWorkDir=permWorkDir,
+    # Label derived from the given file path arg that may be incorporated into
+    # generated output file names
+    outputLabel=outputLabel,
+    searchMethod=options.searchMethod,
+    #stopOnError = options.stopOnErr,
+    #autoExperimentReorder = not options.noreorder,
+    #experimentRunOptions = options.runOptions,
+    #variableOverrides = options.override,
+    timeout=options.timeout,
+    exports=options.exports,
+    useTerminators=options.useTerminators,
+    maxNumWorkers=options.maxWorkers,
+    maxPermutations=options.maxPermutations,
+    genTopNDescriptions=options.genTopNDescriptions,
+    useEngine=options.useEngine == "yes",
+  )
+
+
+def generateExpFiles(expDescJsonPath, outDir, options):
+  expGenerator([
+    '--descriptionFromFile=%s' % (expDescJsonPath),
+    '--outDir=%s' % (outDir)])
+
+
+def runAction(options, runOptions):
+  return_value = None
+  # Print Grok HyperSearch results from the current or last run
+  if options.action == 'report':
+      _HyperSearchRunner.generateReport(
+          options=runOptions,
+          replaceReport=options.replaceReport,
+          hyperSearchJob=None,
+          metricsKeys=None)
+
+  # Run HyperSearch via Grok
+  elif options.action in ('run', 'dryRun', 'pickup'):
+      return_value = runHypersearch(runOptions, options)
+
+  else:
+      raise Exception("Unhandled action: %s" % options.action)
+  return return_value
+
+
+def run_with_json_file(expJsonFilePath, options, outputLabel, permWorkDir):
+  # Generate the description and permutations.py files in the same directory
+  #  for reference.
+  outDir = os.path.dirname(expJsonFilePath)
+  if not options.overwrite:
+    for name in ('description.py', 'permutations.py'):
+      if os.path.exists(os.path.join(outDir, name)):
+        raise RuntimeError("The %s file already exists and will be "
+                           "overwritten by this tool. If it is OK to overwrite this file, "
+                           "use the --overwrite option." % \
+                           os.path.join(outDir, "description.py"))
+  generateExpFiles(expJsonFilePath, outDir, options)
+  runOptions = newConstructOptions(expDescJsonPath=expJsonFilePath,
+                                   outputLabel=outputLabel,
+                                   permWorkDir=permWorkDir,
+                                   action=options.action,
+                                   timeout=options.timeout,
+                                   exports=options.exports,
+                                   useTerminators=options.useTerminators,
+                                   maxWorkers=options.maxWorkers,
+                                   maxPermutations=options.maxPermutations,
+                                   genTopNDescriptions=options.genTopNDescriptions,
+                                   useEngine=options.useEngine)
+  return_value = runAction(options, runOptions)
+  return return_value
+
+
+def run_with_permutations_script(fileArgPath, options, outputLabel, permWorkDir):
+  # Assume it's a permutations python script
+  runOptions = newConstructOptions(permutationsScriptPath=fileArgPath,
+                                 outputLabel=outputLabel,
+                                 permWorkDir=permWorkDir,
+                                 action=options.action,
+                                 timeout=options.timeout,
+                                 exports=options.exports,
+                                 useTerminators=options.useTerminators,
+                                 maxWorkers=options.maxWorkers,
+                                 maxPermutations=options.maxPermutations,
+                                 genTopNDescriptions=options.genTopNDescriptions,
+                                 useEngine=options.useEngine)
+
+  return_value = runAction(options, runOptions)
+  return return_value
+
 
 def runPermutations(args):
   """
@@ -190,30 +354,9 @@ def runPermutations(args):
   parser = optparse.OptionParser(usage=helpString)
 
   parser.add_option(
-    "--searchMethod", dest="searchMethod", default="v2",
-    #choices=['ronomatic', 'pso', 'blended'],
-    choices=['v2'],
-    help="Which hypersearch optimization method to use. Possible choices are: "
-         "'v2' (ronomatic was deprecated). "
-         "'v2' builds up field combinations gradually, using PSO to optimize "
-         "variables within each field combination. "
-         "[default: %default].")
-
-  #parser.add_option(
-  #  "--stopOnErr", dest="stopOnErr", action="store_true", default=False,
-  #  help="If any sub-experiment encounters a failure, immediately stop and "
-  #       "cancel all remaining permutations [default: %default].")
-
-  parser.add_option(
     "--replaceReport", dest="replaceReport", action="store_true", default=False,
     help="Replace existing csv report file if it exists. Default is to "
          "append to the existing file. [default: %default].")
-
-  #parser.add_option(
-  #  "--noreorder", dest="noreorder", action="store_true", default=False,
-  #  help="Turn off the automatic experiment re-ordering which tries to run "
-  #       "experiments with the potentially best results on the optimize "
-  #       "metric first [default: %default].")
 
   parser.add_option(
     "--action", dest="action", default="run",
@@ -228,21 +371,6 @@ def runPermutations(args):
          "maxPermutations=1: use --maxPermutations to change this; "
          "report: just print results from the last or current run. "
          "[default: %default].")
-
-  #parser.add_option(
-  #  "-R", dest="runOptions", action="append", default=[],
-  #  metavar="<RUNOPTION>",
-  #  help="A <RUNOPTION> to pass on to the command that runs each experiment. "
-  #       "Multiple <RUNOPTION>s may be specified. Example: -R--testMode "
-  #       "-R-r [default: %default].")
-
-  #parser.add_option(
-  #  "--override", dest="override", action="append", default=[],
-  #  help="Override the given variable in all experiments. This option "
-  #  "will override any values found in either the base description file "
-  #  "or the permutations script. "
-  #  "If desired, multiple --override options can be specified.\n"
-  #  " [default: %default].")
 
   parser.add_option(
     "--maxPermutations", dest="maxPermutations", default=None, type="int",
@@ -301,7 +429,6 @@ def runPermutations(args):
   (options, positionalArgs) = parser.parse_args(args)
 
   # Process the options
-
   g_currentVerbosityLevel = options.verbosityCount
 
   # Get the permutations script's filepath
@@ -310,7 +437,6 @@ def runPermutations(args):
                  "or JSON description file.")
 
   expDescJsonPath = None
-  permutationsScriptPath = None
 
   fileArgPath = os.path.expanduser(positionalArgs[0])
   fileArgPath = os.path.expandvars(fileArgPath)
@@ -327,117 +453,17 @@ def runPermutations(args):
   signal.signal(signal.SIGTERM, termHandler)
   signal.signal(signal.SIGINT, termHandler)
 
-  if fileExtension == '.json':
-    expDescJsonPath = fileArgPath
-    
-    # Generate the description and permutations.py files in the same directory
-    #  for reference.
-    outDir = os.path.dirname(expDescJsonPath)
-    if not options.overwrite:
-      for name in ('description.py', 'permutations.py'):
-        if os.path.exists(os.path.join(outDir, name)):
-          raise RuntimeError("The %s file already exists and will be "
-            "overwritten by this tool. If it is OK to overwrite this file, "
-            "use the --overwrite option." % \
-            os.path.join(outDir, "description.py"))
-    expGenerator([
-      '--descriptionFromFile=%s' % (expDescJsonPath),
-      '--outDir=%s' % (outDir)])
-
-  else:
-    # Assume it's a permutations python script
-    permutationsScriptPath = fileArgPath
-
   # Set up cluster default values if required
   if(options.clusterDefault):
     options.useTerminators = None
     options.searchMethod = "v2"
 
-  grokOptions = dict(
-    action = options.action,
-
-    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
-    #       MUST be specfied; the other MUST be None.
-    expDescJsonPath = expDescJsonPath,
-    permutationsScriptPath = permutationsScriptPath,
-
-    # Path for storing hypersearch output (based on given file path arg)
-    permWorkDir = permWorkDir,
-
-    # Label derived from the given file path arg that may be incorporated into
-    # generated output file names
-    outputLabel = outputLabel,
-
-    searchMethod = options.searchMethod,
-    #stopOnError = options.stopOnErr,
-    #autoExperimentReorder = not options.noreorder,
-    #experimentRunOptions = options.runOptions,
-    #variableOverrides = options.override,
-    timeout=options.timeout,
-    exports = options.exports,
-    useTerminators = options.useTerminators,
-    maxNumWorkers = options.maxWorkers,
-    maxPermutations = options.maxPermutations,
-    genTopNDescriptions = options.genTopNDescriptions,
-    useEngine = options.useEngine == "yes",
-  )
-
-  # Print Grok HyperSearch results from the current or last run
-  if options.action == 'report':
-    _HyperSearchRunner.generateReport(
-      options=grokOptions,
-      replaceReport=options.replaceReport,
-      hyperSearchJob=None,
-      metricsKeys=None)
-
-    return None
-
-  # Run HyperSearch via Grok
-  elif options.action in ('run', 'dryRun', 'pickup'):
-    # Run HyperSearch
-    startTime = time.time()
-
-    search = _HyperSearchRunner(grokOptions)
-    
-    # Save in global for the signal handler. 
-    global gCurrentSearch
-    gCurrentSearch = search
-
-    if options.action in ('run', 'dryRun'):
-      search.runNewSearch()
-    else:
-      search.pickupSearch()
-
-    # Generate reports
-
-    # Print results and generate report csv file
-    _HyperSearchRunner.generateReport(
-      options=grokOptions,
-      replaceReport=options.replaceReport,
-      hyperSearchJob=search.peekSearchJob(),
-      metricsKeys=search.getDiscoveredMetricsKeys())
-
-    secs = time.time() - startTime
-    hours = int(secs) / (60*60)
-    secs -= hours * (60*60)
-    minutes = int(secs) / 60
-    secs -= minutes * 60
-    print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
-
-    jobID = search.peekSearchJob().getJobID()
-
-    print "Hypersearch ClientJobs job ID: ", jobID
-
-    #if _grokHyperSearchHasErrors(search.peekSearchJob()):
-    #  # TODO: if job or some models failed, emit error messages
-    #  sys.exit(1)
-    #else:
-    #  sys.exit(0)
-
+  if fileExtension == '.json':
+    return_value = run_with_json_file(fileArgPath, options, outputLabel, permWorkDir)
   else:
-    raise Exception("Unhandled action: %s" % options.action)
+    return_value = run_with_permutations_script(fileArgPath, options, outputLabel, permWorkDir)
 
-  return jobID
+  return return_value
 
 
 
