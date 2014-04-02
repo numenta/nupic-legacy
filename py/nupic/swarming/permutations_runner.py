@@ -19,6 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+""" @file permutations_runner.py
+"""
+
 import collections
 import imp
 import csv
@@ -60,6 +63,8 @@ gDefaultOptions = {'expDescJsonPath': None,
 
 
 class Verbosity(object):
+  """ @private
+  """
   WARNING = 0
   INFO = 1
   DEBUG = 2
@@ -79,8 +84,14 @@ def _termHandler(signal, frame):
 
 
 
+def _setupInterruptHandling():
+  signal.signal(signal.SIGTERM, _termHandler)
+  signal.signal(signal.SIGINT, _termHandler)
+
+
+
 def _verbosityEnabled(verbosityLevel):
-  return (verbosityLevel <= g_currentVerbosityLevel)
+  return verbosityLevel <= g_currentVerbosityLevel
 
 
 
@@ -126,7 +137,7 @@ def _engineServicesRunning():
 
 
 
-def _runHypersearch(runOptions):
+def _runHyperSearch(runOptions):
   # Run HyperSearch
   startTime = time.time()
   search = _HyperSearchRunner(runOptions)
@@ -202,13 +213,13 @@ def _runAction(runOptions):
           replaceReport=runOptions['replaceReport'],
           hyperSearchJob=None,
           metricsKeys=None)
-
   # Run HyperSearch via Grok
   elif action in ('run', 'dryRun', 'pickup'):
-      return_value = _runHypersearch(runOptions)
+      return_value = _runHyperSearch(runOptions)
   else:
       raise Exception("Unhandled action: %s" % action)
   return return_value
+
 
 
 def _checkOverwrite(options, outDir):
@@ -226,9 +237,19 @@ def _checkOverwrite(options, outDir):
 
 
 
-def runWithConfig(expJsonConfig, outDir, optionsDict,
+def runWithConfig(swarmConfig, outDir, options,
                     outputLabel='default', permWorkDir=None, verbosity=1):
+  """
+  Starts a swarm, given an dictionary configuration.
+  @param swarmConfig {dict} A complete [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description) object.
+  @param outDir {string} Path to write swarm details.
+  @param outputLabel {string} Optional label for output (defaults to 'default').
+  @param permWorkDir {string} Optional location of working directory (defaults
+                              to None).
+  @param verbosity {int} Optional (1,2,3) increasing verbosity of output.
 
+  @returns {int} Swarm job id.
+  """
   global g_currentVerbosityLevel
   g_currentVerbosityLevel = verbosity
 
@@ -237,15 +258,15 @@ def runWithConfig(expJsonConfig, outDir, optionsDict,
   if permWorkDir is None:
     permWorkDir = os.getcwd()
 
-  _checkOverwrite(optionsDict, outDir)
+  _checkOverwrite(options, outDir)
 
-  _generateExpFilesFromSwarmDescription(expJsonConfig, outDir)
+  _generateExpFilesFromSwarmDescription(swarmConfig, outDir)
 
-  optionsDict['expDescConfig'] = expJsonConfig
-  optionsDict['outputLabel'] = outputLabel
-  optionsDict['permWorkDir'] = permWorkDir
+  options['expDescConfig'] = swarmConfig
+  options['outputLabel'] = outputLabel
+  options['permWorkDir'] = permWorkDir
 
-  runOptions = _injectDefaultOptions(optionsDict)
+  runOptions = _injectDefaultOptions(options)
   _validateOptions(runOptions)
 
   return _runAction(runOptions)
@@ -253,13 +274,25 @@ def runWithConfig(expJsonConfig, outDir, optionsDict,
 
 
 def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
+  """
+  Starts a swarm, given a path to a JSON file containing configuration.
+
+  This function is meant to be used with a CLI wrapper that passes command line
+  arguments in through the options parameter.
+
+  @param expJsonFilePath {string} Path to a JSON file containing the complete
+                                 [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description).
+  @param options {object} CLI options (optParse).
+  @param outputLabel {string} Label for output.
+  @param permWorkDir {string} Location of working directory.
+
+  @returns {int} Swarm job id.
+  """
   verbosity = options.verbosityCount
   optionsDict = vars(options)
   del optionsDict['verbosityCount']
 
-  # Setup interrupt handling
-  signal.signal(signal.SIGTERM, _termHandler)
-  signal.signal(signal.SIGINT, _termHandler)
+  _setupInterruptHandling()
 
   with open(expJsonFilePath, 'rb') as jsonFile:
     expJsonConfig = json.loads(jsonFile.read())
@@ -271,19 +304,30 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
 
 
 
-def runWithPermutationsScript(fileArgPath, options,
+def runWithPermutationsScript(permutationsFilePath, options,
                                  outputLabel, permWorkDir):
+  """
+  Starts a swarm, given a path to a permutations.py script.
+
+  This function is meant to be used with a CLI wrapper that passes command line
+  arguments in through the options parameter.
+
+  @param permutationsFilePath {string} Path to permutations.py.
+  @param options {object} CLI options (optParse).
+  @param outputLabel {string} Label for output.
+  @param permWorkDir {string} Location of working directory.
+
+  @returns {int} Swarm job id.
+  """
   global g_currentVerbosityLevel
-  # Process the options
   g_currentVerbosityLevel = options.verbosityCount
-  # Setup interrupt handling
-  signal.signal(signal.SIGTERM, _termHandler)
-  signal.signal(signal.SIGINT, _termHandler)
+
+  _setupInterruptHandling()
 
   optionsDict = vars(options)
   del optionsDict['verbosityCount']
 
-  optionsDict['permutationsScriptPath'] = fileArgPath
+  optionsDict['permutationsScriptPath'] = permutationsFilePath
   optionsDict['outputLabel'] = outputLabel
   optionsDict['permWorkDir'] = permWorkDir
 
@@ -292,6 +336,18 @@ def runWithPermutationsScript(fileArgPath, options,
   _validateOptions(runOptions)
 
   return _runAction(runOptions)
+
+
+
+def runPermutations(_):
+  """
+  DEPRECATED. Use @ref runWithConfig.
+  """
+  raise DeprecationWarning(
+    "nupic.swarming.permutations_runner.runPermutations() is no longer "
+    "implemented. It has been replaced with a simpler function for library "
+    "usage: nupic.swarming.permutations_runner.runWithConfig(). See API docs"
+    "at http://numenta.org/docs/nupic for details.")
 
 
 
@@ -334,7 +390,8 @@ def _grokHyperSearchHasErrors(hyperSearchJob):
 
 
 class _HyperSearchRunner(object):
-  """Manages one instance of HyperSearch"""
+  """ @private
+  Manages one instance of HyperSearch"""
 
 
   def __init__(self, options):
@@ -362,6 +419,7 @@ class _HyperSearchRunner(object):
     return
 
 
+
   def runNewSearch(self):
     """Start a new hypersearch job and monitor it to completion
     Parameters:
@@ -371,6 +429,7 @@ class _HyperSearchRunner(object):
     self.__searchJob = self.__startSearch()
 
     self.monitorSearchJob()
+
 
 
   def pickupSearch(self):
@@ -385,6 +444,7 @@ class _HyperSearchRunner(object):
 
 
     self.monitorSearchJob()
+
 
 
   def monitorSearchJob(self):
@@ -547,6 +607,7 @@ class _HyperSearchRunner(object):
     print "Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg())
 
 
+
   def _launchWorkers(self, cmdLine, numWorkers):
     """ Launch worker processes to execute the given command line
     
@@ -564,7 +625,8 @@ class _HyperSearchRunner(object):
       p = subprocess.Popen(args, bufsize=1, env=os.environ, shell=False,
                            stdin=None, stdout=stdout, stderr=stderr)
       self._workers.append(p)
-      
+
+
 
   def __startSearch(self):
     """Starts HyperSearch in Grok or runs it inline for the 'dryRun' action
@@ -626,6 +688,7 @@ class _HyperSearchRunner(object):
     return searchJob
 
 
+
   def peekSearchJob(self):
     """Retrieves the runner's _HyperSearchJob instance; NOTE: only available
     after run().
@@ -636,6 +699,7 @@ class _HyperSearchRunner(object):
     """
     assert self.__searchJob is not None
     return self.__searchJob
+
 
 
   def getDiscoveredMetricsKeys(self):
@@ -651,6 +715,7 @@ class _HyperSearchRunner(object):
                     HyperSearch;
     """
     return tuple(self.__foundMetrcsKeySet)
+
 
 
   @classmethod
@@ -964,6 +1029,7 @@ class _HyperSearchRunner(object):
     return searchJob
 
 
+
   @classmethod
   def __saveHyperSearchJobID(cls, permWorkDir, outputLabel, hyperSearchJob):
     """Saves the given _HyperSearchJob instance's jobID to file
@@ -988,6 +1054,7 @@ class _HyperSearchRunner(object):
       pickle.dump(d, jobIdPickleFile)
 
 
+
   @classmethod
   def __loadHyperSearchJobID(cls, permWorkDir, outputLabel):
     """Loads a saved jobID from file
@@ -1007,6 +1074,7 @@ class _HyperSearchRunner(object):
       jobID = jobInfo['hyperSearchJobID']
 
     return jobID
+
 
 
   @classmethod
@@ -1031,6 +1099,8 @@ class _HyperSearchRunner(object):
 
 
 class _ModelStats(object):
+  """ @private
+  """
 
 
   def __init__(self):
@@ -1046,6 +1116,7 @@ class _ModelStats(object):
     self.numCompletedEOF = long(0)
     self.numCompletedOther = long(0)
     self.numCompletedOrphaned = long(0)
+
 
 
   def update(self, modelInfo):
@@ -1078,6 +1149,8 @@ class _ModelStats(object):
 
 
 class _ReportCSVWriter(object):
+  """ @private
+  """
 
 
   __totalModelTime = timedelta()
@@ -1113,6 +1186,7 @@ class _ReportCSVWriter(object):
     self.__csvFileObj = None
     self.__reportCSVPath = None
     self.__backupCSVPath = None
+
 
 
   def emit(self, modelInfo):
@@ -1173,6 +1247,7 @@ class _ReportCSVWriter(object):
     print >> csv
 
 
+
   def finalize(self):
     """Close file and print report/backup csv file paths
 
@@ -1192,6 +1267,7 @@ class _ReportCSVWriter(object):
                 (self.__backupCSVPath,)
     else:
       print "Nothing was written to report csv file."
+
 
 
   def __openAndInitCSVFile(self, modelInfo):
@@ -1253,7 +1329,8 @@ class _ReportCSVWriter(object):
 
 
 class _GrokJob(object):
-  """Our Grok Job abstraction"""
+  """ @private
+  Our Grok Job abstraction"""
 
 
   def __init__(self, grokJobID):
@@ -1276,6 +1353,7 @@ class _GrokJob(object):
       self.__params = None
 
 
+
   def __repr__(self):
     """
     Parameters:
@@ -1283,6 +1361,7 @@ class _GrokJob(object):
     retval:         representation of this _GrokJob instance
     """
     return "%s(jobID=%s)" % (self.__class__.__name__, self.__grokJobID)
+
 
 
   def getJobStatus(self, workers):
@@ -1298,6 +1377,7 @@ class _GrokJob(object):
     return jobInfo
 
 
+
   def getJobID(self):
     """Semi-private method for retrieving the jobId
 
@@ -1306,6 +1386,7 @@ class _GrokJob(object):
     retval:         Grok Client JobID of this _GrokJob instance
     """
     return self.__grokJobID
+
 
 
   def getParams(self):
@@ -1319,14 +1400,17 @@ class _GrokJob(object):
     return self.__params
 
 
+
   class JobStatus(object):
-    """Our Grok Job Info abstraction class"""
+    """ @private
+    Our Grok Job Info abstraction class"""
 
     # Job Status values (per ClientJobsDAO.py):
     __grokJobStatus_NotStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
     __grokJobStatus_Starting    = cjdao.ClientJobsDAO.STATUS_STARTING
     __grokJobStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
     __grokJobStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
+
 
     def __init__(self, grokJobID, workers):
       """_GrokJob.JobStatus Constructor
@@ -1363,12 +1447,14 @@ class _GrokJob(object):
       self.__jobInfo = jobInfo
 
 
+
     def __repr__(self):
       return "%s(jobId=%s, status=%s, completionReason=%s, " \
              "startTime=%s, endTime=%s)" % (
                 self.__class__.__name__, self.__jobInfo.jobId,
                 self.statusAsString(), self.__jobInfo.completionReason,
                 self.__jobInfo.startTime, self.__jobInfo.endTime)
+
 
 
     def statusAsString(self):
@@ -1380,6 +1466,7 @@ class _GrokJob(object):
       return self.__jobInfo.status
 
 
+
     def isWaitingToStart(self):
       """
       Parameters:
@@ -1388,6 +1475,8 @@ class _GrokJob(object):
       """
       waiting = (self.__jobInfo.status == self.__grokJobStatus_NotStarted)
       return waiting
+
+
 
     def isStarting(self):
       """
@@ -1398,6 +1487,8 @@ class _GrokJob(object):
       starting = (self.__jobInfo.status == self.__grokJobStatus_Starting)
       return starting
 
+
+
     def isRunning(self):
       """
       Parameters:
@@ -1406,6 +1497,8 @@ class _GrokJob(object):
       """
       running = (self.__jobInfo.status == self.__grokJobStatus_running)
       return running
+
+
 
     def isFinished(self):
       """
@@ -1416,6 +1509,7 @@ class _GrokJob(object):
       """
       done = (self.__jobInfo.status == self.__grokJobStatus_completed)
       return done
+
 
 
     def getCompletionReason(self):
@@ -1429,6 +1523,7 @@ class _GrokJob(object):
       """
       assert self.isFinished(), "Too early to tell: %s" % self
       return _JobCompletionReason(self.__jobInfo.completionReason)
+
 
 
     def getCompletionMsg(self):
@@ -1445,6 +1540,7 @@ class _GrokJob(object):
       return "%s" % self.__jobInfo.completionMsg
 
 
+
     def getWorkerCompletionMsg(self):
       """Returns the worker generated completion message.
 
@@ -1459,6 +1555,7 @@ class _GrokJob(object):
       return "%s" % self.__jobInfo.workerCompletionMsg
 
 
+
     def getStartTime(self):
       """Returns job start time.
 
@@ -1471,6 +1568,7 @@ class _GrokJob(object):
       """
       assert not self.isWaitingToStart(), "Too early to tell: %s" % self
       return "%s" % self.__jobInfo.startTime
+
 
 
     def getEndTime(self):
@@ -1501,6 +1599,7 @@ class _GrokJob(object):
         return None
 
 
+
     def getResults(self):
       """Returns the results field.
 
@@ -1512,6 +1611,8 @@ class _GrokJob(object):
         return json.loads(self.__jobInfo.results)
       else:
         return None
+
+
 
     def getModelMilestones(self):
       """Returns the model milestones field.
@@ -1525,6 +1626,8 @@ class _GrokJob(object):
       else:
         return None
 
+
+
     def getEngStatus(self):
       """Returns the engine status field - used for progress messages
 
@@ -1537,7 +1640,8 @@ class _GrokJob(object):
 
 
 class _JobCompletionReason(object):
-  """Represents completion reason for Client Jobs and Models"""
+  """ @private
+  Represents completion reason for Client Jobs and Models"""
 
 
   def __init__(self, reason):
@@ -1549,32 +1653,40 @@ class _JobCompletionReason(object):
     self.__reason = reason
 
 
+
   def __str__(self):
     return "%s" % self.__reason
+
 
 
   def __repr__(self):
     return "%s(reason=%s)" % (self.__class__.__name__, self.__reason)
 
 
+
   def isEOF(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_EOF
+
 
 
   def isSuccess(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_SUCCESS
 
 
+
   def isStopped(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_STOPPED
+
 
 
   def isKilled(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_KILLED
 
 
+
   def isOrphaned(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_ORPHAN
+
 
 
   def isError(self):
@@ -1583,7 +1695,8 @@ class _JobCompletionReason(object):
 
 
 class _HyperSearchJob(_GrokJob):
-  """This class represents a single running Grok HyperSearch job"""
+  """ @private
+  This class represents a single running Grok HyperSearch job"""
 
 
   def __init__(self, grokJobID):
@@ -1604,6 +1717,7 @@ class _HyperSearchJob(_GrokJob):
     self.__expectedNumModels = None
 
 
+
   def queryModelIDs(self):
     """Queuries Grok for model IDs of all currently instantiated models
     associated with this HyperSearch job.
@@ -1619,6 +1733,7 @@ class _HyperSearchJob(_GrokJob):
     modelIDs = tuple(x[0] for x in modelCounterPairs)
 
     return modelIDs
+
 
 
   def getExpectedNumModels(self, searchMethod):
@@ -1638,7 +1753,8 @@ class _HyperSearchJob(_GrokJob):
 
 
 class _ClientJobUtils(object):
-  """Our Grok Client Job utilities"""
+  """ @private
+  Our Grok Client Job utilities"""
 
 
   @classmethod
@@ -1692,7 +1808,8 @@ class _ClientJobUtils(object):
 
 
 class _PermutationUtils(object):
-  """Utilities for running permutations"""
+  """ @private
+  Utilities for running permutations"""
 
 
   @classmethod
@@ -1780,6 +1897,7 @@ def _iterModels(modelIDs):
 
     debug=False
 
+
     def __init__(self, modelIDs):
       """
       Parameters:
@@ -1801,6 +1919,7 @@ def _iterModels(modelIDs):
       self.__modelCache = collections.deque()
       return
 
+
     def __iter__(self):
       """Iterator Protocol function
 
@@ -1809,6 +1928,7 @@ def _iterModels(modelIDs):
       retval:         self
       """
       return self
+
 
 
     def next(self):
@@ -1820,6 +1940,7 @@ def _iterModels(modelIDs):
                     signal end of iteration.
       """
       return self.__getNext()
+
 
 
     def __getNext(self):
@@ -1846,6 +1967,8 @@ def _iterModels(modelIDs):
         raise StopIteration()
 
       return self.__modelCache.popleft()
+
+
 
     def __fillCache(self):
       """Queries Grok and fills an empty modelInfo cache with the next set of
@@ -1892,12 +2015,14 @@ def _iterModels(modelIDs):
               "MODELITERATOR: Leaving __fillCache(); modelCacheLen=%s" % \
                 (len(self.__modelCache),))
 
+
   return ModelInfoIterator(modelIDs)
 
 
 
 class _GrokModelInfo(object):
-  """This class represents information obtained from ClientJobManager about a
+  """ @private
+  This class represents information obtained from ClientJobManager about a
   model
   """
 
@@ -1906,6 +2031,7 @@ class _GrokModelInfo(object):
   __grokModelStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
   __grokModelStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
   __rawInfo = None
+
 
 
   def __init__(self, rawInfo):
@@ -1927,6 +2053,7 @@ class _GrokModelInfo(object):
     self.__cachedParams = None
 
 
+
   def __repr__(self):
     """
     Parameters:
@@ -1944,6 +2071,7 @@ class _GrokModelInfo(object):
                 self.__rawInfo.numRecords))
 
 
+
   def getModelID(self):
     """
     Parameters:
@@ -1953,6 +2081,7 @@ class _GrokModelInfo(object):
     return self.__rawInfo.modelId
 
 
+
   def statusAsString(self):
     """
     Parameters:
@@ -1960,6 +2089,7 @@ class _GrokModelInfo(object):
     retval:    Human-readable string representation of the model's status.
     """
     return "%s" % self.__rawInfo.status
+
 
 
   def getModelDescription(self):
@@ -1982,6 +2112,7 @@ class _GrokModelInfo(object):
       return '.'.join(items)
 
 
+
   def getGeneratedDescriptionFile(self):
     """
     Parameters:
@@ -1992,6 +2123,7 @@ class _GrokModelInfo(object):
     return self.__rawInfo.genDescription
 
 
+
   def getNumRecords(self):
     """
     Paramets:
@@ -1999,6 +2131,8 @@ class _GrokModelInfo(object):
     retval:         The number of records processed by the model.
     """
     return self.__rawInfo.numRecords
+
+
 
   def getParamLabels(self):
     """
@@ -2028,6 +2162,7 @@ class _GrokModelInfo(object):
       return retval
 
 
+
   def __unwrapParams(self):
     """Unwraps self.__rawInfo.params into the equivalent python dictionary
     and caches it in self.__cachedParams. Returns the unwrapped params
@@ -2045,6 +2180,7 @@ class _GrokModelInfo(object):
     return self.__cachedParams
 
 
+
   def getReportMetrics(self):
     """Retrives a dictionary of metrics designated for report
     Parameters:
@@ -2055,6 +2191,7 @@ class _GrokModelInfo(object):
     return self.__unwrapResults().reportMetrics
 
 
+
   def getOptimizationMetrics(self):
     """Retrives a dictionary of metrics designagted for optimization
     Parameters:
@@ -2063,6 +2200,7 @@ class _GrokModelInfo(object):
                     for the model or an empty dictionary if there aren't any.
     """
     return self.__unwrapResults().optimizationMetrics
+
 
 
   def getAllMetrics(self):
@@ -2085,6 +2223,7 @@ class _GrokModelInfo(object):
   """Each element is a dictionary: property name is the metric name and
   property value is the metric value as generated by the model
   """
+
 
 
   def __unwrapResults(self):
@@ -2113,6 +2252,7 @@ class _GrokModelInfo(object):
     return self.__cachedResults
 
 
+
   def isWaitingToStart(self):
     """
     Parameters:
@@ -2121,6 +2261,7 @@ class _GrokModelInfo(object):
     """
     waiting = (self.__rawInfo.status == self.__grokModelStatus_notStarted)
     return waiting
+
 
 
   def isRunning(self):
@@ -2133,6 +2274,7 @@ class _GrokModelInfo(object):
     return running
 
 
+
   def isFinished(self):
     """
     Parameters:
@@ -2142,6 +2284,7 @@ class _GrokModelInfo(object):
     """
     finished = (self.__rawInfo.status == self.__grokModelStatus_completed)
     return finished
+
 
 
   def getCompletionReason(self):
@@ -2157,6 +2300,7 @@ class _GrokModelInfo(object):
     return _ModelCompletionReason(self.__rawInfo.completionReason)
 
 
+
   def getCompletionMsg(self):
     """Returns model completion message.
 
@@ -2168,6 +2312,7 @@ class _GrokModelInfo(object):
     """
     assert self.isFinished(), "Too early to tell: %s" % self
     return self.__rawInfo.completionMsg
+
 
 
   def getStartTime(self):
@@ -2182,6 +2327,7 @@ class _GrokModelInfo(object):
     """
     assert not self.isWaitingToStart(), "Too early to tell: %s" % self
     return "%s" % self.__rawInfo.startTime
+
 
 
   def getEndTime(self):
@@ -2199,4 +2345,6 @@ class _GrokModelInfo(object):
 
 
 class _ModelCompletionReason(_JobCompletionReason):
+  """ @private
+  """
   pass
