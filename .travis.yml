@@ -61,8 +61,6 @@ install:
 script:
   # legacy binary tests
   - "$NTA/bin/htmtest"
-  # (not quite everything, really)
-  - "$NTA/bin/testeverything"
   # actual unit tests
   - "cd $NUPIC"
   - "$NUPIC/run_tests.sh --all"
