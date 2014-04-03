@@ -1,1 +1,5 @@
-local_data
+local_data/
+default_*
+description.py
+permutations.py
+model_0
