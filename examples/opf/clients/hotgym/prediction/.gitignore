@@ -3,3 +3,4 @@ default_*
 description.py
 permutations.py
 model_0
+*_out.csv
