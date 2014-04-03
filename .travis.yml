@@ -12,7 +12,7 @@ git:
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
-    - NTA=$TRAVIS_BUILD_DIR/build/release
+    - NTA=$HOME/nta/eng
 
     # For S3 upload from travis-artifacts
     - ARTIFACTS_AWS_REGION=us-west-2
@@ -54,7 +54,7 @@ install:
   - pip install -q -r $NUPIC/external/common/requirements.txt
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  - "cmake $NUPIC"
+  - "cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
 

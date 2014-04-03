@@ -295,6 +295,12 @@ if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
 endif()
 
 #
+# Get default directories passed by command line.
+#
+set(PROJECT_BUILD_RELEASE_DIR "" CACHE STRING "Release dir")
+set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
+
+#
 # Sets default locations.
 # 
 # Default directories structure is:
