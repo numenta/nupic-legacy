@@ -151,7 +151,7 @@ def _runHyperSearch(runOptions):
 
   # Generate reports
   # Print results and generate report csv file
-  _HyperSearchRunner.generateReport(
+  model_params = _HyperSearchRunner.generateReport(
     options=runOptions,
     replaceReport=runOptions['replaceReport'],
     hyperSearchJob=search.peekSearchJob(),
@@ -171,7 +171,7 @@ def _runHyperSearch(runOptions):
   #else:
   #  sys.exit(0)
 
-  return jobID
+  return model_params
 
 
 
@@ -204,11 +204,10 @@ def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
 
 
 def _runAction(runOptions):
-  return_value = None
   action = runOptions['action']
   # Print Grok HyperSearch results from the current or last run
   if action == 'report':
-      _HyperSearchRunner.generateReport(
+      return_value = _HyperSearchRunner.generateReport(
           options=runOptions,
           replaceReport=runOptions['replaceReport'],
           hyperSearchJob=None,
@@ -248,7 +247,7 @@ def runWithConfig(swarmConfig, outDir, options,
                               to None).
   @param verbosity {int} Optional (1,2,3) increasing verbosity of output.
 
-  @returns {int} Swarm job id.
+  @returns {object} Model parameters
   """
   global g_currentVerbosityLevel
   g_currentVerbosityLevel = verbosity
@@ -317,7 +316,7 @@ def runWithPermutationsScript(permutationsFilePath, options,
   @param outputLabel {string} Label for output.
   @param permWorkDir {string} Location of working directory.
 
-  @returns {int} Swarm job id.
+  @returns {object} Model parameters.
   """
   global g_currentVerbosityLevel
   g_currentVerbosityLevel = options.verbosityCount
@@ -752,7 +751,7 @@ class _HyperSearchRunner(object):
     metricsKeys:    sequence of report metrics key names to include in report;
                     if None, will pre-scan all modelInfos to generate a complete
                     list of metrics key names.
-    retval:         nothing
+    retval:         model parameters
     """
     # Load _HyperSearchJob instance from storage, if not provided
     if hyperSearchJob is None:
@@ -1007,6 +1006,7 @@ class _HyperSearchRunner(object):
       print
 
     reportWriter.finalize()
+    return model_description
 
 
 
