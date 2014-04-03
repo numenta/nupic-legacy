@@ -56,9 +56,9 @@ gDefaultOptions = {'expDescJsonPath': None,
                   'exports': None,
                   'useTerminators': False,
                   'maxWorkers': 2,
+                  'replaceReport': False,
                   'maxPermutations': None,
-                  'genTopNDescriptions': 1,
-                  'useEngine': False}
+                  'genTopNDescriptions': 1}
 
 
 
@@ -664,11 +664,9 @@ class _HyperSearchRunner(object):
         maximumWorkers=maxWorkers,
         jobType=self.__cjDAO.JOB_TYPE_HS)
 
-      # If running without the engine, startup the workers ourselves
-      if not self._options["useEngine"]:
-        cmdLine = "python -m nupic.swarming.HypersearchWorker" \
-                   " --jobID=%d" % (jobID)
-        self._launchWorkers(cmdLine, maxWorkers)
+      cmdLine = "python -m nupic.swarming.HypersearchWorker" \
+                 " --jobID=%d" % (jobID)
+      self._launchWorkers(cmdLine, maxWorkers)
           
     searchJob = _HyperSearchJob(jobID)
 
