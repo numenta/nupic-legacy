@@ -246,7 +246,7 @@ def runWithConfig(swarmConfig, options,
                          current working directory).
   @param outputLabel {string} Optional label for output (defaults to 'default').
   @param permWorkDir {string} Optional location of working directory (defaults
-                              to None).
+                              to current working directory).
   @param verbosity {int} Optional (1,2,3) increasing verbosity of output.
 
   @returns {object} Model parameters
@@ -258,6 +258,8 @@ def runWithConfig(swarmConfig, options,
   #  for reference.
   if outDir is None:
     outDir = os.getcwd()
+  if permWorkDir is None:
+    permWorkDir = os.getcwd()
 
   _checkOverwrite(options, outDir)
 
