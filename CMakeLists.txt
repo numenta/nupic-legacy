@@ -1165,4 +1165,5 @@ message(STATUS "")
 
 ### 5th - custom make targets 
 # tests
-add_custom_target(tests_run COMMAND ${CMAKE_INSTALL_PREFIX}/bin/run_tests.sh )
+add_custom_target(tests_run COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py )
+add_custom_target(tests_run_all COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py --all)
