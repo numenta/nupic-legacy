@@ -12,7 +12,7 @@ git:
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
-    - NTA=$HOME/nta/eng
+    - NTA=$TRAVIS_BUILD_DIR/build/release
 
     # For S3 upload from travis-artifacts
     - ARTIFACTS_AWS_REGION=us-west-2
