@@ -1162,3 +1162,7 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
+
+### 5th - custom make targets 
+# tests
+add_custom_target(tests_run COMMAND ${CMAKE_INSTALL_PREFIX}/bin/run_tests.sh )
