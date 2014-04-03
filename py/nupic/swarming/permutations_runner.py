@@ -236,12 +236,13 @@ def _checkOverwrite(options, outDir):
 
 
 
-def runWithConfig(swarmConfig, outDir, options,
-                    outputLabel='default', permWorkDir=None, verbosity=1):
+def runWithConfig(swarmConfig, options,
+                  outDir=None, outputLabel='default',
+                  permWorkDir=None, verbosity=1):
   """
   Starts a swarm, given an dictionary configuration.
   @param swarmConfig {dict} A complete [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description) object.
-  @param outDir {string} Path to write swarm details.
+  @param outDir {string} Optional path to write swarm details.
   @param outputLabel {string} Optional label for output (defaults to 'default').
   @param permWorkDir {string} Optional location of working directory (defaults
                               to None).
@@ -297,7 +298,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
     expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
-  return runWithConfig(expJsonConfig, outDir, optionsDict,
+  return runWithConfig(expJsonConfig, optionsDict, outDir=outDir,
                        outputLabel=outputLabel, permWorkDir=permWorkDir,
                        verbosity=verbosity)
 
