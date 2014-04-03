@@ -346,8 +346,9 @@ def runPermutations(_):
   raise DeprecationWarning(
     "nupic.swarming.permutations_runner.runPermutations() is no longer "
     "implemented. It has been replaced with a simpler function for library "
-    "usage: nupic.swarming.permutations_runner.runWithConfig(). See API docs"
-    "at http://numenta.org/docs/nupic for details.")
+    "usage: nupic.swarming.permutations_runner.runWithConfig(). See docs "
+    "at https://github.com/numenta/nupic/wiki/Running-Swarms#running-a-swarm-"
+    "programmatically for details.")
 
 
 
