@@ -35,10 +35,10 @@ from base_swarm_description import BASE_SWARM_DESCRIPTION
 
 
 def swarm_for_best_model_params(swarm_config):
-  print swarm_config
+  # print swarm_config
   return permutations_runner.runWithConfig(swarm_config, {
     'maxWorkers': 4, 'overwrite': True
-  }, outDir=os.getcwd())
+  })
 
 
 
@@ -56,16 +56,58 @@ def run_experiment():
   input_files = generate_data.run()
   print "Generated input data files:"
   print input_files
-  model_params = {}
+  all_model_params = {}
 
   for input_name, input_file_path in input_files.iteritems():
     swarm_description = get_swarm_description_for(input_file_path)
     print "================================================="
     print "= Swarming on %s data..." % input_name
     print "================================================="
-    model_params[input_name] = swarm_for_best_model_params(swarm_description)
+    all_model_params[input_name] \
+      = swarm_for_best_model_params(swarm_description)
+    # stop after one for debugging
 
-  print model_params
+  print
+  print "================================================="
+  print "= Swarming complete!                            ="
+  print "================================================="
+  print
+
+  models = {}
+
+  for name, model_params in all_model_params.iteritems():
+    print "Creating %s model..." % name
+    model = ModelFactory.create(model_params)
+    model.enableInference({"predictedField": "kw_energy_consumption"})
+    models[name] = model
+
+  print
+  print "================================================="
+  print "= Model creation complete!                      ="
+  print "================================================="
+  print
+
+  for name, model in models.iteritems():
+    input_file = input_files[name]
+    output = NuPICFileOutput(name, show_anomaly_score=False)
+    with open(input_file, "rb") as gym_input:
+      csv_reader = csv.reader(gym_input)
+      # skip header rows
+      csv_reader.next()
+      csv_reader.next()
+      csv_reader.next()
+      # the real data
+      for row in csv_reader:
+        timestamp = datetime.datetime.strptime(row[0], "%Y-%m-%d %H:%M:%S")
+        consumption = float(row[1])
+        result = model.run({
+          "timestamp": timestamp,
+          "kw_energy_consumption": consumption
+        })
+        output.write(timestamp, consumption, result, prediction_step=1)
+
+    output.close()
+
 
   # shutil.copyfile("model_%s/model_params.py" % name, "model_params.py")
   # import model_params
