@@ -242,7 +242,8 @@ def runWithConfig(swarmConfig, options,
   """
   Starts a swarm, given an dictionary configuration.
   @param swarmConfig {dict} A complete [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description) object.
-  @param outDir {string} Optional path to write swarm details.
+  @param outDir {string} Optional path to write swarm details (defaults to
+                         current working directory).
   @param outputLabel {string} Optional label for output (defaults to 'default').
   @param permWorkDir {string} Optional location of working directory (defaults
                               to None).
@@ -255,8 +256,8 @@ def runWithConfig(swarmConfig, options,
 
   # Generate the description and permutations.py files in the same directory
   #  for reference.
-  if permWorkDir is None:
-    permWorkDir = os.getcwd()
+  if outDir is None:
+    outDir = os.getcwd()
 
   _checkOverwrite(options, outDir)
 
