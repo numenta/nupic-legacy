@@ -72,7 +72,6 @@ class Verbosity(object):
 
 
 def _termHandler(signal, frame):
-  global gCurrentSearch
   try:
     jobrunner = gCurrentSearch
     jobID = jobrunner._HyperSearchRunner__searchJob.getJobID()
@@ -138,11 +137,11 @@ def _engineServicesRunning():
 
 
 def _runHyperSearch(runOptions):
+  global gCurrentSearch
   # Run HyperSearch
   startTime = time.time()
   search = _HyperSearchRunner(runOptions)
   # Save in global for the signal handler.
-  global gCurrentSearch
   gCurrentSearch = search
   if runOptions['action'] in ('run', 'dryRun'):
     search.runNewSearch()
@@ -151,7 +150,7 @@ def _runHyperSearch(runOptions):
 
   # Generate reports
   # Print results and generate report csv file
-  model_params = _HyperSearchRunner.generateReport(
+  modelParams = _HyperSearchRunner.generateReport(
     options=runOptions,
     replaceReport=runOptions['replaceReport'],
     hyperSearchJob=search.peekSearchJob(),
@@ -171,7 +170,7 @@ def _runHyperSearch(runOptions):
   #else:
   #  sys.exit(0)
 
-  return model_params
+  return modelParams
 
 
 
@@ -207,17 +206,17 @@ def _runAction(runOptions):
   action = runOptions['action']
   # Print Grok HyperSearch results from the current or last run
   if action == 'report':
-      return_value = _HyperSearchRunner.generateReport(
-          options=runOptions,
-          replaceReport=runOptions['replaceReport'],
-          hyperSearchJob=None,
-          metricsKeys=None)
+    returnValue = _HyperSearchRunner.generateReport(
+        options=runOptions,
+        replaceReport=runOptions['replaceReport'],
+        hyperSearchJob=None,
+        metricsKeys=None)
   # Run HyperSearch via Grok
   elif action in ('run', 'dryRun', 'pickup'):
-      return_value = _runHyperSearch(runOptions)
+    returnValue = _runHyperSearch(runOptions)
   else:
-      raise Exception("Unhandled action: %s" % action)
-  return return_value
+    raise Exception("Unhandled action: %s" % action)
+  return returnValue
 
 
 
@@ -1220,12 +1219,12 @@ class _ReportCSVWriter(object):
     else:
       print >> csv, 'NA, ',
     if modelInfo.isFinished():
-      format = "%Y-%m-%d %H:%M:%S"
+      dateFormat = "%Y-%m-%d %H:%M:%S"
       startTime = modelInfo.getStartTime()
       endTime = modelInfo.getEndTime()
       print >> csv, '%s, ' % endTime,
-      st = datetime.strptime(startTime, format)
-      et = datetime.strptime(endTime, format)
+      st = datetime.strptime(startTime, dateFormat)
+      et = datetime.strptime(endTime, dateFormat)
       print >> csv, '%s, ' % (str((et - st).seconds)),
     else:
       print >> csv, 'NA, ',

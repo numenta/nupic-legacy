@@ -177,11 +177,13 @@ def runPermutations(args):
     options.searchMethod = "v2"
 
   if fileExtension == '.json':
-    return_value = permutations_runner.runWithJsonFile(fileArgPath, options, outputLabel, permWorkDir)
+    returnValue = permutations_runner.runWithJsonFile(
+      fileArgPath, options, outputLabel, permWorkDir)
   else:
-    return_value = permutations_runner.runWithPermutationsScript(fileArgPath, options, outputLabel, permWorkDir)
+    returnValue = permutations_runner.runWithPermutationsScript(
+      fileArgPath, options, outputLabel, permWorkDir)
 
-  return return_value
+  return returnValue
 
 
 if __name__ == "__main__":
