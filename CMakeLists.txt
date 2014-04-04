@@ -1145,7 +1145,6 @@ copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${CMAKE_INSTALL_PREFIX}/share/
 # Copy testing codes
 copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${CMAKE_INSTALL_PREFIX}/share/test/data)
 copy_directory(${PROJECT_SOURCE_DIR}/tests ${CMAKE_INSTALL_PREFIX}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/run_tests.sh ${CMAKE_INSTALL_PREFIX}/bin/run_tests.sh)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${CMAKE_INSTALL_PREFIX}/bin/run_swarm.py)
 
