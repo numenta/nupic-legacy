@@ -23,10 +23,11 @@
 
 import datetime
 import csv
+import signal
 
 from nupic.swarming import permutations_runner
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic_output import NuPICFileOutput, NuPICPlotOutput
+from nupic_output import NuPICFileOutput
 import generate_data
 from base_swarm_description import BASE_SWARM_DESCRIPTION
 
@@ -48,67 +49,114 @@ def get_swarm_description_for(input_data_file_path):
   return desc_copy
 
 
-def run_io_through_nupic(input_files, models):
-  # Set up model I/O
-  for model_index, model_container in enumerate(models):
-    name = model_container['name']
-    input_file = input_files[name]
-    output = NuPICPlotOutput(name, show_anomaly_score=False)
-    model_container['output'] = output
-    model_container['input'] = open(input_file, 'rb')
-    csv_reader = csv.reader(model_container['input'])
-    # skip header rows
+def run_io_through_nupic(input_data, models, names):
+  readers = []
+  input_files = []
+  output = NuPICFileOutput(names)
+  # Populate input files and csv readers for each model.
+  for index, model in enumerate(models):
+    input_file = open(input_data[index], 'rb')
+    input_files.append(input_file)
+    csv_reader = csv.reader(input_file)
+    # Skip header rows.
     csv_reader.next()
     csv_reader.next()
     csv_reader.next()
-    # the real data
-    model_container['reader'] = csv_reader
+    # Reader is now at the top of the real data.
+    readers.append(csv_reader)
 
-  # Read input for as long as a model as more data
+  read_count = 0
+
   while True:
-    next_lines = [next(model_container['reader'], None) for model_container in
-                  models]
-    print
-    print next_lines
-    # If all lines are None, we're done
+    next_lines = [next(reader, None) for reader in readers]
+    # If all lines are None, we're done.
     if all(value is None for value in next_lines):
+      print "Done after reading %i lines" % read_count
       break
-    for model_index, line in enumerate(next_lines):
-      print "%s: %s" % (models[model_index]['name'], ', '.join(line))
-      # ignore models that are out of input data
-      if line is None: continue
-      model_container = models[model_index]
-      model = model_container['model']
-      output = model_container['output']
-      timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
-      consumption = float(line[1])
-      result = model.run({
-        "timestamp": timestamp,
-        "kw_energy_consumption": consumption
-      })
-      print "Output %s: %s, %s" % (
-      output.name, str(timestamp), str(consumption))
-      output.write(timestamp, consumption, result, prediction_step=1)
+
+    read_count += 1
+
+    if (read_count % 100 == 0):
+      print "Read %i lines..." % read_count
+
+    times = []
+    consumptions = []
+    results = []
+
+    # Gather one more input from each input file and send into each model.
+    for index, line in enumerate(next_lines):
+      model = models[index]
+      # Ignore models that are out of input data.
+      if line is None:
+        timestamp = None
+        consumption = None
+        result = None
+      else:
+        timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
+        consumption = float(line[1])
+        result = model.run({
+          "timestamp": timestamp,
+          "kw_energy_consumption": consumption
+        })
+
+      times.append(timestamp)
+      consumptions.append(consumption)
+      results.append(result)
+
+    output.write(times, consumptions, results)
 
   # close all I/O
-  for model_container in models:
-    model_container['input'].close()
-    model_container['output'].close()
+  for file in input_files:
+    file.close()
+  output.close()
+
+  # # Read input for as long as a model as more data
+  # while True:
+  #   next_lines = [next(model_container['reader'], None) for model_container in
+  #                 models]
+  #   print
+  #   print next_lines
+  #   # If all lines are None, we're done
+  #   if all(value is None for value in next_lines):
+  #     break
+  #   for model_index, line in enumerate(next_lines):
+  #     print "%s: %s" % (models[model_index]['name'], ', '.join(line))
+  #     # ignore models that are out of input data
+  #     if line is None: continue
+  #     model_container = models[model_index]
+  #     model = model_container['model']
+  #     output = model_container['output']
+  #     timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
+  #     consumption = float(line[1])
+  #     result = model.run({
+  #       "timestamp": timestamp,
+  #       "kw_energy_consumption": consumption
+  #     })
+  #     print "Output %s: %s, %s" % (
+  #     output.name, str(timestamp), str(consumption))
+  #     output.write(timestamp, consumption, result, prediction_step=1)
+  #
+  # # close all I/O
+  # for model_container in models:
+  #   model_container['input'].close()
+  #   model_container['output'].close()
 
 
 def run_experiment():
   input_files = generate_data.run()
   print "Generated input data files:"
   print input_files
-  all_model_params = {}
+  names = input_files.keys()
+  input_files = input_files.values()
+  all_model_params = []
 
-  for input_name, input_file_path in input_files.iteritems():
+  for index, input_file_path in enumerate(input_files):
     swarm_description = get_swarm_description_for(input_file_path)
     print "================================================="
-    print "= Swarming on %s data..." % input_name
+    print "= Swarming on %s data..." % names[index]
     print "================================================="
-    all_model_params[input_name] \
-      = swarm_for_best_model_params(swarm_description)
+    model_params = swarm_for_best_model_params(swarm_description)
+    all_model_params.append(model_params)
 
   print
   print "================================================="
@@ -118,11 +166,11 @@ def run_experiment():
 
   models = []
 
-  for name, model_params in all_model_params.iteritems():
-    print "Creating %s model..." % name
+  for index, model_params in enumerate(all_model_params):
+    print "Creating %s model..." % names[index]
     model = ModelFactory.create(model_params)
     model.enableInference({"predictedField": "kw_energy_consumption"})
-    models.append({'name': name, 'model': model})
+    models.append(model)
 
   print
   print "================================================="
@@ -130,7 +178,7 @@ def run_experiment():
   print "================================================="
   print
 
-  run_io_through_nupic(input_files, models)
+  run_io_through_nupic(input_files, models, names)
 
 
 
