@@ -45,7 +45,7 @@ from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 g_currentVerbosityLevel = 0
 gCurrentSearch = None
-gDefaultOptions = {'expDescJsonPath': None,
+DEFAULT_OPTIONS = {'expDescJsonPath': None,
                   'expDescConfig': None,
                   'permutationsScriptPath': None,
                   'outputLabel': "swarm_out",
@@ -175,8 +175,7 @@ def _runHyperSearch(runOptions):
 
 
 def _injectDefaultOptions(options):
-  global gDefaultOptions
-  return dict(gDefaultOptions, **options)
+  return dict(DEFAULT_OPTIONS, **options)
 
 
 
