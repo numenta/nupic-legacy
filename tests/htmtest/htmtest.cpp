@@ -493,7 +493,6 @@ int realmain(bool leakTest)
   std::cout << "Node type: " << level2->getType() << "" << std::endl;
   std::cout << "Nodespec is:\n"  << level2->getSpec()->toString() << "" << std::endl;
   
-  Int64 val;
   Real64 rval;
   std::string int64Param("int64Param");
   std::string real64Param("real64Param");
