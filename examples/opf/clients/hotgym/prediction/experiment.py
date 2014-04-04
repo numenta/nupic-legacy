@@ -23,11 +23,13 @@
 
 import datetime
 import csv
-import signal
+import sys
 
-from nupic.swarming import permutations_runner
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic_output import NuPICFileOutput
+from nupic.data.inference_shifter import InferenceShifter
+from nupic.swarming import permutations_runner
+
+from nupic_output import NuPICFileOutput, NuPICPlotOutput
 import generate_data
 from base_swarm_description import BASE_SWARM_DESCRIPTION
 
@@ -49,10 +51,14 @@ def get_swarm_description_for(input_data_file_path):
   return desc_copy
 
 
-def run_io_through_nupic(input_data, models, names):
+def run_io_through_nupic(input_data, models, names, plot):
   readers = []
   input_files = []
-  output = NuPICFileOutput(names)
+  if plot:
+    output = NuPICPlotOutput(names)
+    shifter = InferenceShifter()
+  else:
+    output = NuPICFileOutput(names)
   # Populate input files and csv readers for each model.
   for index, model in enumerate(models):
     input_file = open(input_data[index], 'rb')
@@ -81,7 +87,7 @@ def run_io_through_nupic(input_data, models, names):
 
     times = []
     consumptions = []
-    results = []
+    predictions = []
 
     # Gather one more input from each input file and send into each model.
     for index, line in enumerate(next_lines):
@@ -90,7 +96,7 @@ def run_io_through_nupic(input_data, models, names):
       if line is None:
         timestamp = None
         consumption = None
-        result = None
+        prediction = None
       else:
         timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
         consumption = float(line[1])
@@ -99,50 +105,29 @@ def run_io_through_nupic(input_data, models, names):
           "kw_energy_consumption": consumption
         })
 
+        if plot:
+          # The shifter will align prediction and actual values for plotting.
+          result = shifter.shift(result)
+
+        prediction = result.inferences \
+          ['multiStepBestPredictions'][1]
+
+
+
       times.append(timestamp)
       consumptions.append(consumption)
-      results.append(result)
+      predictions.append(prediction)
 
-    output.write(times, consumptions, results)
+    output.write(times, consumptions, predictions)
 
   # close all I/O
   for file in input_files:
     file.close()
   output.close()
 
-  # # Read input for as long as a model as more data
-  # while True:
-  #   next_lines = [next(model_container['reader'], None) for model_container in
-  #                 models]
-  #   print
-  #   print next_lines
-  #   # If all lines are None, we're done
-  #   if all(value is None for value in next_lines):
-  #     break
-  #   for model_index, line in enumerate(next_lines):
-  #     print "%s: %s" % (models[model_index]['name'], ', '.join(line))
-  #     # ignore models that are out of input data
-  #     if line is None: continue
-  #     model_container = models[model_index]
-  #     model = model_container['model']
-  #     output = model_container['output']
-  #     timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
-  #     consumption = float(line[1])
-  #     result = model.run({
-  #       "timestamp": timestamp,
-  #       "kw_energy_consumption": consumption
-  #     })
-  #     print "Output %s: %s, %s" % (
-  #     output.name, str(timestamp), str(consumption))
-  #     output.write(timestamp, consumption, result, prediction_step=1)
-  #
-  # # close all I/O
-  # for model_container in models:
-  #   model_container['input'].close()
-  #   model_container['output'].close()
 
 
-def run_experiment():
+def run_experiment(plot=False):
   input_files = generate_data.run()
   print "Generated input data files:"
   print input_files
@@ -178,10 +163,11 @@ def run_experiment():
   print "================================================="
   print
 
-  run_io_through_nupic(input_files, models, names)
+  run_io_through_nupic(input_files, models, names, plot)
 
 
 
 if __name__ == "__main__":
-  run_experiment()
+  plot = len(sys.argv) > 1 and sys.argv[1] == 'plot'
+  run_experiment(plot=plot)
   # run_plot_test()
