@@ -562,7 +562,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -I${REPOSITORY_DIR}/external/common/include -I${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -662,8 +662,8 @@ endif()
 # NTA_LINKFLAGS_PYMODULE is for linking a python module
 #
 if(NTA_PYTHON_SUPPORT)
-
   set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR} ${NTA_INCLUDEFLAGS}")
+  string(REPLACE "-isystem" "-I" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
   # Minimal functional subset
