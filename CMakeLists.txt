@@ -562,7 +562,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -I${REPOSITORY_DIR}/external/common/include -I${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
