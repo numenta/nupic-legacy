@@ -27,9 +27,6 @@ import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib.dates import date2num
 
-from nupic.data.inference_shifter import InferenceShifter
-
-
 WINDOW = 360
 
 
@@ -44,7 +41,8 @@ class NuPICOutput(object):
 
 
   @abstractmethod
-  def write(self, timestamp, actual, model_results, prediction_step=1):
+  def write(self, timestamps, actual_values, predicted_values,
+            prediction_step=1):
     pass
 
 
@@ -75,18 +73,18 @@ class NuPICFileOutput(NuPICOutput):
 
 
 
-  def write(self, timestamps, actual_values, model_results, prediction_step=1):
-    assert len(timestamps) == len(actual_values) == len(model_results)
+  def write(self, timestamps, actual_values, predicted_values,
+            prediction_step=1):
+
+    assert len(timestamps) == len(actual_values) == len(predicted_values)
 
     for index in range(len(self.names)):
       timestamp = timestamps[index]
       actual = actual_values[index]
-      model_result = model_results[index]
+      prediction = predicted_values[index]
       writer = self.output_writers[index]
 
       if timestamp is not None:
-        prediction = model_result.inferences\
-          ['multiStepBestPredictions'][prediction_step]
         output_row = [timestamp, actual, prediction]
         writer.writerow(output_row)
         self.line_counts[index] += 1
@@ -99,82 +97,102 @@ class NuPICFileOutput(NuPICOutput):
       print "Done. Wrote %i data lines to %s." % (self.line_counts[index], name)
 
 
-#
-# class NuPICPlotOutput(NuPICOutput):
-#
-#
-#   def __init__(self, *args, **kwargs):
-#     super(NuPICPlotOutput, self).__init__(*args, **kwargs)
-#     # turn matplotlib interactive mode on (ion)
-#     plt.ion()
-#     fig = plt.figure(figsize=(10, 6))
-#     self.graph = fig.add_subplot(111)
-#     gs = gridspec.GridSpec(2, 1, height_ratios=[3,1])
-#     # plot title, legend, etc
-#     plt.title('Hot Gym prediction example')
-#     plt.ylabel('KW Energy Consumption')
-#     plt.xlabel('Date')
-#     plt.legend(tuple(['actual','predicted']), loc=3)
-#     plt.tight_layout()
-#     # The shifter will align prediction and actual values.
-#     self.shifter = InferenceShifter()
-#     self.lines_initialized = False
-#
-#
-#
-#   def initialize_lines(self, timestamp):
-#     self.dates = deque([timestamp] * WINDOW, maxlen=WINDOW)
-#     self.converted_dates = deque([date2num(date) for date in self.dates], maxlen=WINDOW)
-#
-#     self.actual_history = deque([0.0] * WINDOW, maxlen=WINDOW)
-#     self.predicted_history = deque([0.0] * WINDOW, maxlen=WINDOW)
-#
-#     self.actual_line, = self.graph.plot(self.dates, self.actual_history)
-#     self.predicted_line, = self.graph.plot(self.dates, self.predicted_history)
-#
-#     self.lines_initialized = True
-#
-#
-#
-#   def die(self):
-#     matplotlib.pyplot.close("all")
-#
-#
-#
-#   def write(self, timestamp, value, prediction_result, prediction_step=1):
-#     # We need the first timestamp to initialize the lines at the right X value,
-#     # so do that check first.
-#     if not self.lines_initialized:
-#       self.initialize_lines(timestamp)
-#
-#     # Update the trailing predicted and actual value deques.
-#     shifted_result = self.shifter.shift(prediction_result)
-#     inference = shifted_result.inferences\
-#       ['multiStepBestPredictions'][prediction_step]
-#
-#     if inference is not None:
-#       self.dates.append(timestamp)
-#       self.converted_dates.append(date2num(timestamp))
-#       self.actual_history.append(shifted_result.rawInput['kw_energy_consumption'])
-#       self.predicted_history.append(inference)
-#
-#       # Update data
-#       self.actual_line.set_xdata(self.converted_dates)
-#       self.actual_line.set_ydata(self.actual_history)
-#       self.predicted_line.set_xdata(self.converted_dates)
-#       self.predicted_line.set_ydata(self.predicted_history)
-#
-#       self.graph.relim()
-#       self.graph.autoscale_view(True, True, True)
-#       plt.draw()
-#
-#
-#
-#   def close(self):
-#     plt.ioff()
-#     plt.show()
+
+class NuPICPlotOutput(NuPICOutput):
+
+
+  def __init__(self, *args, **kwargs):
+    super(NuPICPlotOutput, self).__init__(*args, **kwargs)
+    # turn matplotlib interactive mode on (ion)
+    plt.ion()
+    self.dates = []
+    self.converted_dates = []
+    self.actual_values = []
+    self.predicted_values = []
+    self.actual_lines = []
+    self.predicted_lines = []
+    self.lines_initialized = False
+    self.graphs = []
+    fig = plt.figure(figsize=(24, 14))
+    gs = gridspec.GridSpec(len(self.names), 1)
+    for index in range(len(self.names)):
+      self.graphs.append(fig.add_subplot(gs[index, 0]))
+      plt.title(self.names[index])
+      plt.ylabel('KW Energy Consumption')
+      plt.xlabel('Date')
+    # fig = plt.figure(figsize=(10, 6))
+    # self.graph = fig.add_subplot(111)
+    # # plot title, legend, etc
+    plt.tight_layout()
+    # # The shifter will align prediction and actual values.
+    # self.shifter = InferenceShifter()
+    # self.lines_initialized = False
+
+
+
+  def initialize_lines(self, timestamps):
+    for index in range(len(self.names)):
+      print "initializing %s" % self.names[index]
+      # graph = self.graphs[index]
+      self.dates.append(deque([timestamps[index]] * WINDOW, maxlen=WINDOW))
+      self.converted_dates.append(deque(
+        [date2num(date) for date in self.dates[index]], maxlen=WINDOW
+      ))
+      self.actual_values.append(deque([0.0] * WINDOW, maxlen=WINDOW))
+      self.predicted_values.append(deque([0.0] * WINDOW, maxlen=WINDOW))
+
+      actual_plot, = self.graphs[index].plot(
+        self.dates[index], self.actual_values[index]
+      )
+      self.actual_lines.append(actual_plot)
+      predicted_plot, = self.graphs[index].plot(
+        self.dates[index], self.predicted_values[index]
+      )
+      self.predicted_lines.append(predicted_plot)
+    self.lines_initialized = True
+
+
+
+  # def die(self):
+  #   matplotlib.pyplot.close("all")
+
+
+
+  def write(self, timestamps, actual_values, predicted_values,
+            prediction_step=1):
+
+    assert len(timestamps) == len(actual_values) == len(predicted_values)
+
+    # We need the first timestamp to initialize the lines at the right X value,
+    # so do that check first.
+    if not self.lines_initialized:
+      self.initialize_lines(timestamps)
+
+    for index in range(len(self.names)):
+      self.dates[index].append(timestamps[index])
+      self.converted_dates[index].append(date2num(timestamps[index]))
+      self.actual_values[index].append(actual_values[index])
+      self.predicted_values[index].append(predicted_values[index])
+
+      # Update data
+      self.actual_lines[index].set_xdata(self.converted_dates[index])
+      self.actual_lines[index].set_ydata(self.actual_values[index])
+      self.predicted_lines[index].set_xdata(self.converted_dates[index])
+      self.predicted_lines[index].set_ydata(self.predicted_values[index])
+
+      self.graphs[index].relim()
+      self.graphs[index].autoscale_view(True, True, True)
+
+    plt.draw()
+    plt.legend(('actual','predicted'), loc=3)
+
+
+
+  def close(self):
+    plt.ioff()
+    plt.show()
 
 
 
 NuPICOutput.register(NuPICFileOutput)
-# NuPICOutput.register(NuPICPlotOutput)
+NuPICOutput.register(NuPICPlotOutput)
