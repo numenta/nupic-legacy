@@ -103,7 +103,7 @@ Important notes:
 ### Run the Python unit tests:
 
     cd $REPOSITORY/build_system
-    make tests_run
+    make <test> (where <test> can be: tests_htm, tests_everything, tests_run, tests_all)
 
     or
 

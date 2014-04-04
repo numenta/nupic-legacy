@@ -1164,5 +1164,22 @@ message(STATUS "")
 
 ### 5th - custom make targets 
 # tests
-add_custom_target(tests_run COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py )
-add_custom_target(tests_run_all COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py --all)
+add_custom_target(tests_run 
+	COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py 
+	COMMENT "python tests")
+add_custom_target(tests_run_all 
+	COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py --all
+	COMMENT "python tests + swarming (requires DB)")
+add_custom_target(tests_htm 
+	COMMAND ${CMAKE_INSTALL_PREFIX}/bin/htmtest
+	COMMENT "basic tests")
+add_custom_target(tests_everything 
+	COMMAND ${CMAKE_INSTALL_PREFIX}/bin/testeverything
+	COMMENT "C++ tests")
+# tests_all just calls other targets
+add_custom_target(tests_all 
+	DEPENDS tests_run
+	DEPENDS tests_everything
+	DEPENDS tests_htm
+	COMMENT "running all tests")
+
