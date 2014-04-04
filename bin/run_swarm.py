@@ -28,6 +28,7 @@ import os
 import optparse
 
 from nupic.swarming import permutations_runner
+from nupic.swarming.permutations_runner import DEFAULT_OPTIONS
 
 
 def runPermutations(args):
@@ -88,12 +89,13 @@ def runPermutations(args):
   parser = optparse.OptionParser(usage=helpString)
 
   parser.add_option(
-    "--replaceReport", dest="replaceReport", action="store_true", default=False,
+    "--replaceReport", dest="replaceReport", action="store_true",
+    default=DEFAULT_OPTIONS['replaceReport'],
     help="Replace existing csv report file if it exists. Default is to "
          "append to the existing file. [default: %default].")
 
   parser.add_option(
-    "--action", dest="action", default="run",
+    "--action", dest="action", default=DEFAULT_OPTIONS.action,
     choices=['run', 'pickup', 'report', 'dryRun'],
     help="Which action to perform. Possible actions are run, pickup, choices, "
          "report, list. "
@@ -107,27 +109,25 @@ def runPermutations(args):
          "[default: %default].")
 
   parser.add_option(
-    "--maxPermutations", dest="maxPermutations", default=None, type="int",
+    "--maxPermutations", dest="maxPermutations",
+    default=DEFAULT_OPTIONS['maxPermutations'], type="int",
     help="Maximum number of models to search. Applies only to the 'run' and "
     "'dryRun' actions. [default: %default].")
 
   parser.add_option(
-    "--exports", dest="exports", default=None, type="string",
+    "--exports", dest="exports", default=DEFAULT_OPTIONS['exports'],
+    type="string",
     help="json dump of environment variable settings that should be applied"
     "for the job before running. [default: %default].")
 
   parser.add_option(
     "--useTerminators", dest="useTerminators", action='store_true',
-    default=False, help="Use early model terminators in HyperSearch"
+    default=DEFAULT_OPTIONS['useTerminators'], help="Use early model terminators in HyperSearch"
          "[default: %default].")
 
   parser.add_option(
-      "--clusterDefault", dest="clusterDefault", action='store_true',
-      default=False, help="Use default search values. Overwrites all search "
-      "options [default: %default].")
-
-  parser.add_option(
-      "--maxWorkers", dest="maxWorkers", default=2, type="int",
+      "--maxWorkers", dest="maxWorkers", default=DEFAULT_OPTIONS['maxWorkers'],
+      type="int",
       help="Maximum number of concurrent workers to launch. Applies only to "
       "the 'run' action. [default: %default].")
 
@@ -137,18 +137,19 @@ def runPermutations(args):
          "increased verbosity. e.g., -vv is more verbose than -v.")
 
   parser.add_option(
-    "--timeout", dest="timeout", default=None,type="int",
+    "--timeout", dest="timeout", default=DEFAULT_OPTIONS['timeout'], type="int",
      help="Time out for this search in minutes"
          "[default: %default].")
 
   parser.add_option(
-    "--overwrite", default=False, action="store_true",
+    "--overwrite", default=DEFAULT_OPTIONS['overwrite'], action="store_true",
     help="If 'yes', overwrite existing description.py and permutations.py"
          " (in the same directory as the <expDescription.json> file) if they"
          " already exist. [default: %default].")
 
   parser.add_option(
-    "--genTopNDescriptions", dest="genTopNDescriptions", default=1, type="int",
+    "--genTopNDescriptions", dest="genTopNDescriptions",
+    default=DEFAULT_OPTIONS['genTopNDescriptions'], type="int",
     help="Generate description files for the top N models. Each one will be"
          " placed into it's own subdirectory under the base description file."
          "[default: %default].")
