@@ -64,7 +64,7 @@ script:
   # (not quite everything, really)
   - "$NTA/bin/testeverything"
   # actual unit tests
-  - "make tests_run_all"
+  - "python $NTA/bin/run_tests.py --all"
 
   # run all example files
     # examples/bindings
