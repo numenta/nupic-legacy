@@ -21,8 +21,12 @@
 import csv
 from collections import deque
 from abc import ABCMeta, abstractmethod
+import matplotlib
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
+from matplotlib.dates import date2num
+
 from nupic.data.inference_shifter import InferenceShifter
 
 
@@ -89,61 +93,61 @@ class NuPICPlotOutput(NuPICOutput):
     super(NuPICPlotOutput, self).__init__(*args, **kwargs)
     # turn matplotlib interactive mode on (ion)
     plt.ion()
-    plt.figure(figsize=(24, 14))
+    fig = plt.figure(figsize=(10, 6))
+    self.graph = fig.add_subplot(111)
     gs = gridspec.GridSpec(2, 1, height_ratios=[3,1])
     # plot title, legend, etc
     plt.title('Hot Gym prediction example')
     plt.ylabel('KW Energy Consumption')
+    plt.xlabel('Date')
+    plt.legend(tuple(['actual','predicted']), loc=3)
+    plt.tight_layout()
     # The shifter will align prediction and actual values.
     self.shifter = InferenceShifter()
-    # Keep the last WINDOW predicted and actual values for plotting.
-    self.actual_history = deque([0.0] * WINDOW, maxlen=360)
-    self.predicted_history = deque([0.0] * WINDOW, maxlen=360)
-    if self.show_anomaly_score:
-      self.anomaly_score = deque([0.0] * WINDOW, maxlen=360)
-    # Initialize the plot lines that we will update with each new record.
-    if self.show_anomaly_score:
-      plt.subplot(gs[0])
-    self.actual_line, = plt.plot(range(WINDOW), self.actual_history)
-    self.predicted_line, = plt.plot(range(WINDOW), self.predicted_history)
-    plt.legend(tuple(['actual','predicted']), loc=3)
-    if self.show_anomaly_score:
-      plt.subplot(gs[1])
-      self.anomaly_score_line, = plt.plot(range(WINDOW), self.anomaly_score, 'r-')
-      plt.legend(tuple(['anomaly score']), loc=3)
-
-    # Set the y-axis range.
-    self.actual_line.axes.set_ylim(-1, 1)
-    self.predicted_line.axes.set_ylim(-1, 1)
-    if self.show_anomaly_score:
-      self.anomaly_score_line.axes.set_ylim(-1, 1)
-    # legend_fields = ['actual','predicted']
-    # if self.show_anomaly_score:
-    #   legend_fields.append('anomaly score')
-    # plt.legend(tuple(legend_fields), loc=3)
+    self.lines_initialized = False
 
 
 
-  def write(self, index, value, prediction_result, prediction_step=1):
-    shifted_result = self.shifter.shift(prediction_result)
-    # shifted_result = prediction_result
+  def initialize_lines(self, timestamp):
+    self.dates = deque([timestamp] * WINDOW, maxlen=WINDOW)
+    self.converted_dates = deque([date2num(date) for date in self.dates], maxlen=WINDOW)
+
+    self.actual_history = deque([0.0] * WINDOW, maxlen=WINDOW)
+    self.predicted_history = deque([0.0] * WINDOW, maxlen=WINDOW)
+
+    self.actual_line, = self.graph.plot(self.dates, self.actual_history)
+    self.predicted_line, = self.graph.plot(self.dates, self.predicted_history)
+
+    self.lines_initialized = True
+
+
+
+  def write(self, timestamp, value, prediction_result, prediction_step=1):
+    # We need the first timestamp to initialize the lines at the right X value,
+    # so do that check first.
+    if not self.lines_initialized:
+      self.initialize_lines(timestamp)
+
     # Update the trailing predicted and actual value deques.
+    shifted_result = self.shifter.shift(prediction_result)
     inference = shifted_result.inferences\
       ['multiStepBestPredictions'][prediction_step]
+
     if inference is not None:
+      self.dates.append(timestamp)
+      self.converted_dates.append(date2num(timestamp))
       self.actual_history.append(shifted_result.rawInput['kw_energy_consumption'])
       self.predicted_history.append(inference)
-      if self.show_anomaly_score:
-        anomaly_score = prediction_result.inferences['anomalyScore']
-        self.anomaly_score.append(anomaly_score)
 
-    # Redraw the chart with the new data.
-    self.actual_line.set_ydata(self.actual_history)  # update the data
-    self.predicted_line.set_ydata(self.predicted_history)  # update the data
-    if self.show_anomaly_score:
-      self.anomaly_score_line.set_ydata(self.anomaly_score)  # update the data
-    plt.draw()
-    plt.tight_layout()
+      # Update data
+      self.actual_line.set_xdata(self.converted_dates)
+      self.actual_line.set_ydata(self.actual_history)
+      self.predicted_line.set_xdata(self.converted_dates)
+      self.predicted_line.set_ydata(self.predicted_history)
+
+      self.graph.relim()
+      self.graph.autoscale_view(True, True, True)
+      plt.draw()
 
 
 
