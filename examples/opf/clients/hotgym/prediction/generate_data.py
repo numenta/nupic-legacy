@@ -25,7 +25,9 @@ import os
 import csv
 import datetime
 
-INPUT = '../data/raw/gym_input.csv'
+# Hot Gym data is stored with other data at
+# examples/prediction/data/extra/hotgym
+INPUT = '../../../../prediction/data/extra/hotgym/raw/gym_input.csv'
 LOCAL_DATA = 'local_data'
 data_out = {}
 low = 100.0
