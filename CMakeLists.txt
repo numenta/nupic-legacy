@@ -1145,7 +1145,6 @@ copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${CMAKE_INSTALL_PREFIX}/share/
 # Copy testing codes
 copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${CMAKE_INSTALL_PREFIX}/share/test/data)
 copy_directory(${PROJECT_SOURCE_DIR}/tests ${CMAKE_INSTALL_PREFIX}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/run_tests.sh ${CMAKE_INSTALL_PREFIX}/bin/run_tests.sh)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${CMAKE_INSTALL_PREFIX}/bin/run_swarm.py)
 
@@ -1162,3 +1161,25 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
+
+### 5th - custom make targets 
+# tests
+add_custom_target(tests_run 
+	COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py 
+	COMMENT "python tests")
+add_custom_target(tests_run_all 
+	COMMAND python ${CMAKE_INSTALL_PREFIX}/bin/run_tests.py --all
+	COMMENT "python tests + swarming (requires DB)")
+add_custom_target(tests_htm 
+	COMMAND ${CMAKE_INSTALL_PREFIX}/bin/htmtest
+	COMMENT "basic tests")
+add_custom_target(tests_everything 
+	COMMAND ${CMAKE_INSTALL_PREFIX}/bin/testeverything
+	COMMENT "C++ tests")
+# tests_all just calls other targets
+add_custom_target(tests_all 
+	DEPENDS tests_run
+	DEPENDS tests_everything
+	DEPENDS tests_htm
+	COMMENT "running all tests")
+

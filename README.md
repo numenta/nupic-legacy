@@ -102,8 +102,12 @@ Important notes:
 
 ### Run the Python unit tests:
 
-    cd $NUPIC
-    $NUPIC/run_tests.sh
+    cd $REPOSITORY/build_system
+    make <test> (where <test> can be: tests_htm, tests_everything, tests_run, tests_all)
+
+    or
+
+    python $NTA/bin/run_tests.py [--all] 
 
 ### Examples
 
