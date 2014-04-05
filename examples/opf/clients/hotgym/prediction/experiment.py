@@ -112,8 +112,6 @@ def run_io_through_nupic(input_data, models, names, plot):
         prediction = result.inferences \
           ['multiStepBestPredictions'][1]
 
-
-
       times.append(timestamp)
       consumptions.append(consumption)
       predictions.append(prediction)
