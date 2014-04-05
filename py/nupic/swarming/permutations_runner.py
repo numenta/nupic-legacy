@@ -19,15 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This script is the command-line interface for running swarms.
+""" @file permutations_runner.py
 """
 
 import collections
 import imp
 import csv
 from datetime import datetime, timedelta
-import json
-import optparse
 import os
 import cPickle as pickle
 import pprint
@@ -45,11 +43,35 @@ from nupic.swarming import HypersearchWorker, utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
-
+g_currentVerbosityLevel = 0
 gCurrentSearch = None
+DEFAULT_OPTIONS = {'expDescJsonPath': None,
+                  'expDescConfig': None,
+                  'permutationsScriptPath': None,
+                  'outputLabel': "swarm_out",
+                  'permWorkDir': None,
+                  'action': "run",
+                  'searchMethod': "v2",
+                  'timeout': None,
+                  'exports': None,
+                  'useTerminators': False,
+                  'maxWorkers': 2,
+                  'replaceReport': False,
+                  'maxPermutations': None,
+                  'genTopNDescriptions': 1}
 
-def termHandler(signal, frame):
-  global gCurrentSearch
+
+
+class Verbosity(object):
+  """ @private
+  """
+  WARNING = 0
+  INFO = 1
+  DEBUG = 2
+
+
+
+def _termHandler(signal, frame):
   try:
     jobrunner = gCurrentSearch
     jobID = jobrunner._HyperSearchRunner__searchJob.getJobID()
@@ -60,22 +82,22 @@ def termHandler(signal, frame):
     cjdao.ClientJobsDAO.get().jobCancel(jobID)
 
 
-class Verbosity(object):
-  WARNING = 0
-  INFO = 1
-  DEBUG = 2
 
+def _setupInterruptHandling():
+  signal.signal(signal.SIGTERM, _termHandler)
+  signal.signal(signal.SIGINT, _termHandler)
 
-g_currentVerbosityLevel = 0
 
 
 def _verbosityEnabled(verbosityLevel):
-  return (verbosityLevel <= g_currentVerbosityLevel)
+  return verbosityLevel <= g_currentVerbosityLevel
+
 
 
 def _emit(verbosityLevel, info):
   if _verbosityEnabled(verbosityLevel):
     print info
+
 
 
 def _escape(s):
@@ -92,16 +114,17 @@ def _escape(s):
   return s
 
 
+
 def _engineServicesRunning():
-  """ Return true if the engine services are running 
+  """ Return true if the engine services are running
   """
   process = subprocess.Popen(["ps", "aux"], stdout=subprocess.PIPE)
-  
+
   stdout = process.communicate()[0]
   result = process.returncode
   if result != 0:
     raise RuntimeError("Unable to check for running client job manager")
-  
+
   # See if the CJM is running
   running = False
   for line in stdout.split("\n"):
@@ -111,337 +134,220 @@ def _engineServicesRunning():
 
   return running
 
-  
 
-def main():
-  """Runs hypersearch with command-line args in sys.argv (see
-  runPermutations() for arg definitions)
 
-  Parameters:
-  ----------------------------------------------------------------------
-  retval:         for the actions 'run', 'pickup', and 'dryRun', returns the
-                  Hypersearch job ID (in ClinetJobs table); otherwise returns
-                  None
+def _runHyperSearch(runOptions):
+  global gCurrentSearch
+  # Run HyperSearch
+  startTime = time.time()
+  search = _HyperSearchRunner(runOptions)
+  # Save in global for the signal handler.
+  gCurrentSearch = search
+  if runOptions['action'] in ('run', 'dryRun'):
+    search.runNewSearch()
+  else:
+    search.pickupSearch()
+
+  # Generate reports
+  # Print results and generate report csv file
+  modelParams = _HyperSearchRunner.generateReport(
+    options=runOptions,
+    replaceReport=runOptions['replaceReport'],
+    hyperSearchJob=search.peekSearchJob(),
+    metricsKeys=search.getDiscoveredMetricsKeys())
+  secs = time.time() - startTime
+  hours = int(secs) / (60 * 60)
+  secs -= hours * (60 * 60)
+  minutes = int(secs) / 60
+  secs -= minutes * 60
+  print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
+  jobID = search.peekSearchJob().getJobID()
+  print "Hypersearch ClientJobs job ID: ", jobID
+
+  return modelParams
+
+
+
+def _injectDefaultOptions(options):
+  return dict(DEFAULT_OPTIONS, **options)
+
+
+
+def _validateOptions(options):
+  if "expDescJsonPath" not in options \
+    and "expDescConfig" not in options \
+    and "permutationsScriptPath" not in options:
+    raise Exception("Options must contain one of the following: "
+                    "expDescJsonPath, expDescConfig, or "
+                    "permutationsScriptPath.")
+
+
+
+def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
+  # The expGenerator expects the JSON without newlines for an unknown reason.
+  expDescConfig = json.dumps(swarmDescriptionJson)
+  expDescConfig = expDescConfig.splitlines()
+  expDescConfig = "".join(expDescConfig)
+
+  expGenerator([
+    "--description=%s" % (expDescConfig),
+    "--outDir=%s" % (outDir)])
+
+
+
+def _runAction(runOptions):
+  action = runOptions["action"]
+  # Print Grok HyperSearch results from the current or last run
+  if action == "report":
+    returnValue = _HyperSearchRunner.generateReport(
+        options=runOptions,
+        replaceReport=runOptions["replaceReport"],
+        hyperSearchJob=None,
+        metricsKeys=None)
+  # Run HyperSearch via Grok
+  elif action in ("run", "dryRun", "pickup"):
+    returnValue = _runHyperSearch(runOptions)
+  else:
+    raise Exception("Unhandled action: %s" % action)
+  return returnValue
+
+
+
+def _checkOverwrite(options, outDir):
+  overwrite = options["overwrite"]
+  if not overwrite:
+    for name in ("description.py", "permutations.py"):
+      if os.path.exists(os.path.join(outDir, name)):
+        raise RuntimeError("The %s file already exists and will be "
+                           "overwritten by this tool. If it is OK to overwrite "
+                           "this file, use the --overwrite option." % \
+                           os.path.join(outDir, "description.py"))
+  # The overwrite option has already been used, so should be removed from the
+  # config at this point.
+  del options["overwrite"]
+
+
+
+def runWithConfig(swarmConfig, options,
+                  outDir=None, outputLabel="default",
+                  permWorkDir=None, verbosity=1):
   """
-  return runPermutations(sys.argv[1:])
+  Starts a swarm, given an dictionary configuration.
+  @param swarmConfig {dict} A complete [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description) object.
+  @param outDir {string} Optional path to write swarm details (defaults to
+                         current working directory).
+  @param outputLabel {string} Optional label for output (defaults to "default").
+  @param permWorkDir {string} Optional location of working directory (defaults
+                              to current working directory).
+  @param verbosity {int} Optional (1,2,3) increasing verbosity of output.
 
-
-
-def runPermutations(args):
-  """
-  The main function of the RunPermutations utility.
-  This utility will automatically generate and run multiple prediction framework
-  experiments that are permutations of a base experiment via the Grok engine.
-  For example, if you have an experiment that you want to test with 3 possible
-  values of variable A and 2 possible values of variable B, this utility will
-  automatically generate the experiment directories and description files for
-  each of the 6 different experiments.
-
-  Here is an example permutations file which is read by this script below. The
-  permutations file must be in the same directory as the description.py for the
-  base experiment that you want to permute. It contains a permutations dict, an
-  optional list of the result items to report on for each experiment, and an
-  optional result item to optimize for.
-
-  When an 'optimize' entry is provided, this tool will attempt to prioritize the
-  order in which the various permutations are run in order to improve the odds
-  of running the best permutations sooner. It does this by watching the results
-  for various parameter values and putting parameter values that give generally
-  better results at the head of the queue.
-
-  In addition, when the optimize key is provided, we periodically update the UI
-  with the best results obtained so far on that metric.
-
-  ---------------------------------------------------------------------------
-  permutations = dict(
-                  iterationCount = [1000, 5000],
-                  coincCount = [50, 100],
-                  trainTP = [False],
-                  )
-
-  report = ['.*reconstructErrAvg',
-            '.*inputPredScore.*',
-            ]
-
-  optimize = 'postProc_gym1_baseline:inputPredScore'
-
-  Parameters:
-  ----------------------------------------------------------------------
-  args:           Command-line args; the equivalent of sys.argv[1:]
-  retval:         for the actions 'run', 'pickup', and 'dryRun', returns the
-                  Hypersearch job ID (in ClinetJobs table); otherwise returns
-                  None
+  @returns {object} Model parameters
   """
   global g_currentVerbosityLevel
-  
-  # First, see if the engine services are running because this impacts what
-  #  our default options are
-  engineRunning = _engineServicesRunning()
+  g_currentVerbosityLevel = verbosity
 
-  helpString = (
-      "\n\n%prog [options] permutationsScript\n"
-      "%prog [options] expDescription.json\n\n"
-      "This script runs permutations of an experiment via Grok engine, as "
-      "defined in a\npermutations.py script or an expGenerator experiment "
-      "description json file.\nIn the expDescription.json form, the json file "
-      "MUST have the file extension\n'.json' and MUST conform to "
-      "expGenerator/experimentDescriptionSchema.json.")
+  # Generate the description and permutations.py files in the same directory
+  #  for reference.
+  if outDir is None:
+    outDir = os.getcwd()
+  if permWorkDir is None:
+    permWorkDir = os.getcwd()
 
-  parser = optparse.OptionParser(usage=helpString)
+  _checkOverwrite(options, outDir)
 
-  parser.add_option(
-    "--searchMethod", dest="searchMethod", default="v2",
-    #choices=['ronomatic', 'pso', 'blended'],
-    choices=['v2'],
-    help="Which hypersearch optimization method to use. Possible choices are: "
-         "'v2' (ronomatic was deprecated). "
-         "'v2' builds up field combinations gradually, using PSO to optimize "
-         "variables within each field combination. "
-         "[default: %default].")
+  _generateExpFilesFromSwarmDescription(swarmConfig, outDir)
 
-  #parser.add_option(
-  #  "--stopOnErr", dest="stopOnErr", action="store_true", default=False,
-  #  help="If any sub-experiment encounters a failure, immediately stop and "
-  #       "cancel all remaining permutations [default: %default].")
+  options["expDescConfig"] = swarmConfig
+  options["outputLabel"] = outputLabel
+  options["permWorkDir"] = permWorkDir
 
-  parser.add_option(
-    "--replaceReport", dest="replaceReport", action="store_true", default=False,
-    help="Replace existing csv report file if it exists. Default is to "
-         "append to the existing file. [default: %default].")
+  runOptions = _injectDefaultOptions(options)
+  _validateOptions(runOptions)
 
-  #parser.add_option(
-  #  "--noreorder", dest="noreorder", action="store_true", default=False,
-  #  help="Turn off the automatic experiment re-ordering which tries to run "
-  #       "experiments with the potentially best results on the optimize "
-  #       "metric first [default: %default].")
+  return _runAction(runOptions)
 
-  parser.add_option(
-    "--action", dest="action", default="run",
-    choices=['run', 'pickup', 'report', 'dryRun'],
-    help="Which action to perform. Possible actions are run, pickup, choices, "
-         "report, list. "
-         "run: run a new HyperSearch via Grok. "
-         "pickup: pick up the latest run of a HyperSearch job. "
-         "dryRun: run a single HypersearchWorker inline within the application "
-         "process without the Grok infrastructure to flush out bugs in "
-         "description and permutations scripts; defaults to "
-         "maxPermutations=1: use --maxPermutations to change this; "
-         "report: just print results from the last or current run. "
-         "[default: %default].")
 
-  #parser.add_option(
-  #  "-R", dest="runOptions", action="append", default=[],
-  #  metavar="<RUNOPTION>",
-  #  help="A <RUNOPTION> to pass on to the command that runs each experiment. "
-  #       "Multiple <RUNOPTION>s may be specified. Example: -R--testMode "
-  #       "-R-r [default: %default].")
 
-  #parser.add_option(
-  #  "--override", dest="override", action="append", default=[],
-  #  help="Override the given variable in all experiments. This option "
-  #  "will override any values found in either the base description file "
-  #  "or the permutations script. "
-  #  "If desired, multiple --override options can be specified.\n"
-  #  " [default: %default].")
+def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
+  """
+  Starts a swarm, given a path to a JSON file containing configuration.
 
-  parser.add_option(
-    "--maxPermutations", dest="maxPermutations", default=None, type="int",
-    help="Maximum number of models to search. Applies only to the 'run' and "
-    "'dryRun' actions. [default: %default].")
+  This function is meant to be used with a CLI wrapper that passes command line
+  arguments in through the options parameter.
 
-  parser.add_option(
-    "--exports", dest="exports", default=None, type="string",
-    help="json dump of environment variable settings that should be applied"
-    "for the job before running. [default: %default].")
+  @param expJsonFilePath {string} Path to a JSON file containing the complete
+                                 [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description).
+  @param options {object} CLI options (optParse).
+  @param outputLabel {string} Label for output.
+  @param permWorkDir {string} Location of working directory.
 
-  parser.add_option(
-    "--useTerminators", dest="useTerminators", action='store_true',
-    default=False, help="Use early model terminators in HyperSearch"
-         "[default: %default].")
+  @returns {int} Swarm job id.
+  """
+  verbosity = options.verbosityCount
+  optionsDict = vars(options)
+  del optionsDict["verbosityCount"]
 
-  parser.add_option(
-      "--clusterDefault", dest="clusterDefault", action='store_true',
-      default=False, help="Use default search values. Overwrites all search "
-      "options [default: %default].")
+  _setupInterruptHandling()
 
-  parser.add_option(
-      "--maxWorkers", dest="maxWorkers", default=2, type="int",
-      help="Maximum number of concurrent workers to launch. Applies only to "
-      "the 'run' action. [default: %default].")
+  with open(expJsonFilePath, "rb") as jsonFile:
+    expJsonConfig = json.loads(jsonFile)
 
-  parser.add_option(
-    "-v", dest="verbosityCount", action="count", default=0,
-    help="Increase verbosity of the output.  Specify multiple times for "
-         "increased verbosity. e.g., -vv is more verbose than -v.")
+  outDir = os.path.dirname(expJsonFilePath)
+  return runWithConfig(expJsonConfig, optionsDict, outDir=outDir,
+                       outputLabel=outputLabel, permWorkDir=permWorkDir,
+                       verbosity=verbosity)
 
-  parser.add_option(
-    "--timeout", dest="timeout", default=None,type="int",
-     help="Time out for this search in minutes"
-         "[default: %default].")
 
-  parser.add_option(
-    "--useEngine", dest="useEngine", default="yes" if engineRunning else "no",
-    choices=["yes", "no"], help="If set to 'yes', the grok engine will be used "
-    "and the swarm can run across multiple machines. If set to 'no', then "
-    "the engine is not required and swarming will run multiple processes on the "
-    "local machine only. [default: %default].")
 
-  parser.add_option(
-    "--overwrite", default=False, action="store_true",
-    help="If 'yes', overwrite existing description.py and permutations.py"
-         " (in the same directory as the <expDescription.json> file) if they"
-         " already exist. [default: %default].")
+def runWithPermutationsScript(permutationsFilePath, options,
+                                 outputLabel, permWorkDir):
+  """
+  Starts a swarm, given a path to a permutations.py script.
 
-  parser.add_option(
-    "--genTopNDescriptions", dest="genTopNDescriptions", default=1, type="int",
-    help="Generate description files for the top N models. Each one will be"
-         " placed into it's own subdirectory under the base description file."
-         "[default: %default].")
+  This function is meant to be used with a CLI wrapper that passes command line
+  arguments in through the options parameter.
 
-  (options, positionalArgs) = parser.parse_args(args)
+  @param permutationsFilePath {string} Path to permutations.py.
+  @param options {object} CLI options (optParse).
+  @param outputLabel {string} Label for output.
+  @param permWorkDir {string} Location of working directory.
 
-  # Process the options
-
+  @returns {object} Model parameters.
+  """
+  global g_currentVerbosityLevel
   g_currentVerbosityLevel = options.verbosityCount
 
-  # Get the permutations script's filepath
-  if len(positionalArgs) != 1:
-    parser.error("You must supply the name of exactly one permutations script "
-                 "or JSON description file.")
+  _setupInterruptHandling()
 
-  expDescJsonPath = None
-  permutationsScriptPath = None
+  optionsDict = vars(options)
+  del optionsDict["verbosityCount"]
 
-  fileArgPath = os.path.expanduser(positionalArgs[0])
-  fileArgPath = os.path.expandvars(fileArgPath)
-  fileArgPath = os.path.abspath(fileArgPath)
+  optionsDict["permutationsScriptPath"] = permutationsFilePath
+  optionsDict["outputLabel"] = outputLabel
+  optionsDict["permWorkDir"] = permWorkDir
 
-  permWorkDir = os.path.dirname(fileArgPath)
+  # Assume it's a permutations python script
+  runOptions = _injectDefaultOptions(optionsDict)
+  _validateOptions(runOptions)
 
-  outputLabel = os.path.splitext(os.path.basename(fileArgPath))[0]
-
-  basename = os.path.basename(fileArgPath)
-  fileExtension = os.path.splitext(basename)[1]
-
-  # Setup interrupt handling
-  signal.signal(signal.SIGTERM, termHandler)
-  signal.signal(signal.SIGINT, termHandler)
-
-  if fileExtension == '.json':
-    expDescJsonPath = fileArgPath
-    
-    # Generate the description and permutations.py files in the same directory
-    #  for reference.
-    outDir = os.path.dirname(expDescJsonPath)
-    if not options.overwrite:
-      for name in ('description.py', 'permutations.py'):
-        if os.path.exists(os.path.join(outDir, name)):
-          raise RuntimeError("The %s file already exists and will be "
-            "overwritten by this tool. If it is OK to overwrite this file, "
-            "use the --overwrite option." % \
-            os.path.join(outDir, "description.py"))
-    expGenerator([
-      '--descriptionFromFile=%s' % (expDescJsonPath),
-      '--outDir=%s' % (outDir)])
-
-  else:
-    # Assume it's a permutations python script
-    permutationsScriptPath = fileArgPath
-
-  # Set up cluster default values if required
-  if(options.clusterDefault):
-    options.useTerminators = None
-    options.searchMethod = "v2"
-
-  grokOptions = dict(
-    action = options.action,
-
-    # NOTE: exactly one of expDescJsonPath or permutationsScriptPath
-    #       MUST be specfied; the other MUST be None.
-    expDescJsonPath = expDescJsonPath,
-    permutationsScriptPath = permutationsScriptPath,
-
-    # Path for storing hypersearch output (based on given file path arg)
-    permWorkDir = permWorkDir,
-
-    # Label derived from the given file path arg that may be incorporated into
-    # generated output file names
-    outputLabel = outputLabel,
-
-    searchMethod = options.searchMethod,
-    #stopOnError = options.stopOnErr,
-    #autoExperimentReorder = not options.noreorder,
-    #experimentRunOptions = options.runOptions,
-    #variableOverrides = options.override,
-    timeout=options.timeout,
-    exports = options.exports,
-    useTerminators = options.useTerminators,
-    maxNumWorkers = options.maxWorkers,
-    maxPermutations = options.maxPermutations,
-    genTopNDescriptions = options.genTopNDescriptions,
-    useEngine = options.useEngine == "yes",
-  )
-
-  # Print Grok HyperSearch results from the current or last run
-  if options.action == 'report':
-    _HyperSearchRunner.generateReport(
-      options=grokOptions,
-      replaceReport=options.replaceReport,
-      hyperSearchJob=None,
-      metricsKeys=None)
-
-    return None
-
-  # Run HyperSearch via Grok
-  elif options.action in ('run', 'dryRun', 'pickup'):
-    # Run HyperSearch
-    startTime = time.time()
-
-    search = _HyperSearchRunner(grokOptions)
-    
-    # Save in global for the signal handler. 
-    global gCurrentSearch
-    gCurrentSearch = search
-
-    if options.action in ('run', 'dryRun'):
-      search.runNewSearch()
-    else:
-      search.pickupSearch()
-
-    # Generate reports
-
-    # Print results and generate report csv file
-    _HyperSearchRunner.generateReport(
-      options=grokOptions,
-      replaceReport=options.replaceReport,
-      hyperSearchJob=search.peekSearchJob(),
-      metricsKeys=search.getDiscoveredMetricsKeys())
-
-    secs = time.time() - startTime
-    hours = int(secs) / (60*60)
-    secs -= hours * (60*60)
-    minutes = int(secs) / 60
-    secs -= minutes * 60
-    print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
-
-    jobID = search.peekSearchJob().getJobID()
-
-    print "Hypersearch ClientJobs job ID: ", jobID
-
-    #if _grokHyperSearchHasErrors(search.peekSearchJob()):
-    #  # TODO: if job or some models failed, emit error messages
-    #  sys.exit(1)
-    #else:
-    #  sys.exit(0)
-
-  else:
-    raise Exception("Unhandled action: %s" % options.action)
-
-  return jobID
+  return _runAction(runOptions)
 
 
 
-def setUpExports(exports):
+def runPermutations(_):
+  """
+  DEPRECATED. Use @ref runWithConfig.
+  """
+  raise DeprecationWarning(
+    "nupic.swarming.permutations_runner.runPermutations() is no longer "
+    "implemented. It has been replaced with a simpler function for library "
+    "usage: nupic.swarming.permutations_runner.runWithConfig(). See docs "
+    "at https://github.com/numenta/nupic/wiki/Running-Swarms#running-a-swarm-"
+    "programmatically for details.")
+
+
+
+def _setUpExports(exports):
   ret = ""
   if  exports is None:
     return ret
@@ -480,7 +386,8 @@ def _grokHyperSearchHasErrors(hyperSearchJob):
 
 
 class _HyperSearchRunner(object):
-  """Manages one instance of HyperSearch"""
+  """ @private
+  Manages one instance of HyperSearch"""
 
 
   def __init__(self, options):
@@ -499,13 +406,14 @@ class _HyperSearchRunner(object):
     self.__searchJob = None
 
     self.__foundMetrcsKeySet = set()
-    
-    # If we are instead relying on the engine to launch workers for us, this 
-    # will stay as None, otherwise it becomes an array of subprocess Popen 
-    # instances. 
+
+    # If we are instead relying on the engine to launch workers for us, this
+    # will stay as None, otherwise it becomes an array of subprocess Popen
+    # instances.
     self._workers = None
 
     return
+
 
 
   def runNewSearch(self):
@@ -519,6 +427,7 @@ class _HyperSearchRunner(object):
     self.monitorSearchJob()
 
 
+
   def pickupSearch(self):
     """Pick up the latest search from a saved jobID and monitor it to completion
     Parameters:
@@ -526,11 +435,12 @@ class _HyperSearchRunner(object):
     retval:         nothing
     """
     self.__searchJob = self.loadSavedHyperSearchJob(
-      permWorkDir=self._options['permWorkDir'],
-      outputLabel=self._options['outputLabel'])
+      permWorkDir=self._options["permWorkDir"],
+      outputLabel=self._options["outputLabel"])
 
 
     self.monitorSearchJob()
+
 
 
   def monitorSearchJob(self):
@@ -550,7 +460,7 @@ class _HyperSearchRunner(object):
 
     # NOTE: may be -1 if it can't be determined
     expectedNumModels = self.__searchJob.getExpectedNumModels(
-                                searchMethod = self._options['searchMethod'])
+                                searchMethod = self._options["searchMethod"])
 
     lastNumFinished = 0
     finishedModelIDs = set()
@@ -676,9 +586,9 @@ class _HyperSearchRunner(object):
 
       # Sleep before next check
       if not hyperSearchFinished:
-        if self._options['timeout'] != None:
+        if self._options["timeout"] != None:
           if ((datetime.now() - lastUpdateTime) >
-              timedelta(minutes=self._options['timeout'])):
+              timedelta(minutes=self._options["timeout"])):
             print "Timeout reached, exiting"
             self.__cjDAO.jobCancel(jobID)
             sys.exit(1)
@@ -693,16 +603,17 @@ class _HyperSearchRunner(object):
     print "Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg())
 
 
+
   def _launchWorkers(self, cmdLine, numWorkers):
     """ Launch worker processes to execute the given command line
-    
+
     Parameters:
     -----------------------------------------------
     cmdLine: The command line for each worker
     numWorkers: number of workers to launch
     """
 
-    self._workers = []    
+    self._workers = []
     for i in range(numWorkers):
       args = ["bash", "-c", cmdLine]
       stdout = tempfile.TemporaryFile()
@@ -710,10 +621,11 @@ class _HyperSearchRunner(object):
       p = subprocess.Popen(args, bufsize=1, env=os.environ, shell=False,
                            stdin=None, stdout=stdout, stderr=stderr)
       self._workers.append(p)
-      
+
+
 
   def __startSearch(self):
-    """Starts HyperSearch in Grok or runs it inline for the 'dryRun' action
+    """Starts HyperSearch in Grok or runs it inline for the "dryRun" action
 
     Parameters:
     ----------------------------------------------------------------------
@@ -724,8 +636,8 @@ class _HyperSearchRunner(object):
     params = _ClientJobUtils.makeSearchJobParamsDict(options=self._options,
                                                      forRunning=True)
 
-    if self._options['action'] == 'dryRun':
-      args = [sys.argv[0], '--params=%s' % (json.dumps(params))]
+    if self._options["action"] == "dryRun":
+      args = [sys.argv[0], "--params=%s" % (json.dumps(params))]
 
       print
       print "=================================================================="
@@ -734,35 +646,33 @@ class _HyperSearchRunner(object):
       jobID = HypersearchWorker.main(args)
 
     else:
-      cmdLine = setUpExports(self._options['exports'])
+      cmdLine = _setUpExports(self._options["exports"])
       # Begin the new search. The {JOBID} string is replaced by the actual
       # jobID returned from jobInsert.
       cmdLine += "$HYPERSEARCH"
-      maxWorkers = self._options['maxNumWorkers']
+      maxWorkers = self._options["maxWorkers"]
 
       jobID = self.__cjDAO.jobInsert(
-        client='GRP',
+        client="GRP",
         cmdLine=cmdLine,
         params=json.dumps(params),
         minimumWorkers=1,
         maximumWorkers=maxWorkers,
         jobType=self.__cjDAO.JOB_TYPE_HS)
 
-      # If running without the engine, startup the workers ourselves
-      if not self._options["useEngine"]:
-        cmdLine = "python -m nupic.swarming.HypersearchWorker" \
-                   " --jobID=%d" % (jobID)
-        self._launchWorkers(cmdLine, maxWorkers)
-          
+      cmdLine = "python -m nupic.swarming.HypersearchWorker" \
+                 " --jobID=%d" % (jobID)
+      self._launchWorkers(cmdLine, maxWorkers)
+
     searchJob = _HyperSearchJob(jobID)
 
     # Save search ID to file (this is used for report generation)
     self.__saveHyperSearchJobID(
-      permWorkDir=self._options['permWorkDir'],
-      outputLabel=self._options['outputLabel'],
+      permWorkDir=self._options["permWorkDir"],
+      outputLabel=self._options["outputLabel"],
       hyperSearchJob=searchJob)
 
-    if self._options['action'] == 'dryRun':
+    if self._options["action"] == "dryRun":
       print "Successfully executed 'dry-run' hypersearch, jobID=%d" % (jobID)
     else:
       print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
@@ -770,6 +680,7 @@ class _HyperSearchRunner(object):
             "Each worker executing the command line: %s" % (cmdLine,))
 
     return searchJob
+
 
 
   def peekSearchJob(self):
@@ -782,6 +693,7 @@ class _HyperSearchRunner(object):
     """
     assert self.__searchJob is not None
     return self.__searchJob
+
 
 
   def getDiscoveredMetricsKeys(self):
@@ -797,6 +709,7 @@ class _HyperSearchRunner(object):
                     HyperSearch;
     """
     return tuple(self.__foundMetrcsKeySet)
+
 
 
   @classmethod
@@ -835,13 +748,13 @@ class _HyperSearchRunner(object):
     metricsKeys:    sequence of report metrics key names to include in report;
                     if None, will pre-scan all modelInfos to generate a complete
                     list of metrics key names.
-    retval:         nothing
+    retval:         model parameters
     """
     # Load _HyperSearchJob instance from storage, if not provided
     if hyperSearchJob is None:
       hyperSearchJob = cls.loadSavedHyperSearchJob(
-          permWorkDir=options['permWorkDir'],
-          outputLabel=options['outputLabel'])
+          permWorkDir=options["permWorkDir"],
+          outputLabel=options["outputLabel"])
 
     modelIDs = hyperSearchJob.queryModelIDs()
     bestModel = None
@@ -864,8 +777,8 @@ class _HyperSearchRunner(object):
     reportWriter = _ReportCSVWriter(hyperSearchJob=hyperSearchJob,
                                     metricsKeys=metricsKeys,
                                     searchVar=searchVar,
-                                    outputDirAbsPath=options['permWorkDir'],
-                                    outputLabel=options['outputLabel'],
+                                    outputDirAbsPath=options["permWorkDir"],
+                                    outputLabel=options["outputLabel"],
                                     replaceReport=replaceReport)
 
     # Tallies of experiment dispositions
@@ -886,7 +799,7 @@ class _HyperSearchRunner(object):
     # NOTE: we may find additional metrics if HyperSearch is still running
     foundMetricsKeySet = set(metricsKeys)
     sortedMetricsKeys = []
-   
+
     # pull out best Model from jobs table
     jobInfo = _clientJobsDB().jobInfo(hyperSearchJob.getJobID())
     try:
@@ -899,7 +812,7 @@ class _HyperSearchRunner(object):
       print "EXCEPTION: ", e
       raise
 
-    bestModelNum = results['bestModel']
+    bestModelNum = results["bestModel"]
     bestModelIterIndex = None
 
     # performance metrics for the entire job
@@ -971,7 +884,7 @@ class _HyperSearchRunner(object):
               m = "%r (*)" % reportMetrics[key]
             else:
               m = "%r" % reportMetrics[key]
-            print formatStr % (key+':'), m
+            print formatStr % (key+":"), m
         print
 
     # Summarize results
@@ -1016,9 +929,9 @@ class _HyperSearchRunner(object):
     global gCurrentSearch
     jobStatus = hyperSearchJob.getJobStatus(gCurrentSearch._workers)
     jobResults = jobStatus.getResults()
-    if 'fieldContributions' in jobResults:
+    if "fieldContributions" in jobResults:
       print "Field Contributions:"
-      pprint.pprint(jobResults['fieldContributions'], indent=4)
+      pprint.pprint(jobResults["fieldContributions"], indent=4)
     else:
       print "Field contributions info not available"
 
@@ -1034,7 +947,7 @@ class _HyperSearchRunner(object):
           optimizationMetricName, maximizeMetric)
       print "[%d] Experiment %s (%s):" % (
           bestModelIterIndex, bestModel, bestModel.getModelDescription())
-      print formatStr % (optimizationMetricName+':'), bestMetricValue
+      print formatStr % (optimizationMetricName+":"), bestMetricValue
       print
       print "Total number of Records processed: %d"  % totalRecords
       print
@@ -1043,17 +956,17 @@ class _HyperSearchRunner(object):
       hsJobParams = hyperSearchJob.getParams()
 
     # Were we asked to write out the top N model description files?
-    if options['genTopNDescriptions'] > 0:
+    if options["genTopNDescriptions"] > 0:
       print "\nGenerating description files for top %d models..." % (
-              options['genTopNDescriptions'])
+              options["genTopNDescriptions"])
       scoreModelIDDescList.sort()
       scoreModelIDDescList = scoreModelIDDescList[
-          0:options['genTopNDescriptions']]
+          0:options["genTopNDescriptions"]]
 
       i = -1
       for (score, modelID, description, paramLabels) in scoreModelIDDescList:
         i += 1
-        outDir = os.path.join(options['permWorkDir'], 'model_%d' % (i))
+        outDir = os.path.join(options["permWorkDir"], "model_%d" % (i))
         print "Generating description file for model %s at %s" % \
           (modelID, outDir)
         if not os.path.exists(outDir):
@@ -1063,12 +976,12 @@ class _HyperSearchRunner(object):
         description = description.replace(
               "importBaseDescription('base.py', config)",
               "importBaseDescription('../description.py', config)")
-        fd = open(os.path.join(outDir, 'description.py'), 'wb')
+        fd = open(os.path.join(outDir, "description.py"), "wb")
         fd.write(description)
         fd.close()
 
         # Generate a csv file with the parameter settings in it
-        fd = open(os.path.join(outDir, 'params.csv'), 'wb')
+        fd = open(os.path.join(outDir, "params.csv"), "wb")
         writer = csv.writer(fd)
         colNames = paramLabels.keys()
         colNames.sort()
@@ -1079,15 +992,18 @@ class _HyperSearchRunner(object):
 
         print "Generating model params file..."
         # Generate a model params file alongside the description.py
-        mod = imp.load_source('description', os.path.join(outDir, 'description.py'))
+        mod = imp.load_source("description", os.path.join(outDir,
+                                                          "description.py"))
         model_description = mod.descriptionInterface.getModelDescription()
-        fd = open(os.path.join(outDir, 'model_params.py'), 'wb')
-        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(), pprint.pformat(model_description)))
+        fd = open(os.path.join(outDir, "model_params.py"), "wb")
+        fd.write("%s\nMODEL_PARAMS = %s" % (utils.getCopyrightHead(),
+                                            pprint.pformat(model_description)))
         fd.close()
 
       print
 
     reportWriter.finalize()
+    return model_description
 
 
 
@@ -1106,6 +1022,7 @@ class _HyperSearchRunner(object):
 
     searchJob = _HyperSearchJob(grokJobID=jobID)
     return searchJob
+
 
 
   @classmethod
@@ -1128,8 +1045,9 @@ class _HyperSearchRunner(object):
 
     d = dict(hyperSearchJobID = jobID)
 
-    with open(filePath, 'wb') as jobIdPickleFile:
+    with open(filePath, "wb") as jobIdPickleFile:
       pickle.dump(d, jobIdPickleFile)
+
 
 
   @classmethod
@@ -1146,11 +1064,12 @@ class _HyperSearchRunner(object):
                                                  outputLabel=outputLabel)
 
     jobID = None
-    with open(filePath, 'rb') as jobIdPickleFile:
+    with open(filePath, "rb") as jobIdPickleFile:
       jobInfo = pickle.load(jobIdPickleFile)
-      jobID = jobInfo['hyperSearchJobID']
+      jobID = jobInfo["hyperSearchJobID"]
 
     return jobID
+
 
 
   @classmethod
@@ -1175,6 +1094,8 @@ class _HyperSearchRunner(object):
 
 
 class _ModelStats(object):
+  """ @private
+  """
 
 
   def __init__(self):
@@ -1190,6 +1111,7 @@ class _ModelStats(object):
     self.numCompletedEOF = long(0)
     self.numCompletedOther = long(0)
     self.numCompletedOrphaned = long(0)
+
 
 
   def update(self, modelInfo):
@@ -1222,6 +1144,8 @@ class _ModelStats(object):
 
 
 class _ReportCSVWriter(object):
+  """ @private
+  """
 
 
   __totalModelTime = timedelta()
@@ -1259,6 +1183,7 @@ class _ReportCSVWriter(object):
     self.__backupCSVPath = None
 
 
+
   def emit(self, modelInfo):
     """Emit model info to csv file
 
@@ -1275,46 +1200,47 @@ class _ReportCSVWriter(object):
     csv = self.__csvFileObj
 
     # Emit model info row to report.csv
-    print >> csv, '%s, ' % (self.__searchJobID),
-    print >> csv, '%s, ' % (modelInfo.getModelID()),
-    print >> csv, '%s, ' % (modelInfo.statusAsString()),
+    print >> csv, "%s, " % (self.__searchJobID),
+    print >> csv, "%s, " % (modelInfo.getModelID()),
+    print >> csv, "%s, " % (modelInfo.statusAsString()),
     if modelInfo.isFinished():
-      print >> csv, '%s, ' % (modelInfo.getCompletionReason()),
+      print >> csv, "%s, " % (modelInfo.getCompletionReason()),
     else:
-      print >> csv, 'NA, ',
+      print >> csv, "NA, ",
     if not modelInfo.isWaitingToStart():
-      print >> csv, '%s, ' % (modelInfo.getStartTime()),
+      print >> csv, "%s, " % (modelInfo.getStartTime()),
     else:
-      print >> csv, 'NA, ',
+      print >> csv, "NA, ",
     if modelInfo.isFinished():
-      format = "%Y-%m-%d %H:%M:%S"
+      dateFormat = "%Y-%m-%d %H:%M:%S"
       startTime = modelInfo.getStartTime()
       endTime = modelInfo.getEndTime()
-      print >> csv, '%s, ' % endTime,
-      st = datetime.strptime(startTime, format)
-      et = datetime.strptime(endTime, format)
-      print >> csv, '%s, ' % (str((et - st).seconds)),
+      print >> csv, "%s, " % endTime,
+      st = datetime.strptime(startTime, dateFormat)
+      et = datetime.strptime(endTime, dateFormat)
+      print >> csv, "%s, " % (str((et - st).seconds)),
     else:
-      print >> csv, 'NA, ',
-      print >> csv, 'NA, ',
-    print >> csv, '%s, ' % str(modelInfo.getModelDescription()),
-    print >> csv, '%s, ' % str(modelInfo.getNumRecords()),
+      print >> csv, "NA, ",
+      print >> csv, "NA, ",
+    print >> csv, "%s, " % str(modelInfo.getModelDescription()),
+    print >> csv, "%s, " % str(modelInfo.getNumRecords()),
     paramLabelsDict = modelInfo.getParamLabels()
     for key in self.__sortedVariableNames:
       # Some values are complex structures,.. which need to be represented as
       # strings
       if key in paramLabelsDict:
-        print >> csv, '%s, ' % (paramLabelsDict[key]),
+        print >> csv, "%s, " % (paramLabelsDict[key]),
       else:
-        print >> csv, 'None, ',
+        print >> csv, "None, ",
     metrics = modelInfo.getReportMetrics()
     for key in self.__sortedMetricsKeys:
       value = metrics.get(key, "NA")
       value = str(value)
-      value = value.replace('\n', ' ')
-      print >> csv, '%s, ' % (value),
+      value = value.replace("\n", " ")
+      print >> csv, "%s, " % (value),
 
     print >> csv
+
 
 
   def finalize(self):
@@ -1336,6 +1262,7 @@ class _ReportCSVWriter(object):
                 (self.__backupCSVPath,)
     else:
       print "Nothing was written to report csv file."
+
 
 
   def __openAndInitCSVFile(self, modelInfo):
@@ -1367,9 +1294,9 @@ class _ReportCSVWriter(object):
 
     # Open report file
     if self.__replaceReport:
-      mode = 'w'
+      mode = "w"
     else:
-      mode = 'a'
+      mode = "a"
     csv = self.__csvFileObj = open(reportCSVPath, mode)
 
     # If we are appending, add some blank line separators
@@ -1378,26 +1305,27 @@ class _ReportCSVWriter(object):
       print >> csv
 
     # Print the column names
-    print >> csv, 'jobID, ',
-    print >> csv, 'modelID, ',
-    print >> csv, 'status, ' ,
-    print >> csv, 'completionReason, ',
-    print >> csv, 'startTime, ',
-    print >> csv, 'endTime, ',
-    print >> csv, 'runtime(s), ' ,
-    print >> csv, 'expDesc, ',
-    print >> csv, 'numRecords, ',
+    print >> csv, "jobID, ",
+    print >> csv, "modelID, ",
+    print >> csv, "status, " ,
+    print >> csv, "completionReason, ",
+    print >> csv, "startTime, ",
+    print >> csv, "endTime, ",
+    print >> csv, "runtime(s), " ,
+    print >> csv, "expDesc, ",
+    print >> csv, "numRecords, ",
 
     for key in self.__sortedVariableNames:
-      print >> csv, '%s, ' % key,
+      print >> csv, "%s, " % key,
     for key in self.__sortedMetricsKeys:
-      print >> csv, '%s, ' % key,
+      print >> csv, "%s, " % key,
     print >> csv
 
 
 
 class _GrokJob(object):
-  """Our Grok Job abstraction"""
+  """ @private
+  Our Grok Job abstraction"""
 
 
   def __init__(self, grokJobID):
@@ -1420,6 +1348,7 @@ class _GrokJob(object):
       self.__params = None
 
 
+
   def __repr__(self):
     """
     Parameters:
@@ -1429,6 +1358,7 @@ class _GrokJob(object):
     return "%s(jobID=%s)" % (self.__class__.__name__, self.__grokJobID)
 
 
+
   def getJobStatus(self, workers):
     """
     Parameters:
@@ -1436,10 +1366,11 @@ class _GrokJob(object):
     workers:  If this job was launched outside of the Grok engine, then this
                is an array of subprocess Popen instances, one for each worker
     retval:         _GrokJob.JobStatus instance
-    
+
     """
     jobInfo = self.JobStatus(self.__grokJobID, workers)
     return jobInfo
+
 
 
   def getJobID(self):
@@ -1450,6 +1381,7 @@ class _GrokJob(object):
     retval:         Grok Client JobID of this _GrokJob instance
     """
     return self.__grokJobID
+
 
 
   def getParams(self):
@@ -1463,14 +1395,17 @@ class _GrokJob(object):
     return self.__params
 
 
+
   class JobStatus(object):
-    """Our Grok Job Info abstraction class"""
+    """ @private
+    Our Grok Job Info abstraction class"""
 
     # Job Status values (per ClientJobsDAO.py):
     __grokJobStatus_NotStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
     __grokJobStatus_Starting    = cjdao.ClientJobsDAO.STATUS_STARTING
     __grokJobStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
     __grokJobStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
+
 
     def __init__(self, grokJobID, workers):
       """_GrokJob.JobStatus Constructor
@@ -1485,7 +1420,7 @@ class _GrokJob(object):
 
       jobInfo = _clientJobsDB().jobInfo(grokJobID)
       assert jobInfo.jobId == grokJobID, "%s != %s" % (jobInfo.jobId, grokJobID)
-      
+
       # If we launched the workers ourself, set the job status based on the
       #  workers that are still running
       if workers is not None:
@@ -1500,11 +1435,12 @@ class _GrokJob(object):
           status = cjdao.ClientJobsDAO.STATUS_COMPLETED
 
         jobInfo = jobInfo._replace(status=status)
-          
+
       _emit(Verbosity.DEBUG, "JobStatus: \n%s" % pprint.pformat(jobInfo,
                                                                 indent=4))
 
       self.__jobInfo = jobInfo
+
 
 
     def __repr__(self):
@@ -1513,6 +1449,7 @@ class _GrokJob(object):
                 self.__class__.__name__, self.__jobInfo.jobId,
                 self.statusAsString(), self.__jobInfo.completionReason,
                 self.__jobInfo.startTime, self.__jobInfo.endTime)
+
 
 
     def statusAsString(self):
@@ -1524,6 +1461,7 @@ class _GrokJob(object):
       return self.__jobInfo.status
 
 
+
     def isWaitingToStart(self):
       """
       Parameters:
@@ -1532,6 +1470,8 @@ class _GrokJob(object):
       """
       waiting = (self.__jobInfo.status == self.__grokJobStatus_NotStarted)
       return waiting
+
+
 
     def isStarting(self):
       """
@@ -1542,6 +1482,8 @@ class _GrokJob(object):
       starting = (self.__jobInfo.status == self.__grokJobStatus_Starting)
       return starting
 
+
+
     def isRunning(self):
       """
       Parameters:
@@ -1550,6 +1492,8 @@ class _GrokJob(object):
       """
       running = (self.__jobInfo.status == self.__grokJobStatus_running)
       return running
+
+
 
     def isFinished(self):
       """
@@ -1562,17 +1506,19 @@ class _GrokJob(object):
       return done
 
 
+
     def getCompletionReason(self):
-      """Returns JobCompletionReason.
+      """Returns _JobCompletionReason.
       NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
       ----------------------------------------------------------------------
-      retval:         JobCompletionReason instance
+      retval:         _JobCompletionReason instance
       """
       assert self.isFinished(), "Too early to tell: %s" % self
-      return JobCompletionReason(self.__jobInfo.completionReason)
+      return _JobCompletionReason(self.__jobInfo.completionReason)
+
 
 
     def getCompletionMsg(self):
@@ -1589,6 +1535,7 @@ class _GrokJob(object):
       return "%s" % self.__jobInfo.completionMsg
 
 
+
     def getWorkerCompletionMsg(self):
       """Returns the worker generated completion message.
 
@@ -1603,6 +1550,7 @@ class _GrokJob(object):
       return "%s" % self.__jobInfo.workerCompletionMsg
 
 
+
     def getStartTime(self):
       """Returns job start time.
 
@@ -1615,6 +1563,7 @@ class _GrokJob(object):
       """
       assert not self.isWaitingToStart(), "Too early to tell: %s" % self
       return "%s" % self.__jobInfo.startTime
+
 
 
     def getEndTime(self):
@@ -1645,6 +1594,7 @@ class _GrokJob(object):
         return None
 
 
+
     def getResults(self):
       """Returns the results field.
 
@@ -1656,6 +1606,8 @@ class _GrokJob(object):
         return json.loads(self.__jobInfo.results)
       else:
         return None
+
+
 
     def getModelMilestones(self):
       """Returns the model milestones field.
@@ -1669,6 +1621,8 @@ class _GrokJob(object):
       else:
         return None
 
+
+
     def getEngStatus(self):
       """Returns the engine status field - used for progress messages
 
@@ -1680,8 +1634,9 @@ class _GrokJob(object):
 
 
 
-class JobCompletionReason(object):
-  """Represents completion reason for Client Jobs and Models"""
+class _JobCompletionReason(object):
+  """ @private
+  Represents completion reason for Client Jobs and Models"""
 
 
   def __init__(self, reason):
@@ -1693,32 +1648,40 @@ class JobCompletionReason(object):
     self.__reason = reason
 
 
+
   def __str__(self):
     return "%s" % self.__reason
+
 
 
   def __repr__(self):
     return "%s(reason=%s)" % (self.__class__.__name__, self.__reason)
 
 
+
   def isEOF(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_EOF
+
 
 
   def isSuccess(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_SUCCESS
 
 
+
   def isStopped(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_STOPPED
+
 
 
   def isKilled(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_KILLED
 
 
+
   def isOrphaned(self):
     return self.__reason == cjdao.ClientJobsDAO.CMPL_REASON_ORPHAN
+
 
 
   def isError(self):
@@ -1727,7 +1690,8 @@ class JobCompletionReason(object):
 
 
 class _HyperSearchJob(_GrokJob):
-  """This class represents a single running Grok HyperSearch job"""
+  """ @private
+  This class represents a single running Grok HyperSearch job"""
 
 
   def __init__(self, grokJobID):
@@ -1748,6 +1712,7 @@ class _HyperSearchJob(_GrokJob):
     self.__expectedNumModels = None
 
 
+
   def queryModelIDs(self):
     """Queuries Grok for model IDs of all currently instantiated models
     associated with this HyperSearch job.
@@ -1763,6 +1728,7 @@ class _HyperSearchJob(_GrokJob):
     modelIDs = tuple(x[0] for x in modelCounterPairs)
 
     return modelIDs
+
 
 
   def getExpectedNumModels(self, searchMethod):
@@ -1782,7 +1748,8 @@ class _HyperSearchJob(_GrokJob):
 
 
 class _ClientJobUtils(object):
-  """Our Grok Client Job utilities"""
+  """ @private
+  Our Grok Client Job utilities"""
 
 
   @classmethod
@@ -1798,44 +1765,46 @@ class _ClientJobUtils(object):
     retval:         A dictionary of HyperSearch parameters for
                     ClientJobsDAO.jobInsert()
     """
-    if options['searchMethod'] == 'v2':
-      hsVersion = 'v2'
+    if options["searchMethod"] == "v2":
+      hsVersion = "v2"
     else:
-      raise Exception("Unsupported search method: %r" % options['searchMethod'])
+      raise Exception("Unsupported search method: %r" % options["searchMethod"])
 
-    maxModels = options['maxPermutations']
-    if options['action'] == 'dryRun' and maxModels is None:
+    maxModels = options["maxPermutations"]
+    if options["action"] == "dryRun" and maxModels is None:
       maxModels = 1
 
-    useTerminators = options['useTerminators']
+    useTerminators = options["useTerminators"]
     if useTerminators is None:
       params = {
-              'hsVersion':          hsVersion,
-              'maxModels':          maxModels,
+              "hsVersion":          hsVersion,
+              "maxModels":          maxModels,
              }
     else:
       params = {
-              'hsVersion':          hsVersion,
-              'useTerminators':     useTerminators,
-              'maxModels':          maxModels,
+              "hsVersion":          hsVersion,
+              "useTerminators":     useTerminators,
+              "maxModels":          maxModels,
              }
 
     if forRunning:
-      params['persistentJobGUID'] = str(uuid.uuid1())
+      params["persistentJobGUID"] = str(uuid.uuid1())
 
-    if options['permutationsScriptPath']:
-
-      params['permutationsPyFilename'] = options['permutationsScriptPath']
+    if options["permutationsScriptPath"]:
+      params["permutationsPyFilename"] = options["permutationsScriptPath"]
+    elif options["expDescConfig"]:
+      params["description"] = options["expDescConfig"]
     else:
-      with open(name=options['expDescJsonPath'], mode="r") as fp:
-        params['description'] = json.load(fp)
+      with open(options["expDescJsonPath"], mode="r") as fp:
+        params["description"] = json.load(fp)
 
     return params
 
 
 
 class _PermutationUtils(object):
-  """Utilities for running permutations"""
+  """ @private
+  Utilities for running permutations"""
 
 
   @classmethod
@@ -1852,11 +1821,11 @@ class _PermutationUtils(object):
                   maximize: True if we should try and maximize the optimizeKey
                     metric. False if we should minimize it.
     """
-    if searchJobParams['hsVersion'] == 'v2':
+    if searchJobParams["hsVersion"] == "v2":
       search = HypersearchV2(searchParams=searchJobParams)
     else:
       raise RuntimeError("Unsupported hypersearch version '%s'" % \
-                         (searchJobParams['hsVersion']))
+                         (searchJobParams["hsVersion"]))
 
     info = search.getOptimizationMetricInfo()
     return info
@@ -1923,6 +1892,7 @@ def _iterModels(modelIDs):
 
     debug=False
 
+
     def __init__(self, modelIDs):
       """
       Parameters:
@@ -1944,6 +1914,7 @@ def _iterModels(modelIDs):
       self.__modelCache = collections.deque()
       return
 
+
     def __iter__(self):
       """Iterator Protocol function
 
@@ -1952,6 +1923,7 @@ def _iterModels(modelIDs):
       retval:         self
       """
       return self
+
 
 
     def next(self):
@@ -1963,6 +1935,7 @@ def _iterModels(modelIDs):
                     signal end of iteration.
       """
       return self.__getNext()
+
 
 
     def __getNext(self):
@@ -1989,6 +1962,8 @@ def _iterModels(modelIDs):
         raise StopIteration()
 
       return self.__modelCache.popleft()
+
+
 
     def __fillCache(self):
       """Queries Grok and fills an empty modelInfo cache with the next set of
@@ -2035,12 +2010,14 @@ def _iterModels(modelIDs):
               "MODELITERATOR: Leaving __fillCache(); modelCacheLen=%s" % \
                 (len(self.__modelCache),))
 
+
   return ModelInfoIterator(modelIDs)
 
 
 
 class _GrokModelInfo(object):
-  """This class represents information obtained from ClientJobManager about a
+  """ @private
+  This class represents information obtained from ClientJobManager about a
   model
   """
 
@@ -2049,6 +2026,7 @@ class _GrokModelInfo(object):
   __grokModelStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
   __grokModelStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
   __rawInfo = None
+
 
 
   def __init__(self, rawInfo):
@@ -2070,6 +2048,7 @@ class _GrokModelInfo(object):
     self.__cachedParams = None
 
 
+
   def __repr__(self):
     """
     Parameters:
@@ -2087,6 +2066,7 @@ class _GrokModelInfo(object):
                 self.__rawInfo.numRecords))
 
 
+
   def getModelID(self):
     """
     Parameters:
@@ -2094,6 +2074,7 @@ class _GrokModelInfo(object):
     retval:         Grok modelID associated with this model info.
     """
     return self.__rawInfo.modelId
+
 
 
   def statusAsString(self):
@@ -2105,6 +2086,7 @@ class _GrokModelInfo(object):
     return "%s" % self.__rawInfo.status
 
 
+
   def getModelDescription(self):
     """
     Parameters:
@@ -2113,16 +2095,17 @@ class _GrokModelInfo(object):
     """
     params = self.__unwrapParams()
 
-    if 'experimentName' in params:
-      return params['experimentName']
+    if "experimentName" in params:
+      return params["experimentName"]
 
     else:
       paramSettings = self.getParamLabels()
       # Form a csv friendly string representation of this model
       items = []
       for key, value in paramSettings.items():
-        items.append('%s_%s' % (key, value))
-      return '.'.join(items)
+        items.append("%s_%s" % (key, value))
+      return ".".join(items)
+
 
 
   def getGeneratedDescriptionFile(self):
@@ -2135,6 +2118,7 @@ class _GrokModelInfo(object):
     return self.__rawInfo.genDescription
 
 
+
   def getNumRecords(self):
     """
     Paramets:
@@ -2142,6 +2126,8 @@ class _GrokModelInfo(object):
     retval:         The number of records processed by the model.
     """
     return self.__rawInfo.numRecords
+
+
 
   def getParamLabels(self):
     """
@@ -2153,22 +2139,23 @@ class _GrokModelInfo(object):
     """
     params = self.__unwrapParams()
 
-    # Hypersearch v2 stores the flattened parameter settings in 'particleState'
-    if 'particleState' in params:
+    # Hypersearch v2 stores the flattened parameter settings in "particleState"
+    if "particleState" in params:
       retval = dict()
       queue = [(pair, retval) for pair in
-               params['particleState']['varStates'].iteritems()]
+               params["particleState"]["varStates"].iteritems()]
       while len(queue) > 0:
         pair, output = queue.pop()
         k, v = pair
-        if ('position' in v and 'bestPosition' in v and
-            'velocity' in v):
-          output[k] = v['position']
+        if ("position" in v and "bestPosition" in v and
+            "velocity" in v):
+          output[k] = v["position"]
         else:
           if k not in output:
             output[k] = dict()
           queue.extend((pair, output[k]) for pair in v.iteritems())
       return retval
+
 
 
   def __unwrapParams(self):
@@ -2188,6 +2175,7 @@ class _GrokModelInfo(object):
     return self.__cachedParams
 
 
+
   def getReportMetrics(self):
     """Retrives a dictionary of metrics designated for report
     Parameters:
@@ -2198,6 +2186,7 @@ class _GrokModelInfo(object):
     return self.__unwrapResults().reportMetrics
 
 
+
   def getOptimizationMetrics(self):
     """Retrives a dictionary of metrics designagted for optimization
     Parameters:
@@ -2206,6 +2195,7 @@ class _GrokModelInfo(object):
                     for the model or an empty dictionary if there aren't any.
     """
     return self.__unwrapResults().optimizationMetrics
+
 
 
   def getAllMetrics(self):
@@ -2222,12 +2212,13 @@ class _GrokModelInfo(object):
     return result
 
 
-  ModelResults = collections.namedtuple('ModelResultsTuple',
-                                        ['reportMetrics',
-                                         'optimizationMetrics'])
+  ModelResults = collections.namedtuple("ModelResultsTuple",
+                                        ["reportMetrics",
+                                         "optimizationMetrics"])
   """Each element is a dictionary: property name is the metric name and
   property value is the metric value as generated by the model
   """
+
 
 
   def __unwrapResults(self):
@@ -2256,6 +2247,7 @@ class _GrokModelInfo(object):
     return self.__cachedResults
 
 
+
   def isWaitingToStart(self):
     """
     Parameters:
@@ -2266,6 +2258,7 @@ class _GrokModelInfo(object):
     return waiting
 
 
+
   def isRunning(self):
     """
     Parameters:
@@ -2274,6 +2267,7 @@ class _GrokModelInfo(object):
     """
     running = (self.__rawInfo.status == self.__grokModelStatus_running)
     return running
+
 
 
   def isFinished(self):
@@ -2287,17 +2281,19 @@ class _GrokModelInfo(object):
     return finished
 
 
+
   def getCompletionReason(self):
-    """Returns ModelCompletionReason.
+    """Returns _ModelCompletionReason.
 
     NOTE: it's an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         ModelCompletionReason instance
+    retval:         _ModelCompletionReason instance
     """
     assert self.isFinished(), "Too early to tell: %s" % self
-    return ModelCompletionReason(self.__rawInfo.completionReason)
+    return _ModelCompletionReason(self.__rawInfo.completionReason)
+
 
 
   def getCompletionMsg(self):
@@ -2311,6 +2307,7 @@ class _GrokModelInfo(object):
     """
     assert self.isFinished(), "Too early to tell: %s" % self
     return self.__rawInfo.completionMsg
+
 
 
   def getStartTime(self):
@@ -2327,6 +2324,7 @@ class _GrokModelInfo(object):
     return "%s" % self.__rawInfo.startTime
 
 
+
   def getEndTime(self):
     """Returns mode evaluation end time.
 
@@ -2341,5 +2339,7 @@ class _GrokModelInfo(object):
 
 
 
-class ModelCompletionReason(JobCompletionReason):
+class _ModelCompletionReason(_JobCompletionReason):
+  """ @private
+  """
   pass
