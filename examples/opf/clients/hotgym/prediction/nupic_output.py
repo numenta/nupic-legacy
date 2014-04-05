@@ -120,13 +120,7 @@ class NuPICPlotOutput(NuPICOutput):
       plt.title(self.names[index])
       plt.ylabel('KW Energy Consumption')
       plt.xlabel('Date')
-    # fig = plt.figure(figsize=(10, 6))
-    # self.graph = fig.add_subplot(111)
-    # # plot title, legend, etc
     plt.tight_layout()
-    # # The shifter will align prediction and actual values.
-    # self.shifter = InferenceShifter()
-    # self.lines_initialized = False
 
 
 
@@ -150,11 +144,6 @@ class NuPICPlotOutput(NuPICOutput):
       )
       self.predicted_lines.append(predicted_plot)
     self.lines_initialized = True
-
-
-
-  # def die(self):
-  #   matplotlib.pyplot.close("all")
 
 
 
