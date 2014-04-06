@@ -265,12 +265,12 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
     message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
   endif()
   # Copy binaries outputted by submodule build process to 'external' folder
-  copy_directory(${submodule_dir}/build/release/lib ${REPOSITORY_DIR}/build/release/lib)
-  copy_directory(${submodule_dir}/build/release/include ${REPOSITORY_DIR}/build/release/include)
+  copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_RELEASE_DIR}/lib)
+  copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_RELEASE_DIR}/include)
 
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
-  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/build/release/lib/lib${name}.${STATIC_LIB_EXTENSION}")
+  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_RELEASE_DIR}/lib/lib${name}.${STATIC_LIB_EXTENSION}")
 endmacro()
 
 
@@ -680,7 +680,7 @@ if(NTA_PYTHON_SUPPORT)
 
   set(NTA_LINKFLAGS_PYEMBED "${NTA_PLATFORM_LINKFLAGS_PYEMBED} ${NTA_LINKFLAGS_PY}")
 
-  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 endif()
 
