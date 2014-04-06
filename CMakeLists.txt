@@ -59,6 +59,8 @@ macro (set_environment_variable variable value incremental)
     elseif(WINDOWS)
       execute_process(COMMAND setx ${variable} ${new_value})
     endif()
+
+    set(NEED_LOGOFF ON)
   endif()
 
   show_environment_variable(${variable} ${new_value})
@@ -284,6 +286,7 @@ endmacro()
 cmake_minimum_required(VERSION 2.8)
 project(nupic CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(NEED_LOGOFF OFF)
 
 #
 # Set C++ compiler.
@@ -530,7 +533,6 @@ set_environment_variable(NTA_ROOTDIR "${PROJECT_BUILD_RELEASE_DIR}" OFF)
 set_environment_variable(NTA_DATA_PATH "${PROJECT_BUILD_RELEASE_DIR}/share/prediction/data" OFF)
 if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
-  message(STATUS "  (some variables will be updated only after login.)")
 endif()
 show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 
@@ -866,3 +868,8 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
+
+
+if(NEED_LOGOFF)
+  message("You should logoff your system in order to some environment variables are changed permanently.")
+endif()
