@@ -562,7 +562,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -573,7 +573,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -862,3 +862,28 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
+<<<<<<< HEAD
+=======
+
+### 5th - custom make targets 
+# tests
+add_custom_target(tests_run 
+	COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
+	COMMENT "python tests")
+add_custom_target(tests_run_all 
+	COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
+	COMMENT "python tests + swarming (requires DB)")
+add_custom_target(tests_htm 
+	COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/htmtest
+	COMMENT "basic tests")
+add_custom_target(tests_everything 
+	COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
+	COMMENT "C++ tests")
+# tests_all just calls other targets
+add_custom_target(tests_all 
+	DEPENDS tests_run
+	DEPENDS tests_everything
+	DEPENDS tests_htm
+	COMMENT "running all tests")
+
+>>>>>>> a5ab19a... CMake use PROJECT_BUILD_RELEASE_DIR where possible
