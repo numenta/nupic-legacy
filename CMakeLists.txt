@@ -265,12 +265,12 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
     message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
   endif()
   # Copy binaries outputted by submodule build process to 'external' folder
-  copy_directory(${submodule_dir}/build/release/lib ${REPOSITORY_DIR}/build/release/lib)
-  copy_directory(${submodule_dir}/build/release/include ${REPOSITORY_DIR}/build/release/include)
+  copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_RELEASE_DIR}/lib)
+  copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_RELEASE_DIR}/include)
 
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
-  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/build/release/lib/lib${name}.${STATIC_LIB_EXTENSION}")
+  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_RELEASE_DIR}/lib/lib${name}.${STATIC_LIB_EXTENSION}")
 endmacro()
 
 
@@ -318,6 +318,10 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 # This CMake file must be always on /repository/src subdirectory.
 #get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
+
+# respect user defined variables - NTA, NUPIC, NTABUILDDIR
+set(PROJECT_BUILD_RELEASE_DIR "$ENV{NTA}")
+set(PROJECT_BUILD_TEMP_DIR "$ENV{BUILDDIR}")
 # 'release' is a subdirectory created on /build root.
 if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
   set(PROJECT_BUILD_RELEASE_DIR "${REPOSITORY_DIR}/build/release")
@@ -562,7 +566,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/build/release/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -573,7 +577,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -680,7 +684,7 @@ if(NTA_PYTHON_SUPPORT)
 
   set(NTA_LINKFLAGS_PYEMBED "${NTA_PLATFORM_LINKFLAGS_PYEMBED} ${NTA_LINKFLAGS_PY}")
 
-  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/build/release/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 endif()
 
