@@ -266,7 +266,7 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   if(NOT EXIT_CODE EQUAL 0)
     message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
   endif()
-  # Copy binaries outputted by submodule build process to 'external' folder
+  # Copy binaries outputted by submodule build process to 'release' folder
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_RELEASE_DIR}/lib)
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_RELEASE_DIR}/include)
 
@@ -321,10 +321,6 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 # This CMake file must be always on /repository/src subdirectory.
 #get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
-
-# respect user defined variables - NTA, NUPIC, NTABUILDDIR
-set(PROJECT_BUILD_RELEASE_DIR "$ENV{NTA}")
-set(PROJECT_BUILD_TEMP_DIR "$ENV{BUILDDIR}")
 # 'release' is a subdirectory created on /build root.
 if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
   set(PROJECT_BUILD_RELEASE_DIR "${REPOSITORY_DIR}/build/release")
@@ -868,7 +864,6 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
-
 
 if(NEED_LOGOFF)
   message("You should logoff your system in order to some environment variables are changed permanently.")
