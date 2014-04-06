@@ -318,6 +318,10 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 # This CMake file must be always on /repository/src subdirectory.
 #get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
+
+# respect user defined variables - NTA, NUPIC, NTABUILDDIR
+set(PROJECT_BUILD_RELEASE_DIR "$ENV{NTA}")
+set(PROJECT_BUILD_TEMP_DIR "$ENV{BUILDDIR}")
 # 'release' is a subdirectory created on /build root.
 if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
   set(PROJECT_BUILD_RELEASE_DIR "${REPOSITORY_DIR}/build/release")
@@ -862,28 +866,3 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 
 # Just to separate from result message
 message(STATUS "")
-<<<<<<< HEAD
-=======
-
-### 5th - custom make targets 
-# tests
-add_custom_target(tests_run 
-	COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
-	COMMENT "python tests")
-add_custom_target(tests_run_all 
-	COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
-	COMMENT "python tests + swarming (requires DB)")
-add_custom_target(tests_htm 
-	COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/htmtest
-	COMMENT "basic tests")
-add_custom_target(tests_everything 
-	COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
-	COMMENT "C++ tests")
-# tests_all just calls other targets
-add_custom_target(tests_all 
-	DEPENDS tests_run
-	DEPENDS tests_everything
-	DEPENDS tests_htm
-	COMMENT "running all tests")
-
->>>>>>> a5ab19a... CMake use PROJECT_BUILD_RELEASE_DIR where possible
