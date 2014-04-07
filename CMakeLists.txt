@@ -719,7 +719,7 @@ generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNT
 #
 # HtmTest
 #
-set(EXECUTABLE_HTMTEST htmtest)
+set(EXECUTABLE_HTMTEST testpyhtm)
 set(LIBRARIES
   ${LIB_STATIC_SUPPORT}
   ${LIB_STATIC_NUPICCORE}
@@ -880,13 +880,17 @@ add_custom_target(tests_run_all
                   COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
-add_custom_target(tests_htm 
-                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/htmtest
+add_custom_target(tests_pyhtm 
+                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testpyhtm
+                  COMMENT "Basic tests in Python")
+
+add_custom_target(tests_cpphtm 
+                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testcpphtm
                   COMMENT "Basic tests in C++")
 
 add_custom_target(tests_everything 
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
-                  COMMENT "C++ tests")
+                  COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
 add_custom_target(tests_all 
