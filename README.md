@@ -78,7 +78,7 @@ Important notes:
 #### Run the tests:
 
     cd $REPOSITORY/build/scripts
-    make <test> (where <test> can be C++ tests: 'tests_htm' and 'tests_everything' or Python tests: 'tests_run' and 'tests_all')
+    make <test> (where <test> can be C++ tests: 'tests_everything', 'tests_cpphtm' and 'tests_pyhtm' or Python tests: 'tests_run' and 'tests_run_all')
 
 ### Using graphical interface
 
