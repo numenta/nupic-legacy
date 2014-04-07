@@ -60,7 +60,7 @@ install:
 
 script:
   # legacy binary tests
-  - "$NTA/bin/htmtest"
+  - "$NTA/bin/testpyhtm"
   # actual unit tests
   - "python $NTA/bin/run_tests.py --all"
 
