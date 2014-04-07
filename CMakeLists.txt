@@ -267,6 +267,7 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
     message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
   endif()
   # Copy binaries outputted by submodule build process to 'release' folder
+  copy_directory(${submodule_dir}/build/release/bin ${PROJECT_BUILD_RELEASE_DIR}/bin)
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_RELEASE_DIR}/lib)
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_RELEASE_DIR}/include)
 
