@@ -846,7 +846,6 @@ copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/s
 # Copy testing codes
 copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${PROJECT_BUILD_RELEASE_DIR}/share/test/data)
 copy_directory(${PROJECT_SOURCE_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/run_tests.sh ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.sh)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py)
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
 
@@ -860,6 +859,40 @@ copy_file(${PROJECT_SOURCE_DIR}/env.sh ${PROJECT_BUILD_RELEASE_DIR}/env.sh)
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/__init__.py)
 # This file is going to be replaced by a "documentored" version
 copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/engine/__init__.py)
+
+
+############################################################################################################################
+###                                                                                                                      ###
+###  5th Part:                                                                                                           ###
+###  Custom targets                                                                                                      ###
+###                                                                                                                      ###
+############################################################################################################################
+
+#
+# Tests
+#
+add_custom_target(tests_run 
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
+                  COMMENT "Python tests")
+
+add_custom_target(tests_run_all 
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
+                  COMMENT "Python tests + swarming (requires DB)")
+
+add_custom_target(tests_htm 
+                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/htmtest
+                  COMMENT "Basic tests in C++")
+
+add_custom_target(tests_everything 
+                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
+                  COMMENT "C++ tests")
+
+# Tests_all just calls other targets
+add_custom_target(tests_all 
+                  DEPENDS tests_run
+                  DEPENDS tests_everything
+                  DEPENDS tests_htm
+                  COMMENT "Running all tests")
 
 
 # Just to separate from result message
