@@ -60,9 +60,9 @@ install:
   
 script:
   # legacy binary tests
-  - "$NTA/bin/testpyhtm"
+  - "make tests_pyhtm"
   # actual unit tests
-  - "python $NTA/bin/run_tests.py --all"
+  - "make tests_run_all"
 
   # run all example files
     # examples/bindings
