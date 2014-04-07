@@ -894,7 +894,7 @@ add_custom_target(tests_everything
 
 # Tests_all just calls other targets
 add_custom_target(tests_all 
-                  DEPENDS tests_run_all
+                  DEPENDS tests_run
                   DEPENDS tests_pyhtm
                   DEPENDS tests_cpphtm
                   DEPENDS tests_everything
