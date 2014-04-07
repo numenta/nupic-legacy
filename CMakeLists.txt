@@ -323,6 +323,7 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 #get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
 # 'release' is a subdirectory created on /build root.
+set(PROJECT_BUILD_RELEASE_DIR "$ENV{NTA}")
 if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
   set(PROJECT_BUILD_RELEASE_DIR "${REPOSITORY_DIR}/build/release")
 endif()
