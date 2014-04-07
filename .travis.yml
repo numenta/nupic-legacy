@@ -59,10 +59,12 @@ install:
   - "cd"
   
 script:
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # legacy binary tests
   - "make tests_pyhtm"
   # actual unit tests
   - "make tests_run_all"
+  - "cd"
 
   # run all example files
     # examples/bindings
