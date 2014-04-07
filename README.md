@@ -55,10 +55,10 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 ## Build and test NuPIC:
 
 Important notes:
- * $REPOSITORY is the current location of the repository that you downloaded from GitHub.
+ * `$REPOSITORY` is the current location of the repository that you downloaded from GitHub.
  * After CMake generation, two useful environment variables will be created:
-   * $NUPIC, which is the same as $REPOSITORY
-   * $NTA, which references $HOME/nta/eng (the directory with all executables and libraries generated from build process). If this variable is already set, the $REPOSITORY/release will not be created, and $NTA will be used as the release directory.
+   * `$NUPIC`, which is the same as `$REPOSITORY`
+   * `$NTA`, which references `$REPOSITORY/build/release` as default location (the directory with all executables and libraries generated from build process). You can change this default location by using `-DPROJECT_BUILD_RELEASE_DIR:STRING=` option in CMake command line.
 
 ### Using command line
 
@@ -85,19 +85,19 @@ Important notes:
 #### Generate the IDE solution:
 
  * Open CMake executable.
- * Specify the source folder ($REPOSITORY).
- * Specify the build system folder ($REPOSITORY/build/scripts), i.e. where IDE solution will be created.
- * Click 'Generate'.
+ * Specify the source folder (`$REPOSITORY`).
+ * Specify the build system folder (`$REPOSITORY/build/scripts`), i.e. where IDE solution will be created.
+ * Click `Generate`.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
 
 #### Build:
 
- * Open 'nupic.*proj' solution file generated on $REPOSITORY/build/scripts.
- * Run 'ALL_BUILD' project from your IDE.
+ * Open `nupic.*proj` solution file generated on `$REPOSITORY/build/scripts`.
+ * Run `ALL_BUILD` project from your IDE.
 
 #### Run the tests:
 
- * Run any 'tests_*' project from your IDE (check 'output' panel to see the results).
+ * Run any `tests_*` project from your IDE (check `output` panel to see the results).
 
 ### Examples
 
