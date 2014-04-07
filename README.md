@@ -64,7 +64,7 @@ Important notes:
 
 #### Configure and generate build files:
 
-    mkdir $REPOSITORY/build/scripts
+    mkdir -p $REPOSITORY/build/scripts
     cd $REPOSITORY/build/scripts
     cmake $REPOSITORY
 
