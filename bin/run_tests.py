@@ -32,7 +32,6 @@ from optparse import OptionParser
 import pytest
 
 
-
 try:
   pytestXdistAvailable = bool(get_distribution("pytest-xdist"))
 except DistributionNotFound:
@@ -250,5 +249,11 @@ def main(parser, parse_args):
 
 
 if __name__ == "__main__":
+  # Tests need to run from $NUPIC, so let's change there and at the end back to actual_dir
+  actual_dir=os.getcwd()
+  os.chdir(os.getenv('NUPIC'))
+  
   result = main(parser, sys.argv[1:])
+  
+  os.chdir(actual_dir)
   sys.exit(result)
