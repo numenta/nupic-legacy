@@ -64,22 +64,21 @@ Important notes:
 
 #### Configure and generate build files:
 
-    mkdir $REPOSITORY/build_system
-    cd $REPOSITORY/build_system
+    mkdir $REPOSITORY/build/scripts
+    cd $REPOSITORY/build/scripts
     cmake $REPOSITORY
 
 #### Build:
 
-    cd $REPOSITORY/build_system
+    cd $REPOSITORY/build/scripts
     make -j3
     
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
-#### Run the C++ tests:
+#### Run the tests:
 
-    cd $NTA/bin
-    htmtest
-    testeverything
+    cd $REPOSITORY/build/scripts
+    make <test> (where <test> can be C++ tests: 'tests_htm' and 'tests_everything' or Python tests: 'tests_run' and 'tests_all')
 
 ### Using graphical interface
 
@@ -87,23 +86,18 @@ Important notes:
 
  * Open CMake executable.
  * Specify the source folder ($REPOSITORY).
- * Specify the build system folder ($REPOSITORY/build_system), i.e. where IDE solution will be created.
+ * Specify the build system folder ($REPOSITORY/build/scripts), i.e. where IDE solution will be created.
  * Click 'Generate'.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
 
 #### Build:
 
- * Open 'Nupic.*proj' solution file generated on $REPOSITORY/build_system.
+ * Open 'nupic.*proj' solution file generated on $REPOSITORY/build/scripts.
  * Run 'ALL_BUILD' project from your IDE.
 
-#### Run the C++ tests:
+#### Run the tests:
 
- * Run 'HtmTest' and 'TestEverything' projects from your IDE (check 'output' panel to see the results).
-
-### Run the Python unit tests:
-
-    cd $NUPIC
-    $NUPIC/run_tests.sh
+ * Run any 'tests_*' project from your IDE (check 'output' panel to see the results).
 
 ### Examples
 
