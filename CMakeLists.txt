@@ -532,6 +532,9 @@ if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
 endif()
 show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
+if(NEED_LOGOFF)
+  message("You should logoff your system in order to some environment variables are changed permanently. If the problem persists, consider set manually the variables above in your 'bashrc' file")
+endif()
 
 #
 # Project details
@@ -903,7 +906,3 @@ add_custom_target(tests_all
 
 # Just to separate from result message
 message(STATUS "")
-
-if(NEED_LOGOFF)
-  message("You should logoff your system in order to some environment variables are changed permanently.")
-endif()
