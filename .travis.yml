@@ -56,13 +56,14 @@ install:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
-  - "cd"
 
 script:
   # legacy binary tests
-  - "$NTA/bin/testpyhtm"
+  - "make tests_pyhtm"
   # actual unit tests
-  - "python $NTA/bin/run_tests.py --all"
+  - "make tests_run_all"
+  
+  - "cd"
 
   # run all example files
     # examples/bindings
