@@ -62,8 +62,7 @@ script:
   # legacy binary tests
   - "$NTA/bin/htmtest"
   # actual unit tests
-  - "cd $NUPIC"
-  - "$NUPIC/run_tests.sh --all"
+  - "python $NTA/bin/run_tests.py --all"
 
   # run all example files
     # examples/bindings
