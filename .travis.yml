@@ -58,7 +58,7 @@ install:
   - "make -j3"
   - "cd"
   
-  -# get PYTHON_VERSION early here
+  # get PYTHON_VERSION early here
   - "export PY_VERSION=2.7"
   # Add the compiled NuPIC to the PYTHONPATH
   - "export PYTHONPATH=$NTA/lib/python$PY_VERSION/site-packages"
