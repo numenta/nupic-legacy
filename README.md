@@ -54,7 +54,7 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-Set the following environment variables in your `bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=`.
+Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
 
     export NUPIC=<path to NuPIC repository>
     export NTA=$NUPIC/build/release

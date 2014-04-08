@@ -22,8 +22,6 @@ RUN \
 ENV NTA /usr/bin/nta/eng
 ENV NUPIC /usr/local/src/nupic
 ENV BUILDDIR /tmp/ntabuild
-# Use $REPOSITORY to conform with existing readme instructions
-ENV REPOSITORY /usr/local/src/nupic
 
 # Clone NuPIC repository (takes some time)
 RUN git clone https://github.com/numenta/nupic.git $NUPIC
@@ -42,9 +40,9 @@ RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  
 
 # Install Nupic with CMAKE
 # Generate make files with cmake
-RUN mkdir $REPOSITORY/build_system
-WORKDIR $REPOSITORY/build_system
-RUN cmake $REPOSITORY
+RUN mkdir $NUPIC/build_system
+WORKDIR $NUPIC/build_system
+RUN cmake $NUPIC
 
 # Build with max 3 jobs/threads
 RUN make -j3
