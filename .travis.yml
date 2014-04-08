@@ -59,13 +59,7 @@ install:
   - "cd"
   
   # Add more environment variables
-  - "export PATH=$NTA/bin:$PATH"
   - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
-  - "export NTA_ROOTDIR=$NTA"
-  - "export NTA_DATA_PATH=$NTA/share/prediction/data"
-  - "LDIR=$NTA/lib"
-  - if [[ ! "$DYLD_LIBRARY_PATH" == "$LDIR" ]]; then export DYLD_LIBRARY_PATH=$LDIR:$DYLD_LIBRARY_PATH; fi
-  - if [[ ! "$LD_LIBRARY_PATH" == "$LDIR" ]]; then export LD_LIBRARY_PATH=$LDIR:$LD_LIBRARY_PATH; fi
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
