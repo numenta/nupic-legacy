@@ -59,8 +59,8 @@ install:
   - "cd"
   
   -# get PYTHON_VERSION early here
-  - "export PY_VERSION=python -c 'import sys; print sys.version[:3]'"
-  - "echo $PY_VERSION"
+  -# "export PY_VERSION=`python -c 'import sys; print sys.version[:3]'`"
+  - "export PY_VERSION=2.7"
   # Add the compiled NuPIC to the PYTHONPATH
   - "export PYTHONPATH=$NTA/lib/python$PY_VERSION/site-packages"
   - "export NTA_ROOTDIR=$NTA"
