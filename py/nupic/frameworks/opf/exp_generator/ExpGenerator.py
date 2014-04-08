@@ -1411,7 +1411,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
                                   'MultiStep', 'TemporalAnomaly', 
                                   'NontemporalClassification']:
     tokenReplacements['\$PERM_CL_CHOICES'] = \
-        "  'alpha': PermuteFloat(0.0001, 0.1),\n"  \
+        "  'alpha': PermuteFloat(0.0001, 0.1),\n"
 
   else:
     tokenReplacements['\$PERM_CL_CHOICES'] = ""
