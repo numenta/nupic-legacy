@@ -60,9 +60,7 @@ Important notes:
    * `$NUPIC`, which is the same as `$REPOSITORY`
    * `$NTA`, which references `$REPOSITORY/build/release` as default location (the directory with all executables and libraries generated from build process). You can change this default location by using `-DPROJECT_BUILD_RELEASE_DIR:STRING=` option in CMake command line. If `$NTA` is already set, its value will be used as the build location.
 
-### Configuring Python Environment:
-
-First of all, you'll need set the environment variables in your `bashrc` file.
+This said, you'll need set the environment variables in your `bashrc` file.
 
     export NUPIC=$REPOSITORY
     export NTA=$NUPIC/build/release
