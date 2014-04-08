@@ -54,18 +54,21 @@ install:
   - pip install -q -r $NUPIC/external/common/requirements.txt
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  - "cmake $NUPIC"
+  - "cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
+  
+  # Add more environment variables
+  - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
+  - "export NTA_ROOTDIR=$NTA"
 
 script:
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # legacy binary tests
-  - "$NTA/bin/htmtest"
-  # (not quite everything, really)
-  - "$NTA/bin/testeverything"
+  - "make tests_pyhtm"
   # actual unit tests
-  - "cd $NUPIC"
-  - "$NUPIC/run_tests.sh --all"
+  - "make tests_run_all"
+  - "cd"
 
   # run all example files
     # examples/bindings
