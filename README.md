@@ -62,10 +62,12 @@ Important notes:
 
 ### Configuring Python Environment:
 
-First of all, you'll need set `$PYTHONPATH` and `$NTA_ROOT_DIR` environment variables in your `bashrc` file.
+First of all, you'll need set the environment variables in your `bashrc` file.
 
+    export NUPIC=$REPOSITORY
+    export NTA=$REPOSITORY/build/release
+    export NTA_ROOT_DIR=$NTA
     export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages"
-    export NTA_ROOT_DIR=$NTA"
 
 ### Using command line
 
