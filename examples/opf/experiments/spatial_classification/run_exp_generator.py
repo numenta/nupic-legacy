@@ -26,17 +26,10 @@ spatial classification experiment
 """
 
 import os
-import pprint
-import sys
-import time
-import random
-import StringIO
-import traceback
 import json
 from optparse import OptionParser
 
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
-from nupic.frameworks.opf.permutations_runner import runPermutations
 
 
 ##############################################################################
