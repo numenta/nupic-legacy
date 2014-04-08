@@ -65,7 +65,7 @@ Important notes:
 First of all, you'll need set the environment variables in your `bashrc` file.
 
     export NUPIC=$REPOSITORY
-    export NTA=$REPOSITORY/build/release
+    export NTA=$NUPIC/build/release
     export NTA_ROOT_DIR=$NTA
     export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages"
 
