@@ -60,7 +60,7 @@ install:
   
   # Add more environment variables
   - "export PATH=$NTA/bin:$PATH"
-  - "export PYTHONPATH=$NTA/lib/python$PY_VERSION/site-packages"
+  - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
   - "export NTA_ROOTDIR=$NTA"
   - "export NTA_DATA_PATH=$NTA/share/prediction/data"
   - "LDIR=$NTA/lib"
