@@ -58,7 +58,14 @@ Important notes:
  * `$REPOSITORY` is the current location of the repository that you downloaded from GitHub.
  * After CMake generation, two useful environment variables will be created:
    * `$NUPIC`, which is the same as `$REPOSITORY`
-   * `$NTA`, which references `$REPOSITORY/build/release` as default location (the directory with all executables and libraries generated from build process). You can change this default location by using `-DPROJECT_BUILD_RELEASE_DIR:STRING=` option in CMake command line.
+   * `$NTA`, which references `$REPOSITORY/build/release` as default location (the directory with all executables and libraries generated from build process). You can change this default location by using `-DPROJECT_BUILD_RELEASE_DIR:STRING=` option in CMake command line. If `$NTA` is already set, its value will be used as the build location.
+
+### Configuring Python Environment:
+
+First of all, you'll need set `$PYTHONPATH` and `$NTA_ROOT_DIR` environment variables in your `bashrc` file.
+
+    export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages"
+    export NTA_ROOT_DIR=$NTA"
 
 ### Using command line
 
@@ -72,7 +79,7 @@ Important notes:
 
     cd $REPOSITORY/build/scripts
     make -j3
-    
+
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
 #### Run the tests:
