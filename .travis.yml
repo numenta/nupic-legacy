@@ -58,7 +58,7 @@ install:
   - "make -j3"
   - "cd"
   
-  - # Add more environment variables
+  # Add more environment variables
   - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
 
 script:
