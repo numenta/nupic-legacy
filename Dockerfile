@@ -28,12 +28,8 @@ RUN git clone https://github.com/numenta/nupic.git $NUPIC
 
 # More enviroment variables (setted originally by $NUPIC/env.sh)
 ENV PY_VERSION 2.7
-ENV PATH $NTA/bin:$PATH
 ENV PYTHONPATH $NTA/lib/python$PY_VERSION/site-packages:$PYTHONPATH
-ENV NTA_ROOTDIR $NTA
 ENV NTA_DATA_PATH $NTA/share/prediction/data:$NTA_DATA_PATH
-ENV LDIR $NTA/lib
-ENV LD_LIBRARY_PATH $LDIR
 
 # Install Python dependencies
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
