@@ -68,11 +68,11 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
     mkdir -p $NUPIC/build/scripts
     cd $NUPIC/build/scripts
     cmake $NUPIC
-    (optional) make clean  # to compile all the files again
 
 #### Build:
 
     cd $NUPIC/build/scripts
+    (optional) make clean / distclean   # to compile all the files again
     make -j3
 
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
