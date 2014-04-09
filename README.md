@@ -50,7 +50,7 @@ _Note_: If using pip 1.5 or later:
 
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
-_Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with 'sudo'.
+_Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH. Alternatively, you can run pip with 'sudo'.
 
 ## Build and test NuPIC:
 
@@ -58,8 +58,6 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
     export NUPIC=<path to NuPIC repository>
     export NTA=$NUPIC/build/release
-    export NTA_ROOT_DIR=$NTA
-    export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
 
 ### Using command line
 
