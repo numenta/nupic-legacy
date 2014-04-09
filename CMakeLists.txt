@@ -335,19 +335,6 @@ endif()
 set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
 
 #
-# Clean directories before generate files
-#
-# Clean '/build/release'
-execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR})
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/include)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/lib)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
-# Clean '/build/temp'
-execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR})
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
-
-#
 # Update repository submodules
 #
 execute_process(COMMAND git submodule update --init
