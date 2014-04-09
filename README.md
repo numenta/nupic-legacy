@@ -68,6 +68,7 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
     mkdir -p $NUPIC/build/scripts
     cd $NUPIC/build/scripts
     cmake $NUPIC
+    (optional) make clean  # to compile all the files again
 
 #### Build:
 
