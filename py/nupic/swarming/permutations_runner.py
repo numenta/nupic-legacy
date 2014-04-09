@@ -45,7 +45,8 @@ from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 g_currentVerbosityLevel = 0
 gCurrentSearch = None
-DEFAULT_OPTIONS = {"expDescJsonPath": None,
+DEFAULT_OPTIONS = {"overwrite": False,
+                  "expDescJsonPath": None,
                   "expDescConfig": None,
                   "permutationsScriptPath": None,
                   "outputLabel": "swarm_out",
@@ -290,7 +291,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
   _setupInterruptHandling()
 
   with open(expJsonFilePath, "rb") as jsonFile:
-    expJsonConfig = json.loads(jsonFile)
+    expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
   return runWithConfig(expJsonConfig, optionsDict, outDir=outDir,
@@ -641,7 +642,7 @@ class _HyperSearchRunner(object):
 
       print
       print "=================================================================="
-      print "RUNNING PERMUTATIONS INLINE as "DRY RUN"..."
+      print "RUNNING PERMUTATIONS INLINE as \"DRY RUN\"..."
       print "=================================================================="
       jobID = HypersearchWorker.main(args)
 
@@ -673,7 +674,7 @@ class _HyperSearchRunner(object):
       hyperSearchJob=searchJob)
 
     if self._options["action"] == "dryRun":
-      print "Successfully executed "dry-run" hypersearch, jobID=%d" % (jobID)
+      print "Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID)
     else:
       print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
       _emit(Verbosity.DEBUG,
@@ -974,8 +975,8 @@ class _HyperSearchRunner(object):
 
         # Fix up the location to the base description file
         description = description.replace(
-              "importBaseDescription("base.py", config)",
-              "importBaseDescription("../description.py", config)")
+              "importBaseDescription('base.py', config)",
+              "importBaseDescription('../description.py', config)")
         fd = open(os.path.join(outDir, "description.py"), "wb")
         fd.write(description)
         fd.close()
@@ -1824,7 +1825,7 @@ class _PermutationUtils(object):
     if searchJobParams["hsVersion"] == "v2":
       search = HypersearchV2(searchParams=searchJobParams)
     else:
-      raise RuntimeError("Unsupported hypersearch version "%s"" % \
+      raise RuntimeError("Unsupported hypersearch version \"%s\"" % \
                          (searchJobParams["hsVersion"]))
 
     info = search.getOptimizationMetricInfo()
