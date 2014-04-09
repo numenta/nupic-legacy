@@ -87,7 +87,6 @@ class VectorFileSensorTest(unittest.TestCase):
     thrown.
     """
     print 'VectorFileSensorTest parameters:'
-    print 'PYTHONPATH: %s' % os.environ.get('PYTHONPATH', 'NOT SET')
     print 'filename: %s' % self.filename
 
     self._testRunWithoutFile()
