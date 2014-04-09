@@ -903,6 +903,20 @@ add_custom_target(tests_all
                   DEPENDS tests_everything
                   COMMENT "Running all tests")
 
+#
+# Clean
+#
+add_custom_target(clean 
+		# Clean '/build/release'
+		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/include
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/lib
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin
+		# Clean '/build/temp'
+		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj
+		COMMENT "Cleaning temporary & release build files")
 
 # Just to separate from result message
 message(STATUS "")
