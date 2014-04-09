@@ -54,15 +54,9 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-Important notes:
- * `$REPOSITORY` is the current location of the repository that you downloaded from GitHub.
- * After CMake generation, two useful environment variables will be created:
-   * `$NUPIC`, which is the same as `$REPOSITORY`
-   * `$NTA`, which references `$REPOSITORY/build/release` as default location (the directory with all executables and libraries generated from build process). You can change this default location by using `-DPROJECT_BUILD_RELEASE_DIR:STRING=` option in CMake command line. If `$NTA` is already set, its value will be used as the build location.
+Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
 
-This said, you'll need set the environment variables in your `bashrc` file.
-
-    export NUPIC=$REPOSITORY
+    export NUPIC=<path to NuPIC repository>
     export NTA=$NUPIC/build/release
     export NTA_ROOT_DIR=$NTA
     export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
@@ -71,20 +65,21 @@ This said, you'll need set the environment variables in your `bashrc` file.
 
 #### Configure and generate build files:
 
-    mkdir -p $REPOSITORY/build/scripts
-    cd $REPOSITORY/build/scripts
-    cmake $REPOSITORY
+    mkdir -p $NUPIC/build/scripts
+    cd $NUPIC/build/scripts
+    cmake $NUPIC
 
 #### Build:
 
-    cd $REPOSITORY/build/scripts
+    cd $NUPIC/build/scripts
+    (optional) make clean / distclean   # to compile all the files again
     make -j3
 
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
 #### Run the tests:
 
-    cd $REPOSITORY/build/scripts
+    cd $NUPIC/build/scripts
     make <test> (where <test> can be C++ tests: 'tests_everything', 'tests_cpphtm' and 'tests_pyhtm' or Python tests: 'tests_run' and 'tests_run_all')
 
 ### Using graphical interface
@@ -92,14 +87,14 @@ This said, you'll need set the environment variables in your `bashrc` file.
 #### Generate the IDE solution:
 
  * Open CMake executable.
- * Specify the source folder (`$REPOSITORY`).
- * Specify the build system folder (`$REPOSITORY/build/scripts`), i.e. where IDE solution will be created.
+ * Specify the source folder (`$NUPIC`).
+ * Specify the build system folder (`$NUPIC/build/scripts`), i.e. where IDE solution will be created.
  * Click `Generate`.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
 
 #### Build:
 
- * Open `nupic.*proj` solution file generated on `$REPOSITORY/build/scripts`.
+ * Open `nupic.*proj` solution file generated on `$NUPIC/build/scripts`.
  * Run `ALL_BUILD` project from your IDE.
 
 #### Run the tests:
