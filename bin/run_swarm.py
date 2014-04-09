@@ -90,13 +90,13 @@ def runPermutations(args):
 
   parser.add_option(
     "--replaceReport", dest="replaceReport", action="store_true",
-    default=DEFAULT_OPTIONS['replaceReport'],
+    default=DEFAULT_OPTIONS["replaceReport"],
     help="Replace existing csv report file if it exists. Default is to "
          "append to the existing file. [default: %default].")
 
   parser.add_option(
-    "--action", dest="action", default=DEFAULT_OPTIONS.action,
-    choices=['run', 'pickup', 'report', 'dryRun'],
+    "--action", dest="action", default=DEFAULT_OPTIONS["action"],
+    choices=["run", "pickup", "report", "dryRun"],
     help="Which action to perform. Possible actions are run, pickup, choices, "
          "report, list. "
          "run: run a new HyperSearch via Grok. "
@@ -110,23 +110,23 @@ def runPermutations(args):
 
   parser.add_option(
     "--maxPermutations", dest="maxPermutations",
-    default=DEFAULT_OPTIONS['maxPermutations'], type="int",
+    default=DEFAULT_OPTIONS["maxPermutations"], type="int",
     help="Maximum number of models to search. Applies only to the 'run' and "
     "'dryRun' actions. [default: %default].")
 
   parser.add_option(
-    "--exports", dest="exports", default=DEFAULT_OPTIONS['exports'],
+    "--exports", dest="exports", default=DEFAULT_OPTIONS["exports"],
     type="string",
     help="json dump of environment variable settings that should be applied"
     "for the job before running. [default: %default].")
 
   parser.add_option(
-    "--useTerminators", dest="useTerminators", action='store_true',
-    default=DEFAULT_OPTIONS['useTerminators'], help="Use early model terminators in HyperSearch"
+    "--useTerminators", dest="useTerminators", action="store_true",
+    default=DEFAULT_OPTIONS["useTerminators"], help="Use early model terminators in HyperSearch"
          "[default: %default].")
 
   parser.add_option(
-      "--maxWorkers", dest="maxWorkers", default=DEFAULT_OPTIONS['maxWorkers'],
+      "--maxWorkers", dest="maxWorkers", default=DEFAULT_OPTIONS["maxWorkers"],
       type="int",
       help="Maximum number of concurrent workers to launch. Applies only to "
       "the 'run' action. [default: %default].")
@@ -137,19 +137,19 @@ def runPermutations(args):
          "increased verbosity. e.g., -vv is more verbose than -v.")
 
   parser.add_option(
-    "--timeout", dest="timeout", default=DEFAULT_OPTIONS['timeout'], type="int",
+    "--timeout", dest="timeout", default=DEFAULT_OPTIONS["timeout"], type="int",
      help="Time out for this search in minutes"
          "[default: %default].")
 
   parser.add_option(
-    "--overwrite", default=DEFAULT_OPTIONS['overwrite'], action="store_true",
+    "--overwrite", default=DEFAULT_OPTIONS["overwrite"], action="store_true",
     help="If 'yes', overwrite existing description.py and permutations.py"
          " (in the same directory as the <expDescription.json> file) if they"
          " already exist. [default: %default].")
 
   parser.add_option(
     "--genTopNDescriptions", dest="genTopNDescriptions",
-    default=DEFAULT_OPTIONS['genTopNDescriptions'], type="int",
+    default=DEFAULT_OPTIONS["genTopNDescriptions"], type="int",
     help="Generate description files for the top N models. Each one will be"
          " placed into it's own subdirectory under the base description file."
          "[default: %default].")
@@ -172,12 +172,7 @@ def runPermutations(args):
   basename = os.path.basename(fileArgPath)
   fileExtension = os.path.splitext(basename)[1]
 
-  # Set up cluster default values if required
-  if(options.clusterDefault):
-    options.useTerminators = None
-    options.searchMethod = "v2"
-
-  if fileExtension == '.json':
+  if fileExtension == ".json":
     returnValue = permutations_runner.runWithJsonFile(
       fileArgPath, options, outputLabel, permWorkDir)
   else:
@@ -189,4 +184,3 @@ def runPermutations(args):
 
 if __name__ == "__main__":
   runPermutations(sys.argv[1:])
-
