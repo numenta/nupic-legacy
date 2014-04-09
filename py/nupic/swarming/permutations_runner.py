@@ -45,20 +45,20 @@ from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 g_currentVerbosityLevel = 0
 gCurrentSearch = None
-DEFAULT_OPTIONS = {'expDescJsonPath': None,
-                  'expDescConfig': None,
-                  'permutationsScriptPath': None,
-                  'outputLabel': "swarm_out",
-                  'permWorkDir': None,
-                  'action': "run",
-                  'searchMethod': "v2",
-                  'timeout': None,
-                  'exports': None,
-                  'useTerminators': False,
-                  'maxWorkers': 2,
-                  'replaceReport': False,
-                  'maxPermutations': None,
-                  'genTopNDescriptions': 1}
+DEFAULT_OPTIONS = {"expDescJsonPath": None,
+                  "expDescConfig": None,
+                  "permutationsScriptPath": None,
+                  "outputLabel": "swarm_out",
+                  "permWorkDir": None,
+                  "action": "run",
+                  "searchMethod": "v2",
+                  "timeout": None,
+                  "exports": None,
+                  "useTerminators": False,
+                  "maxWorkers": 2,
+                  "replaceReport": False,
+                  "maxPermutations": None,
+                  "genTopNDescriptions": 1}
 
 
 
@@ -107,10 +107,10 @@ def _escape(s):
   """
   assert isinstance(s, str), \
         "expected %s but got %s; value=%s" % (type(str), type(s), s)
-  s = s.replace('\\', '\\\\')
-  s = s.replace('\n', '\\n')
-  s = s.replace('\t', '\\t')
-  s = s.replace(',', '\t')
+  s = s.replace("\\", "\\\\")
+  s = s.replace("\n", "\\n")
+  s = s.replace("\t", "\\t")
+  s = s.replace(",", "\t")
   return s
 
 
@@ -143,7 +143,7 @@ def _runHyperSearch(runOptions):
   search = _HyperSearchRunner(runOptions)
   # Save in global for the signal handler.
   gCurrentSearch = search
-  if runOptions['action'] in ('run', 'dryRun'):
+  if runOptions["action"] in ("run", "dryRun"):
     search.runNewSearch()
   else:
     search.pickupSearch()
@@ -152,7 +152,7 @@ def _runHyperSearch(runOptions):
   # Print results and generate report csv file
   modelParams = _HyperSearchRunner.generateReport(
     options=runOptions,
-    replaceReport=runOptions['replaceReport'],
+    replaceReport=runOptions["replaceReport"],
     hyperSearchJob=search.peekSearchJob(),
     metricsKeys=search.getDiscoveredMetricsKeys())
   secs = time.time() - startTime
@@ -326,7 +326,7 @@ def runWithPermutationsScript(permutationsFilePath, options,
   optionsDict["outputLabel"] = outputLabel
   optionsDict["permWorkDir"] = permWorkDir
 
-  # Assume it's a permutations python script
+  # Assume it"s a permutations python script
   runOptions = _injectDefaultOptions(optionsDict)
   _validateOptions(runOptions)
 
@@ -458,7 +458,7 @@ class _HyperSearchRunner(object):
 
     # Monitor HyperSearch and report progress
 
-    # NOTE: may be -1 if it can't be determined
+    # NOTE: may be -1 if it can"t be determined
     expectedNumModels = self.__searchJob.getExpectedNumModels(
                                 searchMethod = self._options["searchMethod"])
 
@@ -641,7 +641,7 @@ class _HyperSearchRunner(object):
 
       print
       print "=================================================================="
-      print "RUNNING PERMUTATIONS INLINE as 'DRY RUN'..."
+      print "RUNNING PERMUTATIONS INLINE as "DRY RUN"..."
       print "=================================================================="
       jobID = HypersearchWorker.main(args)
 
@@ -673,7 +673,7 @@ class _HyperSearchRunner(object):
       hyperSearchJob=searchJob)
 
     if self._options["action"] == "dryRun":
-      print "Successfully executed 'dry-run' hypersearch, jobID=%d" % (jobID)
+      print "Successfully executed "dry-run" hypersearch, jobID=%d" % (jobID)
     else:
       print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
       _emit(Verbosity.DEBUG,
@@ -684,7 +684,7 @@ class _HyperSearchRunner(object):
 
 
   def peekSearchJob(self):
-    """Retrieves the runner's _HyperSearchJob instance; NOTE: only available
+    """Retrieves the runner"s _HyperSearchJob instance; NOTE: only available
     after run().
 
     Parameters:
@@ -974,8 +974,8 @@ class _HyperSearchRunner(object):
 
         # Fix up the location to the base description file
         description = description.replace(
-              "importBaseDescription('base.py', config)",
-              "importBaseDescription('../description.py', config)")
+              "importBaseDescription("base.py", config)",
+              "importBaseDescription("../description.py", config)")
         fd = open(os.path.join(outDir, "description.py"), "wb")
         fd.write(description)
         fd.close()
@@ -1027,7 +1027,7 @@ class _HyperSearchRunner(object):
 
   @classmethod
   def __saveHyperSearchJobID(cls, permWorkDir, outputLabel, hyperSearchJob):
-    """Saves the given _HyperSearchJob instance's jobID to file
+    """Saves the given _HyperSearchJob instance"s jobID to file
 
     Parameters:
     ----------------------------------------------------------------------
@@ -1509,7 +1509,7 @@ class _GrokJob(object):
 
     def getCompletionReason(self):
       """Returns _JobCompletionReason.
-      NOTE: it's an error to call this method if isFinished() would return
+      NOTE: it"s an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1524,7 +1524,7 @@ class _GrokJob(object):
     def getCompletionMsg(self):
       """Returns job completion message.
 
-      NOTE: it's an error to call this method if isFinished() would return
+      NOTE: it"s an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1539,7 +1539,7 @@ class _GrokJob(object):
     def getWorkerCompletionMsg(self):
       """Returns the worker generated completion message.
 
-      NOTE: it's an error to call this method if isFinished() would return
+      NOTE: it"s an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1554,7 +1554,7 @@ class _GrokJob(object):
     def getStartTime(self):
       """Returns job start time.
 
-      NOTE: it's an error to call this method if isWaitingToStart() would
+      NOTE: it"s an error to call this method if isWaitingToStart() would
       return True.
 
       Parameters:
@@ -1569,7 +1569,7 @@ class _GrokJob(object):
     def getEndTime(self):
       """Returns job end time.
 
-      NOTE: it's an error to call this method if isFinished() would return
+      NOTE: it"s an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1703,7 +1703,7 @@ class _HyperSearchJob(_GrokJob):
     """
     super(_HyperSearchJob, self).__init__(grokJobID)
 
-    # Cache of the total count of expected models or -1 if it can't be
+    # Cache of the total count of expected models or -1 if it can"t be
     # deteremined.
     #
     # Set by getExpectedNumModels()
@@ -1732,7 +1732,7 @@ class _HyperSearchJob(_GrokJob):
 
 
   def getExpectedNumModels(self, searchMethod):
-    """Returns:  the total number of expected models if known, -1 if it can't
+    """Returns:  the total number of expected models if known, -1 if it can"t
     be determined.
 
     NOTE: this can take a LONG time to complete for HyperSearches with a huge
@@ -1740,7 +1740,7 @@ class _HyperSearchJob(_GrokJob):
 
     Parameters:
     ----------------------------------------------------------------------
-    searchMethod:   'v2' is the only method currently supported
+    searchMethod:   "v2" is the only method currently supported
     retval:         The total number of expected models, if known; -1 if unknown
     """
     return self.__expectedNumModels
@@ -1824,7 +1824,7 @@ class _PermutationUtils(object):
     if searchJobParams["hsVersion"] == "v2":
       search = HypersearchV2(searchParams=searchJobParams)
     else:
-      raise RuntimeError("Unsupported hypersearch version '%s'" % \
+      raise RuntimeError("Unsupported hypersearch version "%s"" % \
                          (searchJobParams["hsVersion"]))
 
     info = search.getOptimizationMetricInfo()
@@ -2081,7 +2081,7 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:    Human-readable string representation of the model's status.
+    retval:    Human-readable string representation of the model"s status.
     """
     return "%s" % self.__rawInfo.status
 
@@ -2181,7 +2181,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval: a dictionary of metrics that were collected for the model or
-            an empty dictionary if there aren't any.
+            an empty dictionary if there aren"t any.
     """
     return self.__unwrapResults().reportMetrics
 
@@ -2192,7 +2192,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         a dictionary of optimization metrics that were collected
-                    for the model or an empty dictionary if there aren't any.
+                    for the model or an empty dictionary if there aren"t any.
     """
     return self.__unwrapResults().optimizationMetrics
 
@@ -2205,7 +2205,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         a dictionary of optimization metrics that were collected
-                    for the model; an empty dictionary if there aren't any.
+                    for the model; an empty dictionary if there aren"t any.
     """
     result = self.getReportMetrics()
     result.update(self.getOptimizationMetrics())
@@ -2274,7 +2274,7 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:         True if the model's processing has completed (either with
+    retval:         True if the model"s processing has completed (either with
                     success or failure).
     """
     finished = (self.__rawInfo.status == self.__grokModelStatus_completed)
@@ -2285,7 +2285,7 @@ class _GrokModelInfo(object):
   def getCompletionReason(self):
     """Returns _ModelCompletionReason.
 
-    NOTE: it's an error to call this method if isFinished() would return False.
+    NOTE: it"s an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
@@ -2299,7 +2299,7 @@ class _GrokModelInfo(object):
   def getCompletionMsg(self):
     """Returns model completion message.
 
-    NOTE: it's an error to call this method if isFinished() would return False.
+    NOTE: it"s an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
@@ -2313,7 +2313,7 @@ class _GrokModelInfo(object):
   def getStartTime(self):
     """Returns model evaluation start time.
 
-    NOTE: it's an error to call this method if isWaitingToStart() would
+    NOTE: it"s an error to call this method if isWaitingToStart() would
     return True.
 
     Parameters:
@@ -2328,7 +2328,7 @@ class _GrokModelInfo(object):
   def getEndTime(self):
     """Returns mode evaluation end time.
 
-    NOTE: it's an error to call this method if isFinished() would return False.
+    NOTE: it"s an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
