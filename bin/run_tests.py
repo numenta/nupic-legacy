@@ -75,7 +75,7 @@ def collect_list(option, opt_str, value, parser):
   setattr(parser.values, option.dest, value)
 
 
-parser = OptionParser(usage="%prog [options]\n\nRun Grok Engine tests.")
+parser = OptionParser(usage="%prog [options]\n\nRun NuPIC Python tests.")
 parser.add_option(
   "-a",
   "--all",
@@ -133,7 +133,7 @@ parser.add_option(
 def main(parser, parse_args):
   """ Parse CLI options and execute tests """
 
-  # Default to success, failures will flip it. 
+  # Default to success, failures will flip it.
   exitStatus = 0
 
   # Extensions to test spec (args not part of official test runner)
@@ -252,8 +252,8 @@ if __name__ == "__main__":
   # Tests need to run from $NUPIC, so let's change there and at the end back to actual_dir
   actual_dir=os.getcwd()
   os.chdir(os.getenv('NUPIC'))
-  
+
   result = main(parser, sys.argv[1:])
-  
+
   os.chdir(actual_dir)
   sys.exit(result)
