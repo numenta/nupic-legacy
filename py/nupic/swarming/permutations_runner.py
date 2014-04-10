@@ -1733,7 +1733,7 @@ class _HyperSearchJob(_GrokJob):
 
 
   def getExpectedNumModels(self, searchMethod):
-    """Returns:  the total number of expected models if known, -1 if it can"t
+    """Returns:  the total number of expected models if known, -1 if it can't
     be determined.
 
     NOTE: this can take a LONG time to complete for HyperSearches with a huge
