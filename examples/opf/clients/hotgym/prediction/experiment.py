@@ -27,18 +27,11 @@ import sys
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.data.inference_shifter import InferenceShifter
-from nupic.swarming import permutations_runner
 
+from swarm import swarm_for_best_model_params
 from nupic_output import NuPICFileOutput, NuPICPlotOutput
 import generate_data
 from base_swarm_description import BASE_SWARM_DESCRIPTION
-
-
-
-def swarm_for_best_model_params(swarm_config):
-  return permutations_runner.runWithConfig(swarm_config, {
-    'maxWorkers': 4, 'overwrite': True
-  })
 
 
 
@@ -133,12 +126,16 @@ def run_experiment(plot=False):
   input_files = input_files.values()
   all_model_params = []
 
+  # Debugging, limit to only one gym.
+  # input_files = [input_files[0]]
+  # names = [names[0]]
+
   for index, input_file_path in enumerate(input_files):
     swarm_description = get_swarm_description_for(input_file_path)
     print "================================================="
     print "= Swarming on %s data..." % names[index]
     print "================================================="
-    model_params = swarm_for_best_model_params(swarm_description)
+    model_params = swarm_for_best_model_params(swarm_description, names[index])
     all_model_params.append(model_params)
 
   print
@@ -146,6 +143,9 @@ def run_experiment(plot=False):
   print "= Swarming complete!                            ="
   print "================================================="
   print
+
+  # Debugging
+  # exit()
 
   models = []
 
@@ -168,4 +168,3 @@ def run_experiment(plot=False):
 if __name__ == "__main__":
   plot = len(sys.argv) > 1 and sys.argv[1] == 'plot'
   run_experiment(plot=plot)
-  # run_plot_test()
