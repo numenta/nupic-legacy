@@ -327,7 +327,7 @@ def runWithPermutationsScript(permutationsFilePath, options,
   optionsDict["outputLabel"] = outputLabel
   optionsDict["permWorkDir"] = permWorkDir
 
-  # Assume it"s a permutations python script
+  # Assume it's a permutations python script
   runOptions = _injectDefaultOptions(optionsDict)
   _validateOptions(runOptions)
 
@@ -459,7 +459,7 @@ class _HyperSearchRunner(object):
 
     # Monitor HyperSearch and report progress
 
-    # NOTE: may be -1 if it can"t be determined
+    # NOTE: may be -1 if it can't be determined
     expectedNumModels = self.__searchJob.getExpectedNumModels(
                                 searchMethod = self._options["searchMethod"])
 
@@ -685,7 +685,7 @@ class _HyperSearchRunner(object):
 
 
   def peekSearchJob(self):
-    """Retrieves the runner"s _HyperSearchJob instance; NOTE: only available
+    """Retrieves the runner's _HyperSearchJob instance; NOTE: only available
     after run().
 
     Parameters:
@@ -1028,7 +1028,7 @@ class _HyperSearchRunner(object):
 
   @classmethod
   def __saveHyperSearchJobID(cls, permWorkDir, outputLabel, hyperSearchJob):
-    """Saves the given _HyperSearchJob instance"s jobID to file
+    """Saves the given _HyperSearchJob instance's jobID to file
 
     Parameters:
     ----------------------------------------------------------------------
@@ -1510,7 +1510,7 @@ class _GrokJob(object):
 
     def getCompletionReason(self):
       """Returns _JobCompletionReason.
-      NOTE: it"s an error to call this method if isFinished() would return
+      NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1525,7 +1525,7 @@ class _GrokJob(object):
     def getCompletionMsg(self):
       """Returns job completion message.
 
-      NOTE: it"s an error to call this method if isFinished() would return
+      NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1540,7 +1540,7 @@ class _GrokJob(object):
     def getWorkerCompletionMsg(self):
       """Returns the worker generated completion message.
 
-      NOTE: it"s an error to call this method if isFinished() would return
+      NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1555,7 +1555,7 @@ class _GrokJob(object):
     def getStartTime(self):
       """Returns job start time.
 
-      NOTE: it"s an error to call this method if isWaitingToStart() would
+      NOTE: it's an error to call this method if isWaitingToStart() would
       return True.
 
       Parameters:
@@ -1570,7 +1570,7 @@ class _GrokJob(object):
     def getEndTime(self):
       """Returns job end time.
 
-      NOTE: it"s an error to call this method if isFinished() would return
+      NOTE: it's an error to call this method if isFinished() would return
       False.
 
       Parameters:
@@ -1704,7 +1704,7 @@ class _HyperSearchJob(_GrokJob):
     """
     super(_HyperSearchJob, self).__init__(grokJobID)
 
-    # Cache of the total count of expected models or -1 if it can"t be
+    # Cache of the total count of expected models or -1 if it can't be
     # deteremined.
     #
     # Set by getExpectedNumModels()
@@ -2082,7 +2082,7 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:    Human-readable string representation of the model"s status.
+    retval:    Human-readable string representation of the model's status.
     """
     return "%s" % self.__rawInfo.status
 
@@ -2182,7 +2182,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval: a dictionary of metrics that were collected for the model or
-            an empty dictionary if there aren"t any.
+            an empty dictionary if there aren't any.
     """
     return self.__unwrapResults().reportMetrics
 
@@ -2193,7 +2193,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         a dictionary of optimization metrics that were collected
-                    for the model or an empty dictionary if there aren"t any.
+                    for the model or an empty dictionary if there aren't any.
     """
     return self.__unwrapResults().optimizationMetrics
 
@@ -2206,7 +2206,7 @@ class _GrokModelInfo(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         a dictionary of optimization metrics that were collected
-                    for the model; an empty dictionary if there aren"t any.
+                    for the model; an empty dictionary if there aren't any.
     """
     result = self.getReportMetrics()
     result.update(self.getOptimizationMetrics())
@@ -2275,7 +2275,7 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:         True if the model"s processing has completed (either with
+    retval:         True if the model's processing has completed (either with
                     success or failure).
     """
     finished = (self.__rawInfo.status == self.__grokModelStatus_completed)
@@ -2286,7 +2286,7 @@ class _GrokModelInfo(object):
   def getCompletionReason(self):
     """Returns _ModelCompletionReason.
 
-    NOTE: it"s an error to call this method if isFinished() would return False.
+    NOTE: it's an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
@@ -2300,7 +2300,7 @@ class _GrokModelInfo(object):
   def getCompletionMsg(self):
     """Returns model completion message.
 
-    NOTE: it"s an error to call this method if isFinished() would return False.
+    NOTE: it's an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
@@ -2314,7 +2314,7 @@ class _GrokModelInfo(object):
   def getStartTime(self):
     """Returns model evaluation start time.
 
-    NOTE: it"s an error to call this method if isWaitingToStart() would
+    NOTE: it's an error to call this method if isWaitingToStart() would
     return True.
 
     Parameters:
@@ -2329,7 +2329,7 @@ class _GrokModelInfo(object):
   def getEndTime(self):
     """Returns mode evaluation end time.
 
-    NOTE: it"s an error to call this method if isFinished() would return False.
+    NOTE: it's an error to call this method if isFinished() would return False.
 
     Parameters:
     ----------------------------------------------------------------------
