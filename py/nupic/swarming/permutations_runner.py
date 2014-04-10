@@ -45,20 +45,21 @@ from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 g_currentVerbosityLevel = 0
 gCurrentSearch = None
-DEFAULT_OPTIONS = {'expDescJsonPath': None,
-                  'expDescConfig': None,
-                  'permutationsScriptPath': None,
-                  'outputLabel': "swarm_out",
-                  'permWorkDir': None,
-                  'action': "run",
-                  'searchMethod': "v2",
-                  'timeout': None,
-                  'exports': None,
-                  'useTerminators': False,
-                  'maxWorkers': 2,
-                  'replaceReport': False,
-                  'maxPermutations': None,
-                  'genTopNDescriptions': 1}
+DEFAULT_OPTIONS = {"overwrite": False,
+                  "expDescJsonPath": None,
+                  "expDescConfig": None,
+                  "permutationsScriptPath": None,
+                  "outputLabel": "swarm_out",
+                  "permWorkDir": None,
+                  "action": "run",
+                  "searchMethod": "v2",
+                  "timeout": None,
+                  "exports": None,
+                  "useTerminators": False,
+                  "maxWorkers": 2,
+                  "replaceReport": False,
+                  "maxPermutations": None,
+                  "genTopNDescriptions": 1}
 
 
 
@@ -107,10 +108,10 @@ def _escape(s):
   """
   assert isinstance(s, str), \
         "expected %s but got %s; value=%s" % (type(str), type(s), s)
-  s = s.replace('\\', '\\\\')
-  s = s.replace('\n', '\\n')
-  s = s.replace('\t', '\\t')
-  s = s.replace(',', '\t')
+  s = s.replace("\\", "\\\\")
+  s = s.replace("\n", "\\n")
+  s = s.replace("\t", "\\t")
+  s = s.replace(",", "\t")
   return s
 
 
@@ -143,7 +144,7 @@ def _runHyperSearch(runOptions):
   search = _HyperSearchRunner(runOptions)
   # Save in global for the signal handler.
   gCurrentSearch = search
-  if runOptions['action'] in ('run', 'dryRun'):
+  if runOptions["action"] in ("run", "dryRun"):
     search.runNewSearch()
   else:
     search.pickupSearch()
@@ -152,7 +153,7 @@ def _runHyperSearch(runOptions):
   # Print results and generate report csv file
   modelParams = _HyperSearchRunner.generateReport(
     options=runOptions,
-    replaceReport=runOptions['replaceReport'],
+    replaceReport=runOptions["replaceReport"],
     hyperSearchJob=search.peekSearchJob(),
     metricsKeys=search.getDiscoveredMetricsKeys())
   secs = time.time() - startTime
@@ -290,7 +291,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
   _setupInterruptHandling()
 
   with open(expJsonFilePath, "rb") as jsonFile:
-    expJsonConfig = json.loads(jsonFile)
+    expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
   return runWithConfig(expJsonConfig, optionsDict, outDir=outDir,
@@ -641,7 +642,7 @@ class _HyperSearchRunner(object):
 
       print
       print "=================================================================="
-      print "RUNNING PERMUTATIONS INLINE as 'DRY RUN'..."
+      print "RUNNING PERMUTATIONS INLINE as \"DRY RUN\"..."
       print "=================================================================="
       jobID = HypersearchWorker.main(args)
 
@@ -673,7 +674,7 @@ class _HyperSearchRunner(object):
       hyperSearchJob=searchJob)
 
     if self._options["action"] == "dryRun":
-      print "Successfully executed 'dry-run' hypersearch, jobID=%d" % (jobID)
+      print "Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID)
     else:
       print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
       _emit(Verbosity.DEBUG,
@@ -1740,7 +1741,7 @@ class _HyperSearchJob(_GrokJob):
 
     Parameters:
     ----------------------------------------------------------------------
-    searchMethod:   'v2' is the only method currently supported
+    searchMethod:   "v2" is the only method currently supported
     retval:         The total number of expected models, if known; -1 if unknown
     """
     return self.__expectedNumModels
@@ -1824,7 +1825,7 @@ class _PermutationUtils(object):
     if searchJobParams["hsVersion"] == "v2":
       search = HypersearchV2(searchParams=searchJobParams)
     else:
-      raise RuntimeError("Unsupported hypersearch version '%s'" % \
+      raise RuntimeError("Unsupported hypersearch version \"%s\"" % \
                          (searchJobParams["hsVersion"]))
 
     info = search.getOptimizationMetricInfo()
