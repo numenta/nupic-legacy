@@ -36,10 +36,11 @@ debug = "NTA_DATA_DEBUG" in os.environ
 def findDataset(datasetPath):
   """Returns the absolute path to a dataset (if not found, rasises Exception)
   The search rules for the dataset are:
-  1. NTA_DATA_PATH  (":" separated value similar to PATH)
-  2. ./data
-  3. NTA_ROOTDIR
-  4. ~/nta/current/share/prediction/data (unix)
+    1. NTA_DATA_PATH  (":" separated value similar to PATH)
+    2. ./data
+    3. ./
+    4. NTA_ROOTDIR
+    5. ~/nta/current/share/prediction/data (unix)
 
   If the dataset is compressed (ends in .gz) returns the name of the compressed
   file.
@@ -104,8 +105,9 @@ def _getDataDirs():
 
   1. NTA_DATA_PATH  (":" separated value similar to PATH)
   2. ./data
-  3. NTA_ROOTDIR
-  4. ~/nta/current/share/prediction/data (unix)
+  3. ./
+  4. NTA_ROOTDIR
+  5. ~/nta/current/share/prediction/data (unix)
 
   """
   dataDirs = []
@@ -116,6 +118,7 @@ def _getDataDirs():
 
   #  Local data dir
   dataDirs.append(('data', "in local directory 'data'"))
+  dataDirs.append((".", "in current working directory"))
 
   if "NTA_ROOTDIR" in os.environ:
     d = os.path.join(os.environ['NTA_ROOTDIR'], 'share/prediction/data')
