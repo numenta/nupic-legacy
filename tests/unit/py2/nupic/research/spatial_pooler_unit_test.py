@@ -41,26 +41,28 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def setUp(self):
+
+    self._params = {
+      "inputDimensions": [5],
+      "columnDimensions": [5],
+      "potentialRadius": 5,
+      "potentialPct": 0.5,
+      "globalInhibition": False,
+      "localAreaDensity": -1.0,
+      "numActiveColumnsPerInhArea": 3,
+      "stimulusThreshold": 0,
+      "synPermInactiveDec": 0.01,
+      "synPermActiveInc": 0.1,
+      "synPermConnected": 0.10,
+      "minPctOverlapDutyCycle": 0.1,
+      "minPctActiveDutyCycle": 0.1,
+      "dutyCyclePeriod": 10,
+      "maxBoost": 10.0,
+      "seed": getSeed(),
+      "spVerbosity": 0
+    }
     
-    self._sp = SpatialPooler(
-        inputDimensions=[5],
-        columnDimensions=[5],
-        potentialRadius=5,
-        potentialPct=0.5,
-        globalInhibition=False,
-        localAreaDensity=-1.0,
-        numActiveColumnsPerInhArea=3,
-        stimulusThreshold=0,
-        synPermInactiveDec=0.01,
-        synPermActiveInc=0.1,
-        synPermConnected=0.10,
-        minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
-        dutyCyclePeriod=10,
-        maxBoost=10.0,
-        seed=getSeed(),
-        spVerbosity=0,
-    )
+    self._sp = SpatialPooler(**self._params)
 
 
   def testCompute1(self):
