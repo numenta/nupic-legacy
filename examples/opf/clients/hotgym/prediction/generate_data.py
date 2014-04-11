@@ -96,8 +96,8 @@ def _write_data_files():
 
 
 
-def run():
-  with open(INPUT, 'rb') as file_handle:
+def run(input_file=INPUT):
+  with open(input_file, 'rb') as file_handle:
     reader = csv.reader(file_handle)
     # Skip header line.
     reader.next()
@@ -107,7 +107,3 @@ def run():
     written_files = _write_data_files()
     print "Low: %f\t\tHigh: %f" % (low, high)
     return written_files
-
-
-if __name__ == '__main__':
-  run()

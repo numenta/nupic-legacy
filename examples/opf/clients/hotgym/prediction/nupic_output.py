@@ -103,7 +103,7 @@ class NuPICPlotOutput(NuPICOutput):
 
   def __init__(self, *args, **kwargs):
     super(NuPICPlotOutput, self).__init__(*args, **kwargs)
-    # turn matplotlib interactive mode on (ion)
+    # Turn matplotlib interactive mode on.
     plt.ion()
     self.dates = []
     self.converted_dates = []
@@ -113,8 +113,10 @@ class NuPICPlotOutput(NuPICOutput):
     self.predicted_lines = []
     self.lines_initialized = False
     self.graphs = []
-    fig = plt.figure(figsize=(24, 14))
-    gs = gridspec.GridSpec(len(self.names), 1)
+    plot_count = len(self.names)
+    plot_height = max(plot_count * 3, 6)
+    fig = plt.figure(figsize=(14, plot_height))
+    gs = gridspec.GridSpec(plot_count, 1)
     for index in range(len(self.names)):
       self.graphs.append(fig.add_subplot(gs[index, 0]))
       plt.title(self.names[index])
