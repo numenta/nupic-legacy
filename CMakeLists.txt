@@ -36,8 +36,34 @@ endmacro()
 
 # This macro set environment variables of the operating system
 macro (set_environment_variable variable value incremental)
-  set(current_value "$ENV{${variable}}")
   set(new_value "${value}")
+
+  # Specify the config file that contains variables and the command to set them
+  if(LINUX)
+    set(config_file "$ENV{HOME}/.bashrc")
+    set(command "export")
+    set(operator "=")
+  elseif(OSX)
+    set(config_file "/etc/launchd.conf")
+    set(command "setenv")
+    set(operator " ")
+  elseif(WINDOWS)
+    set(config_file "$ENV{HOME}/env.bat")
+    set(command "setx")
+    set(operator " ")
+  endif()
+
+  # Get the current content of the file
+  file(READ ${config_file} old_content)
+
+  # Check if variable exists in file
+  string(REGEX MATCH "${command} ${variable}" found_variable "${old_content}")
+
+  # Get the variable's value
+  set(current_value "")
+  if(found_variable)
+    string(REGEX REPLACE ".*${command} ${variable}${operator}([^\n]+)*" "\\1" current_value "${old_content}")
+  endif()  
 
   # Check if variable already is set
   set(is_set OFF)
@@ -52,17 +78,22 @@ macro (set_environment_variable variable value incremental)
       set(new_value "${new_value}:${current_value}")
     endif()
 
-    if(LINUX)
-      execute_process(COMMAND export ${variable}=${new_value})
-    elseif(OSX)
-      execute_process(COMMAND launchctl setenv ${variable} ${new_value})
-    elseif(WINDOWS)
-      execute_process(COMMAND setx ${variable} ${new_value})
+    # Update the variable's value
+    if(found_variable)
+      # Replace the current line with the updated value
+      string(REGEX REPLACE "${command} ${variable}${operator}${current_value}" "${command} ${variable}${operator}${new_value}" new_content "${old_content}") 
+    else()
+      # Add a new line for the variable
+      set(new_content "${old_content}\n${command} ${variable}${operator}${new_value}")
     endif()
+
+    # Write the new content into the file
+    file(WRITE ${config_file} "${new_content}")
 
     set(NEED_LOGOFF ON)
   endif()
 
+  set($ENV{${variable}} ${new_value})
   show_environment_variable(${variable} ${new_value})
 endmacro()
 
