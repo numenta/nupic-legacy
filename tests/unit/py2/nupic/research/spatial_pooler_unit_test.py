@@ -229,39 +229,64 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueStripped, list(stripped))
 
 
-  def testMapPotential(self):
-    """Test this and initPermanence with too big of a radius."""
-    sp = self._sp
-    sp._potentialRadius = 2
-    sp._potentialPct = 1
-    sp._numInputs = 10
-    index = 3
-    trueMask = [0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-    mask = list(sp._mapPotential(index, wrapAround=False))
-    self.assertListEqual(trueMask, mask)
+  def testMapPotential1DColumns1DInputs(self):
+    params = self._params.copy()
+    params.update({
+      "inputDimensions": [10],
+      "columnDimensions": [4],
+      "potentialRadius": 2
+    })
 
-    sp._potentialRadius = 2
-    sp._potentialPct = 1
-    sp._numInputs = 10
-    index = 7
-    trueMask = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1]
-    mask = list(sp._mapPotential(index, wrapAround=False))
-    self.assertListEqual(trueMask, mask)
+    # Test without wrapAround and potentialPct = 1
+    params["potentialPct"] = 1
+    sp = SpatialPooler(**params)
 
-    sp._potentialRadius = 2
-    sp._potentialPct = 1
-    sp._numInputs = 10
-    index = 8
-    trueMask = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
-    mask = list(sp._mapPotential(index, wrapAround=False))
-    self.assertListEqual(trueMask, mask)
+    expectedMask = [1, 1, 1, 0, 0, 0, 0, 0, 0, 0]
+    mask = sp._mapPotential(0, wrapAround=False)
+    self.assertListEqual(mask.tolist(), expectedMask)
 
-    sp._potentialRadius = 2
-    sp._numInputs = 10
-    index = 8
-    trueMask = [1, 0, 0, 0, 0, 0, 1, 1, 1, 1]
-    mask = list(sp._mapPotential(index, wrapAround=True))
-    self.assertListEqual(trueMask, mask)
+    expectedMask = [0, 0, 0, 0, 1, 1, 1, 1, 1, 0]
+    mask = sp._mapPotential(2, wrapAround=False);
+    self.assertListEqual(mask.tolist(), expectedMask)
+
+    # Test with wrapAround and potentialPct = 1
+    params["potentialPct"] = 1
+    sp = SpatialPooler(**params)
+
+    expectedMask = [1, 1, 1, 0, 0, 0, 0, 0, 1, 1]
+    mask = sp._mapPotential(0, wrapAround=True)
+    self.assertListEqual(mask.tolist(), expectedMask)
+
+    expectedMask = [1, 1, 0, 0, 0, 0, 0, 1, 1, 1]
+    mask = sp._mapPotential(3, wrapAround=True);
+    self.assertListEqual(mask.tolist(), expectedMask)
+
+    # Test with potentialPct < 1
+    params["potentialPct"] = 0.5
+    sp = SpatialPooler(**params)
+
+    supersetMask = numpy.array([1, 1, 1, 0, 0, 0, 0, 0, 1, 1])
+    mask = sp._mapPotential(0, wrapAround=True)
+    self.assertEqual(numpy.sum(mask), 3)
+    unionMask = supersetMask | mask.astype(int)
+    self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
+
+
+  def testMapPotential1Column1Input(self):
+    params = self._params.copy()
+    params.update({
+      "inputDimensions": [1],
+      "columnDimensions": [1],
+      "potentialRadius": 2
+    })
+
+    # Test without wrapAround and potentialPct = 1
+    params["potentialPct"] = 1
+    sp = SpatialPooler(**params)
+
+    expectedMask = [1]
+    mask = sp._mapPotential(0, wrapAround=False)
+    self.assertListEqual(mask.tolist(), expectedMask)
 
 
   def testInhibitColumns(self):
