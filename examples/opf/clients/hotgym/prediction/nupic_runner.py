@@ -20,8 +20,8 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
-import sys
+import importlib
+import os
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
@@ -30,18 +30,56 @@ from io_helper import run_io_through_nupic
 import generate_data
 
 
+DATA_DIR = "./local_data"
+MODEL_PARAMS_DIR = "./model_params"
 
-def run_experiment(plot=False):
+
+
+def _create_model(model_params):
+  model = ModelFactory.create(model_params)
+  model.enableInference({"predictedField": "kw_energy_consumption"})
+  return model
+
+
+
+def _get_model_params_from_name(gym_name):
+  imported_model_params = importlib.import_module(
+    "model_params.%s_model_params" % (
+      gym_name.replace(" ", "_").replace("-", "_")
+    )
+  ).MODEL_PARAMS
+  return imported_model_params
+
+
+
+def run_model(gym_name, plot=False):
+  print "Creating model from %s..." % gym_name
+  model = _create_model(_get_model_params_from_name(gym_name))
+  input_data = ["%s/%s.csv" % (DATA_DIR, gym_name.replace(" ", "_"))]
+  run_io_through_nupic(input_data, [model], [gym_name], plot)
+
+
+
+def run_all_models(plot=False):
+  models = []
+  names = []
+  input_files = []
+  for input_file in sorted(os.listdir(DATA_DIR)):
+    name = os.path.splitext(input_file)[0]
+    names.append(name)
+    input_files.append(os.path.abspath(os.path.join(DATA_DIR, input_file)))
+    models.append(_create_model(_get_model_params_from_name(name)))
+  run_io_through_nupic(input_files, models, names, plot)
+
+
+
+def run_it_all(plot=False):
   input_files = generate_data.run()
   print "Generated input data files:"
   print input_files
   names = input_files.keys()
   input_files = input_files.values()
   all_model_params = []
-
-  # Debugging, limit to only one gym.
-  # input_files = [input_files[0]]
-  # names = [names[0]]
 
   for index, input_file_path in enumerate(input_files):
     model_params = swarm_for_input(input_file_path, names[index])
@@ -53,16 +91,11 @@ def run_experiment(plot=False):
   print "================================================="
   print
 
-  # Debugging
-  # exit()
-
   models = []
 
   for index, model_params in enumerate(all_model_params):
     print "Creating %s model..." % names[index]
-    model = ModelFactory.create(model_params)
-    model.enableInference({"predictedField": "kw_energy_consumption"})
-    models.append(model)
+    models.append(_create_model(model_params[1]))
 
   print
   print "================================================="
@@ -71,9 +104,3 @@ def run_experiment(plot=False):
   print
 
   run_io_through_nupic(input_files, models, names, plot)
-
-
-
-if __name__ == "__main__":
-  plot = len(sys.argv) > 1 and sys.argv[1] == 'plot'
-  run_experiment(plot=plot)
