@@ -135,7 +135,7 @@
             "optimize": {
               "required": true, 
               "type": "boolean", 
-              "description": "True=enable Non-temporal Prediction and optimize  Hypersearch based on Non-temporal prediction results; False=disable"
+              "description": "True=enable Non-temporal Prediction and optimize  Swarm based on Non-temporal prediction results; False=disable"
             }
           }
         }, 
@@ -151,7 +151,7 @@
             "optimize": {
               "required": true, 
               "type": "boolean", 
-              "description": "True=enable Temporal Prediction and optimize Hypersearch based on Temporal prediction results; False=disable"
+              "description": "True=enable Temporal Prediction and optimize Swarm based on Temporal prediction results; False=disable"
             }
           }
         }

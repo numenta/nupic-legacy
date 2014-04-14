@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""External API for hypersearch-related functions."""
+"""External API for swarm-related functions."""
 
 
 import json
@@ -57,10 +57,10 @@ def createAndStartSwarm(client, clientInfo="", clientKey="", params="",
   """
   if minimumWorkers is None:
     minimumWorkers = Configuration.getInt(
-        "nupic.hypersearch.minWorkersPerSwarm")
+        "nupic.swarm.minWorkersPerSwarm")
   if maximumWorkers is None:
     maximumWorkers = Configuration.getInt(
-        "nupic.hypersearch.maxWorkersPerSwarm")
+        "nupic.swarm.maxWorkersPerSwarm")
 
   return ClientJobsDAO.get().jobInsert(
       client=client,

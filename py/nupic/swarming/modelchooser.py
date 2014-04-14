@@ -31,10 +31,10 @@ from nupic.database import ClientJobsDAO
 
 class ModelChooser(object):
   """Utility Class to help with the selection of the 'best' model
-  during hypersearch for a particular job.
+  during swarm for a particular job.
 
   The main interface method is updateResultsForJob(), which is to
-  be called periodically from the hypersearch worker.
+  be called periodically from the swarm worker.
 
   When called, the model chooser first tries to update the
   _eng_last_selection_sweep_time field in the jobs table. If it

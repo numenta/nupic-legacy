@@ -142,11 +142,11 @@ class PermuteFloat(PermuteVariable):
 
 
     # The inertia, cognitive, and social components of the particle
-    self._inertia = (float(Configuration.get("nupic.hypersearch.inertia"))
+    self._inertia = (float(Configuration.get("nupic.swarm.inertia"))
                      if inertia is None else inertia)
-    self._cogRate = (float(Configuration.get("nupic.hypersearch.cogRate"))
+    self._cogRate = (float(Configuration.get("nupic.swarm.cogRate"))
                      if cogRate is None else cogRate)
-    self._socRate = (float(Configuration.get("nupic.hypersearch.socRate"))
+    self._socRate = (float(Configuration.get("nupic.swarm.socRate"))
                      if socRate is None else socRate)
 
     # The particle's local best position and the best global position.
@@ -216,8 +216,8 @@ class PermuteFloat(PermuteVariable):
     #                    + (socRate * r2 * (globalBest-pos))
     #
     # where r1 and r2 are random numbers between 0 and 1.0
-    lb=float(Configuration.get("nupic.hypersearch.randomLowerBound"))
-    ub=float(Configuration.get("nupic.hypersearch.randomUpperBound"))
+    lb=float(Configuration.get("nupic.swarm.randomLowerBound"))
+    ub=float(Configuration.get("nupic.swarm.randomUpperBound"))
 
     self._velocity = (self._velocity * self._inertia + rng.uniform(lb, ub) *
                       self._cogRate * (self._bestPosition - self.getPosition()))
