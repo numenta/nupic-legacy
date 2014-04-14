@@ -96,7 +96,7 @@ MODEL_PARAMS = {
 
             # Spatial Pooler implementation selector, see getSPClass 
             # in py/regions/SPRegion.py for details
-            # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
+            # 'py', 'cpp' (speed optimized, new)
             'spatialImp' : 'cpp', 
 
             'globalInhibition': 1,

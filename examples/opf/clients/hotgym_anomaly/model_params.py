@@ -59,20 +59,26 @@ MODEL_PARAMS = {
             #     ],
             #
             # (value generated from DS_ENCODER_SCHEMA)
-            'encoders': {   u'timestamp_timeOfDay':    {   'fieldname': u'timestamp',
-                                'name': u'timestamp_timeOfDay',
-                                'timeOfDay': (21, 0.5),
-                                'type': 'DateEncoder'},
+            'encoders': {
+                u'timestamp_timeOfDay': {
+                        'fieldname': u'timestamp',
+                        'name': u'timestamp_timeOfDay',
+                        'timeOfDay': (21, 9.5),
+                        'type': 'DateEncoder'
+                },
                 u'timestamp_dayOfWeek': None,
                 u'timestamp_weekend': None,
-                u'consumption':    {  'clipInput': True,
+                u'consumption':    {
+                    'clipInput': True,
                     'fieldname': u'consumption',
                     'maxval': 100.0,
                     'minval': 0.0,
                     'n': 50,
-                    'name': u'c1',
+                    'name': u'consumption',
                     'type': 'ScalarEncoder',
-                    'w': 21},},
+                    'w': 21
+                },
+            },
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -83,8 +89,6 @@ MODEL_PARAMS = {
             #  days, hours, minutes, seconds, milliseconds, microseconds, weeks
             #
             # Example for 1.5 days: sensorAutoReset = dict(days=1,hours=12),
-            #
-            # (value generated from SENSOR_AUTO_RESET)
             'sensorAutoReset' : None,
         },
 
@@ -95,11 +99,14 @@ MODEL_PARAMS = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
+            # Spatial Pooler implementation selector, see getSPClass 
+            # in py/regions/SPRegion.py for details
+            # 'py', 'cpp' (speed optimized, new)
+            'spatialImp' : 'cpp', 
+
             'globalInhibition': 1,
 
-            # Number of cell columns in the cortical region (same number for
-            # SP and TP)
-            # (see also tpNCellsPerCol)
+            # Number of columns in the SP (must be same as in TP)
             'columnCount': 2048,
 
             'inputWidth': 0,
@@ -115,7 +122,7 @@ MODEL_PARAMS = {
             # What percent of the columns's receptive field is available
             # for potential synapses. At initialization time, we will
             # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 0.5,
+            'coincInputPoolPct': 0.8,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
@@ -128,11 +135,11 @@ MODEL_PARAMS = {
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.0001,
 
-            'synPermInactiveDec': 0.005,
+            'synPermInactiveDec': 0.0005,
 
-            'randomSP': 1,
+            'maxBoost': 1.0,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -222,7 +229,7 @@ MODEL_PARAMS = {
             # elements to append to the end of a learned sequence at a time.
             # Smaller values are better for datasets with short sequences,
             # higher values are better for datasets with long sequences.
-            'pamLength': 1,
+            'pamLength': 3,
         },
 
         'clParams': {
