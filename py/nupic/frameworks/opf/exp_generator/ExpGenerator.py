@@ -177,7 +177,7 @@ def _handleDescriptionOption(cmdArgStr, outDir, usageStr, hsVersion,
   cmdArgStr:  JSON string compatible with _gExperimentDescriptionSchema
   outDir:     where to place generated experiment files
   usageStr:   program usage string
-  hsVersion:  which version of hypersearch permutations file to generate, can
+  hsVersion:  which version of swarm permutations file to generate, can
                 be 'v1' or 'v2'
   claDescriptionTemplateFile: Filename containing the template description
   retval:     nothing
@@ -215,7 +215,7 @@ def _handleDescriptionFromFileOption(filename, outDir, usageStr, hsVersion,
   filename:   File from which we'll extract description JSON
   outDir:     where to place generated experiment files
   usageStr:   program usage string
-  hsVersion:  which version of hypersearch permutations file to generate, can
+  hsVersion:  which version of swarm permutations file to generate, can
                 be 'v1' or 'v2'
   claDescriptionTemplateFile: Filename containing the template description
   retval:     nothing
@@ -1063,7 +1063,7 @@ def _generateExperiment(options, outputDirPath, hsVersion,
 
   outputDirPath:  where to place generated files
 
-  hsVersion:  which version of hypersearch permutations file to generate, can
+  hsVersion:  which version of swarm permutations file to generate, can
                 be 'v1' or 'v2'
   claDescriptionTemplateFile: Filename containing the template description
 
@@ -1987,7 +1987,7 @@ def expGenerator(args):
                     help="Prints the JSON schemas for the --description arg.")
 
   parser.add_option("--version", dest = 'version', default='v2',
-    help = "Generate the permutations file for this version of hypersearch."
+    help = "Generate the permutations file for this version of swarm."
             " Possible choices are 'v1' and 'v2' [default: %default].")
 
   parser.add_option("--outDir",

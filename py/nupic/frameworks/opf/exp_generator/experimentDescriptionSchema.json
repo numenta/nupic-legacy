@@ -162,7 +162,7 @@
       "minimum": 0, 
       "required": false, 
       "type": "integer", 
-      "description": "Bound permutations by the given number of fields, including meta-fields (e.g., 'timeOfDay', 'dayOfWeek'), in any given experiment during hypersearch; the value must be 0 or positive. If the value is 0 or this argument is omitted, ExpGenerator will use the total count of fields and meta-fields in the dataset as the maximum."
+      "description": "Bound permutations by the given number of fields, including meta-fields (e.g., 'timeOfDay', 'dayOfWeek'), in any given experiment during swarm; the value must be 0 or positive. If the value is 0 or this argument is omitted, ExpGenerator will use the total count of fields and meta-fields in the dataset as the maximum."
     }, 
     "environment": {
       "default": "grok", 
@@ -371,7 +371,7 @@
       "description": ""
     }, 
     "includedFields": {
-      "description": "Which fields to include in the hypersearch and their types. The encoders used for each field will be based on the type designated here.", 
+      "description": "Which fields to include in the swarm and their types. The encoders used for each field will be based on the type designated here.", 
       "minItems": 1, 
       "items": {
         "additionalProperties": false, 

@@ -62,8 +62,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
                    "twovars2", "threevars",
                    "fourvars", "categories",
                    "sawtooth", "hotgymsc"]
-  BRANCHING_PROP = "NTA_CONF_PROP_nupic_hypersearch_max_field_branching"
-  PARTICLE_PROP = "NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"
+  BRANCHING_PROP = "NTA_CONF_PROP_nupic_swarm_max_field_branching"
+  PARTICLE_PROP = "NTA_CONF_PROP_nupic_swarm_minParticlesPerSwarm"
 
 
   # Common experiment parameters for all benchmarks
@@ -157,7 +157,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
 
   def runJobs(self, maxJobs):
-    """ Function that launched Hypersearch benchmark jobs.
+    """ Function that launched Swarm benchmark jobs.
     Runs jobs contained in self.testQ, until maxJobs are running
     in parallel at which point it waits until some jobs finish.
 
@@ -387,7 +387,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
 
   def setEnsemble(self, ensemble):
     if(ensemble):
-      os.environ['NTA_CONF_PROP_nupic_hypersearch_ensemble'] = "True"
+      os.environ['NTA_CONF_PROP_nupic_swarm_ensemble'] = "True"
 
 
   @classmethod
@@ -399,19 +399,19 @@ class OPFBenchmarkRunner(unittest.TestCase):
       cls.__metaOptimize = True
       paramsDict=json.loads(paramString)
       if(paramsDict.has_key("inertia")):
-        os.environ['NTA_CONF_PROP_nupic_hypersearch_inertia'] = \
+        os.environ['NTA_CONF_PROP_nupic_swarm_inertia'] = \
                   str(paramsDict['inertia'])
 
       if(paramsDict.has_key('socRate')):
-        os.environ['NTA_CONF_PROP_nupic_hypersearch_socRate'] = \
+        os.environ['NTA_CONF_PROP_nupic_swarm_socRate'] = \
                   str(paramsDict['socRate'])
 
       if(paramsDict.has_key('cogRate')):
-        os.environ['NTA_CONF_PROP_nupic_hypersearch_cogRate'] = \
+        os.environ['NTA_CONF_PROP_nupic_swarm_cogRate'] = \
                   str(paramsDict['cogRate'])
 
       if(paramsDict.has_key('minParticlesPerSwarm')):
-        os.environ['NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm'] = \
+        os.environ['NTA_CONF_PROP_nupic_swarm_minParticlesPerSwarm'] = \
                    str(paramsDict['minParticlesPerSwarm'])
 
 
@@ -495,10 +495,10 @@ class OPFBenchmarkRunner(unittest.TestCase):
         lineResults=str(key)+", "+str(self.benchmarkDB[key][0])+", "+ \
           str(restup['metric'])+", "+str(restup['totalModelWallTime'])+", "+ \
           str(restup["totalNumRecordsProcessed"])+", "+str(restup['status'])
-        lineMeta=Configuration.get("nupic.hypersearch.minParticlesPerSwarm")+\
-          ", "+Configuration.get("nupic.hypersearch.inertia")+", "+\
-          Configuration.get("nupic.hypersearch.cogRate")+", "+\
-          Configuration.get("nupic.hypersearch.socRate")+", "+\
+        lineMeta=Configuration.get("nupic.swarm.minParticlesPerSwarm")+\
+          ", "+Configuration.get("nupic.swarm.inertia")+", "+\
+          Configuration.get("nupic.swarm.cogRate")+", "+\
+          Configuration.get("nupic.swarm.socRate")+", "+\
           str(productionError)+", "+str(self.__trainFraction)+"\n"
         print lineMeta
         with open("allResults.csv", "a") as results:
@@ -1259,7 +1259,7 @@ class OPFBenchmarkRunner(unittest.TestCase):
     self.resultDB[expname + ',' + searchMethod] = resultdict
     self.__resultList.append(resultdict)
     if (resultdict['metric'] / benchmark[0]) > (1+benchmark[1]):
-      print "HyperSearch %s on %s benchmark did not match " \
+      print "Swarm %s on %s benchmark did not match " \
         "the expected value. (Expected: %f    Observed:  %f)" % \
         (searchMethod, expname, benchmark[0], resultdict['metric'])
       self.__failures+=1

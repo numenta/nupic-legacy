@@ -73,7 +73,7 @@ def runPermutations(args):
   ----------------------------------------------------------------------
   args:           Command-line args; the equivalent of sys.argv[1:]
   retval:         for the actions 'run', 'pickup', and 'dryRun', returns the
-                  Hypersearch job ID (in ClinetJobs table); otherwise returns
+                  Swarm job ID (in ClinetJobs table); otherwise returns
                   None
   """
 
@@ -99,9 +99,9 @@ def runPermutations(args):
     choices=["run", "pickup", "report", "dryRun"],
     help="Which action to perform. Possible actions are run, pickup, choices, "
          "report, list. "
-         "run: run a new HyperSearch via Grok. "
-         "pickup: pick up the latest run of a HyperSearch job. "
-         "dryRun: run a single HypersearchWorker inline within the application "
+         "run: run a new Swarm via Grok. "
+         "pickup: pick up the latest run of a Swarm job. "
+         "dryRun: run a single SwarmWorker inline within the application "
          "process without the Grok infrastructure to flush out bugs in "
          "description and permutations scripts; defaults to "
          "maxPermutations=1: use --maxPermutations to change this; "
@@ -122,7 +122,7 @@ def runPermutations(args):
 
   parser.add_option(
     "--useTerminators", dest="useTerminators", action="store_true",
-    default=DEFAULT_OPTIONS["useTerminators"], help="Use early model terminators in HyperSearch"
+    default=DEFAULT_OPTIONS["useTerminators"], help="Use early model terminators in Swarm"
          "[default: %default].")
 
   parser.add_option(

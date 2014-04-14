@@ -38,7 +38,7 @@ from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import aggregationDivide
 from nupic.support.unittesthelpers.testcasebase import (
   TestCaseBase as HelperTestCaseBase)
-from nupic.swarming import HypersearchWorker
+from nupic.swarming import SwarmWorker
 from nupic.swarming.permutationhelpers import PermuteChoices
 from nupic.swarming.utils import generatePersistentJobGUID
 from nupic.frameworks.opf.expdescriptionapi import OpfEnvironment
@@ -171,7 +171,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     Parameters:
     -------------------------------------------------------------------
     expDesc:       JSON format experiment description
-    hsVersion:     which version of hypersearch to use ('v2'; 'v1' was dropped)
+    hsVersion:     which version of swarm to use ('v2'; 'v1' was dropped)
     retval:        (baseModule, permutationsModule)
     """
 
@@ -209,13 +209,13 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
     3.) Runs the base description.py as an experiment using OPF RunExperiment.
 
-    4.) Runs a Hypersearch using the generated permutations.py by passing it
-    to HypersearchWorker.
+    4.) Runs a Swarm using the generated permutations.py by passing it
+    to SwarmWorker.
 
     Parameters:
     -------------------------------------------------------------------
     expDesc:       JSON format experiment description
-    hsVersion:     which version of hypersearch to use ('v2'; 'v1' was dropped)
+    hsVersion:     which version of swarm to use ('v2'; 'v1' was dropped)
     retval:        list of model results
     """
 
@@ -254,7 +254,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     LOGGER.info("RUNNING PERMUTATIONS")
     LOGGER.info("============================================================")
 
-    jobID = HypersearchWorker.main(args)
+    jobID = SwarmWorker.main(args)
 
     # Make sure all models completed successfully
     cjDAO = ClientJobsDAO.get()
@@ -928,7 +928,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def test_RunningExperimentHSv2(self):
-    """ Try running a basic Hypersearch V2 experiment and permutations
+    """ Try running a basic Swarm V2 experiment and permutations
     """
 
 
@@ -1947,7 +1947,7 @@ if __name__ == '__main__':
 
   helpString = \
   """%prog [options] [suitename.testname | suitename]...
-  Run the Hypersearch unit tests. Available suitename.testnames: """
+  Run the Swarm unit tests. Available suitename.testnames: """
 
   # Update help string
   allTests = _getTestList()

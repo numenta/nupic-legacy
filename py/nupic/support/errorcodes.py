@@ -24,7 +24,7 @@
 class ErrorCodes(object):
   streamReading         = "E10001"
   tooManyModelErrs      = "E10002"
-  hypersearchLogicErr   = "E10003"
+  swarmLogicErr   = "E10003"
   productionModelErr    = "E10004"      # General PM error
   modelCommandFormatErr = "E10005"      # Invalid model command request object
   tooManyFailedWorkers  = "E10006"
