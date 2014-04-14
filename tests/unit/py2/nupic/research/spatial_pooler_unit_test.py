@@ -229,7 +229,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueStripped, list(stripped))
 
 
-  def testMapPotential1DColumns1DInputs(self):
+  def testMapPotential1D(self):
     params = self._params.copy()
     params.update({
       "inputDimensions": [10],
