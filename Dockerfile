@@ -3,20 +3,20 @@ FROM ubuntu
 MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
-RUN \
-    echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list;\
-    apt-get update;\
-    apt-get install -y wget;\
-    apt-get install -y git-core;\
-    apt-get install -y build-essential;\
-    apt-get install -y python2.7;\
-    apt-get install -y python-dev;\
-    apt-get install -y libtool;\
-    apt-get install -y automake;\
-    apt-get install -y cmake;\
-    wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python;\
-    wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python;\
-#RUN
+RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list;
+RUN echo "deb http://us.archive.ubuntu.com/ubuntu/ precise-updates main restricted" | tee -a /etc/apt/sources.list.d/precise-updates.list
+RUN apt-get update;
+RUN apt-get install -y wget;
+RUN apt-get install -y git-core;
+RUN apt-get install -y build-essential;
+RUN apt-get install -y python2.7;
+RUN apt-get install -y python2.7-dev
+RUN apt-get install -y python-dev;
+RUN apt-get install -y libtool;
+RUN apt-get install -y automake;
+RUN apt-get install -y cmake;
+RUN wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | python;
+RUN wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python;
 
 # Set enviroment variables needed by NuPIC builder
 ENV NTA /usr/bin/nta/eng
