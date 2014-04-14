@@ -58,7 +58,7 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
     export NUPIC=<path to NuPIC repository>
     export NTA=$NUPIC/build/release
-    export NTA_ROOT_DIR=$NTA
+    export NTA_ROOTDIR=$NTA
     export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
 
 ### Using command line
