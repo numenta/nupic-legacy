@@ -33,12 +33,35 @@ from nupic.research import TP10X2
 from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
-from SPRegion import getDefaultSPImp, getSPClass
 
 from nupic.bindings.algorithms import FDRCSpatial as CPPSP
 from nupic.bindings.math import GetNTAReal
 
+
+##############################################################################
+
 gDefaultTemporalImp = 'py'
+
+def getDefaultSPImp():
+  """
+  Return the default spatial pooler implementation for this region.
+  """
+  return 'oldpy'
+
+def getSPClass(spatialImp):
+  """ Return the class corresponding to the given spatialImp string
+  """
+
+  if spatialImp == 'py':
+    return PYSpatialPooler
+  elif spatialImp == 'cpp':
+    return CPPSpatialPooler
+  elif spatialImp == 'oldpy':
+    return FDRCSpatial2
+  else:
+    raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
+          "'cpp', 'oldpy'" % (spatialImp))
+
 
 
 ##############################################################################

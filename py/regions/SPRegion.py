@@ -36,7 +36,7 @@ from PyRegion import PyRegion
 ##############################################################################
 def getDefaultSPImp():
   """
-  Return the default spatial pooler implementation.
+  Return the default spatial pooler implementation for this region.
   """
   return 'cpp'
 
@@ -155,7 +155,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
   # the new SpatialPooler classes have slightly different constructor argument
   # names, so include them all as possible arguments.
   spatialSpec = {}
-  FDRSpatialClass = getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass('oldpy')
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
   argTuplesNew = _buildArgs(CPPSpatialPooler.__init__)
   sArgTuples.extend(argTuplesNew)
