@@ -266,7 +266,8 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
       message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${submodule_dir}")
     endif()
   else()
-    execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE})
+    execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE}
+                    WORKING_DIRECTORY ${submodule_dir})
     if(NOT EXIT_CODE EQUAL 0)
       message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
     endif()
