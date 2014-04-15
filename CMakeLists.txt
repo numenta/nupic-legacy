@@ -22,6 +22,15 @@
 #   David Ragazzi (@DavidRagazzi): Full conversion and adaptation from Autotools scripts
 # --------------------------------------------------------------------------------------------------------------------------
 
+# nupic.core external git dependencies
+SET(NUPIC_CORE_REMOTE "https://github.com/numenta/nupic.core.git"
+    CACHE
+    STRING
+    "nupic.core remote repository")
+set(NUPIC_CORE_COMMITISH "90df8f1ef9eabda03695a9aa60c8029fe3540b9e"
+    CACHE
+    STRING
+    "nupic.core commit")
 
 ############################################################################################################################
 ###                                                                                                                      ###
@@ -68,7 +77,7 @@ endmacro()
 
 # These macros copy all source directories after the configuration is done
 # Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
-macro (copy suffix src dst)  
+macro (copy suffix src dst)
   if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
     message(STATUS "Linking from '${src}' to '${dst}'")
     get_filename_component(dst_dir ${dst} PATH)
@@ -250,6 +259,24 @@ endmacro()
 # This macro generates imported library from submodules
 macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags)
 
+  # checkout nupic.core
+  if (NOT EXISTS ${submodule_dir})
+    execute_process(COMMAND git clone ${NUPIC_CORE_REMOTE} ${submodule_dir})
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${submodule_dir}")
+    endif()
+  else()
+    execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE})
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
+    endif()
+  endif()
+  execute_process(COMMAND git checkout ${NUPIC_CORE_COMMITISH}
+                  WORKING_DIRECTORY ${submodule_dir})
+  if(NOT EXIT_CODE EQUAL 0)
+    message(FATAL_ERROR "Unable to checkout ${NUPIC_CORE_COMMITISH} in ${submodule_dir}")
+  endif()
+
   # Build and set external libraries
   message(STATUS "Building '${name}' library...")
 
@@ -306,7 +333,7 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 
 #
 # Sets default locations.
-# 
+#
 # Default directories structure is:
 #
 # ~/../repository (root directory with repository downloaded from internet)
@@ -343,16 +370,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEA
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
-
-#
-# Update repository submodules
-#
-execute_process(COMMAND git submodule update --init
-                WORKING_DIRECTORY ${REPOSITORY_DIR}
-                RESULT_VARIABLE EXIT_CODE)
-if(NOT EXIT_CODE EQUAL 0)
-  message(FATAL_ERROR "Updating submodules within ${REPOSITORY_DIR} failed.")
-endif()
 
 #
 # Set OS flags
@@ -404,7 +421,7 @@ elseif(LINUX)
   if(${NTA_PLATFORM_ARCH} MATCHES "64")
     set(NTA_PLATFORM_OS "linux64")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
-  else()    
+  else()
     set(NTA_PLATFORM_OS "linux32")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -ffloat-store")
   endif()
@@ -705,7 +722,7 @@ set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXXFLAGS_OPTIMIZATION}")
 # LibSupport
 #
 # lang/py/support must be built before nta, but lang must be built after nta.
-# This is due to the fact that both nta/pynode and lang/py/net_internal depend 
+# This is due to the fact that both nta/pynode and lang/py/net_internal depend
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
 set(LIB_STATIC_SUPPORT support)
@@ -765,7 +782,7 @@ if(NTA_PYTHON_SUPPORT)
   # there is nothing Python-obvious about this name, so it may
   # conflict with libraries we generate for other target languages
   # in the future.
-  # (The list of sources also includes the swig interface files, even 
+  # (The list of sources also includes the swig interface files, even
   # though they're not used to compile, just to get the dependencies right.)
   # They will linked in the "real" C++ library that the bindings are wrapping.
 
@@ -872,28 +889,28 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 #
 # Tests
 #
-add_custom_target(tests_run 
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
+add_custom_target(tests_run
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
                   COMMENT "Python tests")
 
-add_custom_target(tests_run_all 
+add_custom_target(tests_run_all
                   COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
-add_custom_target(tests_pyhtm 
+add_custom_target(tests_pyhtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testpyhtm
                   COMMENT "Basic tests in Python")
 
-add_custom_target(tests_cpphtm 
+add_custom_target(tests_cpphtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testcpphtm
                   COMMENT "Basic tests in C++")
 
-add_custom_target(tests_everything 
+add_custom_target(tests_everything
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
-add_custom_target(tests_all 
+add_custom_target(tests_all
                   DEPENDS tests_run
                   DEPENDS tests_pyhtm
                   DEPENDS tests_cpphtm
@@ -903,7 +920,7 @@ add_custom_target(tests_all
 #
 # Clean
 #
-add_custom_target(distclean 
+add_custom_target(distclean
 		# Clean '/build/release' and build/temp
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR}
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}
