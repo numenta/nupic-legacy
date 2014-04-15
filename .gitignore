@@ -74,3 +74,5 @@ configure.ac
 # /py/nupic/frameworks/prediction/
 /py/nupic/frameworks/prediction/.project
 /py/nupic/frameworks/prediction/.pydevproject
+
+nta
