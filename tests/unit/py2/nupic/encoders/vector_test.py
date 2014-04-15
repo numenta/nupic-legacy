@@ -52,7 +52,7 @@ class VectorEncoderTest(unittest.TestCase):
     print "encoded=", enc
     correct = [1,0,0,0,1,0,0,0,1]
     self._tmp = enc
-    self.assertEqual(enc,correct, "Did not encode correctly")
+    self.assertTrue((enc==correct).all(), "Did not encode correctly")
 
   def testDecoding(self):
     s = ScalarEncoder(1,1,3,n=3, name='idx')
@@ -74,7 +74,7 @@ class VectorEncoderTest(unittest.TestCase):
   def testSimpleVectorEncoderInstance(self):
     # demo version:
     simpleVect = SimpleVectorEncoder()
-    data=[1,2,3]
+    data=[1,2,3,4,5]
     enc=simpleVect.encode(data)
     dec=simpleVect.decode(enc)
     data2=simpleVect.getData(dec)
