@@ -69,7 +69,7 @@ class UtilityEncoderTest(unittest.TestCase):
     sc = self.fn(self.data) # expected
     score = self.utilityEnc.getScoreOUT(enc) #real
 #    print "score", score
-    self.assertEqual(sc, score[0],"decoding: score not equal")
+    self.assertEqual(sc, score,"decoding: score not equal")
 
     dec = self.utilityEnc.decode(enc)
 #    print "decoded=", dec
@@ -78,7 +78,7 @@ class UtilityEncoderTest(unittest.TestCase):
 #    print "res=", res
     self.assertEqual(res, self.data, "decoded data not equal to original") 
     sc2 = self.utilityEnc.getScoreOUT(enc)
-    self.assertAlmostEqual(sc, sc2[0], 0.01, "decoded score is not equal to original") # almostEqual because 9 (int) != 9.0 (float)
+    self.assertAlmostEqual(sc, sc2, 0.01, "decoded score is not equal to original") # almostEqual because 9 (int) != 9.0 (float)
 
   def testDemo1(self):
     """
@@ -115,7 +115,7 @@ class UtilityEncoderTest(unittest.TestCase):
     enc = ut.encode(data)
     dec = ut.decode(enc)
     self.assertEqual(data, ut.getData(dec))
-    self.assertEqual(score, ut.getScoreOUT(enc)[0])
+    self.assertEqual(score, ut.getScoreOUT(enc))
 
 ##########################################################
 if __name__ == '__main__':

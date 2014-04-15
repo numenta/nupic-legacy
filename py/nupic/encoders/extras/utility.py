@@ -126,7 +126,7 @@ class UtilityEncoder(MultiEncoder):
     #print "dec=",dec
     for re in dec: # case where SDR returned more scores (mixure of SDRs probably)
       scores.append(re.value)
-    return scores
+    return scores[0] # return only 1st score now
 
   def getData(self, decoded, castFn=float):
     """
@@ -171,6 +171,18 @@ class SimpleUtilityEncoder(UtilityEncoder):
   """
 
   def __init__(self, length=5, feedbackDelay=0, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
+    """
+    initialize UtilityEncoder with default settings. 
+    @param length  size of the input vector 
+    @param feedbackDelay integer >=0; used if you want to apply a score from the current state (T) to state in time T-1; default(0) means state(T) pairs with score(T)
+    @param minval  minimal value of input data (from ScalarEncoder)
+    @param maxval  max value input data can reach; eg for set of vectors {[0,0,1], [0,-1,0],[1,2,0]} it's -1 and 2
+    @param resolution  resolution of the underliing scalar encoder
+    @param scoreMin
+    @param scoreMax  same as minval, maxval but for the score
+    @param scoreResolution
+    @forced
+    """
     dataS = ScalarEncoder(21, minval, maxval, resolution=resolution, name='idx')
     dataV = VectorEncoder(length, dataS, name='data')
     scoreS = ScalarEncoder(21, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
