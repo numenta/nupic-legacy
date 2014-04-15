@@ -61,21 +61,24 @@ class UtilityEncoderTest(unittest.TestCase):
     self.assertEqual(sc,score,"encoding: score is not the same")
 
     enc = self.utilityEnc.encode(self.data)
-    print "encoded=", enc
+#    print "encoded=", enc
 
   def testDecoding(self):
     """decoding.."""
     enc = self.utilityEnc.encode(self.data)
     sc = self.fn(self.data) # expected
     score = self.utilityEnc.getScoreOUT(enc) #real
-    print "score", score
+#    print "score", score
     self.assertEqual(sc, score[0],"decoding: score not equal")
 
     dec = self.utilityEnc.decode(enc)
-    print "decoded=", dec
+#    print "decoded=", dec
 
-    res = self.utilityEnc.getData(dec)
-    self.assertEqual(res,self.data)
+    res = self.utilityEnc.getData(dec, int)
+#    print "res=", res
+    self.assertEqual(res, self.data, "decoded data not equal to original") 
+    sc2 = self.utilityEnc.getScoreOUT(enc)
+    self.assertAlmostEqual(sc, sc2[0], 0.01, "decoded score is not equal to original") # almostEqual because 9 (int) != 9.0 (float)
 
   def testDemo1(self):
     """
@@ -107,8 +110,12 @@ class UtilityEncoderTest(unittest.TestCase):
       return sum(listA)/float(len(listA))
     ut.setEvaluationFn(scoring)
     data = [1,2,3,4,5]
-    self.assertEqual(ut.getScoreIN(data),3.0)
-    ut.encode(data)
+    score=scoring(data) # 3.0
+    self.assertEqual(ut.getScoreIN(data),score)
+    enc = ut.encode(data)
+    dec = ut.decode(enc)
+    self.assertEqual(data, ut.getData(dec))
+    self.assertEqual(score, ut.getScoreOUT(enc)[0])
 
 ##########################################################
 if __name__ == '__main__':
