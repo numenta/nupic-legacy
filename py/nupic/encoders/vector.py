@@ -66,7 +66,8 @@ class VectorEncoder(Encoder):
       raise Exception("passing None value to decode()!")
     for i in xrange(self._len):
       tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0][1] # dict.values().first_element.scalar_value
-      tmp = map(self._typeCastFn, tmp)
+      if self._typeCastFn is not None:
+	tmp = self._typeCastFn(tmp)
       ret.append(tmp)
     
     # Return result as EncoderResult
