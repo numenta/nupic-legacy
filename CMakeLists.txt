@@ -853,6 +853,7 @@ copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bi
 
 # Copy miscellaneous files
 copy_directory(${PROJECT_SOURCE_DIR}/nta/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
+copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
 
