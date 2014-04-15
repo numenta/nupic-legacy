@@ -78,7 +78,8 @@ class UtilityEncoderTest(unittest.TestCase):
     self.assertEqual(res,self.data)
 
   def testDemo1(self):
-    """Alife: agent perceives its inner and outer environment and reacts;
+    """
+    Alife: agent perceives its inner and outer environment and reacts;
        states:
          hunger(0=full, 10=starving);
          hostile env (0=lovely place, 3=hell);
@@ -93,7 +94,8 @@ class UtilityEncoderTest(unittest.TestCase):
          "Stay alive and explore to find the target." 
 
        We can achieve the goal by encoding "rules"/physics laws/ground truths on the
-       feval function's score cleverly."""
+       feval function's score cleverly.
+    """
     pass
 
   def testSimpleUtilityEncoder(self):
