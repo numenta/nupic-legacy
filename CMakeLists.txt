@@ -803,14 +803,14 @@ if(NTA_PYTHON_SUPPORT)
   generate_swig_module(${LIB_SHARED_ALGORITHMS} "AlgorithmsPy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
-  # LibBindingsIORange
+  # LibBindingsIoRange
   #
   set(LIB_SHARED_IORANGE iorange)
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_IORANGE} "IORangePy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_IORANGE} "IoRangePy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
 
