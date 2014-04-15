@@ -238,7 +238,7 @@ void forceRetentionOfGaborComputeWithinLibrary(void) {
                0.0f                 // float fPostProcScalar
   );
   // Initialization of log system from python disabled for now.
-  // See comments in gaborNode.cpp
+  // See comments in GaborNode.cpp
   // initFromPython(0);
 }
 

@@ -21,7 +21,7 @@
  */
 
 %module(package="nupic.bindings") math
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Includes necessary to compile the C wrappers
@@ -91,7 +91,7 @@ _MATH = _math
 #define SWIG_FILE_WITH_INIT
 %}
 
-%include <lang/py/bindings/numpy.i> // %import does not work.
+%include <lang/py/bindings/NumPy.i> // %import does not work.
 
 %init %{
 
@@ -99,8 +99,8 @@ _MATH = _math
   
 %}
 
-%include <py/bindings/types.i>
-%include <py/bindings/reals.i>
+%include <py/bindings/Types.i>
+%include <py/bindings/Reals.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Utility functions that are expensive in Python but fast in C.

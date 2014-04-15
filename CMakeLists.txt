@@ -223,11 +223,11 @@ macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags proj
 endmacro()
 
 # This macro generates a swig module
-macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
+macro(generate_swig_module name implementation_file output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
-  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${name}_py.i")
+  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${implementation_file}")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES SWIG_FLAGS "${swig_flags}")
   swig_add_module(${name} python
@@ -777,7 +777,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "EngineInternalPy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsMath
@@ -790,7 +790,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_MATH} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_MATH} "MathPy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsAlgorithms
@@ -800,7 +800,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ALGORITHMS} "AlgorithmsPy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsIORange
@@ -810,7 +810,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_IORANGE} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_IORANGE} "IORangePy.i" "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
 
