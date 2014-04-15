@@ -128,10 +128,13 @@ class UtilityEncoder(MultiEncoder):
       scores.append(re.value)
     return scores
 
-  def getData(self, decoded):
-    """extract the data part of the decode()'s output"""
+  def getData(self, decoded, castFn=float):
+    """
+    extract the data part of the decode()'s output
+    @param castFn  function that casts the date before outputting (eg int())
+    """
     fieldName = decoded[1][0]
-    return decoded[0][fieldName][0]
+    return map(castFn, decoded[0][fieldName][0])
 
   def setEvaluationFn(self, feval):
     """
