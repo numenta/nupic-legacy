@@ -29,19 +29,20 @@ from nupic.data.fieldmeta import FieldMetaType
 class VectorEncoder(Encoder):
   """represents an array/vector of values of the same type (scalars, or date, ..);"""
 
+
   def __init__(self, length, encoder, name='vector', typeCastFn=None):
-    """param length: size of the vector, number of elements
-       param encoder: instance of encoder used for coding of the elements
-       param typeCastFn: function to convert decoded output (as string) back to original values
-       NOTE: this constructor cannot be used in description.py, as it depands passing of an object!
+    """@param length: size of the vector, number of elements
+       @param encoder: instance of encoder used for coding of the elements
+       @param typeCastFn: function to convert decoded output (as string) back to original values (None for identity fn)
+       **NOTE:** this constructor cannot be used in description.py, as it depands passing of an object!
     """
 
     if not (isinstance(length, int) and length > 0):
       raise Exception("Length must be int > 0")
     if not isinstance(encoder, Encoder):
       raise Exception("Must provide an encoder")
-    if typeCastFn is not None and not isinstance(typeCastFn, type):
-      raise Exception("if typeCastFn is provided, it must be a function")
+    if (typeCastFn is not None) and (not isinstance(typeCastFn, type)):
+      raise Exception("if typeCastFn is provided, it must be a type() function; but it is %s", type(typeCastFn))
 
     self._len = length
     self._enc = encoder
@@ -61,10 +62,11 @@ class VectorEncoder(Encoder):
   def decode(self, encoded, parentFieldName=''):
     ret = []
     w = self._w
+    if encoded==None:
+      raise Exception("passing None value to decode()!")
     for i in xrange(self._len):
       tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0][1] # dict.values().first_element.scalar_value
-      if self._typeCastFn is not None:
-        tmp = self._typeCastFn(tmp)
+      tmp = map(self._typeCastFn, tmp)
       ret.append(tmp)
     
     # Return result as EncoderResult
@@ -80,7 +82,7 @@ class VectorEncoder(Encoder):
     """get the data part (vector) from the decode() output format; 
        use when you want to work with the data manually"""
     fieldname = decoded[1][0]
-    return decoded[0][fieldname][0]
+    return map(self._typeCastFn, decoded[0][fieldname][0])
        
   ########################################################
   # the boring stuff
@@ -89,8 +91,7 @@ class VectorEncoder(Encoder):
     return [(self._name, 0),]
 
   def getBucketValues(self):
-    #TODO
-    pass
+    raise Exception("Not implemented yet.")
 
   def getWidth(self):
     return self._len * self._enc.getWidth()
