@@ -1,5 +1,4 @@
 #!/bin/sh
-actual_dir = "$PWD"
-cd $NUPIC
-python bin/run_tests.py $@ || exit
-cd "$actual_dir"
+pushd $NUPIC > /dev/null
+python ./bin/run_tests.py $@ || exit
+popd > /dev/null
