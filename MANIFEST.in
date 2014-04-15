@@ -1,2 +1,4 @@
 include LICENSE.txt
-recursive-include docs *.html *.css *.png *.gif
+recursive-include bin
+recursive-include lib
+recursive-include docs
