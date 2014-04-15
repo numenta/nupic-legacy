@@ -7,7 +7,7 @@
 
 %exception
 {
-  // simplified from NuPIC 1.x exception_py.i and nupic_cpplibs/PythonExceptions.hpp
+  // simplified from NuPIC 1.x Exception.i and nupic_cpplibs/PythonExceptions.hpp
   try
   {
     $action

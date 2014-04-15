@@ -20,14 +20,8 @@
  * ---------------------------------------------------------------------
  */
 
-#ifdef WIN32
-#ifdef _MSC_VER
-  #pragma warning (disable: 4793)  
-  // 'vararg' : causes native code generation for function 
-  // 'void boost::detail::sp_enable_shared_from_this(const boost::detail::
-  //   shared_count &,...)'
-#endif
+%module(package="nupic.bindings") algorithms
 
-#include "win_algorithms_py.h"
-
-#endif
+%include <lang/py/bindings/Exception.i>
+%import <py/bindings/math/MathPy.i>
+%include <py/bindings/algorithms/AlgorithmsImpl.i>
