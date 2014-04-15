@@ -68,6 +68,11 @@ class VectorEncoderTest(unittest.TestCase):
   def testVectorEncoderOPFInstance(self):
     # for calling from OPF, use this:
     opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3)
+    data=[1,2,3]
+    enc=opfVect.encode(data)
+    dec=opfVect.decode(enc)
+    data2=opfVect.getData(dec)
+    self.assertEqual(data, data2, "VectorEncoderOPF did not encode/decode correctly.")
  
   def testSimpleVectorEncoderInstance(self):
     # demo version:
