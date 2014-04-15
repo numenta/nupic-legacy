@@ -52,13 +52,13 @@ class UtilityEncoderTest(unittest.TestCase):
   def testInitialization(self):
     """creating a utility encoder"""
     util = UtilityEncoder(self.dataEnc, self.scoreEnc, feval=self.fn, name='starter')
-    assert True==isinstance(util, UtilityEncoder)
+    self.assertTrue(isinstance(util, UtilityEncoder),"failed to initialize UtilityEncoder")
 
   def testEncoding(self):
     """check encoding.."""
     sc = self.fn(self.data) # expected
     score = self.utilityEnc.getScoreIN(self.data)
-    assert sc == score
+    self.assertEqual(sc,score,"encoding: score is not the same")
 
     enc = self.utilityEnc.encode(self.data)
     print "encoded=", enc
@@ -69,13 +69,13 @@ class UtilityEncoderTest(unittest.TestCase):
     sc = self.fn(self.data) # expected
     score = self.utilityEnc.getScoreOUT(enc) #real
     print "score", score
-    assert sc == score[0]
+    self.assertEqual(sc, score[0],"decoding: score not equal")
 
     dec = self.utilityEnc.decode(enc)
     print "decoded=", dec
 
     res = self.utilityEnc.getData(dec)
-    assert res==self.data
+    self.assertEqual(res,self.data)
 
   def testDemo1(self):
     """Alife: agent perceives its inner and outer environment and reacts;
@@ -99,13 +99,13 @@ class UtilityEncoderTest(unittest.TestCase):
   def testSimpleUtilityEncoder(self):
     """making it simple.."""
     ut = SimpleUtilityEncoder()
-    assert isinstance(ut, SimpleUtilityEncoder)
+    self.assertTrue(isinstance(ut, SimpleUtilityEncoder))
     def scoring(listA):
       """average value"""
       return sum(listA)/float(len(listA))
     ut.setEvaluationFn(scoring)
     data = [1,2,3,4,5]
-    assert ut.getScoreIN(data) == 3.0
+    self.assertEqual(ut.getScoreIN(data),3.0)
     ut.encode(data)
 
 ##########################################################
