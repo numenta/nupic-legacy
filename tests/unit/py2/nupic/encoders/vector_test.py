@@ -35,21 +35,13 @@ class VectorEncoderTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.name = "vec"
-    self._encoder = VectorEncoder
-    self._subEnc = ScalarEncoder(5, 0, 10, n=20)
-
+    self._tmp = None # to pass around values 
 
   def testInitialization(self):
-    e = self._encoder(3, self._subEnc, name=self.name)
+    e = VectorEncoder(3, ScalarEncoder(5, 0, 10, n=20), name="vec")
     self.assertIsInstance(e, VectorEncoder)
 
   def testEncoding(self):
-    data=[1,2,3,4,5]
-    e = self._encoder(len(data), self._subEnc, name=self.name)
-    e.encode(data)
-
-  def testDecoding(self):
     s = ScalarEncoder(1,1,3,n=3, name='idx')
     v = VectorEncoder(3, s, typeCastFn=float)
 
@@ -59,13 +51,21 @@ class VectorEncoderTest(unittest.TestCase):
     enc = v.encode(data)
     print "encoded=", enc
     correct = [1,0,0,0,1,0,0,0,1]
-    assert (enc==correct).all()
+    self._tmp = enc
+    self.assertEqual(enc,correct, "Did not encode correctly")
+
+  def testDecoding(self):
+    s = ScalarEncoder(1,1,3,n=3, name='idx')
+    v = VectorEncoder(3, s, typeCastFn=float)
+    data=[1,2,3]
+    # encoded data (from above)
+    enc = self._tmp
 
     #decode
     dec = v.decode(enc)
     print "decoded=", dec
     res= v.getData(dec)
-    assert data==res
+    self.assertEqual(data, res, "Decoded data not equal to original")
 
   def testVectorEncoderOPFInstance(self):
     # for calling from OPF, use this:
@@ -74,7 +74,11 @@ class VectorEncoderTest(unittest.TestCase):
   def testSimpleVectorEncoderInstance(self):
     # demo version:
     simpleVect = SimpleVectorEncoder()
-
+    data=[1,2,3]
+    enc=simpleVect.encode(data)
+    dec=simpleVect.decode(enc)
+    data2=simpleVect.getData(dec)
+    self.assertEqual(data, data2, "Simple vector did not encode/decode correctly")
 
 if __name__ == '__main__':
   unittest.main()
