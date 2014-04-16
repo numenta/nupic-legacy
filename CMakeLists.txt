@@ -22,16 +22,6 @@
 #   David Ragazzi (@DavidRagazzi): Full conversion and adaptation from Autotools scripts
 # --------------------------------------------------------------------------------------------------------------------------
 
-# nupic.core external git dependencies
-set(NUPIC_CORE_REMOTE "https://github.com/numenta/nupic.core.git"
-    CACHE
-    STRING
-    "nupic.core remote repository")
-set(NUPIC_CORE_COMMITISH "90df8f1ef9eabda03695a9aa60c8029fe3540b9e"
-    CACHE
-    STRING
-    "nupic.core commit")
-
 ############################################################################################################################
 ###                                                                                                                      ###
 ###  Macros                                                                                                              ###
@@ -257,25 +247,25 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
 endmacro()
 
 # This macro generates imported library from submodules
-macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags)
+macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags remote commitish)
 
-  # checkout nupic.core
+  # checkout git dependency
   if (NOT EXISTS ${submodule_dir})
-    execute_process(COMMAND git clone ${NUPIC_CORE_REMOTE} ${submodule_dir})
+    execute_process(COMMAND git clone ${remote} ${submodule_dir})
     if(NOT EXIT_CODE EQUAL 0)
-      message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${submodule_dir}")
+      message(FATAL_ERROR "Unable to clone ${remote} into ${submodule_dir}")
     endif()
   else()
-    execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE}
+    execute_process(COMMAND git fetch ${remote}
                     WORKING_DIRECTORY ${submodule_dir})
     if(NOT EXIT_CODE EQUAL 0)
-      message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
+      message(FATAL_ERROR "Unable to fetch ${remote}")
     endif()
   endif()
-  execute_process(COMMAND git checkout ${NUPIC_CORE_COMMITISH}
+  execute_process(COMMAND git checkout ${commitish}
                   WORKING_DIRECTORY ${submodule_dir})
   if(NOT EXIT_CODE EQUAL 0)
-    message(FATAL_ERROR "Unable to checkout ${NUPIC_CORE_COMMITISH} in ${submodule_dir}")
+    message(FATAL_ERROR "Unable to checkout ${commitish} in ${submodule_dir}")
   endif()
 
   # Build and set external libraries
@@ -733,7 +723,9 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 # LibNupicCore
 #
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "")
+set(NUPIC_CORE_REMOTE "git://github.com/numenta/nupic.core.git" CACHE STRING "nupic.core remote repository")
+set(NUPIC_CORE_COMMITISH "90df8f1ef9eabda03695a9aa60c8029fe3540b9e" CACHE STRING "nupic.core commit")
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
 # HtmTest
