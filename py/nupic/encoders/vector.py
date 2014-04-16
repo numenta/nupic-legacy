@@ -67,7 +67,10 @@ class VectorEncoder(Encoder):
     for i in xrange(self._len):
       tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0][1] # dict.values().first_element.scalar_value
       if self._typeCastFn is not None:
-	tmp = self._typeCastFn(tmp)
+        if self._typeCastFn==int:
+           tmp = self._typeCastFn(float(tmp)) # hack, need to cast to float first, then to int()
+        else:
+	  tmp = self._typeCastFn(tmp)
       ret.append(tmp)
     
     # Return result as EncoderResult
@@ -109,20 +112,34 @@ class VectorEncoder(Encoder):
 
 ###############################################################################################
 class VectorEncoderOPF(VectorEncoder):
-  """Vector encoder using ScalarEncoder; 
+  """
+     Vector encoder using ScalarEncoder; 
      usecase: in OPF description.py files, see above why VectorEncoder 
-     cannot be used there directly. """
+     cannot be used there directly.
+  """
 
   def __init__(self, length, w, minval, maxval, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False):
-    """instance of VectorEncoder using ScalarEncoder as base, 
+                resolution=0, name=None, verbosity=0, clipInput=False, dataType="float"):
+    """
+       instance of VectorEncoder using ScalarEncoder as base, 
        use-case: in OPF description.py files, where you cannot use VectorEncoder directly (see above);
-       param length: #elements in the vector, 
-       param: rest of params is from ScalarEncoder, see scalar.py for details"""
+       @param length: #elements in the vector, 
+       @param dataType -- string that describes python data type (used for casting), because OPF can only give string as argument
+       @param: rest of params is from ScalarEncoder, see scalar.py for details
+    """
 
     sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
                        name=name, verbosity=verbosity, clipInput=clipInput)
-    super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=float)
+    if dataType=="float":
+      _cast=float
+    elif dataType=="int":
+      _cast=int
+    elif dataType=="str":
+      _cast=str
+    else:
+      raise Exception("VectorEncoderOPF unknown dataType (cast): %s" % dataType)
+
+    super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=_cast)
 
 
 #################################################################################################
@@ -130,8 +147,8 @@ class SimpleVectorEncoder(VectorEncoder):
   """Vector encoder for beginners, easy to create and play with;
      by default encodes list of 5 elements, numbers 0-100"""
 
-  def __init__(self, length=5, minval=0, maxval=100, resolution=1, name='vect'):
+  def __init__(self, length=5, minval=0, maxval=100, resolution=1, name='vect', typeCastFn=float):
     sc = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
-    super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=float)
+    super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=typeCastFn)
 
 
