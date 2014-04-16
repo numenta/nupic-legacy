@@ -26,7 +26,7 @@ import unittest2 as unittest
 
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
-from nupic.encoders.extras.utility import UtilityEncoder, SimpleUtilityEncoder
+from nupic.encoders.extras.utility import UtilityEncoder, SimpleUtilityEncoder, UtilityEncoderOPF
 
 class UtilityEncoderTest(unittest.TestCase):
   """testing Utility encoder"""
@@ -116,6 +116,15 @@ class UtilityEncoderTest(unittest.TestCase):
     dec = ut.decode(enc)
     self.assertEqual(data, ut.getData(dec))
     self.assertEqual(score, ut.getScoreOUT(enc))
+
+  def testUtilityEncoderOPF(self):
+    """UtilityEncoder in OPF.."""
+    # prepare /tmp/myfun.py as feval function to load
+    with open("/tmp/myfun.py", "w") as text_file:
+      text_file.write("def feval(self, listData):\n  # compute avg\n  return sum(listData)/size(listData)\n")
+    # test OPF
+    utOPF = UtilityEncoderOPF("/tmp/myfun.py", length=3)
+    self.assertIsInstance(utOPF, UtilityEncoderOPF, "failed to create UtilityEncoderOPF with file /tmp/myfun.py") 
 
 ##########################################################
 if __name__ == '__main__':
