@@ -66,16 +66,32 @@ class VectorEncoderTest(unittest.TestCase):
     self.assertEqual(data, res, "Decoded data not equal to original")
 
   def testVectorEncoderOPFInstance(self):
-    # for calling from OPF, use this:
+    """calling VectorEncoder from OPF"""
     opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3)
     data=[1,2,3]
     enc=opfVect.encode(data)
     dec=opfVect.decode(enc)
     data2=opfVect.getData(dec)
     self.assertEqual(data, data2, "VectorEncoderOPF did not encode/decode correctly.")
+
+  def testVectorEncoderOPFTypeCast(self):
+    """for calling from OPF, use this to cast data type"""
+    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3, dataType="str")
+    data=[1,2,3]
+    enc=opfVect.encode(data)
+    dec=opfVect.decode(enc)
+    data2=opfVect.getData(dec)
+    self.assertIsInstance(data2[0], str, "VectorEncoderOPF did not cast output to str(ing)")
+
+    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3, dataType="int")
+    data=[1,2,3]
+    enc=opfVect.encode(data)
+    dec=opfVect.decode(enc)
+    data2=opfVect.getData(dec)
+    self.assertIsInstance(data2[0], int, "VectorEncoderOPF did not cast output to int")
  
   def testSimpleVectorEncoderInstance(self):
-    # demo version:
+    """ simple demo version"""
     simpleVect = SimpleVectorEncoder()
     data=[1,2,3,4,5]
     enc=simpleVect.encode(data)
