@@ -251,19 +251,22 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
 
   # checkout git dependency
   if (NOT EXISTS ${submodule_dir})
-    execute_process(COMMAND git clone ${remote} ${submodule_dir})
+    execute_process(COMMAND git clone ${remote} ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
     if(NOT EXIT_CODE EQUAL 0)
       message(FATAL_ERROR "Unable to clone ${remote} into ${submodule_dir}")
     endif()
   else()
     execute_process(COMMAND git fetch ${remote}
-                    WORKING_DIRECTORY ${submodule_dir})
+                    WORKING_DIRECTORY ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
     if(NOT EXIT_CODE EQUAL 0)
       message(FATAL_ERROR "Unable to fetch ${remote}")
     endif()
   endif()
   execute_process(COMMAND git checkout ${commitish}
-                  WORKING_DIRECTORY ${submodule_dir})
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE EXIT_CODE)
   if(NOT EXIT_CODE EQUAL 0)
     message(FATAL_ERROR "Unable to checkout ${commitish} in ${submodule_dir}")
   endif()
