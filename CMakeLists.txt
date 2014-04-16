@@ -23,7 +23,7 @@
 # --------------------------------------------------------------------------------------------------------------------------
 
 # nupic.core external git dependencies
-SET(NUPIC_CORE_REMOTE "https://github.com/numenta/nupic.core.git"
+set(NUPIC_CORE_REMOTE "https://github.com/numenta/nupic.core.git"
     CACHE
     STRING
     "nupic.core remote repository")
