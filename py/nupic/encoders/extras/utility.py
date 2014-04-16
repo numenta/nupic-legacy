@@ -38,7 +38,10 @@ from nupic.encoders.base import Encoder
 
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
+# for UtilityEncoderOPF
+import imp
 
+from nupic.encoders.vector import VectorEncoderOPF
 
 class UtilityEncoder(MultiEncoder):
   """
@@ -189,3 +192,28 @@ class SimpleUtilityEncoder(UtilityEncoder):
     super(SimpleUtilityEncoder, self).__init__(dataV, scoreS, feedbackDelay=feedbackDelay, name='simpleUtility', forced=forced)
     print "WARNING: feval not set! do not forget to def(ine) the function and set it with setEvaluationFn() "
 
+
+
+class UtilityEncoderOPF(UtilityEncoder):
+  """
+  UtilityEncoder for use in OPF
+  TODO: currently uses only VectorEncoderOPF, improve in #822
+  demonstrates how to pass python fn from OPF (load file)
+  """
+  import imp
+  from types import FunctionType
+
+  from nupic.encoders.vector import VectorEncoderOPF
+
+
+  def __init__(self, pathToFevalFnFile, length=5, feedbackDelay=0, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):
+    """
+    @param pathToFevalFnFile path to a file that contains python \"def feval(self, other, params)\" function to be loaded; used as feval
+    """
+  # TODO: cleanup the params
+    dataV = VectorEncoderOPF(self, length, minval, maxval, resolution=resolution, name='data')
+    scoreS = ScalarEncoder(21, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
+    myDef = imp.load_source('module.name', pathToFevalFnFile)
+    if not isinstance(myDef.feval, FunctionType):
+      raise Exception("failed to load feval() function from %s" % pathToFevalFile)
+    super(UtilityEncoderOPF, self).__init__(dataV, scoreS, feval=myDef.feval, feedbackDelay=feedbackDelay, name='UtilityOPF', forced=forced)
