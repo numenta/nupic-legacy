@@ -77,11 +77,11 @@ _MATH = _math
  */
 
 #include <cmath>
-#include <nta/types/types.hpp>
-#include <nta/math/utils.hpp>
-#include <nta/math/math.hpp>
-#include <nta/math/functions.hpp>
-#include <nta/math/array_algo.hpp>
+#include <nta/types/Types.hpp>
+#include <nta/math/Utils.hpp>
+#include <nta/math/Math.hpp>
+#include <nta/math/Functions.hpp>
+#include <nta/math/ArrayAlgo.hpp>
 #include <nta/utils/Random.hpp>
 %}
 
@@ -185,7 +185,7 @@ _MATH = _math
 
 //--------------------------------------------------------------------------------
 
-%include <nta/math/functions.hpp>
+%include <nta/math/Functions.hpp>
 
 // ----- Random -----
 

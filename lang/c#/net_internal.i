@@ -1,7 +1,7 @@
 %module net_internal
 %{
-#include <nta2/types/types.hpp>
-#include <nta2/types/types.h>
+#include <nta2/types/Types.hpp>
+#include <nta2/types/Types.h>
 #include <nta2/types/Exception.hpp>
 
 #include <nta2/utils2/Log.hpp>
@@ -26,8 +26,8 @@ using namespace nta;
 %include "std_string.i"
 %include "std_vector.i"
 
-%include <nta/types/types.h>
-%include <nta/types/types.hpp>
+%include <nta/types/Types.h>
+%include <nta/types/Types.hpp>
 %include <nta2/types/Exception.hpp>
 
 %include <nta2/utils2/Log.hpp>

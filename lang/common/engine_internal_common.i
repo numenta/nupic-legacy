@@ -25,8 +25,8 @@
 #define SWIG_FILE_WITH_INIT
 
 
-#include <nta/types/types.hpp>
-#include <nta/types/types.h>
+#include <nta/types/Types.hpp>
+#include <nta/types/Types.h>
 #include <nta/types/BasicType.hpp>
 #include <nta/types/Exception.hpp>
 #include <nta/ntypes/Dimensions.hpp>
@@ -59,8 +59,8 @@
 %template(StringVec) std::vector<std::string>;
 
 
-%include <nta/types/types.h>
-%include <nta/types/types.hpp>
+%include <nta/types/Types.h>
+%include <nta/types/Types.hpp>
 %include <nta/types/BasicType.hpp>
 %include <nta/types/Exception.hpp>
 
