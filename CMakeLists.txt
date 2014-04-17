@@ -29,7 +29,52 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
-# This macro shows environment variables of the operating system
+# This function read variables from a file in the following format:
+# FOO = 'bar'
+function (read_variable_from_file file_content variable value)
+  set(${value} PARENT_SCOPE)
+
+  # Get the value between quotes
+  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${file_content}")
+
+  # If multiple lines are found, it's because regex return the entire text
+  if(NOT "${tag_value}" MATCHES "\n")
+    set(${value} "${tag_value}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# This macro shows variables from the config file
+macro (show_config_variable variable value)
+  message(STATUS "  ${variable} = ${value}")
+endmacro()
+
+# This macro gets variables from the config files
+function (get_config_variable variable value default)
+  set(${value} PARENT_SCOPE)
+
+  # First find variable in config file located at repository
+  if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+    file(READ "${REPOSITORY_DIR}/.nupic_config" config_file_content)
+    read_variable_from_file("${config_file_content}" ${variable} ${value})
+  endif()
+
+  # If variable not found or empty, find it in config file located at HOME directory
+  if("${value}" STREQUAL "")
+    if(EXISTS "$ENV{HOME}/.nupic_config")
+      file(READ "$ENV{HOME}/.nupic_config" config_file_content)
+      read_variable_from_file("${config_file_content}" ${variable} ${value})
+    endif()
+  endif()
+
+  # If variable not found or empty, set its value to default
+  if("${${value}}" STREQUAL "")
+    set(${value} "${default}" PARENT_SCOPE)
+  endif()
+
+  show_config_variable(${variable} "${${value}}")
+endfunction()
+
+# This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
 endmacro()
@@ -66,29 +111,9 @@ macro (set_environment_variable variable value incremental)
   show_environment_variable(${variable} ${new_value})
 endmacro()
 
-# This macro shows variables from the config file
-macro (show_config_variable variable value)
-  message(STATUS "  ${variable} = ${value}")
-endmacro()
-
-# This macro gets variables from the config file
-function (get_config_variable variable value)
-  set(value)
-
-  # Get the value between tags
-  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${CONFIG_FILE_CONTENT}")
-
-  # If multiple lines are found, it's because regex return the entire text
-  if(NOT "${tag_value}" MATCHES "\n")
-    set(value "${tag_value}")
-  endif()
-
-  show_config_variable(${variable} "${value}")
-endfunction()
-
 # These macros copy all source directories after the configuration is done
 # Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
-macro (copy suffix src dst)  
+macro (copy suffix src dst)
   if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
     message(STATUS "Linking from '${src}' to '${dst}'")
     get_filename_component(dst_dir ${dst} PATH)
@@ -268,7 +293,29 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
 endmacro()
 
 # This macro generates imported library from submodules
-macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags)
+macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags remote commitish)
+
+  # checkout git dependency
+  if (NOT EXISTS ${submodule_dir})
+    execute_process(COMMAND git clone ${remote} ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to clone ${remote} into ${submodule_dir}")
+    endif()
+  else()
+    execute_process(COMMAND git fetch ${remote}
+                    WORKING_DIRECTORY ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to fetch ${remote}")
+    endif()
+  endif()
+  execute_process(COMMAND git checkout ${commitish}
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE EXIT_CODE)
+  if(NOT EXIT_CODE EQUAL 0)
+    message(FATAL_ERROR "Unable to checkout ${commitish} in ${submodule_dir}")
+  endif()
 
   # Build and set external libraries
   message(STATUS "Building '${name}' library...")
@@ -326,7 +373,7 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 
 #
 # Sets default locations.
-# 
+#
 # Default directories structure is:
 #
 # ~/../repository (root directory with repository downloaded from internet)
@@ -363,16 +410,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEA
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
-
-#
-# Update repository submodules
-#
-execute_process(COMMAND git submodule update --init
-                WORKING_DIRECTORY ${REPOSITORY_DIR}
-                RESULT_VARIABLE EXIT_CODE)
-if(NOT EXIT_CODE EQUAL 0)
-  message(FATAL_ERROR "Updating submodules within ${REPOSITORY_DIR} failed.")
-endif()
 
 #
 # Set OS flags
@@ -424,7 +461,7 @@ elseif(LINUX)
   if(${NTA_PLATFORM_ARCH} MATCHES "64")
     set(NTA_PLATFORM_OS "linux64")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
-  else()    
+  else()
     set(NTA_PLATFORM_OS "linux32")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -ffloat-store")
   endif()
@@ -558,10 +595,7 @@ endif()
 # Get variables from config file
 #
 message(STATUS "Config file variables:")
-# Put content from submodule config file into variable
-file(READ "${REPOSITORY_DIR}/nupic.config" CONFIG_FILE_CONTENT)
-get_config_variable("nupic_core_remote" NUPIC_CORE_REMOTE)
-get_config_variable("nupic_core_commitish" NUPIC_CORE_COMMITISH)
+get_config_variable("TEST_VARIABLE" TEST_VARIABLE "Default value")
 
 #
 # Project details
@@ -734,7 +768,7 @@ set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXXFLAGS_OPTIMIZATION}")
 # LibSupport
 #
 # lang/py/support must be built before nta, but lang must be built after nta.
-# This is due to the fact that both nta/pynode and lang/py/net_internal depend 
+# This is due to the fact that both nta/pynode and lang/py/net_internal depend
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
 set(LIB_STATIC_SUPPORT support)
@@ -743,8 +777,12 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 #
 # LibNupicCore
 #
+# Put content from module config file into variables
+file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "")
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
 # HtmTest
@@ -794,7 +832,7 @@ if(NTA_PYTHON_SUPPORT)
   # there is nothing Python-obvious about this name, so it may
   # conflict with libraries we generate for other target languages
   # in the future.
-  # (The list of sources also includes the swig interface files, even 
+  # (The list of sources also includes the swig interface files, even
   # though they're not used to compile, just to get the dependencies right.)
   # They will linked in the "real" C++ library that the bindings are wrapping.
 
@@ -901,28 +939,28 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 #
 # Tests
 #
-add_custom_target(tests_run 
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
+add_custom_target(tests_run
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
                   COMMENT "Python tests")
 
-add_custom_target(tests_run_all 
+add_custom_target(tests_run_all
                   COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
-add_custom_target(tests_pyhtm 
+add_custom_target(tests_pyhtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testpyhtm
                   COMMENT "Basic tests in Python")
 
-add_custom_target(tests_cpphtm 
+add_custom_target(tests_cpphtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testcpphtm
                   COMMENT "Basic tests in C++")
 
-add_custom_target(tests_everything 
+add_custom_target(tests_everything
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
-add_custom_target(tests_all 
+add_custom_target(tests_all
                   DEPENDS tests_run
                   DEPENDS tests_pyhtm
                   DEPENDS tests_cpphtm
@@ -932,7 +970,7 @@ add_custom_target(tests_all
 #
 # Clean
 #
-add_custom_target(distclean 
+add_custom_target(distclean
 		# Clean '/build/release' and build/temp
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR}
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}
