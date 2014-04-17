@@ -22,11 +22,57 @@
 #   David Ragazzi (@DavidRagazzi): Full conversion and adaptation from Autotools scripts
 # --------------------------------------------------------------------------------------------------------------------------
 
+
 ############################################################################################################################
 ###                                                                                                                      ###
 ###  Macros                                                                                                              ###
 ###                                                                                                                      ###
 ############################################################################################################################
+
+# This function read variables from a file in the following format:
+# FOO = 'bar'
+function (read_variable_from_file file_content variable value)
+  set(${value} PARENT_SCOPE)
+
+  # Get the value between quotes
+  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${file_content}")
+
+  # If multiple lines are found, it's because regex return the entire text
+  if(NOT "${tag_value}" MATCHES "\n")
+    set(${value} "${tag_value}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# This macro shows variables from the config file
+macro (show_config_variable variable value)
+  message(STATUS "  ${variable} = ${value}")
+endmacro()
+
+# This macro gets variables from the config files
+function (get_config_variable variable value default)
+  set(${value} PARENT_SCOPE)
+
+  # First find variable in config file located at repository
+  if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+    file(READ "${REPOSITORY_DIR}/.nupic_config" config_file_content)
+    read_variable_from_file("${config_file_content}" ${variable} ${value})
+  endif()
+
+  # If variable not found or empty, find it in config file located at HOME directory
+  if("${value}" STREQUAL "")
+    if(EXISTS "$ENV{HOME}/.nupic_config")
+      file(READ "$ENV{HOME}/.nupic_config" config_file_content)
+      read_variable_from_file("${config_file_content}" ${variable} ${value})
+    endif()
+  endif()
+
+  # If variable not found or empty, set its value to default
+  if("${${value}}" STREQUAL "")
+    set(${value} "${default}" PARENT_SCOPE)
+  endif()
+
+  show_config_variable(${variable} "${${value}}")
+endfunction()
 
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
@@ -546,6 +592,12 @@ if(NEED_LOGOFF)
 endif()
 
 #
+# Get variables from config file
+#
+message(STATUS "Config file variables:")
+get_config_variable("TEST_VARIABLE" TEST_VARIABLE "Default value")
+
+#
 # Project details
 #
 message(STATUS "Checking project...")
@@ -725,9 +777,11 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 #
 # LibNupicCore
 #
+# Put content from module config file into variables
+file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
-set(NUPIC_CORE_REMOTE "git://github.com/numenta/nupic.core.git" CACHE STRING "nupic.core remote repository")
-set(NUPIC_CORE_COMMITISH "90df8f1ef9eabda03695a9aa60c8029fe3540b9e" CACHE STRING "nupic.core commit")
 generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
