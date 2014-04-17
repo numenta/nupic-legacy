@@ -29,7 +29,7 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
-# This macro set environment variables of the operating system
+# This macro shows environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
 endmacro()
@@ -65,6 +65,26 @@ macro (set_environment_variable variable value incremental)
 
   show_environment_variable(${variable} ${new_value})
 endmacro()
+
+# This macro shows variables from the config file
+macro (show_config_variable variable value)
+  message(STATUS "  ${variable} = ${value}")
+endmacro()
+
+# This macro gets variables from the config file
+function (get_config_variable variable value)
+  set(value)
+
+  # Get the value between tags
+  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${CONFIG_FILE_CONTENT}")
+
+  # If multiple lines are found, it's because regex return the entire text
+  if(NOT "${tag_value}" MATCHES "\n")
+    set(value "${tag_value}")
+  endif()
+
+  show_config_variable(${variable} "${value}")
+endfunction()
 
 # These macros copy all source directories after the configuration is done
 # Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
@@ -533,6 +553,15 @@ show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 if(NEED_LOGOFF)
   message("You should logoff your system in order to some environment variables are changed permanently. If the problem persists, consider set manually the variables above in your 'bashrc' file")
 endif()
+
+#
+# Get variables from config file
+#
+message(STATUS "Config file variables:")
+# Put content from submodule config file into variable
+file(READ "${REPOSITORY_DIR}/nupic.config" CONFIG_FILE_CONTENT)
+get_config_variable("nupic_core_remote" NUPIC_CORE_REMOTE)
+get_config_variable("nupic_core_commitish" NUPIC_CORE_COMMITISH)
 
 #
 # Project details
