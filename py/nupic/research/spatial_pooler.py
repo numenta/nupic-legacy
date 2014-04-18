@@ -395,6 +395,8 @@ class SpatialPooler(object):
   def setInhibitionRadius(self, inhibitionRadius):
     """Sets the inhibition radius"""
     self._inhibitionRadius = inhibitionRadius
+    if (self._inhibitionRadius >= self._numInputs):
+      self.setGlobalInhibition(True) 
 
 
   def getIterationNum(self):
@@ -605,7 +607,7 @@ class SpatialPooler(object):
     ----------------------------
     activeColumns:  An array containing the indices of the active columns
     """
-    neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
+    neverLearned = numpy.where(self._boost._activeDutyCycles == 0)[0]
     return numpy.array(list(set(activeColumns) - set(neverLearned)))
 
 

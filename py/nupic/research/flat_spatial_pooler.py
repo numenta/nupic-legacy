@@ -205,7 +205,7 @@ class FlatSpatialPooler(SpatialPooler):
       self._adaptSynapses(inputVector, activeColumns)
       self._boost._updateDutyCycles(overlaps, activeColumns)
       self._bumpUpWeakColumns() 
-      self._boost._updateBoostFactors()
+      self._boost.updateBoostFactors()
 
       if self._isUpdateRound():
         self._updateInhibitionRadius()
