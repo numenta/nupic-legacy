@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.research.boosting.Boosting import Boosting
+from nupic.research.boosting.base import Boosting
 
 """
 BoostingSimple - implementation of boosting. Current state used in SP. 

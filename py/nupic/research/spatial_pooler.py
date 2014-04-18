@@ -26,7 +26,8 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
-from nupic.research.boosting.BoostingSimple import BoostingSimple as Boosting
+# change boosting implementations here
+from nupic.research.boosting.boosting_simple import BoostingSimple as Boosting
 
 realDType = GetNTAReal()
 uintType = "uint32"
