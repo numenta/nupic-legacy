@@ -76,9 +76,9 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getStimulusThreshold())
     self.assertAlmostEqual(pySp.getInhibitionRadius(),
                            cppSp.getInhibitionRadius())
-    self.assertAlmostEqual(pySp.getDutyCyclePeriod(),
+    self.assertAlmostEqual(pySp._boost.getDutyCyclePeriod(),
                            cppSp.getDutyCyclePeriod())
-    self.assertAlmostEqual(pySp.getMaxBoost(),
+    self.assertAlmostEqual(pySp._boost.getMaxBoost(),
                            cppSp.getMaxBoost())
 
     self.assertAlmostEqual(pySp.getIterationNum(),
@@ -100,9 +100,9 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getSynPermBelowStimulusInc())
     self.assertAlmostEqual(pySp.getSynPermConnected(),
                            cppSp.getSynPermConnected())
-    self.assertAlmostEqual(pySp.getMinPctOverlapDutyCycles(),
+    self.assertAlmostEqual(pySp._boost.getMinPctOverlapDutyCycles(),
                            cppSp.getMinPctOverlapDutyCycles())
-    self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(),
+    self.assertAlmostEqual(pySp._boost.getMinPctActiveDutyCycles(),
                            cppSp.getMinPctActiveDutyCycles())
 
     numColumns = pySp.getNumColumns()
@@ -110,7 +110,7 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
 
     pyBoost = numpy.zeros(numColumns).astype(realType)
     cppBoost = numpy.zeros(numColumns).astype(realType)
-    pySp.getBoostFactors(pyBoost)
+    pySp._boost.getBoostFactors(pyBoost)
     cppSp.getBoostFactors(cppBoost)
     self.assertListAlmostEqual(list(pyBoost), list(cppBoost))
     
@@ -118,25 +118,25 @@ class FlatSpatialPoolerCompatabilityTest(unittest.TestCase):
 
     pyOverlap = numpy.zeros(numColumns).astype(realType)
     cppOverlap = numpy.zeros(numColumns).astype(realType)
-    pySp.getOverlapDutyCycles(pyOverlap)
+    pySp._boost.getOverlapDutyCycles(pyOverlap)
     cppSp.getOverlapDutyCycles(cppOverlap)
     self.assertListAlmostEqual(list(pyOverlap), list(cppOverlap))
 
     pyActive = numpy.zeros(numColumns).astype(realType)
     cppActive = numpy.zeros(numColumns).astype(realType)
-    pySp.getActiveDutyCycles(pyActive)
+    pySp._boost.getActiveDutyCycles(pyActive)
     cppSp.getActiveDutyCycles(cppActive)
     self.assertListAlmostEqual(pyActive, cppActive)
 
     pyMinOverlap = numpy.zeros(numColumns).astype(realType)
     cppMinOverlap = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinOverlapDutyCycles(pyMinOverlap)
+    pySp._boost.getMinOverlapDutyCycles(pyMinOverlap)
     cppSp.getMinOverlapDutyCycles(cppMinOverlap)
     self.assertListAlmostEqual(list(pyMinOverlap), list(cppMinOverlap))
 
     pyMinActive = numpy.zeros(numColumns).astype(realType)
     cppMinActive = numpy.zeros(numColumns).astype(realType)
-    pySp.getMinActiveDutyCycles(pyMinActive)
+    pySp._boost.getMinActiveDutyCycles(pyMinActive)
     cppSp.getMinActiveDutyCycles(cppMinActive)
     self.assertListAlmostEqual(list(pyMinActive), list(cppMinActive))
 
