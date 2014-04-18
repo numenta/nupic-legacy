@@ -333,7 +333,14 @@ class Boosting(object):
     '_minOverlapDutyCycles' size must match the number of columns"""
     self._minOverlapDutyCycles[:] = minOverlapDutyCycles[:]
 
-
+  def setMinOverlapDutyCyclesFill(self,fillValue):
+    """fills the array with given value"""
+    self._minOverlapDutyCycles.fill(fillValue)
+    
+  def setMinActiveDutyCyclesFill(self,fillValue):
+    """fills the array with given value"""
+    self._minActiveDutyCycles.fill(fillValue)
+  
   def getMinActiveDutyCycles(self, minActiveDutyCycles):
     """Returns the minimum activity duty cycles for all columns.
     '_minActiveDutyCycles' size must match the number of columns"""
