@@ -315,7 +315,7 @@ class SwarmWorker(object):
 
     hsVersion = jobParams.get('hsVersion', None)
     if hsVersion == 'v2':
-      self._hs = swarmV2(searchParams=jobParams, workerID=self._workerID,
+      self._hs = SwarmV2(searchParams=jobParams, workerID=self._workerID,
               cjDAO=cjDAO, jobID=options.jobID, logLevel=options.logLevel)
     else:
       raise RuntimeError("Invalid swarm implementation (%s) specified" \
