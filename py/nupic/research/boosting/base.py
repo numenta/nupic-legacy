@@ -161,7 +161,7 @@ class Boosting(object):
     _updateMinDutyCyclesGlobal, here the values can be quite different for
     different columns.
     """
-    for i in xrange(self._numColumns):
+    for i in xrange(self._parent._numColumns):
       maskNeighbors = numpy.append(i,
         self._parent._getNeighborsND(i, self._parent._columnDimensions,
         self._parent._inhibitionRadius))
@@ -201,13 +201,13 @@ class Boosting(object):
     if (period > self._parent.getIterationNum()):
       period = self._parent.getIterationNum()
 
-    self._overlapDutyCycles = self._updateDutyCyclesHelper(
+    self._overlapDutyCycles = Boosting._updateDutyCyclesHelper(
                                 self._overlapDutyCycles,
                                 overlapArray,
                                 period
                               )
 
-    self._activeDutyCycles = self._updateDutyCyclesHelper(
+    self._activeDutyCycles = Boosting._updateDutyCyclesHelper(
                                 self._activeDutyCycles,
                                 activeArray,
                                 period

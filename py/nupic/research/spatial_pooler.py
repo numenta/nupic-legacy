@@ -1311,6 +1311,16 @@ class SpatialPooler(object):
 
   def setActiveDutyCycles(self, activeDutyCycles):
     self._boost.setActiveDutyCycles(activeDutyCycles)
+    
+  def _hardSetActiveDutyCycles(self, activeDutyCycles):
+    """ for debugging, testing """
+    self._boost._activeDutyCycles = activeDutyCycles
+    
+  def setOverlapDutyCycles(self, overlapDutyCycles):
+    self._boost.setOverlapDutyCycles(overlapDutyCycles)
+
+  def setMinOverlapDutyCycles(self, minOverlapDutyCycles):
+    self._boost.setMinOverlapDutyCycles(minOverlapDutyCycles)
 
 # end of compatibility exports
 
