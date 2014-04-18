@@ -1277,6 +1277,43 @@ class SpatialPooler(object):
       self._random = NupicRandom()
 
 
+# compatibility exported methods
+# TODO: remove later (align with C++ impl)
+  def getDutyCyclePeriod(self):
+    return self._boost.getDutyCyclePeriod()
+
+  def getMaxBoost(self):
+    return self._boost.getMaxBoost()
+
+  def getMinPctOverlapCycles(self):
+    return self._boost.getMinPctOverlapDutyCycles()
+
+  def getMinPctActiveDutyCycles(self):
+    return self._boost.getMinPctActiveDutyCycles()
+
+  def getOverlapDutyCycles(self, overlapDutyCycles):
+    return self._boost.getOverlapDutyCycles(overlapDutyCycles)
+
+  def getActiveDutyCycles(self, activeDutyCycles):
+    return self._boost.getActiveDutyCycles(activeDutyCycles)
+
+  def getMinPctOverlapDutyCycles(self):
+    return self._boost.getMinPctOverlapDutyCycles()
+
+  def getMinOverlapDutyCycles(self, minOverlapDutyCycles):
+    return self._boost.getMinOverlapDutyCycles(minOverlapDutyCycles)
+
+  def getMinActiveDutyCycles(self, minActiveDutyCycles):
+    return self._boost.getMinActiveDutyCycles(minActiveDutyCycles)
+
+  def getBoostFactors(self, boostFactors):
+    return self._boost.getBoostFactors(boostFactors)
+
+  def setActiveDutyCycles(self, activeDutyCycles):
+    self._boost.setActiveDutyCycles(activeDutyCycles)
+
+# end of compatibility exports
+
   def printParameters(self):
     """
     Useful for debugging.
@@ -1293,9 +1330,9 @@ class SpatialPooler(object):
     print "synPermActiveInc           = ", self.getSynPermActiveInc()
     print "synPermInactiveDec         = ", self.getSynPermInactiveDec()
     print "synPermConnected           = ", self.getSynPermConnected()
-    print "minPctOverlapDutyCycle     = ", self._boost.getMinPctOverlapDutyCycles()
-    print "minPctActiveDutyCycle      = ", self._boost.getMinPctActiveDutyCycles()
-    print "dutyCyclePeriod            = ", self._boost.getDutyCyclePeriod()
-    print "maxBoost                   = ", self._boost.getMaxBoost()
+    print "minPctOverlapDutyCycle     = ", self.getMinPctOverlapDutyCycles()
+    print "minPctActiveDutyCycle      = ", self.getMinPctActiveDutyCycles()
+    print "dutyCyclePeriod            = ", self.getDutyCyclePeriod()
+    print "maxBoost                   = ", self.getMaxBoost()
     print "spVerbosity                = ", self.getSpVerbosity()
     print "version                    = ", self._version
