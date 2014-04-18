@@ -19,12 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""
-Boosting - abstract class for boosting used in spatial pooler and temporal pooler. 
-Alternative implementations must extend from this class.
-"""
+from nupic.research.boosting.Boosting import Boosting
 
+"""
+BoostingSimple - implementation of boosting. Current state used in SP. 
+"""
 class BoostingSimple(Boosting):
     
-    def __init__(self):
-        super(BoostingSimple, self).__init__(self)
+    def __init__(self, SP, minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost):
+        super(BoostingSimple, self).__init__(SP, minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost)

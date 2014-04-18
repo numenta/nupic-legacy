@@ -21,15 +21,20 @@
 
 
 import numpy
+from nupic.bindings.math import GetNTAReal
+
 realDType = GetNTAReal()
 
 """
 Boosting - abstract class for boosting used in spatial pooler and temporal pooler. 
 Alternative implementations must extend from this class.
 """
-class Boosting(object):
-    
-     """
+class Boosting(object):                        
+  
+  
+  def __init__(self, SP, minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost):
+    """
+     SP - link to parent object (SpatialPooler)
      minPctOvlerapDutyCycle: A number between 0 and 1.0, used to set a floor on
                           how often a column should have at least
                           stimulusThreshold active inputs. Periodically, each
@@ -71,8 +76,7 @@ class Boosting(object):
                           maxBoost is used if the duty cycle is 0, and any duty
                           cycle in between is linearly extrapolated from these
                           2 endpoints.
-    """                          
-  def __init__(self, SP, minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost):
+    """
     self._parent=SP
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
