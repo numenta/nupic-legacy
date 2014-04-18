@@ -45,11 +45,11 @@ from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming.modelchooser import ModelChooser
 
-from swarmV2 import swarmV2
+from SwarmV2 import SwarmV2
 
 
 
-class swarmWorker(object):
+class SwarmWorker(object):
   """ The swarmWorker is responsible for evaluating one or more models
   within a specific swarm job.
 
@@ -549,7 +549,7 @@ def main(argv):
   initLogging(verbose=True)
 
   # Instantiate the swarmWorker and run it
-  hst = swarmWorker(options, argv[1:])
+  hst = SwarmWorker(options, argv[1:])
 
   # Normal use. This is one of among a number of workers. If we encounter
   #  an exception at the outer loop here, we fail the entire job.

@@ -2292,7 +2292,7 @@ class HsSearchType(object):
   classification = 'classification'
 
 
-class swarmV2(object):
+class SwarmV2(object):
   """The v2 swarm implementation. This is one example of a swarm
   implementation that can be used by the swarmWorker. Other implementations
   just have to implement the following methods:
