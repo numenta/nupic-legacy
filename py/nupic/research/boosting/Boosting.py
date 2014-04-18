@@ -34,8 +34,8 @@ class Boosting(object):
   
   def __init__(self, SP, minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost):
     """
-     SP - link to parent object (SpatialPooler)
-     minPctOvlerapDutyCycle: A number between 0 and 1.0, used to set a floor on
+    SP - link to parent object (SpatialPooler)
+    minPctOvlerapDutyCycle: A number between 0 and 1.0, used to set a floor on
                           how often a column should have at least
                           stimulusThreshold active inputs. Periodically, each
                           column looks at the overlap duty cycle of
@@ -77,6 +77,7 @@ class Boosting(object):
                           cycle in between is linearly extrapolated from these
                           2 endpoints.
     """
+    
     self._parent=SP
     self._minPctOverlapDutyCycles = minPctOverlapDutyCycle
     self._minPctActiveDutyCycles = minPctActiveDutyCycle
