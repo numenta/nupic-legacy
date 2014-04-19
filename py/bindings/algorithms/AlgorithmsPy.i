@@ -24,4 +24,4 @@
 
 %include <lang/py/bindings/Exception.i>
 %import <py/bindings/math/math_py.i>
-%include <py/bindings/algorithms/algorithms_impl.i>
+%include <py/bindings/algorithms/AlgorithmsImpl.i>

@@ -99,8 +99,8 @@ _MATH = _math
   
 %}
 
-%include <py/bindings/types.i>
-%include <py/bindings/reals.i>
+%include <py/bindings/Types.i>
+%include <py/bindings/Reals.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Utility functions that are expensive in Python but fast in C.
