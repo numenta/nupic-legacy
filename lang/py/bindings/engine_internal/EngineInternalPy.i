@@ -28,7 +28,7 @@
 
 %include "../../../common/EngineInternalCommon.i"
 
-%include "../numpy.i"
+%include "../Numpy.i"
  
 %init %{
  import_array();
