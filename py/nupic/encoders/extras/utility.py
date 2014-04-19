@@ -211,7 +211,7 @@ class UtilityEncoderOPF(UtilityEncoder):
     @param pathToFevalFnFile path to a file that contains python \"def feval(self, other, params)\" function to be loaded; used as feval
     """
   # TODO: cleanup the params
-    dataV = VectorEncoderOPF(self, length, minval, maxval, resolution=resolution, name='data')
+    dataV = VectorEncoderOPF(length, minval, maxval, resolution=resolution, name='data')
     scoreS = ScalarEncoder(21, scoreMin, scoreMax, resolution=scoreResolution, name='utility')
     myDef = imp.load_source('module.name', pathToFevalFnFile)
     if not isinstance(myDef.feval, FunctionType):
