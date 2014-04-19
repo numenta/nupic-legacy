@@ -4,7 +4,6 @@
 %rename (BaseException) Exception;
 
 %include "Exception.i"
-//%include "../common/net_internal_common.i"
 
 
 
