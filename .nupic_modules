@@ -1,0 +1,2 @@
+NUPIC_CORE_REMOTE = 'git://github.com/numenta/nupic.core.git'
+NUPIC_CORE_COMMITISH = '90df8f1ef9eabda03695a9aa60c8029fe3540b9e'
