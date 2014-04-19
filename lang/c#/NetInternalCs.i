@@ -3,7 +3,7 @@
 # Exception classhes with System.Exception
 %rename (BaseException) Exception;
 
-%include "exception.i"
+%include "Exception.i"
 //%include "../common/net_internal_common.i"
 
 
