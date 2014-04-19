@@ -1,3 +1,0 @@
-[submodule "nupic.core"]
-	path = nta
-	url = git://github.com/numenta/nupic.core.git
