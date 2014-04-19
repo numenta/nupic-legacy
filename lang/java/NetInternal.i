@@ -11,7 +11,7 @@
 using namespace nta;
 %}
 
-%include "exception.i"
+%include "Exception.i"
 
 %include "std_string.i"
 %include "std_vector.i"

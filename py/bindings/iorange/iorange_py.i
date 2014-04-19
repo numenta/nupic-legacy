@@ -1,6 +1,6 @@
 %module(package="nupic.bindings") iorange
 
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 
 %pythoncode %{
 # ----------------------------------------------------------------------
@@ -62,8 +62,8 @@
 
 %naturalvar;
 
-%include <lang/py/bindings/exception.i>
-%include <lang/py/bindings/numpy.i>
+%include <lang/py/bindings/Exception.i>
+%include <lang/py/bindings/Numpy.i>
 %include <py/bindings/types.i>
 %include <py/bindings/reals.i>
 

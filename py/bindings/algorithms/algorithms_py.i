@@ -22,6 +22,6 @@
 
 %module(package="nupic.bindings") algorithms
 
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 %import <py/bindings/math/math_py.i>
 %include <py/bindings/algorithms/algorithms_impl.i>
