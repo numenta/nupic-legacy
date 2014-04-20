@@ -29,7 +29,7 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
-# This function read variables from a file in the following format:
+# This function reads variables from a file in the following format:
 # FOO = 'bar'
 function (read_variable_from_file file_content variable value)
   set(${value} PARENT_SCOPE)
@@ -48,7 +48,13 @@ macro (show_config_variable variable value)
   message(STATUS "  ${variable} = ${value}")
 endmacro()
 
-# This macro gets variables from the config files
+# This macro gets variables from the optional .nupic_config file located in
+# project root, falling back to $HOME if one is not found.  If a .nupic_config
+# file is found in either location, the values override the default
+# .nupic_modules file checked into the repository.  As a developer, if your
+# changes depend on the values in .nupic_config, be sure to apply those changes
+# in .nupic_modules and submit a GitHub Pull Request to share the changes
+# upstream
 function (get_config_variable variable value default)
   set(${value} PARENT_SCOPE)
 
@@ -777,7 +783,7 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 #
 # LibNupicCore
 #
-# Put content from module config file into variables
+# Put content from module config (.nupic_modules) file into variables
 file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
