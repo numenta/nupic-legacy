@@ -95,7 +95,7 @@ class VectorEncoder(Encoder):
     return [(self._name, 0),]
 
   def getBucketValues(self):
-    raise Exception("Not implemented yet.")
+    raise NotImplementedError("Not implemented yet.")
 
   def getWidth(self):
     return self._len * self._enc.getWidth()
