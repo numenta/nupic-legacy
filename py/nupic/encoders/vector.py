@@ -52,7 +52,7 @@ class VectorEncoder(Encoder):
     self.encoders = None
 
   def encodeIntoArray(self, input, output):
-    if not isinstance(input, list) and len(input)==self._len:
+    if not isinstance(input, list) and len(input) == self._len:
       raise Exception("input must be list if size %d" % self._len)
     for e in range(self._len):
       tmp = self._enc.encode(input[e])
@@ -62,12 +62,12 @@ class VectorEncoder(Encoder):
   def decode(self, encoded, parentFieldName=''):
     ret = []
     w = self._w
-    if encoded==None:
+    if encoded == None:
       raise Exception("passing None value to decode()!")
     for i in xrange(self._len):
       tmp = self._enc.decode(encoded[i*w:(i+1)*w])[0].values()[0][1] # dict.values().first_element.scalar_value
       if self._typeCastFn is not None:
-        if self._typeCastFn==int:
+        if self._typeCastFn == int:
            tmp = self._typeCastFn(float(tmp)) # hack, need to cast to float first, then to int()
         else:
 	  tmp = self._typeCastFn(tmp)
@@ -104,7 +104,7 @@ class VectorEncoder(Encoder):
     return [FieldMetaType.list]
 
   def getBucketIndices(self, input):
-    if not (isinstance(input, list) and len(input)==self._len):
+    if not (isinstance(input, list) and len(input) == self._len):
       raise Exception("Input must be a list of size %d" % self._len) 
     return [0]
 
@@ -130,11 +130,11 @@ class VectorEncoderOPF(VectorEncoder):
 
     sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
                        name=name, verbosity=verbosity, clipInput=clipInput)
-    if dataType=="float":
+    if dataType == "float":
       _cast=float
-    elif dataType=="int":
+    elif dataType == "int":
       _cast=int
-    elif dataType=="str":
+    elif dataType == "str":
       _cast=str
     else:
       raise Exception("VectorEncoderOPF unknown dataType (cast): %s" % dataType)
