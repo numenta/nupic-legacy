@@ -21,11 +21,15 @@
 import csv
 from collections import deque
 from abc import ABCMeta, abstractmethod
-import matplotlib
-matplotlib.use('TKAgg')
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.dates import date2num
+# Try to import matplotlib, but we don't have to.
+try:
+  import matplotlib
+  matplotlib.use('TKAgg')
+  import matplotlib.pyplot as plt
+  import matplotlib.gridspec as gridspec
+  from matplotlib.dates import date2num
+except ImportError:
+  pass
 
 WINDOW = 360
 
