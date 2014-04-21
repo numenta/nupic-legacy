@@ -39,7 +39,7 @@ ENV LD_LIBRARY_PATH $LDIR
 ENV USER docker
 
 # Copy context into container file system
-ADD . $NUPIC
+ADD https://github.com/numenta/nupic.git $NUPIC
 
 # Install Python dependencies
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
