@@ -71,13 +71,22 @@ def run_all_models(plot=False):
 
 
 
-def run_it_all(plot=False):
+def run_it_all(gym_name=None, plot=False):
   input_files = generate_data.run()
   print "Generated input data files:"
   print input_files
   names = input_files.keys()
   input_files = input_files.values()
   all_model_params = []
+
+  # Giving a gym name will limit all operations to just one gym instead of every
+  # gym in the input data.
+  if gym_name is not None:
+    if gym_name not in names:
+      raise Exception("No gym named '%s'." % gym_name)
+    gym_index = names.index(gym_name)
+    input_files = [input_files[gym_index]]
+    names = [gym_name]
 
   for index, input_file_path in enumerate(input_files):
     model_params = swarm_for_input(input_file_path, names[index])
