@@ -43,7 +43,7 @@ ENV USER root
 ENV PYTHON /usr/local/bin/python2.7
 
 # Install Python dependencies
-ADD git://github.com/numenta/nupic.git /usr/local/src/nupic
+RUN git clone git://github.com/numenta/nupic.git /usr/local/src/nupic
 WORKDIR /usr/local/src/nupic
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r external/common/requirements.txt
 
