@@ -47,13 +47,14 @@ class FlatSpatialPoolerTest(unittest.TestCase):
   def testSelectVirginColumns(self):
     sp = self._sp
     sp._numColumns = 6
-    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
+    sp._hardSetActiveDutyCycles(numpy.zeros(sp._numColumns))
     virgins = list(sp._selectVirginColumns())
     trueVirgins = range(sp._numColumns)
     self.assertListEqual(trueVirgins,virgins)
 
-    sp._activeDutyCycles = numpy.zeros(sp._numColumns)
-    sp._activeDutyCycles[[3,4]] = 0.2
+    pattern=numpy.zeros(sp._numColumns)
+    pattern[[3,4]] = 0.2
+    sp.setActiveDutyCycles(pattern)
     virgins = list(sp._selectVirginColumns())
     trueVirgins = [0,1,2,5]
     self.assertListEqual(trueVirgins,virgins)

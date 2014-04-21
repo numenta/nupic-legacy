@@ -21,11 +21,7 @@
 
 """Implements the flat spatial pooler."""
 
-import copy
-import cPickle
-import itertools
 import numpy
-
 from nupic.bindings.math import GetNTAReal
 from nupic.research.spatial_pooler import SpatialPooler
 
@@ -140,16 +136,16 @@ class FlatSpatialPooler(SpatialPooler):
     self._randomSP = randomSP
 
     #set active duty cycles to ones, because they set anomaly scores to 0
-    self._activeDutyCycles = numpy.ones(self._numColumns)
+    self._boost.setActiveDutyCycles(numpy.ones(self._numColumns))
 
     # set of columns to be 'hungry' for learning
-    self._boostFactors *= maxFiringBoost
+    self._boost._boostFactors=self._boost.doBoosting(maxFiringBoost)
     
     # For high tier to work we need to set the min duty cycles to be non-zero
     # This will ensure that columns with 0 active duty cycle get high boost
     # in the beginning.
-    self._minOverlapDutyCycles.fill(1e-6)
-    self._minActiveDutyCycles.fill(1e-6)
+    self._boost.setMinOverlapDutyCyclesFill(1e-6)
+    self._boost.setMinActiveDutyCyclesFill(1e-6)
     
     if self._spVerbosity > 0:
       self.printFlatParameters()
@@ -192,7 +188,7 @@ class FlatSpatialPooler(SpatialPooler):
     virginColumns = self._selectVirginColumns()
     
     if learn:
-      vipOverlaps = self._boostFactors * overlaps
+      vipOverlaps = self._boost.doBoosting(overlaps)
     else:
       vipOverlaps = overlaps.copy()
 
@@ -207,13 +203,13 @@ class FlatSpatialPooler(SpatialPooler):
 
     if learn:
       self._adaptSynapses(inputVector, activeColumns)
-      self._updateDutyCycles(overlaps, activeColumns)
+      self._boost._updateDutyCycles(overlaps, activeColumns)
       self._bumpUpWeakColumns() 
-      self._updateBoostFactors()
+      self._boost.updateBoostFactors()
 
       if self._isUpdateRound():
         self._updateInhibitionRadius()
-        self._updateMinDutyCycles()
+        self._boost._updateMinDutyCycles()
     else:
       activeColumns = self._stripNeverLearned(activeColumns)
 
@@ -228,7 +224,7 @@ class FlatSpatialPooler(SpatialPooler):
     returns a set of virgin columns. Virgin columns are columns that have never 
     been active.
     """
-    return numpy.where(self._activeDutyCycles == 0)[0]
+    return numpy.where(self._boost._activeDutyCycles == 0)[0]
 
 
   def _selectHighTierColumns(self, overlapsPct):
