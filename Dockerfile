@@ -1,1 +1,1 @@
-docker/Dockerfile.ubuntu
+docker/ubuntu/Dockerfile
