@@ -128,7 +128,7 @@ def run_hot_gym(args):
 
   # Handle the kitchen sink.
   elif command == "kitchen_sink":
-    nupic_runner.run_it_all(options.plot)
+    nupic_runner.run_it_all(gym_name=options.name, plot=options.plot)
 
   else:
     parser.error("Unrecognized command '%s'." % command)
