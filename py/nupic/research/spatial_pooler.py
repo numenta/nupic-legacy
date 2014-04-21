@@ -1140,6 +1140,10 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating that boundaries should be
                     region boundaries ignored.
     """
+    # Distribute column over inputs uniformly
+    ratio = float(index) / max((self._numColumns - 1), 1)
+    index = int((self._numInputs - 1) * ratio)
+
     indices = numpy.array(range(2*self._potentialRadius+1))
     indices += index
     indices -= self._potentialRadius
