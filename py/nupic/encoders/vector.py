@@ -119,7 +119,7 @@ class VectorEncoderOPF(VectorEncoder):
   """
 
 
-  def __init__(self, length, minval, maxval, w=21, periodic=False, n=0, radius=0,
+  def __init__(self, length, minval, maxval, dataType="str", w=21, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=False):
     """
        instance of VectorEncoder using ScalarEncoder as base, 
