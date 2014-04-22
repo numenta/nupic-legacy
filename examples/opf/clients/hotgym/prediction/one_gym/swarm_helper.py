@@ -2,20 +2,10 @@ import os
 import pprint
 
 from nupic.swarming import permutations_runner
-from base_swarm_description import BASE_SWARM_DESCRIPTION
 
 
 INPUT_FILE = "Balgowlah_Platinum.csv"
 PERMUTATIONS_PATH = "swarm/permutations.py"
-
-
-def _get_swarm_description_for(input_data_file_path):
-  print "Constructing swarm desc for %s" % input_data_file_path
-  desc_copy = dict(BASE_SWARM_DESCRIPTION)
-  stream = desc_copy["streamDef"]["streams"][0]
-  stream["info"] = input_data_file_path
-  stream["source"] = "file://%s" % input_data_file_path
-  return desc_copy
 
 
 
@@ -42,11 +32,10 @@ def _write_model_params_file(model_params, name):
 
 def _swarm_for_best_model_params(name, max_workers=4):
   output_label = name
-  perm_work_dir = os.getcwd()
+  perm_work_dir = os.path.abspath('swarm')
   options = {
-    "maxWorkers": max_workers, "overwrite": True,
+    "maxWorkers": max_workers, "overwrite": True
   }
-  options.verbosityCount = 0
   model_params = permutations_runner.runWithPermutationsScript(
     PERMUTATIONS_PATH, options, output_label, perm_work_dir
   )
