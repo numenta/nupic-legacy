@@ -52,13 +52,11 @@ class OPFModelFunctionalCompatibilityTest(unittest.TestCase):
 
 
   def setUp(self):
-    if os.path.exists(CHECKPOINT_DIR):
-      shutil.rmtree(CHECKPOINT_DIR)
+    cleanUp()
 
 
   def tearDown(self):
-    if os.path.exists(CHECKPOINT_DIR):
-      shutil.rmtree(CHECKPOINT_DIR)
+    cleanUp()
 
 
   def testModelGlobal(self):
@@ -73,6 +71,11 @@ class OPFModelFunctionalCompatibilityTest(unittest.TestCase):
 
     self.assertEquals(getCheckpointHash(CHECKPOINT_DIR), MODEL_HASH_GLOBAL)
 
+
+
+def cleanUp():
+  if os.path.exists(CHECKPOINT_DIR):
+    shutil.rmtree(CHECKPOINT_DIR)
 
 
 def getCheckpointHash(directory, verbose=False):
