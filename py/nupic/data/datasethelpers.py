@@ -39,7 +39,7 @@ def findDataset(datasetPath):
     1. NTA_DATA_PATH  (":" separated value similar to PATH)
     2. ./data
     3. ./
-    4. NTA_ROOTDIR
+    4. NTA
     5. ~/nta/current/share/prediction/data (unix)
 
   If the dataset is compressed (ends in .gz) returns the name of the compressed
@@ -106,7 +106,7 @@ def _getDataDirs():
   1. NTA_DATA_PATH  (":" separated value similar to PATH)
   2. ./data
   3. ./
-  4. NTA_ROOTDIR
+  4. NTA
   5. ~/nta/current/share/prediction/data (unix)
 
   """
@@ -120,17 +120,17 @@ def _getDataDirs():
   dataDirs.append(('data', "in local directory 'data'"))
   dataDirs.append((".", "in current working directory"))
 
-  if "NTA_ROOTDIR" in os.environ:
-    d = os.path.join(os.environ['NTA_ROOTDIR'], 'share/prediction/data')
+  if "NTA" in os.environ:
+    d = os.path.join(os.environ['NTA'], 'share/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA_ROOTDIR/share/prediction/data'))
+        dataDirs.append((d, 'in $NTA/share/prediction/data'))
 
   if sys.platform != 'win32' and 'HOME' in os.environ:
     d = os.path.join(os.environ['HOME'], 'nta/current/share/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA_ROOTDIR/share/prediction/data'))
+        dataDirs.append((d, 'in $NTA/share/prediction/data'))
 
   return dataDirs
 
