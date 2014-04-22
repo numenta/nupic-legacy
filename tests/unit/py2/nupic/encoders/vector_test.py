@@ -69,7 +69,7 @@ class VectorEncoderTest(unittest.TestCase):
 
   def testVectorEncoderOPFInstance(self):
     # for calling from OPF, use this:
-    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3)
+    opfVect = VectorEncoderOPF(3, 1, 3, w=1, n=3)
  
   def testSimpleVectorEncoderInstance(self):
     # demo version:

@@ -32,13 +32,9 @@ RUN /usr/local/bin/easy_install-2.7 pip
 # Set NuPIC environment
 ENV NUPIC /usr/local/src/nupic
 ENV NTA $NUPIC/build/release
-ENV NTA_ROOTDIR $NTA
 ENV PYTHONPATH $PYTHONPATH:$NTA/lib/python2.7/site-packages
-ENV BUILDDIR /tmp/ntabuild
 ENV PY_VERSION 2.7
 ENV NTA_DATA_PATH $NTA/share/prediction/data
-ENV LDIR $NTA/lib
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$LDIR
 ENV USER root
 ENV PYTHON /usr/local/bin/python2.7
 
