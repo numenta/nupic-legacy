@@ -60,7 +60,6 @@ install:
   
   # Add more environment variables
   - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
-  - "export NTA_ROOTDIR=$NTA"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"

@@ -26,14 +26,9 @@ ENV CXX clang++
 # Set enviroment variables needed by NuPIC
 ENV NTA /usr/bin/nta/eng
 ENV NUPIC /usr/local/src/nupic
-ENV BUILDDIR /tmp/ntabuild
 ENV PY_VERSION 2.7
-ENV PATH $NTA/bin:$PATH
 ENV PYTHONPATH $NTA/lib/python$PY_VERSION/site-packages:$PYTHONPATH
-ENV NTA_ROOTDIR $NTA
 ENV NTA_DATA_PATH $NTA/share/prediction/data:$NTA_DATA_PATH
-ENV LDIR $NTA/lib
-ENV LD_LIBRARY_PATH $LDIR
 
 # OPF needs this
 ENV USER docker
