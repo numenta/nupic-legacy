@@ -38,7 +38,7 @@ class VectorEncoder(Encoder):
     """
 
     if not (isinstance(length, int) and length > 0):
-      raise Exception("Length must be int > 0")
+      raise Exception("Length must be int > 0, but it is: %s" % length)
     if not isinstance(encoder, Encoder):
       raise Exception("Must provide an encoder")
     if (typeCastFn is not None) and (not isinstance(typeCastFn, type)):
@@ -53,7 +53,7 @@ class VectorEncoder(Encoder):
 
   def encodeIntoArray(self, input, output):
     if not isinstance(input, list) and len(input) == self._len:
-      raise Exception("input must be list if size %d" % self._len)
+      raise Exception("input must be list of size %d (it is %d)" % (self._len, len(input)))
     for e in range(self._len):
       tmp = self._enc.encode(input[e])
       output[e*self._w:(e+1)*self._w]=tmp
@@ -118,8 +118,9 @@ class VectorEncoderOPF(VectorEncoder):
      cannot be used there directly.
   """
 
-  def __init__(self, length, w, minval, maxval, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False, dataType="float"):
+
+  def __init__(self, length, minval, maxval, w=21, periodic=False, n=0, radius=0,
+                resolution=0, name=None, verbosity=0, clipInput=False):
     """
        instance of VectorEncoder using ScalarEncoder as base, 
        use-case: in OPF description.py files, where you cannot use VectorEncoder directly (see above);
@@ -140,6 +141,7 @@ class VectorEncoderOPF(VectorEncoder):
       raise Exception("VectorEncoderOPF unknown dataType (cast): %s" % dataType)
 
     super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=_cast)
+
 
 
 #################################################################################################
