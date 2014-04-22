@@ -29,7 +29,7 @@ NOTE: If you want to change the baseline, run the test to see it fail
 """
 
 MODEL_HASH_GLOBAL_SP = "00e3e2b7571e7cc3203e2478439995596a9a395a"
-MODEL_HASH_LOCAL_SP  = "6f64ae762a9b356092640e49073e4a85231bbbf1"
+MODEL_HASH_LOCAL_SP  = "beee42772b2111cd7b67221ae2dd62de43bdceb8"
 
 
 

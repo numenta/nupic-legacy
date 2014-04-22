@@ -104,7 +104,7 @@ MODEL_PARAMS = {
             # Number of cell columns in the cortical region (same number for
             # SP and TP)
             # (see also tpNCellsPerCol)
-            'columnCount': 2048,
+            'columnCount': 32,
 
             'inputWidth': 0,
 
@@ -155,12 +155,12 @@ MODEL_PARAMS = {
             # Number of cell columns in the cortical region (same number for
             # SP and TP)
             # (see also tpNCellsPerCol)
-            'columnCount': 2048,
+            'columnCount': 32,
 
             # The number of cells (i.e., states), allocated per column.
             'cellsPerColumn': 8,
 
-            'inputWidth': 2048,
+            'inputWidth': 32,
 
             'seed': 1960,
 
