@@ -286,9 +286,9 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
   """
   if "verbosityCount" in options:
     verbosity = options["verbosityCount"]
+    del options["verbosityCount"]
   else:
     verbosity = 1
-  del options["verbosityCount"]
 
   _setupInterruptHandling()
 
@@ -320,9 +320,9 @@ def runWithPermutationsScript(permutationsFilePath, options,
   global g_currentVerbosityLevel
   if "verbosityCount" in options:
     g_currentVerbosityLevel = options["verbosityCount"]
+    del options["verbosityCount"]
   else:
     g_currentVerbosityLevel = 1
-  del options["verbosityCount"]
 
   _setupInterruptHandling()
 
