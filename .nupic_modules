@@ -1,3 +1,4 @@
 # Default nupic.core dependencies (override in optional .nupic_modules)
-NUPIC_CORE_REMOTE = 'git://github.com/numenta/nupic.core.git'
-NUPIC_CORE_COMMITISH = 'fe13a2b14e6bafc7a96408435c0f090fd417ea56'
+# FIXME brefore merge, temporarily pointing to my renaming fork
+NUPIC_CORE_REMOTE = 'git://github.com/utensil/nupic.core.git'
+NUPIC_CORE_COMMITISH = '80516b05b84f4e4831b07354c6d8b9a25a4f9113'
