@@ -171,13 +171,14 @@ def runPermutations(args):
 
   basename = os.path.basename(fileArgPath)
   fileExtension = os.path.splitext(basename)[1]
+  optionsDict = vars(options)
 
   if fileExtension == ".json":
     returnValue = permutations_runner.runWithJsonFile(
-      fileArgPath, options, outputLabel, permWorkDir)
+      fileArgPath, optionsDict, outputLabel, permWorkDir)
   else:
     returnValue = permutations_runner.runWithPermutationsScript(
-      fileArgPath, options, outputLabel, permWorkDir)
+      fileArgPath, optionsDict, outputLabel, permWorkDir)
 
   return returnValue
 
