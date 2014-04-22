@@ -28,7 +28,8 @@ NOTE: If you want to change the baseline, run the test to see it fail
       and print the new hash, and update the appropriate hash below.
 """
 
-MODEL_HASH_GLOBAL = "00e3e2b7571e7cc3203e2478439995596a9a395a"
+MODEL_HASH_GLOBAL_SP = "00e3e2b7571e7cc3203e2478439995596a9a395a"
+MODEL_HASH_LOCAL_SP  = "6f64ae762a9b356092640e49073e4a85231bbbf1"
 
 
 
@@ -39,7 +40,8 @@ import unittest2 as unittest
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from model_params_global import MODEL_PARAMS as MODEL_PARAMS_GLOBAL
+import model_params_global_sp
+import model_params_local_sp
 
 
 
@@ -59,8 +61,8 @@ class OPFModelFunctionalCompatibilityTest(unittest.TestCase):
     cleanUp()
 
 
-  def testModelGlobal(self):
-    model = ModelFactory.create(MODEL_PARAMS_GLOBAL)
+  def _testModel(self, modelParams, expectedHash):
+    model = ModelFactory.create(modelParams)
     model.enableInference({'predictedField': 'letter'})
     model.run({'letter': 'a'})
     model.run({'letter': 'b'})
@@ -69,7 +71,15 @@ class OPFModelFunctionalCompatibilityTest(unittest.TestCase):
     model.run({'letter': 'b'})
     model.save(CHECKPOINT_DIR)
 
-    self.assertEquals(getCheckpointHash(CHECKPOINT_DIR), MODEL_HASH_GLOBAL)
+    self.assertEquals(getCheckpointHash(CHECKPOINT_DIR), expectedHash)
+
+
+  def testModelGlobal(self):
+    self._testModel(model_params_global_sp.MODEL_PARAMS, MODEL_HASH_GLOBAL_SP)
+
+
+  def testModelLocal(self):
+    self._testModel(model_params_local_sp.MODEL_PARAMS, MODEL_HASH_LOCAL_SP)
 
 
 
