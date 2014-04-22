@@ -67,7 +67,7 @@ class VectorEncoderTest(unittest.TestCase):
 
   def testVectorEncoderOPFInstance(self):
     """calling VectorEncoder from OPF"""
-    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3)
+    opfVect = VectorEncoderOPF(3, 1, 3, n=3, w=1)
     data=[1,2,3]
     enc=opfVect.encode(data)
     dec=opfVect.decode(enc)
@@ -76,14 +76,14 @@ class VectorEncoderTest(unittest.TestCase):
 
   def testVectorEncoderOPFTypeCast(self):
     """for calling from OPF, use this to cast data type"""
-    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3, dataType="str")
+    opfVect = VectorEncoderOPF(3, 1, 3, n=3, w=1, dataType="str")
     data=[1,2,3]
     enc=opfVect.encode(data)
     dec=opfVect.decode(enc)
     data2=opfVect.getData(dec)
     self.assertIsInstance(data2[0], str, "VectorEncoderOPF did not cast output to str(ing)")
 
-    opfVect = VectorEncoderOPF(3, 1, 1, 3, n=3, dataType="int")
+    opfVect = VectorEncoderOPF(3, 1, 3, n=3, w=1, dataType="int")
     data=[1,2,3]
     enc=opfVect.encode(data)
     dec=opfVect.decode(enc)
