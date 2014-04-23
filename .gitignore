@@ -16,6 +16,7 @@ test.out
 *~
 *.DS_Store
 *.swp
+.nupic_config
 
 html/
 
