@@ -48,8 +48,5 @@ RUN cmake $NUPIC
 # Build with max 3 jobs/threads
 RUN make -j3
 
-# Cleanup
-RUN rm /setuptools*
-
 # Default directory
 WORKDIR /home/docker
