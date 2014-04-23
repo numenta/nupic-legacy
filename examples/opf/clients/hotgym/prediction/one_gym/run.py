@@ -43,16 +43,29 @@ def run_hot_gym(args):
       "Current commands are:\n"
 
       "\n\tswarm\n"
-      "\t\tRuns a swarm on the input data (Balgowlah_Platinum.csv).\n"
+      "\t\tRuns a swarm on the input data (Balgowlah_Platinum.csv) and\n"
+      "\t\tcreates a model parameters file in the `model_params` directory\n"
+      "\t\tcontaining the best model found by the swarm. Dumps a bunch of\n"
+      "\t\tcrud to stdout because that is just what swarming does at this\n"
+      "\t\tpoint. You really don't need to pay any attention to it.\n"
 
       "\n\trun [--plot]\n"
       "\t\tStarts a NuPIC model from the model params returned by the swarm\n"
       "\t\tand pushes each line of input from the gym into the model. Results\n"
       "\t\tare written to an output file (default) or plotted dynamically if\n"
       "\t\tthe --plot option is specified.\n"
+      "\t\tNOTE: You must run the `swarm` command before this one, because\n"
+      "\t\tmodel parameters are required to run NuPIC.\n"
 
       "\n\tcleanup\n"
       "\t\tRemoves all generated files so you can start from scratch.\n"
+
+      "\n\nExample:\n"
+      "--------\n"
+
+      "> ./run.py swarm\n"
+      "> ./run.py run --plot\n"
+      "> ./run.py cleanup\n"
 
       )
 
