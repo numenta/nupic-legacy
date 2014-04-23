@@ -36,7 +36,7 @@ try:
 except ImportError:
   pass
 
-WINDOW = 360
+WINDOW = 100
 
 
 class NuPICOutput(object):

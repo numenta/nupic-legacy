@@ -26,7 +26,7 @@ import os
 import pprint
 
 from nupic.swarming import permutations_runner
-from swarm_description import BALGOWLAH_SWARM_DESCRIPTION
+from swarm_description import SWARM_DESCRIPTION
 
 
 
@@ -68,11 +68,22 @@ def _swarm_for_best_model_params(swarm_config, name, max_workers=4):
 
 
 
+def _print_swarm_size_warning(size):
+  if size is "small":
+    print "= THIS IS A DEBUG SWARM. DON'T EXPECT YOUR MODEL RESULTS TO BE GOOD."
+  elif size is "medium":
+    print "= Medium swarm. Sit back and relax, this could take awhile."
+  else:
+    print "= LARGE SWARM! Might as well load up the Star Wars Trilogy."
+
+
+
 def swarm(file_path):
   name = os.path.splitext(os.path.basename(file_path))[0]
   print "================================================="
   print "= Swarming on %s data..." % name
+  _print_swarm_size_warning(SWARM_DESCRIPTION["swarmSize"])
   print "================================================="
-  model_params = _swarm_for_best_model_params(BALGOWLAH_SWARM_DESCRIPTION, name)
+  model_params = _swarm_for_best_model_params(SWARM_DESCRIPTION, name)
   print "\nWrote the following model param files:"
   print "\t%s" % model_params

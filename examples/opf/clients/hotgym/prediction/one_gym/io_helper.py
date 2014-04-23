@@ -29,6 +29,9 @@ import csv
 from nupic.data.inference_shifter import InferenceShifter
 from nupic_output import NuPICFileOutput, NuPICPlotOutput
 
+DATE_FORMAT = "%m/%d/%y %H:%M"
+# '7/2/10 0:00'
+
 
 
 def run_io_through_nupic(input_data, models, names, plot):
@@ -78,7 +81,7 @@ def run_io_through_nupic(input_data, models, names, plot):
         consumption = None
         prediction = None
       else:
-        timestamp = datetime.datetime.strptime(line[0], "%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.datetime.strptime(line[0], DATE_FORMAT)
         consumption = float(line[1])
         result = model.run({
           "timestamp": timestamp,
