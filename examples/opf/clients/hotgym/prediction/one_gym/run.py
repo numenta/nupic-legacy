@@ -20,9 +20,8 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
 """
-This is the command-line interface for the Hot Gym Tutorial.
+This is the command-line interface for the One Hot Gym Prediction Tutorial.
 """
 import sys
 import optparse
@@ -31,12 +30,18 @@ import swarm_helper
 import nupic_runner
 import cleaner
 
+# Hard-coded for simplicity.
 GYM_NAME = "Balgowlah Platinum"
 INPUT_FILE = "Balgowlah_Platinum.csv"
 
 
 
 def run_hot_gym(args):
+  """
+  Catches CLI args and turns them into actions using the swarm_helper,
+  nupic_runner, and cleaner modules.
+  """
+  # Optparse configuration.
   helpString = (
       "\n\n%prog <command> [options]\n\n"
 
@@ -85,18 +90,19 @@ def run_hot_gym(args):
 
   command = positional_args[0]
 
-  # Handle swarm command.
+  # Handle swarm command by deferring to swarm_helper.
   if command == "swarm":
     swarm_helper.swarm(INPUT_FILE)
 
-  # Handle run command.
+  # Handle run command by deferring to nupic_runner.
   elif command == "run":
     nupic_runner.run_model(GYM_NAME, options.plot)
 
-  # Handle cleanup command.
+  # Handle cleanup command by calling the cleaner.
   elif command == "cleanup":
     cleaner.cleanup(working_dirs=["swarm"])
 
+  # WAT?
   else:
     parser.error("Unrecognized command '%s'." % command)
 
