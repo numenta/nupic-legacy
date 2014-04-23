@@ -27,7 +27,7 @@ from swarm_helper import swarm_for_input
 from io_helper import run_io_through_nupic
 
 
-DATA_DIR = "./local_data"
+DATA_DIR = "."
 MODEL_PARAMS_DIR = "./model_params"
 
 
