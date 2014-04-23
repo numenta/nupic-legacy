@@ -18,6 +18,11 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+"""
+Helper dealing with passing data into NuPIC models and extracting their
+predictions. Uses the nupic_output module for output either to file or plot.
+(This is a component of the One Hot Gym Prediction Tutorial.)
+"""
 import datetime
 import csv
 

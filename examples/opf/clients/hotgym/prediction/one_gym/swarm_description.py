@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-BASE_SWARM_DESCRIPTION = {
+BALGOWLAH_SWARM_DESCRIPTION = {
   "includedFields": [
     {
       "fieldName": "timestamp",
@@ -37,8 +37,8 @@ BASE_SWARM_DESCRIPTION = {
     "version": 1,
     "streams": [
       {
-        "info": "",
-        "source": "",
+        "info": "Balgowlah Platinum Gym",
+        "source": "file://Balgowlah_Platinum.csv",
         "columns": [
           "*"
         ]

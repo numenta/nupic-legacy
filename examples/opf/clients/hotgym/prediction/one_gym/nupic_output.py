@@ -18,6 +18,11 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+"""
+Provides two classes with the same signature for writing data out of NuPIC
+models.
+(This is a component of the One Hot Gym Prediction Tutorial.)
+"""
 import csv
 from collections import deque
 from abc import ABCMeta, abstractmethod

@@ -18,7 +18,10 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-
+"""
+Simple module used for cleaning up the file system after running the One Hot Gym
+Prediction Tutorial.
+"""
 import os
 import shutil
 import re
@@ -48,11 +51,3 @@ def cleanup(dir=None, working_dirs=None):
       if os.path.exists(doomed_path):
         print "Removing %s" % doomed_path
         shutil.rmtree(doomed_path)
-  # Delete model params.
-  model_params = os.path.join(
-    "model_params", "Balgowlah_Platinum_model_params.py"
-  )
-  if os.path.exists(model_params):
-    print "Removing %s" % model_params
-    os.remove(model_params)
-
