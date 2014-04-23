@@ -109,7 +109,7 @@ inputPredictedField = 'auto'
 
 
 
-maxModels = 200
+maxModels = 1
 
 #############################################################################
 def permutationFilter(perm):

@@ -24,19 +24,19 @@
 """
 This is the command-line interface for the Hot Gym Tutorial.
 """
-import os
-
 import sys
 import optparse
 
 import swarm_helper
 import nupic_runner
+import cleaner
+
+GYM_NAME = "Balgowlah Platinum"
+INPUT_FILE = "Balgowlah_Platinum.csv"
+
 
 
 def run_hot_gym(args):
-  """
-  """
-
   helpString = (
       "\n\n%prog <command> [options]\n\n"
 
@@ -50,6 +50,9 @@ def run_hot_gym(args):
       "\t\tand pushes each line of input from the gym into the model. Results\n"
       "\t\tare written to an output file (default) or plotted dynamically if\n"
       "\t\tthe --plot option is specified.\n"
+
+      "\n\tcleanup\n"
+      "\t\tRemoves all generated files so you can start from scratch.\n"
 
       )
 
@@ -69,26 +72,17 @@ def run_hot_gym(args):
 
   command = positional_args[0]
 
-  # # Resolve the absolute path to input if there is one.
-  # input_path = options.input
-  # abs_file_path = None
-  # if options.input is not None:
-  #   abs_file_path = os.path.expanduser(input_path)
-  #   abs_file_path = os.path.expandvars(abs_file_path)
-  #   abs_file_path = os.path.abspath(abs_file_path)
-
   # Handle swarm command.
   if command == "swarm":
-    swarm_helper.swarm()
+    swarm_helper.swarm(INPUT_FILE)
 
-  # # Handle run command.
-  # elif command == "run":
-  #   if options.name is None and options.all is False:
-  #     parser.error("'%s' command requires a --name or --all option." % command)
-  #   if options.all:
-  #     nupic_runner.run_all_models(options.plot)
-  #   else:
-  #     nupic_runner.run_model(options.name, options.plot)
+  # Handle run command.
+  elif command == "run":
+    nupic_runner.run_model(GYM_NAME, options.plot)
+
+  # Handle cleanup command.
+  elif command == "cleanup":
+    cleaner.cleanup()
 
   else:
     parser.error("Unrecognized command '%s'." % command)
