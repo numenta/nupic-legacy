@@ -24,30 +24,30 @@ import shutil
 import re
 
 
-
 def _clean_dir_cruft(dir):
   if os.path.exists(dir):
     for f in os.listdir(dir):
-      if re.search("\.pkl$", f)\
-      or re.search("_out\.csv$", f)\
-      or re.search("_Report(.\d+)?\.csv$", f):
+      if re.search("_out\.csv$", f)\
+      or re.search("\.pyc$", f):
         print "Removing %s" % f
         os.remove(os.path.join(dir, f))
 
 
 
-def cleanup(dir=None):
+def cleanup(dir=None, working_dirs=None):
   if dir is None:
     dir = os.getcwd()
-  # Starting in this directory.
+  # Cleanup this dir.
   _clean_dir_cruft(dir)
-  # In the swarm directory.
-  _clean_dir_cruft("swarm")
-  # Blow away swarm/model_0
-  model_working_dir = os.path.join("swarm", "model_0")
-  if os.path.exists(model_working_dir):
-    print "Removing %s" % model_working_dir
-    shutil.rmtree(model_working_dir)
+  # Cleanup model_params dir (for pyc files).
+  _clean_dir_cruft("model_params")
+  # Cleanup working dirs.
+  if working_dirs is not None:
+    for doomed in working_dirs:
+      doomed_path = os.path.join(dir, doomed)
+      if os.path.exists(doomed_path):
+        print "Removing %s" % doomed_path
+        shutil.rmtree(doomed_path)
   # Delete model params.
   model_params = os.path.join(
     "model_params", "Balgowlah_Platinum_model_params.py"

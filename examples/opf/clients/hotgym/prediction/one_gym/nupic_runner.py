@@ -23,7 +23,6 @@ import os
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from swarm_helper import swarm_for_input
 from io_helper import run_io_through_nupic
 
 
@@ -40,11 +39,15 @@ def _create_model(model_params):
 
 
 def _get_model_params_from_name(gym_name):
-  imported_model_params = importlib.import_module(
-    "model_params.%s_model_params" % (
-      gym_name.replace(" ", "_").replace("-", "_")
-    )
-  ).MODEL_PARAMS
+  import_name = "model_params.%s_model_params" % (
+    gym_name.replace(" ", "_").replace("-", "_")
+  )
+  print "Importing model params from %s" % import_name
+  try:
+    imported_model_params = importlib.import_module(import_name).MODEL_PARAMS
+  except ImportError:
+    raise Exception("No model params exist for '%s'. Run swarm first!"
+                    % gym_name)
   return imported_model_params
 
 
