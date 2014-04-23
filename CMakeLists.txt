@@ -278,7 +278,7 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
-  snake_case_to_upper_camel_case(${name}, camelized_name)
+  snake_case_to_upper_camel_case(${name} camelized_name)
   set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${camelized_name}Py.i")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES SWIG_FLAGS "${swig_flags}")
