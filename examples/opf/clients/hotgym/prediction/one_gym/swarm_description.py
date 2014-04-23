@@ -19,7 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-BALGOWLAH_SWARM_DESCRIPTION = {
+SWARM_DESCRIPTION = {
   "includedFields": [
     {
       "fieldName": "timestamp",
@@ -37,37 +37,16 @@ BALGOWLAH_SWARM_DESCRIPTION = {
     "version": 1,
     "streams": [
       {
-        "info": "Balgowlah Platinum Gym",
-        "source": "file://Balgowlah_Platinum.csv",
+        "info": "Rec Center",
+        "source": "file://rec-center-hourly.csv",
         "columns": [
           "*"
         ]
       }
-    ],
-    "aggregation": {
-      "hours": 1,
-      "microseconds": 0,
-      "seconds": 0,
-      "fields": [
-        [
-          "kw_energy_consumption",
-          "sum"
-        ],
-        [
-          "timestamp",
-          "first"
-        ]
-      ],
-      "weeks": 0,
-      "months": 0,
-      "minutes": 0,
-      "days": 0,
-      "milliseconds": 0,
-      "years": 0
-    }
+    ]
   },
 
-  "inferenceType": "MultiStep",
+  "inferenceType": "TemporalMultiStep",
   "inferenceArgs": {
     "predictionSteps": [
       1

@@ -31,8 +31,8 @@ import nupic_runner
 import cleaner
 
 # Hard-coded for simplicity.
-GYM_NAME = "Balgowlah Platinum"
-INPUT_FILE = "Balgowlah_Platinum.csv"
+GYM_NAME = "rec-center-hourly"
+INPUT_FILE = "rec-center-hourly.csv"
 
 
 
