@@ -82,7 +82,7 @@ def run_hot_gym(args):
 
   # Handle cleanup command.
   elif command == "cleanup":
-    cleaner.cleanup()
+    cleaner.cleanup(working_dirs=["swarm"])
 
   else:
     parser.error("Unrecognized command '%s'." % command)
