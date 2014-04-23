@@ -1,28 +1,23 @@
 # The "Hot Gym"
 
-> A NuPIC Tutorial.
+> A NuPIC Tutorial, in several parts.
 
-## A Case Study
+**This is a work in progress**
 
-This tutorial is really more of a case study on how to apply NuPIC to a problem and create engineering solutions using the NuPIC codebase. Let's first define the problem.
+## Premise
 
-## Problem Definition
+The "hot gym" sample application has been around for a long time, and was one of the first real-world applications of NuPIC that actually worked. The data used is real energy consumption data from a gym in Australia, which simply contains a timestamp and float value for energy consumption.
 
-## The Data
+This collection of tutorials uses the "Hot Gym" premise to illustrate many ways users can set up and run a NuPIC application against real-world data.
 
-### Raw Data Analysis
+## Tutorials
 
-The data we'll start with is [raw csv data](data/README.md) from several gyms in Australia. 
+These are still being created.
 
-### Transforming the Data for NuPIC
-
-## Setting up NuPIC
-
-### Choosing what to predict
-
-### Executing a Swarm
-
-#### Constructing the [Swarm Description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description)
-
-
-
+1. One Gym Prediction Tutorial
+    - [README](prediction/one_gym/README.md)
+    - [source code](prediction/one_gym)
+1. ~~One Gym Anomaly Tutorial~~
+1. ~~One Gym Metrics Tutorial~~
+1. ~~Many Gyms Prediction Tutorial~~
+1. ~~Advanced Swarming~~
