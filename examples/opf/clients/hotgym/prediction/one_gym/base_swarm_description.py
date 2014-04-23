@@ -74,6 +74,6 @@ BASE_SWARM_DESCRIPTION = {
     ],
     "predictedField": "kw_energy_consumption"
   },
-  "iterationCount": 1,
-  "swarmSize": "small"
+  "iterationCount": -1,
+  "swarmSize": "medium"
 }
