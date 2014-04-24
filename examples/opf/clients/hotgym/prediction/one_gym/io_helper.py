@@ -34,9 +34,9 @@ DATE_FORMAT = "%m/%d/%y %H:%M"
 
 
 
-def run_io_through_nupic(input_data, models, names, plot):
+def runIoThroughNupic(inputData, models, names, plot):
   readers = []
-  input_files = []
+  inputFiles = []
   if plot:
     output = NuPICPlotOutput(names)
     shifter = InferenceShifter()
@@ -44,36 +44,36 @@ def run_io_through_nupic(input_data, models, names, plot):
     output = NuPICFileOutput(names)
   # Populate input files and csv readers for each model.
   for index, model in enumerate(models):
-    input_file = open(input_data[index], 'rb')
-    input_files.append(input_file)
-    csv_reader = csv.reader(input_file)
+    inputFile = open(inputData[index], 'rb')
+    inputFiles.append(inputFile)
+    csvReader = csv.reader(inputFile)
     # Skip header rows.
-    csv_reader.next()
-    csv_reader.next()
-    csv_reader.next()
+    csvReader.next()
+    csvReader.next()
+    csvReader.next()
     # Reader is now at the top of the real data.
-    readers.append(csv_reader)
+    readers.append(csvReader)
 
-  read_count = 0
+  readCount = 0
 
   while True:
-    next_lines = [next(reader, None) for reader in readers]
+    nextLines = [next(reader, None) for reader in readers]
     # If all lines are None, we're done.
-    if all(value is None for value in next_lines):
-      print "Done after reading %i lines" % read_count
+    if all(value is None for value in nextLines):
+      print "Done after reading %i lines" % readCount
       break
 
-    read_count += 1
+    readCount += 1
 
-    if (read_count % 100 == 0):
-      print "Read %i lines..." % read_count
+    if (readCount % 100 == 0):
+      print "Read %i lines..." % readCount
 
     times = []
     consumptions = []
     predictions = []
 
     # Gather one more input from each input file and send into each model.
-    for index, line in enumerate(next_lines):
+    for index, line in enumerate(nextLines):
       model = models[index]
       # Ignore models that are out of input data.
       if line is None:
@@ -102,6 +102,6 @@ def run_io_through_nupic(input_data, models, names, plot):
     output.write(times, consumptions, predictions)
 
   # close all I/O
-  for file in input_files:
-    file.close()
+  for f in inputFiles:
+    f.close()
   output.close()

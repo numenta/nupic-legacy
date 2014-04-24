@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -40,45 +40,45 @@ DESCRIPTION = (
 
 
 
-def _model_params_to_string(model_params):
+def modelParamsToString(modelParams):
   pp = pprint.PrettyPrinter(indent=2)
-  return pp.pformat(model_params)
+  return pp.pformat(modelParams)
 
 
 
-def _write_model_params_file(model_params, name):
-  clean_name = name.replace(" ", "_").replace("-", "_")
-  params_name = "%s_model_params.py" % clean_name
-  out_dir = os.path.join(os.getcwd(), 'model_params')
-  if not os.path.isdir(out_dir):
-    os.mkdir(out_dir)
-  out_path = os.path.join(os.getcwd(), 'model_params', params_name)
-  with open(out_path, "wb") as out_file:
-    model_params_string = _model_params_to_string(model_params)
-    out_file.write("MODEL_PARAMS = \\\n%s" % model_params_string)
-  return out_path
+def writeModelParamsToFile(modelParams, name):
+  cleanName = name.replace(" ", "_").replace("-", "_")
+  paramsName = "%s_model_params.py" % cleanName
+  outDir = os.path.join(os.getcwd(), 'model_params')
+  if not os.path.isdir(outDir):
+    os.mkdir(outDir)
+  outPath = os.path.join(os.getcwd(), 'model_params', paramsName)
+  with open(outPath, "wb") as outFile:
+    modelParamsString = modelParamsToString(modelParams)
+    outFile.write("MODEL_PARAMS = \\\n%s" % modelParamsString)
+  return outPath
 
 
 
-def _swarm_for_best_model_params(swarm_config, name, max_workers=4):
-  output_label = name
-  perm_work_dir = os.path.abspath('swarm')
-  if not os.path.exists(perm_work_dir):
-    os.mkdir(perm_work_dir)
-  model_params = permutations_runner.runWithConfig(
-    swarm_config,
-    {"maxWorkers": max_workers, "overwrite": True},
-    outputLabel=output_label,
-    outDir=perm_work_dir,
-    permWorkDir=perm_work_dir,
+def swarmForBestModelParams(swarmConfig, name, maxWorkers=4):
+  outputLabel = name
+  permWorkDir = os.path.abspath('swarm')
+  if not os.path.exists(permWorkDir):
+    os.mkdir(permWorkDir)
+  modelParams = permutations_runner.runWithConfig(
+    swarmConfig,
+    {"maxWorkers": maxWorkers, "overwrite": True},
+    outputLabel=outputLabel,
+    outDir=permWorkDir,
+    permWorkDir=permWorkDir,
     verbosity=0
   )
-  model_params_file = _write_model_params_file(model_params, name)
-  return model_params_file
+  modelParamsFile = writeModelParamsToFile(modelParams, name)
+  return modelParamsFile
 
 
 
-def _print_swarm_size_warning(size):
+def printSwarmSizeWarning(size):
   if size is "small":
     print "= THIS IS A DEBUG SWARM. DON'T EXPECT YOUR MODEL RESULTS TO BE GOOD."
   elif size is "medium":
@@ -88,15 +88,15 @@ def _print_swarm_size_warning(size):
 
 
 
-def swarm(file_path):
-  name = os.path.splitext(os.path.basename(file_path))[0]
+def swarm(filePath):
+  name = os.path.splitext(os.path.basename(filePath))[0]
   print "================================================="
   print "= Swarming on %s data..." % name
-  _print_swarm_size_warning(SWARM_DESCRIPTION["swarmSize"])
+  printSwarmSizeWarning(SWARM_DESCRIPTION["swarmSize"])
   print "================================================="
-  model_params = _swarm_for_best_model_params(SWARM_DESCRIPTION, name)
+  modelParams = swarmForBestModelParams(SWARM_DESCRIPTION, name)
   print "\nWrote the following model param files:"
-  print "\t%s" % model_params
+  print "\t%s" % modelParams
 
 
 
