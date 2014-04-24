@@ -597,7 +597,8 @@ endif()
 # Get variables from config file
 #
 message(STATUS "Config file variables:")
-get_config_variable("TEST_VARIABLE" TEST_VARIABLE "Default value")
+get_config_variable("NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE "")
+get_config_variable("NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH "")
 
 #
 # Project details
