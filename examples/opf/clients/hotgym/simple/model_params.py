@@ -1,4 +1,4 @@
-# ----------------------------------------------------------------------
+
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
@@ -38,7 +38,7 @@ MODEL_PARAMS = {
         'seconds': 0,
         'weeks': 0,
         'years': 0},
-    
+
     'predictAheadTime': None,
 
     # Model parameter dictionary.
@@ -55,14 +55,14 @@ MODEL_PARAMS = {
 
             # Include the encoders we use
             'encoders': {
-                u'consumption':    { 
+                u'consumption':    {
                     'fieldname': u'consumption',
                     'resolution': 0.88,
                     'seed': 1,
                     'name': u'consumption',
                     'type': 'RandomDistributedScalarEncoder',
                     },
-                    
+
                 'timestamp_timeOfDay': {   'fieldname': u'timestamp',
                                            'name': u'timestamp_timeOfDay',
                                            'timeOfDay': (21, 1),
@@ -94,10 +94,10 @@ MODEL_PARAMS = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            # Spatial Pooler implementation selector, see getSPClass 
+            # Spatial Pooler implementation selector, see getSPClass
             # in py/regions/SPRegion.py for details
             # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp', 
+            'spatialImp' : 'cpp',
 
             'globalInhibition': 1,
 
@@ -134,7 +134,7 @@ MODEL_PARAMS = {
 
             'synPermActiveInc': 0.04,
 
-            'synPermInactiveDec': 0.005, 
+            'synPermInactiveDec': 0.005,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -241,7 +241,7 @@ MODEL_PARAMS = {
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
             'steps': '1,5',
-            
+
             'implementation': 'cpp',
         },
 

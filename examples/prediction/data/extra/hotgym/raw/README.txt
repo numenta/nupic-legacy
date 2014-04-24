@@ -2,7 +2,7 @@ HotGym Dataset (gyms in Sidney, Australia)
 ------------------------------------------
 The raw data comes in 4 CSV files:
 
-1. numenta_air_con.csv
+1. gym_input.csv
 
 Has information about 5 gyms for the period 2-jul-2010 through 31-dec-2010
 
