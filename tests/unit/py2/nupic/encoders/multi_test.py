@@ -41,11 +41,12 @@ class MultiEncoderTest(unittest.TestCase):
       e = MultiEncoder()
 
       # should be 7 bits wide
+      # use of forced=True is not recommended, but here for readibility, see scalar.py
       e.addEncoder("dow", ScalarEncoder(w=3, resolution=1, minval=1, maxval=8,
-                    periodic=True, name="day of week"))
-      # should be 14 bits wide
+                    periodic=True, name="day of week", forced=True))
+      # sould be 14 bits wide
       e.addEncoder("myval", ScalarEncoder(w=5, resolution=1, minval=1, maxval=10,
-                    periodic=False, name="aux"))
+                    periodic=False, name="aux", forced=True))
       self.assertEqual(e.getWidth(), 21)
       self.assertEqual(e.getDescription(), [("day of week", 0), ("aux", 7)])
 
@@ -69,7 +70,7 @@ class MultiEncoderTest(unittest.TestCase):
       print "decodedToStr=>", e.decodedToStr(decoded)
 
       e.addEncoder("myCat", SDRCategoryEncoder(n=7, w=3,
-                                               categoryList=["run", "pass","kick"]))
+                                               categoryList=["run", "pass","kick"], forced=True))
 
       print "\nTesting mixed multi-encoder"
       d = DictObj(dow=4, myval=6, myCat="pass")

@@ -57,14 +57,16 @@ class DateEncoder(Encoder):
     (int) width of attribute: default radius = 4 hours
     (tuple) timeOfDay[0] = width; timeOfDay[1] = radius
 
+  customDays TODO: what is it? 
 
+  forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
 
 
 
   """
   ############################################################################
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
-                name = ''):
+                name = '', forced=True):
 
     self.width = 0
     self.description = []
@@ -88,7 +90,7 @@ class DateEncoder(Encoder):
 
       self.seasonEncoder = ScalarEncoder(w = w, minval=0, maxval=366,
                                          radius=radius, periodic=True,
-                                         name="season")
+                                         name="season", forced=forced)
       self.seasonOffset = self.width
       self.width += self.seasonEncoder.getWidth()
       self.description.append(("season", self.seasonOffset))
@@ -107,7 +109,7 @@ class DateEncoder(Encoder):
         radius = 1
       self.dayOfWeekEncoder = ScalarEncoder(w = w, minval=0, maxval=7,
                                             radius=radius, periodic=True,
-                                            name="day of week")
+                                            name="day of week", forced=forced)
       self.dayOfWeekOffset = self.width
       self.width += self.dayOfWeekEncoder.getWidth()
       self.description.append(("day of week", self.dayOfWeekOffset))
@@ -122,7 +124,7 @@ class DateEncoder(Encoder):
         weekend = (weekend,1)
       self.weekendEncoder = ScalarEncoder(w = weekend[0], minval = 0, maxval=1,
                                           periodic=False, radius=weekend[1],
-                                          name="weekend")
+                                          name="weekend", forced=forced)
       self.weekendOffset = self.width
       self.width += self.weekendEncoder.getWidth()
       self.description.append(("weekend", self.weekendOffset))
@@ -166,7 +168,7 @@ class DateEncoder(Encoder):
           assert False, "Unable to understand %s as a day of week" % str(day)
       self.customDaysEncoder = ScalarEncoder(w=customDays[0], minval = 0, maxval=1,
                                             periodic=False, radius=1,
-                                            name=customDayEncoderName)
+                                            name=customDayEncoderName, forced=forced)
       self.customDaysOffset = self.width
       self.width += self.customDaysEncoder.getWidth()
       self.description.append(("customdays", self.customDaysOffset))
@@ -178,7 +180,7 @@ class DateEncoder(Encoder):
       #  0->1 on the day before the holiday and 1->0 on the day after the holiday.
       self.holidayEncoder = ScalarEncoder(w = holiday, minval = 0, maxval=1,
                                           periodic=False, radius=1,
-                                          name="holiday")
+                                          name="holiday", forced=forced)
       self.holidayOffset = self.width
       self.width += self.holidayEncoder.getWidth()
       self.description.append(("holiday", self.holidayOffset))
@@ -196,7 +198,7 @@ class DateEncoder(Encoder):
         w = timeOfDay
         radius = 4
       self.timeOfDayEncoder = ScalarEncoder(w = w, minval=0, maxval=24,
-                              periodic=True, radius=radius, name="time of day")
+                              periodic=True, radius=radius, name="time of day", forced=forced)
       self.timeOfDayOffset = self.width
       self.width += self.timeOfDayEncoder.getWidth()
       self.description.append(("time of day", self.timeOfDayOffset))

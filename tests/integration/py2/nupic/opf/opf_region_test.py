@@ -161,13 +161,13 @@ def _createEncoder():
   encoder = MultiEncoder()
   encoder.addMultipleEncoders({
       'timestamp': dict(fieldname='timestamp', type='DateEncoder',
-                        timeOfDay=(5,5)),
+                        timeOfDay=(5,5), forced=True),
       'attendeeCount': dict(fieldname='attendeeCount', type='ScalarEncoder',
                             name='attendeeCount', minval=0, maxval=270,
-                            clipInput=True, w=5, resolution=10),
+                            clipInput=True, w=5, resolution=10, forced=True),
       'consumption': dict(fieldname='consumption',type='ScalarEncoder',
                           name='consumption', minval=0,maxval=115,
-                          clipInput=True, w=5, resolution=5),
+                          clipInput=True, w=5, resolution=5, forced=True),
   })
 
   return encoder
