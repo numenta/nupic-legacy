@@ -987,7 +987,7 @@ add_custom_target(distclean
 #
 # Python - copy python files (no need to compile), supplements NTAX_DEVELOPER_BUILD
 #
-add_custom_target(python
+add_custom_target(python_develop
 		# (re)copy python files
 		# Copy platform independent executable scripts
 		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py
