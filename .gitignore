@@ -17,6 +17,8 @@ test.out
 *.DS_Store
 *.swp
 
+
+nbproject/
 html/
 
 Servers/
