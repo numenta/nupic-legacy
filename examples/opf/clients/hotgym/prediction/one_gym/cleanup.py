@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -26,6 +27,8 @@ import os
 import shutil
 import re
 
+DESCRIPTION = "Removes all generated files so you can start from scratch.\n"
+
 
 def _clean_dir_cruft(dir):
   if os.path.exists(dir):
@@ -51,3 +54,9 @@ def cleanup(dir=None, working_dirs=None):
       if os.path.exists(doomed_path):
         print "Removing %s" % doomed_path
         shutil.rmtree(doomed_path)
+
+
+
+if __name__ == "__main__":
+  print DESCRIPTION
+  cleanup(working_dirs=["swarm"])

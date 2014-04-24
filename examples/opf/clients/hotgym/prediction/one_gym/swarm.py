@@ -1,3 +1,4 @@
+#! /usr/bin/python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -27,6 +28,15 @@ import pprint
 
 from nupic.swarming import permutations_runner
 from swarm_description import SWARM_DESCRIPTION
+
+INPUT_FILE = "rec-center-hourly.csv"
+DESCRIPTION = (
+  "This script runs a swarm on the input data (Balgowlah_Platinum.csv) and\n"
+  "creates a model parameters file in the `model_params` directory containing\n"
+  "the best model found by the swarm. Dumps a bunch of crud to stdout because\n"
+  "that is just what swarming does at this point. You really don't need to\n"
+  "pay any attention to it.\n"
+  )
 
 
 
@@ -87,3 +97,9 @@ def swarm(file_path):
   model_params = _swarm_for_best_model_params(SWARM_DESCRIPTION, name)
   print "\nWrote the following model param files:"
   print "\t%s" % model_params
+
+
+
+if __name__ == "__main__":
+  print DESCRIPTION
+  swarm(INPUT_FILE)
