@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -30,33 +30,33 @@ import re
 DESCRIPTION = "Removes all generated files so you can start from scratch.\n"
 
 
-def _clean_dir_cruft(dir):
-  if os.path.exists(dir):
-    for f in os.listdir(dir):
-      if re.search("_out\.csv$", f)\
-      or re.search("\.pyc$", f):
+def cleanDirectoryCruft(directory):
+  if os.path.exists(directory):
+    for f in os.listdir(directory):
+      if re.search(r"_out\.csv$", f)\
+      or re.search(r"\.pyc$", f):
         print "Removing %s" % f
-        os.remove(os.path.join(dir, f))
+        os.remove(os.path.join(directory, f))
 
 
 
-def cleanup(dir=None, working_dirs=None):
-  if dir is None:
-    dir = os.getcwd()
+def cleanUp(directory=None, workingDirs=None):
+  if directory is None:
+    directory = os.getcwd()
   # Cleanup this dir.
-  _clean_dir_cruft(dir)
+  cleanDirectoryCruft(directory)
   # Cleanup model_params dir (for pyc files).
-  _clean_dir_cruft("model_params")
+  cleanDirectoryCruft("model_params")
   # Cleanup working dirs.
-  if working_dirs is not None:
-    for doomed in working_dirs:
-      doomed_path = os.path.join(dir, doomed)
-      if os.path.exists(doomed_path):
-        print "Removing %s" % doomed_path
-        shutil.rmtree(doomed_path)
+  if workingDirs is not None:
+    for doomed in workingDirs:
+      doomedPath = os.path.join(directory, doomed)
+      if os.path.exists(doomedPath):
+        print "Removing %s" % doomedPath
+        shutil.rmtree(doomedPath)
 
 
 
 if __name__ == "__main__":
   print DESCRIPTION
-  cleanup(working_dirs=["swarm"])
+  cleanUp(workingDirs=["swarm"])

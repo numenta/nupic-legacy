@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -29,7 +29,7 @@ import sys
 
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from io_helper import run_io_through_nupic
+from io_helper import runIoThroughNupic
 
 
 GYM_NAME = "rec-center-hourly"
@@ -45,45 +45,45 @@ DESCRIPTION = (
 )
 
 
-def _create_model(model_params):
-  model = ModelFactory.create(model_params)
+def createModel(modelParams):
+  model = ModelFactory.create(modelParams)
   model.enableInference({"predictedField": "kw_energy_consumption"})
   return model
 
 
 
-def _get_model_params_from_name(gym_name):
-  import_name = "model_params.%s_model_params" % (
-    gym_name.replace(" ", "_").replace("-", "_")
+def getModelParamsFromName(gymName):
+  importName = "model_params.%s_model_params" % (
+    gymName.replace(" ", "_").replace("-", "_")
   )
-  print "Importing model params from %s" % import_name
+  print "Importing model params from %s" % importName
   try:
-    imported_model_params = importlib.import_module(import_name).MODEL_PARAMS
+    importedModelParams = importlib.import_module(importName).MODEL_PARAMS
   except ImportError:
     raise Exception("No model params exist for '%s'. Run swarm first!"
-                    % gym_name)
-  return imported_model_params
+                    % gymName)
+  return importedModelParams
 
 
 
-def run_model(gym_name, plot=False):
-  print "Creating model from %s..." % gym_name
-  model = _create_model(_get_model_params_from_name(gym_name))
-  input_data = ["%s/%s.csv" % (DATA_DIR, gym_name.replace(" ", "_"))]
-  run_io_through_nupic(input_data, [model], [gym_name], plot)
+def runModel(gymName, plot=False):
+  print "Creating model from %s..." % gymName
+  model = createModel(getModelParamsFromName(gymName))
+  inputData = ["%s/%s.csv" % (DATA_DIR, gymName.replace(" ", "_"))]
+  runIoThroughNupic(inputData, [model], [gymName], plot)
 
 
 
-def run_all_models(plot=False):
+def runAllModels(plot=False):
   models = []
   names = []
-  input_files = []
-  for input_file in sorted(os.listdir(DATA_DIR)):
-    name = os.path.splitext(input_file)[0]
+  inputFiles = []
+  for inputFile in sorted(os.listdir(DATA_DIR)):
+    name = os.path.splitext(inputFile)[0]
     names.append(name)
-    input_files.append(os.path.abspath(os.path.join(DATA_DIR, input_file)))
-    models.append(_create_model(_get_model_params_from_name(name)))
-  run_io_through_nupic(input_files, models, names, plot)
+    inputFiles.append(os.path.abspath(os.path.join(DATA_DIR, inputFile)))
+    models.append(createModel(getModelParamsFromName(name)))
+  runIoThroughNupic(inputFiles, models, names, plot)
 
 
 
@@ -93,4 +93,4 @@ if __name__ == "__main__":
   args = sys.argv[1:]
   if "--plot" in args:
     plot = True
-  run_model(GYM_NAME, plot=plot)
+  runModel(GYM_NAME, plot=plot)
