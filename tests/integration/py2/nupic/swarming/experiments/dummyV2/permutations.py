@@ -41,11 +41,11 @@ permutations = {
   'modelParams': {
     'sensorParams': {
       'encoders': {
-        'gym': PermuteEncoder(fieldName='gym', encoderClass='SDRCategoryEncoder', w=7, n=100),
+        'gym': PermuteEncoder(fieldName='gym', encoderClass='SDRCategoryEncoder', w=21, n=300),
         'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.dayOfWeek', radius=PermuteChoices([1, 3]), w=7),
         'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteChoices([1, 8]), w=7),
-        'consumption': PermuteEncoder(fieldName='consumption', encoderClass='ScalarEncoder', maxval=PermuteInt(100, 300, 25), n=PermuteInt(13, 500, 20), w=7, minval=0),
-        'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=7, n=100),
+        'consumption': PermuteEncoder(fieldName='consumption', encoderClass='ScalarEncoder', maxval=PermuteInt(100, 300, 25), n=PermuteInt(39, 1500, 60), w=21, minval=0),
+        'address': PermuteEncoder(fieldName='address', encoderClass='SDRCategoryEncoder', w=21, n=300),
       },
     },
   
