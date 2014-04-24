@@ -19,8 +19,12 @@ test.out
 *.swp
 .nupic_config
 
-
+# IDE project files
 nbproject/
+
+# swarming output files
+data/
+
 html/
 
 Servers/
