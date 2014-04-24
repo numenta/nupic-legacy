@@ -25,6 +25,10 @@ nbproject/
 # swarming output files
 data/
 
+# output from integration tests
+inference/
+savedmodels/
+
 html/
 
 Servers/
