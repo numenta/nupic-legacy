@@ -67,7 +67,7 @@ class VectorEncoderTest(unittest.TestCase):
 
   def testVectorEncoderOPFInstance(self):
     """calling VectorEncoder from OPF"""
-    opfVect = VectorEncoderOPF(3, 1, 3, n=3, w=1)
+    opfVect = VectorEncoderOPF(3, 1, 3, n=3, w=1, dataType="int")
     data=[1,2,3]
     enc=opfVect.encode(data)
     dec=opfVect.decode(enc)
@@ -93,7 +93,7 @@ class VectorEncoderTest(unittest.TestCase):
   def testSimpleVectorEncoderInstance(self):
     """ simple demo version"""
     simpleVect = SimpleVectorEncoder()
-    data=[1,2,3,4,5]
+    data=[1.0, 2.0, 3.0, 4.0, 5.0]
     enc=simpleVect.encode(data)
     dec=simpleVect.decode(enc)
     data2=simpleVect.getData(dec)
