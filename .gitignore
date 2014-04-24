@@ -4,19 +4,18 @@ Trunk.iml
 *.pyc
 *.class
 *.vcproj
-*.am
-*.in
 *.manifest
 *.cache
 *.project
 *.pydevproject
-configure
 trunk.sln
 *.m4
 test.out
 *~
 *.DS_Store
 *.swp
+
+# personalized nupic configuration file
 .nupic_config
 
 # IDE project files
@@ -36,8 +35,9 @@ html/
 
 Servers/
 
-# Build artifacts and .bashrc artifacts
+# Build files
 build/
+
 conf/default/nupic-site.xml
 configure.ac
 
@@ -49,9 +49,9 @@ configure.ac
 /examples/prediction/log.txt
 
 # /examples/prediction/experiments/hotgym/base/
-/examples/prediction/experiments/hotgym/base/inference
 /examples/prediction/experiments/hotgym/base/networks
 /examples/prediction/experiments/hotgym/base/report.txt
 /examples/prediction/experiments/hotgym/base/results.pkl
 
+# nupic.core repo is located under $NUPIC/nta/
 nta
