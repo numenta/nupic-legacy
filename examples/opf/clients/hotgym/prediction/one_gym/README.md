@@ -107,3 +107,9 @@ Hard-coded to run the [rec-center-hourly.csv](rec-center-hourly.csv) input for p
     ./run.py [--plot]
 
 If `--plot` is not specified, writes predictions to `rec-center-hourly_out.csv` file within the current working directory. If `--plot` is specified, will attempt to plot on screen using **matplotlib**. If matplotlib is not installed, this will fail miserably.
+
+### Cleanup
+
+    ./cleanup.py
+
+The previous steps leave some artifacts on your file system. Run this command to clean them up and start from scratch.
