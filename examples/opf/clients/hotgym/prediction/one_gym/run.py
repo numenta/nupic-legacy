@@ -1,5 +1,4 @@
 #! /usr/bin/python
-
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -21,92 +20,77 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 """
-This is the command-line interface for the One Hot Gym Prediction Tutorial.
+Groups together code used for creating a NuPIC model and dealing with IO.
+(This is a component of the One Hot Gym Prediction Tutorial.)
 """
+import importlib
+import os
 import sys
-import optparse
 
-import swarm_helper
-import nupic_runner
-import cleaner
+from nupic.frameworks.opf.modelfactory import ModelFactory
 
-# Hard-coded for simplicity.
+from io_helper import run_io_through_nupic
+
+
 GYM_NAME = "rec-center-hourly"
-INPUT_FILE = "rec-center-hourly.csv"
+DATA_DIR = "."
+MODEL_PARAMS_DIR = "./model_params"
+DESCRIPTION = (
+  "Starts a NuPIC model from the model params returned by the swarm\n"
+  "and pushes each line of input from the gym into the model. Results\n"
+  "are written to an output file (default) or plotted dynamically if\n"
+  "the --plot option is specified.\n"
+  "NOTE: You must run ./swarm.py before this, because model parameters\n"
+  "are required to run NuPIC.\n"
+)
+
+
+def _create_model(model_params):
+  model = ModelFactory.create(model_params)
+  model.enableInference({"predictedField": "kw_energy_consumption"})
+  return model
 
 
 
-def run_hot_gym(args):
-  """
-  Catches CLI args and turns them into actions using the swarm_helper,
-  nupic_runner, and cleaner modules.
-  """
-  # Optparse configuration.
-  helpString = (
-      "\n\n%prog <command> [options]\n\n"
-
-      "Current commands are:\n"
-
-      "\n\tswarm\n"
-      "\t\tRuns a swarm on the input data (Balgowlah_Platinum.csv) and\n"
-      "\t\tcreates a model parameters file in the `model_params` directory\n"
-      "\t\tcontaining the best model found by the swarm. Dumps a bunch of\n"
-      "\t\tcrud to stdout because that is just what swarming does at this\n"
-      "\t\tpoint. You really don't need to pay any attention to it.\n"
-
-      "\n\trun [--plot]\n"
-      "\t\tStarts a NuPIC model from the model params returned by the swarm\n"
-      "\t\tand pushes each line of input from the gym into the model. Results\n"
-      "\t\tare written to an output file (default) or plotted dynamically if\n"
-      "\t\tthe --plot option is specified.\n"
-      "\t\tNOTE: You must run the `swarm` command before this one, because\n"
-      "\t\tmodel parameters are required to run NuPIC.\n"
-
-      "\n\tcleanup\n"
-      "\t\tRemoves all generated files so you can start from scratch.\n"
-
-      "\n\nExample:\n"
-      "--------\n"
-
-      "> ./run.py swarm\n"
-      "> ./run.py run --plot\n"
-      "> ./run.py cleanup\n"
-
-      )
-
-  parser = optparse.OptionParser(usage=helpString)
-
-  parser.add_option(
-    "--plot", dest="plot", action="store_true",
-    help="If set, will plot results using matplotlib, otherwise writes to "
-         "output file."
+def _get_model_params_from_name(gym_name):
+  import_name = "model_params.%s_model_params" % (
+    gym_name.replace(" ", "_").replace("-", "_")
   )
+  print "Importing model params from %s" % import_name
+  try:
+    imported_model_params = importlib.import_module(import_name).MODEL_PARAMS
+  except ImportError:
+    raise Exception("No model params exist for '%s'. Run swarm first!"
+                    % gym_name)
+  return imported_model_params
 
-  (options, positional_args) = parser.parse_args(args)
 
-  # There must be a command.
-  if len(positional_args) is not 1:
-    parser.error("Please specify a command.")
 
-  command = positional_args[0]
+def run_model(gym_name, plot=False):
+  print "Creating model from %s..." % gym_name
+  model = _create_model(_get_model_params_from_name(gym_name))
+  input_data = ["%s/%s.csv" % (DATA_DIR, gym_name.replace(" ", "_"))]
+  run_io_through_nupic(input_data, [model], [gym_name], plot)
 
-  # Handle swarm command by deferring to swarm_helper.
-  if command == "swarm":
-    swarm_helper.swarm(INPUT_FILE)
 
-  # Handle run command by deferring to nupic_runner.
-  elif command == "run":
-    nupic_runner.run_model(GYM_NAME, options.plot)
 
-  # Handle cleanup command by calling the cleaner.
-  elif command == "cleanup":
-    cleaner.cleanup(working_dirs=["swarm"])
-
-  # WAT?
-  else:
-    parser.error("Unrecognized command '%s'." % command)
+def run_all_models(plot=False):
+  models = []
+  names = []
+  input_files = []
+  for input_file in sorted(os.listdir(DATA_DIR)):
+    name = os.path.splitext(input_file)[0]
+    names.append(name)
+    input_files.append(os.path.abspath(os.path.join(DATA_DIR, input_file)))
+    models.append(_create_model(_get_model_params_from_name(name)))
+  run_io_through_nupic(input_files, models, names, plot)
 
 
 
 if __name__ == "__main__":
-  run_hot_gym(sys.argv[1:])
+  print DESCRIPTION
+  plot = False
+  args = sys.argv[1:]
+  if "--plot" in args:
+    plot = True
+  run_model(GYM_NAME, plot=plot)

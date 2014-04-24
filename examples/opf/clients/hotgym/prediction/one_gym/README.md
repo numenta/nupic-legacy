@@ -10,7 +10,7 @@ This tutorial shows how to take that data file, create a [swarm](https://github.
 
 ## Program Description
 
-This is a Python CLI program that uses NuPIC's [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework). The CLI wrapper is described in the [Running the Program](#running-the-program) section below. There are two steps this program performs to get predictions for the input data from the [rec-center-hourly.csv](rec-center-hourly.csv) file, which are described below. There is also an optional step ([Cleanup](#cleanup)), which removes artifacts from the files system after the previous steps have run.
+This is a program consisting of a simple collection of Python scripts using NuPIC's [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework). Program execution is described in the [Running the Program](#running-the-program) section below. There are two steps this program performs to get predictions for the input data from the [rec-center-hourly.csv](rec-center-hourly.csv) file, which are described below. There is also an optional step ([Cleanup](#cleanup)), which removes artifacts from the files system after the previous steps have run.
 
 ## Program Phases
 
@@ -92,20 +92,18 @@ This phase simply removes all the file artifacts created within previous steps f
 
 ## Running the Program
 
-The program is a Python CLI script. You can see all the options by running:
-
-    ./run.py --help
+This program consists of 3 Python scripts you can execute from the command line and a few helper modules. The executable scripts are `swarm.py`, `run.py`, and `cleanup.py`. Each script prints out a description of the actions it takes when executed.
 
 There are two major steps: _swarming_ & _running_. Descriptions of these steps are above.
 
 ### Swarming
 
-    ./run.py swarm
+    ./swarm.py
 
 Hard-coded to run the [rec-center-hourly.csv](rec-center-hourly.csv) input for purposes of this tutorial application. Could take quite a long time for a medium swarm, depending on your hardware resources.
 
 ### Running
 
-    ./run.py run [--plot]
+    ./run.py [--plot]
 
 If `--plot` is not specified, writes predictions to `rec-center-hourly_out.csv` file within the current working directory. If `--plot` is specified, will attempt to plot on screen using **matplotlib**. If matplotlib is not installed, this will fail miserably.
