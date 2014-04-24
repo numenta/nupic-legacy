@@ -32,7 +32,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
 
 
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=True):
+                resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """[ScalarEncoder class method override]"""
     self._learningEnabled = True
     self._stateLock = False
@@ -46,7 +46,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     assert n!=0           #An adaptive encoder can only be intialized using n
 
     self._adaptiveScalarEnc = AdaptiveScalarEncoder(w=w, n=n, minval=minval,
-                   maxval=maxval, clipInput=True, name=name, verbosity=verbosity)
+                   maxval=maxval, clipInput=True, name=name, verbosity=verbosity, forced=forced)
     self.width+=self._adaptiveScalarEnc.getWidth()
     self.n = self._adaptiveScalarEnc.n
     self._prevAbsolute = None    #how many inputs have been sent to the encoder?

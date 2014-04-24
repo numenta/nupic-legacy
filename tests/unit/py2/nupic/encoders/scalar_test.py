@@ -36,7 +36,8 @@ class ScalarEncoderTest(unittest.TestCase):
   '''Unit tests for ScalarEncoder class'''
 
   def setUp(self):
-      self._l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=8, periodic=True)
+      # use of forced is not recommended, but used here for readability, see scalar.py
+      self._l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=8, periodic=True, forced=True)
 
     ############################################################################
   def testScalarEncoder(self):
@@ -44,7 +45,7 @@ class ScalarEncoderTest(unittest.TestCase):
 
       # -------------------------------------------------------------------------
       # test missing values
-      mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
+      mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False, forced=True)
       empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
       print "\nEncoded missing data \'None\' as %s" % empty
       self.assertEqual(empty.sum(), 0)
@@ -53,7 +54,7 @@ class ScalarEncoderTest(unittest.TestCase):
       # --------------------------------------------------------------------
   def testNaNs(self):
       """test NaNs"""
-      mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False)
+      mv = ScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False, forced=True)
       empty = mv.encode(float("nan"))
       print "\nEncoded missing data \'None\' as %s" % empty
       self.assertEqual(empty.sum(), 0)
@@ -61,9 +62,9 @@ class ScalarEncoderTest(unittest.TestCase):
       # ------------------------------------------------------------------------
   def testBottomUpEncodingPeriodicEncoder(self):
       """Test bottom-up encoding for a Periodic encoder"""
-      l = ScalarEncoder(n=14, w=3, minval=1, maxval=8, periodic=True)
+      l = ScalarEncoder(n=14, w=3, minval=1, maxval=8, periodic=True, forced=True)
       self.assertEqual(l.getDescription(), [("[1:8]", 0)])
-      l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=8, periodic=True)
+      l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=8, periodic=True, forced=True)
       self.assertEqual(l.getDescription(), [("scalar", 0)])
       self.assertTrue((l.encode(3) == numpy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                                          dtype=defaultDtype)).all())
@@ -94,13 +95,13 @@ class ScalarEncoderTest(unittest.TestCase):
       l = self._l
       d = l.__dict__
       l = ScalarEncoder(name='scalar', resolution=0.5, w=3, minval=1, maxval=8,
-                        periodic=True)
+                        periodic=True, forced=True)
       self.assertEqual(l.__dict__, d)
 
       # Test that we get the same encoder when we construct it using radius
       #  instead of n
       l = ScalarEncoder(name='scalar', radius=1.5, w=3, minval=1, maxval=8,
-                        periodic=True)
+                        periodic=True, forced=True)
       self.assertEqual(l.__dict__, d)
 
 
@@ -145,7 +146,7 @@ class ScalarEncoderTest(unittest.TestCase):
       # -----------------------------------------------------------------------
       # Test the input description generation on a large number, periodic encoder
       l = ScalarEncoder(name='scalar', radius=1.5, w=3, minval=1, maxval=8,
-                        periodic=True)
+                        periodic=True, forced=True)
       print "\nTesting periodic encoder decoding, resolution of %f..." % \
                 l.resolution
 
@@ -197,7 +198,7 @@ class ScalarEncoderTest(unittest.TestCase):
   def testCloseness(self):
       """Test closenessScores for a periodic encoder"""
       encoder = ScalarEncoder(w=7, minval=0, maxval=7, radius=1, periodic=True,
-                              name="day of week")
+                              name="day of week", forced=True)
       scores = encoder.closenessScores((2, 4, 7), (4, 2, 1), fractional=False)
       for actual, score in itertools.izip((2, 2, 1), scores):
         self.assertEqual(actual, score)
@@ -206,7 +207,7 @@ class ScalarEncoderTest(unittest.TestCase):
       # ============================================================================
   def testNonPeriodicBottomUp(self):
       """Test Non-periodic encoder bottom-up"""
-      l = ScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10, periodic=False)
+      l = ScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10, periodic=False, forced=True)
       print "\nTesting non-periodic encoder encoding, resolution of %f..." % \
                   l.resolution
       self.assertTrue((l.encode(1) == numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -220,12 +221,12 @@ class ScalarEncoderTest(unittest.TestCase):
       #  instead of n
       d = l.__dict__
       l = ScalarEncoder(name='scalar', resolution=1, w=5, minval=1, maxval=10,
-                         periodic=False)
+                         periodic=False, forced=True)
       self.assertEqual(l.__dict__, d)
 
       # Test that we get the same encoder when we construct it using radius
       #  instead of n
-      l = ScalarEncoder(name='scalar', radius=5, w=5, minval=1, maxval=10, periodic=False)
+      l = ScalarEncoder(name='scalar', radius=5, w=5, minval=1, maxval=10, periodic=False, forced=True)
       self.assertEqual(l.__dict__, d)
 
 
@@ -282,14 +283,14 @@ class ScalarEncoderTest(unittest.TestCase):
       print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
       #Test min and max
-      l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=10, periodic=False)
+      l = ScalarEncoder(name='scalar', n=14, w=3, minval=1, maxval=10, periodic=False, forced=True)
       decoded = l.topDownCompute(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1]))[0]
       self.assertEqual(decoded.value, 10)
       decoded = l.topDownCompute(numpy.array([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]))[0]
       self.assertEqual(decoded.value, 1)
 
       #Make sure only the last and first encoding encodes to max and min, and there is no value greater than max or min
-      l = ScalarEncoder(name='scalar', n=140, w=3, minval=1, maxval=141, periodic=False)
+      l = ScalarEncoder(name='scalar', n=140, w=3, minval=1, maxval=141, periodic=False, forced=True)
       for i in range(137):
         iterlist = [0 for _ in range(140)]
         for j in range(i, i+3):
@@ -306,7 +307,7 @@ class ScalarEncoderTest(unittest.TestCase):
       # Test the input description generation and top-down compute on a small number
       #   non-periodic encoder
       l = ScalarEncoder(name='scalar', n=15, w=3, minval=.001, maxval=.002,
-                        periodic=False)
+                        periodic=False, forced=True)
       print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
               l.resolution
       v = l.minval
@@ -332,7 +333,7 @@ class ScalarEncoderTest(unittest.TestCase):
       # -------------------------------------------------------------------------
       # Test the input description generation on a large number, non-periodic encoder
       l = ScalarEncoder(name='scalar', n=15, w=3, minval=1, maxval=1000000000,
-                        periodic=False)
+                        periodic=False, forced=True)
       print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
                 l.resolution
       v = l.minval
@@ -359,9 +360,9 @@ class ScalarEncoderTest(unittest.TestCase):
       if False:
           #TODO: remove all this? (and fieldstats from ScalarEncoder (if applicable) )?
         # Modified on 11/20/12 12:53 PM - setFieldStats not applicable for ScalarEncoder
-        l = ScalarEncoder(n=14, w=3, minval=100, maxval=800, periodic=True)
+        l = ScalarEncoder(n=14, w=3, minval=100, maxval=800, periodic=True, forced=True)
         l.setFieldStats("this", {"this":{"min":1, "max":8}})
-        l = ScalarEncoder(name='scalar', n=14, w=3, minval=100, maxval=800, periodic=True)
+        l = ScalarEncoder(name='scalar', n=14, w=3, minval=100, maxval=800, periodic=True, forced=True)
         l.setFieldStats("this", {"this":{"min":1, "max":8}})
         self.assertTrue((l.encode(3) == numpy.array([0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                                            dtype=defaultDtype)).all())
@@ -382,7 +383,7 @@ class ScalarEncoderTest(unittest.TestCase):
         self.assertTrue((l.encode(7.5) == numpy.array([1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
                                              dtype=defaultDtype)).all())
 
-        l = ScalarEncoder(name='scalar', n=14, w=5, minval=100, maxval=1000, periodic=False)
+        l = ScalarEncoder(name='scalar', n=14, w=5, minval=100, maxval=1000, periodic=False, forced=True)
         l.setFieldStats("this", {"this":{"min":1, "max":10}})
 
         print "\nTesting non-periodic encoding using setFieldStats, resolution of %f..." % \

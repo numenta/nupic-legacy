@@ -105,10 +105,10 @@ config = {
                 'w': 21},
               'address': {   
                 'fieldname': u'address',
-                'n': 100,
+                'n': 300,
                 'name': u'address',
                 'type': 'SDRCategoryEncoder',
-                'w': 7},
+                'w': 21},
               'gym':     {   
                 'fieldname': u'gym',
                 'n': 100,

@@ -112,14 +112,14 @@ class VectorEncoderOPF(VectorEncoder):
      cannot be used there directly. """
 
   def __init__(self, length, minval, maxval, w=21, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=False):
+                resolution=0, name=None, verbosity=0, clipInput=False, forced=False):
     """instance of VectorEncoder using ScalarEncoder as base, 
        use-case: in OPF description.py files, where you cannot use VectorEncoder directly (see above);
-       param length: #elements in the vector, 
-       param: rest of params is from ScalarEncoder, see scalar.py for details"""
+       @param length: #elements in the vector, 
+       @param: rest of params is from ScalarEncoder, see scalar.py for details"""
 
     sc = ScalarEncoder(w, minval, maxval, periodic=periodic, n=n, radius=radius, resolution=resolution, 
-                       name=name, verbosity=verbosity, clipInput=clipInput)
+                       name=name, verbosity=verbosity, clipInput=clipInput, forced=forced)
     super(VectorEncoderOPF, self).__init__(length, sc, typeCastFn=float)
 
 
@@ -129,7 +129,7 @@ class SimpleVectorEncoder(VectorEncoder):
      by default encodes list of 5 elements, numbers 0-100"""
 
   def __init__(self, length=5, minval=0, maxval=100, resolution=1, name='vect'):
-    sc = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
+    sc = ScalarEncoder(21, minval, maxval, resolution=resolution, name='idx')
     super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=float)
 
 

@@ -37,7 +37,7 @@ class VectorEncoderTest(unittest.TestCase):
   def setUp(self):
     self.name = "vec"
     self._encoder = VectorEncoder
-    self._subEnc = ScalarEncoder(5, 0, 10, n=20)
+    self._subEnc = ScalarEncoder(5, 0, 10, n=20, forced=True)
 
 
   def testInitialization(self):
@@ -50,7 +50,7 @@ class VectorEncoderTest(unittest.TestCase):
     e.encode(data)
 
   def testDecoding(self):
-    s = ScalarEncoder(1,1,3,n=3, name='idx')
+    s = ScalarEncoder(1,1,3,n=3, name='idx', forced=True)
     v = VectorEncoder(3, s, typeCastFn=float)
 
     data=[1,2,3]
@@ -69,7 +69,7 @@ class VectorEncoderTest(unittest.TestCase):
 
   def testVectorEncoderOPFInstance(self):
     # for calling from OPF, use this:
-    opfVect = VectorEncoderOPF(3, 1, 3, w=1, n=3)
+    opfVect = VectorEncoderOPF(3, 1, 3, w=1, n=3, forced=True)
  
   def testSimpleVectorEncoderInstance(self):
     # demo version:
