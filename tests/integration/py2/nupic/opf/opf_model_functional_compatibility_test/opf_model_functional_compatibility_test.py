@@ -28,8 +28,8 @@ NOTE: If you want to change the baseline, run the test to see it fail
       and print the new hash, and update the appropriate hash below.
 """
 
-MODEL_HASH_GLOBAL_SP = "00e3e2b7571e7cc3203e2478439995596a9a395a"
-MODEL_HASH_LOCAL_SP  = "beee42772b2111cd7b67221ae2dd62de43bdceb8"
+MODEL_HASH_GLOBAL_SP = "b296ed3c108aed2ff863950f6d1981b9caa080a4"
+MODEL_HASH_LOCAL_SP  = "08af50f2bf8262fa2bafe0fac61e9195bb320aac"
 
 
 
@@ -106,7 +106,7 @@ def getCheckpointHash(directory, verbose=False):
         if not buf:
           break
 
-        checkpointHash.update(hashlib.sha1(buf).hexdigest())
+        checkpointHash.update(buf)
 
       f.close()
 
