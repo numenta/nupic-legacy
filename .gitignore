@@ -18,6 +18,8 @@ test.out
 *.swp
 .nupic_config
 
+
+nbproject/
 html/
 
 Servers/
