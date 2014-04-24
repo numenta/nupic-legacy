@@ -29,6 +29,9 @@ data/
 inference/
 savedmodels/
 
+# other crap
+*.nta/
+
 html/
 
 Servers/
