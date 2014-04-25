@@ -100,7 +100,7 @@ permutations = {
 }
 
 
-# Fields selected for final hypersearch report;
+# Fields selected for final swarm report;
 # NOTE: These values are used as regular expressions by RunPermutations.py's
 #       report generator
 # (fieldname values generated from PERM_PREDICTED_FIELD_NAME)

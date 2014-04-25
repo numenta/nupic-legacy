@@ -63,7 +63,7 @@ permutations = {
 }
 
 
-# Fields selected for final hypersearch report;
+# Fields selected for final swarm report;
 # NOTE: These values are used as regular expressions by RunPermutations.py's
 #       report generator
 # (fieldname values generated from PERM_PREDICTED_FIELD_NAME)
@@ -81,7 +81,7 @@ minimize = 'prediction:aae:window=1000:field=attendance'
 
 #############################################################################
 def dummyModelParams(perm):
-  """ This function can be used for Hypersearch algorithm development. When
+  """ This function can be used for Swarm algorithm development. When
   present, we don't actually run the CLA model in the OPF, but instead run
   a dummy model. This function returns the dummy model params that will be
   used. See the OPFDummyModelRunner class source code (in

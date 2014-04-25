@@ -70,16 +70,16 @@ class SwarmTerminator(object):
   def __init__(self, milestones=None, logLevel=None):
     # Set class constants.
     self.MATURITY_WINDOW  = int(Configuration.get(
-                                      "nupic.hypersearch.swarmMaturityWindow"))
+                                      "nupic.swarm.swarmMaturityWindow"))
     self.MAX_GENERATIONS = int(Configuration.get(
-                                      "nupic.hypersearch.swarmMaxGenerations"))
+                                      "nupic.swarm.swarmMaxGenerations"))
     if self.MAX_GENERATIONS < 0:
       self.MAX_GENERATIONS = None
 
     # Set up instsance variables.
 
     self._isTerminationEnabled = bool(int(Configuration.get(
-        'nupic.hypersearch.enableSwarmTermination')))
+        'nupic.swarm.enableSwarmTermination')))
 
     self.swarmBests = dict()
     self.swarmScores = dict()
@@ -188,7 +188,7 @@ class ResultsDB(object):
 
     Parameters:
     --------------------------------------------------------------------
-    hsObj:        Reference to the HypersearchV2 instance
+    hsObj:        Reference to the swarmV2 instance
     """
     self._hsObj = hsObj
 
@@ -870,7 +870,7 @@ class Particle(object):
   A particle belongs to 1 and only 1 swarm. A swarm is a collection of particles
   that all share the same global best position. A swarm is identified by its
   specific combination of fields. If we are evaluating multiple different field
-  combinations, then there will be multiple swarms. A Hypersearch Worker (HSW)
+  combinations, then there will be multiple swarms. A swarm Worker (HSW)
   will only instantiate and run one particle at a time. When done running a
   particle, another worker can pick it up, pick a new position, for it and run
   it based on the particle state information which is stored in each model table
@@ -919,7 +919,7 @@ class Particle(object):
 
     Parameters:
     --------------------------------------------------------------------
-    hsObj:    The HypersearchV2 instance
+    hsObj:    The swarmV2 instance
 
     resultsDB: the ResultsDB instance that holds all the model results
 
@@ -1288,7 +1288,7 @@ class Particle(object):
 
 
 class HsState(object):
-  """This class encapsulates the Hypersearch state which we share with all
+  """This class encapsulates the swarm state which we share with all
   other workers. This state gets serialized into a JSON dict and written to
   the engWorkerState field of the job record.
 
@@ -2120,8 +2120,8 @@ class HsState(object):
       encoderAddSet = []
 
       # If we have constraints on how many fields we carry forward into
-      # subsequent sprints (either nupic.hypersearch.max.field.branching or
-      # nupic.hypersearch.min.field.contribution was set), then be more
+      # subsequent sprints (either nupic.swarm.max.field.branching or
+      # nupic.swarm.min.field.contribution was set), then be more
       # picky about which fields we add in.
       limitFields = False
       if self._hsObj._maxBranching > 0 \
@@ -2292,9 +2292,9 @@ class HsSearchType(object):
   classification = 'classification'
 
 
-class HypersearchV2(object):
-  """The v2 Hypersearch implementation. This is one example of a Hypersearch
-  implementation that can be used by the HypersearchWorker. Other implementations
+class SwarmV2(object):
+  """The v2 swarm implementation. This is one example of a swarm
+  implementation that can be used by the swarmWorker. Other implementations
   just have to implement the following methods:
 
     createModels()
@@ -2303,7 +2303,7 @@ class HypersearchV2(object):
     getComplexVariableLabelLookupDict()
 
   This implementation uses a hybrid of Particle Swarm Optimization (PSO) and
-  the old "ronamatic" logic from Hypersearch V1. Variables which are lists of
+  the old "ronamatic" logic from swarm V1. Variables which are lists of
   choices (i.e. string values, integer values that represent different
   categories) are searched using the ronamatic logic whereas floats and
   integers that represent a range of values are searched using PSO.
@@ -2387,11 +2387,11 @@ class HypersearchV2(object):
                                      See utils.py/OPFDummyModel runner for the
                                      schema of the dummy parameters
       speculativeParticles OPTIONAL - True or False (default obtained from
-                                     nupic.hypersearch.speculative.particles.default
+                                     nupic.swarm.speculative.particles.default
                                      configuration property). See note below.
 
       NOTE: The caller must provide just ONE of the following to describe the
-      hypersearch:
+      swarm:
             1.) permutationsPyFilename
         OR  2.) permutationsPyContents & permutationsPyContents
         OR  3.) description
@@ -2399,7 +2399,7 @@ class HypersearchV2(object):
       The schema for the description element can be found at:
        "py/nupic/frameworks/opf/expGenerator/experimentDescriptionSchema.json"
 
-      NOTE about speculativeParticles: If true (not 0), hypersearch workers will
+      NOTE about speculativeParticles: If true (not 0), swarm workers will
       go ahead and create and run particles in subsequent sprints and
       generations before the current generation or sprint has been completed. If
       false, a worker will wait in a sleep loop until the current generation or
@@ -2407,13 +2407,13 @@ class HypersearchV2(object):
       into the next sprint. When true, the best model can be found faster, but
       results are less repeatable due to the randomness of when each worker
       completes each particle. This property can be overridden via the
-      speculativeParticles element of the Hypersearch job params.
+      speculativeParticles element of the swarm job params.
 
 
-    workerID:   our unique Hypersearch worker ID
+    workerID:   our unique swarm worker ID
 
     cjDAO:      ClientJobsDB Data Access Object
-    jobID:      job ID for this hypersearch job
+    jobID:      job ID for this swarm job
     logLevel:   override logging level to this value, if not None
     """
     
@@ -2452,17 +2452,17 @@ class HypersearchV2(object):
     # Speculative particles?
     self._speculativeParticles = self._searchParams.get('speculativeParticles',
         bool(int(Configuration.get(
-                        'nupic.hypersearch.speculative.particles.default'))))
+                        'nupic.swarm.speculative.particles.default'))))
     self._speculativeWaitSecondsMax = float(Configuration.get(
-                    'nupic.hypersearch.speculative.particles.sleepSecondsMax'))
+                    'nupic.swarm.speculative.particles.sleepSecondsMax'))
 
     # Maximum Field Branching
     self._maxBranching= int(Configuration.get(
-                             'nupic.hypersearch.max.field.branching'))
+                             'nupic.swarm.max.field.branching'))
 
     # Minimum Field Contribution
     self._minFieldContribution= float(Configuration.get(
-                             'nupic.hypersearch.min.field.contribution'))
+                             'nupic.swarm.min.field.contribution'))
 
     # This gets set if we detect that the job got cancelled
     self._jobCancelled = False
@@ -2472,9 +2472,9 @@ class HypersearchV2(object):
       useTerminators = self._searchParams['useTerminators']
       useTerminators = str(int(useTerminators))
 
-      Configuration.set('nupic.hypersearch.enableModelTermination', useTerminators)
-      Configuration.set('nupic.hypersearch.enableModelMaturity', useTerminators)
-      Configuration.set('nupic.hypersearch.enableSwarmTermination', useTerminators)
+      Configuration.set('nupic.swarm.enableModelTermination', useTerminators)
+      Configuration.set('nupic.swarm.enableModelMaturity', useTerminators)
+      Configuration.set('nupic.swarm.enableSwarmTermination', useTerminators)
 
     # Special test mode?
     if 'NTA_TEST_exitAfterNModels' in os.environ:
@@ -2632,21 +2632,21 @@ class HypersearchV2(object):
       # Instantiate the Swarm Terminator
       self._swarmTerminator = SwarmTerminator()
 
-      # Initial hypersearch state
+      # Initial swarm state
       self._hsState = None
 
       # The Max # of attempts we will make to create a unique model before
       #  giving up.
       self._maxUniqueModelAttempts = int(Configuration.get(
-                                      'nupic.hypersearch.maxUniqueModelAttempts'))
+                                      'nupic.swarm.maxUniqueModelAttempts'))
 
       # The max amount of time allowed before a model is considered orphaned.
       self._modelOrphanIntervalSecs = float(Configuration.get(
-                                      'nupic.hypersearch.modelOrphanIntervalSecs'))
+                                      'nupic.swarm.modelOrphanIntervalSecs'))
 
       # The max percent of models that can complete with errors
       self._maxPctErrModels = float(Configuration.get(
-                                      'nupic.hypersearch.maxPctErrModels'))
+                                      'nupic.swarm.maxPctErrModels'))
 
     except:
       # Clean up our temporary directory, if any
@@ -2749,7 +2749,7 @@ class HypersearchV2(object):
           through a "Dummy Model" (nupic.swarming.ModelRunner.
           OPFDummyModelRunner). This function returns the params dict used
           to control various options in the dummy model (the returned metric,
-          the execution time, etc.). This is used for hypersearch algorithm
+          the execution time, etc.). This is used for swarm algorithm
           development.
 
     Parameters:
@@ -2791,7 +2791,7 @@ class HypersearchV2(object):
     self._minParticlesPerSwarm = vars.get('minParticlesPerSwarm')
     if self._minParticlesPerSwarm  == None:
       self._minParticlesPerSwarm = Configuration.get(
-                                      'nupic.hypersearch.minParticlesPerSwarm')
+                                      'nupic.swarm.minParticlesPerSwarm')
     self._minParticlesPerSwarm = int(self._minParticlesPerSwarm)
     
     # Enable logic to kill off speculative swarms when an earlier sprint
@@ -2950,9 +2950,9 @@ class HypersearchV2(object):
 
   def getExpectedNumModels(self):
     """Computes the number of models that are expected to complete as part of
-    this instances's HyperSearch.
+    this instances's Swarm.
 
-    NOTE: This is compute-intensive for HyperSearches with a huge number of
+    NOTE: This is compute-intensive for Swarmes with a huge number of
     combinations.
 
     NOTE/TODO:  THIS ONLY WORKS FOR RONOMATIC: This method is exposed for the
@@ -2967,9 +2967,9 @@ class HypersearchV2(object):
 
   def getModelNames(self):
     """Generates a list of model names that are expected to complete as part of
-    this instances's HyperSearch.
+    this instances's Swarm.
 
-    NOTE: This is compute-intensive for HyperSearches with a huge number of
+    NOTE: This is compute-intensive for Swarmes with a huge number of
     combinations.
 
     NOTE/TODO:  THIS ONLY WORKS FOR RONOMATIC: This method is exposed for the
@@ -2977,7 +2977,7 @@ class HypersearchV2(object):
 
     Parameters:
     ---------------------------------------------------------
-    retval:       List of model names for this HypersearchV2 instance, or
+    retval:       List of model names for this swarmV2 instance, or
                   None of not applicable
     """
     return None
@@ -3097,7 +3097,7 @@ class HypersearchV2(object):
     removeSwarmId:     If not None, force a change to the current set of active
                       swarms by removing this swarm. This is used in situations
                       where we can't find any new unique models to create in
-                      this swarm. In these situations, we update the hypersearch
+                      this swarm. In these situations, we update the swarm
                       state regardless of the timestamp of the last time another
                       worker updated it.
 
@@ -3219,7 +3219,7 @@ class HypersearchV2(object):
       if not self._hsState.isDirty():
         return
 
-      # Update the shared Hypersearch state now
+      # Update the shared swarm state now
       # This will do nothing and return False if some other worker beat us to it
       success = self._hsState.writeStateToDB()
 
@@ -3295,7 +3295,7 @@ class HypersearchV2(object):
                         it, mark it as 'completing', else 'completed. This is
                         used in situations where we can't find any new unique
                         models to create in this swarm. In these situations, we
-                        force an update to the hypersearch state so no other
+                        force an update to the swarm state so no other
                         worker wastes time try to use this swarm.
 
     retval: (exit, particle, swarm)
@@ -3328,13 +3328,13 @@ class HypersearchV2(object):
               (workerCmpReason, workerCmpMsg))
       return (True, None, None)
 
-    # Perform periodic updates on the Hypersearch state.
+    # Perform periodic updates on the swarm state.
     if self._hsState is not None:
       priorActiveSwarms = self._hsState.getActiveSwarms()
     else:
       priorActiveSwarms = None
 
-    # Update the HypersearchState, checking for matured swarms, and marking
+    # Update the swarmState, checking for matured swarms, and marking
     #  the passed in swarm as exhausted, if any
     self._hsStatePeriodicUpdate(exhaustedSwarmId=exhaustedSwarmId)
 
@@ -3583,7 +3583,7 @@ class HypersearchV2(object):
     """Test if it's OK to exit this worker. This is only called when we run
     out of prospective new models to evaluate. This method sees if all models
     have matured yet. If not, it will sleep for a bit and return False. This
-    will indicate to the hypersearch worker that we should keep running, and
+    will indicate to the swarm worker that we should keep running, and
     check again later. This gives this worker a chance to pick up and adopt any
     model which may become orphaned by another worker before it matures.
 
@@ -3593,7 +3593,7 @@ class HypersearchV2(object):
     """
     # Send an update status periodically to the JobTracker so that it doesn't
     # think this worker is dead.
-    print >> sys.stderr, "reporter:status:In hypersearchV2: _okToExit"
+    print >> sys.stderr, "reporter:status:In swarmV2: _okToExit"
 
     # Any immature models still running?
     if not self._jobCancelled:
@@ -3643,7 +3643,7 @@ class HypersearchV2(object):
                                                               pctFieldContributions)
       else:
         self.logger.info('Failed updating the field contributions, ' \
-                         'another hypersearch worker must have updated it')
+                         'another swarm worker must have updated it')
 
     return True
 
@@ -3662,14 +3662,14 @@ class HypersearchV2(object):
     """Create one or more new models for evaluation. These should NOT be models
     that we already know are in progress (i.e. those that have been sent to us
     via recordModelProgress). We return a list of models to the caller
-    (HypersearchWorker) and if one can be successfully inserted into
-    the models table (i.e. it is not a duplicate) then HypersearchWorker will
+    (swarmWorker) and if one can be successfully inserted into
+    the models table (i.e. it is not a duplicate) then swarmWorker will
     turn around and call our runModel() method, passing in this model. If it
-    is a duplicate, HypersearchWorker will call this method again. A model
+    is a duplicate, swarmWorker will call this method again. A model
     is a duplicate if either the  modelParamsHash or particleHash is
     identical to another entry in the model table.
 
-    The numModels is provided by HypersearchWorker as a suggestion as to how
+    The numModels is provided by swarmWorker as a suggestion as to how
     many models to generate. This particular implementation only ever returns 1
     model.
 
@@ -3691,7 +3691,7 @@ class HypersearchV2(object):
     generated.
 
     NOTE: We check first ourselves for possible duplicates using the paramsHash
-    before we return a model. If HypersearchWorker failed to insert it (because
+    before we return a model. If swarmWorker failed to insert it (because
     some other worker beat us to it), it will turn around and call our
     recordModelProgress with that other model so that we now know about it. It
     will then call createModels() again.
@@ -3762,7 +3762,7 @@ class HypersearchV2(object):
         else:
           # Send an update status periodically to the JobTracker so that it doesn't
           # think this worker is dead.
-          print >> sys.stderr, "reporter:status:In hypersearchV2: speculativeWait"
+          print >> sys.stderr, "reporter:status:In swarmV2: speculativeWait"
           time.sleep(self._speculativeWaitSecondsMax * random.random())
           return (False, [])
       useEncoders = candidateSwarm.split('.')
@@ -3855,7 +3855,7 @@ class HypersearchV2(object):
 
       # Log message
       if self.logger.getEffectiveLevel() <= logging.DEBUG:
-        self.logger.debug("Submitting new potential model to HypersearchWorker: \n%s"
+        self.logger.debug("Submitting new potential model to swarmWorker: \n%s"
                        % (pprint.pformat(modelParams, indent=4)))
       modelResults.append((modelParams, paramsHash, particleHash))
     return (False, modelResults)
@@ -3871,7 +3871,7 @@ class HypersearchV2(object):
     the hash of the params. Subsequent updates of the same modelID will
     have params and paramsHash values of None (in order to save overhead).
 
-    The Hypersearch object should save these results into it's own working
+    The swarm object should save these results into it's own working
     memory into some table, which it then uses to determine what kind of
     new models to create next time createModels() is called.
 
@@ -3934,7 +3934,7 @@ class HypersearchV2(object):
     -------------------------------------------------------------------------
     modelID:             ID of this model in models table
 
-    jobID:               ID for this hypersearch job in the jobs table
+    jobID:               ID for this swarm job in the jobs table
 
     modelParams:         parameters of this specific model
                          modelParams is a dictionary containing the name/value

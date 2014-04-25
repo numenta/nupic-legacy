@@ -81,7 +81,7 @@ permutations = {
 }
 
 
-# Fields selected for final hypersearch report;
+# Fields selected for final swarm report;
 # NOTE: These values are used as regular expressions by RunPermutations.py's
 #       report generator
 # (fieldname values generated from PERM_PREDICTED_FIELD_NAME)
@@ -103,15 +103,15 @@ inputPredictedField = os.environ.get("NTA_TEST_inputPredictedField", "auto")
 
 #############################################################################
 def dummyModelParams(perm):
-  """ This function can be used for Hypersearch algorithm development. When
-  present, Hypersearch doesn't actually run the CLA model in the OPF, but 
+  """ This function can be used for Swarm algorithm development. When
+  present, Swarm doesn't actually run the CLA model in the OPF, but 
   instead runs a dummy model. This function returns the dummy model params that 
   will be used. See the OPFDummyModelRunner class source code (in
   nupic.swarming.ModelRunner) for a description of the schema 
   for the dummy model params.
   """
 
-  # We are trying to get Hypersearch to find a model with:
+  # We are trying to get Swarm to find a model with:
   #   no consumption encoder
   #   any address encoder
   #   any gym encoder

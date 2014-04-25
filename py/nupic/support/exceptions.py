@@ -37,7 +37,7 @@ class StreamDisappearedError(Exception):
 
 ###############################################################################
 class GrokJobFailException(Exception):
-  """ This exception signals that the Grok job (e.g., Hypersearch, Production,
+  """ This exception signals that the Grok job (e.g., Swarm, Production,
   etc.) should be aborted due to the given error.
   """
 

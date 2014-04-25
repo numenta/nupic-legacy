@@ -165,7 +165,7 @@ class OPFDummyModelRunner(OPFModelRunner):
                                    Mutually exclusive with metricValue
 
                   metricValue:    OPTIONAL-A single value to use for the metric
-                                  value (used to debug hypersearch).
+                                  value (used to debug swarm).
 
                                   Mutually exclusive with metricFunctions
 
@@ -501,7 +501,7 @@ class OPFDummyModelRunner(OPFModelRunner):
       if self._isKilled:
         break
 
-      # If job stops or hypersearch ends, stop running
+      # If job stops or swarm ends, stop running
       if self._isCanceled:
         break
 

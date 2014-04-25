@@ -305,7 +305,7 @@ def _handleModelRunnerException(jobID, modelID, jobsDAO, experimentDir, logger,
 
   Parameters:
   -------------------------------------------------------------------------
-  jobID:                ID for this hypersearch job in the jobs table
+  jobID:                ID for this swarm job in the jobs table
   modelID:              model ID
   jobsDAO:              ClientJobsDAO instance
   experimentDir:        directory containing the experiment
@@ -361,7 +361,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
   Parameters:
   -------------------------------------------------------------------------
   modelID:              ID for this model in the models table
-  jobID:                ID for this hypersearch job in the jobs table
+  jobID:                ID for this swarm job in the jobs table
   baseDescription:      Contents of a description.py with the base experiment
                                           description
   params:               Dictionary of specific parameters to override within
@@ -382,7 +382,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
   from nupic.swarming.ModelRunner import OPFModelRunner
 
   # The logger for this method
-  logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')
+  logger = logging.getLogger('com.numenta.nupic.swarm.utils')
 
 
   # --------------------------------------------------------------------------
@@ -475,7 +475,7 @@ def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
   from nupic.swarming.DummyModelRunner import OPFDummyModelRunner
 
   # The logger for this method
-  logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')
+  logger = logging.getLogger('com.numenta.nupic.swarm.utils')
 
 
   # -------------------------------------------------------------------------

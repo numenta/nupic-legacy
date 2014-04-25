@@ -1,5 +1,5 @@
 {
-  "description":"Hypersearch job parameters schema",
+  "description":"swarm job parameters schema",
   "type":"object",
   "additionalProperties":false,
   "properties":{
@@ -62,7 +62,7 @@
     
     "deterministicMode":{
       "type":"boolean",
-      "description":"Enable/Disable deterministic mode. In deterministic mode, Hypersearch will return the exact same result after every run, at the expense of speed  NOTE: This only applies to HSv1",
+      "description":"Enable/Disable deterministic mode. In deterministic mode, swarm will return the exact same result after every run, at the expense of speed  NOTE: This only applies to HSv1",
       "required":false
     },
     
@@ -89,7 +89,7 @@
     
     "speculativeParticles":{
       "type":"boolean",
-      "description":"If true (not 0), hypersearch workers will go ahead and create and run particles in subsequent sprints before the current sprint has been completed. If false, a worker will wait in a sleep loop until the current generation or sprint has finished before choosing the next particle position or going into the next sprint. When true, the best model can be found faster, but results are less repeatable due to the randomness of when each worker completes each particle.",
+      "description":"If true (not 0), swarm workers will go ahead and create and run particles in subsequent sprints before the current sprint has been completed. If false, a worker will wait in a sleep loop until the current generation or sprint has finished before choosing the next particle position or going into the next sprint. When true, the best model can be found faster, but results are less repeatable due to the randomness of when each worker completes each particle.",
       "required":false
     },
 

@@ -46,8 +46,8 @@ from nupic.swarming.permutationhelpers import *
 
 helpString = \
 """%prog [options]
-This script can be used to analyze the results of a hypersearch run. Given a
-jobID, it will read the models table for that hypersearch, generate a csv with
+This script can be used to analyze the results of a swarm run. Given a
+jobID, it will read the models table for that swarm, generate a csv with
 useful information and print out other statistics.
 """
 
@@ -57,7 +57,7 @@ def main(argv):
   parser = OptionParser(helpString)
 
   parser.add_option("--jobID", action="store", type="int", default=None,
-        help="jobID of the hypersearch job [default: %default].")
+        help="jobID of the swarm job [default: %default].")
 
   # Evaluate command line arguments
   options, args = parser.parse_args(argv[1:])

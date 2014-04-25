@@ -91,7 +91,7 @@ class OPFModelRunner(object):
     -------------------------------------------------------------------------
     modelID:            ID for this model in the models table
 
-    jobID:              ID for this hypersearch job in the jobs table
+    jobID:              ID for this swarm job in the jobs table
     predictedField:     Name of the input field for which this model is being
                         optimized
     experimentDir:      Directory path containing the experiment's
@@ -117,9 +117,9 @@ class OPFModelRunner(object):
     # -----------------------------------------------------------------------
     # Initialize class constants
     # -----------------------------------------------------------------------
-    self._MIN_RECORDS_TO_BE_BEST = int(Configuration.get('nupic.hypersearch.bestModelMinRecords'))
-    self._MATURITY_MAX_CHANGE = float(Configuration.get('nupic.hypersearch.maturityPctChange'))
-    self._MATURITY_NUM_POINTS = int(Configuration.get('nupic.hypersearch.maturityNumPoints'))
+    self._MIN_RECORDS_TO_BE_BEST = int(Configuration.get('nupic.swarm.bestModelMinRecords'))
+    self._MATURITY_MAX_CHANGE = float(Configuration.get('nupic.swarm.maturityPctChange'))
+    self._MATURITY_NUM_POINTS = int(Configuration.get('nupic.swarm.maturityNumPoints'))
 
     # -----------------------------------------------------------------------
     # Initialize instance variables
@@ -134,7 +134,7 @@ class OPFModelRunner(object):
     self._modelCheckpointGUID = modelCheckpointGUID
     self._predictionCacheMaxRecords = predictionCacheMaxRecords
 
-    self._isMaturityEnabled = bool(int(Configuration.get('nupic.hypersearch.enableModelMaturity')))
+    self._isMaturityEnabled = bool(int(Configuration.get('nupic.swarm.enableModelMaturity')))
 
     self._logger = logging.getLogger(".".join( ['com.numenta',
                        self.__class__.__module__, self.__class__.__name__]))
@@ -325,7 +325,7 @@ class OPFModelRunner(object):
       if self._isKilled:
         break
 
-      # If job stops or hypersearch ends, stop running
+      # If job stops or swarm ends, stop running
       if self._isCanceled:
         break
 
@@ -483,7 +483,7 @@ class OPFModelRunner(object):
       predictionsSource=predictions)
 
 
-    self._logger.info("Checkpointed Hypersearch Model: modelID: %r, "
+    self._logger.info("Checkpointed swarm Model: modelID: %r, "
                       "checkpointID: %r", self._modelID, checkpointID)
     return
 
@@ -533,7 +533,7 @@ class OPFModelRunner(object):
     self._predictionLogger = BasicPredictionLogger(
       fields=self._model.getFieldInfo(),
       experimentDir=self._experimentDir,
-      label = "hypersearch-worker",
+      label = "swarm-worker",
       inferenceType=self._model.getInferenceType())
 
     if self.__loggedMetricPatterns:
@@ -932,7 +932,7 @@ class OPFModelRunner(object):
 
     # Update a hadoop job counter at least once every 600 seconds so it doesn't
     #  think our map task is dead
-    print >>sys.stderr, "reporter:counter:HypersearchWorker,numRecords,50"
+    print >>sys.stderr, "reporter:counter:swarmWorker,numRecords,50"
 
     # See if the job got cancelled
     jobCancel = self._jobsDAO.jobGetFields(self._jobID, ['cancel'])[0]
@@ -950,13 +950,13 @@ class OPFModelRunner(object):
       elif stopReason == ClientJobsDAO.STOP_REASON_KILLED:
         self._cmpReason = ClientJobsDAO.CMPL_REASON_KILLED
         self._isKilled = True
-        self._logger.info("Model %s canceled because it was killed by hypersearch",
+        self._logger.info("Model %s canceled because it was killed by swarm",
                           self._modelID)
 
       elif stopReason == ClientJobsDAO.STOP_REASON_STOPPED:
         self._cmpReason = ClientJobsDAO.CMPL_REASON_STOPPED
         self._isCanceled = True
-        self._logger.info("Model %s stopped because hypersearch ended", self._modelID)
+        self._logger.info("Model %s stopped because swarm ended", self._modelID)
       else:
         raise RuntimeError ("Unexpected stop reason encountered: %s" % (stopReason))
 

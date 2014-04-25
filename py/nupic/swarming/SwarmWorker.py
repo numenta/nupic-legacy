@@ -45,18 +45,18 @@ from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming.modelchooser import ModelChooser
 
-from HypersearchV2 import HypersearchV2
+from SwarmV2 import SwarmV2
 
 
 
-class HypersearchWorker(object):
-  """ The HypersearchWorker is responsible for evaluating one or more models
-  within a specific Hypersearch job.
+class SwarmWorker(object):
+  """ The swarmWorker is responsible for evaluating one or more models
+  within a specific swarm job.
 
   One or more instances of this object are launched by the engine, each in a
   separate process. When running within Hadoop, each instance is run within a
   separate Hadoop Map Task. Each instance gets passed the parameters of the
-  hypersearch via a reference to a search job request record in a "jobs" table
+  swarm via a reference to a search job request record in a "jobs" table
   within a database.
 
   From there, each instance will try different models, based on the search
@@ -76,7 +76,7 @@ class HypersearchWorker(object):
 
   ########################################################################
   def __init__(self, options, cmdLineArgs):
-    """ Instantiate the Hypersearch worker
+    """ Instantiate the swarm worker
 
     Parameters:
     ---------------------------------------------------------------------
@@ -103,13 +103,13 @@ class HypersearchWorker(object):
                       str(cmdLineArgs))
 
     self.logger.debug("Env variables: %s" % (pprint.pformat(os.environ)))
-    #self.logger.debug("Value of nupic.hypersearch.modelOrphanIntervalSecs: %s" \
-    #          % Configuration.get('nupic.hypersearch.modelOrphanIntervalSecs'))
+    #self.logger.debug("Value of nupic.swarm.modelOrphanIntervalSecs: %s" \
+    #          % Configuration.get('nupic.swarm.modelOrphanIntervalSecs'))
 
     # Init random seed
     random.seed(42)
 
-    # This will hold an instance of a Hypersearch class which handles
+    # This will hold an instance of a swarm class which handles
     #  the logic of which models to create/evaluate.
     self._hs = None
 
@@ -117,7 +117,7 @@ class HypersearchWorker(object):
     # -------------------------------------------------------------------------
     # These elements form a cache of the update counters we last received for
     # the all models in the database. It is used to determine which models we
-    # have to notify the Hypersearch object that the results have changed.
+    # have to notify the swarm object that the results have changed.
 
     # This is a dict of modelID -> updateCounter
     self._modelIDCtrDict = dict()
@@ -135,7 +135,7 @@ class HypersearchWorker(object):
   ########################################################################
   def _processUpdatedModels(self, cjDAO):
     """ For all models that modified their results since last time this method
-    was called, send their latest results to the Hypersearch implementation.
+    was called, send their latest results to the swarm implementation.
     """
 
 
@@ -152,7 +152,7 @@ class HypersearchWorker(object):
 
     # --------------------------------------------------------------------
     # Find out which ones have changed update counters. Since these are models
-    # that the Hypersearch implementation already knows about, we don't need to
+    # that the swarm implementation already knows about, we don't need to
     # send params or paramsHash
     curModelIDCtrList = sorted(curModelIDCtrList)
     numItems = len(curModelIDCtrList)
@@ -175,7 +175,7 @@ class HypersearchWorker(object):
         self._modelIDCtrList[idx][1] = curCtr
 
 
-      # Tell Hypersearch implementation of the updated results for each model
+      # Tell swarm implementation of the updated results for each model
       changedModelIDs = [x[1][0] for x in changedEntries]
       modelResults = cjDAO.modelsGetResultAndStatus(changedModelIDs)
       for mResult in modelResults:
@@ -203,7 +203,7 @@ class HypersearchWorker(object):
       curModelIDCtrDict = dict(curModelIDCtrList)
 
       # Get the results for each of these models and send them to the
-      #  Hypersearch implementation.
+      #  swarm implementation.
       modelInfos = cjDAO.modelsGetResultAndStatus(newModelIDs)
       modelInfos.sort()
       modelParamsAndHashs = cjDAO.modelsGetParams(newModelIDs)
@@ -219,7 +219,7 @@ class HypersearchWorker(object):
         self._modelIDCtrDict[modelID] = curModelIDCtrDict[modelID]
         self._modelIDCtrList.append([modelID, curModelIDCtrDict[modelID]])
 
-        # Tell the Hypersearch implementation of the new model
+        # Tell the swarm implementation of the new model
         results = mResult.results
         if results is not None:
           results = json.loads(mResult.results)
@@ -302,7 +302,7 @@ class HypersearchWorker(object):
 
 
     # ---------------------------------------------------------------------
-    # Instantiate the Hypersearch object, which will handle the logic of
+    # Instantiate the swarm object, which will handle the logic of
     #  which models to create when we need more to evaluate.
     jobParams = json.loads(jobInfo.params)
 
@@ -315,10 +315,10 @@ class HypersearchWorker(object):
 
     hsVersion = jobParams.get('hsVersion', None)
     if hsVersion == 'v2':
-      self._hs = HypersearchV2(searchParams=jobParams, workerID=self._workerID,
+      self._hs = SwarmV2(searchParams=jobParams, workerID=self._workerID,
               cjDAO=cjDAO, jobID=options.jobID, logLevel=options.logLevel)
     else:
-      raise RuntimeError("Invalid Hypersearch implementation (%s) specified" \
+      raise RuntimeError("Invalid swarm implementation (%s) specified" \
                           % (hsVersion))
 
 
@@ -339,10 +339,10 @@ class HypersearchWorker(object):
           if options.modelID is None:
             # -----------------------------------------------------------------
             # Get the latest results on all running models and send them to
-            #  the Hypersearch implementation
+            #  the swarm implementation
             # This calls cjDAO.modelsGetUpdateCounters(), compares the
             # updateCounters with what we have cached, fetches the results for the
-            # changed and new models, and sends those to the Hypersearch
+            # changed and new models, and sends those to the swarm
             # implementation's self._hs.recordModelProgress() method.
             self._processUpdatedModels(cjDAO)
   
@@ -364,7 +364,7 @@ class HypersearchWorker(object):
               (modelID, ours) = cjDAO.modelInsertAndStart(options.jobID,
                                   jsonModelParams, modelParamsHash, particleHash)
   
-              # Some other worker is already running it, tell the Hypersearch object
+              # Some other worker is already running it, tell the swarm object
               #  so that it doesn't try and insert it again
               if not ours:
                 mParamsAndHash = cjDAO.modelsGetParams([modelID])[0]
@@ -466,14 +466,14 @@ class HypersearchWorker(object):
           modelIDToRun, numModelsTotal)
         print >>sys.stderr, "reporter:status:Evaluated %d models..." % \
                                     (numModelsTotal)
-        print >>sys.stderr, "reporter:counter:HypersearchWorker,numModels,1"
+        print >>sys.stderr, "reporter:counter:swarmWorker,numModels,1"
 
         if options.modelID is not None:
           exit = True
         # ^^^ end while not exit
 
     finally:
-      # Provide Hypersearch instance an opportunity to clean up temporary files
+      # Provide swarm instance an opportunity to clean up temporary files
       self._hs.close()
 
     self.logger.info("FINISHED. Evaluated %d models." % (numModelsTotal))
@@ -485,16 +485,16 @@ class HypersearchWorker(object):
 #####################################################################################
 helpString = \
 """%prog [options]
-This script runs as a Hypersearch worker process. It loops, looking for and
-evaluating prospective models from a Hypersearch database.
+This script runs as a swarm worker process. It loops, looking for and
+evaluating prospective models from a swarm database.
 """
 
 
 #####################################################################################
 def main(argv):
   """
-  The main function of the HypersearchWorker script. This parses the command
-  line arguments, instantiates a HypersearchWorker instance, and then
+  The main function of the swarmWorker script. This parses the command
+  line arguments, instantiates a swarmWorker instance, and then
   runs it.
 
   Parameters:
@@ -519,7 +519,7 @@ def main(argv):
           "hosts this SpecializedWorker [default: %default]."))
 
   parser.add_option("--params", action="store", default=None,
-        help="Create and execute a new hypersearch request using this JSON " \
+        help="Create and execute a new swarm request using this JSON " \
         "format params string. This is helpful for unit tests and debugging. " \
         "When specified jobID must NOT be specified. [default: %default].")
 
@@ -548,8 +548,8 @@ def main(argv):
 
   initLogging(verbose=True)
 
-  # Instantiate the HypersearchWorker and run it
-  hst = HypersearchWorker(options, argv[1:])
+  # Instantiate the swarmWorker and run it
+  hst = SwarmWorker(options, argv[1:])
 
   # Normal use. This is one of among a number of workers. If we encounter
   #  an exception at the outer loop here, we fail the entire job.
@@ -560,8 +560,8 @@ def main(argv):
     except Exception, e:
       jobID = options.jobID
       msg = StringIO.StringIO()
-      print >>msg, "%s: Exception occurred in Hypersearch Worker: %r" % \
-         (ErrorCodes.hypersearchLogicErr, e)
+      print >>msg, "%s: Exception occurred in swarm Worker: %r" % \
+         (ErrorCodes.swarmLogicErr, e)
       traceback.print_exc(None, msg)
 
       completionReason = ClientJobsDAO.CMPL_REASON_ERROR
@@ -615,6 +615,6 @@ if __name__ == "__main__":
   try:
     main(sys.argv)
   except:
-    logging.exception("HypersearchWorker is exiting with unhandled exception; "
+    logging.exception("swarmWorker is exiting with unhandled exception; "
                       "argv=%r", sys.argv)
     raise

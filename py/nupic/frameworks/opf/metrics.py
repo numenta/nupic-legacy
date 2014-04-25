@@ -1194,7 +1194,7 @@ class MetricAveError(AggregateMetric):
 class MetricNegAUC(AggregateMetric):
   """ Computes -1 * AUC (Area Under the Curve) of the ROC (Receiver Operator
       Characteristics) curve. We compute -1 * AUC because metrics are optimized
-      to be LOWER when running hypersearch.
+      to be LOWER when running swarm.
 
       For this, we assuming that category 1 is the "positive" category and
       we are generating an ROC curve with the TPR (True Positive Rate) of

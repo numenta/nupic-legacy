@@ -39,8 +39,8 @@ import uuid
 
 from nupic.support import object_json as json
 import nupic.database.ClientJobsDAO as cjdao
-from nupic.swarming import HypersearchWorker, utils
-from nupic.swarming.HypersearchV2 import HypersearchV2
+from nupic.swarming import swarmWorker, utils
+from nupic.swarming.swarmV2 import swarmV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
 g_currentVerbosityLevel = 0
@@ -75,7 +75,7 @@ class Verbosity(object):
 def _termHandler(signal, frame):
   try:
     jobrunner = gCurrentSearch
-    jobID = jobrunner._HyperSearchRunner__searchJob.getJobID()
+    jobID = jobrunner._SwarmRunner__searchJob.getJobID()
   except Exception as exc:
     print exc
   else:
@@ -137,11 +137,11 @@ def _engineServicesRunning():
 
 
 
-def _runHyperSearch(runOptions):
+def _runSwarm(runOptions):
   global gCurrentSearch
-  # Run HyperSearch
+  # Run Swarm
   startTime = time.time()
-  search = _HyperSearchRunner(runOptions)
+  search = _SwarmRunner(runOptions)
   # Save in global for the signal handler.
   gCurrentSearch = search
   if runOptions["action"] in ("run", "dryRun"):
@@ -151,10 +151,10 @@ def _runHyperSearch(runOptions):
 
   # Generate reports
   # Print results and generate report csv file
-  modelParams = _HyperSearchRunner.generateReport(
+  modelParams = _SwarmRunner.generateReport(
     options=runOptions,
     replaceReport=runOptions["replaceReport"],
-    hyperSearchJob=search.peekSearchJob(),
+    swarmJob=search.peekSearchJob(),
     metricsKeys=search.getDiscoveredMetricsKeys())
   secs = time.time() - startTime
   hours = int(secs) / (60 * 60)
@@ -163,7 +163,7 @@ def _runHyperSearch(runOptions):
   secs -= minutes * 60
   print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
   jobID = search.peekSearchJob().getJobID()
-  print "Hypersearch ClientJobs job ID: ", jobID
+  print "swarm ClientJobs job ID: ", jobID
 
   return modelParams
 
@@ -198,16 +198,16 @@ def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
 
 def _runAction(runOptions):
   action = runOptions["action"]
-  # Print Grok HyperSearch results from the current or last run
+  # Print Grok Swarm results from the current or last run
   if action == "report":
-    returnValue = _HyperSearchRunner.generateReport(
+    returnValue = _SwarmRunner.generateReport(
         options=runOptions,
         replaceReport=runOptions["replaceReport"],
-        hyperSearchJob=None,
+        swarmJob=None,
         metricsKeys=None)
-  # Run HyperSearch via Grok
+  # Run Swarm via Grok
   elif action in ("run", "dryRun", "pickup"):
-    returnValue = _runHyperSearch(runOptions)
+    returnValue = _runSwarm(runOptions)
   else:
     raise Exception("Unhandled action: %s" % action)
   return returnValue
@@ -370,18 +370,18 @@ def _clientJobsDB():
 
 
 
-def _grokHyperSearchHasErrors(hyperSearchJob):
-  """Check whether any experiments failed in our latest hypersearch
+def _grokSwarmHasErrors(swarmJob):
+  """Check whether any experiments failed in our latest swarm
 
   Parameters:
-    hyperSearchJob: _HyperSearchJob instance; if None, will get it from saved
+    swarmJob: _SwarmJob instance; if None, will get it from saved
                     jobID, if any
 
   Returns: False if all models succeeded, True if one or more had errors
   """
   # TODO flesh me out
 
-  # Get search ID for our latest hypersearch
+  # Get search ID for our latest swarm
 
   # Query Grok for experiment failures in the given search
 
@@ -389,9 +389,9 @@ def _grokHyperSearchHasErrors(hyperSearchJob):
 
 
 
-class _HyperSearchRunner(object):
+class _SwarmRunner(object):
   """ @private
-  Manages one instance of HyperSearch"""
+  Manages one instance of Swarm"""
 
 
   def __init__(self, options):
@@ -406,7 +406,7 @@ class _HyperSearchRunner(object):
 
     self._options = options
 
-    # _HyperSearchJob instance set up by runNewSearch() and pickupSearch()
+    # _SwarmJob instance set up by runNewSearch() and pickupSearch()
     self.__searchJob = None
 
     self.__foundMetrcsKeySet = set()
@@ -421,7 +421,7 @@ class _HyperSearchRunner(object):
 
 
   def runNewSearch(self):
-    """Start a new hypersearch job and monitor it to completion
+    """Start a new swarm job and monitor it to completion
     Parameters:
     ----------------------------------------------------------------------
     retval:         nothing
@@ -438,7 +438,7 @@ class _HyperSearchRunner(object):
     ----------------------------------------------------------------------
     retval:         nothing
     """
-    self.__searchJob = self.loadSavedHyperSearchJob(
+    self.__searchJob = self.loadSavedSwarmJob(
       permWorkDir=self._options["permWorkDir"],
       outputLabel=self._options["outputLabel"])
 
@@ -460,7 +460,7 @@ class _HyperSearchRunner(object):
     startTime = time.time()
     lastUpdateTime = datetime.now()
 
-    # Monitor HyperSearch and report progress
+    # Monitor Swarm and report progress
 
     # NOTE: may be -1 if it can't be determined
     expectedNumModels = self.__searchJob.getExpectedNumModels(
@@ -478,14 +478,14 @@ class _HyperSearchRunner(object):
     lastModelMilestones = None
     lastEngStatus = None
 
-    hyperSearchFinished = False
-    while not hyperSearchFinished:
+    swarmFinished = False
+    while not swarmFinished:
       jobInfo = self.__searchJob.getJobStatus(self._workers)
 
       # Check for job completion BEFORE processing models; NOTE: this permits us
       # to process any models that we may not have accounted for in the
       # previous iteration.
-      hyperSearchFinished = jobInfo.isFinished()
+      swarmFinished = jobInfo.isFinished()
 
       # Look for newly completed models, and process them
       modelIDs = self.__searchJob.queryModelIDs()
@@ -589,7 +589,7 @@ class _HyperSearchRunner(object):
           lastEngStatus = engStatus
 
       # Sleep before next check
-      if not hyperSearchFinished:
+      if not swarmFinished:
         if self._options["timeout"] != None:
           if ((datetime.now() - lastUpdateTime) >
               timedelta(minutes=self._options["timeout"])):
@@ -601,7 +601,7 @@ class _HyperSearchRunner(object):
     # Tabulate results
     modelIDs = self.__searchJob.queryModelIDs()
     print "Evaluated %s models" % len(modelIDs)
-    print "HyperSearch finished!"
+    print "Swarm finished!"
 
     jobInfo = self.__searchJob.getJobStatus(self._workers)
     print "Worker completion message: %s" % (jobInfo.getWorkerCompletionMsg())
@@ -629,12 +629,12 @@ class _HyperSearchRunner(object):
 
 
   def __startSearch(self):
-    """Starts HyperSearch in Grok or runs it inline for the "dryRun" action
+    """Starts Swarm in Grok or runs it inline for the "dryRun" action
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         the new _HyperSearchJob instance representing the
-                    HyperSearch job
+    retval:         the new _SwarmJob instance representing the
+                    Swarm job
     """
     # This search uses a pre-existing permutations script
     params = _ClientJobUtils.makeSearchJobParamsDict(options=self._options,
@@ -647,7 +647,7 @@ class _HyperSearchRunner(object):
       print "=================================================================="
       print "RUNNING PERMUTATIONS INLINE as \"DRY RUN\"..."
       print "=================================================================="
-      jobID = HypersearchWorker.main(args)
+      jobID = swarmWorker.main(args)
 
     else:
       cmdLine = _setUpExports(self._options["exports"])
@@ -664,22 +664,22 @@ class _HyperSearchRunner(object):
         maximumWorkers=maxWorkers,
         jobType=self.__cjDAO.JOB_TYPE_HS)
 
-      cmdLine = "python -m nupic.swarming.HypersearchWorker" \
+      cmdLine = "python -m nupic.swarming.swarmWorker" \
                  " --jobID=%d" % (jobID)
       self._launchWorkers(cmdLine, maxWorkers)
 
-    searchJob = _HyperSearchJob(jobID)
+    searchJob = _SwarmJob(jobID)
 
     # Save search ID to file (this is used for report generation)
-    self.__saveHyperSearchJobID(
+    self.__saveSwarmJobID(
       permWorkDir=self._options["permWorkDir"],
       outputLabel=self._options["outputLabel"],
-      hyperSearchJob=searchJob)
+      swarmJob=searchJob)
 
     if self._options["action"] == "dryRun":
-      print "Successfully executed \"dry-run\" hypersearch, jobID=%d" % (jobID)
+      print "Successfully executed \"dry-run\" swarm, jobID=%d" % (jobID)
     else:
-      print "Successfully submitted new HyperSearch job, jobID=%d" % (jobID)
+      print "Successfully submitted new Swarm job, jobID=%d" % (jobID)
       _emit(Verbosity.DEBUG,
             "Each worker executing the command line: %s" % (cmdLine,))
 
@@ -688,12 +688,12 @@ class _HyperSearchRunner(object):
 
 
   def peekSearchJob(self):
-    """Retrieves the runner's _HyperSearchJob instance; NOTE: only available
+    """Retrieves the runner's _SwarmJob instance; NOTE: only available
     after run().
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         _HyperSearchJob instance or None
+    retval:         _SwarmJob instance or None
     """
     assert self.__searchJob is not None
     return self.__searchJob
@@ -701,7 +701,7 @@ class _HyperSearchRunner(object):
 
 
   def getDiscoveredMetricsKeys(self):
-    """Returns a tuple of all metrics keys discovered while running HyperSearch.
+    """Returns a tuple of all metrics keys discovered while running Swarm.
 
     NOTE: This is an optimization so that our client may
         use this info for generating the report csv file without having
@@ -710,7 +710,7 @@ class _HyperSearchRunner(object):
     Parameters:
     ----------------------------------------------------------------------
     retval:         Tuple of metrics keys discovered while running
-                    HyperSearch;
+                    Swarm;
     """
     return tuple(self.__foundMetrcsKeySet)
 
@@ -735,9 +735,9 @@ class _HyperSearchRunner(object):
   def generateReport(cls,
                      options,
                      replaceReport,
-                     hyperSearchJob,
+                     swarmJob,
                      metricsKeys):
-    """Prints all available results in the given HyperSearch job and emits
+    """Prints all available results in the given Swarm job and emits
     model information to the permutations report csv.
 
     The job may be completed or still in progress.
@@ -747,20 +747,20 @@ class _HyperSearchRunner(object):
     options:        GrokRunPermutations options dict
     replaceReport:  True to replace existing report csv, if any; False to
                     append to existing report csv, if any
-    hyperSearchJob: _HyperSearchJob instance; if None, will get it from saved
+    swarmJob: _SwarmJob instance; if None, will get it from saved
                     jobID, if any
     metricsKeys:    sequence of report metrics key names to include in report;
                     if None, will pre-scan all modelInfos to generate a complete
                     list of metrics key names.
     retval:         model parameters
     """
-    # Load _HyperSearchJob instance from storage, if not provided
-    if hyperSearchJob is None:
-      hyperSearchJob = cls.loadSavedHyperSearchJob(
+    # Load _SwarmJob instance from storage, if not provided
+    if swarmJob is None:
+      swarmJob = cls.loadSavedSwarmJob(
           permWorkDir=options["permWorkDir"],
           outputLabel=options["outputLabel"])
 
-    modelIDs = hyperSearchJob.queryModelIDs()
+    modelIDs = swarmJob.queryModelIDs()
     bestModel = None
 
     # If metricsKeys was not provided, pre-scan modelInfos to create the list;
@@ -778,7 +778,7 @@ class _HyperSearchRunner(object):
     if metricsKeys is None:
       metricsKeys = metricstmp
     # Create a csv report writer
-    reportWriter = _ReportCSVWriter(hyperSearchJob=hyperSearchJob,
+    reportWriter = _ReportCSVWriter(swarmJob=swarmJob,
                                     metricsKeys=metricsKeys,
                                     searchVar=searchVar,
                                     outputDirAbsPath=options["permWorkDir"],
@@ -793,19 +793,19 @@ class _HyperSearchRunner(object):
     print "----------------------------------------------------------------"
 
     # Get common optimization metric info from permutations script
-    searchParams = hyperSearchJob.getParams()
+    searchParams = swarmJob.getParams()
 
     (optimizationMetricKey, maximizeMetric) = (
       _PermutationUtils.getOptimizationMetricInfo(searchParams))
 
     # Print metrics, while looking for the best model
     formatStr = None
-    # NOTE: we may find additional metrics if HyperSearch is still running
+    # NOTE: we may find additional metrics if Swarm is still running
     foundMetricsKeySet = set(metricsKeys)
     sortedMetricsKeys = []
 
     # pull out best Model from jobs table
-    jobInfo = _clientJobsDB().jobInfo(hyperSearchJob.getJobID())
+    jobInfo = _clientJobsDB().jobInfo(swarmJob.getJobID())
     try:
       results = json.loads(jobInfo.results)
     except Exception, e:
@@ -931,7 +931,7 @@ class _HyperSearchRunner(object):
     # Print out the field contributions
     print
     global gCurrentSearch
-    jobStatus = hyperSearchJob.getJobStatus(gCurrentSearch._workers)
+    jobStatus = swarmJob.getJobStatus(gCurrentSearch._workers)
     jobResults = jobStatus.getResults()
     if "fieldContributions" in jobResults:
       print "Field Contributions:"
@@ -957,7 +957,7 @@ class _HyperSearchRunner(object):
       print
       print "Total wall time for all models: %d" % totalWallTime
 
-      hsJobParams = hyperSearchJob.getParams()
+      hsJobParams = swarmJob.getParams()
 
     # Were we asked to write out the top N model description files?
     if options["genTopNDescriptions"] > 0:
@@ -1012,42 +1012,42 @@ class _HyperSearchRunner(object):
 
 
   @classmethod
-  def loadSavedHyperSearchJob(cls, permWorkDir, outputLabel):
-    """Instantiates a _HyperSearchJob instance from info saved in file
+  def loadSavedSwarmJob(cls, permWorkDir, outputLabel):
+    """Instantiates a _SwarmJob instance from info saved in file
 
     Parameters:
     ----------------------------------------------------------------------
     permWorkDir: Directory path for saved jobID file
     outputLabel: Label string for incorporating into file name for saved jobID
-    retval:      _HyperSearchJob instance; raises exception if not found
+    retval:      _SwarmJob instance; raises exception if not found
     """
-    jobID = cls.__loadHyperSearchJobID(permWorkDir=permWorkDir,
+    jobID = cls.__loadSwarmJobID(permWorkDir=permWorkDir,
                                        outputLabel=outputLabel)
 
-    searchJob = _HyperSearchJob(grokJobID=jobID)
+    searchJob = _SwarmJob(grokJobID=jobID)
     return searchJob
 
 
 
   @classmethod
-  def __saveHyperSearchJobID(cls, permWorkDir, outputLabel, hyperSearchJob):
-    """Saves the given _HyperSearchJob instance's jobID to file
+  def __saveSwarmJobID(cls, permWorkDir, outputLabel, swarmJob):
+    """Saves the given _SwarmJob instance's jobID to file
 
     Parameters:
     ----------------------------------------------------------------------
     permWorkDir:   Directory path for saved jobID file
     outputLabel:   Label string for incorporating into file name for saved jobID
-    hyperSearchJob: _HyperSearchJob instance
+    swarmJob: _SwarmJob instance
     retval:        nothing
     """
-    jobID = hyperSearchJob.getJobID()
-    filePath = cls.__getHyperSearchJobIDFilePath(permWorkDir=permWorkDir,
+    jobID = swarmJob.getJobID()
+    filePath = cls.__getSwarmJobIDFilePath(permWorkDir=permWorkDir,
                                                  outputLabel=outputLabel)
 
     if os.path.exists(filePath):
       _backupFile(filePath)
 
-    d = dict(hyperSearchJobID = jobID)
+    d = dict(swarmJobID = jobID)
 
     with open(filePath, "wb") as jobIdPickleFile:
       pickle.dump(d, jobIdPickleFile)
@@ -1055,42 +1055,42 @@ class _HyperSearchRunner(object):
 
 
   @classmethod
-  def __loadHyperSearchJobID(cls, permWorkDir, outputLabel):
+  def __loadSwarmJobID(cls, permWorkDir, outputLabel):
     """Loads a saved jobID from file
 
     Parameters:
     ----------------------------------------------------------------------
     permWorkDir:  Directory path for saved jobID file
     outputLabel:  Label string for incorporating into file name for saved jobID
-    retval:       HyperSearch jobID; raises exception if not found.
+    retval:       Swarm jobID; raises exception if not found.
     """
-    filePath = cls.__getHyperSearchJobIDFilePath(permWorkDir=permWorkDir,
+    filePath = cls.__getSwarmJobIDFilePath(permWorkDir=permWorkDir,
                                                  outputLabel=outputLabel)
 
     jobID = None
     with open(filePath, "rb") as jobIdPickleFile:
       jobInfo = pickle.load(jobIdPickleFile)
-      jobID = jobInfo["hyperSearchJobID"]
+      jobID = jobInfo["swarmJobID"]
 
     return jobID
 
 
 
   @classmethod
-  def __getHyperSearchJobIDFilePath(cls, permWorkDir, outputLabel):
-    """Returns filepath where to store HyperSearch JobID
+  def __getSwarmJobIDFilePath(cls, permWorkDir, outputLabel):
+    """Returns filepath where to store Swarm JobID
 
     Parameters:
     ----------------------------------------------------------------------
     permWorkDir: Directory path for saved jobID file
     outputLabel: Label string for incorporating into file name for saved jobID
-    retval:      Filepath where to store HyperSearch JobID
+    retval:      Filepath where to store Swarm JobID
     """
     # Get the base path and figure out the path of the report file.
     basePath = permWorkDir
 
     # Form the name of the output csv file that will contain all the results
-    filename = "%s_HyperSearchJobID.pkl" % (outputLabel,)
+    filename = "%s_SwarmJobID.pkl" % (outputLabel,)
     filepath = os.path.join(basePath, filename)
 
     return filepath
@@ -1156,7 +1156,7 @@ class _ReportCSVWriter(object):
 
 
   def __init__(self,
-               hyperSearchJob,
+               swarmJob,
                metricsKeys,
                searchVar,
                outputDirAbsPath,
@@ -1165,7 +1165,7 @@ class _ReportCSVWriter(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    hyperSearchJob: _HyperSearchJob instance
+    swarmJob: _SwarmJob instance
     metricsKeys:    sequence of report metrics key names to include in report
     outputDirAbsPath:
                     Directory for creating report CSV file (absolute path)
@@ -1174,8 +1174,8 @@ class _ReportCSVWriter(object):
                     append to existing report csv, if any
     retval:         nothing
     """
-    self.__searchJob = hyperSearchJob
-    self.__searchJobID = hyperSearchJob.getJobID()
+    self.__searchJob = swarmJob
+    self.__searchJobID = swarmJob.getJobID()
     self.__sortedMetricsKeys = sorted(metricsKeys)
     self.__outputDirAbsPath = os.path.abspath(outputDirAbsPath)
     self.__outputLabel = outputLabel
@@ -1693,19 +1693,19 @@ class _JobCompletionReason(object):
 
 
 
-class _HyperSearchJob(_GrokJob):
+class _SwarmJob(_GrokJob):
   """ @private
-  This class represents a single running Grok HyperSearch job"""
+  This class represents a single running Grok Swarm job"""
 
 
   def __init__(self, grokJobID):
     """
     Parameters:
     ----------------------------------------------------------------------
-    grokJobID:      Grok Client JobID of a HyperSearch job
+    grokJobID:      Grok Client JobID of a Swarm job
     retval:         nothing
     """
-    super(_HyperSearchJob, self).__init__(grokJobID)
+    super(_SwarmJob, self).__init__(grokJobID)
 
     # Cache of the total count of expected models or -1 if it can't be
     # deteremined.
@@ -1719,7 +1719,7 @@ class _HyperSearchJob(_GrokJob):
 
   def queryModelIDs(self):
     """Queuries Grok for model IDs of all currently instantiated models
-    associated with this HyperSearch job.
+    associated with this Swarm job.
 
     See also: _iterModels()
 
@@ -1739,7 +1739,7 @@ class _HyperSearchJob(_GrokJob):
     """Returns:  the total number of expected models if known, -1 if it can't
     be determined.
 
-    NOTE: this can take a LONG time to complete for HyperSearches with a huge
+    NOTE: this can take a LONG time to complete for Swarmes with a huge
           number of possible permutations.
 
     Parameters:
@@ -1758,15 +1758,15 @@ class _ClientJobUtils(object):
 
   @classmethod
   def makeSearchJobParamsDict(cls, options, forRunning=False):
-    """Constructs a dictionary of HyperSearch parameters suitable for converting
+    """Constructs a dictionary of Swarm parameters suitable for converting
     to json and passing as the params argument to ClientJobsDAO.jobInsert()
     Parameters:
     ----------------------------------------------------------------------
     options:        GrokRunPermutations options dict
-    forRunning:     True if the params are for running a Hypersearch job; False
+    forRunning:     True if the params are for running a swarm job; False
                     if params are for introspection only.
 
-    retval:         A dictionary of HyperSearch parameters for
+    retval:         A dictionary of Swarm parameters for
                     ClientJobsDAO.jobInsert()
     """
     if options["searchMethod"] == "v2":
@@ -1819,16 +1819,16 @@ class _PermutationUtils(object):
     ---------------------------------------------------------
     searchJobParams:
                     Parameter for passing as the searchParams arg to
-                    Hypersearch constructor.
+                    swarm constructor.
     retval:       (optimizationMetricKey, maximize)
                   optimizationMetricKey: which report key to optimize for
                   maximize: True if we should try and maximize the optimizeKey
                     metric. False if we should minimize it.
     """
     if searchJobParams["hsVersion"] == "v2":
-      search = HypersearchV2(searchParams=searchJobParams)
+      search = swarmV2(searchParams=searchJobParams)
     else:
-      raise RuntimeError("Unsupported hypersearch version \"%s\"" % \
+      raise RuntimeError("Unsupported swarm version \"%s\"" % \
                          (searchJobParams["hsVersion"]))
 
     info = search.getOptimizationMetricInfo()
@@ -1881,7 +1881,7 @@ def _iterModels(modelIDs):
   Parameters:
   ----------------------------------------------------------------------
   modelIDs:       A sequence of model identifiers (e.g., as returned by
-                  _HyperSearchJob.queryModelIDs()).
+                  _SwarmJob.queryModelIDs()).
   retval:         Iterator that returns ModelInfo elements for the given
                   modelIDs (NOTE:possibly in a different order)
   """
@@ -2143,7 +2143,7 @@ class _GrokModelInfo(object):
     """
     params = self.__unwrapParams()
 
-    # Hypersearch v2 stores the flattened parameter settings in "particleState"
+    # swarm v2 stores the flattened parameter settings in "particleState"
     if "particleState" in params:
       retval = dict()
       queue = [(pair, retval) for pair in
