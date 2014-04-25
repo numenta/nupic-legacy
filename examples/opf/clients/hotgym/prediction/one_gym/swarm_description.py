@@ -19,20 +19,40 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from arithmetic_encoder import ArithmeticEncoder
-from scalar import ScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder
-from date import DateEncoder
-from logenc import LogEncoder
-from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder
-from nonuniformscalar import NonUniformScalarEncoder
-from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
-from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder
-from nupic.encoders.passthru import PassThruEncoder
-from nupic.encoders.extras.utility import UtilityEncoder, SimpleUtilityEncoder
-# multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder
-from utils import bitsToString
+SWARM_DESCRIPTION = {
+  "includedFields": [
+    {
+      "fieldName": "timestamp",
+      "fieldType": "datetime"
+    },
+    {
+      "fieldName": "kw_energy_consumption",
+      "fieldType": "float",
+      "maxValue": 53.0,
+      "minValue": 0.0
+    }
+  ],
+  "streamDef": {
+    "info": "kw_energy_consumption",
+    "version": 1,
+    "streams": [
+      {
+        "info": "Rec Center",
+        "source": "file://rec-center-hourly.csv",
+        "columns": [
+          "*"
+        ]
+      }
+    ]
+  },
+
+  "inferenceType": "TemporalMultiStep",
+  "inferenceArgs": {
+    "predictionSteps": [
+      1
+    ],
+    "predictedField": "kw_energy_consumption"
+  },
+  "iterationCount": -1,
+  "swarmSize": "medium"
+}

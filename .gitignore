@@ -4,12 +4,10 @@ Trunk.iml
 *.pyc
 *.class
 *.vcproj
-*.am
-*.in
 *.manifest
 *.cache
-.project
-configure
+*.project
+*.pydevproject
 trunk.sln
 *.m4
 test.out
@@ -17,22 +15,35 @@ test.out
 *.DS_Store
 *.swp
 
+# personalized nupic configuration file
+.nupic_config
+
+# IDE project files
+nbproject/
+
+# swarming output files
+data/
+
+# output from integration tests
+inference/
+savedmodels/
+/*.please_wait
+/auto_specials*.csv
+/weighted_mean*.csv
+/test*.txt
+/test*.pkl
+
+# other crap
+*.nta/
+
 html/
 
 Servers/
 
-# Build artifacts and .bashrc artifacts
+# Build files
 build/
-build_system/unix/compile
-build_system/unix/config.guess
-build_system/unix/config.sub
-build_system/unix/depcomp
-build_system/unix/install-sh
-build_system/unix/ltmain.sh
-build_system/unix/missing
-build_system/unix/py-compile
+
 conf/default/nupic-site.xml
-configure.ac
 
 # /
 /.gdb_history
@@ -42,37 +53,9 @@ configure.ac
 /examples/prediction/log.txt
 
 # /examples/prediction/experiments/hotgym/base/
-/examples/prediction/experiments/hotgym/base/inference
 /examples/prediction/experiments/hotgym/base/networks
 /examples/prediction/experiments/hotgym/base/report.txt
 /examples/prediction/experiments/hotgym/base/results.pkl
 
-# /py/
-/py/*.am
-/py/*.in
-/py/.project
-/py/.pydevproject
-
-# /py/bindings/algorithms/
-/py/bindings/algorithms/*.vcproj
-/py/bindings/algorithms/*.am
-/py/bindings/algorithms/*.in
-/py/bindings/algorithms/*.manifest
-
-# /py/bindings/iorange/
-/py/bindings/iorange/iorange_py.vcproj
-/py/bindings/iorange/Makefile.am
-/py/bindings/iorange/Makefile.in
-/py/bindings/iorange/project.manifest
-
-# /py/cpp_region/
-/py/cpp_region/*.vcproj
-/py/cpp_region/*.am
-/py/cpp_region/*.in
-/py/cpp_region/*.manifest
-
-# /py/nupic/frameworks/prediction/
-/py/nupic/frameworks/prediction/.project
-/py/nupic/frameworks/prediction/.pydevproject
-
+# nupic.core repo is located under $NUPIC/nta/
 nta
