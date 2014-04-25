@@ -1,6 +1,8 @@
 # One Hot Gym Prediction Tutorial
 
-The program in this folder is the complete source code for the "One Hot Gym Prediction" Tutorial.
+The program in this folder is the complete source code for the "One Hot Gym Prediction" Tutorial. You can follow along with the construction of this tutorial's source code in the screencast below.
+
+[![One Hot Gym Prediction Tutorial Screencast](http://img.youtube.com/vi/S-0thrzOHTc/hqdefault.jpg)](http://www.youtube.com/watch?v=S-0thrzOHTc)
 
 ## Premise
 
