@@ -24,7 +24,6 @@ Groups together code used for creating a NuPIC model and dealing with IO.
 (This is a component of the One Hot Gym Prediction Tutorial.)
 """
 import importlib
-import os
 import sys
 import csv
 import datetime
