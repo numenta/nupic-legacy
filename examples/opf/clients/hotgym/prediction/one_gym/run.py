@@ -24,17 +24,16 @@ Groups together code used for creating a NuPIC model and dealing with IO.
 (This is a component of the One Hot Gym Prediction Tutorial.)
 """
 import importlib
-import os
 import sys
+import csv
+import datetime
 
+from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-from io_helper import runIoThroughNupic
+import nupic_output
 
 
-GYM_NAME = "rec-center-hourly"
-DATA_DIR = "."
-MODEL_PARAMS_DIR = "./model_params"
 DESCRIPTION = (
   "Starts a NuPIC model from the model params returned by the swarm\n"
   "and pushes each line of input from the gym into the model. Results\n"
@@ -43,6 +42,11 @@ DESCRIPTION = (
   "NOTE: You must run ./swarm.py before this, because model parameters\n"
   "are required to run NuPIC.\n"
 )
+GYM_NAME = "rec-center-hourly"
+DATA_DIR = "."
+MODEL_PARAMS_DIR = "./model_params"
+# '7/2/10 0:00'
+DATE_FORMAT = "%m/%d/%y %H:%M"
 
 
 def createModel(modelParams):
@@ -66,24 +70,48 @@ def getModelParamsFromName(gymName):
 
 
 
+def runIoThroughNupic(inputData, model, gymName, plot):
+  inputFile = open(inputData, "rb")
+  csvReader = csv.reader(inputFile)
+  # skip header rows
+  csvReader.next()
+  csvReader.next()
+  csvReader.next()
+
+  shifter = InferenceShifter()
+  if plot:
+    output = nupic_output.NuPICPlotOutput([gymName])
+  else:
+    output = nupic_output.NuPICFileOutput([gymName])
+
+  counter = 0
+  for row in csvReader:
+    counter += 1
+    if (counter % 100 == 0):
+      print "Read %i lines..." % counter
+    timestamp = datetime.datetime.strptime(row[0], DATE_FORMAT)
+    consumption = float(row[1])
+    result = model.run({
+      "timestamp": timestamp,
+      "kw_energy_consumption": consumption
+    })
+
+    if plot:
+      result = shifter.shift(result)
+
+    prediction = result.inferences["multiStepBestPredictions"][1]
+    output.write([timestamp], [consumption], [prediction])
+
+  inputFile.close()
+  output.close()
+
+
+
 def runModel(gymName, plot=False):
   print "Creating model from %s..." % gymName
   model = createModel(getModelParamsFromName(gymName))
-  inputData = ["%s/%s.csv" % (DATA_DIR, gymName.replace(" ", "_"))]
-  runIoThroughNupic(inputData, [model], [gymName], plot)
-
-
-
-def runAllModels(plot=False):
-  models = []
-  names = []
-  inputFiles = []
-  for inputFile in sorted(os.listdir(DATA_DIR)):
-    name = os.path.splitext(inputFile)[0]
-    names.append(name)
-    inputFiles.append(os.path.abspath(os.path.join(DATA_DIR, inputFile)))
-    models.append(createModel(getModelParamsFromName(name)))
-  runIoThroughNupic(inputFiles, models, names, plot)
+  inputData = "%s/%s.csv" % (DATA_DIR, gymName.replace(" ", "_"))
+  runIoThroughNupic(inputData, model, gymName, plot)
 
 
 
