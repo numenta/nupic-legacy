@@ -28,8 +28,8 @@ NOTE: If you want to change the baseline, run the test to see it fail
       and print the new hash, and update the appropriate hash below.
 """
 
-MODEL_HASH_GLOBAL_SP = "b296ed3c108aed2ff863950f6d1981b9caa080a4"
-MODEL_HASH_LOCAL_SP  = "08af50f2bf8262fa2bafe0fac61e9195bb320aac"
+MODEL_HASH_GLOBAL_SP = "e3972b65c8d4a691d2e7a5088782c1f4"
+MODEL_HASH_LOCAL_SP  = "df9db844fa54d8494247a86059309445"
 
 
 
@@ -89,28 +89,14 @@ def cleanUp():
 
 
 def getCheckpointHash(directory, verbose=False):
-  checkpointHash = hashlib.sha1()
-
-  for root, _dirs, files in os.walk(directory):
-    for names in files:
-      filepath = os.path.join(root, names)
-
-      if verbose == True:
-        print "Hashing: ", filepath
-
-      f = open(filepath, 'rb')
-
-      while True:
-        buf = f.read(4096)
-
-        if not buf:
-          break
-
-        checkpointHash.update(buf)
-
-      f.close()
-
-  return checkpointHash.hexdigest()
+  checkSum = hashlib.md5()
+  for root, _, files in os.walk(directory):
+    for filename in files:
+      if filename in ["results.pkl", "records.json", "results.json"]:
+        continue
+      with open(os.path.join(root, filename)) as f:
+        checkSum.update(f.read())
+  return checkSum.hexdigest()
 
 
 
