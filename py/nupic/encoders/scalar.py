@@ -286,7 +286,7 @@ class ScalarEncoder(Encoder):
     """(helper function) check if the settings are reasonable for SP to work"""
     # checks for likely mistakes in encoder settings
     if self.w < 21:
-      raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
+      raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
                          % self.w)
 
 
