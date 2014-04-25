@@ -984,49 +984,5 @@ add_custom_target(distclean
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj
 		COMMENT "Cleaning temporary & release build files")
 
-#
-# Python - copy python files (no need to compile), supplements NTAX_DEVELOPER_BUILD
-#
-add_custom_target(python
-		# (re)copy python files
-		# Copy platform independent executable scripts
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/algorithms ${PYTHON_SITE_PACKAGES_DIR}/nupic/algorithms
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/frameworks ${PYTHON_SITE_PACKAGES_DIR}/nupic/frameworks
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/image ${PYTHON_SITE_PACKAGES_DIR}/nupic/image
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/research ${PYTHON_SITE_PACKAGES_DIR}/nupic/research
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/data ${PYTHON_SITE_PACKAGES_DIR}/nupic/data
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/database ${PYTHON_SITE_PACKAGES_DIR}/nupic/database
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/swarming ${PYTHON_SITE_PACKAGES_DIR}/nupic/swarming
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/encoders ${PYTHON_SITE_PACKAGES_DIR}/nupic/encoders
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/nupic/support ${PYTHON_SITE_PACKAGES_DIR}/nupic/support
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/py/regions         ${PYTHON_SITE_PACKAGES_DIR}/nupic/regions
-
-		# Copy math libraries. Much of the stuff in nupic.math is old cruft. Get just what we want
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/py/nupic/math/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/__init__.py
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/py/nupic/math/cross.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/cross.py
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/py/nupic/math/roc_utils.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/roc_utils.py
-
-		# Copy examples
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/examples/prediction ${PROJECT_BUILD_RELEASE_DIR}/share/prediction
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/share/opf
-
-		# Copy testing codes
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/qa/shared_data ${PROJECT_BUILD_RELEASE_DIR}/share/test/data
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py
-
-		# Copy miscellaneous files
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf
-
-		# Copy python API and regions
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lang/py/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/__init__.py
-		# This file is going to be replaced by a "documentored" version
-		COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/engine/__init__.py
-		COMMENT "refreshing python code" )
-
 # Just to separate from result message
 message(STATUS "")
