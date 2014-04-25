@@ -151,6 +151,6 @@ class SimpleVectorEncoder(VectorEncoder):
   """
 
   def __init__(self, length=5, minval=0, maxval=100, resolution=1, name='vect', typeCastFn=float):
-    sc = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
+    sc = ScalarEncoder(21, minval, maxval, resolution=resolution, name='idx')
     super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=typeCastFn)
 
