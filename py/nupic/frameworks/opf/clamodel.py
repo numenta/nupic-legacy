@@ -171,9 +171,6 @@ class CLAModel(Model):
     self.__logger.debug("Instantiating %s." % self.__myClassName)
 
 
-    # TODO: VERBOSITY should be deprecated since we now have logging with levels
-    self.__VERBOSITY = 0
-
     self._minLikelihoodThreshold = minLikelihoodThreshold
     self._maxPredictionsPerStep = maxPredictionsPerStep
 
@@ -400,14 +397,11 @@ class CLAModel(Model):
     inferences = {}
 
     # TODO: Reconstruction and temporal classification not used. Remove
-    if self._isReconstructionModel():
+    if self._isReconstructionModel():  
       inferences = self._reconstructionCompute()
       tpTopDownComputed = True
     elif self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
-    # For temporal classification. Not used, and might not work anymore
-    elif self._isClassificationModel():
-      inferences = self._classifcationCompute()
 
     results.inferences.update(inferences)
 
@@ -519,10 +513,6 @@ class CLAModel(Model):
                                        InferenceType.TemporalAnomaly)
 
 
-  def _isClassificationModel(self):
-    return self.getInferenceType() in (InferenceType.TemporalClassification)
-
-
   def _multiStepCompute(self, rawInput):
     patternNZ = None
     if self._getTPRegion() is not None:
@@ -547,27 +537,6 @@ class CLAModel(Model):
                                         inputTSRecordIdx=inputTSRecordIdx,
                                         rawInput=rawInput)
 
-
-  def _classifcationCompute(self):
-    inference = {}
-    classifier = self._getClassifierRegion()
-    classifier.setParameter('inferenceMode', True)
-    classifier.setParameter('learningMode', self.isLearningEnabled())
-    classifier.prepareInputs()
-    classifier.compute()
-
-    # What we get out is the score for each category. The argmax is
-    # then the index of the winning category
-    classificationDist = classifier.getOutputData('categoriesOut')
-    classification = classificationDist.argmax()
-    probabilities = classifier.getOutputData('categoryProbabilitiesOut')
-    numCategories = classifier.getParameter('activeOutputCount')
-    classConfidences = dict(zip(xrange(numCategories), probabilities))
-
-    inference[InferenceElement.classification] = classification
-    inference[InferenceElement.classConfidences] = {0: classConfidences}
-
-    return inference
 
 
   def _reconstructionCompute(self):
@@ -1086,46 +1055,6 @@ class CLAModel(Model):
     sensor.disabledEncoder = MultiEncoder(disabledEncoders)
     sensor.dataSource = DataBuffer()
 
-    # This is old functionality that would automatically reset the TP state
-    # at a regular interval, such as every week for daily data, every day for
-    # hourly data, etc.
-    # TODO: remove, not being used anymore
-    if sensorParams['sensorAutoReset']:
-      sensorAutoResetDict = sensorParams['sensorAutoReset']
-
-      supportedUnits = set(('days', 'hours', 'minutes', 'seconds',
-                            'milliseconds', 'microseconds', 'weeks'))
-      units = set(sensorAutoResetDict.keys())
-      assert units.issubset(supportedUnits), \
-             "Unexpected units: %s" % (units - supportedUnits)
-
-      dd = defaultdict(lambda: 0,  sensorAutoResetDict)
-      # class timedelta([days[, seconds[, microseconds[, milliseconds[, minutes[,
-      #                 hours[, weeks]]]]]]])
-      if not (0 == dd['days'] == dd['hours'] == dd['minutes'] == dd['seconds'] \
-              == dd['milliseconds'] == dd['microseconds'] == dd['weeks']):
-        interval = timedelta(days=dd['days'],
-                             hours=dd['hours'],
-                             minutes=dd['minutes'],
-                             seconds=dd['seconds'],
-                             milliseconds=dd['milliseconds'],
-                             microseconds=dd['microseconds'],
-                             weeks=dd['weeks'])
-
-        self.__logger.debug(
-          "Adding AutoResetFilter; sensorAutoResetDict: %r, timeDelta: %r" % (
-            sensorAutoResetDict, interval))
-
-        # see if sensor already has an autoreset filter
-        for filter_ in sensor.preEncodingFilters:
-          if isinstance(filter_, AutoResetFilter):
-            break
-        else:
-          filter_ = AutoResetFilter()
-          sensor.preEncodingFilters.append(filter_)
-
-        filter_.setInterval(interval)
-
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
 
@@ -1268,29 +1197,6 @@ class CLAModel(Model):
 
     # set up logging
     self.__logger = initLogger(self)
-
-
-    # =========================================================================
-    # TODO: Temporary migration solution
-    if not hasattr(self, "_Model__inferenceType"):
-      self.__restoringFromV1 = True
-      self._hasSP = True
-      if self.__temporalNetInfo is not None:
-        self._Model__inferenceType = InferenceType.TemporalNextStep
-        self._netInfo = self.__temporalNetInfo
-        self._hasTP = True
-      else:
-        raise RuntimeError("The Nontemporal inference type is not supported")
-
-      self._Model__inferenceArgs = {}
-      self._Model__learningEnabled = True
-      self._Model__inferenceEnabled = True
-
-      # Remove obsolete members
-      self.__dict__.pop("_CLAModel__encoderNetInfo", None)
-      self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
-      self.__dict__.pop("_CLAModel__temporalNetInfo", None)
-
 
 
     # -----------------------------------------------------------------------
