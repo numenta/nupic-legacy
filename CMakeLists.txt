@@ -48,38 +48,6 @@ macro (show_config_variable variable value)
   message(STATUS "  ${variable} = ${value}")
 endmacro()
 
-# This macro gets variables from the optional .nupic_config file located in
-# project root, falling back to $HOME if one is not found.  If a .nupic_config
-# file is found in either location, the values override the default
-# .nupic_modules file checked into the repository.  As a developer, if your
-# changes depend on the values in .nupic_config, be sure to apply those changes
-# in .nupic_modules and submit a GitHub Pull Request to share the changes
-# upstream
-function (get_config_variable variable value default)
-  set(${value} PARENT_SCOPE)
-
-  # First find variable in config file located at repository
-  if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
-    file(READ "${REPOSITORY_DIR}/.nupic_config" config_file_content)
-    read_variable_from_file("${config_file_content}" ${variable} ${value})
-  endif()
-
-  # If variable not found or empty, find it in config file located at HOME directory
-  if("${value}" STREQUAL "")
-    if(EXISTS "$ENV{HOME}/.nupic_config")
-      file(READ "$ENV{HOME}/.nupic_config" config_file_content)
-      read_variable_from_file("${config_file_content}" ${variable} ${value})
-    endif()
-  endif()
-
-  # If variable not found or empty, set its value to default
-  if("${${value}}" STREQUAL "")
-    set(${value} "${default}" PARENT_SCOPE)
-  endif()
-
-  show_config_variable(${variable} "${${value}}")
-endfunction()
-
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -621,11 +589,6 @@ if(NEED_LOGOFF)
   message("You should logoff your system in order to some environment variables are changed permanently. If the problem persists, consider set manually the variables above in your 'bashrc' file")
 endif()
 
-#
-# Get variables from config file
-#
-message(STATUS "Config file variables:")
-get_config_variable("TEST_VARIABLE" TEST_VARIABLE "Default value")
 
 #
 # Project details
@@ -659,7 +622,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/nta/external/common/include -isystem${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -670,7 +633,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -808,7 +771,13 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 # LibNupicCore
 #
 # Put content from module config (.nupic_modules) file into variables
-file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+  file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
+elseif(EXISTS "$ENV{HOME}/.nupic_config")
+  file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
+else()
+  file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+endif()
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
@@ -949,6 +918,7 @@ copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bi
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
 
 # Copy miscellaneous files
+copy_directory(${PROJECT_SOURCE_DIR}/nta/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
