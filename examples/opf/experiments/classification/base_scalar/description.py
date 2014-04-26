@@ -130,7 +130,8 @@ config = {
                               'n': 438,
                               'name': u'field1',
                               'type': 'AdaptiveScalarEncoder',
-                              'w': 7}},
+                              'w': 7,
+			      'forced': True}},
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;

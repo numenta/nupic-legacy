@@ -66,7 +66,7 @@ class ScalarEncoder(Encoder):
                   representations. Two inputs separated by less than the radius will
                   in general overlap in at least some of their bits. You can think
                   of this as the radius of the input.
-  resolution --  Two inputs separated by greater than the resolution are guaranteed
+  resolution --  Two inputs separated by greater than, or equal to the resolution are guaranteed
                   to have different representations.
 
   Note: radius and resolution are specified w.r.t the input, not output. w is
@@ -152,7 +152,8 @@ class ScalarEncoder(Encoder):
                resolution=0,
                name=None,
                verbosity=0,
-               clipInput=False):
+               clipInput=False,
+               forced=False):
     """
 
     w -- number of bits to set in output
@@ -163,15 +164,17 @@ class ScalarEncoder(Encoder):
     value that means "not set".
 
     n -- number of bits in the representation (must be > w)
-    radius -- inputs separated by more than this distance will have non-overlapping
+    radius -- inputs separated by more than, or equal to this distance will have non-overlapping
               representations
-    resolution -- inputs separated by more than this distance will have different
+    resolution -- inputs separated by more than, or equal to this distance will have different
               representations
 
     name -- an optional string which will become part of the description
 
     clipInput -- if true, non-periodic inputs smaller than minval or greater
             than maxval will be clipped to minval/maxval
+
+    forced -- if true, skip some safety checks (for compatibility reasons), default false
 
     See class documentation for more information.
     """
@@ -210,6 +213,36 @@ class ScalarEncoder(Encoder):
 
     # There are three different ways of thinking about the representation. Handle
     # each case here.
+    self._initEncoder(w, minval, maxval, n, radius, resolution)
+
+    # nInternal represents the output area excluding the possible padding on each
+    #  side
+    self.nInternal = self.n - 2 * self.padding
+
+    # Our name
+    if name is not None:
+      self.name = name
+    else:
+      self.name = "[%s:%s]" % (self.minval, self.maxval)
+
+    # This matrix is used for the topDownCompute. We build it the first time
+    #  topDownCompute is called
+    self._topDownMappingM = None
+    self._topDownValues = None
+
+    # This list is created by getBucketValues() the first time it is called,
+    #  and re-created whenever our buckets would be re-arranged.
+    self._bucketValues = None
+
+    # checks for likely mistakes in encoder settings
+    if not forced:
+      self._checkReasonableSettings()
+
+
+  ############################################################################
+  def _initEncoder(self, w, minval, maxval, n, radius, resolution):
+    """ (helper function)  There are three different ways of thinking about the representation. 
+     Handle each case here."""
     if n != 0:
       assert radius == 0
       assert resolution == 0
@@ -238,8 +271,7 @@ class ScalarEncoder(Encoder):
         self.resolution = resolution
         self.radius = self.resolution * self.w
       else:
-        raise Exception("One of n, radius, resolution must be specified for a"
-                        "ScalarEncoder")
+        raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
 
       if self.periodic:
         self.range = self.rangeInternal
@@ -249,25 +281,13 @@ class ScalarEncoder(Encoder):
       nfloat = self.w * (self.range / self.radius) + 2 * self.padding
       self.n = int(math.ceil(nfloat))
 
-
-    # nInternal represents the output area excluding the possible padding on each
-    #  side
-    self.nInternal = self.n - 2 * self.padding
-
-    # Our name
-    if name is not None:
-      self.name = name
-    else:
-      self.name = "[%s:%s]" % (self.minval, self.maxval)
-
-    # This matrix is used for the topDownCompute. We build it the first time
-    #  topDownCompute is called
-    self._topDownMappingM = None
-    self._topDownValues = None
-
-    # This list is created by getBucketValues() the first time it is called,
-    #  and re-created whenever our buckets would be re-arranged.
-    self._bucketValues = None
+  ############################################################################
+  def _checkReasonableSettings(self):
+    """(helper function) check if the settings are reasonable for SP to work"""
+    # checks for likely mistakes in encoder settings
+    if self.w < 21:
+      raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
+                         % self.w)
 
 
   ############################################################################
@@ -283,7 +303,7 @@ class ScalarEncoder(Encoder):
 
 
   ############################################################################
-  def recalcParams(self):
+  def _recalcParams(self):
     self.rangeInternal = float(self.maxval - self.minval)
 
     if not self.periodic:
@@ -390,7 +410,7 @@ class ScalarEncoder(Encoder):
 
     if bucketIdx is None:
       # None is returned for missing value
-      output[0:self.n] = 0
+      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead? 
 
     else:
       # The bucket index is the index of the first bit to set in the output
@@ -545,9 +565,9 @@ class ScalarEncoder(Encoder):
 
     return ({fieldName: (ranges, desc)}, [fieldName])
 
+  #############################################################################
   def _generateRangeDescription(self, ranges):
-    # -------------------------------------------------------------------------
-    # Form a text description of the ranges
+    """generate description from a text description of the ranges"""
     desc = ""
     numRanges = len(ranges)
     for i in xrange(numRanges):
