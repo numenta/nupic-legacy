@@ -35,10 +35,10 @@ class UtilityEncoderTest(unittest.TestCase):
     self.data = [-1,0,10]
 
     # encoder for score: 0..100, fine-grained to 0.5
-    self.scoreEnc = ScalarEncoder(3, 0, 100, resolution=0.5, name='score')
+    self.scoreEnc = ScalarEncoder(21, 0, 100, resolution=0.5, name='score')
 
     # encoder for the input (data) part
-    elem = ScalarEncoder(5,-5,50,resolution=1)
+    elem = ScalarEncoder(21,-5,50,resolution=1)
     self.dataEnc = VectorEncoder(len(self.data), elem, typeCastFn=float, name='data')
 
     # utility encoder
