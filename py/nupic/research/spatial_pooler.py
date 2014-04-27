@@ -192,8 +192,8 @@ class SpatialPooler(object):
     spVerbosity:          spVerbosity level: 0, 1, 2, or 3
     """
     # Verify input is valid
-    inputDimensions = numpy.array(inputDimensions)
-    columnDimensions = numpy.array(columnDimensions)
+    inputDimensions = numpy.array(inputDimensions, ndmin=1)
+    columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
     numInputs = inputDimensions.prod()
 
