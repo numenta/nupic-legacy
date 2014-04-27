@@ -322,6 +322,45 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
 
 
+  def testMapPotential2D(self):
+    params = self._params.copy()
+    params.update({
+      "columnDimensions": [2, 4],
+      "inputDimensions": [5, 10],
+      "potentialRadius": 1,
+      "potentialPct": 1
+    })
+
+    # Test without wrapAround
+    sp = SpatialPooler(**params)
+
+    trueIndicies = [0, 10,
+                    1, 11]
+    mask = sp._mapPotential(0, wrapAround=False)
+    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+
+    trueIndicies = [5, 15,
+                    6, 16,
+                    7, 17]
+    mask = sp._mapPotential(2, wrapAround=False)
+    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+
+    # Test with wrapAround
+    sp = SpatialPooler(**params)
+
+    trueIndicies = [49, 9, 19,
+                    40, 0, 10,
+                    41, 1, 11]
+    mask = sp._mapPotential(0, wrapAround=True)
+    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+
+    trueIndicies = [48, 8, 18,
+                    49, 9, 19,
+                    40, 0, 10]
+    mask = sp._mapPotential(3, wrapAround=True)
+    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+
+
   def testMapPotential1Column1Input(self):
     params = self._params.copy()
     params.update({

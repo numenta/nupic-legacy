@@ -1172,19 +1172,13 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating that boundaries should be
                     ignored.
     """
-    # Distribute column over inputs uniformly
-    ratio = float(index) / max((self._numColumns - 1), 1)
-    index = int((self._numInputs - 1) * ratio)
-
-    indices = numpy.array(range(2*self._potentialRadius+1))
-    indices += index
-    indices -= self._potentialRadius
-    if wrapAround:
-      indices %= self._numInputs
-    else:
-      indices = indices[
-        numpy.logical_and(indices >= 0, indices < self._numInputs)]
-    indices = numpy.array(list(set(indices)))
+    index = self._mapColumn(index)
+    indices = self._getNeighborsND(index,
+                                   self._inputDimensions,
+                                   self._potentialRadius,
+                                   wrapAround=wrapAround)
+    indices.append(index)
+    indices = numpy.array(indices)
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
@@ -1552,7 +1546,6 @@ class SpatialPooler(object):
     neighbors = [toIndex(numpy.array(coord)) for coord in
       itertools.product(*rangeND)]
     neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
     return neighbors
 
 
