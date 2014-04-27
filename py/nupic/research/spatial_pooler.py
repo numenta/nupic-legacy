@@ -1521,15 +1521,8 @@ class SpatialPooler(object):
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
     assert(dimensions.size > 0)
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
 
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
-    def toIndex(coords):
-      return numpy.dot(bounds, coords)
-
-    columnCoords = toCoords(columnIndex)
+    columnCoords = numpy.unravel_index(columnIndex, dimensions)
     rangeND = []
     for i in xrange(dimensions.size):
       if wrapAround:
@@ -1541,9 +1534,9 @@ class SpatialPooler(object):
         curRange = curRange[
           numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
 
-      rangeND.append(curRange)
+      rangeND.append(numpy.unique(curRange))
 
-    neighbors = [toIndex(numpy.array(coord)) for coord in
+    neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
       itertools.product(*rangeND)]
     neighbors = list(set(neighbors) - set([columnIndex]))
     return neighbors
