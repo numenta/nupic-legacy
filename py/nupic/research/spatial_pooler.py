@@ -1538,7 +1538,7 @@ class SpatialPooler(object):
 
     neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
       itertools.product(*rangeND)]
-    neighbors = list(set(neighbors) - set([columnIndex]))
+    neighbors.remove(columnIndex)
     return neighbors
 
 
