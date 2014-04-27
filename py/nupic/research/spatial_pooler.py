@@ -1135,12 +1135,12 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating that boundaries should be
                     ignored.
     """
-    columnPoint = numpy.unravel_index(index, self._columnDimensions)
-    columnPoint = numpy.array(columnPoint, dtype=realDType)
-    ratios = columnPoint / numpy.maximum((self._columnDimensions - 1), 1)
-    inputPoint = (self._inputDimensions - 1) * ratios
-    inputPoint = inputPoint.astype(int)
-    inputIndex = numpy.ravel_multi_index(inputPoint, self._inputDimensions)
+    columnCoords = numpy.unravel_index(index, self._columnDimensions)
+    columnCoords = numpy.array(columnCoords, dtype=realDType)
+    ratios = columnCoords / numpy.maximum((self._columnDimensions - 1), 1)
+    inputCoords = (self._inputDimensions - 1) * ratios
+    inputCoords = inputCoords.astype(int)
+    inputIndex = numpy.ravel_multi_index(inputCoords, self._inputDimensions)
     return inputIndex
 
 
