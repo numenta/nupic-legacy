@@ -1113,6 +1113,37 @@ class SpatialPooler(object):
     return perm
 
 
+  def _mapColumn(self, index):
+    """
+    Maps a column to its respective input index, keeping to the topology of
+    the region. It takes the index of the column as an argument and determines
+    what is the index of the flattened input vector that is to be the center of
+    the column's potential pool. It distributes the columns over the inputs
+    uniformly. The return value is an integer representing the index of the
+    input bit. Examples of the expected output of this method:
+    * If the topology is one dimensional, and the column index is 0, this
+      method will return the input index 0. If the column index is 1, and there
+      are 3 columns over 7 inputs, this method will return the input index 3.
+    * If the topology is two dimensional, with column dimensions [3, 5] and
+      input dimensions [7, 11], and the column index is 3, the method
+      returns input index 8.
+
+    Parameters:
+    ----------------------------
+    index:          The index identifying a column in the permanence, potential
+                    and connectivity matrices.
+    wrapAround:     A boolean value indicating that boundaries should be
+                    ignored.
+    """
+    columnPoint = numpy.unravel_index(index, self._columnDimensions)
+    columnPoint = numpy.array(columnPoint, dtype=realDType)
+    ratios = columnPoint / numpy.maximum((self._columnDimensions - 1), 1)
+    inputPoint = (self._inputDimensions - 1) * ratios
+    inputPoint = inputPoint.astype(int)
+    inputIndex = numpy.ravel_multi_index(inputPoint, self._inputDimensions)
+    return inputIndex
+
+
   def _mapPotential(self, index, wrapAround=False):
     """
     Maps a column to its input bits. This method encapsultes the topology of
@@ -1139,7 +1170,7 @@ class SpatialPooler(object):
     index:          The index identifying a column in the permanence, potential
                     and connectivity matrices.
     wrapAround:     A boolean value indicating that boundaries should be
-                    region boundaries ignored.
+                    ignored.
     """
     # Distribute column over inputs uniformly
     ratio = float(index) / max((self._numColumns - 1), 1)

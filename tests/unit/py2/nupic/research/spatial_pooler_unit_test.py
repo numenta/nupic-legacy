@@ -229,6 +229,56 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(trueStripped, list(stripped))
 
 
+  def testMapColumn(self):
+    params = self._params.copy()
+
+    # Test 1D
+    params.update({
+      "columnDimensions": [4],
+      "inputDimensions": [10]
+    })
+    sp = SpatialPooler(**params)
+
+    self.assertEqual(sp._mapColumn(0), 0)
+    self.assertEqual(sp._mapColumn(1), 3)
+    self.assertEqual(sp._mapColumn(2), 6)
+    self.assertEqual(sp._mapColumn(3), 9)
+
+    # Test 1D with same dimensions of columns and inputs
+    params.update({
+      "columnDimensions": [4],
+      "inputDimensions": [4]
+    })
+    sp = SpatialPooler(**params)
+
+    self.assertEqual(sp._mapColumn(0), 0)
+    self.assertEqual(sp._mapColumn(1), 1)
+    self.assertEqual(sp._mapColumn(2), 2)
+    self.assertEqual(sp._mapColumn(3), 3)
+
+    # Test 1D with dimensions of length 1
+    params.update({
+      "columnDimensions": [1],
+      "inputDimensions": [1]
+    })
+    sp = SpatialPooler(**params)
+
+    self.assertEqual(sp._mapColumn(0), 0)
+
+    # Test 2D
+    params.update({
+      "columnDimensions": [12, 4],
+      "inputDimensions": [20, 10]
+    })
+    sp = SpatialPooler(**params)
+
+    self.assertEqual(sp._mapColumn(0), 0)
+    self.assertEqual(sp._mapColumn(4), 10)
+    self.assertEqual(sp._mapColumn(5), 13)
+    self.assertEqual(sp._mapColumn(7), 19)
+    self.assertEqual(sp._mapColumn(47), 199)
+
+
   def testMapPotential1D(self):
     params = self._params.copy()
     params.update({
