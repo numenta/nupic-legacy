@@ -43,11 +43,6 @@ function (read_variable_from_file file_content variable value)
   endif()
 endfunction()
 
-# This macro shows variables from the config file
-macro (show_config_variable variable value)
-  message(STATUS "  ${variable} = ${value}")
-endmacro()
-
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -85,18 +80,10 @@ macro (set_environment_variable variable value incremental)
   show_environment_variable(${variable} ${new_value})
 endmacro()
 
-# These macros copy all source directories after the configuration is done
-# Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
+# These macros copy all source directories after the configuration is done.
 macro (copy suffix src dst)
-  if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
-    message(STATUS "Linking from '${src}' to '${dst}'")
-    get_filename_component(dst_dir ${dst} PATH)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${dst_dir})
-    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink ${src} ${dst})
-  else()
-    message(STATUS "Copying from '${src}' to '${dst}'")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy${suffix} ${src} ${dst})
-  endif()
+  message(STATUS "Copying from '${src}' to '${dst}'")
+  execute_process(COMMAND ${CMAKE_COMMAND} -E copy${suffix} ${src} ${dst})
 endmacro()
 macro (copy_file src dst)
   copy("" ${src} ${dst})
@@ -159,6 +146,7 @@ macro(get_source_groups src_dir)
     ${src_dir}/*.cpp
     ${src_dir}/*.hpp
     ${src_dir}/*.h
+    ${src_dir}/*.py
   )
   if(src_files)
     set(SOURCE_RETURNED ${SOURCE_RETURNED} ${src_files})
@@ -174,6 +162,7 @@ macro(get_source_groups src_dir)
         ${dir}/*.cpp
         ${dir}/*.hpp
         ${dir}/*.h
+        ${dir}/*.py
       )
       get_filename_component(src_group ${dir} NAME)
       set(SOURCE_RETURNED ${SOURCE_RETURNED} ${src_files})
@@ -245,8 +234,9 @@ endmacro()
 macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
+  set(CMAKE_SWIG_OUTDIR "${output_dir}")
 
-  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${name}_py.i")
+  set(IMPLEMENTATION_FILE "${REPOSITORY_DIR}/${sub_dir}/${name}_py.i")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES SWIG_FLAGS "${swig_flags}")
   swig_add_module(${name} python
@@ -263,6 +253,14 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   endforeach()
   swig_link_libraries(${name}
     ${libraries}
+  )
+endmacro()
+
+# This macro generates a python module
+macro(generate_python_module name src_dir)
+  get_source_groups(${src_dir})
+  add_custom_target(${name} ALL
+    SOURCES ${SOURCE_RETURNED}
   )
 endmacro()
 
@@ -305,16 +303,16 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts
                   RESULT_VARIABLE EXIT_CODE)
   if(NOT EXIT_CODE EQUAL 0)
-    message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR} failed.")
+    message(FATAL_ERROR "Compiling '${name}' library within ${REPOSITORY_DIR}/extensions failed.")
   endif()
   # Copy binaries outputted by submodule build process to 'release' folder
-  copy_directory(${submodule_dir}/build/release/bin ${PROJECT_BUILD_RELEASE_DIR}/bin)
-  copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_RELEASE_DIR}/lib)
-  copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_RELEASE_DIR}/include)
+  copy_directory(${submodule_dir}/build/release/bin ${REPOSITORY_DIR}/bin)
+  copy_directory(${submodule_dir}/build/release/lib ${REPOSITORY_DIR}/lib)
+  copy_directory(${submodule_dir}/build/release/include ${REPOSITORY_DIR}/include)
 
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
-  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_RELEASE_DIR}/lib/lib${name}.${STATIC_LIB_EXTENSION}")
+  set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/lib/lib${name}.${STATIC_LIB_EXTENSION}")
 endmacro()
 
 
@@ -340,12 +338,6 @@ if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
 endif()
 
 #
-# Get default directories passed by command line.
-#
-set(PROJECT_BUILD_RELEASE_DIR "" CACHE STRING "Release dir")
-set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
-
-#
 # Sets default locations.
 #
 # Default directories structure is:
@@ -361,17 +353,9 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 #
 # Repository root is the parent directory which this CMake file is located
 # This CMake file must be always on /repository/src subdirectory.
-#get_filename_component(REPOSITORY_DIR ${PROJECT_SOURCE_DIR} PATH)
 set(REPOSITORY_DIR ${PROJECT_SOURCE_DIR})
-# 'release' is a subdirectory created on /build root.
-set(PROJECT_BUILD_RELEASE_DIR "$ENV{NTA}")
-if("${PROJECT_BUILD_RELEASE_DIR}" STREQUAL "")
-  set(PROJECT_BUILD_RELEASE_DIR "${REPOSITORY_DIR}/build/release")
-endif()
 # 'temp' is a subdirectory created on /build root.
-if("${PROJECT_BUILD_TEMP_DIR}" STREQUAL "")
-  set(PROJECT_BUILD_TEMP_DIR "${REPOSITORY_DIR}/build/temp")
-endif()
+set(PROJECT_BUILD_TEMP_DIR "${REPOSITORY_DIR}/build/temp")
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
 
@@ -379,9 +363,9 @@ set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
 #
 # Prepare directory structure
 #
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/include)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/lib)
-execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/include)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/lib)
+execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/bin)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
 
@@ -391,6 +375,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_
 if(UNIX)
   set(LIB_PREFIX "lib")
   set(STATIC_LIB_EXTENSION "a")
+  set(SHARED_LIB_EXTENSION "so")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(OSX ON)
     set(DYNAMIC_LIB_EXTENSION "dylib")
@@ -402,6 +387,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON)
   set(LIB_PREFIX "")
   set(STATIC_LIB_EXTENSION "lib")
+  set(SHARED_LIB_EXTENSION "dll")
   set(DYNAMIC_LIB_EXTENSION "dll")
 endif()
 
@@ -498,7 +484,6 @@ execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(sys.prefix)"
 string(REGEX REPLACE "\\\\" "/" PYTHON_PREFIX ${PYTHON_PREFIX})
 set(PYTHON_INCLUDE_DIR "${PYTHON_PREFIX}/include/python${PYTHON_VERSION}")
 set(PYTHON_LIBRARY_DIR "${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}")
-set(PYTHON_SITE_PACKAGES_DIR "${PROJECT_BUILD_RELEASE_DIR}/lib/python${PYTHON_VERSION}/site-packages")
 find_package(PythonLibs ${PYTHON_VERSION} REQUIRED)
 
 #
@@ -528,7 +513,6 @@ message(STATUS "Python details:")
 message(STATUS "  Version: ${PYTHON_VERSION}")
 message(STATUS "  Include dir: ${PYTHON_INCLUDE_DIR}")
 message(STATUS "  Library dir: ${PYTHON_LIBRARY_DIR}")
-message(STATUS "  Site packages dir: ${PYTHON_SITE_PACKAGES_DIR}")
 message(STATUS "  Python lib: ${PYTHON_LIBRARY}")
 message(STATUS "  Python command: ${PYTHON}")
 message(STATUS "Numpy details:")
@@ -538,29 +522,18 @@ message(STATUS "Swig details:")
 message(STATUS "  Version: ${SWIG_VERSION}")
 
 #
-# Config output paths.
-# First config output paths for the generic no-config case.
-# Second, for multi-config builds (DEBUG or RELEASE, for example).
-#
-set(CMAKE_SWIG_OUTDIR "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings")
-
-#
 # Set environment variables of the operating system
 #
 message(STATUS "Checking environment...")
 message(STATUS "Environment variables:")
-set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
-set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
-set_environment_variable(NTA "${PROJECT_BUILD_RELEASE_DIR}" OFF)
-set_environment_variable(NTA_DATA_PATH "${PROJECT_BUILD_RELEASE_DIR}/share/prediction/data" OFF)
+set_environment_variable(NUPIC "${REPOSITORY_DIR}" OFF)
+set_environment_variable(NTA_DATA_PATH "${REPOSITORY_DIR}/share/prediction/data" OFF)
 if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
 endif()
-show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 if(NEED_LOGOFF)
   message("You should logoff your system in order to some environment variables are changed permanently. If the problem persists, consider set manually the variables above in your 'bashrc' file")
 endif()
-
 
 #
 # Project details
@@ -571,7 +544,6 @@ message(STATUS "Locations:")
 message(STATUS "  Source: ${PROJECT_SOURCE_DIR}")
 message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
 message(STATUS "  Build Directory: ${PROJECT_BUILD_TEMP_DIR}")
-message(STATUS "  Release: ${PROJECT_BUILD_RELEASE_DIR}")
 
 
 ############################################################################################################################
@@ -594,7 +566,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/nta/external/common/include -isystem${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR}/extensions -I${REPOSITORY_DIR}/include -I${REPOSITORY_DIR} -isystem${REPOSITORY_DIR}/extensions/core/external/common/include -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -605,7 +577,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -712,7 +684,7 @@ if(NTA_PYTHON_SUPPORT)
 
   set(NTA_LINKFLAGS_PYEMBED "${NTA_PLATFORM_LINKFLAGS_PYEMBED} ${NTA_LINKFLAGS_PY}")
 
-  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+  set(NTA_LINKFLAGS_PYMODULE "${NTA_PLATFORM_LINKFLAGS_PYMODULE} ${NTA_LINKFLAGS_PY} ${NTA_PLATFORM_LIBS} -L${REPOSITORY_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 endif()
 
@@ -736,8 +708,8 @@ set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXXFLAGS_OPTIMIZATION}")
 # This is due to the fact that both nta/pynode and lang/py/net_internal depend
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
-set(LIB_STATIC_SUPPORT support)
-generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/support" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
+set(LIB_STATIC_SUPPORT py_support)
+generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_support" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
 # LibNupicCore
@@ -753,7 +725,7 @@ endif()
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
 # HtmTest
@@ -763,12 +735,12 @@ set(LIBRARIES
   ${LIB_STATIC_SUPPORT}
   ${LIB_STATIC_NUPICCORE}
 )
-generate_executable(${EXECUTABLE_HTMTEST} "${PROJECT_SOURCE_DIR}/tests/htmtest" "${PROJECT_BUILD_RELEASE_DIR}/bin" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
+generate_executable(${EXECUTABLE_HTMTEST} "${REPOSITORY_DIR}/extensions/htmtest" "${REPOSITORY_DIR}/bin" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
 
 #
 # LibCppRegion
 #
-# A regular shared library that is installed in <$NTA/lib> and
+# A regular shared library that is installed in <$NUPIC/lib> and
 # loaded dynamically.
 #
 set(LIB_DYNAMIC_CPPREGION cpp_region)
@@ -779,7 +751,7 @@ set(PROJECT_LIBRARIES
 set(EXTERNAL_LIBRARIES
   ${PYTHON_LIBRARY}
 )
-generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${PROJECT_SOURCE_DIR}/py/cpp_region" "${PROJECT_BUILD_RELEASE_DIR}/lib" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
+generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${REPOSITORY_DIR}/extensions/cpp_region" "${REPOSITORY_DIR}/lib" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
 
 if(NTA_PYTHON_SUPPORT)
   # This script is generated by swig.
@@ -808,6 +780,13 @@ if(NTA_PYTHON_SUPPORT)
   # They will linked in the "real" C++ library that the bindings are wrapping.
 
   #
+  # Nupic: The main project of this project.
+  # All extension modules above are build only for giving support to this python library.
+  # Once all extension modules are build, NuPIC library is finally installed on default path on target os.
+  #
+  generate_python_module(nupic "${REPOSITORY_DIR}/nupic")
+
+  #
   # LibEngineInternal
   #
   set(LIB_SHARED_ENGINEINTERNAL engine_internal)
@@ -815,20 +794,20 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsMath
   #
   set(LIB_SHARED_MATH math)
   set(EXTRA_SOURCE
-    ${PROJECT_SOURCE_DIR}/py/bindings/math/PySparseTensor.cpp
+    ${REPOSITORY_DIR}/extensions/bindings/py/math/PySparseTensor.cpp
   )
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_MATH} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_MATH} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsAlgorithms
@@ -838,7 +817,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsIORange
@@ -848,7 +827,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_IORANGE} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_IORANGE} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
 
@@ -858,47 +837,6 @@ endif()
 ###  Post configuration operations                                                                                       ###
 ###                                                                                                                      ###
 ############################################################################################################################
-
-# Copy platform independent executable scripts
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
-
-# Copy the pieces of nupic that we want
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/algorithms ${PYTHON_SITE_PACKAGES_DIR}/nupic/algorithms)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/frameworks ${PYTHON_SITE_PACKAGES_DIR}/nupic/frameworks)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/image ${PYTHON_SITE_PACKAGES_DIR}/nupic/image)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/research ${PYTHON_SITE_PACKAGES_DIR}/nupic/research)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/data ${PYTHON_SITE_PACKAGES_DIR}/nupic/data)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/database ${PYTHON_SITE_PACKAGES_DIR}/nupic/database)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/swarming ${PYTHON_SITE_PACKAGES_DIR}/nupic/swarming)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/encoders ${PYTHON_SITE_PACKAGES_DIR}/nupic/encoders)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/support ${PYTHON_SITE_PACKAGES_DIR}/nupic/support)
-copy_directory(${PROJECT_SOURCE_DIR}/py/regions         ${PYTHON_SITE_PACKAGES_DIR}/nupic/regions)
-
-# Copy math libraries. Much of the stuff in nupic.math is old cruft. Get just what we want
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/__init__.py)
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/cross.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/cross.py)
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/roc_utils.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/roc_utils.py)
-
-# Copy examples
-copy_directory(${PROJECT_SOURCE_DIR}/examples/prediction ${PROJECT_BUILD_RELEASE_DIR}/share/prediction)
-copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/share/opf)
-
-# Copy testing codes
-copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${PROJECT_BUILD_RELEASE_DIR}/share/test/data)
-copy_directory(${PROJECT_SOURCE_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
-
-# Copy miscellaneous files
-copy_directory(${PROJECT_SOURCE_DIR}/nta/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
-copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
-
-# Copy python API and regions
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/__init__.py)
-# This file is going to be replaced by a "documentored" version
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/engine/__init__.py)
 
 
 ############################################################################################################################
@@ -912,23 +850,23 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 # Tests
 #
 add_custom_target(tests_run
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
+                  COMMAND python ${REPOSITORY_DIR}/scripts/run_tests.py
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
+                  COMMAND python ${REPOSITORY_DIR}/scripts/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
-                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testpyhtm
+                  COMMAND ${REPOSITORY_DIR}/bin/testpyhtm
                   COMMENT "Basic tests in Python")
 
 add_custom_target(tests_cpphtm
-                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testcpphtm
+                  COMMAND ${REPOSITORY_DIR}/bin/testcpphtm
                   COMMENT "Basic tests in C++")
 
 add_custom_target(tests_everything
-                  COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
+                  COMMAND ${REPOSITORY_DIR}/bin/testeverything
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
@@ -943,16 +881,18 @@ add_custom_target(tests_all
 # Clean
 #
 add_custom_target(distclean
-		# Clean '/build/release' and build/temp
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR}
-		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}
-		# recreate folders
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/include
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/lib
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj
-		COMMENT "Cleaning temporary & release build files")
+                  # Clean '/build/release' and build/temp
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${REPOSITORY_DIR}/include
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${REPOSITORY_DIR}/lib
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${REPOSITORY_DIR}/bin
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}
+                  # recreate folders
+                  COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/include
+                  COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/lib
+                  COMMAND ${CMAKE_COMMAND} -E make_directory ${REPOSITORY_DIR}/bin
+                  COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib
+                  COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj
+                  COMMENT "Cleaning temporary & release build files")
 
 # Just to separate from result message
 message(STATUS "")
