@@ -650,7 +650,12 @@ class CLAModel(Model):
       
       # Get the percent of active columns that were NOT predicted, that is
       # our anomaly score.
-      score = (nActiveColumns - score) / float(nActiveColumns)
+      if nActiveColumns > 0:
+        score = (nActiveColumns - score) / float(nActiveColumns)
+      elif len(self._prevPredictedColumns) > 0:
+        score = 1.0
+      else:
+        score = 0.0
       
       inferences[InferenceElement.anomalyScore] = score
 
