@@ -278,7 +278,7 @@ void testPynodeLinking()
 //  std::string imagePath = Path::makeAbsolute("bed.bmp");
 //  if (!Path::exists(imagePath))
 //  {
-//    bool rc = Env::get("NTA", imagePath);
+//    bool rc = Env::get("NUPIC", imagePath);
 //    NTA_CHECK(rc);
 //    imagePath = Path::join(imagePath, "share/vision/data/pictures/clean/bed/bed.bmp");
 //    NTA_CHECK(Path::exists(imagePath));
