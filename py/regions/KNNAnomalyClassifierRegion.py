@@ -395,7 +395,12 @@ class KNNAnomalyClassifierRegion(PyRegion):
     activeSPColumns = allSPColumns.nonzero()[0]
     
     score = numpy.in1d(activeSPColumns, self._prevPredictedColumns).sum()
-    score = (self._activeColumnCount - score)/float(self._activeColumnCount)
+    if self._activeColumnCount > 0:
+      score = (self._activeColumnCount - score) / float(self._activeColumnCount)
+    elif len(self._prevPredictedColumns) > 0:
+      score = 1.0
+    else:
+      score = 0.0
 
     spSize = len(allSPColumns)
 
