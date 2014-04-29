@@ -912,10 +912,6 @@ class SpatialPooler(object):
                     and connectivity matrices.
     """
     dimensions = self._inputDimensions
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
     connected = self._connectedSynapses.getRow(index).nonzero()[0]
     if connected.size == 0:
       return 0
@@ -924,8 +920,8 @@ class SpatialPooler(object):
     maxCoord.fill(-1)
     minCoord.fill(max(self._inputDimensions))
     for i in connected:
-      maxCoord = numpy.maximum(maxCoord, toCoords(i))
-      minCoord = numpy.minimum(minCoord, toCoords(i))
+      maxCoord = numpy.maximum(maxCoord, numpy.unravel_index(i, dimensions))
+      minCoord = numpy.minimum(minCoord, numpy.unravel_index(i, dimensions))
     return numpy.average(maxCoord - minCoord + 1)
 
 
