@@ -641,7 +641,7 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
       inferences[InferenceElement.anomalyScore] = (
-          self._computeAnomalyScore(activeColumns, self._prevPredictedColumns))
+          self.computeAnomalyScore(activeColumns, self._prevPredictedColumns))
 
       # Store the predicted columns for the next timestep
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
@@ -663,7 +663,7 @@ class CLAModel(Model):
 
 
   @staticmethod
-  def _computeAnomalyScore(activeColumns, prevPredictedColumns):
+  def computeAnomalyScore(activeColumns, prevPredictedColumns):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     :param activeColumns: array of active column indices

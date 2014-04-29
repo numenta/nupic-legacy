@@ -29,6 +29,7 @@ import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 
+from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
 
@@ -393,14 +394,9 @@ class KNNAnomalyClassifierRegion(PyRegion):
     # Count the number of unpredicted columns
     allSPColumns = inputs["spBottomUpOut"]
     activeSPColumns = allSPColumns.nonzero()[0]
-    
-    score = numpy.in1d(activeSPColumns, self._prevPredictedColumns).sum()
-    if self._activeColumnCount > 0:
-      score = (self._activeColumnCount - score) / float(self._activeColumnCount)
-    elif len(self._prevPredictedColumns) > 0:
-      score = 1.0
-    else:
-      score = 0.0
+
+    score = CLAModel.computeAnomalyScore(activeSPColumns,
+                                         self._prevPredictedColumns)
 
     spSize = len(allSPColumns)
 
