@@ -638,26 +638,10 @@ class CLAModel(Model):
       else:
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
-      nActiveColumns = len(activeColumns)
-
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      
-      # Test whether each element of a 1-D array is also present in a second
-      # array. Sum to get the total # of columns that are active and were
-      # predicted.
-      score = numpy.in1d(activeColumns, self._prevPredictedColumns).sum()
-      
-      # Get the percent of active columns that were NOT predicted, that is
-      # our anomaly score.
-      if nActiveColumns > 0:
-        score = (nActiveColumns - score) / float(nActiveColumns)
-      elif len(self._prevPredictedColumns) > 0:
-        score = 1.0
-      else:
-        score = 0.0
-      
-      inferences[InferenceElement.anomalyScore] = score
+      inferences[InferenceElement.anomalyScore] = (
+          self._computeAnomalyScore(activeColumns, self._prevPredictedColumns))
 
       # Store the predicted columns for the next timestep
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
@@ -668,8 +652,8 @@ class CLAModel(Model):
 
       # TODO: make labels work with non-SP models
       if sp is not None:
-        self._getAnomalyClassifier().setParameter('activeColumnCount',
-          nActiveColumns)
+        self._getAnomalyClassifier().setParameter(
+            "activeColumnCount", len(activeColumns))
         self._getAnomalyClassifier().prepareInputs()
         self._getAnomalyClassifier().compute()
         labels = self._getAnomalyClassifier().getSelf().getLabelResults()
@@ -678,6 +662,34 @@ class CLAModel(Model):
     return inferences
 
 
+  @staticmethod
+  def _computeAnomalyScore(activeColumns, prevPredictedColumns):
+    """Compute the anomaly score as the percent of active columns not predicted.
+
+    :param activeColumns: array of active column indices
+    :param prevPredictedColumns: array of columns indices predicted in previous
+        step
+    :returns: the computed anomaly score
+    """
+    nActiveColumns = len(activeColumns)
+
+    if nActiveColumns > 0:
+      # Test whether each element of a 1-D array is also present in a second
+      # array. Sum to get the total # of columns that are active and were
+      # predicted.
+      score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
+
+      # Get the percent of active columns that were NOT predicted, that is
+      # our anomaly score.
+      score = (nActiveColumns - score) / float(nActiveColumns)
+    elif len(prevPredictedColumns) > 0:
+      # There were predicted columns but none active.
+      score = 1.0
+    else:
+      # There were no predicted or active columns.
+      score = 0.0
+
+    return score
 
 
   def _handleCLAClassifierMultiStep(self, patternNZ,
