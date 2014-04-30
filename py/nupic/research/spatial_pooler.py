@@ -318,6 +318,16 @@ class SpatialPooler(object):
       self.printParameters()
 
 
+  def getColumnDimensions(self):
+    """Returns the dimensions of the columns in the region"""
+    return self._columnDimensions
+
+
+  def getInputDimensions(self):
+    """Returns the dimensions of the input vector"""
+    return self._inputDimensions
+
+
   def getNumColumns(self):
     """Returns the total number of columns"""
     return self._numColumns
