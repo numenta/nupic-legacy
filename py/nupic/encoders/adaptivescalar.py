@@ -49,7 +49,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=True):
+                resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
     """
@@ -60,7 +60,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     assert n!=0           #An adaptive encoder can only be intialized using n
 
     super(AdaptiveScalarEncoder, self).__init__(w=w, n=n, minval=minval, maxval=maxval,
-                                clipInput=True, name=name, verbosity=verbosity)
+                                clipInput=True, name=name, verbosity=verbosity, forced=forced)
     self.recordNum=0    #how many inputs have been sent to the encoder?
     self.slidingWindow = np.array([])
     self.windowSize = 300

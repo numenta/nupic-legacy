@@ -29,6 +29,25 @@
 ###                                                                                                                      ###
 ############################################################################################################################
 
+# This function reads variables from a file in the following format:
+# FOO = 'bar'
+function (read_variable_from_file file_content variable value)
+  set(${value} PARENT_SCOPE)
+
+  # Get the value between quotes
+  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${file_content}")
+
+  # If multiple lines are found, it's because regex return the entire text
+  if(NOT "${tag_value}" MATCHES "\n")
+    set(${value} "${tag_value}" PARENT_SCOPE)
+  endif()
+endfunction()
+
+# This macro shows variables from the config file
+macro (show_config_variable variable value)
+  message(STATUS "  ${variable} = ${value}")
+endmacro()
+
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -68,7 +87,7 @@ endmacro()
 
 # These macros copy all source directories after the configuration is done
 # Note: If NTAX_DEVELOPER_BUILD is set, copy is optimized (directories are linked, and files are not copied if the modification time of the target is more recent).
-macro (copy suffix src dst)  
+macro (copy suffix src dst)
   if("$ENV{NTAX_DEVELOPER_BUILD}" STREQUAL "1")
     message(STATUS "Linking from '${src}' to '${dst}'")
     get_filename_component(dst_dir ${dst} PATH)
@@ -248,7 +267,29 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
 endmacro()
 
 # This macro generates imported library from submodules
-macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags)
+macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkflags remote commitish)
+
+  # checkout git dependency
+  if (NOT EXISTS ${submodule_dir})
+    execute_process(COMMAND git clone ${remote} ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to clone ${remote} into ${submodule_dir}")
+    endif()
+  else()
+    execute_process(COMMAND git fetch ${remote}
+                    WORKING_DIRECTORY ${submodule_dir}
+                    RESULT_VARIABLE EXIT_CODE)
+    if(NOT EXIT_CODE EQUAL 0)
+      message(FATAL_ERROR "Unable to fetch ${remote}")
+    endif()
+  endif()
+  execute_process(COMMAND git checkout ${commitish}
+                  WORKING_DIRECTORY ${submodule_dir}
+                  RESULT_VARIABLE EXIT_CODE)
+  if(NOT EXIT_CODE EQUAL 0)
+    message(FATAL_ERROR "Unable to checkout ${commitish} in ${submodule_dir}")
+  endif()
 
   # Build and set external libraries
   message(STATUS "Building '${name}' library...")
@@ -306,7 +347,7 @@ set(PROJECT_BUILD_TEMP_DIR "" CACHE STRING "Temporary dir")
 
 #
 # Sets default locations.
-# 
+#
 # Default directories structure is:
 #
 # ~/../repository (root directory with repository downloaded from internet)
@@ -343,16 +384,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEA
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_RELEASE_DIR}/bin)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/lib)
 execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_DIR}/obj)
-
-#
-# Update repository submodules
-#
-execute_process(COMMAND git submodule update --init
-                WORKING_DIRECTORY ${REPOSITORY_DIR}
-                RESULT_VARIABLE EXIT_CODE)
-if(NOT EXIT_CODE EQUAL 0)
-  message(FATAL_ERROR "Updating submodules within ${REPOSITORY_DIR} failed.")
-endif()
 
 #
 # Set OS flags
@@ -404,7 +435,7 @@ elseif(LINUX)
   if(${NTA_PLATFORM_ARCH} MATCHES "64")
     set(NTA_PLATFORM_OS "linux64")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
-  else()    
+  else()
     set(NTA_PLATFORM_OS "linux32")
     set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -ffloat-store")
   endif()
@@ -518,13 +549,9 @@ set(CMAKE_SWIG_OUTDIR "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings")
 #
 message(STATUS "Checking environment...")
 message(STATUS "Environment variables:")
-set_environment_variable(PATH "${PROJECT_BUILD_RELEASE_DIR}/bin" ON)
 set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
 set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
-set_environment_variable(LD_LIBRARY_PATH "${PROJECT_BUILD_TEMP_DIR}/lib" ON)
-set_environment_variable(DYLD_LIBRARY_PATH "${PROJECT_BUILD_RELEASE_DIR}/lib" ON)
 set_environment_variable(NTA "${PROJECT_BUILD_RELEASE_DIR}" OFF)
-set_environment_variable(NTA_ROOTDIR "${PROJECT_BUILD_RELEASE_DIR}" OFF)
 set_environment_variable(NTA_DATA_PATH "${PROJECT_BUILD_RELEASE_DIR}/share/prediction/data" OFF)
 if(OSX)
   set_environment_variable(MACOSX_DEPLOYMENT_TARGET "${CMAKE_OSX_DEPLOYMENT_TARGET}" OFF)
@@ -533,6 +560,7 @@ show_environment_variable(NTAX_DEVELOPER_BUILD "$ENV{NTAX_DEVELOPER_BUILD}")
 if(NEED_LOGOFF)
   message("You should logoff your system in order to some environment variables are changed permanently. If the problem persists, consider set manually the variables above in your 'bashrc' file")
 endif()
+
 
 #
 # Project details
@@ -566,7 +594,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/nta/external/common/include -isystem${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -577,7 +605,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -705,7 +733,7 @@ set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXXFLAGS_OPTIMIZATION}")
 # LibSupport
 #
 # lang/py/support must be built before nta, but lang must be built after nta.
-# This is due to the fact that both nta/pynode and lang/py/net_internal depend 
+# This is due to the fact that both nta/pynode and lang/py/net_internal depend
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
 set(LIB_STATIC_SUPPORT support)
@@ -714,8 +742,18 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/sup
 #
 # LibNupicCore
 #
+# Put content from module config (.nupic_modules) file into variables
+if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+  file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
+elseif(EXISTS "$ENV{HOME}/.nupic_config")
+  file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
+else()
+  file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+endif()
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
+read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "")
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
 # HtmTest
@@ -765,7 +803,7 @@ if(NTA_PYTHON_SUPPORT)
   # there is nothing Python-obvious about this name, so it may
   # conflict with libraries we generate for other target languages
   # in the future.
-  # (The list of sources also includes the swig interface files, even 
+  # (The list of sources also includes the swig interface files, even
   # though they're not used to compile, just to get the dependencies right.)
   # They will linked in the "real" C++ library that the bindings are wrapping.
 
@@ -852,6 +890,7 @@ copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bi
 copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
 
 # Copy miscellaneous files
+copy_directory(${PROJECT_SOURCE_DIR}/nta/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
 copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
@@ -872,28 +911,28 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 #
 # Tests
 #
-add_custom_target(tests_run 
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py 
+add_custom_target(tests_run
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
                   COMMENT "Python tests")
 
-add_custom_target(tests_run_all 
+add_custom_target(tests_run_all
                   COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
-add_custom_target(tests_pyhtm 
+add_custom_target(tests_pyhtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testpyhtm
                   COMMENT "Basic tests in Python")
 
-add_custom_target(tests_cpphtm 
+add_custom_target(tests_cpphtm
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testcpphtm
                   COMMENT "Basic tests in C++")
 
-add_custom_target(tests_everything 
+add_custom_target(tests_everything
                   COMMAND ${PROJECT_BUILD_RELEASE_DIR}/bin/testeverything
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
-add_custom_target(tests_all 
+add_custom_target(tests_all
                   DEPENDS tests_run
                   DEPENDS tests_pyhtm
                   DEPENDS tests_cpphtm
@@ -903,7 +942,7 @@ add_custom_target(tests_all
 #
 # Clean
 #
-add_custom_target(distclean 
+add_custom_target(distclean
 		# Clean '/build/release' and build/temp
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_RELEASE_DIR}
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${PROJECT_BUILD_TEMP_DIR}

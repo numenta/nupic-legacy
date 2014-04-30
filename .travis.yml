@@ -14,21 +14,6 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
 
-    # For S3 upload from travis-artifacts
-    - ARTIFACTS_AWS_REGION=us-west-2
-    - ARTIFACTS_S3_BUCKET=artifacts.numenta.org
-
-    # ARTIFACTS_AWS_ACCESS_KEY_ID
-    - secure: |-
-        LryXoMT+lhDYreY0xYVBZg0HbpZHik6fUh8ZqCiOoUYrCAkoMck1NWkvWMst
-        di3ZnAyQKxnOzqNpWDiBufJnA4OXzm4SnkDj5NT2ZYZ56jRNFXveRD9bmXcz
-        PFtP88dQvesy1el66EBBGTfuPls4pI7+Juu9iaK5jo9pup22rX0=
-
-    # ARTIFACTS_AWS_SECRET_ACCESS_KEY
-    - secure: |-
-        ZDEgrBeE7f9yTjD3Va4uvkEakNcNKTgNTJ8VWT9QUZdmEvlgvGWRvCbUZHQc
-        P+tJ/UVBATmEx5RHf0NqKFyfkC/VeA8C3D4ekCnbB11WF/4i8CCGCrhui9Mx
-        cfgr20Rz8KuuC/TZklPjVCy+0dXS3o2CL7u2b7XDGYzBYPxayjU=
   matrix:
     - CC=clang
     - CC=gcc
@@ -60,7 +45,6 @@ install:
   
   # Add more environment variables
   - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
-  - "export NTA_ROOTDIR=$NTA"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
@@ -90,7 +74,3 @@ script:
   - "python $NUPIC/examples/tp/hello_tp.py"
   - "python $NUPIC/examples/tp/tp_test.py"
 
-after_script:
-  - travis_retry gem install travis-artifacts > /dev/null
-  - tar -zcf nupic-linux64-$TRAVIS_COMMIT.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-$TRAVIS_COMMIT/ --exclude="*.pyc" eng
-  - travis-artifacts upload --path nupic-linux64-$TRAVIS_COMMIT.tar.gz --target-path $TRAVIS_REPO_SLUG

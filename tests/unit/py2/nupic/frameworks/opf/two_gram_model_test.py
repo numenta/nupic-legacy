@@ -40,6 +40,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
+		      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -64,6 +65,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
+		      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -91,6 +93,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
+		      "forced": True,
                       "type": "ScalarEncoder"},
                 "b": {"fieldname": u"b",
                       "maxval": 9,
@@ -98,6 +101,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 10,
                       "w": 1,
                       "clipInput": True,
+		      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -119,6 +123,7 @@ class TwoGramModelTest(unittest.TestCase):
     encoders = {"a": {"fieldname": u"a",
                       "n": 10,
                       "w": 3,
+		      "forced": True,
                       "type": "SDRCategoryEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
@@ -143,6 +148,7 @@ class TwoGramModelTest(unittest.TestCase):
                       "n": 2,
                       "w": 1,
                       "clipInput": True,
+		      "forced": True,
                       "type": "ScalarEncoder"}}
     inferenceType = opfutils.InferenceType.TemporalNextStep
     twoGramModel = two_gram_model.TwoGramModel(inferenceType, encoders)
