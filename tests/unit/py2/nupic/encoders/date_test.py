@@ -39,6 +39,7 @@ class DateEncoderTest(unittest.TestCase):
   def setUp(self):
     ##TODO: comment and code don't match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
+     # use of forced is not recommended, used here for readibility, see scalar.py
     self._e = DateEncoder(season=3, dayOfWeek=1, weekend=3, timeOfDay=5)
     # in the middle of fall, Thursday, not a weekend, afternoon - 4th Nov, 2010, 14:55
     self._d = datetime.datetime(2010, 11, 4, 14, 55)
@@ -128,7 +129,8 @@ class DateEncoderTest(unittest.TestCase):
 
   def testHoliday(self):
     '''look at holiday more carefully because of the smooth transition'''
-    e = DateEncoder(holiday=5)
+    # use of forced is not recommended, used here for readibility, see scalar.py
+    e = DateEncoder(holiday=5, forced=True)
     holiday = numpy.array([0,0,0,0,0,1,1,1,1,1], dtype='uint8')
     notholiday = numpy.array([1,1,1,1,1,0,0,0,0,0], dtype='uint8')
     holiday2 = numpy.array([0,0,0,1,1,1,1,1,0,0], dtype='uint8')
@@ -147,10 +149,11 @@ class DateEncoderTest(unittest.TestCase):
 
   def testWeekend(self):
     '''Test weekend encoder'''
-    e = DateEncoder(customDays = (21,["sat","sun","fri"]))
-    mon = DateEncoder(customDays = (21,"Monday"))
+    # use of forced is not recommended, used here for readibility, see scalar.py
+    e = DateEncoder(customDays = (21,["sat","sun","fri"]), forced=True)
+    mon = DateEncoder(customDays = (21,"Monday"), forced=True)
 
-    e2 = DateEncoder(weekend=(21,1))
+    e2 = DateEncoder(weekend=(21,1), forced=True)
     d = datetime.datetime(1988,5,29,20,00)
     self.assertTrue((e.encode(d) == e2.encode(d)).all())
     for _ in range(300):
