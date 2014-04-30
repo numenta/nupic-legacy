@@ -29,7 +29,7 @@ import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 
-from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.algorithms.anomaly import computeAnomalyScore
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
 
@@ -395,8 +395,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     allSPColumns = inputs["spBottomUpOut"]
     activeSPColumns = allSPColumns.nonzero()[0]
 
-    score = CLAModel.computeAnomalyScore(activeSPColumns,
-                                         self._prevPredictedColumns)
+    score = computeAnomalyScore(activeSPColumns, self._prevPredictedColumns)
 
     spSize = len(allSPColumns)
 
