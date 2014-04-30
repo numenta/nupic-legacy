@@ -39,6 +39,7 @@ install:
   - pip install -q -r $NUPIC/external/common/requirements.txt
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  - "cmake --version"
   - "cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
