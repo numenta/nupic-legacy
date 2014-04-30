@@ -197,11 +197,13 @@ class SpatialPooler(object):
     numColumns = columnDimensions.prod()
     numInputs = inputDimensions.prod()
 
-    assert(numColumns > 0)
-    assert(numInputs > 0)
-    assert(inputDimensions.size == columnDimensions.size)
+    assert numColumns > 0, "No columns specified"
+    assert numInputs > 0, "No inputs specified"
+    assert inputDimensions.size == columnDimensions.size, (
+             "Input dimensions must match column dimensions")
     assert (numActiveColumnsPerInhArea > 0 or
-           (localAreaDensity > 0 and localAreaDensity <= 0.5))
+           (localAreaDensity > 0 and localAreaDensity <= 0.5)), (
+             "Inhibition parameters are invalid")
 
     self._seed(seed)
 
@@ -230,7 +232,8 @@ class SpatialPooler(object):
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
-    assert(self._synPermTrimThreshold < self._synPermConnected)
+    assert (self._synPermTrimThreshold < self._synPermConnected), (
+             "synPermTrimThreshold must be less than synPermConnected")
     self._updatePeriod = 50
     initConnectedPct = 0.5
 
