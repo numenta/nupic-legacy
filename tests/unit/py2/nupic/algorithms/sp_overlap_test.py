@@ -55,13 +55,13 @@ class TestSPFrequency(unittest.TestCase):
   def testCategory(self):
     """Test that the most frequent possible option is chosen for a scalar
     encoded field """
-    self.frequency(n=100, w=15, seed=SEED, numColors=90, encoder = 'scalar')
+    self.frequency(n=100, w=21, seed=SEED, numColors=90, encoder = 'scalar')
 
 
   def testScalar(self):
     """Test that the most frequent possible option is chosen for a category
     encoded field """
-    self.frequency(n=30, w=13, seed=SEED, numColors=90, encoder = 'category')
+    self.frequency(n=30, w=21, seed=SEED, numColors=90, encoder = 'category')
 
 
   @unittest.skip("Not working...")
@@ -70,7 +70,7 @@ class TestSPFrequency(unittest.TestCase):
     encoded field. Run through many different numbers of patterns and random
     seeds"""
     for n in [52, 70, 80, 90, 100, 110]:
-      self.frequency(n=100, w=15, seed=SEED, numColors=n, encoder='scalar')
+      self.frequency(n=100, w=21, seed=SEED, numColors=n, encoder='scalar')
 
 
   @unittest.skip("Not working...")
@@ -79,7 +79,7 @@ class TestSPFrequency(unittest.TestCase):
     encoded field. Run through many different numbers of patterns and random
     seeds"""
     for n in [52, 70, 80, 90, 100, 110]:
-      self.frequency(n=100, w=15, seed=SEED, numColors=n)
+      self.frequency(n=100, w=21, seed=SEED, numColors=n)
 
 
   def frequency(self,
@@ -94,7 +94,8 @@ class TestSPFrequency(unittest.TestCase):
                 seed=42,
                 minVal=0,
                 maxVal=10,
-                encoder = 'category'):
+                encoder = 'category',
+		forced=True):
 
     """ Helper function that tests whether the SP predicts the most
     frequent record """
@@ -128,7 +129,7 @@ class TestSPFrequency(unittest.TestCase):
     # Setting up the encodings
     if encoder=='scalar':
       enc = scalar.ScalarEncoder(name='car', w=w, n=n, minval=minVal,
-                                 maxval=maxVal, periodic=False)
+                                 maxval=maxVal, periodic=False, forced=True) # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
       for y in xrange(numColors):
         temp = enc.encode(rnd.random()*maxVal)
         colors.append(numpy.array(temp, dtype=realDType))

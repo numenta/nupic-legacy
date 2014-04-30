@@ -40,10 +40,10 @@ config = \
           'fieldname': u'field1',
           'maxval': 0.1,
           'minval': 0.0,
-          'n': 11,
+          'n': 211,
           'name': u'field1',
           'type': 'ScalarEncoder',
-          'w': 7
+          'w': 21
         },
         'classification': { 
           'classifierOnly': True,
@@ -51,10 +51,10 @@ config = \
           'fieldname': u'classification',
           'maxval': 1.0,
           'minval': 0.0,
-          'n': 11,
+          'n': 211,
           'name': u'classification',
           'type': 'ScalarEncoder',
-          'w': 7
+          'w': 21
         },
       },
     },

@@ -59,6 +59,8 @@ class LogEncoder(Encoder):
     verbosity -- level of debugging output you want the encoder to provide.
     clipInput -- if true, non-periodic inputs smaller than minval or greater
                   than maxval will be clipped to minval/maxval
+    forced -- (default False), if True, skip some safety checks
+
   """
 
   def __init__(self,
@@ -71,7 +73,8 @@ class LogEncoder(Encoder):
                resolution=0,
                name="log",
                verbosity=0,
-               clipInput=True):
+               clipInput=True,
+               forced=False):
 
     # Lower bound for log encoding near machine precision limit
     lowLimit = 1e-07
@@ -107,7 +110,8 @@ class LogEncoder(Encoder):
                                  radius=radius,
                                  resolution=resolution,
                                  verbosity=self.verbosity,
-                                 clipInput=self.clipInput)
+                                 clipInput=self.clipInput,
+				 forced=forced)
     self.width = self.encoder.getWidth()
     self.description = [(name, 0)]
     self.name = name

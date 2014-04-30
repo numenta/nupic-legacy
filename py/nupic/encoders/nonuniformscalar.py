@@ -40,7 +40,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def __init__(self, w, n, data = None, bins = None,
-                      weights=None, name=None, verbosity=0):
+                      weights=None, name=None, verbosity=0, forced=False):
 
 
 
@@ -48,7 +48,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
     self.weights = weights
     super(NonUniformScalarEncoder, self).__init__(w=w, n=n, minval= 0, maxval=self._numBins-1,
                                                                           clipInput=True, name=name,
-                                                                          verbosity=verbosity)
+                                                                          verbosity=verbosity, forced=forced)
     hasData = data is None
     hasBins = bins is None
     if hasData == hasBins:
