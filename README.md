@@ -6,8 +6,6 @@ NuPIC is a library that provides the building blocks for online prediction syste
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-Issue tracker at [issues.numenta.org](https://issues.numenta.org/browse/NPC).
-
 ## OPF Basics
 
 For more detailed documentation, see the [OPF wiki page](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework).
@@ -58,7 +56,6 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
     export NUPIC=<path to NuPIC repository>
     export NTA=$NUPIC/build/release
-    export NTA_ROOTDIR=$NTA
     export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
 
 ### Using command line
@@ -72,7 +69,6 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 #### Build:
 
     cd $NUPIC/build/scripts
-    (optional) make clean / distclean   # to compile all the files again
     make -j3
 
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.

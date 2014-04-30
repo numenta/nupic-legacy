@@ -129,7 +129,7 @@ config = {
                               'n': 100,
                               'name': u'field1',
                               'type': 'SDRCategoryEncoder',
-                              'w': 7}},
+                              'w': 21}},
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;

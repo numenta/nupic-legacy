@@ -278,15 +278,17 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
 
   @param expJsonFilePath {string} Path to a JSON file containing the complete
                                  [swarm description](https://github.com/numenta/nupic/wiki/Running-Swarms#the-swarm-description).
-  @param options {object} CLI options (optParse).
+  @param options {dict} CLI options.
   @param outputLabel {string} Label for output.
   @param permWorkDir {string} Location of working directory.
 
   @returns {int} Swarm job id.
   """
-  verbosity = options.verbosityCount
-  optionsDict = vars(options)
-  del optionsDict["verbosityCount"]
+  if "verbosityCount" in options:
+    verbosity = options["verbosityCount"]
+    del options["verbosityCount"]
+  else:
+    verbosity = 1
 
   _setupInterruptHandling()
 
@@ -294,7 +296,7 @@ def runWithJsonFile(expJsonFilePath, options, outputLabel, permWorkDir):
     expJsonConfig = json.loads(jsonFile.read())
 
   outDir = os.path.dirname(expJsonFilePath)
-  return runWithConfig(expJsonConfig, optionsDict, outDir=outDir,
+  return runWithConfig(expJsonConfig, options, outDir=outDir,
                        outputLabel=outputLabel, permWorkDir=permWorkDir,
                        verbosity=verbosity)
 
@@ -309,26 +311,27 @@ def runWithPermutationsScript(permutationsFilePath, options,
   arguments in through the options parameter.
 
   @param permutationsFilePath {string} Path to permutations.py.
-  @param options {object} CLI options (optParse).
+  @param options {dict} CLI options.
   @param outputLabel {string} Label for output.
   @param permWorkDir {string} Location of working directory.
 
   @returns {object} Model parameters.
   """
   global g_currentVerbosityLevel
-  g_currentVerbosityLevel = options.verbosityCount
+  if "verbosityCount" in options:
+    g_currentVerbosityLevel = options["verbosityCount"]
+    del options["verbosityCount"]
+  else:
+    g_currentVerbosityLevel = 1
 
   _setupInterruptHandling()
 
-  optionsDict = vars(options)
-  del optionsDict["verbosityCount"]
-
-  optionsDict["permutationsScriptPath"] = permutationsFilePath
-  optionsDict["outputLabel"] = outputLabel
-  optionsDict["permWorkDir"] = permWorkDir
+  options["permutationsScriptPath"] = permutationsFilePath
+  options["outputLabel"] = outputLabel
+  options["permWorkDir"] = permWorkDir
 
   # Assume it's a permutations python script
-  runOptions = _injectDefaultOptions(optionsDict)
+  runOptions = _injectDefaultOptions(options)
   _validateOptions(runOptions)
 
   return _runAction(runOptions)

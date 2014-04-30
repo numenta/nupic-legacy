@@ -39,7 +39,10 @@ class CategoryEncoder(Encoder):
   The SDRCategoryEncoder uses a different method to encode categories"""
 
 
-  def __init__(self, w, categoryList, name="category", verbosity=0):
+  def __init__(self, w, categoryList, name="category", verbosity=0, forced=False):
+    """params: 
+       forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
+    """
 
     self.encoders = None
     self.verbosity = verbosity
@@ -55,7 +58,7 @@ class CategoryEncoder(Encoder):
       self.indexToCategory[i+1] = categoryList[i]
 
     self.encoder = ScalarEncoder(w, minval=0, maxval=self.ncategories - 1,
-                      radius=1, periodic=False)
+                      radius=1, periodic=False, forced=forced)
     self.width = w * self.ncategories
     assert self.encoder.getWidth() == self.width
 

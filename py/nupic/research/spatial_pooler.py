@@ -1099,7 +1099,7 @@ class SpatialPooler(object):
       if (potential[i] < 1):
         continue
 
-      if (self._random.getReal64() < connectedPct):
+      if (self._random.getReal64() <= connectedPct):
         perm[i] = self._initPermConnected()
       else:
         perm[i] = self._initPermNonConnected()
@@ -1140,6 +1140,10 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating that boundaries should be
                     region boundaries ignored.
     """
+    # Distribute column over inputs uniformly
+    ratio = float(index) / max((self._numColumns - 1), 1)
+    index = int((self._numInputs - 1) * ratio)
+
     indices = numpy.array(range(2*self._potentialRadius+1))
     indices += index
     indices -= self._potentialRadius
