@@ -37,7 +37,7 @@ install:
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
   - pip install -q -r $NUPIC/external/common/requirements.txt
   - "cd $NUPIC"
-  - "python setup.py install"
+  - "python setup.py build_ext install"
 
 script:
   - "cd $NUPIC/build/scripts"
