@@ -86,6 +86,8 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
     make tests_run
     # Python OPF unit and integration tests (requires mysql)
     make tests_run_all
+    # Run all tests!
+    make tests_all
 
 ### Using graphical interface
 
