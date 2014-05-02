@@ -94,10 +94,9 @@ MODEL_PARAMS = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            # Spatial Pooler implementation selector, see getSPClass
-            # in py/regions/SPRegion.py for details
-            # 'py', 'oldpy' (default), 'cpp' (speed optimized, new)
-            'spatialImp' : 'cpp',
+            # Spatial Pooler implementation selector.
+            # Options: 'py', 'cpp' (speed optimized, new)
+            'spatialImp' : 'cpp', 
 
             'globalInhibition': 1,
 
@@ -111,25 +110,19 @@ MODEL_PARAMS = {
             # SP inhibition control (absolute value);
             # Maximum number of active columns in the SP region's output (when
             # there are more, the weaker ones are suppressed)
-            'numActivePerInhArea': 40,
+            'numActiveColumnsPerInhArea': 40,
 
             'seed': 1956,
 
-            # coincInputPoolPct
+            # potentialPct
             # What percent of the columns's receptive field is available
-            # for potential synapses. At initialization time, we will
-            # choose coincInputPoolPct * (2*coincInputRadius+1)^2
-            'coincInputPoolPct': 0.85,
+            # for potential synapses. 
+            'potentialPct': 0.85,
 
             # The default connected threshold. Any synapse whose
             # permanence value is above the connected threshold is
             # a "connected synapse", meaning it can contribute to the
-            # cell's firing. Typical value is 0.10. Cells whose activity
-            # level before inhibition falls below minDutyCycleBeforeInh
-            # will have their own internal synPermConnectedCell
-            # threshold set below this default value.
-            # (This concept applies to both SP and TP and so 'cells'
-            # is correct here as opposed to 'columns')
+            # cell's firing. Typical value is 0.10. 
             'synPermConnected': 0.1,
 
             'synPermActiveInc': 0.04,
