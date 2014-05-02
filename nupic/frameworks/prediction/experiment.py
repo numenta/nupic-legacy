@@ -966,5 +966,5 @@ def test():
 
 if __name__ == "__main__":
   #test()
-  print "Use 'RunExperiment.py' in the examples/prediction directory"
+  print "Use 'RunExperiment.py' in the share/prediction directory"
   sys.exit(1)
