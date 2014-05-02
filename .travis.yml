@@ -3,7 +3,6 @@ branches:
     - gh-pages
 language: python
 python:
-  - "2.6"
   - "2.7"
 
 git:
@@ -13,10 +12,11 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
+    - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
 
   matrix:
-    - CC=clang
-    - CC=gcc
+    - CC=clang CXX=clang++
+    - CC=gcc CXX=g++
 
 notifications:
   irc:
@@ -25,26 +25,30 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  - git clone https://github.com/numenta/nupic-linux64.git
-  - (cd nupic-linux64 && git reset --hard 9e4df07ee03184d670a8801b76f206785e2a8b2e)
-  - source nupic-linux64/bin/activate
-  - if [ "$CC" = "gcc" ]; then export CXX=g++; fi
-  - if [ "$CC" = "clang" ]; then export CXX=clang++; fi
+  # Due to recent changes to Travis-CI build environment, we need to download,
+  # build, and install, python, setuptools, pip, and all of the nupic python
+  # dependencies
+  - (PY_VER=`python --version 2>&1 | awk '{print $2}'` && wget https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xzf Python-${PY_VER}.tgz && cd Python-${PY_VER} && ./configure --enable-shared --prefix=${TRAVIS_BUILD_DIR}/python && make > /dev/null && make altinstall)
 
 install:
-  - if [ $PY_VERSION != "2.6" ]; then (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make > /dev/null) fi
+  # Prefix env with our own python installation
+  - "export PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH"
+  - "export PYTHONPATH=$TRAVIS_BUILD_DIR/python/lib/python$TRAVIS_PYTHON_VERSION/site-packages:$PYTHONPATH:$NTA/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
+  - "export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/python/lib:$LD_LIBRARY_PATH"
+  - "ln -s $TRAVIS_BUILD_DIR/python/bin/python$TRAVIS_PYTHON_VERSION $TRAVIS_BUILD_DIR/python/bin/python"
   # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
-  - pip install -q -r $NUPIC/external/common/requirements.txt
+  # Install setuptools + pip
+  - wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python > /dev/null
+  # Install NuPIC python dependencies
+  - pip install -q -r $NUPIC/external/common/requirements.txt --install-option="--prefix=$TRAVIS_BUILD_DIR/python"
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  - "cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
+  # Buil NuPIC
+  - "PYTHON=$TRAVIS_BUILD_DIR/python/bin/python cmake $NUPIC -DPYTHON_LIBRARY=$TRAVIS_BUILD_DIR/python/lib/libpython$TRAVIS_PYTHON_VERSION.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
-  
-  # Add more environment variables
-  - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VERSION/site-packages"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
