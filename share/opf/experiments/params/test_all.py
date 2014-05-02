@@ -29,7 +29,7 @@ import time
 from nupic.frameworks.opf import opfhelpers
 from nupic.frameworks.opf.client import Client
 
-# Experiment directories relative to "trunk/examples/opf/experiments."
+# Experiment directories relative to "trunk/share/opf/experiments."
 EXPERIMENTS_FILE = 'successful_experiments.txt'
 
 
