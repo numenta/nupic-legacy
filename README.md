@@ -108,3 +108,4 @@ By IDE solution:
 ### Examples
 
 For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC](https://github.com/numenta/nupic/wiki/Using-NuPIC) wiki page.
+
