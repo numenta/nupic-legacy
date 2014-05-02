@@ -52,50 +52,47 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository.
 
     export NUPIC=<path to NuPIC repository>
-    export NTA=$NUPIC/build/release
-    export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
 
-### Using command line
+### User instructions
 
-#### Configure and generate build files:
+If you want NuPIC only for your python apps consume it, simply do this:
 
-    mkdir -p $NUPIC/build/scripts
-    cd $NUPIC/build/scripts
-    cmake $NUPIC
+    pip nupic install (under construction)
 
-#### Build:
+### Developer instructions
 
-    cd $NUPIC/build/scripts
-    make -j3
+If you want develop, debug, or simply test NuPIC, clone it and do this:
 
-> **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
+    cd $NUPIC
+    python setup.py develop
+
+'setup.py' is a python script that build and install locally NuPIC in a combined process of CMake and Make tools. So you can add extra options to the build process using '--cmake-options' or '--make-options' parameters. For example, this command line:
+
+    python setup.py develop --make-options='-j3'
+
+specifies '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
+
+For build and test NuPIC using a IDE, use this command line:
+
+    python setup.py develop --cmake-options='-G "Xcode"'
+
+This will generate a Xcode IDE solution into `$NUPIC/build/scripts`. See this: http://www.cmake.org/Wiki/CMake_Generator_Specific_Information)
 
 #### Run the tests:
+
+By command line:
 
     cd $NUPIC/build/scripts
     make <test> (where <test> can be C++ tests: 'tests_everything', 'tests_cpphtm' and 'tests_pyhtm' or Python tests: 'tests_run' and 'tests_run_all')
 
-### Using graphical interface
-
-#### Generate the IDE solution:
-
- * Open CMake executable.
- * Specify the source folder (`$NUPIC`).
- * Specify the build system folder (`$NUPIC/build/scripts`), i.e. where IDE solution will be created.
- * Click `Generate`.
- * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
-
-#### Build:
+By IDE solution:
 
  * Open `nupic.*proj` solution file generated on `$NUPIC/build/scripts`.
- * Run `ALL_BUILD` project from your IDE.
-
-#### Run the tests:
-
- * Run any `tests_*` project from your IDE (check `output` panel to see the results).
+ * Run `ALL_BUILD` project.
+ * Run any `tests_*` project (check `output` panel to see the results).
 
 ### Examples
 

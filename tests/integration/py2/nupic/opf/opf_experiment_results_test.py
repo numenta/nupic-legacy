@@ -43,7 +43,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     """Run specific experiments and verify that they are producing the correct
     results.
 
-    opfDir is the examples/opf directory in the install path
+    opfDir is the share/opf directory in the install path
     and is used to find OpfRunExperiment.py
 
     The testdir is the directory that contains the experiments we will be
@@ -62,7 +62,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
                     os.path.pardir,
                     os.path.pardir,
                     os.path.pardir,
-                    "examples",
+                    "share",
                     "opf"))
 
     testDir = opfDir

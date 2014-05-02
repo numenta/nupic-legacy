@@ -55,7 +55,7 @@ class MyTestEnvironment(object):
                    os.path.pardir,
                    os.path.pardir,
                    os.path.pardir,
-                   "examples"))
+                   "share"))
 
     _debugOut("examplesDir=<%s>" % (examplesDir,))
 
