@@ -46,6 +46,7 @@ install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake --version"
+  # Build NuPIC
   - "PYTHON=$TRAVIS_BUILD_DIR/python/bin/python cmake $NUPIC -DPYTHON_LIBRARY=$TRAVIS_BUILD_DIR/python/lib/libpython$TRAVIS_PYTHON_VERSION.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
