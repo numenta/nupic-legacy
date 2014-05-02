@@ -2,7 +2,7 @@
 
 ## Numenta Platform for Intelligent Computing [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 
-NuPIC is a library that provides the building blocks for online prediction systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
+NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
@@ -69,7 +69,6 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 #### Build:
 
     cd $NUPIC/build/scripts
-    (optional) make clean / distclean   # to compile all the files again
     make -j3
 
 > **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
@@ -77,7 +76,18 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 #### Run the tests:
 
     cd $NUPIC/build/scripts
-    make <test> (where <test> can be C++ tests: 'tests_everything', 'tests_cpphtm' and 'tests_pyhtm' or Python tests: 'tests_run' and 'tests_run_all')
+    # all C++ tests
+    make tests_everything
+    # C++ HTM Network API tests
+    make tests_cpphtm
+    # Python HTM Network API tests
+    make tests_pyhtm
+    # Python OPF unit tests
+    make tests_run
+    # Python OPF unit and integration tests (requires mysql)
+    make tests_run_all
+    # Run all tests!
+    make tests_all
 
 ### Using graphical interface
 
@@ -100,13 +110,5 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
 ### Examples
 
-You can run the examples using the OpfRunExperiment OPF client:
+For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC](https://github.com/numenta/nupic/wiki/Using-NuPIC) wiki page.
 
-    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
-
-There are also some sample OPF clients. You can modify these to run your own
-data sets. One example is the hotgym prediction client:
-
-    python $NUPIC/examples/opf/clients/hotgym/hotgym.py
-
-Also check out other uses of the CLA on the [Getting Started](https://github.com/numenta/nupic/wiki/Getting-Started#next-steps) wiki page.
