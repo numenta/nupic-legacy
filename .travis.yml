@@ -45,7 +45,7 @@ install:
   - "cmake --version"
   # Build NuPIC
   - "cd $NUPIC"
-  - "python setup.py build_ext install"
+  - "python setup.py install"
 
 script:
   - "cd $NUPIC/build/scripts"

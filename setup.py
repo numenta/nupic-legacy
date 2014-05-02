@@ -1,7 +1,8 @@
 import sys
 import os
 import subprocess
-from setuptools import setup, Command
+from distutils.core import setup
+from distutils.command.build_py import build_py
 
 """
 This file only will call CMake process to generate scripts, build, and then install the NuPIC binaries.
@@ -20,7 +21,7 @@ def find_packages(repositoryDir):
   return packages
 
 
-class build_ext(Command):
+class build_nupic(build_py):
   """ NuPIC/CMake-specific build command handler
   """
   description = "build nupic.core and nupic c/c++ extensions"
@@ -104,5 +105,5 @@ NuPIC is a library that provides the building blocks for online prediction syste
 
 For more information, see numenta.org or the NuPIC wiki (https://github.com/numenta/nupic/wiki).
 """,
-  cmdclass={"build_ext": build_ext}
+  cmdclass={"build_py": build_nupic}
 )
