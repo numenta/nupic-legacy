@@ -37,10 +37,9 @@ def testAll(experiments):
   experimentsDir = os.path.join(os.path.split(
       os.path.dirname(__file__))[:-1])[0]
   for experiment in experiments:
-    experimentBase = os.path.join(os.environ['NUPIC'], experimentsDir, experiment)
+    experimentBase = os.path.join(os.getcwd(), experimentsDir, experiment)
 
     config, control = opfhelpers.loadExperiment(experimentBase)
-    print "dir: " + experimentBase
 
     if control['environment'] == 'opfExperiment':
       experimentTasks = control['tasks']

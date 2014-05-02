@@ -70,7 +70,7 @@ def getAllExperimentDirectories(excludedExperiments=[]):
   excludedDirectories = ['exp', 'inference', 'networks', 'legacy']
   excludedDirectories.extend(excludedExperiments)
   return getAllDirectoriesWithFile(
-                    path="experiments",
+                    path=os.path.join(PREDICTION_DIR, "experiments"),
                     filename="description.py",
                     excludeDirs=excludedDirectories)
 
