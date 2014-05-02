@@ -1099,7 +1099,7 @@ class SpatialPooler(object):
       if (potential[i] < 1):
         continue
 
-      if (self._random.getReal64() < connectedPct):
+      if (self._random.getReal64() <= connectedPct):
         perm[i] = self._initPermConnected()
       else:
         perm[i] = self._initPermNonConnected()
