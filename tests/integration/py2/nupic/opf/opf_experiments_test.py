@@ -33,7 +33,7 @@ from nupic.frameworks.opf.experiment_runner import (
 
 # Globals
 EXCLUDED_EXPERIMENTS = [] # none for now
-PREDICTION_DIR = os.path.join(os.environ['NTA'], 'share', 'opf')
+PREDICTION_DIR = os.path.join(os.environ['NUPIC'], 'share', 'opf')
 RUN_ALL_ITERATIONS = False
 
 
@@ -70,7 +70,7 @@ def getAllExperimentDirectories(excludedExperiments=[]):
   excludedDirectories = ['exp', 'inference', 'networks', 'legacy']
   excludedDirectories.extend(excludedExperiments)
   return getAllDirectoriesWithFile(
-                    path="experiments",
+                    path=os.path.join(PREDICTION_DIR, "experiments"),
                     filename="description.py",
                     excludeDirs=excludedDirectories)
 

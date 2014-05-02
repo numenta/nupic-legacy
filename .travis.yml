@@ -11,7 +11,6 @@ git:
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
-    - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
 
   matrix:
@@ -43,16 +42,13 @@ install:
   - wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python > /dev/null
   # Install NuPIC python dependencies
   - pip install -q -r $NUPIC/external/common/requirements.txt --install-option="--prefix=$TRAVIS_BUILD_DIR/python"
-  - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake --version"
   # Build NuPIC
-  - "PYTHON=$TRAVIS_BUILD_DIR/python/bin/python cmake $NUPIC -DPYTHON_LIBRARY=$TRAVIS_BUILD_DIR/python/lib/libpython$TRAVIS_PYTHON_VERSION.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
-  - "make -j3"
-  - "cd"
+  - "cd $NUPIC"
+  - "python setup.py install"
 
 script:
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  - "cd $NUPIC/build/scripts"
   # legacy binary tests
   - "make tests_pyhtm"
   # actual unit tests
@@ -65,16 +61,16 @@ script:
 ##  - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
 ##  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
     # examples/opf (run atleast 1 from each category)
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/anomaly/spatial/2field_few_skewed/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/anomaly/temporal/saw_200/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/classification/category_TP_1/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/missing_record/simple_0/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/multistep/hotgym/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
              # opf/experiments/params - skip now
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
+  - "python $NUPIC/share/opf/bin/OpfRunExperiment.py $NUPIC/share/opf/experiments/spatial_classification/category_1/"
     # examples/prediction
-  - "python $NUPIC/examples/prediction/RunExperiment.py $NUPIC/examples/prediction/experiments/dutyCycle/problem/"
+  - "python $NUPIC/share/prediction/RunExperiment.py $NUPIC/share/prediction/experiments/dutyCycle/problem/"
     # examples/tp
   - "python $NUPIC/examples/tp/hello_tp.py"
   - "python $NUPIC/examples/tp/tp_test.py"
