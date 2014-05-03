@@ -35,8 +35,8 @@ class DeltaEncoderTest(unittest.TestCase):
 
 
   def setUp(self):
-    self._dencoder = DeltaEncoder(w=21, n=100)
-    self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100)
+    self._dencoder = DeltaEncoder(w=21, n=100, forced=True)
+    self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100, forced=True)
 
 ###########################################
   def testDeltaEncoder(self):

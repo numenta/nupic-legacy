@@ -129,7 +129,7 @@ config = {
                               'n': 100,
                               'name': u'field1',
                               'type': 'SDRCategoryEncoder',
-                              'w': 7}},
+                              'w': 21}},
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -151,6 +151,8 @@ config = {
             # SP diagnostic output verbosity control;
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
+
+            'spatialImp' : 'oldpy',
 
             'globalInhibition': 1,
 

@@ -32,12 +32,13 @@ from nupic.support import getArgumentDescriptions
 
 from PyRegion import PyRegion
 
-gDefaultSpatialImp = 'oldpy'
-
 
 ##############################################################################
 def getDefaultSPImp():
-  return gDefaultSpatialImp
+  """
+  Return the default spatial pooler implementation for this region.
+  """
+  return 'cpp'
 
 
 ##############################################################################
@@ -154,7 +155,7 @@ def _getAdditionalSpecs(spatialImp, kwargs={}):
   # the new SpatialPooler classes have slightly different constructor argument
   # names, so include them all as possible arguments.
   spatialSpec = {}
-  FDRSpatialClass = getSPClass(spatialImp)
+  FDRSpatialClass = getSPClass('oldpy')
   sArgTuples = _buildArgs(FDRSpatialClass.__init__)
   argTuplesNew = _buildArgs(CPPSpatialPooler.__init__)
   sArgTuples.extend(argTuplesNew)
@@ -342,7 +343,7 @@ class SPRegion(PyRegion):
   def __init__(self,
                columnCount,   # Number of columns in the SP, a required parameter
                inputWidth,    # Size of inputs to the SP, a required parameter
-               spatialImp=gDefaultSpatialImp,   #'py', 'cpp', or 'oldpy'
+               spatialImp=getDefaultSPImp(),   #'py', 'cpp', or 'oldpy'
                **kwargs):
 
     if columnCount <= 0 or inputWidth <=0:
@@ -809,7 +810,7 @@ class SPRegion(PyRegion):
     by the variosu components (spatialSpec, temporalSpec and otherSpec)
     """
     spec = cls.getBaseSpec()
-    s, o = _getAdditionalSpecs(spatialImp=gDefaultSpatialImp)
+    s, o = _getAdditionalSpecs(spatialImp=getDefaultSPImp())
     spec['parameters'].update(s)
     spec['parameters'].update(o)
 
