@@ -944,10 +944,7 @@ class SpatialPooler(object):
     the synapses based on the input vector, and the chosen columns after
     inhibition round. Permanence values are increased for synapses connected to
     input bits that are turned on, and decreased for synapses connected to
-    inputs bits that are turned off. Permanence values for shared inputs, which
-    are input bits that are turned on and connected to more than one active
-    column, are decreased in order to discourage multiple columns from learning
-    the same input pattern.
+    inputs bits that are turned off.
 
     Parameters:
     ----------------------------
