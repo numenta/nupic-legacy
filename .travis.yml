@@ -1,9 +1,12 @@
 branches:
   except:
     - gh-pages
-language: python
-python:
-  - "2.7"
+
+language: cpp
+
+compiler:
+  - clang
+  - gcc
 
 git:
   submodules: false
@@ -13,10 +16,9 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
-
   matrix:
-    - CC=clang CXX=clang++
-    - CC=gcc CXX=g++
+    - PY_VER=2.7
+    - PY_VER=2.6
 
 notifications:
   irc:
@@ -25,29 +27,26 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  # Due to recent changes to Travis-CI build environment, we need to download,
-  # build, and install, python, setuptools, pip, and all of the nupic python
-  # dependencies
-  - (PY_VER=`python --version 2>&1 | awk '{print $2}'` && wget https://www.python.org/ftp/python/${PY_VER}/Python-${PY_VER}.tgz && tar xzf Python-${PY_VER}.tgz && cd Python-${PY_VER} && ./configure --enable-shared --prefix=${TRAVIS_BUILD_DIR}/python && make > /dev/null && make altinstall)
-
-install:
+  - sudo add-apt-repository -y ppa:fkrull/deadsnakes
+  - sudo apt-get update
+  - sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
+  - sudo ls -laFh /usr/lib/libpython$PY_VER.so
   # Prefix env with our own python installation
-  - "export PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH"
-  - "export PYTHONPATH=$TRAVIS_BUILD_DIR/python/lib/python$TRAVIS_PYTHON_VERSION/site-packages:$PYTHONPATH:$NTA/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
-  - "export LD_LIBRARY_PATH=$TRAVIS_BUILD_DIR/python/lib:$LD_LIBRARY_PATH"
-  - "ln -s $TRAVIS_BUILD_DIR/python/bin/python$TRAVIS_PYTHON_VERSION $TRAVIS_BUILD_DIR/python/bin/python"
+  - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages"
+  - virtualenv --python=`which python$PY_VER` .
+  - source bin/activate
   # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
-  # Install setuptools + pip
-  - wget https://raw.github.com/pypa/pip/master/contrib/get-pip.py -O - | python > /dev/null
   # Install NuPIC python dependencies
-  - pip install -q -r $NUPIC/external/common/requirements.txt --install-option="--prefix=$TRAVIS_BUILD_DIR/python"
+  - pip install -q -r $NUPIC/external/common/requirements.txt
+
+install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake --version"
   # Build NuPIC
-  - "PYTHON=$TRAVIS_BUILD_DIR/python/bin/python cmake $NUPIC -DPYTHON_LIBRARY=$TRAVIS_BUILD_DIR/python/lib/libpython$TRAVIS_PYTHON_VERSION.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
+  - "PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
   - "make -j3"
   - "cd"
 
@@ -61,21 +60,21 @@ script:
 
   # run all example files
     # examples/bindings
-  - "python $NUPIC/examples/bindings/sparse_matrix_how_to.py"
+  - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
 ##  - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
 ##  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
     # examples/opf (run atleast 1 from each category)
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
              # opf/experiments/params - skip now
-  - "python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
+  - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
     # examples/prediction
-  - "python $NUPIC/examples/prediction/RunExperiment.py $NUPIC/examples/prediction/experiments/dutyCycle/problem/"
+  - "python$PY_VER $NUPIC/examples/prediction/RunExperiment.py $NUPIC/examples/prediction/experiments/dutyCycle/problem/"
     # examples/tp
-  - "python $NUPIC/examples/tp/hello_tp.py"
-  - "python $NUPIC/examples/tp/tp_test.py"
+  - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
+  - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
 
