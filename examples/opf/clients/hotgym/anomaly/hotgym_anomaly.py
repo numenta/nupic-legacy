@@ -40,7 +40,9 @@ _LOGGER = logging.getLogger(__name__)
 
 _DATA_PATH = "../../../../prediction/data/extra/hotgym/rec-center-hourly.csv"
 
-_ANOMALY_THRESHOLD = 0.8
+_OUTPUT_PATH = "anomaly_scores.csv"
+
+_ANOMALY_THRESHOLD = 0.9
 
 
 def createModel():
@@ -52,6 +54,8 @@ def runHotgymAnomaly():
   model.enableInference({'predictedField': 'consumption'})
   with open (findDataset(_DATA_PATH)) as fin:
     reader = csv.reader(fin)
+    csvWriter = csv.writer(open(_OUTPUT_PATH,"wb"))
+    csvWriter.writerow(["timestamp", "consumption", "anomaly_score"])
     headers = reader.next()
     reader.next()
     reader.next()
@@ -62,11 +66,13 @@ def runHotgymAnomaly():
           modelInput["timestamp"], "%m/%d/%y %H:%M")
       result = model.run(modelInput)
       anomalyScore = result.inferences['anomalyScore']
+      csvWriter.writerow([modelInput["timestamp"], modelInput["consumption"],
+                          anomalyScore])
       if anomalyScore > _ANOMALY_THRESHOLD:
         _LOGGER.info("Anomaly detected at [%s]. Anomaly score: %f.",
                       result.rawInput["timestamp"], anomalyScore)
 
-
+  print "Anomaly scores have been written to",_OUTPUT_PATH
 
 if __name__ == "__main__":
   logging.basicConfig(level=logging.INFO)

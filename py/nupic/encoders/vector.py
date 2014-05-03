@@ -147,10 +147,10 @@ class VectorEncoderOPF(VectorEncoder):
 #################################################################################################
 class SimpleVectorEncoder(VectorEncoder):
   """Vector encoder for beginners, easy to create and play with;
-     by default encodes list of 5 elements, numbers 0-100"""
+     by default encodes list of 5 elements, numbers 0-100
+  """
 
   def __init__(self, length=5, minval=0, maxval=100, resolution=1, name='vect', typeCastFn=float):
-    sc = ScalarEncoder(5, minval, maxval, resolution=resolution, name='idx')
+    sc = ScalarEncoder(21, minval, maxval, resolution=resolution, name='idx')
     super(SimpleVectorEncoder, self).__init__(length, sc, typeCastFn=typeCastFn)
-
 

@@ -43,12 +43,13 @@ class SDRCategoryEncoder(Encoder):
 
   ############################################################################
   def __init__(self, n, w, categoryList = None, name="category", verbosity=0,
-               encoderSeed=1):
+               encoderSeed=1, forced=False):
     """
     n is  total bits in output
     w is the number of bits that are turned on for each rep
     categoryList is a list of strings that define the categories.
     If "none" then categories will automatically be added as they are encountered.
+    forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
     self.n = n
@@ -59,18 +60,16 @@ class SDRCategoryEncoder(Encoder):
     if encoderSeed != -1:
         self.random.seed(encoderSeed)
 
-    # TODO: discuss whether this is important. Was commented out to
-    # enable certain experiments.
-    #
-    # "5" is arbitrary -- this is just to catch bad parameter choices
-    #if self.w >= self.n - 4:
-    #  raise RuntimeError("Number of bits in SDR (%d) must be much smaller than "
-    #                     "the output width (%d)" % (self.w, self.n))
+    if not forced:
+      # -- this is just to catch bad parameter choices
+      if (self.n/self.w) < 2: # w is 50% of total len
+        raise ValueError("Number of ON bits in SDR (%d) must be much smaller than "
+                           "the output width (%d)" % (self.w, self.n))
 
-    # Another arbitrary cutoff to catch likely mistakes
-    if self.w < 3:
-      raise RuntimeError("Number of bits in the SDR (%d) must be greater than 2"
-                         % self.w)
+      # Another arbitrary cutoff to catch likely mistakes
+      if self.w < 21:
+        raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and should be >= 21, pass forced=True to init() to override this check"
+                           % self.w)
 
 
     # Calculate average overlap of SDRs for decoding
