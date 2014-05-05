@@ -27,18 +27,22 @@ import unittest2 as unittest
 from nupic.frameworks.opf.clamodel import CLAModel
 
 
+
 class CLAModelTest(unittest.TestCase):
   """CLAModel unit tests."""
+
 
   def testRemoveUnlikelyPredictionsEmpty(self):
     result = CLAModel._removeUnlikelyPredictions({}, 0.01, 3)
     self.assertDictEqual(result, {})
+
 
   def testRemoveUnlikelyPredictionsSingleValues(self):
     result = CLAModel._removeUnlikelyPredictions({1: 0.1}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.1})
     result = CLAModel._removeUnlikelyPredictions({1: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.001})
+
 
   def testRemoveUnlikelyPredictionsLikelihoodThresholds(self):
     result = CLAModel._removeUnlikelyPredictions({1: 0.1, 2: 0.001}, 0.01, 3)
@@ -48,6 +52,7 @@ class CLAModelTest(unittest.TestCase):
     result = CLAModel._removeUnlikelyPredictions({1: 0.002, 2: 0.001}, 0.01, 3)
     self.assertDictEqual(result, {1: 0.002})
 
+
   def testRemoveUnlikelyPredictionsMaxPredictions(self):
     result = CLAModel._removeUnlikelyPredictions({1: 0.1, 2: 0.2, 3: 0.3},
                                                  0.01, 3)
@@ -55,6 +60,7 @@ class CLAModelTest(unittest.TestCase):
     result = CLAModel._removeUnlikelyPredictions(
         {1: 0.1, 2: 0.2, 3: 0.3, 4: 0.4}, 0.01, 3)
     self.assertDictEqual(result, {2: 0.2, 3: 0.3, 4: 0.4})
+
 
   def testRemoveUnlikelyPredictionsComplex(self):
     result = CLAModel._removeUnlikelyPredictions(
@@ -68,5 +74,6 @@ class CLAModelTest(unittest.TestCase):
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
 
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
   unittest.main()
