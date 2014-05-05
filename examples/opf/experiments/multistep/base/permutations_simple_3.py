@@ -58,7 +58,7 @@ permutations = {
   'predictedField': 'field2',
   'predictionSteps': [1,3],
   
-  'dataSource': 'file://%s' % (os.path.join(os.environ['NTA'], 'share', 'opf', 
+  'dataSource': 'file://%s' % (os.path.join(os.environ['NTA'], 'examples', 'opf', 
                     'experiments', 'multistep', 'datasets', 'simple_3.csv')),
 
   '__field2_encoder' : PermuteEncoder(fieldName='field2',

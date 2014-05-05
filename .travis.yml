@@ -14,7 +14,7 @@ git:
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
-    - NTA=$HOME/nta/eng
+    - NTA=$NUPIC
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
   matrix:
     - PY_VER=2.7
@@ -32,7 +32,6 @@ before_install:
   - sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
   - sudo ls -laFh /usr/lib/libpython$PY_VER.so
   # Prefix env with our own python installation
-  - "export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages"
   - virtualenv --python=`which python$PY_VER` .
   - source bin/activate
   # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
@@ -46,9 +45,8 @@ install:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   - "cmake --version"
   # Build NuPIC
-  - "PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
-  - "make -j3"
-  - "cd"
+  - "cd $NUPIC"
+  - "python$PY_VER setup.py install"
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"

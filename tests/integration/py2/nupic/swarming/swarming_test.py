@@ -255,7 +255,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(os.environ['NTA'], 'share', 'prediction',
+        dataPath = os.path.join(os.environ['NTA'], 'examples', 'prediction',
                         'data', 'extra', 'qa', "hotgym", "qa_hotgym.csv")
       streamDef = dict(
         version = 1,

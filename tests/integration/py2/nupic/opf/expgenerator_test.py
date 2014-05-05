@@ -86,7 +86,7 @@ class MyTestEnvironment(object):
                   os.path.abspath(self.testOutDir))
 
     # Where to find out datasets
-    self.datasetSrcDir = os.path.join(installRootDir, "share", "prediction", \
+    self.datasetSrcDir = os.path.join(installRootDir, "examples", "prediction", \
       "data", "extra")
 
 

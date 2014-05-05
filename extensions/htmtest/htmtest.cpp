@@ -280,7 +280,7 @@ void testPynodeLinking()
 //  {
 //    bool rc = Env::get("NTA", imagePath);
 //    NTA_CHECK(rc);
-//    imagePath = Path::join(imagePath, "share/vision/data/pictures/clean/bed/bed.bmp");
+//    imagePath = Path::join(imagePath, "examples/vision/data/pictures/clean/bed/bed.bmp");
 //    NTA_CHECK(Path::exists(imagePath));
 //  }
 //
