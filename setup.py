@@ -1,7 +1,7 @@
 import sys
 import os
 import subprocess
-from distutils.core import setup
+from setuptools import setup
 
 """
 This file only will call CMake process to generate scripts, build, and then install the NuPIC binaries.
@@ -18,7 +18,7 @@ cmakeOptions = ""
 makeOptions = ""
 mustBuild = False
 for arg in sys.argv:
-  if ("install" in arg) or ("build" in arg):
+  if ("build" in arg) or ("install" in arg):
     mustBuild = True
   elif ("cmake_options" in arg) or ("make_options" in arg):
     option = arg.split("=")
