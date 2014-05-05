@@ -519,8 +519,8 @@ class ConfigurationTest(unittest.TestCase):
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
-    self.assertEqual(result, [os.path.join(nupic.rootDir,
-                                           'conf', 'site', 'default')])
+    self.assertEqual(result, [os.path.join(os.environ['NUPIC'],
+                                           'conf', 'default')])
 
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)

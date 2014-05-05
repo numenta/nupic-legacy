@@ -52,7 +52,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     we will be running, copied into it by the qa/autotest/prediction_results.py
     script.
     When running stand-alone from the command line, this will point to the
-    share/prediction directory in the install tree (same as predictionDir)
+    examples/prediction directory in the install tree (same as predictionDir)
 
     """
     opfDir = os.path.abspath(
@@ -73,7 +73,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     #  we will be running, copied into it by the
     #  qa/autotest/prediction_results.py script.
     # When running stand-alone from the command line, we can simply point to the
-    #  share/prediction directory in the install tree.
+    #  examples/prediction directory in the install tree.
     if not os.path.exists(os.path.join(testDir, "experiments/classification")):
       testDir = opfDir
 
