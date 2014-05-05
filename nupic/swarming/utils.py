@@ -428,7 +428,7 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
     # if NTA is not set in the environment, set it for the user so that
     #   we can find data files expected to be in the examples/prediction/data directory
     if not "NTA" in os.environ:
-      os.environ['NTA'] = nupic.rootDir
+      os.environ['NTA'] = os.environ['NUPIC']
 
 
     # Run the experiment now
@@ -482,7 +482,7 @@ def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
   # if NTA is not set in the environment, set it for the user so that
   #   we can find data files expected to be in the examples/prediction/data directory
   if not "NTA" in os.environ:
-    os.environ['NTA'] = nupic.rootDir
+    os.environ['NTA'] = os.environ['NUPIC']
 
 
   # Run the experiment now

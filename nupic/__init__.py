@@ -25,6 +25,6 @@ if not sys.platform.startswith('java'):
   from nupic.bindings import engine_internal
 
 import os
-rootDir = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "../../../.."))
+#rootDir = os.path.normpath(os.path.join(
+#    os.path.dirname(os.path.abspath(__file__)),
+#    "../../../.."))
