@@ -120,17 +120,17 @@ def _getDataDirs():
   dataDirs.append(('data', "in local directory 'data'"))
   dataDirs.append((".", "in current working directory"))
 
-  if "NTA" in os.environ:
-    d = os.path.join(os.environ['NTA'], 'examples/prediction/data')
+  if "NUPIC" in os.environ:
+    d = os.path.join(os.environ['NUPIC'], 'examples/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA/examples/prediction/data'))
+        dataDirs.append((d, 'in $NUPIC/examples/prediction/data'))
 
   if sys.platform != 'win32' and 'HOME' in os.environ:
     d = os.path.join(os.environ['HOME'], 'nta/current/examples/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA/examples/prediction/data'))
+        dataDirs.append((d, 'in $NUPIC/examples/prediction/data'))
 
   return dataDirs
 
