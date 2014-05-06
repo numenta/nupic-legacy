@@ -31,6 +31,9 @@ import sys
 import traceback
 import uuid
 
+from base64 import b64encode
+from os import urandom
+
 from nupic.support.decorators import logExceptions #, logEntryExit
 import pymysql
 from pymysql.constants import ER as mysqlerrors
@@ -1429,7 +1432,7 @@ class ClientJobsDAO(object):
     retval:          jobID - unique ID assigned to this job
     """
 
-    jobHash = self._normalizeHash(uuid.uuid1().bytes)
+    jobHash = self._normalizeHash(b64encode(urandom(10)))
 
     @g_retrySQL
     def insertWithRetries():
