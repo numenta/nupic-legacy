@@ -618,6 +618,7 @@ if(NTA_OPTIMIZATION_ENABLED)
   # flag NTA_ASM enables/disables our hand tuned assbembly code (SSE), but it's available only for some platform
   set(NTA_CXXFLAGS_OPTIMIZATION "-O3 -pipe -DNTA_ASM")
   set(NTA_CXXFLAGS_OPTIMIZATION_PYMODULE "-O1")
+  set(NTA_CXXFLAGS_BASE "${NTA_CXXFLAGS_BASE} -DNTA_ASM")
 else()
   set(NTA_CXXFLAGS_OPTIMIZATION "-O0 -fno-inline")
   set(NTA_CXXFLAGS_OPTIMIZATION_PYMODULE "-O0 -fno-inline")
