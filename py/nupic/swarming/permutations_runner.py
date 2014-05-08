@@ -198,14 +198,14 @@ def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
 
 def _runAction(runOptions):
   action = runOptions["action"]
-  # Print Grok HyperSearch results from the current or last run
+  # Print Nupic HyperSearch results from the current or last run
   if action == "report":
     returnValue = _HyperSearchRunner.generateReport(
         options=runOptions,
         replaceReport=runOptions["replaceReport"],
         hyperSearchJob=None,
         metricsKeys=None)
-  # Run HyperSearch via Grok
+  # Run HyperSearch
   elif action in ("run", "dryRun", "pickup"):
     returnValue = _runHyperSearch(runOptions)
   else:
@@ -370,7 +370,7 @@ def _clientJobsDB():
 
 
 
-def _grokHyperSearchHasErrors(hyperSearchJob):
+def _nupicHyperSearchHasErrors(hyperSearchJob):
   """Check whether any experiments failed in our latest hypersearch
 
   Parameters:
@@ -383,7 +383,7 @@ def _grokHyperSearchHasErrors(hyperSearchJob):
 
   # Get search ID for our latest hypersearch
 
-  # Query Grok for experiment failures in the given search
+  # Query Nupic for experiment failures in the given search
 
   return False
 
@@ -398,7 +398,7 @@ class _HyperSearchRunner(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    options:        GrokRunPermutations options dict
+    options:        NupicRunPermutations options dict
     retval:         nothing
     """
 
@@ -629,7 +629,7 @@ class _HyperSearchRunner(object):
 
 
   def __startSearch(self):
-    """Starts HyperSearch in Grok or runs it inline for the "dryRun" action
+    """Starts HyperSearch as a worker or runs it inline for the "dryRun" action
 
     Parameters:
     ----------------------------------------------------------------------
@@ -723,7 +723,7 @@ class _HyperSearchRunner(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    options:        GrokRunPermutations options dict
+    options:        NupicRunPermutations options dict
     retval:         nothing
     """
     print "Generating experiment requests..."
@@ -744,7 +744,7 @@ class _HyperSearchRunner(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    options:        GrokRunPermutations options dict
+    options:        NupicRunPermutations options dict
     replaceReport:  True to replace existing report csv, if any; False to
                     append to existing report csv, if any
     hyperSearchJob: _HyperSearchJob instance; if None, will get it from saved
@@ -1024,7 +1024,7 @@ class _HyperSearchRunner(object):
     jobID = cls.__loadHyperSearchJobID(permWorkDir=permWorkDir,
                                        outputLabel=outputLabel)
 
-    searchJob = _HyperSearchJob(grokJobID=jobID)
+    searchJob = _HyperSearchJob(nupicJobID=jobID)
     return searchJob
 
 
@@ -1193,7 +1193,7 @@ class _ReportCSVWriter(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    modelInfo:      _GrokModelInfo instance
+    modelInfo:      _NupicModelInfo instance
     retval:         nothing
     """
     # Open/init csv file, if needed
@@ -1280,7 +1280,7 @@ class _ReportCSVWriter(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    modelInfo:      First _GrokModelInfo instance passed to emit()
+    modelInfo:      First _NupicModelInfo instance passed to emit()
     retval:         nothing
     """
     # Get the base path and figure out the path of the report file.
@@ -1327,24 +1327,24 @@ class _ReportCSVWriter(object):
 
 
 
-class _GrokJob(object):
+class _NupicJob(object):
   """ @private
-  Our Grok Job abstraction"""
+  Our Nupic Job abstraction"""
 
 
-  def __init__(self, grokJobID):
-    """_GrokJob constructor
+  def __init__(self, nupicJobID):
+    """_NupicJob constructor
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         Grok Client JobID of the job
+    retval:         Nupic Client JobID of the job
     """
-    self.__grokJobID = grokJobID
+    self.__nupicJobID = nupicJobID
 
-    jobInfo = _clientJobsDB().jobInfo(grokJobID)
-    assert jobInfo is not None, "jobID=%s not found" % grokJobID
-    assert jobInfo.jobId == grokJobID, "%s != %s" % (jobInfo.jobId, grokJobID)
-    _emit(Verbosity.DEBUG, "_GrokJob: \n%s" % pprint.pformat(jobInfo, indent=4))
+    jobInfo = _clientJobsDB().jobInfo(nupicJobID)
+    assert jobInfo is not None, "jobID=%s not found" % nupicJobID
+    assert jobInfo.jobId == nupicJobID, "%s != %s" % (jobInfo.jobId, nupicJobID)
+    _emit(Verbosity.DEBUG, "_NupicJob: \n%s" % pprint.pformat(jobInfo, indent=4))
 
     if jobInfo.params is not None:
       self.__params = json.loads(jobInfo.params)
@@ -1357,9 +1357,9 @@ class _GrokJob(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:         representation of this _GrokJob instance
+    retval:         representation of this _NupicJob instance
     """
-    return "%s(jobID=%s)" % (self.__class__.__name__, self.__grokJobID)
+    return "%s(jobID=%s)" % (self.__class__.__name__, self.__nupicJobID)
 
 
 
@@ -1367,12 +1367,12 @@ class _GrokJob(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    workers:  If this job was launched outside of the Grok engine, then this
+    workers:  If this job was launched outside of the nupic job engine, then this
                is an array of subprocess Popen instances, one for each worker
-    retval:         _GrokJob.JobStatus instance
+    retval:         _NupicJob.JobStatus instance
 
     """
-    jobInfo = self.JobStatus(self.__grokJobID, workers)
+    jobInfo = self.JobStatus(self.__nupicJobID, workers)
     return jobInfo
 
 
@@ -1382,9 +1382,9 @@ class _GrokJob(object):
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         Grok Client JobID of this _GrokJob instance
+    retval:         Nupic Client JobID of this _NupicJob instance
     """
-    return self.__grokJobID
+    return self.__nupicJobID
 
 
 
@@ -1402,28 +1402,28 @@ class _GrokJob(object):
 
   class JobStatus(object):
     """ @private
-    Our Grok Job Info abstraction class"""
+    Our Nupic Job Info abstraction class"""
 
     # Job Status values (per ClientJobsDAO.py):
-    __grokJobStatus_NotStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
-    __grokJobStatus_Starting    = cjdao.ClientJobsDAO.STATUS_STARTING
-    __grokJobStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
-    __grokJobStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
+    __nupicJobStatus_NotStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
+    __nupicJobStatus_Starting    = cjdao.ClientJobsDAO.STATUS_STARTING
+    __nupicJobStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
+    __nupicJobStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
 
 
-    def __init__(self, grokJobID, workers):
-      """_GrokJob.JobStatus Constructor
+    def __init__(self, nupicJobID, workers):
+      """_NupicJob.JobStatus Constructor
 
       Parameters:
       ----------------------------------------------------------------------
-      grokJobID:    Grok ClientJob ID
-      workers:  If this job was launched outside of the Grok engine, then this
+      nupicJobID:    Nupic ClientJob ID
+      workers:  If this job was launched outside of the Nupic job engine, then this
                is an array of subprocess Popen instances, one for each worker
       retval:       nothing
       """
 
-      jobInfo = _clientJobsDB().jobInfo(grokJobID)
-      assert jobInfo.jobId == grokJobID, "%s != %s" % (jobInfo.jobId, grokJobID)
+      jobInfo = _clientJobsDB().jobInfo(nupicJobID)
+      assert jobInfo.jobId == nupicJobID, "%s != %s" % (jobInfo.jobId, nupicJobID)
 
       # If we launched the workers ourself, set the job status based on the
       #  workers that are still running
@@ -1472,7 +1472,7 @@ class _GrokJob(object):
       ----------------------------------------------------------------------
       retval:       True if the job has not been started yet
       """
-      waiting = (self.__jobInfo.status == self.__grokJobStatus_NotStarted)
+      waiting = (self.__jobInfo.status == self.__nupicJobStatus_NotStarted)
       return waiting
 
 
@@ -1483,7 +1483,7 @@ class _GrokJob(object):
       ----------------------------------------------------------------------
       retval:         True if the job is starting
       """
-      starting = (self.__jobInfo.status == self.__grokJobStatus_Starting)
+      starting = (self.__jobInfo.status == self.__nupicJobStatus_Starting)
       return starting
 
 
@@ -1494,7 +1494,7 @@ class _GrokJob(object):
       ----------------------------------------------------------------------
       retval:         True if the job is running
       """
-      running = (self.__jobInfo.status == self.__grokJobStatus_running)
+      running = (self.__jobInfo.status == self.__nupicJobStatus_running)
       return running
 
 
@@ -1506,7 +1506,7 @@ class _GrokJob(object):
       retval:         True if the job has finished (either with success or
                       failure)
       """
-      done = (self.__jobInfo.status == self.__grokJobStatus_completed)
+      done = (self.__jobInfo.status == self.__nupicJobStatus_completed)
       return done
 
 
@@ -1693,19 +1693,19 @@ class _JobCompletionReason(object):
 
 
 
-class _HyperSearchJob(_GrokJob):
+class _HyperSearchJob(_NupicJob):
   """ @private
-  This class represents a single running Grok HyperSearch job"""
+  This class represents a single running Nupic HyperSearch job"""
 
 
-  def __init__(self, grokJobID):
+  def __init__(self, nupicJobID):
     """
     Parameters:
     ----------------------------------------------------------------------
-    grokJobID:      Grok Client JobID of a HyperSearch job
+    nupicJobID:      Nupic Client JobID of a HyperSearch job
     retval:         nothing
     """
-    super(_HyperSearchJob, self).__init__(grokJobID)
+    super(_HyperSearchJob, self).__init__(nupicJobID)
 
     # Cache of the total count of expected models or -1 if it can't be
     # deteremined.
@@ -1718,14 +1718,14 @@ class _HyperSearchJob(_GrokJob):
 
 
   def queryModelIDs(self):
-    """Queuries Grok for model IDs of all currently instantiated models
+    """Queuries DB for model IDs of all currently instantiated models
     associated with this HyperSearch job.
 
     See also: _iterModels()
 
     Parameters:
     ----------------------------------------------------------------------
-    retval:         A sequence of Grok modelIDs
+    retval:         A sequence of Nupic modelIDs
     """
     jobID = self.getJobID()
     modelCounterPairs = _clientJobsDB().modelsGetUpdateCounters(jobID)
@@ -1753,7 +1753,7 @@ class _HyperSearchJob(_GrokJob):
 
 class _ClientJobUtils(object):
   """ @private
-  Our Grok Client Job utilities"""
+  Our Nupic Client Job utilities"""
 
 
   @classmethod
@@ -1762,7 +1762,7 @@ class _ClientJobUtils(object):
     to json and passing as the params argument to ClientJobsDAO.jobInsert()
     Parameters:
     ----------------------------------------------------------------------
-    options:        GrokRunPermutations options dict
+    options:        NupicRunPermutations options dict
     forRunning:     True if the params are for running a Hypersearch job; False
                     if params are for introspection only.
 
@@ -1858,17 +1858,17 @@ def _backupFile(filePath):
 
 
 
-def _getOneModelInfo(grokModelID):
+def _getOneModelInfo(nupicModelID):
   """A convenience function that retrieves inforamtion about a single model
 
   See also: _iterModels()
 
   Parameters:
   ----------------------------------------------------------------------
-  grokModelID:      Grok modelID
-  retval:           _GrokModelInfo instance for the given grokModelID.
+  nupicModelID:      Nupic modelID
+  retval:           _NupicModelInfo instance for the given nupicModelID.
   """
-  return _iterModels([grokModelID]).next()
+  return _iterModels([nupicModelID]).next()
 
 
 
@@ -1901,8 +1901,8 @@ def _iterModels(modelIDs):
       """
       Parameters:
       ----------------------------------------------------------------------
-      modelIDs:     a sequence of Grok model identifiers for which this
-                    iterator will return _GrokModelInfo instances.
+      modelIDs:     a sequence of Nupic model identifiers for which this
+                    iterator will return _NupicModelInfo instances.
                     NOTE: The returned instances are NOT guaranteed to be in
                     the same order as the IDs in modelIDs sequence.
       retval:       nothing
@@ -1935,7 +1935,7 @@ def _iterModels(modelIDs):
 
       Parameters:
       ----------------------------------------------------------------------
-      retval:       A _GrokModelInfo instance or raises StopIteration to
+      retval:       A _NupicModelInfo instance or raises StopIteration to
                     signal end of iteration.
       """
       return self.__getNext()
@@ -1945,12 +1945,12 @@ def _iterModels(modelIDs):
     def __getNext(self):
       """Implementation of the next() Iterator Protocol function.
 
-      When the modelInfo cache becomes empty, queries Grok and fills the cache
-      with the next set of GrokModelInfo instances.
+      When the modelInfo cache becomes empty, queries Nupic and fills the cache
+      with the next set of NupicModelInfo instances.
 
       Parameters:
       ----------------------------------------------------------------------
-      retval:       A _GrokModelInfo instance or raises StopIteration to
+      retval:       A _NupicModelInfo instance or raises StopIteration to
                     signal end of iteration.
       """
 
@@ -1970,8 +1970,8 @@ def _iterModels(modelIDs):
 
 
     def __fillCache(self):
-      """Queries Grok and fills an empty modelInfo cache with the next set of
-      _GrokModelInfo instances
+      """Queries Nupic and fills an empty modelInfo cache with the next set of
+      _NupicModelInfo instances
 
       Parameters:
       ----------------------------------------------------------------------
@@ -1993,16 +1993,16 @@ def _iterModels(modelIDs):
 
       self.__nextIndex += (idRange - self.__nextIndex)
 
-      # Query Grok for model info of all models in the look-up list
+      # Query Nupic for model info of all models in the look-up list
       # NOTE: the order of results may not be the same as lookupIDs
       infoList = _clientJobsDB().modelsInfo(lookupIDs)
       assert len(infoList) == len(lookupIDs), \
             "modelsInfo returned %s elements; expected %s." % \
             (len(infoList), len(lookupIDs))
 
-      # Create _GrokModelInfo instances and add them to cache
+      # Create _NupicModelInfo instances and add them to cache
       for rawInfo in infoList:
-        modelInfo = _GrokModelInfo(rawInfo=rawInfo)
+        modelInfo = _NupicModelInfo(rawInfo=rawInfo)
         self.__modelCache.append(modelInfo)
 
       assert len(self.__modelCache) == len(lookupIDs), \
@@ -2019,16 +2019,16 @@ def _iterModels(modelIDs):
 
 
 
-class _GrokModelInfo(object):
+class _NupicModelInfo(object):
   """ @private
   This class represents information obtained from ClientJobManager about a
   model
   """
 
 
-  __grokModelStatus_notStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
-  __grokModelStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
-  __grokModelStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
+  __nupicModelStatus_notStarted  = cjdao.ClientJobsDAO.STATUS_NOTSTARTED
+  __nupicModelStatus_running     = cjdao.ClientJobsDAO.STATUS_RUNNING
+  __nupicModelStatus_completed   = cjdao.ClientJobsDAO.STATUS_COMPLETED
   __rawInfo = None
 
 
@@ -2057,11 +2057,11 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:         Representation of this _GrokModelInfo instance.
+    retval:         Representation of this _NupicModelInfo instance.
     """
     return ("%s(jobID=%s, modelID=%s, status=%s, completionReason=%s, "
             "updateCounter=%s, numRecords=%s)" % (
-                "_GrokModelInfo",
+                "_NupicModelInfo",
                 self.__rawInfo.jobId,
                 self.__rawInfo.modelId,
                 self.__rawInfo.status,
@@ -2075,7 +2075,7 @@ class _GrokModelInfo(object):
     """
     Parameters:
     ----------------------------------------------------------------------
-    retval:         Grok modelID associated with this model info.
+    retval:         Nupic modelID associated with this model info.
     """
     return self.__rawInfo.modelId
 
@@ -2258,7 +2258,7 @@ class _GrokModelInfo(object):
     ----------------------------------------------------------------------
     retval:       True if the job has not been started yet
     """
-    waiting = (self.__rawInfo.status == self.__grokModelStatus_notStarted)
+    waiting = (self.__rawInfo.status == self.__nupicModelStatus_notStarted)
     return waiting
 
 
@@ -2269,7 +2269,7 @@ class _GrokModelInfo(object):
     ----------------------------------------------------------------------
     retval:       True if the job has not been started yet
     """
-    running = (self.__rawInfo.status == self.__grokModelStatus_running)
+    running = (self.__rawInfo.status == self.__nupicModelStatus_running)
     return running
 
 
@@ -2281,7 +2281,7 @@ class _GrokModelInfo(object):
     retval:         True if the model's processing has completed (either with
                     success or failure).
     """
-    finished = (self.__rawInfo.status == self.__grokModelStatus_completed)
+    finished = (self.__rawInfo.status == self.__nupicModelStatus_completed)
     return finished
 
 

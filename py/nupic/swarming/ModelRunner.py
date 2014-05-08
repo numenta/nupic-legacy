@@ -431,40 +431,16 @@ class OPFModelRunner(object):
     # Close output stream, if necessary
     # =========================================================================
     if self._predictionLogger:
-      try:
-        self._predictionLogger.close()
-
-      # This StreamDisappearedError should only occur if another worker has
-      # deleted our output stream before we have had a chance to close it
-      except StreamDisappearedError:
-        from grokengine.cluster.database.prediction_output_stream import (
-            PredictionOutputStream)
-        outputStreamID = PredictionOutputStream.getStreamIDForModelID(
-          self._modelID)
-        self._logger.debug("StreamDisappearedError occurred while closing "
-                           "output stream %s because another model has already "
-                           "deleted it" % outputStreamID)
+      self._predictionLogger.close()
 
 
 ################################################################################
   def __createModelCheckpoint(self):
-    """ Create a checkpoint from the current model, and save the resulting
-    checkpoint id in the Models DB """
+    """ Create a checkpoint from the current model, and store it in a dir named
+    after checkpoint GUID, and finally store the GUID in the Models DB """
 
     if self._model is None or self._modelCheckpointGUID is None:
       return
-
-    from grokengine.cluster.model_checkpoint.ModelCheckpointHelper import (
-        ModelCheckpointHelper)
-    checkpointHelper = ModelCheckpointHelper()
-
-    if self._inputSource:
-      bookmark = self._inputSource.getBookmark()
-    else:
-      bookmark = None
-
-    modelControlState = checkpointHelper.createModelControlState(
-      bookmarkString=bookmark)
 
     # Create an output store, if one doesn't exist already
     if self._predictionLogger is None:
@@ -475,13 +451,10 @@ class OPFModelRunner(object):
       checkpointSink=predictions,
       maxRows=int(Configuration.get('nupic.model.checkpoint.maxPredictionRows')))
 
-    checkpointID = checkpointHelper.saveModel(
-      model=self._model,
-      modelControlState=modelControlState,
-      modelCheckpointGUID=self._modelCheckpointGUID,
-      modelID=self._modelID,
-      predictionsSource=predictions)
-
+    self._model.save(os.path.join(self._experimentDir, str(self._modelCheckpointGUID)))
+    self._jobsDAO.modelSetFields(modelID,
+                                 {'modelCheckpointId':str(self._modelCheckpointGUID)},
+                                 ignoreUnchanged=True)
 
     self._logger.info("Checkpointed Hypersearch Model: modelID: %r, "
                       "checkpointID: %r", self._modelID, checkpointID)
@@ -506,11 +479,8 @@ class OPFModelRunner(object):
     if checkpointID is None:
       return
 
-    from grokengine.cluster import model_checkpoint
-    checkpointMgr = model_checkpoint.createManager()
-
     try:
-      checkpointMgr.deleteCheckpoint(checkpointID, waitSec=0)
+      shutil.rmtree(os.path.join(self._experimentDir, str(self._modelCheckpointGUID)))
     except:
       self._logger.warn("Failed to delete model checkpoint %s. "\
                         "Assuming that another worker has already deleted it",
