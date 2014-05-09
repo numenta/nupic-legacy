@@ -51,7 +51,6 @@ from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
-from nupic.support.exceptions import StreamDisappearedError
 
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
