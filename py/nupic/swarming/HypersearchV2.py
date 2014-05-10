@@ -1459,7 +1459,7 @@ class HsState(object):
         #  be obtained from the swarms entry that follows, but is summarized here
         #  for easier reference when viewing the state as presented by
         #  log messages and prints of the hsState data structure (by
-        #  GrokRunPermutations).
+        #  permutations_runner).
         activeSwarms = swarms.keys(),
 
         # All the swarms that have been created so far.
@@ -2467,7 +2467,7 @@ class HypersearchV2(object):
     # This gets set if we detect that the job got cancelled
     self._jobCancelled = False
 
-    # Use terminators (typically set by GrokRunPermuations.py)
+    # Use terminators (typically set by permutations_runner.py)
     if 'useTerminators' in self._searchParams:
       useTerminators = self._searchParams['useTerminators']
       useTerminators = str(int(useTerminators))
@@ -2956,7 +2956,7 @@ class HypersearchV2(object):
     combinations.
 
     NOTE/TODO:  THIS ONLY WORKS FOR RONOMATIC: This method is exposed for the
-                benefit of Grok RunPermutations (RP) for use in progress
+                benefit of perutations_runner.py for use in progress
                 reporting.
 
     Parameters:
@@ -2973,7 +2973,7 @@ class HypersearchV2(object):
     combinations.
 
     NOTE/TODO:  THIS ONLY WORKS FOR RONOMATIC: This method is exposed for the
-                benefit of Grok RunPermutations (RP).
+                benefit of perutations_runner.py.
 
     Parameters:
     ---------------------------------------------------------
