@@ -19,14 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-
-"""
-
-Encapsulation of CLAnetwork that implements the ModelBase.
-
-"""
-
+"""Encapsulation of CLAnetwork that implements the ModelBase."""
 
 import copy
 import math
@@ -46,6 +39,7 @@ from operator import itemgetter
 
 
 from model import Model
+from nupic.algorithms.anomaly import computeAnomalyScore
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -638,21 +632,10 @@ class CLAModel(Model):
       else:
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
-      nActiveColumns = len(activeColumns)
-
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      
-      # Test whether each element of a 1-D array is also present in a second
-      # array. Sum to get the total # of columns that are active and were
-      # predicted.
-      score = numpy.in1d(activeColumns, self._prevPredictedColumns).sum()
-      
-      # Get the percent of active columns that were NOT predicted, that is
-      # our anomaly score.
-      score = (nActiveColumns - score) / float(nActiveColumns)
-      
-      inferences[InferenceElement.anomalyScore] = score
+      inferences[InferenceElement.anomalyScore] = (
+          computeAnomalyScore(activeColumns, self._prevPredictedColumns))
 
       # Store the predicted columns for the next timestep
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
@@ -663,16 +646,14 @@ class CLAModel(Model):
 
       # TODO: make labels work with non-SP models
       if sp is not None:
-        self._getAnomalyClassifier().setParameter('activeColumnCount',
-          nActiveColumns)
+        self._getAnomalyClassifier().setParameter(
+            "activeColumnCount", len(activeColumns))
         self._getAnomalyClassifier().prepareInputs()
         self._getAnomalyClassifier().compute()
         labels = self._getAnomalyClassifier().getSelf().getLabelResults()
         inferences[InferenceElement.anomalyLabel] = "%s" % labels
 
     return inferences
-
-
 
 
   def _handleCLAClassifierMultiStep(self, patternNZ,
