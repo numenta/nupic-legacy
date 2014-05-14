@@ -199,6 +199,7 @@ class SpatialPooler(object):
 
     assert(numColumns > 0)
     assert(numInputs > 0)
+    assert(inputDimensions.size == columnDimensions.size)
     assert (numActiveColumnsPerInhArea > 0 or
            (localAreaDensity > 0 and localAreaDensity <= 0.5))
 

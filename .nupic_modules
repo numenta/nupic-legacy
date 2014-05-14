@@ -1,4 +1,4 @@
 # Default nupic.core dependencies (override in optional .nupic_config)
 # FIXME change it back before merge,temporarily pointing to utensil's renaming fork
 NUPIC_CORE_REMOTE = 'git://github.com/utensil/nupic.core.git'
-NUPIC_CORE_COMMITISH = '3062841b18673990409c775db004f785180cc851'
+NUPIC_CORE_COMMITISH = '3950fb08e4b8e7b2882920d8a60ee4bd6684f211'
