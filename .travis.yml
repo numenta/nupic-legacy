@@ -43,6 +43,7 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
+
   # Get Darwin64 libs for OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then git clone https://github.com/numenta/nupic-darwin64.git; fi"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard 4a907d6fcdb6937094b97f42f8b9592690ad1ade); fi"
@@ -51,13 +52,12 @@ before_install:
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install cmake; fi"
   # Install MySQL on OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install mysql; fi"
+
   # Necessary Linux prep work
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository -y ppa:fkrull/deadsnakes; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update; fi"
   # Install virtualenv
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv; fi"
-  # - "if [ $TRAVIS_OS_NAME = 'osx' ]; then sudo pip install virtualenv; fi"
-  # Mork Linux prep work
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo ls -laFh /usr/lib/libpython$PY_VER.so; fi"
   # Prefix env with our own python installation
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages; fi"
@@ -78,8 +78,8 @@ install:
   # Verify python version
   - "python --version"
   # Build NuPIC
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
   - "make -j3"
   - "cd"
 
