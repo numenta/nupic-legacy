@@ -12,29 +12,6 @@ compiler:
   - clang
   - gcc
 
-# matrix:
-  # include:
-    # # Testing on linux for Python 2.6 & 2.7, clang & gcc
-    # - os: linux
-    #   compiler: clang
-    #   env:
-    #     - PY_VER=2.6
-    # - os: linux
-    #   compiler: gcc
-    #   env:
-    #     - PY_VER=2.6
-    # - os: linux
-    #   compiler: clang
-    #   env:
-    #     - PY_VER=2.7
-    # - os: linux
-    #   compiler: gcc
-    #   env:
-    #     - PY_VER=2.7
-    # # For OSX, just testing clang and default Python (2.7)
-    # - os: osx
-    #   compiler: clang
-
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
@@ -45,6 +22,7 @@ env:
     - PY_VER=2.6
 
 matrix:
+  # This excludes OSX builds from the build matrix for gcc and Python 2.6
   exclude:
     - os: osx
       env: PY_VER=2.6
