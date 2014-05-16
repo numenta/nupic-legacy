@@ -4,37 +4,51 @@ branches:
 
 language: cpp
 
-matrix:
-  include:
-    # Testing on linux for Python 2.6 & 2.7, clang & gcc
-    - os: linux
-      compiler: clang
-      env:
-        - PY_VER=2.6
-    - os: linux
-      compiler: gcc
-      env:
-        - PY_VER=2.6
-    - os: linux
-      compiler: clang
-      env:
-        - PY_VER=2.7
-    - os: linux
-      compiler: gcc
-      env:
-        - PY_VER=2.7
-    # For OSX, just testing clang and default Python (2.7)
-    - os: osx
-      compiler: clang
+os:
+  - linux
+  - osx
 
-git:
-  submodules: false
+# matrix:
+  # include:
+    # # Testing on linux for Python 2.6 & 2.7, clang & gcc
+    # - os: linux
+    #   compiler: clang
+    #   env:
+    #     - PY_VER=2.6
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - PY_VER=2.6
+    # - os: linux
+    #   compiler: clang
+    #   env:
+    #     - PY_VER=2.7
+    # - os: linux
+    #   compiler: gcc
+    #   env:
+    #     - PY_VER=2.7
+    # # For OSX, just testing clang and default Python (2.7)
+    # - os: osx
+    #   compiler: clang
 
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
+  matrix:
+    - PY_VER=2.7
+    - PY_VER=2.6
+
+matrix:
+  exclude:
+    - os: osx
+      env: PY_VER=2.6
+    - os: osx
+      compiler: gcc
+
+git:
+  submodules: false
 
 notifications:
   irc:
