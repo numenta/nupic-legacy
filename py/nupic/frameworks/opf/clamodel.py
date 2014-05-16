@@ -120,6 +120,7 @@ class CLAModel(Model):
       trainSPNetOnlyIfRequested=False,
       tpEnable=True,
       tpParams={},
+      clEnable=True,
       clParams={},
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
@@ -138,6 +139,8 @@ class CLAModel(Model):
       tpEnable: Whether to use a temporal pooler.
       tpParams: A dictionary specifying the temporal pooler parameters. These
           are passed to the temporal pooler.
+      clEnable: Whether to use the classifier. If false, the classifier will
+          not be created and no predictions will be generated.
       clParams: A dictionary specifying the classifier parameters. These are
           are passed to the classifier.
       anomalyParams: Anomaly detection parameters
@@ -184,6 +187,7 @@ class CLAModel(Model):
     self._netInfo = None
     self._hasSP = spEnable
     self._hasTP = tpEnable
+    self._hasCL = clEnable
 
     self._classifierInputEncoder = None
     self._predictedFieldIdx = None
@@ -193,8 +197,8 @@ class CLAModel(Model):
     # -----------------------------------------------------------------------
     # Create the network
     self._netInfo = self.__createCLANetwork(
-        sensorParams, spEnable, spParams, tpEnable, tpParams, clParams,
-        anomalyParams)
+        sensorParams, spEnable, spParams, tpEnable, tpParams, clEnable,
+        clParams, anomalyParams)
 
 
     # Initialize Spatial Anomaly detection parameters
@@ -676,6 +680,9 @@ class CLAModel(Model):
                   None.
     rawInput:   The raw input to the sensor, as a dict.
     """
+    if not self._hasCL:
+      # No classifier so return an empty dict for inferences.
+      return {}
 
     sensor = self._getSensorRegion()
     classifier = self._getClassifierRegion()
@@ -1023,7 +1030,7 @@ class CLAModel(Model):
 
   #############################################################################
   def __createCLANetwork(self, sensorParams, spEnable, spParams, tpEnable,
-                         tpParams, clParams, anomalyParams):
+                         tpParams, clEnable, clParams, anomalyParams):
     """ Create a CLA network and return it.
 
     description:  CLA Model description dictionary (TODO: define schema)
@@ -1155,7 +1162,7 @@ class CLAModel(Model):
       prevRegion = "TP"
       prevRegionWidth = tpParams['inputWidth']
 
-    if clParams is not None:
+    if clEnable and clParams is not None:
       clParams = clParams.copy()
       clRegionName = clParams.pop('regionName')
       self.__logger.debug("Adding %s; clParams: %r" % (clRegionName,
