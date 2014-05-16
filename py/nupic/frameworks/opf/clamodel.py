@@ -680,12 +680,12 @@ class CLAModel(Model):
                   None.
     rawInput:   The raw input to the sensor, as a dict.
     """
-    if not self._hasCL:
+    classifier = self._getClassifierRegion()
+    if not self._hasCL or classifier is None:
       # No classifier so return an empty dict for inferences.
       return {}
 
     sensor = self._getSensorRegion()
-    classifier = self._getClassifierRegion()
     minLikelihoodThreshold = self._minLikelihoodThreshold
     maxPredictionsPerStep = self._maxPredictionsPerStep
     inferenceArgs = self.getInferenceArgs()
@@ -1311,6 +1311,9 @@ class CLAModel(Model):
 
     if not hasattr(self, '_maxPredictionsPerStep'):
       self._maxPredictionsPerStep = DEFAULT_MAX_PREDICTIONS_PER_STEP
+
+    if not hasattr(self, '_hasCL'):
+      self._hasCL = (self._getClassifierRegion() is not None)
 
     self.__logger.info("Restoring %s from state..." % self.__class__.__name__)
 
