@@ -42,7 +42,7 @@ before_install:
 
   # Get Darwin64 libs for OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then git clone https://github.com/numenta/nupic-darwin64.git; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard 4a907d6fcdb6937094b97f42f8b9592690ad1ade); fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard c2908602fbea5f832c7edfa251f490807b429cc3); fi"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then source nupic-darwin64/bin/activate; fi"
   # Install cmake on OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install cmake; fi"
