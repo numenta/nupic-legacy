@@ -8,6 +8,10 @@ os:
   - linux
   - osx
 
+compiler:
+  - clang
+  - gcc
+
 # matrix:
   # include:
     # # Testing on linux for Python 2.6 & 2.7, clang & gcc
