@@ -12,7 +12,7 @@ python-dateutil==2.1
 PyYAML==3.10
 unittest2==0.5.1
 validictory==0.9.1
-PyMySQL==0.6.2
+PyMySQL==0.5
 DBUtils==1.1
 numpy==1.7.1
 tweepy==2.1
