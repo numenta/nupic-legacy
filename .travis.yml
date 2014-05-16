@@ -52,6 +52,7 @@ before_install:
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install cmake; fi"
   # Install MySQL on OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install mysql; fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then mysql.server start; fi"
 
   # Necessary Linux prep work
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository -y ppa:fkrull/deadsnakes; fi"
