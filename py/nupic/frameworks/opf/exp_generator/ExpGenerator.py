@@ -69,6 +69,7 @@ METRIC_WINDOW = int(Configuration.get("nupic.opf.metricWindow"))
 #############################################################################
 # Enum to characterize potential generation environments
 OpfEnvironment = Enum(Grok='grok',
+                      NupicExperiment='nupicExperiment',
                       Experiment='opfExperiment')
 
 
@@ -1588,6 +1589,9 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   if environment == OpfEnvironment.Grok:
     tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Grok
     controlTemplate = "grokEnvironmentTemplate.tpl"
+  elif environment == OpfEnvironment.NupicExperiment:
+    tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.NupicExperiment
+    controlTemplate = "nupicExperimentTemplate.tpl"
   elif environment == OpfEnvironment.Experiment:
     tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Experiment
     controlTemplate = "opfExperimentTemplate.tpl"
