@@ -34,7 +34,9 @@ import _strptime
 # this tuple so be careful when changing the indices for existing formats.
 DATETIME_FORMATS = ('%Y-%m-%d %H:%M:%S.%f', '%Y-%m-%d %H:%M:%S:%f',
                     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
-                    '%m/%d/%Y %H:%M', '%m/%d/%y %H:%M')
+                    '%m/%d/%Y %H:%M', '%m/%d/%y %H:%M',
+                    '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%dT%H:%M:%SZ',
+                    '%Y-%m-%dT%H:%M:%S')
 
 
 #############################################################################
