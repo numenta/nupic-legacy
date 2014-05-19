@@ -214,7 +214,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
 
 
   #############################################################################
-  def convertNupicExperimentToOPF(self)
+  def convertNupicExperimentToOPF(self):
 
     # We need to create a task structure, most of which is taken verbatim
     # from the Nupic Experiment control dict

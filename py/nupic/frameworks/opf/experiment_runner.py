@@ -385,7 +385,8 @@ def _runExperimentImpl(options, model=None):
 
   if (len(experimentTasks) == 0 and
       expIface.getModelControl()['environment'] == OpfEnvironment.NupicExperiment):
-    expIface.convertNupicEnvToOPF()
+    expIface.convertNupicExperimentToOPF()
+    experimentTasks = expIface.getModelControl().get('tasks', [])
 
   # Handle listTasks
   if options.privateOptions['listTasks']:
