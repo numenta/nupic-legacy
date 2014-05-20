@@ -31,7 +31,7 @@ import datetime
 from nupic.data.inference_shifter import InferenceShifter
 from nupic.frameworks.opf.modelfactory import ModelFactory
 
-import nupic_output
+import nupic_anomaly_output
 
 
 DESCRIPTION = (
@@ -78,9 +78,9 @@ def runIoThroughNupic(inputData, model, gymName, plot):
 
   shifter = InferenceShifter()
   if plot:
-    output = nupic_output.NuPICPlotOutput(gymName)
+    output = nupic_anomaly_output.NuPICPlotOutput(gymName)
   else:
-    output = nupic_output.NuPICFileOutput(gymName)
+    output = nupic_anomaly_output.NuPICFileOutput(gymName)
 
   counter = 0
   for row in csvReader:
