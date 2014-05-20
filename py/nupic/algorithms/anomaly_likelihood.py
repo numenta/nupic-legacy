@@ -103,7 +103,7 @@ class AnomalyLikelihood(object):
     return math.log(1.0000000001 - likelihood) / -23.02585084720009
 
 
-  def anomalyProbability(self, value, anomalyScore, dttm):
+  def anomalyProbability(self, value, anomalyScore, timestamp):
     """
     Return the probability that the current value plus anomaly score represents
     an anomaly given the historical distribution of anomaly scores. The closer
@@ -112,7 +112,7 @@ class AnomalyLikelihood(object):
     Given the current metric value, plus the current anomaly
     score, output the anomalyLikelihood for this record.
     """
-    dataPoint = (dttm, value, anomalyScore)
+    dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
     if len(self._historicalScores) < self._probationaryPeriod:
       likelihood = 0.5
