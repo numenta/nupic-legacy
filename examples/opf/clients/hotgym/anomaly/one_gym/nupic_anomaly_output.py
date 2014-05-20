@@ -204,6 +204,7 @@ class NuPICPlotOutput(NuPICOutput):
     self.convertedDates = deque(
       [date2num(date) for date in self.dates], maxlen=WINDOW
     )
+    self.allValues = []
     self.value = deque([0.0] * WINDOW, maxlen=WINDOW)
     self.predicted = deque([0.0] * WINDOW, maxlen=WINDOW)
     self.anomalyScore = deque([0.0] * WINDOW, maxlen=WINDOW)
@@ -232,6 +233,9 @@ class NuPICPlotOutput(NuPICOutput):
     self._mainGraph.xaxis.set_major_formatter(dateFormatter)
     self._anomalyGraph.xaxis.set_major_formatter(dateFormatter)
 
+    self._mainGraph.relim()
+    self._mainGraph.autoscale_view(True, True, True)
+
     self.linesInitialized = True
 
 
@@ -256,6 +260,7 @@ class NuPICPlotOutput(NuPICOutput):
     self.dates.append(timestamp)
     self.convertedDates.append(date2num(timestamp))
     self.value.append(value)
+    self.allValues.append(value)
     self.predicted.append(predicted)
     self.anomalyScore.append(anomalyScore)
     self.anomalyLikelihood.append(anomalyLikelihood)
@@ -271,7 +276,6 @@ class NuPICPlotOutput(NuPICOutput):
     self.anomalyLikelihoodLine.set_xdata(self.convertedDates)
     self.anomalyLikelihoodLine.set_ydata(self.anomalyLikelihood)
 
-
     # Remove previous highlighted regions
     [poly.remove() for poly in self._chartHighlights]
     self._chartHighlights = []
@@ -282,11 +286,15 @@ class NuPICPlotOutput(NuPICOutput):
     # Highlight weekends in main chart
     self.highlightChart(weekends, self._mainGraph)
 
-    # Highlight anomlies in anomaly chart
+    # Highlight anomalies in anomaly chart
     self.highlightChart(anomalies, self._anomalyGraph)
 
+    maxValue = max(self.allValues)
     self._mainGraph.relim()
-    self._mainGraph.autoscale_view(True, True, True)
+    self._mainGraph.axes.set_ylim(0, maxValue + (maxValue * 0.02))
+
+    self._mainGraph.relim()
+    self._mainGraph.autoscale_view(True, scaley=False)
     self._anomalyGraph.relim()
     self._anomalyGraph.autoscale_view(True, True, True)
 
