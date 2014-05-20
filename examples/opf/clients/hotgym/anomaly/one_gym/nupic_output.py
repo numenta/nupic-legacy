@@ -26,7 +26,7 @@ models.
 import csv
 from collections import deque
 from abc import ABCMeta, abstractmethod
-import anomaly_likelihood
+from nupic.algorithms import anomaly_likelihood
 # Try to import matplotlib, but we don't have to.
 try:
   import matplotlib
