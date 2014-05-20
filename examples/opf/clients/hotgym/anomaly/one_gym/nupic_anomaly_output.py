@@ -106,7 +106,7 @@ class NuPICFileOutput(NuPICOutput):
 
 def extractWeekendHighlights(dates):
   weekendsOut = []
-  weekendSearch = [5,6]
+  weekendSearch = [5, 6]
   weekendStart = None
   for i, date in enumerate(dates):
     if date.weekday() in weekendSearch:
@@ -168,6 +168,7 @@ class NuPICPlotOutput(NuPICOutput):
     self.dates = []
     self.convertedDates = []
     self.value = []
+    self.allValues = []
     self.predicted = []
     self.anomalyScore = []
     self.anomalyLikelihood = []
@@ -178,7 +179,7 @@ class NuPICPlotOutput(NuPICOutput):
     self.linesInitialized = False
     self._chartHighlights = []
     fig = plt.figure(figsize=(16, 10))
-    gs = gridspec.GridSpec(2, 1, height_ratios=[3,1])
+    gs = gridspec.GridSpec(2, 1, height_ratios=[3,  1])
 
     self._mainGraph = fig.add_subplot(gs[0, 0])
     plt.title(self.name)
@@ -205,7 +206,6 @@ class NuPICPlotOutput(NuPICOutput):
     self.convertedDates = deque(
       [date2num(date) for date in self.dates], maxlen=WINDOW
     )
-    self.allValues = []
     self.value = deque([0.0] * WINDOW, maxlen=WINDOW)
     self.predicted = deque([0.0] * WINDOW, maxlen=WINDOW)
     self.anomalyScore = deque([0.0] * WINDOW, maxlen=WINDOW)
@@ -228,7 +228,9 @@ class NuPICPlotOutput(NuPICOutput):
     )
     anomalyLikelihoodPlot.axes.set_ylim(anomalyRange)
     self.anomalyLikelihoodLine = anomalyLikelihoodPlot
-    self._anomalyGraph.legend(tuple(['anomaly score', 'anomaly likelihood']), loc=3)
+    self._anomalyGraph.legend(
+      tuple(['anomaly score', 'anomaly likelihood']), loc=3
+    )
 
     dateFormatter = DateFormatter('%m/%d %H:%M')
     self._mainGraph.xaxis.set_major_formatter(dateFormatter)
@@ -282,7 +284,8 @@ class NuPICPlotOutput(NuPICOutput):
     self.anomalyLikelihoodLine.set_ydata(self.anomalyLikelihood)
 
     # Remove previous highlighted regions
-    [poly.remove() for poly in self._chartHighlights]
+    for poly in self._chartHighlights:
+      poly.remove()
     self._chartHighlights = []
 
     weekends = extractWeekendHighlights(self.dates)
