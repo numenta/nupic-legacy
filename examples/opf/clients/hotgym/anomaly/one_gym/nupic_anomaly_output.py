@@ -21,7 +21,7 @@
 """
 Provides two classes with the same signature for writing data out of NuPIC
 models.
-(This is a component of the One Hot Gym Prediction Tutorial.)
+(This is a component of the One Hot Gym Anomaly Tutorial.)
 """
 import csv
 from collections import deque
@@ -190,6 +190,7 @@ class NuPICPlotOutput(NuPICOutput):
     plt.ylabel('Percentage')
     plt.xlabel('Date')
 
+    # Maximizes window
     mng = plt.get_current_fig_manager()
     mng.resize(*mng.window.maxsize())
 
@@ -239,12 +240,16 @@ class NuPICPlotOutput(NuPICOutput):
     self.linesInitialized = True
 
 
+
   def highlightChart(self, highlights, chart):
     for highlight in highlights:
+      # Each highlight contains [start-index, stop-index, color, alpha]
       self._chartHighlights.append(chart.axvspan(
         self.convertedDates[highlight[0]], self.convertedDates[highlight[1]],
         color=highlight[2], alpha=highlight[3]
       ))
+
+
 
   def write(self, timestamp, value, predicted, anomalyScore):
 

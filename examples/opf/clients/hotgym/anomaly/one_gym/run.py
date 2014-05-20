@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 """
 Groups together code used for creating a NuPIC model and dealing with IO.
-(This is a component of the One Hot Gym Prediction Tutorial.)
+(This is a component of the One Hot Gym Anomaly Tutorial.)
 """
 import importlib
 import sys
