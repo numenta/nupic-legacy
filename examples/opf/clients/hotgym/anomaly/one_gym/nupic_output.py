@@ -37,7 +37,10 @@ try:
 except ImportError:
   pass
 
-WINDOW = 100
+WINDOW = 300
+HIGHLIGHT_ALPHA = 0.3
+ANOMALY_HIGHLIGHT_COLOR = 'red'
+WEEKEND_HIGHLIGHT_COLOR = 'yellow'
 
 
 class NuPICOutput(object):
@@ -100,6 +103,60 @@ class NuPICFileOutput(NuPICOutput):
 
 
 
+def extractWeekendHighlights(dates):
+  weekendsOut = []
+  weekendSearch = [5,6]
+  weekendStart = None
+  for i, date in enumerate(dates):
+    if date.weekday() in weekendSearch:
+      if weekendStart is None:
+        # Mark start of weekend
+        weekendStart = i
+    else:
+      if weekendStart is not None:
+        # Mark end of weekend
+        weekendsOut.append((
+          weekendStart, i, WEEKEND_HIGHLIGHT_COLOR, HIGHLIGHT_ALPHA
+        ))
+        weekendStart = None
+
+  # Cap it off if we're still in the middle of a weekend
+  if weekendStart is not None:
+    weekendsOut.append((
+      weekendStart, len(dates)-1, WEEKEND_HIGHLIGHT_COLOR, HIGHLIGHT_ALPHA
+    ))
+
+  return weekendsOut
+
+
+
+def extractAnomalyIndices(anomalyLikelihood):
+  anomaliesOut = []
+  anomalyStart = None
+  for i, likelihood in enumerate(anomalyLikelihood):
+    if likelihood >= 0.9:
+      if anomalyStart is None:
+        # Mark start of anomaly
+        anomalyStart = i
+    else:
+      if anomalyStart is not None:
+        # Mark end of anomaly
+        anomaliesOut.append((
+          anomalyStart, i, ANOMALY_HIGHLIGHT_COLOR, HIGHLIGHT_ALPHA
+        ))
+        anomalyStart = None
+
+  # Cap it off if we're still in the middle of a weekend
+  if anomalyStart is not None:
+    anomaliesOut.append((
+      anomalyStart, len(anomalyLikelihood)-1,
+      ANOMALY_HIGHLIGHT_COLOR, HIGHLIGHT_ALPHA
+    ))
+
+  return anomaliesOut
+
+
+
 class NuPICPlotOutput(NuPICOutput):
 
 
@@ -118,7 +175,8 @@ class NuPICPlotOutput(NuPICOutput):
     self.anomalyScoreLine = None
     self.anomalyLikelihoodLine = None
     self.linesInitialized = False
-    fig = plt.figure(figsize=(14, 10))
+    self._chartHighlights = []
+    fig = plt.figure(figsize=(16, 10))
     gs = gridspec.GridSpec(2, 1, height_ratios=[3,1])
 
     self._mainGraph = fig.add_subplot(gs[0, 0])
@@ -203,6 +261,22 @@ class NuPICPlotOutput(NuPICOutput):
     self.anomalyScoreLine.set_ydata(self.anomalyScore)
     self.anomalyLikelihoodLine.set_xdata(self.convertedDates)
     self.anomalyLikelihoodLine.set_ydata(self.anomalyLikelihood)
+
+
+    # Remove previous highlighted regions
+    [poly.remove() for poly in self._chartHighlights]
+    self._chartHighlights = []
+
+    highlights = extractWeekendHighlights(self.dates)
+    highlights = highlights + extractAnomalyIndices(self.anomalyLikelihood)
+
+    for highlight in highlights:
+      self._chartHighlights.append(self._mainGraph.axvspan(
+        self.convertedDates[highlight[0]], self.convertedDates[highlight[1]],
+        color=highlight[2], alpha=highlight[3]
+      ))
+
+
 
     self._mainGraph.relim()
     self._mainGraph.autoscale_view(True, True, True)
