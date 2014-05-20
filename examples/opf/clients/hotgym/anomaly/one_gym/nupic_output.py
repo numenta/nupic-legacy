@@ -41,6 +41,7 @@ WINDOW = 300
 HIGHLIGHT_ALPHA = 0.3
 ANOMALY_HIGHLIGHT_COLOR = 'red'
 WEEKEND_HIGHLIGHT_COLOR = 'yellow'
+ANOMALY_THRESHOLD = 0.9
 
 
 class NuPICOutput(object):
@@ -134,7 +135,7 @@ def extractAnomalyIndices(anomalyLikelihood):
   anomaliesOut = []
   anomalyStart = None
   for i, likelihood in enumerate(anomalyLikelihood):
-    if likelihood >= 0.9:
+    if likelihood >= ANOMALY_THRESHOLD:
       if anomalyStart is None:
         # Mark start of anomaly
         anomalyStart = i
@@ -146,7 +147,7 @@ def extractAnomalyIndices(anomalyLikelihood):
         ))
         anomalyStart = None
 
-  # Cap it off if we're still in the middle of a weekend
+  # Cap it off if we're still in the middle of an anomaly
   if anomalyStart is not None:
     anomaliesOut.append((
       anomalyStart, len(anomalyLikelihood)-1,
@@ -189,6 +190,9 @@ class NuPICPlotOutput(NuPICOutput):
     plt.ylabel('Percentage')
     plt.xlabel('Date')
 
+    mng = plt.get_current_fig_manager()
+    mng.resize(*mng.window.maxsize())
+
     plt.tight_layout()
 
 
@@ -228,10 +232,15 @@ class NuPICPlotOutput(NuPICOutput):
     self._mainGraph.xaxis.set_major_formatter(dateFormatter)
     self._anomalyGraph.xaxis.set_major_formatter(dateFormatter)
 
-
     self.linesInitialized = True
 
 
+  def highlightChart(self, highlights, chart):
+    for highlight in highlights:
+      self._chartHighlights.append(chart.axvspan(
+        self.convertedDates[highlight[0]], self.convertedDates[highlight[1]],
+        color=highlight[2], alpha=highlight[3]
+      ))
 
   def write(self, timestamp, value, predicted, anomalyScore):
 
@@ -267,16 +276,14 @@ class NuPICPlotOutput(NuPICOutput):
     [poly.remove() for poly in self._chartHighlights]
     self._chartHighlights = []
 
-    highlights = extractWeekendHighlights(self.dates)
-    highlights = highlights + extractAnomalyIndices(self.anomalyLikelihood)
+    weekends = extractWeekendHighlights(self.dates)
+    anomalies = extractAnomalyIndices(self.anomalyLikelihood)
 
-    for highlight in highlights:
-      self._chartHighlights.append(self._mainGraph.axvspan(
-        self.convertedDates[highlight[0]], self.convertedDates[highlight[1]],
-        color=highlight[2], alpha=highlight[3]
-      ))
+    # Highlight weekends in main chart
+    self.highlightChart(weekends, self._mainGraph)
 
-
+    # Highlight anomlies in anomaly chart
+    self.highlightChart(anomalies, self._anomalyGraph)
 
     self._mainGraph.relim()
     self._mainGraph.autoscale_view(True, True, True)
