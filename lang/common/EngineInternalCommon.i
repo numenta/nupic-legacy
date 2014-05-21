@@ -1,12 +1,3 @@
-%module net_internal
-
-# Exception classhes with System.Exception
-%rename (BaseException) Exception;
-
-%include "exception.i"
-//%include "../common/net_internal_common.i"
-
-
 
 %{
 /* ---------------------------------------------------------------------
@@ -33,68 +24,73 @@
 
 #define SWIG_FILE_WITH_INIT
 
-#include <nta2/types2/types.hpp>
-#include <nta2/types2/types.h>
-#include <nta2/types2/BasicType.hpp>
-#include <nta2/types2/Exception.hpp>
-#include <nta2/ntypes/Dimensions.hpp>
-#include <nta2/ntypes/Array.hpp>
-#include <nta2/ntypes/Collection.hpp>
 
-#include <nta2/utils2/Log.hpp>
-#include <nta2/utils2/LogItem.hpp>
-#include <nta2/utils2/LoggingException.hpp>
+#include <nta/types/Types.hpp>
+#include <nta/types/Types.h>
+#include <nta/types/BasicType.hpp>
+#include <nta/types/Exception.hpp>
+#include <nta/ntypes/Dimensions.hpp>
+#include <nta/ntypes/Array.hpp>
+#include <nta/ntypes/ArrayRef.hpp>
+#include <nta/ntypes/Collection.hpp>
+
+#include <nta/utils/Log.hpp>
+#include <nta/utils/LogItem.hpp>
+#include <nta/utils/LoggingException.hpp>
+
+
 
 #include <lang/py/support/PyArray.hpp>
 
-#include <nta2/net/NuPIC.hpp>
-#include <nta2/net/Network.hpp>
+#include <nta/engine/NuPIC.hpp>
+#include <nta/engine/Network.hpp>
 
-#include <nta2/net/Node.hpp>
-#include <nta2/net/Spec.hpp>
-#include <nta2/utils2/Watcher.hpp>
-#include <nta2/net/Region.hpp>
-#include <nta2/os2/Timer.hpp>
+#include <nta/engine/Spec.hpp>
+#include <nta/utils/Watcher.hpp>
+#include <nta/engine/Region.hpp>
+#include <nta/os/Timer.hpp>
 %}
 
+%include "std_pair.i"
+%include "std_string.i"
+%include "std_vector.i"
+%include "std_map.i"
+%include "std_set.i" 
+%template(StringVec) std::vector<std::string>;
 
 
-//include "std/std_pair.i"
-
-%include "std/std_string.i"
-
-/* 
-//%include "std/std_vector.i"
-//%include "std/std_map.i"
-//%include "std/std_set.i" 
-//%template(StringVec) std::vector<std::string>;
-
-//%include <nta2/types2/types.h>
-//%include <nta2/types2/types.hpp>
-//%include <nta2/types2/BasicType.hpp>
-//%include <nta2/types2/Exception.hpp>
+%include <nta/types/Types.h>
+%include <nta/types/Types.hpp>
+%include <nta/types/BasicType.hpp>
+%include <nta/types/Exception.hpp>
 
 // For Network::get/setPhases()
 %template(UInt32Set) std::set<nta::UInt32>;
 
 
+//32bit fix -  Already seen by swig on linux32 where size_t is the same size as unsigned int
+#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm)  && !defined(NTA_PLATFORM_linux32armv7)
 %template(Dimset) std::vector<size_t>;
-%include <nta2/ntypes/Dimensions.hpp>
-%include <nta2/ntypes/Array.hpp>
+#endif
 
-%include <nta2/ntypes/Collection.hpp>
+%include <nta/ntypes/Dimensions.hpp>
+%include <nta/ntypes/Array.hpp>
+%include <nta/ntypes/ArrayRef.hpp>
+
+%include <nta/ntypes/Collection.hpp>
 %template(InputCollection) nta::Collection<nta::InputSpec>;
 %template(OutputCollection) nta::Collection<nta::OutputSpec>;
 %template(ParameterCollection) nta::Collection<nta::ParameterSpec>;
 %template(CommandCollection) nta::Collection<nta::CommandSpec>;
 %template(RegionCollection) nta::Collection<nta::Region *>;
 
-%include <nta2/net/NuPIC.hpp>
-%include <nta2/net/Network.hpp>
-%include <nta2/net/Node.hpp>
-%include <nta2/net/Region.hpp>
-%include <nta2/utils2/Watcher.hpp>
-%include <nta2/net/Spec.hpp>
+%include <nta/engine/NuPIC.hpp>
+%include <nta/engine/Network.hpp>
+%ignore nta::Region::getInputData;
+%ignore nta::Region::getOutputData;
+%include <nta/engine/Region.hpp>
+%include <nta/utils/Watcher.hpp>
+%include <nta/engine/Spec.hpp>
 
 %template(InputPair) std::pair<std::string, nta::InputSpec>;
 %template(OutputPair) std::pair<std::string, nta::OutputSpec>;
@@ -102,6 +98,6 @@
 %template(CommandPair) std::pair<std::string, nta::CommandSpec>;
 %template(RegionPair) std::pair<std::string, nta::Region *>;
 
-%include <nta2/os2/Timer.hpp>
+%include <nta/os/Timer.hpp>
 
-*/
+  
