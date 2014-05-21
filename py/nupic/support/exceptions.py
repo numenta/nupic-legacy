@@ -29,11 +29,6 @@ class TimeoutError(Exception):
   pass
 
 
-###############################################################################
-class StreamDisappearedError(Exception):
-  """ Signals that a data stream became suddenly unavailable """
-  pass
-
 
 ###############################################################################
 class GrokJobFailException(Exception):
