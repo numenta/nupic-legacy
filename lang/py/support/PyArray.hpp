@@ -37,7 +37,7 @@
 #define NTA_PY_ARRAY_HPP
 
 #include <lang/py/support/PyHelpers.hpp>
-#include <nta/types/types.h>
+#include <nta/types/Types.h>
 #include <nta/ntypes/Array.hpp>
 #include <nta/ntypes/ArrayRef.hpp>
 

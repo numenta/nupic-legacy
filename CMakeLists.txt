@@ -246,7 +246,8 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
-  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${name}_py.i")
+  snake_case_to_upper_camel_case(${name} camelized_name)
+  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${camelized_name}Py.i")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES SWIG_FLAGS "${swig_flags}")
   swig_add_module(${name} python
@@ -315,6 +316,33 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
   set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_RELEASE_DIR}/lib/lib${name}.${STATIC_LIB_EXTENSION}")
+endmacro()
+
+# This macro converts a "snake_case" style string to an "UpperCamelCase" style string
+# for example: "engine_internal" will be converted to "EngineInternal"
+macro (snake_case_to_upper_camel_case before after)
+
+  # I wanted to use `string(REGEX REPLACE "^[a-z]" ${first_letter_to_upper} temp ${before})`,
+  # but it's buggy and turn "engine_internal_py" into "EEEEEE_internal_py"
+  string(REGEX REPLACE "^([a-z])(.*)$" "\\1" first_letter "${before}")
+  string(REGEX REPLACE "^([a-z])(.*)$" "\\2" rest "${before}")
+
+  string(TOUPPER ${first_letter} first_letter_to_upper)
+
+  string(REGEX MATCHALL "_([a-z])" all_underscore_and_next_letters ${rest})
+
+  foreach(underscore_and_next_letter ${all_underscore_and_next_letters})
+
+    string(TOUPPER ${underscore_and_next_letter} underscore_and_next_letter_to_upper)
+
+    string(SUBSTRING ${underscore_and_next_letter_to_upper} 1 -1 next_letter_to_upper)
+
+    string(REPLACE ${underscore_and_next_letter} ${next_letter_to_upper} rest "${rest}")
+
+  endforeach(underscore_and_next_letter)
+
+  set(${after} "${first_letter_to_upper}${rest}")
+
 endmacro()
 
 
