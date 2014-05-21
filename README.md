@@ -75,19 +75,8 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
 #### Run the tests:
 
-    cd $NUPIC/build/scripts
-    # all C++ tests
-    make tests_everything
-    # C++ HTM Network API tests
-    make tests_cpphtm
-    # Python HTM Network API tests
-    make tests_pyhtm
-    # Python OPF unit tests
-    make tests_run
-    # Python OPF unit and integration tests (requires mysql)
-    make tests_run_all
-    # Run all tests!
-    make tests_all
+    cd $NUPIC
+    ./run_tests.sh
 
 ### Using graphical interface
 
