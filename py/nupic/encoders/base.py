@@ -205,14 +205,21 @@ class Encoder(object):
     pass
 
   ############################################################################
-  def _getInputValue(self, obj, fieldname):
+  def _getInputValue(self, obj, fieldName):
     """
     Gets the value of a given field from the input record
     """
     if isinstance(obj, dict):
-      return obj[fieldname]
+      if not fieldName in obj:
+        knownFields = ",".join([key for key in obj.keys() if key[:1] != "_"])
+        raise Exception(
+          "Unknown field name '%s' in input record. Known fields are '%s'." % (
+            fieldName, knownFields
+          )
+        )
+      return obj[fieldName]
     else:
-      return getattr(obj, fieldname)
+      return getattr(obj, fieldName)
 
   ############################################################################
   def getEncoderList(self):
