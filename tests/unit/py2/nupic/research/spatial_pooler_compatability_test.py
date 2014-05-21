@@ -315,7 +315,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def testCompatability3(self):
     params = {
-      "inputDimensions": [2,4,5,2],
+      "inputDimensions": [2,4,5],
       "columnDimensions": [4,3,3],
       "potentialRadius": 30,
       "potentialPct": 0.7,
@@ -338,7 +338,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def testSerialization(self):
     params = {
-      'inputDimensions' : [2,4,5,2],
+      'inputDimensions' : [2,4,5],
       'columnDimensions' : [4,3,3],
       'potentialRadius' : 30,
       'potentialPct' : 0.7,
@@ -367,7 +367,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
 
   def testSerializationRun(self):
     params = {
-      'inputDimensions' : [2,4,5,2],
+      'inputDimensions' : [2,4,5],
       'columnDimensions' : [4,3,3],
       'potentialRadius' : 30,
       'potentialPct' : 0.7,
