@@ -43,7 +43,7 @@
 %ignore print;
 
 //--------------------------------------------------------------------------------
-%include <nta/math/math.hpp>
+%include <nta/math/Math.hpp>
 %include <nta/math/Domain.hpp>
 %include <nta/math/SparseMatrix.hpp>
 %include <nta/math/SparseMatrixAlgorithms.hpp>
