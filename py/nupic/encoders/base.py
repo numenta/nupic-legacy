@@ -213,8 +213,10 @@ class Encoder(object):
       if not fieldName in obj:
         knownFields = ",".join([key for key in obj.keys() if key[:1] != "_"])
         raise Exception(
-          "Unknown field name '%s' in input record. Known fields are '%s'." % (
-            fieldName, knownFields
+          "Unknown field name '%s' in input record. Known fields are '%s'.\n"
+          "This could be because input headers are mislabeled, or because "
+          "input data rows do not contain a value for '%s'." % (
+            fieldName, knownFields, fieldName
           )
         )
       return obj[fieldName]
