@@ -1,11 +1,23 @@
 #! /usr/bin/env python
 # ----------------------------------------------------------------------
-#  Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
 #
-#  The information and source code contained herein is the
-#  exclusive property of Numenta Inc. No part of this software
-#  may be used, reproduced, stored or distributed in any form,
-#  without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """
@@ -17,11 +29,12 @@ Some of the tests currently don't pass and are marked as such. We understand why
 but fixing them needs a deeper algoerithm discussion.
 """
 
-import unittest2 as unittest
-import datetime
 import copy
+import datetime
+import unittest2 as unittest
+
+from nupic.algorithms import anomaly_likelihood as an
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-import nupic.algorithms.anomaly_likelihood as an
 
 
 
@@ -42,16 +55,15 @@ def _getDateList(numSamples, startDatetime):
 
 
 class ArtificialAnomalyTest(TestCaseBase):
+
+
   def assertWithinEpsilon(self, a, b, epsilon=0.001):
     self.assertLessEqual(abs(a - b), epsilon,
                          "Values %g and %g are not within %g" % (a, b, epsilon))
 
 
-
-  def _addSampleData(self,
-                     origData=None,
-                     numSamples=1440,
-                     spikeValue=1.0,
+  @staticmethod
+  def _addSampleData(origData=None, numSamples=1440, spikeValue=1.0,
                      spikePeriod=20):
     """
     Add sample anomaly data to the existing data list and return it.
@@ -77,7 +89,6 @@ class ArtificialAnomalyTest(TestCaseBase):
     return data
 
 
-
   def testCaseSingleSpike(self):
     """
     No anomalies, and then you see a single spike. The likelihood of that
@@ -95,7 +106,6 @@ class ArtificialAnomalyTest(TestCaseBase):
     )
 
     self.assertWithinEpsilon(likelihoods1[0], 0.0)
-
 
 
   def testCaseUnusuallyHighSpikeFrequency(self):
@@ -128,10 +138,9 @@ class ArtificialAnomalyTest(TestCaseBase):
     self.assertTrue((likelihoods2[5:].sum() / 15.0) < 0.001)
 
 
-
-  @unittest.skip("Currently fails because the periodicity is greater than the"
-                 " window size. Requires some algorithm discussion with Jeff."
-                 " Filed as MER-496.")
+  @unittest.skip("Currently fails because the periodicity is greater than the "
+                 "window size. Requires some algorithm discussion with Jeff. "
+                 "Filed as MER-496.")
   def testCaseMissingSpike(self):
     """
     Test C: one anomaly every 20 records, but then see none. The likelihood
@@ -152,7 +161,6 @@ class ArtificialAnomalyTest(TestCaseBase):
 
     # The likelihood once you get past the initial averaging should be very low.
     self.assertTrue((likelihoods2[5:].sum() / 15.0) < 0.0001)
-
 
 
   def testCaseContinuousBunchesOfSpikes(self):
@@ -180,7 +188,6 @@ class ArtificialAnomalyTest(TestCaseBase):
 
     # The likelihood should be reasonable high everywhere
     self.assertTrue(likelihoods2.min() > 0.01)
-
 
 
   def testCaseIncreasedSpikeFrequency(self):
@@ -211,10 +218,9 @@ class ArtificialAnomalyTest(TestCaseBase):
     self.assertTrue(likelihoods2[-5:].min() < 0.002)
 
 
-
-  @unittest.skip("Currently fails because the periodicity is greater than the"
-                 " window size. Requires some algorithm discussion with Jeff."
-                 " Filed as https://github.com/numenta/nupic/issues/948.")
+  @unittest.skip("Currently fails because the periodicity is greater than the "
+                 "window size. Requires some algorithm discussion with Jeff. "
+                 "Filed as https://github.com/numenta/nupic/issues/948.")
   def testCaseMissingBunchesOfSpikes(self):
     """
     Test F: bunches of anomalies every 20 records that disappear. This should
@@ -239,7 +245,6 @@ class ArtificialAnomalyTest(TestCaseBase):
     # The likelihood should become anomalous but only near the end
     self.assertTrue(likelihoods2[0:30].min() > 0.01)
     self.assertTrue(likelihoods2[-5:].min() < 0.00001)
-
 
 
   def testCaseIncreasedAnomalyScore(self):
@@ -269,7 +274,6 @@ class ArtificialAnomalyTest(TestCaseBase):
 
     # We should detect it pretty often
     self.assertTrue((likelihoods2 < 0.0003).sum() > 40)
-
 
 
 
