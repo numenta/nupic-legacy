@@ -1,41 +1,54 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
-# Copyright (C) 2013 Numenta Inc. All rights reserved.
+# Numenta Platform for Intelligent Computing (NuPIC)
+# Copyright (C) 2013-2014, Numenta, Inc.  Unless you have an agreement
+# with Numenta, Inc., for a separate license for this software code, the
+# following terms and conditions apply:
 #
-# The information and source code contained herein is the
-# exclusive property of Numenta Inc.  No part of this software
-# may be used, reproduced, stored or distributed in any form,
-# without explicit written authorization from Numenta Inc.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see http://www.gnu.org/licenses.
+#
+# http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
 """Unit tests for anomaly likelihood module."""
 
-import unittest2 as unittest
-import numpy
-import math
-import datetime
 import copy
+import datetime
+import math
+import numpy
+import unittest2 as unittest
+
+from nupic.algorithms import anomaly_likelihood as an
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
-import nupic.algorithms.anomaly_likelihood as an
 
 
 
-def _generateSampleData(mean=0.2, variance=0.2,
-                       metricMean=0.2, metricVariance=0.2):
+def _generateSampleData(mean=0.2, variance=0.2, metricMean=0.2,
+                        metricVariance=0.2):
   """
   Generate 1440 samples of fake metrics data with a particular distribution
   of anomaly scores and metric values. Here we generate values every minute.
   """
   data = []
-  p = {'mean': mean,
-       'name': 'normal',
-       'stdev': math.sqrt(variance),
-       'variance': variance}
+  p = {"mean": mean,
+       "name": "normal",
+       "stdev": math.sqrt(variance),
+       "variance": variance}
   samples = an.sampleDistribution(p, 1440)
-  p = {'mean': metricMean,
-       'name': 'normal',
-       'stdev': math.sqrt(metricVariance),
-       'variance': metricVariance}
+  p = {"mean": metricMean,
+       "name": "normal",
+       "stdev": math.sqrt(metricVariance),
+       "variance": metricVariance}
   metricValues = an.sampleDistribution(p, 1440)
   for hour in range(0, 24):
     for minute in range(0, 60):
@@ -51,18 +64,12 @@ def _generateSampleData(mean=0.2, variance=0.2,
 
 
 
-
 class AnomalyLikelihoodTest(TestCaseBase):
-  def setUp(self):
-
-    pass
-
 
 
   def assertWithinEpsilon(self, a, b, epsilon=0.001):
     self.assertLessEqual(abs(a - b), epsilon,
                          "Values %g and %g are not within %g" % (a, b, epsilon))
-
 
 
   def testNormalProbability(self):
@@ -99,12 +106,11 @@ class AnomalyLikelihoodTest(TestCaseBase):
                              1.0 - an.normalProbability(-1.5, p))
 
 
-
   def testMovingAverage(self):
     """
     Test that the (internal) moving average maintains the averages correctly,
     even for null initial condition and when the number of values goes over
-    windowSize.  Pass in integers and floats. 
+    windowSize.  Pass in integers and floats.
     """
     historicalValues = []
     total = 0
@@ -137,7 +143,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertEqual(newAverage, 5.0)
     self.assertEqual(historicalValues, [4.0, 5.0, 6.0])
     self.assertEqual(total, 15.0)
-
 
 
   def testEstimateNormal(self):
@@ -175,17 +180,16 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertEqual(params["name"], "normal")
 
 
-
   def testSampleDistribution(self):
     """
     Test that sampleDistribution from a generated distribution returns roughly
     the same parameters.
     """
     # 1000 samples drawn from mean=0.4, stdev = 0.1
-    p = {'mean': 0.5,
-         'name': 'normal',
-         'stdev': math.sqrt(0.1),
-         'variance': 0.1}
+    p = {"mean": 0.5,
+         "name": "normal",
+         "stdev": math.sqrt(0.1),
+         "variance": 0.1}
     samples = an.sampleDistribution(p, 1000)
 
     # Ensure estimate is reasonable
@@ -196,14 +200,13 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertTrue(np["name"], "normal")
 
 
-
   def testEstimateAnomalyLikelihoods(self):
     """
     This calls estimateAnomalyLikelihoods to estimate the distribution on fake
     data and validates the results
     """
 
-    # Generate an estimate using fake distribution of anomaly scores. 
+    # Generate an estimate using fake distribution of anomaly scores.
     data1 = _generateSampleData(mean=0.2)
 
     likelihoods, avgRecordList, estimatorParams = (
@@ -231,14 +234,13 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertGreaterEqual(numpy.sum(likelihoods < 0.02), 1)
 
 
-
   def testEstimateAnomalyLikelihoodsMalformedRecords(self):
     """
     This calls estimateAnomalyLikelihoods with malformed records, which should
     be quietly skipped.
     """
 
-    # Generate an estimate using fake distribution of anomaly scores. 
+    # Generate an estimate using fake distribution of anomaly scores.
     data1 = _generateSampleData(mean=0.2)
     data1 = data1 + [(2, 2), (2, 2, 2, 2), (), (2)]  # Malformed records
 
@@ -260,7 +262,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
     dParams = estimatorParams["distribution"]
     self.assertWithinEpsilon(dParams["mean"],
                              total / float(len(avgRecordList)))
-
 
 
   def testSkipRecords(self):
@@ -297,17 +298,16 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertTrue(likelihoods.sum() >= 0.3 * len(likelihoods))
 
 
-
   def testUpdateAnomalyLikelihoods(self):
     """
     A slight more complex test. This calls estimateAnomalyLikelihoods
     to estimate the distribution on fake data, followed by several calls
-    to updateAnomalyLikelihoods. 
+    to updateAnomalyLikelihoods.
     """
 
     #------------------------------------------
     # Step 1. Generate an initial estimate using fake distribution of anomaly
-    # scores. 
+    # scores.
     data1 = _generateSampleData(mean=0.2)[0:1000]
     _, _, estimatorParams = (
       an.estimateAnomalyLikelihoods(data1, averagingWindow=5)
@@ -316,7 +316,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
     #------------------------------------------
     # Step 2. Generate some new data with a higher average anomaly
     # score. Using the estimator from step 1, to compute likelihoods. Now we
-    # should see a lot more anomalies.  
+    # should see a lot more anomalies.
     data2 = _generateSampleData(mean=0.6)[0:300]
     likelihoods2, avgRecordList2, estimatorParams2 = (
       an.updateAnomalyLikelihoods(data2, estimatorParams)
@@ -373,14 +373,13 @@ class AnomalyLikelihoodTest(TestCaseBase):
                      estimatorParams3["movingAverage"]["total"])
 
 
-
   def testFlatAnomalyScores(self):
     """
     This calls estimateAnomalyLikelihoods with flat distributions and
     ensures things don't crash.
     """
 
-    # Generate an estimate using fake distribution of anomaly scores. 
+    # Generate an estimate using fake distribution of anomaly scores.
     data1 = _generateSampleData(mean=42.0, variance=1e-10)
 
     likelihoods, avgRecordList, estimatorParams = (
@@ -420,7 +419,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
       an.updateAnomalyLikelihoods(data4[0:20], estimatorParams3)
     )
 
-    # Average of 0.1 should go to zero 
+    # Average of 0.1 should go to zero
     self.assertLessEqual(likelihoods4[10:].mean(), 0.002)
 
     data5 = _generateSampleData(mean=0.05, variance=1e-6)
@@ -431,7 +430,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
     # The likelihoods should be low but not near zero
     self.assertLessEqual(likelihoods5[10:].mean(), 0.28)
     self.assertGreater(likelihoods5[10:].mean(), 0.015)
-
 
 
   def testFlatMetricScores(self):
@@ -452,9 +450,8 @@ class AnomalyLikelihoodTest(TestCaseBase):
     self.assertEqual(len(likelihoods), len(data1))
     self.assertTrue(likelihoods.sum() >= 0.4 * len(likelihoods))
 
-    # Check that we do indeed get null distribution    
-    self.assertDictEqual(estimatorParams['distribution'], an.nullDistribution())
-
+    # Check that we do indeed get null distribution
+    self.assertDictEqual(estimatorParams["distribution"], an.nullDistribution())
 
 
   def testVeryFewScores(self):
@@ -486,7 +483,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
       an.updateAnomalyLikelihoods(data1, estimatorParams)
 
 
-
   def testBadParams(self):
     """
     Calls updateAnomalyLikelihoods with bad params.
@@ -503,12 +499,11 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
     # Can't pass in a bad params structure
     with self.assertRaises(ValueError):
-      an.updateAnomalyLikelihoods(data1, {'haha': 'heehee'})
+      an.updateAnomalyLikelihoods(data1, {"haha": "heehee"})
 
     # Can't pass in something not a dict
     with self.assertRaises(ValueError):
       an.updateAnomalyLikelihoods(data1, 42.0)
-
 
 
   def testFilterLikelihods2(self):
@@ -518,7 +513,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
     # redThreshold = 0.99999
     yellowThreshold = 0.999
 
-    # Test first with a list of floats    
+    # Test first with a list of floats
 
     # Since windowSize will be 3, the numbers with an underscore should
     # be replaced with 1-yellowThreshold
@@ -547,6 +542,5 @@ class AnomalyLikelihoodTest(TestCaseBase):
 
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
