@@ -21,8 +21,8 @@
  */
 
 
-%include <nta/types/types.h>
-%include <nta/types/types.hpp>
+%include <nta/types/Types.h>
+%include <nta/types/Types.hpp>
 
 ///////////////////////////////////////////////////////////////////
 ///  Bring in SWIG typemaps for base types and stl.

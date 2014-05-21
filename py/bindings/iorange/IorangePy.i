@@ -1,6 +1,6 @@
 %module(package="nupic.bindings") iorange
 
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 
 %pythoncode %{
 # ----------------------------------------------------------------------
@@ -62,10 +62,10 @@
 
 %naturalvar;
 
-%include <lang/py/bindings/exception.i>
-%include <lang/py/bindings/numpy.i>
-%include <py/bindings/types.i>
-%include <py/bindings/reals.i>
+%include <lang/py/bindings/Exception.i>
+%include <lang/py/bindings/Numpy.i>
+%include <py/bindings/Types.i>
+%include <py/bindings/Reals.i>
 
 // An easy-to-wrap vector class that is designed to 
 // look like a Python container.
