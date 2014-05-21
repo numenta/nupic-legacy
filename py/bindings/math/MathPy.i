@@ -21,7 +21,7 @@
  */
 
 %module(package="nupic.bindings") math
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Includes necessary to compile the C wrappers
@@ -77,11 +77,11 @@ _MATH = _math
  */
 
 #include <cmath>
-#include <nta/types/types.hpp>
-#include <nta/math/utils.hpp>
-#include <nta/math/math.hpp>
-#include <nta/math/functions.hpp>
-#include <nta/math/array_algo.hpp>
+#include <nta/types/Types.hpp>
+#include <nta/math/Utils.hpp>
+#include <nta/math/Math.hpp>
+#include <nta/math/Functions.hpp>
+#include <nta/math/ArrayAlgo.hpp>
 #include <nta/utils/Random.hpp>
 %}
 
@@ -91,7 +91,7 @@ _MATH = _math
 #define SWIG_FILE_WITH_INIT
 %}
 
-%include <lang/py/bindings/numpy.i> // %import does not work.
+%include <lang/py/bindings/Numpy.i> // %import does not work.
 
 %init %{
 
@@ -99,8 +99,8 @@ _MATH = _math
   
 %}
 
-%include <py/bindings/types.i>
-%include <py/bindings/reals.i>
+%include <py/bindings/Types.i>
+%include <py/bindings/Reals.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Utility functions that are expensive in Python but fast in C.
@@ -185,7 +185,7 @@ _MATH = _math
 
 //--------------------------------------------------------------------------------
 
-%include <nta/math/functions.hpp>
+%include <nta/math/Functions.hpp>
 
 // ----- Random -----
 

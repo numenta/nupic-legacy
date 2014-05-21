@@ -26,7 +26,7 @@
 /** @file 
  */
  
-#include <nta/types/types.hpp>
+#include <nta/types/Types.hpp>
 
 #include <algorithm>
 #include <vector>

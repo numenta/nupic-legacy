@@ -30,7 +30,7 @@
 #include <nta/engine/Input.hpp>
 #include <nta/engine/Output.hpp>
 #include <nta/utils/Log.hpp>
-#include <nta/ntypes/object_model.hpp> // IWrite/ReadBuffer
+#include <nta/ntypes/ObjectModel.hpp> // IWrite/ReadBuffer
 #include <nta/ntypes/Value.hpp>
 #include <nta/ntypes/Array.hpp>
 #include <nta/ntypes/ArrayRef.hpp>

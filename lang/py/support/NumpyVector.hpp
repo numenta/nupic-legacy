@@ -29,7 +29,7 @@
  * Contains the NumpyArray class, a wrapper for Python numpy arrays.
  */
 
-#include <nta/types/types.hpp> // For nta::Real.
+#include <nta/types/Types.hpp> // For nta::Real.
 #include <algorithm> // For std::copy.
 #include <numpy/arrayobject.h>
 
