@@ -1910,7 +1910,10 @@ def _getPredictedField(options):
       predictedFieldInfo = info
       break
 
-  assert predictedFieldInfo
+  if predictedFieldInfo is None:
+    raise Exception(
+      "Predicted field '%s' does not exist in included fields." % predictedField
+    )
   predictedFieldType = predictedFieldInfo['fieldType']
 
   return predictedField, predictedFieldType
