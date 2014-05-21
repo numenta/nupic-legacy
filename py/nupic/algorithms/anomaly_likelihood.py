@@ -604,7 +604,7 @@ def isValidEstimatorParams(p):
 
 
 
-def sampleDistribution(params, numSamples, verbosity = 0):
+def sampleDistribution(params, numSamples, verbosity=0):
   """
   Given the parameters of a distribution, generate numSamples points from it.
   This routine is mostly for testing.
@@ -613,14 +613,14 @@ def sampleDistribution(params, numSamples, verbosity = 0):
   """
   if params.has_key("name"):
     if params["name"] == "normal":
-      samples = numpy.random.normal(loc = params["mean"],
-                                    scale = math.sqrt(params["variance"]),
+      samples = numpy.random.normal(loc=params["mean"],
+                                    scale=math.sqrt(params["variance"]),
                                     size=numSamples)
     elif params["name"] == "pareto":
-      samples = numpy.random.pareto(params["alpha"], size = numSamples)
+      samples = numpy.random.pareto(params["alpha"], size=numSamples)
     elif params["name"] == "beta":
-      samples = numpy.random.beta(a = params["alpha"], b = params["beta"],
-                                  size = numSamples)
+      samples = numpy.random.beta(a=params["alpha"], b=params["beta"],
+                                  size=numSamples)
     else:
       raise ValueError("Undefined distribution: " + params["name"])
   else:
