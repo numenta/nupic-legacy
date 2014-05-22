@@ -809,7 +809,7 @@ class _HyperSearchRunner(object):
 
     # Try to return a decent error message if the job was cancelled for some
     # reason.
-    if jobInfo.cancel is 1:
+    if jobInfo.cancel == 1:
       raise Exception(jobInfo.workerCompletionMsg)
 
     try:
