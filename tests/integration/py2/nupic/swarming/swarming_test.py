@@ -801,6 +801,38 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
   ############################################################################
+  def testBackwardsDeltaV2(self, onCluster=False, env=None, **kwargs):
+    """ Try running a simple permutations with delta encoder
+    Test which tests the delta encoder. Runs a swarm of the sawtooth dataset
+    With a functioning delta encoder this should give a perfect result
+    DEBUG: disabled temporarily because this test takes too long!!!
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/delta')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+    env["NTA_TEST_exitAfterNModels"] = str(20)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  **kwargs)
+
+
+    self.assertLess(minErrScore, 0.002)
+
+    return
+
+  ############################################################################
   def testSimpleV2NoSpeculation(self, onCluster=False, env=None, **kwargs):
     """ Try running a simple permutations
     """
@@ -859,6 +891,33 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
   ############################################################################
+  def testBackwardsCLAModelV2(self, onCluster=False, env=None, maxModels=2,
+                      **kwargs):
+    """ Try running a simple permutations using an actual CLA model, not
+    a dummy
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/dummyV2')
+
+    # Test it out
+    if env is None:
+      env = dict()
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=maxModels,
+                                  **kwargs)
+
+
+    self.assertEqual(len(resultInfos), maxModels)
+    return
+
+  ############################################################################
   def testCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
                       **kwargs):
     """ Try running a simple permutations using an actual CLA model, not
@@ -867,6 +926,33 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     self._printTestHeader()
     expDir = os.path.join(g_myEnv.testSrcExpDir, 'simple_cla_multistep')
+
+    # Test it out
+    if env is None:
+      env = dict()
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=maxModels,
+                                  **kwargs)
+
+
+    self.assertEqual(len(resultInfos), maxModels)
+    return
+
+  ############################################################################
+  def testBackwardsCLAMultistepModel(self, onCluster=False, env=None, maxModels=2,
+                      **kwargs):
+    """ Try running a simple permutations using an actual CLA model, not
+    a dummy
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simple_cla_multistep')
 
     # Test it out
     if env is None:
@@ -942,6 +1028,34 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
   ############################################################################
+  def testBackwardsFilterV2(self, onCluster=False):
+    """ Try running a simple permutations
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simpleV2')
+
+
+
+    # Don't allow the consumption encoder maxval to get to it's optimum
+    #   value (which is 250). This increases our errScore by +25.
+    env = dict()
+    env["NTA_TEST_maxvalFilter"] = '225'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = '6'
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None)
+
+
+    self.assertEqual(minErrScore, 45)
+    self.assertLess(len(resultInfos), 400)
+    return
+
+ ############################################################################
   def testLateWorker(self, onCluster=False):
     """ Try running a simple permutations where a worker comes in late,
     after the some models have already been evaluated
@@ -982,6 +1096,49 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual(minErrScore, 20)
     self.assertLess(len(resultInfos), 350)
     return
+
+ ############################################################################
+  def testBackwardsLateWorker(self, onCluster=False):
+    """ Try running a simple permutations where a worker comes in late,
+    after the some models have already been evaluated
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simpleV2')
+
+    env = dict()
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+               '%d' % (g_repeatableSwarmMaturityWindow)
+    env["NTA_TEST_exitAfterNModels"] =  '100'
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                maxModels=None,
+                                onCluster=onCluster,
+                                env=env,
+                                waitForCompletion=True,
+                                )
+    self.assertEqual(len(resultInfos), 100)
+
+    # Run another worker the rest of the way
+    env.pop("NTA_TEST_exitAfterNModels")
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                maxModels=None,
+                                onCluster=onCluster,
+                                env=env,
+                                waitForCompletion=True,
+                                continueJobId = jobID,
+                                )
+
+    self.assertEqual(minErrScore, 20)
+    self.assertLess(len(resultInfos), 350)
+    return
+
 
 
   ############################################################################
@@ -1058,6 +1215,80 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
   ############################################################################
+  def testBackwardsOrphanedModel(self, onCluster=False, modelRange=(0,1)):
+    """ Run a worker on a model for a while, then have it exit before the
+    model finishes. Then, run another worker, which should detect the orphaned
+    model.
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simpleV2')
+
+    # NTA_TEST_numIterations is watched by the dummyModelParams() method of
+    #  the permutations file.
+    # NTA_TEST_sysExitModelRange  is watched by the dummyModelParams() method of
+    #  the permutations file. It tells it to do a sys.exit() after so many
+    #  iterations.
+    # We increase the swarm maturity window to make our unit tests more
+    #   repeatable. There is an element of randomness as to which model
+    #   parameter combinations get evaluated first when running with
+    #   multiple workers, so this insures that we can find the "best" model
+    #   that we expect to see in our unit tests.
+    env = dict()
+    env["NTA_TEST_numIterations"] = '2'
+    env["NTA_TEST_sysExitModelRange"] = '%d,%d' % (modelRange[0], modelRange[1])
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] \
+            =  '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                maxModels=300,
+                                onCluster=onCluster,
+                                env=env,
+                                waitForCompletion=False,
+                                )
+    # At this point, we should have 1 model, still running
+    (beg, end) = modelRange
+    self.assertEqual(len(resultInfos), end)
+    numRunning = 0
+    for res in resultInfos:
+      if res.status == ClientJobsDAO.STATUS_RUNNING:
+        numRunning += 1
+    self.assertEqual(numRunning, 1)
+
+
+    # Run another worker the rest of the way, after delaying enough time to
+    #  generate an orphaned model
+    env["NTA_CONF_PROP_nupic_hypersearch_modelOrphanIntervalSecs"] = '1'
+    time.sleep(2)
+
+    # Here we launch another worker to finish up the job. We set the maxModels
+    #  to 300 (200 something should be enough) in case the orphan detection is
+    #  not working, it will make sure we don't loop for excessively long.
+    # With orphan detection working, we should detect that the first model
+    #  would never complete, orphan it, and create a new one in the 1st sprint.
+    # Without orphan detection working, we will wait forever for the 1st sprint
+    #  to finish, and will create a bunch of gen 1, then gen2, then gen 3, etc.
+    #  and gen 0 will never finish, so the swarm will never mature.
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                maxModels=300,
+                                onCluster=onCluster,
+                                env=env,
+                                waitForCompletion=True,
+                                continueJobId = jobID,
+                                )
+
+    self.assertEqual(minErrScore, 20)
+    self.assertLess(len(resultInfos), 350)
+    return
+
+
+  ############################################################################
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before a
     model finishes in gen index 2. Then, run another worker, which should detect
@@ -1076,6 +1307,38 @@ class OneNodeTests(ExperimentTestBaseClass):
 
     self._printTestHeader()
     expDir = os.path.join(g_myEnv.testSrcExpDir, 'simpleV2')
+
+    # We increase the swarm maturity window to make our unit tests more
+    #   repeatable. There is an element of randomness as to which model
+    #   parameter combinations get evaluated first when running with
+    #   multiple workers, so this insures that we can find the "best" model
+    #   that we expect to see in our unit tests.
+    env = dict()
+    env["NTA_TEST_errModelRange"] = '%d,%d' % (modelRange[0], modelRange[1])
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] \
+            =  '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                onCluster=onCluster,
+                                env=env,
+                                maxModels=None,
+                                ignoreErrModels=True
+                                )
+
+    self.assertEqual(minErrScore, 20)
+    self.assertLess(len(resultInfos), 350)
+    return
+
+  ############################################################################
+  def testBackwardsErredModel(self, onCluster=False, modelRange=(6,7)):
+    """ Run with 1 or more models generating errors
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simpleV2')
 
     # We increase the swarm maturity window to make our unit tests more
     #   repeatable. There is an element of randomness as to which model
@@ -1135,6 +1398,39 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess (len(resultInfos), maxNumWorkers+1)
     return
 
+  ############################################################################
+  def testBackwardsJobFailModel(self, onCluster=False, modelRange=(6,7)):
+    """ Run with 1 or more models generating jobFail exception
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/simpleV2')
+
+    # We increase the swarm maturity window to make our unit tests more
+    #   repeatable. There is an element of randomness as to which model
+    #   parameter combinations get evaluated first when running with
+    #   multiple workers, so this insures that we can find the "best" model
+    #   that we expect to see in our unit tests.
+    env = dict()
+    env["NTA_TEST_jobFailErr"] = 'True'
+
+    maxNumWorkers = 4
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                onCluster=onCluster,
+                                env=env,
+                                maxModels=None,
+                                maxNumWorkers=maxNumWorkers,
+                                ignoreErrModels=True
+                                )
+
+    # Make sure workerCompletionReason was error
+    self.assertEqual (jobInfo.workerCompletionReason,
+                      ClientJobsDAO.CMPL_REASON_ERROR)
+    self.assertLess (len(resultInfos), maxNumWorkers+1)
+    return
 
   ############################################################################
   def testTooManyErredModels(self, onCluster=False, modelRange=(5,10)):
@@ -1167,6 +1463,39 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertEqual (jobInfo.workerCompletionReason,
                       ClientJobsDAO.CMPL_REASON_ERROR)
     return
+
+  ############################################################################
+  def testBackwardsTooManyErredModels(self, onCluster=False, modelRange=(5,10)):
+    """ Run with too many models generating errors
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir,  'backwards_compatability/simpleV2')
+
+    # We increase the swarm maturity window to make our unit tests more
+    #   repeatable. There is an element of randomness as to which model
+    #   parameter combinations get evaluated first when running with
+    #   multiple workers, so this insures that we can find the "best" model
+    #   that we expect to see in our unit tests.
+    env = dict()
+    env["NTA_TEST_errModelRange"] = '%d,%d' % (modelRange[0], modelRange[1])
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] \
+            =  '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                onCluster=onCluster,
+                                env=env,
+                                maxModels=None,
+                                ignoreErrModels=True
+                                )
+
+    self.assertEqual (jobInfo.workerCompletionReason,
+                      ClientJobsDAO.CMPL_REASON_ERROR)
+    return
+
 
   ############################################################################
   def testFieldThreshold(self, onCluster=False, env=None, **kwargs):
@@ -1363,6 +1692,72 @@ class OneNodeTests(ExperimentTestBaseClass):
     return
 
   ############################################################################
+  def testBackwardsSpatialClassification(self, onCluster=False, env=None, **kwargs):
+    """ 
+    Try running a spatial classification swarm
+    """
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/spatial_classification')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  **kwargs)
+
+
+    self.assertEqual(minErrScore, 20)
+    self.assertLess(len(resultInfos), 350)
+
+    # Check the expected field contributions
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+
+    actualFieldContributions = jobResults['fieldContributions']
+    print "Actual field contributions:", \
+                              pprint.pformat(actualFieldContributions)
+    expectedFieldContributions = {
+                      'address': 100 * (90.0-30)/90.0,
+                      'gym': 100 * (90.0-40)/90.0,  
+                      'timestamp_dayOfWeek': 100 * (90.0-80.0)/90.0,
+                      'timestamp_timeOfDay': 100 * (90.0-90.0)/90.0,
+                      }
+
+    for key, value in expectedFieldContributions.items():
+      self.assertEqual(actualFieldContributions[key], value, 
+                       "actual field contribution from field '%s' does not "
+                       "match the expected value of %f" % (key, value))
+
+      
+    # Check the expected best encoder combination
+    prefix = 'modelParams|sensorParams|encoders|'
+    expectedSwarmId = prefix + ('.' + prefix).join([
+            'address', 
+            'gym'])
+
+    self.assertEqual(params["particleState"]["swarmId"], 
+                     expectedSwarmId,
+                     "Actual swarm id = %s\nExpcted swarm id = %s" \
+                     % (params["particleState"]["swarmId"], 
+                        expectedSwarmId))
+
+
+    return
+
+  ############################################################################
   def testAlwaysInputPredictedField(self, onCluster=False, env=None, 
                                       **kwargs):
     """ 
@@ -1423,6 +1818,69 @@ class OneNodeTests(ExperimentTestBaseClass):
     self.assertLess(len(resultInfos), 350)
 
     return
+
+  ############################################################################
+  def testBackwardsAlwaysInputPredictedField(self, onCluster=False, env=None, 
+                                      **kwargs):
+    """ 
+    Run a swarm where 'inputPredictedField' is set in the permutations
+    file. The dummy model for this swarm is designed to give the lowest
+    error when the predicted field is INCLUDED, so make sure we don't get
+    this low error
+    """
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/input_predicted_field')
+
+    # Test it out not requiring the predicted field. This should yield a
+    #  low error score
+    if env is None:
+      env = dict()
+    env["NTA_TEST_inputPredictedField"] = "auto"
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (2)
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  **kwargs)
+
+
+    self.assertEqual(minErrScore, -50)
+    self.assertLess(len(resultInfos), 350)
+
+
+    # Now, require the predicted field. This should yield a high error score
+    if env is None:
+      env = dict()
+    env["NTA_TEST_inputPredictedField"] = "yes"
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (2)
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  **kwargs)
+
+
+    self.assertEqual(minErrScore, -40)
+    self.assertLess(len(resultInfos), 350)
+
+    return
+
 
   ############################################################################
   def testFieldThresholdNoPredField(self, onCluster=False, env=None, **kwargs):
@@ -1654,6 +2112,238 @@ class OneNodeTests(ExperimentTestBaseClass):
                         'gym': 100 * (60.0-30.0)/60.0}
 
 
+  ############################################################################
+  def testBackwardsFieldThresholdNoPredField(self, onCluster=False, env=None, **kwargs):
+    """ Test minimum field contribution threshold for a field to be included 
+    in further sprints when doing a temporal search that does not require
+    the predicted field. 
+    """
+
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/input_predicted_field')
+
+    # Test it out without any max field branching in effect
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_TEST_inputPredictedField"] = "auto"
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (0)
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (2)
+    env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
+                         '%f' % (0)
+
+
+    if True:
+      (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+             = self.runPermutations(expDir,
+                                    hsImp='v2',
+                                    loggingLevel=g_myEnv.options.logLevel,
+                                    onCluster=onCluster,
+                                    env=env,
+                                    maxModels=None,
+                                    dummyModel={'iterations':200},
+                                    **kwargs)
+  
+      # Verify the best model and check the field contributions. 
+      cjDAO = ClientJobsDAO.get()
+      jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+      jobResults = json.loads(jobResultsStr)
+      bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+      params = json.loads(bestModel.params)
+      
+      prefix = 'modelParams|sensorParams|encoders|'
+      expectedSwarmId = prefix + ('.' + prefix).join([
+              'address', 
+              'gym',
+              'timestamp_dayOfWeek', 
+              'timestamp_timeOfDay'])
+  
+      self.assertEqual(params["particleState"]["swarmId"], 
+                       expectedSwarmId,
+                       "Actual swarm id = %s\nExpcted swarm id = %s" \
+                       % (params["particleState"]["swarmId"], 
+                          expectedSwarmId))
+      self.assertEqual( bestModel.optimizedMetric, -50)
+  
+  
+      # Check the field contributions
+      actualFieldContributions = jobResults['fieldContributions']
+      print "Actual field contributions:", \
+                                pprint.pformat(actualFieldContributions)
+      
+      expectedFieldContributions = {
+                        'consumption': 0.0, 
+                        'address': 100 * (60.0-40.0)/60.0,
+                        'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
+                        'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
+                        'gym': 100 * (60.0-30.0)/60.0}
+      
+      
+      for key, value in expectedFieldContributions.items():
+        self.assertEqual(actualFieldContributions[key], value, 
+                         "actual field contribution from field '%s' does not "
+                         "match the expected value of %f" % (key, value))
+      
+  
+    if True:
+      #==========================================================================
+      # Now test ignoring all fields that contribute less than 55% to the 
+      #   error score. This means we can only use the timestamp_timeOfDay and
+      #   timestamp_dayOfWeek fields. 
+      # This should bring our best error score up to 50-30-40 = -20  
+      env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
+                           '%f' % (55)
+      env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (5)
+  
+      (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+             = self.runPermutations(expDir,
+                                    hsImp='v2',
+                                    loggingLevel=g_myEnv.options.logLevel,
+                                    onCluster=onCluster,
+                                    env=env,
+                                    maxModels=None,
+                                    dummyModel={'iterations':200},
+                                    **kwargs)
+  
+      # Get the best model
+      cjDAO = ClientJobsDAO.get()
+      jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+      jobResults = json.loads(jobResultsStr)
+      bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+      params = json.loads(bestModel.params)
+  
+      prefix = 'modelParams|sensorParams|encoders|'
+      expectedSwarmId = prefix + ('.' + prefix).join([
+              'timestamp_dayOfWeek', 
+              'timestamp_timeOfDay'])
+      self.assertEqual(params["particleState"]["swarmId"], 
+                       expectedSwarmId,
+                       "Actual swarm id = %s\nExpcted swarm id = %s" \
+                       % (params["particleState"]["swarmId"], 
+                          expectedSwarmId))
+      self.assertEqual( bestModel.optimizedMetric, -20)
+
+      # Check field contributions returned  
+      actualFieldContributions = jobResults['fieldContributions']
+      print "Actual field contributions:", \
+                                pprint.pformat(actualFieldContributions)
+
+      expectedFieldContributions = {
+                        'consumption': 0.0, 
+                        'address': 100 * (60.0-40.0)/60.0,
+                        'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
+                        'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
+                        'gym': 100 * (60.0-30.0)/60.0}
+      
+      for key, value in expectedFieldContributions.items():
+        self.assertEqual(actualFieldContributions[key], value, 
+                         "actual field contribution from field '%s' does not "
+                         "match the expected value of %f" % (key, value))
+
+    if True:  
+      #==========================================================================
+      # Now, test using maxFieldBranching to limit the max number of fields to
+      #  3. This means we can only use the timestamp_timeOfDay, timestamp_dayOfWeek,
+      # gym fields. 
+      # This should bring our error score to 50-30-40-20 = -40
+      env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
+                           '%f' % (0)
+      env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                           '%d' % (3)
+  
+      (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+             = self.runPermutations(expDir,
+                                    hsImp='v2',
+                                    loggingLevel=g_myEnv.options.logLevel,
+                                    onCluster=onCluster,
+                                    env=env,
+                                    maxModels=None,
+                                    dummyModel={'iterations':200},
+                                    **kwargs)
+  
+      # Get the best model
+      cjDAO = ClientJobsDAO.get()
+      jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+      jobResults = json.loads(jobResultsStr)
+      bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+      params = json.loads(bestModel.params)
+  
+      prefix = 'modelParams|sensorParams|encoders|'
+      expectedSwarmId = prefix + ('.' + prefix).join([
+              'gym',
+              'timestamp_dayOfWeek', 
+              'timestamp_timeOfDay'])
+      self.assertEqual(params["particleState"]["swarmId"], 
+                       expectedSwarmId,
+                       "Actual swarm id = %s\nExpcted swarm id = %s" \
+                       % (params["particleState"]["swarmId"], 
+                          expectedSwarmId))
+      self.assertEqual( bestModel.optimizedMetric, -40)
+
+
+    if True:
+      #==========================================================================
+      # Now, test setting max models so that no swarm can finish completely.
+      # Make sure we get the expected field contributions
+      env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                           '%d' % (g_repeatableSwarmMaturityWindow)
+  
+      env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                           '%d' % (0)
+      env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                           '%d' % (5)
+      env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
+                           '%f' % (0)
+  
+      (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+             = self.runPermutations(expDir,
+                                    hsImp='v2',
+                                    loggingLevel=g_myEnv.options.logLevel,
+                                    onCluster=onCluster,
+                                    env=env,
+                                    maxModels=10,
+                                    dummyModel={'iterations':200},
+                                    **kwargs)
+  
+      # Get the best model
+      cjDAO = ClientJobsDAO.get()
+      jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+      jobResults = json.loads(jobResultsStr)
+      bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+      params = json.loads(bestModel.params)
+  
+      prefix = 'modelParams|sensorParams|encoders|'
+      expectedSwarmId = prefix + ('.' + prefix).join([
+              'timestamp_dayOfWeek'])
+      self.assertEqual(params["particleState"]["swarmId"], 
+                       expectedSwarmId,
+                       "Actual swarm id = %s\nExpcted swarm id = %s" \
+                       % (params["particleState"]["swarmId"], 
+                          expectedSwarmId))
+      self.assertEqual( bestModel.optimizedMetric, 10)
+
+      # Check field contributions returned  
+      actualFieldContributions = jobResults['fieldContributions']
+      print "Actual field contributions:", \
+                                pprint.pformat(actualFieldContributions)
+
+      expectedFieldContributions = {
+                        'consumption': 0.0, 
+                        'address': 100 * (60.0-40.0)/60.0,
+                        'timestamp_timeOfDay': 100 * (60.0-20.0)/60.0,
+                        'timestamp_dayOfWeek': 100 * (60.0-10.0)/60.0,
+                        'gym': 100 * (60.0-30.0)/60.0}
+
+
+
+
 
 ################################################################################
 class MultiNodeTests(ExperimentTestBaseClass):
@@ -1680,6 +2370,15 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self._printTestHeader()
     inst = OneNodeTests(self._testMethodName)
     return inst.testDeltaV2(onCluster=True) #, maxNumWorkers=7)
+
+  ############################################################################
+  def testBackwardsDeltaV2(self):
+    """ Try running a simple permutations
+    """
+
+    self._printTestHeader()
+    inst = OneNodeTests(self._testMethodName)
+    return inst.testBackwardsDeltaV2(onCluster=True) #, maxNumWorkers=7)
 
   ############################################################################
   def testSmartSpeculation(self, onCluster=True, env=None, **kwargs):
@@ -1758,6 +2457,83 @@ class MultiNodeTests(ExperimentTestBaseClass):
     pass
 
   ############################################################################
+  def testBackwardsSmartSpeculation(self, onCluster=True, env=None, **kwargs):
+    """ Try running a simple permutations
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/smart_speculation_temporal')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (1)
+
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobInfoStr = cjDAO.jobGetFields(jobID, ['results','engWorkerState'])
+    jobResultsStr = jobInfoStr[0]
+    engState = jobInfoStr[1]
+    engState = json.loads(engState)
+    swarms = engState["swarms"]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+    
+    # Make sure that the only nonkilled models are the ones that would have been
+    # run without speculation
+    prefix = 'modelParams|sensorParams|encoders|'
+    correctOrder = ["A","B","C","D","E","F","G","Pred"]
+    correctOrder = [prefix + x for x in correctOrder]
+    for swarm in swarms:
+      if swarms[swarm]["status"] == 'killed':
+        swarmId = swarm.split(".")
+        if(len(swarmId)>1):
+          # Make sure that something before the last two encoders is in the 
+          # wrong sprint progression, hence why it was killed
+          # The last encoder is the predicted field and the second to last is 
+          # the current new addition
+          wrong=0
+          for i in range(len(swarmId)-2):
+            if correctOrder[i] != swarmId[i]:
+              wrong=1
+          assert wrong==1, "Some of the killed swarms should not have been " \
+                            + "killed as they are a legal combination."
+                            
+      if swarms[swarm]["status"] == 'completed':
+          swarmId = swarm.split(".")
+          if(len(swarmId)>3):
+            # Make sure that the completed swarms are all swarms that should 
+            # have been run.
+            # The last encoder is the predicted field and the second to last is 
+            # the current new addition
+            for i in range(len(swarmId)-3):
+              if correctOrder[i] != swarmId[i]:
+                assert False ,  "Some of the completed swarms should not have " \
+                          "finished as they are illegal combinations"
+      if swarms[swarm]["status"] == 'active':
+        assert False ,  "Some swarms are still active at the end of hypersearch"
+
+    pass
+
+
+  ############################################################################
   def testSmartSpeculationSpatialClassification(self, onCluster=True, 
                                                 env=None, **kwargs):
     """ Test that smart speculation does the right thing with spatial
@@ -1831,6 +2607,83 @@ class MultiNodeTests(ExperimentTestBaseClass):
       elif swarms[swarm]["status"] == 'active':
         raise RuntimeError("Some swarms are still active at the end of "
                            "hypersearch")
+
+
+############################################################################
+  def testBackwardsSmartSpeculationSpatialClassification(self, onCluster=True, 
+                                                env=None, **kwargs):
+    """ Test that smart speculation does the right thing with spatial
+    classification models. This also applies to temporal models where the
+    predicted field is optional (or excluded) since Hypersearch treats them
+    the same. 
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 
+                          'backwards_compatability/smart_speculation_spatial_classification')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (1)
+
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  maxNumWorkers=5,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the worker state
+    cjDAO = ClientJobsDAO.get()
+    jobInfoStr = cjDAO.jobGetFields(jobID, ['results','engWorkerState'])
+    jobResultsStr = jobInfoStr[0]
+    engState = jobInfoStr[1]
+    engState = json.loads(engState)
+    swarms = engState["swarms"]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+    
+    
+    # Make sure that the only non-killed models are the ones that would have been
+    # run without speculation
+    prefix = 'modelParams|sensorParams|encoders|'
+    correctOrder = ["A","B","C"]
+    correctOrder = [prefix + x for x in correctOrder]
+    for swarm in swarms:
+      if swarms[swarm]["status"] == 'killed':
+        swarmId = swarm.split(".")
+        if(len(swarmId) > 1):
+          # Make sure that the best encoder is not in this swarm
+          if correctOrder[0] in swarmId:
+            raise RuntimeError("Some of the killed swarms should not have been "
+                            "killed as they are a legal combination.")
+                            
+      elif swarms[swarm]["status"] == 'completed':
+        swarmId = swarm.split(".")
+        if(len(swarmId) >= 2):
+          # Make sure that the completed swarms are all swarms that should 
+          # have been run.
+          for i in range(len(swarmId)-1):
+            if correctOrder[i] != swarmId[i]:
+              raise RuntimeError("Some of the completed swarms should not have "
+                        "finished as they are illegal combinations")
+      
+      elif swarms[swarm]["status"] == 'active':
+        raise RuntimeError("Some swarms are still active at the end of "
+                           "hypersearch")
+
 
 
 
@@ -1969,9 +2822,148 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
     assert bestModel.optimizedMetric == 406, bestModel.optimizedMetric
 
+    return
 
+
+   ############################################################################
+  def testBackwardsFieldBranching(self, onCluster=True, env=None, **kwargs):
+    """ Try running a simple permutations
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/max_branching_temporal')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (4)
+    env["NTA_CONF_PROP_nupic_hypersearch_min_field_contribution"] = \
+                         '%f' % (-20.0)
+    env["NTA_CONF_PROP_nupic_hypersearch_minParticlesPerSwarm"] = \
+                         '%d' % (2)
+
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+    
+    prefix = 'modelParams|sensorParams|encoders|'
+    expectedSwarmId = prefix + ('.' + prefix).join([
+            'attendance', 'home_winloss', 'timestamp_dayOfWeek',
+            'timestamp_timeOfDay', 'visitor_winloss'])
+    assert params["particleState"]["swarmId"] == expectedSwarmId, \
+                  params["particleState"]["swarmId"]
+    assert bestModel.optimizedMetric == 432, bestModel.optimizedMetric
+
+    env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (3)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+
+    prefix = 'modelParams|sensorParams|encoders|'
+    expectedSwarmId = prefix + ('.' + prefix).join([
+            'attendance', 'home_winloss', 'timestamp_timeOfDay', 
+            'visitor_winloss'])
+    assert params["particleState"]["swarmId"] == expectedSwarmId, \
+                  params["particleState"]["swarmId"]
+
+    assert bestModel.optimizedMetric == 465, bestModel.optimizedMetric
+
+    env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (5)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+
+    prefix = 'modelParams|sensorParams|encoders|'
+    expectedSwarmId = prefix + ('.' + prefix).join([
+            'attendance', 'home_winloss', 'precip', 'timestamp_dayOfWeek',
+            'timestamp_timeOfDay', 'visitor_winloss'])
+    assert params["particleState"]["swarmId"] == expectedSwarmId, \
+                  params["particleState"]["swarmId"]
+
+    assert bestModel.optimizedMetric == 390, bestModel.optimizedMetric
+
+    #Find best combo with 3 fields
+    env["NTA_CONF_PROP_nupic_hypersearch_max_field_branching"] = \
+                         '%d' % (0)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=100,
+                                  dummyModel={'iterations':200},
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+    bestModel = cjDAO.modelsInfo([jobResults["bestModel"]])[0]
+    params = json.loads(bestModel.params)
+
+    prefix = 'modelParams|sensorParams|encoders|'
+    expectedSwarmId = prefix + ('.' + prefix).join([
+            'attendance', 'daynight', 'visitor_winloss'])
+    assert params["particleState"]["swarmId"] == expectedSwarmId, \
+                  params["particleState"]["swarmId"]
+
+    assert bestModel.optimizedMetric == 406, bestModel.optimizedMetric
 
     return
+
+
+
   ############################################################################
   def testFieldThreshold(self, onCluster=True, env=None, **kwargs):
     """ Test minimum field contribution threshold for a field to be included in further sprints
@@ -2027,6 +3019,52 @@ class MultiNodeTests(ExperimentTestBaseClass):
                        "actual field contribution from field '%s' does not "
                        "match the expected value of %f" % (key, value))
     return
+
+  ############################################################################
+  def testBackwardsFieldContributions(self, onCluster=True, env=None, **kwargs):
+    """ Try running a simple permutations
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/field_contrib_temporal')
+
+    # Test it out
+    if env is None:
+      env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] = \
+                         '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+           = self.runPermutations(expDir,
+                                  hsImp='v2',
+                                  loggingLevel=g_myEnv.options.logLevel,
+                                  onCluster=onCluster,
+                                  env=env,
+                                  maxModels=None,
+                                  **kwargs)
+
+    # Get the field contributions from the hypersearch results dict
+    cjDAO = ClientJobsDAO.get()
+    jobResultsStr = cjDAO.jobGetFields(jobID, ['results'])[0]
+    jobResults = json.loads(jobResultsStr)
+
+    actualFieldContributions = jobResults['fieldContributions']
+    print "Actual field contributions:", actualFieldContributions
+    
+    expectedFieldContributions = {'consumption': 0.0, 
+                                  'address': 0.0,
+                                  'timestamp_timeOfDay': 20.0,
+                                  'timestamp_dayOfWeek': 50.0,
+                                  'gym': 10.0}
+    
+    
+    for key, value in expectedFieldContributions.items():
+      self.assertEqual(actualFieldContributions[key], value, 
+                       "actual field contribution from field '%s' does not "
+                       "match the expected value of %f" % (key, value))
+    return
+
 
   ############################################################################
   def testCLAModelV2(self):
@@ -2153,6 +3191,44 @@ class MultiNodeTests(ExperimentTestBaseClass):
 
 
   ############################################################################
+  def testBackwardsTwoOrphanedModels(self, modelRange=(0,2)):
+    """ Test behavior when a worker marks 2 models orphaned at the same time. 
+    """
+
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/oneField')
+
+    # NTA_TEST_numIterations is watched by the dummyModelParams() method of
+    #  the permutations file.
+    # NTA_TEST_sysExitModelRange  is watched by the dummyModelParams() method of
+    #  the permutations file. It tells it to do a sys.exit() after so many
+    #  iterations.
+    env = dict()
+    env["NTA_TEST_numIterations"] = '99'
+    env["NTA_TEST_delayModelRange"] = '%d,%d' % (modelRange[0], modelRange[1])
+    env["NTA_CONF_PROP_nupic_hypersearch_modelOrphanIntervalSecs"] = '1'
+    env["NTA_CONF_PROP_nupic_hypersearch_swarmMaturityWindow"] \
+            =  '%d' % (g_repeatableSwarmMaturityWindow)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+         = self.runPermutations(expDir,
+                                hsImp='v2',
+                                loggingLevel=g_myEnv.options.logLevel,
+                                maxModels=100,
+                                onCluster=True,
+                                env=env,
+                                waitForCompletion=True,
+                                maxNumWorkers=4,
+                                )
+
+    self.assertEqual(minErrScore, 50)
+    self.assertLess(len(resultInfos), 100)
+    return
+
+
+
+
+  ############################################################################
   def testOrphanedModelGen1(self):
     """ Run a worker on a model for a while, then have it exit before the
     model finishes. Then, run another worker, which should detect the orphaned
@@ -2201,6 +3277,44 @@ class MultiNodeTests(ExperimentTestBaseClass):
     self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
 
   ############################################################################
+  def testBackwardsOrphanedModelMaxModels(self):
+    """ Test to make sure that the maxModels parameter doesn't include
+    orphaned models. Run a test with maxModels set to 2, where one becomes
+    orphaned. At the end, there should be 3 models in the models table, one
+    of which will be the new model that adopted the orphaned model
+    """
+    self._printTestHeader()
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/dummyV2')
+
+    numModels = 5
+
+    env = dict()
+    env["NTA_CONF_PROP_nupic_hypersearch_modelOrphanIntervalSecs"] = '3'
+    env['NTA_TEST_max_num_models']=str(numModels)
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+    = self.runPermutations(expDir,
+                          hsImp='v2',
+                          loggingLevel=g_myEnv.options.logLevel,
+                          maxModels=numModels,
+                          env=env,
+                          onCluster=True,
+                          waitForCompletion=True,
+                          dummyModel={'metricValue':  ['25','50'],
+                                      'sysExitModelRange': '0, 1',
+                                      'iterations': 20,
+                                      }
+                          )
+
+    cjDB = ClientJobsDAO.get()
+
+    self.assertGreaterEqual(len(resultInfos), numModels+1)
+    completionReasons = [x.completionReason for x in resultInfos]
+    self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
+    self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
+
+
+  ############################################################################
   def testOrphanedModelConnection(self):
     """Test for the correct behavior when a model uses a different connection id
     than what is stored in the db. The correct behavior is for the worker to log
@@ -2213,6 +3327,47 @@ class MultiNodeTests(ExperimentTestBaseClass):
     # ModelRunner
     # -----------------------------------------------------------------------
     expDir = os.path.join(g_myEnv.testSrcExpDir, 'dummy_multi_v2')
+
+    numModels = 2
+
+    env = dict()
+    env["NTA_CONF_PROP_nupic_hypersearch_modelOrphanIntervalSecs"] = '1'
+
+    (jobID, jobInfo, resultInfos, metricResults, minErrScore) \
+    = self.runPermutations(expDir,
+                          hsImp='v2',
+                          loggingLevel=g_myEnv.options.logLevel,
+                          maxModels=numModels,
+                          env=env,
+                          onCluster=True,
+                          waitForCompletion=True,
+                          dummyModel={'metricValue':  ['25','50'],
+                                      'sleepModelRange': '0, 1:5',
+                                      'iterations': 20,
+                                      }
+                          )
+
+    cjDB = ClientJobsDAO.get()
+
+    self.assertGreaterEqual(len(resultInfos), numModels,
+                     "%d were run. Expecting %s"%(len(resultInfos), numModels+1))
+    completionReasons = [x.completionReason for x in resultInfos]
+    self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_EOF), numModels)
+    self.assertGreaterEqual(completionReasons.count(cjDB.CMPL_REASON_ORPHAN), 1)
+
+  ############################################################################
+  def testBackwardsOrphanedModelConnection(self):
+    """Test for the correct behavior when a model uses a different connection id
+    than what is stored in the db. The correct behavior is for the worker to log
+    this as a warning and move on to a new model"""
+
+    self._printTestHeader()
+
+    # -----------------------------------------------------------------------
+    # Trigger "Using connection from another worker" exception inside
+    # ModelRunner
+    # -----------------------------------------------------------------------
+    expDir = os.path.join(g_myEnv.testSrcExpDir, 'backwards_compatability/dummy_multi_v2')
 
     numModels = 2
 
@@ -2369,6 +3524,56 @@ class ModelMaturityTests(ExperimentTestBaseClass):
     self.assertEqual(completionReasons[0], cjDB.CMPL_REASON_STOPPED)
 
     self.assertTrue(matured[0], True)
+
+  ############################################################################
+  def testBackwardsMatureInterleaved(self):
+    """ Test to make sure that the best model continues running even when it has
+    matured. The 2nd model (constant) will be marked as mature first and will
+    continue to run till the end. The 2nd model reaches maturity and should
+    stop before all the records are consumed, and should be the best model
+    because it has a lower error
+    """
+    self._printTestHeader()
+    self.expDir =  os.path.join(g_myEnv.testSrcExpDir,
+                               'backwards_compatability/dummy_multi_v%d' % 2)
+    self.env['NTA_TEST_max_num_models'] = '2'
+    jobID,_,_,_,_ = self.runPermutations(self.expDir, hsImp=self.hsImp, maxModels=2,
+                                loggingLevel = g_myEnv.options.logLevel,
+                                env = self.env,
+                                onCluster = True,
+                                dummyModel={'metricFunctions':
+                                              ['lambda x: -10*math.log10(x+1) +100',
+                                               'lambda x: 100.0'],
+
+                                            'delay': [2.0,
+                                                      0.0 ],
+                                            'waitTime':[0.05,
+                                                        0.01],
+                                            'iterations':500,
+                                            'experimentDirectory':self.expDir,
+                                })
+
+    cjDB = ClientJobsDAO.get()
+
+    modelIDs, records, completionReasons, matured = \
+                    zip(*self.getModelFields( jobID, ['numRecords',
+                                                           'completionReason',
+                                                            'engMatured']))
+
+    results = cjDB.jobGetFields(jobID, ['results'])[0]
+    results = json.loads(results)
+
+    self.assertEqual(results['bestModel'], modelIDs[0])
+
+    self.assertEqual(records[1], 500)
+    self.assertTrue(records[0] > 100 and records[0] < 500,
+                    "Model 2 num records: 100 < %d < 500 " % records[1])
+
+    self.assertEqual(completionReasons[1], cjDB.CMPL_REASON_EOF)
+    self.assertEqual(completionReasons[0], cjDB.CMPL_REASON_STOPPED)
+
+    self.assertTrue(matured[0], True)
+
 
 
   ############################################################################

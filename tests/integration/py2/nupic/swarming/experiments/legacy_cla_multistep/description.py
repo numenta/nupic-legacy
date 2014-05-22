@@ -315,7 +315,7 @@ applyValueGettersToContainer(config)
 
 control = {
   # The environment that the current model is being run in
-  "environment": 'nupic',
+  "environment": 'grok',
 
   # Input stream specification per py/nupic/frameworks/opf/jsonschema/stream_def.json.
   #

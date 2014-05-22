@@ -452,14 +452,54 @@ class PositiveTests(MyTestCaseBase):
       additionalFields=['anomalyScore'])
 
 
-  def test_BackwardsCompatibility(self):
+  def test_BackwardsCompatibility_earlyOPF(self):
     """ Test that we can load in a checkpoint saved by an earlier version of
     the OPF.
     """
 
     self._testBackwardsCompatibility(
-          os.path.join('backwards_compatibility', 'a'),
+          os.path.join('backwards_compatibility/early_opf', 'a'),
           'savedmodels_2012-10-05')
+
+
+  def test_BackwardsCompatibility_NonTemporalMultiStep(self):
+    """ Test that we get the same predictions out of a model that was
+    saved and reloaded from a checkpoint as we do from one that runs
+    continuously.
+    """
+
+    self._testSamePredictions(
+        experiment="backwards_compatibility/non_temporal_multi_step", predSteps=24, checkpointAt=250,
+        predictionsFilename=
+        "DefaultTask.NontemporalMultiStep.predictionLog.csv")
+
+
+  @unittest.skip("Currently Fails: NUP-1864")
+  def test_BackwardsCompatibility_TemporalMultiStep(self):
+    """ Test that we get the same predictions out of a model that was
+    saved and reloaded from a checkpoint as we do from one that runs
+    continuously.  This model is a grok model, which has since been changed 
+    to a nupic model
+    """
+
+    self._testSamePredictions(experiment="backwards_compatibility/temporal_multi_step", predSteps=24,
+      checkpointAt=250,
+      predictionsFilename='DefaultTask.TemporalMultiStep.predictionLog.csv')
+
+
+  @unittest.skip("Currently Fails: NUP-1864")
+  def test_BackwardsCompatibility_TemporalAnomaly(self):
+    """ Test that we get the same predictions out of a model that was
+    saved and reloaded from a checkpoint as we do from one that runs
+    continuously.  This model is a grok model, which has since been changed 
+    to a nupic model
+    """
+
+    self._testSamePredictions(experiment="backwards_compatibility/temporal_anomaly", predSteps=1,
+      checkpointAt=250,
+      predictionsFilename='DefaultTask.TemporalAnomaly.predictionLog.csv',
+      additionalFields=['anomalyScore'])
+
 
 
 
