@@ -54,3 +54,20 @@ class Anomaly(object):
 
     return score
 
+class TemporalPoolerAnomaly(Anomaly):
+  """computes anomaly on Temporal pooler"""
+
+  def __init__(self, tp):
+    """
+    @param tp temporal pooler instance used
+    @param _prevPredColumns array of predicted columns from previous step (will be compared to current active)
+    """
+    super(TemporalPoolerAnomaly, self)__init__()
+    self._tp = tp
+    self._prevPredColumns = numpy.array([])
+
+  def computeAnomalyScore(self, activeColumns): 
+    super().computeAnomalyScore(activeColumns, self._prevPredColumns)
+    self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0]
+  
+
