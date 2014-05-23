@@ -29,10 +29,11 @@ class Anomaly(object):
   """basic class that computes anomaly"""
 
   
-  def __init__(self, useTP = None, slidingWindowSize = None):
+  def __init__(self, useTP = None, slidingWindowSize = None, useProbLikelihood = False):
     """
     @param (optional) useTP -- tp temporal pooler instance used
     @param (optional) slidingWindowSize -- how many elements are summed up, sliding window size
+    @param (optional) useProbLikelihood -- TODO subutai's code for likelihood prob distribution anomaly
     """
     # using TP
     self._tp = useTP
@@ -43,6 +44,8 @@ class Anomaly(object):
     if self._windowSize is not None:
       self._buf = numpy.array([0] * self._windowSize)
       self._i = 1
+    # probabilistic anomaly
+    self._useLikelihood = useProbLikelihood
 
 
   def computeAnomalyScore(self, activeColumns, prevPredictedColumns):
@@ -74,11 +77,18 @@ class Anomaly(object):
     else:
       # There were no predicted or active columns.
       score = 0.0
+    # 1. here score is the 'classic' anomaly score
+
+
+    # use probabilistic anomaly 
+    if self._useLikelihood:
+      raise NotImplementedError("Likelihood anomaly not yet implemented.")
 
     # using cumulative anomaly, sliding window
     if self._windowSize is not None:
       self._buf[self._i]=score
       self._i = (self._i + 1) % self._windowSize 
       score = score / float(self._windowSize) # normalize to 0..1
+    # 3. score is cumulative score over windowSize
 
     return score
