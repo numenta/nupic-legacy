@@ -941,7 +941,7 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 # Tests
 #
 add_custom_target(tests_run
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py -n2
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
