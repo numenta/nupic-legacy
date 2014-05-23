@@ -23,6 +23,8 @@
 """Tests for anomaly-related algorithms."""
 
 import unittest2 as unittest
+import numpy as np
+import timeit
 
 from numpy import array
 
@@ -60,6 +62,25 @@ class AnomalyTest(unittest.TestCase):
     score = self._anomalyImpl.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
+  def testNumpyVsPythonSumSpeed(self):
+    """testing the python / numpy .sum() speed"""
+    # from https://stackoverflow.com/questions/10922231/pythons-sum-vs-numpys-numpy-sum
+
+    data = np.in1d(np.random.standard_normal(1000), np.random.standard_normal(1000)) # this function is called in each computeAnomalyScore()
+    def pure_sum():
+      return sum(data)
+
+    def numpy_sum():
+      return np.sum(data)
+    
+    n = 100 # rounds
+
+    tPython = timeit.timeit(pure_sum, number = n)
+    tNpy = timeit.timeit(numpy_sum, number = n)
+    speedup = float(tPython)/tNpy
+    print "speedup", speedup, "x"
+    self.assertGreater(speedup, 1)
+   
 
 
 if __name__ == "__main__":
