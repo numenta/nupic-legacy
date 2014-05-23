@@ -39,7 +39,7 @@ from operator import itemgetter
 
 
 from model import Model
-from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
+from nupic.algorithms.anomaly import TemporalPoolerAnomaly as AnomalyImpl
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -193,7 +193,7 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
-    self._anomalyClass = AnomalyImpl()
+    self._anomalyInst = None
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -209,7 +209,11 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
-      self._prevPredictedColumns = numpy.array([])
+      from nupic.algorithms.anomaly import TemporalPoolerAnomaly as A
+      self_anomalyInst = A(self._getTPRegion())
+    else:
+      from nupic.algorithms.anomaly import Anomaly as A
+      self._anomalyInst = A()
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -482,7 +486,6 @@ class CLAModel(Model):
     if tp is None:
       return
 
-    tp = self._getTPRegion()
     tp.setParameter('topDownMode', False)
     tp.setParameter('inferenceMode', self.isInferenceEnabled())
     tp.setParameter('learningMode', self.isLearningEnabled())
@@ -619,7 +622,7 @@ class CLAModel(Model):
     inferences = {}
     if inferenceType == InferenceType.NontemporalAnomaly:
       sp = self._getSPRegion()
-      score = sp.getOutputData("anomalyScore")[0]
+      score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
       inferences[InferenceElement.anomalyScore] = score
 
     # -----------------------------------------------------------------------
@@ -639,11 +642,7 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      inferences[InferenceElement.anomalyScore] = (self._anomalyClass.computeAnomalyScore(activeColumns, self._prevPredictedColumns))
-
-      # Store the predicted columns for the next timestep
-      predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      self._prevPredictedColumns = copy.deepcopy(predictedColumns)
+      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns))
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
