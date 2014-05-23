@@ -24,6 +24,7 @@
 import numpy
 
 
+
 class Anomaly(object):
   """basic class that computes anomaly"""
 
@@ -54,6 +55,8 @@ class Anomaly(object):
 
     return score
 
+
+
 class TemporalPoolerAnomaly(Anomaly):
   """computes anomaly on Temporal pooler"""
 
@@ -66,8 +69,33 @@ class TemporalPoolerAnomaly(Anomaly):
     self._tp = tp
     self._prevPredColumns = numpy.array([])
 
-  def computeAnomalyScore(self, activeColumns): 
+  def computeAnomalyScore(self, activeColumns, prevPredColumns = None ):
+    if prevPredColumns is not None:
+      self._prevPredColumns = prevPredColumns 
     super().computeAnomalyScore(activeColumns, self._prevPredColumns)
     self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0]
+
   
+
+class CumulativeAnomaly(Anomaly):
+  """ sliding window anomaly """
+
+
+  def __init__(self, windowsSize=1000):
+    """
+    @param windowSize how many elements are summed up, sliding window size
+    """
+    super(CumulativeAnomaly, self).__init__()
+    self._buf = numpy.array([0] * windowSize)
+    self._windowSize
+    self._i = 1
+
+
+
+  def computeAnomalyScore(self, actualColumns, prevPredColumns):
+    score = super().computeAnomalyScore(actualColumns, prevPredColumns)
+    self._buf[self._i]=score
+    self._i = (self._i + 1) % self._windowSize 
+    
+    return score / float(self._windowSize) # normalize to 0..1
 
