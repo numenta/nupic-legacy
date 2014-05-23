@@ -39,7 +39,7 @@ from operator import itemgetter
 
 
 from model import Model
-from nupic.algorithms.anomaly import computeAnomalyScore
+from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -193,6 +193,7 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
+    self._anomalyClass = AnomalyImpl()
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -638,8 +639,7 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      inferences[InferenceElement.anomalyScore] = (
-          computeAnomalyScore(activeColumns, self._prevPredictedColumns))
+      inferences[InferenceElement.anomalyScore] = (self._anomalyClass.computeAnomalyScore(activeColumns, self._prevPredictedColumns))
 
       # Store the predicted columns for the next timestep
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]

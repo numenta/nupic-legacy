@@ -26,35 +26,38 @@ import unittest2 as unittest
 
 from numpy import array
 
-from nupic.algorithms import anomaly
+from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
 
 
 
 class AnomalyTest(unittest.TestCase):
 
+  def setUp(self):
+    """init"""
+    self._anomalyImpl = AnomalyImpl()
 
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
-    score = anomaly.computeAnomalyScore(array([]), array([]))
+    score = self._anomalyImpl.computeAnomalyScore(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoActive(self):
-    score = anomaly.computeAnomalyScore(array([]), array([3, 5]))
+    score = self._anomalyImpl.computeAnomalyScore(array([]), array([3, 5]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):
-    score = anomaly.computeAnomalyScore(array([3, 5, 7]), array([3, 5, 7]))
+    score = self._anomalyImpl.computeAnomalyScore(array([3, 5, 7]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoMatch(self):
-    score = anomaly.computeAnomalyScore(array([2, 4, 6]), array([3, 5, 7]))
+    score = self._anomalyImpl.computeAnomalyScore(array([2, 4, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePartialMatch(self):
-    score = anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
+    score = self._anomalyImpl.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
