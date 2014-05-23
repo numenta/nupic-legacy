@@ -62,7 +62,7 @@ class TemporalPoolerAnomaly(Anomaly):
     @param tp temporal pooler instance used
     @param _prevPredColumns array of predicted columns from previous step (will be compared to current active)
     """
-    super(TemporalPoolerAnomaly, self)__init__()
+    super(TemporalPoolerAnomaly, self).__init__()
     self._tp = tp
     self._prevPredColumns = numpy.array([])
 
