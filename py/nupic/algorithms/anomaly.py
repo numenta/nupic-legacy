@@ -40,7 +40,7 @@ class Anomaly(object):
       # Test whether each element of a 1-D array is also present in a second
       # array. Sum to get the total # of columns that are active and were
       # predicted.
-      score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
+      score = numpy.sum(numpy.in1d(activeColumns, prevPredictedColumns))
 
       # Get the percent of active columns that were NOT predicted, that is
       # our anomaly score.
