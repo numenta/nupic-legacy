@@ -39,7 +39,7 @@ from operator import itemgetter
 
 
 from model import Model
-from nupic.algorithms.anomaly import TemporalPoolerAnomaly as AnomalyImpl
+from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -209,11 +209,9 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
-      from nupic.algorithms.anomaly import TemporalPoolerAnomaly as A
-      self_anomalyInst = A(self._getTPRegion())
+      self._anomalyInst = AnomalyImpl(useTP=self._getTPRegion())
     else:
-      from nupic.algorithms.anomaly import Anomaly as A
-      self._anomalyInst = A()
+      self._anomalyInst = AnomalyImpl()
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -642,7 +640,7 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns))
+      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns,[]))
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.

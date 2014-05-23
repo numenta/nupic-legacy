@@ -24,23 +24,40 @@
 import numpy
 
 
-class AnomalyChooser(Anomaly):
-  def computeAnomalyScore(self, activeColumns, prevPredictedColumns):
-    return CumulativeAnomaly.computeAnomalyScore(activeColumns, prevPredictedColumns)  
-
-
 
 class Anomaly(object):
   """basic class that computes anomaly"""
 
+  
+  def __init__(self, useTP = None, slidingWindowSize = None):
+    """
+    @param (optional) useTP -- tp temporal pooler instance used
+    @param (optional) slidingWindowSize -- how many elements are summed up, sliding window size
+    """
+    # using TP
+    self._tp = useTP
+    if self._tp is not None:
+      self._prevPredictedColumns = numpy.array([])
+    # using cumulative anomaly , sliding window
+    self._windowSize = slidingWindowSize
+    if self._windowSize is not None:
+      self._buf = numpy.array([0] * self._windowSize)
+      self._i = 1
+
+
   def computeAnomalyScore(self, activeColumns, prevPredictedColumns):
     """Compute the anomaly score as the percent of active columns not predicted.
   
-    :param activeColumns: array of active column indices
-    :param prevPredictedColumns: array of columns indices predicted in previous step
-    :returns: the computed anomaly score
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in previous step (ignored with useTP != None)
+    @return the computed anomaly score; float 0..1
     """
     nActiveColumns = len(activeColumns)
+
+    # using TP provided during init, _prevPredColumns stored internally here
+    if self._tp is not None:
+      prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
+      self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0] 
 
     if nActiveColumns > 0:
       # Test whether each element of a 1-D array is also present in a second
@@ -58,50 +75,10 @@ class Anomaly(object):
       # There were no predicted or active columns.
       score = 0.0
 
+    # using cumulative anomaly, sliding window
+    if self._windowSize is not None:
+      self._buf[self._i]=score
+      self._i = (self._i + 1) % self._windowSize 
+      score = score / float(self._windowSize) # normalize to 0..1
+
     return score
-
-
-
-class TemporalPoolerAnomaly(Anomaly):
-  """computes anomaly on Temporal pooler"""
-
-  def __init__(self, tp):
-    """
-    @param tp temporal pooler instance used
-    @param _prevPredColumns array of predicted columns from previous step (will be compared to current active)
-    """
-    super(TemporalPoolerAnomaly, self).__init__()
-    self._tp = tp
-    self._prevPredColumns = numpy.array([])
-
-  def computeAnomalyScore(self, activeColumns, prevPredColumns = None ):
-    if prevPredColumns is not None:
-      self._prevPredColumns = prevPredColumns 
-    score = super().computeAnomalyScore(activeColumns, self._prevPredColumns)
-    self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0]
-    return score
-
-  
-
-class CumulativeAnomaly(Anomaly):
-  """ sliding window anomaly """
-
-
-  def __init__(self, windowsSize=1000):
-    """
-    @param windowSize how many elements are summed up, sliding window size
-    """
-    super(CumulativeAnomaly, self).__init__()
-    self._buf = numpy.array([0] * windowSize)
-    self._windowSize
-    self._i = 1
-
-
-
-  def computeAnomalyScore(self, actualColumns, prevPredColumns):
-    score = super().computeAnomalyScore(actualColumns, prevPredColumns)
-    self._buf[self._i]=score
-    self._i = (self._i + 1) % self._windowSize 
-    
-    return score / float(self._windowSize) # normalize to 0..1
-
