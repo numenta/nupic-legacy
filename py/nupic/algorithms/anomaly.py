@@ -24,6 +24,11 @@
 import numpy
 
 
+class AnomalyChooser(Anomaly):
+  def computeAnomalyScore(self, activeColumns, prevPredictedColumns):
+    return CumulativeAnomaly.computeAnomalyScore(activeColumns, prevPredictedColumns)  
+
+
 
 class Anomaly(object):
   """basic class that computes anomaly"""
@@ -72,8 +77,9 @@ class TemporalPoolerAnomaly(Anomaly):
   def computeAnomalyScore(self, activeColumns, prevPredColumns = None ):
     if prevPredColumns is not None:
       self._prevPredColumns = prevPredColumns 
-    super().computeAnomalyScore(activeColumns, self._prevPredColumns)
+    score = super().computeAnomalyScore(activeColumns, self._prevPredColumns)
     self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0]
+    return score
 
   
 
