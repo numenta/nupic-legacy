@@ -42,8 +42,8 @@ class Anomaly(object):
     # using cumulative anomaly , sliding window
     self._windowSize = slidingWindowSize
     if self._windowSize is not None:
-      self._buf = numpy.array([0] * self._windowSize)
-      self._i = 1
+      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
+      self._i = 0
     # probabilistic anomaly
     self._useLikelihood = useProbLikelihood
 
@@ -86,9 +86,11 @@ class Anomaly(object):
 
     # using cumulative anomaly, sliding window
     if self._windowSize is not None:
-      self._buf[self._i]=score
+      self._buf[self._i]= score
+#debug      print "buf="+str(self._buf)+"  i="+str(self._i)+" score="+str(score)
       self._i = (self._i + 1) % self._windowSize 
-      score = score / float(self._windowSize) # normalize to 0..1
+      score = numpy.sum(self._buf)/float(self._windowSize) # normalize to 0..1
+
     # 3. score is cumulative score over windowSize
 
     return score
