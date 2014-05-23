@@ -314,7 +314,7 @@ class ClassificationStats(object):
 
         self.netInfo['encoder'].pprint(input1, prefix="%06d:" % cat1)
         self.netInfo['encoder'].pprint(input2, prefix="%06d:" % cat2)
-        print "input distance:", numpy.abs(input1 - input2).sum()
+        print "input distance:", numpy.sum(numpy.abs(input1 - input2))
         print "active outputs for both:", output.nonzero()[0]
         print
 
