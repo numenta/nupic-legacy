@@ -222,7 +222,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     self._version = KNNAnomalyClassifierRegion.__VERSION__
 
     # anomaly
-    self._anomaly = AnomalyImpl()
+    self._anomaly = AnomalyImpl(slidingWindowSize=1000)
 
   def initialize(self, dims, splitterMaps):
     assert tuple(dims) == (1,) * len(dims)
