@@ -50,6 +50,7 @@ DEFAULT_OPTIONS = {"overwrite": False,
                   "expDescConfig": None,
                   "permutationsScriptPath": None,
                   "outputLabel": "swarm_out",
+                  "outDir": None,
                   "permWorkDir": None,
                   "action": "run",
                   "searchMethod": "v2",
@@ -260,6 +261,7 @@ def runWithConfig(swarmConfig, options,
 
   options["expDescConfig"] = swarmConfig
   options["outputLabel"] = outputLabel
+  options["outDir"] = outDir
   options["permWorkDir"] = permWorkDir
 
   runOptions = _injectDefaultOptions(options)
@@ -328,6 +330,7 @@ def runWithPermutationsScript(permutationsFilePath, options,
 
   options["permutationsScriptPath"] = permutationsFilePath
   options["outputLabel"] = outputLabel
+  options["outDir"] = permWorkDir
   options["permWorkDir"] = permWorkDir
 
   # Assume it's a permutations python script
@@ -976,10 +979,17 @@ class _HyperSearchRunner(object):
         if not os.path.exists(outDir):
           os.makedirs(outDir)
 
-        # Fix up the location to the base description file
+        # Fix up the location to the base description file.
+        # importBaseDescription() chooses the file relative to the calling file.
+        # The calling file is in outDir.
+        # The base description is in the user-specified "outDir"
+        base_description_path = os.path.join(options["outDir"],
+          "description.py")
+        base_description_relpath = os.path.relpath(base_description_path,
+          start=outDir)
         description = description.replace(
               "importBaseDescription('base.py', config)",
-              "importBaseDescription('../description.py', config)")
+              "importBaseDescription('%s', config)" % base_description_relpath)
         fd = open(os.path.join(outDir, "description.py"), "wb")
         fd.write(description)
         fd.close()
