@@ -198,6 +198,11 @@ def _generateExpFilesFromSwarmDescription(swarmDescriptionJson, outDir):
 
 
 def _runAction(runOptions):
+  if not os.path.exists(runOptions["outDir"]):
+    os.makedirs(runOptions["outDir"])
+  if not os.path.exists(runOptions["permWorkDir"]):
+    os.makedirs(runOptions["permWorkDir"])
+
   action = runOptions["action"]
   # Print Nupic HyperSearch results from the current or last run
   if action == "report":
