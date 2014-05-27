@@ -209,7 +209,7 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
-      self._anomalyInst = AnomalyImpl(useTP=self._getTPRegion(), slidingWindowSize=1000)
+      self._anomalyInst = AnomalyImpl(useTP=self._getTPRegion(), slidingWindowSize=100)
     else:
       self._anomalyInst = AnomalyImpl()
 
