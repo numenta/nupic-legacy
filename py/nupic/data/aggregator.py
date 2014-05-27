@@ -21,13 +21,10 @@
 # ----------------------------------------------------------------------
 
 import os
-import sys
 import time
-import copy
 import datetime
 from collections import defaultdict  
 
-from nupic.frameworks.prediction import utils
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.datasethelpers import findDataset

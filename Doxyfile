@@ -760,6 +760,7 @@ INPUT                  = docs \
                          py/nupic/research/TPTrivial.py \
                          py/nupic/research/TP.py \
                          py/nupic/encoders \
+                         py/nupic/data/aggregator.py \
                          bin/run_swarm.py \
                          py/nupic/swarming/__init__.py \
                          py/nupic/swarming/permutations_runner.py
