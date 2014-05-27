@@ -33,9 +33,6 @@ savedmodels/
 /test*.txt
 /test*.pkl
 
-# other crap
-*.nta/
-
 html/
 
 Servers/
