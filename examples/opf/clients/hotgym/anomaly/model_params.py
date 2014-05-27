@@ -225,25 +225,9 @@ MODEL_PARAMS = {
             'pamLength': 3,
         },
 
-        'clParams': {
-            # Classifier implementation selection.
-            'implementation': 'cpp',
-
-            'regionName' : 'CLAClassifierRegion',
-
-
-            # Classifier diagnostic output verbosity control;
-            # 0: silent; [1..6]: increasing levels of verbosity
-            'clVerbosity' : 0,
-
-            # This controls how fast the classifier learns/forgets. Higher values
-            # make it adapt faster and forget older patterns faster.
-            'alpha': 0.005,
-
-            # This is set after the call to updateConfigFromSubConfig and is
-            # computed from the aggregationInfo and predictAheadTime.
-            'steps': '1',
-        },
+        # Don't create the classifier since we don't need predictions.
+        'clEnable': False,
+        'clParams': None,
 
         'anomalyParams': {  u'anomalyCacheRecords': None,
     u'autoDetectThreshold': None,
