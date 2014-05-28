@@ -814,6 +814,12 @@ class _HyperSearchRunner(object):
 
     # pull out best Model from jobs table
     jobInfo = _clientJobsDB().jobInfo(hyperSearchJob.getJobID())
+
+    # Try to return a decent error message if the job was cancelled for some
+    # reason.
+    if jobInfo.cancel == 1:
+      raise Exception(jobInfo.workerCompletionMsg)
+
     try:
       results = json.loads(jobInfo.results)
     except Exception, e:
