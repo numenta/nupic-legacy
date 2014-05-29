@@ -71,27 +71,34 @@ class AnomalyLikelihood(object):
   """
 
 
-  def __init__(self, CLALearningPeriod=300, estimationSamples=300):
+  def __init__(self, claLearningPeriod=300, estimationSamples=300):
     """
-    CLALearningPeriod - the number of iterations required for the CLA to learn
-    the basic patterns in the dataset and for the anomaly score to 'settle
+    :param claLearningPeriod: the number of iterations required for the CLA to
+    learn the basic patterns in the dataset and for the anomaly score to 'settle
     down'. The default is based on empirical observations but in reality this
-    could be larger for more complex domains. Larger values are generally safer.
-    The main downside to having it be too large is the risk of an anomaly
-    ocurring during the learning period.
+    could be larger for more complex domains. The downside if this is too large
+    is that real anomalies might get ignored and not flagged.
 
-    estimationSamples - The number of reasonable anomaly scores required for the
-    initial estimate of the Gaussian. The default of 300 records is reasonable -
-    we just need sufficient samples to get a decent estimate for the Gaussian.
-    It's unlikely you will need to tune this since the Gaussian is re-estimated
-    every 100 iterations. No anomaly scores are reported for CLALearningPeriod +
+    :param estimationSamples: the number of reasonable anomaly scores required
+    for the initial estimate of the Gaussian. The default of 300 records is
+    reasonable - we just need sufficient samples to get a decent estimate for
+    the Gaussian. It's unlikely you will need to tune this since the Gaussian is
+    re-estimated every 100 iterations.
+    
+    Anomaly likelihood scores are reported at a flat 0.5 for claLearningPeriod +
     estimationSamples iterations.
     """
     self._iteration = 0
     self._historicalScores = []
     self._distribution = None
-    self._probationaryPeriod = CLALearningPeriod + estimationSamples
-    self._claLearningPeriod = CLALearningPeriod
+    self._probationaryPeriod = claLearningPeriod + estimationSamples
+    self._claLearningPeriod = claLearningPeriod
+    
+    # How often we re-estimate the Gaussian distribution. The ideal is to
+    # re-estimate every iteration but this is a performance hit. In general the
+    # system is not very sensitive to this number as long as it is small
+    # relative to the total number of records processed.
+    self._reestimationPeriod = 100 
 
 
   @staticmethod
@@ -107,7 +114,7 @@ class AnomalyLikelihood(object):
     return math.log(1.0000000001 - likelihood) / -23.02585084720009
 
 
-  def anomalyProbability(self, value, anomalyScore, timestamp):
+  def anomalyProbability(self, value, anomalyScore, timestamp=None):
     """
     Return the probability that the current value plus anomaly score represents
     an anomaly given the historical distribution of anomaly scores. The closer
@@ -116,13 +123,17 @@ class AnomalyLikelihood(object):
     Given the current metric value, plus the current anomaly score, output the
     anomalyLikelihood for this record.
     """
+    if timestamp is None:
+      timestamp = datetime.datetime.now()
+      
     dataPoint = (timestamp, value, anomalyScore)
     # We ignore the first probationaryPeriod data points
     if len(self._historicalScores) < self._probationaryPeriod:
       likelihood = 0.5
     else:
-      # On a rolling basis we re-estimate the distribution every 100 iterations
-      if self._distribution is None or (self._iteration % 100 == 0):
+      # On a rolling basis we re-estimate the distribution
+      if ( (self._distribution is None) or
+           (self._iteration % self._reestimationPeriod == 0) ):
         _, _, self._distribution = (
           estimateAnomalyLikelihoods(
             self._historicalScores,
@@ -148,9 +159,9 @@ class AnomalyLikelihood(object):
 #
 # There are two primary interface routines:
 #
-# | estimateAnomalyLikelihoods | batch routine, called initially and once in a
-#                                while |
-# | updateAnomalyLikelihoods | online routine, called for every new data point |
+# estimateAnomalyLikelihoods: batch routine, called initially and once in a
+#                                while
+# updateAnomalyLikelihoods: online routine, called for every new data point
 #
 # 1. Initially::
 #
@@ -196,6 +207,7 @@ class AnomalyLikelihood(object):
 #                                  # values returned
 #
 #    "movingAverage":              # stuff needed to compute a rolling average
+#                                  # of the anomaly scores
 #      {
 #        "windowSize": SCALAR,     # the size of the averaging window
 #        "historicalValues": [],   # list with the last windowSize anomaly
@@ -274,11 +286,11 @@ def estimateAnomalyLikelihoods(anomalyScores,
   else:
     distributionParams = estimateNormal(dataValues[skipRecords:])
 
-    # HACK ALERT! The CLA model used in Grok currently does not handle constant
-    # metric values very well (the random SP plus time of day encoder changes
-    # lead to unstable SDR's). This issue is documented in MER-844. Until this
-    # is resolved, we explicitly detect and handle flat metric values by
-    # reporting them as not anomalous.
+    # HACK ALERT! The CLA model currently does not handle constant metric values
+    # very well (time of day encoder changes sometimes lead to unstable SDR's
+    # even though the metric is constant). Until this is resolved, we explicitly
+    # detect and handle completely flat metric values by reporting them as not
+    # anomalous.
     s = [r[1] for r in aggRecordList]
     metricValues = numpy.array(s)
     metricDistribution = estimateNormal(metricValues[skipRecords:],
@@ -601,36 +613,6 @@ def isValidEstimatorParams(p):
     return False
 
   return True
-
-
-
-def sampleDistribution(params, numSamples, verbosity=0):
-  """
-  Given the parameters of a distribution, generate numSamples points from it.
-  This routine is mostly for testing.
-
-  :returns: A numpy array of samples.
-  """
-  if params.has_key("name"):
-    if params["name"] == "normal":
-      samples = numpy.random.normal(loc=params["mean"],
-                                    scale=math.sqrt(params["variance"]),
-                                    size=numSamples)
-    elif params["name"] == "pareto":
-      samples = numpy.random.pareto(params["alpha"], size=numSamples)
-    elif params["name"] == "beta":
-      samples = numpy.random.beta(a=params["alpha"], b=params["beta"],
-                                  size=numSamples)
-    else:
-      raise ValueError("Undefined distribution: " + params["name"])
-  else:
-    raise ValueError("Bad distribution params: " + str(params))
-
-  if verbosity > 0:
-    print "\nSampling from distribution:", params
-    print "After estimation, mean=", numpy.mean(samples), \
-          "var=", numpy.var(samples), "stdev=", math.sqrt(numpy.var(samples))
-  return samples
 
 
 
