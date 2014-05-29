@@ -31,7 +31,7 @@ matrix:
 
 before_deploy:
   - "mkdir ${TRAVIS_BUILD_DIR}/build/archive}"
-  - "tar -zcf ${TRAVIS_BUILD_DIR}/build/archive}/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NTA/.. --transform=s/release/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" release"
+  - 'tar -zcf ${TRAVIS_BUILD_DIR}/build/archive}/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NTA/.. --transform=s/release/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" release'
 deploy:
   provider: s3
   access_key_id: AKIAIGHYSEHV3WFKOWNQ
