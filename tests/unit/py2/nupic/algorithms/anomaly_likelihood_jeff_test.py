@@ -139,8 +139,8 @@ class ArtificialAnomalyTest(TestCaseBase):
 
 
   @unittest.skip("Currently fails because the periodicity is greater than the "
-                 "window size. Requires some algorithm discussion with Jeff. "
-                 "Filed as MER-496.")
+                 "window size. Requires some algorithm enhancements. "
+                 "Filed as https://github.com/numenta/nupic/issues/948.")
   def testCaseMissingSpike(self):
     """
     Test C: one anomaly every 20 records, but then see none. The likelihood
@@ -219,7 +219,7 @@ class ArtificialAnomalyTest(TestCaseBase):
 
 
   @unittest.skip("Currently fails because the periodicity is greater than the "
-                 "window size. Requires some algorithm discussion with Jeff. "
+                 "window size. Requires some algorithm enhancements. "
                  "Filed as https://github.com/numenta/nupic/issues/948.")
   def testCaseMissingBunchesOfSpikes(self):
     """
