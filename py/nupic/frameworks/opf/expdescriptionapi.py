@@ -57,6 +57,7 @@ from nupic.support.enum import Enum
 ###############################################################################
 # Enum to characterize potential generation environments
 OpfEnvironment = Enum(Grok='grok',
+                      NupicExperiment='nupicExperiment',
                       Experiment='opfExperiment')
 
 
@@ -94,12 +95,22 @@ class DescriptionIface(object):
     dictionary.
     """
 
-
   @abstractmethod
   def getModelControl(self):
     """ Returns the task instances of the experiment description.
 
     Returns: A python dict describing how the model is to be run
+    """
+
+  @abstractmethod
+  def convertNupicExperimentToOPF(self):
+    """ Converts the control element from NupicExperiment format to a default OPF
+    format with 1 task. This is useful when you have a base description file
+    that you want to run both permutations on (which requires the NupicExperiment
+    format) and single OPF experiments on (which requires the
+    OPF format).
+
+    Returns: None
     """
 
   @abstractmethod
@@ -112,6 +123,7 @@ class DescriptionIface(object):
 
     Returns: None
     """
+
 
 
 
@@ -134,6 +146,8 @@ class ExperimentDescriptionAPI(DescriptionIface):
     environment = control['environment']
     if environment == OpfEnvironment.Experiment:
       self.__validateExperimentControl(control)
+    elif environment == OpfEnvironment.NupicExperiment:
+      self.__validateNupicExperimentControl(control)
     elif environment == OpfEnvironment.Grok:
       self.__validateGrokControl(control)
 
@@ -186,9 +200,55 @@ class ExperimentDescriptionAPI(DescriptionIface):
     return
 
   #############################################################################
+  def __validateNupicExperimentControl(self, control):
+    """ Validates control dictionary for the NupicExperiment engine context"""
+    validateOpfJsonValue(control, "nupicExperimentControlSchema.json")
+
+
+
+  #############################################################################
   def __validateGrokControl(self, control):
     """ Validates control dictionary for the grok engine context"""
     validateOpfJsonValue(control, "grokControlSchema.json")
+
+
+
+  #############################################################################
+  def convertNupicExperimentToOPF(self):
+
+    # We need to create a task structure, most of which is taken verbatim
+    # from the Nupic Experiment control dict
+    task = dict(self.__control)
+
+    task.pop('environment')
+    inferenceArgs = task.pop('inferenceArgs')
+    task['taskLabel'] = 'DefaultTask'
+
+    # Create the iterationCycle element that will be placed inside the
+    #  taskControl.
+    iterationCount = task.get('iterationCount', -1)
+    iterationCountInferOnly = task.pop('iterationCountInferOnly', 0)
+    if iterationCountInferOnly == -1:
+      iterationCycle = [IterationPhaseSpecInferOnly(1000, inferenceArgs=inferenceArgs)]
+    elif iterationCountInferOnly > 0:
+      assert iterationCount > 0, "When iterationCountInferOnly is specified, "\
+        "iterationCount must also be specified and not be -1"
+      iterationCycle = [IterationPhaseSpecLearnAndInfer(iterationCount
+                                                    -iterationCountInferOnly, inferenceArgs=inferenceArgs),
+                        IterationPhaseSpecInferOnly(iterationCountInferOnly, inferenceArgs=inferenceArgs)]
+    else:
+      iterationCycle = [IterationPhaseSpecLearnAndInfer(1000, inferenceArgs=inferenceArgs)]
+
+
+    taskControl = dict(metrics = task.pop('metrics'),
+                       loggedMetrics = task.pop('loggedMetrics'),
+                       iterationCycle = iterationCycle)
+    task['taskControl'] = taskControl
+
+    # Create the new control
+    self.__control = dict(environment = OpfEnvironment.NupicExperiment,
+                          tasks = [task])
+
 
 
   #############################################################################

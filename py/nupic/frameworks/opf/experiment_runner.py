@@ -383,6 +383,11 @@ def _runExperimentImpl(options, model=None):
     expIface.convertGrokEnvToOPF()
     experimentTasks = expIface.getModelControl().get('tasks', [])
 
+  if (len(experimentTasks) == 0 and
+      expIface.getModelControl()['environment'] == OpfEnvironment.NupicExperiment):
+    expIface.convertNupicExperimentToOPF()
+    experimentTasks = expIface.getModelControl().get('tasks', [])
+
   # Handle listTasks
   if options.privateOptions['listTasks']:
     print "Available tasks:"
