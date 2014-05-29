@@ -72,12 +72,11 @@ class RecordSensor(PyRegion):
 
   from nupic.net import Network
   from nupic.encoders import MultiEncoder
-  from nupic.data import FunctionSource
+  from nupic.data.file.file_record_stream import FileRecordStream
 
   n = Network()
   s = n.addRegion("sensor", "py.RecordSensor", "")
-  myparser = SmartParser()  # custom parser for Smart data;
-  mysource = FunctionSource("mydata.txt", myparser)
+  mysource = FileRecordStream("mydata.txt")
   myencoder = MultiEncoder()
   ... set up myencoder ...
   s.getSelf().dataSource = mysource
