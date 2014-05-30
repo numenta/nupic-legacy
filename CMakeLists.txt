@@ -474,12 +474,6 @@ else()
   message(FATAL_ERROR "${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE}: error: ${CMAKE_SYSTEM_NAME} not supported yet.")
 endif()
 
-# Determine number of CPUs/cores
-set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/external/common/cmake_modules)
-include(ProcessorCount)
-set(NCPUS "1")
-ProcessorCount(NCPUS)
-
 message(STATUS "Platform: ${NTA_PLATFORM_OS}")
 message(STATUS "Platform-specific flags:")
 message(STATUS "  Libraries: ${NTA_PLATFORM_LIBS}")
@@ -488,7 +482,6 @@ message(STATUS "  Debug flags: ${NTA_PLATFORM_DEBUGFLAGS}")
 message(STATUS "  LD flags: ${NTA_PLATFORM_LINKFLAGS}")
 message(STATUS "  Python extension link flags: ${NTA_PLATFORM_LINKFLAGS_PYMODULE}")
 message(STATUS "  Python embedding link flags: ${NTA_PLATFORM_LINKFLAGS_PYEMBED}")
-message(STATUS "#CPUs: ${NCPUS}")
 
 message(STATUS "Checking software tools...")
 
@@ -948,11 +941,11 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 # Tests
 #
 add_custom_target(tests_run
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py -n${NCPUS}
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py -n2
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all  #buggy with -n parallel build
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
