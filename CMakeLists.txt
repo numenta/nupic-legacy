@@ -945,7 +945,7 @@ add_custom_target(tests_run
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all  # swarming tests fail with the -n parallel run
                   COMMENT "Python tests + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
