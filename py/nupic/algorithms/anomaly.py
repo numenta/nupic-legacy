@@ -86,11 +86,26 @@ class Anomaly(object):
 
     # using cumulative anomaly, sliding window
     if self._windowSize is not None:
-      self._buf[self._i]= score
-#debug      print "buf="+str(self._buf)+"  i="+str(self._i)+" score="+str(score)
-      self._i = (self._i + 1) % self._windowSize 
-      score = numpy.sum(self._buf)/float(self._windowSize) # normalize to 0..1
-
+      score = self._movingAverage(score)
     # 3. score is cumulative score over windowSize
 
     return score
+
+
+  def _movingAverage(self, newElement=None)
+    """moving average
+
+    @param newValue (optional) add a new element before computing the avg
+    @return moving average of self._windowSize last elements
+    """
+    if self._windowSize is None:
+      raise RuntimeError("Moving average has not been enabled during __init__ (self._windowSize not set)")
+
+    if newElement is not None:
+      self._buf[self._i]= newElement
+#debug      print "buf="+str(self._buf)+"  i="+str(self._i)+" score="+str(score)
+      self._i = (self._i + 1) % self._windowSize
+
+    return self._buf.sum()/float(self._windowSize) # normalize to 0..1
+
+
