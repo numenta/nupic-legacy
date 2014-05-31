@@ -57,7 +57,7 @@ Most of the code changes for this tutorial were done outside of instantiating an
 
 ### The Chart Explained
 
-The chart produced with the `--plot` option contains yellow highlights on weekends in the top chart. Regions in the bottom anomaly chart where anomaly likelihood is above 90% are also highlighted in red.
+The chart produced with the `--plot` option contains yellow highlights on weekends in the top chart. Regions in the bottom anomaly chart where anomaly likelihood is above 90% are also highlighted in red. The 90% threshold is low enough that it may cause false positive anomaly indications. You may want to tune this number as you wish.
 
 ## Tuesday's Gone
 
