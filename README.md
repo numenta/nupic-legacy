@@ -55,20 +55,21 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 NuPIC needs the following environment variables to build:
 
 ```
-# `$NUPIC` is the path to your NuPIC repository, remember to replace <NuPIC path> with real path:
+# `$NUPIC` is the path to your NuPIC repository.
+# Remember to replace <NuPIC path> with the real path:
 export NUPIC=<NuPIC path>
 
 # `$NTA` is the installation path for NuPIC. 
 export NTA=$NUPIC/build/release
 ```
 
-NuPIC needs to be added to `PYTHONPATH` to run and test:
+NuPIC needs to be added to `$PYTHONPATH` to run and test:
 
 ```
 # You may choose one of the following based on your version of Python:
-# for Python 2.6
+# For Python 2.6:
 export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.6/site-packages
-# for Python 2.7
+# For Python 2.7:
 export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.7/site-packages
 ```
 
