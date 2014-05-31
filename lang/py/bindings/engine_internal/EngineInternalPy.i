@@ -24,11 +24,11 @@
 %}
 
 
-%include <lang/py/bindings/exception.i>
+%include <lang/py/bindings/Exception.i>
 
-%include "../../../common/engine_internal_common.i"
+%include "../../../common/EngineInternalCommon.i"
 
-%include "../numpy.i"
+%include "../Numpy.i"
  
 %init %{
  import_array();
