@@ -48,6 +48,12 @@ DATE_FORMAT = "%m/%d/%y %H:%M"
 
 
 def createModel(modelParams):
+  """
+  Given a model params dictionary, create a CLA Model. Automatically enables
+  inference for kw_energy_consumption.
+  :param modelParams: Model params dict
+  :return: OPF Model object
+  """
   model = ModelFactory.create(modelParams)
   model.enableInference({"predictedField": "kw_energy_consumption"})
   return model
@@ -55,6 +61,12 @@ def createModel(modelParams):
 
 
 def getModelParamsFromName(gymName):
+  """
+  Given a gym name, assumes a matching model params python module exists within
+  the model_params directory and attempts to import it.
+  :param gymName: Gym name, used to guess the model params module name.
+  :return: OPF Model params dictionary
+  """
   importName = "model_params.%s_model_params" % (
     gymName.replace(" ", "_").replace("-", "_")
   )
@@ -69,6 +81,15 @@ def getModelParamsFromName(gymName):
 
 
 def runIoThroughNupic(inputData, model, gymName, plot):
+  """
+  Handles looping over the input data and passing each row into the given model
+  object, as well as extracting the result object and passing it into an output
+  handler.
+  :param inputData: file path to input data CSV
+  :param model: OPF Model object
+  :param gymName: Gym name, used for output handler naming
+  :param plot: Whether to use matplotlib or not. If false, uses file output.
+  """
   inputFile = open(inputData, "rb")
   csvReader = csv.reader(inputFile)
   # skip header rows
@@ -107,6 +128,14 @@ def runIoThroughNupic(inputData, model, gymName, plot):
 
 
 def runModel(gymName, plot=False):
+  """
+  Assumes the gynName corresponds to both a like-named model_params file in the
+  model_params directory, and that the data exists in a like-named CSV file in
+  the current directory.
+  :param gymName: Important for finding model params and input CSV file
+  :param plot: Plot in matplotlib? Don't use this unless matplotlib is
+  installed.
+  """
   print "Creating model from %s..." % gymName
   model = createModel(getModelParamsFromName(gymName))
   inputData = "%s/%s.csv" % (DATA_DIR, gymName.replace(" ", "_"))
