@@ -75,7 +75,7 @@ export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.7/site-packages
 
 Tips:
 
-* You may set these environment variables in your dotfiles such as `~/.bashrc` to avoid repeated typing. 
+* You may set these environment variables in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing. 
 * You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
 * For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
 
