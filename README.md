@@ -64,6 +64,7 @@ export NTA=$NUPIC/build/release
 
 NuPIC needs to be added to `PYTHONPATH` to run and test:
 
+```
 # You may choose one of the following based on your version of Python:
 # for Python 2.6
 export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.6/site-packages
