@@ -56,26 +56,26 @@ _ALGORITHMS = _algorithms
 #include <fstream>
 #include <vector>
 
-#include <nta/math/types.hpp>
-#include <nta/math/convolution.hpp>
-#include <nta/math/rotation.hpp>
-#include <nta/math/erosion.hpp>
-#include <nta/algorithms/gaborNode.hpp>
-#include <nta/algorithms/imageSensorLite.hpp>
-#include <nta/algorithms/scanning.hpp>
+#include <nta/math/Types.hpp>
+#include <nta/math/Convolution.hpp>
+#include <nta/math/Rotation.hpp>
+#include <nta/math/Erosion.hpp>
+#include <nta/algorithms/GaborNode.hpp>
+#include <nta/algorithms/ImageSensorLite.hpp>
+#include <nta/algorithms/Scanning.hpp>
 
 #include <nta/math/SparseMatrix.hpp>
 #include <nta/math/SparseBinaryMatrix.hpp>
-#include <nta/algorithms/svm.hpp>
-#include <nta/algorithms/linear.hpp>
+#include <nta/algorithms/Svm.hpp>
+#include <nta/algorithms/Linear.hpp>
 #include <nta/algorithms/FDRSpatial.hpp>
 #include <nta/algorithms/FDRCSpatial.hpp>
-#include <nta/algorithms/spatial_pooler.hpp>
-#include <nta/algorithms/flat_spatial_pooler.hpp>
+#include <nta/algorithms/SpatialPooler.hpp>
+#include <nta/algorithms/FlatSpatialPooler.hpp>
 
 #include <nta/algorithms/Cells4.hpp>
-#include <nta/algorithms/classifier_result.hpp>
-#include <nta/algorithms/fast_cla_classifier.hpp>
+#include <nta/algorithms/ClassifierResult.hpp>
+#include <nta/algorithms/FastClaClassifier.hpp>
 #include <nta/algorithms/SegmentUpdate.hpp>
 #include <nta/algorithms/OutSynapse.hpp>
 #include <nta/algorithms/InSynapse.hpp>
@@ -263,7 +263,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // LINEAR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/linear.hpp>
+%include <nta/algorithms/Linear.hpp>
 
 %extend nta::algorithms::linear::linear
 {
@@ -309,7 +309,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // SVM
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/svm.hpp>
+%include <nta/algorithms/Svm.hpp>
 
 %ignore nta::algorithms::svm::operator=;
 
@@ -546,7 +546,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // CONVOLUTION
 //--------------------------------------------------------------------------------
-%include <nta/math/convolution.hpp>
+%include <nta/math/Convolution.hpp>
 
 %template(Float32SeparableConvolution2D) SeparableConvolution2D<float>;
 
@@ -582,7 +582,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // ROTATION
 //--------------------------------------------------------------------------------
-%include <nta/math/rotation.hpp>
+%include <nta/math/Rotation.hpp>
 
 %template(Float32Rotation45) Rotation45<float>;
 
@@ -612,7 +612,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // EROSION
 //--------------------------------------------------------------------------------
-%include <nta/math/erosion.hpp>
+%include <nta/math/Erosion.hpp>
 
 %template(Float32Erosion) Erosion<float>;
 
@@ -646,7 +646,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 // SCANNING
 //--------------------------------------------------------------------------------
 
-%include <nta/algorithms/scanning.hpp>
+%include <nta/algorithms/Scanning.hpp>
 %inline {
   void computeAlpha(nta::UInt32 xstep, nta::UInt32 ystep,
                     nta::UInt32 widthS, nta::UInt32 heightS,
@@ -674,7 +674,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 %template(Byte_Vector) std::vector<nta::Byte>;
 
-%include <nta/math/types.hpp>
+%include <nta/math/Types.hpp>
  ///%include <nta/algorithms/Cells.hpp>
 
  ///%template(Segment_32) nta::algorithms::Segment<nta::UInt32, nta::Real32>;
@@ -1789,7 +1789,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 }
 
-%include <nta/algorithms/spatial_pooler.hpp>
+%include <nta/algorithms/SpatialPooler.hpp>
 
 %extend nta::algorithms::spatial_pooler::SpatialPooler
 {
@@ -1970,7 +1970,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 }
 
 
-%include <nta/algorithms/flat_spatial_pooler.hpp>
+%include <nta/algorithms/FlatSpatialPooler.hpp>
 
 %extend nta::algorithms::spatial_pooler::FlatSpatialPooler
 {
@@ -2057,7 +2057,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %}
 }
 
-%include <nta/algorithms/fast_cla_classifier.hpp>
+%include <nta/algorithms/FastClaClassifier.hpp>
 
 %pythoncode %{
   import numpy
