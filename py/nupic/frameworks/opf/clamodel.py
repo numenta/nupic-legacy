@@ -731,9 +731,13 @@ class CLAModel(Model):
 
 
     # Get the actual value and the bucket index for this sample. The
-    #  predicted field may not be enabled for input to the network, so we
-    #  explicitly encode it outside of the sensor
+    # predicted field may not be enabled for input to the network, so we
+    # explicitly encode it outside of the sensor
     # TODO: All this logic could be simpler if in the encoder itself
+    if not predictedFieldName in rawInput:
+      raise ValueError("Input row does not contain a value for the predicted "
+                       "field configured for this model. Missing value for '%s'"
+                       % predictedFieldName)
     absoluteValue = rawInput[predictedFieldName]
     bucketIdx = self._classifierInputEncoder.getBucketIndices(absoluteValue)[0]
 

@@ -32,6 +32,34 @@ from nupic.algorithms import anomaly_likelihood as an
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
+def _sampleDistribution(params, numSamples, verbosity=0):
+  """
+  Given the parameters of a distribution, generate numSamples points from it.
+  This routine is mostly for testing.
+
+  :returns: A numpy array of samples.
+  """
+  if params.has_key("name"):
+    if params["name"] == "normal":
+      samples = numpy.random.normal(loc=params["mean"],
+                                    scale=math.sqrt(params["variance"]),
+                                    size=numSamples)
+    elif params["name"] == "pareto":
+      samples = numpy.random.pareto(params["alpha"], size=numSamples)
+    elif params["name"] == "beta":
+      samples = numpy.random.beta(a=params["alpha"], b=params["beta"],
+                                  size=numSamples)
+    else:
+      raise ValueError("Undefined distribution: " + params["name"])
+  else:
+    raise ValueError("Bad distribution params: " + str(params))
+
+  if verbosity > 0:
+    print "\nSampling from distribution:", params
+    print "After estimation, mean=", numpy.mean(samples), \
+          "var=", numpy.var(samples), "stdev=", math.sqrt(numpy.var(samples))
+  return samples
+
 
 def _generateSampleData(mean=0.2, variance=0.2, metricMean=0.2,
                         metricVariance=0.2):
@@ -44,12 +72,12 @@ def _generateSampleData(mean=0.2, variance=0.2, metricMean=0.2,
        "name": "normal",
        "stdev": math.sqrt(variance),
        "variance": variance}
-  samples = an.sampleDistribution(p, 1440)
+  samples = _sampleDistribution(p, 1440)
   p = {"mean": metricMean,
        "name": "normal",
        "stdev": math.sqrt(metricVariance),
        "variance": metricVariance}
-  metricValues = an.sampleDistribution(p, 1440)
+  metricValues = _sampleDistribution(p, 1440)
   for hour in range(0, 24):
     for minute in range(0, 60):
       data.append(
@@ -190,7 +218,7 @@ class AnomalyLikelihoodTest(TestCaseBase):
          "name": "normal",
          "stdev": math.sqrt(0.1),
          "variance": 0.1}
-    samples = an.sampleDistribution(p, 1000)
+    samples = _sampleDistribution(p, 1000)
 
     # Ensure estimate is reasonable
     np = an.estimateNormal(samples)
