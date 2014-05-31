@@ -55,39 +55,22 @@ class Anomaly(object):
     @param prevPredictedColumns: array of columns indices predicted in previous step (ignored with useTP != None)
     @return the computed anomaly score; float 0..1
     """
-    nActiveColumns = len(activeColumns)
 
     # using TP provided during init, _prevPredColumns stored internally here
     if self._tp is not None:
       prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
       self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0] 
 
-    if nActiveColumns > 0:
-      # Test whether each element of a 1-D array is also present in a second
-      # array. Sum to get the total # of columns that are active and were
-      # predicted.
-      score = numpy.sum(numpy.in1d(activeColumns, prevPredictedColumns))
-
-      # Get the percent of active columns that were NOT predicted, that is
-      # our anomaly score.
-      score = (nActiveColumns - score) / float(nActiveColumns)
-    elif len(prevPredictedColumns) > 0:
-      # There were predicted columns but none active.
-      score = 1.0
-    else:
-      # There were no predicted or active columns.
-      score = 0.0
     # 1. here score is the 'classic' anomaly score
-
+    score = Anomaly._pureAnomaly(activeColumns, prevPredictedColumns)
 
     # use probabilistic anomaly 
     if self._useLikelihood:
       raise NotImplementedError("Likelihood anomaly not yet implemented.")
 
-    # using cumulative anomaly, sliding window
+    # 3. score is cumulative score over windowSize
     if self._windowSize is not None:
       score = self._movingAverage(score)
-    # 3. score is cumulative score over windowSize
 
     return score
 
@@ -100,12 +83,34 @@ class Anomaly(object):
     """
     if self._windowSize is None:
       raise RuntimeError("Moving average has not been enabled during __init__ (self._windowSize not set)")
-
     if newElement is not None:
       self._buf[self._i]= newElement
 #debug      print "buf="+str(self._buf)+"  i="+str(self._i)+" score="+str(score)
       self._i = (self._i + 1) % self._windowSize
-
     return self._buf.sum()/float(self._windowSize) # normalize to 0..1
 
 
+  def _pureAnomaly(activeColumns, prevPredictedColumns)
+    """the pure anomaly score 
+
+    computed as diff of current active columns and columns predicted from previous round
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in previous step
+    @return anomaly score 0..1 (float)
+    """
+    nActiveColumns = len(activeColumns)
+    if nActiveColumns > 0:
+      # Test whether each element of a 1-D array is also present in a second
+      # array. Sum to get the total # of columns that are active and were
+      # predicted.
+      score = numpy.sum(numpy.in1d(activeColumns, prevPredictedColumns))
+      # Get the percent of active columns that were NOT predicted, that is
+      # our anomaly score.
+      score = (nActiveColumns - score) / float(nActiveColumns)
+    elif len(prevPredictedColumns) > 0:
+      # There were predicted columns but none active.
+      score = 1.0
+    else:
+      # There were no predicted or active columns.
+      score = 0.0
+    return score
