@@ -23,7 +23,7 @@
 
 import numpy
 
-
+from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 
 class Anomaly(object):
   """basic class that computes anomaly"""
@@ -46,13 +46,17 @@ class Anomaly(object):
       self._i = 0
     # probabilistic anomaly
     self._useLikelihood = useProbLikelihood
+    if useProbLikelihood:
+      self._likelihood = AnomalyLikelihood()
 
 
-  def computeAnomalyScore(self, activeColumns, prevPredictedColumns):
+  def computeAnomalyScore(self, activeColumns, prevPredictedColumnsi, value=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
   
     @param activeColumns: array of active column indices
     @param prevPredictedColumns: array of columns indices predicted in previous step (ignored with useTP != None)
+    @param value: (optional) input value, that is what activeColumns represent; used in anomaly-likelihood
+    @param timestamp: (optional) date timestamp when the sample occured; used in anomaly-likelihood
     @return the computed anomaly score; float 0..1
     """
 
@@ -61,18 +65,19 @@ class Anomaly(object):
       prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
       self._prevPredictedColumns = self._tp.getOutputData("topDownOut").nonzero()[0] 
 
-    # 1. here score is the 'classic' anomaly score
-    score = Anomaly._pureAnomaly(activeColumns, prevPredictedColumns)
+    # 1. here is the 'classic' anomaly score
+    anomalyScore = Anomaly._pureAnomaly(activeColumns, prevPredictedColumns)
 
     # use probabilistic anomaly 
     if self._useLikelihood:
-      raise NotImplementedError("Likelihood anomaly not yet implemented.")
+      probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
+      anomalyScore = probability
 
     # 3. score is cumulative score over windowSize
     if self._windowSize is not None:
-      score = self._movingAverage(score)
+      anomalyScore = self._movingAverage(anomalyScore)
 
-    return score
+    return anomalyScore
 
 
   def _movingAverage(self, newElement=None)
