@@ -79,16 +79,16 @@ class Anomaly(object):
     anomalyScore = Anomaly._pureAnomaly(activeColumns, prevPredictedColumns)
 
     # use probabilistic anomaly 
-    if self._mode == MODE_LIKELIHOOD:
+    if self._mode == Anomaly.MODE_LIKELIHOOD:
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
     
 
     # compute final anomaly based on selected mode
-    if self._mode == MODE_PURE:
+    if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
-    elif self._mode == MODE_LIKELIHOOD:
+    elif self._mode == Anomaly.MODE_LIKELIHOOD:
       score = probability
-    elif self._mode == MODE_WEIGHTED:
+    elif self._mode == Anomaly.MODE_WEIGHTED:
       score = anomalyScore * probability
     else:
       raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", \"likelihood\", \"weighted\"; you used:"+self._mode)
