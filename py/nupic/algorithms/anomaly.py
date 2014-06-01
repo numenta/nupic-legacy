@@ -89,7 +89,7 @@ class Anomaly(object):
       self._i = (self._i + 1) % self._windowSize
     return self._buf.sum()/float(self._windowSize) # normalize to 0..1
 
-
+  @staticmethod
   def _pureAnomaly(activeColumns, prevPredictedColumns)
     """the pure anomaly score 
 
