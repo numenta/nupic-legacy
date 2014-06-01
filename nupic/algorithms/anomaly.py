@@ -60,7 +60,7 @@ class Anomaly(object):
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
 
 
-  def computeAnomalyScore(self, activeColumns, prevPredictedColumnsi, value=None, timestamp=None):
+  def computeAnomalyScore(self, activeColumns, prevPredictedColumns, value=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
   
     @param activeColumns: array of active column indices
