@@ -56,7 +56,7 @@ class Anomaly(object):
       self._i = 0 # index pointer to actual position
     # mode
     self._mode = anomalyMode
-    if self._mode == MODE_LIKELIHOOD:
+    if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
 
 
