@@ -52,11 +52,32 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+NuPIC needs the following environment variables to build:
 
-    export NUPIC=<path to NuPIC repository>
-    export NTA=$NUPIC/build/release
-    export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
+```
+# `$NUPIC` is the path to your NuPIC repository.
+# Remember to replace <NuPIC path> with the real path:
+export NUPIC=<NuPIC path>
+
+# `$NTA` is the installation path for NuPIC. 
+export NTA=$NUPIC/build/release
+```
+
+NuPIC needs to be added to `$PYTHONPATH` to run and test:
+
+```
+# You may choose one of the following based on your version of Python:
+# For Python 2.6:
+export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.6/site-packages
+# For Python 2.7:
+export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.7/site-packages
+```
+
+Tips:
+
+* You may set these environment variables in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing. 
+* You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+* For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
 
 ### Using command line
 
