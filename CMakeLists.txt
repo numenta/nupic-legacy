@@ -246,8 +246,10 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
+  set(CMAKE_SWIG_OUTDIR "${output_dir}")
+
   snake_case_to_upper_camel_case(${name} camelized_name)
-  set(IMPLEMENTATION_FILE "${PROJECT_SOURCE_DIR}/${sub_dir}/${camelized_name}Py.i")
+  set(IMPLEMENTATION_FILE "${REPOSITORY_DIR}/${sub_dir}/${camelized_name}Py.i")
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES CPLUSPLUS ON)
   set_source_files_properties(${IMPLEMENTATION_FILE} PROPERTIES SWIG_FLAGS "${swig_flags}")
   swig_add_module(${name} python
@@ -566,19 +568,12 @@ message(STATUS "Swig details:")
 message(STATUS "  Version: ${SWIG_VERSION}")
 
 #
-# Config output paths.
-# First config output paths for the generic no-config case.
-# Second, for multi-config builds (DEBUG or RELEASE, for example).
-#
-set(CMAKE_SWIG_OUTDIR "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings")
-
-#
 # Set environment variables of the operating system
 #
 message(STATUS "Checking environment...")
 message(STATUS "Environment variables:")
 set_environment_variable(PYTHONPATH "${PYTHON_SITE_PACKAGES_DIR}" OFF)
-set_environment_variable(NUPIC "${PROJECT_SOURCE_DIR}" OFF)
+set_environment_variable(NUPIC "${REPOSITORY_DIR}" OFF)
 set_environment_variable(NTA "${PROJECT_BUILD_RELEASE_DIR}" OFF)
 set_environment_variable(NTA_DATA_PATH "${PROJECT_BUILD_RELEASE_DIR}/share/prediction/data" OFF)
 if(OSX)
@@ -622,7 +617,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/nta/external/common/include -isystem${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/extensions -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/extensions/core/external/common/include -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -633,7 +628,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/nta/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -765,8 +760,8 @@ set(NTA_CXXFLAGS "${NTA_CXXFLAGS_BASE} ${NTA_CXXFLAGS_OPTIMIZATION}")
 # This is due to the fact that both nta/pynode and lang/py/net_internal depend
 # on lang/py/support and lang/py/engine_internal depends on nta.
 #
-set(LIB_STATIC_SUPPORT support)
-generate_static_library(${LIB_STATIC_SUPPORT} "${PROJECT_SOURCE_DIR}/lang/py/support" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
+set(LIB_STATIC_SUPPORT py_support)
+generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_support" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
 # LibNupicCore
@@ -782,7 +777,7 @@ endif()
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
 read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/nta" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
 #
 # HtmTest
@@ -792,7 +787,7 @@ set(LIBRARIES
   ${LIB_STATIC_SUPPORT}
   ${LIB_STATIC_NUPICCORE}
 )
-generate_executable(${EXECUTABLE_HTMTEST} "${PROJECT_SOURCE_DIR}/tests/htmtest" "${PROJECT_BUILD_RELEASE_DIR}/bin" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
+generate_executable(${EXECUTABLE_HTMTEST} "${REPOSITORY_DIR}/extensions/htmtest" "${PROJECT_BUILD_RELEASE_DIR}/bin" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS}" "${LIBRARIES}")
 
 #
 # LibCppRegion
@@ -808,7 +803,7 @@ set(PROJECT_LIBRARIES
 set(EXTERNAL_LIBRARIES
   ${PYTHON_LIBRARY}
 )
-generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${PROJECT_SOURCE_DIR}/py/cpp_region" "${PROJECT_BUILD_RELEASE_DIR}/lib" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
+generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${REPOSITORY_DIR}/extensions/cpp_region" "${PROJECT_BUILD_RELEASE_DIR}/lib" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
 
 if(NTA_PYTHON_SUPPORT)
   # This script is generated by swig.
@@ -844,20 +839,20 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/lang/py/bindings/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ENGINEINTERNAL} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/engine_internal" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsMath
   #
   set(LIB_SHARED_MATH math)
   set(EXTRA_SOURCE
-    ${PROJECT_SOURCE_DIR}/py/bindings/math/PySparseTensor.cpp
+    ${REPOSITORY_DIR}/extensions/bindings/py/math/PySparseTensor.cpp
   )
   set(LIBRARIES
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_MATH} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_MATH} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/math" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "${EXTRA_SOURCE}" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsAlgorithms
@@ -867,7 +862,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_ALGORITHMS} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/algorithms" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 
   #
   # LibBindingsIORange
@@ -877,7 +872,7 @@ if(NTA_PYTHON_SUPPORT)
     ${LIB_STATIC_SUPPORT}
     ${LIB_STATIC_NUPICCORE}
   )
-  generate_swig_module(${LIB_SHARED_IORANGE} "${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings" "/py/bindings/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
+  generate_swig_module(${LIB_SHARED_IORANGE} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
 
@@ -888,46 +883,38 @@ endif()
 ###                                                                                                                      ###
 ############################################################################################################################
 
-# Copy platform independent executable scripts
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/bindings/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/__init__.py)
+# Copy bindings to $NTA after build
+# This is palliative and should be removed after "Pip Installable" PR being merged!
+add_custom_command(TARGET _engine_internal POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/engine_internal.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/engine_internal.py
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/_engine_internal.so ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/_engine_internal.so)
+add_custom_command(TARGET _math POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/math.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/math.py
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/_math.so ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/_math.so)
+add_custom_command(TARGET _algorithms POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/algorithms.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/algorithms.py
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/_algorithms.so ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/_algorithms.so)
+add_custom_command(TARGET _iorange POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/iorange.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/iorange.py
+                   COMMAND ${CMAKE_COMMAND} -E copy ${REPOSITORY_DIR}/nupic/bindings/_iorange.so ${PYTHON_SITE_PACKAGES_DIR}/nupic/bindings/_iorange.so)
 
 # Copy the pieces of nupic that we want
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/algorithms ${PYTHON_SITE_PACKAGES_DIR}/nupic/algorithms)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/frameworks ${PYTHON_SITE_PACKAGES_DIR}/nupic/frameworks)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/image ${PYTHON_SITE_PACKAGES_DIR}/nupic/image)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/research ${PYTHON_SITE_PACKAGES_DIR}/nupic/research)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/data ${PYTHON_SITE_PACKAGES_DIR}/nupic/data)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/database ${PYTHON_SITE_PACKAGES_DIR}/nupic/database)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/swarming ${PYTHON_SITE_PACKAGES_DIR}/nupic/swarming)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/encoders ${PYTHON_SITE_PACKAGES_DIR}/nupic/encoders)
-copy_directory(${PROJECT_SOURCE_DIR}/py/nupic/support ${PYTHON_SITE_PACKAGES_DIR}/nupic/support)
-copy_directory(${PROJECT_SOURCE_DIR}/py/regions         ${PYTHON_SITE_PACKAGES_DIR}/nupic/regions)
-
-# Copy math libraries. Much of the stuff in nupic.math is old cruft. Get just what we want
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/__init__.py)
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/cross.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/cross.py)
-copy_file(${PROJECT_SOURCE_DIR}/py/nupic/math/roc_utils.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/math/roc_utils.py)
+copy_directory(${REPOSITORY_DIR}/nupic ${PYTHON_SITE_PACKAGES_DIR}/nupic)
 
 # Copy examples
-copy_directory(${PROJECT_SOURCE_DIR}/examples/prediction ${PROJECT_BUILD_RELEASE_DIR}/share/prediction)
-copy_directory(${PROJECT_SOURCE_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/share/opf)
+copy_directory(${REPOSITORY_DIR}/examples/prediction ${PROJECT_BUILD_RELEASE_DIR}/share/prediction)
+copy_directory(${REPOSITORY_DIR}/examples/opf ${PROJECT_BUILD_RELEASE_DIR}/share/opf)
 
 # Copy testing codes
-copy_directory(${PROJECT_SOURCE_DIR}/qa/shared_data ${PROJECT_BUILD_RELEASE_DIR}/share/test/data)
-copy_directory(${PROJECT_SOURCE_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_tests.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py)
-copy_file(${PROJECT_SOURCE_DIR}/bin/run_swarm.py ${PROJECT_BUILD_RELEASE_DIR}/bin/run_swarm.py)
+copy_directory(${REPOSITORY_DIR}/resources ${PROJECT_BUILD_RELEASE_DIR}/share/test/data)
+copy_directory(${REPOSITORY_DIR}/tests ${PROJECT_BUILD_RELEASE_DIR}/tests)
+copy_directory(${REPOSITORY_DIR}/scripts ${PROJECT_BUILD_RELEASE_DIR}/scripts)
 
 # Copy miscellaneous files
-copy_directory(${PROJECT_SOURCE_DIR}/nta/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
-copy_directory(${PROJECT_SOURCE_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
-copy_file(${PROJECT_SOURCE_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
-
-# Copy python API and regions
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/__init__.py)
-# This file is going to be replaced by a "documentored" version
-copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGES_DIR}/nupic/engine/__init__.py)
+copy_directory(${REPOSITORY_DIR}/extensions/core/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
+copy_directory(${REPOSITORY_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
+copy_file(${REPOSITORY_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
+copy_file(${REPOSITORY_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
 
 
 ############################################################################################################################
@@ -941,11 +928,11 @@ copy_file(${PROJECT_SOURCE_DIR}/lang/py/engine/__init__.py ${PYTHON_SITE_PACKAGE
 # Tests
 #
 add_custom_target(tests_run
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/bin/run_tests.py --all
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py --all
                   COMMENT "Python tests + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
@@ -985,3 +972,4 @@ add_custom_target(distclean
 
 # Just to separate from result message
 message(STATUS "")
+
