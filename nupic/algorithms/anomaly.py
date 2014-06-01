@@ -100,7 +100,7 @@ class Anomaly(object):
     return score
 
 
-  def _movingAverage(self, newElement=None)
+  def _movingAverage(self, newElement=None):
     """moving average
 
     @param newValue (optional) add a new element before computing the avg
@@ -115,7 +115,7 @@ class Anomaly(object):
     return self._buf.sum()/float(self._windowSize) # normalize to 0..1
 
   @staticmethod
-  def _pureAnomaly(activeColumns, prevPredictedColumns)
+  def _pureAnomaly(activeColumns, prevPredictedColumns):
     """the pure anomaly score 
 
     computed as diff of current active columns and columns predicted from previous round
