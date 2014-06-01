@@ -25,15 +25,25 @@ import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 
+
 class Anomaly(object):
   """basic class that computes anomaly"""
 
-  
-  def __init__(self, useTP = None, slidingWindowSize = None, useProbLikelihood = False):
+
+  # anomaly modes supported
+  MODE_PURE = "pure"
+  MODE_LIKELIHOOD = "likelihood"
+  MODE_WEIGHTED = "weighted"
+
+
+  def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode="pure"):
     """
     @param (optional) useTP -- tp temporal pooler instance used
-    @param (optional) slidingWindowSize -- how many elements are summed up, sliding window size
-    @param (optional) useProbLikelihood -- TODO subutai's code for likelihood prob distribution anomaly
+    @param (optional) slidingWindowSize -- enables moving average on final anomaly score; how many elements are summed up, sliding window size; int >= 0
+    @param (optional) anomalyMode -- (string) which way to use to compute anomaly; possible values are: 
+                           -- "pure" -- the default, how much anomal the value is; float 0..1 where 1=totally unexpected
+                           -- "likelihood" -- uses the anomaly_likelihood code; models probability of receiving this value and anomalyScore; used in Grok
+                           -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
     """
     # using TP
     self._tp = useTP
@@ -42,12 +52,12 @@ class Anomaly(object):
     # using cumulative anomaly , sliding window
     self._windowSize = slidingWindowSize
     if self._windowSize is not None:
-      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
-      self._i = 0
-    # probabilistic anomaly
-    self._useLikelihood = useProbLikelihood
-    if useProbLikelihood:
-      self._likelihood = AnomalyLikelihood()
+      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float) #sliding window buffer
+      self._i = 0 # index pointer to actual position
+    # mode
+    self._mode = anomalyMode
+    if self._mode == MODE_LIKELIHOOD:
+      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
 
 
   def computeAnomalyScore(self, activeColumns, prevPredictedColumnsi, value=None, timestamp=None):
@@ -69,15 +79,25 @@ class Anomaly(object):
     anomalyScore = Anomaly._pureAnomaly(activeColumns, prevPredictedColumns)
 
     # use probabilistic anomaly 
-    if self._useLikelihood:
+    if self._mode == MODE_LIKELIHOOD:
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
-      anomalyScore = probability
+    
 
-    # 3. score is cumulative score over windowSize
+    # compute final anomaly based on selected mode
+    if self._mode == MODE_PURE:
+      score = anomalyScore
+    elif self._mode == MODE_LIKELIHOOD:
+      score = probability
+    elif self._mode == MODE_WEIGHTED:
+      score = anomalyScore * probability
+    else:
+      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", \"likelihood\", \"weighted\"; you used:"+self._mode)
+
+    # last, do moving-average if windowSize is set
     if self._windowSize is not None:
-      anomalyScore = self._movingAverage(anomalyScore)
+      score = self._movingAverage(score)
 
-    return anomalyScore
+    return score
 
 
   def _movingAverage(self, newElement=None)
