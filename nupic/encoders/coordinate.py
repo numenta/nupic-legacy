@@ -106,6 +106,7 @@ class CoordinateEncoder(Encoder):
     bitFn = lambda coordinate: self._bitForCoordinate(coordinate, self.n)
     indices = numpy.array([bitFn(w) for w in winners])
 
+    output[:] = 0
     output[indices] = 1
 
 
