@@ -125,8 +125,6 @@ script:
   - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
             # opf/experiments/params - skip now
   - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
-    # examples/prediction
-  - "python$PY_VER $NUPIC/examples/prediction/RunExperiment.py $NUPIC/examples/prediction/experiments/dutyCycle/problem/"
     # examples/tp
   - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
