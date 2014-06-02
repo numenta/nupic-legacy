@@ -139,3 +139,19 @@ class Anomaly(object):
       # There were no predicted or active columns.
       score = 0.0
     return score
+
+
+# Serialization code
+  def __getstate__(self):
+    """
+    Return serializable state.  This function will return a version of the  __dict__.
+    """
+    state = self.__dict__.copy()
+    return state
+
+
+  def __setstate__(self, state):
+    """
+    Set the state of ourself from a serialized state.
+    """
+    self.__dict__.update(state)
