@@ -72,16 +72,16 @@ class SpatialPooler(object):
     inputDimensions:      A list representing the dimensions of the input
                           vector. Format is [height, width, depth, ...], where
                           each value represents the size of the dimension. For a
-                          topology of one dimesion with 100 inputs use 100, or
+                          topology of one dimension with 100 inputs use 100, or
                           [100]. For a two dimensional topology of 10x5 use
                           [10,5].
     columnDimensions:     A list representing the dimensions of the columns in
                           the region. Format is [height, width, depth, ...],
                           where each value represents the size of the dimension.
-                          For a topology of one dimesion with 2000 columns use
+                          For a topology of one dimension with 2000 columns use
                           2000, or [2000]. For a three dimensional topology of
                           32x64x16 use [32, 64, 16].
-    potentialRadius:      This parameter deteremines the extent of the input
+    potentialRadius:      This parameter determines the extent of the input
                           that each column can potentially be connected to.
                           This can be thought of as the input bits that
                           are visible to each column, or a 'receptiveField' of
