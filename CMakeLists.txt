@@ -43,11 +43,6 @@ function (read_variable_from_file file_content variable value)
   endif()
 endfunction()
 
-# This macro shows variables from the config file
-macro (show_config_variable variable value)
-  message(STATUS "  ${variable} = ${value}")
-endmacro()
-
 # This macro set environment variables of the operating system
 macro (show_environment_variable variable value)
   message(STATUS "  ${variable} = ${value}")
@@ -421,6 +416,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BUILD_TEMP_
 if(UNIX)
   set(LIB_PREFIX "lib")
   set(STATIC_LIB_EXTENSION "a")
+  set(SHARED_LIB_EXTENSION "so")
   if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(OSX ON)
     set(DYNAMIC_LIB_EXTENSION "dylib")
@@ -432,6 +428,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON)
   set(LIB_PREFIX "")
   set(STATIC_LIB_EXTENSION "lib")
+  set(SHARED_LIB_EXTENSION "dll")
   set(DYNAMIC_LIB_EXTENSION "dll")
 endif()
 
@@ -928,11 +925,11 @@ copy_file(${REPOSITORY_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELE
 # Tests
 #
 add_custom_target(tests_run
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py -n2
                   COMMENT "Python tests")
 
 add_custom_target(tests_run_all
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py --all
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py --all  # swarming tests fail with the -n parallel run
                   COMMENT "Python tests + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm

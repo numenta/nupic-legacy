@@ -28,7 +28,6 @@ import psutil
 from collections import defaultdict
 from operator import itemgetter
 from nupic.support import title
-from nupic.frameworks.prediction import utils
 from nupic.data.file_record_stream import FileRecordStream
 
 
