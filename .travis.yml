@@ -29,9 +29,14 @@ matrix:
     - os: osx
       compiler: gcc
 
+# Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  # Tar up the release directory
+  # We need to move the pip requirements into the archived directory so they can
+  # be installed for regression tests
+  - cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NTA}/.
+  # This is the directory we'll be archiving.
   - mkdir ${TRAVIS_BUILD_DIR}/build/archive
+  # Tar up the release directory
   - tar -zcf ${TRAVIS_BUILD_DIR}/build/archive/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" eng
 
 deploy:
@@ -88,7 +93,7 @@ before_install:
   # See: https://github.com/travis-ci/travis-cookbooks/issues/155
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm; fi"
   # Install NuPIC python dependencies
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then pip install -q -r $NUPIC/external/common/requirements.txt; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then travis_retry pip install -q -r $NUPIC/external/common/requirements.txt; fi"
 
 install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
@@ -125,8 +130,6 @@ script:
   - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
             # opf/experiments/params - skip now
   - "python$PY_VER $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
-    # examples/prediction
-  - "python$PY_VER $NUPIC/examples/prediction/RunExperiment.py $NUPIC/examples/prediction/experiments/dutyCycle/problem/"
     # examples/tp
   - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
