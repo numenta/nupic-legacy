@@ -78,7 +78,7 @@ class NetworkTest(unittest.TestCase):
 
 
   def testGetSpecFromType(self):
-    ns = engine.Region.getSpecFromType('py.CLARegion')
+    ns = engine.Region.getSpecFromType('py.SPRegion')
     p = ns.parameters['breakPdb']
     self.assertEqual(p.accessMode, 'ReadWrite')
 
