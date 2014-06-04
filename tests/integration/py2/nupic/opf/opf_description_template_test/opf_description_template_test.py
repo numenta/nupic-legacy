@@ -47,15 +47,16 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    examplesDir = os.path.abspath(
+    nupicDir = os.path.abspath(
       os.path.join(os.path.dirname(__file__),
                    os.path.pardir,
                    os.path.pardir,
                    os.path.pardir,
                    os.path.pardir,
                    os.path.pardir,
-                   os.path.pardir,
-                   "examples"))
+                   os.path.pardir))
+
+    examplesDir = os.path.join(nupicDir, "examples")
 
     _debugOut("examplesDir=<%s>" % (examplesDir,))
 
@@ -64,7 +65,7 @@ class MyTestEnvironment(object):
 
     # This is where we find OPF binaries (e.g., run_opf_experiment.py, etc.)
     # In the autobuild, it is a read-only directory
-    self.__opfBinDir = os.path.join(examplesDir, "scripts")
+    self.__opfBinDir = os.path.join(nupicDir, "scripts")
     assert os.path.exists(self.__opfBinDir), \
            "%s is not present in filesystem" % self.__opfBinDir
     _debugOut("self.__opfBinDir=<%s>" % self.__opfBinDir)
