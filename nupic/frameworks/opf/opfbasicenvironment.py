@@ -27,7 +27,7 @@ This "basic" implementation of the interface (need a better name
 instead of "basic") uses files (.csv, etc.) versus Grok's implementation
 that would use databases.
 
-This implementation is used by research tools, such as OpfRunExperiment.
+This implementation is used by research tools, such as run_opf_experiment.
 
 The opfenvironment interfaces encapsulate external specifics, such as
 data source (e.g., .csv file or database, etc.), prediction sink (.csv file or
