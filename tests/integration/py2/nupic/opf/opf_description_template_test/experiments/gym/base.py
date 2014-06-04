@@ -359,7 +359,7 @@ control = dict(
           }
         ],
 
-        # TODO: Aggregation is not supported yet by OpfRunExperiment.py
+        # TODO: Aggregation is not supported yet by run_opf_experiment.py
         #'aggregation' : config['aggregationInfo']
       },
 

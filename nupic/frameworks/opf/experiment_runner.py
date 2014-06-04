@@ -20,7 +20,7 @@
 # ----------------------------------------------------------------------
 
 """This script provides the runExperiment() API function that is used
-by the command-line client OpfRunExperiment.py of Online Prediction
+by the command-line client run_opf_experiment.py of Online Prediction
 Framework (OPF). It executes a single expiriment.
 """
 
@@ -553,9 +553,9 @@ def _printAvailableCheckpoints(experimentDir):
 
   print
   print "To start from a checkpoint:"
-  print "  python OpfRunExperiment.py experiment --load <CHECKPOINT>"
+  print "  python run_opf_experiment.py experiment --load <CHECKPOINT>"
   print "For example, to start from the checkpoint \"MyCheckpoint\":"
-  print "  python OpfRunExperiment.py experiment --load MyCheckpoint"
+  print "  python run_opf_experiment.py experiment --load MyCheckpoint"
 
 
 
