@@ -44,7 +44,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     results.
 
     opfDir is the examples/opf directory in the install path
-    and is used to find OpfRunExperiment.py
+    and is used to find run_opf_experiment.py
 
     The testdir is the directory that contains the experiments we will be
     running. When running in the auto-build setup, this will be a temporary
@@ -55,15 +55,15 @@ class OPFExperimentResultsTest(unittest.TestCase):
     share/prediction directory in the install tree (same as predictionDir)
 
     """
-    opfDir = os.path.abspath(
+    nupicDir = os.path.abspath(
        os.path.join(os.path.dirname(__file__),
                     os.path.pardir,
                     os.path.pardir,
                     os.path.pardir,
                     os.path.pardir,
-                    os.path.pardir,
-                    "examples",
-                    "opf"))
+                    os.path.pardir))
+
+    opfDir = os.path.join(nupicDir, "examples", "opf")
 
     testDir = opfDir
 
@@ -101,12 +101,12 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = os.path.join(opfDir, 'bin',  'OpfRunExperiment.py')
+    runExperiment = os.path.join(nupicDir, 'scripts',  'run_opf_experiment.py')
 
     # A list of experiments to run.  Valid attributes:
     #   experimentDir - Required, path to the experiment directory containing
     #                       description.py
-    #   args          - optional. List of arguments for OpfRunExperiment
+    #   args          - optional. List of arguments for run_opf_experiment
     #   results       - A dictionary of expected results. The keys are tuples
     #                    containing (predictionLogFileName, columnName). The
     #                    value is a (min, max) expected value from the last row
