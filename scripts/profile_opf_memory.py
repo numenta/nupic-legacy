@@ -32,7 +32,7 @@ import time
 def main(expLocation):
   start = time.time()
   opfRunnerPath = os.path.join(os.getcwd(), os.path.dirname(__file__),
-                               'OpfRunExperiment.py')
+                               'run_opf_experiment.py')
   expPath = os.path.join(os.getcwd(), expLocation)
   expProc = subprocess.Popen(['python', opfRunnerPath, expPath])
   history = []
@@ -40,7 +40,7 @@ def main(expLocation):
     if expProc.poll() is not None:
       break
     process = subprocess.Popen(
-        "ps -o rss,command | grep OpfRunExperiment | "
+        "ps -o rss,command | grep run_opf_experiment | "
         "awk '{sum+=$1} END {print sum}'",
         shell=True, stdout=subprocess.PIPE)
     try:
@@ -57,6 +57,6 @@ def main(expLocation):
 if __name__ == '__main__':
   if len(sys.argv) != 2:
     print ('Usage: profile_opf_memory.py path/to/experiment/\n'
-           '    See OpfRunExperiment.py')
+           '    See run_opf_experiment.py')
     sys.exit(1)
   main(sys.argv[1])

@@ -755,15 +755,15 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = docs \
-                         py/nupic/research/__init__.py \
-                         py/nupic/research/TP10X2.py \
-                         py/nupic/research/TPTrivial.py \
-                         py/nupic/research/TP.py \
-                         py/nupic/encoders \
-                         py/nupic/data/aggregator.py \
-                         bin/run_swarm.py \
-                         py/nupic/swarming/__init__.py \
-                         py/nupic/swarming/permutations_runner.py
+                         nupic/research/__init__.py \
+                         nupic/research/TP10X2.py \
+                         nupic/research/TPTrivial.py \
+                         nupic/research/TP.py \
+                         nupic/encoders \
+                         nupic/data/aggregator.py \
+                         scripts/run_swarm.py \
+                         nupic/swarming/__init__.py \
+                         nupic/swarming/permutations_runner.py
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses

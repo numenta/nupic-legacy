@@ -34,7 +34,7 @@ PeriodicActivityRequest = namedtuple("PeriodicActivityRequest",
 ########################################################################
 class PeriodicActivityMgr(object):
   """
-  TODO: move to shared script so that we can share it with OpfRunExperiment
+  TODO: move to shared script so that we can share it with run_opf_experiment
   """
 
   # iteratorHolder: a list holding one iterator; we use a list so that we can
