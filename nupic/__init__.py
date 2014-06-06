@@ -26,3 +26,5 @@ if not sys.platform.startswith('java'):
 
 import os
 rootDir = os.environ['NUPIC']
+
+__version__ = "0.1.0"
