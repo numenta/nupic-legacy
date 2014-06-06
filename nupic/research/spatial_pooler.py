@@ -253,7 +253,7 @@ class SpatialPooler(object):
     # subset of the inputs, many of the entries in the matrix are 0. Therefore
     # the potentialPool matrix is stored using the SparseBinaryMatrix
     # class, to reduce memory footprint and computation time of algorithms that
-    # require iterating over the data strcuture.
+    # require iterating over the data structure.
     self._potentialPools = SparseBinaryMatrix(numInputs)
     self._potentialPools.resize(numColumns, numInputs)
 
@@ -749,9 +749,9 @@ class SpatialPooler(object):
     Updates the minimum duty cycles in a global fashion. Sets the minimum duty
     cycles for the overlap and activation of all columns to be a percent of the
     maximum in the region, specified by minPctOverlapDutyCycle and
-    minPctActiveDutyCycle respectively. Functionaly it is equivalent to
-    _updateMinDutyCyclesLocal, but this function exploits the globalilty of the
-    compuation to perform it in a straightforward, and more efficient manner.
+    minPctActiveDutyCycle respectively. Functionality it is equivalent to
+    _updateMinDutyCyclesLocal, but this function exploits the globality of the
+    computation to perform it in a straightforward, and more efficient manner.
     """
     self._minOverlapDutyCycles.fill(
         self._minPctOverlapDutyCycles * self._overlapDutyCycles.max()
@@ -797,7 +797,7 @@ class SpatialPooler(object):
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
     activeColumns:  An array containing the indices of the active columns,
-                    the sprase set of columns which survived inhibition
+                    the sparse set of columns which survived inhibition
     """
     overlapArray = numpy.zeros(self._numColumns)
     activeArray = numpy.zeros(self._numColumns)
@@ -825,8 +825,8 @@ class SpatialPooler(object):
 
   def _updateInhibitionRadius(self):
     """
-    Update the inhibition radius. The inhibition radius is a meausre of the
-    square (or hypersquare) of columns that each a column is "conencted to"
+    Update the inhibition radius. The inhibition radius is a measure of the
+    square (or hypersquare) of columns that each a column is "connected to"
     on average. Since columns are are not connected to each other directly, we
     determine this quantity by first figuring out how many *inputs* a column is
     connected to, and then multiplying it by the total number of columns that
@@ -874,7 +874,7 @@ class SpatialPooler(object):
     """
     The range of connected synapses for column. This is used to
     calculate the inhibition radius. This variation of the function only
-    supports a 1 dimensional column toplogy.
+    supports a 1 dimensional column topology.
 
     Parameters:
     ----------------------------
@@ -892,7 +892,7 @@ class SpatialPooler(object):
   def _avgConnectedSpanForColumn2D(self, index):
     """
     The range of connectedSynapses per column, averaged for each dimension.
-    This vaule is used to calculate the inhibition radius. This variation of
+    This value is used to calculate the inhibition radius. This variation of
     the  function only supports a 2 dimensional column topology.
 
     Parameters:
@@ -913,7 +913,7 @@ class SpatialPooler(object):
   def _avgConnectedSpanForColumnND(self, index):
     """
     The range of connectedSynapses per column, averaged for each dimension.
-    This vaule is used to calculate the inhibition radius. This variation of
+    This value is used to calculate the inhibition radius. This variation of
     the function supports arbitrary column dimensions.
 
     Parameters:
@@ -949,7 +949,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    inputVector:    a numpy array of 0's and 1's thata comprises the input to
+    inputVector:    a numpy array of 0's and 1's that comprises the input to
                     the spatial pooler. There exists an entry in the array
                     for every input bit.
     activeColumns:  an array containing the indices of the columns that
@@ -1014,11 +1014,11 @@ class SpatialPooler(object):
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
     the matrix, and the permanence is given in 'dense' form, i.e. a full
-    arrray containing all the zeros as well as the non-zero values. It is in
+    array containing all the zeros as well as the non-zero values. It is in
     charge of implementing 'clipping' - ensuring that the permanence values are
     always between 0 and 1 - and 'trimming' - enforcing sparsity by zeroing out
     all permanence values below '_synPermTrimThreshold'. It also maintains
-    the consistency between 'self._permanences' (the matrix storeing the
+    the consistency between 'self._permanences' (the matrix storing the
     permanence values), 'self._connectedSynapses', (the matrix storing the bits
     each column is connected to), and 'self._connectedCounts' (an array storing
     the number of input bits each column is connected to). Every method wishing
@@ -1122,12 +1122,12 @@ class SpatialPooler(object):
 
   def _mapPotential(self, index, wrapAround=False):
     """
-    Maps a column to its input bits. This method encapsultes the topology of
+    Maps a column to its input bits. This method encapsulates the topology of
     the region. It takes the index of the column as an argument and determines
     what are the indices of the input vector that are located within the
     column's potential pool. The return value is a list containing the indices
     of the input bits. The current implementation of the base class only
-    supports a 1 dimensional topology of columsn with a 1 dimensional topology
+    supports a 1 dimensional topology of columns with a 1 dimensional topology
     of inputs. To extend this class to support 2-D topology you will need to
     override this method. Examples of the expected output of this method:
     * If the potentialRadius is greater than or equal to the entire input
@@ -1254,7 +1254,7 @@ class SpatialPooler(object):
     """
     This function determines each column's overlap with the current input
     vector. The overlap of a column is the number of synapses for that column
-    that are connected (permance value is greater than '_synPermConnected')
+    that are connected (permanence value is greater than '_synPermConnected')
     to input bits which are turned on. Overlap values that are lower than
     the 'stimulusThreshold' are ignored. The implementation takes advantage of
     the SpraseBinaryMatrix class to perform this calculation efficiently.
@@ -1353,7 +1353,7 @@ class SpatialPooler(object):
     density:        The fraction of columns to survive inhibition. This
                     value is only an intended target. Since the surviving
                     columns are picked in a local fashion, the exact fraction
-                    of survining columns is likely to vary.
+                    of surviving columns is likely to vary.
     """
     activeColumns = numpy.zeros(self._numColumns)
     addToWinners = max(overlaps)/1000.0
@@ -1375,7 +1375,7 @@ class SpatialPooler(object):
     """
     Returns a list of indices corresponding to the neighbors of a given column.
     In this variation of the method, which only supports a one dimensional
-    column toplogy, a column's neighbors are those neighbors who are 'radius'
+    column topology, a column's neighbors are those neighbors who are 'radius'
     indices away. This information is needed to perform inhibition. This method
     is a subset of _getNeighborsND and is only included for illustration
     purposes, and potentially enhanced performance for spatial pooler
@@ -1385,7 +1385,7 @@ class SpatialPooler(object):
     ----------------------------
     columnIndex:    The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    dimensions:     An array containg a dimensions for the column space. A 2x3
+    dimensions:     An array containing a dimensions for the column space. A 2x3
                     grid will be represented by [2,3].
     radius:         Indicates how far away from a given column are other
                     columns to be considered its neighbors. In the previous 2x3
@@ -1394,7 +1394,7 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating whether to consider columns at
                     the border of a dimensions to be adjacent to columns at the
                     other end of the dimension. For example, if the columns are
-                    layed out in one deimnsion, columns 1 and 10 will be
+                    laid out in one dimension, columns 1 and 10 will be
                     considered adjacent if wrapAround is set to true:
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
@@ -1420,7 +1420,7 @@ class SpatialPooler(object):
     """
     Returns a list of indices corresponding to the neighbors of a given column.
     Since the permanence values are stored in such a way that information about
-    toplogy is lost, this method allows for reconstructing the toplogy of the
+    topology is lost, this method allows for reconstructing the topology of the
     inputs, which are flattened to one array. Given a column's index, its
     neighbors are defined as those columns that are 'radius' indices away from
     it in each dimension. The method returns a list of the flat indices of
@@ -1433,7 +1433,7 @@ class SpatialPooler(object):
     ----------------------------
     columnIndex:    The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    dimensions:     An array containg a dimensions for the column space. A 2x3
+    dimensions:     An array containing a dimensions for the column space. A 2x3
                     grid will be represented by [2,3].
     radius:         Indicates how far away from a given column are other
                     columns to be considered its neighbors. In the previous 2x3
@@ -1442,7 +1442,7 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating whether to consider columns at
                     the border of a dimensions to be adjacent to columns at the
                     other end of the dimension. For example, if the columns are
-                    layed out in one deimnsion, columns 1 and 10 will be
+                    laid out in one dimension, columns 1 and 10 will be
                     considered adjacent if wrapAround is set to true:
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
@@ -1480,8 +1480,8 @@ class SpatialPooler(object):
     """
     Similar to _getNeighbors1D and _getNeighbors2D, this function Returns a
     list of indices corresponding to the neighbors of a given column. Since the
-    permanence values are stored in such a way that information about toplogy
-    is lost. This method allows for reconstructing the toplogy of the inputs,
+    permanence values are stored in such a way that information about topology
+    is lost. This method allows for reconstructing the topology of the inputs,
     which are flattened to one array. Given a column's index, its neighbors are
     defined as those columns that are 'radius' indices away from it in each
     dimension. The method returns a list of the flat indices of these columns.
@@ -1489,7 +1489,7 @@ class SpatialPooler(object):
     ----------------------------
     columnIndex:    The index identifying a column in the permanence, potential
                     and connectivity matrices.
-    dimensions:     An array containg a dimensions for the column space. A 2x3
+    dimensions:     An array containing a dimensions for the column space. A 2x3
                     grid will be represented by [2,3].
     radius:         Indicates how far away from a given column are other
                     columns to be considered its neighbors. In the previous 2x3
@@ -1498,7 +1498,7 @@ class SpatialPooler(object):
     wrapAround:     A boolean value indicating whether to consider columns at
                     the border of a dimensions to be adjacent to columns at the
                     other end of the dimension. For example, if the columns are
-                    layed out in one deimnsion, columns 1 and 10 will be
+                    laid out in one dimension, columns 1 and 10 will be
                     considered adjacent if wrapAround is set to true:
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
