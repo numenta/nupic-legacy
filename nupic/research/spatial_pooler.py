@@ -118,7 +118,7 @@ class SpatialPooler(object):
                           inhibition area).
     numActivePerInhArea:  An alternate way to control the density of the active
                           columns. If numActivePerInhArea is specified then
-                          localAreaDensity must less than 0, and vice versa.
+                          localAreaDensity must be less than 0, and vice versa.
                           When using numActivePerInhArea, the inhibition logic
                           will insure that at most 'numActivePerInhArea'
                           columns remain ON within a local inhibition area (the
@@ -147,11 +147,11 @@ class SpatialPooler(object):
                           permanence value is above the connected threshold is
                           a "connected synapse", meaning it can contribute to
                           the cell's firing.
-    minPctOvlerapDutyCycle: A number between 0 and 1.0, used to set a floor on
+    minPctOverlapDutyCycle: A number between 0 and 1.0, used to set a floor on
                           how often a column should have at least
                           stimulusThreshold active inputs. Periodically, each
                           column looks at the overlap duty cycle of
-                          all other column within its inhibition radius and
+                          all other columns within its inhibition radius and
                           sets its own internal minimal acceptable duty cycle
                           to: minPctDutyCycleBeforeInh * max(other columns'
                           duty cycles).
@@ -247,20 +247,20 @@ class SpatialPooler(object):
     # whose columns represent the input bits. if potentialPools[i][j] == 1,
     # then input bit 'j' is in column 'i's potential pool. A column can only be
     # connected to inputs in its potential pool. The indices refer to a
-    # falttenned version of both the inputs and columns. Namely, irrespective
+    # flattened version of both the inputs and columns. Namely, irrespective
     # of the topology of the inputs and columns, they are treated as being a
     # one dimensional array. Since a column is typically connected to only a
     # subset of the inputs, many of the entries in the matrix are 0. Therefore
-    # the the potentialPool matrix is stored using the SparseBinaryMatrix
-    # class, to reduce memory footprint and compuation time of algorithms that
+    # the potentialPool matrix is stored using the SparseBinaryMatrix
+    # class, to reduce memory footprint and computation time of algorithms that
     # require iterating over the data strcuture.
     self._potentialPools = SparseBinaryMatrix(numInputs)
     self._potentialPools.resize(numColumns, numInputs)
 
     # Initialize the permanences for each column. Similar to the
-    # 'self._potentialPools', the permances are stored in a matrix whose rows
-    # represent the cortial columns, and whose columns represent the input
-    # bits. if self._permanences[i][j] = 0.2, then the synapse connecting
+    # 'self._potentialPools', the permanences are stored in a matrix whose rows
+    # represent the cortical columns, and whose columns represent the input
+    # bits. If self._permanences[i][j] = 0.2, then the synapse connecting
     # cortical column 'i' to input bit 'j'  has a permanence of 0.2. Here we
     # also use the SparseMatrix class to reduce the memory footprint and
     # computation time of algorithms that require iterating over the data
@@ -275,8 +275,8 @@ class SpatialPooler(object):
 
 
     # 'self._connectedSynapses' is a similar matrix to 'self._permanences'
-    # (rows represent cortial columns, columns represent input bits) whose
-    # entries represent whether the cortial column is connected to the input
+    # (rows represent cortical columns, columns represent input bits) whose
+    # entries represent whether the cortical column is connected to the input
     # bit, i.e. its permanence value is greater than 'synPermConnected'. While
     # this information is readily available from the 'self._permanence' matrix,
     # it is stored separately for efficiency purposes.
@@ -289,9 +289,9 @@ class SpatialPooler(object):
     # stored separately for efficiency purposes.
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
 
-    # Initialize the set of permanence values for each columns. Ensure that
+    # Initialize the set of permanence values for each column. Ensure that
     # each column is connected to enough input bits to allow it to be
-    # activated
+    # activated.
     for i in xrange(numColumns):
       potential = self._mapPotential(i, wrapAround=True)
       self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
@@ -667,7 +667,7 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    inputVector:    a numpy array of 0's and 1's thata comprises the input to
+    inputVector:    a numpy array of 0's and 1's that comprises the input to
                     the spatial pooler. The array will be treated as a one
                     dimensional array, therefore the dimensions of the array
                     do not have to much the exact dimensions specified in the
