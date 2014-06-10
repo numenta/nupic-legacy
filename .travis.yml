@@ -133,3 +133,7 @@ script:
     # examples/tp
   - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
+
+after_success:
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install coveralls"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls"
