@@ -42,31 +42,31 @@ class CoordinateEncoderTest(unittest.TestCase):
 
 
   def testInvalidW(self):
-    with self.assertRaises(ValueError):
-      # Even
-      CoordinateEncoder(name="coordinate",
-                        n=45,
-                        w=4)
+    # Even
+    args = {"name": "coordinate",
+            "n": 45,
+            "w": 4}
+    self.assertRaises(ValueError, CoordinateEncoder, **args)
 
-    with self.assertRaises(ValueError):
-      # 0
-      CoordinateEncoder(name="coordinate",
-                        n=45,
-                        w=0)
+    # 0
+    args = {"name": "coordinate",
+            "n": 45,
+            "w": 0}
+    self.assertRaises(ValueError, CoordinateEncoder, **args)
 
-    with self.assertRaises(ValueError):
-      # Negative
-      CoordinateEncoder(name="coordinate",
-                        n=45,
-                        w=-2)
+    # Negative
+    args = {"name": "coordinate",
+            "n": 45,
+            "w": -2}
+    self.assertRaises(ValueError, CoordinateEncoder, **args)
 
 
   def testInvalidN(self):
-    with self.assertRaises(ValueError):
-      # Too small
-      CoordinateEncoder(name="coordinate",
-                        n=11,
-                        w=3)
+    # Too small
+    args = {"name": "coordinate",
+            "n": 11,
+            "w": 3}
+    self.assertRaises(ValueError, CoordinateEncoder, **args)
 
 
   def testOrderForCoordinate(self):
