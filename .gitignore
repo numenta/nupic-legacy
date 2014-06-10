@@ -10,6 +10,7 @@ test.out
 *~
 *.DS_Store
 *.swp
+*.coverage*
 
 # personalized nupic configuration file
 .nupic_config
