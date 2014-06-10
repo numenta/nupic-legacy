@@ -255,8 +255,8 @@ class CoordinateEncoderTest(unittest.TestCase):
                                           num=1)
       allOverlaps[i] = overlaps[0]
 
-    self.assertGreater(np.min(allOverlaps), minThreshold)
-    self.assertGreater(np.average(allOverlaps), avgThreshold)
+    self.assertTrue(np.min(allOverlaps) > minThreshold)
+    self.assertTrue(np.average(allOverlaps) > avgThreshold)
 
     if verbose:
       print ("===== Adjacent positions overlap "

@@ -95,7 +95,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     overlap1 = overlap(encoding1, encoding2)
     overlap2 = overlap(encoding1, encoding3)
 
-    self.assertGreater(overlap1, overlap2)
+    self.assertTrue(overlap1 > overlap2)
 
 
 
