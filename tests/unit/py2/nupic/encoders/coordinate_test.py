@@ -220,23 +220,23 @@ class CoordinateEncoderTest(unittest.TestCase):
 
     maxThreshold = 0.12
     overlaps = overlapsForUnrelatedAreas(1499, 37, 5)
-    self.assertLess(np.max(overlaps), maxThreshold)
-    self.assertLess(np.average(overlaps), avgThreshold)
+    self.assertTrue(np.max(overlaps) < maxThreshold)
+    self.assertTrue(np.average(overlaps) < avgThreshold)
 
     maxThreshold = 0.12
     overlaps = overlapsForUnrelatedAreas(1499, 37, 10)
-    self.assertLess(np.max(overlaps), maxThreshold)
-    self.assertLess(np.average(overlaps), avgThreshold)
+    self.assertTrue(np.max(overlaps) < maxThreshold)
+    self.assertTrue(np.average(overlaps) < avgThreshold)
 
     maxThreshold = 0.17
     overlaps = overlapsForUnrelatedAreas(999, 25, 10)
-    self.assertLess(np.max(overlaps), maxThreshold)
-    self.assertLess(np.average(overlaps), avgThreshold)
+    self.assertTrue(np.max(overlaps) < maxThreshold)
+    self.assertTrue(np.average(overlaps) < avgThreshold)
 
     maxThreshold = 0.25
     overlaps = overlapsForUnrelatedAreas(499, 13, 10)
-    self.assertLess(np.max(overlaps), maxThreshold)
-    self.assertLess(np.average(overlaps), avgThreshold)
+    self.assertTrue(np.max(overlaps) < maxThreshold)
+    self.assertTrue(np.average(overlaps) < avgThreshold)
 
 
   def testEncodeAdjacentPositions(self, verbose=False):
