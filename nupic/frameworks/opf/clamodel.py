@@ -223,7 +223,7 @@ class CLAModel(Model):
     # Tracks whether finishedLearning() has been called
     self.__finishedLearning = False
 
-    self.__logger.info("Instantiated %s" % self.__class__.__name__)
+    self.__logger.debug("Instantiated %s" % self.__class__.__name__)
 
     return
 
@@ -1317,7 +1317,7 @@ class CLAModel(Model):
     if not hasattr(self, '_hasCL'):
       self._hasCL = (self._getClassifierRegion() is not None)
 
-    self.__logger.info("Restoring %s from state..." % self.__class__.__name__)
+    self.__logger.debug("Restoring %s from state..." % self.__class__.__name__)
 
 
   def _serializeExtraData(self, extraDataDir):
@@ -1338,7 +1338,7 @@ class CLAModel(Model):
 
     self._netInfo.net.save(outputDir)
 
-    self.__logger.info("Finished serializing network")
+    self.__logger.debug("Finished serializing network")
 
     return
 
@@ -1367,7 +1367,7 @@ class CLAModel(Model):
 
     self._netInfo.net = Network(stateDir)
 
-    self.__logger.info(
+    self.__logger.debug(
       "(%s) Finished de-serializing network", self)
 
 
@@ -1427,7 +1427,7 @@ class CLAModel(Model):
     # Mark end of restoration from state
     self.__restoringFromState = False
 
-    self.__logger.info("(%s) Finished restoring from state", self)
+    self.__logger.debug("(%s) Finished restoring from state", self)
 
     return
 

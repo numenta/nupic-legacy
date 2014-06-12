@@ -60,7 +60,7 @@ class ModelFactory(object):
     """
     logger = ModelFactory.__getLogger()
     logger.setLevel(logLevel)
-    logger.info("ModelFactory returning Model from dict: %s", modelConfig)
+    logger.debug("ModelFactory returning Model from dict: %s", modelConfig)
 
     modelClass = None
     if modelConfig['model'] == "CLA":
