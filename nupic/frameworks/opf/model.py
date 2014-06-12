@@ -198,7 +198,7 @@ class Model(object):
     Returns: nothing
     """
     logger = self._getLogger()
-    logger.info("(%s) Creating local checkpoint in %r...",
+    logger.debug("(%s) Creating local checkpoint in %r...",
                        self, saveModelDir)
 
     modelPickleFilePath = self._getModelPickleFilePath(saveModelDir)
@@ -221,17 +221,17 @@ class Model(object):
     self.__makeDirectoryFromAbsolutePath(saveModelDir)
 
     with open(modelPickleFilePath, 'wb') as modelPickleFile:
-      logger.info("(%s) Pickling Model instance...", self)
+      logger.debug("(%s) Pickling Model instance...", self)
 
       pickle.dump(self, modelPickleFile)
 
-      logger.info("(%s) Finished pickling Model instance", self)
+      logger.debug("(%s) Finished pickling Model instance", self)
 
 
     # Tell the model to save extra data, if any, that's too big for pickling
     self._serializeExtraData(extraDataDir=self._getModelExtraDataDir(saveModelDir))
 
-    logger.info("(%s) Finished creating local checkpoint", self)
+    logger.debug("(%s) Finished creating local checkpoint", self)
 
     return
 
@@ -257,23 +257,23 @@ class Model(object):
     Returns: the loaded model instance
     """
     logger = opfutils.initLogger(cls)
-    logger.info("Loading model from local checkpoint at %r...", savedModelDir)
+    logger.debug("Loading model from local checkpoint at %r...", savedModelDir)
 
     # Load the model
     modelPickleFilePath = Model._getModelPickleFilePath(savedModelDir)
 
     with open(modelPickleFilePath, 'rb') as modelPickleFile:
-      logger.info("Unpickling Model instance...")
+      logger.debug("Unpickling Model instance...")
 
       model = pickle.load(modelPickleFile)
 
-      logger.info("Finished unpickling Model instance")
+      logger.debug("Finished unpickling Model instance")
 
     # Tell the model to load extra data, if any, that was too big for pickling
     model._deSerializeExtraData(
         extraDataDir=Model._getModelExtraDataDir(savedModelDir))
 
-    logger.info("Finished Loading model from local checkpoint")
+    logger.debug("Finished Loading model from local checkpoint")
 
     return model
 
