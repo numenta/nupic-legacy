@@ -583,7 +583,7 @@ class _TaskRunner(object):
       ['com.numenta', self.__class__.__module__, self.__class__.__name__]))
     #self.__logger.setLevel(logging.DEBUG)
 
-    self.__logger.info(("Instantiated %s(" + \
+    self.__logger.debug(("Instantiated %s(" + \
                       "model=%r, " + \
                       "task=%r, " + \
                       "cmdOptions=%r)") % \
@@ -634,7 +634,7 @@ class _TaskRunner(object):
 
   def run(self):
     """Runs a single experiment task"""
-    self.__logger.info("run(): Starting task <%s>", self.__task['taskLabel'])
+    self.__logger.debug("run(): Starting task <%s>", self.__task['taskLabel'])
 
     # Set up the task
 
@@ -737,7 +737,7 @@ class _TaskRunner(object):
 
       def __call__(self):
         self.__numIterationsSoFar += self.PROGRESS_UPDATE_PERIOD_TICKS
-        self.__logger.info("%s: ITERATION PROGRESS: %s of %s" % (
+        self.__logger.debug("%s: ITERATION PROGRESS: %s of %s" % (
                               self.__taskLabel,
                               self.__numIterationsSoFar,
                               self.__requestedIterationCount))
