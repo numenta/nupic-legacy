@@ -222,7 +222,7 @@ class OPFTaskDriver(object):
     self.logger = logging.getLogger(".".join(
       ['com.numenta', self.__class__.__module__, self.__class__.__name__]))
 
-    self.logger.info(("Instantiating %s; %r.") % \
+    self.logger.debug(("Instantiating %s; %r.") % \
                         (self.__class__.__name__,
                          self.__reprstr))
 

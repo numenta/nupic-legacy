@@ -98,6 +98,8 @@ class Encoder(object):
     
     **Must be overridden by subclasses.**
 
+    Note: The numpy output array is reused, so clear it before updating it.
+
     @param inputData data to encode
     @param output numpy 1-D array of same length returned by getWidth()
     """
