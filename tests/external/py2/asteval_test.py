@@ -31,7 +31,7 @@ class TestCase(unittest.TestCase):
 
   def testImportAndVersions(self):
     import asteval
-    self.assertEqual(asteval.__version__, '0.9.1')
+    self.assertTrue(asteval.__version__ > '0.9')
 
 
 
