@@ -41,7 +41,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     coordinate = encoder.coordinateForPosition(
       -122.229194, 37.486782
     )
-    self.assertEqual(coordinate.tolist(), [-907099, 278200])
+    self.assertEqual(coordinate.tolist(), [-453549, 150239])
 
 
   def testCoordinateForPositionOrigin(self):

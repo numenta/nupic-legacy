@@ -22,12 +22,15 @@
 import math
 
 import numpy
+from pyproj import Proj
 
 from nupic.encoders.coordinate import CoordinateEncoder
 
 
 
-EARTH_CIRCUMFERENCE = 40075000  # in meters
+PROJ = Proj(init="epsg:3785")  # Spherical Mercator
+# From http://spatialreference.org/ref/epsg/popular-visualisation-crs-mercator/
+PROJ_RANGE=(20037508.3428, 19971868.8804)  # in meters
 
 
 
@@ -86,19 +89,13 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     """
     Returns coordinate for given GPS position.
 
-    Uses an [Equirectangular Projection]
-    (http://en.wikipedia.org/wiki/Equirectangular_projection).
-
     @param longitude (float) Longitude of position
     @param latitude (float) Latitude of position
     @return (numpy.array) Coordinate that the given GPS position
                           maps to
     """
-    position = numpy.array([longitude, latitude])
-    normalizer = numpy.array([90., 180.])
-    normalized = position / normalizer
-    multiplier = numpy.array([EARTH_CIRCUMFERENCE / 2, EARTH_CIRCUMFERENCE])
-    coordinate = normalized * multiplier / self.scale
+    coordinate = numpy.array(PROJ(longitude, latitude))
+    coordinate = coordinate / self.scale
     return coordinate.astype(int)
 
 
