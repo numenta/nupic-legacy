@@ -136,4 +136,4 @@ script:
 
 after_success:
   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then cd ${TRAVIS_BUILD_DIR}; coveralls; fi"
