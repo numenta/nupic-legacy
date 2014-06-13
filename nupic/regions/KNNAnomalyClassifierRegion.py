@@ -29,7 +29,7 @@ import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
 
-from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
+from nupic.algorithms.anomaly import Anomaly
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
 
@@ -222,7 +222,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     self._version = KNNAnomalyClassifierRegion.__VERSION__
 
     # anomaly
-    self._anomaly = AnomalyImpl(slidingWindowSize=1000)
+    self._anomaly = Anomaly()
 
   def initialize(self, dims, splitterMaps):
     assert tuple(dims) == (1,) * len(dims)

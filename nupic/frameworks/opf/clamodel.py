@@ -39,7 +39,7 @@ from operator import itemgetter
 
 
 from model import Model
-from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
+from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -209,9 +209,9 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
-      self._anomalyInst = AnomalyImpl(useTP=self, slidingWindowSize=100)
+      self._anomalyInst = Anomaly(useTP=self)
     else:
-      self._anomalyInst = AnomalyImpl()
+      self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
