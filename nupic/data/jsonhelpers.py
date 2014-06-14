@@ -21,7 +21,7 @@
 
 # This script is a wrapper for JSON primitives, such as validation.
 # Using routines of this module permits us to replace the underlying
-# implementaiton with a better one without distrupting client code.
+# implementation with a better one without disrupting client code.
 #
 # In particular, at the time of this writing, there weren't really great
 # json validation packages available for python.  We initially settled
