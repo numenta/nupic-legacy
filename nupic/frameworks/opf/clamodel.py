@@ -1304,6 +1304,16 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
 
 
+
+    # -----------------------------------------------------------------------
+    # Migrate from when Anomaly was not separate class
+    if not hasattr(self, "_anomalyInst"):
+      if self._hasTP is False: 
+        self._anomalyInst = Anomaly()
+      else:
+        self._anomalyInst = Anomaly(useTP = self)
+
+
     # This gets filled in during the first infer because it can only be
     #  determined at run-time
     self._classifierInputEncoder = None
