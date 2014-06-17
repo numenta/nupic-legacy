@@ -17,6 +17,10 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
+    # Set the virtualenv activation location
+    - "if [ $TRAVIS_OS_NAME = 'linux']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/bin/activate; fi"
+    - "if [ $TRAVIS_OS_NAME = 'osx']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/nupic-darwin64/bin/activate; fi"
+
   matrix:
     - PY_VER=2.7
     - PY_VER=2.6
@@ -61,9 +65,6 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  # Set the virtualenv activation location
-  - "if [ $TRAVIS_OS_NAME = 'linux']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/bin/activate; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/nupic-darwin64/bin/activate; fi"
   # Runs an OS-specific script.
   - cd ${TRAVIS_BUILD_DIR}
   - ./ci/${TRAVIS_OS_NAME}-before-install.sh
