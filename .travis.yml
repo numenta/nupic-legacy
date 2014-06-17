@@ -68,11 +68,11 @@ before_install:
   - ./ci/${TRAVIS_OS_NAME}-before-install.sh
 
   # Each OS needs to be activated differently.
-  - "if [ $TRAVIS_OS_NAME = 'linux']; then source bin/activate; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx']; then source nupic-darwin64/bin/activate; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then source bin/activate; fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then source nupic-darwin64/bin/activate; fi"
 
   # Install NuPIC python dependencies after virtualenv activation on linux
-  - "if [ $TRAVIS_OS_NAME = 'linux']; then pip install -q -r $NUPIC/external/common/requirements.txt; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then pip install -q -r $NUPIC/external/common/requirements.txt; fi"
 
 
 install:
