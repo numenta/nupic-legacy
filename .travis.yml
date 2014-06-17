@@ -52,7 +52,7 @@ deploy:
   # Only deploy on master from one build job: linux, clang, python 2.7
   on:
     branch: master
-    condition: 
+    condition:
       - "$TRAVIS_OS_NAME == linux"
       - "$PY_VER == 2.7"
       - "$CC == clang"
@@ -70,7 +70,7 @@ before_install:
 
   # Get Darwin64 libs for OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then git clone https://github.com/numenta/nupic-darwin64.git; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard c2908602fbea5f832c7edfa251f490807b429cc3); fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b); fi"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then source nupic-darwin64/bin/activate; fi"
   # Install cmake on OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install cmake; fi"
@@ -135,5 +135,5 @@ script:
   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
 
 after_success:
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install coveralls; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then cd ${TRAVIS_BUILD_DIR}; coveralls -i; fi"

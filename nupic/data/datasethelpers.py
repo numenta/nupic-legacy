@@ -81,7 +81,7 @@ def findDataset(datasetPath):
 
 
 def prependDatasetSearchPath(datasetDir):
-  """ Prepend a dataset search path to the locagtions that findDataset() will
+  """ Prepend a dataset search path to the locations that findDataset() will
   search.  This is useful for test code that needs to
   copy the desired datasets to a temporary directory in order to avoid
   leaving generated results (e.g. from aggregation) in the source tree.
