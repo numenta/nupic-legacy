@@ -18,8 +18,10 @@ env:
     - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     # Set the virtualenv activation location
-    - "if [ $TRAVIS_OS_NAME = 'linux']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/bin/activate; fi"
-    - "if [ $TRAVIS_OS_NAME = 'osx']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/nupic-darwin64/bin/activate; fi"
+    - echo ${TRAVIS_OS_NAME}
+    - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/bin/activate; fi"
+    - "if [ $TRAVIS_OS_NAME = 'osx' ]; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/nupic-darwin64/bin/activate; fi"
+    - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update; fi"
 
   matrix:
     - PY_VER=2.7
