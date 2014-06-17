@@ -21,18 +21,27 @@
 # ----------------------------------------------------------------------
 
 # Necessary Linux prep work
+echo ">>> sudo add-apt-repository -y ppa:fkrull/deadsnakes"
 sudo add-apt-repository -y ppa:fkrull/deadsnakes
 sudo apt-get update
+echo ">>> sudo apt-get update"
 # Install virtualenv
+echo ">>> sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv"
 sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
+echo ">>> sudo ls -laFh /usr/lib/libpython$PY_VER.so"
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 # Prefix env with our own python installation
+echo ">>> export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages"
 export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages
 # Execute virtualenv
+echo ">>> virtualenv --python=`which python$PY_VER` ."
 virtualenv --python=`which python$PY_VER` .
+echo ">>> source bin/activate"
 source bin/activate
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
+echo ">>> sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
 # Install NuPIC python dependencies
+echo ">>> travis_retry pip install -q -r $NUPIC/external/common/requirements.txt"
 travis_retry pip install -q -r $NUPIC/external/common/requirements.txt
