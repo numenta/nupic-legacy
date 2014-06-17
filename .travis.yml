@@ -61,9 +61,13 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
+  # Set the virtualenv activation location
+  - "if [ $TRAVIS_OS_NAME = 'linux']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/bin/activate; fi"
+  - "if [ $TRAVIS_OS_NAME = 'osx']; then export VENV_ACTIVATE=${TRAVIS_BUILD_DIR}/nupic-darwin64/bin/activate; fi"
   # Runs an OS-specific script.
   - cd ${TRAVIS_BUILD_DIR}
   - ./ci/${TRAVIS_OS_NAME}-before-install.sh
+  - source ${VENV_ACTIVATE}
 
 install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"

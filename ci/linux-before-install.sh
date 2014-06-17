@@ -37,7 +37,7 @@ export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages
 echo ">>> virtualenv --python=`which python$PY_VER` ."
 virtualenv --python=`which python$PY_VER` .
 echo ">>> source bin/activate"
-source bin/activate
+#source bin/activate
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 echo ">>> sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
