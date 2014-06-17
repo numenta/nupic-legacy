@@ -179,7 +179,7 @@ class SpatialPooler(object):
                           values make it take longer to respond to changes in
                           boost or synPerConnectedCell. Shorter values make it
                           more unstable and likely to oscillate.
-     maxBoost:            The maximum overlap boost factor. Each column's
+    maxBoost:             The maximum overlap boost factor. Each column's
                           overlap gets multiplied by a boost factor
                           before it gets considered for inhibition.
                           The actual boost factor for a column is number
@@ -1534,7 +1534,7 @@ class SpatialPooler(object):
 
   def _isUpdateRound(self):
     """
-    returns true if the enough rounds have passed to warrant updates of
+    returns true if enough rounds have passed to warrant updates of
     duty cycles
     """
     return (self._iterationNum % self._updatePeriod) == 0
