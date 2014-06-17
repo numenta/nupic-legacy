@@ -87,16 +87,16 @@ Tips:
 #### Run the tests:
 
     cd $NUPIC/build/scripts
-    # all C++ tests
-    make tests_everything
+    # all C++ unit tests
+    make cpp_unit_tests
     # C++ HTM Network API tests
     make tests_cpphtm
     # Python HTM Network API tests
     make tests_pyhtm
     # Python OPF unit tests
-    make tests_run
-    # Python OPF unit and integration tests (requires mysql)
-    make tests_run_all
+    make python_unit_tests
+    # Python OPF integration tests (requires mysql)
+    make python_integration_tests
     # Run all tests!
     make tests_all
 
@@ -117,7 +117,7 @@ Tips:
 
 #### Run the tests:
 
- * Run any `tests_*` project from your IDE (check `output` panel to see the results).
+ * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
 ### Examples
 
