@@ -69,6 +69,10 @@ before_install:
   - ./ci/${TRAVIS_OS_NAME}-before-install.sh
   - source ${VENV_ACTIVATE}
 
+  # Install NuPIC python dependencies after virtualenv activation on linux
+  - "if [ $TRAVIS_OS_NAME = 'linux']; then pip install -q -r $NUPIC/external/common/requirements.txt; fi"
+
+
 install:
   - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
   - "cd $TRAVIS_BUILD_DIR/build/scripts"

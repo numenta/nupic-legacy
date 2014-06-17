@@ -25,8 +25,6 @@ echo ">>> git clone https://github.com/numenta/nupic-darwin64.git"
 git clone https://github.com/numenta/nupic-darwin64.git
 echo ">>> (cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b)"
 (cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b)
-echo ">>> source nupic-darwin64/bin/activate"
-#source nupic-darwin64/bin/activate
 # Install cmake on OSX
 echo ">>> brew install cmake"
 brew install cmake
