@@ -43,5 +43,5 @@ source bin/activate
 echo ">>> sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm"
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
 # Install NuPIC python dependencies
-echo ">>> travis_retry pip install -q -r $NUPIC/external/common/requirements.txt"
+echo ">>> pip install -q -r $NUPIC/external/common/requirements.txt"
 pip install -q -r $NUPIC/external/common/requirements.txt

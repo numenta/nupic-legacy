@@ -20,5 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+echo ">>> PYTHON=`which python$PY_VER`"
 PYTHON=`which python$PY_VER`
+echo ">>> cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
 cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA
