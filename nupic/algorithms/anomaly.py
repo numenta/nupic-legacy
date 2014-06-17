@@ -102,7 +102,7 @@ class Anomaly(object):
     # using TP provided during init, _prevPredColumns stored internally here
     if self._tp is not None:
       prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
-#      self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
+      self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
 
     # 1. here is the 'classic' anomaly score
     anomalyScore = _pureAnomaly(activeColumns, prevPredictedColumns)
