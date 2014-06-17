@@ -450,7 +450,7 @@ class CLAModelClassifierHelper(object):
 
     # Count the number of unpredicted columns
     activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
-    score = numpy.sum(numpy.in1d(activeColumns, self._prevPredictedColumns))
+    score = numpy.in1d(activeColumns, self._prevPredictedColumns).sum()
     score = (self._activeColumnCount - score)/float(self._activeColumnCount)
 
     spSize = sp.getParameter('activeOutputCount')

@@ -60,9 +60,8 @@ class DiscreteDistribution(Distribution):
     keys = [item[0] for item in pmfIn.iteritems()]
     pmf = numpy.array([item[1] for item in pmfIn.iteritems()], dtype=float)
     if normalize:
-      pmf *= (1.0 / numpy.sum(pmf))
+      pmf *= (1.0 / pmf.sum())
     # Is there a faster way to accumulate?
-    #TODO numpy cummulative
     cdf = pmf.copy()
     for i in xrange(1, n): cdf[i] += cdf[i-1]
     self.keys = keys
@@ -108,7 +107,7 @@ class MultinomialDistribution(Distribution):
   def logProbability(self, distn):
     """Form of distribution must be an array of counts in order of self.keys."""
     x = numpy.asarray(distn)
-    n = numpy.sum(x)
+    n = x.sum()
     return (logFactorial(n) - numpy.sum([logFactorial(k) for k in x]) +
       numpy.sum(x * numpy.log(self.dist.pmf)))
 
@@ -223,14 +222,14 @@ class GammaDistribution(Distribution):
 
 def logBeta(alpha):
   alpha = numpy.asarray(alpha)
-  return numpy.sum([lgamma(a) for a in alpha]) - lgamma(numpy.sum(alpha))
+  return numpy.sum([lgamma(a) for a in alpha]) - lgamma(alpha.sum())
 
 class DirichletDistribution(Distribution):
   def __init__(self, alpha):
     self.alpha = numpy.asarray(alpha).astype(float)
     self.alpha_1 = self.alpha - 1
     self.logZ = - logBeta(self.alpha)
-    sum = numpy.sum(self.alpha)
+    sum = self.alpha.sum()
     self.sum = sum
 
   def mean(self):
