@@ -44,7 +44,7 @@ def lscsum(lx, epsilon=None):
     return epsilon
 
   x = numpy.exp(lx - base)
-  ssum = numpy.sum(x)
+  ssum = x.sum()
 
   result = numpy.log(ssum) + base
   # try:
@@ -115,9 +115,9 @@ def normalize(lx):
   lx = numpy.asarray(lx)
   base = lx.max()
   x = numpy.exp(lx - base)
-  result = x / numpy.sum(x)
+  result = x / x.sum()
 
-  conventional = (numpy.exp(lx) / numpy.sum(numpy.exp(lx)))
+  conventional = (numpy.exp(lx) / numpy.exp(lx).sum())
   assert similar(result, conventional)
 
   return result
@@ -132,10 +132,10 @@ def nsum0(lx):
   lx = numpy.asarray(lx)
   base = lx.max()
   x = numpy.exp(lx - base)
-  ssum = numpy.sum(x, 0)
-  result = ssum / numpy.sum(ssum)
+  ssum = x.sum(0)
+  result = ssum / ssum.sum()
 
-  conventional = (numpy.sum(numpy.exp(lx), 0) / numpy.sum(numpy.exp(lx)))
+  conventional = (numpy.exp(lx).sum(0) / numpy.exp(lx).sum())
   assert similar(result, conventional)
 
   return result
@@ -155,7 +155,7 @@ def lnsum0(lx):
   normalized = nsum0(lx)
 
   result = numpy.log(normalized)
-  conventional = numpy.log(numpy.sum(numpy.exp(lx), 0) / numpy.sum(numpy.exp(lx)))
+  conventional = numpy.log(numpy.exp(lx).sum(0) / numpy.exp(lx).sum())
   assert similar(result, conventional)
 
   return result
