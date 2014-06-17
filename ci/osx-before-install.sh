@@ -20,19 +20,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Necessary Linux prep work
-sudo add-apt-repository -y ppa:fkrull/deadsnakes
-sudo apt-get update
-# Install virtualenv
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
-sudo ls -laFh /usr/lib/libpython$PY_VER.so
-# Prefix env with our own python installation
-export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages
-# Execute virtualenv
-virtualenv --python=`which python$PY_VER` .
-source bin/activate
-# Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
-# See: https://github.com/travis-ci/travis-cookbooks/issues/155
-sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
-# Install NuPIC python dependencies
-travis_retry pip install -q -r $NUPIC/external/common/requirements.txt
+# Get Darwin64 libs for OSX
+git clone https://github.com/numenta/nupic-darwin64.git
+(cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b)
+source nupic-darwin64/bin/activate
+# Install cmake on OSX
+brew install cmake
+# Install and start MySQL on OSX
+brew install mysql
+mysql.server start
