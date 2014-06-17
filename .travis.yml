@@ -31,7 +31,7 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  - ./ci/before-deploy.sh
+  - ${TRAVIS_BUILD_DIR}/ci/before-deploy.sh
 
 deploy:
   provider: s3
@@ -62,6 +62,7 @@ notifications:
 
 before_install:
   # Runs an OS-specific script.
+  - cd ${TRAVIS_BUILD_DIR}
   - ./ci/${TRAVIS_OS_NAME}-before-install.sh
 
 install:
@@ -72,7 +73,7 @@ install:
   # Verify python version.
   - "python --version"
   # Build NuPIC using the OS-specific script.
-  - ./ci/${TRAVIS_OS_NAME}-install.sh
+  - ${TRAVIS_BUILD_DIR}/ci/${TRAVIS_OS_NAME}-install.sh
   - "make -j3"
   - "cd"
 
@@ -85,7 +86,7 @@ script:
   - "cd"
 
   # run all example files
-  - "./ci/run-examples.sh"
+  - ${TRAVIS_BUILD_DIR}/ci/run-examples.sh
 
 after_success:
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then ./ci/report-coverage.sh; fi"
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then ${TRAVIS_BUILD_DIR}/ci/report-coverage.sh; fi"
