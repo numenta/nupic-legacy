@@ -833,6 +833,12 @@ class KNNAnomalyClassifierRegion(PyRegion):
       raise Exception("Invalid KNNAnomalyClassifierRegion version. Current "
           "version: %s" % (KNNAnomalyClassifierRegion.__VERSION__))
 
+
+    # --------------------------------------------------------------------------
+    # Migrate from when Anomaly was separated to stand-alone class
+    if not hasattr(self, "_anomaly"):
+      self._anomaly = Anomaly()
+
   
   def diff(self, knnRegion2):
     diff = []
