@@ -278,7 +278,21 @@ class FileRecordStream(RecordStreamIface):
     # Dictionary to store record statistics (min and max of scalars for now)
     self._stats = None
 
-  
+ 
+  #############################################################################
+  def getHeader(self):
+    """@return the header of current file in format dict[name|type|special][i-th value]
+       see self._fields in __init__
+    """
+    header = dict()
+    for lb in ['name','type','special']:
+      header[lb]=dict()
+    for i in range(0, self._fieldCount):
+        header['name'][i]=self._fields[i][0]
+        header['type'][i]=self._fields[i][1]
+        header['special'][i]=self._fields[i][2]
+    return header
+       
   #############################################################################
   def __getstate__(self):
     d = dict()
