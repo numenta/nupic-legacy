@@ -111,10 +111,10 @@ script:
   # legacy binary tests
   - "make tests_pyhtm"
   # Python unit tests and prep for coveralls reporting
-  - "make tests_python_unit"
+  - "make python_unit_tests"
   - "mv .coverage .coverage_unit"
   # Python integration tests and prep for coveralls reporting
-  - "make tests_python_integration"
+  - "make python_integration_tests"
   - "mv .coverage .coverage_integration"
 
   - "cd ${TRAVIS_BUILD_DIR}"
