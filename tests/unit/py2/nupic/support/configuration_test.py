@@ -520,7 +520,7 @@ class ConfigurationTest(unittest.TestCase):
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
     self.assertEqual(result, [os.path.join(nupic.rootDir,
-                                           'conf', 'site', 'default')])
+                                           'conf', 'default')])
 
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)

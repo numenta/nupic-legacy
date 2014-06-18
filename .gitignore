@@ -1,25 +1,26 @@
 .metadata
-.idea
 Trunk.iml
 *.pyc
 *.class
-*.vcproj
 *.manifest
 *.cache
-*.project
-*.pydevproject
 trunk.sln
 *.m4
 test.out
 *~
 *.DS_Store
 *.swp
+*.coverage*
 
 # personalized nupic configuration file
 .nupic_config
 
 # IDE project files
 nbproject/
+*.vcproj
+*.project
+*.pydevproject
+.idea
 
 # swarming output files
 data/
@@ -42,6 +43,9 @@ Servers/
 
 # Build files
 build/
+include/
+bin/
+lib/
 
 conf/default/nupic-site.xml
 
@@ -57,5 +61,11 @@ conf/default/nupic-site.xml
 /examples/prediction/experiments/hotgym/base/report.txt
 /examples/prediction/experiments/hotgym/base/results.pkl
 
-# nupic.core repo is located under $NUPIC/nta/
-nta
+# nupic.core repo is located under $NUPIC/extensions/core/
+extensions/core/
+
+# nupic bindings swig libraries
+nupic/bindings/*engine_internal.*
+nupic/bindings/*algorithms.*
+nupic/bindings/*iorange.*
+nupic/bindings/*math.*
