@@ -1,22 +1,12 @@
 # ![Numenta Logo](http://numenta.org/images/numenta-icon128.png) NuPIC
 
-## Numenta Platform for Intelligent Computing [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
+## Numenta Platform for Intelligent Computing 
 
-NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
+[![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic) [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
+ 
+NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the [Cortical Learning Algorithm (CLA)](https://github.com/numenta/nupic/wiki/Cortical-Learning-Algorithm), but also the [Online Prediction Framework (OPF)] (https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) that allows clients to build prediction systems out of encoders, models, and metrics.
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
-
-## OPF Basics
-
-For more detailed documentation, see the [OPF wiki page](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework).
-
-__Encoders__ turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar values.
-
-__Models__ take sequences of SDRs and make predictions.  The CLA is implemented as an OPF model.
-
-__Metrics__ take input values and predictions and output scalar representations of the quality of the predictions.  Different metrics are suitable for different problems.
-
-__Clients__ take input data and feed it through encoders, models, and metrics and store or report the resulting predictions or metric results.
 
 ## Installation
 
@@ -52,11 +42,32 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## Build and test NuPIC:
 
-Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is the path to your NuPIC repository and `$NTA` is the installation path for NuPIC. You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+NuPIC needs the following environment variables to build:
 
-    export NUPIC=<path to NuPIC repository>
-    export NTA=$NUPIC/build/release
-    export PYTHONPATH=$PYTHONPATH:$NTA/lib/python<version>/site-packages
+```
+# `$NUPIC` is the path to your NuPIC repository.
+# Remember to replace <NuPIC path> with the real path:
+export NUPIC=<NuPIC path>
+
+# `$NTA` is the installation path for NuPIC. 
+export NTA=$NUPIC/build/release
+```
+
+NuPIC needs to be added to `$PYTHONPATH` to run and test:
+
+```
+# You may choose one of the following based on your version of Python:
+# For Python 2.6:
+export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.6/site-packages
+# For Python 2.7:
+export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.7/site-packages
+```
+
+Tips:
+
+* You may set these environment variables in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing. 
+* You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+* For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
 
 ### Using command line
 
@@ -76,16 +87,16 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 #### Run the tests:
 
     cd $NUPIC/build/scripts
-    # all C++ tests
-    make tests_everything
+    # all C++ unit tests
+    make cpp_unit_tests
     # C++ HTM Network API tests
     make tests_cpphtm
     # Python HTM Network API tests
     make tests_pyhtm
     # Python OPF unit tests
-    make tests_run
-    # Python OPF unit and integration tests (requires mysql)
-    make tests_run_all
+    make python_unit_tests
+    # Python OPF integration tests (requires mysql)
+    make python_integration_tests
     # Run all tests!
     make tests_all
 
@@ -106,7 +117,7 @@ Set the following environment variables in your `~/.bashrc` file. `$NUPIC` is th
 
 #### Run the tests:
 
- * Run any `tests_*` project from your IDE (check `output` panel to see the results).
+ * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
 ### Examples
 

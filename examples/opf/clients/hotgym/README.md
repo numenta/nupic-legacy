@@ -17,7 +17,9 @@ These are still being created.
 1. One Gym Prediction Tutorial
     - [README](prediction/one_gym/README.md)
     - [source code](prediction/one_gym)
-1. ~~One Gym Anomaly Tutorial~~
+1. One Gym Anomaly Tutorial
+    - [README](anomaly/one_gym/README.md)
+    - [source code](anomaly/one_gym)
 1. ~~One Gym Metrics Tutorial~~
 1. ~~Many Gyms Prediction Tutorial~~
 1. ~~Advanced Swarming~~
