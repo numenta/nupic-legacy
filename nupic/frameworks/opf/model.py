@@ -41,7 +41,7 @@ class Model(object):
 
   __metaclass__ = ABCMeta
 
-  def __init__(self, inferenceType, header=None):
+  def __init__(self, inferenceType):
     """ Model constructor.
 
       @param inferenceType: An opfutils.InferenceType value that specifies the type
@@ -53,7 +53,6 @@ class Model(object):
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
-    self._header = header #TODO check if header(variable) is a valid header
 
   def run(self, inputRecord):
     """ run one iteration of this model.
@@ -66,7 +65,7 @@ class Model(object):
             ModelResult.inferences depends on the the specific inference type
             of this model, which can be queried by getInferenceType()
     """
-    self._checkValidInput(inputRecord, self._header)
+    self._checkValidInput(inputRecord)
 
     if hasattr(self, '_numPredictions'):
       predictionNumber = self._numPredictions
@@ -77,11 +76,12 @@ class Model(object):
                                   rawInput=inputRecord)
     return result
 
-  @staticmethod
-  def _checkValidInput(data, header):
+  def _checkValidInput(self, data):
     """@return error if data fed into the model do not fit the model's syntactic header
     """
+    print self.getFieldInfo()
     print data # TODO debug, remove later
+    raise
     # check field names:
     if data.keys() != header['name']:
       raise Exception("model.run(): field names do not match!"+str(data.keys())+" vs "+str(header['name']))
@@ -355,3 +355,21 @@ class Model(object):
         raise
 
     return
+
+
+  #############################################################################
+  def _getHeader(self):
+    """@return the header of current file in format dict[name|type|special][i-th value]
+       see self._fields in file_record_stream.py __init__
+    """
+    header = dict()
+    fields = self.getFieldInfo()
+    for lb in ['name','type','special']:
+      header[lb]=dict()
+    for i in range(0, len(fields)):
+        header['name'][i]=fields[i][0]
+        header['type'][i]=fields[i][1]
+        header['special'][i]=fields[i][2]
+    return header
+
+
