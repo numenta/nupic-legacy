@@ -79,16 +79,19 @@ class Model(object):
   def _checkValidInput(self, data):
     """@return error if data fed into the model do not fit the model's syntactic header
     """
-    print self.getFieldInfo()
-    print data # TODO debug, remove later
-    raise
-    # check field names:
-    if data.keys() != header['name']:
-      raise Exception("model.run(): field names do not match!"+str(data.keys())+" vs "+str(header['name']))
+    header=self._getHeader()
+    translations = {'str': 'string', 'float':'float', 'int':'integer', 'timestamp.day of week':'datetime'}
     # check field types:
     for i in range(0, len(header['type'])):
-      if header['type'][i] != data.values()[i]:
-        raise Exception("model.run(): input data of unexpected type! "+str(data.values())+" vs "+str(header['type']))
+      try:
+        typeOnInput = str(type(data[str(header['name'][i])]).__name__)
+      except:
+        print "XXX"+str(header)
+        print "YYY"+str(data)
+        print "ZZZ"+str(self.getFieldInfo())
+        raise
+      if typeOnInput != header['type'][i]:
+        raise Exception("model.run(): input data of unexpected type! "+str(typeOnInput)+" vs "+str(header['type'][i]))
     
     
 
@@ -365,11 +368,11 @@ class Model(object):
     header = dict()
     fields = self.getFieldInfo()
     for lb in ['name','type','special']:
-      header[lb]=dict()
+      header[lb]=list()
     for i in range(0, len(fields)):
-        header['name'][i]=fields[i][0]
-        header['type'][i]=fields[i][1]
-        header['special'][i]=fields[i][2]
+        header['name'].append(str(fields[i][0]))
+        header['type'].append(fields[i][1])
+        header['special'].append(fields[i][2])
     return header
 
 
