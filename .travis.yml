@@ -106,22 +106,25 @@ install:
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
   - "make -j3"
-  - "cd"
 
 script:
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # legacy binary tests
   - "make tests_pyhtm"
-  # actual unit tests
-  - "make tests_run_all"
-  - "cd"
+  # Python unit tests and prep for coveralls reporting
+  - "make python_unit_tests"
+  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
+  # Python integration tests and prep for coveralls reporting
+  - "make python_integration_tests"
+  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+
+  - "cd ${TRAVIS_BUILD_DIR}"
 
   # run all example files
   # examples/bindings
   - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
-#  - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
-#  - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
-  # examples/opf (run atleast 1 from each category)
+# - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
+# - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
+  # examples/opf (run at least 1 from each category)
   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
@@ -136,4 +139,6 @@ script:
 
 after_success:
   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then cd ${TRAVIS_BUILD_DIR}; coveralls -i; fi"
+  # Only publishing unit test coverage at this point.
+  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
+  # TODO: figure out how to publish integration test coverage as well.
