@@ -41,18 +41,19 @@ class Model(object):
 
   __metaclass__ = ABCMeta
 
-  def __init__(self, inferenceType):
+  def __init__(self, inferenceType, header=None):
     """ Model constructor.
 
-    Args:
-      inferenceType: An opfutils.InferenceType value that specifies the type
+      @param inferenceType: An opfutils.InferenceType value that specifies the type
           of inference (i.e. TemporalNextStep, Classification, etc.).
+      @param header format of data going into the model, from nupic.data.file_record_stream.py
     """
     self._numPredictions = 0
     self.__inferenceType =  inferenceType
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
+    self._header = header #TODO check if header(variable) is a valid header
 
   def run(self, inputRecord):
     """ run one iteration of this model.
@@ -65,6 +66,8 @@ class Model(object):
             ModelResult.inferences depends on the the specific inference type
             of this model, which can be queried by getInferenceType()
     """
+    self._checkValidInput(inputRecord, self._header)
+
     if hasattr(self, '_numPredictions'):
       predictionNumber = self._numPredictions
       self._numPredictions += 1
@@ -73,6 +76,21 @@ class Model(object):
     result = opfutils.ModelResult(predictionNumber=predictionNumber,
                                   rawInput=inputRecord)
     return result
+
+  @staticmethod
+  def _checkValidInput(data, header):
+    """@return error if data fed into the model do not fit the model's syntactic header
+    """
+    print data # TODO debug, remove later
+    # check field names:
+    if data.keys() != header['name']:
+      raise Exception("model.run(): field names do not match!"+str(data.keys())+" vs "+str(header['name']))
+    # check field types:
+    for i in range(0, len(header['type'])):
+      if header['type'][i] != data.values()[i]:
+        raise Exception("model.run(): input data of unexpected type! "+str(data.values())+" vs "+str(header['type']))
+    
+    
 
   @abstractmethod
   def finishLearning(self):
