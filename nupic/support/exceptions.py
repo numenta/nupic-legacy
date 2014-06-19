@@ -31,8 +31,8 @@ class TimeoutError(Exception):
 
 
 ###############################################################################
-class GrokJobFailException(Exception):
-  """ This exception signals that the Grok job (e.g., Hypersearch, Production,
+class NupicJobFailException(Exception):
+  """ This exception signals that the Nupic job (e.g., Hypersearch, Production,
   etc.) should be aborted due to the given error.
   """
 
@@ -70,7 +70,7 @@ class GrokJobFailException(Exception):
 
   @classmethod
   def mapCurrentException(cls, e, errorCode, msg):
-    """ Raises GrokJobFailException by mapping from another exception that
+    """ Raises NupicJobFailException by mapping from another exception that
     is being handled in the caller's scope and preserves the current exception's
     traceback.
 
@@ -87,6 +87,6 @@ class GrokJobFailException(Exception):
 
     newMsg = "%s: %r" % (msg, e)
 
-    e = GrokJobFailException(errorCode=errorCode, msg=newMsg)
+    e = NupicJobFailException(errorCode=errorCode, msg=newMsg)
 
     raise e, None, traceback

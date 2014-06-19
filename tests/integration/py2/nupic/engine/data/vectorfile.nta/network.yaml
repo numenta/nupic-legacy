@@ -1,8 +1,6 @@
----
 Version: 2
 Regions:
-  -
-    name: TestSensor
+  - name: TestSensor
     nodeType: VectorFileSensor
     dimensions:
       - 1
