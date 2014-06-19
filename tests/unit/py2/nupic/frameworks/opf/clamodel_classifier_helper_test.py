@@ -60,7 +60,7 @@ from nupic.frameworks.opf.exceptions import (CLAModelException,
 
 experimentDesc = {
     "inferenceType": InferenceType.TemporalAnomaly,
-    "environment": "grok",
+    "environment": "nupic",
     "inferenceArgs": {
         "predictionSteps": [1],
         "predictedField": "value1"
