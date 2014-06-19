@@ -24,7 +24,7 @@ This script provides a file-based implementation of the opfenvironment
 interfaces (OPF).
 
 This "basic" implementation of the interface (need a better name
-instead of "basic") uses files (.csv, etc.) versus Grok's implementation
+instead of "basic") uses files (.csv, etc.) versus Nupic's implementation
 that would use databases.
 
 This implementation is used by research tools, such as run_opf_experiment.
