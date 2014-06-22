@@ -139,7 +139,6 @@ class Anomaly(object):
       raise RuntimeError("Moving average has not been enabled during __init__ (self._windowSize not set)")
     if newElement is not None:
       self._buf[self._i]= newElement
-#debug      print "buf="+str(self._buf)+"  i="+str(self._i)+" score="+str(score)
       self._i = (self._i + 1) % self._windowSize
     return self._buf.sum()/float(self._windowSize) # normalize to 0..1
 
