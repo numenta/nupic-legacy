@@ -984,7 +984,17 @@ class CLAModel(Model):
     """
     Returns reference to the network's TP region
     """
+#TODO remove:    raise Exception("XXX"+str(self._getTP())+" type="+str(type(self._getTP())))
     return self._netInfo.net.regions.get('TP', None)
+
+  
+  def _getTP(self):
+    """expose TP used"""
+    tp = self._netInfo.net.regions.get('TP', None)
+    if tp is None:
+      return None
+    else:
+      return tp._get("_getTP")
 
 
   def _getSensorRegion(self):

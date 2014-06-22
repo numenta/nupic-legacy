@@ -829,6 +829,12 @@ class TPRegion(PyRegion):
     if self.breakPdb:
       import pdb; pdb.set_trace()
 
+
+  #########################################################################################
+  def _getTP(self):
+    """expose the TP used in this region"""
+    return self._tfdr
+
   #############################################################################
   #
   # NuPIC 2 Support
