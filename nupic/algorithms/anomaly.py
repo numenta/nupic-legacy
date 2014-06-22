@@ -85,7 +85,7 @@ class Anomaly(object):
     if useTP is not None and isinstance(useTP, TP):
       self._tp = useTP
       self._prevPredictedColumns = numpy.array([])
-    else:
+    elif useTP is not None:
       raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP)))
 
     # using cumulative anomaly , sliding window
@@ -93,14 +93,14 @@ class Anomaly(object):
       self._windowSize = slidingWindowSize
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float) #sliding window buffer
       self._i = 0 # index pointer to actual position
-    else:
+    elif slidingWindowSize is not None:
       raise Exception("Anomaly: if you define slidingWindowSize, it has to be an integer > 0; slidingWindowSize="+str(slidingWindowSize))
 
     # mode
     self._mode = anomalyMode
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-    if not (self._mode in _supportedModes):
+    if not (self._mode in Anomaly._supportedModes):
       raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\",\
                        \"likelihood\", \"weighted\"; you used:"+self._mode)
 
