@@ -929,7 +929,7 @@ add_custom_target(python_unit_tests
                   COMMENT "Python unit tests")
 
 add_custom_target(python_integration_tests
-                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py -i -n2 --coverage
+                  COMMAND python ${PROJECT_BUILD_RELEASE_DIR}/scripts/run_tests.py -i --coverage
                   COMMENT "Python integration tests")
 
 add_custom_target(python_all_tests
