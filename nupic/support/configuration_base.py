@@ -390,7 +390,7 @@ class Configuration(object):
         # Return as a list of paths
         configPaths = configVar.split(':')
       else:
-        configPaths = [os.path.join(nupic.rootDir, 'conf', 'default')]
+        configPaths = [os.path.join(nupic.rootDir, 'config', 'default')]
         
       return configPaths
 
