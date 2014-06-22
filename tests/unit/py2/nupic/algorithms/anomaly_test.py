@@ -64,26 +64,6 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
-  def testNumpyVsPythonSumSpeed(self):
-    """testing the python / numpy .sum() speed"""
-    # from https://stackoverflow.com/questions/10922231/pythons-sum-vs-numpys-numpy-sum
-
-    data = np.in1d(np.random.standard_normal(1000), np.random.standard_normal(1000)) # this function is called in each computeAnomalyScore()
-    def pure_sum():
-      return sum(data)
-
-    def numpy_sum():
-      return np.sum(data)
-    
-    n = 1 # rounds
-
-    tPython = timeit.timeit(pure_sum, number = n)
-    tNpy = timeit.timeit(numpy_sum, number = n)
-    speedup = tPython/float(tNpy)
-    print "speedup: "+str(speedup)+"x"
-    self.assertGreater(speedup, 1)
-
-
   def testAnomalyUseTP(self):
     """anomaly implementation that is using provided temporal pooler"""
     # TODO
