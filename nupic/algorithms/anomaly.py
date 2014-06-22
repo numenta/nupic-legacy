@@ -82,15 +82,15 @@ class Anomaly(object):
 #    self.pureAnomaly = staticmethod(pureAnomaly)
 
     # using TP
-    self._tp = useTP
-    if self._tp is not None and isinstance(self._tp, TP):
+    if useTP is not None and isinstance(useTP, TP):
+      self._tp = useTP
       self._prevPredictedColumns = numpy.array([])
     else:
       raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP)))
 
     # using cumulative anomaly , sliding window
-    self._windowSize = slidingWindowSize
-    if self._windowSize is not None and self._windowSize > 0:
+    if slidingWindowSize > 0:
+      self._windowSize = slidingWindowSize
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float) #sliding window buffer
       self._i = 0 # index pointer to actual position
     else:
@@ -117,7 +117,7 @@ class Anomaly(object):
     """
 
     # using TP provided during init, _prevPredColumns stored internally here
-    if self._tp is not None:
+    if hasattr(self._tp):
       prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
       self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
 
@@ -136,7 +136,7 @@ class Anomaly(object):
       score = anomalyScore * probability
 
     # last, do moving-average if windowSize is set
-    if self._windowSize is not None:
+    if hasattr(self._windowSize):
       score = self._movingAverage(score)
 
     return score
@@ -148,8 +148,6 @@ class Anomaly(object):
     @param newValue (optional) add a new element before computing the avg
     @return moving average of self._windowSize last elements
     """
-    if self._windowSize is None:
-      raise RuntimeError("Moving average has not been enabled during __init__ (self._windowSize not set)")
     if newElement is not None:
       self._buf[self._i]= newElement
       self._i = (self._i + 1) % self._windowSize
