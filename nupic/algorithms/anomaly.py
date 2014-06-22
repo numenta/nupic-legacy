@@ -66,10 +66,15 @@ class Anomaly(object):
   def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode="pure"):
     """
     @param (optional) useTP -- tp temporal pooler instance used
-    @param (optional) slidingWindowSize -- enables moving average on final anomaly score; how many elements are summed up, sliding window size; int >= 0
-    @param (optional) anomalyMode -- (string) which way to use to compute anomaly; possible values are: 
-                           -- "pure" -- the default, how much anomal the value is; float 0..1 where 1=totally unexpected
-                           -- "likelihood" -- uses the anomaly_likelihood code; models probability of receiving this value and anomalyScore; used in Grok
+    @param (optional) slidingWindowSize -- enables moving average on final 
+            anomaly score; how many elements are summed up, sliding window size; int >= 0
+    @param (optional) anomalyMode -- (string) which way to use to compute anomaly; 
+                      possible values are: 
+                           -- "pure" -- the default, how much anomal the value is; 
+                                        float 0..1 where 1=totally unexpected
+                           -- "likelihood" -- uses the anomaly_likelihood code; 
+                                        models probability of receiving this value and anomalyScore; 
+                                        used in Grok
                            -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
     """
 #    self.pureAnomaly = staticmethod(pureAnomaly)
@@ -118,7 +123,8 @@ class Anomaly(object):
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
       score = anomalyScore * probability
     else:
-      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", \"likelihood\", \"weighted\"; you used:"+self._mode)
+      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", 
+                       \"likelihood\", \"weighted\"; you used:"+self._mode)
 
     # last, do moving-average if windowSize is set
     if self._windowSize is not None:
