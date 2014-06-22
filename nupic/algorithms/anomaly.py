@@ -26,7 +26,7 @@ import numpy
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 
 
-def _pureAnomaly(activeColumns, prevPredictedColumns):
+def pureAnomaly(activeColumns, prevPredictedColumns):
     """the pure anomaly score 
 
     computed as diff of current active columns and columns predicted from previous round
@@ -72,7 +72,7 @@ class Anomaly(object):
                            -- "likelihood" -- uses the anomaly_likelihood code; models probability of receiving this value and anomalyScore; used in Grok
                            -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
     """
-#    self._pureAnomaly = staticmethod(_pureAnomaly)
+#    self.pureAnomaly = staticmethod(pureAnomaly)
 
     # using TP
     self._tp = useTP
@@ -105,7 +105,7 @@ class Anomaly(object):
       self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
 
     # 1. here is the 'classic' anomaly score
-    anomalyScore = _pureAnomaly(activeColumns, prevPredictedColumns)
+    anomalyScore = pureAnomaly(activeColumns, prevPredictedColumns)
 
 
     # compute final anomaly based on selected mode
