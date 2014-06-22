@@ -24,6 +24,7 @@
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
+from nupic.research.TP import TP
 
 
 def pureAnomaly(activeColumns, prevPredictedColumns):
@@ -61,6 +62,7 @@ class Anomaly(object):
   MODE_PURE = "pure"
   MODE_LIKELIHOOD = "likelihood"
   MODE_WEIGHTED = "weighted"
+  _supportedModes = [MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED]
 
 
   def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode="pure"):
@@ -81,17 +83,27 @@ class Anomaly(object):
 
     # using TP
     self._tp = useTP
-    if self._tp is not None:
+    if self._tp is not None and isinstance(self._tp, TP):
       self._prevPredictedColumns = numpy.array([])
+    else:
+      raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP)))
+
     # using cumulative anomaly , sliding window
     self._windowSize = slidingWindowSize
-    if self._windowSize is not None:
+    if self._windowSize is not None and self._windowSize > 0:
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float) #sliding window buffer
       self._i = 0 # index pointer to actual position
+    else:
+      raise Exception("Anomaly: if you define slidingWindowSize, it has to be an integer > 0; slidingWindowSize="+str(slidingWindowSize))
+
     # mode
     self._mode = anomalyMode
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+    if not (self._mode in _supportedModes):
+      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", 
+                       \"likelihood\", \"weighted\"; you used:"+self._mode)
+
 
 
   def computeAnomalyScore(self, activeColumns, prevPredictedColumns, value=None, timestamp=None):
@@ -122,9 +134,6 @@ class Anomaly(object):
     elif self._mode == Anomaly.MODE_WEIGHTED:
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
       score = anomalyScore * probability
-    else:
-      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\", 
-                       \"likelihood\", \"weighted\"; you used:"+self._mode)
 
     # last, do moving-average if windowSize is set
     if self._windowSize is not None:
