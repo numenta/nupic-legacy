@@ -24,8 +24,7 @@
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
-from nupic.research.TP import TP
-
+import nupic
 
 def pureAnomaly(activeColumns, prevPredictedColumns):
     """the pure anomaly score 
@@ -82,7 +81,7 @@ class Anomaly(object):
 #    self.pureAnomaly = staticmethod(pureAnomaly)
 
     # using TP
-    if useTP is not None and isinstance(useTP, TP):
+    if useTP is not None and isinstance(useTP, nupic.frameworks.opf.clamodel.CLAModel):
       self._tp = useTP
       self._prevPredictedColumns = numpy.array([])
     elif useTP is not None:
@@ -117,7 +116,7 @@ class Anomaly(object):
     """
 
     # using TP provided during init, _prevPredColumns stored internally here
-    if hasattr(self._tp):
+    if hasattr(self, "_tp"):
       prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
       self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
 
@@ -136,7 +135,7 @@ class Anomaly(object):
       score = anomalyScore * probability
 
     # last, do moving-average if windowSize is set
-    if hasattr(self._windowSize):
+    if hasattr(self, "_windowSize"):
       score = self._movingAverage(score)
 
     return score
