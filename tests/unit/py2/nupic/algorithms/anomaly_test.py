@@ -28,7 +28,7 @@ import timeit
 
 from numpy import array
 
-from nupic.algorithms.anomaly import Anomaly as AnomalyImpl
+from nupic.algorithms.anomaly import Anomaly
 
 
 
@@ -36,7 +36,7 @@ class AnomalyTest(unittest.TestCase):
 
   def setUp(self):
     """init"""
-    self._anomalyImpl = AnomalyImpl()
+    self._anomalyImpl = Anomaly()
 
 
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
@@ -72,7 +72,7 @@ class AnomalyTest(unittest.TestCase):
 
   def testAnomalyCumulative(self):
     """cumulative anomaly implementation"""
-    anomalyCum = AnomalyImpl(slidingWindowSize = 3)
+    anomalyCum = Anomaly(slidingWindowSize = 3)
     predicted = [array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6])]
     actual =    [array([1, 2, 6]), array([1, 2, 6]), array([1, 4, 6]), array([10, 11, 6]), array([10, 11, 12]), array([10, 11, 12]), array([10, 11, 12]), array([1, 2, 6]), array([1, 2, 6])]
     anomaly = [] # to be computed
