@@ -296,7 +296,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(mask.tolist(), expectedMask)
 
     expectedMask = [0, 0, 0, 0, 1, 1, 1, 1, 1, 0]
-    mask = sp._mapPotential(2, wrapAround=False);
+    mask = sp._mapPotential(2, wrapAround=False)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     # Test with wrapAround and potentialPct = 1
@@ -308,7 +308,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertListEqual(mask.tolist(), expectedMask)
 
     expectedMask = [1, 1, 0, 0, 0, 0, 0, 1, 1, 1]
-    mask = sp._mapPotential(3, wrapAround=True);
+    mask = sp._mapPotential(3, wrapAround=True)
     self.assertListEqual(mask.tolist(), expectedMask)
 
     # Test with potentialPct < 1
