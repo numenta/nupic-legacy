@@ -1186,6 +1186,9 @@ class SpatialPooler(object):
     indices.append(index)
     indices = numpy.array(indices)
 
+    # TODO: See https://github.com/numenta/nupic.core/issues/128
+    indices.sort()
+
     # Select a subset of the receptive field to serve as the
     # the potential pool
     sample = numpy.empty(int(round(
