@@ -105,7 +105,7 @@ class Features(object):
 
     # Caclulate developer configuration
     if 'TRUNK' in os.environ:
-      confDir = os.path.join(os.environ['TRUNK'], 'conf')
+      confDir = os.path.join(os.environ['TRUNK'], 'config')
       confFilepath = os.path.join(confDir, 'developer.py')
       if os.path.exists(confFilepath):
         sys.path.append(confDir)
