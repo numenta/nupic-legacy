@@ -343,7 +343,7 @@ control = dict(
       # constructing filenames or directory pathnames for task-specific files, etc.
       'taskLabel' : "OnlineLearning",
 
-      # Input stream specification per py/grokengine/cluster/database/StreamDef.json.
+      # Input stream specification per py/nupicengine/cluster/database/StreamDef.json.
       #
       'dataset' : {
         'info': 'test_NoProviders',

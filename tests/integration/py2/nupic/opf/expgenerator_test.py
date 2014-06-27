@@ -467,7 +467,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def assertMetric(self, base, perm, predictedField,
-                   optimizeMetric, grokScore,
+                   optimizeMetric, nupicScore,
                    movingBaseline,
                    oneGram,
                    trivialMetric,
@@ -481,7 +481,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       print metricSpec.metric
       self.assertTrue(metricSpec.metric in ["multiStep", optimizeMetric,
                                             movingBaseline, oneGram,
-                                            grokScore, trivialMetric,
+                                            nupicScore, trivialMetric,
                                             legacyMetric],
                       "Unrecognized Metric type: %s"% metricSpec.metric)
       if metricSpec.metric == trivialMetric:
@@ -951,7 +951,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1007,7 +1007,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1, 5],
@@ -1218,7 +1218,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1248,7 +1248,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1317,7 +1317,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [24],
@@ -1444,7 +1444,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1581,7 +1581,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1639,7 +1639,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1689,7 +1689,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1],
@@ -1773,7 +1773,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [0],
