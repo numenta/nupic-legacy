@@ -910,8 +910,8 @@ copy_directory(${REPOSITORY_DIR}/scripts ${PROJECT_BUILD_RELEASE_DIR}/scripts)
 # Copy miscellaneous files
 copy_directory(${REPOSITORY_DIR}/extensions/core/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
 copy_directory(${REPOSITORY_DIR}/external/licenses ${PROJECT_BUILD_RELEASE_DIR}/share/doc/licenses)
-copy_file(${REPOSITORY_DIR}/conf/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-default.xml)
-copy_file(${REPOSITORY_DIR}/conf/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/conf/default/nupic-logging.conf)
+copy_file(${REPOSITORY_DIR}/config/default/nupic-default.xml ${PROJECT_BUILD_RELEASE_DIR}/config/default/nupic-default.xml)
+copy_file(${REPOSITORY_DIR}/config/default/nupic-logging.conf ${PROJECT_BUILD_RELEASE_DIR}/config/default/nupic-logging.conf)
 
 
 ############################################################################################################################
