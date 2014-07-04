@@ -414,7 +414,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   # If NTA_LOG_DIR is not defined, set it now. This is used by the logging
   #   config file to set the path for the log files
   if 'NTA_LOG_DIR' not in os.environ:
-    os.environ['NTA_LOG_DIR'] = os.path.join(nupic.rootDir, 'logs')
+    os.environ['NTA_LOG_DIR'] = os.path.join(os.environ['NUPIC'], 'logs')
   if not os.path.exists(os.environ['NTA_LOG_DIR']):
     makeDirectoryFromAbsolutePath(os.path.abspath(os.environ['NTA_LOG_DIR']))
 
