@@ -424,13 +424,6 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
     jobsDAO.modelSetFields(modelID, {'genDescription': expDescription})
 
 
-    # -------------------------------------------------------------------------
-    # if NTA is not set in the environment, set it for the user so that
-    #   we can find data files expected to be in the share/prediction/data directory
-    if not "NTA" in os.environ:
-      os.environ['NTA'] = nupic.rootDir
-
-
     # Run the experiment now
     try:
       runner = OPFModelRunner(
@@ -476,13 +469,6 @@ def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
 
   # The logger for this method
   logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')
-
-
-  # -------------------------------------------------------------------------
-  # if NTA is not set in the environment, set it for the user so that
-  #   we can find data files expected to be in the share/prediction/data directory
-  if not "NTA" in os.environ:
-    os.environ['NTA'] = nupic.rootDir
 
 
   # Run the experiment now
