@@ -21,7 +21,7 @@
 
 
 
-"""
+""" @file clamodel.py
 
 Encapsulation of CLAnetwork that implements the ModelBase.
 
@@ -642,16 +642,16 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      
+
       # Test whether each element of a 1-D array is also present in a second
       # array. Sum to get the total # of columns that are active and were
       # predicted.
       score = numpy.in1d(activeColumns, self._prevPredictedColumns).sum()
-      
+
       # Get the percent of active columns that were NOT predicted, that is
       # our anomaly score.
       score = (nActiveColumns - score) / float(nActiveColumns)
-      
+
       inferences[InferenceElement.anomalyScore] = score
 
       # Store the predicted columns for the next timestep
