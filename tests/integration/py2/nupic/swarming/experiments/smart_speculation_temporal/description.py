@@ -373,9 +373,9 @@ applyValueGettersToContainer(config)
 ################################################################################
 control = {
   # The environment that the current model is being run in
-  "environment": 'grok',
+  "environment": 'nupic',
 
-  # Input stream specification per py/grokengine/cluster/database/StreamDef.json.
+  # Input stream specification per py/nupicengine/cluster/database/StreamDef.json.
   #
   'dataset' : {   u'info': u'baseball benchmark test',
       u'streams': [   {   u'columns': [   u'daynight',
@@ -405,9 +405,9 @@ control = {
     MetricSpec(field=u'attendance', inferenceElement=InferenceElement.prediction,
                metric='trivial_aae', params={'window': 1000}),
     MetricSpec(field=u'attendance', inferenceElement=InferenceElement.prediction,
-               metric='grokScore_scalar', params={'frequencyWindow': 1000, 'movingAverageWindow': 1000}),
+               metric='nupicScore_scalar', params={'frequencyWindow': 1000, 'movingAverageWindow': 1000}),
     MetricSpec(field=u'attendance', inferenceElement=InferenceElement.prediction,
-               metric='grokScore_scalar', params={'frequencyWindow': 1000})
+               metric='nupicScore_scalar', params={'frequencyWindow': 1000})
   ],
 
   # Logged Metrics: A sequence of regular expressions that specify which of
@@ -415,7 +415,7 @@ control = {
   # every prediction. The regex's correspond to the automatically generated
   # metric labels. This is similar to the way the optimization metric is
   # specified in permutations.py.
-  'loggedMetrics': ['.*grokScore.*'],
+  'loggedMetrics': ['.*nupicScore.*'],
 }
 
 

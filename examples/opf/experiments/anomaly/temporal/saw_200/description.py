@@ -332,7 +332,7 @@ if config['predictAheadTime'] is not None:
 applyValueGettersToContainer(config)
 control = {
   # The environment that the current model is being run in
-  "environment": 'grok',
+  "environment": 'nupic',
   
   # Input stream specification per py/nupic/cluster/database/StreamDef.json.
   #
@@ -368,7 +368,7 @@ control = {
   # every prediction. The regex's correspond to the automatically generated
   # metric labels. This is similar to the way the optimization metric is
   # specified in permutations.py.
-  'loggedMetrics': ['.*grokScore.*'],
+  'loggedMetrics': ['.*nupicScore.*'],
 }
 
 ################################################################################

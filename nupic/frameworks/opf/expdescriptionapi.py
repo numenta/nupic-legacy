@@ -56,7 +56,7 @@ from nupic.support.enum import Enum
 
 ###############################################################################
 # Enum to characterize potential generation environments
-OpfEnvironment = Enum(Grok='grok',
+OpfEnvironment = Enum(Nupic='nupic',
                       Experiment='opfExperiment')
 
 
@@ -103,10 +103,10 @@ class DescriptionIface(object):
     """
 
   @abstractmethod
-  def convertGrokEnvToOPF(self):
-    """ Converts the control element from Grok format to a default OPF
+  def convertNupicEnvToOPF(self):
+    """ Converts the control element from Nupic format to a default OPF
     format with 1 task. This is useful when you have a base description file
-    that you want to run both permutations on (which requires the Grok
+    that you want to run both permutations on (which requires the Nupic
     environment format) and single OPF experiments on (which requires the
     OPF format).
 
@@ -134,8 +134,8 @@ class ExperimentDescriptionAPI(DescriptionIface):
     environment = control['environment']
     if environment == OpfEnvironment.Experiment:
       self.__validateExperimentControl(control)
-    elif environment == OpfEnvironment.Grok:
-      self.__validateGrokControl(control)
+    elif environment == OpfEnvironment.Nupic:
+      self.__validateNupicControl(control)
 
     self.__modelConfig = modelConfig
     self.__control = control
@@ -186,16 +186,16 @@ class ExperimentDescriptionAPI(DescriptionIface):
     return
 
   #############################################################################
-  def __validateGrokControl(self, control):
-    """ Validates control dictionary for the grok engine context"""
-    validateOpfJsonValue(control, "grokControlSchema.json")
+  def __validateNupicControl(self, control):
+    """ Validates control dictionary for the nupic engine context"""
+    validateOpfJsonValue(control, "nupicControlSchema.json")
 
 
   #############################################################################
-  def convertGrokEnvToOPF(self):
+  def convertNupicEnvToOPF(self):
 
     # We need to create a task structure, most of which is taken verbatim
-    # from the Grok control dict
+    # from the Nupic control dict
     task = dict(self.__control)
 
     task.pop('environment')
@@ -224,7 +224,7 @@ class ExperimentDescriptionAPI(DescriptionIface):
     task['taskControl'] = taskControl
 
     # Create the new control
-    self.__control = dict(environment = OpfEnvironment.Grok,
+    self.__control = dict(environment = OpfEnvironment.Nupic,
                           tasks = [task])
 
 

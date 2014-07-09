@@ -1326,7 +1326,7 @@ class ClientJobsDAO(object):
     #       suspended: consider using a WHERE clause to make sure that
     #       the job is not already in the "completed" state
 
-    # TODO: when Grok job control states get figured out, there may be a
+    # TODO: when Nupic job control states get figured out, there may be a
     #       different way to suspend jobs ("cancel" doesn't make sense for this)
 
     # NOTE: jobCancel() does retries on transient mysql failures
@@ -1612,7 +1612,7 @@ class ClientJobsDAO(object):
   ##############################################################################
   @logExceptions(_getLogger)
   def jobStartNext(self):
-    """ For use only by Grok Scheduler (also known as ClientJobManager) Look
+    """ For use only by Nupic Scheduler (also known as ClientJobManager) Look
     through the jobs table and see if any new job requests have been
     queued up. If so, pick one and mark it as starting up and create the
     model table to hold the results
@@ -1644,7 +1644,7 @@ class ClientJobsDAO(object):
   def jobReactivateRunningJobs(self):
     """ Look through the jobs table and reactivate all that are already in the
     running state by setting their _eng_allocate_new_workers fields to True;
-    used by Grok Scheduler as part of its failure-recovery procedure.
+    used by Nupic Scheduler as part of its failure-recovery procedure.
     """
 
     # Get a database connection and cursor
@@ -2986,7 +2986,7 @@ class ClientJobsDAO(object):
 
 ###############################################################################
 #def testClientJobsDAO():
-#  # WARNING: these tests assume that Grok Scheduler is not running, and bad
+#  # WARNING: these tests assume that Nupic Scheduler is not running, and bad
 #  #  things will happen if the test is executed while the Scheduler is running
 #
 #  # TODO: This test code is out of date: e.g., at the time of this writing,
