@@ -746,6 +746,7 @@ WARN_LOGFILE           =
 INPUT                  = docs \
                          py/nupic/frameworks/opf/__init__.py \
                          py/nupic/frameworks/opf/clamodel.py \
+                         py/nupic/frameworks/opf/modelfactory.py \
                          py/nupic/research/__init__.py \
                          py/nupic/research/TP10X2.py \
                          py/nupic/research/TPTrivial.py \
