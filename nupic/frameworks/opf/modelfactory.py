@@ -19,6 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+""" @file modelfactory.py
+
+ Model factory.
+"""
+
 import os
 import logging
 
@@ -72,7 +77,7 @@ class ModelFactory(object):
     else:
       raise Exception("ModelFactory received unsupported Model type: %s" % \
                       modelConfig['model'])
-    
+
     return modelClass(**modelConfig['modelParams'])
 
   @staticmethod
