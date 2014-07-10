@@ -755,9 +755,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = docs \
-                         py/nupic/frameworks/opf/__init__.py \
-                         py/nupic/frameworks/opf/clamodel.py \
-                         py/nupic/frameworks/opf/modelfactory.py \
+                         nupic/frameworks/opf/__init__.py \
+                         nupic/frameworks/opf/clamodel.py \
+                         nupic/frameworks/opf/modelfactory.py \
                          nupic/research/__init__.py \
                          nupic/research/TP10X2.py \
                          nupic/research/TPTrivial.py \
