@@ -19,7 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Encapsulation of CLAnetwork that implements the ModelBase."""
+""" @file clamodel.py
+
+Encapsulation of CLAnetwork that implements the ModelBase.
+
+"""
 
 import copy
 import math
@@ -638,6 +642,7 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
+
       inferences[InferenceElement.anomalyScore] = (
           computeAnomalyScore(activeColumns, self._prevPredictedColumns))
 
