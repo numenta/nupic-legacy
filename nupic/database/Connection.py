@@ -20,10 +20,7 @@
 # ----------------------------------------------------------------------
 
 import logging
-import os
 import platform
-import sys
-import time
 import traceback
 
 import pymysql
