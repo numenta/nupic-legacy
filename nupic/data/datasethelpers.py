@@ -40,7 +40,7 @@ def findDataset(datasetPath):
     2. ./data
     3. ./
     4. NTA
-    5. ~/nta/current/share/prediction/data (unix)
+    5. ~/nta/current/examples/prediction/data (unix)
 
   If the dataset is compressed (ends in .gz) returns the name of the compressed
   file.
@@ -107,7 +107,7 @@ def _getDataDirs():
   2. ./data
   3. ./
   4. NTA
-  5. ~/nta/current/share/prediction/data (unix)
+  5. ~/nta/current/examples/prediction/data (unix)
 
   """
   dataDirs = []
@@ -120,17 +120,17 @@ def _getDataDirs():
   dataDirs.append(('data', "in local directory 'data'"))
   dataDirs.append((".", "in current working directory"))
 
-  if "NTA" in os.environ:
-    d = os.path.join(os.environ['NTA'], 'share/prediction/data')
+  if "NUPIC" in os.environ:
+    d = os.path.join(os.environ['NUPIC'], 'examples/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA/share/prediction/data'))
+        dataDirs.append((d, 'in $NUPIC/examples/prediction/data'))
 
   if sys.platform != 'win32' and 'HOME' in os.environ:
-    d = os.path.join(os.environ['HOME'], 'nta/current/share/prediction/data')
+    d = os.path.join(os.environ['HOME'], 'nta/current/examples/prediction/data')
     if os.path.isdir(d):
       if d not in zip(*dataDirs)[0]:
-        dataDirs.append((d, 'in $NTA/share/prediction/data'))
+        dataDirs.append((d, 'in $NUPIC/examples/prediction/data'))
 
   return dataDirs
 

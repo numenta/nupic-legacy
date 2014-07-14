@@ -42,51 +42,57 @@ _Note_: If using pip 1.5 or later:
 
 _Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with 'sudo'.
 
-## Build and test NuPIC:
+## User instructions
 
-NuPIC needs the following environment variables to build:
+If you want NuPIC only for your apps use it, simply do this:
 
-```
-# `$NUPIC` is the path to your NuPIC repository.
-# Remember to replace <NuPIC path> with the real path:
-export NUPIC=<NuPIC path>
+    python setup.py install
 
-# `$NTA` is the installation path for NuPIC. 
-export NTA=$NUPIC/build/release
-```
+_Note_: If you get a "permission denied" error when using this, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with 'sudo'.
 
-NuPIC needs to be added to `$PYTHONPATH` to run and test:
+Once it is installed, you can import NuPIC library to your python script using:
 
-```
-# You may choose one of the following based on your version of Python:
-# For Python 2.6:
-export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.6/site-packages
-# For Python 2.7:
-export PYTHONPATH=$PYTHONPATH:$NTA/lib/python2.7/site-packages
-```
+    import nupic
 
-Tips:
+For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC](https://github.com/numenta/nupic/wiki/Using-NuPIC) wiki page.
 
-* You may set these environment variables in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing. 
-* You may set a different path for `$NTA` or specify the location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
-* For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
+## Developer instructions
+
+If you want develop, debug, or simply test NuPIC, clone it and follow the instructions:
 
 ### Using command line
 
-#### Configure and generate build files:
+#### To configure the environment:
+
+    ```
+    # `$NUPIC` is the path to your NuPIC repository.
+    # Remember to replace <NuPIC path> with the real path:
+    export NUPIC=<NuPIC path>
+    ```
+
+_Note_: You may set this environment variable in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing.
+
+#### To generate build files:
 
     mkdir -p $NUPIC/build/scripts
     cd $NUPIC/build/scripts
     cmake $NUPIC
 
-#### Build:
+_Note_: You may specify the install location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
+
+#### To build:
 
     cd $NUPIC/build/scripts
     make -j3
 
-> **Note**: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
+_Note_: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
 
-#### Run the tests:
+#### To install:
+
+    cd $NUPIC/build/scripts
+    make install
+
+#### To run the tests:
 
     cd $NUPIC/build/scripts
     # all C++ unit tests
@@ -104,24 +110,42 @@ Tips:
 
 ### Using graphical interface
 
-#### Generate the IDE solution:
+If you don't have a strong preference about which IDE use, we recommend you use any IDE that has native support to CMake and that don't require generation of IDE solution. Among them:
+- KDevelop 4.6 or later: http://kdevelop.org/
+- JetBrains C++ [coming soon]: http://www.jetbrains.com/objc/features/cpp.html
 
- * Open CMake executable.
+#### To generate the IDE solution:
+
+IDE with CMake support:
+ * Open a project.
+ * Specify the `CMakeLists.txt` file in root as project solution and finish the proccess.
+
+Other IDEs:
+ * Open CMake-GUI executable.
  * Specify the source folder (`$NUPIC`).
  * Specify the build system folder (`$NUPIC/build/scripts`), i.e. where IDE solution will be created.
  * Click `Generate`.
  * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
-
-#### Build:
-
  * Open `nupic.*proj` solution file generated on `$NUPIC/build/scripts`.
- * Run `ALL_BUILD` project from your IDE.
 
-#### Run the tests:
+#### To build:
+
+IDE with CMake support:
+ * Just click `Build` button from your IDE.
+
+Other IDEs:
+ * Run `ALL_BUILD` target from your IDE.
+
+#### To install:
+
+IDE with CMake support:
+ * Just click `Install` button from your IDE.
+
+Other IDEs:
+ * Run `INSTALL` target from your IDE.
+
+#### To run the tests:
 
  * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
-### Examples
-
-For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC](https://github.com/numenta/nupic/wiki/Using-NuPIC) wiki page.
-
+For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
