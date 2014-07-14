@@ -9,7 +9,7 @@ os:
 
 compiler:
   - clang
-  - gcc
+#  - gcc
 
 env:
   global:
@@ -17,7 +17,7 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
   matrix:
     - PY_VER=2.7
-    - PY_VER=2.6
+#    - PY_VER=2.6
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc and Python 2.6
