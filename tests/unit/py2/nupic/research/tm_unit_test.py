@@ -58,6 +58,63 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, Connections, *args)
 
 
+  def testCellsForColumn1D(self):
+    connections = Connections([2048], 5)
+    expectedCells = {5, 6, 7, 8, 9}
+    self.assertEqual(connections.cellsForColumn(1), expectedCells)
+
+
+  def testCellsForColumn2D(self):
+    connections = Connections([64, 64], 4)
+    expectedCells = {256, 257, 258, 259}
+    self.assertEqual(connections.cellsForColumn(64), expectedCells)
+
+
+  def testCellsForColumnInvalidColumn(self):
+    connections = Connections([64, 64], 4)
+
+    try:
+      connections.cellsForColumn(4095)
+    except IndexError:
+      self.fail("IndexError raised unexpectedly")
+
+    args = [connections, 4096]
+    self.assertRaises(IndexError, Connections.cellsForColumn, *args)
+
+    args = [connections, -1]
+    self.assertRaises(IndexError, Connections.cellsForColumn, *args)
+
+
+  def testColumnForCell1D(self):
+    connections = Connections([2048], 5)
+    self.assertEqual(connections.columnForCell(0), 0)
+    self.assertEqual(connections.columnForCell(4), 0)
+    self.assertEqual(connections.columnForCell(5), 1)
+    self.assertEqual(connections.columnForCell(10239), 2047)
+
+
+  def testColumnForCell2D(self):
+    connections = Connections([64, 64], 4)
+    self.assertEqual(connections.columnForCell(0), 0)
+    self.assertEqual(connections.columnForCell(3), 0)
+    self.assertEqual(connections.columnForCell(4), 1)
+    self.assertEqual(connections.columnForCell(16383), 4095)
+
+
+  def testColumnForCellInvalidCell(self):
+    connections = Connections([64, 64], 4)
+
+    try:
+      connections.columnForCell(16383)
+    except IndexError:
+      self.fail("IndexError raised unexpectedly")
+
+    args = [connections, 16384]
+    self.assertRaises(IndexError, Connections.columnForCell, *args)
+
+    args = [connections, -1]
+    self.assertRaises(IndexError, Connections.columnForCell, *args)
+
 
 
 if __name__ == '__main__':
