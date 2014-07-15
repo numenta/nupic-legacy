@@ -95,6 +95,41 @@ class TM(object):
     self.permanenceDecrement = permanenceDecrement
 
 
+  def activateCorrectlyPredictiveCells(self, prevPredictiveCells, activeColumns):
+    """
+    Phase 1: Activate the correctly predictive cells.
+
+    Pseudocode:
+
+      - for each prev predictive cell
+        - if in active column
+          - mark it as active
+          - mark it as winner cell
+          - mark column as predicted
+
+    @param  prevPredictiveCells (set) Indices of predictive cells in `t-1`
+    @param  activeColumns       (set) Indices of active columns in `t`
+
+    @return (tuple) Contains:
+                      activeCells      (set)
+                      winnerCells      (set)
+                      predictedColumns (set)
+    """
+    activeCells      = set()
+    winnerCells      = set()
+    predictedColumns = set()
+
+    for cell in prevPredictiveCells:
+      column = self.connections.columnForCell(cell)
+
+      if column in activeColumns:
+        activeCells.add(cell)
+        winnerCells.add(cell)
+        predictedColumns.add(column)
+
+    return (activeCells, winnerCells, predictedColumns)
+
+
 
 class Connections(object):
   """
@@ -187,7 +222,7 @@ class Connections(object):
     self._validateCell(cell)
 
     if not cell in self._segmentsForCell:
-      return {}
+      return set()
 
     return self._segmentsForCell[cell]
 
@@ -219,7 +254,7 @@ class Connections(object):
     self._validateSegment(segment)
 
     if not segment in self._synapsesForSegment:
-      return {}
+      return set()
 
     return self._synapsesForSegment[segment]
 
@@ -235,7 +270,7 @@ class Connections(object):
     self._validateCell(sourceCell)
 
     if not sourceCell in self._synapsesForSourceCell:
-      return {}
+      return set()
 
     return self._synapsesForSourceCell[sourceCell]
 
