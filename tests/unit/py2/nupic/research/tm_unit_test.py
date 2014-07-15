@@ -36,12 +36,12 @@ class TMTest(unittest.TestCase):
   def testActivateCorrectlyPredictiveCells(self):
     tm = self.tm
 
-    prevPredictedCells = {0, 237, 1026, 26337, 26339, 55536}
+    prevPredictiveCells = {0, 237, 1026, 26337, 26339, 55536}
     activeColumns = {32, 47, 823}
     
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictedCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
                                                             activeColumns)
 
     self.assertEqual(activeCells, {1026, 26337, 26339})
@@ -52,12 +52,40 @@ class TMTest(unittest.TestCase):
   def testActivateCorrectlyPredictiveCellsEmpty(self):
     tm = self.tm
 
-    prevPredictedCells = set()
+    prevPredictiveCells = set()
     activeColumns      = set()
     
     (activeCells,
     winnerCells,
-    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictedCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                            activeColumns)
+
+    self.assertEqual(activeCells,      set())
+    self.assertEqual(winnerCells,      set())
+    self.assertEqual(predictedColumns, set())
+
+    # No previous predictive cells
+
+    prevPredictiveCells = set()
+    activeColumns = {32, 47, 823}
+    
+    (activeCells,
+    winnerCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                            activeColumns)
+
+    self.assertEqual(activeCells,      set())
+    self.assertEqual(winnerCells,      set())
+    self.assertEqual(predictedColumns, set())
+
+    # No active columns
+
+    prevPredictiveCells = {0, 237, 1026, 26337, 26339, 55536}
+    activeColumns = set()
+    
+    (activeCells,
+    winnerCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
                                                             activeColumns)
 
     self.assertEqual(activeCells,      set())
