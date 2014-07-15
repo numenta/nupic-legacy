@@ -35,11 +35,64 @@ class TM(object):
   """
 
   def __init__(self,
+               columnDimensions=[2048],
+               cellsPerColumn=32,
+               activationThreshold=13,
+               learningRadius=2048,
+               initialPermanence=0.21,
+               connectedPermanence=0.50,
+               minThreshold=10,
+               newSynapseCount=20,
+               permanenceIncrement=0.10,
+               permanenceDecrement=0.10,
                seed=42):
     """
-    TODO
+    @param columnDimensions    (list)   Dimensions of the column space
+
+    @param cellsPerColumn      (int)    Number of cells per column
+
+    @param activationThreshold (int)    Minimum number of synapses active on
+                                        a segment to make the segment active.
+
+    @param learningRadius      (int)    Radius around cell from which it can
+                                        sample to form distal dendrite
+                                        connections.
+
+    @param initialPermanence   (float)  Initial permanence of a new synapse.
+
+    @param connectedPermanence (float)  Minimum permanence of a synapse to
+                                        make it connected.
+
+    @param minThreshold        (int)    Minimum number of synapses active on
+                                        a segment for it to be selected as the
+                                        best matching cell in a bursing column.
+
+    @param newSynapseCount     (int)    The maximum number of synapses added
+                                        to a segment during learning.
+
+    @param permanenceIncrement (float)  Amount by which permanences of synapses
+                                        are incremented during learning.
+
+    @param permanenceDecrement (float)  Amount by which permanences of synapses
+                                        are decremented during learning.
+
+    @param seed                (int)    Seed for the random number generator.
     """
-    pass
+    # TODO: Validate all parameters (and add validation tests)
+
+    # Initialize member variables
+    self.connections = Connections(columnDimensions, cellsPerColumn)
+    self._random = Random(seed)
+
+    # Save member variables
+    self.activationThreshold = activationThreshold
+    self.learningRadius = learningRadius
+    self.initialPermanence = initialPermanence
+    self.connectedPermanence = connectedPermanence
+    self.minThreshold = minThreshold
+    self.newSynapseCount = newSynapseCount
+    self.permanenceIncrement = permanenceIncrement
+    self.permanenceDecrement = permanenceDecrement
 
 
 
@@ -63,7 +116,7 @@ class Connections(object):
     if not cellsPerColumn > 0:
       raise ValueError("Number of cells per column must be greater than 0")
 
-    # Initialize member variables
+    # Save member variables
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
 
