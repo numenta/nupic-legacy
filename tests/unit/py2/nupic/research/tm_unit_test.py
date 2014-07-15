@@ -37,6 +37,10 @@ class TMTest(unittest.TestCase):
 class ConnectionsTest(unittest.TestCase):
 
 
+  def setUp(self):
+    self.connections = Connections([2048], 32)
+
+
   def testInit(self):
     columnDimensions = [2048]
     cellsPerColumn = 32
@@ -78,11 +82,11 @@ class ConnectionsTest(unittest.TestCase):
     except IndexError:
       self.fail("IndexError raised unexpectedly")
 
-    args = [connections, 4096]
-    self.assertRaises(IndexError, Connections.cellsForColumn, *args)
+    args = [4096]
+    self.assertRaises(IndexError, connections.cellsForColumn, *args)
 
-    args = [connections, -1]
-    self.assertRaises(IndexError, Connections.cellsForColumn, *args)
+    args = [-1]
+    self.assertRaises(IndexError, connections.cellsForColumn, *args)
 
 
   def testColumnForCell1D(self):
@@ -109,11 +113,45 @@ class ConnectionsTest(unittest.TestCase):
     except IndexError:
       self.fail("IndexError raised unexpectedly")
 
-    args = [connections, 16384]
-    self.assertRaises(IndexError, Connections.columnForCell, *args)
+    args = [16384]
+    self.assertRaises(IndexError, connections.columnForCell, *args)
 
-    args = [connections, -1]
-    self.assertRaises(IndexError, Connections.columnForCell, *args)
+    args = [-1]
+    self.assertRaises(IndexError, connections.columnForCell, *args)
+
+
+  def testCreateSegment(self):
+    connections = self.connections
+
+    self.assertEqual(connections.createSegment(0), 0)
+    self.assertEqual(connections.createSegment(10), 1)
+
+    self.assertEqual(connections.cellForSegment(0), 0)
+    self.assertEqual(connections.cellForSegment(1), 10)
+
+
+  def testCreateSegmentInvalidCell(self):
+    connections = self.connections
+
+    try:
+      connections.createSegment(65535)
+    except IndexError:
+      self.fail("IndexError raised unexpectedly")
+
+    args = [65536]
+    self.assertRaises(IndexError, connections.createSegment, *args)
+
+    args = [-1]
+    self.assertRaises(IndexError, connections.createSegment, *args)
+
+
+  def testCellForSegmentInvalidSegment(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+
+    args = [1]
+    self.assertRaises(IndexError, connections.cellForSegment, *args)
 
 
 
