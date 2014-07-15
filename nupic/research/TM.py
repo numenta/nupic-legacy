@@ -74,6 +74,7 @@ class Connections(object):
     # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
     self._synapsesForSegment = dict()
+    self._synapsesForSourceCell = dict()
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -164,6 +165,21 @@ class Connections(object):
     return self._synapsesForSegment[segment]
 
 
+  def synapsesForSourceCell(self, sourceCell):
+    """
+    Returns the synapses for the source cell that they synapse on.
+
+    @param  sourceCell (int) Source cell index
+    @return synapses   (set) Synapse indices
+    """
+    self._validateCell(sourceCell)
+
+    if not sourceCell in self._synapsesForSourceCell:
+      return {}
+
+    return self._synapsesForSourceCell[sourceCell]
+
+
   def createSegment(self, cell):
     """
     Adds a new segment on a cell.
@@ -173,10 +189,14 @@ class Connections(object):
     """
     self._validateCell(cell)
 
+    # Add data
+    
     segment = self._nextSegmentIdx
     self._segments[segment] = cell
     self._nextSegmentIdx += 1
 
+    # Update indexes
+    
     if not len(self.segmentsForCell(cell)):
       self._segmentsForCell[cell] = set()
     self._segmentsForCell[cell].add(segment)
@@ -196,13 +216,21 @@ class Connections(object):
     self._validateCell(sourceCell)
     self._validatePermanence(permanence)
 
+    # Add data
+    
     synapse = self._nextSynapseIdx
     self._synapses[synapse] = (segment, sourceCell, permanence)
     self._nextSynapseIdx += 1
 
+    # Update indexes
+
     if not len(self.synapsesForSegment(segment)):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
+
+    if not len(self.synapsesForSourceCell(sourceCell)):
+      self._synapsesForSourceCell[sourceCell] = set()
+    self._synapsesForSourceCell[sourceCell].add(synapse)
 
     return synapse
 
