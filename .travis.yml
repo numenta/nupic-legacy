@@ -137,6 +137,8 @@ script:
 
 after_success:
   - "ls -latr /Users/travis/Library/Python/$PY_VER/lib/python/site-packages"
+  - "ls -latr /home/travis/.local/lib/python$PY_VER/site-packages"
+  - "echo $PYTHONPATH"
   #- "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
   # Only publishing unit test coverage at this point.
   #- "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
