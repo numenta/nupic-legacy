@@ -235,6 +235,33 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(IndexError, connections.synapsesForSourceCell, *args)
 
 
+  def testUpdateSynapsePermanence(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+    connections.createSynapse(0, 483, 0.1284)
+
+    connections.updateSynapsePermanence(0, 0.2496)
+    self.assertEqual(connections.dataForSynapse(0), (0, 483, 0.2496))
+
+
+  def testUpdateSynapsePermanenceInvalidParams(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+    connections.createSynapse(0, 483, 0.1284)
+
+    # Invalid synapse
+    args = [1, 0.4374]
+    self.assertRaises(IndexError, connections.updateSynapsePermanence, *args)
+
+    # Invalid permanence
+    args = [0, 1.4374]
+    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
+    args = [0, -0.4374]
+    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
+
+
 
 if __name__ == '__main__':
   unittest.main()

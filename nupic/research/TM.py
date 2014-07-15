@@ -235,6 +235,20 @@ class Connections(object):
     return synapse
 
 
+  def updateSynapsePermanence(self, synapse, permanence):
+    """
+    Updates the permanence for a synapse.
+
+    @param synapse    (int)   Synapse index
+    @param permanence (float) New permanence
+    """
+    self._validateSynapse(synapse)
+    self._validatePermanence(permanence)
+
+    data = self._synapses[synapse]
+    self._synapses[synapse] = data[:-1] + (permanence,)
+
+
   # Helper methods
 
   def _validateColumn(self, column):
