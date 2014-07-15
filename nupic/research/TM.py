@@ -140,7 +140,8 @@ class Connections(object):
     Returns the index of the column that a cell belongs to.
 
     @param  cell   (int) Cell index
-    @return column (set) Column index
+
+    @return (int) Column index
     """
     self._validateCell(cell)
 
@@ -152,7 +153,8 @@ class Connections(object):
     Returns the indices of cells that belong to a column.
 
     @param  column (int) Column index
-    @return cell   (set) Cell indices
+
+    @return (set) Cell indices
     """
     self._validateColumn(column)
 
@@ -166,7 +168,8 @@ class Connections(object):
     Returns the cell that a segment belongs to.
 
     @param  segment (int) Segment index
-    @return cell    (int) Cell index
+
+    @return (int) Cell index
     """
     self._validateSegment(segment)
 
@@ -178,7 +181,8 @@ class Connections(object):
     Returns the segments that belong to a cell.
 
     @param  cell     (int) Cell index
-    @return segments (set) Segment indices
+
+    @return (set) Segment indices
     """
     self._validateCell(cell)
 
@@ -193,10 +197,11 @@ class Connections(object):
     Returns the data for a synapse.
 
     @param  synapse (int)   Synapse index
-    @return data    (tuple) Contains:
-                              segment (int)
-                              sourceCell (int)
-                              permanence (float)
+
+    @return (tuple) Contains:
+                      segment (int)
+                      sourceCell (int)
+                      permanence (float)
     """
     self._validateSynapse(synapse)
 
@@ -208,7 +213,8 @@ class Connections(object):
     Returns the synapses on a segment.
 
     @param  segment  (int) Segment index
-    @return synapses (set) Synapse indices
+
+    @return (set) Synapse indices
     """
     self._validateSegment(segment)
 
@@ -223,7 +229,8 @@ class Connections(object):
     Returns the synapses for the source cell that they synapse on.
 
     @param  sourceCell (int) Source cell index
-    @return synapses   (set) Synapse indices
+
+    @return (set) Synapse indices
     """
     self._validateCell(sourceCell)
 
@@ -238,7 +245,8 @@ class Connections(object):
     Adds a new segment on a cell.
 
     @param  cell    (int) Cell index
-    @return segment (int) New segment index
+
+    @return (int) New segment index
     """
     self._validateCell(cell)
 
@@ -358,7 +366,7 @@ class Connections(object):
     """
     Returns the number of columns in this layer.
 
-    @return numberOfColumns (int) Number of columns
+    @return (int) Number of columns
     """
     return reduce(mul, self.columnDimensions, 1)
 
