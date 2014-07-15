@@ -29,8 +29,40 @@ from nupic.research.TM import Connections, TM
 class TMTest(unittest.TestCase):
 
 
-  def testInit(self):
-    pass
+  def setUp(self):
+    self.tm = TM()
+    
+
+  def testActivateCorrectlyPredictiveCells(self):
+    tm = self.tm
+
+    prevPredictedCells = {0, 237, 1026, 26337, 26339, 55536}
+    activeColumns = {32, 47, 823}
+    
+    (activeCells,
+    winnerCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictedCells,
+                                                            activeColumns)
+
+    self.assertEqual(activeCells, {1026, 26337, 26339})
+    self.assertEqual(winnerCells, {1026, 26337, 26339})
+    self.assertEqual(predictedColumns, {32, 823})
+
+
+  def testActivateCorrectlyPredictiveCellsEmpty(self):
+    tm = self.tm
+
+    prevPredictedCells = set()
+    activeColumns      = set()
+    
+    (activeCells,
+    winnerCells,
+    predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictedCells,
+                                                            activeColumns)
+
+    self.assertEqual(activeCells,      set())
+    self.assertEqual(winnerCells,      set())
+    self.assertEqual(predictedColumns, set())
 
 
 
@@ -123,7 +155,7 @@ class ConnectionsTest(unittest.TestCase):
   def testCreateSegment(self):
     connections = self.connections
 
-    self.assertEqual(connections.segmentsForCell(0), {})
+    self.assertEqual(connections.segmentsForCell(0), set())
 
     self.assertEqual(connections.createSegment(0), 0)
     self.assertEqual(connections.createSegment(0), 1)
@@ -173,7 +205,7 @@ class ConnectionsTest(unittest.TestCase):
     connections = self.connections
 
     connections.createSegment(0)
-    self.assertEqual(connections.synapsesForSegment(0), {})
+    self.assertEqual(connections.synapsesForSegment(0), set())
 
     self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
     self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
@@ -182,7 +214,7 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(connections.synapsesForSegment(0), {0, 1})
 
-    self.assertEqual(connections.synapsesForSourceCell(174), {})
+    self.assertEqual(connections.synapsesForSourceCell(174), set())
     self.assertEqual(connections.synapsesForSourceCell(254), {0})
 
 
