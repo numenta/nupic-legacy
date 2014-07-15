@@ -35,7 +35,7 @@ before_deploy:
   # This is the directory we'll be archiving.
   - mkdir ${TRAVIS_BUILD_DIR}/build/archive
   # Tar up the release directory
-  - tar -zcf ${TRAVIS_BUILD_DIR}/build/archive/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NUPIC/.. --transform=s/eng/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" eng
+  - # tar -zcf ${TRAVIS_BUILD_DIR}/build/archive/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NUPIC/.. --transform=s/eng/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" eng
 
 deploy:
   provider: s3
