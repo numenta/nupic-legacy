@@ -182,6 +182,9 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(connections.synapsesForSegment(0), {0, 1})
 
+    self.assertEqual(connections.synapsesForSourceCell(174), {})
+    self.assertEqual(connections.synapsesForSourceCell(254), {0})
+
 
   def testCreateSynapseInvalidParams(self):
     connections = self.connections
@@ -220,6 +223,16 @@ class ConnectionsTest(unittest.TestCase):
 
     args = [1]
     self.assertRaises(IndexError, connections.synapsesForSegment, *args)
+
+
+  def testSynapsesForSourceCellInvalidCell(self):
+    connections = self.connections
+
+    args = [65536]
+    self.assertRaises(IndexError, connections.synapsesForSourceCell, *args)
+
+    args = [-1]
+    self.assertRaises(IndexError, connections.synapsesForSourceCell, *args)
 
 
 
