@@ -199,7 +199,7 @@ class Connections(object):
     @param  synapse (int)   Synapse index
 
     @return (tuple) Contains:
-                      segment (int)
+                      segment    (int)
                       sourceCell (int)
                       permanence (float)
     """
