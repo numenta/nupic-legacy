@@ -74,6 +74,18 @@ class Connections(object):
     self._nextSegmentIdx = 0
 
 
+  def columnForCell(self, cell):
+    """
+    Returns the index of the column that a cell belongs to.
+
+    @param  cell   (int) Cell index
+    @return column (set) Column index
+    """
+    self._validateCell(cell)
+
+    return int(cell / self.cellsPerColumn)
+
+
   def cellsForColumn(self, column):
     """
     Returns the indices of cells that belong to a column.
@@ -86,18 +98,6 @@ class Connections(object):
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
     return {cell for cell in range(start, end)}
-
-
-  def columnForCell(self, cell):
-    """
-    Returns the index of the column that a cell belongs to.
-
-    @param  cell   (int) Cell index
-    @return column (set) Column index
-    """
-    self._validateCell(cell)
-
-    return int(cell / self.cellsPerColumn)
 
 
   def cellForSegment(self, segment):
