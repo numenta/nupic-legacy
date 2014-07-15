@@ -123,11 +123,16 @@ class ConnectionsTest(unittest.TestCase):
   def testCreateSegment(self):
     connections = self.connections
 
+    self.assertEqual(connections.segmentsForCell(0), {})
+
     self.assertEqual(connections.createSegment(0), 0)
-    self.assertEqual(connections.createSegment(10), 1)
+    self.assertEqual(connections.createSegment(0), 1)
+    self.assertEqual(connections.createSegment(10), 2)
 
     self.assertEqual(connections.cellForSegment(0), 0)
-    self.assertEqual(connections.cellForSegment(1), 10)
+    self.assertEqual(connections.cellForSegment(2), 10)
+
+    self.assertEqual(connections.segmentsForCell(0), {0, 1})
 
 
   def testCreateSegmentInvalidCell(self):
@@ -152,6 +157,16 @@ class ConnectionsTest(unittest.TestCase):
 
     args = [1]
     self.assertRaises(IndexError, connections.cellForSegment, *args)
+
+
+  def testSegmentsForCellInvalidCell(self):
+    connections = self.connections
+
+    args = [65536]
+    self.assertRaises(IndexError, connections.segmentsForCell, *args)
+
+    args = [-1]
+    self.assertRaises(IndexError, connections.segmentsForCell, *args)
 
 
 
