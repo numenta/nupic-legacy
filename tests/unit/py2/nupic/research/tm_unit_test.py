@@ -169,6 +169,59 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(IndexError, connections.segmentsForCell, *args)
 
 
+  def testCreateSynapse(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+    self.assertEqual(connections.synapsesForSegment(0), {})
+
+    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
+    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
+
+    self.assertEqual(connections.dataForSynapse(0), (0, 254, 0.1173))
+
+    self.assertEqual(connections.synapsesForSegment(0), {0, 1})
+
+
+  def testCreateSynapseInvalidParams(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+
+    # Invalid segment
+    args = [1, 48, 0.124]
+    self.assertRaises(IndexError, connections.createSynapse, *args)
+
+    # Invalid sourceCell
+    args = [0, 65536, 0.124]
+    self.assertRaises(IndexError, connections.createSynapse, *args)
+
+    # Invalid permanence
+    args = [0, 48, 1.124]
+    self.assertRaises(ValueError, connections.createSynapse, *args)
+    args = [0, 48, -0.124]
+    self.assertRaises(ValueError, connections.createSynapse, *args)
+
+
+  def testDataForSynapseInvalidSynapse(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+    connections.createSynapse(0, 834, 0.1284)
+
+    args = [1]
+    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+
+
+  def testSynapsesForSegmentInvalidSegment(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+
+    args = [1]
+    self.assertRaises(IndexError, connections.synapsesForSegment, *args)
+
+
 
 if __name__ == '__main__':
   unittest.main()

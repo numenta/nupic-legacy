@@ -67,11 +67,18 @@ class Connections(object):
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
 
+    # Mappings
     self._segments = dict()
+    self._synapses = dict()
+
+    # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
+    self._synapsesForSegment = dict()
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
+    # Index of the next synapse to be created
+    self._nextSynapseIdx = 0
 
 
   def columnForCell(self, cell):
@@ -127,6 +134,36 @@ class Connections(object):
     return self._segmentsForCell[cell]
 
 
+  def dataForSynapse(self, synapse):
+    """
+    Returns the data for a synapse.
+
+    @param  synapse (int)   Synapse index
+    @return data    (tuple) Contains:
+                              segment (int)
+                              sourceCell (int)
+                              permanence (float)
+    """
+    self._validateSynapse(synapse)
+
+    return self._synapses[synapse]
+
+
+  def synapsesForSegment(self, segment):
+    """
+    Returns the synapses on a segment.
+
+    @param  segment  (int) Segment index
+    @return synapses (set) Synapse indices
+    """
+    self._validateSegment(segment)
+
+    if not segment in self._synapsesForSegment:
+      return {}
+
+    return self._synapsesForSegment[segment]
+
+
   def createSegment(self, cell):
     """
     Adds a new segment on a cell.
@@ -145,6 +182,29 @@ class Connections(object):
     self._segmentsForCell[cell].add(segment)
 
     return segment
+
+
+  def createSynapse(self, segment, sourceCell, permanence):
+    """
+    Creates a new synapse on a segment.
+
+    @param  segment    (int)   Segment index
+    @param  sourceCell (int)   Source cell index
+    @param  permanence (float) Initial permanence
+    """
+    self._validateSegment(segment)
+    self._validateCell(sourceCell)
+    self._validatePermanence(permanence)
+
+    synapse = self._nextSynapseIdx
+    self._synapses[synapse] = (segment, sourceCell, permanence)
+    self._nextSynapseIdx += 1
+
+    if not len(self.synapsesForSegment(segment)):
+      self._synapsesForSegment[segment] = set()
+    self._synapsesForSegment[segment].add(synapse)
+
+    return synapse
 
 
   # Helper methods
@@ -177,6 +237,26 @@ class Connections(object):
     """
     if not segment in self._segments:
       raise IndexError("Invalid segment")
+
+
+  def _validateSynapse(self, synapse):
+    """
+    Raises an error if synapse index is invalid.
+
+    @param synapse (int) Synapse index
+    """
+    if not synapse in self._synapses:
+      raise IndexError("Invalid synapse")
+
+
+  def _validatePermanence(self, permanence):
+    """
+    Raises an error if permanence is invalid.
+
+    @param permanence (float) Permanence
+    """
+    if permanence < 0 or permanence > 1:
+      raise ValueError("Invalid permanence")
 
 
   def _numberOfColumns(self):
