@@ -67,6 +67,11 @@ class Connections(object):
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
 
+    self._segments = dict()
+
+    # Index of the next segment to be created
+    self._nextSegmentIdx = 0
+
 
   def cellsForColumn(self, column):
     """
@@ -93,13 +98,43 @@ class Connections(object):
     @return column (set) Column index
     """
     # Error checking
-    numberOfCells = self._numberOfColumns() * self.cellsPerColumn
-    if cell >= numberOfCells or cell < 0:
+    if cell >= self._numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
 
     # Compute column for cell
     return int(cell / self.cellsPerColumn)
 
+
+  def cellForSegment(self, segment):
+    """
+    Returns the cell that a segment belongs to.
+
+    @param segment (int) Segment index
+    """
+    if not segment in self._segments:
+      raise IndexError("Invalid segment")
+
+    return self._segments[segment]
+
+
+  def createSegment(self, cell):
+    """
+    Adds a new segment on a cell.
+
+    @param  cell    (int) Cell index
+    @return segment (int) New segment index
+    """
+    if cell >= self._numberOfCells() or cell < 0:
+      raise IndexError("Invalid cell")
+
+    segment = self._nextSegmentIdx
+    self._segments[segment] = cell
+    self._nextSegmentIdx += 1
+
+    return segment
+
+
+  # Helper methods
 
   def _numberOfColumns(self):
     """
@@ -108,3 +143,7 @@ class Connections(object):
     @return numberOfColumns (int) Number of columns
     """
     return reduce(mul, self.columnDimensions, 1)
+
+
+  def _numberOfCells(self):
+    return self._numberOfColumns() * self.cellsPerColumn
