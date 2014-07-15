@@ -23,6 +23,8 @@
 Temporal Memory implementation in Python.
 """
 
+from operator import mul
+
 from nupic.bindings.math import Random
 
 
@@ -64,3 +66,45 @@ class Connections(object):
     # Initialize member variables
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
+
+
+  def cellsForColumn(self, column):
+    """
+    Returns the indices of cells that belong to a column.
+
+    @param  column (int) Column index
+    @return cell   (set) Cell indices
+    """
+    # Error checking
+    if column >= self._numberOfColumns() or column < 0:
+      raise IndexError("Invalid column")
+
+    # Compute cells in column
+    start = self.cellsPerColumn * column
+    end = start + self.cellsPerColumn
+    return {cell for cell in range(start, end)}
+
+
+  def columnForCell(self, cell):
+    """
+    Returns the index of the column that a cell belongs to.
+
+    @param  cell   (int) Cell index
+    @return column (set) Column index
+    """
+    # Error checking
+    numberOfCells = self._numberOfColumns() * self.cellsPerColumn
+    if cell >= numberOfCells or cell < 0:
+      raise IndexError("Invalid cell")
+
+    # Compute column for cell
+    return int(cell / self.cellsPerColumn)
+
+
+  def _numberOfColumns(self):
+    """
+    Returns the number of columns in this layer.
+
+    @return numberOfColumns (int) Number of columns
+    """
+    return reduce(mul, self.columnDimensions, 1)
