@@ -68,6 +68,7 @@ class Connections(object):
     self.cellsPerColumn = cellsPerColumn
 
     self._segments = dict()
+    self._segmentsForCell = dict()
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -80,11 +81,8 @@ class Connections(object):
     @param  column (int) Column index
     @return cell   (set) Cell indices
     """
-    # Error checking
-    if column >= self._numberOfColumns() or column < 0:
-      raise IndexError("Invalid column")
+    self._validateColumn(column)
 
-    # Compute cells in column
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
     return {cell for cell in range(start, end)}
@@ -97,11 +95,8 @@ class Connections(object):
     @param  cell   (int) Cell index
     @return column (set) Column index
     """
-    # Error checking
-    if cell >= self._numberOfCells() or cell < 0:
-      raise IndexError("Invalid cell")
+    self._validateCell(cell)
 
-    # Compute column for cell
     return int(cell / self.cellsPerColumn)
 
 
@@ -109,12 +104,27 @@ class Connections(object):
     """
     Returns the cell that a segment belongs to.
 
-    @param segment (int) Segment index
+    @param  segment (int) Segment index
+    @return cell    (int) Cell index
     """
-    if not segment in self._segments:
-      raise IndexError("Invalid segment")
+    self._validateSegment(segment)
 
     return self._segments[segment]
+
+
+  def segmentsForCell(self, cell):
+    """
+    Returns the segments that belong to a cell.
+
+    @param  cell     (int) Cell index
+    @return segments (set) Segment indices
+    """
+    self._validateCell(cell)
+
+    if not cell in self._segmentsForCell:
+      return {}
+
+    return self._segmentsForCell[cell]
 
 
   def createSegment(self, cell):
@@ -124,17 +134,50 @@ class Connections(object):
     @param  cell    (int) Cell index
     @return segment (int) New segment index
     """
-    if cell >= self._numberOfCells() or cell < 0:
-      raise IndexError("Invalid cell")
+    self._validateCell(cell)
 
     segment = self._nextSegmentIdx
     self._segments[segment] = cell
     self._nextSegmentIdx += 1
 
+    if not len(self.segmentsForCell(cell)):
+      self._segmentsForCell[cell] = set()
+    self._segmentsForCell[cell].add(segment)
+
     return segment
 
 
   # Helper methods
+
+  def _validateColumn(self, column):
+    """
+    Raises an error if column index is invalid.
+
+    @param column (int) Column index
+    """
+    if column >= self._numberOfColumns() or column < 0:
+      raise IndexError("Invalid column")
+
+
+  def _validateCell(self, cell):
+    """
+    Raises an error if cell index is invalid.
+
+    @param cell (int) Cell index
+    """
+    if cell >= self._numberOfCells() or cell < 0:
+      raise IndexError("Invalid cell")
+
+
+  def _validateSegment(self, segment):
+    """
+    Raises an error if segment index is invalid.
+
+    @param segment (int) Segment index
+    """
+    if not segment in self._segments:
+      raise IndexError("Invalid segment")
+
 
   def _numberOfColumns(self):
     """
