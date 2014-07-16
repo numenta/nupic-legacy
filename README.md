@@ -44,7 +44,7 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## User instructions
 
-If you want NuPIC only for your apps use it, simply do this:
+If you want NuPIC only for your apps use it, cd into the NuPIC installation directory and run:
 
     python setup.py install
 
@@ -62,35 +62,11 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 
 ### Using command line
 
-#### To configure the environment:
+> This assumes the `NUPIC` environment variables is set to the directory where the NuPIC source code exists.
 
-    ```
-    # `$NUPIC` is the path to your NuPIC repository.
-    # Remember to replace <NuPIC path> with the real path:
-    export NUPIC=<NuPIC path>
-    ```
-
-_Note_: You may set this environment variable in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing.
-
-#### To generate build files:
-
-    mkdir -p $NUPIC/build/scripts
-    cd $NUPIC/build/scripts
-    cmake $NUPIC
-
-_Note_: You may specify the install location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
-
-#### To build:
-
-    cd $NUPIC/build/scripts
-    make -j3
-
-_Note_: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
-
-#### To install:
-
-    cd $NUPIC/build/scripts
-    make install
+    cd $NUPIC
+    python setup.py build
+    python setup.py develop
 
 #### To run the tests:
 
