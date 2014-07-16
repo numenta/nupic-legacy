@@ -113,6 +113,55 @@ class TMTest(unittest.TestCase):
     self.assertEqual(learningSegments, set())
 
 
+  def testGetBestMatchingSegment(self):
+    tm = TM(
+      connectedPermanence=0.50,
+      minThreshold=1
+    )
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    connections.createSegment(0)
+    connections.createSynapse(1, 49, 0.9)
+    connections.createSynapse(1, 3, 0.8)
+
+    connections.createSegment(1)
+    connections.createSynapse(2, 733, 0.7)
+
+    connections.createSegment(8)
+    connections.createSynapse(3, 486, 0.9)
+
+    activeSynapsesForSegment = {
+      0: {0, 1},
+      1: {3},
+      2: {5}
+    }
+
+    self.assertEqual(tm.getBestMatchingSegment(0,
+                                               activeSynapsesForSegment,
+                                               connections),
+                    0)
+
+    self.assertEqual(tm.getBestMatchingSegment(1,
+                                               activeSynapsesForSegment,
+                                               connections),
+                    2)
+
+    self.assertEqual(tm.getBestMatchingSegment(8,
+                                               activeSynapsesForSegment,
+                                               connections),
+                    None)
+
+    self.assertEqual(tm.getBestMatchingSegment(100,
+                                               activeSynapsesForSegment,
+                                               connections),
+                    None)
+
+
   def testComputeActiveSynapses(self):
     tm = self.tm
 
