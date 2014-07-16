@@ -177,6 +177,32 @@ class TM(object):
 
   # Helper functions
 
+  @staticmethod
+  def computeActiveSynapses(activeCells, connections):
+    """
+    Forward propagates activity from active cells to the synapses that touch
+    them, to determine which synapses are active.
+
+    @param activeCells (set)         Indicies of active cells
+    @param connections (Connections) Connectivity of layer
+
+    @return (dict) Mapping from segment (int) to indices of
+                   active synapses (set)
+    """
+    activeSynapsesForSegment = dict()
+
+    for cell in activeCells:
+      for synapse in connections.synapsesForSourceCell(cell):
+        (segment, _, _) = connections.dataForSynapse(synapse)
+
+        if not segment in activeSynapsesForSegment:
+          activeSynapsesForSegment[segment] = set()
+
+        activeSynapsesForSegment[segment].add(synapse)
+
+    return activeSynapsesForSegment
+
+
   def getBestMatchingSegment(self, cell, activeSynapsesForSegment, connections):
     """
     Gets the segment on a cell with the largest number of activate synapses,
@@ -205,32 +231,6 @@ class TM(object):
         bestSegment = segment
 
     return bestSegment
-
-
-  @staticmethod
-  def computeActiveSynapses(activeCells, connections):
-    """
-    Forward propagates activity from active cells to the synapses that touch
-    them, to determine which synapses are active.
-
-    @param activeCells (set)         Indicies of active cells
-    @param connections (Connections) Connectivity of layer
-
-    @return (dict) Mapping from segment (int) to indices of
-                   active synapses (set)
-    """
-    activeSynapsesForSegment = dict()
-
-    for cell in activeCells:
-      for synapse in connections.synapsesForSourceCell(cell):
-        (segment, _, _) = connections.dataForSynapse(synapse)
-
-        if not segment in activeSynapsesForSegment:
-          activeSynapsesForSegment[segment] = set()
-
-        activeSynapsesForSegment[segment].add(synapse)
-
-    return activeSynapsesForSegment
 
 
   @staticmethod
