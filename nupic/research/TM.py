@@ -194,7 +194,7 @@ class TM(object):
 
     for synapse in connections.synapsesForSegment(segment):
       (_, sourceCell, permanence) = connections.dataForSynapse(synapse)
-      if (sourceCell in activeCells) and permanence >= permanenceThreshold:
+      if (sourceCell in activeCells) and (permanence >= permanenceThreshold):
         activeSynapses.add(synapse)
 
     return activeSynapses
