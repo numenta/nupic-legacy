@@ -215,7 +215,7 @@ class TM(object):
     @param segment                   (int)        Segment index
     @param activeSynapsesForSegment  (dict)       Mapping from segments to
                                                   active synapses (see
-                                                  `computeActiveSynapses`)
+                                                  `TM.computeActiveSynapses`)
     @param permanenceThreshold       (float)      Minimum threshold for
                                                   permanence for synapse to
                                                   be connected
