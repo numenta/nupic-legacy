@@ -214,10 +214,13 @@ class TM(object):
                                                   `TM.computeActiveSynapses`)
     @param connections              (Connections) Connectivity of layer
 
-    @return (int) Index of best matching segment
+    @return (tuple) Contains:
+                      segment                 (int)
+                      connectedActiveSynapses (set)
     """
     maxSynapses = self.minThreshold
     bestSegment = None
+    connectedActiveSynapses = None
 
     for segment in connections.segmentsForCell(cell):
       synapses = self.getConnectedActiveSynapsesForSegment(
@@ -229,8 +232,9 @@ class TM(object):
       if len(synapses) >= maxSynapses:
         maxSynapses = len(synapses)
         bestSegment = segment
+        connectedActiveSynapses = set(synapses)
 
-    return bestSegment
+    return (bestSegment, connectedActiveSynapses)
 
 
   @staticmethod

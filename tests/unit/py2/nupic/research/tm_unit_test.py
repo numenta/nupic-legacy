@@ -166,22 +166,22 @@ class TMTest(unittest.TestCase):
     self.assertEqual(tm.getBestMatchingSegment(0,
                                                activeSynapsesForSegment,
                                                connections),
-                     0)
+                     (0, {0, 1}))
 
     self.assertEqual(tm.getBestMatchingSegment(1,
                                                activeSynapsesForSegment,
                                                connections),
-                     2)
+                     (2, {5}))
 
     self.assertEqual(tm.getBestMatchingSegment(8,
                                                activeSynapsesForSegment,
                                                connections),
-                     None)
+                     (None, None))
 
     self.assertEqual(tm.getBestMatchingSegment(100,
                                                activeSynapsesForSegment,
                                                connections),
-                     None)
+                     (None, None))
 
 
   def testComputeActiveSynapsesNoActivity(self):
