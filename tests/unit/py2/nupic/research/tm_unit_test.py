@@ -113,7 +113,7 @@ class TMTest(unittest.TestCase):
     self.assertEqual(learningSegments, set())
 
 
-  def testGetActiveSynapses(self):
+  def testComputeActiveSynapses(self):
     tm = self.tm
 
     connections = tm.connections
@@ -122,18 +122,20 @@ class TMTest(unittest.TestCase):
     connections.createSynapse(0, 37, 0.4)
     connections.createSynapse(0, 477, 0.9)
 
+    connections.createSegment(1)
+    connections.createSynapse(1, 733, 0.7)
+
+    connections.createSegment(8)
+    connections.createSynapse(2, 486, 0.9)
+
     activeCells = {23, 37, 733, 4973}
 
-    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
-                     {0})
-
-    connections.createSynapse(0, 4973, 0.5)
-
-    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
-                     {0, 3})
+    self.assertEqual(tm.computeActiveSynapses(activeCells, connections),
+                     {0: {0, 1},
+                      1: {3}})
 
 
-  def testGetActiveSynapsesNoActivity(self):
+  def testComputeActiveSynapsesNoActivity(self):
     tm = self.tm
 
     connections = tm.connections
@@ -142,10 +144,51 @@ class TMTest(unittest.TestCase):
     connections.createSynapse(0, 37, 0.4)
     connections.createSynapse(0, 477, 0.9)
 
-    activeCells = {23, 37, 733, 4973}
+    connections.createSegment(1)
+    connections.createSynapse(1, 733, 0.7)
 
-    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.8, connections),
-                     set())
+    connections.createSegment(8)
+    connections.createSynapse(2, 486, 0.9)
+
+    activeCells = set()
+
+    self.assertEqual(tm.computeActiveSynapses(activeCells, connections),
+                     dict())
+
+
+  def testGetConnectedActiveSynapsesForSegment(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    connections.createSegment(1)
+    connections.createSynapse(1, 733, 0.7)
+
+    connections.createSegment(8)
+    connections.createSynapse(2, 486, 0.9)
+
+    activeSynapsesForSegment = {
+      0: {0, 1},
+      1: {3}
+    }
+
+    self.assertEqual(
+      tm.getConnectedActiveSynapsesForSegment(0,
+                                              activeSynapsesForSegment,
+                                              0.5,
+                                              connections),
+      {0})
+
+    self.assertEqual(
+      tm.getConnectedActiveSynapsesForSegment(1,
+                                              activeSynapsesForSegment,
+                                              0.5,
+                                              connections),
+      {3})
 
 
 
