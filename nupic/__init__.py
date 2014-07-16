@@ -20,8 +20,4 @@
 # ----------------------------------------------------------------------
 import sys
 
-# Jython doesn't yet support modules written in C/C++, like engine_internal
-if not sys.platform.startswith('java'):
-  from nupic.bindings import engine_internal
-
 __version__ = "0.1.0"

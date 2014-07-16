@@ -32,18 +32,9 @@ for arg in sys.argv:
     setupOptions += arg + " "
 
 
-def getVariable(configFile, variable):
-  """
-  Open a file and gets a variable in the format:
-  foo = bar
-  """
-  with open(configFile) as f:
-    for line in f:
-      eqIndex = line.find('=')
-      varName = line[:eqIndex].strip()
-      varValue = line[eqIndex + 1:].strip()
-      if (varName == variable):
-        return varValue
+# Get properties of the project like version, notes, etc
+properties = {}
+execfile(os.path.join(repositoryDir, "nupic", "__init__.py"), {}, properties)
 
 
 def findPackages(repositoryDir):
@@ -91,7 +82,7 @@ def setup_nupic():
   os.chdir(repositoryDir)
   setup(
     name = 'nupic',
-    version = getVariable(repositoryDir + "/nupic/__init__.py", "__version__"),
+    version = properties["__version__"],
     packages = findPackages(repositoryDir),
     package_data = {
       'nupic': ['README.md', 'LICENSE.txt', '*.so', '*.dll', '*.dylib'],
