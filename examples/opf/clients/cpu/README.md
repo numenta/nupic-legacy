@@ -1,6 +1,6 @@
 # CPU 
 
-This is a custom client that attempts to predict CPU on the local system. It uses the NuPIC [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) or OPF, to derive predictions in realtime
+This is a custom client that attempts to predict CPU on the local system. It uses the NuPIC [Online Prediction Framework](https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) (OPF), to derive predictions in realtime.
 
 ##Usage
 Simply run the cpu.py file to start the client.
