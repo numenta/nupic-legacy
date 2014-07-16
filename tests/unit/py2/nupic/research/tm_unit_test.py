@@ -31,14 +31,14 @@ class TMTest(unittest.TestCase):
 
   def setUp(self):
     self.tm = TM()
-    
+
 
   def testActivateCorrectlyPredictiveCells(self):
     tm = self.tm
 
     prevPredictiveCells = {0, 237, 1026, 26337, 26339, 55536}
     activeColumns = {32, 47, 823}
-    
+
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
@@ -54,7 +54,7 @@ class TMTest(unittest.TestCase):
 
     prevPredictiveCells = set()
     activeColumns      = set()
-    
+
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
@@ -68,7 +68,7 @@ class TMTest(unittest.TestCase):
 
     prevPredictiveCells = set()
     activeColumns = {32, 47, 823}
-    
+
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
@@ -82,7 +82,7 @@ class TMTest(unittest.TestCase):
 
     prevPredictiveCells = {0, 237, 1026, 26337, 26339, 55536}
     activeColumns = set()
-    
+
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,

@@ -177,8 +177,8 @@ class TM(object):
 
   # Helper functions
 
-  def getActiveSynapses(self,
-                        segment,
+  @staticmethod
+  def getActiveSynapses(segment,
                         activeCells,
                         permanenceThreshold,
                         connections):
@@ -360,13 +360,11 @@ class Connections(object):
     self._validateCell(cell)
 
     # Add data
-    
     segment = self._nextSegmentIdx
     self._segments[segment] = cell
     self._nextSegmentIdx += 1
 
     # Update indexes
-    
     if not len(self.segmentsForCell(cell)):
       self._segmentsForCell[cell] = set()
     self._segmentsForCell[cell].add(segment)
@@ -387,13 +385,11 @@ class Connections(object):
     self._validatePermanence(permanence)
 
     # Add data
-    
     synapse = self._nextSynapseIdx
     self._synapses[synapse] = (segment, sourceCell, permanence)
     self._nextSynapseIdx += 1
 
     # Update indexes
-
     if not len(self.synapsesForSegment(segment)):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
@@ -461,7 +457,8 @@ class Connections(object):
       raise IndexError("Invalid synapse")
 
 
-  def _validatePermanence(self, permanence):
+  @staticmethod
+  def _validatePermanence(permanence):
     """
     Raises an error if permanence is invalid.
 
