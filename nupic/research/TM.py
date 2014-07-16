@@ -128,6 +128,7 @@ class TM(object):
     predictedColumns = set()
 
     for cell in prevPredictiveCells:
+      # TODO: Remove reference to self.connections below
       column = self.connections.columnForCell(cell)
 
       if column in activeColumns:
@@ -201,6 +202,42 @@ class TM(object):
         activeSynapsesForSegment[segment].add(synapse)
 
     return activeSynapsesForSegment
+
+
+  def getBestMatchingCell(self, column, activeSynapsesForSegment, connections):
+    """
+    Gets the cell with the best matching segment
+    (see `TM.getBestMatchingSegment`) that has the largest number of active
+    synapses of all best matching segments.
+
+    @param column                   (int)         Column index
+    @param activeSynapsesForSegment (dict)        Mapping from segments to
+                                                  active synapses (see
+                                                  `TM.computeActiveSynapses`)
+    @param connections              (Connections) Connectivity of layer
+
+    @return (tuple) Contains:
+                      cell                (int)
+                      bestSegment (int)
+    """
+    maxSynapses = 0
+    bestCell = None
+    bestSegment = None
+
+    for cell in connections.cellsForColumn(column):
+      (
+        segment,
+        connectedActiveSynapses
+      ) = self.getBestMatchingSegment(cell,
+                                      activeSynapsesForSegment,
+                                      connections)
+
+      if segment != None and len(connectedActiveSynapses) > maxSynapses:
+        maxSynapses = len(connectedActiveSynapses)
+        bestCell = cell
+        bestSegment = segment
+
+    return (bestCell, bestSegment)
 
 
   def getBestMatchingSegment(self, cell, activeSynapsesForSegment, connections):
