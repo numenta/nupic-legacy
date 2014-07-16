@@ -177,6 +177,36 @@ class TM(object):
 
   # Helper functions
 
+  def getBestMatchingSegment(self, cell, activeSynapsesForSegment, connections):
+    """
+    Gets the segment on a cell with the largest number of activate synapses,
+    including all synapses with non-zero permanences.
+
+    @param cell                     (int)        Cell index
+    @param activeSynapsesForSegment (dict)       Mapping from segments to
+                                                 active synapses (see
+                                                 `TM.computeActiveSynapses`)
+    @param connections              (Connection) Connectivity of layer
+
+    @return (int) Index of best matching segment
+    """
+    maxSynapses = self.minThreshold
+    bestSegment = None
+
+    for segment in connections.segmentsForCell(cell):
+      synapses = self.getConnectedActiveSynapsesForSegment(
+        segment,
+        activeSynapsesForSegment,
+        0,
+        connections)
+
+      if len(synapses) >= maxSynapses:
+        maxSynapses = len(synapses)
+        bestSegment = segment
+
+    return bestSegment
+
+
   @staticmethod
   def computeActiveSynapses(activeCells, connections):
     """
