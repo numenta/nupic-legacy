@@ -51,8 +51,10 @@ class TM(object):
 
     @param cellsPerColumn      (int)    Number of cells per column
 
-    @param activationThreshold (int)    Minimum number of synapses active on
-                                        a segment to make the segment active.
+    @param activationThreshold (int)    If the number of active connected
+                                        synapses on a segment is greater than
+                                        this threshold, the segment is
+                                        said to be active.
 
     @param learningRadius      (int)    Radius around cell from which it can
                                         sample to form distal dendrite
@@ -60,12 +62,14 @@ class TM(object):
 
     @param initialPermanence   (float)  Initial permanence of a new synapse.
 
-    @param connectedPermanence (float)  Minimum permanence of a synapse to
-                                        make it connected.
+    @param connectedPermanence (float)  If the permanence value for a synapse
+                                        is greater than this value, it is said
+                                        to be connected.
 
-    @param minThreshold        (int)    Minimum number of synapses active on
-                                        a segment for it to be selected as the
-                                        best matching cell in a bursing column.
+    @param minThreshold        (int)    If the number of synapses active on
+                                        a segment is greater than this
+                                        threshold, it is selected as the best
+                                        matching cell in a bursing column.
 
     @param newSynapseCount     (int)    The maximum number of synapses added
                                         to a segment during learning.
@@ -194,7 +198,7 @@ class TM(object):
 
     for synapse in connections.synapsesForSegment(segment):
       (_, sourceCell, permanence) = connections.dataForSynapse(synapse)
-      if (sourceCell in activeCells) and (permanence >= permanenceThreshold):
+      if (sourceCell in activeCells) and (permanence > permanenceThreshold):
         activeSynapses.add(synapse)
 
     return activeSynapses
