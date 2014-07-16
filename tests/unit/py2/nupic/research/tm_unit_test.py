@@ -42,7 +42,8 @@ class TMTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+                                                            activeColumns,
+                                                            tm.connections)
 
     self.assertEqual(activeCells, {1026, 26337, 26339})
     self.assertEqual(winnerCells, {1026, 26337, 26339})
@@ -58,7 +59,8 @@ class TMTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+                                                            activeColumns,
+                                                            tm.connections)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -72,7 +74,8 @@ class TMTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+                                                            activeColumns,
+                                                            tm.connections)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -86,7 +89,8 @@ class TMTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns)
+                                                            activeColumns,
+                                                            tm.connections)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())

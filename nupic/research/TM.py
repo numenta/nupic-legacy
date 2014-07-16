@@ -101,9 +101,10 @@ class TM(object):
 
   # Phases
 
-  def activateCorrectlyPredictiveCells(self,
-                                       prevPredictiveCells,
-                                       activeColumns):
+  @staticmethod
+  def activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                       activeColumns,
+                                       connections):
     """
     Phase 1: Activate the correctly predictive cells.
 
@@ -128,8 +129,7 @@ class TM(object):
     predictedColumns = set()
 
     for cell in prevPredictiveCells:
-      # TODO: Remove reference to self.connections below
-      column = self.connections.columnForCell(cell)
+      column = connections.columnForCell(cell)
 
       if column in activeColumns:
         activeCells.add(cell)
