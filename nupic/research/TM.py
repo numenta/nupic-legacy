@@ -177,7 +177,8 @@ class TM(object):
 
   # Helper functions
 
-  def computeActiveSynapses(self, activeCells, connections):
+  @staticmethod
+  def computeActiveSynapses(activeCells, connections):
     """
     Forward propagates activity from active cells to the synapses that touch
     them, to determine which synapses are active.
@@ -188,7 +189,6 @@ class TM(object):
     @return (dict) Mapping from segment (int) to indices of
                    active synapses (set)
     """
-    connections = self.connections
     activeSynapsesForSegment = dict()
 
     for cell in activeCells:
