@@ -113,6 +113,41 @@ class TMTest(unittest.TestCase):
     self.assertEqual(learningSegments, set())
 
 
+  def testGetActiveSynapses(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    activeCells = {23, 37, 733, 4973}
+
+    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
+                     {0})
+
+    connections.createSynapse(0, 4973, 0.5)
+
+    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
+                     {0, 3})
+
+
+  def testGetActiveSynapsesNoActivity(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    activeCells = {23, 37, 733, 4973}
+
+    self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.8, connections),
+                     set())
+
+
 
 class ConnectionsTest(unittest.TestCase):
 
