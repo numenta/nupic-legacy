@@ -95,7 +95,9 @@ class TM(object):
     self.permanenceDecrement = permanenceDecrement
 
 
-  def activateCorrectlyPredictiveCells(self, prevPredictiveCells, activeColumns):
+  def activateCorrectlyPredictiveCells(self,
+                                       prevPredictiveCells,
+                                       activeColumns):
     """
     Phase 1: Activate the correctly predictive cells.
 
@@ -128,6 +130,43 @@ class TM(object):
         predictedColumns.add(column)
 
     return (activeCells, winnerCells, predictedColumns)
+
+
+  def burstColumns(self,
+                   activeColumns,
+                   predictedColumns,
+                   prevActiveCells,
+                   connections):
+    """
+    Phase 2: Burst unpredicted columns.
+
+    Pseudocode:
+
+      - for each unpredicted active column
+        - mark all cells as active
+        - mark the best matching cell as winner cell
+          - (learning)
+            - if it has matching segment
+              - mark the segment as learning
+            - else
+              - add a segment to it
+              - mark the segment as learning
+
+    @param  activeColumns    (set)        Indices of active columns in `t`
+    @param  predictedColumns (set)        Indices of predicted columns in `t`
+    @param  prevActiveCells  (set)        Indices of active cells in `t-1`
+    @param  connections      (Connection) Connectivity of layer
+
+    @return (tuple) Contains:
+                      activeCells      (set)
+                      winnerCells      (set)
+                      learningSegments (set)
+    """
+    activeCells      = set()
+    winnerCells      = set()
+    learningSegments = set()
+
+    return (activeCells, winnerCells, learningSegments)
 
 
 
