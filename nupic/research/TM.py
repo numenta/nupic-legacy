@@ -52,7 +52,7 @@ class TM(object):
     @param cellsPerColumn      (int)    Number of cells per column
 
     @param activationThreshold (int)    If the number of active connected
-                                        synapses on a segment is greater than
+                                        synapses on a segment is at least
                                         this threshold, the segment is
                                         said to be active.
 
@@ -67,9 +67,9 @@ class TM(object):
                                         to be connected.
 
     @param minThreshold        (int)    If the number of synapses active on
-                                        a segment is greater than this
-                                        threshold, it is selected as the best
-                                        matching cell in a bursing column.
+                                        a segment is at least this threshold,
+                                        it is selected as the best matching
+                                        cell in a bursing column.
 
     @param newSynapseCount     (int)    The maximum number of synapses added
                                         to a segment during learning.
@@ -198,7 +198,7 @@ class TM(object):
 
     for synapse in connections.synapsesForSegment(segment):
       (_, sourceCell, permanence) = connections.dataForSynapse(synapse)
-      if (sourceCell in activeCells) and (permanence > permanenceThreshold):
+      if (sourceCell in activeCells) and (permanence >= permanenceThreshold):
         activeSynapses.add(synapse)
 
     return activeSynapses
