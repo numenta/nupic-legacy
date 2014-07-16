@@ -93,6 +93,26 @@ class TMTest(unittest.TestCase):
     self.assertEqual(predictedColumns, set())
 
 
+  def testBurstColumnsEmpty(self):
+    tm = self.tm
+
+    activeColumns    = set()
+    predictedColumns = set()
+    prevActiveCells  = set()
+    connections = tm.connections
+
+    (activeCells,
+     winnerCells,
+     learningSegments) = tm.burstColumns(activeColumns,
+                                         predictedColumns,
+                                         prevActiveCells,
+                                         connections)
+
+    self.assertEqual(activeCells,      set())
+    self.assertEqual(winnerCells,      set())
+    self.assertEqual(learningSegments, set())
+
+
 
 class ConnectionsTest(unittest.TestCase):
 
