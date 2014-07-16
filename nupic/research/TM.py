@@ -95,6 +95,8 @@ class TM(object):
     self.permanenceDecrement = permanenceDecrement
 
 
+  # Phases
+
   def activateCorrectlyPredictiveCells(self,
                                        prevPredictiveCells,
                                        activeColumns):
@@ -109,8 +111,8 @@ class TM(object):
           - mark it as winner cell
           - mark column as predicted
 
-    @param  prevPredictiveCells (set) Indices of predictive cells in `t-1`
-    @param  activeColumns       (set) Indices of active columns in `t`
+    @param prevPredictiveCells (set) Indices of predictive cells in `t-1`
+    @param activeColumns       (set) Indices of active columns in `t`
 
     @return (tuple) Contains:
                       activeCells      (set)
@@ -152,10 +154,10 @@ class TM(object):
               - add a segment to it
               - mark the segment as learning
 
-    @param  activeColumns    (set)        Indices of active columns in `t`
-    @param  predictedColumns (set)        Indices of predicted columns in `t`
-    @param  prevActiveCells  (set)        Indices of active cells in `t-1`
-    @param  connections      (Connection) Connectivity of layer
+    @param activeColumns    (set)        Indices of active columns in `t`
+    @param predictedColumns (set)        Indices of predicted columns in `t`
+    @param prevActiveCells  (set)        Indices of active cells in `t-1`
+    @param connections      (Connection) Connectivity of layer
 
     @return (tuple) Contains:
                       activeCells      (set)
@@ -167,6 +169,35 @@ class TM(object):
     learningSegments = set()
 
     return (activeCells, winnerCells, learningSegments)
+
+
+  # Helper functions
+
+  def getActiveSynapses(self,
+                        segment,
+                        activeCells,
+                        permanenceThreshold,
+                        connections):
+    """
+    Returns the synapses on a segment that are active due to lateral input
+    from active cells.
+
+    @param segment             (int)        Segment index
+    @param activeCells         (set)        Indices of active cells
+    @param permanenceThreshold (float)      Minimum threshold for permanence
+                                            for synapse to be connected
+    @param connections         (Connection) Connectivity of layer
+
+    @return (set) Indices of active synapses on segment
+    """
+    activeSynapses = set()
+
+    for synapse in connections.synapsesForSegment(segment):
+      (_, sourceCell, permanence) = connections.dataForSynapse(synapse)
+      if (sourceCell in activeCells) and permanence >= permanenceThreshold:
+        activeSynapses.add(synapse)
+
+    return activeSynapses
 
 
 
@@ -213,7 +244,7 @@ class Connections(object):
     """
     Returns the index of the column that a cell belongs to.
 
-    @param  cell   (int) Cell index
+    @param cell (int) Cell index
 
     @return (int) Column index
     """
@@ -226,7 +257,7 @@ class Connections(object):
     """
     Returns the indices of cells that belong to a column.
 
-    @param  column (int) Column index
+    @param column (int) Column index
 
     @return (set) Cell indices
     """
@@ -241,7 +272,7 @@ class Connections(object):
     """
     Returns the cell that a segment belongs to.
 
-    @param  segment (int) Segment index
+    @param segment (int) Segment index
 
     @return (int) Cell index
     """
@@ -254,7 +285,7 @@ class Connections(object):
     """
     Returns the segments that belong to a cell.
 
-    @param  cell     (int) Cell index
+    @param cell (int) Cell index
 
     @return (set) Segment indices
     """
@@ -270,7 +301,7 @@ class Connections(object):
     """
     Returns the data for a synapse.
 
-    @param  synapse (int)   Synapse index
+    @param synapse (int) Synapse index
 
     @return (tuple) Contains:
                       segment    (int)
@@ -286,7 +317,7 @@ class Connections(object):
     """
     Returns the synapses on a segment.
 
-    @param  segment  (int) Segment index
+    @param segment (int) Segment index
 
     @return (set) Synapse indices
     """
@@ -302,7 +333,7 @@ class Connections(object):
     """
     Returns the synapses for the source cell that they synapse on.
 
-    @param  sourceCell (int) Source cell index
+    @param sourceCell (int) Source cell index
 
     @return (set) Synapse indices
     """
@@ -318,7 +349,7 @@ class Connections(object):
     """
     Adds a new segment on a cell.
 
-    @param  cell    (int) Cell index
+    @param cell (int) Cell index
 
     @return (int) New segment index
     """
@@ -343,9 +374,9 @@ class Connections(object):
     """
     Creates a new synapse on a segment.
 
-    @param  segment    (int)   Segment index
-    @param  sourceCell (int)   Source cell index
-    @param  permanence (float) Initial permanence
+    @param segment    (int)   Segment index
+    @param sourceCell (int)   Source cell index
+    @param permanence (float) Initial permanence
     """
     self._validateSegment(segment)
     self._validateCell(sourceCell)
@@ -384,7 +415,7 @@ class Connections(object):
     self._synapses[synapse] = data[:-1] + (permanence,)
 
 
-  # Helper methods
+  # Helper functions
 
   def _validateColumn(self, column):
     """
