@@ -158,10 +158,10 @@ class TM(object):
               - add a segment to it
               - mark the segment as learning
 
-    @param activeColumns    (set)        Indices of active columns in `t`
-    @param predictedColumns (set)        Indices of predicted columns in `t`
-    @param prevActiveCells  (set)        Indices of active cells in `t-1`
-    @param connections      (Connection) Connectivity of layer
+    @param activeColumns    (set)         Indices of active columns in `t`
+    @param predictedColumns (set)         Indices of predicted columns in `t`
+    @param prevActiveCells  (set)         Indices of active cells in `t-1`
+    @param connections      (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       activeCells      (set)
@@ -182,11 +182,11 @@ class TM(object):
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
 
-    @param cell                     (int)        Cell index
-    @param activeSynapsesForSegment (dict)       Mapping from segments to
-                                                 active synapses (see
-                                                 `TM.computeActiveSynapses`)
-    @param connections              (Connection) Connectivity of layer
+    @param cell                     (int)         Cell index
+    @param activeSynapsesForSegment (dict)        Mapping from segments to
+                                                  active synapses (see
+                                                  `TM.computeActiveSynapses`)
+    @param connections              (Connections) Connectivity of layer
 
     @return (int) Index of best matching segment
     """
@@ -213,8 +213,8 @@ class TM(object):
     Forward propagates activity from active cells to the synapses that touch
     them, to determine which synapses are active.
 
-    @param activeCells (set) Indicies of active cells
-    @param connections (Connection) Connectivity of layer
+    @param activeCells (set)         Indicies of active cells
+    @param connections (Connections) Connectivity of layer
 
     @return (dict) Mapping from segment (int) to indices of
                    active synapses (set)
@@ -242,14 +242,14 @@ class TM(object):
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
 
-    @param segment                   (int)        Segment index
-    @param activeSynapsesForSegment  (dict)       Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param permanenceThreshold       (float)      Minimum threshold for
-                                                  permanence for synapse to
-                                                  be connected
-    @param connections               (Connection) Connectivity of layer
+    @param segment                   (int)         Segment index
+    @param activeSynapsesForSegment  (dict)        Mapping from segments to
+                                                   active synapses (see
+                                                   `TM.computeActiveSynapses`)
+    @param permanenceThreshold       (float)       Minimum threshold for
+                                                   permanence for synapse to
+                                                   be connected
+    @param connections               (Connections) Connectivity of layer
 
     @return (set) Indices of active synapses on segment
     """
