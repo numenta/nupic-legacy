@@ -177,31 +177,64 @@ class TM(object):
 
   # Helper functions
 
+  def computeActiveSynapses(self, activeCells, connections):
+    """
+    Forward propagates activity from active cells to the synapses that touch
+    them, to determine which synapses are active.
+
+    @param activeCells (set) Indicies of active cells
+    @param connections (Connection) Connectivity of layer
+
+    @return (dict) Mapping from segment (int) to indices of
+                   active synapses (set)
+    """
+    connections = self.connections
+    activeSynapsesForSegment = dict()
+
+    for cell in activeCells:
+      for synapse in connections.synapsesForSourceCell(cell):
+        (segment, _, _) = connections.dataForSynapse(synapse)
+
+        if not segment in activeSynapsesForSegment:
+          activeSynapsesForSegment[segment] = set()
+
+        activeSynapsesForSegment[segment].add(synapse)
+
+    return activeSynapsesForSegment
+
+
   @staticmethod
-  def getActiveSynapses(segment,
-                        activeCells,
-                        permanenceThreshold,
-                        connections):
+  def getConnectedActiveSynapsesForSegment(segment,
+                                           activeSynapsesForSegment,
+                                           permanenceThreshold,
+                                           connections):
     """
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
 
-    @param segment             (int)        Segment index
-    @param activeCells         (set)        Indices of active cells
-    @param permanenceThreshold (float)      Minimum threshold for permanence
-                                            for synapse to be connected
-    @param connections         (Connection) Connectivity of layer
+    @param segment                   (int)        Segment index
+    @param activeSynapsesForSegment  (dict)       Mapping from segments to
+                                                  active synapses (see
+                                                  `computeActiveSynapses`)
+    @param permanenceThreshold       (float)      Minimum threshold for
+                                                  permanence for synapse to
+                                                  be connected
+    @param connections               (Connection) Connectivity of layer
 
     @return (set) Indices of active synapses on segment
     """
-    activeSynapses = set()
+    connectedSynapses = set()
 
-    for synapse in connections.synapsesForSegment(segment):
-      (_, sourceCell, permanence) = connections.dataForSynapse(synapse)
-      if (sourceCell in activeCells) and (permanence >= permanenceThreshold):
-        activeSynapses.add(synapse)
+    if not segment in activeSynapsesForSegment:
+      return connectedSynapses
 
-    return activeSynapses
+    for synapse in activeSynapsesForSegment[segment]:
+      (_, _, permanence) = connections.dataForSynapse(synapse)
+
+      if permanence >= permanenceThreshold:
+        connectedSynapses.add(synapse)
+
+    return connectedSynapses
 
 
 
