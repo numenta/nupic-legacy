@@ -119,7 +119,7 @@ class TMTest(unittest.TestCase):
     connections = tm.connections
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.6)
-    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 37, 0.5)
     connections.createSynapse(0, 477, 0.9)
 
     activeCells = {23, 37, 733, 4973}
@@ -127,7 +127,7 @@ class TMTest(unittest.TestCase):
     self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
                      {0})
 
-    connections.createSynapse(0, 4973, 0.5)
+    connections.createSynapse(0, 4973, 0.51)
 
     self.assertEqual(tm.getActiveSynapses(0, activeCells, 0.5, connections),
                      {0, 3})
