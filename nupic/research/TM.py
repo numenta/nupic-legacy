@@ -142,7 +142,7 @@ class TM(object):
   def burstColumns(self,
                    activeColumns,
                    predictedColumns,
-                   prevActiveCells,
+                   prevActiveSynapsesForSegment,
                    connections):
     """
     Phase 2: Burst unpredicted columns.
@@ -153,16 +153,20 @@ class TM(object):
         - mark all cells as active
         - mark the best matching cell as winner cell
           - (learning)
-            - if it has matching segment
-              - mark the segment as learning
-            - else
-              - add a segment to it
-              - mark the segment as learning
+            - if it has no matching segment
+              - (optimization) if there are prev winner cells
+                - add a segment to it
+            - mark the segment as learning
 
-    @param activeColumns    (set)         Indices of active columns in `t`
-    @param predictedColumns (set)         Indices of predicted columns in `t`
-    @param prevActiveCells  (set)         Indices of active cells in `t-1`
-    @param connections      (Connections) Connectivity of layer
+    @param activeColumns                (set)         Indices of active columns
+                                                      in `t`
+    @param predictedColumns             (set)         Indices of predicted
+                                                      columns in `t`
+    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
+                                                      active synapses in `t-1`,
+                                                      see
+                                                      `TM.computeActiveSynapses`
+    @param connections                  (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       activeCells      (set)
@@ -172,6 +176,24 @@ class TM(object):
     activeCells      = set()
     winnerCells      = set()
     learningSegments = set()
+
+    unpredictedColumns = activeColumns - predictedColumns
+
+    for column in unpredictedColumns:
+      cells = connections.cellsForColumn(column)
+      activeCells.update(cells)
+
+      (bestCell,
+       bestSegment) = self.getBestMatchingCell(column,
+                                               prevActiveSynapsesForSegment,
+                                               connections)
+      winnerCells.add(bestCell)
+
+      if bestSegment == None:
+        # TODO: (optimization) Only do this if there are prev winner cells
+        bestSegment = connections.createSegment(bestCell)
+
+      learningSegments.add(bestSegment)
 
     return (activeCells, winnerCells, learningSegments)
 
@@ -210,6 +232,8 @@ class TM(object):
     (see `TM.getBestMatchingSegment`) that has the largest number of active
     synapses of all best matching segments.
 
+    If none were found, pick a cell randomly.
+
     @param column                   (int)         Column index
     @param activeSynapsesForSegment (dict)        Mapping from segments to
                                                   active synapses (see
@@ -224,7 +248,9 @@ class TM(object):
     bestCell = None
     bestSegment = None
 
-    for cell in connections.cellsForColumn(column):
+    cells = connections.cellsForColumn(column)
+
+    for cell in cells:
       (
         segment,
         connectedActiveSynapses
@@ -236,6 +262,10 @@ class TM(object):
         maxSynapses = len(connectedActiveSynapses)
         bestCell = cell
         bestSegment = segment
+
+    if bestCell == None:
+      i = self._random.getUInt32(self.connections.cellsPerColumn)
+      bestCell = sorted(cells)[i]
 
     return (bestCell, bestSegment)
 
