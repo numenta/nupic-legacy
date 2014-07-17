@@ -386,6 +386,29 @@ class TM(object):
       connections.updateSynapsePermanence(synapse, permanence)
 
 
+  def pickCellsToLearnOn(self, n, _segment, winnerCells, _connections):
+    """
+    Pick cells to form distal connections to.
+
+    @param n           (int)         Number of cells to pick
+    @param segment     (int)         Segment index
+    @param winnerCells (set)         Indices of winner cells in `t`
+    @param connections (Connections) Connectivity of layer
+
+    @return (set) Indices of cells picked
+    """
+    # TODO: Respect topology and learningRadius
+    n = min(n, len(winnerCells))
+    candidates = sorted(winnerCells)
+    cells = set()
+
+    for _ in range(n):
+      i = self._random.getUInt32(len(candidates))
+      cells.add(candidates[i])
+      del candidates[i]
+
+    return cells
+
 
 class Connections(object):
   """
