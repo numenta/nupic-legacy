@@ -21,6 +21,7 @@
 # ----------------------------------------------------------------------
 """
 TODO: Mock out all function calls.
+TODO: Move all duplicate connections logic into shared function.
 """
 
 import unittest
