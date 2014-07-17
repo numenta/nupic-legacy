@@ -86,15 +86,15 @@ class TM(object):
 
     # Initialize member variables
     self.connections = Connections(columnDimensions, cellsPerColumn)
-    self._random = Random(seed)
+    self._random     = Random(seed)
 
     # Save member variables
     self.activationThreshold = activationThreshold
-    self.learningRadius = learningRadius
-    self.initialPermanence = initialPermanence
+    self.learningRadius      = learningRadius
+    self.initialPermanence   = initialPermanence
     self.connectedPermanence = connectedPermanence
-    self.minThreshold = minThreshold
-    self.maxNewSynapseCount = maxNewSynapseCount
+    self.minThreshold        = minThreshold
+    self.maxNewSynapseCount  = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
 
