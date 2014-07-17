@@ -198,6 +198,34 @@ class TM(object):
     return (activeCells, winnerCells, learningSegments)
 
 
+  def learnOnSegments(self,
+                      prevActiveSegments,
+                      learningSegments,
+                      winnerCells,
+                      prevWinnerCells,
+                      connections):
+    """
+    Phase 3: Perform learning by adapting segments.
+
+    Pseudocode:
+
+      - (learning) for each prev active or learning segment
+        - if learning segment or from winner cell
+          - strengthen active synapses
+          - weaken inactive synapses
+        - if learning segment
+          - add some synapses to the segment
+            - subsample from prev winner cells
+
+    @param prevActiveSegments (set)         Indices of active segments in `t-1`
+    @param learningSegments   (set)         Indices of learning segments in `t`
+    @param winnerCells        (set)         Indices of winner cells in `t`
+    @param prevWinnerCells    (set)         Indices of winner cells in `t-1`
+    @param connections        (Connections) Connectivity of layer
+    """
+    pass
+
+
   # Helper functions
 
   @staticmethod
