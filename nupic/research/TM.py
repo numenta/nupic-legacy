@@ -42,7 +42,7 @@ class TM(object):
                initialPermanence=0.21,
                connectedPermanence=0.50,
                minThreshold=10,
-               newSynapseCount=20,
+               maxNewSynapseCount=20,
                permanenceIncrement=0.10,
                permanenceDecrement=0.10,
                seed=42):
@@ -71,7 +71,7 @@ class TM(object):
                                         it is selected as the best matching
                                         cell in a bursing column.
 
-    @param newSynapseCount     (int)    The maximum number of synapses added
+    @param maxNewSynapseCount  (int)    The maximum number of synapses added
                                         to a segment during learning.
 
     @param permanenceIncrement (float)  Amount by which permanences of synapses
@@ -94,7 +94,7 @@ class TM(object):
     self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
     self.minThreshold = minThreshold
-    self.newSynapseCount = newSynapseCount
+    self.maxNewSynapseCount = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
 
@@ -201,6 +201,7 @@ class TM(object):
   def learnOnSegments(self,
                       prevActiveSegments,
                       learningSegments,
+                      prevActiveSynapsesForSegment,
                       winnerCells,
                       prevWinnerCells,
                       connections):
@@ -217,13 +218,41 @@ class TM(object):
           - add some synapses to the segment
             - subsample from prev winner cells
 
-    @param prevActiveSegments (set)         Indices of active segments in `t-1`
-    @param learningSegments   (set)         Indices of learning segments in `t`
-    @param winnerCells        (set)         Indices of winner cells in `t`
-    @param prevWinnerCells    (set)         Indices of winner cells in `t-1`
-    @param connections        (Connections) Connectivity of layer
+    @param prevActiveSegments           (set)         Indices of active segments
+                                                      in `t-1`
+    @param learningSegments             (set)         Indices of learning
+                                                      segments in `t`
+    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
+                                                      active synapses in `t-1`,
+                                                      see
+                                                      `TM.computeActiveSynapses`
+    @param winnerCells                  (set)         Indices of winner cells
+                                                      in `t`
+    @param prevWinnerCells              (set)         Indices of winner cells
+                                                      in `t-1`
+    @param connections                  (Connections) Connectivity of layer
     """
-    pass
+    for segment in prevActiveSegments | learningSegments:
+      isLearningSegment = segment in learningSegments
+      isFromWinnerCell  = connections.cellForSegment(segment) in winnerCells
+
+      activeSynapses = self.getConnectedActiveSynapsesForSegment(
+        segment,
+        prevActiveSynapsesForSegment,
+        0,
+        connections)
+
+      if isLearningSegment or isFromWinnerCell:
+        self.adaptSegment(segment, activeSynapses, connections)
+
+      if isLearningSegment:
+        n = self.maxNewSynapseCount - len(activeSynapses)
+
+        for sourceCell in self.pickCellsToLearnOn(n,
+                                                  segment,
+                                                  prevWinnerCells,
+                                                  connections):
+          connections.createSynapse(segment, sourceCell, self.initialPermanence)
 
 
   # Helper functions
@@ -357,6 +386,7 @@ class TM(object):
     if not segment in activeSynapsesForSegment:
       return connectedSynapses
 
+    # TODO: (optimization) Can skip this logic if permanenceThreshold = 0
     for synapse in activeSynapsesForSegment[segment]:
       (_, _, permanence) = connections.dataForSynapse(synapse)
 

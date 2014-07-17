@@ -169,6 +169,63 @@ class TMTest(unittest.TestCase):
     self.assertEqual(learningSegments, set())
 
 
+  def testLearnOnSegments(self):
+    tm = TM(maxNewSynapseCount=2)
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    connections.createSegment(1)
+    connections.createSynapse(1, 733, 0.7)
+
+    connections.createSegment(8)
+    connections.createSynapse(2, 486, 0.9)
+
+    connections.createSegment(100)
+
+    prevActiveSegments = {0, 2}
+    learningSegments = {1, 3}
+    prevActiveSynapsesForSegment = {0: {0, 1},
+                                    1: {3}}
+    winnerCells = {0}
+    prevWinnerCells = {10, 11, 12, 13, 14}
+
+    tm.learnOnSegments(prevActiveSegments,
+                       learningSegments,
+                       prevActiveSynapsesForSegment,
+                       winnerCells,
+                       prevWinnerCells,
+                       connections)
+
+    # Check segment 0
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertAlmostEqual(permanence, 0.7)
+
+    (_, _, permanence) = connections.dataForSynapse(1)
+    self.assertAlmostEqual(permanence, 0.5)
+
+    (_, _, permanence) = connections.dataForSynapse(2)
+    self.assertAlmostEqual(permanence, 0.8)
+
+    # Check segment 1
+    (_, _, permanence) = connections.dataForSynapse(3)
+    self.assertAlmostEqual(permanence, 0.8)
+
+    self.assertEqual(len(connections.synapsesForSegment(1)), 2)
+
+    # Check segment 2
+    (_, _, permanence) = connections.dataForSynapse(4)
+    self.assertAlmostEqual(permanence, 0.9)
+
+    self.assertEqual(len(connections.synapsesForSegment(2)), 1)
+
+    # Check segment 3
+    self.assertEqual(len(connections.synapsesForSegment(3)), 2)
+
+
   def testComputeActiveSynapses(self):
     tm = self.tm
 
@@ -353,13 +410,13 @@ class TMTest(unittest.TestCase):
     tm.adaptSegment(0, {0, 1}, connections)
 
     (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertEqual(permanence, 0.7)
+    self.assertAlmostEqual(permanence, 0.7)
 
     (_, _, permanence) = connections.dataForSynapse(1)
-    self.assertEqual(permanence, 0.5)
+    self.assertAlmostEqual(permanence, 0.5)
 
     (_, _, permanence) = connections.dataForSynapse(2)
-    self.assertEqual(permanence, 0.8)
+    self.assertAlmostEqual(permanence, 0.8)
 
 
   def testPickCellsToLearnOn(self):
