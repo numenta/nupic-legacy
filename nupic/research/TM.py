@@ -338,6 +338,26 @@ class TM(object):
     return connectedSynapses
 
 
+  def adaptSegment(self, segment, activeSynapses, connections):
+    """
+    Updates synapses on segment.
+    Strengthens active synapses; weakens inactive synapses.
+
+    @param segment        (int)         Segment index
+    @param activeSynapses (set)         Indices of active synapses
+    @param connections    (Connections) Connectivity of layer
+    """
+    for synapse in connections.synapsesForSegment(segment):
+      (_, _, permanence) = connections.dataForSynapse(synapse)
+
+      if synapse in activeSynapses:
+        permanence += self.permanenceIncrement
+      else:
+        permanence -= self.permanenceDecrement
+
+      connections.updateSynapsePermanence(synapse, permanence)
+
+
 
 class Connections(object):
   """
