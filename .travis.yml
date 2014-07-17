@@ -64,6 +64,10 @@ deploy:
     tags: true
     repo: rhyolight/nupic
     branch: pypi
+    condition:
+      - "$PY_VER == 2.7"
+      - "$TRAVIS_OS_NAME == linux"
+      - "$CC == clang"
 
 
 git:
