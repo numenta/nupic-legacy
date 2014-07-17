@@ -55,6 +55,9 @@ matrix:
 #       - "$PY_VER == 2.7"
 #       - "$CC == clang"
 
+before_deploy:
+  - cd $NUPIC
+
 deploy:
   provider: pypi
   user: numenta
