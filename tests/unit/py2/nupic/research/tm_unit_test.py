@@ -336,6 +336,27 @@ class TMTest(unittest.TestCase):
       {3})
 
 
+  def testAdaptSegment(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.4)
+    connections.createSynapse(0, 477, 0.9)
+
+    tm.adaptSegment(0, {0, 1}, connections)
+
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertEqual(permanence, 0.7)
+
+    (_, _, permanence) = connections.dataForSynapse(1)
+    self.assertEqual(permanence, 0.5)
+
+    (_, _, permanence) = connections.dataForSynapse(2)
+    self.assertEqual(permanence, 0.8)
+
+
 
 class ConnectionsTest(unittest.TestCase):
 
