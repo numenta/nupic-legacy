@@ -106,7 +106,7 @@ _Note_: -j3 option specify '3' as the maximum number of parallel jobs/threads th
     # Run all tests!
     make tests_all
 
-### Using graphical interface
+### Using an IDE
 
 See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tips) wiki page for details.
 
