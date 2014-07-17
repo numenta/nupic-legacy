@@ -86,39 +86,7 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 
 ### Using graphical interface
 
-If you don't have a strong preference about which IDE use, we recommend you use any IDE that has native support to CMake and that don't require generation of IDE solution. Among them:
-- KDevelop 4.6 or later: http://kdevelop.org/
-- JetBrains C++ [coming soon]: http://www.jetbrains.com/objc/features/cpp.html
-
-#### To generate the IDE solution:
-
-IDE with CMake support:
- * Open a project.
- * Specify the `CMakeLists.txt` file in root as project solution and finish the proccess.
-
-Other IDEs:
- * Open CMake-GUI executable.
- * Specify the source folder (`$NUPIC`).
- * Specify the build system folder (`$NUPIC/build/scripts`), i.e. where IDE solution will be created.
- * Click `Generate`.
- * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
- * Open `nupic.*proj` solution file generated on `$NUPIC/build/scripts`.
-
-#### To build:
-
-IDE with CMake support:
- * Just click `Build` button from your IDE.
-
-Other IDEs:
- * Run `ALL_BUILD` target from your IDE.
-
-#### To install:
-
-IDE with CMake support:
- * Just click `Install` button from your IDE.
-
-Other IDEs:
- * Run `INSTALL` target from your IDE.
+See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tips) wiki page for details.
 
 #### To run the tests:
 
