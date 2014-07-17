@@ -19,6 +19,9 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+"""
+TODO: Mock out all function calls.
+"""
 
 import unittest
 
