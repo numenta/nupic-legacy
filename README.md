@@ -62,7 +62,7 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 
 ### Using command line
 
-> This assumes the `NUPIC` environment variables is set to the directory where the NuPIC source code exists.
+> This assumes the `NUPIC` environment variable is set to the directory where the NuPIC source code exists.
 
     cd $NUPIC
     python setup.py build
