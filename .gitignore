@@ -73,6 +73,6 @@ nupic/bindings/*math.*
 # Pip stuff
 dist/
 nupic.egg-info/
-nupic/libcpp_region.dylib
+nupic/*cpp_region.*
 temp/
 
