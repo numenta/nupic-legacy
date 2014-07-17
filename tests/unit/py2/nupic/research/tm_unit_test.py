@@ -357,6 +357,21 @@ class TMTest(unittest.TestCase):
     self.assertEqual(permanence, 0.8)
 
 
+  def testPickCellsToLearnOn(self):
+    tm = TM(seed=42)
+
+    connections = tm.connections
+    winnerCells = {4, 47, 58, 93}
+
+    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
+                     {4, 58})  # randomly picked
+
+    self.assertEqual(tm.pickCellsToLearnOn(100, 0, winnerCells, connections),
+                     {4, 47, 58, 93})
+
+    self.assertEqual(tm.pickCellsToLearnOn(0, 0, winnerCells, connections),
+                     set())
+
 
 class ConnectionsTest(unittest.TestCase):
 
