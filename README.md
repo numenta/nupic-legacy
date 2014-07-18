@@ -84,7 +84,7 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
     # Run all tests!
     make tests_all
 
-### Using graphical interface
+### Using an IDE
 
 See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tips) wiki page for details.
 
