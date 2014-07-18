@@ -268,15 +268,15 @@ def showSegments(tm):
 
 
 def showTMState(state, label):
-  predictionsText = ", ".join(
+  text = ", ".join(
     ["{0} (cells: {1})".format(
      getCodeForIndex(i),
      ", ".join([str(c) for c in cells]))
        for (i, cells) in state.iteritems()])
-  predictionsText = predictionsText or "None"
+  text = text or "None"
 
   show("{0} ({1}): {2}".format(
-    label, len(state), predictionsText))
+    label, len(state), text))
 
 
 def showPredictions(tm):
