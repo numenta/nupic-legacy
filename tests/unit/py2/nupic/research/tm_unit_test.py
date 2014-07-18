@@ -489,6 +489,8 @@ class TMTest(unittest.TestCase):
     tm = TM(seed=42)
 
     connections = tm.connections
+    connections.createSegment(0)
+
     winnerCells = {4, 47, 58, 93}
 
     self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
@@ -498,6 +500,20 @@ class TMTest(unittest.TestCase):
                      {4, 47, 58, 93})
 
     self.assertEqual(tm.pickCellsToLearnOn(0, 0, winnerCells, connections),
+                     set())
+
+
+  def testPickCellsToLearnOnAvoidDuplicates(self):
+    tm = TM(seed=42)
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+
+    winnerCells = {23}
+
+    # Ensure that no additional (duplicate) cells were picked
+    self.assertEqual(tm.pickCellsToLearnOn(2, 0, winnerCells, connections),
                      set())
 
 
