@@ -255,6 +255,43 @@ class TM(object):
           connections.createSynapse(segment, sourceCell, self.initialPermanence)
 
 
+  def computePredictiveCells(self, activeSynapsesForSegment, connections):
+    """
+    Phase 4: Compute predictive cells due to lateral input
+    on distal dendrites.
+
+    Pseudocode:
+
+      - for each distal dendrite segment with activity >= activationThreshold
+        - mark the segment as active
+        - mark the cell as predictive
+
+    @param activeSynapsesForSegment (dict)        Mapping from segments to
+                                                  active synapses (see
+                                                  `TM.computeActiveSynapses`)
+    @param connections              (Connections) Connectivity of layer
+
+    @return (tuple) Contains:
+                      activeSegments  (set)
+                      predictiveCells (set)
+    """
+    activeSegments  = set()
+    predictiveCells = set()
+
+    for segment in activeSynapsesForSegment.keys():
+      synapses = self.getConnectedActiveSynapsesForSegment(
+        segment,
+        activeSynapsesForSegment,
+        self.connectedPermanence,
+        connections)
+
+      if len(synapses) >= self.activationThreshold:
+        activeSegments.add(segment)
+        predictiveCells.add(connections.cellForSegment(segment))
+
+    return (activeSegments, predictiveCells)
+
+
   # Helper functions
 
   @staticmethod
