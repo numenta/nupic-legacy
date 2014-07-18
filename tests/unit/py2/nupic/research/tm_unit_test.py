@@ -226,6 +226,38 @@ class TMTest(unittest.TestCase):
     self.assertEqual(len(connections.synapsesForSegment(3)), 2)
 
 
+  def testComputePredictiveCells(self):
+    tm = TM(activationThreshold=2)
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.6)
+    connections.createSynapse(0, 37, 0.5)
+    connections.createSynapse(0, 477, 0.9)
+
+    connections.createSegment(1)
+    connections.createSynapse(1, 733, 0.7)
+    connections.createSynapse(1, 733, 0.4)
+
+    connections.createSegment(1)
+    connections.createSynapse(2, 974, 0.9)
+
+    connections.createSegment(8)
+    connections.createSynapse(3, 486, 0.9)
+
+    connections.createSegment(100)
+
+    activeSynapsesForSegment = {0: {0, 1},
+                                1: {3, 4},
+                                2: {5}}
+
+    (activeSegments,
+     predictiveCells) = tm.computePredictiveCells(activeSynapsesForSegment,
+                                                  connections)
+    self.assertEqual(activeSegments, {0})
+    self.assertEqual(predictiveCells, {0})
+
+
   def testComputeActiveSynapses(self):
     tm = self.tm
 
