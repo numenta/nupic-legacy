@@ -15,6 +15,7 @@ repositoryDir = os.getcwd()
 # If True, 'develop' is passed by default
 # This is useful when a developer wish build the project directly from an IDE
 if len(sys.argv) == 1:
+  print "No command passed. Using 'develop' as default command. Use 'python setup.py --help' for more information."
   sys.argv.append('develop')
 
 
