@@ -99,7 +99,9 @@ class TM(object):
     self.permanenceDecrement = permanenceDecrement
 
 
+  # ==============================
   # Phases
+  # ==============================
 
   @staticmethod
   def activateCorrectlyPredictiveCells(prevPredictiveCells,
@@ -292,7 +294,9 @@ class TM(object):
     return (activeSegments, predictiveCells)
 
 
+  # ==============================
   # Helper functions
+  # ==============================
 
   @staticmethod
   def computeActiveSynapses(activeCells, connections):
@@ -689,7 +693,9 @@ class Connections(object):
     self._synapses[synapse] = data[:-1] + (permanence,)
 
 
+  # ==============================
   # Helper functions
+  # ==============================
 
   def _validateColumn(self, column):
     """
