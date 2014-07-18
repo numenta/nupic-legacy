@@ -651,6 +651,8 @@ class Connections(object):
     @param segment    (int)   Segment index
     @param sourceCell (int)   Source cell index
     @param permanence (float) Initial permanence
+
+    @return (int) Synapse index
     """
     self._validateSegment(segment)
     self._validateCell(sourceCell)
@@ -750,4 +752,9 @@ class Connections(object):
 
 
   def _numberOfCells(self):
+    """
+    Returns the number of cells in this layer.
+
+    @return (int) Number of cells
+    """
     return self._numberOfColumns() * self.cellsPerColumn
