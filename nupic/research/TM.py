@@ -583,6 +583,9 @@ class TM(object):
       else:
         permanence -= self.permanenceDecrement
 
+      # Keep permanence within min/max bounds
+      permanence = max(0.0, min(1.0, permanence))
+
       connections.updateSynapsePermanence(synapse, permanence)
 
 
