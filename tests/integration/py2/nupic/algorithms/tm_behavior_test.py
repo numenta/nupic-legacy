@@ -242,7 +242,8 @@ def showInput(sequence, reset=True, learn=True, num=1):
 
 
 def showSegments(tm):
-  show("Segments: (format => [source column, source cell, permanence]) ")
+  show("Segments: (format => "
+       "{segment: [(source column, source cell, permanence), ...]) ")
   show("------------------------------------")
 
   columns = range(tm.connections.numberOfColumns())
@@ -251,15 +252,19 @@ def showSegments(tm):
     cells = tm.connections.cellsForColumn(column)
 
     for cell in cells:
-      segments = []
+      segmentDict = dict()
 
       for seg in tm.connections.segmentsForCell(cell):
+        synapseList = []
+
         for synapse in tm.connections.synapsesForSegment(seg):
           (_, sourceCell, permanence) = tm.connections.dataForSynapse(synapse)
-          segments.append((column, sourceCell, permanence))
+          synapseList.append((column, sourceCell, permanence))
+
+        segmentDict[seg] = synapseList
 
       show("Column {0} ({1}) / Cell {2}:\t{3}".format(
-        column, getCodeForIndex(column), cell, segments))
+        column, getCodeForIndex(column), cell, segmentDict))
 
     if column < len(columns) - 1:  # not last
       show("")
