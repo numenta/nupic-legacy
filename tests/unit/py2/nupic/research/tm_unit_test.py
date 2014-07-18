@@ -451,6 +451,40 @@ class TMTest(unittest.TestCase):
     self.assertAlmostEqual(permanence, 0.8)
 
 
+  def testAdaptSegmentToMax(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.9)
+
+    tm.adaptSegment(0, {0}, connections)
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertAlmostEqual(permanence, 1.0)
+
+    # Now permanence should be at max
+    tm.adaptSegment(0, {0}, connections)
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertAlmostEqual(permanence, 1.0)
+
+
+  def testAdaptSegmentToMin(self):
+    tm = self.tm
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 23, 0.1)
+
+    tm.adaptSegment(0, set(), connections)
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertAlmostEqual(permanence, 0.0)
+
+    # Now permanence should be at min
+    tm.adaptSegment(0, set(), connections)
+    (_, _, permanence) = connections.dataForSynapse(0)
+    self.assertAlmostEqual(permanence, 0.0)
+
+
   def testPickCellsToLearnOn(self):
     tm = TM(seed=42)
 
