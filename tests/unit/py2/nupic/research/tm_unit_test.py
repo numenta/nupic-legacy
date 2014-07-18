@@ -695,6 +695,16 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
 
 
+  def testNumberOfColumns(self):
+    connections = Connections([64, 64], 32)
+    self.assertEqual(connections.numberOfColumns(), 64 * 64)
+
+
+  def testNumberOfCells(self):
+    connections = Connections([64, 64], 32)
+    self.assertEqual(connections.numberOfCells(), 64 * 64 * 32)
+
+
 
 if __name__ == '__main__':
   unittest.main()
