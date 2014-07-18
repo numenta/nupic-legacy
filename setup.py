@@ -11,30 +11,37 @@ ANY EXTRA code related to build process MUST be put into CMake file.
 repositoryDir = os.getcwd()
 
 
+# Check if no options were passed, i.e. if 'setup.py' is the only option
+# If True, 'develop' is passed by default
+# This is useful when a developer wish build the project directly from an IDE
+if len(sys.argv) == 1:
+  sys.argv.append('develop')
+
+
 # Read command line options looking for extra options for CMake and Make
 # For example, an user could type:
 #   python setup.py install make_options='-j3'
 # which will add '-j3' option to Make commandline
-cmakeOptions = ""
-makeOptions = ""
-setupOptions = ""
+cmakeOptions = ''
+makeOptions = ''
+setupOptions = ''
 mustBuildExtensions = False
 for arg in sys.argv:
-  if ("cmake_options" in arg) or ("make_options" in arg):
-    (option, _, rhs) = arg.partition("=")
-    if option[0] == "--cmake_options":
+  if ('cmake_options' in arg) or ('make_options' in arg):
+    (option, _, rhs) = arg.partition('=')
+    if option[0] == '--cmake_options':
       cmakeOptions = rhs
-    if option[0] == "--make_options":
+    if option[0] == '--make_options':
       makeOptions = rhs
-  elif (not "setup.py" in arg):
-    if ("build" in arg) or ("install" in arg):
+  elif (not 'setup.py' in arg):
+    if ('build' in arg) or ('install' in arg):
       mustBuildExtensions = True
-    setupOptions += arg + " "
+    setupOptions += arg + ' '
 
 
 # Get properties of the project like version, notes, etc
 properties = {}
-execfile(os.path.join(repositoryDir, "nupic", "__init__.py"), {}, properties)
+execfile(os.path.join(repositoryDir, 'nupic', '__init__.py'), {}, properties)
 
 
 def findPackages(repositoryDir):
@@ -63,14 +70,14 @@ def build_extensions_nupic():
   os.chdir(buildScriptsDir)
 
   # Generate build files with CMake
-  return_code = subprocess.call("cmake " + sourceDir + ' ' + cmakeOptions, shell=True)
+  return_code = subprocess.call('cmake ' + sourceDir + ' ' + cmakeOptions, shell=True)
   if (return_code != 0):
-    sys.exit("Unable to generate build scripts!")
+    sys.exit('Unable to generate build scripts!')
 
   # Build library with Make
-  return_code = subprocess.call("make " + makeOptions, shell=True)
+  return_code = subprocess.call('make ' + makeOptions, shell=True)
   if (return_code != 0):
-    sys.exit("Unable to build the library!")
+    sys.exit('Unable to build the library!')
 
 
 def setup_nupic():
@@ -82,7 +89,7 @@ def setup_nupic():
   os.chdir(repositoryDir)
   setup(
     name = 'nupic',
-    version = properties["__version__"],
+    version = properties['__version__'],
     packages = findPackages(repositoryDir),
     package_data = {
       'nupic': ['README.md', 'LICENSE.txt', '*.so', '*.dll', '*.dylib'],
