@@ -44,9 +44,15 @@ _Note_: If you get a "permission denied" error when using pip, you may add the -
 
 ## User instructions
 
-If you want NuPIC only for your apps use it, simply do this:
+If you want NuPIC only for your apps use it, cd into the NuPIC installation directory and run:
 
     python setup.py install
+
+Do to a current [bug](https://github.com/numenta/nupic/issues/1122), you must also add the following environment variable. You can do this by updating your `.bashrc` or `.bash_profile` with the following line:
+
+    export NTA_DATA_PATH=$NUPIC/resources
+
+> This assumes the `NUPIC` environment variable is set to the directory where the NuPIC source code exists.
 
 _Note_: If you get a "permission denied" error when using this, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with 'sudo'.
 
@@ -62,35 +68,11 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 
 ### Using command line
 
-#### To configure the environment:
+> This assumes the `NUPIC` environment variable is set to the directory where the NuPIC source code exists.
 
-    ```
-    # `$NUPIC` is the path to your NuPIC repository.
-    # Remember to replace <NuPIC path> with the real path:
-    export NUPIC=<NuPIC path>
-    ```
-
-_Note_: You may set this environment variable in your dotfiles(e.g. `~/.bashrc` under Bash) to avoid repeated typing.
-
-#### To generate build files:
-
-    mkdir -p $NUPIC/build/scripts
-    cd $NUPIC/build/scripts
-    cmake $NUPIC
-
-_Note_: You may specify the install location with CMake with the command line option `-DPROJECT_BUILD_RELEASE_DIR:STRING=/my/custom/path`.
-
-#### To build:
-
-    cd $NUPIC/build/scripts
-    make -j3
-
-_Note_: -j3 option specify '3' as the maximum number of parallel jobs/threads that Make will use during the build in order to gain speed. However, you can increase this number depending your CPU.
-
-#### To install:
-
-    cd $NUPIC/build/scripts
-    make install
+    cd $NUPIC
+    python setup.py build
+    python setup.py develop
 
 #### To run the tests:
 
@@ -108,41 +90,9 @@ _Note_: -j3 option specify '3' as the maximum number of parallel jobs/threads th
     # Run all tests!
     make tests_all
 
-### Using graphical interface
+### Using an IDE
 
-If you don't have a strong preference about which IDE use, we recommend you use any IDE that has native support to CMake and that don't require generation of IDE solution. Among them:
-- KDevelop 4.6 or later: http://kdevelop.org/
-- JetBrains C++ [coming soon]: http://www.jetbrains.com/objc/features/cpp.html
-
-#### To generate the IDE solution:
-
-IDE with CMake support:
- * Open a project.
- * Specify the `CMakeLists.txt` file in root as project solution and finish the proccess.
-
-Other IDEs:
- * Open CMake-GUI executable.
- * Specify the source folder (`$NUPIC`).
- * Specify the build system folder (`$NUPIC/build/scripts`), i.e. where IDE solution will be created.
- * Click `Generate`.
- * Choose the IDE that interest you (remember that IDE choice is limited to your OS, i.e. Visual Studio is available only on CMake for Windows).
- * Open `nupic.*proj` solution file generated on `$NUPIC/build/scripts`.
-
-#### To build:
-
-IDE with CMake support:
- * Just click `Build` button from your IDE.
-
-Other IDEs:
- * Run `ALL_BUILD` target from your IDE.
-
-#### To install:
-
-IDE with CMake support:
- * Just click `Install` button from your IDE.
-
-Other IDEs:
- * Run `INSTALL` target from your IDE.
+See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tips) wiki page for details.
 
 #### To run the tests:
 
