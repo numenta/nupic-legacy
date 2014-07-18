@@ -694,6 +694,28 @@ class Connections(object):
 
 
   # ==============================
+  # Convenience accesors
+  # ==============================
+
+  def numberOfColumns(self):
+    """
+    Returns the number of columns in this layer.
+
+    @return (int) Number of columns
+    """
+    return reduce(mul, self.columnDimensions, 1)
+
+
+  def numberOfCells(self):
+    """
+    Returns the number of cells in this layer.
+
+    @return (int) Number of cells
+    """
+    return self.numberOfColumns() * self.cellsPerColumn
+
+
+  # ==============================
   # Helper functions
   # ==============================
 
@@ -703,7 +725,7 @@ class Connections(object):
 
     @param column (int) Column index
     """
-    if column >= self._numberOfColumns() or column < 0:
+    if column >= self.numberOfColumns() or column < 0:
       raise IndexError("Invalid column")
 
 
@@ -713,7 +735,7 @@ class Connections(object):
 
     @param cell (int) Cell index
     """
-    if cell >= self._numberOfCells() or cell < 0:
+    if cell >= self.numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
 
 
@@ -746,21 +768,3 @@ class Connections(object):
     """
     if permanence < 0 or permanence > 1:
       raise ValueError("Invalid permanence")
-
-
-  def _numberOfColumns(self):
-    """
-    Returns the number of columns in this layer.
-
-    @return (int) Number of columns
-    """
-    return reduce(mul, self.columnDimensions, 1)
-
-
-  def _numberOfCells(self):
-    """
-    Returns the number of cells in this layer.
-
-    @return (int) Number of cells
-    """
-    return self._numberOfColumns() * self.cellsPerColumn
