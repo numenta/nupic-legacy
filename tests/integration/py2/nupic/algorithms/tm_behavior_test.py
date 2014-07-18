@@ -153,6 +153,7 @@ def feedTM(tm, sequence, learn=True, reset=True, num=1):
 
   if not reset:
     showActivations(tm)
+    showWinners(tm)
     showPredictions(tm)
 
     noteText = "(connectedPermanence: {0})".format(tm.connectedPermanence)
@@ -182,6 +183,10 @@ def getPredictions(tm):
 
 def getActivations(tm):
   return groupCellsByColumns(tm, tm.activeCells)
+
+
+def getWinners(tm):
+  return groupCellsByColumns(tm, tm.winnerCells)
 
 
 # ==============================
@@ -260,7 +265,7 @@ def showSegments(tm):
         for synapse in tm.connections.synapsesForSegment(seg):
           (_, sourceCell, permanence) = tm.connections.dataForSynapse(synapse)
           sourceColumn = tm.connections.columnForCell(sourceCell)
-          
+
           synapseList.append((getCodeForIndex(sourceColumn),
                              sourceCell,
                              permanence))
@@ -294,6 +299,10 @@ def showPredictions(tm):
 
 def showActivations(tm):
   showTMState(getActivations(tm), "Activations")
+
+
+def showWinners(tm):
+  showTMState(getWinners(tm), "Winners")
 
 
 def showReset():
