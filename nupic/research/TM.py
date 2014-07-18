@@ -88,6 +88,12 @@ class TM(object):
     self.connections = Connections(columnDimensions, cellsPerColumn)
     self._random     = Random(seed)
 
+    self.activeCells              = set()
+    self.predictiveCells          = set()
+    self.activeSegments           = set()
+    self.activeSynapsesForSegment = dict()
+    self.winnerCells              = set()
+
     # Save member variables
     self.activationThreshold = activationThreshold
     self.learningRadius      = learningRadius
@@ -97,6 +103,129 @@ class TM(object):
     self.maxNewSynapseCount  = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
+
+
+  # ==============================
+  # Main functions
+  # ==============================
+
+  def compute(self, activeColumns, learn=True):
+    """
+    Feeds input record through TM, performing inference and learning.
+    Updates member variables with new state.
+
+    @param activeColumns (set) Indices of active columns in `t`
+    """
+    (activeCells,
+     winnerCells,
+     activeSynapsesForSegment,
+     activeSegments,
+     predictiveCells) = self.computeFn(activeColumns,
+                                       self.activeCells,
+                                       self.predictiveCells,
+                                       self.activeSegments,
+                                       self.activeSynapsesForSegment,
+                                       self.winnerCells,
+                                       self.connections,
+                                       learn=learn)
+
+    self.activeCells = activeCells
+    self.winnerCells = winnerCells
+    self.activeSynapsesForSegment = activeSynapsesForSegment
+    self.activeSegments = activeSegments
+    self.predictiveCells = predictiveCells
+
+
+  def computeFn(self,
+                activeColumns,
+                prevActiveCells,
+                prevPredictiveCells,
+                prevActiveSegments,
+                prevActiveSynapsesForSegment,
+                prevWinnerCells,
+                connections,
+                learn=True):
+    """
+    'Functional' version of compute.
+    Returns new state.
+
+    @param activeColumns                (set)         Indices of active columns
+                                                      in `t`
+    @param prevActiveCells              (set)         Indicies of active cells
+                                                      in `t-1`
+    @param prevPredictiveCells          (set)         Indices of predictive
+                                                      cells in `t-1`
+    @param prevActiveSegments           (set)         Indices of active segments
+                                                      in `t-1`
+    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
+                                                      active synapses in `t-1`,
+                                                      see
+                                                      `TM.computeActiveSynapses`
+    @param prevWinnerCells              (set)         Indices of winner cells
+                                                      in `t-1`
+    @param connections                  (Connections) Connectivity of layer
+
+    @return (tuple) Contains:
+                      activeCells               (set)
+                      winnerCells               (set)
+                      activeSynapsesForSegment  (dict)
+                      activeSegments            (set)
+                      predictiveCells           (set)
+    """
+    activeCells = set()
+    winnerCells = set()
+
+    (_activeCells,
+     _winnerCells,
+     predictedColumns) = self.activateCorrectlyPredictiveCells(
+       prevPredictiveCells,
+       activeColumns,
+       connections)
+
+    activeCells.update(_activeCells)
+    winnerCells.update(_winnerCells)
+
+    (_activeCells,
+     _winnerCells,
+     learningSegments) = self.burstColumns(activeColumns,
+                                           predictedColumns,
+                                           prevActiveSynapsesForSegment,
+                                           connections)
+
+    activeCells.update(_activeCells)
+    winnerCells.update(_winnerCells)
+
+    if learn:
+      self.learnOnSegments(prevActiveSegments,
+                           learningSegments,
+                           prevActiveSynapsesForSegment,
+                           winnerCells,
+                           prevWinnerCells,
+                           connections)
+
+    activeSynapsesForSegment = self.computeActiveSynapses(activeCells,
+                                                          connections)
+
+    (activeSegments,
+     predictiveCells) = self.computePredictiveCells(activeSynapsesForSegment,
+                                                    connections)
+
+    return (activeCells,
+            winnerCells,
+            activeSynapsesForSegment,
+            activeSegments,
+            predictiveCells)
+
+
+  def reset(self):
+    """
+    Indicates the start of a new sequence. Resets sequence state of the TM.
+    """
+    self.activeCells              = set()
+    self.predictiveCells          = set()
+    self.activeSegments           = set()
+    self.activeSynapsesForSegment = dict()
+    self.winnerCells              = set()
 
 
   # ==============================
