@@ -314,10 +314,10 @@ class TMTest(unittest.TestCase):
                                             connections),
                      (0, 0))
 
-    self.assertEqual(tm.getBestMatchingCell(108,
+    self.assertEqual(tm.getBestMatchingCell(3,  # column containing cell 108
                                             activeSynapsesForSegment,
                                             connections),
-                     (3462, None))  # Random cell from column
+                     (102, None))  # Random cell from column
 
     self.assertEqual(tm.getBestMatchingCell(999,
                                             activeSynapsesForSegment,
