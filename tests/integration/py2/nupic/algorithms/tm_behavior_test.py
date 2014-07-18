@@ -127,7 +127,7 @@ def newTM(overrides=None):
     "initialPermanence": 0.3,
     "connectedPermanence": 0.5,
     "minThreshold": 1,
-    "maxNewSynapseCount": 2,
+    "maxNewSynapseCount": 6,
     "permanenceIncrement": 0.1,
     "permanenceDecrement": 0.05,
     "activationThreshold": 1
