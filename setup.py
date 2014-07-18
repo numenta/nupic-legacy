@@ -11,7 +11,7 @@ ANY EXTRA code related to build process MUST be put into CMake file.
 repositoryDir = os.getcwd()
 
 
-# Check if no options were passed, i.e. if 'setup.py' is the only option
+# Check if no option was passed, i.e. if 'setup.py' is the only option
 # If True, 'develop' is passed by default
 # This is useful when a developer wish build the project directly from an IDE
 if len(sys.argv) == 1:
