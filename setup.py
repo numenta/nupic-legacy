@@ -74,12 +74,12 @@ def build_extensions_nupic():
   # Generate build files with CMake
   return_code = subprocess.call('cmake ' + sourceDir + ' ' + cmakeOptions, shell=True)
   if (return_code != 0):
-    sys.exit('Unable to generate build scripts!')
+    sys.exit("Unable to generate build scripts!")
 
   # Build library with Make
   return_code = subprocess.call('make ' + makeOptions, shell=True)
   if (return_code != 0):
-    sys.exit('Unable to build the library!')
+    sys.exit("Unable to build the library!")
 
 
 def setup_nupic():
@@ -101,7 +101,7 @@ def setup_nupic():
       'nupic.frameworks.opf.jsonschema': ['*.json'],
       'nupic.support.resources.images': ['*.png', '*.gif', '*.ico', '*.graffle'],
       'nupic.swarming.jsonschema': ['*.json']},
-    description = 'Numenta Platform for Intelligent Computing',
+    description = "Numenta Platform for Intelligent Computing",
     author='Numenta',
     author_email='help@numenta.org',
     url='https://github.com/numenta/nupic',
