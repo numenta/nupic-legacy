@@ -103,7 +103,54 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
     resetTM(tm)
 
     sequence = [p[4], p[1], p[2], p[5]]
-    feedTM(tm, sequence, num=5)
+    feedTM(tm, sequence)
+
+    sequence = [p[4], p[1], p[2], p[5]]
+    feedTM(tm, sequence, num=2)
+
+    sequence = [p[4]]
+    feedTM(tm, sequence, reset=False)
+    self.assertEqual(len(getPredictions(tm)), 1)
+    sequence = [p[1]]
+    feedTM(tm, sequence, reset=False)
+    sequence = [p[2]]
+    feedTM(tm, sequence, reset=False)
+    sequence = [p[5]]
+    feedTM(tm, sequence, reset=False)
+    resetTM(tm)
+
+    sequence = [p[4], p[1], p[2]]
+    feedTM(tm, sequence, reset=False, learn=False)
+
+    sequence = [p[4], p[1], p[2], p[5]]
+    feedTM(tm, sequence, num=2)
+
+    sequence = [p[4]]
+    feedTM(tm, sequence, reset=False)
+    self.assertEqual(len(getPredictions(tm)), 1)
+    sequence = [p[1]]
+    feedTM(tm, sequence, reset=False)
+    sequence = [p[2]]
+    feedTM(tm, sequence, reset=False)
+    sequence = [p[5]]
+    feedTM(tm, sequence, reset=False)
+    resetTM(tm)
+
+    sequence = [p[4], p[1], p[2], p[5]]
+    feedTM(tm, sequence, num=2)
+
+    sequence = [p[1], p[2]]
+    feedTM(tm, sequence, reset=False, learn=False)
+    self.assertEqual(len(getPredictions(tm)), 2)
+    resetTM(tm)
+
+    sequence = [p[4], p[1], p[2]]
+    feedTM(tm, sequence, reset=False, learn=False)
+    self.assertEqual(len(getPredictions(tm)), 1)
+    resetTM(tm)
+
+    sequence = [p[0], p[1], p[2], p[3]]
+    feedTM(tm, sequence, num=3)
 
     sequence = [p[1], p[2]]
     feedTM(tm, sequence, reset=False, learn=False)
