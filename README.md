@@ -48,6 +48,12 @@ If you want NuPIC only for your apps use it, cd into the NuPIC installation dire
 
     python setup.py install
 
+Do to a current [bug](https://github.com/numenta/nupic/issues/1122), you must also add the following environment variable. You can do this by updating your `.bashrc` or `.bash_profile` with the following line:
+
+    export NTA_DATA_PATH=$NUPIC/resources
+
+> This assumes the `NUPIC` environment variable is set to the directory where the NuPIC source code exists.
+
 _Note_: If you get a "permission denied" error when using this, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with 'sudo'.
 
 Once it is installed, you can import NuPIC library to your python script using:
