@@ -11,14 +11,6 @@ ANY EXTRA code related to build process MUST be put into CMake file.
 repositoryDir = os.getcwd()
 
 
-# Check if no option was passed, i.e. if 'setup.py' is the only option
-# If True, 'build' is passed by default
-# This is useful when a developer wish build the project directly from an IDE
-if len(sys.argv) == 1:
-  print "No command passed. Using 'build' as default command. Use 'python setup.py --help' for more information."
-  sys.argv.append('build')
-
-
 # Read command line options looking for extra options for CMake and Make
 # For example, an user could type:
 #   python setup.py install make_options='-j3'
@@ -38,6 +30,15 @@ for arg in sys.argv:
     if ('build' in arg) or ('install' in arg):
       mustBuildExtensions = True
     setupOptions += arg + ' '
+
+
+# Check if no option was passed, i.e. if 'setup.py' is the only option
+# If True, 'develop' is passed by default
+# This is useful when a developer wish build the project directly from an IDE
+if len(sys.argv) == 1:
+  print "No command passed. Using 'develop' as default command. Use 'python setup.py --help' for more information."
+  sys.argv.append('develop')
+  mustBuildExtensions = True
 
 
 # Get properties of the project like version, notes, etc
