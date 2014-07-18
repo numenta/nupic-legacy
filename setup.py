@@ -12,11 +12,11 @@ repositoryDir = os.getcwd()
 
 
 # Check if no option was passed, i.e. if 'setup.py' is the only option
-# If True, 'develop' is passed by default
+# If True, 'build' is passed by default
 # This is useful when a developer wish build the project directly from an IDE
 if len(sys.argv) == 1:
-  print "No command passed. Using 'develop' as default command. Use 'python setup.py --help' for more information."
-  sys.argv.append('develop')
+  print "No command passed. Using 'build' as default command. Use 'python setup.py --help' for more information."
+  sys.argv.append('build')
 
 
 # Read command line options looking for extra options for CMake and Make
