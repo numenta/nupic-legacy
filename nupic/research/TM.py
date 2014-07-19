@@ -459,7 +459,7 @@ class TM(object):
     (see `TM.getBestMatchingSegment`) that has the largest number of active
     synapses of all best matching segments.
 
-    If none were found, pick a cell randomly.
+    If none were found, pick the least used cell (see `TM.getLeastUsedCell`).
 
     @param column                   (int)         Column index
     @param activeSynapsesForSegment (dict)        Mapping from segments to
@@ -491,8 +491,7 @@ class TM(object):
         bestSegment = segment
 
     if bestCell == None:
-      i = self._random.getUInt32(self.connections.cellsPerColumn)
-      bestCell = sorted(cells)[i]
+      bestCell = self.getLeastUsedCell(column, connections)
 
     return (bestCell, bestSegment)
 
@@ -529,6 +528,34 @@ class TM(object):
         connectedActiveSynapses = set(synapses)
 
     return (bestSegment, connectedActiveSynapses)
+
+
+  def getLeastUsedCell(self, column, connections):
+    """
+    Gets the cell with the smallest number of segments.
+    Break ties randomly.
+
+    @param column                   (int)         Column index
+    @param connections              (Connections) Connectivity of layer
+
+    @return (int) Cell index
+    """
+    cells = connections.cellsForColumn(column)
+    leastUsedCells = set()
+    minNumSegments = float("inf")
+
+    for cell in cells:
+      numSegments = len(connections.segmentsForCell(cell))
+
+      if numSegments < minNumSegments:
+        minNumSegments = numSegments
+        leastUsedCells = set()
+
+      if numSegments == minNumSegments:
+        leastUsedCells.add(cell)
+
+    i = self._random.getUInt32(len(leastUsedCells))
+    return sorted(leastUsedCells)[i]
 
 
   @staticmethod
