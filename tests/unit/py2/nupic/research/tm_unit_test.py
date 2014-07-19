@@ -317,12 +317,35 @@ class TMTest(unittest.TestCase):
     self.assertEqual(tm.getBestMatchingCell(3,  # column containing cell 108
                                             activeSynapsesForSegment,
                                             connections),
-                     (102, None))  # Random cell from column
+                     (96, None))  # Random cell from column
 
     self.assertEqual(tm.getBestMatchingCell(999,
                                             activeSynapsesForSegment,
                                             connections),
                      (31972, None))  # Random cell from column
+
+
+  def testGetBestMatchingCellFewestSegments(self):
+    tm = TM(
+      columnDimensions=[2],
+      cellsPerColumn=2,
+      connectedPermanence=0.50,
+      minThreshold=1,
+      seed=42
+    )
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 3, 0.3)
+
+    activeSynapsesForSegment = {}
+
+    for _ in range(100):
+      # Never pick cell 0, always pick cell 1
+      (cell, _) = tm.getBestMatchingCell(0,
+                                         activeSynapsesForSegment,
+                                         connections)
+      self.assertEqual(cell, 1)
 
 
   def testGetBestMatchingSegment(self):
@@ -372,6 +395,23 @@ class TMTest(unittest.TestCase):
                                                activeSynapsesForSegment,
                                                connections),
                      (None, None))
+
+
+  def testGetLeastUsedCell(self):
+    tm = TM(
+      columnDimensions=[2],
+      cellsPerColumn=2,
+      seed=42
+    )
+
+    connections = tm.connections
+    connections.createSegment(0)
+    connections.createSynapse(0, 3, 0.3)
+
+    for _ in range(100):
+      # Never pick cell 0, always pick cell 1
+      self.assertEqual(tm.getLeastUsedCell(0, connections),
+                       1)
 
 
   def testComputeActiveSynapsesNoActivity(self):
