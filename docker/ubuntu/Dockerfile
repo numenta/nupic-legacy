@@ -23,11 +23,8 @@ ENV CC clang
 ENV CXX clang++
 
 # Set enviroment variables needed by NuPIC
-ENV NTA /usr/bin/nta/eng
 ENV NUPIC /usr/local/src/nupic
-ENV PY_VERSION 2.7
-ENV PYTHONPATH $NTA/lib/python$PY_VERSION/site-packages:$PYTHONPATH
-ENV NTA_DATA_PATH $NTA/share/prediction/data:$NTA_DATA_PATH
+ENV NTA_DATA_PATH /usr/local/src/nupic/prediction/data
 
 # OPF needs this
 ENV USER docker
@@ -38,14 +35,12 @@ ADD . /usr/local/src/nupic
 # Install Python dependencies
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
 
-# Install NuPIC with CMAKE
-# Generate make files with cmake
-RUN mkdir $NUPIC/build_system
-WORKDIR $NUPIC/build_system
-RUN cmake $NUPIC
+# Docker don't expand ENV variables!
+WORKDIR /usr/local/src/nupic
 
-# Build with max 3 jobs/threads
-RUN make -j3
+# Install NuPIC with using SetupTools
+RUN python setup.py install
+RUN python setup.py build
+RUN python setup.py develop
 
-# Default directory
 WORKDIR /home/docker
