@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 import math
-import numpy
 
+import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder, EncoderResult

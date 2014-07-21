@@ -29,7 +29,6 @@ import sys
 import traceback
 from xml.etree import ElementTree
 
-
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from nupic.support.configuration_base import Configuration as ConfigurationBase
 

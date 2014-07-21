@@ -19,11 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
 import random
 
+import numpy
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder
+
 
 
 ############################################################################

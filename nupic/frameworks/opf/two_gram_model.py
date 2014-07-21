@@ -23,7 +23,6 @@
 
 import collections
 import itertools
-import logging
 
 from nupic import encoders
 from nupic.data import fieldmeta

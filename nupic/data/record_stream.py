@@ -21,7 +21,7 @@
 
 """Interface for different types of storages (file, hbase, rio, etc)."""
 
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 import datetime
 
 

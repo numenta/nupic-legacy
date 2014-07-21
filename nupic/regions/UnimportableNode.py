@@ -2,4 +2,5 @@
 error handling when trying to import "bad" Python nodes
 """
 
-Try to import this, Python interpreter...
+Try to
+interpreter...

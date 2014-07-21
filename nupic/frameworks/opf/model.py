@@ -22,13 +22,12 @@
 """Module defining the OPF Model base class."""
 
 import cPickle as pickle
-
 import os
 import shutil
-
 from abc import ABCMeta, abstractmethod
-from collections import namedtuple
+
 import nupic.frameworks.opf.opfutils as opfutils
+
 
 ###############################################################
 

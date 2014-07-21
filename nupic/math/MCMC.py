@@ -21,12 +21,13 @@
 
 raise Exception("XERROR mcmc not available")
 
-
 import copy
 import time
+
 import numpy
 from nupic.support.pythonics import Accessor
 from nupic.bindings.math import CMultiArgMax, GetNumpyDataType
+
 realDType = GetNumpyDataType("NTA_Real")
 
 class MCMCState(object):

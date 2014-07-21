@@ -26,12 +26,11 @@ import os
 import ctypes
 import imp
 import platform
-import numpy
-from PIL import (Image,
-                 ImageChops,
-                 ImageEnhance)
 
+import numpy
+from PIL import (Image)
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter, uint
+
 
 # Global counter used for some debugging operations
 id = 0

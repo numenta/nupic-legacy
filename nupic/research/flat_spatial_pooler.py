@@ -21,9 +21,6 @@
 
 """Implements the flat spatial pooler."""
 
-import copy
-import cPickle
-import itertools
 import numpy
 
 from nupic.bindings.math import GetNTAReal

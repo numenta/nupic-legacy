@@ -19,18 +19,12 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
-import sys
 import os
 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
-
 from nupic.support import getArgumentDescriptions
-
 from PyRegion import PyRegion
-
-from nupic.bindings.math import GetNTAReal
 
 gDefaultTemporalImp = 'py'
 

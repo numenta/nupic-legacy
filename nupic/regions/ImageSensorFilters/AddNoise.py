@@ -19,12 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import sys
 import numpy
-from PIL import (Image,
-                 ImageChops)
+from PIL import (Image)
 
-from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter, uint
+from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
+
 
 class AddNoise(BaseFilter):
 

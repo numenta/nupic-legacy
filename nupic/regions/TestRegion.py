@@ -22,20 +22,12 @@
 # This is a PyRegion-based python test regions for exploring/testing CLA Network
 # mechanisms
 
-import numpy
-import sys
-import os
-
 from abc import ABCMeta, abstractmethod
 
 
 #from nupic.research import FDRCSpatial2
 
-from nupic.support import getArgumentDescriptions
-
 from PyRegion import PyRegion
-
-from nupic.bindings.math import GetNTAReal
 
 from nupic.data.dictutils import DictObj
 
