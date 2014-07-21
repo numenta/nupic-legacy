@@ -29,9 +29,9 @@ import itertools
 import logging
 import optparse
 import os
-import random
 import sys
 
+import random
 import numpy
 
 from nupic.data import jsonhelpers

@@ -21,7 +21,6 @@
 
 import re
 import keyword
-import types
 import functools
 
 __IDENTIFIER_PATTERN = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')

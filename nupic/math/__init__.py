@@ -46,15 +46,11 @@ Module of statistical data structures and functions used in learning algorithms
 and for analysis of HTM network inputs and outputs.
 """
 
-import sys
 import math as coremath # The core Python module.
 
 # bitstringToArray/CMultiArgMax are not part of NuPIC2
-from nupic.bindings.math import (GetNTAReal,
-                                 GetNumpyDataType,
-                                 SparseMatrix,  SparseTensor,
-                                 TensorIndex, Domain)
-from nupic.bindings.math import lgamma, erf
+from nupic.bindings.math import lgamma
+
 
 def choose(n, c):
   return int(round(coremath.exp(logChoose(n, c))))

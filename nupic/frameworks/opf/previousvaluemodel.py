@@ -21,11 +21,8 @@
 
 """Module containing the trivial predictor OPF model implementation. """
 
-import collections
 import itertools
-import logging
 
-from nupic import encoders
 from nupic.data import fieldmeta
 from nupic.frameworks.opf import model
 from nupic.frameworks.opf import opfutils

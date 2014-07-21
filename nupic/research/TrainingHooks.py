@@ -21,8 +21,10 @@
 
 from __future__ import with_statement
 
-from nupic.frameworks.vision2 import VisionUtils as VU
 import os
+
+from nupic.frameworks.vision2 import VisionUtils as VU
+
 
 """This file contains training hooks, testing hooks, and other
 functions that are useful in experimental params files."""

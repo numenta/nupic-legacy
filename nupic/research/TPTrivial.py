@@ -20,20 +20,14 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import cPickle as pickle
+import random
+
 import numpy
 from numpy import *
-import sys
-import time
-import cPickle as pickle
-from itertools import product
-import pprint
-
 import nupic.math
-from nupic.support.consoleprinter import ConsolePrinterMixin
-from nupic.bindings.math import Random
 from nupic.research.TP import TP
 
-import random
 random.seed(42)
 numpy.random.seed(42)
 

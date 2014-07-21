@@ -27,35 +27,29 @@ Encapsulation of CLAnetwork that implements the ModelBase.
 
 import copy
 import math
-import sys
 import os
 import json
-import random
-import datetime
 import itertools
-import numpy
 import logging
 import traceback
-from collections import defaultdict, namedtuple, deque
+from collections import defaultdict, deque
 from datetime import timedelta
-from ordereddict import OrderedDict
 from operator import itemgetter
+from abc import ABCMeta, abstractmethod
 
+import numpy
 
 from model import Model
 from nupic.algorithms.anomaly import computeAnomalyScore
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
-from nupic.encoders import (MultiEncoder, DateEncoder, ScalarEncoder)
+from nupic.encoders import (MultiEncoder)
 from nupic.engine import Network
-from nupic.research import fdrutilities as fdrutils
-from nupic.support import aggregationDivide
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from opfutils import (InferenceType, InferenceElement, SensorInput,
-                      PredictionElement, validateOpfJsonValue, initLogger)
+                      initLogger)
 
-from abc import ABCMeta, abstractmethod
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
 DEFAULT_MAX_PREDICTIONS_PER_STEP = 8

@@ -21,11 +21,10 @@
 
 raise Exception("XERROR dist not available")
 
-from nupic.math import lgamma, logChoose, choose, erf
-
-import numpy
 import bisect
-import copy
+
+from nupic.math import lgamma, logChoose, choose, erf
+import numpy
 
 log2pi = numpy.log(2.0 * numpy.pi)
 

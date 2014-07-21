@@ -28,12 +28,13 @@ one or more gabor filter masks to incoming images.
 import os
 import shutil
 import math
+
 import numpy
 from PIL import (Image,
                  ImageChops)
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
-
 from nupic.math import GetNTAReal
+
 
 # Separable convolution is not supported in the public release
 try:

@@ -30,14 +30,14 @@ fn="drop all 'A's"
 Output: encoded('XAXAXA''XXX')
 """
 
-import numpy
 from types import FunctionType
 
+import numpy
 from nupic.encoders.multi import MultiEncoder
 from nupic.encoders.base import Encoder
-
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.vector import VectorEncoder
+
 # for UtilityEncoderOPF
 import imp
 
@@ -200,10 +200,6 @@ class UtilityEncoderOPF(UtilityEncoder):
   TODO: currently uses only VectorEncoderOPF, improve in #822
   demonstrates how to pass python fn from OPF (load file)
   """
-  import imp
-  from types import FunctionType
-
-  from nupic.encoders.vector import VectorEncoderOPF
 
 
   def __init__(self, pathToFevalFnFile, length=5, feedbackDelay=0, minval=-5, maxval=5, resolution=1, scoreMin=0, scoreMax=100, scoreResolution=1, forced=False):

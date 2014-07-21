@@ -19,42 +19,31 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import itertools
-import random
-import math
 import json
-import functools
 import time
 import logging
-import copy
 import os
 import sys
-import tempfile
 import shutil
-import signal
 import StringIO
 import threading
 import traceback
 from collections import deque
 
 from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfbasicenvironment import BasicPredictionLogger
-from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement,
+from nupic.frameworks.opf.opfutils import (InferenceElement,
                                            matchPatterns)
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
-from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
-
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
 from nupic.swarming import utils
+
 
 
 

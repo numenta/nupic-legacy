@@ -28,10 +28,11 @@ import os
 import inspect
 import logging
 import re
+from collections import namedtuple
 
 import nupic.data.jsonhelpers as jsonhelpers
 from nupic.support.enum import Enum
-from collections import namedtuple
+
 
 
 ###############################################################################

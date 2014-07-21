@@ -23,8 +23,6 @@
 ## @file
 """
 
-import random
-
 import numpy
 from PIL import Image
 

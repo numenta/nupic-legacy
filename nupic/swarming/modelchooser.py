@@ -25,9 +25,6 @@ import logging
 
 from nupic.support import initLogging
 
-from nupic.database import ClientJobsDAO
-
-
 
 class ModelChooser(object):
   """Utility Class to help with the selection of the 'best' model

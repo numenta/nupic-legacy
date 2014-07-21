@@ -22,10 +22,9 @@
 
 import os
 import logging
-from pkg_resources import resource_filename
-import json
 import tempfile
 
+from pkg_resources import resource_filename
 
 from nupic.data.aggregator import Aggregator
 from nupic.data.datasethelpers import findDataset

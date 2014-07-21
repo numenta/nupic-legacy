@@ -20,17 +20,18 @@
 # ----------------------------------------------------------------------
 
 
-import numpy
-from numpy import *
 import random
 import copy
-import sys
 import itertools
+
+import numpy
+from numpy import *
+
 
 random.seed(42)
 numpy.random.seed(42)
 
-from nupic.bindings.math import (SM32, SparseBinaryMatrix)
+from nupic.bindings.math import (SM32)
 
 ###############################################################################
 def setRandomSeed(seed):

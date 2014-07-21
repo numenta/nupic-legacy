@@ -23,12 +23,12 @@
 ## @file
 This file defines the k Nearest Neighbor classifier region.
 """
-import numpy
 import copy
+
+import numpy
 import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
-
 from nupic.algorithms.anomaly import computeAnomalyScore
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)

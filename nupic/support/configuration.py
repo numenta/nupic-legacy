@@ -23,7 +23,6 @@
 # persistent configuration updates stored in nupic-custom.xml in the site
 # conf folder.
 # ----------
-from nupic.support.configuration_custom import Configuration
 
 # This is the base Configuration implementation. It provides for reading
 # configuration parameters from nuipic-site.xml and nupic-default.xml.

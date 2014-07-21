@@ -26,14 +26,11 @@
 SVMClassifierNode implements Support Vector Machines (SVMs)
 """
 
-import os
-import sys
 import math
-import tempfile
-import numpy
 import random
 import logging
 
+import numpy
 from nupic.pynodes.PyNode import (PyNode,
                                   NodeSpec,
                                   NodeSpecItem,
@@ -42,6 +39,7 @@ from nupic.pynodes.PyNode import (PyNode,
 from nupic.pynodes import PyNode as PyNodeModule
 from nupic.algorithms import svm_01, svm_dense
 from nupic.analysis.memoryAwareness import MemoryAwareness
+
 
 _kKernelTypes = ["rbf", "linear"]
 
