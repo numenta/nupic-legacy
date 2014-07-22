@@ -810,7 +810,7 @@ class Connections(object):
     self._nextSegmentIdx += 1
 
     # Update indexes
-    if not len(self.segmentsForCell(cell)):
+    if not cell in self._segmentsForCell:
       self._segmentsForCell[cell] = set()
     self._segmentsForCell[cell].add(segment)
 
