@@ -39,9 +39,9 @@ class PatternMachine(object):
                num=100,
                seed=42):
     """
-    @param n   (int) Number of available bits in pattern.
-    @param w   (int) Number of on bits in pattern.
-    @param num (int) Number of available patterns.
+    @param n   (int) Number of available bits in pattern
+    @param w   (int) Number of on bits in pattern
+    @param num (int) Number of available patterns
     """
     # Save member variables
     self.n = n
