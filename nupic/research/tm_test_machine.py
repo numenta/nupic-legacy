@@ -179,16 +179,15 @@ class TMTestMachine(object):
     return table.get_string()
 
 
-  @staticmethod
-  def prettyPrintConnections(tm):
+  def prettyPrintConnections(self):
     """
     Pretty print the connections in the temporal memory.
 
-    @param tm        (TM)  Temporal memory
     @param verbosity (int) Verbosity level
 
     @return (string) Pretty-printed text
     """
+    tm = self.tm
     text = ""
 
     text += ("Segments: (format => "
