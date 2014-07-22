@@ -35,7 +35,7 @@ class TM(object):
   """
 
   def __init__(self,
-               columnDimensions=[2048],
+               columnDimensions=(2048,),
                cellsPerColumn=32,
                activationThreshold=13,
                learningRadius=2048,
