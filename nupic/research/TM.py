@@ -86,21 +86,21 @@ class TM(object):
 
     # Initialize member variables
     self.connections = Connections(columnDimensions, cellsPerColumn)
-    self._random     = Random(seed)
+    self._random = Random(seed)
 
-    self.activeCells              = set()
-    self.predictiveCells          = set()
-    self.activeSegments           = set()
+    self.activeCells = set()
+    self.predictiveCells = set()
+    self.activeSegments = set()
     self.activeSynapsesForSegment = dict()
-    self.winnerCells              = set()
+    self.winnerCells = set()
 
     # Save member variables
     self.activationThreshold = activationThreshold
-    self.learningRadius      = learningRadius
-    self.initialPermanence   = initialPermanence
+    self.learningRadius = learningRadius
+    self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
-    self.minThreshold        = minThreshold
-    self.maxNewSynapseCount  = maxNewSynapseCount
+    self.minThreshold = minThreshold
+    self.maxNewSynapseCount = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
 
@@ -221,11 +221,11 @@ class TM(object):
     """
     Indicates the start of a new sequence. Resets sequence state of the TM.
     """
-    self.activeCells              = set()
-    self.predictiveCells          = set()
-    self.activeSegments           = set()
+    self.activeCells = set()
+    self.predictiveCells = set()
+    self.activeSegments = set()
     self.activeSynapsesForSegment = dict()
-    self.winnerCells              = set()
+    self.winnerCells = set()
 
 
   # ==============================
@@ -255,8 +255,8 @@ class TM(object):
                       `winnerCells`      (set),
                       `predictedColumns` (set)
     """
-    activeCells      = set()
-    winnerCells      = set()
+    activeCells = set()
+    winnerCells = set()
     predictedColumns = set()
 
     for cell in prevPredictiveCells:
@@ -304,8 +304,8 @@ class TM(object):
                       `winnerCells`      (set),
                       `learningSegments` (set)
     """
-    activeCells      = set()
-    winnerCells      = set()
+    activeCells = set()
+    winnerCells = set()
     learningSegments = set()
 
     unpredictedColumns = activeColumns - predictedColumns
@@ -406,7 +406,7 @@ class TM(object):
                       `activeSegments`  (set),
                       `predictiveCells` (set)
     """
-    activeSegments  = set()
+    activeSegments = set()
     predictiveCells = set()
 
     for segment in activeSynapsesForSegment.keys():
