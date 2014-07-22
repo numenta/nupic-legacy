@@ -166,11 +166,11 @@ class TM(object):
     @param connections                  (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      activeCells               (set)
-                      winnerCells               (set)
-                      activeSynapsesForSegment  (dict)
-                      activeSegments            (set)
-                      predictiveCells           (set)
+                      `activeCells`               (set),
+                      `winnerCells`               (set),
+                      `activeSynapsesForSegment`  (dict),
+                      `activeSegments`            (set),
+                      `predictiveCells`           (set)
     """
     activeCells = set()
     winnerCells = set()
@@ -251,9 +251,9 @@ class TM(object):
     @param activeColumns       (set) Indices of active columns in `t`
 
     @return (tuple) Contains:
-                      activeCells      (set)
-                      winnerCells      (set)
-                      predictedColumns (set)
+                      `activeCells`      (set),
+                      `winnerCells`      (set),
+                      `predictedColumns` (set)
     """
     activeCells      = set()
     winnerCells      = set()
@@ -300,9 +300,9 @@ class TM(object):
     @param connections                  (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      activeCells      (set)
-                      winnerCells      (set)
-                      learningSegments (set)
+                      `activeCells`      (set),
+                      `winnerCells`      (set),
+                      `learningSegments` (set)
     """
     activeCells      = set()
     winnerCells      = set()
@@ -403,8 +403,8 @@ class TM(object):
     @param connections              (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      activeSegments  (set)
-                      predictiveCells (set)
+                      `activeSegments`  (set),
+                      `predictiveCells` (set)
     """
     activeSegments  = set()
     predictiveCells = set()
@@ -468,8 +468,8 @@ class TM(object):
     @param connections              (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      cell                (int)
-                      bestSegment (int)
+                      `cell`        (int),
+                      `bestSegment` (int)
     """
     maxSynapses = 0
     bestCell = None
@@ -508,8 +508,8 @@ class TM(object):
     @param connections              (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      segment                 (int)
-                      connectedActiveSynapses (set)
+                      `segment`                 (int),
+                      `connectedActiveSynapses` (set)
     """
     maxSynapses = self.minThreshold
     bestSegment = None
@@ -753,9 +753,9 @@ class Connections(object):
     @param synapse (int) Synapse index
 
     @return (tuple) Contains:
-                      segment    (int)
-                      sourceCell (int)
-                      permanence (float)
+                      `segment`    (int),
+                      `sourceCell` (int),
+                      `permanence` (float)
     """
     self._validateSynapse(synapse)
 
