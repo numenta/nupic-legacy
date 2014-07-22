@@ -162,9 +162,9 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
   def _showInput(self, sequence, learn=True, num=1):
     sequenceText = self.sequenceMachine.prettyPrintSequence(sequence)
     learnText = "(learning {0})".format("enabled" if learn else "disabled")
-    numText = "[{0} times]".format(num) if num > 1 else ""
-    show("Feeding sequence: {0} {1} {2}".format(
-         sequenceText, learnText, numText),
+    numText = " [{0} times]".format(num) if num > 1 else ""
+    show("Feeding sequence {0}{1}:\n{2}".format(
+         learnText, numText, sequenceText),
          newline=True)
 
 
