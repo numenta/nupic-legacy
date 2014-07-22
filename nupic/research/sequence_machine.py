@@ -73,9 +73,13 @@ class SequenceMachine(object):
     """
     text = ""
 
-    for pattern in sequence:
+    for i in xrange(len(sequence)):
+      pattern = sequence[i]
+
       if pattern == None:
-        text += "<reset>\n"
+        text += "<reset>"
+        if i < len(sequence) - 1:
+          text += "\n"
       else:
         text += self.patternMachine.prettyPrintPattern(pattern,
                                                        verbosity=verbosity)
