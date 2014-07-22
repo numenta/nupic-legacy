@@ -24,8 +24,6 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
-import random
-
 
 
 class SequenceMachine(object):
@@ -34,22 +32,23 @@ class SequenceMachine(object):
   """
 
   def __init__(self,
-               patternMachine,
-               seed=42):
+               patternMachine):
     """
     @param patternMachine (PatternMachine) Pattern machine instance
-    @param seed           (int)            Seed for random number generator
     """
     # Save member variables
     self.patternMachine = patternMachine
 
-    # Initialize member variables
-    random.seed(seed)
-
 
   def generateFromNumbers(self, numbers):
     """
-    TODO
+    Generate a sequence from a list of numbers.
+
+    Note: Any `None` in the list of numbers is considered a reset.
+
+    @param numbers (list) List of numbers
+
+    @return (list) Generated sequence
     """
     sequence = []
 
@@ -65,7 +64,12 @@ class SequenceMachine(object):
 
   def prettyPrintSequence(self, sequence, verbosity=1):
     """
-    TODO
+    Pretty print a sequence.
+
+    @param sequence  (list) Sequence
+    @param verbosity (int)  Verbosity level
+
+    @return (string) Pretty-printed text
     """
     text = ""
 
