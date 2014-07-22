@@ -138,11 +138,11 @@ class TMTestMachine(object):
     """
     from prettytable import PrettyTable
     table = PrettyTable(["Pattern",
-                        "# predicted active cells",
-                        "# predicted inactive cells",
                         "predicted active columns",
                         "predicted inactive columns",
-                        "unpredicted active columns"])
+                        "unpredicted active columns",
+                        "# predicted active cells",
+                        "# predicted inactive cells"])
     (
     predictedActiveCellsList,
     predictedInactiveCellsList,
@@ -162,8 +162,6 @@ class TMTestMachine(object):
 
       row.append(patternMachine.prettyPrintPattern(pattern,
                                                    verbosity=verbosity))
-      row.append(len(predictedActiveCellsList[i]))
-      row.append(len(predictedInactiveCellsList[i]))
       row.append(
         patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
                                           verbosity=verbosity))
@@ -173,6 +171,8 @@ class TMTestMachine(object):
       row.append(
         patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
                                           verbosity=verbosity))
+      row.append(len(predictedActiveCellsList[i]))
+      row.append(len(predictedInactiveCellsList[i]))
 
       table.add_row(row)
 
