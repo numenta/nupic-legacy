@@ -128,7 +128,10 @@ class PatternMachine(object):
 
     for number in numberMap.keys():
 
-      if verbosity > 1:
+      if verbosity > 2:
+        numbers = [str(n) for n in numberMap[number]]
+        numberText = "{0} (cells: {1})".format(number, ",".join(numbers))
+      elif verbosity > 1:
         numberText = "{0} ({1} cells)".format(number, len(numberMap[number]))
       else:
         numberText = str(number)
