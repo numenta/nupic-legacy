@@ -112,6 +112,34 @@ class PatternMachine(object):
     return numberMap
 
 
+  def prettyPrintPattern(self, bits, verbosity=1):
+    """
+    Pretty print a pattern.
+
+    @param bits      (set) Indices of on bits
+    @param verbosity (int) Verbosity level
+
+    @return (string) Pretty-printed text
+    """
+    numberMap = self.numberMapForBits(bits)
+    text = ""
+
+    numberList = []
+
+    for number in numberMap.keys():
+
+      if verbosity > 1:
+        numberText = "{0} ({1} cells)".format(number, len(numberMap[number]))
+      else:
+        numberText = str(number)
+
+      numberList.append(numberText)
+
+    text += "[{0}]".format(", ".join(numberList))
+
+    return text
+
+
   def _generate(self):
     """
     Generates set of random patterns.
