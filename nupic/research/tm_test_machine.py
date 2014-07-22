@@ -177,3 +177,49 @@ class TMTestMachine(object):
       table.add_row(row)
 
     return table.get_string()
+
+
+  @staticmethod
+  def prettyPrintConnections(tm):
+    """
+    Pretty print the connections in the temporal memory.
+
+    @param tm        (TM)  Temporal memory
+    @param verbosity (int) Verbosity level
+
+    @return (string) Pretty-printed text
+    """
+    text = ""
+
+    text += ("Segments: (format => "
+             "{segment: [(source cell, permanence), ...])\n")
+    text += "------------------------------------\n"
+
+    columns = range(tm.connections.numberOfColumns())
+
+    for column in columns:
+      cells = tm.connections.cellsForColumn(column)
+
+      for cell in cells:
+        segmentDict = dict()
+
+        for seg in tm.connections.segmentsForCell(cell):
+          synapseList = []
+
+          for synapse in tm.connections.synapsesForSegment(seg):
+            (_, sourceCell, permanence) = tm.connections.dataForSynapse(synapse)
+
+            synapseList.append([sourceCell,
+                                permanence])
+
+          segmentDict[seg] = synapseList
+
+        text += ("Column {0} / Cell {1}:\t{2}\n".format(
+                 column, cell, segmentDict))
+
+      if column < len(columns) - 1:  # not last
+        text += "\n"
+
+    text += "------------------------------------\n"
+
+    return text
