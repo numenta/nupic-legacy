@@ -89,6 +89,8 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
     resetTM(tm)
 
 
+  @unittest.skip("Requires some form of synaptic decay to forget "
+                 "the ABC=>Y transition that's initially formed.")
   def testB(self):
     showTest("High order sequences")
     tm = newTM()
