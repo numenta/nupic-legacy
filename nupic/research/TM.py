@@ -714,7 +714,7 @@ class Connections(object):
 
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
-    return {cell for cell in range(start, end)}
+    return set([cell for cell in range(start, end)])
 
 
   def cellForSegment(self, segment):
