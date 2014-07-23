@@ -205,10 +205,12 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1])
     sequence *= 10
-    sequence.append(self.patternMachine.get(2))
+    sequence += [self.patternMachine.get(2), None]
 
     for _ in xrange(4):
       self._feedTM(sequence)
+
+    self._feedTM(sequence, num=10)
 
 
   # ==============================
