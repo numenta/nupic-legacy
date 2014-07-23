@@ -83,7 +83,7 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
   @unittest.skip("Requires some form of synaptic decay to forget "
                  "the ABC=>Y transition that's initially formed.")
   def testB(self):
-    showTest("High order sequences")
+    showTest("High order sequences (in order)")
 
     tm = newTM()
     self.patternMachine = ConsecutivePatternMachine(
@@ -132,6 +132,89 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
                                                             learn=False)
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
     self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+
+
+  @unittest.skip("Requires some form of synaptic decay to forget the "
+                 "ABC=>Y and XBC=>D transitions that are initially formed.")
+  def testC(self):
+    showTest("High order sequences (alternating)")
+
+    tm = newTM()
+    self.patternMachine = ConsecutivePatternMachine(
+                            tm.connections.numberOfColumns(), 1)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.tmTestMachine = TMTestMachine(tm)
+
+    sequence  = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
+    sequence += self.sequenceMachine.generateFromNumbers([4, 1, 2, 5, None])
+
+    self._feedTM(sequence)
+
+    self._feedTM(sequence, num=10)
+
+    (_, _, predictedActiveColumnsList,
+           predictedInactiveColumnsList, _) = self._feedTM(sequence,
+                                                            learn=False)
+
+    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+
+    self.assertEqual(len(predictedActiveColumnsList[8]), 1)
+    self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
+
+
+  def testD(self):
+    showTest("Endlessly repeating sequence of 2 elements")
+
+    tm = newTM({"columnDimensions": [2]})
+    self.patternMachine = ConsecutivePatternMachine(
+                            tm.connections.numberOfColumns(), 1)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.tmTestMachine = TMTestMachine(tm)
+
+    sequence = self.sequenceMachine.generateFromNumbers([0, 1])
+
+    for _ in xrange(7):
+      self._feedTM(sequence)
+
+    self._feedTM(sequence, num=50)
+
+
+  def testE(self):
+    showTest("Endlessly repeating sequence of 2 elements "
+             "with maxNewSynapseCount=1")
+
+    tm = newTM({"columnDimensions": [2],
+               "maxNewSynapseCount": 1,
+               "cellsPerColumn": 10})
+    self.patternMachine = ConsecutivePatternMachine(
+                            tm.connections.numberOfColumns(), 1)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.tmTestMachine = TMTestMachine(tm)
+
+    sequence = self.sequenceMachine.generateFromNumbers([0, 1])
+
+    for _ in xrange(7):
+      self._feedTM(sequence)
+
+    self._feedTM(sequence, num=100)
+
+
+  def testF(self):
+    showTest("Long repeating sequence with novel pattern at the end")
+
+    tm = newTM({"columnDimensions": [3]})
+    self.patternMachine = ConsecutivePatternMachine(
+                            tm.connections.numberOfColumns(), 1)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.tmTestMachine = TMTestMachine(tm)
+
+    sequence = self.sequenceMachine.generateFromNumbers([0, 1])
+    sequence *= 10
+    sequence.append(self.patternMachine.get(2))
+
+    for _ in xrange(4):
+      self._feedTM(sequence)
 
 
   # ==============================
