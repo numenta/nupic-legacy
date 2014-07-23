@@ -20,9 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import argparse
 import pprint
-import sys
 import unittest
 
 from nupic.research.pattern_machine import ConsecutivePatternMachine
@@ -32,15 +30,11 @@ from nupic.research.TM import TM
 
 
 
-SHOW_ENABLED = False
-
-
-
 # ==============================
 # Tests
 # ==============================
 
-class TemporalMemoryBehaviorTest(unittest.TestCase):
+class TemporalMemoryTest(unittest.TestCase):
 
   def setUp(self):
     self.tm = None
@@ -227,13 +221,13 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
                         results,
                         repeatedSequence)
 
-    show(self.tmTestMachine.prettyPrintDetailedResults(detailedResults,
-                                                       repeatedSequence,
-                                                       self.patternMachine))
-    show("")
+    print self.tmTestMachine.prettyPrintDetailedResults(detailedResults,
+                                                        repeatedSequence,
+                                                        self.patternMachine)
+    print
 
     if learn:
-      show(self.tmTestMachine.prettyPrintConnections())
+      print self.tmTestMachine.prettyPrintConnections()
 
     return detailedResults
 
@@ -242,9 +236,9 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
     sequenceText = self.sequenceMachine.prettyPrintSequence(sequence)
     learnText = "(learning {0})".format("enabled" if learn else "disabled")
     numText = " [{0} times]".format(num) if num > 1 else ""
-    show("Feeding sequence {0}{1}:\n{2}".format(
-         learnText, numText, sequenceText),
-         newline=True)
+    print "Feeding sequence {0}{1}:\n{2}".format(
+            learnText, numText, sequenceText)
+    print
 
 
 # ==============================
@@ -265,8 +259,11 @@ def newTM(overrides=None):
   }
   params.update(overrides or {})
   tm = TM(**params)
-  show("Initialized new TM with parameters:")
-  show(pprint.pformat(params), newline=True)
+
+  print "Initialized new TM with parameters:"
+  print pprint.pformat(params)
+  print
+
   return tm
 
 
@@ -274,19 +271,12 @@ def newTM(overrides=None):
 # Show
 # ==============================
 
-def show(text, newline=False):
-  if SHOW_ENABLED:
-    print text
-    if newline:
-      print
-
-
 def showTest(text):
-  show(("\n"
-        "====================================\n"
-        "Test: {0}\n"
-        "===================================="
-       ).format(text))
+  print ("\n"
+          "====================================\n"
+          "Test: {0}\n"
+          "===================================="
+        ).format(text)
 
 
 # ==============================
@@ -294,12 +284,4 @@ def showTest(text):
 # ==============================
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--show', default=False, action='store_true')
-  parser.add_argument('unittest_args', nargs='*')
-
-  args = parser.parse_args()
-  SHOW_ENABLED = args.show
-
-  unitArgv = [sys.argv[0]] + args.unittest_args
-  unittest.main(argv=unitArgv)
+  unittest.main()
