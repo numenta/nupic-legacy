@@ -148,13 +148,13 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
                         results,
                         repeatedSequence)
 
+    show(self.tmTestMachine.prettyPrintDetailedResults(detailedResults,
+                                                       repeatedSequence,
+                                                       self.patternMachine))
+    show("")
+
     if learn:
       show(self.tmTestMachine.prettyPrintConnections())
-    else:
-      show(self.tmTestMachine.prettyPrintDetailedResults(detailedResults,
-                                                         repeatedSequence,
-                                                         self.patternMachine))
-      show("")
 
     return detailedResults
 
