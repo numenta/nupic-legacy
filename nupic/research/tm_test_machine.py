@@ -23,6 +23,8 @@
 Utilities for running data through the TM, and analyzing the results.
 """
 
+from prettytable import PrettyTable
+
 
 
 class TMTestMachine(object):
@@ -136,7 +138,6 @@ class TMTestMachine(object):
 
     @return (string) Pretty-printed text
     """
-    from prettytable import PrettyTable
     table = PrettyTable(["Pattern",
                         "predicted active columns",
                         "predicted inactive columns",
