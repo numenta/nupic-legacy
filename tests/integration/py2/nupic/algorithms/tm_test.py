@@ -60,23 +60,17 @@ class TemporalMemoryBehaviorTest(unittest.TestCase):
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
 
-    show(self.tmTestMachine.prettyPrintConnections())
-    self._feedTM(sequence)
-
-    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence,
-                                                            learn=False)
+    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence)
     self.assertEqual(len(predictedActiveColumnsList[3]), 0)
 
     self._feedTM(sequence, num=2)
 
-    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence,
-                                                            learn=False)
+    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence)
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
 
-    self._feedTM(sequence, num=5)
+    self._feedTM(sequence, num=4)
 
-    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence,
-                                                            learn=False)
+    (_, _, predictedActiveColumnsList, _, _) = self._feedTM(sequence)
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
 
 
