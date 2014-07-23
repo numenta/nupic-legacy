@@ -20,8 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import argparse
-import sys
 import time
 import unittest
 
@@ -32,10 +30,6 @@ from nupic.research.sequence_machine import SequenceMachine
 from nupic.research.TM import TM
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
-
-
-
-SHOW_ENABLED = False
 
 
 
@@ -87,7 +81,7 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
 
   def testSingleSequence(self):
-    show("Test: Single sequence")
+    print "Test: Single sequence"
     sequence = self.sequenceMachine.generateFromNumbers(range(50))
     times = self._feedAll(sequence)
 
@@ -113,15 +107,15 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
     elapsed = self._feedOne(repeatedSequence, self.tm, tmComputeFn)
     times.append(elapsed)
-    show("TM:\t{0}s".format(elapsed))
+    print "TM:\t{0}s".format(elapsed)
 
     elapsed = self._feedOne(repeatedSequence, self.tp, tpComputeFn)
     times.append(elapsed)
-    show("TP:\t{0}s".format(elapsed))
+    print "TP:\t{0}s".format(elapsed)
 
     elapsed = self._feedOne(repeatedSequence, self.tp10x2, tpComputeFn)
     times.append(elapsed)
-    show("TP10X2:\t{0}s".format(elapsed))
+    print "TP10X2:\t{0}s".format(elapsed)
 
     return times
 
@@ -151,26 +145,8 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
 
 
 # ==============================
-# Show
-# ==============================
-
-def show(text):
-  if SHOW_ENABLED:
-    print text
-
-
-
-# ==============================
 # Main
 # ==============================
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser()
-  parser.add_argument('--show', default=False, action='store_true')
-  parser.add_argument('unittest_args', nargs='*')
-
-  args = parser.parse_args()
-  SHOW_ENABLED = args.show
-
-  unitArgv = [sys.argv[0]] + args.unittest_args
-  unittest.main(argv=unitArgv)
+  unittest.main()
