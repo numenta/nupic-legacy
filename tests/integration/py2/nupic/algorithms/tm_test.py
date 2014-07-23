@@ -207,6 +207,23 @@ class TemporalMemoryTest(unittest.TestCase):
     self._feedTM(sequence, num=10)
 
 
+  def testG(self):
+    showTest("A single endlessly repeating pattern")
+
+    tm = newTM({"columnDimensions": [1]})
+    self.patternMachine = ConsecutivePatternMachine(
+                            tm.connections.numberOfColumns(), 1)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    self.tmTestMachine = TMTestMachine(tm)
+
+    sequence = [self.patternMachine.get(0)]
+
+    for _ in xrange(4):
+      self._feedTM(sequence)
+
+    self._feedTM(sequence, num=10)
+
+
   # ==============================
   # Helper functions
   # ==============================
