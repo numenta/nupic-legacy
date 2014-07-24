@@ -32,8 +32,7 @@ class TMTestMachine(object):
   Base TM test machine class.
   """
 
-  def __init__(self,
-               tm):
+  def __init__(self, tm):
     """
     @param tm (TM) Temporal memory
     """
