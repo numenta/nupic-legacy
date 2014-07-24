@@ -26,6 +26,8 @@ import os
 import logging
 from xml.etree import ElementTree
 
+import nupic
+
 # Turn on additional print statements
 DEBUG = False
 

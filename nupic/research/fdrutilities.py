@@ -19,11 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
-import random
-import copy
-import itertools
-
 import numpy
 from numpy import *
 
