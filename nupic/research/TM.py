@@ -443,7 +443,7 @@ class TM(object):
 
     for cell in activeCells:
       for synapse in connections.synapsesForSourceCell(cell):
-        (segment, _, _) = connections.dataForSynapse(synapse)
+        segment, _, _ = connections.dataForSynapse(synapse)
 
         if not segment in activeSynapsesForSegment:
           activeSynapsesForSegment[segment] = set()
