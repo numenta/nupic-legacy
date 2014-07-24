@@ -40,6 +40,13 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     self.sequenceMachine = None
     self.tmTestMachine = None
 
+    print ("\n"
+           "======================================================\n"
+           "Test: {0} \n"
+           "{1}\n"
+           "======================================================\n"
+    ).format(self.id(), self.shortDescription())
+
 
   def initTM(self, overrides=None):
     params = self.defaultTMParams
@@ -95,6 +102,8 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
 class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def setUp(self):
+    super(BasicTemporalMemoryTest, self).setUp()
+
     self.defaultTMParams = {
       "columnDimensions": [6],
       "cellsPerColumn": 4,
@@ -109,8 +118,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testA(self):
-    showTest("Basic first order sequences")
-
+    """Basic first order sequences"""
     self.initTM()
     self.finishSetUp(ConsecutivePatternMachine(
                        self.tm.connections.numberOfColumns(), 1))
@@ -134,8 +142,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
   @unittest.skip("Requires some form of synaptic decay to forget "
                  "the ABC=>Y transition that's initially formed.")
   def testB(self):
-    showTest("High order sequences (in order)")
-
+    """High order sequences (in order)"""
     self.initTM()
     self.finishSetUp(ConsecutivePatternMachine(
       self.tm.connections.numberOfColumns(), 1))
@@ -186,8 +193,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
   @unittest.skip("Requires some form of synaptic decay to forget the "
                  "ABC=>Y and XBC=>D transitions that are initially formed.")
   def testC(self):
-    showTest("High order sequences (alternating)")
-
+    """High order sequences (alternating)"""
     self.initTM()
     self.finishSetUp(ConsecutivePatternMachine(
       self.tm.connections.numberOfColumns(), 1))
@@ -211,8 +217,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testD(self):
-    showTest("Endlessly repeating sequence of 2 elements")
-
+    """Endlessly repeating sequence of 2 elements"""
     self.initTM({"columnDimensions": [2]})
     self.finishSetUp(ConsecutivePatternMachine(
       self.tm.connections.numberOfColumns(), 1))
@@ -226,9 +231,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testE(self):
-    showTest("Endlessly repeating sequence of 2 elements "
-             "with maxNewSynapseCount=1")
-
+    """Endlessly repeating sequence of 2 elements with maxNewSynapseCount=1"""
     self.initTM({"columnDimensions": [2],
                  "maxNewSynapseCount": 1,
                  "cellsPerColumn": 10})
@@ -244,7 +247,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testF(self):
-    showTest("Long repeating sequence with novel pattern at the end")
+    """Long repeating sequence with novel pattern at the end"""
 
     self.initTM({"columnDimensions": [3]})
     self.finishSetUp(ConsecutivePatternMachine(
@@ -261,7 +264,7 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testG(self):
-    showTest("A single endlessly repeating pattern")
+    """A single endlessly repeating pattern"""
 
     self.initTM({"columnDimensions": [1]})
     self.finishSetUp(ConsecutivePatternMachine(
@@ -353,6 +356,8 @@ synapses.
   """
 
   def setUp(self):
+    super(ExtensiveTemporalMemoryTest, self).setUp()
+
     self.defaultTMParams = {
       "columnDimensions": [100],
       "cellsPerColumn": 1,
@@ -367,7 +372,7 @@ synapses.
 
 
   def testB1(self):
-    showTest("B1")
+    """Basic sequence learner.  M=1, N=100, P=1."""
 
     self.initTM()
     self.finishSetUp(PatternMachine(
@@ -398,23 +403,6 @@ synapses.
       self.assertTrue(len(predictedInactiveCellsList[i]) < 5)
 
 
-
-# ==============================
-# Helper functions
-# ==============================
-
-def showTest(text):
-  print ("\n"
-          "====================================\n"
-          "Test: {0}\n"
-          "===================================="
-        ).format(text)
-
-
-
-# ==============================
-# Main
-# ==============================
 
 if __name__ == "__main__":
   unittest.main()
