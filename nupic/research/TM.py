@@ -121,7 +121,6 @@ class TM(object):
      activeSynapsesForSegment,
      activeSegments,
      predictiveCells) = self.computeFn(activeColumns,
-                                       self.activeCells,
                                        self.predictiveCells,
                                        self.activeSegments,
                                        self.activeSynapsesForSegment,
@@ -138,7 +137,6 @@ class TM(object):
 
   def computeFn(self,
                 activeColumns,
-                prevActiveCells,
                 prevPredictiveCells,
                 prevActiveSegments,
                 prevActiveSynapsesForSegment,
@@ -151,8 +149,6 @@ class TM(object):
 
     @param activeColumns                (set)         Indices of active columns
                                                       in `t`
-    @param prevActiveCells              (set)         Indicies of active cells
-                                                      in `t-1`
     @param prevPredictiveCells          (set)         Indices of predictive
                                                       cells in `t-1`
     @param prevActiveSegments           (set)         Indices of active segments
