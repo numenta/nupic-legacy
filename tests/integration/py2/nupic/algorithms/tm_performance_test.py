@@ -85,9 +85,9 @@ class TemporalMemoryPerformanceTest(unittest.TestCase):
     sequence = self.sequenceMachine.generateFromNumbers(range(50))
     times = self._feedAll(sequence)
 
-    self.assertLess(times[0], times[1])
-    self.assertLess(times[2], times[1])
-    self.assertLess(times[2], times[0])
+    self.assertTrue(times[0] < times[1])
+    self.assertTrue(times[2] < times[1])
+    self.assertTrue(times[2] < times[0])
 
 
   # ==============================
