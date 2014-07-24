@@ -21,8 +21,8 @@
 # ----------------------------------------------------------------------
 import unittest
 
-from nupic.research.pattern_machine import (PatternMachine,
-                                            ConsecutivePatternMachine)
+from nupic.data.pattern_machine import (PatternMachine,
+                                        ConsecutivePatternMachine)
 
 
 

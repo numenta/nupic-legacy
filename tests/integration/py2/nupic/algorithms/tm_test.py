@@ -23,9 +23,9 @@
 import pprint
 import unittest2 as unittest
 
-from nupic.research.pattern_machine import ConsecutivePatternMachine
-from nupic.research.sequence_machine import SequenceMachine
-from nupic.research.tm_test_machine import TMTestMachine
+from nupic.data.pattern_machine import ConsecutivePatternMachine
+from nupic.data.sequence_machine import SequenceMachine
+from nupic.test.tm_test_machine import TMTestMachine
 from nupic.research.TM import TM
 
 
