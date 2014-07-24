@@ -248,7 +248,6 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testF(self):
     """Long repeating sequence with novel pattern at the end"""
-
     self.initTM({"columnDimensions": [3]})
     self.finishSetUp(ConsecutivePatternMachine(
       self.tm.connections.numberOfColumns(), 1))
@@ -265,7 +264,6 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testG(self):
     """A single endlessly repeating pattern"""
-
     self.initTM({"columnDimensions": [1]})
     self.finishSetUp(ConsecutivePatternMachine(
       self.tm.connections.numberOfColumns(), 1))
@@ -373,7 +371,6 @@ synapses.
 
   def testB1(self):
     """Basic sequence learner.  M=1, N=100, P=1."""
-
     self.initTM()
     self.finishSetUp(PatternMachine(
       self.tm.connections.numberOfColumns(), 23))
