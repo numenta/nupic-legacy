@@ -25,3 +25,5 @@ The nupic.algorithms package contains Python implementations of Numenta
 algorithms that are used inside Numenta-supplied regions.
 """
 
+from nupic.bindings.math import NearestNeighbor
+from nupic.bindings.algorithms import svm_01, svm_dense
