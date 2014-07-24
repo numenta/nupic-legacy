@@ -25,8 +25,8 @@ import unittest
 
 import numpy
 
-from nupic.research.pattern_machine import PatternMachine
-from nupic.research.sequence_machine import SequenceMachine
+from nupic.data.pattern_machine import PatternMachine
+from nupic.data.sequence_machine import SequenceMachine
 from nupic.research.TM import TM
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
