@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 import pprint
-import unittest
+import unittest2 as unittest
 
 from nupic.research.pattern_machine import ConsecutivePatternMachine
 from nupic.research.sequence_machine import SequenceMachine
