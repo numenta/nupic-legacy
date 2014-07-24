@@ -27,7 +27,7 @@ from prettytable import PrettyTable
 
 
 
-class TMTestMachine(object):
+class TemporalMemoryTestMachine(object):
   """
   Base TM test machine class.
   """

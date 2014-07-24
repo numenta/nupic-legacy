@@ -27,7 +27,7 @@ import numpy
 
 from nupic.data.pattern_machine import PatternMachine
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.research.TM import TM
+from nupic.research.temporal_memory import TemporalMemory
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 
@@ -40,15 +40,15 @@ from nupic.research.TP10X2 import TP10X2
 class TemporalMemoryPerformanceTest(unittest.TestCase):
 
   def setUp(self):
-    self.tm = TM(columnDimensions=[2048],
-                 cellsPerColumn=32,
-                 initialPermanence=0.5,
-                 connectedPermanence=0.8,
-                 minThreshold=10,
-                 maxNewSynapseCount=12,
-                 permanenceIncrement=0.1,
-                 permanenceDecrement=0.05,
-                 activationThreshold=15)
+    self.tm = TemporalMemory(columnDimensions=[2048],
+                             cellsPerColumn=32,
+                             initialPermanence=0.5,
+                             connectedPermanence=0.8,
+                             minThreshold=10,
+                             maxNewSynapseCount=12,
+                             permanenceIncrement=0.1,
+                             permanenceDecrement=0.05,
+                             activationThreshold=15)
 
     self.tp = TP(numberOfCols=2048,
                  cellsPerColumn=32,
