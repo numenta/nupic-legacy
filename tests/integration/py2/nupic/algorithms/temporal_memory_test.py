@@ -26,8 +26,8 @@ import unittest2 as unittest
 
 from nupic.data.pattern_machine import PatternMachine, ConsecutivePatternMachine
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.test.tm_test_machine import TMTestMachine
-from nupic.research.TM import TM
+from nupic.test.temporal_memory_test_machine import TemporalMemoryTestMachine
+from nupic.research.temporal_memory import TemporalMemory
 
 
 
@@ -51,7 +51,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
   def initTM(self, overrides=None):
     params = self.defaultTMParams
     params.update(overrides or {})
-    self.tm = TM(**params)
+    self.tm = TemporalMemory(**params)
 
     print "Initialized new TM with parameters:"
     print pprint.pformat(params)
@@ -61,7 +61,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
   def finishSetUp(self, patternMachine):
     self.patternMachine = patternMachine
     self.sequenceMachine = SequenceMachine(self.patternMachine)
-    self.tmTestMachine = TMTestMachine(self.tm)
+    self.tmTestMachine = TemporalMemoryTestMachine(self.tm)
 
 
   # ==============================

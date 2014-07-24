@@ -23,29 +23,29 @@ import unittest
 
 from nupic.data.pattern_machine import ConsecutivePatternMachine
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.test.tm_test_machine import TMTestMachine
-from nupic.research.TM import TM
+from nupic.test.temporal_memory_test_machine import TemporalMemoryTestMachine
+from nupic.research.temporal_memory import TemporalMemory
 
 
 
-class TMTestMachineTest(unittest.TestCase):
+class TemporalMemoryTestMachineTest(unittest.TestCase):
 
 
   def setUp(self):
     self.patternMachine = ConsecutivePatternMachine(100, 5)
     self.sequenceMachine = SequenceMachine(self.patternMachine)
 
-    self.tm = TM(columnDimensions=[100],
-                 cellsPerColumn=4,
-                 initialPermanence=0.4,
-                 connectedPermanence=0.5,
-                 minThreshold=1,
-                 maxNewSynapseCount=6,
-                 permanenceIncrement=0.1,
-                 permanenceDecrement=0.05,
-                 activationThreshold=1)
+    self.tm = TemporalMemory(columnDimensions=[100],
+                             cellsPerColumn=4,
+                             initialPermanence=0.4,
+                             connectedPermanence=0.5,
+                             minThreshold=1,
+                             maxNewSynapseCount=6,
+                             permanenceIncrement=0.1,
+                             permanenceDecrement=0.05,
+                             activationThreshold=1)
 
-    self.tmTestMachine = TMTestMachine(self.tm)
+    self.tmTestMachine = TemporalMemoryTestMachine(self.tm)
 
 
   def testFeedSequence(self):

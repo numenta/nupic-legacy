@@ -29,7 +29,7 @@ from nupic.bindings.math import Random
 
 
 
-class TM(object):
+class TemporalMemory(object):
   """
   Class implementing the Temporal Memory algorithm.
   """

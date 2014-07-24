@@ -27,15 +27,15 @@ TODO: Move all duplicate connections logic into shared function.
 
 import unittest
 
-from nupic.research.TM import Connections, TM
+from nupic.research.temporal_memory import Connections, TemporalMemory
 
 
 
-class TMTest(unittest.TestCase):
+class TemporalMemoryTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.tm = TM()
+    self.tm = TemporalMemory()
 
 
   def testActivateCorrectlyPredictiveCells(self):
@@ -103,7 +103,7 @@ class TMTest(unittest.TestCase):
 
 
   def testBurstColumns(self):
-    tm = TM(
+    tm = TemporalMemory(
       cellsPerColumn=4,
       connectedPermanence=0.50,
       minThreshold=1,
@@ -170,7 +170,7 @@ class TMTest(unittest.TestCase):
 
 
   def testLearnOnSegments(self):
-    tm = TM(maxNewSynapseCount=2)
+    tm = TemporalMemory(maxNewSynapseCount=2)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -227,7 +227,7 @@ class TMTest(unittest.TestCase):
 
 
   def testComputePredictiveCells(self):
-    tm = TM(activationThreshold=2)
+    tm = TemporalMemory(activationThreshold=2)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -281,7 +281,7 @@ class TMTest(unittest.TestCase):
 
 
   def testGetBestMatchingCell(self):
-    tm = TM(
+    tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1,
       seed=42
@@ -326,7 +326,7 @@ class TMTest(unittest.TestCase):
 
 
   def testGetBestMatchingCellFewestSegments(self):
-    tm = TM(
+    tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
       connectedPermanence=0.50,
@@ -349,7 +349,7 @@ class TMTest(unittest.TestCase):
 
 
   def testGetBestMatchingSegment(self):
-    tm = TM(
+    tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1
     )
@@ -398,7 +398,7 @@ class TMTest(unittest.TestCase):
 
 
   def testGetLeastUsedCell(self):
-    tm = TM(
+    tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
       seed=42
@@ -526,7 +526,7 @@ class TMTest(unittest.TestCase):
 
 
   def testPickCellsToLearnOn(self):
-    tm = TM(seed=42)
+    tm = TemporalMemory(seed=42)
 
     connections = tm.connections
     connections.createSegment(0)
@@ -544,7 +544,7 @@ class TMTest(unittest.TestCase):
 
 
   def testPickCellsToLearnOnAvoidDuplicates(self):
-    tm = TM(seed=42)
+    tm = TemporalMemory(seed=42)
 
     connections = tm.connections
     connections.createSegment(0)
