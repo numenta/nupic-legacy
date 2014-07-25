@@ -23,7 +23,7 @@
 ## @file
 """
 
-from PIL import (ImageChops)
+from PIL import ImageChops
 
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
 
