@@ -328,14 +328,14 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B1) Basic sequence learner.  M=1, N=100, P=1.
 
   B2) Same as above, except P=2. Test that permanences go up and that no
-  additional synapses are learned.
+  additional synapses are learned. [TODO]
 
-  B3) N=300, M=1, P=1. (See how high we can go with M)
+  B3) N=300, M=1, P=1. (See how high we can go with M) [TODO]
 
-  B4) N=100, M=3, P=1. (See how high we can go with N*M)
+  B4) N=100, M=3, P=1. (See how high we can go with N*M) [TODO]
 
   B5) Like B1 but with cellsPerColumn = 4. First order sequences should still
-  work just fine.
+  work just fine. [TODO]
 
   B6) Like B1 but with slower learning. Set the following parameters differently:
 
@@ -348,15 +348,15 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   Now we train the TP with the B1 sequence 4 times (P=4). This will increment
   the permanences to be above 0.8 and at that point the inference will be correct.
   This test will ensure the basic match function and segment activation rules are
-  working correctly.
+  working correctly. [TODO]
 
-  B7) Like B6 but with 4 cells per column. Should still work.
+  B7) Like B6 but with 4 cells per column. Should still work. [TODO]
 
   B8) Like B6 but present the sequence less than 4 times: the inference should be
-  incorrect.
+  incorrect. [TODO]
 
   B9) Like B2, except that cells per column = 4. Should still add zero additional
-  synapses.
+  synapses. [TODO]
   """
 
   def setUp(self):
