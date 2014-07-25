@@ -31,6 +31,10 @@ from nupic.research.temporal_memory import TemporalMemory
 
 
 
+VERBOSITY = 1
+
+
+
 class AbstractTemporalMemoryTest(unittest.TestCase):
 
   def setUp(self):
@@ -80,7 +84,8 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
 
     print self.tmTestMachine.prettyPrintDetailedResults(detailedResults,
                                                         repeatedSequence,
-                                                        self.patternMachine)
+                                                        self.patternMachine,
+                                                        verbosity=VERBOSITY)
     print
 
     if learn:
@@ -90,7 +95,8 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
 
 
   def showInput(self, sequence, learn=True, num=1):
-    sequenceText = self.sequenceMachine.prettyPrintSequence(sequence)
+    sequenceText = self.sequenceMachine.prettyPrintSequence(sequence,
+                                                            verbosity=VERBOSITY)
     learnText = "(learning {0})".format("enabled" if learn else "disabled")
     numText = " [{0} times]".format(num) if num > 1 else ""
     print "Feeding sequence {0}{1}:\n{2}".format(
