@@ -139,8 +139,6 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
 
 
-  @unittest.skip("Requires some form of synaptic decay to forget "
-                 "the ABC=>Y transition that's initially formed.")
   def testB(self):
     """High order sequences (in order)"""
     self.initTM()
@@ -187,11 +185,11 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
            predictedInactiveColumnsList, _) = self.feedTM(sequenceA,
                                                             learn=False)
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
-    self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    # TODO: Requires some form of synaptic decay to forget the ABC=>Y
+    # transition that's initially formed
+    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
 
 
-  @unittest.skip("Requires some form of synaptic decay to forget the "
-                 "ABC=>Y and XBC=>D transitions that are initially formed.")
   def testC(self):
     """High order sequences (alternating)"""
     self.initTM()
@@ -209,11 +207,13 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
            predictedInactiveColumnsList, _) = self.feedTM(sequence,
                                                             learn=False)
 
+    # TODO: Requires some form of synaptic decay to forget the
+    # ABC=>Y and XBC=>D transitions that are initially formed
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
-    self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
 
     self.assertEqual(len(predictedActiveColumnsList[8]), 1)
-    self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
+    # self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
 
 
   def testD(self):
