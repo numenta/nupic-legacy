@@ -138,14 +138,18 @@ class TemporalMemoryTestMachine(object):
 
     @return (string) Pretty-printed text
     """
-    # TODO: If verbosity > 2, show the predicted => active and
-    # predicted => inactive cells
-    table = PrettyTable(["Pattern",
-                        "predicted active columns",
-                        "predicted inactive columns",
-                        "unpredicted active columns",
-                        "# predicted active cells",
-                        "# predicted inactive cells"])
+    cols = ["Pattern",
+            "predicted active columns",
+            "predicted inactive columns",
+            "unpredicted active columns",
+            "# predicted active cells",
+            "# predicted inactive cells"]
+
+    if verbosity > 2:
+      cols += ["predicted active cells",
+               "predicted inactive cells"]
+
+    table = PrettyTable(cols)
     (
     predictedActiveCellsList,
     predictedInactiveCellsList,
@@ -158,24 +162,31 @@ class TemporalMemoryTestMachine(object):
       pattern = sequence[i]
 
       if pattern == None:
-        table.add_row(["<reset>", 0, 0, 0, 0, 0])
-        continue
+        row = ["<reset>", 0, 0, 0, 0, 0]
 
-      row = []
+        if verbosity > 2:
+          row += [0, 0]
 
-      row.append(patternMachine.prettyPrintPattern(pattern,
-                                                   verbosity=verbosity))
-      row.append(
-        patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
-                                          verbosity=verbosity))
-      row.append(
-        patternMachine.prettyPrintPattern(predictedInactiveColumnsList[i],
-                                          verbosity=verbosity))
-      row.append(
-        patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
-                                          verbosity=verbosity))
-      row.append(len(predictedActiveCellsList[i]))
-      row.append(len(predictedInactiveCellsList[i]))
+      else:
+        row = []
+
+        row.append(patternMachine.prettyPrintPattern(pattern,
+                                                     verbosity=verbosity))
+        row.append(
+          patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
+                                            verbosity=verbosity))
+        row.append(
+          patternMachine.prettyPrintPattern(predictedInactiveColumnsList[i],
+                                            verbosity=verbosity))
+        row.append(
+          patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
+                                            verbosity=verbosity))
+        row.append(len(predictedActiveCellsList[i]))
+        row.append(len(predictedInactiveCellsList[i]))
+
+        if verbosity > 2:
+          row.append(list(predictedActiveCellsList[i]))
+          row.append(list(predictedInactiveCellsList[i]))
 
       table.add_row(row)
 
