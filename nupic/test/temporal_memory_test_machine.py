@@ -83,6 +83,7 @@ class TemporalMemoryTestMachine(object):
     predictedInactiveColumnsList = [set()]
     unpredictedActiveColumnsList = [set()]
 
+    # TODO: Make sure the first row is accurate, not just empty
     for i in xrange(1, len(results)):
       pattern = sequence[i]
 
@@ -137,6 +138,8 @@ class TemporalMemoryTestMachine(object):
 
     @return (string) Pretty-printed text
     """
+    # TODO: If verbosity > 2, show the predicted => active and
+    # predicted => inactive cells
     table = PrettyTable(["Pattern",
                         "predicted active columns",
                         "predicted inactive columns",
