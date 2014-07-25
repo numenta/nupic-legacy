@@ -125,14 +125,17 @@ class PatternMachine(object):
     text = ""
 
     numberList = []
+    numberItems = sorted(numberMap.iteritems(),
+                         key=lambda (number, bits): len(bits),
+                         reverse=True)
 
-    for number in numberMap.keys():
+    for number, bits in numberItems:
 
       if verbosity > 2:
-        numbers = [str(n) for n in numberMap[number]]
-        numberText = "{0} (cells: {1})".format(number, ",".join(numbers))
+        strBits = [str(n) for n in bits]
+        numberText = "{0} (bits: {1})".format(number, ",".join(strBits))
       elif verbosity > 1:
-        numberText = "{0} ({1} cells)".format(number, len(numberMap[number]))
+        numberText = "{0} ({1} bits)".format(number, len(bits))
       else:
         numberText = str(number)
 
