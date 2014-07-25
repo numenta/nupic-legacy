@@ -279,7 +279,8 @@ class BasicTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(4):
       self.feedTM(sequence)
 
-    self.feedTM(sequence, num=10)
+    for _ in xrange(2):
+      self.feedTM(sequence, num=10)
 
 
 
