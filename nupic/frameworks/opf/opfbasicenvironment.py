@@ -48,10 +48,9 @@ import opfutils
 import opfenvironment as opfenv
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
-from nupic.data.fieldmeta import (
-  FieldMetaInfo,
-  FieldMetaType,
-  FieldMetaSpecial)
+from nupic.data.fieldmeta import (FieldMetaInfo,
+                                  FieldMetaType,
+                                  FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
 from opfutils import (InferenceType,
                       InferenceElement)

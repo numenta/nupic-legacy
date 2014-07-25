@@ -40,11 +40,10 @@ experiments.
 from abc import ABCMeta, abstractmethod
 import types
 
-from nupic.frameworks.opf.opfutils import (
-  validateOpfJsonValue)
-from nupic.frameworks.opf.opftaskdriver import (
-  IterationPhaseSpecInferOnly,
-                                            IterationPhaseSpecLearnAndInfer)
+from nupic.frameworks.opf.opfutils import validateOpfJsonValue
+from nupic.frameworks.opf.opftaskdriver import \
+                                        (IterationPhaseSpecInferOnly,
+                                         IterationPhaseSpecLearnAndInfer)
 from nupic.support.enum import Enum
 
 

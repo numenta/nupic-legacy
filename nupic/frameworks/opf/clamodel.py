@@ -47,7 +47,9 @@ from nupic.data.filters import AutoResetFilter
 from nupic.encoders import (MultiEncoder)
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from opfutils import (InferenceType, InferenceElement, SensorInput,
+from opfutils import (InferenceType,
+                      InferenceElement,
+                      SensorInput,
                       initLogger)
 
 
