@@ -37,20 +37,15 @@ This allows description.py to be generic and oblivious to the specific
 experiments.
 """
 
-
-
 from abc import ABCMeta, abstractmethod
-import logging
 import types
-import validictory
 
-from nupic.frameworks.opf.opfutils import (
-  validateOpfJsonValue)
-from nupic.frameworks.opf.opftaskdriver import (
-                                            IterationPhaseSpecLearnOnly,
-                                            IterationPhaseSpecInferOnly,
-                                            IterationPhaseSpecLearnAndInfer)
+from nupic.frameworks.opf.opfutils import validateOpfJsonValue
+from nupic.frameworks.opf.opftaskdriver import \
+                                        (IterationPhaseSpecInferOnly,
+                                         IterationPhaseSpecLearnAndInfer)
 from nupic.support.enum import Enum
+
 
 
 

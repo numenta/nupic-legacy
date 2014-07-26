@@ -27,8 +27,8 @@ from socket import error as socket_error
 
 import pymysql
 from pymysql.constants import ER
-
 from nupic.support.decorators import retry as make_retry_decorator
+
 
 
 # Client mysql error codes of interest; pymysql didn't have constants for these

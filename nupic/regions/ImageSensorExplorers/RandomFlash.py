@@ -19,7 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import random
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 
 

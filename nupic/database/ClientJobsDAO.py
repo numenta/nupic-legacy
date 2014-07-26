@@ -32,13 +32,9 @@ import traceback
 import uuid
 
 from nupic.support.decorators import logExceptions #, logEntryExit
-import pymysql
-from pymysql.constants import ER as mysqlerrors
-
 from nupic.database.Connection import ConnectionFactory
 from nupic.support.configuration import Configuration
 from nupic.support import pymysqlhelpers
-
 
 
 _MODULE_NAME = "nupic.database.ClientJobsDAO"
