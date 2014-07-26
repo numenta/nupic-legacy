@@ -23,10 +23,7 @@
 ## @file
 """
 
-import random
-
 from PIL import Image
-from PIL import ImageOps
 from PIL import ImageChops
 
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter

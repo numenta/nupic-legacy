@@ -1,10 +1,11 @@
+import copy
 
 import numpy
-import copy
-from nupic.support.configuration import Configuration
 
+from nupic.support.configuration import Configuration
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
+
 
 class _CLAClassificationRecord(object):
   """

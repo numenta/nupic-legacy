@@ -24,7 +24,6 @@
  Model factory.
 """
 
-import os
 import logging
 
 import nupic.frameworks.opf.opfutils as opfutils

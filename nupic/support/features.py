@@ -51,10 +51,10 @@ Summary:
 '''
 import os
 import sys
-import imp
 
 from nupic.support.features_list import FEATURES_LIST
 from nupic.support.feature_groups import GROUPS
+
 
 class Features(object):
   '''

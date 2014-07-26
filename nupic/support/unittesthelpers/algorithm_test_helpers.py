@@ -21,13 +21,14 @@
 
 """This script contains helper routines for testing algorithms"""
 
-import numpy
 import time
 import traceback
 
+import numpy
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.bindings.math import GetNTAReal, Random as NupicRandom
 from nupic.research.spatial_pooler import SpatialPooler as PySpatialPooler
+
 
 realType = GetNTAReal()
 uintType = "uint32"

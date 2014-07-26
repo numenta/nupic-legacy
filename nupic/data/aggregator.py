@@ -23,11 +23,12 @@
 import os
 import time
 import datetime
-from collections import defaultdict  
+from collections import defaultdict
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.datasethelpers import findDataset
+
 
 """The aggregator aggregates PF datasets
 

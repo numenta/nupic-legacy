@@ -21,9 +21,9 @@
 
 import os
 import random
+
 import numpy
 from PIL import Image
-
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
 
 

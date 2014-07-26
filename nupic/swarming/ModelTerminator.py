@@ -21,7 +21,6 @@
 
 import functools
 
-from nupic.database import ClientJobsDAO
 from nupic.swarming.utils import PeriodicActivityRequest
 
 

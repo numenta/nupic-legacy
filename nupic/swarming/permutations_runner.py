@@ -43,6 +43,7 @@ from nupic.swarming import HypersearchWorker, utils
 from nupic.swarming.HypersearchV2 import HypersearchV2
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
 
+
 g_currentVerbosityLevel = 0
 gCurrentSearch = None
 DEFAULT_OPTIONS = {"overwrite": False,

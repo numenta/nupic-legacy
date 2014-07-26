@@ -67,7 +67,6 @@ Contains functions for searching for images on the web and downloading them.
 from __future__ import with_statement
 
 # Standard imports
-import datetime
 import os
 import sys
 import inspect
@@ -86,7 +85,6 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 
 
 # Local imports
-import nupic
 
 
 #############################################################################

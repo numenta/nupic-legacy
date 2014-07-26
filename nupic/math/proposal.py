@@ -22,7 +22,7 @@
 raise Exception("XERROR proposal not available")
 
 from nupic.math.dist import *
-import copy
+
 
 class Proposal(object):
   # Must support the following methods:
