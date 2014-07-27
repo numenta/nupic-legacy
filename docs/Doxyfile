@@ -762,7 +762,7 @@ INPUT                  = docs \
                          nupic/research/TP10X2.py \
                          nupic/research/TPTrivial.py \
                          nupic/research/TP.py \
-                         nupic/research/TM.py \
+                         nupic/research/temporal_memory.py \
                          nupic/encoders \
                          nupic/data/aggregator.py \
                          scripts/run_swarm.py \
