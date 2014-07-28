@@ -43,21 +43,11 @@ class PatternMachineTest(unittest.TestCase):
     self.assertEqual(patternA & patternB, set())
 
 
-  def testGetOutOfBounds(self):
-    args = [50]
-    self.assertRaises(IndexError, self.patternMachine.get, *args)
-
-
   def testNumbersForBit(self):
     pattern = self.patternMachine.get(49)
 
     for bit in pattern:
       self.assertEqual(self.patternMachine.numbersForBit(bit), {49})
-
-
-  def testNumbersForBitOutOfBounds(self):
-    args = [10000]
-    self.assertRaises(IndexError, self.patternMachine.numbersForBit, *args)
 
 
   def testNumberMapForBits(self):
