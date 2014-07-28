@@ -200,30 +200,6 @@ class TemporalMemoryTest(unittest.TestCase):
                        prevWinnerCells,
                        connections)
 
-    # Check segment 0
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.7)
-
-    (_, _, permanence) = connections.dataForSynapse(1)
-    self.assertAlmostEqual(permanence, 0.5)
-
-    (_, _, permanence) = connections.dataForSynapse(2)
-    self.assertAlmostEqual(permanence, 0.8)
-
-    # Check segment 1
-    (_, _, permanence) = connections.dataForSynapse(3)
-    self.assertAlmostEqual(permanence, 0.8)
-
-    self.assertEqual(len(connections.synapsesForSegment(1)), 2)
-
-    # Check segment 2
-    (_, _, permanence) = connections.dataForSynapse(4)
-    self.assertAlmostEqual(permanence, 0.9)
-
-    self.assertEqual(len(connections.synapsesForSegment(2)), 1)
-
-    # Check segment 3
-    self.assertEqual(len(connections.synapsesForSegment(3)), 2)
 
 
   def testComputePredictiveCells(self):
@@ -481,14 +457,6 @@ class TemporalMemoryTest(unittest.TestCase):
 
     tm.adaptSegment(0, {0, 1}, connections)
 
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.7)
-
-    (_, _, permanence) = connections.dataForSynapse(1)
-    self.assertAlmostEqual(permanence, 0.5)
-
-    (_, _, permanence) = connections.dataForSynapse(2)
-    self.assertAlmostEqual(permanence, 0.8)
 
 
   def testAdaptSegmentToMax(self):
@@ -498,14 +466,6 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.9)
 
-    tm.adaptSegment(0, {0}, connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 1.0)
-
-    # Now permanence should be at max
-    tm.adaptSegment(0, {0}, connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 1.0)
 
 
   def testAdaptSegmentToMin(self):
@@ -515,14 +475,6 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(0)
     connections.createSynapse(0, 23, 0.1)
 
-    tm.adaptSegment(0, set(), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.0)
-
-    # Now permanence should be at min
-    tm.adaptSegment(0, set(), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.0)
 
 
   def testPickCellsToLearnOn(self):
