@@ -69,28 +69,6 @@ class PatternMachineTest(unittest.TestCase):
 
 
 
-class ConsecutivePatternMachineTest(unittest.TestCase):
-
-
-  def setUp(self):
-    self.patternMachine = ConsecutivePatternMachine(100, 5)
-
-
-  def testGet(self):
-    pattern = self.patternMachine.get(18)
-    self.assertEqual(len(pattern), 5)
-    self.assertEqual(pattern, {90, 91, 92, 93, 94})
-
-    pattern = self.patternMachine.get(19)
-    self.assertEqual(len(pattern), 5)
-    self.assertEqual(pattern, {95, 96, 97, 98, 99})
-
-
-  def testGetOutOfBounds(self):
-    args = [20]
-    self.assertRaises(IndexError, self.patternMachine.get, *args)
-
-
 
 if __name__ == '__main__':
   unittest.main()
