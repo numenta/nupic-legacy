@@ -40,6 +40,13 @@ class PatternMachineTest(unittest.TestCase):
     self.assertEqual(len(patternB), 5)
 
 
+  def testNumbersForBit(self):
+    pattern = self.patternMachine.get(49)
+
+    for bit in pattern:
+      self.assertEqual(self.patternMachine.numbersForBit(bit), {49})
+
+
   def testNumberMapForBits(self):
     pattern = self.patternMachine.get(49)
     numberMap = self.patternMachine.numberMapForBits(pattern)
