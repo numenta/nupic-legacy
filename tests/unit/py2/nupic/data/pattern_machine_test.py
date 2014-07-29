@@ -39,8 +39,6 @@ class PatternMachineTest(unittest.TestCase):
     patternB = self.patternMachine.get(49)
     self.assertEqual(len(patternB), 5)
 
-    self.assertEqual(patternA & patternB, set())
-
 
   def testNumbersForBit(self):
     pattern = self.patternMachine.get(49)
