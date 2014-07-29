@@ -52,7 +52,7 @@ class PatternMachineTest(unittest.TestCase):
     pattern = self.patternMachine.get(49)
 
     for bit in pattern:
-      self.assertEqual(self.patternMachine.numbersForBit(bit), {49})
+      self.assertEqual(self.patternMachine.numbersForBit(bit), set([49]))
 
 
   def testNumbersForBitOutOfBounds(self):
@@ -79,11 +79,11 @@ class ConsecutivePatternMachineTest(unittest.TestCase):
   def testGet(self):
     pattern = self.patternMachine.get(18)
     self.assertEqual(len(pattern), 5)
-    self.assertEqual(pattern, {90, 91, 92, 93, 94})
+    self.assertEqual(pattern, set([90, 91, 92, 93, 94]))
 
     pattern = self.patternMachine.get(19)
     self.assertEqual(len(pattern), 5)
-    self.assertEqual(pattern, {95, 96, 97, 98, 99})
+    self.assertEqual(pattern, set([95, 96, 97, 98, 99]))
 
 
   def testGetOutOfBounds(self):
