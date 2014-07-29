@@ -94,7 +94,7 @@ def setup_nupic():
     version = properties['__version__'],
     packages = findPackages(repositoryDir),
     package_data = {
-      'nupic': ['README.md', 'LICENSE.txt', 'CMakeLists.txt', '.so', '.dll', '.dylib'],
+      'nupic': ['README.md', 'LICENSE.txt', 'CMakeLists.txt', '*.so', '*.dll', '*.dylib'],
       'nupic.bindings': ['_*.so', '_*.dll'],
       'nupic.data': ['*.json'],
       'nupic.frameworks.opf.exp_generator': ['*.json', '*.tpl'],
