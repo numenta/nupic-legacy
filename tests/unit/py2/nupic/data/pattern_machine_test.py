@@ -32,32 +32,6 @@ class PatternMachineTest(unittest.TestCase):
     self.patternMachine = PatternMachine(10000, 5, num=50)
 
 
-  def testGet(self):
-    patternA = self.patternMachine.get(48)
-    self.assertEqual(len(patternA), 5)
-
-    patternB = self.patternMachine.get(49)
-    self.assertEqual(len(patternB), 5)
-
-    self.assertEqual(patternA & patternB, set())
-
-
-  def testNumbersForBit(self):
-    pattern = self.patternMachine.get(49)
-
-    for bit in pattern:
-      self.assertEqual(self.patternMachine.numbersForBit(bit), {49})
-
-
-  def testNumberMapForBits(self):
-    pattern = self.patternMachine.get(49)
-    numberMap = self.patternMachine.numberMapForBits(pattern)
-
-    self.assertEqual(numberMap.keys(), [49])
-    self.assertEqual(numberMap[49], pattern)
-
-
-
 
 if __name__ == '__main__':
   unittest.main()
