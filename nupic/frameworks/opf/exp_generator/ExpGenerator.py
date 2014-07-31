@@ -33,7 +33,7 @@ import sys
 import copy
 import pprint
 import tempfile
-from optparse import (OptionParser)
+from optparse import OptionParser
 
 import validictory
 from pkg_resources import resource_stream

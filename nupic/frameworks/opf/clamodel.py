@@ -44,7 +44,7 @@ from nupic.algorithms.anomaly import computeAnomalyScore
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
-from nupic.encoders import (MultiEncoder)
+from nupic.encoders import MultiEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from opfutils import (InferenceType,
