@@ -55,6 +55,24 @@ matrix:
 #       - "$PY_VER == 2.7"
 #       - "$CC == clang"
 
+before_deploy:
+  - cd $NUPIC
+
+deploy:
+  provider: pypi
+  user: numenta
+  password:
+    secure: jOWoPpjRgz8D4F66vlwwtA6+8FRILmgu2v5rHXqy0B6lPUhtbA7ky/PiyI66OeGPYzckNBIMVq1jessQYQU1zsH0bu6HLfZI0/QBfdqQOp/EAnJPgDxzgldnktC1ciCCdMu2znekWaksBJ6fDXV8A99rOOyhrPm/fxpaOeg+/+Y=
+  skip_cleanup: true
+  on:
+    repo: rhyolight/nupic
+    branch: pypi
+    condition:
+      - "$PY_VER == 2.7"
+      - "$TRAVIS_OS_NAME == linux"
+      - "$CC == clang"
+
+
 git:
   submodules: false
 
