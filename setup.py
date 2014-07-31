@@ -101,6 +101,7 @@ def setup_nupic():
       'nupic.frameworks.opf.jsonschema': ['*.json'],
       'nupic.support.resources.images': ['*.png', '*.gif', '*.ico', '*.graffle'],
       'nupic.swarming.jsonschema': ['*.json']},
+    include_package_data = True,
     description = "Numenta Platform for Intelligent Computing",
     author='Numenta',
     author_email='help@numenta.org',
