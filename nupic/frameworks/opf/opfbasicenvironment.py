@@ -52,8 +52,7 @@ from nupic.data.fieldmeta import (FieldMetaInfo,
                                   FieldMetaType,
                                   FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
-from opfutils import (InferenceType,
-                      InferenceElement)
+from opfutils import InferenceType, InferenceElement
 
 
 
