@@ -21,6 +21,7 @@
 
 import os
 import pickle
+
 from nupic.data.datasethelpers import findDataset
 from nupic.regions.RecordSensor import RecordSensor
 from nupic.data.file_record_stream import FileRecordStream

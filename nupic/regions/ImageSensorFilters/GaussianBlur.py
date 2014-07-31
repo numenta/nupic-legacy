@@ -23,8 +23,7 @@
 ## @file
 """
 
-from PIL import (Image,
-                 ImageEnhance)
+from PIL import ImageEnhance
 
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
 

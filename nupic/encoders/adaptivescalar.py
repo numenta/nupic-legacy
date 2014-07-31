@@ -19,9 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy as np
 import math
 
+import numpy as np
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
 

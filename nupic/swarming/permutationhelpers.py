@@ -24,9 +24,9 @@ This class provides utility classes and functions for use inside permutations
 scripts.
 """
 
-import numpy
 import random
 
+import numpy
 from nupic.support.configuration import Configuration
 
 

@@ -28,22 +28,19 @@ import copy
 import cPickle
 import inspect
 import itertools
-import math
-import numpy
-import numpy.random
-from operator import itemgetter
-import os
 import random
-import struct
 import sys
 import time
 
+import numpy
+import numpy.random
 from nupic.bindings.algorithms import (adjustMasterValidPermanence, cpp_overlap,
-                                       cpp_overlap_sbm, Inhibition2)
+                                       Inhibition2)
 from nupic.bindings.math import (count_gte, GetNTAReal, Random as NupicRandom,
                                  SM_01_32_32, SM32)
 from nupic.math.cross import cross
 from nupic.research import fdrutilities as fdru
+
 
 realDType = GetNTAReal()
 
@@ -2163,7 +2160,7 @@ class FDRCSpatial2(object):
     mvp2 = copy.deepcopy(permanenceSlice)
 
     # Py version
-    import pdb; pdb.set_trace()
+    pdb.set_trace()
     self._updatePermanenceGivenInputPy(columnNum, masterNum, input,
          inputUse, permanence, permanenceSlice, activeInputSlice,
          permChangesSlice)

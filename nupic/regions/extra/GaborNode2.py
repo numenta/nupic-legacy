@@ -21,12 +21,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import imp
-import os
-import platform
-import sys
-import numpy
 import ctypes
+
+import numpy
+
 try:
   # Not normally needed. Not available in demo app.
   import hotshot

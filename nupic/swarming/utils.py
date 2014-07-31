@@ -21,33 +21,20 @@
 
 import os
 import sys
-import time
 import tempfile
 import logging
 import re
-import json
 import traceback
 import StringIO
 from collections import namedtuple
-import copy
-import itertools
-import random
-import math
 import pprint
 import shutil
 import types
 import signal
 import uuid
 
-import nupic
-from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
-from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support.serializationutils import sortedJSONDumpS
-
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-
 
 
 class JobFailException(Exception):

@@ -22,20 +22,9 @@
 
 import numpy
 from numpy import *
-import sys
-import time
-import cPickle as pickle
-from itertools import product
-import pprint
 
 import nupic.math
-from nupic.support.consoleprinter import ConsolePrinterMixin
-from nupic.bindings.math import Random
-from nupic.bindings.algorithms import isSegmentActive, getSegmentActivityLevel
-from nupic.bindings.algorithms import getSegmentSumActivePermanence
 from nupic.research.TP import TP
-
-from nupic.frameworks.opf.opfutils import InferenceType
 
 from nupic.bindings.algorithms import Cells4
 

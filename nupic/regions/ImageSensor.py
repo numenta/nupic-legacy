@@ -25,7 +25,6 @@ This file defines ImageSensor, an extensible sensor for images.
 
 import os
 import re
-import sys
 import shutil
 import inspect
 import cPickle as pickle
@@ -38,8 +37,8 @@ import numpy
 from PIL import (Image,
                  ImageChops,
                  ImageDraw)
-
 from nupic.bindings.math import GetNTAReal
+
 RealNumpyDType = GetNTAReal()
 
 #from nupic.regions.PyRegion import (PyNode,
