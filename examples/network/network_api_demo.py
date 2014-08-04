@@ -124,7 +124,7 @@ def createNetwork(dataSource):
   sensor.dataSource = dataSource
 
   # Create the spatial pooler region
-  SP_PARAMS["inputWidth"] = encoder.getWidth()
+  SP_PARAMS["inputWidth"] = sensor.encoder.getWidth()
   network.addRegion("spatialPoolerRegion", "py.SPRegion", json.dumps(SP_PARAMS))
 
   # Link the SP region to the sensor input
