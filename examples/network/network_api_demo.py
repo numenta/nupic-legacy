@@ -143,7 +143,8 @@ def createNetwork(dataSource):
   # |sensor| -> |spatialPoolerRegion| -> |temporalPoolerRegion|
   # Add the Temporal Pooler Region on top of the existing network
   TP_PARAMS["inputWidth"] = SP_PARAMS["columnCount"]
-  network.addRegion("temporalPoolerRegion", "py.TPRegion", json.dumps(TP_PARAMS))
+  network.addRegion("temporalPoolerRegion", "py.TPRegion",
+                    json.dumps(TP_PARAMS))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
