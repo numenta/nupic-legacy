@@ -480,7 +480,6 @@ class CLAModel(Model):
       return
 
     if (inferenceType == InferenceType.TemporalAnomaly or
-        inferenceType == InferenceType.NontemporalAnomaly or
         self._isReconstructionModel()):
       topDownCompute = True
     else:
