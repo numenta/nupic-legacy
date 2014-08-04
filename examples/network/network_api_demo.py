@@ -147,15 +147,24 @@ def createNetwork(dataSource):
   network.initialize()
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
-  spatialPoolerRegion.setParameter("topDownMode", False)
+
+  # Make sure learning is enabled
   spatialPoolerRegion.setParameter("learningMode", True)
-  spatialPoolerRegion.setParameter("inferenceMode", True)
+  # We want temporal anomalies so disable anomalyMode in the SP. This mode is
+  # used for computing anomalies in a non-temporal model.
   spatialPoolerRegion.setParameter("anomalyMode", False)
 
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+
+  # Enable topDownMode to get the predicted columns output
   temporalPoolerRegion.setParameter("topDownMode", True)
+  # Make sure learning is enabled (this is the default)
   temporalPoolerRegion.setParameter("learningMode", True)
+  # Enable inference mode so we get predictions
   temporalPoolerRegion.setParameter("inferenceMode", True)
+  # Enable anomalyMode to compute the anomaly score. This actually doesn't work
+  # now so doesn't matter. We instead compute the anomaly score based on
+  # topDownOut (predicted columns) and SP bottomUpOut (active columns).
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
