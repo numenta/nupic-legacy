@@ -394,13 +394,11 @@ class CLAModel(Model):
 
     results.sensorInput = self._getSensorInputRecord(inputRecord)
 
-    tpTopDownComputed = False
     inferences = {}
 
     # TODO: Reconstruction and temporal classification not used. Remove
     if self._isReconstructionModel():
       inferences = self._reconstructionCompute()
-      tpTopDownComputed = True
     elif self._isMultiStepModel():
       inferences = self._multiStepCompute(rawInput=inputRecord)
     # For temporal classification. Not used, and might not work anymore
@@ -409,7 +407,7 @@ class CLAModel(Model):
 
     results.inferences.update(inferences)
 
-    inferences = self._anomalyCompute(computeTPTopDown=(not tpTopDownComputed))
+    inferences = self._anomalyCompute()
     results.inferences.update(inferences)
 
     # -----------------------------------------------------------------------
@@ -481,19 +479,16 @@ class CLAModel(Model):
     if tp is None:
       return
 
+    if (self.getInferenceType() == InferenceType.TemporalAnomaly or
+        self._isReconstructionModel()):
+      topDownCompute = True
+    else:
+      topDownCompute = False
+
     tp = self._getTPRegion()
-    tp.setParameter('topDownMode', False)
+    tp.setParameter('topDownMode', topDownCompute)
     tp.setParameter('inferenceMode', self.isInferenceEnabled())
     tp.setParameter('learningMode', self.isLearningEnabled())
-    tp.prepareInputs()
-    tp.compute()
-
-
-  def _tpTopDownCompute(self):
-    tp = self._getTPRegion()
-    if tp is None:
-      return
-    tp.setParameter('topDownMode', True)
     tp.prepareInputs()
     tp.compute()
 
@@ -576,9 +571,6 @@ class CLAModel(Model):
     sp = self._getSPRegion()
     sensor = self._getSensorRegion()
 
-    # TP Top-down flow
-    self._tpTopDownCompute()
-
     #--------------------------------------------------
     # SP Top-down flow
     sp.setParameter('topDownMode', True)
@@ -608,11 +600,9 @@ class CLAModel(Model):
     return inferences
 
 
-  def _anomalyCompute(self, computeTPTopDown):
+  def _anomalyCompute(self):
     """
     Compute Anomaly score, if required
-      computeTPTopDown: If True, first perform a
-
     """
     inferenceType = self.getInferenceType()
     inferences = {}
@@ -621,15 +611,10 @@ class CLAModel(Model):
       score = sp.getOutputData("anomalyScore")[0]
       inferences[InferenceElement.anomalyScore] = score
 
-    # -----------------------------------------------------------------------
-    # Temporal Anomaly Score
-    if inferenceType == InferenceType.TemporalAnomaly:
+    elif inferenceType == InferenceType.TemporalAnomaly:
       sp = self._getSPRegion()
       tp = self._getTPRegion()
       sensor = self._getSensorRegion()
-
-      if computeTPTopDown:
-        self._tpTopDownCompute()
 
       if sp is not None:
         activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
