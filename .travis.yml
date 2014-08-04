@@ -50,13 +50,13 @@ deploy:
   local-dir: "dist/nupic-archive.tar.gz"
   upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
   skip_cleanup: true
-  # Only deploy on master from one build job: linux, clang, python 2.7
-  on:
-    branch: archive-update
-    condition:
-      - "$TRAVIS_OS_NAME == linux"
-      - "$PY_VER == 2.7"
-      - "$CC == clang"
+  # # Only deploy on master from one build job: linux, clang, python 2.7
+  # on:
+  #   branch: archive-update
+  #   condition:
+  #     - "$TRAVIS_OS_NAME == linux"
+  #     - "$PY_VER == 2.7"
+  #     - "$CC == clang"
 
 git:
   submodules: false
