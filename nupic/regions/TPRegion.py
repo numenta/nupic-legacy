@@ -501,7 +501,7 @@ class TPRegion(PyRegion):
     # Write the bottom up out to our node outputs
     outputs['bottomUpOut'][:] = tpOutput.flat
 
-    if self.topdownMode:
+    if self.topDownMode:
       # Top-down compute
       outputs['topDownOut'][:] = self._tfdr.topDownCompute().copy()
 
