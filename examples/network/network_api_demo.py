@@ -43,6 +43,7 @@ SP_PARAMS = {
     "spatialImp": "cpp",
     "globalInhibition": 1,
     "columnCount": 2048,
+    # This must be set before creating the SPRegion
     "inputWidth": 0,
     "numActiveColumnsPerInhArea": 40,
     "seed": 1956,
@@ -97,12 +98,6 @@ def createEncoder():
           "timeOfDay": (21, 9.5),
           "type": "DateEncoder",
       },
-      #"timestamp_weekend": {
-      #    "fieldname": u"timestamp",
-      #    "name": u"timestamp_weekend",
-      #    "type": "DateEncoder",
-      #    "weekend": 21,
-      #},
   })
 
   return encoder
@@ -112,21 +107,22 @@ def createEncoder():
 def createNetwork(dataSource):
   """Create the Network instance.
 
+  The network has a sensor region reading data from `dataSource` and passing
+  the encoded representation to an SPRegion. The SPRegion output is passed to
+  a TPRegion.
+
   :param dataSource: a RecordStream instance to get data from
   :returns: a Network instance ready to run
   """
-  encoder = createEncoder()
-
   network = Network()
 
   # Our input is sensor data from the gym.csv file
   network.addRegion("sensor", "py.RecordSensor",
                     json.dumps({"verbosity": _VERBOSITY}))
   sensor = network.regions["sensor"].getSelf()
-  sensor.encoder = encoder
+  sensor.encoder = createEncoder()
   sensor.dataSource = dataSource
 
-  # |sensor| -> |spatialPoolerRegion|
   # Create the spatial pooler region
   SP_PARAMS["inputWidth"] = encoder.getWidth()
   network.addRegion("spatialPoolerRegion", "py.SPRegion", json.dumps(SP_PARAMS))
@@ -140,17 +136,13 @@ def createNetwork(dataSource):
   network.link("spatialPoolerRegion", "sensor", "UniformLink", "",
                srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
-  # |sensor| -> |spatialPoolerRegion| -> |temporalPoolerRegion|
-  # Add the Temporal Pooler Region on top of the existing network
-  TP_PARAMS["inputWidth"] = SP_PARAMS["columnCount"]
+  # Add the TPRegion on top of the SPRegion
   network.addRegion("temporalPoolerRegion", "py.TPRegion",
                     json.dumps(TP_PARAMS))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
-  network.link("sensor", "temporalPoolerRegion", "UniformLink", "",
-               srcOutput="resetOut", destInput="resetIn")
 
   network.initialize()
 
@@ -161,10 +153,10 @@ def createNetwork(dataSource):
   spatialPoolerRegion.setParameter("anomalyMode", False)
 
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+  temporalPoolerRegion.setParameter("topDownMode", True)
   temporalPoolerRegion.setParameter("learningMode", True)
   temporalPoolerRegion.setParameter("inferenceMode", True)
   temporalPoolerRegion.setParameter("anomalyMode", True)
-  temporalPoolerRegion.setParameter("topDownMode", True)
 
   return network
 
