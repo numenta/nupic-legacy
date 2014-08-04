@@ -111,35 +111,35 @@ install:
 
 script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  # legacy binary tests
-  - "make tests_pyhtm"
-  # Python unit tests and prep for coveralls reporting
-  - "make python_unit_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
-  # Python integration tests and prep for coveralls reporting
-  - "make python_integration_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+#   # legacy binary tests
+#   - "make tests_pyhtm"
+#   # Python unit tests and prep for coveralls reporting
+#   - "make python_unit_tests"
+#   - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
+#   # Python integration tests and prep for coveralls reporting
+#   - "make python_integration_tests"
+#   - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
 
-  # run all example files
-  # examples/bindings
-  - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
-# - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
-# - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
-  # examples/opf (run at least 1 from each category)
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
-            # opf/experiments/params - skip now
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
-    # examples/tp
-  - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
-  - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
-
-after_success:
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
-  # Only publishing unit test coverage at this point.
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
-  # TODO: figure out how to publish integration test coverage as well.
+#   # run all example files
+#   # examples/bindings
+#   - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
+# # - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
+# # - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
+#   # examples/opf (run at least 1 from each category)
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
+#             # opf/experiments/params - skip now
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
+#     # examples/tp
+#   - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
+#   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
+# 
+# after_success:
+#   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
+#   # Only publishing unit test coverage at this point.
+#   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
+#   # TODO: figure out how to publish integration test coverage as well.
