@@ -51,7 +51,7 @@ deploy:
   skip_cleanup: true
   # Only deploy on master from one build job: linux, clang, python 2.7
   on:
-    branch: deploy-test
+    branch: deploy
     # condition:
     #   - "$TRAVIS_OS_NAME == linux"
     #   - "$PY_VER == 2.7"
