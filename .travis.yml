@@ -32,6 +32,7 @@ before_deploy:
   - python setup.py sdist
   - export NUPIC_VERSION=`python -c 'import nupic;print nupic.__version__' | tr -d ' '`
   - mv dist/nupic-${NUPIC_VERSION}.tar.gz dist/nupic-archive.tar.gz
+  - rm dist/nupic-${NUPIC_VERSION}-py2.7.egg
   # # We need to move the pip requirements into the archived directory so they can
   # # be installed for regression tests
   # - cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NUPIC}/.
