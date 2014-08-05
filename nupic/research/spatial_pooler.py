@@ -662,7 +662,8 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
-  def compute(self, inputVector, learn, activeArray):
+  def compute(self, inputVector, learn, activeArray,
+              stripUnlearnedColumns=True):
     """
     This is the primary public method of the SpatialPooler class. This
     function takes a input vector and outputs the indices of the active columns.
@@ -690,6 +691,9 @@ class SpatialPooler(object):
                     Before the function returns this array will be populated
                     with 1's at the indices of the active columns, and 0's
                     everywhere else.
+    stripUnlearnedColumns: If True and learn=False, then columns that have never
+        learned will be stripped out of the active columns. This should be used
+        when using a random SP with learning disabled.
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -714,7 +718,7 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
-    else:
+    elif stripUnlearnedColumns:
       activeColumns = self._stripNeverLearned(activeColumns)
 
     activeArray.fill(0)
@@ -727,7 +731,7 @@ class SpatialPooler(object):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
-    is required.
+    is required. This should not be done when using a random, unlearned SP.
 
     Parameters:
     ----------------------------
