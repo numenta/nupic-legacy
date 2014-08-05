@@ -9,7 +9,7 @@ os:
 
 compiler:
   - clang
-  - gcc
+  # - gcc
 
 env:
   global:
@@ -17,7 +17,7 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
   matrix:
     - PY_VER=2.7
-    - PY_VER=2.6
+    # - PY_VER=2.6
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc and Python 2.6
@@ -27,33 +27,35 @@ matrix:
     - os: osx
       compiler: gcc
 
-# # Successful builds are archived and uploaded to S3 for regression testing.
-# before_deploy:
-#   # We need to move the pip requirements into the archived directory so they can
-#   # be installed for regression tests
-#   - cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NUPIC}/.
-#   # This is the directory we'll be archiving.
-#   - mkdir ${TRAVIS_BUILD_DIR}/build/archive
-#   # Tar up the release directory
+# Successful builds are archived and uploaded to S3 for regression testing.
+before_deploy:
+  - python setup.py sdist
+  - export NUPIC_VERSION=`python -c 'import nupic;print nupic.__version__' | tr -d ' '`
+  - mv dist/nupic-${NUPIC_VERSION}.tar.gz dist/nupic-archive.tar.gz
+  # # We need to move the pip requirements into the archived directory so they can
+  # # be installed for regression tests
+  # - cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NUPIC}/.
+  # # This is the directory we'll be archiving.
+  # - mkdir ${TRAVIS_BUILD_DIR}/build/archive
+  # # Tar up the release directory
 
-# deploy:
-#   provider: s3
-#   access_key_id: AKIAIGHYSEHV3WFKOWNQ
-#   secret_access_key:
-#     secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
-#   bucket: artifacts.numenta.org
-#   region: us-west-2
-#   # TODO: figure out how to get NuPIC version dynamically instead of hard-coded in the line below.
-#   local-dir: "/Users/travis/Library/Python/$PY_VER/lib/python/site-packages/nupic-_0.1.0_-py2.7.egg"
-#   upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
-#   skip_cleanup: true
-#   # Only deploy on master from one build job: linux, clang, python 2.7
-#   on:
-#     branch: master
-#     condition:
-#       - "$TRAVIS_OS_NAME == linux"
-#       - "$PY_VER == 2.7"
-#       - "$CC == clang"
+deploy:
+  provider: s3
+  access_key_id: AKIAIGHYSEHV3WFKOWNQ
+  secret_access_key:
+    secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
+  bucket: artifacts.numenta.org
+  region: us-west-2
+  local-dir: "dist/nupic-archive.tar.gz"
+  upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
+  skip_cleanup: true
+  # Only deploy on master from one build job: linux, clang, python 2.7
+  on:
+    branch: deploy-test
+    # condition:
+    #   - "$TRAVIS_OS_NAME == linux"
+    #   - "$PY_VER == 2.7"
+    #   - "$CC == clang"
 
 git:
   submodules: false
@@ -107,36 +109,36 @@ install:
   - "python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, \"../..\")))'"
 
 script:
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  # legacy binary tests
-  - "make tests_pyhtm"
-  # Python unit tests and prep for coveralls reporting
-  - "make python_unit_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
-  # Python integration tests and prep for coveralls reporting
-  - "make python_integration_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+  - "cd $TRAVIS_BUILD_DIR"
+#   # legacy binary tests
+#   - "make tests_pyhtm"
+#   # Python unit tests and prep for coveralls reporting
+#   - "make python_unit_tests"
+#   - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
+#   # Python integration tests and prep for coveralls reporting
+#   - "make python_integration_tests"
+#   - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
 
-  # run all example files
-  # examples/bindings
-  - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
-# - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
-# - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
-  # examples/opf (run at least 1 from each category)
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
-            # opf/experiments/params - skip now
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
-    # examples/tp
-  - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
-  - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
-
-after_success:
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
-  # Only publishing unit test coverage at this point.
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
-  # TODO: figure out how to publish integration test coverage as well.
+#   # run all example files
+#   # examples/bindings
+#   - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
+# # - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
+# # - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
+#   # examples/opf (run at least 1 from each category)
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
+#             # opf/experiments/params - skip now
+#   - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
+#     # examples/tp
+#   - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
+#   - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
+# 
+# after_success:
+#   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
+#   # Only publishing unit test coverage at this point.
+#   - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
+#   # TODO: figure out how to publish integration test coverage as well.
