@@ -29,7 +29,8 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  - python setup.py sdist
+  - cd {$NUPIC}
+  - python${PY_VER} setup.py sdist
   - export NUPIC_VERSION=`python -c 'import nupic;print nupic.__version__' | tr -d ' '`
   - mv dist/nupic-${NUPIC_VERSION}.tar.gz dist/nupic-archive.tar.gz
   # No need to upload the egg.
