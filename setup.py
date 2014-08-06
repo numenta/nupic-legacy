@@ -57,8 +57,8 @@ PY_COMPILE_SKIP_FILES = [
 
 
 def skip_py_compile(file, cfile=None, dfile=None, doraise=False):
-    if os.path.basename(file) not in PY_COMPILE_SKIP_FILES:
-      orig_py_compile(file, cfile=cfile, dfile=dfile, doraise=doraise)
+  if os.path.basename(file) not in PY_COMPILE_SKIP_FILES:
+    orig_py_compile(file, cfile=cfile, dfile=dfile, doraise=doraise)
 
 py_compile.compile = skip_py_compile
 
