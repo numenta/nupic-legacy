@@ -27,32 +27,28 @@ matrix:
     - os: osx
       compiler: gcc
 
-# # Successful builds are archived and uploaded to S3 for regression testing.
-# before_deploy:
-#   - cd ${TRAVIS_BUILD_DIR}
-#   - python${PY_VER} setup.py sdist
-#   - export NUPIC_VERSION=`python -c 'import nupic;print nupic.__version__' | tr -d ' '`
-#   - mv dist/nupic-${NUPIC_VERSION}.tar.gz dist/nupic-archive.tar.gz
-#   # No need to upload the egg.
-#   - rm dist/nupic-${NUPIC_VERSION}-py2.7.egg
+# Successful builds are archived and uploaded to S3 for regression testing.
+before_deploy:
+  - cd ${TRAVIS_BUILD_DIR}
+  - python${PY_VER} setup.py bdist
 
-# deploy:
-#   provider: s3
-#   access_key_id: AKIAIGHYSEHV3WFKOWNQ
-#   secret_access_key:
-#     secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
-#   bucket: artifacts.numenta.org
-#   region: us-west-2
-#   local-dir: "dist"
-#   upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
-#   skip_cleanup: true
-#   # Only deploy on master from one build job: linux, clang, python 2.7
-#   on:
-#     branch: master
-#     condition:
-#       - "$TRAVIS_OS_NAME == linux"
-#       - "$PY_VER == 2.7"
-#       - "$CC == clang"
+deploy:
+  provider: s3
+  access_key_id: AKIAIGHYSEHV3WFKOWNQ
+  secret_access_key:
+    secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
+  bucket: artifacts.numenta.org
+  region: us-west-2
+  local-dir: "dist"
+  upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
+  skip_cleanup: true
+  # Only deploy on master from one build job: linux, clang, python 2.7
+  on:
+    branch: master
+    condition:
+      - "$TRAVIS_OS_NAME == linux"
+      - "$PY_VER == 2.7"
+      - "$CC == clang"
 
 git:
   submodules: false
