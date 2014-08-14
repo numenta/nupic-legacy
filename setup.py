@@ -2,6 +2,7 @@ import sys
 import os
 import subprocess
 from setuptools import setup
+import py_compile
 
 """
 This file only will call CMake process to generate scripts, build, and then
@@ -46,6 +47,20 @@ if len(sys.argv) == 1:
 # Get properties of the project like version, notes, etc
 properties = {}
 execfile(os.path.join(repositoryDir, "nupic", "__init__.py"), {}, properties)
+
+# Replace py_compile.compile with a function that skips certain files that are meant to fail
+orig_py_compile = py_compile.compile
+
+PY_COMPILE_SKIP_FILES = [
+  "UnimportableNode.py",
+]
+
+
+def skip_py_compile(file, cfile=None, dfile=None, doraise=False):
+  if os.path.basename(file) not in PY_COMPILE_SKIP_FILES:
+    orig_py_compile(file, cfile=cfile, dfile=dfile, doraise=doraise)
+
+py_compile.compile = skip_py_compile
 
 
 def findPackages(repositoryDir):
@@ -106,7 +121,16 @@ def setupNupic():
       "nupic.frameworks.opf.jsonschema": ["*.json"],
       "nupic.support.resources.images": ["*.png", "*.gif",
                                          "*.ico", "*.graffle"],
-      "nupic.swarming.jsonschema": ["*.json"]},
+      "nupic.swarming.jsonschema": ["*.json"]
+    },
+    data_files=[
+      ("", [
+        "CMakeLists.txt",
+        "external/common/requirements.txt",
+        "config/default/nupic-default.xml"
+        ]
+      )
+    ],
     include_package_data = True,
     description = "Numenta Platform for Intelligent Computing",
     author="Numenta",
