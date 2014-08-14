@@ -670,20 +670,20 @@ class SpatialPooler(object):
     If 'learn' is set to True, this method also updates the permanences of the
     columns.
 
-    :param inputVector: a numpy array of 0's and 1's that comprises the input
+    :param inputVector: A numpy array of 0's and 1's that comprises the input
         to the spatial pooler. The array will be treated as a one dimensional
-        array, therefore the dimensions of the array do not have to much the
+        array, therefore the dimensions of the array do not have to match the
         exact dimensions specified in the class constructor. In fact, even a
         list would suffice. The number of input bits in the vector must,
         however, match the number of bits specified by the call to the
         constructor. Therefore there must be a '0' or '1' in the array for
         every input bit.
-    :param learn: a boolean value indicating whether learning should be
+    :param learn: A boolean value indicating whether learning should be
         performed. Learning entails updating the  permanence values of the
         synapses, and hence modifying the 'state' of the model. Setting
         learning to 'off' freezes the SP and has many uses. For example, you
         might want to feed in various inputs and examine the resulting SDR's.
-    :param activeArray: an array whose size is equal to the number of columns.
+    :param activeArray: An array whose size is equal to the number of columns.
         Before the function returns this array will be populated with 1's at
         the indices of the active columns, and 0's everywhere else.
     :param stripUnlearnedColumns: If True and learn=False, then columns that
