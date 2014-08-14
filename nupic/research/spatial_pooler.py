@@ -691,9 +691,11 @@ class SpatialPooler(object):
                     Before the function returns this array will be populated
                     with 1's at the indices of the active columns, and 0's
                     everywhere else.
-    stripUnlearnedColumns: If True and learn=False, then columns that have never
-        learned will be stripped out of the active columns. This should be used
-        when using a random SP with learning disabled.
+    stripUnlearnedColumns: If True and learn=False, then columns that have
+        never learned will be stripped out of the active columns. This should
+        be set to False when using a random SP with learning disabled. NOTE:
+        This parameter should be set explicitly as the default will likely be
+        changed to False in the near future (by end of 2014).
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
