@@ -62,7 +62,7 @@ class TemporalMemoryShim(TemporalMemory):
       permanenceDecrement=permanenceDec,
       seed=seed)
 
-    self.infActiveState = {'t': None}
+    self.infActiveState = {"t": None}
 
 
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
@@ -83,7 +83,7 @@ class TemporalMemoryShim(TemporalMemory):
 
     activeState = numpy.zeros(numberOfCells)
     activeState[list(self.activeCells)] = 1
-    self.infActiveState['t'] = activeState
+    self.infActiveState["t"] = activeState
 
     output = numpy.zeros(numberOfCells)
     output[list(self.predictiveCells | self.activeCells)] = 1
