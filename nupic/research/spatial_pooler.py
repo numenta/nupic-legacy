@@ -733,7 +733,8 @@ class SpatialPooler(object):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
-    is required. This should not be done when using a random, unlearned SP.
+    is required. This should not be done when using a random, unlearned SP
+    since you would end up with no active columns.
 
     Parameters:
     ----------------------------
