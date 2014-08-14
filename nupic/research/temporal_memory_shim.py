@@ -51,7 +51,7 @@ class TemporalMemoryShim(TemporalMemory):
     Translate parameters and initialize member variables specific to `TP.py`.
     """
     super(TemporalMemoryShim, self).__init__(
-      columnDimensions=[numberOfCols],
+      columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
       initialPermanence=initialPerm,
