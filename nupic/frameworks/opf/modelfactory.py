@@ -35,18 +35,19 @@ from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
 
 class ModelFactory(object):
-  """
-    Static factory class that produces a Model based on a description dict.
-    Eventually this will be the source for all Model creation, CLA and otherwise.
-    We may also implement building the description dict from a database or a
-    description.py file. For now, this is a very skeletal implementation.
-
+  """ Static factory class that produces a Model based on a description dict.
+  Eventually this will be the source for all Model creation, CLA and otherwise.
+  We may also implement building the description dict from a database or a
+  description.py file. For now, this is a very skeletal implementation.
   """
   __logger = None
 
 
   @classmethod
   def __getLogger(cls):
+    """ Get the logger for this object.
+    @returns (Logger) A Logger object.
+    """
     if cls.__logger is None:
       cls.__logger = opfutils.initLogger(cls)
     return cls.__logger
@@ -54,13 +55,12 @@ class ModelFactory(object):
 
   @staticmethod
   def create(modelConfig, logLevel=logging.ERROR):
-    """
-    Create a new model instance, given a description dictionary
-
-    Parameters:
-    -----------------------------------------------------------------------
-    modelParams:      A dictionary describing the current model (TODO: schema)
-    logLevel:         The level of logging output that should be generated
+    """ Create a new model instance, given a description dictionary.
+    @param modelConfig (dict)
+           A dictionary describing the current model (TODO: schema)
+    @param logLevel (int) The level of logging output that should be generated
+    @exception (Exception) Unsupported model type
+    @returns (nupic.frameworks.opf.model.Model) A model.
     """
     logger = ModelFactory.__getLogger()
     logger.setLevel(logLevel)
@@ -81,13 +81,9 @@ class ModelFactory(object):
 
   @staticmethod
   def loadFromCheckpoint(savedModelDir):
-    """ Load saved model
-
-    Parameters:
-    -----------------------------------------------------------------------
-    savedModelDir:
-                  directory of where the experiment is to be or was saved
-
-    Returns: the loaded model instance
+    """ Load saved model.
+    @param savedModelDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
     return Model.load(savedModelDir)
