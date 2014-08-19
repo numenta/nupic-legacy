@@ -31,7 +31,8 @@ class TestCase(unittest.TestCase):
 
   def testImportAndVersions(self):
     import asteval
-    self.assertTrue(asteval.__version__ > '0.9')
+    from pkg_resources import parse_version
+    self.assertGreater(parse_version(asteval.__version__), parse_version("0.9"))
 
 
 
