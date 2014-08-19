@@ -14,7 +14,6 @@ compiler:
 env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
-    - NTA=$HOME/nta/eng
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
   matrix:
     - PY_VER=2.7
@@ -30,13 +29,8 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  # We need to move the pip requirements into the archived directory so they can
-  # be installed for regression tests
-  - cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NTA}/.
-  # This is the directory we'll be archiving.
-  - mkdir ${TRAVIS_BUILD_DIR}/build/archive
-  # Tar up the release directory
-  - tar -zcf ${TRAVIS_BUILD_DIR}/build/archive/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" eng
+  - cd ${TRAVIS_BUILD_DIR}
+  - python${PY_VER} setup.py bdist
 
 deploy:
   provider: s3
@@ -45,7 +39,7 @@ deploy:
     secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
   bucket: artifacts.numenta.org
   region: us-west-2
-  local-dir: "${TRAVIS_BUILD_DIR}/build/archive"
+  local-dir: "dist"
   upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
   skip_cleanup: true
   # Only deploy on master from one build job: linux, clang, python 2.7
@@ -76,6 +70,8 @@ before_install:
   # Install MySQL on OSX
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install mysql; fi"
   - "if [ $TRAVIS_OS_NAME = 'osx' ]; then mysql.server start; fi"
+  # Prefix env with our user installation
+  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
 
   # Necessary Linux prep work
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository -y ppa:fkrull/deadsnakes; fi"
@@ -83,8 +79,6 @@ before_install:
   # Install virtualenv
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo ls -laFh /usr/lib/libpython$PY_VER.so; fi"
-  # Prefix env with our own python installation
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:$NTA/lib/python$PY_VER/site-packages; fi"
   # Execute virtualenv
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then virtualenv --python=`which python$PY_VER` .; fi"
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then source bin/activate; fi"
@@ -93,20 +87,22 @@ before_install:
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm; fi"
   # Install NuPIC python dependencies
   - "if [ $TRAVIS_OS_NAME = 'linux' ]; then travis_retry pip install -q -r $NUPIC/external/common/requirements.txt; fi"
+  # Prefix env with our user installation
+  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
 
 install:
-  - "mkdir -p $TRAVIS_BUILD_DIR/build/scripts"
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # Verify cmake version
   - "cmake --version"
   # Verify python version
   - "python --version"
   # Build NuPIC
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then PYTHON=`which python$PY_VER` cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA; fi"
-  - "make -j3"
+  - "cd $NUPIC"
+  - "python$PY_VER setup.py install --user"
+  # Show nupic installation folder by trying import nupic, if works, it prints the absolute path of nupic.__file__, which the installation folder itself.
+  - "python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, \"../..\")))'"
 
 script:
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # legacy binary tests
   - "make tests_pyhtm"
   # Python unit tests and prep for coveralls reporting
@@ -115,8 +111,6 @@ script:
   # Python integration tests and prep for coveralls reporting
   - "make python_integration_tests"
   - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
-
-  - "cd ${TRAVIS_BUILD_DIR}"
 
   # run all example files
   # examples/bindings

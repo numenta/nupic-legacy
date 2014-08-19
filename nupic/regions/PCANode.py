@@ -26,13 +26,7 @@
 PCANode implements PCA
 """
 
-import os
-import sys
-import math
-import tempfile
 import numpy
-import random
-import logging
 
 from PyRegion import PyRegion
 
@@ -456,7 +450,6 @@ class PCANode(PyRegion):
 #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 if __name__=='__main__':
 
-  import os
   from nupic.engine import *
 
   rgen = numpy.random.RandomState(37)

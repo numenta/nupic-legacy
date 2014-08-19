@@ -1,6 +1,4 @@
-from nupic.encoders import (LogEncoder,
-                                                  DateEncoder,
-                                                  MultiEncoder, ScalarEncoder)
+from nupic.encoders import (LogEncoder, DateEncoder, MultiEncoder, ScalarEncoder)
 
 from nupic.data import FunctionSource
 from nupic.frameworks.prediction.callbacks import displaySPCoincidences, printSPCoincidences
@@ -34,9 +32,9 @@ def generateFunction(info):
   # between 8PM and 11PM, the probabilities are reversed
   # p = probability of high value
   p = 1.0
-  if (t.hour >= 20 and t.hour < 23):
+  if 20 <= t.hour < 23:
     p = 1.0 - p
-  if (random.random() < p):
+  if random.random() < p:
     amount = random.randint(100, 1000)
   else:
     amount = random.randint(1, 10)

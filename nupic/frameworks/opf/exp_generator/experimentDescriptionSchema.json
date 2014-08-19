@@ -165,12 +165,12 @@
       "description": "Bound permutations by the given number of fields, including meta-fields (e.g., 'timeOfDay', 'dayOfWeek'), in any given experiment during hypersearch; the value must be 0 or positive. If the value is 0 or this argument is omitted, ExpGenerator will use the total count of fields and meta-fields in the dataset as the maximum."
     }, 
     "environment": {
-      "default": "grok", 
+      "default": "nupic", 
       "required": false, 
       "type": "string", 
       "description": "The type of program that will using this description file.This is used to determine which fields should be generated", 
       "enum": [
-        "grok", 
+        "nupic", 
         "opfExperiment"
       ]
     }, 

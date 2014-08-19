@@ -573,8 +573,8 @@ class OPFBenchmarkRunner(unittest.TestCase):
         metrics = json.loads(modelInfo.results)[0]
         bestmetric = json.loads(modelInfo.results)[1].keys()[0]
         for key in metrics.keys():
-          if "grokScore" in key and "moving" in key:
-            ret["grokScore"] = ret[key] = metrics[key]
+          if "nupicScore" in key and "moving" in key:
+            ret["nupicScore"] = ret[key] = metrics[key]
           ret[key] = metrics[key]
         ret["encoders"] = (
             json.loads(modelInfo.params)["particleState"]["swarmId"])

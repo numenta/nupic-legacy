@@ -18,7 +18,7 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-import os, sys
+import os
 
 # This is the environment variable that controls the lock attributes
 # enforcement.

@@ -19,18 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
-import sys
 import os
 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
-
+from nupic.research import temporal_memory_shim
 from nupic.support import getArgumentDescriptions
-
 from PyRegion import PyRegion
-
-from nupic.bindings.math import GetNTAReal
 
 gDefaultTemporalImp = 'py'
 
@@ -45,6 +40,8 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'trivial':
     return TPTrivial.TPTrivial
+  elif temporalImp == 'tm_py':
+    return temporal_memory_shim.TemporalMemoryShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
               "'cpp', and 'trivial'" % (temporalImp))
@@ -401,7 +398,7 @@ class TPRegion(PyRegion):
     if self._tfdr is None:
       tpClass = _getTPClass(self.temporalImp)
 
-      if self.temporalImp in ['py', 'cpp', 'r']:
+      if self.temporalImp in ['py', 'cpp', 'r', 'tm_py']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
@@ -472,53 +469,49 @@ class TPRegion(PyRegion):
     if self._tfdr is None:
       raise RuntimeError("TP has not been initialized")
 
-    if not self.topDownMode:
+    # Conditional compute break
+    self._conditionalBreak()
 
-      #print "TPRegion: learningMode: %s; inferenceMode: %s" % (self.learningMode, self.inferenceMode)
+    self._iterations += 1
 
-      # Conditional compute break
-      self._conditionalBreak()
+    # Get our inputs as numpy array
+    buInputVector = inputs['bottomUpIn']
 
-      self._iterations += 1
+    # Handle reset signal
+    resetSignal = False
+    if 'resetIn' in inputs:
+      assert len(inputs['resetIn']) == 1
+      if inputs['resetIn'][0] != 0:
+        self._tfdr.reset()
+        self._sequencePos = 0  # Position within the current sequence
 
-      # Get our inputs as numpy array
-      buInputVector = inputs['bottomUpIn']
+    # Perform inference and/or learning
+    tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
+    self._sequencePos += 1
 
-      # Handle reset signal
-      resetSignal = False
-      if 'resetIn' in inputs:
-        assert len(inputs['resetIn']) == 1
-        if inputs['resetIn'][0] != 0:
-          self._tfdr.reset()
-          self._sequencePos = 0  # Position within the current sequence
+    # OR'ing together the cells in each column?
+    if self.orColumnOutputs:
+      tpOutput= tpOutput.reshape(self.columnCount,
+                                     self.cellsPerColumn).max(axis=1)
 
-      # Perform inference and/or learning
-      tpOutput = self._tfdr.compute(buInputVector, self.learningMode, self.inferenceMode)
-      self._sequencePos += 1
+    # Direct logging of non-zero TP outputs
+    if self._fpLogTPOutput:
+      output = tpOutput.reshape(-1)
+      outputNZ = tpOutput.nonzero()[0]
+      outStr = " ".join(["%d" % int(token) for token in outputNZ])
+      print >>self._fpLogTPOutput, output.size, outStr
 
-      # OR'ing together the cells in each column?
-      if self.orColumnOutputs:
-        tpOutput= tpOutput.reshape(self.columnCount,
-                                       self.cellsPerColumn).max(axis=1)
+    # Write the bottom up out to our node outputs
+    outputs['bottomUpOut'][:] = tpOutput.flat
 
-      # Direct logging of non-zero TP outputs
-      if self._fpLogTPOutput:
-        output = tpOutput.reshape(-1)
-        outputNZ = tpOutput.nonzero()[0]
-        outStr = " ".join(["%d" % int(token) for token in outputNZ])
-        print >>self._fpLogTPOutput, output.size, outStr
-
-      # Write the bottom up out to our node outputs
-      outputs['bottomUpOut'][:] = tpOutput.flat
-
-    else:
+    if self.topDownMode:
       # Top-down compute
       outputs['topDownOut'][:] = self._tfdr.topDownCompute().copy()
 
     # Set output for use with anomaly classification region if in anomalyMode
     if self.anomalyMode:
       activeLearnCells = self._tfdr.getLearnActiveStateT()
-      size = activeLearnCells.shape[0] * activeLearnCells.shape[1] 
+      size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
 

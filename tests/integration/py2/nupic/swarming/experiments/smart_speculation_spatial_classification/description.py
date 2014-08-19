@@ -374,9 +374,9 @@ applyValueGettersToContainer(config)
 ################################################################################
 control = {
   # The environment that the current model is being run in
-  "environment": 'grok',
+  "environment": 'nupic',
 
-  # Input stream specification per py/grokengine/cluster/database/StreamDef.json.
+  # Input stream specification per py/nupicengine/cluster/database/StreamDef.json.
   #
   'dataset' : {   u'info': u'baseball benchmark test',
       u'streams': [   {   u'columns': [   u'daynight',
