@@ -83,7 +83,7 @@ class AnomalyTest(unittest.TestCase):
       score = anomalyCum.computeAnomalyScore(actual[i], predicted[i])
       anomaly.extend([score])
 
-    self.assertTrue(anomaly == anomalyExpected, "not equal anomaly and expected " + str(anomaly) + " vs " + str(anomalyExpected))
+    self.assertEqual(anomaly, anomalyExpected, "not equal anomaly and expected " + str(anomaly) + " vs " + str(anomalyExpected))
 
 
 if __name__ == "__main__":
