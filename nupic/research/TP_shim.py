@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 """
-A shim for the TemporalMemory class that makes it compatible with the `TP.py`
-format, for use with OPF.
+A shim for the TP class that transparently implements TemporalMemory,
+for use with OPF.
 """
 
 import numpy
@@ -30,9 +30,9 @@ from nupic.research.temporal_memory import TemporalMemory
 
 
 
-class TemporalMemoryShim(TemporalMemory):
+class TPShim(TemporalMemory):
   """
-  Temporal Memory shim class.
+  TP => Temporal Memory shim class.
   """
   def __init__(self,
                numberOfCols=500,
@@ -50,7 +50,7 @@ class TemporalMemoryShim(TemporalMemory):
     """
     Translate parameters and initialize member variables specific to `TP.py`.
     """
-    super(TemporalMemoryShim, self).__init__(
+    super(TPShim, self).__init__(
       columnDimensions=(numberOfCols,),
       cellsPerColumn=cellsPerColumn,
       activationThreshold=activationThreshold,
@@ -77,7 +77,7 @@ class TemporalMemoryShim(TemporalMemory):
                              If true, compute the inference output
                              If false, do not compute the inference output
     """
-    super(TemporalMemoryShim, self).compute(set(bottomUpInput.nonzero()[0]),
+    super(TPShim, self).compute(set(bottomUpInput.nonzero()[0]),
                                             learn=enableLearn)
     numberOfCells = self.connections.numberOfCells()
 
