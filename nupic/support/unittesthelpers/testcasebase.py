@@ -24,10 +24,11 @@
 
 import copy
 import optparse
-import os
 import sys
 from datetime import datetime
+
 import unittest2 as unittest
+
 
 
 

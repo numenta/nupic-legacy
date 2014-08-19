@@ -24,9 +24,9 @@
 import array
 from collections import deque
 import itertools
-import sys
 
 import numpy
+
 
 # This determines how large one of the duty cycles must get before each of the
 # duty cycles are updated to the current iteration.

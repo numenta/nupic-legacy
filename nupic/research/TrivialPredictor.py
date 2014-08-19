@@ -20,8 +20,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
 import random
+
+import numpy
+
 
 class TrivialPredictor(object):
   def __init__(self, numberOfCols, verbosity,

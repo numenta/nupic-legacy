@@ -22,7 +22,6 @@
 import os
 
 from PIL import Image
-
 from nupic.image import imageExtensions
 
 

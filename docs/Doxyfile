@@ -505,7 +505,7 @@ CASE_SENSE_NAMES       = NO
 # scope will be hidden.
 # The default value is: NO.
 
-HIDE_SCOPE_NAMES       = NO
+HIDE_SCOPE_NAMES       = YES
 
 # If the SHOW_INCLUDE_FILES tag is set to YES then doxygen will put a list of
 # the files that are included by a file in the documentation of that file.
@@ -755,10 +755,15 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = docs \
+                         nupic/frameworks/opf/__init__.py \
+                         nupic/frameworks/opf/model.py \
+                         nupic/frameworks/opf/clamodel.py \
+                         nupic/frameworks/opf/modelfactory.py \
                          nupic/research/__init__.py \
                          nupic/research/TP10X2.py \
                          nupic/research/TPTrivial.py \
                          nupic/research/TP.py \
+                         nupic/research/temporal_memory.py \
                          nupic/encoders \
                          nupic/data/aggregator.py \
                          scripts/run_swarm.py \

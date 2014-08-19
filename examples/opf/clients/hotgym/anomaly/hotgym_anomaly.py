@@ -38,7 +38,7 @@ import model_params
 
 _LOGGER = logging.getLogger(__name__)
 
-_DATA_PATH = "../../../../prediction/data/extra/hotgym/rec-center-hourly.csv"
+_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
 
 _OUTPUT_PATH = "anomaly_scores.csv"
 

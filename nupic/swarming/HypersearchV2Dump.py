@@ -21,27 +21,13 @@
 # ----------------------------------------------------------------------
 
 import sys
-import os
 import time
-import logging
 import json
-import hashlib
-import itertools
-import random
-import numpy
-import StringIO
-import tempfile
-import copy
-import pprint
 import csv
 from optparse import OptionParser
 
 from nupic.support import initLogging
-from nupic.support.configuration import Configuration
-
 from nupic.dataase.ClientJobsDAO import ClientJobsDAO
-from nupic.swarming.permutationhelpers import *
-
 
 
 helpString = \

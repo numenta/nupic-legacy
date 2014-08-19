@@ -25,7 +25,6 @@
 This file contains k Nearest Neighbor classifier.
 """
 
-import sys
 import numpy
 
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)

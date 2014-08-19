@@ -32,9 +32,14 @@ from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
 from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder, VectorEncoderOPF
 from nupic.encoders.passthru import PassThruEncoder
+from nupic.encoders.coordinate import CoordinateEncoder
+from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
 # multiencoder must be imported last because it imports * from this module!
 from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
+
+from nupic.encoders.base import Encoder
+# multiencoder must be imported last because it imports * from this module!
 
 
 class MultiEncoder(Encoder):

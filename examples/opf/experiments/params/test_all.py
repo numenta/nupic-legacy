@@ -46,7 +46,7 @@ def testAll(experiments):
       task = experimentTasks[0]
       datasetURI = task['dataset']['streams'][0]['source']
 
-    elif control['environment'] == 'grok':
+    elif control['environment'] == 'nupic':
       datasetURI = control['dataset']['streams'][0]['source']
 
     metricSpecs = control['metrics']

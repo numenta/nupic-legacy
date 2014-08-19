@@ -189,9 +189,9 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     # Get the job info
     jobInfo = cjDAO.jobInfo(jobID)
 
-    # Since we're running outside of the Grok engine, we launched the workers 
+    # Since we're running outside of the Nupic engine, we launched the workers 
     #  ourself, so see how many are still running and jam the correct status 
-    #  into the job info. When using the Grok engine, it would do this
+    #  into the job info. When using the Nupic engine, it would do this
     #  for us. 
     runningCount = 0
     for worker in workers:
@@ -255,7 +255,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(os.environ['NTA'], 'share', 'prediction',
+        dataPath = os.path.join(os.environ['NUPIC'], 'examples', 'prediction',
                         'data', 'extra', 'qa', "hotgym", "qa_hotgym.csv")
       streamDef = dict(
         version = 1,
@@ -452,7 +452,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
             minimumWorkers=1, maximumWorkers=maxNumWorkers,
             jobType = cjDAO.JOB_TYPE_HS)
 
-    # Launch the workers ourself if necessary (no grok engine running). 
+    # Launch the workers ourself if necessary (no nupic engine running). 
     workerCmdLine = '%s python -m nupic.swarming.HypersearchWorker ' \
                           '--jobID=%d --logLevel=%d' \
                           % (envStr, jobID, loggingLevel)

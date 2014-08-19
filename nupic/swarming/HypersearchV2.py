@@ -26,8 +26,6 @@ import logging
 import json
 import hashlib
 import itertools
-import random
-import numpy
 import StringIO
 import shutil
 import tempfile
@@ -42,15 +40,12 @@ from nupic.support import clippedObj
 from nupic.support.serializationutils import sortedJSONDumpS
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
-
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-
 from nupic.swarming.utils import (runModelGivenBaseAndParams,
                                                   runDummyModel)
 from nupic.swarming.permutationhelpers import *
 from nupic.frameworks.opf.exp_generator.ExpGenerator import expGenerator
-
 
 
 def _flattenKeys(keys):

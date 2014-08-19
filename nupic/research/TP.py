@@ -32,12 +32,12 @@ import cPickle as pickle
 import itertools
 
 import numpy
-
 from nupic.bindings.math import Random
 from nupic.bindings.algorithms import getSegmentActivityLevel, isSegmentActive
 from nupic.math import GetNTAReal
 from nupic.research.TrivialPredictor import TrivialPredictor
 from nupic.support.consoleprinter import ConsolePrinterMixin
+
 
 # Default verbosity while running unit tests
 VERBOSITY = 0

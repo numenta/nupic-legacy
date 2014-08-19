@@ -1,5 +1,5 @@
 {
-  "description":"Grok Control schema describes how to run the experiment in the Grok environment.",
+  "description":"Nupic Control schema describes how to run the experiment in the Nupic environment.",
   "type":"object",
   "additionalProperties":false,
   "properties":{
@@ -8,7 +8,7 @@
       "description":"Describes the context in which the model is being run",
       "required":true,
       "type":"string",
-      "pattern":"grok"
+      "pattern":"nupic"
     },
     "dataset":{
       "description":"Input dataset specification per py/nupic/frameworks/opf/jsonschema/stream_def.json",

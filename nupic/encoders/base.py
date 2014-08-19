@@ -19,9 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from collections import namedtuple
+
 import numpy
 from utils import bitsToString
-from collections import namedtuple
 
 
 defaultDtype = numpy.uint8
@@ -97,6 +98,8 @@ class Encoder(object):
     which is a 1-D array of length returned by getWidth()
     
     **Must be overridden by subclasses.**
+
+    Note: The numpy output array is reused, so clear it before updating it.
 
     @param inputData data to encode
     @param output numpy 1-D array of same length returned by getWidth()
