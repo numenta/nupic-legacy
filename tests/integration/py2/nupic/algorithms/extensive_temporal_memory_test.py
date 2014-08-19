@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from prettytable import PrettyTable
 from random import shuffle
 import unittest2 as unittest
 
@@ -76,7 +77,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B2) Same as above, except P=2. Test that permanences go up and that no
   additional synapses are learned. [TODO]
 
-  B3) N=300, M=1, P=1. (See how high we can go with M) [TODO]
+  B3) N=300, M=1, P=1. (See how high we can go with N)
 
   B4) N=100, M=3, P=1. (See how high we can go with N*M) [TODO]
 
@@ -139,8 +140,61 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     averagePredictedActiveColumns = stats[2][3]
     self.assertEqual(averagePredictedActiveColumns, 23)
 
-    maxPredictedInactiveCells = stats[1][1]
-    self.assertTrue(maxPredictedInactiveCells < 3)
+    maxPredictedInactiveColumns = stats[1][1]
+    self.assertTrue(maxPredictedInactiveColumns < 3)
+
+
+  def testB3(self):
+    """N=300, M=1, P=1. (See how high we can go with N)"""
+    self.initTM()
+    self.finishSetUp(PatternMachine(
+      self.tm.connections.numberOfColumns(), 23, num=300))
+
+    numbers = range(300)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    sumUnpredictedActiveColumns = stats[4][2]
+    self.assertEqual(sumUnpredictedActiveColumns, 0)
+
+    averagePredictedActiveColumns = stats[2][3]
+    self.assertEqual(averagePredictedActiveColumns, 23)
+
+    maxPredictedInactiveColumns = stats[1][1]
+    self.assertTrue(maxPredictedInactiveColumns < 15)
+
+
+  # ==============================
+  # Overrides
+  # ==============================
+
+  @classmethod
+  def setUpClass(cls):
+    cls.allStats = []
+
+
+  @classmethod
+  def tearDownClass(cls):
+    cols = ["Test",
+            "predicted active columns (stats)",
+            "predicted inactive columns (stats)",
+            "unpredicted active columns (stats)",
+            "predicted active cells (stats)",
+            "predicted inactive cells (stats)"]
+
+    table = PrettyTable(cols)
+
+    for stats in cls.allStats:
+      row = [stats[0]] + list(stats[1])
+      table.add_row(row)
+
+    print table
+    print "(stats) => (min, max, sum, average, standard deviation)"
 
 
   # ==============================
@@ -150,6 +204,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   def _testTM(self, sequence):
     detailedResults = self.feedTM(sequence, learn=False)
     stats = self.tmTestMachine.computeStatistics(detailedResults, sequence)
+
+    self.allStats.append((self.id(), stats))
 
     return detailedResults, stats
 
