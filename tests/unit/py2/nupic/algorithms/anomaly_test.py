@@ -73,10 +73,10 @@ class AnomalyTest(unittest.TestCase):
   def testAnomalyCumulative(self):
     """cumulative anomaly implementation"""
     anomalyCum = Anomaly(slidingWindowSize = 3)
-    predicted = [array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6])]
-    actual =    [array([1, 2, 6]), array([1, 2, 6]), array([1, 4, 6]), array([10, 11, 6]), array([10, 11, 12]), array([10, 11, 12]), array([10, 11, 12]), array([1, 2, 6]), array([1, 2, 6])]
+    predicted = (array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]))
+    actual =    (array([1, 2, 6]), array([1, 2, 6]), array([1, 4, 6]), array([10, 11, 6]), array([10, 11, 12]), array([10, 11, 12]), array([10, 11, 12]), array([1, 2, 6]), array([1, 2, 6]))
     anomaly = [] # to be computed
-    anomalyExpected = [0, 0, 1/float(9), (1+2)/float(9), 2/float(3), 8/float(9), 1, 2/float(3), 1/float(3)]
+    anomalyExpected = (0, 0, 1/9.0, (1+2)/9.0, 2/3.0, 8/9.0, 1, 2/3.0, 1/3.0)
 
     # run anomalies
     for i in range(len(actual)): 
