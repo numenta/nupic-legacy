@@ -24,6 +24,7 @@ import imp
 
 from nupic.data.dictutils import rUpdate
 
+
 # This file contains utility functions that are used
 # internally by the prediction framework and may be imported
 # by description files. Functions that are used only by

@@ -19,9 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from collections import namedtuple
+
 import numpy
 from utils import bitsToString
-from collections import namedtuple
 
 
 defaultDtype = numpy.uint8

@@ -19,12 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-
 import numpy
 from numpy import *
 import random
 import copy
-import sys
 import itertools
 
 random.seed(42)

@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 import datetime
-import numpy
 
+import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder

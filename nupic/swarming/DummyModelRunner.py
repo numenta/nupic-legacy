@@ -20,34 +20,17 @@
 # ----------------------------------------------------------------------
 
 import copy
-import functools
 import itertools
 import json
-import logging
 import math
 import os
 import random
-import shutil
-import signal
 import sys
-import tempfile
 import time
-import types
 
-from nupic.frameworks.opf.opfbasicenvironment import (
-  BasicPredictionLogger)
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.frameworks.opf.metrics import MetricSpec
-from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
-                                             PeriodicActivityRequest)
 from nupic.frameworks.opf.opfutils import ModelResult
-from nupic.support.serializationutils import sortedJSONDumpS
-from nupic.support.configuration import Configuration
-from nupic.support.errorcodes import ErrorCodes
-
-from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import utils
 from nupic.swarming.ModelRunner import OPFModelRunner
 

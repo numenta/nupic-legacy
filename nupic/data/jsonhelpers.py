@@ -38,8 +38,8 @@ import json
 import math
 import os
 
-
 import validictory
+
 
 class ValidationError(validictory.ValidationError):
   pass

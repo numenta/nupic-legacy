@@ -19,18 +19,17 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
-import sys
 import os
 
+import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.research.FDRCSpatial2 import FDRCSpatial2
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
 from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
 import nupic.research.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
-
 from PyRegion import PyRegion
+
 
 
 ##############################################################################

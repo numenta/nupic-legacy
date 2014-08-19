@@ -20,10 +20,8 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-import os
 import numpy
 from PyRegion import PyRegion
-from datetime import datetime, timedelta
 from nupic.data.fieldmeta import FieldMetaType
 
 #-------------------------------------------------------------------------------
