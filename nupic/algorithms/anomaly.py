@@ -26,8 +26,10 @@ import numpy
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 import nupic
 
-def pureAnomaly(activeColumns, prevPredictedColumns):
-    """the pure anomaly score 
+def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
+    """Computes the raw anomaly score.
+
+    The raw anomaly score is the fraction of active columns not predicted.
 
     computed as diff of current active columns and columns predicted from previous round
     @param activeColumns: array of active column indices
@@ -120,7 +122,7 @@ class Anomaly(object):
       self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
 
     # 1. here is the 'classic' anomaly score
-    anomalyScore = pureAnomaly(activeColumns, prevPredictedColumns)
+    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
 
 
     # compute final anomaly based on selected mode
