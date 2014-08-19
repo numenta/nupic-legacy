@@ -21,6 +21,7 @@
 # ----------------------------------------------------------------------
 
 import pprint
+import unittest2 as unittest
 
 from nupic.data.pattern_machine import ConsecutivePatternMachine
 
@@ -261,3 +262,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
       learnText, numText, sequenceText)
     print
 
+
+
+if __name__ == "__main__":
+  unittest.main()

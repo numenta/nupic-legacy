@@ -21,6 +21,7 @@
 # ----------------------------------------------------------------------
 
 from random import shuffle
+import unittest2 as unittest
 
 import numpy
 
@@ -172,6 +173,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     stats = tuple([computeStats(result) for result in detailedResults])
     return detailedResults, stats
+
 
 
 if __name__ == "__main__":
