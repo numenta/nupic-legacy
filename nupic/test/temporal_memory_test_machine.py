@@ -134,7 +134,7 @@ class TemporalMemoryTestMachine(object):
     Note: The first element of the sequence and any resets are ignored
     when computing stats.
 
-    @param detailedResults (list)           Detailed results from
+    @param detailedResults (tuple)          Detailed results from
                                             `computeDetailedResults`
     @param sequence        (list)           Sequence that generated the results
 
@@ -160,7 +160,7 @@ class TemporalMemoryTestMachine(object):
     """
     Pretty print the detailed results from `feedSequence`.
 
-    @param detailedResults (list)           Detailed results from
+    @param detailedResults (tuple)          Detailed results from
                                             `computeDetailedResults`
     @param sequence        (list)           Sequence that generated the results
     @param patternMachine  (PatternMachine) Pattern machine
