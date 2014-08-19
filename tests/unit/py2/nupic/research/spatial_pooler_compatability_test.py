@@ -388,6 +388,44 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSerialize("py", params)
     self.runSerialize("cpp", params)
 
+  # test for equivalent permanence initialization
+  def testPermInit(self):
+    params = {
+      'inputDimensions' : [2,8,4],
+      'columnDimensions' : [9,3,6],
+      'potentialRadius' : 1000,
+      'potentialPct' : 0.8,
+      'globalInhibition' : True,
+      'localAreaDensity' : -1,
+      'numActiveColumnsPerInhArea' : 3,
+      'stimulusThreshold' : 0,
+      'synPermInactiveDec' : 0.001,
+      'synPermActiveInc' : 0.001,
+      'synPermConnected' : 0.3,
+      'minPctOverlapDutyCycle' : 0.001,
+      'minPctActiveDutyCycle' : 0.001,
+      'dutyCyclePeriod' : 1000,
+      'maxBoost' : 1.0,
+      'seed' : 1956,
+      'spVerbosity' : 0
+    }
+    def max_perm(sp):
+      numCols = sp.getNumColumns()
+      numInputs = sp.getNumInputs()
+      perm = numpy.zeros(numInputs)
+      max_perm = 0
+      for col in range(numCols):
+        sp.getPermanence(col, perm)
+        column_max = perm.max()
+        if column_max > max_perm:
+          max_perm = column_max
+      return max_perm
+ 
+    pySP = CreateSP("py", params)
+    cppSP = CreateSP("cpp", params)
+    self.assertAlmostEqual(max_perm(pySP), max_perm(cppSP))
+
+
 
 if __name__ == "__main__":
   unittest.main()
