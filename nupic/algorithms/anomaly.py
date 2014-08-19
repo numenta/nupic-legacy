@@ -78,7 +78,6 @@ class Anomaly(object):
                                         used in Grok
                            -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
     """
-#    self.pureAnomaly = staticmethod(pureAnomaly)
 
     # using TP
     if useTP is not None and isinstance(useTP, nupic.frameworks.opf.clamodel.CLAModel):
@@ -100,8 +99,8 @@ class Anomaly(object):
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not (self._mode in Anomaly._supportedModes):
-      raise ValueError("Invalid anomaly mode; only supported modes are: \"pure\",\
-                       \"likelihood\", \"weighted\"; you used:"+self._mode)
+      raise ValueError('Invalid anomaly mode; only supported modes are: "pure",\
+                       "likelihood", "weighted"; you used:' +self._mode)
 
 
 
