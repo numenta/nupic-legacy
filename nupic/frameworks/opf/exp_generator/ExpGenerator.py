@@ -30,30 +30,22 @@ import types
 import json
 import re
 import sys
-import math
-from datetime import timedelta
 import copy
-import shutil
-import itertools as iter
 import pprint
-import string
-import collections
-import traceback
-import validictory
 import tempfile
-from optparse import (OptionParser, OptionGroup)
+from optparse import OptionParser
 
+import validictory
 from pkg_resources import resource_stream
 
-from nupic.data.dictutils import DictObj
 from nupic.frameworks.opf import jsonschema
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
-
 from nupic.support import aggregationDivide
 from nupic.support.configuration import Configuration
 from nupic.support.enum import Enum
+
 
 
 #############################################################################
@@ -68,7 +60,7 @@ METRIC_WINDOW = int(Configuration.get("nupic.opf.metricWindow"))
 
 #############################################################################
 # Enum to characterize potential generation environments
-OpfEnvironment = Enum(Grok='grok',
+OpfEnvironment = Enum(Nupic='nupic',
                       Experiment='opfExperiment')
 
 
@@ -1585,9 +1577,9 @@ def _generateExperiment(options, outputDirPath, hsVersion,
   # -----------------------------------------------------------------------
   # Generate Control dictionary
   environment = options['environment']
-  if environment == OpfEnvironment.Grok:
-    tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Grok
-    controlTemplate = "grokEnvironmentTemplate.tpl"
+  if environment == OpfEnvironment.Nupic:
+    tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Nupic
+    controlTemplate = "nupicEnvironmentTemplate.tpl"
   elif environment == OpfEnvironment.Experiment:
     tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Experiment
     controlTemplate = "opfExperimentTemplate.tpl"

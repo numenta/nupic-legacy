@@ -29,9 +29,9 @@ import itertools
 import logging
 import optparse
 import os
-import random
 import sys
 
+import random
 import numpy
 
 from nupic.data import jsonhelpers
@@ -376,11 +376,11 @@ def _runExperimentImpl(options, model=None):
   # Load experiment tasks
   experimentTasks = expIface.getModelControl().get('tasks', [])
 
-  # If the tasks list is empty, and this is a grok environment description
+  # If the tasks list is empty, and this is a nupic environment description
   # file being run from the OPF, convert it to a simple OPF description file.
   if (len(experimentTasks) == 0 and
-      expIface.getModelControl()['environment'] == OpfEnvironment.Grok):
-    expIface.convertGrokEnvToOPF()
+      expIface.getModelControl()['environment'] == OpfEnvironment.Nupic):
+    expIface.convertNupicEnvToOPF()
     experimentTasks = expIface.getModelControl().get('tasks', [])
 
   # Handle listTasks
@@ -656,7 +656,7 @@ class _TaskRunner(object):
     # Reset sequence states in the model, so it starts looking for a new
     # sequence
     # TODO: should this be done in OPFTaskDriver.setup(), instead?  Is it always
-    #       desired in Grok?
+    #       desired in Nupic?
     self.__model.resetSequenceStates()
 
     # Have Task Driver perform its initial setup activities, including setup
@@ -696,7 +696,7 @@ class _TaskRunner(object):
     # Reset sequence states in the model, so it starts looking for a new
     # sequence
     # TODO: should this be done in OPFTaskDriver.setup(), instead?  Is it always
-    #       desired in Grok?
+    #       desired in Nupic?
     self.__model.resetSequenceStates()
 
 

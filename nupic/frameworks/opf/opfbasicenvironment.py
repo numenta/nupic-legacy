@@ -24,7 +24,7 @@ This script provides a file-based implementation of the opfenvironment
 interfaces (OPF).
 
 This "basic" implementation of the interface (need a better name
-instead of "basic") uses files (.csv, etc.) versus Grok's implementation
+instead of "basic") uses files (.csv, etc.) versus Nupic's implementation
 that would use databases.
 
 This implementation is used by research tools, such as run_opf_experiment.
@@ -35,39 +35,25 @@ databse, etc.), report and serialization destination,  etc.
 """
 
 from abc import ABCMeta, abstractmethod
-from collections import deque
 import copy
 import csv
-import itertools
 import json
 import logging
 import logging.handlers
-import numpy
 import os
-import re
 import shutil
 import StringIO
-import datetime
-
 
 import opfutils
-
 import opfenvironment as opfenv
-
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data.stream_reader import StreamReader
-
-from nupic.data.fieldmeta import (
-  FieldMetaInfo,
-  FieldMetaType,
-  FieldMetaSpecial)
-
+from nupic.data.fieldmeta import (FieldMetaInfo,
+                                  FieldMetaType,
+                                  FieldMetaSpecial)
 from nupic.data.inference_shifter import InferenceShifter
+from opfutils import InferenceType, InferenceElement
 
-from opfutils import (InferenceType,
-                      InferenceElement,
-                      matchPatterns,
-                      ModelResult)
 
 
 

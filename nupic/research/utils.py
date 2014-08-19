@@ -20,7 +20,6 @@
 # ----------------------------------------------------------------------
 
 import numpy
-from nupic.bindings.math import getGlobalEpsilon
 
 # ------------------------------------------------
 def importAndRunFunction(

@@ -32,7 +32,7 @@ def getSearch(rootDir):
     
   The streamDef element defines the stream for this model. The schema for this
   element can be found at:
-    py/grokengine/cluster/database/StreamDef.json
+    py/nupicengine/cluster/database/StreamDef.json
     
   """
   
@@ -51,7 +51,7 @@ def getSearch(rootDir):
 
   # Generate the experiment description
   expDesc = {
-    "environment": 'grok',
+    "environment": 'nupic',
     "inferenceArgs":{
       "predictedField":"classification",
       "predictionSteps": [0],

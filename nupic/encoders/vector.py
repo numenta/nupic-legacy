@@ -19,8 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
-
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType

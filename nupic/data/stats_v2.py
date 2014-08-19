@@ -18,17 +18,17 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from nupic.regions.RecordSensor import RecordSensor
 
-import itertools, pprint
+import itertools
+import pprint
 import operator
-import numpy
 from collections import defaultdict
 
+import numpy
 from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
-
 from nupic.encoders import date as DateEncoder
+
 
 VERBOSITY = 0
 

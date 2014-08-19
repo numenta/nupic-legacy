@@ -21,19 +21,14 @@
 
 """External API for hypersearch-related functions."""
 
-
 import json
 import os
 import shutil
 import tempfile
 
-
 from nupic.frameworks.opf import opfhelpers
-
-
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support.configuration import Configuration
-
 
 
 def createAndStartSwarm(client, clientInfo="", clientKey="", params="",

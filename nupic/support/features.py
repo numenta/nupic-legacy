@@ -29,7 +29,7 @@ Summary:
   Based on the environment your program is run in you may want various features
   to be displayed and others not.
 
-  Based on the type of user who is using Grok you may want them to see various
+  Based on the type of user who is using Nupic you may want them to see various
   features and not others.
 
   These two things can be accomplished using Feature Flags.
@@ -51,10 +51,10 @@ Summary:
 '''
 import os
 import sys
-import imp
 
 from nupic.support.features_list import FEATURES_LIST
 from nupic.support.feature_groups import GROUPS
+
 
 class Features(object):
   '''
@@ -105,7 +105,7 @@ class Features(object):
 
     # Caclulate developer configuration
     if 'TRUNK' in os.environ:
-      confDir = os.path.join(os.environ['TRUNK'], 'conf')
+      confDir = os.path.join(os.environ['TRUNK'], 'config')
       confFilepath = os.path.join(confDir, 'developer.py')
       if os.path.exists(confFilepath):
         sys.path.append(confDir)

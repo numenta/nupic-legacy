@@ -25,7 +25,6 @@
 This file contains k Nearest Neighbor classifier.
 """
 
-import sys
 import numpy
 
 from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
@@ -78,7 +77,7 @@ class KNNClassifier(object):
       binarizationThreshold=0.5, # Threshold for binarization of inputs.
       useSparseMemory=True,      # Use sparse memory matrix
       sparseThreshold=0.1,       # Anything below this threshold is considered zero.
-      relativeThreshold=False,   # Multiple the threshold by the max input value
+      relativeThreshold=False,   # Multiply the threshold by the max input value
       numWinners=0,              # Only numWinners elements of input are stored
       numSVDSamples=None,        # Number of samples to do SVD after
       numSVDDims=None,           # % of the dims to keep after SVD
