@@ -24,6 +24,11 @@ import unittest2 as unittest
 from nupic.data.sequence_machine import SequenceMachine
 from nupic.test.temporal_memory_test_machine import TemporalMemoryTestMachine
 from nupic.research.temporal_memory import TemporalMemory
+from nupic.research.temporal_memory_shim import TemporalMemoryShim
+
+
+
+TemporalMemoryClass = TemporalMemory
 
 
 
@@ -43,7 +48,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
 
   def initTM(self, overrides=None):
     params = self.computeTMParams(overrides)
-    self.tm = TemporalMemory(**params)
+    self.tm = TemporalMemoryClass(**params)
 
 
   def finishSetUp(self, patternMachine):
