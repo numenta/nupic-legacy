@@ -64,6 +64,47 @@ class TemporalMemoryTestMachine(object):
     return results
 
 
+  def computeDetailedResult(self, prevPredictedCells, pattern):
+    """
+    Compute detailed result from previous predicted cells and pattern.
+
+    @param prevPredictedCells (set) Predicted cells at `t-1`
+    @param pattern            (set) Current pattern
+
+    @return (tuple) Contains:
+                      `predictedActiveCells`     (set),
+                      `predictedInactiveCells`   (set),
+                      `predictedActiveColumns`   (set),
+                      `predictedInactiveColumns` (set),
+                      `unpredictedActiveColumns` (set)
+    """
+    predictedActiveCells = set()
+    predictedInactiveCells = set()
+    predictedActiveColumns = set()
+    predictedInactiveColumns = set()
+
+    for prevPredictedCell in prevPredictedCells:
+      prevPredictedColumn = self.tm.connections.columnForCell(
+        prevPredictedCell)
+
+      if prevPredictedColumn in pattern:
+        predictedActiveCells.add(prevPredictedCell)
+        predictedActiveColumns.add(prevPredictedColumn)
+      else:
+        predictedInactiveCells.add(prevPredictedCell)
+        predictedInactiveColumns.add(prevPredictedColumn)
+
+    unpredictedActiveColumns = pattern - predictedActiveColumns
+
+    return (
+      predictedActiveCells,
+      predictedInactiveCells,
+      predictedActiveColumns,
+      predictedInactiveColumns,
+      unpredictedActiveColumns
+    )
+
+
   def computeDetailedResults(self, results, sequence):
     """
     Compute detailed results from results of `feedSequence`.
@@ -96,19 +137,13 @@ class TemporalMemoryTestMachine(object):
 
       if pattern != None:
         prevPredictedCells = results[i-1]
-
-        for prevPredictedCell in prevPredictedCells:
-          prevPredictedColumn = self.tm.connections.columnForCell(
-                                  prevPredictedCell)
-
-          if prevPredictedColumn in pattern:
-            predictedActiveCells.add(prevPredictedCell)
-            predictedActiveColumns.add(prevPredictedColumn)
-          else:
-            predictedInactiveCells.add(prevPredictedCell)
-            predictedInactiveColumns.add(prevPredictedColumn)
-
-        unpredictedActiveColumns = pattern - predictedActiveColumns
+        (
+          predictedActiveCells,
+          predictedInactiveCells,
+          predictedActiveColumns,
+          predictedInactiveColumns,
+          unpredictedActiveColumns
+        ) = self.computeDetailedResult(prevPredictedCells, pattern)
 
       predictedActiveCellsList.append(predictedActiveCells)
       predictedInactiveCellsList.append(predictedInactiveCells)
