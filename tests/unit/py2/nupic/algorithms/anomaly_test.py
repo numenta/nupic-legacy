@@ -76,14 +76,13 @@ class AnomalyTest(unittest.TestCase):
     predicted = (array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]))
     actual =    (array([1, 2, 6]), array([1, 2, 6]), array([1, 4, 6]), array([10, 11, 6]), array([10, 11, 12]), array([10, 11, 12]), array([10, 11, 12]), array([1, 2, 6]), array([1, 2, 6]))
     anomaly = [] # to be computed
-    anomalyExpected = (0, 0, 1/9.0, (1+2)/9.0, 2/3.0, 8/9.0, 1, 2/3.0, 1/3.0)
+    anomalyExpected = (0.0, 0.0, 1/9.0, (1+2)/9.0, 2/3.0, 8/9.0, 1.0, 2/3.0, 1/3.0)
 
     # run anomalies
     for i in range(len(actual)): 
       score = anomalyCum.computeAnomalyScore(actual[i], predicted[i])
       anomaly.extend([score])
-
-    self.assertEqual(anomaly, anomalyExpected, "not equal anomaly and expected " + str(anomaly) + " vs " + str(anomalyExpected))
+      self.assertAlmostEqual(anomaly[i], anomalyExpected[i], "not equal anomaly and expected " + str(anomaly) + " vs " + str(anomalyExpected))
 
 
 if __name__ == "__main__":
