@@ -23,6 +23,7 @@
 Utilities for running data through the TM, and analyzing the results.
 """
 
+import numpy
 from prettytable import PrettyTable
 
 
@@ -120,6 +121,35 @@ class TemporalMemoryTestMachine(object):
             predictedActiveColumnsList,
             predictedInactiveColumnsList,
             unpredictedActiveColumnsList)
+
+
+  @staticmethod
+  def computeStatistics(detailedResults, sequence):
+    """
+    Returns statistics for the given detailed results.
+    Each element in the returned tuple is itself a tuple with the following form:
+
+        (min, max, sum, average, standard deviation)
+
+    Note: The first element of the sequence and any resets are ignored
+    when computing stats.
+
+    @param detailedResults (list)           Detailed results from
+                                            `computeDetailedResults`
+    @param sequence        (list)           Sequence that generated the results
+
+    @return (tuple) Statistics for detailed results
+    """
+    def statsForResult(result):
+      counts = [len(x) for idx, x in enumerate(result)
+                if idx > 0 and sequence[idx] is not None]
+      return (min(counts),
+              max(counts),
+              sum(counts),
+              numpy.mean(counts),
+              numpy.std(counts))
+
+    return tuple([statsForResult(result) for result in detailedResults])
 
 
   @staticmethod

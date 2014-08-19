@@ -88,6 +88,19 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
     self.assertEqual(len(unpredictedActiveColumnsList[-1]), 5)
 
 
+  def testComputeStatistics(self):
+    sequence = self._generateSequence()
+
+    results = self.tmTestMachine.feedSequence(sequence)
+    detailedResults = self.tmTestMachine.computeDetailedResults(results,
+                                                                sequence)
+    stats = self.tmTestMachine.computeStatistics(detailedResults, sequence)
+
+    self.assertEqual(len(stats), 5)
+    self.assertEqual(stats[1][2], 0)
+    self.assertEqual(stats[3][2], 0)
+
+
   # ==============================
   # Helper functions
   # ==============================

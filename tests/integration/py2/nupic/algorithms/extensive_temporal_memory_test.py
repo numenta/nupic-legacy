@@ -23,8 +23,6 @@
 from random import shuffle
 import unittest2 as unittest
 
-import numpy
-
 from nupic.data.pattern_machine import PatternMachine
 
 from abstract_temporal_memory_test import AbstractTemporalMemoryTest
@@ -150,28 +148,9 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   # ==============================
 
   def _testTM(self, sequence):
-    """
-    Returned `stats` contains statistics for the detailed results returned by
-    `feedTM`.
-    Each element in the stats list is a tuple with the following form:
-
-        (min, max, sum, average, standard deviation)
-
-    Note: The first element of the sequence and any resets are ignored
-    when computing stats.
-    """
     detailedResults = self.feedTM(sequence, learn=False)
+    stats = self.tmTestMachine.computeStatistics(detailedResults, sequence)
 
-    def computeStats(result):
-      counts = [len(x) for idx, x in enumerate(result)
-                  if idx > 0 and sequence[idx] is not None]
-      return (min(counts),
-              max(counts),
-              sum(counts),
-              numpy.mean(counts),
-              numpy.std(counts))
-
-    stats = tuple([computeStats(result) for result in detailedResults])
     return detailedResults, stats
 
 
