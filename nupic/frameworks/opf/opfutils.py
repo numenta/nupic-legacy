@@ -43,6 +43,7 @@ class InferenceElement(Enum(
               encodings="encodings",
               classification="classification",
               anomalyScore="anomalyScore",
+              anomalyLabel="anomalyLabel",
               classConfidences="classConfidences",
               multiStepPredictions="multiStepPredictions",
               multiStepBestPredictions="multiStepBestPredictions",
@@ -106,6 +107,7 @@ class InferenceElement(Enum(
     # For classification, anomaly scores, the inferences immediately succeed the
     # inputs
     if inferenceElement in (InferenceElement.anomalyScore,
+                            InferenceElement.anomalyLabel,
                             InferenceElement.classification,
                             InferenceElement.classConfidences):
       return 0
