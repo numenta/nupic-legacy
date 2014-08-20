@@ -193,7 +193,7 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
-    self._anomalyInst = None
+    self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -209,9 +209,6 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
-      self._anomalyInst = Anomaly(useTP=self)
-    else:
-      self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -626,7 +623,8 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
-      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns,[]))
+      predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
+      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns,predictedColumns))
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
@@ -970,18 +968,8 @@ class CLAModel(Model):
     """
     Returns reference to the network's TP region
     """
-#TODO remove:    raise Exception("XXX"+str(self._getTP())+" type="+str(type(self._getTP())))
     return self._netInfo.net.regions.get('TP', None)
-
   
-  def _getTP(self):
-    """expose TP used"""
-    tp = self._netInfo.net.regions.get('TP', None)
-    if tp is None:
-      return None
-    else:
-      return tp._get("_getTP")
-
 
   def _getSensorRegion(self):
     """
@@ -1304,10 +1292,7 @@ class CLAModel(Model):
     # -----------------------------------------------------------------------
     # Migrate from when Anomaly was not separate class
     if not hasattr(self, "_anomalyInst"):
-      if self._hasTP is False: 
-        self._anomalyInst = Anomaly()
-      else:
-        self._anomalyInst = Anomaly(useTP = self)
+      self._anomalyInst = Anomaly()
 
 
     # This gets filled in during the first infer because it can only be
