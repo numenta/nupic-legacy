@@ -625,6 +625,18 @@ class CLAModel(Model):
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
       score = (self._anomalyInst.computeAnomalyScore(activeColumns,predictedColumns))
 
+      # Calculate the classifier's output and use the result as the anomaly
+      # label. Stores as string of results.
+
+      # TODO: make labels work with non-SP models
+      if sp is not None:
+        self._getAnomalyClassifier().setParameter(
+            "activeColumnCount", len(activeColumns))
+        self._getAnomalyClassifier().prepareInputs()
+        self._getAnomalyClassifier().compute()
+        labels = self._getAnomalyClassifier().getSelf().getLabelResults()
+        inferences[InferenceElement.anomalyLabel] = "%s" % labels
+
     inferences[InferenceElement.anomalyScore] = score
     return inferences
 
