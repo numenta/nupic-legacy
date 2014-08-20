@@ -32,7 +32,6 @@ from abstract_temporal_memory_test import AbstractTemporalMemoryTest
 class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   VERBOSITY = 1
-
   DEFAULT_TM_PARAMS = {
     "columnDimensions": [6],
     "cellsPerColumn": 4,
@@ -44,13 +43,12 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     "permanenceDecrement": 0.05,
     "activationThreshold": 1
   }
+  PATTERN_MACHINE = ConsecutivePatternMachine(6, 1)
 
 
   def testA(self):
     """Basic first order sequences"""
-    self.initTM()
-    self.finishSetUp(ConsecutivePatternMachine(
-                       self.tm.connections.numberOfColumns(), 1))
+    self.init()
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
 
@@ -70,9 +68,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testB(self):
     """High order sequences (in order)"""
-    self.initTM()
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init()
 
     sequenceA = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
     sequenceB = self.sequenceMachine.generateFromNumbers([4, 1, 2, 5, None])
@@ -121,9 +117,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testC(self):
     """High order sequences (alternating)"""
-    self.initTM()
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init()
 
     sequence  = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
     sequence += self.sequenceMachine.generateFromNumbers([4, 1, 2, 5, None])
@@ -147,9 +141,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testD(self):
     """Endlessly repeating sequence of 2 elements"""
-    self.initTM({"columnDimensions": [2]})
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init({"columnDimensions": [2]})
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1])
 
@@ -161,11 +153,9 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testE(self):
     """Endlessly repeating sequence of 2 elements with maxNewSynapseCount=1"""
-    self.initTM({"columnDimensions": [2],
-                 "maxNewSynapseCount": 1,
-                 "cellsPerColumn": 10})
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init({"columnDimensions": [2],
+               "maxNewSynapseCount": 1,
+               "cellsPerColumn": 10})
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1])
 
@@ -177,9 +167,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testF(self):
     """Long repeating sequence with novel pattern at the end"""
-    self.initTM({"columnDimensions": [3]})
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init({"columnDimensions": [3]})
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1])
     sequence *= 10
@@ -193,9 +181,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testG(self):
     """A single endlessly repeating pattern"""
-    self.initTM({"columnDimensions": [1]})
-    self.finishSetUp(ConsecutivePatternMachine(
-      self.tm.connections.numberOfColumns(), 1))
+    self.init({"columnDimensions": [1]})
 
     sequence = [self.patternMachine.get(0)]
 
@@ -221,8 +207,8 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     ).format(self.id(), self.shortDescription())
 
 
-  def initTM(self, *args, **kwargs):
-    super(TutorialTemporalMemoryTest, self).initTM(*args, **kwargs)
+  def init(self, *args, **kwargs):
+    super(TutorialTemporalMemoryTest, self).init(*args, **kwargs)
 
     print "Initialized new TM with parameters:"
     print pprint.pformat(self.computeTMParams(kwargs.get("overrides")))

@@ -35,8 +35,8 @@ TemporalMemoryClass = TemporalMemory
 class AbstractTemporalMemoryTest(unittest.TestCase):
 
   VERBOSITY = 1
-
   DEFAULT_TM_PARAMS = {}
+  PATTERN_MACHINE = None
 
 
   def setUp(self):
@@ -46,13 +46,16 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     self.tmTestMachine = None
 
 
-  def initTM(self, overrides=None):
+  def init(self, overrides=None):
+    """
+    Initialize Temporal Memory, and other member variables.
+
+    :param overrides: overrides for default Temporal Memory parameters
+    """
     params = self.computeTMParams(overrides)
     self.tm = TemporalMemoryClass(**params)
 
-
-  def finishSetUp(self, patternMachine):
-    self.patternMachine = patternMachine
+    self.patternMachine = self.PATTERN_MACHINE
     self.sequenceMachine = SequenceMachine(self.patternMachine)
     self.tmTestMachine = TemporalMemoryTestMachine(self.tm)
 
