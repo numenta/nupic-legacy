@@ -46,13 +46,13 @@ class PatternMachine(object):
     @param num (int)      Number of available patterns
     """
     # Save member variables
-    self.n = n
+    self._n = n
     self._w = w
-    self.num = num
+    self._num = num
 
     # Initialize member variables
     random.seed(seed)
-    self.patterns = dict()
+    self._patterns = dict()
 
     self._generate()
 
@@ -65,10 +65,10 @@ class PatternMachine(object):
 
     @return (set) Indices of on bits
     """
-    if not number in self.patterns:
+    if not number in self._patterns:
       raise IndexError("Invalid number")
 
-    return self.patterns[number]
+    return self._patterns[number]
 
 
   def numbersForBit(self, bit):
@@ -79,12 +79,12 @@ class PatternMachine(object):
 
     @return (set) Indices of numbers
     """
-    if bit >= self.n:
+    if bit >= self._n:
       raise IndexError("Invalid bit")
 
     numbers = set()
 
-    for index, pattern in self.patterns.iteritems():
+    for index, pattern in self._patterns.iteritems():
       if bit in pattern:
         numbers.add(index)
 
@@ -152,9 +152,9 @@ class PatternMachine(object):
     """
     Generates set of random patterns.
     """
-    for i in xrange(self.num):
-      pattern = random.sample(xrange(self.n), self._getW())
-      self.patterns[i] = set(pattern)
+    for i in xrange(self._num):
+      pattern = random.sample(xrange(self._n), self._getW())
+      self._patterns[i] = set(pattern)
 
 
   def _getW(self):
@@ -180,11 +180,11 @@ class ConsecutivePatternMachine(PatternMachine):
     """
     Generates set of consecutive patterns.
     """
-    n = self.n
+    n = self._n
     w = self._w
 
     assert type(w) is int, "List for w not supported"
 
     for i in xrange(n / w):
       pattern = set(xrange(i * w, (i+1) * w))
-      self.patterns[i] = pattern
+      self._patterns[i] = pattern
