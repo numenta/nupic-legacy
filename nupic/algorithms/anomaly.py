@@ -56,7 +56,11 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
 
 
 class Anomaly(object):
-  """basic class that computes anomaly"""
+  """basic class that computes anomaly
+
+     Anomaly is used to detect strange patterns/behaviors (outliners) by a trained CLA model. 
+     
+  """
 
 
   # anomaly modes supported
@@ -66,7 +70,7 @@ class Anomaly(object):
   _supportedModes = [MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED]
 
 
-  def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode="pure"):
+  def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode=MODE_PURE):
     """
     @param (optional) useTP -- tp temporal pooler instance used
     @param (optional) slidingWindowSize -- enables moving average on final 
@@ -82,11 +86,12 @@ class Anomaly(object):
     """
 
     # using TP
-    if useTP is not None and isinstance(useTP, nupic.frameworks.opf.clamodel.CLAModel):
+    if useTP is not None and isinstance(useTP, nupic.frameworks.opf.clamodel.CLAModel): #TODO: FIXME: this should be a TP instance, not CLAModel, but currently I don't knnow
+# how to access a TP part from a provided CLAmodel (and our code uses the CLAmodel now passed to Anomaly)
       self._tp = useTP
       self._prevPredictedColumns = numpy.array([])
     elif useTP is not None:
-      raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP)))
+      raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP))+" expected: nupic.frameworks.opf.clamodel.CLAModel")
 
     # using cumulative anomaly , sliding window
     if slidingWindowSize > 0:
@@ -101,8 +106,8 @@ class Anomaly(object):
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not (self._mode in Anomaly._supportedModes):
-      raise ValueError('Invalid anomaly mode; only supported modes are: "pure",\
-                       "likelihood", "weighted"; you used:' +self._mode)
+      raise ValueError('Invalid anomaly mode; only supported modes are: "Anomaly.MODE_PURE",\
+                       "Anomaly.MODE_LIKELIHOOD", "Anomaly.MODE_WEIGHTED"; you used:' +self._mode)
 
 
 
