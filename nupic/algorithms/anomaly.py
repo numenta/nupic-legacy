@@ -70,9 +70,8 @@ class Anomaly(object):
   _supportedModes = [MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED]
 
 
-  def __init__(self, useTP = None, slidingWindowSize = None, anomalyMode=MODE_PURE):
+  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE):
     """
-    @param (optional) useTP -- tp temporal pooler instance used
     @param (optional) slidingWindowSize -- enables moving average on final 
             anomaly score; how many elements are summed up, sliding window size; int >= 0
     @param (optional) anomalyMode -- (string) which way to use to compute anomaly; 
@@ -84,14 +83,6 @@ class Anomaly(object):
                                         used in Grok
                            -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
     """
-
-    # using TP
-    if useTP is not None and isinstance(useTP, nupic.frameworks.opf.clamodel.CLAModel): #TODO: FIXME: this should be a TP instance, not CLAModel, but currently I don't knnow
-# how to access a TP part from a provided CLAmodel (and our code uses the CLAmodel now passed to Anomaly)
-      self._tp = useTP
-      self._prevPredictedColumns = numpy.array([])
-    elif useTP is not None:
-      raise Exception("Anomaly: you've provided instance of TP, but it does not look as a correct temporal pooler object: "+str(type(useTP))+" expected: nupic.frameworks.opf.clamodel.CLAModel")
 
     # using cumulative anomaly , sliding window
     if slidingWindowSize > 0:
@@ -115,20 +106,14 @@ class Anomaly(object):
     """Compute the anomaly score as the percent of active columns not predicted.
   
     @param activeColumns: array of active column indices
-    @param prevPredictedColumns: array of columns indices predicted in previous step (ignored with useTP != None)
+    @param prevPredictedColumns: array of columns indices predicted in previous step
     @param value: (optional) input value, that is what activeColumns represent; used in anomaly-likelihood
     @param timestamp: (optional) date timestamp when the sample occured; used in anomaly-likelihood
     @return the computed anomaly score; float 0..1
     """
 
-    # using TP provided during init, _prevPredColumns stored internally here
-    if hasattr(self, "_tp"):
-      prevPredictedColumns = self._prevPredictedColumns # override the values passed by parameter with the stored value
-      self._prevPredictedColumns = self._tp._getTPRegion().getOutputData("topDownOut").nonzero()[0] 
-
     # 1. here is the 'classic' anomaly score
     anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
 
     # compute final anomaly based on selected mode
     if self._mode == Anomaly.MODE_PURE:

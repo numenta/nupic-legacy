@@ -64,12 +64,6 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
-  def testAnomalyUseTP(self):
-    """anomaly implementation that is using provided temporal pooler"""
-    # TODO
-    pass
-
-
   def testAnomalyCumulative(self):
     """cumulative anomaly implementation"""
     anomalyCum = Anomaly(slidingWindowSize = 3)
