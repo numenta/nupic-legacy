@@ -606,25 +606,23 @@ class CLAModel(Model):
     """
     inferenceType = self.getInferenceType()
     inferences = {}
+    sp = self._getSPRegion()
     if inferenceType == InferenceType.NontemporalAnomaly:
-      sp = self._getSPRegion()
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
-      inferences[InferenceElement.anomalyScore] = score
 
     elif inferenceType == InferenceType.TemporalAnomaly:
-      sp = self._getSPRegion()
       tp = self._getTPRegion()
-      sensor = self._getSensorRegion()
 
       if sp is not None:
         activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
       else:
+        sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      inferences[InferenceElement.anomalyScore] = (self._anomalyInst.computeAnomalyScore(activeColumns,predictedColumns))
+      score = (self._anomalyInst.computeAnomalyScore(activeColumns,predictedColumns))
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
@@ -638,6 +636,7 @@ class CLAModel(Model):
         labels = self._getAnomalyClassifier().getSelf().getLabelResults()
         inferences[InferenceElement.anomalyLabel] = "%s" % labels
 
+    inferences[InferenceElement.anomalyScore] = score
     return inferences
 
 
