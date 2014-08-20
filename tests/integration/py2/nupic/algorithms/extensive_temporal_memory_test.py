@@ -58,7 +58,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   Note: this is not a high order sequence, so one cell per column is fine.
 
   Input Sequence: We train with M input sequences, each consisting of N random
-  patterns. Each pattern consists of a 2 bits on.
+  patterns. Each pattern consists of a random number of bits on. The number of
+  1's in each pattern should be between 21 and 25 columns.
 
   Training: The TP is trained with P passes of the M sequences. There
   should be a reset between sequences. The total number of iterations during
@@ -117,7 +118,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "permanenceDecrement": 0,
     "activationThreshold": 8
   }
-  PATTERN_MACHINE = PatternMachine(100, 23, num=300)
+  PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
 
   def testB1(self):
@@ -137,10 +138,10 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertEqual(sumUnpredictedActiveColumns, 0)
 
     averagePredictedActiveColumns = stats[2][3]
-    self.assertEqual(averagePredictedActiveColumns, 23)
+    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
     maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 5)
+    self.assertTrue(maxPredictedInactiveColumns < 10)
 
 
   def testB3(self):
@@ -160,7 +161,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertEqual(sumUnpredictedActiveColumns, 0)
 
     averagePredictedActiveColumns = stats[2][3]
-    self.assertEqual(averagePredictedActiveColumns, 23)
+    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
     maxPredictedInactiveColumns = stats[1][1]
     self.assertTrue(maxPredictedInactiveColumns < 15)
