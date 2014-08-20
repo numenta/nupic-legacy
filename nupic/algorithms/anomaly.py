@@ -70,7 +70,7 @@ class Anomaly(object):
   _supportedModes = [MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED]
 
 
-  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE):
+  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE, shiftPredicted=False):
     """
     @param (optional) slidingWindowSize -- enables moving average on final 
             anomaly score; how many elements are summed up, sliding window size; int >= 0
@@ -82,6 +82,8 @@ class Anomaly(object):
                                         models probability of receiving this value and anomalyScore; 
                                         used in Grok
                            -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
+    @param shiftPredicted (optional) -- boolean [default=False]; normally active vs predicted are compared; 
+                          if shiftPredicted=True: predicted(T-1) vs active(T) are compared (eg from TP, CLAModel)
     """
 
     # using cumulative anomaly , sliding window
@@ -100,17 +102,25 @@ class Anomaly(object):
       raise ValueError('Invalid anomaly mode; only supported modes are: "Anomaly.MODE_PURE",\
                        "Anomaly.MODE_LIKELIHOOD", "Anomaly.MODE_WEIGHTED"; you used:' +self._mode)
 
+    if shiftPredicted:
+      self._prevPredictedColumns = numpy.array([])
 
 
-  def computeAnomalyScore(self, activeColumns, prevPredictedColumns, value=None, timestamp=None):
+  def computeAnomalyScore(self, activeColumns, predictedColumns, value=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
   
     @param activeColumns: array of active column indices
-    @param prevPredictedColumns: array of columns indices predicted in previous step
+    @param predictedColumns: array of columns indices predicted in this step (used for anomaly in step T+1)
     @param value: (optional) input value, that is what activeColumns represent; used in anomaly-likelihood
     @param timestamp: (optional) date timestamp when the sample occured; used in anomaly-likelihood
     @return the computed anomaly score; float 0..1
     """
+
+    if hasattr(self, "_prevPredictedColumns"): # shiftPredicted==True
+      prevPredictedColumns = self._prevPredictedColumns
+      self._prevPredictedColumns = predictedColumns # to be used in step T+1
+    else:
+      prevPredictedColumns = predictedColumns
 
     # 1. here is the 'classic' anomaly score
     anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
