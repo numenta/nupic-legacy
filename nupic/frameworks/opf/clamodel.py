@@ -193,7 +193,11 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
-    self._anomalyInst = Anomaly()
+    # init anomaly
+    if self._hasTP:
+      self._anomalyInst = Anomaly(shiftPredicted=True)
+    else:
+      self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -1292,7 +1296,10 @@ class CLAModel(Model):
     # -----------------------------------------------------------------------
     # Migrate from when Anomaly was not separate class
     if not hasattr(self, "_anomalyInst"):
-      self._anomalyInst = Anomaly()
+      if self._hasTP:
+        self._anomalyInst = Anomaly(shiftPredicted=True)
+      else:
+        self._anomalyInst = Anomaly()
 
 
     # This gets filled in during the first infer because it can only be
