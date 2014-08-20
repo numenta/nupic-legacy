@@ -23,7 +23,7 @@ import os
 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
-from nupic.research import temporal_memory_shim
+from nupic.research import TP_shim
 from nupic.support import getArgumentDescriptions
 from PyRegion import PyRegion
 
@@ -41,10 +41,10 @@ def _getTPClass(temporalImp):
   elif temporalImp == 'trivial':
     return TPTrivial.TPTrivial
   elif temporalImp == 'tm_py':
-    return temporal_memory_shim.TemporalMemoryShim
+    return TP_shim.TPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'trivial'" % (temporalImp))
+              "'cpp', 'trivial', and 'tm_py'" % (temporalImp))
 
 
 ##############################################################################
