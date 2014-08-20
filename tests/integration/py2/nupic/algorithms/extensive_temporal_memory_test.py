@@ -117,13 +117,12 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "permanenceDecrement": 0,
     "activationThreshold": 8
   }
+  PATTERN_MACHINE = PatternMachine(100, 23, num=300)
 
 
   def testB1(self):
     """Basic sequence learner.  M=1, N=100, P=1."""
-    self.initTM()
-    self.finishSetUp(PatternMachine(
-      self.tm.connections.numberOfColumns(), 23))
+    self.init()
 
     numbers = range(100)
     shuffle(numbers)
@@ -141,14 +140,12 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertEqual(averagePredictedActiveColumns, 23)
 
     maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 3)
+    self.assertTrue(maxPredictedInactiveColumns < 5)
 
 
   def testB3(self):
     """N=300, M=1, P=1. (See how high we can go with N)"""
-    self.initTM()
-    self.finishSetUp(PatternMachine(
-      self.tm.connections.numberOfColumns(), 23, num=300))
+    self.init()
 
     numbers = range(300)
     shuffle(numbers)
