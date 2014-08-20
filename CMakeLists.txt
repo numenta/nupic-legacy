@@ -870,7 +870,7 @@ install(CODE "execute_process(COMMAND ${PYTHON} setup.py develop
 # Tests
 #
 add_custom_target(python_unit_tests
-                  COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u -n2 --coverage
+                  COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u --coverage
                   COMMENT "Python unit tests")
 
 add_custom_target(python_integration_tests
