@@ -32,20 +32,19 @@ import nupic.frameworks.opf.opfutils as opfutils
 ###############################################################
 
 class Model(object):
-  """
-  This is the base class that all OPF Model implementations should subclass. It
-  includes a number of virtual methods, to be overridden by subclasses, as well
-  as some shared functionality for saving/loading models
+  """ This is the base class that all OPF Model implementations should
+  subclass.
+  It includes a number of virtual methods, to be overridden by subclasses,
+  as well as some shared functionality for saving/loading models
   """
 
   __metaclass__ = ABCMeta
 
   def __init__(self, inferenceType):
     """ Model constructor.
-
-    Args:
-      inferenceType: An opfutils.InferenceType value that specifies the type
-          of inference (i.e. TemporalNextStep, Classification, etc.).
+    @param inferenceType (nupic.frameworks.opf.opfutils.InferenceType)
+           A value that specifies the type of inference (i.e. TemporalNextStep,
+           Classification, etc.).
     """
     self._numPredictions = 0
     self.__inferenceType =  inferenceType
@@ -54,15 +53,16 @@ class Model(object):
     self.__inferenceArgs = {}
 
   def run(self, inputRecord):
-    """ run one iteration of this model.
-        args:
-            inputRecord is a record object formatted according to
-                nupic.data.FileSource.getNext() result format.
-
-        return:
-            An ModelResult namedtuple (see opfutils.py) The contents of
-            ModelResult.inferences depends on the the specific inference type
-            of this model, which can be queried by getInferenceType()
+    """ Run one iteration of this model.
+    @param inputRecord (object)
+           A record object formatted according to
+           nupic.data.record_stream.RecordStreamIface.getNextRecord() or
+           nupic.data.record_stream.RecordStreamIface.getNextRecordDict()
+           result format.
+    @returns (nupic.frameworks.opf.opfutils.ModelResult)
+             An ModelResult namedtuple. The contents of ModelResult.inferences
+             depends on the the specific inference type of this model, which
+             can be queried by getInferenceType()
     """
     if hasattr(self, '_numPredictions'):
       predictionNumber = self._numPredictions
@@ -75,62 +75,55 @@ class Model(object):
 
   @abstractmethod
   def finishLearning(self):
-    """ Places the model in a permanent "finished learning" mode where it
-    will not be able to learn from subsequent input records.
+    """ Places the model in a permanent "finished learning" mode.
+    In such a mode the model will not be able to learn from subsequent input
+    records.
 
-    NOTE: Upon completion of this command, learning may not be resumed on
+    **NOTE:** Upon completion of this command, learning may not be resumed on
     the given instance of the model (e.g., the implementation may optimize
-    itself by pruning data structures that are necessary for learning)
+    itself by pruning data structures that are necessary for learning).
     """
 
   @abstractmethod
   def resetSequenceStates(self):
-    """ Signal that the input record is the start of a new sequence.
-    """
+    """ Signal that the input record is the start of a new sequence. """
 
   @abstractmethod
   def getFieldInfo(self, includeClassifierOnlyField=False):
-    """
-        Returns the sequence of nupic.data.FieldMetaInfo objects specifying the
-        format of Model's output; note that this may be different than the list
-        of FieldMetaInfo objects supplied at initialization (e.g., due to the
-        transcoding of some input fields into meta-fields, such as datetime
-        -> dayOfWeek, timeOfDay, etc.)
-        
-    Parameters:
-      includeClassifierOnlyField - if True, any field which is only sent to the
-         classifier (i.e. not sent in to the bottom of the network) is also
-         included. 
-
-    Returns:    List of FieldMetaInfo objects (see description above)
+    """ Returns the sequence of FieldMetaInfo objects specifying the format of
+    Model's output.
+    This may be different than the list of FieldMetaInfo objects supplied at
+    initialization (e.g., due to the transcoding of some input fields into
+    meta-fields, such as datetime -> dayOfWeek, timeOfDay, etc.).
+    @param includeClassifierOnlyField (bool)
+           If True, any field which is only sent to the classifier (i.e. not
+           sent in to the bottom of the network) is also included
+    @returns (list<nupic.data.fieldmeta.FieldMetaInfo>)
+             List of FieldMetaInfo objects.
     """
 
   @abstractmethod
   def setFieldStatistics(self,fieldStats):
-    """
-    Propagates field statistics to the model in case some of its machinery
-    needs it. 
-    
-    Parameters:
-    
-    fieldStats is a dict of dicts with first key being the fieldname and the 
-    second key is min,max or other supported statistics.
+    """ Propagates field statistics to the model in case some of its machinery
+    needs it.
+    @param fieldStats (dict)
+           A dict of dicts with first key being the fieldname and the second
+           key is min,max or other supported statistics
     """
 
   @abstractmethod
   def getRuntimeStats(self):
-    """ get runtime statistics specific to this model, i.e. activeCellOverlapAvg
-        return:
-            a dict where keys are statistic names and values are the stats
+    """ Get runtime statistics specific to this model,
+    i.e. activeCellOverlapAvg.
+    @returns (dict) A {statistic names: stats} dictionary
     """
 
   @abstractmethod
   def _getLogger(self):
-    """ Get the logger for this object. This is a protected method that is used
-    by the ModelBase to access the logger created by the subclass
-
-    return:
-      A logging.Logger object. Should not be None
+    """ Get the logger for this object.
+    This is a protected method that is used by the ModelBase to access the
+    logger created by the subclass.
+    @returns (Logger) A Logger object, it should not be None.
     """
 
   ###############################################################################
@@ -138,63 +131,61 @@ class Model(object):
   ###############################################################################
 
   def getInferenceType(self):
-    """ Returns the InferenceType of this model. This is immutable"""
+    """ Returns the InferenceType of this model.
+    This is immutable.
+    @returns (nupic.frameworks.opf.opfutils.InferenceType) An inference type
+    """
     return self.__inferenceType
 
   def enableLearning(self):
-    """ Turn Learning on for the current model """
+    """ Turn Learning on for the current model. """
     self.__learningEnabled = True
     return
 
   def disableLearning(self):
-    """ Turn Learning off for the current model """
+    """ Turn Learning off for the current model. """
     self.__learningEnabled = False
     return
 
   def isLearningEnabled(self):
-    """ Return the Learning state of the current model (True/False) """
+    """ Return the Learning state of the current model.
+    @returns (bool) The learning state
+    """
     return self.__learningEnabled
 
   def enableInference(self, inferenceArgs=None):
-    """
-    Enabled inference for this model.
-
-    Parameters:
-    -----------------------------------------------------------------------
-      inferenceArgs:      A dictionary of arguments required for inference. These
-                          depend on the InferenceType of the current model
+    """ Enable inference for this model.
+    @param inferenceArgs (dict)
+           A dictionary of arguments required for inference. These depend on
+           the InferenceType of the current model
     """
     self.__inferenceEnabled = True
     self.__inferenceArgs = inferenceArgs
 
   def getInferenceArgs(self):
-    """
-    Returns the dict of arguments for the current inference mode
+    """ Return the dict of arguments for the current inference mode.
+    @returns (dict) The arguments of the inference mode
     """
     return self.__inferenceArgs
 
   def disableInference(self):
-    """Turn Inference off for the current model"""
+    """ Turn Inference off for the current model. """
     self.__inferenceEnabled = False
 
   def isInferenceEnabled(self):
-    """Return the Inference state of the current model (True/False)"""
+    """ Return the inference state of the current model.
+    @returns (bool) The inference state
+    """
     return self.__inferenceEnabled
 
   ###############################################################################
   # Implementation of common save/load functionality
   ###############################################################################
   def save(self, saveModelDir):
-    """ Save the model in the given directory
-
-    Parameters:
-    -----------------------------------------------------------------------
-    saveModelDir:
-                  Absolute directory path for saving the experiment.
-                  If the directory already exists, it MUST contain a VALID
-                  local checkpoint of a model.
-
-    Returns: nothing
+    """ Save the model in the given directory.
+    @param saveModelDir (string)
+           Absolute directory path for saving the experiment. If the directory
+            already exists, it MUST contain a VALID local checkpoint of a model
     """
     logger = self._getLogger()
     logger.debug("(%s) Creating local checkpoint in %r...",
@@ -235,25 +226,20 @@ class Model(object):
     return
 
   def _serializeExtraData(self, extraDataDir):
-    """This is a protected method that is called during serialization with an
-    external directory path. It can be overridden by subclasses to bypass pickle
-    for saving large binary states. This is called by ModelBase only
-
-    extraDataDir:
-                  Model's extra data directory path
+    """ Protected method that is called during serialization with an external
+    directory path. It can be overridden by subclasses to bypass pickle for
+    saving large binary states.
+    This is called by ModelBase only.
+    @param extraDataDir (string) Model's extra data directory path
     """
     pass
 
   @classmethod
   def load(cls, savedModelDir):
-    """ Load saved model
-
-    Parameters:
-    -----------------------------------------------------------------------
-    savedModelDir:
-                  directory of where the experiment is to be or was saved
-
-    Returns: the loaded model instance
+    """ Load saved model.
+    @param savedModelDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (Model) The loaded model instance
     """
     logger = opfutils.initLogger(cls)
     logger.debug("Loading model from local checkpoint at %r...", savedModelDir)
@@ -277,23 +263,21 @@ class Model(object):
     return model
 
   def _deSerializeExtraData(self, extraDataDir):
-    """ This is a protected method that is called during deserialization
-    (after __setstate__) with an external directory path. It can be overridden by
-    subclasses to bypass pickle for loading large binary states. This is called
-    by ModelBase only
-
-    extraDataDir:
-                  Model's extra data directory path
+    """ Protected method that is called during deserialization
+    (after __setstate__) with an external directory path.
+    It can be overridden by subclasses to bypass pickle for loading large
+    binary states.
+    This is called by ModelBase only
+    @param extraDataDir (string) Model's extra data directory path
     """
     pass
 
   @staticmethod
   def _getModelPickleFilePath(saveModelDir):
-    """
-    saveModelDir:
-                  directory of where the experiment is to be or was saved
-
-    Returns:      the absolute path to the model's pickle file
+    """ Return the absolute path ot the model's pickle file.
+    @param saveModelDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (string) An absolute path.
     """
     path = os.path.join(saveModelDir, "model.pkl")
     path = os.path.abspath(path)
@@ -301,12 +285,11 @@ class Model(object):
 
   @staticmethod
   def _getModelExtraDataDir(saveModelDir):
-    """
-    saveModelDir:
-                  directory of where the experiment is to be or was saved
-
-    Returns:      the absolute path to the directory for the model's own
-                  "extra data" (i.e., data that's too big for pickling)
+    """ Return the absolute path to the directory where the model's own
+    "extra data" are stored (i.e., data that's too big for pickling).
+    @param saveModelDir (string)
+           Directory of where the experiment is to be or was saved
+    @returns (string) An absolute path.
     """
     path = os.path.join(saveModelDir, "modelextradata")
     path = os.path.abspath(path)
@@ -315,14 +298,10 @@ class Model(object):
 
   @staticmethod
   def __makeDirectoryFromAbsolutePath(absDirPath):
-    """ Makes directory for the given directory path if it doesn't already exist
-    in the filesystem.
-
-    absDirPath:   absolute path of the directory to create.
-
-    Returns:      nothing
-
-    Exceptions:         OSError if directory creation fails
+    """ Makes directory for the given directory path if it doesn't already
+    exist in the filesystem.
+    @param absDirPath (string) Absolute path of the directory to create
+    @exception (Exception) OSError if directory creation fails
     """
 
     assert os.path.isabs(absDirPath)

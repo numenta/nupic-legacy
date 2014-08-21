@@ -23,6 +23,7 @@ import os
 
 from nupic.research import TP, TPTrivial
 from nupic.research import TP10X2
+from nupic.research import TP_shim
 from nupic.support import getArgumentDescriptions
 from PyRegion import PyRegion
 
@@ -39,9 +40,11 @@ def _getTPClass(temporalImp):
     return TP10X2.TP10X2
   elif temporalImp == 'trivial':
     return TPTrivial.TPTrivial
+  elif temporalImp == 'tm_py':
+    return TP_shim.TPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', and 'trivial'" % (temporalImp))
+              "'cpp', 'trivial', and 'tm_py'" % (temporalImp))
 
 
 ##############################################################################
@@ -395,7 +398,7 @@ class TPRegion(PyRegion):
     if self._tfdr is None:
       tpClass = _getTPClass(self.temporalImp)
 
-      if self.temporalImp in ['py', 'cpp', 'r']:
+      if self.temporalImp in ['py', 'cpp', 'r', 'tm_py']:
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
