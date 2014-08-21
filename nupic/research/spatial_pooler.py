@@ -690,7 +690,9 @@ class SpatialPooler(object):
         have never learned will be stripped out of the active columns. This
         should be set to False when using a random SP with learning disabled.
         NOTE: This parameter should be set explicitly as the default will
-        likely be changed to False in the near future (by end of 2014).
+        likely be changed to False in the near future and if you want to retain
+        the current behavior you should additionally pass the resulting
+        activeArray to the stripNeverLearned method manually.
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -716,7 +718,7 @@ class SpatialPooler(object):
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
     elif stripUnlearnedColumns:
-      activeColumns = self._stripNeverLearned(activeColumns)
+      activeColumns = self.stripNeverLearned(activeColumns)
 
     activeArray.fill(0)
     if activeColumns.size > 0:
@@ -724,7 +726,7 @@ class SpatialPooler(object):
 
 
 
-  def _stripNeverLearned(self, activeColumns):
+  def stripNeverLearned(self, activeColumns):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference

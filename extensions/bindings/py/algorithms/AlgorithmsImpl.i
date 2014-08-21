@@ -1861,6 +1861,12 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
   }
 
+  inline void stripNeverLearned(PyObject *py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->stripNeverLearned((nta::UInt*) x->data);
+  }
+
   void loadFromString(const std::string& inString)
   {
     std::istringstream inStream(inString);
