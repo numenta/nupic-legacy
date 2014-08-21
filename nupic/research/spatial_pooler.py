@@ -65,7 +65,8 @@ class SpatialPooler(object):
                dutyCyclePeriod=1000,
                maxBoost=10.0,
                seed=-1,
-               spVerbosity=0
+               spVerbosity=0,
+               wrapAround=False
                ):
     """
     Parameters:
@@ -191,6 +192,9 @@ class SpatialPooler(object):
                           2 endpoints.
     seed:                 Seed for our own pseudo-random number generator.
     spVerbosity:          spVerbosity level: 0, 1, 2, or 3
+    wrapAround:           Determines if inputs at the beginning and end of an
+                          input dimension should be considered neighbors when
+                          mapping columns to inputs.
     """
     # Verify input is valid
     inputDimensions = numpy.array(inputDimensions, ndmin=1)
@@ -228,6 +232,7 @@ class SpatialPooler(object):
     self._dutyCyclePeriod = dutyCyclePeriod
     self._maxBoost = maxBoost
     self._spVerbosity = spVerbosity
+    self._wrapAround = wrapAround
 
     # Extra parameter settings
     self._synPermMin = 0.0
@@ -297,7 +302,7 @@ class SpatialPooler(object):
     # each column is connected to enough input bits to allow it to be
     # activated.
     for i in xrange(numColumns):
-      potential = self._mapPotential(i, wrapAround=True)
+      potential = self._mapPotential(i, wrapAround=self._wrapAround)
       self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, i, raisePerm=True)
@@ -1144,8 +1149,9 @@ class SpatialPooler(object):
     """
     columnCoords = numpy.unravel_index(index, self._columnDimensions)
     columnCoords = numpy.array(columnCoords, dtype=realDType)
-    ratios = columnCoords / numpy.maximum((self._columnDimensions - 1), 1)
-    inputCoords = (self._inputDimensions - 1) * ratios
+    ratios = columnCoords / self._columnDimensions
+    inputCoords = self._inputDimensions * ratios
+    inputCoords += 0.5 * self._inputDimensions / self._columnDimensions
     inputCoords = inputCoords.astype(int)
     inputIndex = numpy.ravel_multi_index(inputCoords, self._inputDimensions)
     return inputIndex
