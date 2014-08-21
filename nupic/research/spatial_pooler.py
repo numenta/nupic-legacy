@@ -1167,16 +1167,19 @@ class SpatialPooler(object):
     supports a 1 dimensional topology of columns with a 1 dimensional topology
     of inputs. To extend this class to support 2-D topology you will need to
     override this method. Examples of the expected output of this method:
-    * If the potentialRadius is greater than or equal to the entire input
-      space, (global visibility), then this method returns an array filled with
-      all the indices
-    * If the topology is one dimensional, and the potentialRadius is 5, this
-      method will return an array containing 5 consecutive values centered on
-      the index of the column (wrapping around if necessary).
-    * If the topology is two dimensional (not implemented), and the
-      potentialRadius is 5, the method should return an array containing 25
-      '1's, where the exact indices are to be determined by the mapping from
-      1-D index to 2-D position.
+    * If the potentialRadius is greater than or equal to the largest input
+      dimension then each column connects to all of the inputs.
+    * If the topology is one dimensional, the input space is divided up evenly
+      among the columns and each column is centered over its share of the
+      inputs.  If the potentialRadius is 5, then each column connects to the
+      input it is centered above as well as the 5 inputs to the left of that
+      input and the five inputs to the right of that input, wrapping around if
+      wrapAround=True.
+    * If the topology is two dimensional, the input space is again divided up
+      evenly among the columns and each column is centered above its share of
+      the inputs.  If the potentialRadius is 5, the column connects to a square
+      that has 25 inputs on a side and is centered on the input that the column
+      is centered above.
 
     Parameters:
     ----------------------------
