@@ -66,7 +66,7 @@ class SpatialPooler(object):
                maxBoost=10.0,
                seed=-1,
                spVerbosity=0,
-               wrapAround=False
+               wrapAround=True
                ):
     """
     Parameters:
