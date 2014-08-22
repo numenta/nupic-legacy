@@ -76,7 +76,7 @@ class PatternMachineTest(unittest.TestCase):
     for i in range(50):
       pattern = patternMachine.get(i)
       width = len(pattern)
-      self.assertIn(width, w)
+      self.assertTrue(width in w)
       widths[len(pattern)] += 1
 
     for i in w:
