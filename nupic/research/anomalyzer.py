@@ -27,6 +27,7 @@ import sys
 
 from nupic.data.file_record_stream import FileRecordStream
 
+
 USAGE = """
 Usage:
   python anomalyzer.py input output action extraArgs

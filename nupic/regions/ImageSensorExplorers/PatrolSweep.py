@@ -19,7 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 from nupic.regions.ImageSensorExplorers.SpiralSweep import SpiralSweep
 
 class PatrolSweep(SpiralSweep):

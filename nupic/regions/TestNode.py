@@ -1,7 +1,8 @@
-import os, sys
-import numpy
 from pprint import pprint as pp
+
+import numpy
 from PyRegion import PyRegion
+
 
 class TestNode(PyRegion):
   @classmethod

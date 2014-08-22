@@ -27,7 +27,6 @@ import datetime
 # Workaround for this error: 
 #  "ImportError: Failed to import _strptime because the import lockis held by 
 #     another thread"
-import _strptime
 
 # These are the supported timestamp formats to parse. The first is used for
 # serializing datetimes. Functions in this file rely on specific formats from
