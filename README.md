@@ -1,50 +1,161 @@
-Numenta Platform for Intelligent Computing (NuPIC)
-=====
+## GitLab: self hosted Git management software
 
-NuPIC is a library that provides the building blocks for online prediction systems.  The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
+![logo](https://raw.github.com/gitlabhq/gitlabhq/master/public/gitlab_logo.png)
 
-OPF Basics
-----------
+### GitLab allows you to
+ * keep your code secure on your own server
+ * manage repositories, users and access permissions
+ * communicate through issues, line-comments and wiki pages
+ * perform code review with merge requests
 
-__Encoders__ turn raw values into sparse distributed representations (SDRs).  A good encoder will capture the semantics of the data type in the SDR using overlapping bits for semantically similar values.
+### GitLab is
 
-__Models__ take sequences of SDRs and make predictions.  The CLA is implemented as an OPF model.
+* powered by Ruby on Rails
+* completely free and open source (MIT license)
+* used by more than 10.000 organizations to keep their code secure
 
-__Metrics__ take input values and predictions and output scalar representations of the quality of the predictions.  Different metrics are suitable for different problems.
+### Code status
 
-__Clients__ take input data and feed it through encoders, models, and metrics and store or report the resulting predictions or metric results.
+* [![build status](http://ci.gitlab.org/projects/1/status.png?ref=master)](http://ci.gitlab.org/projects/1?ref=master) on ci.gitlab.org (master branch)
 
-Installation
-------------
+* [![build status](https://secure.travis-ci.org/gitlabhq/gitlabhq.png)](https://travis-ci.org/gitlabhq/gitlabhq) on travis-ci.org (master branch)
 
-NuPIC requires Python 2.6, GCC, and Make.
+* [![Code Climate](https://codeclimate.com/github/gitlabhq/gitlabhq.png)](https://codeclimate.com/github/gitlabhq/gitlabhq)
 
-Add the following to your .bashrc file. Change the paths as needed.
+* [![Dependency Status](https://gemnasium.com/gitlabhq/gitlabhq.png)](https://gemnasium.com/gitlabhq/gitlabhq) this button can be yellow (small updates are available) but must not be red (a security fix or an important update is available)
 
-    # Installation path
-    export NTA=$HOME/nta/eng
-    # Source/repo path
-    export NUPIC=/path/to/repo
-    # Convenience variable for temporary build files
-    export BUILDDIR=$HOME/ntabuild
+* [![Coverage Status](https://coveralls.io/repos/gitlabhq/gitlabhq/badge.png?branch=master)](https://coveralls.io/r/gitlabhq/gitlabhq)
 
-    # Set up the rest of the necessary env variables. Must be done after
-    # setting $NTA.
-    source $NUPIC/env.sh
+### Resources
 
-Build and install NuPIC:
+* GitLab.org community site: [Homepage](http://gitlab.org) | [Screenshots](http://gitlab.org/screenshots/) | [Blog](http://blog.gitlab.org/) | [Demo](http://demo.gitlabhq.com/users/sign_in)
 
-    $NUPIC/build.sh
+* GitLab.com commercial services: [Homepage](http://www.gitlab.com/) | [Subscription](http://www.gitlab.com/subscription/) | [Consultancy](http://www.gitlab.com/consultancy/) | [GitLab Cloud](http://www.gitlab.com/cloud/) | [Blog](http://blog.gitlab.com/)
 
-NuPIC should now be installed in $NTA!
+* GitLab CI: [Readme](https://github.com/gitlabhq/gitlab-ci/blob/master/README.md) of the GitLab open-source continuous integration server
 
-Try it out!
------------
-Run the C++ tests:
+### Requirements
 
-    $NTA/bin/htmtest
-    $NTA/bin/testeverything
+* Ubuntu/Debian**
+* ruby 1.9.3
+* MySQL or PostgreSQL
+* git
+* gitlab-shell
+* redis
 
-You can run the examples using the OpfRunExperiment OPF client:
+** More details are in the [requirements doc](doc/install/requirements.md)
 
-    python $NUPIC/examples/opf/bin/OpfRunExperiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
+### Installation
+
+#### Official production installation
+
+* [Installation guide for a production server](doc/install/installation.md)
+
+
+#### Official development installation
+
+If you want to contribute, please first read our [Contributing Guidelines](https://github.com/gitlabhq/gitlabhq/blob/master/CONTRIBUTING.md) and then we suggest you to use the Vagrant virtual machine project to get an environment working with all dependencies.
+
+* [Vagrant virtual machine for development](https://github.com/gitlabhq/gitlab-vagrant-vm)
+
+
+#### Unsupported production installation
+
+* [GitLab recipes](https://github.com/gitlabhq/gitlab-recipes) for setup on different platforms
+
+* [Unofficial installation guides](https://github.com/gitlabhq/gitlab-public-wiki/wiki/Unofficial-Installation-Guides)
+
+* [BitNami one-click installers](http://bitnami.com/stack/gitlab)
+
+* [TurnKey Linux virtual appliance](http://www.turnkeylinux.org/gitlab)
+
+
+### New versions and upgrading
+
+Each month on the 22nd a new version is released together with an upgrade guide.
+
+* [Upgrade guides](doc/update)
+
+* [Changelog](CHANGELOG)
+
+* Features that will be in the next release are listed on [the feedback and suggestions forum with the status "started"](http://feedback.gitlab.com/forums/176466-general/status/796456).
+
+
+### Run in production mode
+
+The Installation guide contains instructions on how to download an init script and run it automatically on boot. You can also start the init script manually:
+
+    sudo service gitlab start
+
+or by directly calling the script
+
+     sudo /etc/init.d/gitlab start
+
+### Run in development mode
+
+Start it with [Foreman](https://github.com/ddollar/foreman)
+
+    bundle exec foreman start -p 3000
+
+or start each component separately
+
+    bundle exec rails s
+    bundle exec rake sidekiq:start
+
+### Run the tests
+
+* Seed the database
+
+        bundle exec rake db:setup RAILS_ENV=test
+        bundle exec rake db:seed_fu RAILS_ENV=test
+
+* Run all tests
+
+        bundle exec rake gitlab:test
+
+* [RSpec](http://rspec.info/) unit and functional tests
+
+        bundle exec rake spec
+
+* [Spinach](https://github.com/codegram/spinach) integration tests
+
+        bundle exec rake spinach
+
+
+### GitLab interfaces
+
+* [GitLab API](doc/api/README.md)
+
+* [Rake tasks](doc/raketasks)
+
+* [Directory structure](doc/install/structure.md)
+
+* [Databases](doc/install/databases.md)
+
+
+### Getting help
+
+* [Maintenance policy](MAINTENANCE.md) specifies what versions are supported.
+
+* [Troubleshooting guide](https://github.com/gitlabhq/gitlab-public-wiki/wiki/Trouble-Shooting-Guide) contains solutions to common problems.
+
+* [Support forum](https://groups.google.com/forum/#!forum/gitlabhq) and [Stack Overflow](http://stackoverflow.com/questions/tagged/gitlab) are the best places to ask questions. For example you can use it if you have questions about: permission denied errors, invisible repos, can't clone/pull/push or with web hooks that don't fire. Please search for similar issues before posting your own, there's a good chance somebody else had the same issue you have now and has resolved it. There are a lot of helpful GitLab users there who may be able to help you quickly. If your particular issue turns out to be a bug, it will find its way from there to a fix.
+
+* [Feedback and suggestions forum](http://feedback.gitlab.com) is the place to propose and discuss new features for GitLab.
+
+* [Contributing guide](https://github.com/gitlabhq/gitlabhq/blob/master/CONTRIBUTING.md) describes how to submit pull requests and issues. Pull requests and issues not in line with the guidelines in this document will be closed.
+
+* [Support subscription](http://www.gitlab.com/subscription/) connects you to the knowledge of GitLab experts that will resolve your issues and answer your questions.
+
+* [Consultancy](http://www.gitlab.com/consultancy/) allows you hire GitLab experts for installations, upgrades and customizations.
+
+
+### Getting in touch
+
+* [Core team](https://github.com/gitlabhq?tab=members)
+
+* [Contributors](https://github.com/gitlabhq/gitlabhq/graphs/contributors)
+
+* [Leader](https://github.com/randx)
+
+* [Contact page](http://gitlab.org/contact/)

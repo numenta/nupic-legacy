@@ -1,0 +1,94 @@
+.row
+  .span6
+    %h3.page_title
+      = image_tag gravatar_icon(@admin_user.email, 90), class: "avatar s90"
+      = @admin_user.name
+      - if @admin_user.blocked?
+        %span.cred (Blocked)
+      - if @admin_user.admin
+        %span.cred (Admin)
+      .pull-right
+        = link_to edit_admin_user_path(@admin_user), class: "btn pull-right" do
+          %i.icon-edit
+          Edit
+      %br
+      %small @#{@admin_user.username}
+      %br
+      %small member since #{@admin_user.created_at.stamp("Nov 12, 2031")}
+    .clearfix
+    %hr
+    %p
+      %span.btn.btn-small
+        %i.icon-envelope
+        = mail_to @admin_user.email
+      - unless @admin_user == current_user
+        - if @admin_user.blocked?
+          = link_to 'Unblock', unblock_admin_user_path(@admin_user), method: :put, class: "btn btn-small success"
+        - else
+          = link_to 'Block', block_admin_user_path(@admin_user), confirm: 'USER WILL BE BLOCKED! Are you sure?', method: :put, class: "btn btn-small btn-remove"
+        = link_to 'Destroy', [:admin, @admin_user], confirm: "USER #{@admin_user.name} WILL BE REMOVED! Are you sure?", method: :delete, class: "btn btn-small btn-remove"
+    %hr
+    %h5
+      Add User to Projects
+      %small
+        Read more about project permissions
+        %strong= link_to "here", help_permissions_path, class: "vlink"
+    %br
+    = form_tag team_update_admin_user_path(@admin_user), class: "bulk_import", method: :put  do
+      .control-group
+        = label_tag :project_ids, "Projects", class: 'control-label'
+        .controls
+          = select_tag :project_ids, options_from_collection_for_select(@not_in_projects , :id, :name_with_namespace),  multiple: true, data: {placeholder: 'Select projects'}, class: 'chosen span3'
+      .control-group
+        = label_tag :project_access, "Project Access", class: 'control-label'
+        .controls
+          = select_tag :project_access, options_for_select(Project.access_options), class: "project-access-select chosen span3"
+
+      .form-actions
+        = submit_tag 'Add', class: "btn btn-create"
+        .pull-right
+    %br
+
+    - if @admin_user.owned_groups.present?
+      .ui-box
+        %h5.title Owned groups:
+        %ul.well-list
+          - @admin_user.groups.each do |group|
+            %li
+              %strong= link_to group.name, admin_group_path(group)
+
+    - if @admin_user.owned_teams.present?
+      .ui-box
+        %h5.title Owned teams:
+        %ul.well-list
+          - @admin_user.owned_teams.each do |team|
+            %li
+              %strong= link_to team.name, admin_team_path(team)
+
+
+  .span6
+    = render 'users/profile', user: @admin_user
+    .ui-box
+      %h5.title Projects (#{@projects.count})
+      %ul.well-list
+        - @projects.sort_by(&:name_with_namespace).each do |project|
+          %li
+            = link_to admin_project_path(project), class: dom_class(project) do
+              - if project.namespace
+                = project.namespace.human_name
+                \/
+              %strong.well-title
+                = truncate(project.name, length: 45)
+            %span.pull-right.light
+              - if project.owner == @admin_user
+                %i.icon-wrench
+              - tm = project.team.get_tm(@admin_user.id)
+              - if tm
+                = tm.project_access_human
+                = link_to edit_admin_project_member_path(project, tm.user), class: "btn btn-small" do
+                  %i.icon-edit
+                = link_to admin_project_member_path(project, tm.user), confirm: remove_from_project_team_message(project, @admin_user), method: :delete, class: "btn btn-small btn-remove" do
+                  %i.icon-remove
+    %p.light
+      %i.icon-wrench
+      &ndash; user is a project owner

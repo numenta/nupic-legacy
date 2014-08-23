@@ -1,0 +1,20 @@
+%p
+  Hi #{@user['name']}!
+%p
+  - if Gitlab.config.gitlab.signup_enabled
+    Your account has been created successfully.
+  - else
+    The Administrator created an account for you. Now you are a member of company GitLab application.
+%p
+  login..........................................
+  %code= @user['email']
+%p
+  - unless Gitlab.config.gitlab.signup_enabled
+    password..................................
+    %code= @password
+
+%p
+  Please change your password immediately after login.
+
+%p
+  = link_to "Click here to login", root_url

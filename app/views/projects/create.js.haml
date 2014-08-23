@@ -1,0 +1,8 @@
+- if @project.saved?
+  :plain
+    location.href = "#{project_path(@project)}";
+- else
+  :plain
+    $(".project-edit-errors").html("#{escape_javascript(render('errors'))}");
+    $('.save-project-loader').hide();
+    $('.project-edit-container').show();

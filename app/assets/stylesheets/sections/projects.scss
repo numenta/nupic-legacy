@@ -1,0 +1,93 @@
+.new_project,
+.edit_project {
+  .project_name_holder {
+    input,
+    label {
+      font-size: 16px;
+      line-height: 20px;
+      padding: 8px;
+    }
+    .btn {
+      padding: 6px 10px;
+      margin-left: 10px;
+      margin-bottom: 8px;
+    }
+  }
+  .adv_settings {
+    h6 { margin-left: 40px; }
+  }
+
+  fieldset.features {
+    .control-label {
+      font-weight: bold;
+    }
+  }
+}
+
+.project_clone_panel {
+  @include border-radius(4px);
+  @include bg-gray-gradient;
+  padding: 4px 7px;
+  border: 1px solid #CCC;
+  margin-bottom: 20px;
+}
+
+.project_clone_holder {
+  input[type="text"] {
+    @extend .monospace;
+    border: 1px solid #BBB;
+    box-shadow: none;
+    margin-left: -1px;
+    background: #FFF;
+  }
+}
+
+.save-project-loader {
+  img {
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+  h3 {
+    @extend .page_title;
+  }
+
+}
+
+ul.nav.nav-projects-tabs {
+  @extend .nav-tabs;
+
+  padding-left: 8px;
+
+  li {
+    a {
+      padding: 6px 25px;
+      margin-top: 2px;
+      border-color: #DDD;
+      background-color: #EEE;
+      text-shadow: 0 1px 1px white;
+      color: #555;
+    }
+    &.active {
+      a {
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.team_member_row form {
+  margin: 0px;
+}
+
+.public-projects {
+  li {
+    margin-top: 8px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #eee;
+
+    .description {
+      margin-left: 22px;
+      color: #aaa;
+    }
+  }
+}

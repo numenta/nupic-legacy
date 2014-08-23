@@ -1,0 +1,34 @@
+/**
+ * This file represent some UI that can be changed
+ * during web app restyle or theme select.
+ *
+ * Next items should be placed there
+ * - link colors
+ * - header restyles
+ *
+ */
+.ui_mars {
+  /*
+   *  Application Header
+   *
+   */
+  header {
+    @extend .header-dark;
+    &.navbar-gitlab {
+      .navbar-inner {
+        background: #474D57;
+        border-bottom: 1px solid #373D47;
+        .app_logo {
+          &:hover {
+            background-color: #373D47;
+          }
+        }
+      }
+    }
+
+    .separator {
+      background: #31363E;
+      border-left: 1px solid #666;
+    }
+  }
+}

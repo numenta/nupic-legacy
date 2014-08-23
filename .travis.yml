@@ -1,15 +1,22 @@
+language: ruby
+env:
+  - DB=mysql TRAVIS=true
+before_install:
+  - sudo apt-get install libicu-dev -y
+  - gem install charlock_holmes -v="0.6.9"
 branches:
   only:
-    - master
-language: python
-compiler:
-  - gcc
-python:
-  - "2.6"
-env:
-  - NTA=$HOME/nta/eng NUPIC=$TRAVIS_BUILD_DIR BUILDDIR=$HOME/ntabuild DYLD_LIBRARY_PATH=$NTA/lib:$DYLD_LIBRARY_PATH LD_LIBRARY_PATH=$NTA/lib:$LD_LIBRARY_PATH
-# Change this to your needs
+    - 'master'
+rvm:
+  - 1.9.3-p392
+  - 2.0.0
+services:
+  - mysql
+  - postgresql
 before_script:
-  - "source $NUPIC/env.sh"
-  - "export CPPFLAGS=\"-Wno-error\""
-script: "exit -1"
+  - "cp config/database.yml.$DB config/database.yml"
+  - "cp config/gitlab.yml.example config/gitlab.yml"
+  - "bundle exec rake db:setup RAILS_ENV=test"
+  - "bundle exec rake db:seed_fu RAILS_ENV=test"
+  - "sh -e /etc/init.d/xvfb start"
+script: "bundle exec rake travis --trace"

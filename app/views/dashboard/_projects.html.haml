@@ -1,0 +1,31 @@
+.ui-box
+  %h5.title
+    Projects
+    %span.light
+      (#{@projects_count})
+    - if current_user.can_create_project?
+      %span.pull-right
+        = link_to new_project_path, class: "btn btn-small" do
+          %i.icon-plus
+          New Project
+
+  %ul.well-list
+    - projects.each do |project|
+      %li
+        = link_to project_path(project), class: dom_class(project) do
+          - if project.namespace
+            = project.namespace.human_name
+            \/
+          %strong.well-title
+            = truncate(project.name, length: 25)
+          %span.arrow
+            &rarr;
+          %span.last_activity
+            %strong Last activity:
+            %span= project_last_activity(project)
+    - if projects.blank?
+      %li
+        %h3.nothing_here_message There are no projects here.
+    - if @projects_count > 20
+      %li.bottom
+        %strong= link_to "show all projects", projects_dashboard_path
