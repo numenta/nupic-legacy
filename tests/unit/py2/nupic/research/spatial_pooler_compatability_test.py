@@ -412,7 +412,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     def max_perm(sp):
       numCols = sp.getNumColumns()
       numInputs = sp.getNumInputs()
-      perm = numpy.zeros(numInputs)
+      perm = numpy.zeros(numInputs).astype(realType)
       max_perm = 0
       for col in range(numCols):
         sp.getPermanence(col, perm)
