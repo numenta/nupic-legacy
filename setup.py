@@ -158,6 +158,13 @@ For more information, see numenta.org or the NuPIC wiki (https://github.com/nume
 
 
 # Build and setup NuPIC
+print "******************** INITAL SETUP ******************************"
+setup(
+    setup_requires = requirements,
+  )
 if mustBuildExtensions:
+  print "******************** BUILDING EXTENSIONS ******************************"
   buildExtensionsNupic()
+print "******************** FINAL SETUP ******************************"
+
 setupNupic()
