@@ -11,6 +11,8 @@ put into CMake file.
 """
 
 repositoryDir = os.getcwd()
+requirementsFile = os.path.join(repositoryDir, "external/common/requirements.txt")
+requirements = map(str.strip, open(requirementsFile).readlines())
 
 
 # Read command line options looking for extra options for CMake and Make
@@ -111,6 +113,7 @@ def setupNupic():
   setup(
     name = "nupic",
     version = properties["__version__"],
+    setup_requires = requirements,
     packages = findPackages(repositoryDir),
     package_data = {
       "nupic": ["README.md", "LICENSE.txt",
