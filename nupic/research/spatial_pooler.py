@@ -1159,7 +1159,7 @@ class SpatialPooler(object):
     * If the topology is two dimensional, the input space is again divided up
       evenly among the columns and each column is centered above its share of
       the inputs.  If the potentialRadius is 5, the column connects to a square
-      that has 25 inputs on a side and is centered on the input that the column
+      that has 11 inputs on a side and is centered on the input that the column
       is centered above.
 
     Parameters:
