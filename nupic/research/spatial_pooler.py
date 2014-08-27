@@ -662,8 +662,7 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
-  def compute(self, inputVector, learn, activeArray,
-              stripUnlearnedColumns=True):
+  def compute(self, inputVector, learn, activeArray, stripNeverLearned=True):
     """
     This is the primary public method of the SpatialPooler class. This
     function takes a input vector and outputs the indices of the active columns.
@@ -686,13 +685,13 @@ class SpatialPooler(object):
     :param activeArray: An array whose size is equal to the number of columns.
         Before the function returns this array will be populated with 1's at
         the indices of the active columns, and 0's everywhere else.
-    :param stripUnlearnedColumns: If True and learn=False, then columns that
+    :param stripNeverLearned: If True and learn=False, then columns that
         have never learned will be stripped out of the active columns. This
         should be set to False when using a random SP with learning disabled.
         NOTE: This parameter should be set explicitly as the default will
         likely be changed to False in the near future and if you want to retain
         the current behavior you should additionally pass the resulting
-        activeArray to the stripNeverLearned method manually.
+        activeArray to the stripUnlearnedColumns method manually.
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -717,25 +716,22 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
-    elif stripUnlearnedColumns:
-      activeColumns = self.stripNeverLearned(activeColumns)
+    elif stripNeverLearned:
+      activeColumns = self.stripUnlearnedColumns(activeColumns)
 
     activeArray.fill(0)
     if activeColumns.size > 0:
       activeArray[activeColumns] = 1
 
 
-
-  def stripNeverLearned(self, activeColumns):
+  def stripUnlearnedColumns(self, activeColumns):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
     is required. This should not be done when using a random, unlearned SP
     since you would end up with no active columns.
 
-    Parameters:
-    ----------------------------
-    activeColumns:  An array containing the indices of the active columns
+    :param activeColumns: An array containing the indices of the active columns
     """
     neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
     return numpy.array(list(set(activeColumns) - set(neverLearned)))
