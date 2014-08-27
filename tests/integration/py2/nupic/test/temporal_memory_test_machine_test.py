@@ -37,7 +37,7 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
 
     self.tm = TemporalMemory(columnDimensions=[100],
                              cellsPerColumn=4,
-                             initialPermanence=0.4,
+                             initialPermanence=0.6,
                              connectedPermanence=0.5,
                              minThreshold=1,
                              maxNewSynapseCount=6,
@@ -53,15 +53,15 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
     results = self.tmTestMachine.feedSequence(sequence)
 
     self.assertEqual(len(results), len(sequence))
-    self.assertEqual(len(results[-2]), 5)
-    self.assertEqual(len(results[-1]), 0)
+    self.assertEqual(len(results[-3]), 5)
+    self.assertEqual(len(results[-2]), 0)
 
 
   def testComputeDetailedResults(self):
     sequence = self._generateSequence()
 
-    # Replace last pattern with an unpredicted one
-    sequence[-1] = self.patternMachine.get(4)
+    # Replace last pattern (before the None) with an unpredicted one
+    sequence[-2] = self.patternMachine.get(4)
 
     results = self.tmTestMachine.feedSequence(sequence)
 
@@ -81,17 +81,18 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
     self.assertEqual(len(predictedInactiveColumnsList), len(sequence))
     self.assertEqual(len(unpredictedActiveColumnsList), len(sequence))
 
-    self.assertEqual(len(predictedActiveCellsList[-1]), 0)
-    self.assertEqual(len(predictedInactiveCellsList[-1]), 5)
-    self.assertEqual(len(predictedActiveColumnsList[-1]), 0)
-    self.assertEqual(len(predictedInactiveColumnsList[-1]), 5)
-    self.assertEqual(len(unpredictedActiveColumnsList[-1]), 5)
+    self.assertEqual(len(predictedActiveCellsList[-2]), 0)
+    self.assertEqual(len(predictedInactiveCellsList[-2]), 5)
+    self.assertEqual(len(predictedActiveColumnsList[-2]), 0)
+    self.assertEqual(len(predictedInactiveColumnsList[-2]), 5)
+    self.assertEqual(len(unpredictedActiveColumnsList[-2]), 5)
 
 
   def testComputeStatistics(self):
     sequence = self._generateSequence()
 
-    results = self.tmTestMachine.feedSequence(sequence)
+    self.tmTestMachine.feedSequence(sequence)  # train
+    results = self.tmTestMachine.feedSequence(sequence)  # test
     detailedResults = self.tmTestMachine.computeDetailedResults(results,
                                                                 sequence)
     stats = self.tmTestMachine.computeStatistics(detailedResults, sequence)
@@ -99,6 +100,7 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
     self.assertEqual(len(stats), 5)
     self.assertEqual(stats[1][2], 0)
     self.assertEqual(stats[3][2], 0)
+    self.assertEqual(stats[4][2], 0)
 
 
   # ==============================
@@ -108,7 +110,8 @@ class TemporalMemoryTestMachineTest(unittest.TestCase):
   def _generateSequence(self):
     numbers = range(0, 10)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence = ([None] + sequence) * 3
+    sequence.append(None)
+    sequence *= 3
 
     return sequence
 
