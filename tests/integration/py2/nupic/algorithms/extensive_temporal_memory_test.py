@@ -53,7 +53,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     columnDimensions = [100]
     cellsPerColumn = 1
     newSynapseCount = 11
-    activationThreshold = 8
+    activationThreshold = 11
 
   Note: this is not a high order sequence, so one cell per column is fine.
 
@@ -83,7 +83,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B4) N=100, M=3, P=1. (See how high we can go with N*M)
 
   B5) Like B1 but with cellsPerColumn = 4. First order sequences should still
-  work just fine. [TODO]
+  work just fine.
 
   B6) Like B1 but with slower learning. Set the following parameters differently:
 
@@ -116,7 +116,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 11,
     "permanenceIncrement": 0.4,
     "permanenceDecrement": 0,
-    "activationThreshold": 8
+    "activationThreshold": 11
   }
   PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
@@ -187,6 +187,30 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     averagePredictedActiveColumns = stats[2][3]
     self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
+
+
+  def testB5(self):
+    """Like B1 but with cellsPerColumn = 4.
+    First order sequences should still work just fine."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = range(100)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    sumUnpredictedActiveColumns = stats[4][2]
+    self.assertEqual(sumUnpredictedActiveColumns, 0)
+
+    averagePredictedActiveColumns = stats[2][3]
+    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
+
+    maxPredictedInactiveColumns = stats[1][1]
+    self.assertTrue(maxPredictedInactiveColumns < 10)
 
 
   # ==============================
