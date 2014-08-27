@@ -140,8 +140,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     averagePredictedActiveColumns = stats[2][3]
     self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
-    maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 10)
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertEqual(sumPredictedInactiveColumns, 0)
 
 
   def testB3(self):
@@ -163,8 +163,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     averagePredictedActiveColumns = stats[2][3]
     self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
-    maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 15)
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertEqual(sumPredictedInactiveColumns, 0)
 
 
   def testB4(self):
@@ -209,8 +209,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     averagePredictedActiveColumns = stats[2][3]
     self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
-    maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 10)
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertEqual(sumPredictedInactiveColumns, 0)
 
 
   # ==============================
