@@ -69,7 +69,7 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Byte, PyArray_BYTE);
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int16, PyArray_INT16);
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt16, PyArray_UINT16);
 
-#if defined(NTA_PLATFORM_linux64) || defined(NTA_PLATFORM_darwin64)
+#if defined(NTA_PLATFORM_linux64) || defined(NTA_PLATFORM_sparc64) || defined(NTA_PLATFORM_darwin64)
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT64);
 #else
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
@@ -84,7 +84,7 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt32, PyArray_UINT32);
 
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int64, PyArray_INT64);
 
-#if !defined(NTA_PLATFORM_linux64) && !defined(NTA_PLATFORM_darwin64)
+#if !defined(NTA_PLATFORM_linux64) && !defined(NTA_PLATFORM_sparc64) && !defined(NTA_PLATFORM_darwin64)
 NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt64, PyArray_UINT64);
 #endif
 
