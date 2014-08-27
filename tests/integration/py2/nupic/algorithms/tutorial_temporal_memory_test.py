@@ -211,7 +211,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     super(TutorialTemporalMemoryTest, self).init(*args, **kwargs)
 
     print "Initialized new TM with parameters:"
-    print pprint.pformat(self.computeTMParams(kwargs.get("overrides")))
+    print pprint.pformat(self._computeTMParams(kwargs.get("overrides")))
     print
 
 
