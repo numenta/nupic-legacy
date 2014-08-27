@@ -166,8 +166,8 @@ class TemporalMemoryTestMachine(object):
 
         (min, max, sum, average, standard deviation)
 
-    Note: The first element of the sequence and any resets are ignored
-    when computing stats.
+    Note: The first element, any reset and the element immediately following it
+    is ignored when computing stats.
 
     @param detailedResults (tuple)          Detailed results from
                                             `computeDetailedResults`
@@ -177,7 +177,9 @@ class TemporalMemoryTestMachine(object):
     """
     def statsForResult(result):
       counts = [len(x) for idx, x in enumerate(result)
-                if idx > 0 and sequence[idx] is not None]
+                if (idx > 0 and
+                    sequence[idx] is not None and
+                    sequence[idx-1] is not None)]
       return (min(counts),
               max(counts),
               sum(counts),
