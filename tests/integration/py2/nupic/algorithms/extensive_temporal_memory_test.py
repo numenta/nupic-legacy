@@ -217,6 +217,23 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     print "(stats) => (min, max, sum, average, standard deviation)"
 
 
+  def feedTM(self, sequence, learn=True, num=1):
+    detailedResults = super(ExtensiveTemporalMemoryTest,
+                            self).feedTM(sequence, learn=learn, num=num)
+
+    if self.VERBOSITY >= 2:
+      print self.tmTestMachine.prettyPrintDetailedResults(
+        detailedResults,
+        sequence,
+        self.patternMachine)
+      print
+
+    if learn and self.VERBOSITY >= 3:
+      print self.tmTestMachine.prettyPrintConnections()
+
+    return detailedResults
+
+
   # ==============================
   # Helper functions
   # ==============================
