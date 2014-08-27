@@ -23,17 +23,13 @@
 ## @file
 """
 
-import numpy
 import os
 import random
+
 from nupic.image import (createMask, isSimpleBBox)
 from nupic.frameworks.vision2 import VisionUtils
-
 from PIL import (Image,
-                 ImageChops,
-                 ImageOps,
-                 ImageDraw)
-
+                 ImageChops)
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter
 
 

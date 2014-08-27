@@ -20,9 +20,11 @@
 # ----------------------------------------------------------------------
 # Author: Surabhi Gupta
 
-import numpy as np
 from math import *
 from random import *
+
+import numpy as np
+
 
 class Distributions():
 

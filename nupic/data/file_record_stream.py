@@ -80,6 +80,7 @@ from nupic.data.utils import (
                         unescape)
 
 
+
 ###############################################################################
 class FileRecordStream(RecordStreamIface):
   """ CSV file based RecordStream implementation

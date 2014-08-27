@@ -22,7 +22,6 @@
 import itertools
 
 import numpy
-
 from nupic.encoders.base import Encoder
 
 

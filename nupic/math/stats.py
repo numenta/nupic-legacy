@@ -25,7 +25,9 @@ stats.py defines functions and data structures related to statistical analysis.
 """
 
 import random
+
 import numpy
+
 
 dtype = GetNTAReal()
 

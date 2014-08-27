@@ -20,8 +20,8 @@
 # ----------------------------------------------------------------------
 
 import random
+
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
-from nupic.math.cross import cross
 
 
 class RepetitiveSweep(BaseExplorer):

@@ -86,7 +86,7 @@ class MyTestEnvironment(object):
                   os.path.abspath(self.testOutDir))
 
     # Where to find out datasets
-    self.datasetSrcDir = os.path.join(installRootDir, "share", "prediction", \
+    self.datasetSrcDir = os.path.join(installRootDir, "examples", "prediction", \
       "data", "extra")
 
 
@@ -120,7 +120,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NTA']})
+      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
       g_myEnv = MyTestEnvironment(params)
 
 
@@ -467,7 +467,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def assertMetric(self, base, perm, predictedField,
-                   optimizeMetric, grokScore,
+                   optimizeMetric, nupicScore,
                    movingBaseline,
                    oneGram,
                    trivialMetric,
@@ -481,7 +481,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       print metricSpec.metric
       self.assertTrue(metricSpec.metric in ["multiStep", optimizeMetric,
                                             movingBaseline, oneGram,
-                                            grokScore, trivialMetric,
+                                            nupicScore, trivialMetric,
                                             legacyMetric],
                       "Unrecognized Metric type: %s"% metricSpec.metric)
       if metricSpec.metric == trivialMetric:
@@ -951,7 +951,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1007,7 +1007,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1, 5],
@@ -1218,7 +1218,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1248,7 +1248,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1317,7 +1317,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [24],
@@ -1444,7 +1444,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1581,7 +1581,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1639,7 +1639,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Grok,
+      'environment':OpfEnvironment.Nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1689,7 +1689,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1],
@@ -1773,7 +1773,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Grok,
+      'environment':    OpfEnvironment.Nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [0],
@@ -1963,7 +1963,7 @@ if __name__ == '__main__':
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
   parser.add_option(
-    "--installDir", dest="installDir", default=os.environ['NTA'],
+    "--installDir", dest="installDir", default=os.environ['NUPIC'],
     help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
@@ -1977,7 +1977,7 @@ if __name__ == '__main__':
 
   # The following are put here to document what is accepted by the unittest
   #  module - we don't actually use them in this code bas.
-  parser.add_option("--verbose", dest="verbose", default=os.environ['NTA'],
+  parser.add_option("--verbose", dest="verbose", default=os.environ['NUPIC'],
         help="Verbose output")
   parser.add_option("--quiet", dest="quiet", default=None,
         help="Minimal output")

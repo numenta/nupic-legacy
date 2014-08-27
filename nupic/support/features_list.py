@@ -35,7 +35,7 @@ Required Metadata:
 
 FEATURES_LIST = [
   {'name': 'base_feature',
-    'description': 'This feature must exist for all environments for Grok to run',
+    'description': 'This feature must exist for all environments for Nupic to run',
     'dateAdded': '20110916',
     'author': 'idanforth'},
 

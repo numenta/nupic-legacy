@@ -335,9 +335,9 @@ dataPath = os.path.abspath(os.path.join(os.path.dirname(__file__),
 
 control = {
   # The environment that the current model is being run in
-  "environment": 'grok',
+  "environment": 'nupic',
 
-  # Input stream specification per py/grokengine/cluster/database/StreamDef.json.
+  # Input stream specification per py/nupicengine/cluster/database/StreamDef.json.
   #
   'dataset' : {   'aggregation': config['aggregationInfo'],
         u'info': u'82b42f21-7f86-47b3-bab4-3738703bf612',

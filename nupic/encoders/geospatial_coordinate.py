@@ -23,7 +23,6 @@ import math
 
 import numpy
 from pyproj import Proj
-
 from nupic.encoders.coordinate import CoordinateEncoder
 
 

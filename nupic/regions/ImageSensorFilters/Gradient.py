@@ -23,12 +23,10 @@
 ## @file
 """
 
-import random
 import math
 
 import numpy
 from PIL import Image
-
 from nupic.regions.ImageSensorFilters.BaseFilter import BaseFilter, uint
 
 class Gradient(BaseFilter):

@@ -20,12 +20,13 @@
 # ----------------------------------------------------------------------
 
 import itertools
-import numpy
 
+import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
+
 
 realDType = GetNTAReal()
 uintType = "uint32"
@@ -192,16 +193,18 @@ class SpatialPooler(object):
     spVerbosity:          spVerbosity level: 0, 1, 2, or 3
     """
     # Verify input is valid
-    inputDimensions = numpy.array(inputDimensions)
-    columnDimensions = numpy.array(columnDimensions)
+    inputDimensions = numpy.array(inputDimensions, ndmin=1)
+    columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
     numInputs = inputDimensions.prod()
 
-    assert(numColumns > 0)
-    assert(numInputs > 0)
-    assert(inputDimensions.size == columnDimensions.size)
+    assert numColumns > 0, "No columns specified"
+    assert numInputs > 0, "No inputs specified"
+    assert inputDimensions.size == columnDimensions.size, (
+             "Input dimensions must match column dimensions")
     assert (numActiveColumnsPerInhArea > 0 or
-           (localAreaDensity > 0 and localAreaDensity <= 0.5))
+           (localAreaDensity > 0 and localAreaDensity <= 0.5)), (
+             "Inhibition parameters are invalid")
 
     self._seed(seed)
 
@@ -230,7 +233,8 @@ class SpatialPooler(object):
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
-    assert(self._synPermTrimThreshold < self._synPermConnected)
+    assert (self._synPermTrimThreshold < self._synPermConnected), (
+             "synPermTrimThreshold must be less than synPermConnected")
     self._updatePeriod = 50
     initConnectedPct = 0.5
 
@@ -667,22 +671,22 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    inputVector:    a numpy array of 0's and 1's that comprises the input to
+    inputVector:    A numpy array of 0's and 1's that comprises the input to
                     the spatial pooler. The array will be treated as a one
                     dimensional array, therefore the dimensions of the array
-                    do not have to much the exact dimensions specified in the
+                    do not have to match the exact dimensions specified in the
                     class constructor. In fact, even a list would suffice.
                     The number of input bits in the vector must, however,
                     match the number of bits specified by the call to the
                     constructor. Therefore there must be a '0' or '1' in the
                     array for every input bit.
-    learn:          a boolean value indicating whether learning should be
+    learn:          A boolean value indicating whether learning should be
                     performed. Learning entails updating the  permanence
                     values of the synapses, and hence modifying the 'state'
                     of the model. Setting learning to 'off' freezes the SP
                     and has many uses. For example, you might want to feed in
                     various inputs and examine the resulting SDR's.
-    activeArray:    an array whose size is equal to the number of columns.
+    activeArray:    An array whose size is equal to the number of columns.
                     Before the function returns this array will be populated
                     with 1's at the indices of the active columns, and 0's
                     everywhere else.
@@ -922,10 +926,6 @@ class SpatialPooler(object):
                     and connectivity matrices.
     """
     dimensions = self._inputDimensions
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
     connected = self._connectedSynapses.getRow(index).nonzero()[0]
     if connected.size == 0:
       return 0
@@ -934,8 +934,8 @@ class SpatialPooler(object):
     maxCoord.fill(-1)
     minCoord.fill(max(self._inputDimensions))
     for i in connected:
-      maxCoord = numpy.maximum(maxCoord, toCoords(i))
-      minCoord = numpy.minimum(minCoord, toCoords(i))
+      maxCoord = numpy.maximum(maxCoord, numpy.unravel_index(i, dimensions))
+      minCoord = numpy.minimum(minCoord, numpy.unravel_index(i, dimensions))
     return numpy.average(maxCoord - minCoord + 1)
 
 
@@ -1120,6 +1120,37 @@ class SpatialPooler(object):
     return perm
 
 
+  def _mapColumn(self, index):
+    """
+    Maps a column to its respective input index, keeping to the topology of
+    the region. It takes the index of the column as an argument and determines
+    what is the index of the flattened input vector that is to be the center of
+    the column's potential pool. It distributes the columns over the inputs
+    uniformly. The return value is an integer representing the index of the
+    input bit. Examples of the expected output of this method:
+    * If the topology is one dimensional, and the column index is 0, this
+      method will return the input index 0. If the column index is 1, and there
+      are 3 columns over 7 inputs, this method will return the input index 3.
+    * If the topology is two dimensional, with column dimensions [3, 5] and
+      input dimensions [7, 11], and the column index is 3, the method
+      returns input index 8.
+
+    Parameters:
+    ----------------------------
+    index:          The index identifying a column in the permanence, potential
+                    and connectivity matrices.
+    wrapAround:     A boolean value indicating that boundaries should be
+                    ignored.
+    """
+    columnCoords = numpy.unravel_index(index, self._columnDimensions)
+    columnCoords = numpy.array(columnCoords, dtype=realDType)
+    ratios = columnCoords / numpy.maximum((self._columnDimensions - 1), 1)
+    inputCoords = (self._inputDimensions - 1) * ratios
+    inputCoords = inputCoords.astype(int)
+    inputIndex = numpy.ravel_multi_index(inputCoords, self._inputDimensions)
+    return inputIndex
+
+
   def _mapPotential(self, index, wrapAround=False):
     """
     Maps a column to its input bits. This method encapsulates the topology of
@@ -1146,21 +1177,18 @@ class SpatialPooler(object):
     index:          The index identifying a column in the permanence, potential
                     and connectivity matrices.
     wrapAround:     A boolean value indicating that boundaries should be
-                    region boundaries ignored.
+                    ignored.
     """
-    # Distribute column over inputs uniformly
-    ratio = float(index) / max((self._numColumns - 1), 1)
-    index = int((self._numInputs - 1) * ratio)
+    index = self._mapColumn(index)
+    indices = self._getNeighborsND(index,
+                                   self._inputDimensions,
+                                   self._potentialRadius,
+                                   wrapAround=wrapAround)
+    indices.append(index)
+    indices = numpy.array(indices)
 
-    indices = numpy.array(range(2*self._potentialRadius+1))
-    indices += index
-    indices -= self._potentialRadius
-    if wrapAround:
-      indices %= self._numInputs
-    else:
-      indices = indices[
-        numpy.logical_and(indices >= 0, indices < self._numInputs)]
-    indices = numpy.array(list(set(indices)))
+    # TODO: See https://github.com/numenta/nupic.core/issues/128
+    indices.sort()
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
@@ -1503,15 +1531,8 @@ class SpatialPooler(object):
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
     assert(dimensions.size > 0)
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
 
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
-    def toIndex(coords):
-      return numpy.dot(bounds, coords)
-
-    columnCoords = toCoords(columnIndex)
+    columnCoords = numpy.unravel_index(columnIndex, dimensions)
     rangeND = []
     for i in xrange(dimensions.size):
       if wrapAround:
@@ -1523,12 +1544,11 @@ class SpatialPooler(object):
         curRange = curRange[
           numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
 
-      rangeND.append(curRange)
+      rangeND.append(numpy.unique(curRange))
 
-    neighbors = [toIndex(numpy.array(coord)) for coord in
+    neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
       itertools.product(*rangeND)]
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
+    neighbors.remove(columnIndex)
     return neighbors
 
 

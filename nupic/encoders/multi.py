@@ -38,6 +38,9 @@ from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
 from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
+from nupic.encoders.base import Encoder
+# multiencoder must be imported last because it imports * from this module!
+
 
 class MultiEncoder(Encoder):
   """A MultiEncoder encodes a dictionary or object with

@@ -22,11 +22,10 @@
 
 import os
 import sys
-import time
-import datetime
-import psutil
-from collections import defaultdict
 from operator import itemgetter
+
+import psutil
+
 from nupic.support import title
 from nupic.data.file_record_stream import FileRecordStream
 
