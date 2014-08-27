@@ -134,14 +134,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
-
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
-
-    sumPredictedInactiveColumns = stats[1][2]
-    self.assertEqual(sumPredictedInactiveColumns, 0)
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
 
 
   def testB3(self):
@@ -157,14 +151,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
-
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
-
-    sumPredictedInactiveColumns = stats[1][2]
-    self.assertEqual(sumPredictedInactiveColumns, 0)
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
 
 
   def testB4(self):
@@ -182,11 +170,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
-
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
+    self.assertAllActiveWerePredicted(stats)
 
 
   def testB5(self):
@@ -203,14 +187,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
-
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
-
-    sumPredictedInactiveColumns = stats[1][2]
-    self.assertEqual(sumPredictedInactiveColumns, 0)
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
 
 
   # ==============================
@@ -281,6 +259,21 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.allStats.append((self.id(), stats))
 
     return detailedResults, stats
+
+
+  def assertAllActiveWerePredicted(self, stats):
+    sumUnpredictedActiveColumns = stats[4][2]
+    self.assertEqual(sumUnpredictedActiveColumns, 0)
+
+    minPredictedActiveColumns = stats[2][0]
+    self.assertEqual(minPredictedActiveColumns, 21)
+    maxPredictedActiveColumns = stats[2][1]
+    self.assertEqual(maxPredictedActiveColumns, 25)
+
+
+  def assertAllInactiveWereUnpredicted(self, stats):
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertEqual(sumPredictedInactiveColumns, 0)
 
 
 
