@@ -87,21 +87,19 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   B6) Like B1 but with slower learning. Set the following parameters differently:
 
-      activationThreshold = newSynapseCount
-      minThreshold = activationThreshold
-      initialPerm = 0.2
-      connectedPerm = 0.7
-      permanenceInc = 0.2
+      initialPermanence = 0.2
+      connectedPermanence = 0.7
+      permanenceIncrement = 0.2
 
   Now we train the TP with the B1 sequence 4 times (P=4). This will increment
   the permanences to be above 0.8 and at that point the inference will be correct.
   This test will ensure the basic match function and segment activation rules are
-  working correctly. [TODO]
+  working correctly.
 
-  B7) Like B6 but with 4 cells per column. Should still work. [TODO]
+  B7) Like B6 but with 4 cells per column. Should still work.
 
   B8) Like B6 but present the sequence less than 4 times: the inference should be
-  incorrect. [TODO]
+  incorrect.
 
   B9) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
@@ -191,6 +189,80 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllInactiveWereUnpredicted(stats)
 
 
+  def testB6(self):
+    """Like B1 but with slower learning.
+
+    Set the following parameters differently:
+
+      initialPermanence = 0.2
+      connectedPermanence = 0.7
+      permanenceIncrement = 0.2
+
+    Now we train the TP with the B1 sequence 4 times (P=4). This will increment
+    the permanences to be above 0.8 and at that point the inference will be correct.
+    This test will ensure the basic match function and segment activation rules are
+    working correctly.
+    """
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2})
+
+    numbers = range(100)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    for _ in xrange(4):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB7(self):
+    """Like B6 but with 4 cells per column.
+    Should still work."""
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2,
+               "cellsPerColumn": 4})
+
+    numbers = range(100)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    for _ in xrange(4):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB8(self):
+    """Like B6 but present the sequence less than 4 times.
+    The inference should be incorrect."""
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2})
+
+    numbers = range(100)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    for _ in xrange(3):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWereUnpredicted(stats)
+
+
   # ==============================
   # Overrides
   # ==============================
@@ -274,6 +346,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   def assertAllInactiveWereUnpredicted(self, stats):
     sumPredictedInactiveColumns = stats[1][2]
     self.assertEqual(sumPredictedInactiveColumns, 0)
+
+
+  def assertAllActiveWereUnpredicted(self, stats):
+    sumPredictedActiveColumns = stats[2][2]
+    self.assertEqual(sumPredictedActiveColumns, 0)
+
+    minUnpredictedActiveColumns = stats[4][0]
+    self.assertEqual(minUnpredictedActiveColumns, 21)
+    maxUnpredictedActiveColumns = stats[4][1]
+    self.assertEqual(maxUnpredictedActiveColumns, 25)
 
 
 
