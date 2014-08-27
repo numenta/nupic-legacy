@@ -80,7 +80,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   B3) N=300, M=1, P=1. (See how high we can go with N)
 
-  B4) N=100, M=3, P=1. (See how high we can go with N*M) [TODO]
+  B4) N=100, M=3, P=1. (See how high we can go with N*M)
 
   B5) Like B1 but with cellsPerColumn = 4. First order sequences should still
   work just fine. [TODO]
@@ -165,6 +165,28 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     maxPredictedInactiveColumns = stats[1][1]
     self.assertTrue(maxPredictedInactiveColumns < 15)
+
+
+  def testB4(self):
+    """N=100, M=3, P=1. (See how high we can go with N*M)"""
+    self.init()
+
+    sequence = []
+    for _ in xrange(3):
+      numbers = range(100)
+      shuffle(numbers)
+      sequence += self.sequenceMachine.generateFromNumbers(numbers)
+      sequence.append(None)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    sumUnpredictedActiveColumns = stats[4][2]
+    self.assertEqual(sumUnpredictedActiveColumns, 0)
+
+    averagePredictedActiveColumns = stats[2][3]
+    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
 
   # ==============================
