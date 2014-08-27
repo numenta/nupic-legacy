@@ -46,7 +46,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
   PATTERN_MACHINE = ConsecutivePatternMachine(6, 1)
 
 
-  def testA(self):
+  def testFirstOrder(self):
     """Basic first order sequences"""
     self.init()
 
@@ -66,7 +66,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertEqual(len(predictedActiveColumnsList[3]), 1)
 
 
-  def testB(self):
+  def testHighOrder(self):
     """High order sequences (in order)"""
     self.init()
 
@@ -115,7 +115,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
 
 
-  def testC(self):
+  def testHighOrderAlternating(self):
     """High order sequences (alternating)"""
     self.init()
 
@@ -139,7 +139,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     # self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
 
 
-  def testD(self):
+  def testEndlesslyRepeating(self):
     """Endlessly repeating sequence of 2 elements"""
     self.init({"columnDimensions": [2]})
 
@@ -151,7 +151,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.feedTM(sequence, num=50)
 
 
-  def testE(self):
+  def testEndlesslyRepeatingWithNoNewSynapses(self):
     """Endlessly repeating sequence of 2 elements with maxNewSynapseCount=1"""
     self.init({"columnDimensions": [2],
                "maxNewSynapseCount": 1,
@@ -165,7 +165,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.feedTM(sequence, num=100)
 
 
-  def testF(self):
+  def testLongRepeatingWithNovelEnding(self):
     """Long repeating sequence with novel pattern at the end"""
     self.init({"columnDimensions": [3]})
 
@@ -179,7 +179,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.feedTM(sequence, num=10)
 
 
-  def testG(self):
+  def testSingleEndlesslyRepeating(self):
     """A single endlessly repeating pattern"""
     self.init({"columnDimensions": [1]})
 
