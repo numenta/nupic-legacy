@@ -20,19 +20,25 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# examples/bindings
+echo
+echo Running `basename $0`...
+echo
+
 python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py
-#  python $NUPIC/examples/bindings/svm_how_to.py # tkinter missing in Travis build machine
-#  python $NUPIC/examples/bindings/temporal_pooler_how_to.py # tkinter too
-# examples/opf (run atleast 1 from each category)
+# python $NUPIC/examples/bindings/svm_how_to.py # tkinter missing in Travis build machine
+# python $NUPIC/examples/bindings/temporal_pooler_how_to.py # tkinter too
+
+# examples/opf (run at least 1 from each category)
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/
+
 # opf/experiments/params - skip now
 python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/
+
 # examples/tp
 python$PY_VER $NUPIC/examples/tp/hello_tp.py
 python$PY_VER $NUPIC/examples/tp/tp_test.py

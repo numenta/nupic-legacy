@@ -20,10 +20,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# We need to move the pip requirements into the archived directory so they can
-# be installed for regression tests
-cp ${TRAVIS_BUILD_DIR}/external/common/requirements.txt ${NTA}/.
-# This is the directory we'll be archiving.
-mkdir ${TRAVIS_BUILD_DIR}/build/archive
-# Tar up the release directory
-tar -zcf ${TRAVIS_BUILD_DIR}/build/archive/nupic-linux64-${TRAVIS_COMMIT}.tar.gz -C $NTA/.. --transform=s/eng/nupic-linux64-${TRAVIS_COMMIT}/ --exclude="*.pyc" eng
+echo
+echo Running `basename $0`...
+echo
+
+cd ${TRAVIS_BUILD_DIR}
+python${PY_VER} setup.py bdist

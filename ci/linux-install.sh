@@ -20,7 +20,20 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-echo ">>> PYTHON=`which python$PY_VER`"
-PYTHON=`which python$PY_VER`
-echo ">>> cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA"
-cmake $NUPIC -DPYTHON_LIBRARY=/usr/lib/libpython$PY_VER.so -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA
+echo
+echo Running `basename $0`...
+echo
+
+# Verify cmake version
+cmake --version
+
+# Verify python version
+python$PY_VER --version
+
+# Build NuPIC
+cd $NUPIC
+python$PY_VER setup.py install --user
+
+# Show nupic installation folder by trying import tonupic, if works, it prints 
+# the absolute path of nupic.__file__, which the installation folder itself.
+python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, \"../..\")))'

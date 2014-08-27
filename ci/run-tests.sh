@@ -24,4 +24,12 @@ echo
 echo Running `basename $0`...
 echo
 
-cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA
+cd $TRAVIS_BUILD_DIR/build/scripts
+# legacy binary tests
+make tests_pyhtm
+# Python unit tests and prep for coveralls reporting
+make python_unit_tests
+mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit
+# Python integration tests and prep for coveralls reporting
+make python_integration_tests
+mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration
