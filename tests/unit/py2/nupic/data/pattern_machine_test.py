@@ -48,6 +48,20 @@ class PatternMachineTest(unittest.TestCase):
     self.assertRaises(IndexError, self.patternMachine.get, *args)
 
 
+  def testAddNoise(self):
+    patternMachine = PatternMachine(10000, 1000, num=1)
+    pattern = patternMachine.get(0)
+
+    noisy = patternMachine.addNoise(pattern, 0.0)
+    self.assertEqual(len(pattern & noisy), 1000)
+
+    noisy = patternMachine.addNoise(pattern, 0.5)
+    self.assertTrue(400 < len(pattern & noisy) < 600)
+
+    noisy = patternMachine.addNoise(pattern, 1.0)
+    self.assertTrue(0 < len(pattern & noisy) < 100)
+
+
   def testNumbersForBit(self):
     pattern = self.patternMachine.get(49)
 
