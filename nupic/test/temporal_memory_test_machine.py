@@ -23,6 +23,7 @@
 Utilities for running data through the TM, and analyzing the results.
 """
 
+import numpy
 from prettytable import PrettyTable
 
 
@@ -63,6 +64,47 @@ class TemporalMemoryTestMachine(object):
     return results
 
 
+  def computeDetailedResult(self, prevPredictedCells, pattern):
+    """
+    Compute detailed result from previous predicted cells and pattern.
+
+    @param prevPredictedCells (set) Predicted cells at `t-1`
+    @param pattern            (set) Current pattern
+
+    @return (tuple) Contains:
+                      `predictedActiveCells`     (set),
+                      `predictedInactiveCells`   (set),
+                      `predictedActiveColumns`   (set),
+                      `predictedInactiveColumns` (set),
+                      `unpredictedActiveColumns` (set)
+    """
+    predictedActiveCells = set()
+    predictedInactiveCells = set()
+    predictedActiveColumns = set()
+    predictedInactiveColumns = set()
+
+    for prevPredictedCell in prevPredictedCells:
+      prevPredictedColumn = self.tm.connections.columnForCell(
+        prevPredictedCell)
+
+      if prevPredictedColumn in pattern:
+        predictedActiveCells.add(prevPredictedCell)
+        predictedActiveColumns.add(prevPredictedColumn)
+      else:
+        predictedInactiveCells.add(prevPredictedCell)
+        predictedInactiveColumns.add(prevPredictedColumn)
+
+    unpredictedActiveColumns = pattern - predictedActiveColumns
+
+    return (
+      predictedActiveCells,
+      predictedInactiveCells,
+      predictedActiveColumns,
+      predictedInactiveColumns,
+      unpredictedActiveColumns
+    )
+
+
   def computeDetailedResults(self, results, sequence):
     """
     Compute detailed results from results of `feedSequence`.
@@ -95,19 +137,13 @@ class TemporalMemoryTestMachine(object):
 
       if pattern != None:
         prevPredictedCells = results[i-1]
-
-        for prevPredictedCell in prevPredictedCells:
-          prevPredictedColumn = self.tm.connections.columnForCell(
-                                  prevPredictedCell)
-
-          if prevPredictedColumn in pattern:
-            predictedActiveCells.add(prevPredictedCell)
-            predictedActiveColumns.add(prevPredictedColumn)
-          else:
-            predictedInactiveCells.add(prevPredictedCell)
-            predictedInactiveColumns.add(prevPredictedColumn)
-
-        unpredictedActiveColumns = pattern - predictedActiveColumns
+        (
+          predictedActiveCells,
+          predictedInactiveCells,
+          predictedActiveColumns,
+          predictedInactiveColumns,
+          unpredictedActiveColumns
+        ) = self.computeDetailedResult(prevPredictedCells, pattern)
 
       predictedActiveCellsList.append(predictedActiveCells)
       predictedInactiveCellsList.append(predictedInactiveCells)
@@ -123,6 +159,37 @@ class TemporalMemoryTestMachine(object):
 
 
   @staticmethod
+  def computeStatistics(detailedResults, sequence):
+    """
+    Returns statistics for the given detailed results.
+    Each element in the returned tuple is itself a tuple with the following form:
+
+        (min, max, sum, average, standard deviation)
+
+    Note: The first element, any reset and the element immediately following it
+    is ignored when computing stats.
+
+    @param detailedResults (tuple)          Detailed results from
+                                            `computeDetailedResults`
+    @param sequence        (list)           Sequence that generated the results
+
+    @return (tuple) Statistics for detailed results
+    """
+    def statsForResult(result):
+      counts = [len(x) for idx, x in enumerate(result)
+                if (idx > 0 and
+                    sequence[idx] is not None and
+                    sequence[idx-1] is not None)]
+      return (min(counts),
+              max(counts),
+              sum(counts),
+              numpy.mean(counts),
+              numpy.std(counts))
+
+    return tuple([statsForResult(result) for result in detailedResults])
+
+
+  @staticmethod
   def prettyPrintDetailedResults(detailedResults,
                                  sequence,
                                  patternMachine,
@@ -130,7 +197,7 @@ class TemporalMemoryTestMachine(object):
     """
     Pretty print the detailed results from `feedSequence`.
 
-    @param detailedResults (list)           Detailed results from
+    @param detailedResults (tuple)          Detailed results from
                                             `computeDetailedResults`
     @param sequence        (list)           Sequence that generated the results
     @param patternMachine  (PatternMachine) Pattern machine
