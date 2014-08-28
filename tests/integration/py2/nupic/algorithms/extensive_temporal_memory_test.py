@@ -103,6 +103,85 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   B9) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
+
+
+  ===============================================================================
+                  High Order Sequences
+  ===============================================================================
+
+  These tests ensure that high order sequences can be learned in a multiple cells
+  per column instantiation.
+
+  Parameters: Same as Basic First Order Tests above, but with varying cells per
+  column.
+
+  Input Sequence: We train with M input sequences, each consisting of N random
+  patterns. Each pattern consists of a random number of bits on. The number of
+  1's in each pattern should be between 21 and 25 columns. The sequences are
+  constructed to contain shared subsequences, such as:
+
+  A B C D E F G H I J
+  K L M D E F N O P Q
+
+  The position and length of shared subsequences are parameters in the tests.
+
+  Training: Identical to basic first order tests above.
+
+  Testing: Identical to basic first order tests above unless noted.
+
+  We can also calculate the number of segments and synapses that should be
+  learned. We raise an error if too many or too few were learned.
+
+  H1) Learn two sequences with a short shared pattern. Parameters
+  should be the same as B1. This test will FAIL since cellsPerCol == 1. No
+  consecutive patterns share any column. [TODO]
+
+  H2) As above but with cellsPerCol == 4. This test should PASS. No consecutive
+  patterns share any column. [TODO]
+
+  H2a) Same as above, except P=2. Test that permanences go up and that no
+  additional synapses or segments are learned. [TODO]
+
+  H3) Same parameters as H.2 except sequences are created such that they share a
+  single significant sub-sequence. Subsequences should be reasonably long and in
+  the middle of sequences. No consecutive patterns share any column. [TODO]
+
+  H4) Like H.3, except the shared subsequence is in the beginning. (e.g.
+  "ABCDEF" and "ABCGHIJ". At the point where the shared subsequence ends, all
+  possible next patterns should be predicted. As soon as you see the first unique
+  pattern, the predictions should collapse to be a perfect prediction. [TODO]
+
+  H5) Shared patterns. Similar to H3 except that patterns are shared between
+  sequences.  All sequences are different shufflings of the same set of N
+  patterns (there is no shared subsequence). Care should be taken such that the
+  same three patterns never follow one another in two sequences. [TODO]
+
+  H6) Combination of H5) and H3). Shared patterns in different sequences, with a
+  shared subsequence. [TODO]
+
+  H7) Stress test: every other pattern is shared. [TODO]
+
+  H8) Start predicting in the middle of a sequence. [TODO]
+
+  H9) Hub capacity. How many patterns can use that hub? [TODO]
+
+  H10) Sensitivity to small amounts of noise during inference. [TODO]
+
+  H11) Higher order patterns with alternating elements.
+
+  Create the following 4 sequences:
+
+       A B A B A C
+       A B A B D E
+       A B F G H I
+       A J K L M N
+
+  After training we should verify that the expected transitions are in the
+  model. Prediction accuracy should be perfect. In addition, during inference,
+  after the first element is presented, the columns should not burst any more.
+  Need to verify, for the first sequence, that the high order representation
+  when presented with the second A and B is different from the representation
+  in the first presentation. [TODO]
   """
 
   DEFAULT_TM_PARAMS = {
