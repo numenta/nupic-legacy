@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 import unittest
 
-from nupic.data.pattern_machine import ConsecutivePatternMachine
+from nupic.data.pattern_machine import PatternMachine, ConsecutivePatternMachine
 from nupic.data.sequence_machine import SequenceMachine
 
 
@@ -41,6 +41,25 @@ class SequenceMachineTest(unittest.TestCase):
     self.assertEqual(sequence[0], self.patternMachine.get(0))
     self.assertEqual(sequence[10], None)
     self.assertEqual(sequence[11], self.patternMachine.get(10))
+
+
+  def testAddSpatialNoise(self):
+    patternMachine = PatternMachine(10000, 1000, num=100)
+    sequenceMachine = SequenceMachine(patternMachine)
+    numbers = range(0, 100)
+    numbers.append(None)
+
+    sequence = sequenceMachine.generateFromNumbers(numbers)
+    noisy = sequenceMachine.addSpatialNoise(sequence, 0.5)
+
+    overlap = len(noisy[0] & patternMachine.get(0))
+    self.assertTrue(400 < overlap < 600)
+
+    sequence = sequenceMachine.generateFromNumbers(numbers)
+    noisy = sequenceMachine.addSpatialNoise(sequence, 0.0)
+
+    overlap = len(noisy[0] & patternMachine.get(0))
+    self.assertEqual(overlap, 1000)
 
 
 

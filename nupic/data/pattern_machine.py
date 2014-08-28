@@ -71,6 +71,26 @@ class PatternMachine(object):
     return self._patterns[number]
 
 
+  def addNoise(self, bits, amount):
+    """
+    Add noise to pattern.
+
+    @param bits   (set)   Indices of on bits
+    @param amount (float) Probability of switching an on bit with a random bit
+
+    @return (set) Indices of on bits in noisy pattern
+    """
+    newBits = set()
+
+    for bit in bits:
+      if random.random() < amount:
+        newBits.add(random.randrange(self._n))
+      else:
+        newBits.add(bit)
+
+    return newBits
+
+
   def numbersForBit(self, bit):
     """
     Return the set of pattern numbers that match a bit.
