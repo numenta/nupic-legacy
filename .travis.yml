@@ -29,7 +29,7 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  - . ./ci/before-deploy.sh
+  - . ./ci/travis/before_deploy-linux.sh
 
 deploy:
   provider: s3
@@ -59,16 +59,16 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-  - . ./ci/linux-before-install.sh
+  - . ./ci/travis/before_install-linux.sh
   - export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
 
 install:
-  - . ./ci/linux-install.sh
+  - . ./ci/travis/install-linux.sh
 
 script:
-  - . ./ci/run-tests.sh
+  - . ./ci/travis/script-run-tests.sh
   - cd $TRAVIS_BUILD_DIR
-  - . ./ci/run-examples.sh
+  - . ./ci/travis/script-run-examples.sh
 
 after_success:
-  - . ./ci/report-coverage.sh
+  - . ./ci/travis/after_success-report-coverage.sh
