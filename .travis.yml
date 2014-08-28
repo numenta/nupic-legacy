@@ -60,6 +60,7 @@ notifications:
 
 before_install:
   - ./ci/linux-before-install.sh
+  - export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
 
 install:
   - ./ci/linux-install.sh

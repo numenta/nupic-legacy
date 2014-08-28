@@ -50,6 +50,3 @@ sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
 # Install NuPIC python dependencies
 echo ">>> pip install -q -r $NUPIC/external/common/requirements.txt"
 pip install -q -r $NUPIC/external/common/requirements.txt
-# Prefix env with our user installation
-echo ">>> export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages"
-export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
