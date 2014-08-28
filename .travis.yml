@@ -67,6 +67,7 @@ install:
 
 script:
   - . ./ci/run-tests.sh
+  - cd $TRAVIS_BUILD_DIR
   - . ./ci/run-examples.sh
 
 after_success:
