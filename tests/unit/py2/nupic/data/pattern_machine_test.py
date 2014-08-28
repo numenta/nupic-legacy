@@ -68,6 +68,20 @@ class PatternMachineTest(unittest.TestCase):
     self.assertEqual(numberMap[49], pattern)
 
 
+  def testWList(self):
+    w = [4, 7, 11]
+    patternMachine = PatternMachine(100, w, num=50)
+    widths = dict((el, 0) for el in w)
+
+    for i in range(50):
+      pattern = patternMachine.get(i)
+      width = len(pattern)
+      self.assertTrue(width in w)
+      widths[len(pattern)] += 1
+
+    for i in w:
+      self.assertTrue(widths[i] > 0)
+
 
 class ConsecutivePatternMachineTest(unittest.TestCase):
 
