@@ -1843,18 +1843,22 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         # Use the rest of the state to set local Python attributes.
         del state["this"]
         self.__dict__.update(state)
-
-    def compute(self, inputVector, learn, activeArray, stripNeverLearned=True):
-      self.convertedCompute(inputVector, learn, activeArray, stripNeverLearned)
   %}
 
-  inline void convertedCompute(PyObject *py_x, bool learn, PyObject *py_y,
-                               bool stripNeverLearned)
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
+                      bool stripNeverLearned)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
     self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data,
                   (bool)stripNeverLearned);
+  }
+
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
   }
 
   inline void stripUnlearnedColumns(PyObject *py_x)
