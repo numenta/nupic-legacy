@@ -61,6 +61,9 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   patterns. Each pattern consists of a random number of bits on. The number of
   1's in each pattern should be between 21 and 25 columns.
 
+  Each input pattern can optionally have an amount of spatial noise represented
+  by X, where X is the probability of switching an on bit with a random bit.
+
   Training: The TP is trained with P passes of the M sequences. There
   should be a reset between sequences. The total number of iterations during
   training is P*N*M.
@@ -104,6 +107,9 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B9) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
 
+  B10) Like B5, but each pattern corrupted by a small amount of spatial noise
+  (X = 0.05).
+
 
   ===============================================================================
                   High Order Sequences
@@ -124,6 +130,9 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   K L M D E F N O P Q
 
   The position and length of shared subsequences are parameters in the tests.
+
+  Each input pattern can optionally have an amount of spatial noise represented
+  by X, where X is the probability of switching an on bit with a random bit.
 
   Training: Identical to basic first order tests above.
 
@@ -165,7 +174,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   H9) Hub capacity. How many patterns can use that hub? [TODO]
 
-  H10) Sensitivity to small amounts of noise during inference. [TODO]
+  H10) Sensitivity to small amounts of noise during inference (X = 0.05). [TODO]
 
   H11) Higher order patterns with alternating elements.
 
@@ -340,6 +349,22 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     _, stats = self._testTM(sequence)
 
     self.assertAllActiveWereUnpredicted(stats)
+
+
+  def testB10(self):
+    """Like B5, but each pattern corrupted by a small amount of spatial noise.
+    (X = 0.05)"""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = range(100)
+    shuffle(numbers)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequence.append(None)
+
+    self.feedTM(sequence)
+
+    sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
+    _, stats = self._testTM(sequence)
 
 
   # ==============================
