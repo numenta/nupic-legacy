@@ -66,18 +66,27 @@ class SequenceMachineTest(unittest.TestCase):
     numbers = self.sequenceMachine.generateNumbers(1, 100)
     self.assertEqual(numbers[-1], None)
     self.assertEqual(len(numbers), 101)
-    self.assertFalse(numbers[:-1] == range(100))
-    self.assertEqual(sorted(numbers[:-1]), range(100))
+    self.assertFalse(numbers[:-1] == range(0, 100))
+    self.assertEqual(sorted(numbers[:-1]), range(0, 100))
 
-    numbers = self.sequenceMachine.generateNumbers(2, 100)
-    self.assertEqual(len(numbers), 202)
+
+  def testGenerateNumbersMultipleSequences(self):
+    numbers = self.sequenceMachine.generateNumbers(3, 100)
+    self.assertEqual(len(numbers), 303)
+
+    self.assertEqual(sorted(numbers[0:100]), range(0, 100))
+    self.assertEqual(sorted(numbers[101:201]), range(100, 200))
+    self.assertEqual(sorted(numbers[202:302]), range(200, 300))
 
 
   def testGenerateNumbersWithShared(self):
     numbers = self.sequenceMachine.generateNumbers(3, 100, (20, 35))
     self.assertEqual(len(numbers), 303)
-    self.assertEqual(numbers[20:35], numbers[20+101:35+101])
-    self.assertEqual(numbers[20+101:35+101], numbers[20+202:35+202])
+
+    shared = range(300, 315)
+    self.assertEqual(numbers[20:35], shared)
+    self.assertEqual(numbers[20+101:35+101], shared)
+    self.assertEqual(numbers[20+202:35+202], shared)
 
 
 

@@ -127,11 +127,12 @@ class SequenceMachine(object):
     if sharedRange:
       sharedStart, sharedEnd = sharedRange
       sharedLength = sharedEnd - sharedStart
-      sharedNumbers = range(sequenceLength,
-                            sequenceLength+sharedLength)
+      sharedNumbers = range(numSequences * sequenceLength,
+                            numSequences * sequenceLength + sharedLength)
 
     for i in xrange(numSequences):
-      newNumbers = range(sequenceLength)
+      start = i * sequenceLength
+      newNumbers = range(start, start + sequenceLength)
       self._random.shuffle(newNumbers)
 
       if sharedRange is not None:
