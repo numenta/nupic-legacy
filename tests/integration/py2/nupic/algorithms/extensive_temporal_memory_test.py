@@ -142,18 +142,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   learned. We raise an error if too many or too few were learned.
 
   H1) Learn two sequences with a short shared pattern. Parameters
-  should be the same as B1. This test will FAIL since cellsPerCol == 1. No
-  consecutive patterns share any column. [TODO]
+  should be the same as B1. This test will FAIL since cellsPerCol == 1.
 
-  H2) As above but with cellsPerCol == 4. This test should PASS. No consecutive
-  patterns share any column. [TODO]
+  H2) As above but with cellsPerCol == 4. This test should PASS. [TODO]
 
   H2a) Same as above, except P=2. Test that permanences go up and that no
   additional synapses or segments are learned. [TODO]
 
   H3) Same parameters as H.2 except sequences are created such that they share a
   single significant sub-sequence. Subsequences should be reasonably long and in
-  the middle of sequences. No consecutive patterns share any column. [TODO]
+  the middle of sequences. [TODO]
 
   H4) Like H.3, except the shared subsequence is in the beginning. (e.g.
   "ABCDEF" and "ABCGHIJ". At the point where the shared subsequence ends, all
