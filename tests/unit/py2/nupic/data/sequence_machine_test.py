@@ -63,18 +63,18 @@ class SequenceMachineTest(unittest.TestCase):
 
 
   def testGenerateNumbers(self):
-    numbers = SequenceMachine.generateNumbers(1, 100)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     self.assertEqual(numbers[-1], None)
     self.assertEqual(len(numbers), 101)
     self.assertFalse(numbers[:-1] == range(100))
     self.assertEqual(sorted(numbers[:-1]), range(100))
 
-    numbers = SequenceMachine.generateNumbers(2, 100)
+    numbers = self.sequenceMachine.generateNumbers(2, 100)
     self.assertEqual(len(numbers), 202)
 
 
   def testGenerateNumbersWithShared(self):
-    numbers = SequenceMachine.generateNumbers(3, 100, (20, 35))
+    numbers = self.sequenceMachine.generateNumbers(3, 100, (20, 35))
     self.assertEqual(len(numbers), 303)
     self.assertEqual(numbers[20:35], numbers[20+101:35+101])
     self.assertEqual(numbers[20+101:35+101], numbers[20+202:35+202])

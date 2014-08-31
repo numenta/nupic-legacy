@@ -24,7 +24,7 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
-import random
+import numpy
 
 
 
@@ -43,7 +43,7 @@ class SequenceMachine(object):
     self.patternMachine = patternMachine
 
     # Initialize member variables
-    random.seed(seed)
+    self._random = numpy.random.RandomState(seed)
 
 
   def generateFromNumbers(self, numbers):
@@ -112,8 +112,7 @@ class SequenceMachine(object):
     return text
 
 
-  @staticmethod
-  def generateNumbers(numSequences, sequenceLength, sharedRange=None):
+  def generateNumbers(self, numSequences, sequenceLength, sharedRange=None):
     """
     @param numSequences   (int)   Number of sequences to return,
                                   separated by None
@@ -133,7 +132,7 @@ class SequenceMachine(object):
 
     for i in xrange(numSequences):
       newNumbers = range(sequenceLength)
-      random.shuffle(newNumbers)
+      self._random.shuffle(newNumbers)
 
       if sharedRange is not None:
         newNumbers[sharedStart:sharedEnd] = sharedNumbers
