@@ -24,6 +24,8 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
+import random
+
 
 
 class SequenceMachine(object):
@@ -32,12 +34,16 @@ class SequenceMachine(object):
   """
 
   def __init__(self,
-               patternMachine):
+               patternMachine,
+               seed=42):
     """
     @param patternMachine (PatternMachine) Pattern machine instance
     """
     # Save member variables
     self.patternMachine = patternMachine
+
+    # Initialize member variables
+    random.seed(seed)
 
 
   def generateFromNumbers(self, numbers):
@@ -104,3 +110,35 @@ class SequenceMachine(object):
                                                        verbosity=verbosity)
 
     return text
+
+
+  @staticmethod
+  def generateNumbers(numSequences, sequenceLength, sharedRange=None):
+    """
+    @param numSequences   (int)   Number of sequences to return,
+                                  separated by None
+    @param sequenceLength (int)   Length of each sequence
+    @param sharedRange    (tuple) (start index, end index) indicating range of
+                                  shared subsequence in each sequence
+                                  (None if no shared subsequences)
+    @return (list) Numbers representing sequences
+    """
+    numbers = []
+
+    if sharedRange:
+      sharedStart, sharedEnd = sharedRange
+      sharedLength = sharedEnd - sharedStart
+      sharedNumbers = range(sequenceLength,
+                            sequenceLength+sharedLength)
+
+    for i in xrange(numSequences):
+      newNumbers = range(sequenceLength)
+      random.shuffle(newNumbers)
+
+      if sharedRange is not None:
+        newNumbers[sharedStart:sharedEnd] = sharedNumbers
+
+      numbers += newNumbers
+      numbers.append(None)
+
+    return numbers
