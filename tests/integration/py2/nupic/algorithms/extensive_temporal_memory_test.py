@@ -141,11 +141,13 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   learned. We raise an error if too many or too few were learned.
 
   H1) Learn two sequences with a short shared pattern. Parameters
-  should be the same as B1. This test will FAIL since cellsPerCol == 1.
+  should be the same as B1, but with activationThreshold = 8.
+  Since cellsPerColumn == 1, it should make more predictions than necessary.
 
-  H2) As above but with cellsPerCol == 4. This test should PASS. [TODO]
+  H2) Same as H1, but with cellsPerColumn == 4. It should make just the right
+  number of predictions.
 
-  H2a) Same as above, except P=2. Test that permanences go up and that no
+  H2a) Same as H2, except P=2. Test that permanences go up and that no
   additional synapses or segments are learned. [TODO]
 
   H3) Same parameters as H.2 except sequences are created such that they share a
@@ -349,6 +351,47 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     averageUnpredictedActiveColumns = stats[4][3]
     self.assertTrue(averageUnpredictedActiveColumns < 1)
 
+
+  def testH1(self):
+    """Learn two sequences with a short shared pattern.
+    Parameters should be the same as B1, but with activationThreshold = 8.
+    Since cellsPerColumn == 1, it should make more predictions than necessary.
+    """
+    self.init({"activationThreshold": 8})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns > 10)
+
+
+  @unittest.skip("Seeing a lot of bursting, need to investigate why")
+  def testH2(self):
+    """Same as H1, but with cellsPerColumn == 4. It should make just the right
+    number of predictions."""
+    self.init({"activationThreshold": 8,
+               "cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns < 1)
+
+
   # ==============================
   # Overrides
   # ==============================
@@ -373,6 +416,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       row = [stats[0]] + list(stats[1])
       table.add_row(row)
 
+    print
     print table
     print "(stats) => (min, max, sum, average, standard deviation)"
 
