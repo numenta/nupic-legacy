@@ -144,8 +144,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   learned. We raise an error if too many or too few were learned.
 
   H1) Learn two sequences with a short shared pattern. Parameters
-  should be the same as B1, but with activationThreshold = 8.
-  Since cellsPerColumn == 1, it should make more predictions than necessary.
+  should be the same as B1. Since cellsPerColumn == 1, it should make more
+  predictions than necessary.
 
   H2) Same as H1, but with cellsPerColumn == 4. It should make just the right
   number of predictions.
@@ -269,14 +269,12 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllInactiveWereUnpredicted(stats)
 
 
-  @unittest.skip("Seeing a lot of bursting, need to investigate why")
   def testB6(self):
     """Like B4 but with cellsPerColumn = 4.
     First order sequences should still work just fine."""
     self.init({"cellsPerColumn": 4})
 
     numbers = self.sequenceMachine.generateNumbers(3, 100)
-    print numbers
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
 
     self.feedTM(sequence)
@@ -375,10 +373,10 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   def testH1(self):
     """Learn two sequences with a short shared pattern.
-    Parameters should be the same as B1, but with activationThreshold = 8.
+    Parameters should be the same as B1.
     Since cellsPerColumn == 1, it should make more predictions than necessary.
     """
-    self.init({"activationThreshold": 8})
+    self.init()
 
     numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
@@ -390,15 +388,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllActiveWerePredicted(stats)
 
     averagePredictedInactiveColumns = stats[1][3]
-    self.assertTrue(averagePredictedInactiveColumns > 10)
+    self.assertTrue(averagePredictedInactiveColumns > 0)
+
+    # TODO: Make sure bursting columns are at the right positions
 
 
   @unittest.skip("Seeing a lot of bursting, need to investigate why")
   def testH2(self):
     """Same as H1, but with cellsPerColumn == 4. It should make just the right
     number of predictions."""
-    self.init({"activationThreshold": 8,
-               "cellsPerColumn": 4})
+    self.init({"cellsPerColumn": 4})
 
     numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
