@@ -87,7 +87,10 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B5) Like B1 but with cellsPerColumn = 4. First order sequences should still
   work just fine.
 
-  B6) Like B1 but with slower learning. Set the following parameters differently:
+  B6) Like B4 but with cellsPerColumn = 4. First order sequences should still
+  work just fine.
+
+  B7) Like B1 but with slower learning. Set the following parameters differently:
 
       initialPermanence = 0.2
       connectedPermanence = 0.7
@@ -98,15 +101,15 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   This test will ensure the basic match function and segment activation rules are
   working correctly.
 
-  B7) Like B6 but with 4 cells per column. Should still work.
+  B8) Like B7 but with 4 cells per column. Should still work.
 
-  B8) Like B6 but present the sequence less than 4 times: the inference should be
+  B9) Like B7 but present the sequence less than 4 times: the inference should be
   incorrect.
 
-  B9) Like B2, except that cells per column = 4. Should still add zero additional
+  B10) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
 
-  B10) Like B5, but with activationThreshold = 8 and with each pattern
+  B11) Like B5, but with activationThreshold = 8 and with each pattern
   corrupted by a small amount of spatial noise (X = 0.05).
 
 
@@ -266,7 +269,25 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllInactiveWereUnpredicted(stats)
 
 
+  @unittest.skip("Seeing a lot of bursting, need to investigate why")
   def testB6(self):
+    """Like B4 but with cellsPerColumn = 4.
+    First order sequences should still work just fine."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(3, 100)
+    print numbers
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB7(self):
     """Like B1 but with slower learning.
 
     Set the following parameters differently:
@@ -296,8 +317,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllInactiveWereUnpredicted(stats)
 
 
-  def testB7(self):
-    """Like B6 but with 4 cells per column.
+  def testB8(self):
+    """Like B7 but with 4 cells per column.
     Should still work."""
     self.init({"initialPermanence": 0.2,
                "connectedPermanence": 0.7,
@@ -316,8 +337,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllInactiveWereUnpredicted(stats)
 
 
-  def testB8(self):
-    """Like B6 but present the sequence less than 4 times.
+  def testB9(self):
+    """Like B7 but present the sequence less than 4 times.
     The inference should be incorrect."""
     self.init({"initialPermanence": 0.2,
                "connectedPermanence": 0.7,
@@ -334,7 +355,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertAllActiveWereUnpredicted(stats)
 
 
-  def testB10(self):
+  def testB11(self):
     """Like B5, but with activationThreshold = 8 and with each pattern
     corrupted by a small amount of spatial noise (X = 0.05)."""
     self.init({"cellsPerColumn": 4,
