@@ -59,7 +59,7 @@ class PatternMachineTest(unittest.TestCase):
     self.assertTrue(400 < len(pattern & noisy) < 600)
 
     noisy = patternMachine.addNoise(pattern, 1.0)
-    self.assertTrue(0 < len(pattern & noisy) < 100)
+    self.assertTrue(50 < len(pattern & noisy) < 150)
 
 
   def testNumbersForBit(self):
