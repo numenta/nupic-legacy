@@ -21,7 +21,6 @@
 # ----------------------------------------------------------------------
 
 from prettytable import PrettyTable
-from random import shuffle
 import unittest2 as unittest
 
 from nupic.data.pattern_machine import PatternMachine
@@ -209,10 +208,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """Basic sequence learner.  M=1, N=100, P=1."""
     self.init()
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
@@ -226,10 +223,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """N=300, M=1, P=1. (See how high we can go with N)"""
     self.init()
 
-    numbers = range(300)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 300)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
@@ -243,12 +238,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """N=100, M=3, P=1. (See how high we can go with N*M)"""
     self.init()
 
-    sequence = []
-    for _ in xrange(3):
-      numbers = range(100)
-      shuffle(numbers)
-      sequence += self.sequenceMachine.generateFromNumbers(numbers)
-      sequence.append(None)
+    numbers = self.sequenceMachine.generateNumbers(3, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
 
     self.feedTM(sequence)
 
@@ -262,10 +253,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     First order sequences should still work just fine."""
     self.init({"cellsPerColumn": 4})
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
@@ -293,10 +282,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
                "connectedPermanence": 0.7,
                "permanenceIncrement": 0.2})
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     for _ in xrange(4):
       self.feedTM(sequence)
@@ -315,10 +302,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
                "permanenceIncrement": 0.2,
                "cellsPerColumn": 4})
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     for _ in xrange(4):
       self.feedTM(sequence)
@@ -336,10 +321,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
                "connectedPermanence": 0.7,
                "permanenceIncrement": 0.2})
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     for _ in xrange(3):
       self.feedTM(sequence)
@@ -354,10 +337,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     (X = 0.05)"""
     self.init({"cellsPerColumn": 4})
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
