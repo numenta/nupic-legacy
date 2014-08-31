@@ -106,8 +106,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   B9) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
 
-  B10) Like B5, but each pattern corrupted by a small amount of spatial noise
-  (X = 0.05).
+  B10) Like B5, but with activationThreshold = 8 and with each pattern
+  corrupted by a small amount of spatial noise (X = 0.05).
 
 
   ===============================================================================
@@ -333,9 +333,10 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def testB10(self):
-    """Like B5, but each pattern corrupted by a small amount of spatial noise.
-    (X = 0.05)"""
-    self.init({"cellsPerColumn": 4})
+    """Like B5, but with activationThreshold = 8 and with each pattern
+    corrupted by a small amount of spatial noise (X = 0.05)."""
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8})
 
     numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
@@ -345,6 +346,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
     _, stats = self._testTM(sequence)
 
+    averageUnpredictedActiveColumns = stats[4][3]
+    self.assertTrue(averageUnpredictedActiveColumns < 1)
 
   # ==============================
   # Overrides
