@@ -119,14 +119,13 @@ class TemporalMemoryTestMachine(object):
                       `predictedInactiveColumnsList` (list),
                       `unpredictedActiveColumnsList` (list)
     """
-    predictedActiveCellsList = [set()]
-    predictedInactiveCellsList = [set()]
-    predictedActiveColumnsList = [set()]
-    predictedInactiveColumnsList = [set()]
-    unpredictedActiveColumnsList = [set()]
+    predictedActiveCellsList = []
+    predictedInactiveCellsList = []
+    predictedActiveColumnsList = []
+    predictedInactiveColumnsList = []
+    unpredictedActiveColumnsList = []
 
-    # TODO: Make sure the first row is accurate, not just empty
-    for i in xrange(1, len(results)):
+    for i in xrange(len(results)):
       pattern = sequence[i]
 
       predictedActiveCells = set()
@@ -135,8 +134,8 @@ class TemporalMemoryTestMachine(object):
       predictedInactiveColumns = set()
       unpredictedActiveColumns = set()
 
-      if pattern != None:
-        prevPredictedCells = results[i-1]
+      if pattern is not None:
+        prevPredictedCells = results[i-1] if i > 0 else set()
         (
           predictedActiveCells,
           predictedInactiveCells,
