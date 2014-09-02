@@ -143,42 +143,36 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   We can also calculate the number of segments and synapses that should be
   learned. We raise an error if too many or too few were learned.
 
-  H1) Learn two sequences with a short shared pattern. Parameters
+  H1) Learn two sequences with a shared subsequence in the middle. Parameters
   should be the same as B1. Since cellsPerColumn == 1, it should make more
   predictions than necessary.
 
   H2) Same as H1, but with cellsPerColumn == 4, and train multiple times.
   It should make just the right number of predictions.
 
-  H2a) Same as H2, except P=2. Test that permanences go up and that no
-  additional synapses or segments are learned. [TODO]
-
-  H3) Same parameters as H.2 except sequences are created such that they share a
-  single significant sub-sequence. Subsequences should be reasonably long and in
-  the middle of sequences. [TODO]
-
-  H4) Like H.3, except the shared subsequence is in the beginning. (e.g.
+  H3) Like H2, except the shared subsequence is in the beginning. (e.g.
   "ABCDEF" and "ABCGHIJ". At the point where the shared subsequence ends, all
   possible next patterns should be predicted. As soon as you see the first unique
   pattern, the predictions should collapse to be a perfect prediction. [TODO]
 
-  H5) Shared patterns. Similar to H3 except that patterns are shared between
+  H4) Shared patterns. Similar to H2 except that patterns are shared between
   sequences.  All sequences are different shufflings of the same set of N
   patterns (there is no shared subsequence). Care should be taken such that the
   same three patterns never follow one another in two sequences. [TODO]
 
-  H6) Combination of H5) and H3). Shared patterns in different sequences, with a
+  H5) Combination of H4) and H2). Shared patterns in different sequences, with a
   shared subsequence. [TODO]
 
-  H7) Stress test: every other pattern is shared. [TODO]
+  H6) Stress test: every other pattern is shared. [TODO]
 
-  H8) Start predicting in the middle of a sequence. [TODO]
+  H7) Start predicting in the middle of a sequence. [TODO]
 
-  H9) Hub capacity. How many patterns can use that hub? [TODO]
+  H8) Hub capacity. How many patterns can use that hub? [TODO]
 
-  H10) Sensitivity to small amounts of noise during inference (X = 0.05). [TODO]
+  H9) Sensitivity to small amounts of spatial noise during inference (X = 0.05).
+  [TODO]
 
-  H11) Higher order patterns with alternating elements.
+  H10) Higher order patterns with alternating elements.
 
   Create the following 4 sequences:
 
