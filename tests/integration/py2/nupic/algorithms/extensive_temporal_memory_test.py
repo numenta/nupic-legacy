@@ -383,14 +383,18 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    detailedResults, stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
     averagePredictedInactiveColumns = stats[1][3]
     self.assertTrue(averagePredictedInactiveColumns > 0)
 
-    # TODO: Make sure bursting columns are at the right positions
+    # At the end of both shared sequences, there should be
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertTrue(len(predictedInactiveColumns[20]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[121]) > 0)
 
 
   @unittest.skip("Seeing a lot of bursting, need to investigate why")
