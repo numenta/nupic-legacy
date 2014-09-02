@@ -157,8 +157,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   H4) Shared patterns. Similar to H2 except that patterns are shared between
   sequences.  All sequences are different shufflings of the same set of N
-  patterns (there is no shared subsequence). Care should be taken such that the
-  same three patterns never follow one another in two sequences. [TODO]
+  patterns (there is no shared subsequence).
 
   H5) Combination of H4) and H2). Shared patterns in different sequences, with a
   shared subsequence. [TODO]
@@ -442,6 +441,30 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     predictedInactiveColumns = detailedResults[3]
     self.assertTrue(len(predictedInactiveColumns[5]) > 0)
     self.assertTrue(len(predictedInactiveColumns[26]) > 0)
+
+
+  def testH4(self):
+    """Shared patterns. Similar to H2 except that patterns are shared between
+    sequences.  All sequences are different shufflings of the same set of N
+    patterns (there is no shared subsequence).
+    """
+    self.init({"cellsPerColumn": 4})
+
+    numbers = []
+    for _ in xrange(2):
+      numbers += self.sequenceMachine.generateNumbers(1, 20)
+
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(20):
+      self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns < 3)
 
 
   # ==============================
