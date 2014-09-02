@@ -160,7 +160,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   patterns (there is no shared subsequence).
 
   H5) Combination of H4) and H2). Shared patterns in different sequences, with a
-  shared subsequence. [TODO]
+  shared subsequence.
 
   H6) Stress test: every other pattern is shared. [TODO]
 
@@ -446,13 +446,37 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   def testH4(self):
     """Shared patterns. Similar to H2 except that patterns are shared between
     sequences.  All sequences are different shufflings of the same set of N
-    patterns (there is no shared subsequence).
-    """
+    patterns (there is no shared subsequence)."""
     self.init({"cellsPerColumn": 4})
 
     numbers = []
     for _ in xrange(2):
       numbers += self.sequenceMachine.generateNumbers(1, 20)
+
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(20):
+      self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns < 3)
+
+
+  def testH5(self):
+    """Combination of H4) and H2).
+    Shared patterns in different sequences, with a shared subsequence."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = []
+    shared = self.sequenceMachine.generateNumbers(1, 5)[:-1]
+    for _ in xrange(2):
+      sublist = self.sequenceMachine.generateNumbers(1, 20)
+      sublist = [x for x in sublist if x not in xrange(5)]
+      numbers += sublist[0:10] + shared + sublist[10:]
 
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
 
