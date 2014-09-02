@@ -169,7 +169,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   H8) Hub capacity. How many patterns can use that hub? [TODO]
 
   H9) Sensitivity to small amounts of spatial noise during inference (X = 0.05).
-  [TODO]
+  Parameters the same as B11, and sequences like H2.
 
   H10) Higher order patterns with alternating elements.
 
@@ -489,6 +489,25 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     averagePredictedInactiveColumns = stats[1][3]
     self.assertTrue(averagePredictedInactiveColumns < 3)
+
+
+  def testH9(self):
+    """Sensitivity to small amounts of spatial noise during inference
+    (X = 0.05). Parameters the same as B11, and sequences like H2."""
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(10):
+      self.feedTM(sequence)
+
+    sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
+    _, stats = self._testTM(sequence)
+
+    averageUnpredictedActiveColumns = stats[4][3]
+    self.assertTrue(averageUnpredictedActiveColumns < 3)
 
 
   # ==============================
