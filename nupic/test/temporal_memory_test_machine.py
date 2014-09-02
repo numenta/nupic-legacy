@@ -209,12 +209,8 @@ class TemporalMemoryTestMachine(object):
             "predicted active columns",
             "predicted inactive columns",
             "unpredicted active columns",
-            "# predicted active cells",
-            "# predicted inactive cells"]
-
-    if verbosity > 2:
-      cols += ["predicted active cells",
-               "predicted inactive cells"]
+            "predicted active cells",
+            "predicted inactive cells"]
 
     table = PrettyTable(cols)
     (
@@ -248,12 +244,10 @@ class TemporalMemoryTestMachine(object):
         row.append(
           patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
                                             verbosity=verbosity))
-        row.append(len(predictedActiveCellsList[i]))
-        row.append(len(predictedInactiveCellsList[i]))
 
-        if verbosity > 2:
-          row.append(list(predictedActiveCellsList[i]))
-          row.append(list(predictedInactiveCellsList[i]))
+        row.append(list(predictedActiveCellsList[i]))
+
+        row.append(list(predictedInactiveCellsList[i]))
 
       table.add_row(row)
 
