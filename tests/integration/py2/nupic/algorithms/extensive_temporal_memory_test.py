@@ -147,8 +147,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   should be the same as B1. Since cellsPerColumn == 1, it should make more
   predictions than necessary.
 
-  H2) Same as H1, but with cellsPerColumn == 4. It should make just the right
-  number of predictions.
+  H2) Same as H1, but with cellsPerColumn == 4, and train multiple times.
+  It should make just the right number of predictions.
 
   H2a) Same as H2, except P=2. Test that permanences go up and that no
   additional synapses or segments are learned. [TODO]
@@ -378,7 +378,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """
     self.init()
 
-    numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
 
     self.feedTM(sequence)
@@ -393,27 +393,34 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     # At the end of both shared sequences, there should be
     # predicted but inactive columns
     predictedInactiveColumns = detailedResults[3]
-    self.assertTrue(len(predictedInactiveColumns[20]) > 0)
-    self.assertTrue(len(predictedInactiveColumns[121]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[15]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[36]) > 0)
 
 
-  @unittest.skip("Seeing a lot of bursting, need to investigate why")
   def testH2(self):
-    """Same as H1, but with cellsPerColumn == 4. It should make just the right
-    number of predictions."""
+    """Same as H1, but with cellsPerColumn == 4, and train multiple times.
+    It should make just the right number of predictions."""
     self.init({"cellsPerColumn": 4})
 
-    numbers = self.sequenceMachine.generateNumbers(2, 100, (10, 20))
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
 
-    self.feedTM(sequence)
+    for _ in xrange(10):
+      self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    detailedResults, stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
-    averagePredictedInactiveColumns = stats[1][3]
-    self.assertTrue(averagePredictedInactiveColumns < 1)
+    # Without some kind of decay, expect predicted inactive columns at the
+    # end of the first shared sequence
+    sumPredictedInactiveColumns = stats[1][3]
+    self.assertTrue(sumPredictedInactiveColumns < 26)
+
+    # At the end of the second shared sequence, there should be no
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertEqual(len(predictedInactiveColumns[36]), 0)
 
 
   # ==============================
