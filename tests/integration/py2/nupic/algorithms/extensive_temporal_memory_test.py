@@ -150,10 +150,10 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   H2) Same as H1, but with cellsPerColumn == 4, and train multiple times.
   It should make just the right number of predictions.
 
-  H3) Like H2, except the shared subsequence is in the beginning. (e.g.
-  "ABCDEF" and "ABCGHIJ". At the point where the shared subsequence ends, all
+  H3) Like H2, except the shared subsequence is in the beginning (e.g.
+  "ABCDEF" and "ABCGHIJ"). At the point where the shared subsequence ends, all
   possible next patterns should be predicted. As soon as you see the first unique
-  pattern, the predictions should collapse to be a perfect prediction. [TODO]
+  pattern, the predictions should collapse to be a perfect prediction.
 
   H4) Shared patterns. Similar to H2 except that patterns are shared between
   sequences.  All sequences are different shufflings of the same set of N
@@ -415,6 +415,33 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     # predicted but inactive columns
     predictedInactiveColumns = detailedResults[3]
     self.assertEqual(len(predictedInactiveColumns[36]), 0)
+
+
+  def testH3(self):
+    """Like H2, except the shared subsequence is in the beginning.
+    (e.g. "ABCDEF" and "ABCGHIJ") At the point where the shared subsequence
+    ends, all possible next patterns should be predicted. As soon as you see
+    the first unique pattern, the predictions should collapse to be a perfect
+    prediction."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (0, 5))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    sumPredictedInactiveColumns = stats[1][3]
+    self.assertTrue(sumPredictedInactiveColumns < 26 * 2)
+
+    # At the end of each shared sequence, there should be
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertTrue(len(predictedInactiveColumns[5]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[26]) > 0)
 
 
   # ==============================
