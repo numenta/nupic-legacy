@@ -408,7 +408,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # Without some kind of decay, expect predicted inactive columns at the
     # end of the first shared sequence
-    sumPredictedInactiveColumns = stats[1][3]
+    sumPredictedInactiveColumns = stats[1][2]
     self.assertTrue(sumPredictedInactiveColumns < 26)
 
     # At the end of the second shared sequence, there should be no
@@ -434,7 +434,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.assertAllActiveWerePredicted(stats)
 
-    sumPredictedInactiveColumns = stats[1][3]
+    sumPredictedInactiveColumns = stats[1][2]
     self.assertTrue(sumPredictedInactiveColumns < 26 * 2)
 
     # At the end of each shared sequence, there should be
