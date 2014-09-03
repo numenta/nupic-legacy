@@ -534,7 +534,6 @@ class TemporalMemory(object):
 
     @return (int) Cell index
     """
-
     leastUsedCells = set()
     minNumSegments = float("inf")
 

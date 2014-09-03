@@ -410,8 +410,8 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.getLeastUsedCell( connections.cellsForColumn(0),
-                                            connections),
+      self.assertEqual(tm.getLeastUsedCell(connections.cellsForColumn(0),
+                                           connections),
                        1)
 
 
