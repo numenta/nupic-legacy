@@ -119,14 +119,13 @@ class TemporalMemoryTestMachine(object):
                       `predictedInactiveColumnsList` (list),
                       `unpredictedActiveColumnsList` (list)
     """
-    predictedActiveCellsList = [set()]
-    predictedInactiveCellsList = [set()]
-    predictedActiveColumnsList = [set()]
-    predictedInactiveColumnsList = [set()]
-    unpredictedActiveColumnsList = [set()]
+    predictedActiveCellsList = []
+    predictedInactiveCellsList = []
+    predictedActiveColumnsList = []
+    predictedInactiveColumnsList = []
+    unpredictedActiveColumnsList = []
 
-    # TODO: Make sure the first row is accurate, not just empty
-    for i in xrange(1, len(results)):
+    for i in xrange(len(results)):
       pattern = sequence[i]
 
       predictedActiveCells = set()
@@ -135,8 +134,8 @@ class TemporalMemoryTestMachine(object):
       predictedInactiveColumns = set()
       unpredictedActiveColumns = set()
 
-      if pattern != None:
-        prevPredictedCells = results[i-1]
+      if pattern is not None:
+        prevPredictedCells = results[i-1] if i > 0 else set()
         (
           predictedActiveCells,
           predictedInactiveCells,
@@ -193,7 +192,7 @@ class TemporalMemoryTestMachine(object):
   def prettyPrintDetailedResults(detailedResults,
                                  sequence,
                                  patternMachine,
-                                 verbosity=1):
+                                 verbosity=0):
     """
     Pretty print the detailed results from `feedSequence`.
 
@@ -205,16 +204,17 @@ class TemporalMemoryTestMachine(object):
 
     @return (string) Pretty-printed text
     """
-    cols = ["Pattern",
-            "predicted active columns",
-            "predicted inactive columns",
-            "unpredicted active columns",
-            "# predicted active cells",
-            "# predicted inactive cells"]
+    cols = ["#",
+            "Pattern",
+            "pred=>active columns",
+            "pred=>inactive columns",
+            "unpred=>active columns",
+            "pred=>active cells",
+            "pred=>inactive cells"]
 
-    if verbosity > 2:
-      cols += ["predicted active cells",
-               "predicted inactive cells"]
+    if verbosity == 0:
+      cols[1] = "Pattern (# bits)"
+      cols[2:] = ["# {0}".format(x) for x in cols[2:]]
 
     table = PrettyTable(cols)
     (
@@ -229,29 +229,34 @@ class TemporalMemoryTestMachine(object):
       pattern = sequence[i]
 
       if pattern == None:
-        row = ["<reset>", 0, 0, 0, 0, 0]
+        row = [i] + ["<reset>"] * 6
 
         if verbosity > 2:
-          row += [0, 0]
+          row += ["<reset>"] * 2
 
       else:
-        row = []
+        row = [i]
 
-        row.append(patternMachine.prettyPrintPattern(pattern,
-                                                     verbosity=verbosity))
-        row.append(
-          patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
-                                            verbosity=verbosity))
-        row.append(
-          patternMachine.prettyPrintPattern(predictedInactiveColumnsList[i],
-                                            verbosity=verbosity))
-        row.append(
-          patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
-                                            verbosity=verbosity))
-        row.append(len(predictedActiveCellsList[i]))
-        row.append(len(predictedInactiveCellsList[i]))
+        if verbosity == 0:
+          row.append(len(pattern))
+          row.append(len(predictedActiveColumnsList[i]))
+          row.append(len(predictedInactiveColumnsList[i]))
+          row.append(len(unpredictedActiveColumnsList[i]))
+          row.append(len(predictedActiveCellsList[i]))
+          row.append(len(predictedInactiveCellsList[i]))
 
-        if verbosity > 2:
+        else:
+          row.append(patternMachine.prettyPrintPattern(pattern,
+                                                       verbosity=verbosity))
+          row.append(
+            patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
+                                              verbosity=verbosity))
+          row.append(
+            patternMachine.prettyPrintPattern(predictedInactiveColumnsList[i],
+                                              verbosity=verbosity))
+          row.append(
+            patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
+                                              verbosity=verbosity))
           row.append(list(predictedActiveCellsList[i]))
           row.append(list(predictedInactiveCellsList[i]))
 
