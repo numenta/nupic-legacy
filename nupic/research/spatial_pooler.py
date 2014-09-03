@@ -31,6 +31,7 @@ from nupic.bindings.math import (SM32 as SparseMatrix,
 realDType = GetNTAReal()
 uintType = "uint32"
 
+VERSION = 2
 
 
 class SpatialPooler(object):
@@ -225,7 +226,7 @@ class SpatialPooler(object):
     initConnectedPct = 0.5
 
     # Internal state
-    self._version = 1.0
+    self._version = VERSION
     self._iterationNum = 0
     self._iterationLearnNum = 0
 
@@ -1558,6 +1559,19 @@ class SpatialPooler(object):
       self._random = NupicRandom(seed)
     else:
       self._random = NupicRandom()
+
+
+  def __setstate__(self, state):
+    """
+    Initialize class properties from stored values.
+    """
+    if state['_version'] == 1:
+      # the wrapAround property was added in version 2, 
+      # in version 1 the wrapAround parameter was True for SP initialization
+      state['_wrapAround'] = True
+    # update version property to current SP version
+    state['_version'] = VERSION
+    self.__dict__.update(state)
 
 
   def printParameters(self):
