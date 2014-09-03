@@ -649,34 +649,36 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
-  def compute(self, inputVector, learn, activeArray):
+  def compute(self, inputVector, learn, activeArray, stripNeverLearned=True):
     """
     This is the primary public method of the SpatialPooler class. This
     function takes a input vector and outputs the indices of the active columns.
     If 'learn' is set to True, this method also updates the permanences of the
     columns.
 
-    Parameters:
-    ----------------------------
-    inputVector:    A numpy array of 0's and 1's that comprises the input to
-                    the spatial pooler. The array will be treated as a one
-                    dimensional array, therefore the dimensions of the array
-                    do not have to match the exact dimensions specified in the
-                    class constructor. In fact, even a list would suffice.
-                    The number of input bits in the vector must, however,
-                    match the number of bits specified by the call to the
-                    constructor. Therefore there must be a '0' or '1' in the
-                    array for every input bit.
-    learn:          A boolean value indicating whether learning should be
-                    performed. Learning entails updating the  permanence
-                    values of the synapses, and hence modifying the 'state'
-                    of the model. Setting learning to 'off' freezes the SP
-                    and has many uses. For example, you might want to feed in
-                    various inputs and examine the resulting SDR's.
-    activeArray:    An array whose size is equal to the number of columns.
-                    Before the function returns this array will be populated
-                    with 1's at the indices of the active columns, and 0's
-                    everywhere else.
+    :param inputVector: A numpy array of 0's and 1's that comprises the input
+        to the spatial pooler. The array will be treated as a one dimensional
+        array, therefore the dimensions of the array do not have to match the
+        exact dimensions specified in the class constructor. In fact, even a
+        list would suffice. The number of input bits in the vector must,
+        however, match the number of bits specified by the call to the
+        constructor. Therefore there must be a '0' or '1' in the array for
+        every input bit.
+    :param learn: A boolean value indicating whether learning should be
+        performed. Learning entails updating the  permanence values of the
+        synapses, and hence modifying the 'state' of the model. Setting
+        learning to 'off' freezes the SP and has many uses. For example, you
+        might want to feed in various inputs and examine the resulting SDR's.
+    :param activeArray: An array whose size is equal to the number of columns.
+        Before the function returns this array will be populated with 1's at
+        the indices of the active columns, and 0's everywhere else.
+    :param stripNeverLearned: If True and learn=False, then columns that
+        have never learned will be stripped out of the active columns. This
+        should be set to False when using a random SP with learning disabled.
+        NOTE: This parameter should be set explicitly as the default will
+        likely be changed to False in the near future and if you want to retain
+        the current behavior you should additionally pass the resulting
+        activeArray to the stripUnlearnedColumns method manually.
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -701,24 +703,22 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
-    else:
-      activeColumns = self._stripNeverLearned(activeColumns)
+    elif stripNeverLearned:
+      activeColumns = self.stripUnlearnedColumns(activeColumns)
 
     activeArray.fill(0)
     if activeColumns.size > 0:
       activeArray[activeColumns] = 1
 
 
-
-  def _stripNeverLearned(self, activeColumns):
+  def stripUnlearnedColumns(self, activeColumns):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
-    is required.
+    is required. This should not be done when using a random, unlearned SP
+    since you would end up with no active columns.
 
-    Parameters:
-    ----------------------------
-    activeColumns:  An array containing the indices of the active columns
+    :param activeColumns: An array containing the indices of the active columns
     """
     neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
     return numpy.array(list(set(activeColumns) - set(neverLearned)))
