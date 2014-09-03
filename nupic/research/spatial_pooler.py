@@ -1565,7 +1565,8 @@ class SpatialPooler(object):
     """
     Initialize class properties from stored values.
     """
-    if state['_version'] == 1:
+    # original version was a float so check for anything less than 2
+    if state['_version'] < 2:
       # the wrapAround property was added in version 2, 
       # in version 1 the wrapAround parameter was True for SP initialization
       state['_wrapAround'] = True
