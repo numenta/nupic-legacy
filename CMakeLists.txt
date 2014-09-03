@@ -758,17 +758,32 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_s
 # LibNupicCore
 #
 # Put content from module config (.nupic_modules) file into variables
-if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
-  file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
-elseif(EXISTS "$ENV{HOME}/.nupic_config")
-  file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
-else()
-  file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
-endif()
-read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
-read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
+
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+if("${NUPIC_CORE}" STREQUAL "")
+  # User has not specified NUPIC_CORE location, build it from scratch
+  if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+    file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
+  elseif(EXISTS "$ENV{HOME}/.nupic_config")
+    file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
+  else()
+    file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+  endif()
+  read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
+  read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
+  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+else()
+  message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
+  # Use user-specified NUPIC_CORE
+  # Copy binaries outputted by submodule build process to 'release' folder
+  copy_directory(${NUPIC_CORE}/bin ${PROJECT_BUILD_BINARIES_DIR})
+  copy_directory(${NUPIC_CORE}/lib ${PROJECT_BUILD_LIBRARIES_DIR})
+  copy_directory(${NUPIC_CORE}/include ${PROJECT_BUILD_INCLUDE_DIR})
+
+  # Configure submodule libraries
+  add_library(${LIB_STATIC_NUPICCORE} STATIC IMPORTED GLOBAL)
+  set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
+endif()
 
 #
 # HtmTest

@@ -152,7 +152,7 @@ class FlatSpatialPooler(SpatialPooler):
       self.printFlatParameters()
 
 
-  def compute(self, inputArray, learn, activeArray):
+  def compute(self, inputArray, learn, activeArray, stripNeverLearned=True):
     """
     This is the primary public method of the SpatialPooler class. This function
     takes a input vector and outputs the indices of the active columns. If
@@ -176,6 +176,13 @@ class FlatSpatialPooler(SpatialPooler):
                     of the model. Setting learning to 'off' freezes the SP
                     and has many uses. For example, you might want to feed in
                     various inputs and examine the resulting SDR's.
+    :param stripNeverLearned: If True and learn=False, then columns that
+        have never learned will be stripped out of the active columns. This
+        should be set to False when using a random SP with learning disabled.
+        NOTE: This parameter should be set explicitly as the default will
+        likely be changed to False in the near future and if you want to retain
+        the current behavior you should additionally pass the resulting
+        activeArray to the stripUnlearnedColumns method manually.
     """
     if self._randomSP:
       learn=False
@@ -211,8 +218,8 @@ class FlatSpatialPooler(SpatialPooler):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
-    else:
-      activeColumns = self._stripNeverLearned(activeColumns)
+    elif stripNeverLearned:
+      activeColumns = self.stripUnlearnedColumns(activeColumns)
 
     activeArray.fill(0)
     if activeColumns.size > 0:
