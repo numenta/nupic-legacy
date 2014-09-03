@@ -29,8 +29,7 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  - cd ${TRAVIS_BUILD_DIR}
-  - python${PY_VER} setup.py bdist
+  - . ./ci/travis/before_deploy-linux.sh
 
 deploy:
   provider: s3
@@ -60,78 +59,16 @@ notifications:
   webhooks: http://issues.numenta.org:8081/travis
 
 before_install:
-
-  # Get Darwin64 libs for OSX
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then git clone https://github.com/numenta/nupic-darwin64.git; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then (cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b); fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then source nupic-darwin64/bin/activate; fi"
-  # Install cmake on OSX
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install cmake; fi"
-  # Install MySQL on OSX
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then brew install mysql; fi"
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then mysql.server start; fi"
-  # Prefix env with our user installation
-  - "if [ $TRAVIS_OS_NAME = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
-
-  # Necessary Linux prep work
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo add-apt-repository -y ppa:fkrull/deadsnakes; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get update; fi"
-  # Install virtualenv
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo ls -laFh /usr/lib/libpython$PY_VER.so; fi"
-  # Execute virtualenv
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then virtualenv --python=`which python$PY_VER` .; fi"
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then source bin/activate; fi"
-  # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
-  # See: https://github.com/travis-ci/travis-cookbooks/issues/155
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm; fi"
-  # Install NuPIC python dependencies
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then travis_retry pip install -q -r $NUPIC/external/common/requirements.txt; fi"
-  # Prefix env with our user installation
-  - "if [ $TRAVIS_OS_NAME = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
+  - . ./ci/travis/before_install-linux.sh
+  - export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
 
 install:
-  # Verify cmake version
-  - "cmake --version"
-  # Verify python version
-  - "python --version"
-  # Build NuPIC
-  - "cd $NUPIC"
-  - "python$PY_VER setup.py install --user"
-  # Show nupic installation folder by trying import nupic, if works, it prints the absolute path of nupic.__file__, which the installation folder itself.
-  - "python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, \"../..\")))'"
+  - . ./ci/travis/install-linux.sh
 
 script:
-  - "cd $TRAVIS_BUILD_DIR/build/scripts"
-  # legacy binary tests
-  - "make tests_pyhtm"
-  # Python unit tests and prep for coveralls reporting
-  - "make python_unit_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
-  # Python integration tests and prep for coveralls reporting
-  - "make python_integration_tests"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
-
-  # run all example files
-  # examples/bindings
-  - "python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py"
-# - "python $NUPIC/examples/bindings/svm_how_to.py" # tkinter missing in Travis build machine
-# - "python $NUPIC/examples/bindings/temporal_pooler_how_to.py" # tkinter too
-  # examples/opf (run at least 1 from each category)
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/spatial/2field_few_skewed/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/anomaly/temporal/saw_200/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/classification/category_TP_1/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/missing_record/simple_0/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/multistep/hotgym/"
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/opfrunexperiment_test/simpleOPF/hotgym_1hr_agg/"
-            # opf/experiments/params - skip now
-  - "python$PY_VER $NUPIC/scripts/run_opf_experiment.py $NUPIC/examples/opf/experiments/spatial_classification/category_1/"
-    # examples/tp
-  - "python$PY_VER $NUPIC/examples/tp/hello_tp.py"
-  - "python$PY_VER $NUPIC/examples/tp/tp_test.py"
+  - . ./ci/travis/script-run-tests.sh
+  - cd $TRAVIS_BUILD_DIR
+  - . ./ci/travis/script-run-examples.sh
 
 after_success:
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi"
-  # Only publishing unit test coverage at this point.
-  - "if [ $TRAVIS_OS_NAME = 'linux' ] && [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi"
-  # TODO: figure out how to publish integration test coverage as well.
+  - . ./ci/travis/after_success-report-coverage.sh
