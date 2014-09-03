@@ -48,6 +48,20 @@ class PatternMachineTest(unittest.TestCase):
     self.assertRaises(IndexError, self.patternMachine.get, *args)
 
 
+  def testAddNoise(self):
+    patternMachine = PatternMachine(10000, 1000, num=1)
+    pattern = patternMachine.get(0)
+
+    noisy = patternMachine.addNoise(pattern, 0.0)
+    self.assertEqual(len(pattern & noisy), 1000)
+
+    noisy = patternMachine.addNoise(pattern, 0.5)
+    self.assertTrue(400 < len(pattern & noisy) < 600)
+
+    noisy = patternMachine.addNoise(pattern, 1.0)
+    self.assertTrue(50 < len(pattern & noisy) < 150)
+
+
   def testNumbersForBit(self):
     pattern = self.patternMachine.get(49)
 
@@ -67,6 +81,20 @@ class PatternMachineTest(unittest.TestCase):
     self.assertEqual(numberMap.keys(), [49])
     self.assertEqual(numberMap[49], pattern)
 
+
+  def testWList(self):
+    w = [4, 7, 11]
+    patternMachine = PatternMachine(100, w, num=50)
+    widths = dict((el, 0) for el in w)
+
+    for i in range(50):
+      pattern = patternMachine.get(i)
+      width = len(pattern)
+      self.assertTrue(width in w)
+      widths[len(pattern)] += 1
+
+    for i in w:
+      self.assertTrue(widths[i] > 0)
 
 
 class ConsecutivePatternMachineTest(unittest.TestCase):
