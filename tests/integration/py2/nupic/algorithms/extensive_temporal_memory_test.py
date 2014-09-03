@@ -21,7 +21,6 @@
 # ----------------------------------------------------------------------
 
 from prettytable import PrettyTable
-from random import shuffle
 import unittest2 as unittest
 
 from nupic.data.pattern_machine import PatternMachine
@@ -53,13 +52,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     columnDimensions = [100]
     cellsPerColumn = 1
     newSynapseCount = 11
-    activationThreshold = 8
+    activationThreshold = 11
 
   Note: this is not a high order sequence, so one cell per column is fine.
 
   Input Sequence: We train with M input sequences, each consisting of N random
   patterns. Each pattern consists of a random number of bits on. The number of
   1's in each pattern should be between 21 and 25 columns.
+
+  Each input pattern can optionally have an amount of spatial noise represented
+  by X, where X is the probability of switching an on bit with a random bit.
 
   Training: The TP is trained with P passes of the M sequences. There
   should be a reset between sequences. The total number of iterations during
@@ -80,31 +82,110 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
   B3) N=300, M=1, P=1. (See how high we can go with N)
 
-  B4) N=100, M=3, P=1. (See how high we can go with N*M) [TODO]
+  B4) N=100, M=3, P=1. (See how high we can go with N*M)
 
   B5) Like B1 but with cellsPerColumn = 4. First order sequences should still
-  work just fine. [TODO]
+  work just fine.
 
-  B6) Like B1 but with slower learning. Set the following parameters differently:
+  B6) Like B4 but with cellsPerColumn = 4. First order sequences should still
+  work just fine.
 
-      activationThreshold = newSynapseCount
-      minThreshold = activationThreshold
-      initialPerm = 0.2
-      connectedPerm = 0.7
-      permanenceInc = 0.2
+  B7) Like B1 but with slower learning. Set the following parameters differently:
+
+      initialPermanence = 0.2
+      connectedPermanence = 0.7
+      permanenceIncrement = 0.2
 
   Now we train the TP with the B1 sequence 4 times (P=4). This will increment
   the permanences to be above 0.8 and at that point the inference will be correct.
   This test will ensure the basic match function and segment activation rules are
-  working correctly. [TODO]
+  working correctly.
 
-  B7) Like B6 but with 4 cells per column. Should still work. [TODO]
+  B8) Like B7 but with 4 cells per column. Should still work.
 
-  B8) Like B6 but present the sequence less than 4 times: the inference should be
-  incorrect. [TODO]
+  B9) Like B7 but present the sequence less than 4 times: the inference should be
+  incorrect.
 
-  B9) Like B2, except that cells per column = 4. Should still add zero additional
+  B10) Like B2, except that cells per column = 4. Should still add zero additional
   synapses. [TODO]
+
+  B11) Like B5, but with activationThreshold = 8 and with each pattern
+  corrupted by a small amount of spatial noise (X = 0.05).
+
+
+  ===============================================================================
+                  High Order Sequences
+  ===============================================================================
+
+  These tests ensure that high order sequences can be learned in a multiple cells
+  per column instantiation.
+
+  Parameters: Same as Basic First Order Tests above, but with varying cells per
+  column.
+
+  Input Sequence: We train with M input sequences, each consisting of N random
+  patterns. Each pattern consists of a random number of bits on. The number of
+  1's in each pattern should be between 21 and 25 columns. The sequences are
+  constructed to contain shared subsequences, such as:
+
+  A B C D E F G H I J
+  K L M D E F N O P Q
+
+  The position and length of shared subsequences are parameters in the tests.
+
+  Each input pattern can optionally have an amount of spatial noise represented
+  by X, where X is the probability of switching an on bit with a random bit.
+
+  Training: Identical to basic first order tests above.
+
+  Testing: Identical to basic first order tests above unless noted.
+
+  We can also calculate the number of segments and synapses that should be
+  learned. We raise an error if too many or too few were learned.
+
+  H1) Learn two sequences with a shared subsequence in the middle. Parameters
+  should be the same as B1. Since cellsPerColumn == 1, it should make more
+  predictions than necessary.
+
+  H2) Same as H1, but with cellsPerColumn == 4, and train multiple times.
+  It should make just the right number of predictions.
+
+  H3) Like H2, except the shared subsequence is in the beginning (e.g.
+  "ABCDEF" and "ABCGHIJ"). At the point where the shared subsequence ends, all
+  possible next patterns should be predicted. As soon as you see the first unique
+  pattern, the predictions should collapse to be a perfect prediction.
+
+  H4) Shared patterns. Similar to H2 except that patterns are shared between
+  sequences.  All sequences are different shufflings of the same set of N
+  patterns (there is no shared subsequence).
+
+  H5) Combination of H4) and H2). Shared patterns in different sequences, with a
+  shared subsequence.
+
+  H6) Stress test: every other pattern is shared. [TODO]
+
+  H7) Start predicting in the middle of a sequence. [TODO]
+
+  H8) Hub capacity. How many patterns can use that hub? [TODO]
+
+  H9) Sensitivity to small amounts of spatial noise during inference (X = 0.05).
+  Parameters the same as B11, and sequences like H2.
+
+  H10) Higher order patterns with alternating elements.
+
+  Create the following 4 sequences:
+
+       A B A B A C
+       A B A B D E
+       A B F G H I
+       A J K L M N
+
+  After training we should verify that the expected transitions are in the
+  model. Prediction accuracy should be perfect. In addition, during inference,
+  after the first element is presented, the columns should not burst any more.
+  Need to verify, for the first sequence, that the high order representation
+  when presented with the second A and B is different from the representation
+  in the first presentation. [TODO]
   """
 
   DEFAULT_TM_PARAMS = {
@@ -116,7 +197,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     "maxNewSynapseCount": 11,
     "permanenceIncrement": 0.4,
     "permanenceDecrement": 0,
-    "activationThreshold": 8
+    "activationThreshold": 11
   }
   PATTERN_MACHINE = PatternMachine(100, range(21, 26), num=300)
 
@@ -125,46 +206,308 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     """Basic sequence learner.  M=1, N=100, P=1."""
     self.init()
 
-    numbers = range(100)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
-
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
-
-    maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 10)
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
 
 
   def testB3(self):
     """N=300, M=1, P=1. (See how high we can go with N)"""
     self.init()
 
-    numbers = range(300)
-    shuffle(numbers)
+    numbers = self.sequenceMachine.generateNumbers(1, 300)
     sequence = self.sequenceMachine.generateFromNumbers(numbers)
-    sequence.append(None)
 
     self.feedTM(sequence)
 
     _, stats = self._testTM(sequence)
 
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
 
-    averagePredictedActiveColumns = stats[2][3]
-    self.assertTrue(21 <= averagePredictedActiveColumns <= 25)
 
-    maxPredictedInactiveColumns = stats[1][1]
-    self.assertTrue(maxPredictedInactiveColumns < 15)
+  def testB4(self):
+    """N=100, M=3, P=1. (See how high we can go with N*M)"""
+    self.init()
+
+    numbers = self.sequenceMachine.generateNumbers(3, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+
+  def testB5(self):
+    """Like B1 but with cellsPerColumn = 4.
+    First order sequences should still work just fine."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB6(self):
+    """Like B4 but with cellsPerColumn = 4.
+    First order sequences should still work just fine."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(3, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB7(self):
+    """Like B1 but with slower learning.
+
+    Set the following parameters differently:
+
+      initialPermanence = 0.2
+      connectedPermanence = 0.7
+      permanenceIncrement = 0.2
+
+    Now we train the TP with the B1 sequence 4 times (P=4). This will increment
+    the permanences to be above 0.8 and at that point the inference will be correct.
+    This test will ensure the basic match function and segment activation rules are
+    working correctly.
+    """
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2})
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(4):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB8(self):
+    """Like B7 but with 4 cells per column.
+    Should still work."""
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2,
+               "cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(4):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+    self.assertAllInactiveWereUnpredicted(stats)
+
+
+  def testB9(self):
+    """Like B7 but present the sequence less than 4 times.
+    The inference should be incorrect."""
+    self.init({"initialPermanence": 0.2,
+               "connectedPermanence": 0.7,
+               "permanenceIncrement": 0.2})
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(3):
+      self.feedTM(sequence)
+
+    _, stats = self._testTM(sequence)
+
+    self.assertAllActiveWereUnpredicted(stats)
+
+
+  def testB11(self):
+    """Like B5, but with activationThreshold = 8 and with each pattern
+    corrupted by a small amount of spatial noise (X = 0.05)."""
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8})
+
+    numbers = self.sequenceMachine.generateNumbers(1, 100)
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
+    _, stats = self._testTM(sequence)
+
+    averageUnpredictedActiveColumns = stats[4][3]
+    self.assertTrue(averageUnpredictedActiveColumns < 1)
+
+
+  def testH1(self):
+    """Learn two sequences with a short shared pattern.
+    Parameters should be the same as B1.
+    Since cellsPerColumn == 1, it should make more predictions than necessary.
+    """
+    self.init()
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns > 0)
+
+    # At the end of both shared sequences, there should be
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertTrue(len(predictedInactiveColumns[15]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[36]) > 0)
+
+
+  def testH2(self):
+    """Same as H1, but with cellsPerColumn == 4, and train multiple times.
+    It should make just the right number of predictions."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(10):
+      self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    # Without some kind of decay, expect predicted inactive columns at the
+    # end of the first shared sequence
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertTrue(sumPredictedInactiveColumns < 26)
+
+    # At the end of the second shared sequence, there should be no
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertEqual(len(predictedInactiveColumns[36]), 0)
+
+
+  def testH3(self):
+    """Like H2, except the shared subsequence is in the beginning.
+    (e.g. "ABCDEF" and "ABCGHIJ") At the point where the shared subsequence
+    ends, all possible next patterns should be predicted. As soon as you see
+    the first unique pattern, the predictions should collapse to be a perfect
+    prediction."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (0, 5))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertTrue(sumPredictedInactiveColumns < 26 * 2)
+
+    # At the end of each shared sequence, there should be
+    # predicted but inactive columns
+    predictedInactiveColumns = detailedResults[3]
+    self.assertTrue(len(predictedInactiveColumns[5]) > 0)
+    self.assertTrue(len(predictedInactiveColumns[26]) > 0)
+
+
+  def testH4(self):
+    """Shared patterns. Similar to H2 except that patterns are shared between
+    sequences.  All sequences are different shufflings of the same set of N
+    patterns (there is no shared subsequence)."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = []
+    for _ in xrange(2):
+      numbers += self.sequenceMachine.generateNumbers(1, 20)
+
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(20):
+      self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns < 3)
+
+
+  def testH5(self):
+    """Combination of H4) and H2).
+    Shared patterns in different sequences, with a shared subsequence."""
+    self.init({"cellsPerColumn": 4})
+
+    numbers = []
+    shared = self.sequenceMachine.generateNumbers(1, 5)[:-1]
+    for _ in xrange(2):
+      sublist = self.sequenceMachine.generateNumbers(1, 20)
+      sublist = [x for x in sublist if x not in xrange(5)]
+      numbers += sublist[0:10] + shared + sublist[10:]
+
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(20):
+      self.feedTM(sequence)
+
+    detailedResults, stats = self._testTM(sequence)
+
+    self.assertAllActiveWerePredicted(stats)
+
+    averagePredictedInactiveColumns = stats[1][3]
+    self.assertTrue(averagePredictedInactiveColumns < 3)
+
+
+  def testH9(self):
+    """Sensitivity to small amounts of spatial noise during inference
+    (X = 0.05). Parameters the same as B11, and sequences like H2."""
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(10):
+      self.feedTM(sequence)
+
+    sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
+    _, stats = self._testTM(sequence)
+
+    averageUnpredictedActiveColumns = stats[4][3]
+    self.assertTrue(averageUnpredictedActiveColumns < 3)
 
 
   # ==============================
@@ -191,8 +534,38 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       row = [stats[0]] + list(stats[1])
       table.add_row(row)
 
+    print
     print table
     print "(stats) => (min, max, sum, average, standard deviation)"
+
+
+  def setUp(self):
+    super(ExtensiveTemporalMemoryTest, self).setUp()
+
+    if self.VERBOSITY >= 2:
+      print ("\n"
+             "======================================================\n"
+             "Test: {0} \n"
+             "{1}\n"
+             "======================================================\n"
+      ).format(self.id(), self.shortDescription())
+
+
+  def feedTM(self, sequence, learn=True, num=1):
+    detailedResults = super(ExtensiveTemporalMemoryTest,
+                            self).feedTM(sequence, learn=learn, num=num)
+
+    if self.VERBOSITY >= 2:
+      print self.tmTestMachine.prettyPrintDetailedResults(
+        detailedResults,
+        sequence,
+        self.patternMachine)
+      print
+
+    if learn and self.VERBOSITY >= 3:
+      print self.tmTestMachine.prettyPrintConnections()
+
+    return detailedResults
 
 
   # ==============================
@@ -206,6 +579,31 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.allStats.append((self.id(), stats))
 
     return detailedResults, stats
+
+
+  def assertAllActiveWerePredicted(self, stats):
+    sumUnpredictedActiveColumns = stats[4][2]
+    self.assertEqual(sumUnpredictedActiveColumns, 0)
+
+    minPredictedActiveColumns = stats[2][0]
+    self.assertEqual(minPredictedActiveColumns, 21)
+    maxPredictedActiveColumns = stats[2][1]
+    self.assertEqual(maxPredictedActiveColumns, 25)
+
+
+  def assertAllInactiveWereUnpredicted(self, stats):
+    sumPredictedInactiveColumns = stats[1][2]
+    self.assertEqual(sumPredictedInactiveColumns, 0)
+
+
+  def assertAllActiveWereUnpredicted(self, stats):
+    sumPredictedActiveColumns = stats[2][2]
+    self.assertEqual(sumPredictedActiveColumns, 0)
+
+    minUnpredictedActiveColumns = stats[4][0]
+    self.assertEqual(minUnpredictedActiveColumns, 21)
+    maxUnpredictedActiveColumns = stats[4][1]
+    self.assertEqual(maxUnpredictedActiveColumns, 25)
 
 
 
