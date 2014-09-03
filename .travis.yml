@@ -56,7 +56,10 @@ notifications:
   irc:
     channels:
       - "irc.freenode.net#nupic-hackers"
-  webhooks: http://issues.numenta.org:8081/travis
+  webhooks:
+    urls:
+      - http://issues.numenta.org:8081/travis
+      - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 before_install:
   - . ./ci/travis/before_install-linux.sh
