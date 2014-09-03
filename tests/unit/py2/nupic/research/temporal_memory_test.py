@@ -309,17 +309,17 @@ class TemporalMemoryTest(unittest.TestCase):
       2: set([5])
     }
 
-    self.assertEqual(tm.getBestMatchingCell(0,
+    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(0),
                                             activeSynapsesForSegment,
                                             connections),
                      (0, 0))
 
-    self.assertEqual(tm.getBestMatchingCell(3,  # column containing cell 108
+    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(3),  # column containing cell 108
                                             activeSynapsesForSegment,
                                             connections),
                      (96, None))  # Random cell from column
 
-    self.assertEqual(tm.getBestMatchingCell(999,
+    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(999),
                                             activeSynapsesForSegment,
                                             connections),
                      (31972, None))  # Random cell from column
@@ -342,7 +342,7 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      (cell, _) = tm.getBestMatchingCell(0,
+      (cell, _) = tm.getBestMatchingCell(connections.cellsForColumn(0),
                                          activeSynapsesForSegment,
                                          connections)
       self.assertEqual(cell, 1)
@@ -410,7 +410,8 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.getLeastUsedCell(0, connections),
+      self.assertEqual(tm.getLeastUsedCell( connections.cellsForColumn(0),
+                                            connections),
                        1)
 
 
