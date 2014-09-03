@@ -21,17 +21,20 @@ cmakeOptions = ""
 makeOptions = ""
 setupOptions = ""
 mustBuildExtensions = False
-for arg in sys.argv:
+for arg in sys.argv[:]:
   if ("cmake_options" in arg) or ("make_options" in arg):
     (option, _, rhs) = arg.partition("=")
-    if option[0] == "--cmake_options":
+    if option == "--cmake_options":
       cmakeOptions = rhs
-    if option[0] == "--make_options":
+      sys.argv.remove(arg)
+    if option == "--make_options":
       makeOptions = rhs
+      sys.argv.remove(arg)
   elif not "setup.py" in arg:
     if ("build" in arg) or ("install" in arg):
       mustBuildExtensions = True
     setupOptions += arg + " "
+
 
 
 # Check if no option was passed, i.e. if "setup.py" is the only option
