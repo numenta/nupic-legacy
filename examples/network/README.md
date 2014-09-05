@@ -17,4 +17,4 @@ region.
 
 ## Creating a Network
 
-Take a look at `network_api_example.py` for how to create and run a network.
+Take a look at `network_api_demo.py` for how to create and run a network.

@@ -291,7 +291,7 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   execute_process(COMMAND ${CMAKE_COMMAND} ${submodule_dir}/src -DUSER_CXXFLAGS:STRING=${extra_cxxflags} -DUSER_LINKFLAGS:STRING=${extra_linkflags}
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts)
   # Execute the Make scripts
-  execute_process(COMMAND make -j3
+  execute_process(COMMAND ${USER_MAKE_COMMAND} -j3
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts
                   RESULT_VARIABLE EXIT_CODE)
   if(NOT EXIT_CODE EQUAL 0)
@@ -356,6 +356,8 @@ if(NOT "${USER_CXX_COMPILER}" STREQUAL "")
   set(CMAKE_CXX_COMPILER "${USER_CXX_COMPILER}")
 endif()
 
+set(USER_MAKE_COMMAND "make" CACHE STRING "Default `make` command used to build nupic.core")
+
 #
 # Sets default locations.
 #
@@ -403,6 +405,9 @@ if(UNIX)
   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(LINUX ON)
     set(DYNAMIC_LIB_EXTENSION "so")
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
+    set(SOLARIS ON)
+    set(DYNAMIC_LIB_EXTENSION "so")
   endif()
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(WINDOWS ON)
@@ -424,6 +429,8 @@ endif()
 set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC")
 set(NTA_PLATFORM_LINKFLAGS "")
 set(NTA_PLATFORM_LIBS "-std=c++98")
+set(NUPIC_CORE_EXTRA_CXXFLAGS "")
+set(NUPIC_CORE_EXTRA_LINKFLAGS "")
 if(OSX)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
@@ -449,6 +456,17 @@ elseif(LINUX)
 elseif(WINDOWS)
   set(NTA_PLATFORM_OS "win32")
   set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -DWIN32")
+elseif(SOLARIS)
+  set(NTA_PLATFORM_DEBUGFLAGS "-g")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -m64 -static-libgcc -Wl,-ztext,-zignore,-zallextract")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_RELEASE_DIR}/lib -L ${REPOSITORY_DIR}/lib/external/sparc64/lib -lm -lpthread -ldl -laprutil-1 -lapr-1 -lyaml-cpp -lyaml -Wl,-zdefaultextract")
+  execute_process(COMMAND isainfo -b OUTPUT_VARIABLE NTA_PLATFORM_ARCH)
+  set(NTA_PLATFORM_OS "sparc64")
+  set(NUPIC_CORE_EXTRA_CXXFLAGS, "${NUPIC_CORE_EXTRA_CXXFLAGS} -fPIC -m64")
+  set(NUPIC_CORE_EXTRA_LINKFLAGS, "${NUPIC_CORE_EXTRA_LINKFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS_PYEMBED "-m64")
+  set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-pthread -m64 -Wl,-ztext,-zignore,-zallextract")
 else()
   message(FATAL_ERROR "${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE}: error: ${CMAKE_SYSTEM_NAME} not supported yet.")
 endif()
@@ -496,6 +514,8 @@ execute_process(COMMAND ${PYTHON} -c "import sys;sys.stdout.write(str(sys.versio
 if(NOT(${PYTHON_VERSION} EQUAL "2.6" OR ${PYTHON_VERSION} EQUAL "2.7"))
   message(FATAL_ERROR "Only these versions of Python are accepted: 2.6, 2.7")
 endif()
+
+set(NUPIC_CORE_EXTRA_CXXFLAGS, "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} ${NUPIC_CORE_EXTRA_CXXFLAGS}")
 
 #
 # Find out where system installation of python is.
@@ -588,7 +608,7 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/extensions -I${PROJECT_BUILD_INCLUDE_DIR} -isystem${REPOSITORY_DIR}/extensions/core/external/common/include -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/include -I${PROJECT_BUILD_INCLUDE_DIR}  -I${REPOSITORY_DIR}/extensions -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/extensions/core/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -738,17 +758,32 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_s
 # LibNupicCore
 #
 # Put content from module config (.nupic_modules) file into variables
-if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
-  file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
-elseif(EXISTS "$ENV{HOME}/.nupic_config")
-  file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
-else()
-  file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
-endif()
-read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
-read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
+
 set(LIB_STATIC_NUPICCORE nupic_core)
-generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "-DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}" "" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+if("${NUPIC_CORE}" STREQUAL "")
+  # User has not specified NUPIC_CORE location, build it from scratch
+  if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
+    file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
+  elseif(EXISTS "$ENV{HOME}/.nupic_config")
+    file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
+  else()
+    file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+  endif()
+  read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
+  read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
+  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
+else()
+  message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
+  # Use user-specified NUPIC_CORE
+  # Copy binaries outputted by submodule build process to 'release' folder
+  copy_directory(${NUPIC_CORE}/bin ${PROJECT_BUILD_BINARIES_DIR})
+  copy_directory(${NUPIC_CORE}/lib ${PROJECT_BUILD_LIBRARIES_DIR})
+  copy_directory(${NUPIC_CORE}/include ${PROJECT_BUILD_INCLUDE_DIR})
+
+  # Configure submodule libraries
+  add_library(${LIB_STATIC_NUPICCORE} STATIC IMPORTED GLOBAL)
+  set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
+endif()
 
 #
 # HtmTest
@@ -870,7 +905,7 @@ install(CODE "execute_process(COMMAND ${PYTHON} setup.py develop
 # Tests
 #
 add_custom_target(python_unit_tests
-                  COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u -n2 --coverage
+                  COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u --coverage
                   COMMENT "Python unit tests")
 
 add_custom_target(python_integration_tests

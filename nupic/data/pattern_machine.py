@@ -24,7 +24,7 @@ Utilities for generating and manipulating patterns, for use in
 experimentation and tests.
 """
 
-import random
+import numpy
 
 
 
@@ -39,18 +39,20 @@ class PatternMachine(object):
                num=100,
                seed=42):
     """
-    @param n   (int) Number of available bits in pattern
-    @param w   (int) Number of on bits in pattern
-    @param num (int) Number of available patterns
+    @param n   (int)      Number of available bits in pattern
+    @param w   (int/list) Number of on bits in pattern
+                          If list, each pattern will have a `w` randomly
+                          selected from the list.
+    @param num (int)      Number of available patterns
     """
     # Save member variables
-    self.n = n
-    self.w = w
-    self.num = num
+    self._n = n
+    self._w = w
+    self._num = num
 
     # Initialize member variables
-    random.seed(seed)
-    self.patterns = dict()
+    self._random = numpy.random.RandomState(seed)
+    self._patterns = dict()
 
     self._generate()
 
@@ -63,10 +65,30 @@ class PatternMachine(object):
 
     @return (set) Indices of on bits
     """
-    if not number in self.patterns:
+    if not number in self._patterns:
       raise IndexError("Invalid number")
 
-    return self.patterns[number]
+    return self._patterns[number]
+
+
+  def addNoise(self, bits, amount):
+    """
+    Add noise to pattern.
+
+    @param bits   (set)   Indices of on bits
+    @param amount (float) Probability of switching an on bit with a random bit
+
+    @return (set) Indices of on bits in noisy pattern
+    """
+    newBits = set()
+
+    for bit in bits:
+      if self._random.rand() < amount:
+        newBits.add(self._random.randint(self._n))
+      else:
+        newBits.add(bit)
+
+    return newBits
 
 
   def numbersForBit(self, bit):
@@ -77,12 +99,12 @@ class PatternMachine(object):
 
     @return (set) Indices of numbers
     """
-    if bit >= self.n:
+    if bit >= self._n:
       raise IndexError("Invalid bit")
 
     numbers = set()
 
-    for index, pattern in self.patterns.iteritems():
+    for index, pattern in self._patterns.iteritems():
       if bit in pattern:
         numbers.add(index)
 
@@ -150,9 +172,23 @@ class PatternMachine(object):
     """
     Generates set of random patterns.
     """
-    for i in xrange(self.num):
-      pattern = random.sample(xrange(self.n), self.w)
-      self.patterns[i] = set(pattern)
+    candidates = range(self._n)
+    for i in xrange(self._num):
+      self._random.shuffle(candidates)
+      pattern = candidates[0:self._getW()]
+      self._patterns[i] = set(pattern)
+
+
+  def _getW(self):
+    """
+    Gets a value of `w` for use in generating a pattern.
+    """
+    w = self._w
+
+    if type(w) is list:
+      return w[self._random.randint(len(w))]
+    else:
+      return w
 
 
 
@@ -166,9 +202,11 @@ class ConsecutivePatternMachine(PatternMachine):
     """
     Generates set of consecutive patterns.
     """
-    n = self.n
-    w = self.w
+    n = self._n
+    w = self._w
+
+    assert type(w) is int, "List for w not supported"
 
     for i in xrange(n / w):
       pattern = set(xrange(i * w, (i+1) * w))
-      self.patterns[i] = pattern
+      self._patterns[i] = pattern

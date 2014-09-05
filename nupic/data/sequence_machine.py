@@ -24,6 +24,8 @@ Utilities for generating and manipulating sequences, for use in
 experimentation and tests.
 """
 
+import numpy
+
 
 
 class SequenceMachine(object):
@@ -32,12 +34,16 @@ class SequenceMachine(object):
   """
 
   def __init__(self,
-               patternMachine):
+               patternMachine,
+               seed=42):
     """
     @param patternMachine (PatternMachine) Pattern machine instance
     """
     # Save member variables
     self.patternMachine = patternMachine
+
+    # Initialize member variables
+    self._random = numpy.random.RandomState(seed)
 
 
   def generateFromNumbers(self, numbers):
@@ -60,6 +66,25 @@ class SequenceMachine(object):
         sequence.append(pattern)
 
     return sequence
+
+
+  def addSpatialNoise(self, sequence, amount):
+    """
+    Add spatial noise to each pattern in the sequence.
+
+    @param sequence (list)  Sequence
+    @param amount   (float) Amount of spatial noise
+
+    @return (list) Sequence with spatial noise
+    """
+    newSequence = []
+
+    for pattern in sequence:
+      if pattern is not None:
+        pattern = self.patternMachine.addNoise(pattern, amount)
+      newSequence.append(pattern)
+
+    return newSequence
 
 
   def prettyPrintSequence(self, sequence, verbosity=1):
@@ -85,3 +110,35 @@ class SequenceMachine(object):
                                                        verbosity=verbosity)
 
     return text
+
+
+  def generateNumbers(self, numSequences, sequenceLength, sharedRange=None):
+    """
+    @param numSequences   (int)   Number of sequences to return,
+                                  separated by None
+    @param sequenceLength (int)   Length of each sequence
+    @param sharedRange    (tuple) (start index, end index) indicating range of
+                                  shared subsequence in each sequence
+                                  (None if no shared subsequences)
+    @return (list) Numbers representing sequences
+    """
+    numbers = []
+
+    if sharedRange:
+      sharedStart, sharedEnd = sharedRange
+      sharedLength = sharedEnd - sharedStart
+      sharedNumbers = range(numSequences * sequenceLength,
+                            numSequences * sequenceLength + sharedLength)
+
+    for i in xrange(numSequences):
+      start = i * sequenceLength
+      newNumbers = range(start, start + sequenceLength)
+      self._random.shuffle(newNumbers)
+
+      if sharedRange is not None:
+        newNumbers[sharedStart:sharedEnd] = sharedNumbers
+
+      numbers += newNumbers
+      numbers.append(None)
+
+    return numbers
