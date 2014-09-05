@@ -33,14 +33,13 @@
 # FOO = 'bar'
 function (read_variable_from_file file_content variable value)
   set(${value} PARENT_SCOPE)
-
-  # Get the value between quotes
-  string(REGEX REPLACE ".*${variable} = '([^']+)'.*" "\\1" tag_value "${file_content}")
-
-  # If multiple lines are found, it's because regex return the entire text
-  if(NOT "${tag_value}" MATCHES "\n")
-    set(${value} "${tag_value}" PARENT_SCOPE)
-  endif()
+  foreach(line ${file_content})
+    string(REGEX MATCH "^${variable}" match "${line}")
+    if(NOT "${match}" STREQUAL "")
+      string(REGEX REPLACE "${variable} = '([^']+)'.*" "\\1" tag_value "${line}")
+      set(${value} "${tag_value}" PARENT_SCOPE)
+    endif()
+  endforeach()
 endfunction()
 
 # This macro set environment variables of the operating system
@@ -763,11 +762,11 @@ set(LIB_STATIC_NUPICCORE nupic_core)
 if("${NUPIC_CORE}" STREQUAL "")
   # User has not specified NUPIC_CORE location, build it from scratch
   if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
-    file(READ "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT)
+    file(STRINGS "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT REGEX "^[^#]")
   elseif(EXISTS "$ENV{HOME}/.nupic_config")
-    file(READ "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT)
+    file(STRINGS "$ENV{HOME}/.nupic_config" MODULES_FILE_CONTENT REGEX "^[^#]")
   else()
-    file(READ "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT)
+    file(STRINGS "${REPOSITORY_DIR}/.nupic_modules" MODULES_FILE_CONTENT REGEX "^[^#]")
   endif()
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
