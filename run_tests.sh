@@ -1,4 +1,5 @@
 #!/bin/sh
-pushd $NUPIC > /dev/null
+actDir=$PWD
+cd $NUPIC
 python ./scripts/run_tests.py $@ || exit
-popd > /dev/null
+cd $actDir
