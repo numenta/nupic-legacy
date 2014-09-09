@@ -42,6 +42,7 @@ class Model(object):
 
   def __init__(self, inferenceType):
     """ Model constructor.
+
     @param inferenceType (nupic.frameworks.opf.opfutils.InferenceType)
            A value that specifies the type of inference (i.e. TemporalNextStep,
            Classification, etc.).
@@ -64,6 +65,8 @@ class Model(object):
              depends on the the specific inference type of this model, which
              can be queried by getInferenceType()
     """
+    self._checkValidInput(inputRecord)
+
     if hasattr(self, '_numPredictions'):
       predictionNumber = self._numPredictions
       self._numPredictions += 1
@@ -72,6 +75,25 @@ class Model(object):
     result = opfutils.ModelResult(predictionNumber=predictionNumber,
                                   rawInput=inputRecord)
     return result
+
+  def _checkValidInput(self, data):
+    """@return error if data fed into the model do not fit the model's syntactic header
+    """
+    header=self._getHeader()
+    translations = {'str': 'string', 'float':'float', 'int':'integer', 'timestamp.day of week':'datetime'}
+    # check field types:
+    for i in range(0, len(header['type'])):
+      try:
+        typeOnInput = str(type(data[str(header['name'][i])]).__name__)
+      except:
+        print "XXX"+str(header)
+        print "YYY"+str(data)
+        print "ZZZ"+str(self.getFieldInfo())
+        raise
+      if typeOnInput != header['type'][i]:
+        raise Exception("model.run(): input data of unexpected type! "+str(typeOnInput)+" vs "+str(header['type'][i]))
+    
+    
 
   @abstractmethod
   def finishLearning(self):
@@ -315,3 +337,21 @@ class Model(object):
         raise
 
     return
+
+
+  #############################################################################
+  def _getHeader(self):
+    """@return the header of current file in format dict[name|type|special][i-th value]
+       see self._fields in file_record_stream.py __init__
+    """
+    header = dict()
+    fields = self.getFieldInfo()
+    for lb in ['name','type','special']:
+      header[lb]=list()
+    for i in range(0, len(fields)):
+        header['name'].append(str(fields[i][0]))
+        header['type'].append(fields[i][1])
+        header['special'].append(fields[i][2])
+    return header
+
+

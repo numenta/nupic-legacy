@@ -279,7 +279,7 @@ class FileRecordStream(RecordStreamIface):
     # Dictionary to store record statistics (min and max of scalars for now)
     self._stats = None
 
-  
+ 
   #############################################################################
   def __getstate__(self):
     d = dict()
