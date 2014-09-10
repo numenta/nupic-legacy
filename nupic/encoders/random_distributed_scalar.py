@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 import math
+import numbers
 import pprint
 
 import numpy
@@ -209,6 +210,10 @@ class RandomDistributedScalarEncoder(Encoder):
 
   def encodeIntoArray(self, x, output):
     """ See method description in base.py """
+
+    if x is not None and not isinstance(x, numbers.Number):
+      raise TypeError(
+          "Expected a scalar input but got input of type %s" % type(x))
 
     # Get the bucket index to use
     bucketIdx = self.getBucketIndices(x)[0]
