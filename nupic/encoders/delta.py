@@ -18,6 +18,9 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+
+import numbers
+
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from nupic.encoders.base import EncoderResult
@@ -53,6 +56,9 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     self._prevDelta = None
 
   def encodeIntoArray(self, input, output, learn=None):
+    if not isinstance(input, numbers.Number):
+      raise TypeError(
+          "Expected a scalar input but got input of type %s" % type(input))
 
     if learn is None:
       learn =  self._learningEnabled
