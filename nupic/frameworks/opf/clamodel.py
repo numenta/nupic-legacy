@@ -361,15 +361,6 @@ class CLAModel(Model):
     assert not self.__restoringFromState
     assert inputRecord
 
-    # Validate the input
-    expectedInputs = set(
-        [encoderTuple[0] for encoderTuple in
-         self._getSensorRegion().getSelf().encoder.encoders])
-    if set(inputRecord) != expectedInputs:
-      raise ValueError(
-          "Input values (%s) don't match expected (%s)." % (
-              ", ".join(inputRecord.keys()), ", ".join(expectedInputs)))
-
     results = super(CLAModel, self).run(inputRecord)
 
     self.__numRunCalls += 1
