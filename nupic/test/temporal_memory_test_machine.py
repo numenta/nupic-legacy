@@ -277,7 +277,7 @@ class TemporalMemoryTestMachine(object):
     text = ""
 
     text += ("Segments: (format => "
-             "{segment: [(source cell, permanence), ...])\n")
+             "[[(source cell, permanence), ...], ...])\n")
     text += "------------------------------------\n"
 
     columns = range(tm.connections.numberOfColumns())
@@ -294,13 +294,13 @@ class TemporalMemoryTestMachine(object):
           for synapse in tm.connections.synapsesForSegment(seg):
             (_, sourceCell, permanence) = tm.connections.dataForSynapse(synapse)
 
-            synapseList.append([sourceCell,
-                                permanence])
+            synapseList.append((sourceCell,
+                                "{0:.2f}".format(permanence)))
 
           segmentDict[seg] = synapseList
 
         text += ("Column {0} / Cell {1}:\t{2}\n".format(
-                 column, cell, segmentDict))
+                 column, cell, segmentDict.values()))
 
       if column < len(columns) - 1:  # not last
         text += "\n"
