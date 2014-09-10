@@ -395,6 +395,13 @@ class ScalarEncoderTest(unittest.TestCase):
         self.assertTrue((l.encode(10) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
                                             dtype=defaultDtype)).all())
 
+  # ============================================================================
+  def testEncodeInvalidInputType(self):
+    encoder = ScalarEncoder(name='enc', n=14, w=3, minval=1, maxval=8,
+                            periodic=False, forced=True)
+    with self.assertRaises(TypeError):
+      encoder.encode("String")
+
 ###########################################
 if __name__ == '__main__':
   unittest.main()
