@@ -23,13 +23,13 @@
 """Unit tests for delta encoder"""
 
 import numpy as np
-import unittest2 as unittest
+import unittest
 
 from nupic.encoders.delta import (DeltaEncoder,
-                                    AdaptiveScalarEncoder)
+                                  AdaptiveScalarEncoder)
 
 
-#########################################################################
+
 class DeltaEncoderTest(unittest.TestCase):
   '''Unit tests for DeltaEncoder class'''
 
@@ -38,7 +38,7 @@ class DeltaEncoderTest(unittest.TestCase):
     self._dencoder = DeltaEncoder(w=21, n=100, forced=True)
     self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100, forced=True)
 
-###########################################
+
   def testDeltaEncoder(self):
       """simple delta reconstruction test"""
       for i in range(5):
@@ -52,6 +52,7 @@ class DeltaEncoderTest(unittest.TestCase):
       self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar, res[0].scalar)
       self.assertTrue((self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all())
 
+
   def testEncodingVerification(self):
       """encoding verification test passed"""
       feedIn  = [1, 10, 4, 7, 9, 6, 3, 1]
@@ -64,6 +65,7 @@ class DeltaEncoderTest(unittest.TestCase):
         delencode = np.zeros(100)
         self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
         self.assertTrue((delencode[0] == aseencode[0]).all())
+
 
   def testLockingState(self):
       """Check that locking the state works correctly"""
@@ -82,6 +84,13 @@ class DeltaEncoderTest(unittest.TestCase):
           self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
 
         self.assertTrue((delencode[0] == aseencode[0]).all())
-###################################################################
+
+
+  def testEncodeInvalidInputType(self):
+    with self.assertRaises(TypeError):
+      self._dencoder.encode("String")
+
+
+
 if __name__ == "__main__":
   unittest.main()
