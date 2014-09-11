@@ -194,10 +194,7 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    if self._hasTP:
-      self._anomalyInst = Anomaly(shiftPredicted=True)
-    else:
-      self._anomalyInst = Anomaly()
+    self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -611,7 +608,6 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferences = {}
     sp = self._getSPRegion()
-    score = 0
     if inferenceType == InferenceType.NontemporalAnomaly:
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
@@ -625,9 +621,13 @@ class CLAModel(Model):
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
       # Calculate the anomaly score using the active columns
-      # and previous predicted columns
+      # and previous predicted columns.
+      score = self._anomalyInst.computeAnomalyScore(
+          activeColumns, self.prevPredictedColumns)
+
+      # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
-      score = (self._anomalyInst.computeAnomalyScore(activeColumns,predictedColumns))
+      self._prevPredictedColumns = copy.deepcopy(predictedColumns)
 
       # Calculate the classifier's output and use the result as the anomaly
       # label. Stores as string of results.
@@ -973,7 +973,7 @@ class CLAModel(Model):
     Returns reference to the network's TP region
     """
     return self._netInfo.net.regions.get('TP', None)
-  
+
 
   def _getSensorRegion(self):
     """
@@ -1270,7 +1270,6 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
 
 
-
     # -----------------------------------------------------------------------
     # Migrate from v2
     if not hasattr(self, "_netInfo"):
@@ -1292,14 +1291,10 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
 
 
-
     # -----------------------------------------------------------------------
     # Migrate from when Anomaly was not separate class
     if not hasattr(self, "_anomalyInst"):
-      if self._hasTP:
-        self._anomalyInst = Anomaly(shiftPredicted=True)
-      else:
-        self._anomalyInst = Anomaly()
+      self._anomalyInst = Anomaly()
 
 
     # This gets filled in during the first infer because it can only be
