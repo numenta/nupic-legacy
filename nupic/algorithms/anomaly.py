@@ -120,7 +120,7 @@ class Anomaly(object):
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
                              (used for anomaly in step T+1)
-    @param value: (optional) input value, that is what activeColumns represent
+    @param value: (optional) metric value of current input
                               (used in anomaly-likelihood)
     @param timestamp: (optional) date timestamp when the sample occured
                               (used in anomaly-likelihood)
@@ -132,7 +132,7 @@ class Anomaly(object):
     # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
-    elif self._mode == Anomaly.MODE_LIKELIHOOD:
+    elif self._mode == Anomaly.MODE_LIKELIHOOD: # TODO add tests for likelihood modes
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
       score = probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
