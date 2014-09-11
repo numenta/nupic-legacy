@@ -25,7 +25,7 @@ import unittest2 as unittest
 
 from nupic.data.pattern_machine import PatternMachine
 
-from abstract_temporal_memory_test import AbstractTemporalMemoryTest
+from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 
 
 
