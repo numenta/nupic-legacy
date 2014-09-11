@@ -25,9 +25,10 @@ echo Running `basename $0`...
 echo
 
 pip install python-coveralls
-pushd ${TRAVIS_BUILD_DIR}
+actDir=$PWD
+cd ${TRAVIS_BUILD_DIR}
 coveralls -i
-popd
+cd $actDir
 
 if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi
 
