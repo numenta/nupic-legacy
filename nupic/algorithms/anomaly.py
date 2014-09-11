@@ -91,10 +91,11 @@ class Anomaly(object):
     """
     self._mode = anomalyMode
     self._useMovingAverage = slidingWindowSize > 0
+    self._buf = None
+    self._i = None
 
     # Using cumulative anomaly, sliding window
     if self._useMovingAverage:
-      self._useMovingAverage = True
       self._windowSize = slidingWindowSize
       # Sliding window buffer
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
