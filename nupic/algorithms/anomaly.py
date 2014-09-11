@@ -75,12 +75,12 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE):
+  def __init__(self, slidingWindowSize = None, mode=MODE_PURE):
     """
     @param (optional) slidingWindowSize -- enables moving average on final
                       anomaly score; how many elements are summed up,
                       sliding window size; int >= 0
-    @param (optional) anomalyMode -- (string) how to compute anomaly;
+    @param (optional) mode -- (string) how to compute anomaly;
                       possible values are:
                          -- "pure" -- the default, how much anomal the value is;
                                       float 0..1 where 1=totally unexpected
@@ -89,7 +89,7 @@ class Anomaly(object):
                                       value and anomalyScore; used in Grok
                          -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)
     """
-    self._mode = anomalyMode
+    self._mode = mode
     self._useMovingAverage = slidingWindowSize > 0
     self._buf = None
     self._i = None

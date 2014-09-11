@@ -28,6 +28,7 @@ import numpy as np
 from numpy import array
 
 from nupic.algorithms import anomaly
+from nupic.algorithms.anomaly import Anomaly
 
 
 class AnomalyTest(unittest.TestCase):
@@ -110,6 +111,11 @@ class AnomalyTest(unittest.TestCase):
           "Anomaly score of %f doesn't match expected of %f" % (score,
                                                                 expected))
 
+
+  def testComputeAnomalySelectModePure(self):
+    self._anomaly = anomaly.Anomaly(mode=Anomaly.MODE_PURE)
+    score = self._anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
+    self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
 if __name__ == "__main__":
