@@ -75,8 +75,7 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE,
-               shiftPredicted=False):
+  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE):
     """
     @param (optional) slidingWindowSize -- enables moving average on final
                       anomaly score; how many elements are summed up,
@@ -89,14 +88,9 @@ class Anomaly(object):
                                       models probability of receiving this
                                       value and anomalyScore; used in Grok
                          -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)
-    @param shiftPredicted (optional) -- boolean [default=False];
-                                      normally active vs predicted are compared
-                          if shiftPredicted=True: predicted(T-1) vs active(T)
-                             are compared (eg from TP, CLAModel)
     """
     self._mode = anomalyMode
     self._useMovingAverage = slidingWindowSize > 0
-    self._shiftPredicted = shiftPredicted
 
     # Using cumulative anomaly, sliding window
     if self._useMovingAverage:
@@ -121,10 +115,6 @@ class Anomaly(object):
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
 
-    if shiftPredicted:
-      self._shiftPredicted = True
-      self._prevPredictedColumns = numpy.array([])
-
 
   def computeAnomalyScore(self, activeColumns, predictedColumns, value=None,
                           timestamp=None):
@@ -139,17 +129,10 @@ class Anomaly(object):
                               (used in anomaly-likelihood)
     @return the computed anomaly score; float 0..1
     """
+    # Start by computing the raw anomaly score.
+    anomalyScore = computeRawAnomalyScore(activeColumns, predictedColumns)
 
-    if self._shiftPredicted:
-      prevPredictedColumns = self._prevPredictedColumns
-      self._prevPredictedColumns = predictedColumns # to be used in step T+1
-    else:
-      prevPredictedColumns = predictedColumns
-
-    # 1. here is the 'classic' anomaly score
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
-    # compute final anomaly based on selected mode
+    # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
