@@ -14,19 +14,21 @@ For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](
 
 For all installation options, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
 
-Currently supported platforms:
+### Currently supported platforms:
+
  * Linux (32/64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
  * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
-Dependencies:
+### Dependencies:
+
  * Python (2.6-2.7) (with development headers)
  * GCC (4.6-4.8), or Clang
  * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
 
-The dependencies are included in platform-specific repositories for convenience:
+The dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
@@ -34,21 +36,23 @@ The dependencies are included in platform-specific repositories for convenience:
 Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
 compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
 
+### Installing Python Dependencies
+
     pip install -r external/common/requirements.txt
 
-_Note_: If using pip 1.5 or later:
+> _Note_: If using pip 1.5 or later:
 
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
-_Note_: If you get a "permission denied" error when using pip, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with 'sudo'.
+> _Note_: If you get a "permission denied" error when using pip, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with `sudo`.
 
-## User instructions
+### Installing NuPIC
 
-If you want NuPIC only for your apps use it, cd into the NuPIC installation directory and run:
+Move into the NuPIC installation directory and run:
 
     python setup.py install
 
-_Note_: If you get a "permission denied" error when using this, you may add the --user flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with 'sudo'.
+> _Note_: If you get a "permission denied" error when using this, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with `sudo`.
 
 Once it is installed, you can import NuPIC library to your python script using:
 
