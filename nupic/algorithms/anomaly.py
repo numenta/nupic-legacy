@@ -24,43 +24,45 @@
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
-import nupic
 
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
-    """Computes the raw anomaly score.
+  """Computes the raw anomaly score.
 
-    The raw anomaly score is the fraction of active columns not predicted.
+  The raw anomaly score is the fraction of active columns not predicted.
 
-    computed as diff of current active columns and columns predicted from previous round
-    @param activeColumns: array of active column indices
-    @param prevPredictedColumns: array of columns indices predicted in previous step
-    @return anomaly score 0..1 (float)
-    """
-    nActiveColumns = len(activeColumns)
-    if nActiveColumns > 0:
-      # Test whether each element of a 1-D array is also present in a second
-      # array. Sum to get the total # of columns that are active and were
-      # predicted.
-      score = numpy.sum(numpy.in1d(activeColumns, prevPredictedColumns))
-      # Get the percent of active columns that were NOT predicted, that is
-      # our anomaly score.
-      score = (nActiveColumns - score) / float(nActiveColumns)
-    elif len(prevPredictedColumns) > 0:
-      # There were predicted columns but none active.
-      score = 1.0
-    else:
-      # There were no predicted or active columns.
-      score = 0.0
-    return score
+  computed as diff of current active columns and columns predicted from 
+  previous round
+
+  @param activeColumns: array of active column indices
+  @param prevPredictedColumns: array of columns indices predicted in prev step
+  @return anomaly score 0..1 (float)
+  """
+  nActiveColumns = len(activeColumns)
+  if nActiveColumns > 0:
+    # Test whether each element of a 1-D array is also present in a second
+    # array. Sum to get the total # of columns that are active and were
+    # predicted.
+    score = numpy.sum(numpy.in1d(activeColumns, prevPredictedColumns))
+    # Get the percent of active columns that were NOT predicted, that is
+    # our anomaly score.
+    score = (nActiveColumns - score) / float(nActiveColumns)
+  elif len(prevPredictedColumns) > 0:
+    # There were predicted columns but none active.
+    score = 1.0
+  else:
+    # There were no predicted or active columns.
+    score = 0.0
+  return score
 
 
 
 class Anomaly(object):
   """basic class that computes anomaly
 
-     Anomaly is used to detect strange patterns/behaviors (outliners) by a trained CLA model. 
-     
+     Anomaly is used to detect strange patterns/behaviors (outliners) 
+     by a trained CLA model. 
   """
+
 
 
   # anomaly modes supported
@@ -70,49 +72,61 @@ class Anomaly(object):
   _supportedModes = [MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED]
 
 
-  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE, shiftPredicted=False):
+  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE, 
+               shiftPredicted=False):
     """
     @param (optional) slidingWindowSize -- enables moving average on final 
-            anomaly score; how many elements are summed up, sliding window size; int >= 0
-    @param (optional) anomalyMode -- (string) which way to use to compute anomaly; 
+                      anomaly score; how many elements are summed up, 
+                      sliding window size; int >= 0
+    @param (optional) anomalyMode -- (string) how to compute anomaly;
                       possible values are: 
-                           -- "pure" -- the default, how much anomal the value is; 
-                                        float 0..1 where 1=totally unexpected
-                           -- "likelihood" -- uses the anomaly_likelihood code; 
-                                        models probability of receiving this value and anomalyScore; 
-                                        used in Grok
-                           -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)  
-    @param shiftPredicted (optional) -- boolean [default=False]; normally active vs predicted are compared; 
-                          if shiftPredicted=True: predicted(T-1) vs active(T) are compared (eg from TP, CLAModel)
+                         -- "pure" -- the default, how much anomal the value is; 
+                                      float 0..1 where 1=totally unexpected
+                         -- "likelihood" -- uses the anomaly_likelihood code; 
+                                      models probability of receiving this 
+                                      value and anomalyScore; used in Grok
+                         -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)
+    @param shiftPredicted (optional) -- boolean [default=False]; 
+                                      normally active vs predicted are compared
+                          if shiftPredicted=True: predicted(T-1) vs active(T) 
+                             are compared (eg from TP, CLAModel)
     """
 
     # using cumulative anomaly , sliding window
     if slidingWindowSize > 0:
       self._windowSize = slidingWindowSize
-      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float) #sliding window buffer
+      #sliding window buffer
+      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
       self._i = 0 # index pointer to actual position
     elif slidingWindowSize is not None:
-      raise Exception("Anomaly: if you define slidingWindowSize, it has to be an integer > 0; slidingWindowSize="+str(slidingWindowSize))
+      raise Exception("Anomaly: if you define slidingWindowSize, \
+      it has to be an integer > 0; \
+      slidingWindowSize="+str(slidingWindowSize))
 
     # mode
     self._mode = anomalyMode
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-    if not (self._mode in Anomaly._supportedModes):
-      raise ValueError('Invalid anomaly mode; only supported modes are: "Anomaly.MODE_PURE",\
-                       "Anomaly.MODE_LIKELIHOOD", "Anomaly.MODE_WEIGHTED"; you used:' +self._mode)
+    if not self._mode in Anomaly._supportedModes:
+      raise ValueError('Invalid anomaly mode; only supported modes are: \
+                       "Anomaly.MODE_PURE", "Anomaly.MODE_LIKELIHOOD", \
+                       "Anomaly.MODE_WEIGHTED"; you used:' +self._mode)
 
     if shiftPredicted:
       self._prevPredictedColumns = numpy.array([])
 
 
-  def computeAnomalyScore(self, activeColumns, predictedColumns, value=None, timestamp=None):
-    """Compute the anomaly score as the percent of active columns not predicted.
+  def computeAnomalyScore(self, activeColumns, predictedColumns, value=None, 
+                          timestamp=None):
+    """Compute the anomaly score as the percent of active columns not predicted
   
     @param activeColumns: array of active column indices
-    @param predictedColumns: array of columns indices predicted in this step (used for anomaly in step T+1)
-    @param value: (optional) input value, that is what activeColumns represent; used in anomaly-likelihood
-    @param timestamp: (optional) date timestamp when the sample occured; used in anomaly-likelihood
+    @param predictedColumns: array of columns indices predicted in this step 
+                             (used for anomaly in step T+1)
+    @param value: (optional) input value, that is what activeColumns represent
+                              (used in anomaly-likelihood)
+    @param timestamp: (optional) date timestamp when the sample occured 
+                              (used in anomaly-likelihood)
     @return the computed anomaly score; float 0..1
     """
 
