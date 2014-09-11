@@ -67,27 +67,27 @@ class AnomalyTest(unittest.TestCase):
   """ tests for anomaly class"""
 
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
-    score = _anomaly.computeAnomalyScore(array([]), array([]))
+    score = self._anomaly.computeAnomalyScore(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoActive(self):
-    score = _anomaly.computeAnomalyScore(array([]), array([3, 5]))
+    score = self._anomaly.computeAnomalyScore(array([]), array([3, 5]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):
-    score = _anomaly.computeAnomalyScore(array([3, 5, 7]), array([3, 5, 7]))
+    score = self._anomaly.computeAnomalyScore(array([3, 5, 7]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoMatch(self):
-    score = _anomaly.computeAnomalyScore(array([2, 4, 6]), array([3, 5, 7]))
+    score = self._anomaly.computeAnomalyScore(array([2, 4, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePartialMatch(self):
-    score = _anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
+    score = self._anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
