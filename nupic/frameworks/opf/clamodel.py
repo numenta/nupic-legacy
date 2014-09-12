@@ -609,6 +609,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferences = {}
     sp = self._getSPRegion()
+    score = None
     if inferenceType == InferenceType.NontemporalAnomaly:
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
