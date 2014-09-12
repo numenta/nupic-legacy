@@ -188,6 +188,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   in the first presentation. [TODO]
   """
 
+  VERBOSITY = 1
   DEFAULT_TM_PARAMS = {
     "columnDimensions": [100],
     "cellsPerColumn": 1,
@@ -558,8 +559,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     if self.VERBOSITY >= 2:
       print self.tmTestMachine.prettyPrintDetailedResults(
         detailedResults,
-        sequence,
-        self.patternMachine)
+        sequence)
       print
 
     if learn and self.VERBOSITY >= 3:

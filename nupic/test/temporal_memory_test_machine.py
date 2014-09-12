@@ -191,7 +191,6 @@ class TemporalMemoryTestMachine(object):
   @staticmethod
   def prettyPrintDetailedResults(detailedResults,
                                  sequence,
-                                 patternMachine,
                                  verbosity=0):
     """
     Pretty print the detailed results from `feedSequence`.
@@ -199,7 +198,6 @@ class TemporalMemoryTestMachine(object):
     @param detailedResults (tuple)          Detailed results from
                                             `computeDetailedResults`
     @param sequence        (list)           Sequence that generated the results
-    @param patternMachine  (PatternMachine) Pattern machine
     @param verbosity       (int)            Verbosity level
 
     @return (string) Pretty-printed text
@@ -228,11 +226,8 @@ class TemporalMemoryTestMachine(object):
     for i in xrange(len(sequence)):
       pattern = sequence[i]
 
-      if pattern == None:
+      if pattern is None:
         row = [i] + ["<reset>"] * 6
-
-        if verbosity > 2:
-          row += ["<reset>"] * 2
 
       else:
         row = [i]
@@ -246,17 +241,10 @@ class TemporalMemoryTestMachine(object):
           row.append(len(predictedInactiveCellsList[i]))
 
         else:
-          row.append(patternMachine.prettyPrintPattern(pattern,
-                                                       verbosity=verbosity))
-          row.append(
-            patternMachine.prettyPrintPattern(predictedActiveColumnsList[i],
-                                              verbosity=verbosity))
-          row.append(
-            patternMachine.prettyPrintPattern(predictedInactiveColumnsList[i],
-                                              verbosity=verbosity))
-          row.append(
-            patternMachine.prettyPrintPattern(unpredictedActiveColumnsList[i],
-                                              verbosity=verbosity))
+          row.append(list(pattern))
+          row.append(list(predictedActiveColumnsList[i]))
+          row.append(list(predictedInactiveColumnsList[i]))
+          row.append(list(unpredictedActiveColumnsList[i]))
           row.append(list(predictedActiveCellsList[i]))
           row.append(list(predictedInactiveCellsList[i]))
 
