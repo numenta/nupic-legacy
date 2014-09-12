@@ -30,7 +30,9 @@ from nupic.utils import MovingAverage
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   """Computes the raw anomaly score.
 
-  The raw anomaly score is the fraction of active columns not predicted.
+  The raw anomaly score is difference between predicted and actual state: 
+   = the fraction of active columns not predicted +
+     the fraction of non-active columns predicted as active.
 
   @param activeColumns: array of active column indices
   @param prevPredictedColumns: array of columns indices predicted in prev step
@@ -49,7 +51,7 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
     # There were predicted columns but none active.
     score = 1.0
   else:
-    # There were no predicted or active columns.
+    # There were no predicted nor active columns.
     score = 0.0
 
   return score
