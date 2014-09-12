@@ -212,7 +212,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -227,7 +227,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -242,7 +242,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -257,7 +257,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -273,7 +273,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -303,7 +303,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(4):
       self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -323,7 +323,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(4):
       self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
     self.assertAllInactiveWereUnpredicted(stats)
@@ -342,7 +342,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(3):
       self.feedTM(sequence)
 
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWereUnpredicted(stats)
 
@@ -359,7 +359,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.feedTM(sequence)
 
     sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     averageUnpredictedActiveColumns = stats[4][3]
     self.assertTrue(averageUnpredictedActiveColumns < 1)
@@ -377,7 +377,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    detailedResults, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -386,9 +386,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # At the end of both shared sequences, there should be
     # predicted but inactive columns
-    predictedInactiveColumns = detailedResults[3]
-    self.assertTrue(len(predictedInactiveColumns[15]) > 0)
-    self.assertTrue(len(predictedInactiveColumns[36]) > 0)
+    self.assertTrue(len(self.tm.predictedInactiveColumnsList[15]) > 0)
+    self.assertTrue(len(self.tm.predictedInactiveColumnsList[36]) > 0)
 
 
   def testH2(self):
@@ -402,7 +401,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(10):
       self.feedTM(sequence)
 
-    detailedResults, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -413,8 +412,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # At the end of the second shared sequence, there should be no
     # predicted but inactive columns
-    predictedInactiveColumns = detailedResults[3]
-    self.assertEqual(len(predictedInactiveColumns[36]), 0)
+    self.assertEqual(len(self.tm.predictedInactiveColumnsList[36]), 0)
 
 
   def testH3(self):
@@ -430,7 +428,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence)
 
-    detailedResults, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -439,9 +437,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # At the end of each shared sequence, there should be
     # predicted but inactive columns
-    predictedInactiveColumns = detailedResults[3]
-    self.assertTrue(len(predictedInactiveColumns[5]) > 0)
-    self.assertTrue(len(predictedInactiveColumns[26]) > 0)
+    self.assertTrue(len(self.tm.predictedInactiveColumnsList[5]) > 0)
+    self.assertTrue(len(self.tm.predictedInactiveColumnsList[26]) > 0)
 
 
   def testH4(self):
@@ -459,7 +456,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(20):
       self.feedTM(sequence)
 
-    detailedResults, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -484,7 +481,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     for _ in xrange(20):
       self.feedTM(sequence)
 
-    detailedResults, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     self.assertAllActiveWerePredicted(stats)
 
@@ -505,7 +502,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       self.feedTM(sequence)
 
     sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
-    _, stats = self._testTM(sequence)
+    stats = self._testTM(sequence)
 
     averageUnpredictedActiveColumns = stats[4][3]
     self.assertTrue(averageUnpredictedActiveColumns < 3)
@@ -553,19 +550,15 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def feedTM(self, sequence, learn=True, num=1):
-    detailedResults = super(ExtensiveTemporalMemoryTest,
-                            self).feedTM(sequence, learn=learn, num=num)
+    super(ExtensiveTemporalMemoryTest, self).feedTM(
+      sequence, learn=learn, num=num)
 
     if self.VERBOSITY >= 2:
-      print self.tmTestMachine.prettyPrintDetailedResults(
-        detailedResults,
-        sequence)
+      print self.tm.prettyPrintHistory(verbosity=self.VERBOSITY-2)
       print
 
     if learn and self.VERBOSITY >= 3:
-      print self.tmTestMachine.prettyPrintConnections()
-
-    return detailedResults
+      print self.tm.prettyPrintConnections()
 
 
   # ==============================
@@ -573,12 +566,12 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   # ==============================
 
   def _testTM(self, sequence):
-    detailedResults = self.feedTM(sequence, learn=False)
-    stats = self.tmTestMachine.computeStatistics(detailedResults, sequence)
+    self.feedTM(sequence, learn=False)
+    stats = self.tm.getStatistics()
 
     self.allStats.append((self.id(), stats))
 
-    return detailedResults, stats
+    return stats
 
 
   def assertAllActiveWerePredicted(self, stats):
