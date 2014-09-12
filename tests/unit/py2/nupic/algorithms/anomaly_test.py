@@ -112,18 +112,23 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalySelectModePure(self):
+    """anomaly with selected mode (pure) """
     anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
     score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
                                                 array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
   def testComputeAnomalyUnpredictedActive(self):
-    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3, 6, 7]), array([2, 3, 6]))
-    self.assertEqual(score, 0.25)
+    """anomaly - unexpected occured """
+    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3, 6, 7]), 
+                                                  array([2, 3, 6]))
+    self.assertAlmostEqual(score, 1/7.0)
 
   def testComputeAnomalyPredictedNonActive(self):
-    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3]), array([2, 3, 6]))
-    self.assertAlmostEqual(score, 1/3.0)
+    """anomaly - expected did not occur """
+    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3]), 
+                                                  array([2, 3, 6]))
+    self.assertAlmostEqual(score, 1/5.0)
 
 
 
