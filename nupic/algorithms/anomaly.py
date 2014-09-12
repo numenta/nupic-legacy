@@ -77,17 +77,16 @@ class Anomaly(object):
 
   def __init__(self, slidingWindowSize = None, mode=MODE_PURE):
     """
-    @param (optional) slidingWindowSize -- enables moving average on final
-                      anomaly score; how many elements are summed up,
-                      sliding window size; int >= 0
-    @param (optional) mode -- (string) how to compute anomaly;
-                      possible values are:
-                         -- "pure" -- the default, how much anomal the value is;
-                                      float 0..1 where 1=totally unexpected
-                         -- "likelihood" -- uses the anomaly_likelihood code;
-                                      models probability of receiving this
-                                      value and anomalyScore; used in Grok
-                         -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)
+    @param slidingWindowSize (optional) - how many elements are summed up;
+        enables moving average on final anomaly score; int >= 0
+    @param mode (optional) - (string) how to compute anomaly;
+        possible values are:
+          - "pure" - the default, how much anomal the value is;
+              float 0..1 where 1=totally unexpected
+          - "likelihood" - uses the anomaly_likelihood code;
+              models probability of receiving this value and anomalyScore
+          - "weighted" - "pure" anomaly weighted by "likelihood"
+              (anomaly * likelihood)
     """
     self._mode = mode
     self._useMovingAverage = slidingWindowSize > 0
@@ -115,7 +114,7 @@ class Anomaly(object):
 
   def computeAnomalyScore(self, activeColumns, predictedColumns, value=None,
                           timestamp=None):
-    """Compute the anomaly score as the percent of active columns not predicted
+    """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
@@ -132,11 +131,14 @@ class Anomaly(object):
     # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
-    elif self._mode == Anomaly.MODE_LIKELIHOOD: # TODO add tests for likelihood modes
-      probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
+    elif self._mode == Anomaly.MODE_LIKELIHOOD:
+      # TODO add tests for likelihood modes
+      probability = self._likelihood.anomalyProbability(
+          value, anomalyScore, timestamp)
       score = probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
-      probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
+      probability = self._likelihood.anomalyProbability(
+          value, anomalyScore, timestamp)
       score = anomalyScore * probability
 
     # Last, do moving-average if windowSize was specified.
@@ -155,4 +157,4 @@ class Anomaly(object):
     if newElement is not None:
       self._buf[self._i]= newElement
       self._i = (self._i + 1) % self._windowSize
-    return self._buf.sum()/float(self._windowSize) # normalize to 0..1
+    return self._buf.sum() / float(self._windowSize)  # normalize to 0..1
