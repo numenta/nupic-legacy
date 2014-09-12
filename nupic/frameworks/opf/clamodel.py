@@ -210,6 +210,7 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
+      self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
