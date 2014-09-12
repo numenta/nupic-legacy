@@ -54,6 +54,12 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   else:
     # There were no predicted or active columns.
     score = 0.0
+
+  print "ACTIVE= \t"+str(activeColumns)
+  print "PREDIC= \t"+str(prevPredictedColumns)
+  print "SCORE = \t"+str(score)
+  print "----"
+
   return score
 
 
