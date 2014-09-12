@@ -38,22 +38,12 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   @param prevPredictedColumns: array of columns indices predicted in prev step
   @return anomaly score 0..1 (float)
   """
-  nActiveColumns = len(activeColumns)
-  if nActiveColumns > 0:
-    # Test whether each element of a 1-D array is also present in a second
-    # array. Sum to get the total # of columns that are active and were
-    # predicted.
-    score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
-    # Get the percent of active columns that were NOT predicted, that is
-    # our anomaly score.
-    score = (nActiveColumns - score) / float(nActiveColumns)
-  elif len(prevPredictedColumns) > 0:
-    # There were predicted columns but none active.
-    score = 1.0
+  nTotal = len(activeColumns) + len(prevPredictedColumns)
+  if nTotal == 0:
+    score = 0.0 
   else:
-    # There were no predicted nor active columns.
-    score = 0.0
-
+    unique = numpy.setxor1d(activeColumns, prevPredictedColumns)
+    score = len(unique)/float(nTotal)
   return score
 
 
