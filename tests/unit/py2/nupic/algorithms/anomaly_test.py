@@ -78,6 +78,15 @@ class AnomalyTest(unittest.TestCase):
       anomaly.extend([score])
       self.assertAlmostEqual(anomaly[i], anomalyExpected[i], "not equal anomaly and expected " + str(anomaly) + " vs " + str(anomalyExpected))
 
+  def testComputeAnomalyUnpredictedActive(self):
+    score = self._anomalyImpl.computeAnomalyScore(array([2, 3, 6, 7]), array([2, 3, 6]))
+    self.assertEqual(score, 0.25)
+
+  def testComputeAnomalyPredictedNonActive(self):
+    score = self._anomalyImpl.computeAnomalyScore(array([2, 3]), array([2, 3, 6]))
+    self.assertAlmostEqual(score, 1/3.0)
+
+
 
 if __name__ == "__main__":
   unittest.main()
