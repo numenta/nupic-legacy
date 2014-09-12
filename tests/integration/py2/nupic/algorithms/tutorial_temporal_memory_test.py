@@ -224,7 +224,6 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     print self.tmTestMachine.prettyPrintDetailedResults(
       detailedResults,
       sequence * num,
-      self.patternMachine,
       verbosity=self.VERBOSITY)
     print
 
