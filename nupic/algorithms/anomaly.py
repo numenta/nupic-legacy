@@ -28,7 +28,9 @@ from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   """Computes the raw anomaly score.
 
-  The raw anomaly score is the fraction of active columns not predicted.
+  The raw anomaly score is difference between predicted and actual state: 
+   = the fraction of active columns not predicted +
+     the fraction of non-active columns predicted as active.
 
   computed as diff of current active columns and columns predicted from 
   previous round
