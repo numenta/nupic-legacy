@@ -75,12 +75,12 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize = None, anomalyMode=MODE_PURE):
+  def __init__(self, slidingWindowSize = None, mode=MODE_PURE):
     """
     @param (optional) slidingWindowSize -- enables moving average on final
                       anomaly score; how many elements are summed up,
                       sliding window size; int >= 0
-    @param (optional) anomalyMode -- (string) how to compute anomaly;
+    @param (optional) mode -- (string) how to compute anomaly;
                       possible values are:
                          -- "pure" -- the default, how much anomal the value is;
                                       float 0..1 where 1=totally unexpected
@@ -89,7 +89,7 @@ class Anomaly(object):
                                       value and anomalyScore; used in Grok
                          -- "weighted" -- "pure" anomaly weighted by "likelihood" (anomaly * likelihood)
     """
-    self._mode = anomalyMode
+    self._mode = mode
     self._useMovingAverage = slidingWindowSize > 0
     self._buf = None
     self._i = None
@@ -100,10 +100,6 @@ class Anomaly(object):
       # Sliding window buffer
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
       self._i = 0 # index pointer to actual position
-    elif slidingWindowSize <= 0:
-      raise ValueException(
-          "Anomaly: if you define slidingWindowSize, it has to be an "
-          "integer > 0;  slidingWindowSize=%r" % slidingWindowSize)
     elif slidingWindowSize is not None:
       raise TypeException(
           "Anomaly: if you define slidingWindowSize, it has to be an "
@@ -124,7 +120,7 @@ class Anomaly(object):
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
                              (used for anomaly in step T+1)
-    @param value: (optional) input value, that is what activeColumns represent
+    @param value: (optional) metric value of current input
                               (used in anomaly-likelihood)
     @param timestamp: (optional) date timestamp when the sample occured
                               (used in anomaly-likelihood)
@@ -136,7 +132,7 @@ class Anomaly(object):
     # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
-    elif self._mode == Anomaly.MODE_LIKELIHOOD:
+    elif self._mode == Anomaly.MODE_LIKELIHOOD: # TODO add tests for likelihood modes
       probability = self._likelihood.anomalyProbability(value, anomalyScore, timestamp)
       score = probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
