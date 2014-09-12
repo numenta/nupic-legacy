@@ -22,8 +22,8 @@
 import unittest2 as unittest
 
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.test.temporal_memory_test_machine import TemporalMemoryTestMachine
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.research.inspect_temporal_memory import (
+  InspectTemporalMemory as TemporalMemory)
 # Uncomment the lines below to run tests with TP10X2 implementation instead
 # from nupic.research.temporal_memory_shim import (TemporalMemoryShim as
 #                                                  TemporalMemory)
@@ -41,7 +41,6 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     self.tm = None
     self.patternMachine = None
     self.sequenceMachine = None
-    self.tmTestMachine = None
 
 
   def init(self, overrides=None):
@@ -55,18 +54,18 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
 
     self.patternMachine = self.PATTERN_MACHINE
     self.sequenceMachine = SequenceMachine(self.patternMachine)
-    self.tmTestMachine = TemporalMemoryTestMachine(self.tm)
 
 
   def feedTM(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
-    results = self.tmTestMachine.feedSequence(repeatedSequence, learn=learn)
 
-    detailedResults = self.tmTestMachine.computeDetailedResults(
-      results,
-      repeatedSequence)
+    self.tm.clearHistory()
 
-    return detailedResults
+    for pattern in repeatedSequence:
+      if pattern is None:
+        self.tm.reset()
+      else:
+        self.tm.compute(pattern, learn=learn)
 
 
   # ==============================
