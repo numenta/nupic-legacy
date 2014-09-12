@@ -28,19 +28,13 @@ import numpy as np
 from numpy import array
 
 from nupic.algorithms import anomaly
-from nupic.algorithms.anomaly import Anomaly
 
 
 class AnomalyTest(unittest.TestCase):
+  """Tests for anomaly score functions and classes."""
 
 
-  def setUp(self):
-   """init"""
-   self._anomaly = anomaly.Anomaly()
-
-  """ tests for 'raw' method of anomaly computation"""
-
-  def testComputeiRawAnomalyScoreNoActiveOrPredicted(self):
+  def testComputeRawAnomalyScoreNoActiveOrPredicted(self):
     score = anomaly.computeRawAnomalyScore(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
@@ -65,36 +59,42 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
-  """ tests for anomaly class"""
-
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
-    score = self._anomaly.computeAnomalyScore(array([]), array([]))
+    anomalyComputer = anomaly.Anomaly()
+    score = anomalyComputer.computeAnomalyScore(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoActive(self):
-    score = self._anomaly.computeAnomalyScore(array([]), array([3, 5]))
+    anomalyComputer = anomaly.Anomaly()
+    score = anomalyComputer.computeAnomalyScore(array([]), array([3, 5]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):
-    score = self._anomaly.computeAnomalyScore(array([3, 5, 7]), array([3, 5, 7]))
+    anomalyComputer = anomaly.Anomaly()
+    score = anomalyComputer.computeAnomalyScore(array([3, 5, 7]),
+                                                array([3, 5, 7]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoMatch(self):
-    score = self._anomaly.computeAnomalyScore(array([2, 4, 6]), array([3, 5, 7]))
+    anomalyComputer = anomaly.Anomaly()
+    score = anomalyComputer.computeAnomalyScore(array([2, 4, 6]),
+                                                array([3, 5, 7]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePartialMatch(self):
-    score = self._anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
+    anomalyComputer = anomaly.Anomaly()
+    score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
+                                                array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
   def testAnomalyCumulative(self):
     """Test cumulative anomaly scores."""
-    anomalyCum = anomaly.Anomaly(slidingWindowSize=3)
+    anomalyComputer = anomaly.Anomaly(slidingWindowSize=3)
     predicted = (array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]),
                  array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]),
                  array([1, 2, 6]), array([1, 2, 6]), array([1, 2, 6]))
@@ -105,7 +105,7 @@ class AnomalyTest(unittest.TestCase):
                        2.0/3.0, 1.0/3.0)
 
     for act, pred, expected in zip(actual, predicted, anomalyExpected):
-      score = anomalyCum.computeAnomalyScore(act, pred)
+      score = anomalyComputer.computeAnomalyScore(act, pred)
       self.assertAlmostEqual(
           score, expected,
           "Anomaly score of %f doesn't match expected of %f" % (score,
@@ -113,8 +113,9 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalySelectModePure(self):
-    self._anomaly = anomaly.Anomaly(mode=Anomaly.MODE_PURE)
-    score = self._anomaly.computeAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
+    score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
+                                                array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 

@@ -101,7 +101,7 @@ class Anomaly(object):
       self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
       self._i = 0 # index pointer to actual position
     elif slidingWindowSize is not None:
-      raise TypeException(
+      raise TypeError(
           "Anomaly: if you define slidingWindowSize, it has to be an "
           "integer > 0;  slidingWindowSize=%r" % slidingWindowSize)
 
