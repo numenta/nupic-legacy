@@ -22,8 +22,7 @@
 
 """Tests for anomaly-related algorithms."""
 
-import unittest2 as unittest
-import numpy as np
+import unittest
 
 from numpy import array
 
