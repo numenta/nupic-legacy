@@ -127,6 +127,11 @@ class AnomalyTest(unittest.TestCase):
                                                   array([2, 3, 6]))
     self.assertAlmostEqual(score, 1/5.0)
 
+  def testComputeAnomalyEmpty(self):
+    """anomaly called with empty params """
+    score = anomaly.Anomaly().computeAnomalyScore(array([]), array([]))
+    self.assertEqual(score, 0)
+
 
 if __name__ == "__main__":
   unittest.main()
