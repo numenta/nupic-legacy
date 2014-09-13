@@ -106,9 +106,9 @@ class AnomalyTest(unittest.TestCase):
     for act, pred, expected in zip(actual, predicted, anomalyExpected):
       score = anomalyComputer.computeAnomalyScore(act, pred)
       self.assertAlmostEqual(
-          score, expected,
-          "Anomaly score of %f doesn't match expected of %f" % (score,
-                                                                expected))
+          score, expected, places=5,
+          msg="Anomaly score of %f doesn't match expected of %f" % (
+              score, expected))
 
 
   def testComputeAnomalySelectModePure(self):
