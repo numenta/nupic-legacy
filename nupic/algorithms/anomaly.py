@@ -44,16 +44,6 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   else:
     unique = numpy.setxor1d(activeColumns, prevPredictedColumns)
     score = len(unique)/float(nTotal)
-  
-  print "ACTIVE= \t"+str(activeColumns)
-  print "PREDIC= \t"+str(prevPredictedColumns)
-  try:
-    print "uniq= \t"+str(unique)
-  except:
-    pass
-  print "SCORE = \t"+str(score)
-  print "----"
-
   return score
 
 
