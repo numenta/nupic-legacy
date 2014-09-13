@@ -198,14 +198,12 @@ class TemporalMemoryInspectMixin(object):
 
   def compute(self, activeColumns, learn=True):
     self._record(activeColumns)
-    self.patterns.append(activeColumns)
 
     super(TemporalMemoryInspectMixin, self).compute(activeColumns, learn=True)
 
 
   def reset(self):
-    self._record(set())
-    self.patterns.append(None)
+    self._record(None)
 
     super(TemporalMemoryInspectMixin, self).reset()
 
@@ -215,6 +213,9 @@ class TemporalMemoryInspectMixin(object):
   # ==============================
 
   def _record(self, activeColumns):
+    self.patterns.append(activeColumns)
+
+    activeColumns = activeColumns if activeColumns else set()
     predictedActiveCells = set()
     predictedInactiveCells = set()
     predictedActiveColumns = set()
