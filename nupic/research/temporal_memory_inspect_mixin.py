@@ -196,10 +196,10 @@ class TemporalMemoryInspectMixin(object):
   # Overrides
   # ==============================
 
-  def compute(self, activeColumns, learn=True):
+  def compute(self, activeColumns, **kwargs):
     self._record(activeColumns)
 
-    super(TemporalMemoryInspectMixin, self).compute(activeColumns, learn=True)
+    super(TemporalMemoryInspectMixin, self).compute(activeColumns, **kwargs)
 
 
   def reset(self):
