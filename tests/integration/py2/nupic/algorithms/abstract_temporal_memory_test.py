@@ -22,10 +22,10 @@
 import unittest2 as unittest
 
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.research.inspect_temporal_memory import (
+from nupic.research.temporal_memory import (
   InspectTemporalMemory as TemporalMemory)
 # Uncomment the lines below to run tests with TP10X2 implementation instead
-# from nupic.research.inspect_temporal_memory_shim import (
+# from nupic.research.temporal_memory_shim import (
 #   InspectTemporalMemoryShim as TemporalMemory)
 
 
