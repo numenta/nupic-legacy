@@ -210,6 +210,7 @@ class CLAModel(Model):
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter('anomalyMode', True)
+      self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
     # This flag, if present tells us not to train the SP network unless
@@ -608,6 +609,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferences = {}
     sp = self._getSPRegion()
+    score = None
     if inferenceType == InferenceType.NontemporalAnomaly:
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 

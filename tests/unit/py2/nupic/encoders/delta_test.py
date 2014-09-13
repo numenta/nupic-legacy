@@ -87,8 +87,12 @@ class DeltaEncoderTest(unittest.TestCase):
 
 
   def testEncodeInvalidInputType(self):
-    with self.assertRaises(TypeError):
+    try:
       self._dencoder.encode("String")
+    except TypeError as e:
+      self.assertEqual(e.message, "Expected a scalar input but got input of type <type 'str'>")
+    else:
+      self.fail("Should have thrown TypeError during attempt to encode string with scalar encoder.")
 
 
 
