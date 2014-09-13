@@ -20,14 +20,15 @@
 # ----------------------------------------------------------------------
 
 """
-Temporal Memory subclass that enables detailed inspection of history.
+Temporal Memory Shim subclass that enables detailed inspection of history.
 """
 
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.research.temporal_memory_shim import TemporalMemoryShim
 from nupic.research.temporal_memory_inspect_mixin import (
   TemporalMemoryInspectMixin)
 
 
 
-class InspectTemporalMemory(TemporalMemoryInspectMixin, TemporalMemory):
+class InspectTemporalMemoryShim(TemporalMemoryInspectMixin, TemporalMemoryShim):
   pass
+
