@@ -69,3 +69,10 @@ nupic/bindings/*engine_internal.*
 nupic/bindings/*algorithms.*
 nupic/bindings/*iorange.*
 nupic/bindings/*math.*
+
+# Pip stuff
+dist/
+nupic.egg-info/
+nupic/*cpp_region.*
+temp/
+

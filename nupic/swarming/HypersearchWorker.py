@@ -22,18 +22,15 @@
 
 import sys
 import os
-import time
 import pprint
 from optparse import OptionParser
 import random
 import logging
 import json
 import hashlib
-import binascii
 import itertools
 import StringIO
 import traceback
-import validictory
 
 from nupic.data import jsonhelpers
 from nupic.support import clippedObj
@@ -41,12 +38,8 @@ from nupic.support import initLogging
 from nupic.support.configuration import Configuration
 from nupic.support.ExtendedLogger import ExtendedLogger
 from nupic.support.errorcodes import ErrorCodes
-
 from nupic.database.ClientJobsDAO import ClientJobsDAO
-from nupic.swarming.modelchooser import ModelChooser
-
 from HypersearchV2 import HypersearchV2
-
 
 
 class HypersearchWorker(object):

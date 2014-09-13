@@ -19,12 +19,13 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import numpy
 from collections import deque
 
+import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder, EncoderResult
+
 
 DEFAULT_DTYPE = numpy.uint8
 

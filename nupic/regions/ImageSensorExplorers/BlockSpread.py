@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import math
+
 from nupic.regions.ImageSensorExplorers.BaseExplorer import BaseExplorer
 from nupic.math.cross import cross
-import math
+
 
 class BlockSpread(BaseExplorer):
 

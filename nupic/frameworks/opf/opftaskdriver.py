@@ -51,32 +51,14 @@
 from abc import (
   ABCMeta,
   abstractmethod)
-
 from collections import defaultdict
-
-import copy
 import itertools
 import logging
-import re
-
-
-from nupic.data import (
-  SENTINEL_VALUE_FOR_MISSING_DATA)
-
-from opfenvironment import (
-  PredictionLoggingElement)
-
-from opfutils import (
-  InferenceType,
-  ModelResult,
-  validateOpfJsonValue)
 
 from predictionmetricsmanager import (
   MetricsManager,
   )
 
-
-from metrics import MetricSpec
 
 ###############################################################################
 # Public Iteration Phase specification classes for TaskControl block

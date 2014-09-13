@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#!/bin/bash
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -20,37 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+echo
+echo Running `basename $0`...
+echo
 
-'''
-DEVELOPER SPECIFIC CONFIGURATION FILE
-
-Copy to devconf.py to enable.
-
-This file should not be checked in, and should be added to your svn/git ignore lists
-'''
-from nupic.support.features_list import FEATURES_LIST
-
-###############################################################################
-# Features
-
-FEATURES = {
-  'ADD': [
-    'increased_awesomeness',
-    ],
-  'REMOVE': [
-    'bad_feature',
-  ]
-}
-
-
-# All features in a given group must appear in the features.py file
-
-validFeatureNames = [f['name'] for f in FEATURES_LIST]
-for groupName, features in FEATURES.iteritems():
-  for feature in features:
-    if feature not in validFeatureNames:
-      raise Exception('The feature "%s" is not a recognized feature name. Please '
-                      'check your spelling and/or add it to '
-                      'nupic/support/features_list.py' % feature)
-      
-###############################################################################
+cmake $NUPIC -DPROJECT_BUILD_RELEASE_DIR:STRING=$NTA

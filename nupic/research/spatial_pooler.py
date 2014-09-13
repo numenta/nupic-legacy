@@ -20,16 +20,18 @@
 # ----------------------------------------------------------------------
 
 import itertools
-import numpy
 
+import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
                                  Random as NupicRandom)
 
+
 realDType = GetNTAReal()
 uintType = "uint32"
 
+VERSION = 2
 
 
 class SpatialPooler(object):
@@ -64,144 +66,131 @@ class SpatialPooler(object):
                dutyCyclePeriod=1000,
                maxBoost=10.0,
                seed=-1,
-               spVerbosity=0
+               spVerbosity=0,
+               wrapAround=True
                ):
     """
     Parameters:
     ----------------------------
-    inputDimensions:      A list representing the dimensions of the input
-                          vector. Format is [height, width, depth, ...], where
-                          each value represents the size of the dimension. For a
-                          topology of one dimension with 100 inputs use 100, or
-                          [100]. For a two dimensional topology of 10x5 use
-                          [10,5].
-    columnDimensions:     A list representing the dimensions of the columns in
-                          the region. Format is [height, width, depth, ...],
-                          where each value represents the size of the dimension.
-                          For a topology of one dimension with 2000 columns use
-                          2000, or [2000]. For a three dimensional topology of
-                          32x64x16 use [32, 64, 16].
-    potentialRadius:      This parameter determines the extent of the input
-                          that each column can potentially be connected to.
-                          This can be thought of as the input bits that
-                          are visible to each column, or a 'receptiveField' of
-                          the field of vision. A large enough value will result
-                          in 'global coverage', meaning that each column
-                          can potentially be connected to every input bit. This
-                          parameter defines a square (or hyper square) area: a
-                          column will have a max square potential pool with
-                          sides of length 2 * potentialRadius + 1.
-    potentialPct:         The percent of the inputs, within a column's
-                          potential radius, that a column can be connected to.
-                          If set to 1, the column will be connected to every
-                          input within its potential radius. This parameter is
-                          used to give each column a unique potential pool when
-                          a large potentialRadius causes overlap between the
-                          columns. At initialization time we choose
-                          ((2*potentialRadius + 1)^(# inputDimensions) *
-                          potentialPct) input bits to comprise the column's
-                          potential pool.
-    globalInhibition:     If true, then during inhibition phase the winning
-                          columns are selected as the most active columns from
-                          the region as a whole. Otherwise, the winning columns
-                          are selected with respect to their local
-                          neighborhoods. Using global inhibition boosts
-                          performance x60.
-    localAreaDensity:     The desired density of active columns within a local
-                          inhibition area (the size of which is set by the
-                          internally calculated inhibitionRadius, which is in
-                          turn determined from the average size of the
-                          connected potential pools of all columns). The
-                          inhibition logic will insure that at most N columns
-                          remain ON within a local inhibition area, where N =
-                          localAreaDensity * (total number of columns in
-                          inhibition area).
-    numActivePerInhArea:  An alternate way to control the density of the active
-                          columns. If numActivePerInhArea is specified then
-                          localAreaDensity must be less than 0, and vice versa.
-                          When using numActivePerInhArea, the inhibition logic
-                          will insure that at most 'numActivePerInhArea'
-                          columns remain ON within a local inhibition area (the
-                          size of which is set by the internally calculated
-                          inhibitionRadius, which is in turn determined from
-                          the average size of the connected receptive fields of
-                          all columns). When using this method, as columns
-                          learn and grow their effective receptive fields, the
-                          inhibitionRadius will grow, and hence the net density
-                          of the active columns will *decrease*. This is in
-                          contrast to the localAreaDensity method, which keeps
-                          the density of active columns the same regardless of
-                          the size of their receptive fields.
-    stimulusThreshold:    This is a number specifying the minimum number of
-                          synapses that must be on in order for a columns to
-                          turn ON. The purpose of this is to prevent noise
-                          input from activating columns. Specified as a percent
-                          of a fully grown synapse.
-    synPermInactiveDec:   The amount by which an inactive synapse is
-                          decremented in each round. Specified as a percent of
-                          a fully grown synapse.
-    synPermActiveInc:     The amount by which an active synapse is incremented
-                          in each round. Specified as a percent of a
-                          fully grown synapse.
-    synPermConnected:     The default connected threshold. Any synapse whose
-                          permanence value is above the connected threshold is
-                          a "connected synapse", meaning it can contribute to
-                          the cell's firing.
-    minPctOverlapDutyCycle: A number between 0 and 1.0, used to set a floor on
-                          how often a column should have at least
-                          stimulusThreshold active inputs. Periodically, each
-                          column looks at the overlap duty cycle of
-                          all other columns within its inhibition radius and
-                          sets its own internal minimal acceptable duty cycle
-                          to: minPctDutyCycleBeforeInh * max(other columns'
-                          duty cycles).
-                          On each iteration, any column whose overlap duty
-                          cycle falls below this computed value will  get
-                          all of its permanence values boosted up by
-                          synPermActiveInc. Raising all permanences in response
-                          to a sub-par duty cycle before  inhibition allows a
-                          cell to search for new inputs when either its
-                          previously learned inputs are no longer ever active,
-                          or when the vast majority of them have been
-                          "hijacked" by other columns.
-    minPctActiveDutyCycle: A number between 0 and 1.0, used to set a floor on
-                          how often a column should be activate.
-                          Periodically, each column looks at the activity duty
-                          cycle of all other columns within its inhibition
-                          radius and sets its own internal minimal acceptable
-                          duty cycle to:
-                            minPctDutyCycleAfterInh *
-                            max(other columns' duty cycles).
-                          On each iteration, any column whose duty cycle after
-                          inhibition falls below this computed value will get
-                          its internal boost factor increased.
-    dutyCyclePeriod:      The period used to calculate duty cycles. Higher
-                          values make it take longer to respond to changes in
-                          boost or synPerConnectedCell. Shorter values make it
-                          more unstable and likely to oscillate.
-    maxBoost:             The maximum overlap boost factor. Each column's
-                          overlap gets multiplied by a boost factor
-                          before it gets considered for inhibition.
-                          The actual boost factor for a column is number
-                          between 1.0 and maxBoost. A boost factor of 1.0 is
-                          used if the duty cycle is >= minOverlapDutyCycle,
-                          maxBoost is used if the duty cycle is 0, and any duty
-                          cycle in between is linearly extrapolated from these
-                          2 endpoints.
-    seed:                 Seed for our own pseudo-random number generator.
-    spVerbosity:          spVerbosity level: 0, 1, 2, or 3
+    @param inputDimensions: 
+      A list representing the dimensions of the input vector. Format is [height,
+      width, depth, ...], where each value represents the size of the dimension.
+      For a topology of one dimension with 100 inputs use 100, or [100]. For a
+      two dimensional topology of 10x5 use [10,5].
+    @param columnDimensions: 
+      A list representing the dimensions of the columns in the region. Format is
+      [height, width, depth, ...], where each value represents the size of the
+      dimension.  For a topology of one dimension with 2000 columns use 2000, or
+      [2000]. For a three dimensional topology of 32x64x16 use [32, 64, 16].
+    @param potentialRadius: 
+      This parameter determines the extent of the input that each column can
+      potentially be connected to.  This can be thought of as the input bits
+      that are visible to each column, or a 'receptiveField' of the field of
+      vision. A large enough value will result in 'global coverage', meaning
+      that each column can potentially be connected to every input bit. This
+      parameter defines a square (or hyper
+      square) area: a column will have a max square potential pool with sides of
+      length 2 * potentialRadius + 1.
+    @param potentialPct:
+      The percent of the inputs, within a column's potential radius, that a
+      column can be connected to.  If set to 1, the column will be connected
+      to every input within its potential radius. This parameter is used to
+      give each column a unique potential pool when a large potentialRadius
+      causes overlap between the columns. At initialization time we choose
+      ((2*potentialRadius + 1)^(# inputDimensions) * potentialPct) input bits
+      to comprise the column's potential pool.
+    @param globalInhibition:
+      If true, then during inhibition phase the winning columns are selected
+      as the most active columns from the region as a whole. Otherwise, the
+      winning columns are selected with respect to their local neighborhoods.
+      Using global inhibition boosts performance x60.
+    @param localAreaDensity:
+      The desired density of active columns within a local inhibition area
+      (the size of which is set by the internally calculated inhibitionRadius,
+      which is in turn determined from the average size of the connected
+      potential pools of all columns). The inhibition logic will insure that
+      at most N columns remain ON within a local inhibition area, where 
+      N = localAreaDensity * (total number of columns in inhibition area).
+    @param numActivePerInhArea:
+      An alternate way to control the density of the active columns. If 
+      numActivePerInhArea is specified then localAreaDensity must be less than
+      0, and vice versa.  When using numActivePerInhArea, the inhibition logic
+      will insure that at most 'numActivePerInhArea' columns remain ON within a
+      local inhibition area (the size of which is set by the internally
+      calculated inhibitionRadius, which is in turn determined from the average
+      size of the connected receptive fields of all columns). When using this
+      method, as columns learn and grow their effective receptive fields, the
+      inhibitionRadius will grow, and hence the net density of the active
+      columns will *decrease*. This is in contrast to the localAreaDensity
+      method, which keeps the density of active columns the same regardless of
+      the size of their receptive fields.
+    @param stimulusThreshold:
+      This is a number specifying the minimum number of synapses that must be on
+      in order for a columns to turn ON. The purpose of this is to prevent noise
+      input from activating columns. Specified as a percent of a fully grown
+      synapse.
+    @param synPermInactiveDec:
+      The amount by which an inactive synapse is decremented in each round.
+      Specified as a percent of a fully grown synapse.
+    @param synPermActiveInc:
+      The amount by which an active synapse is incremented in each round.
+      Specified as a percent of a fully grown synapse.
+    @param synPermConnected:
+      The default connected threshold. Any synapse whose permanence value is
+      above the connected threshold is a "connected synapse", meaning it can
+      contribute to the cell's firing.
+    @param minPctOverlapDutyCycle:
+      A number between 0 and 1.0, used to set a floor on how often a column
+      should have at least stimulusThreshold active inputs. Periodically, each
+      column looks at the overlap duty cycle of all other columns within its
+      inhibition radius and sets its own internal minimal acceptable duty cycle
+      to: minPctDutyCycleBeforeInh * max(other columns' duty cycles).  On each
+      iteration, any column whose overlap duty cycle falls below this computed
+      value will  get all of its permanence values boosted up by
+      synPermActiveInc. Raising all permanences in response to a sub-par duty
+      cycle before  inhibition allows a cell to search for new inputs when
+      either its previously learned inputs are no longer ever active, or when
+      the vast majority of them have been "hijacked" by other columns.
+    @param minPctActiveDutyCycle:
+      A number between 0 and 1.0, used to set a floor on how often a column
+      should be activate.  Periodically, each column looks at the activity duty
+      cycle of all other columns within its inhibition radius and sets its own
+      internal minimal acceptable duty cycle to: minPctDutyCycleAfterInh * 
+      max(other columns' duty cycles).  On each iteration, any column whose duty
+      cycle after inhibition falls below this computed value will get its
+      internal boost factor increased.
+    @param dutyCyclePeriod:
+      The period used to calculate duty cycles. Higher values make it take
+      longer to respond to changes in boost or synPerConnectedCell. Shorter
+      values make it more unstable and likely to oscillate.
+    @param maxBoost:
+      The maximum overlap boost factor. Each column's overlap gets multiplied
+      by a boost factor before it gets considered for inhibition.  The actual
+      boost factor for a column is number between 1.0 and maxBoost. A boost
+      factor of 1.0 is used if the duty cycle is >= minOverlapDutyCycle,
+      maxBoost is used if the duty cycle is 0, and any duty cycle in between is
+      linearly extrapolated from these 2 endpoints.
+    @param seed:
+      Seed for our own pseudo-random number generator.
+    @param spVerbosity:
+      spVerbosity level: 0, 1, 2, or 3
+    @param wrapAround:
+      Determines if inputs at the beginning and end of an input dimension should
+      be considered neighbors when mapping columns to inputs.
     """
     # Verify input is valid
-    inputDimensions = numpy.array(inputDimensions)
-    columnDimensions = numpy.array(columnDimensions)
+    inputDimensions = numpy.array(inputDimensions, ndmin=1)
+    columnDimensions = numpy.array(columnDimensions, ndmin=1)
     numColumns = columnDimensions.prod()
     numInputs = inputDimensions.prod()
 
-    assert(numColumns > 0)
-    assert(numInputs > 0)
-    assert(inputDimensions.size == columnDimensions.size)
+    assert numColumns > 0, "No columns specified"
+    assert numInputs > 0, "No inputs specified"
+    assert inputDimensions.size == columnDimensions.size, (
+             "Input dimensions must match column dimensions")
     assert (numActiveColumnsPerInhArea > 0 or
-           (localAreaDensity > 0 and localAreaDensity <= 0.5))
+           (localAreaDensity > 0 and localAreaDensity <= 0.5)), (
+             "Inhibition parameters are invalid")
 
     self._seed(seed)
 
@@ -225,17 +214,19 @@ class SpatialPooler(object):
     self._dutyCyclePeriod = dutyCyclePeriod
     self._maxBoost = maxBoost
     self._spVerbosity = spVerbosity
+    self._wrapAround = wrapAround
 
     # Extra parameter settings
     self._synPermMin = 0.0
     self._synPermMax = 1.0
     self._synPermTrimThreshold = synPermActiveInc / 2.0
-    assert(self._synPermTrimThreshold < self._synPermConnected)
+    assert (self._synPermTrimThreshold < self._synPermConnected), (
+             "synPermTrimThreshold must be less than synPermConnected")
     self._updatePeriod = 50
     initConnectedPct = 0.5
 
     # Internal state
-    self._version = 1.0
+    self._version = VERSION
     self._iterationNum = 0
     self._iterationLearnNum = 0
 
@@ -293,7 +284,7 @@ class SpatialPooler(object):
     # each column is connected to enough input bits to allow it to be
     # activated.
     for i in xrange(numColumns):
-      potential = self._mapPotential(i, wrapAround=True)
+      potential = self._mapPotential(i, wrapAround=self._wrapAround)
       self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, i, raisePerm=True)
@@ -658,34 +649,36 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
-  def compute(self, inputVector, learn, activeArray):
+  def compute(self, inputVector, learn, activeArray, stripNeverLearned=True):
     """
     This is the primary public method of the SpatialPooler class. This
     function takes a input vector and outputs the indices of the active columns.
     If 'learn' is set to True, this method also updates the permanences of the
     columns.
 
-    Parameters:
-    ----------------------------
-    inputVector:    a numpy array of 0's and 1's that comprises the input to
-                    the spatial pooler. The array will be treated as a one
-                    dimensional array, therefore the dimensions of the array
-                    do not have to much the exact dimensions specified in the
-                    class constructor. In fact, even a list would suffice.
-                    The number of input bits in the vector must, however,
-                    match the number of bits specified by the call to the
-                    constructor. Therefore there must be a '0' or '1' in the
-                    array for every input bit.
-    learn:          a boolean value indicating whether learning should be
-                    performed. Learning entails updating the  permanence
-                    values of the synapses, and hence modifying the 'state'
-                    of the model. Setting learning to 'off' freezes the SP
-                    and has many uses. For example, you might want to feed in
-                    various inputs and examine the resulting SDR's.
-    activeArray:    an array whose size is equal to the number of columns.
-                    Before the function returns this array will be populated
-                    with 1's at the indices of the active columns, and 0's
-                    everywhere else.
+    :param inputVector: A numpy array of 0's and 1's that comprises the input
+        to the spatial pooler. The array will be treated as a one dimensional
+        array, therefore the dimensions of the array do not have to match the
+        exact dimensions specified in the class constructor. In fact, even a
+        list would suffice. The number of input bits in the vector must,
+        however, match the number of bits specified by the call to the
+        constructor. Therefore there must be a '0' or '1' in the array for
+        every input bit.
+    :param learn: A boolean value indicating whether learning should be
+        performed. Learning entails updating the  permanence values of the
+        synapses, and hence modifying the 'state' of the model. Setting
+        learning to 'off' freezes the SP and has many uses. For example, you
+        might want to feed in various inputs and examine the resulting SDR's.
+    :param activeArray: An array whose size is equal to the number of columns.
+        Before the function returns this array will be populated with 1's at
+        the indices of the active columns, and 0's everywhere else.
+    :param stripNeverLearned: If True and learn=False, then columns that
+        have never learned will be stripped out of the active columns. This
+        should be set to False when using a random SP with learning disabled.
+        NOTE: This parameter should be set explicitly as the default will
+        likely be changed to False in the near future and if you want to retain
+        the current behavior you should additionally pass the resulting
+        activeArray to the stripUnlearnedColumns method manually.
     """
     assert (numpy.size(inputVector) == self._numInputs)
     self._updateBookeepingVars(learn)
@@ -710,24 +703,22 @@ class SpatialPooler(object):
       if self._isUpdateRound():
         self._updateInhibitionRadius()
         self._updateMinDutyCycles()
-    else:
-      activeColumns = self._stripNeverLearned(activeColumns)
+    elif stripNeverLearned:
+      activeColumns = self.stripUnlearnedColumns(activeColumns)
 
     activeArray.fill(0)
     if activeColumns.size > 0:
       activeArray[activeColumns] = 1
 
 
-
-  def _stripNeverLearned(self, activeColumns):
+  def stripUnlearnedColumns(self, activeColumns):
     """Removes the set of columns who have never been active from the set of
     active columns selected in the inhibition round. Such columns cannot
     represent learned pattern and are therefore meaningless if only inference
-    is required.
+    is required. This should not be done when using a random, unlearned SP
+    since you would end up with no active columns.
 
-    Parameters:
-    ----------------------------
-    activeColumns:  An array containing the indices of the active columns
+    :param activeColumns: An array containing the indices of the active columns
     """
     neverLearned = numpy.where(self._activeDutyCycles == 0)[0]
     return numpy.array(list(set(activeColumns) - set(neverLearned)))
@@ -922,10 +913,6 @@ class SpatialPooler(object):
                     and connectivity matrices.
     """
     dimensions = self._inputDimensions
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
     connected = self._connectedSynapses.getRow(index).nonzero()[0]
     if connected.size == 0:
       return 0
@@ -934,8 +921,8 @@ class SpatialPooler(object):
     maxCoord.fill(-1)
     minCoord.fill(max(self._inputDimensions))
     for i in connected:
-      maxCoord = numpy.maximum(maxCoord, toCoords(i))
-      minCoord = numpy.minimum(minCoord, toCoords(i))
+      maxCoord = numpy.maximum(maxCoord, numpy.unravel_index(i, dimensions))
+      minCoord = numpy.minimum(minCoord, numpy.unravel_index(i, dimensions))
     return numpy.average(maxCoord - minCoord + 1)
 
 
@@ -1120,6 +1107,38 @@ class SpatialPooler(object):
     return perm
 
 
+  def _mapColumn(self, index):
+    """
+    Maps a column to its respective input index, keeping to the topology of
+    the region. It takes the index of the column as an argument and determines
+    what is the index of the flattened input vector that is to be the center of
+    the column's potential pool. It distributes the columns over the inputs
+    uniformly. The return value is an integer representing the index of the
+    input bit. Examples of the expected output of this method:
+    * If the topology is one dimensional, and the column index is 0, this
+      method will return the input index 0. If the column index is 1, and there
+      are 3 columns over 7 inputs, this method will return the input index 3.
+    * If the topology is two dimensional, with column dimensions [3, 5] and
+      input dimensions [7, 11], and the column index is 3, the method
+      returns input index 8.
+
+    Parameters:
+    ----------------------------
+    index:          The index identifying a column in the permanence, potential
+                    and connectivity matrices.
+    wrapAround:     A boolean value indicating that boundaries should be
+                    ignored.
+    """
+    columnCoords = numpy.unravel_index(index, self._columnDimensions)
+    columnCoords = numpy.array(columnCoords, dtype=realDType)
+    ratios = columnCoords / self._columnDimensions
+    inputCoords = self._inputDimensions * ratios
+    inputCoords += 0.5 * self._inputDimensions / self._columnDimensions
+    inputCoords = inputCoords.astype(int)
+    inputIndex = numpy.ravel_multi_index(inputCoords, self._inputDimensions)
+    return inputIndex
+
+
   def _mapPotential(self, index, wrapAround=False):
     """
     Maps a column to its input bits. This method encapsulates the topology of
@@ -1130,37 +1149,37 @@ class SpatialPooler(object):
     supports a 1 dimensional topology of columns with a 1 dimensional topology
     of inputs. To extend this class to support 2-D topology you will need to
     override this method. Examples of the expected output of this method:
-    * If the potentialRadius is greater than or equal to the entire input
-      space, (global visibility), then this method returns an array filled with
-      all the indices
-    * If the topology is one dimensional, and the potentialRadius is 5, this
-      method will return an array containing 5 consecutive values centered on
-      the index of the column (wrapping around if necessary).
-    * If the topology is two dimensional (not implemented), and the
-      potentialRadius is 5, the method should return an array containing 25
-      '1's, where the exact indices are to be determined by the mapping from
-      1-D index to 2-D position.
+    * If the potentialRadius is greater than or equal to the largest input
+      dimension then each column connects to all of the inputs.
+    * If the topology is one dimensional, the input space is divided up evenly
+      among the columns and each column is centered over its share of the
+      inputs.  If the potentialRadius is 5, then each column connects to the
+      input it is centered above as well as the 5 inputs to the left of that
+      input and the five inputs to the right of that input, wrapping around if
+      wrapAround=True.
+    * If the topology is two dimensional, the input space is again divided up
+      evenly among the columns and each column is centered above its share of
+      the inputs.  If the potentialRadius is 5, the column connects to a square
+      that has 11 inputs on a side and is centered on the input that the column
+      is centered above.
 
     Parameters:
     ----------------------------
     index:          The index identifying a column in the permanence, potential
                     and connectivity matrices.
     wrapAround:     A boolean value indicating that boundaries should be
-                    region boundaries ignored.
+                    ignored.
     """
-    # Distribute column over inputs uniformly
-    ratio = float(index) / max((self._numColumns - 1), 1)
-    index = int((self._numInputs - 1) * ratio)
+    index = self._mapColumn(index)
+    indices = self._getNeighborsND(index,
+                                   self._inputDimensions,
+                                   self._potentialRadius,
+                                   wrapAround=wrapAround)
+    indices.append(index)
+    indices = numpy.array(indices)
 
-    indices = numpy.array(range(2*self._potentialRadius+1))
-    indices += index
-    indices -= self._potentialRadius
-    if wrapAround:
-      indices %= self._numInputs
-    else:
-      indices = indices[
-        numpy.logical_and(indices >= 0, indices < self._numInputs)]
-    indices = numpy.array(list(set(indices)))
+    # TODO: See https://github.com/numenta/nupic.core/issues/128
+    indices.sort()
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
@@ -1503,15 +1522,8 @@ class SpatialPooler(object):
                     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     """
     assert(dimensions.size > 0)
-    bounds = numpy.cumprod(numpy.append([1], dimensions[::-1][:-1]))[::-1]
 
-    def toCoords(index):
-      return (index / bounds) % dimensions
-
-    def toIndex(coords):
-      return numpy.dot(bounds, coords)
-
-    columnCoords = toCoords(columnIndex)
+    columnCoords = numpy.unravel_index(columnIndex, dimensions)
     rangeND = []
     for i in xrange(dimensions.size):
       if wrapAround:
@@ -1523,12 +1535,11 @@ class SpatialPooler(object):
         curRange = curRange[
           numpy.logical_and(curRange >= 0, curRange < dimensions[i])]
 
-      rangeND.append(curRange)
+      rangeND.append(numpy.unique(curRange))
 
-    neighbors = [toIndex(numpy.array(coord)) for coord in
+    neighbors = [numpy.ravel_multi_index(coord, dimensions) for coord in
       itertools.product(*rangeND)]
-    neighbors = list(set(neighbors) - set([columnIndex]))
-    assert(neighbors)
+    neighbors.remove(columnIndex)
     return neighbors
 
 
@@ -1548,6 +1559,20 @@ class SpatialPooler(object):
       self._random = NupicRandom(seed)
     else:
       self._random = NupicRandom()
+
+
+  def __setstate__(self, state):
+    """
+    Initialize class properties from stored values.
+    """
+    # original version was a float so check for anything less than 2
+    if state['_version'] < 2:
+      # the wrapAround property was added in version 2, 
+      # in version 1 the wrapAround parameter was True for SP initialization
+      state['_wrapAround'] = True
+    # update version property to current SP version
+    state['_version'] = VERSION
+    self.__dict__.update(state)
 
 
   def printParameters(self):

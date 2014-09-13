@@ -402,7 +402,7 @@ tasks = [
       # every prediction. The regex's correspond to the automatically generated
       # metric labels. This is similar to the way the optimization metric is
       # specified in permutations.py.
-      'loggedMetrics': ['.*grokScore.*', ".*aae.*"],
+      'loggedMetrics': ['.*nupicScore.*', ".*aae.*"],
       
       
       # Callbacks for experimentation/research (optional)

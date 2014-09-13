@@ -20,12 +20,14 @@
 # ----------------------------------------------------------------------
 
 import math
-import numpy
+import numbers
 import pprint
 
+import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder
+
 
 
 ############################################################################
@@ -208,6 +210,10 @@ class RandomDistributedScalarEncoder(Encoder):
 
   def encodeIntoArray(self, x, output):
     """ See method description in base.py """
+
+    if x is not None and not isinstance(x, numbers.Number):
+      raise TypeError(
+          "Expected a scalar input but got input of type %s" % type(x))
 
     # Get the bucket index to use
     bucketIdx = self.getBucketIndices(x)[0]

@@ -21,33 +21,20 @@
 
 import os
 import sys
-import time
 import tempfile
 import logging
 import re
-import json
 import traceback
 import StringIO
 from collections import namedtuple
-import copy
-import itertools
-import random
-import math
 import pprint
 import shutil
 import types
 import signal
 import uuid
 
-import nupic
-from nupic.frameworks.opf import opfhelpers
-from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
-from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.support.serializationutils import sortedJSONDumpS
-
 from nupic.database.ClientJobsDAO import (
     ClientJobsDAO, InvalidConnectionException)
-
 
 
 class JobFailException(Exception):
@@ -424,13 +411,6 @@ def runModelGivenBaseAndParams(modelID, jobID, baseDescription, params,
     jobsDAO.modelSetFields(modelID, {'genDescription': expDescription})
 
 
-    # -------------------------------------------------------------------------
-    # if NTA is not set in the environment, set it for the user so that
-    #   we can find data files expected to be in the share/prediction/data directory
-    if not "NTA" in os.environ:
-      os.environ['NTA'] = nupic.rootDir
-
-
     # Run the experiment now
     try:
       runner = OPFModelRunner(
@@ -476,13 +456,6 @@ def runDummyModel(modelID, jobID, params, predictedField, reportKeys,
 
   # The logger for this method
   logger = logging.getLogger('com.numenta.nupic.hypersearch.utils')
-
-
-  # -------------------------------------------------------------------------
-  # if NTA is not set in the environment, set it for the user so that
-  #   we can find data files expected to be in the share/prediction/data directory
-  if not "NTA" in os.environ:
-    os.environ['NTA'] = nupic.rootDir
 
 
   # Run the experiment now

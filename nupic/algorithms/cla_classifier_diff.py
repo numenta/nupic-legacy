@@ -32,6 +32,7 @@ import numbers
 from nupic.algorithms.CLAClassifier import CLAClassifier
 from nupic.bindings.algorithms import FastCLAClassifier
 
+
 CALLS_PER_SERIALIZE = 100
 
 

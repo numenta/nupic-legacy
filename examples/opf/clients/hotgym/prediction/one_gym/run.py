@@ -29,7 +29,9 @@ import csv
 import datetime
 
 from nupic.data.inference_shifter import InferenceShifter
+from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import nupic_output
 
@@ -48,6 +50,20 @@ MODEL_PARAMS_DIR = "./model_params"
 # '7/2/10 0:00'
 DATE_FORMAT = "%m/%d/%y %H:%M"
 
+_METRIC_SPECS = (
+    MetricSpec(field='kw_energy_consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
+               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='kw_energy_consumption', metric='trivial',
+               inferenceElement='prediction',
+               params={'errorMetric': 'aae', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='kw_energy_consumption', metric='multiStep',
+               inferenceElement='multiStepBestPredictions',
+               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+    MetricSpec(field='kw_energy_consumption', metric='trivial',
+               inferenceElement='prediction',
+               params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': 1}),
+)
 
 def createModel(modelParams):
   model = ModelFactory.create(modelParams)
@@ -84,18 +100,27 @@ def runIoThroughNupic(inputData, model, gymName, plot):
   else:
     output = nupic_output.NuPICFileOutput([gymName])
 
+  metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
+                                  model.getInferenceType())
+
   counter = 0
   for row in csvReader:
     counter += 1
-    if (counter % 100 == 0):
-      print "Read %i lines..." % counter
     timestamp = datetime.datetime.strptime(row[0], DATE_FORMAT)
     consumption = float(row[1])
     result = model.run({
       "timestamp": timestamp,
       "kw_energy_consumption": consumption
     })
+    result.metrics = metricsManager.update(result)
 
+    if counter % 100 == 0:
+      print "Read %i lines..." % counter
+      print ("After %i records, 1-step altMAPE=%f", counter,
+              result.metrics["multiStepBestPredictions:multiStep:"
+                             "errorMetric='altMAPE':steps=1:window=1000:"
+                             "field=kw_energy_consumption"])
+ 
     if plot:
       result = shifter.shift(result)
 

@@ -1845,11 +1845,26 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         self.__dict__.update(state)
   %}
 
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
+                      bool stripNeverLearned)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data,
+                  (bool)stripNeverLearned);
+  }
+
   inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
     self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
+  inline void stripUnlearnedColumns(PyObject *py_x)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    self->stripUnlearnedColumns((nta::UInt*) x->data);
   }
 
   void loadFromString(const std::string& inString)
@@ -2055,6 +2070,23 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         del state["this"]
         self.__dict__.update(state)
   %}
+
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
+                      bool stripNeverLearned)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data,
+                  (bool)stripNeverLearned);
+  }
+
+  inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
+  {
+    PyArrayObject* x = (PyArrayObject*) py_x;
+    PyArrayObject* y = (PyArrayObject*) py_y;
+    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+  }
+
 }
 
 %include <nta/algorithms/FastClaClassifier.hpp>

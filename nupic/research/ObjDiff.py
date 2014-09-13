@@ -20,15 +20,6 @@
 # ----------------------------------------------------------------------
 
 import numpy
-from nupic.research.FDRTemporal import FDRTemporal
-import nupic.research.fdrutilities as fdru
-import sys
-import random
-from nupic.bindings.math import SM32
-import pylab
-from pylab import figure, plot, xlabel, ylabel, title, axis, draw, close, legend, show, grid, savefig, show
-import time
-from copy import deepcopy
 
 #=============================================================================
 class ObjectDiff(object):

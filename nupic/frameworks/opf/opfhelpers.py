@@ -30,7 +30,6 @@ import imp
 import os
 
 import expdescriptionapi
-import opfutils
 
 
 def loadExperiment(path):

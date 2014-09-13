@@ -20,19 +20,14 @@
 # ----------------------------------------------------------------------
 
 import logging
-import os
 import platform
-import sys
-import time
 import traceback
-
-import pymysql
-
-from nupic.support.configuration import Configuration
 
 from DBUtils import SteadyDB
 from DBUtils.PooledDB import PooledDB
 
+import pymysql
+from nupic.support.configuration import Configuration
 
 
 _MODULE_NAME = "nupic.database.Connection"

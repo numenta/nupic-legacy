@@ -20,12 +20,14 @@
 # ----------------------------------------------------------------------
 
 import math
-import numpy
+import numbers
 
+import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
+
 
 
 ############################################################################
@@ -401,6 +403,10 @@ class ScalarEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output, learn=True):
     """ See method description in base.py """
+
+    if input is not None and not isinstance(input, numbers.Number):
+      raise TypeError(
+          "Expected a scalar input but got input of type %s" % type(input))
 
     if type(input) is float and math.isnan(input):
       input = SENTINEL_VALUE_FOR_MISSING_DATA
