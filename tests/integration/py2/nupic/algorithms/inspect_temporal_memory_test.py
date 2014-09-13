@@ -23,7 +23,7 @@ import unittest
 
 from nupic.data.pattern_machine import ConsecutivePatternMachine
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.research.inspect_temporal_memory import InspectTemporalMemory
+from nupic.research.temporal_memory import InspectTemporalMemory
 
 
 
