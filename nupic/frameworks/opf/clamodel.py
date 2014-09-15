@@ -75,6 +75,26 @@ def requireAnomalyModel(func):
 
 
 ###############################################################
+class NetworkInfo(object):
+  """ Data type used as return value type by
+  CLAModel.__createCLANetwork()
+  """
+
+  def __init__(self, net, statsCollectors):
+    """
+    net:          The CLA Network instance
+    statsCollectors:
+                  Sequence of 0 or more CLAStatistic-based instances
+    """
+    self.net = net
+    self.statsCollectors = statsCollectors
+    return
+
+  def __repr__(self):
+    return "NetworkInfo(net=%r, statsCollectors=%r)" % (
+              self.net, self.statsCollectors)
+
+###############################################################
 class CLAModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
@@ -1114,7 +1134,7 @@ class CLAModel(Model):
     # but users may want to access components in a setup callback
     n.initialize()
 
-    return {}
+    return NetworkInfo(net=n, statsCollectors=[])
 
 
 
