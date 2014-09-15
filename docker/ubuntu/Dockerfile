@@ -1,9 +1,8 @@
-FROM ubuntu
+FROM ubuntu:14.04
 
 MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y wget
 RUN apt-get install -y git-core
