@@ -25,8 +25,6 @@ import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 
-
-
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   """Computes the raw anomaly score.
 
@@ -75,8 +73,60 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize = None, mode=MODE_PURE):
+  def __init__(self, slidingWindowSize = None, mode=MODE_PURE, useModel=None):
     """
+    @param slidingWindowSize (optional) - how many elements are summed up;
+        enables moving average on final anomaly score; int >= 0
+    @param mode (optional) - (string) how to compute anomaly;
+        possible values are:
+          - "pure" - the default, how much anomal the value is;
+              float 0..1 where 1=totally unexpected
+          - "likelihood" - uses the anomaly_likelihood code;
+              models probability of receiving this value and anomalyScore
+          - "weighted" - "pure" anomaly weighted by "likelihood"
+              (anomaly * likelihood)
+    @param useModel (optional) - instance of CLAModel being used, 
+	as some modes (likelihood, weighted) need access to deeper features of
+        the TP/SP, provide CLAModel for convenience and we extract 
+	the information from there.
+    """
+    if (useModel is not None):
+      if not isinstance(useModel, nupic.frameworks.opf.clamodel.CLAModel):
+        raise TypeError("Provided 'useModel' must be of type CLAModel")
+      else:
+        # TODO get TP from CLAModel
+        self._tp = None
+    else:
+      self._tp = None
+    self._setup(slidingWindowSize=slidingWindowSize, mode=mode)
+
+
+  def __init__(self, slidingWindowSize = None, mode=MODE_PURE, useTP=None):
+    """
+    @param slidingWindowSize (optional) - how many elements are summed up;
+        enables moving average on final anomaly score; int >= 0
+    @param mode (optional) - (string) how to compute anomaly;
+        possible values are:
+          - "pure" - the default, how much anomal the value is;
+              float 0..1 where 1=totally unexpected
+          - "likelihood" - uses the anomaly_likelihood code;
+              models probability of receiving this value and anomalyScore
+          - "weighted" - "pure" anomaly weighted by "likelihood"
+              (anomaly * likelihood)
+    @param useTP (optional) - instance of temporal pooler being used, 
+        as some modes (likelihood, weighted) need access to deeper features of
+        the TP/SP. 
+    """
+    if (useTP is not None) and not isinstance(useTP, nupic.research.TP.TP):
+      raise TypeError("Provided 'useTP' must be of type TP")
+    self._tp = useTP
+    self._setup(slidingWindowSize=slidingWindowSize, mode=mode)
+
+
+  def _setup(self, slidingWindowSize = None, mode=MODE_PURE):
+    """
+    helper method to set up anomaly during initialization
+
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
     @param mode (optional) - (string) how to compute anomaly;

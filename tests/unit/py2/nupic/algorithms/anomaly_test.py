@@ -26,6 +26,9 @@ import unittest
 
 from numpy import array
 
+from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.research.TP import TP
+
 from nupic.algorithms import anomaly
 
 
@@ -116,6 +119,13 @@ class AnomalyTest(unittest.TestCase):
     score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
                                                 array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
+
+
+  def testInitAnomalyWithModel(self):
+    """init with provided CLAModel instance"""
+    myModel = CLAModel()
+    anomaly = anomaly.Anomaly(useModel=myModel)
+    self.assertTrue(isinstance(anomaly._tp, TP))
 
 
 if __name__ == "__main__":
