@@ -60,6 +60,7 @@ updateAnomalyLikelihoods. The details of these are described below.
 """
 
 import math
+import datetime
 
 import numpy
 
