@@ -108,17 +108,18 @@ class Anomaly(object):
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
 
 
-  def computeAnomalyScore(self, activeColumns, predictedColumns, value=None,
-                          timestamp=None):
+  def compute(self, activeColumns, predictedColumns, 
+				inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
                              (used for anomaly in step T+1)
-    @param value: (optional) metric value of current input
-                              (used in anomaly-likelihood)
+    @param inputValue: (optional) value of current input to encoders 
+				(eg "cat" for category encoder)
+                              	(used in anomaly-likelihood)
     @param timestamp: (optional) date timestamp when the sample occured
-                              (used in anomaly-likelihood)
+                              	(used in anomaly-likelihood)
     @return the computed anomaly score; float 0..1
     """
     # Start by computing the raw anomaly score.
@@ -129,12 +130,16 @@ class Anomaly(object):
       score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
       # TODO add tests for likelihood modes
+      if inputValue is None:
+        raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' \
+requires 'inputValue' as parameter to compute() method. ")
+
       probability = self._likelihood.anomalyProbability(
-          value, anomalyScore, timestamp)
+          inputValue, anomalyScore, timestamp)
       score = probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
       probability = self._likelihood.anomalyProbability(
-          value, anomalyScore, timestamp)
+          inputValue, anomalyScore, timestamp)
       score = anomalyScore * probability
 
     # Last, do moving-average if windowSize was specified.
