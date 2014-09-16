@@ -63,6 +63,7 @@ import math
 
 import numpy
 
+from nupic.common.utils import MovingAverage
 
 
 class AnomalyLikelihood(object):
@@ -390,7 +391,7 @@ def updateAnomalyLikelihoods(anomalyScores,
   likelihoods = numpy.zeros(len(anomalyScores), dtype=float)
   for i, v in enumerate(anomalyScores):
     newAverage, historicalValues, total = (
-      _movingAverage(historicalValues, total, v[2], windowSize)
+      MovingAverage.compute(historicalValues, total, v[2], windowSize)
     )
     aggRecordList[i] = newAverage
     likelihoods[i]   = normalProbability(newAverage, params["distribution"])
@@ -458,26 +459,6 @@ def _filterLikelihoods(likelihoods,
   return filteredLikelihoods
 
 
-def _movingAverage(historicalValues, total, newVal, windowSize):
-  """
-  Helper routine for computing a moving average. Given a list of historical
-  numbers, a running total of those values, and a new number compute the new
-  windowed average.
-
-  :returns: an updated windowed average, the new list of ``historicalValues``,
-      and the new running total. Ensures the list of ``historicalValues`` is at
-      most ``windowSize``.
-  """
-  while len(historicalValues) >= windowSize:
-    total -= historicalValues[0]
-    historicalValues.pop(0)
-  historicalValues.append(newVal)
-  total += newVal
-  newAverage = float(total) / len(historicalValues)
-
-  return newAverage, historicalValues, total
-
-
 def _anomalyScoreMovingAverage(anomalyScores,
                                windowSize=10,
                                verbosity=0,
@@ -505,7 +486,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
       continue
 
     avg, historicalValues, total = (
-      _movingAverage(historicalValues, total, record[2], windowSize)
+      MovingAverage.compute(historicalValues, total, record[2], windowSize)
       )
 
     averagedRecordList.append( [record[0], record[1], avg] )
