@@ -24,7 +24,7 @@
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
-
+from nupic.common.utils import MovingAverage
 
 
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
@@ -89,17 +89,13 @@ class Anomaly(object):
               (anomaly * likelihood)
     """
     self._mode = mode
-    self._useMovingAverage = slidingWindowSize > 0
-    self._buf = None
-    self._i = None
+    if slidingWindowSize > 0:
+      self._movingAverage = MovingAverage(windowSize=int(slidingWindowSize))
+    else:
+      self._movingAverage = None
 
     # Using cumulative anomaly, sliding window
-    if self._useMovingAverage:
-      self._windowSize = slidingWindowSize
-      # Sliding window buffer
-      self._buf = numpy.array([0] * self._windowSize, dtype=numpy.float)
-      self._i = 0 # index pointer to actual position
-    elif slidingWindowSize is not None:
+    if (self._movingAverage is None) and (slidingWindowSize is not None):
       raise TypeError(
           "Anomaly: if you define slidingWindowSize, it has to be an "
           "integer > 0;  slidingWindowSize=%r" % slidingWindowSize)
@@ -142,19 +138,7 @@ class Anomaly(object):
       score = anomalyScore * probability
 
     # Last, do moving-average if windowSize was specified.
-    if self._useMovingAverage:
-      score = self._movingAverage(score)
+    if self._movingAverage is not None:
+      score, _, _ = self._movingAverage.next(score)
 
     return score
-
-
-  def _movingAverage(self, newElement=None):
-    """moving average
-
-    @param newValue (optional) add a new element before computing the avg
-    @return moving average of self._windowSize last elements
-    """
-    if newElement is not None:
-      self._buf[self._i]= newElement
-      self._i = (self._i + 1) % self._windowSize
-    return self._buf.sum() / float(self._windowSize)  # normalize to 0..1
