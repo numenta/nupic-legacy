@@ -31,6 +31,29 @@ class MovingAverage(object):
   @method next() - from an instance of MovingAverage object, does the bookkeeping
 	for you.
   """
+
+
+  def __init__(self, windowSize, existingHistoricalValues=None):
+    """
+    new instance of MovingAverage, so method .next() can be used
+    @param windowSize - length of sliding window
+    @param existingHistoricalValues - construct the object with already
+    	some values in it.
+    """
+    try:
+      int(windowSize)
+    except:
+      TypeError("MovingAverage - windowSize must be integer type")
+    if  windowSize <= 0:
+      raise ValueError("MovingAverage - windowSize must be >0")
+
+    self.windowSize_=windowSize
+    if existingHistoricalValues is not None:
+      self.slidingWindow_=existingHistoricalValues[len(existingHistoricalValues)-windowSize:]
+    else:
+      self.slidingWindow_=[]
+    self.total_=sum(self.slidingWindow_)
+    
   
   @staticmethod
   def compute(historicalValues, total, newVal, windowSize):
@@ -54,3 +77,18 @@ class MovingAverage(object):
 
     return newAverage, historicalValues, total
 
+
+  def next(self, newValue):
+    """
+    update moving average with the new value added
+    @param newValue - integer value to be added
+    @return an updated windowed average, the new list of ``historicalValues``,
+        and the new running total. Ensures the list of ``historicalValues`` is at
+        most ``windowSize``.
+    """
+    newAverage, self.slidingWindow_, self.total_ = (MovingAverage.compute(
+							self.slidingWindow_,
+							self.total_,
+							newValue,
+							self.windowSize_) )
+    return newAverage, self.slidingWindow_, self.total_
