@@ -102,6 +102,12 @@ parser.add_option(
   default=False,
   dest="integration")
 parser.add_option(
+  "-w",
+  "--swarming",
+  action="store_true",
+  default=False,
+  dest="swarming")
+parser.add_option(
     "-n",
     "--num",
     dest="processes")
@@ -203,6 +209,9 @@ def main(parser, parse_args):
 
   if options.integration or options.all:
     tests.add(os.path.join(root, "integration", "py2"))
+
+  if options.swarming or options.all:
+    tests.add(os.path.join(root, "swarming", "py2"))
 
   if options.verbose:
     args.append("-v")
