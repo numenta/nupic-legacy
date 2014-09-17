@@ -6,6 +6,7 @@ language: cpp
 
 os:
   - linux
+  - osx
 
 compiler:
   - clang
@@ -29,7 +30,7 @@ matrix:
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
-  - . ./ci/travis/before_deploy-linux.sh
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_deploy-linux.sh; fi"
 
 deploy:
   provider: s3
@@ -62,11 +63,13 @@ notifications:
       - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 before_install:
-  - . ./ci/travis/before_install-linux.sh
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
   - export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
 
 install:
-  - . ./ci/travis/install-linux.sh
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi"
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/install-osx.sh; fi"
 
 script:
   - . ./ci/travis/script-run-tests.sh
