@@ -64,8 +64,9 @@ notifications:
 
 before_install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
-  - export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
 
 install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi"
