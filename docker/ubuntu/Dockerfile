@@ -1,13 +1,11 @@
-FROM ubuntu
+FROM ubuntu:14.04
 
 MAINTAINER Allan Costa <allaninocencio@yahoo.com.br>
 
 # Install dependencies
-RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y wget
 RUN apt-get install -y git-core
-RUN apt-get install -y build-essential
 RUN apt-get install -y clang
 RUN apt-get install -y cmake
 RUN apt-get install -y python2.7
