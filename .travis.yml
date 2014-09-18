@@ -18,8 +18,8 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     - PY_VER=2.7
   matrix:
-    - TESTS="unit_swarm"
-    - TESTS="integration"
+    - TESTS=1
+    - TESTS=2
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc
@@ -75,11 +75,12 @@ script:
   - "cd $TRAVIS_BUILD_DIR/build/scripts"
   # legacy binary tests
   - "make tests_pyhtm || exit"
-  # Python unit tests and prep for coveralls reporting
-  - "make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
-  # Python integration tests and prep for coveralls reporting
-  - "make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
-  - "make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming"
+  # Python unit tests and prep for coveralls reporting, ~300s
+  - "if [ $TESTS -eq 1 ]; then make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit; fi"
+  # Python integration tests and prep for coveralls reporting, ~ 800s
+  - "if [ $TESTS -eq 1 ]; then make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration; fi"
+  # Python swarming tests, ~
+  - "if [ $TESTS -eq 2 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
 
 
 after_success:
