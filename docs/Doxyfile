@@ -764,6 +764,7 @@ INPUT                  = docs \
                          nupic/research/TPTrivial.py \
                          nupic/research/TP.py \
                          nupic/research/temporal_memory.py \
+                         nupic/research/spatial_pooler.py \
                          nupic/encoders \
                          nupic/data/aggregator.py \
                          scripts/run_swarm.py \

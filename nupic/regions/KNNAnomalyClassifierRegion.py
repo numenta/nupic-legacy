@@ -29,7 +29,7 @@ import numpy
 import numpy.random
 from PyRegion import PyRegion
 from KNNClassifierRegion import KNNClassifierRegion
-from nupic.algorithms.anomaly import computeAnomalyScore
+from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.frameworks.opf.exceptions import (CLAModelInvalidRangeError,
                                              CLAModelInvalidArgument)
 
@@ -186,7 +186,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
   AUTO_TAG = " (auto)"
 
-  
+
   def __init__(self,
                trainRecords,
                anomalyThreshold,
@@ -266,7 +266,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
         raise CLAModelInvalidArgument("Invalid value. autoDetectWaitRecord "
           "value must be valid record within output stream. Current minimum "
           " ROWID in output stream is %d." % (self._recordsCache[0].ROWID))
-      
+
       self.trainRecords = value
       # Remove any labels before the first cached record (wont be used anymore)
       self._deleteRangeFromKNN(0, self._recordsCache[0].ROWID)
@@ -296,7 +296,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     This method is called by the runtime engine.
     """
     record = self.constructClassificationRecord(inputs)
-    
+
     #Classify this point after waiting the classification delay
     if record.ROWID >= self.getParameter('trainRecords'):
       self.classifyState(record)
@@ -395,7 +395,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
     allSPColumns = inputs["spBottomUpOut"]
     activeSPColumns = allSPColumns.nonzero()[0]
 
-    score = computeAnomalyScore(activeSPColumns, self._prevPredictedColumns)
+    score = computeRawAnomalyScore(activeSPColumns, self._prevPredictedColumns)
 
     spSize = len(allSPColumns)
 
@@ -613,7 +613,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
       }
 
       isProcessing - currently always false as recalculation blocks; used if
-        reprocessing of records is still being performed; 
+        reprocessing of records is still being performed;
 
       Each item in recordLabels is of format:
       {
@@ -831,7 +831,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
       raise Exception("Invalid KNNAnomalyClassifierRegion version. Current "
           "version: %s" % (KNNAnomalyClassifierRegion.__VERSION__))
 
-  
+
   def diff(self, knnRegion2):
     diff = []
     toCheck = [((), self.__getstate__(), knnRegion2.__getstate__())]

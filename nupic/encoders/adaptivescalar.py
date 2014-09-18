@@ -35,9 +35,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   Initialization of an adapive encoder using resolution or radius is not supported;
   it must be intitialized with n. This n is kept constant while the min and max of the
   encoder changes.
-  
+
   The adaptive encoder must be have periodic set to false.
-  
+
   The adaptive encoder may be initialized with a minval and maxval or with `None`
   for each of these. In the latter case, the min and max are set as the 1st and 99th
   percentile over a window of the past 100 records.

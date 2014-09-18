@@ -26,10 +26,13 @@ echo
 
 cd $TRAVIS_BUILD_DIR/build/scripts
 # legacy binary tests
-make tests_pyhtm
+make tests_pyhtm || exit
+
 # Python unit tests and prep for coveralls reporting
-make python_unit_tests
+make python_unit_tests || exit
+
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit
 # Python integration tests and prep for coveralls reporting
-make python_integration_tests
+make python_integration_tests || exit
+
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration
