@@ -18,11 +18,8 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     - PY_VER=2.7
   matrix:
-    os: linux
       - TESTS=1
       - TESTS=-1
-    os: osx
-      - TESTS=0
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc
@@ -30,7 +27,8 @@ matrix:
     - os: osx
       compiler: gcc
     - os: osx
-      TESTS=-1
+      condition: 
+        - "$TESTS == -1"  # OSX uses only 1 build
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
