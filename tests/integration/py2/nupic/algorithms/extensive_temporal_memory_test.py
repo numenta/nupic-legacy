@@ -529,7 +529,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     table = PrettyTable(cols)
 
     for stats in cls.allStats:
-      row = [stats[0]] + list(stats[1])
+      row = [stats[0]] + [tuple(x) for x in list(stats[1])]
       table.add_row(row)
 
     print
@@ -575,28 +575,21 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def assertAllActiveWerePredicted(self, stats):
-    sumUnpredictedActiveColumns = stats[4][2]
-    self.assertEqual(sumUnpredictedActiveColumns, 0)
+    self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
 
-    minPredictedActiveColumns = stats[2][0]
-    self.assertEqual(minPredictedActiveColumns, 21)
-    maxPredictedActiveColumns = stats[2][1]
-    self.assertEqual(maxPredictedActiveColumns, 25)
+    self.assertEqual(stats.predictedActiveColumns.min, 21)
+    self.assertEqual(stats.predictedActiveColumns.max, 25)
 
 
   def assertAllInactiveWereUnpredicted(self, stats):
-    sumPredictedInactiveColumns = stats[1][2]
-    self.assertEqual(sumPredictedInactiveColumns, 0)
+    self.assertEqual(stats.predictedInactiveColumns.sum, 0)
 
 
   def assertAllActiveWereUnpredicted(self, stats):
-    sumPredictedActiveColumns = stats[2][2]
-    self.assertEqual(sumPredictedActiveColumns, 0)
+    self.assertEqual(stats.predictedActiveColumns.sum, 0)
 
-    minUnpredictedActiveColumns = stats[4][0]
-    self.assertEqual(minUnpredictedActiveColumns, 21)
-    maxUnpredictedActiveColumns = stats[4][1]
-    self.assertEqual(maxUnpredictedActiveColumns, 25)
+    self.assertEqual(stats.unpredictedActiveColumns.min, 21)
+    self.assertEqual(stats.unpredictedActiveColumns.max, 25)
 
 
 
