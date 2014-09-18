@@ -19,7 +19,7 @@ env:
     - PY_VER=2.7
   matrix:
     - TESTS=1
-    - TESTS=2
+    - TESTS=-1
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc
@@ -65,7 +65,7 @@ before_install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; export TESTS=0; fi"
 
 install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi"
@@ -76,13 +76,13 @@ script:
   # legacy binary tests
   - "make tests_pyhtm || exit"
   # Python unit tests and prep for coveralls reporting, ~300s
-  - "if [ $TESTS -eq 1 ]; then make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit; fi"
-  # Python integration tests and prep for coveralls reporting, ~ 800s
-  - "if [ $TESTS -eq 1 ]; then make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration; fi"
+  - "if [ $TESTS -ge 0 ]; then make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit; fi"
+  # Python integration tests and prep for coveralls reporting, ~800s
+  - "if [ $TESTS -le 0 ]; then make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration; fi"
   # Python swarming tests, ~400s
-  - "if [ $TESTS -eq 2 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
-  # Examples
-  - "if [ $TESTS -eq 1 ]; then time . ./ci/travis/script-run-examples.sh; fi"
+  - "if [ $TESTS -ge 0 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
+  # Examples, ~
+  - "if [ $TESTS -ge 0 ]; then time . ./ci/travis/script-run-examples.sh; fi"
 
 
 after_success:
