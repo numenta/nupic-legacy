@@ -76,4 +76,5 @@ script:
   - . ./ci/travis/script-run-tests.sh
 
 after_success:
-  - . ./ci/travis/after_success-report-coverage.sh
+ - cd $TRAVIS_BUILD_DIR
+ - . ./ci/travis/after_success-report-coverage.sh
