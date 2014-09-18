@@ -18,8 +18,11 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     - PY_VER=2.7
   matrix:
-    - TESTS=1
-    - TESTS=-1
+    os: linux
+      - TESTS=1
+      - TESTS=-1
+    os: osx
+      - TESTS=0
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc
@@ -82,7 +85,7 @@ script:
   # Python swarming tests, ~400s
   - "if [ $TESTS -ge 0 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
   # Examples, ~
-  - "if [ $TESTS -ge 0 ]; then time . ./ci/travis/script-run-examples.sh; fi"
+  - "if [ $TESTS -ge 0 ]; then cd $TRAVIS_BUILD_DIR; time . ./ci/travis/script-run-examples.sh; fi"
 
 
 after_success:
