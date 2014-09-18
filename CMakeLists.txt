@@ -911,9 +911,13 @@ add_custom_target(python_integration_tests
                   COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -i --coverage
                   COMMENT "Python integration tests")
 
+add_custom_target(python_swarming_tests
+                  COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -w --coverage
+                  COMMENT "Python swarming tests")
+
 add_custom_target(python_all_tests
                   COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py --all --coverage # swarming tests fail with the -n parallel run
-                  COMMENT "Python tests + swarming (requires DB)")
+                  COMMENT "Python tests + integration + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
                   COMMAND ${PROJECT_BUILD_BINARIES_DIR}/testpyhtm
