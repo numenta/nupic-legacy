@@ -79,8 +79,10 @@ script:
   - "if [ $TESTS -eq 1 ]; then make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit; fi"
   # Python integration tests and prep for coveralls reporting, ~ 800s
   - "if [ $TESTS -eq 1 ]; then make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration; fi"
-  # Python swarming tests, ~
+  # Python swarming tests, ~400s
   - "if [ $TESTS -eq 2 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
+  # Examples
+  - "if [ $TESTS -eq 1 ]; then time . ./ci/travis/script-run-examples.sh; fi"
 
 
 after_success:
