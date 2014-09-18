@@ -17,6 +17,9 @@ env:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     - PY_VER=2.7
+  matrix:
+    - TESTS="unit_swarm"
+    - TESTS="integration"
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc
@@ -69,9 +72,16 @@ install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/install-osx.sh; fi"
 
 script:
-  - . ./ci/travis/script-run-tests.sh
-  - cd $TRAVIS_BUILD_DIR
-  - . ./ci/travis/script-run-examples.sh
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  # legacy binary tests
+  - "make tests_pyhtm || exit"
+  # Python unit tests and prep for coveralls reporting
+  - "make python_unit_tests || exit"
+  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
+  # Python integration tests and prep for coveralls reporting
+  - "make python_integration_tests || exit"
+  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+
 
 after_success:
   - . ./ci/travis/after_success-report-coverage.sh
