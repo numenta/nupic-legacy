@@ -18,10 +18,10 @@ env:
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
     - PY_VER=2.7
   matrix:
-    os: linux
+    - os: linux
       - TESTS=1
       - TESTS=-1
-    os: osx
+    - os: osx
       - TESTS=0
 
 matrix:
