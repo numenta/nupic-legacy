@@ -16,15 +16,14 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
-  matrix:
     - PY_VER=2.7
-    - PY_VER=2.6
+  matrix:
+      - TESTS=1
+      - TESTS=-1
 
 matrix:
-  # This excludes OSX builds from the build matrix for gcc and Python 2.6
+  # This excludes OSX builds from the build matrix for gcc
   exclude:
-    - os: osx
-      env: PY_VER=2.6
     - os: osx
       compiler: gcc
 
@@ -63,19 +62,33 @@ notifications:
       - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 before_install:
+  - "alias osx_only_1='if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ] && [ $TESTS -eq -1 ] ; then echo skipping... ;exit 0; fi' "
+  - "osx_only_1"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
 
 install:
+  - "osx_only_1"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/install-osx.sh; fi"
 
 script:
-  - . ./ci/travis/script-run-tests.sh
-  - cd $TRAVIS_BUILD_DIR
-  - . ./ci/travis/script-run-examples.sh
+  - "osx_only_1; export TESTS=0"
+  - "cd $TRAVIS_BUILD_DIR/build/scripts"
+  # legacy binary tests
+  - "make tests_pyhtm || exit"
+  # Python unit tests and prep for coveralls reporting, ~300s
+  - "if [ $TESTS -ge 0 ]; then make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit; fi"
+  # Python integration tests and prep for coveralls reporting, ~800s
+  - "if [ $TESTS -le 0 ]; then make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration; fi"
+  # Python swarming tests, ~400s
+  - "if [ $TESTS -ge 0 ]; then make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming; fi"
+  # Examples, ~
+  - "if [ $TESTS -ge 0 ]; then cd $TRAVIS_BUILD_DIR; time . ./ci/travis/script-run-examples.sh; fi"
+
 
 after_success:
+  - "osx_only_1"
   - . ./ci/travis/after_success-report-coverage.sh
