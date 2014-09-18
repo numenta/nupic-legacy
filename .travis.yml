@@ -74,8 +74,6 @@ install:
 
 script:
   - . ./ci/travis/script-run-tests.sh
-  - cd $TRAVIS_BUILD_DIR
-  - . ./ci/travis/script-run-examples.sh
 
 after_success:
   - . ./ci/travis/after_success-report-coverage.sh
