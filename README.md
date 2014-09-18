@@ -83,8 +83,10 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
     make tests_pyhtm
     # Python OPF unit tests
     make python_unit_tests
-    # Python OPF integration tests (requires mysql)
+    # Python OPF integration tests
     make python_integration_tests
+    # Python OPF swarming tests (requires mysql)
+    make python_swarming_tests
     # Run all tests!
     make tests_all
 
