@@ -418,8 +418,15 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     sys.stdout = _stdout
     self.assertEqual(len(_stringio.getvalue()), 0,
                      "zero verbosity doesn't lead to zero output")
-    
-    
-###########################################
-if __name__ == '__main__':
+
+
+  def testEncodeInvalidInputType(self):
+    encoder = RandomDistributedScalarEncoder(name='enc', resolution=1.0,
+                                             verbosity=0)
+    with self.assertRaises(TypeError):
+      encoder.encode("String")
+
+
+
+if __name__ == "__main__":
   unittest.main()

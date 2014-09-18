@@ -40,7 +40,7 @@ from abc import ABCMeta, abstractmethod
 import numpy
 
 from model import Model
-from nupic.algorithms.anomaly import computeAnomalyScore
+from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
 from nupic.data.filters import AutoResetFilter
@@ -193,6 +193,8 @@ class CLAModel(Model):
     self._predictedFieldIdx = None
     self._predictedFieldName = None
     self._numFields = None
+    # init anomaly
+    self._anomalyInst = Anomaly()
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -606,28 +608,26 @@ class CLAModel(Model):
     """
     inferenceType = self.getInferenceType()
     inferences = {}
+    sp = self._getSPRegion()
+    score = None
     if inferenceType == InferenceType.NontemporalAnomaly:
-      sp = self._getSPRegion()
-      score = sp.getOutputData("anomalyScore")[0]
-      inferences[InferenceElement.anomalyScore] = score
+      score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
     elif inferenceType == InferenceType.TemporalAnomaly:
-      sp = self._getSPRegion()
       tp = self._getTPRegion()
-      sensor = self._getSensorRegion()
 
       if sp is not None:
         activeColumns = sp.getOutputData("bottomUpOut").nonzero()[0]
       else:
+        sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
       # Calculate the anomaly score using the active columns
-      # and previous predicted columns
+      # and previous predicted columns.
+      score = self._anomalyInst.computeAnomalyScore(
+          activeColumns, self._prevPredictedColumns)
 
-      inferences[InferenceElement.anomalyScore] = (
-          computeAnomalyScore(activeColumns, self._prevPredictedColumns))
-
-      # Store the predicted columns for the next timestep
+      # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
       self._prevPredictedColumns = copy.deepcopy(predictedColumns)
 
@@ -643,6 +643,7 @@ class CLAModel(Model):
         labels = self._getAnomalyClassifier().getSelf().getLabelResults()
         inferences[InferenceElement.anomalyLabel] = "%s" % labels
 
+    inferences[InferenceElement.anomalyScore] = score
     return inferences
 
 
@@ -1271,7 +1272,6 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
 
 
-
     # -----------------------------------------------------------------------
     # Migrate from v2
     if not hasattr(self, "_netInfo"):
@@ -1291,6 +1291,12 @@ class CLAModel(Model):
       self.__dict__.pop("_CLAModel__encoderNetInfo", None)
       self.__dict__.pop("_CLAModel__nonTemporalNetInfo", None)
       self.__dict__.pop("_CLAModel__temporalNetInfo", None)
+
+
+    # -----------------------------------------------------------------------
+    # Migrate from when Anomaly was not separate class
+    if not hasattr(self, "_anomalyInst"):
+      self._anomalyInst = Anomaly()
 
 
     # This gets filled in during the first infer because it can only be
