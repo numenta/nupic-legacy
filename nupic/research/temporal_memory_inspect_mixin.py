@@ -23,6 +23,8 @@
 Temporal Memory mixin that enables detailed inspection of history.
 """
 
+from collections import namedtuple
+
 import numpy
 from prettytable import PrettyTable
 
@@ -161,33 +163,48 @@ class TemporalMemoryInspectMixin(object):
 
   def getStatistics(self):
     """
-    Returns statistics for the history, as tuple:
+    Returns statistics for the history, as a named tuple with the following
+    fields:
 
-        (`predictedActiveCellsStats`,
-         `predictedInactiveCellsStats`,
-         `predictedActiveColumnsStats`,
-         `predictedInactiveColumnsStats`,
-         `unpredictedActiveColumnsStats`)
+        - `predictedActiveCells`
+        - `predictedInactiveCells`
+        - `predictedActiveColumns`
+        - `predictedInactiveColumns`
+        - `unpredictedActiveColumns`
 
-    Each element in the returned tuple is itself a tuple with the following form:
+    Each element in the tuple is a named tuple with the following fields:
 
-        (min, max, sum, average, standard deviation)
+        - `min`
+        - `max`
+        - `sum`
+        - `average`
+        - `standardDeviation`
 
     Note: The first element, any reset and the element immediately following it
     is ignored when computing stats.
 
-    @return (tuple) Statistics for detailed results
+    @return (namedtuple) Statistics for detailed results
     """
+    Stats = namedtuple('Stats', ['predictedActiveCells',
+                                 'predictedInactiveCells',
+                                 'predictedActiveColumns',
+                                 'predictedInactiveColumns',
+                                 'unpredictedActiveColumns'])
+    Data = namedtuple('Data', ['min',
+                               'max',
+                               'sum',
+                               'average',
+                               'standardDeviation'])
     def statsForResult(result):
       counts = [len(x) for idx, x in enumerate(result)
                 if (idx > 0 and
                     self.patterns[idx] is not None and
                     self.patterns[idx-1] is not None)]
-      return (min(counts),
-              max(counts),
-              sum(counts),
-              numpy.mean(counts),
-              numpy.std(counts))
+      return Data(min(counts),
+                  max(counts),
+                  sum(counts),
+                  numpy.mean(counts),
+                  numpy.std(counts))
 
     history = (
       self.predictedActiveCellsList,
@@ -196,7 +213,7 @@ class TemporalMemoryInspectMixin(object):
       self.predictedInactiveColumnsList,
       self.unpredictedActiveColumnsList
     )
-    return tuple([statsForResult(result) for result in history])
+    return Stats._make([statsForResult(result) for result in history])
 
 
   # ==============================

@@ -75,9 +75,9 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     stats = self.tm.getStatistics()
 
     self.assertEqual(len(stats), 5)
-    self.assertEqual(stats[1][2], 0)
-    self.assertEqual(stats[3][2], 0)
-    self.assertEqual(stats[4][2], 0)
+    self.assertEqual(stats.predictedInactiveCells.sum, 0)
+    self.assertEqual(stats.predictedInactiveColumns.sum, 0)
+    self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
 
 
   # ==============================
