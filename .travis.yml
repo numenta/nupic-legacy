@@ -76,11 +76,10 @@ script:
   # legacy binary tests
   - "make tests_pyhtm || exit"
   # Python unit tests and prep for coveralls reporting
-  - "make python_unit_tests || exit"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
+  - "make python_unit_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit"
   # Python integration tests and prep for coveralls reporting
-  - "make python_integration_tests || exit"
-  - "mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+  - "make python_integration_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration"
+  - "make python_swarming_tests || exit; mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_swarming"
 
 
 after_success:
