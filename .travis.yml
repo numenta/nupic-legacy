@@ -27,8 +27,9 @@ matrix:
     - os: osx
       compiler: gcc
     - os: osx
-      condition: 
-        - "$TESTS == -1"  # OSX uses only 1 build
+      on:
+        condition: 
+          - "$TESTS == -1"  # OSX uses only 1 build
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
