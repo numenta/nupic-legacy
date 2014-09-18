@@ -38,6 +38,7 @@ class TemporalMemoryInspectMixin(object):
 
     # Initialize history
     self.patterns = None
+    self.sequenceLabels = None
     self.predictedActiveCellsList = None
     self.predictedInactiveCellsList = None
     self.predictedActiveColumnsList = None
@@ -48,6 +49,7 @@ class TemporalMemoryInspectMixin(object):
 
   def clearHistory(self):
     self.patterns = []
+    self.sequenceLabels = []
     self.predictedActiveCellsList = []
     self.predictedInactiveCellsList = []
     self.predictedActiveColumnsList = []
@@ -59,12 +61,13 @@ class TemporalMemoryInspectMixin(object):
     """
     Pretty print history.
 
-    @param verbosity       (int)            Verbosity level
+    @param verbosity (int) Verbosity level
 
     @return (string) Pretty-printed text
     """
     cols = ["#",
             "Pattern",
+            "Sequence Label",
             "pred=>active columns",
             "pred=>inactive columns",
             "unpred=>active columns",
@@ -73,21 +76,24 @@ class TemporalMemoryInspectMixin(object):
 
     if verbosity == 0:
       cols[1] = "Pattern (# bits)"
-      cols[2:] = ["# {0}".format(x) for x in cols[2:]]
+      cols[3:] = ["# {0}".format(x) for x in cols[3:]]
 
     table = PrettyTable(cols)
 
     for i in xrange(len(self.patterns)):
       pattern = self.patterns[i]
+      sequenceLabel = self.sequenceLabels[i]
+      sequenceLabel = "" if sequenceLabel is None else sequenceLabel
 
       if pattern is None:
-        row = [i] + ["<reset>"] * 6
+        row = [i] + ["<reset>"] * 7
 
       else:
         row = [i]
 
         if verbosity == 0:
           row.append(len(pattern))
+          row.append(sequenceLabel)
           row.append(len(self.predictedActiveColumnsList[i]))
           row.append(len(self.predictedInactiveColumnsList[i]))
           row.append(len(self.unpredictedActiveColumnsList[i]))
@@ -96,6 +102,7 @@ class TemporalMemoryInspectMixin(object):
 
         else:
           row.append(list(pattern))
+          row.append(sequenceLabel)
           row.append(list(self.predictedActiveColumnsList[i]))
           row.append(list(self.predictedInactiveColumnsList[i]))
           row.append(list(self.unpredictedActiveColumnsList[i]))
@@ -196,14 +203,14 @@ class TemporalMemoryInspectMixin(object):
   # Overrides
   # ==============================
 
-  def compute(self, activeColumns, **kwargs):
-    self._record(activeColumns)
+  def compute(self, activeColumns, sequenceLabel=None, **kwargs):
+    self._record(activeColumns, sequenceLabel)
 
     super(TemporalMemoryInspectMixin, self).compute(activeColumns, **kwargs)
 
 
   def reset(self):
-    self._record(None)
+    self._record(None, None)
 
     super(TemporalMemoryInspectMixin, self).reset()
 
@@ -212,8 +219,9 @@ class TemporalMemoryInspectMixin(object):
   # Helper methods
   # ==============================
 
-  def _record(self, activeColumns):
+  def _record(self, activeColumns, sequenceLabel):
     self.patterns.append(activeColumns)
+    self.sequenceLabels.append(sequenceLabel)
 
     activeColumns = activeColumns if activeColumns else set()
     predictedActiveCells = set()
