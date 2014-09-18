@@ -185,16 +185,20 @@ class TemporalMemoryInspectMixin(object):
 
     @return (namedtuple) Statistics for detailed results
     """
-    Stats = namedtuple('Stats', ['predictedActiveCells',
-                                 'predictedInactiveCells',
-                                 'predictedActiveColumns',
-                                 'predictedInactiveColumns',
-                                 'unpredictedActiveColumns'])
-    Data = namedtuple('Data', ['min',
-                               'max',
-                               'sum',
-                               'average',
-                               'standardDeviation'])
+    Stats = namedtuple('Stats', [
+      'predictedActiveCells',
+      'predictedInactiveCells',
+      'predictedActiveColumns',
+      'predictedInactiveColumns',
+      'unpredictedActiveColumns'
+    ])
+    Data = namedtuple('Data', [
+      'min',
+      'max',
+      'sum',
+      'average',
+      'standardDeviation'
+    ])
     def statsForResult(result):
       counts = [len(x) for idx, x in enumerate(result)
                 if (idx > 0 and
