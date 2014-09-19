@@ -119,6 +119,14 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     stats = self.tm.getStatistics()
 
     self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.average, 1)
+
+    self._feedSequence(sequence, "Test3")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertTrue(stats.sequencesPredictedActiveCellsShared.average > 1)
 
 
   def testMapCellsToColumns(self):

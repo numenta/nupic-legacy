@@ -174,6 +174,7 @@ class TemporalMemoryInspectMixin(object):
         - `predictedInactiveColumns`
         - `unpredictedActiveColumns`
         - `sequencesPredictedActiveCellsPerColumn`
+        - `sequencesPredictedActiveCellsShared`
 
     Each element in the tuple is a named tuple with the following fields:
 
@@ -194,7 +195,8 @@ class TemporalMemoryInspectMixin(object):
       'predictedActiveColumns',
       'predictedInactiveColumns',
       'unpredictedActiveColumns',
-      'sequencesPredictedActiveCellsPerColumn'
+      'sequencesPredictedActiveCellsPerColumn',
+      'sequencesPredictedActiveCellsShared'
     ])
 
     Data = namedtuple('Data', [
@@ -231,12 +233,18 @@ class TemporalMemoryInspectMixin(object):
     stats = [statsForHistoryItem(item) for item in history]
 
     numCellsPerColumn = []
+    numSequencesForCell = defaultdict(lambda: 0)
+
     for predictedActiveCells in (
         self.predictedActiveCellsForSequenceDict.values()):
       cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
       numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
 
+      for cell in predictedActiveCells:
+        numSequencesForCell[cell] += 1
+
     stats.append(statsForCounts(numCellsPerColumn))
+    stats.append(statsForCounts(numSequencesForCell.values()))
 
     return Stats._make(stats)
 
