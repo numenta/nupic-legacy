@@ -72,10 +72,10 @@ class TemporalMemoryInspectMixin(object):
     cols = ["#",
             "Pattern",
             "Sequence Label",
-            "pred=>active columns",
+            "pred=>active columns (correctly predicted)",
             "pred=>inactive columns",
-            "unpred=>active columns",
-            "pred=>active cells",
+            "unpred=>active columns (bursting)",
+            "pred=>active cells (correctly predicted)",
             "pred=>inactive cells"]
 
     if verbosity == 0:
@@ -192,6 +192,9 @@ class TemporalMemoryInspectMixin(object):
         - `unpredictedActiveColumns`
         - `sequencesPredictedActiveCellsPerColumn`
         - `sequencesPredictedActiveCellsShared`
+
+    Note: `sequencesPredictedActiveCellsShared` metric is flawed when it
+    comes to high-order sequences.
 
     Each element in the tuple is a named tuple with the following fields:
 
