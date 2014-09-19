@@ -64,7 +64,7 @@ class CoordinateEncoder(Encoder):
     """
     
     if name is None:
-      name = "[%s:%s]" % (self.n, self.w)
+      name = "[%s:%s]" % (n, w)
     super(CoordinateEncoder, self).__init__(w,  name=name, verbosity=verbosity, forced=forced)
     
     # Validate inputs
