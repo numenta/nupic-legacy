@@ -117,14 +117,9 @@ class RandomDistributedScalarEncoder(Encoder):
     if name is None:
       self.name = "[%s]" % (resolution)
     
-    super(RandomDistributedScalarEncoder, self).__init__(name=name)
+    super(RandomDistributedScalarEncoder, self).__init__(w, 
+          name=name, verbosity=verbosity, forced=forced)
     
-    # Validate inputs
-    if (w <= 0) or (w%2 == 0):
-      raise ValueError("w must be an odd positive integer")
-
-    if (resolution <= 0):
-      raise ValueError("resolution must be a positive number")
 
     if (n <= 6*w) or (not isinstance(n, int)):
       raise ValueError("n must be an int strictly greater than 6*w. For "
@@ -132,8 +127,6 @@ class RandomDistributedScalarEncoder(Encoder):
                        "than 11*w")
     
     self.encoders = None
-    self.verbosity = verbosity
-    self.w = w
     self.n = n
     self.resolution = float(resolution)
     

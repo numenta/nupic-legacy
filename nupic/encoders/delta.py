@@ -38,7 +38,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """[ScalarEncoder class method override]"""
     
-    super(DeltaEncoder,  self).__init__(name=name)
+    super(DeltaEncoder,  self).__init__(w,  name=name,  verbosity=verbosity, forced=forced)
     
     self._learningEnabled = True
     self._stateLock = False

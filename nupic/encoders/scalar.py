@@ -184,15 +184,10 @@ class ScalarEncoder(Encoder):
     # Our name
     if name is None:
       name = "[%s:%s]" % (minval, maxval)
-    super(ScalarEncoder,  self).__init(name=name)
+    super(ScalarEncoder,  self).__init(w, name=name,  verbosity=verbosity,  forced=forced)
     
-    assert isinstance(w, int)
     self.encoders = None
-    self.verbosity = verbosity
-    self.w = w
-    if (w % 2 == 0):
-      raise Exception("Width must be an odd number (%f)" % w)
-
+   
     self.minval = minval
     self.maxval = maxval
 
@@ -234,10 +229,6 @@ class ScalarEncoder(Encoder):
     # This list is created by getBucketValues() the first time it is called,
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
-
-    # checks for likely mistakes in encoder settings
-    if not forced:
-      self._checkReasonableSettings()
 
 
   ############################################################################
@@ -281,14 +272,6 @@ class ScalarEncoder(Encoder):
 
       nfloat = self.w * (self.range / self.radius) + 2 * self.padding
       self.n = int(math.ceil(nfloat))
-
-  ############################################################################
-  def _checkReasonableSettings(self):
-    """(helper function) check if the settings are reasonable for SP to work"""
-    # checks for likely mistakes in encoder settings
-    if self.w < 21:
-      raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
-                         % self.w)
 
 
   ############################################################################

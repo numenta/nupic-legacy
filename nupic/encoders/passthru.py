@@ -46,13 +46,10 @@ class PassThruEncoder(Encoder):
     forced -- if forced, encode will accept any data, and just return it back.
     """
 
-    super(PassThruEncoder, self).__init__(name=name)
+    super(PassThruEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
     
     self.n = n
     self.m = int(multiply)
-    self.w = w
-    self.verbosity = verbosity
-    self.forced = forced
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):

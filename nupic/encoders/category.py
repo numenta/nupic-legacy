@@ -44,10 +44,9 @@ class CategoryEncoder(Encoder):
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
-    super(CategoryEncoder, self).__init__(name=name)
+    super(CategoryEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
     
     self.encoders = None
-    self.verbosity = verbosity
 
     # number of categories includes "unknown"
     self.ncategories = len(categoryList) + 1
@@ -64,8 +63,8 @@ class CategoryEncoder(Encoder):
     self.width = w * self.ncategories
     assert self.encoder.getWidth() == self.width
 
+    #TODO fix
     self.description = [(name, 0)]
-    self.name = name
 
     # These are used to support the topDownCompute method
     self._topDownMappingM = None

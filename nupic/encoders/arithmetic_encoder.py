@@ -58,15 +58,13 @@ class ArithmeticEncoder(Encoder):
     @param verbosity TODO: document
     """
     
-    super(ArithmeticEncoder,  self).__init__(name=name)
+    super(ArithmeticEncoder,  self).__init__(w,  name=name, verbosity=verbosity)
     
-    self.w = w
     self.n = n
     self.periodic = periodic
     self.window = window
     self.history = deque(maxlen=window)
-    self.verbosity = verbosity
-
+    
     self.maxBuckets = n - w + 1
     assert window >= self.maxBuckets
     # List of buckets, where a bucket is sequence of

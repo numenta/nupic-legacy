@@ -76,6 +76,8 @@ class LogEncoder(Encoder):
                clipInput=True,
                forced=False):
 
+    super(LogEncoder, self).__init(w,  name=name, verbosity=verbosity, forced=forced)
+    
     # Lower bound for log encoding near machine precision limit
     lowLimit = 1e-07
 
@@ -89,8 +91,7 @@ class LogEncoder(Encoder):
                        "for this encoder %.7f" % lowLimit)
 
     self.encoders = None
-    self.verbosity = verbosity
-
+    
     # Scale values for calculations within the class
     self.minScaledValue = math.log10(minval)
     self.maxScaledValue = math.log10(maxval)

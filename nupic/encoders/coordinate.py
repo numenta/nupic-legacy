@@ -64,20 +64,16 @@ class CoordinateEncoder(Encoder):
     
     if name is None:
       name = "[%s:%s]" % (self.n, self.w)
-    super(CoordinateEncoder, self).__init__(name=name)
+    super(CoordinateEncoder, self).__init__(w,  name=name, verbosity=verbosity)
     
     # Validate inputs
-    if (w <= 0) or (w % 2 == 0):
-      raise ValueError("w must be an odd positive integer")
-
+    
     if (n <= 6 * w) or (not isinstance(n, int)):
       raise ValueError("n must be an int strictly greater than 6*w. For "
                        "good results we recommend n be strictly greater "
                        "than 11*w")
 
-    self.w = w
     self.n = n
-    self.verbosity = verbosity
     self.encoders = None
     
 

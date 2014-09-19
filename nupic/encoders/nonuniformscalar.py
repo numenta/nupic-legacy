@@ -44,7 +44,7 @@ class NonUniformScalarEncoder(ScalarEncoder):
 
 
 
-    super(NonUniformScalarEncoder,  self).__init__(name=name)
+    super(NonUniformScalarEncoder,  self).__init__(w, name=name, verbosity=verbosity, forced=forced)
     
     self._numBins = n - w + 1
     self.weights = weights

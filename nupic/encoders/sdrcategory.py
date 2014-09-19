@@ -53,10 +53,9 @@ class SDRCategoryEncoder(Encoder):
     forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
-    super(SDRCategoryEncoder, self).__init__(name=name)
+    super(SDRCategoryEncoder, self).__init__(w, name=name,  verbosity=verbosity,  forced=forced)
     
     self.n = n
-    self.w = w
 
     self._learningEnabled = True
     self.random = random.Random()
@@ -68,12 +67,6 @@ class SDRCategoryEncoder(Encoder):
       if (self.n/self.w) < 2: # w is 50% of total len
         raise ValueError("Number of ON bits in SDR (%d) must be much smaller than "
                            "the output width (%d)" % (self.w, self.n))
-
-      # Another arbitrary cutoff to catch likely mistakes
-      if self.w < 21:
-        raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and should be >= 21, pass forced=True to init() to override this check"
-                           % self.w)
-
 
     # Calculate average overlap of SDRs for decoding
     # Density is fraction of bits on, and it is also the
@@ -88,8 +81,6 @@ class SDRCategoryEncoder(Encoder):
     #  1.25 -- too sensitive for decode test, so make it less sensitive
     if self.thresholdOverlap < self.w - 3:
       self.thresholdOverlap = self.w - 3
-
-    self.verbosity = verbosity
 
     self.categoryToIndex = dict()
     self.ncategories = 0

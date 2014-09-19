@@ -69,11 +69,31 @@ class Encoder(object):
   """
 
   ############################################################################
-  def __init__(self,  name=None):
+  def __init__(self,  width,  name=None,  verbosity=0,  forced=False):
     """
+    @param  width --        The number of bits that are set to encode a single value - the
+                "width" of the output signal
+              restriction: w must be odd to avoid centering problems.
     @param name -- name of field(s) in output. Used in getDescription()
     """
+    # set name - for getDescription()
     self.name=name
+    
+    # set width - w - for getWidth()
+    self.w=width
+    if (self.w % 2 == 0):
+      raise Exception("Width must be an odd number (%f)" % self.w)
+    if self.w < 21 and not forced:
+      raise ValueError("Number of bits in the SDR (%d) must be greater than 2,\
+      and recommended >= 21 (use forced=True to override)" % self.w)
+
+    
+    # set verbosity
+    self.verbosity=verbosity
+    
+    # set forced
+    self.forced=forced
+    
     pass
 
 
