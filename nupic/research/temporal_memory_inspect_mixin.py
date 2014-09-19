@@ -23,7 +23,7 @@
 Temporal Memory mixin that enables detailed inspection of history.
 """
 
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 
 import numpy
 from prettytable import PrettyTable
@@ -46,6 +46,7 @@ class TemporalMemoryInspectMixin(object):
     self.predictedActiveColumnsList = None
     self.predictedInactiveColumnsList = None
     self.unpredictedActiveColumnsList = None
+    self.predictedActiveCellsForSequenceDict = None
     self.clearHistory()
 
 
@@ -57,6 +58,7 @@ class TemporalMemoryInspectMixin(object):
     self.predictedActiveColumnsList = []
     self.predictedInactiveColumnsList = []
     self.unpredictedActiveColumnsList = []
+    self.predictedActiveCellsForSequenceDict = defaultdict(set)
 
 
   def prettyPrintHistory(self, verbosity=0):
@@ -257,6 +259,10 @@ class TemporalMemoryInspectMixin(object):
       if prevPredictedColumn in activeColumns:
         predictedActiveCells.add(prevPredictedCell)
         predictedActiveColumns.add(prevPredictedColumn)
+
+        if sequenceLabel is not None:
+          self.predictedActiveCellsForSequenceDict[sequenceLabel].add(
+            prevPredictedCell)
       else:
         predictedInactiveCells.add(prevPredictedCell)
         predictedInactiveColumns.add(prevPredictedColumn)
