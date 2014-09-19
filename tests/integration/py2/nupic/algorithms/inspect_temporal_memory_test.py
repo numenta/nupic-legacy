@@ -69,6 +69,29 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self.assertEqual(len(self.tm.predictedInactiveColumnsList[-2]), 5)
     self.assertEqual(len(self.tm.unpredictedActiveColumnsList[-2]), 5)
 
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    predictedActiveCells = reduce(lambda x, y: x | y,
+                                  self.tm.predictedActiveCellsList)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, sequenceLabel="Test2")
+
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+    self.assertTrue("Test2" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertNotEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                        self.tm.predictedActiveCellsForSequenceDict["Test2"])
+
+
+  def testFeedSequenceNoSequenceLabel(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence)
+    self.assertEqual(len(self.tm.predictedActiveCellsForSequenceDict), 0)
+
 
   def testComputeStatistics(self):
     sequence = self._generateSequence()
