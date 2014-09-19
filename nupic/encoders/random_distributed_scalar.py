@@ -73,7 +73,7 @@ class RandomDistributedScalarEncoder(Encoder):
 
   ############################################################################
   def __init__(self, resolution, w=21, n=400, name=None, offset = None,
-               seed=42, verbosity=0):
+               seed=42, verbosity=0, forced=False):
     """
 
     @param resolution A floating point positive number denoting the resolution 
@@ -125,7 +125,10 @@ class RandomDistributedScalarEncoder(Encoder):
       raise ValueError("n must be an int strictly greater than 6*w. For "
                        "good results we recommend n be strictly greater "
                        "than 11*w")
-    
+
+    if (resolution <= 0):
+      raise ValueError("resolution must be a positive number")
+ 
     self.encoders = None
     self.n = n
     self.resolution = float(resolution)
