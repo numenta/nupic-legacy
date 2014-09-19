@@ -47,3 +47,5 @@ class ScalarSpaceEncoder(Encoder):
                clipInput=clipInput)
 
     return ret
+#TODO: add other Encoders - log, scalar,..
+#TODO does this class have a use, when we have PermuteEncoder() ?
