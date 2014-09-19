@@ -42,7 +42,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
                     "S17", "S18", "S19", "GB", "US"]
 
       fieldWidth = 100
-      bitsOn = 10
+      bitsOn = 11
 
       s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = categories,
                              name="foo", verbosity=0, forced=True)
@@ -210,7 +210,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
   def testAutogrow(self):
       """testing auto-grow"""
       fieldWidth = 100
-      bitsOn = 10
+      bitsOn = 11
 
       s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2, forced=True)
 
