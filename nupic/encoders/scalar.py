@@ -158,25 +158,25 @@ class ScalarEncoder(Encoder):
                forced=False):
     """
 
-    w -- number of bits to set in output
-    minval -- minimum input value
-    maxval -- maximum input value (input is strictly less if periodic == True)
+    @param w -- number of bits to set in output
+    @param minval -- minimum input value
+    @param maxval -- maximum input value (input is strictly less if periodic == True)
 
     Exactly one of n, radius, resolution must be set. "0" is a special
     value that means "not set".
 
-    n -- number of bits in the representation (must be > w)
-    radius -- inputs separated by more than, or equal to this distance will have non-overlapping
+    @param n -- number of bits in the representation (must be > w)
+    @param radius -- inputs separated by more than, or equal to this distance will have non-overlapping
               representations
-    resolution -- inputs separated by more than, or equal to this distance will have different
+    @param resolution -- inputs separated by more than, or equal to this distance will have different
               representations
 
-    name -- an optional string which will become part of the description
+    @param name -- an optional string which will become part of the description
 
-    clipInput -- if true, non-periodic inputs smaller than minval or greater
+    @param clipInput -- if true, non-periodic inputs smaller than minval or greater
             than maxval will be clipped to minval/maxval
 
-    forced -- if true, skip some safety checks (for compatibility reasons), default false
+    @param forced -- if true, skip some safety checks (for compatibility reasons), default false
 
     See class documentation for more information.
     """
