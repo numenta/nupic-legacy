@@ -23,8 +23,7 @@ import math
 import numbers
 
 import numpy
-from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
+
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
 
@@ -184,7 +183,8 @@ class ScalarEncoder(Encoder):
     # Our name
     if name is None:
       name = "[%s:%s]" % (minval, maxval)
-    super(ScalarEncoder,  self).__init(w, name=name,  verbosity=verbosity,  forced=forced)
+      
+    super(ScalarEncoder,  self).__init__(w, name=name,  verbosity=verbosity,  forced=forced)
     
     self.encoders = None
    

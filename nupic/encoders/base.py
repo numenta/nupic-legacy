@@ -22,7 +22,10 @@
 from collections import namedtuple
 
 import numpy
+
 from utils import bitsToString
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaType
 
 
 defaultDtype = numpy.uint8
