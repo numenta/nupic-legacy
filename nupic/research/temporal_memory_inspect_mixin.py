@@ -173,6 +173,7 @@ class TemporalMemoryInspectMixin(object):
         - `predictedActiveColumns`
         - `predictedInactiveColumns`
         - `unpredictedActiveColumns`
+        - `sequencesPredictedActiveCellsPerColumn`
 
     Each element in the tuple is a named tuple with the following fields:
 
@@ -192,8 +193,10 @@ class TemporalMemoryInspectMixin(object):
       'predictedInactiveCells',
       'predictedActiveColumns',
       'predictedInactiveColumns',
-      'unpredictedActiveColumns'
+      'unpredictedActiveColumns',
+      'sequencesPredictedActiveCellsPerColumn'
     ])
+
     Data = namedtuple('Data', [
       'min',
       'max',
@@ -201,16 +204,22 @@ class TemporalMemoryInspectMixin(object):
       'average',
       'standardDeviation'
     ])
-    def statsForResult(result):
-      counts = [len(x) for idx, x in enumerate(result)
-                if (idx > 0 and
-                    self.patterns[idx] is not None and
-                    self.patterns[idx-1] is not None)]
+
+    def statsForCounts(counts):
+      if len(counts) == 0:
+        return Data._make([None] * 5)
       return Data(min(counts),
                   max(counts),
                   sum(counts),
                   numpy.mean(counts),
                   numpy.std(counts))
+
+    def statsForHistoryItem(historyItem):
+      counts = [len(x) for idx, x in enumerate(historyItem)
+                if (idx > 0 and
+                    self.patterns[idx] is not None and
+                    self.patterns[idx-1] is not None)]
+      return statsForCounts(counts)
 
     history = (
       self.predictedActiveCellsList,
@@ -219,7 +228,34 @@ class TemporalMemoryInspectMixin(object):
       self.predictedInactiveColumnsList,
       self.unpredictedActiveColumnsList
     )
-    return Stats._make([statsForResult(result) for result in history])
+    stats = [statsForHistoryItem(item) for item in history]
+
+    numCellsPerColumn = []
+    for predictedActiveCells in (
+        self.predictedActiveCellsForSequenceDict.values()):
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
+      numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
+
+    stats.append(statsForCounts(numCellsPerColumn))
+
+    return Stats._make(stats)
+
+
+  def mapCellsToColumns(self, cells):
+    """
+    Maps cells to the columns they belong to
+
+    @param cells (set) Cells
+
+    @return (dict) Mapping from columns to their cells in `cells`
+    """
+    cellsForColumns = defaultdict(set)
+
+    for cell in cells:
+      column = self.connections.columnForCell(cell)
+      cellsForColumns[column].add(cell)
+
+    return cellsForColumns
 
 
   # ==============================
