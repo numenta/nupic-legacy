@@ -68,7 +68,8 @@ class DateEncoder(Encoder):
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
                 name = '', forced=True):
 
-    super(DateEncoder, self).__init__(name=name,  forced=forced)
+    super(DateEncoder, self).__init__(21, name=name, forced=forced) # sets w to a dummy 21 value 
+# so that Encoder() is happy. It's overriden later on!
     
     self.width = 0
     self.description = []
