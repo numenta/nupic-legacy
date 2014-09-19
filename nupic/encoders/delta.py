@@ -38,22 +38,15 @@ class DeltaEncoder(AdaptiveScalarEncoder):
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """[ScalarEncoder class method override]"""
     
-    super(DeltaEncoder,  self).__init__(w, n=n, name=name, periodic=False, verbosity=verbosity, forced=forced)
+    # periodic must be False for Delta encoders
+    super(DeltaEncoder,  self).__init__(w, n=n, name=name, verbosity=verbosity, forced=forced)
     
     self._learningEnabled = True
     self._stateLock = False
-    self.width = 0
     self.encoders = None
     self.description = []
-    if self.periodic:
-      #Delta scalar encoders take non-periodic inputs only
-      raise Exception('Delta encoder does not encode periodic inputs')
     assert n!=0           #An adaptive encoder can only be intialized using n
 
-    self._adaptiveScalarEnc = AdaptiveScalarEncoder(w=w, n=n, minval=minval,
-                   maxval=maxval, clipInput=True, name=name, verbosity=verbosity, forced=forced)
-    self.width+=self._adaptiveScalarEnc.getWidth()
-    self.n = self._adaptiveScalarEnc.n
     self._prevAbsolute = None    #how many inputs have been sent to the encoder?
     self._prevDelta = None
 
@@ -68,10 +61,10 @@ class DeltaEncoder(AdaptiveScalarEncoder):
       output[0:self.n] = 0
     else:
       #make the first delta zero so that the delta ranges are not messed up.
-      if self._prevAbsolute==None:
+      if self._prevAbsolute is None:
         self._prevAbsolute= input
       delta = input - self._prevAbsolute
-      self._adaptiveScalarEnc.encodeIntoArray(delta, output, learn)
+      super(DeltaEncoder, self).encodeIntoArray(delta, output, learn)
       if not self._stateLock:
         self._prevAbsolute = input
         self._prevDelta = delta
@@ -88,20 +81,19 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     return True
   ############################################################################
   def getBucketIndices(self, input, learn=None):
-    return self._adaptiveScalarEnc.getBucketIndices(input, learn)
+    return super(DeltaEncoder, self).getBucketIndices(input, learn)
   ############################################################################
   def getBucketInfo(self, buckets):
-    return self._adaptiveScalarEnc.getBucketInfo(buckets)
+    return super(DeltaEncoder, self).getBucketInfo(buckets)
   ############################################################################
   def topDownCompute(self, encoded):
     """[ScalarEncoder class method override]"""
 
     #Decode to delta scalar
-    if self._prevAbsolute==None or self._prevDelta==None:
-      return [EncoderResult(value=0, scalar=0,
-                             encoding=numpy.zeros(self.n))]
-    ret = self._adaptiveScalarEnc.topDownCompute(encoded)
-    if self._prevAbsolute != None:
+    if self._prevAbsolute is None or self._prevDelta is None:
+      return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
+    ret = super(DeltaEncoder, self).topDownCompute(encoded)
+    if self._prevAbsolute is not None:
       ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
                           scalar=ret[0].scalar+self._prevAbsolute,
                           encoding=ret[0].encoding)]
