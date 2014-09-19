@@ -40,13 +40,13 @@ class BitmapArrayEncoder(Encoder):
   """
 
   ############################################################################
-  def __init__(self, n, w, onbits=0, name="bitmaparray", verbosity=0):
+  def __init__(self, n, w, onbits=0, name="bitmaparray", verbosity=0, forced=False):
     """
     n is the total bits in input
     w is the number of bits used to encode each input bit
     """
 
-    super(BitmapArrayEncoder, self).__init__(w, name=name, verbosity=verbosity)
+    super(BitmapArrayEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
     
     self.n = n
     self.onbits = onbits

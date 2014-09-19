@@ -45,13 +45,13 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
 
   def testInitialization(self):
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, self.w, name=self.name, forced=True)
     self.assertIsInstance(e, self._encoder)
 
 
   def testEncodeString(self):
     """Send array as csv string."""
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, self.w, name=self.name, forced=True)
     bitmap = "2,7,15,18,23"
     out = e.encode(bitmap)
     self.assertEqual(out.sum(), len(bitmap.split(','))*self.w)
@@ -63,7 +63,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testEncodeArray(self):
     """Send bitmap as array of indicies"""
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, self.w, name=self.name, forced=True)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
     self.assertEqual(out.sum(), len(bitmap)*self.w)
@@ -75,7 +75,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
 
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, self.w, name=self.name, forced=True)
 
     """Identical => 1"""
     bitmap1 = [2,7,15,18,23]
@@ -140,7 +140,7 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     self.n = 25
     self.w = 1
     self.onbits = 5
-    e = self._encoder(self.n, self.w, self.onbits, self.name)
+    e = self._encoder(self.n, self.w, self.onbits, self.name, forced=True)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
     self.assertEqual(out.sum(), self.onbits)
