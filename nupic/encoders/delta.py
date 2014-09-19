@@ -34,18 +34,18 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   """
 
 
-  def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
+  def __init__(self, w, n, minval=None, maxval=None, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """[ScalarEncoder class method override]"""
     
-    super(DeltaEncoder,  self).__init__(w,  name=name,  verbosity=verbosity, forced=forced)
+    super(DeltaEncoder,  self).__init__(w, n=n, name=name, periodic=False, verbosity=verbosity, forced=forced)
     
     self._learningEnabled = True
     self._stateLock = False
     self.width = 0
     self.encoders = None
     self.description = []
-    if periodic:
+    if self.periodic:
       #Delta scalar encoders take non-periodic inputs only
       raise Exception('Delta encoder does not encode periodic inputs')
     assert n!=0           #An adaptive encoder can only be intialized using n
