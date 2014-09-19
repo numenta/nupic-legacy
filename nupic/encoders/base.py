@@ -97,6 +97,9 @@ class Encoder(object):
     # set forced
     self.forced=forced
     
+    # value for <empty> missing data
+    self.SENTINEL_VALUE_FOR_MISSING_DATA=SENTINEL_VALUE_FOR_MISSING_DATA
+    
     pass
 
 

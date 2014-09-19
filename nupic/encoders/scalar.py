@@ -311,7 +311,7 @@ class ScalarEncoder(Encoder):
     For periodic encoders, this can be a negative number when the encoded output
     wraps around. """
 
-    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
+    if input == self.SENTINEL_VALUE_FOR_MISSING_DATA:
       return [None]
 
     else:
@@ -359,9 +359,9 @@ class ScalarEncoder(Encoder):
     """ See method description in base.py """
 
     if type(input) is float and math.isnan(input):
-      input = SENTINEL_VALUE_FOR_MISSING_DATA
+      input = self.SENTINEL_VALUE_FOR_MISSING_DATA
 
-    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
+    if input == self.SENTINEL_VALUE_FOR_MISSING_DATA:
       return [None]
 
     minbin = self._getFirstOnBit(input)[0]
@@ -387,7 +387,7 @@ class ScalarEncoder(Encoder):
           "Expected a scalar input but got input of type %s" % type(input))
 
     if type(input) is float and math.isnan(input):
-      input = SENTINEL_VALUE_FOR_MISSING_DATA
+      input = self.SENTINEL_VALUE_FOR_MISSING_DATA
 
     # Get the bucket index to use
     bucketIdx = self._getFirstOnBit(input)[0]
