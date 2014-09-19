@@ -95,6 +95,7 @@ class LogEncoder(ScalarEncoder):
     self.maxScaledValue = math.log10(maxval)
     self.minvalRaw = minval # different than minval/maxval after super() call
     self.maxvalRaw = maxval
+    self.resolutionRaw=resolution
     
     if not self.maxScaledValue > self.minScaledValue:
       raise ValueError("Max val must be larger, in log space, than min val.")
@@ -182,6 +183,9 @@ class LogEncoder(ScalarEncoder):
     else:
       super(LogEncoder, self).encodeIntoArray(scaledVal, output, learn)
 
+    for i in xrange(len(output)):
+      output[i]=float(output[i])
+
       if self.verbosity >= 2:
         print "input:", inpt, "scaledVal:", scaledVal, "output:", output
         print "decoded:", self.decodedToStr(self.decode(output))
@@ -193,7 +197,7 @@ class LogEncoder(ScalarEncoder):
     """
 
     # Get the scalar values from the underlying scalar encoder
-    (fieldsDict, fieldNames) = self.encoder.decode(encoded)
+    (fieldsDict, fieldNames) = super(LogEncoder, self).decode(encoded)
     if len(fieldsDict) == 0:
       return (fieldsDict, fieldNames)
 
@@ -236,7 +240,7 @@ class LogEncoder(ScalarEncoder):
       scaledValues = super(LogEncoder, self).getBucketValues()
       self._bucketValues = []
       for scaledValue in scaledValues:
-        value = self._getDescaledValue(scaledValue)
+        value = scaledValue
         self._bucketValues.append(value)
 
     return self._bucketValues
