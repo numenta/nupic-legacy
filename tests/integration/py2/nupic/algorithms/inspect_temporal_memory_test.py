@@ -101,11 +101,12 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self._feedSequence(sequence)  # test
     stats = self.tm.getStatistics()
 
-    self.assertEqual(len(stats), 6)
+    self.assertEqual(len(stats), 7)
     self.assertEqual(stats.predictedInactiveCells.sum, 0)
     self.assertEqual(stats.predictedInactiveColumns.sum, 0)
     self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
     self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.sum, None)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.sum, None)
 
 
   def testComputeStatisticsSequenceStatistics(self):
