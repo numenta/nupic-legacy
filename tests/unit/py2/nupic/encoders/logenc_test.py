@@ -123,8 +123,8 @@ class LogEncoderTest(unittest.TestCase):
       
       # Find the range of values that would also produce this top down
       # output.
-      minTopDown = math.pow(10, (scaledVal - le.encoder.resolution))
-      maxTopDown = math.pow(10, (scaledVal + le.encoder.resolution))
+      minTopDown = math.pow(10, (scaledVal - le.resolution))
+      maxTopDown = math.pow(10, (scaledVal + le.resolution))
       
       # Verify the range surrounds this scaled val
       self.assertTrue(topDown.value >= minTopDown and
@@ -149,7 +149,7 @@ class LogEncoderTest(unittest.TestCase):
                        bucketValues[bucketIndices[0]])
       
       # Next value
-      scaledVal += le.encoder.resolution / 4.0
+      scaledVal += le.resolution / 4.0
       value = math.pow(10, scaledVal)
     
     #######################################################################
@@ -228,7 +228,7 @@ class LogEncoderTest(unittest.TestCase):
 		   forced=True)
     
     
-    self.assertEqual(le.encoder.n, 5)
+    self.assertEqual(le.n, 5)
     
     #######################################################################
     # Verify a a couple powers of 10 are encoded as expected
@@ -254,7 +254,7 @@ class LogEncoderTest(unittest.TestCase):
     # Create the encoder
     n = 100
     le = LogEncoder(n=n, forced=True)
-    self.assertEqual(le.encoder.n, n)
+    self.assertEqual(le.n, n)
   
   
   def testMinvalMaxVal(self):
@@ -269,8 +269,8 @@ class LogEncoderTest(unittest.TestCase):
     
     expectedRadius = 0.552141792732 
     expectedResolution = 0.110428358546
-    self.assertAlmostEqual(le.encoder.radius, expectedRadius)
-    self.assertAlmostEqual(le.encoder.resolution, expectedResolution)
+    self.assertAlmostEqual(le.radius, expectedRadius)
+    self.assertAlmostEqual(le.resolution, expectedResolution)
 
 
 ###########################################

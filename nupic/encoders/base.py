@@ -123,7 +123,7 @@ class Encoder(object):
     return False
 
   ############################################################################
-  def encodeIntoArray(self, inputData, output):
+  def encodeIntoArray(self, inputData, output,  learn=True):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
     which is a 1-D array of length returned by getWidth().

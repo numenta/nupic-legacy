@@ -114,7 +114,7 @@ class LogEncoder(ScalarEncoder):
     """
     Convert the input, which is in normal space, into log space
     """
-    if inpt == SENTINEL_VALUE_FOR_MISSING_DATA:
+    if inpt == self.SENTINEL_VALUE_FOR_MISSING_DATA:
       return None
     else:
       val = inpt
