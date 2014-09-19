@@ -170,8 +170,10 @@ class AdaptiveScalarEncoder(ScalarEncoder):
         output[0:self.n] = 0
     elif not math.isnan(input):
       self._setMinAndMax(input, learn)
-
-    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output)
+    skipTest=False
+    if not learn:
+      skipTest=True
+    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output, skipOutOfBounds=skipTest)
 
 
   ############################################################################
