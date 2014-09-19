@@ -101,10 +101,31 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self._feedSequence(sequence)  # test
     stats = self.tm.getStatistics()
 
-    self.assertEqual(len(stats), 5)
+    self.assertEqual(len(stats), 6)
     self.assertEqual(stats.predictedInactiveCells.sum, 0)
     self.assertEqual(stats.predictedInactiveColumns.sum, 0)
     self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.sum, None)
+
+
+  def testComputeStatisticsSequenceStatistics(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence, "Test1")
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, "Test2")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+
+
+  def testMapCellsToColumns(self):
+    columnsForCells = self.tm.mapCellsToColumns(set([0, 1, 2, 5, 399]))
+    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
+    self.assertEqual(columnsForCells[1], set([5]))
+    self.assertEqual(columnsForCells[99], set([399]))
 
 
   # ==============================
