@@ -141,7 +141,7 @@ class PassThruEncoderTest(unittest.TestCase):
     self.n = 9 
     self.m = 1
     self.w = 3
-    e = self._encoder(self.n, multiply=self.m, w=self.w, name=self.name)
+    e = self._encoder(self.n, multiply=self.m, w=self.w, name=self.name, forced=False)
     bitmap = [0,0,0,1,0,0,0,1,1]
     out = e.encode(bitmap)
     self.assertEqual(out.sum(), self.w)

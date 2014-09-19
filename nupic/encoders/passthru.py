@@ -45,9 +45,12 @@ class PassThruEncoder(Encoder):
          if None (default) - do not alter the input, just pass it further.
     forced -- if forced, encode will accept any data, and just return it back.
     """
-
-    super(PassThruEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
-    
+    wFake=w
+    if w is None:
+      wFake=21
+    super(PassThruEncoder, self).__init__(wFake, name=name, verbosity=verbosity, forced=True)
+    self.w = w # override wFake
+    self.forced = forced # override
     self.n = n
     self.m = int(multiply)
 
