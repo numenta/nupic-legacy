@@ -48,19 +48,18 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   """
 
   ############################################################################
-  def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
+  def __init__(self, w, n, minval=None, maxval=None, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
+    cannot be periodic
+    n must be set >0
     """
     self._learningEnabled = True
-    if periodic:
-      #Adaptive scalar encoders take non-periodic inputs only
-      raise Exception('Adaptive scalar encoder does not encode periodic inputs')
-    assert n!=0           #An adaptive encoder can only be intialized using n
+    assert n>0           #An adaptive encoder can only be intialized using n
 
     super(AdaptiveScalarEncoder, self).__init__(w=w, n=n, minval=minval, maxval=maxval,
-                                clipInput=True, name=name, verbosity=verbosity, forced=forced)
+                                clipInput=True, name=name, periodic=False, verbosity=verbosity, forced=forced)
     self.recordNum=0    #how many inputs have been sent to the encoder?
     self.slidingWindow = np.array([])
     self.windowSize = 300
