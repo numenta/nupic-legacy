@@ -166,7 +166,5 @@ class CoordinateEncoder(Encoder):
     return random.randint(0, n)
 
 
-  def dump(self):
-    print "CoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+  def __str__(self):
+    return "CoordinateEncoder:\nw:   %d\nn:   %d" % (self.w, self.n)

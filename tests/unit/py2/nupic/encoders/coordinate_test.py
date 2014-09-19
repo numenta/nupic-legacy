@@ -270,9 +270,12 @@ class CoordinateEncoderTest(unittest.TestCase):
       print "Average: {0}".format(np.average(allOverlaps))
 
 
+  def testPrint(self):
+    print self.encoder
+    self.assertTrue(True) # ok 
+
   def assertDecreasingOverlaps(self, overlaps):
     self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
-
 
 
 def encode(encoder, coordinate, radius):
