@@ -35,9 +35,11 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
   def testScalarSpaceEncoder(self):
     """scalar space encoder"""
     # use of forced=True is not recommended, but used in the example for readibility, see scalar.py
-    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta", forced=True)
+    sse = ScalarSpaceEncoder(w=21,minval=1,maxval=2,n=100,radius=1,
+            resolution=1,name="SP1",verbosity=0,clipInput=False,space="delta")
     self.assertTrue(sse.isDelta())
-    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute", forced=True)
+    sse = ScalarSpaceEncoder(w=21,minval=1,maxval=2,n=100,radius=1,
+            resolution=1,name="sp2",verbosity=0,clipInput=False,space="absolute")
     self.assertFalse(sse.isDelta())
 
      

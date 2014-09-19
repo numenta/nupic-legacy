@@ -35,11 +35,15 @@ class ScalarSpaceEncoder(Encoder):
     pass
   def __new__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=False, 
-                space="absolute", forced=False):
+                space="absolute"):
     self._encoder = None
     if space == "absolute":
-      ret = AdaptiveScalarEncoder(w,minval,maxval,periodic,n,radius,
-                                            resolution,name,verbosity,clipInput, forced=forced)
+      ret = AdaptiveScalarEncoder(w=w,minval=minval,maxval=maxval,n=n,radius=radius,
+               resolution=resolution,name=name,verbosity=verbosity,
+               clipInput=clipInput)
     else:
-      ret = DeltaEncoder(w,minval,maxval,periodic,n,radius,resolution,name,verbosity,clipInput, forced=forced)
+      ret = DeltaEncoder(w=w,minval=minval,maxval=maxval,n=n,radius=radius,
+               resolution=resolution,name=name,verbosity=verbosity,
+               clipInput=clipInput)
+
     return ret
