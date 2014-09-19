@@ -46,12 +46,12 @@ class PassThruEncoder(Encoder):
     forced -- if forced, encode will accept any data, and just return it back.
     """
 
+    super(PassThruEncoder, self).__init__(name=name)
+    
     self.n = n
     self.m = int(multiply)
     self.w = w
     self.verbosity = verbosity
-    self.description = [(name, 0)]
-    self.name = name
     self.forced = forced
 
   ############################################################################
@@ -64,10 +64,7 @@ class PassThruEncoder(Encoder):
   def getWidth(self):
     return self.n
 
-  ############################################################################
-  def getDescription(self):
-    return self.description
-
+  
   ############################################################################
   def getScalars(self, input):
     """ See method description in base.py """

@@ -57,12 +57,14 @@ class ArithmeticEncoder(Encoder):
     @param name TODO: document
     @param verbosity TODO: document
     """
+    
+    super(ArithmeticEncoder,  self).__init__(name=name)
+    
     self.w = w
     self.n = n
     self.periodic = periodic
     self.window = window
     self.history = deque(maxlen=window)
-    self.name = name
     self.verbosity = verbosity
 
     self.maxBuckets = n - w + 1
@@ -306,14 +308,6 @@ class ArithmeticEncoder(Encoder):
       closeness = error
 
     return numpy.array([closeness])
-
-
-  def getDescription(self):
-    """
-    TODO: document
-    @returns TODO: document
-    """
-    return [(self.name, 0)]
 
 
   def _checkInvariants(self):

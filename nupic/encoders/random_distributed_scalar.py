@@ -1,4 +1,4 @@
-# ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
@@ -113,6 +113,12 @@ class RandomDistributedScalarEncoder(Encoder):
 
     """
 
+    # A name used for debug printouts
+    if name is None:
+      self.name = "[%s]" % (resolution)
+    
+    super(RandomDistributedScalarEncoder, self).__init__(name=name)
+    
     # Validate inputs
     if (w <= 0) or (w%2 == 0):
       raise ValueError("w must be an odd positive integer")
@@ -141,11 +147,6 @@ class RandomDistributedScalarEncoder(Encoder):
     # Internal parameters for bucket mapping
     self._initializeBucketMap(1000, offset)
     
-    # A name used for debug printouts
-    if name is not None:
-      self.name = name
-    else:
-      self.name = "[%s]" % (self.resolution)
       
     if self.verbosity > 0:
       self.dump()
@@ -161,10 +162,7 @@ class RandomDistributedScalarEncoder(Encoder):
     return self.n
 
 
-  def getDescription(self):
-    return [(self.name, 0)]
-
-
+ 
   def getBucketIndices(self, x):
     """ See method description in base.py """
 

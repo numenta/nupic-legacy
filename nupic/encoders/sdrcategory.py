@@ -53,6 +53,8 @@ class SDRCategoryEncoder(Encoder):
     forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
+    super(SDRCategoryEncoder, self).__init__(name=name)
+    
     self.n = n
     self.w = w
 
@@ -88,9 +90,6 @@ class SDRCategoryEncoder(Encoder):
       self.thresholdOverlap = self.w - 3
 
     self.verbosity = verbosity
-
-    self.description = [(name, 0)]
-    self.name = name
 
     self.categoryToIndex = dict()
     self.ncategories = 0
@@ -181,9 +180,6 @@ class SDRCategoryEncoder(Encoder):
   def getWidth(self):
     return self.n
 
-  ############################################################################
-  def getDescription(self):
-    return self.description
 
   ############################################################################
   def getScalars(self, input):

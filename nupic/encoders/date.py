@@ -68,10 +68,11 @@ class DateEncoder(Encoder):
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
                 name = '', forced=True):
 
+    super(DateEncoder, self).__init__(name=name)
+    
     self.width = 0
     self.description = []
-    self.name = name
-
+    
     # This will contain a list of (name, encoder, offset) tuples for use by
     #  the decode() method
     self.encoders = []

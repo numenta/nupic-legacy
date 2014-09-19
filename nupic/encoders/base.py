@@ -69,10 +69,15 @@ class Encoder(object):
   """
 
   ############################################################################
-  def __init__(self):
+  def __init__(self,  name=None):
+    """
+    @param name -- name of field(s) in output. Used in getDescription()
+    """
+    self.name=name
     pass
 
 
+  
   ############################################################################
   def getWidth(self):
     """
@@ -385,15 +390,17 @@ class Encoder(object):
     The 'name' is a string description of each sub-field, and offset is the bit
     offset of the sub-field for that encoder.
 
-    For now, only the 'multi' and 'date' encoders have multiple (name, offset)
+    For now, only the 'multi' and 'date', 'coord/geo' encoders have multiple (name, offset)
     pairs. All other encoders have a single pair, where the offset is 0.
 
     **Must be overridden by subclasses.**
 
     @returns list of tuples containing (name, offset)
     """
-    raise Exception("getDescription must be implemented by all subclasses")
+    if self.name is None:
+      raise Exception("getDescription must be implemented by all subclasses")
 
+    return [(self.name,  0)]
 
   ############################################################################
   def getFieldDescription(self, fieldName):

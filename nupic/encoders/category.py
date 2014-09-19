@@ -44,6 +44,8 @@ class CategoryEncoder(Encoder):
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
+    super(CategoryEncoder, self).__init__(name=name)
+    
     self.encoders = None
     self.verbosity = verbosity
 
@@ -88,7 +90,10 @@ class CategoryEncoder(Encoder):
 
   ############################################################################
   def getDescription(self):
-    return self.description
+    description=[]
+    for i in self.indexToCategory:
+      description.append((self.indexToCategory[i],  i))
+    return description
 
   ############################################################################
   def getScalars(self, input):

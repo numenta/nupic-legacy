@@ -113,7 +113,6 @@ class LogEncoder(Encoder):
                                  clipInput=self.clipInput,
 				 forced=forced)
     self.width = self.encoder.getWidth()
-    self.description = [(name, 0)]
     self.name = name
 
     # This list is created by getBucketValues() the first time it is called,
@@ -123,10 +122,6 @@ class LogEncoder(Encoder):
   ############################################################################
   def getWidth(self):
     return self.width
-
-  ############################################################################
-  def getDescription(self):
-    return self.description
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):

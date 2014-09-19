@@ -61,6 +61,11 @@ class CoordinateEncoder(Encoder):
 
     @param name An optional string which will become part of the description
     """
+    
+    if name is None:
+      name = "[%s:%s]" % (self.n, self.w)
+    super(CoordinateEncoder, self).__init__(name=name)
+    
     # Validate inputs
     if (w <= 0) or (w % 2 == 0):
       raise ValueError("w must be an odd positive integer")
@@ -74,10 +79,7 @@ class CoordinateEncoder(Encoder):
     self.n = n
     self.verbosity = verbosity
     self.encoders = None
-
-    if name is None:
-      name = "[%s:%s]" % (self.n, self.w)
-    self.name = name
+    
 
 
   def getWidth(self):

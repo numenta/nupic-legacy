@@ -90,7 +90,14 @@ class VectorEncoder(Encoder):
   # the boring stuff
 
   def getDescription(self):
-    return [(self._name, 0),]
+    """this overrides parent's method"""
+    description=[]
+    offset=0
+    for i in xrange(self._len):
+      name="v_%r" % i
+      description.append((name, offset))
+      offset=offset+self._len
+    return description
 
   def getBucketValues(self):
     raise NotImplementedError("Not implemented yet.")

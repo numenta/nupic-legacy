@@ -181,6 +181,11 @@ class ScalarEncoder(Encoder):
     See class documentation for more information.
     """
 
+    # Our name
+    if name is None:
+      name = "[%s:%s]" % (minval, maxval)
+    super(ScalarEncoder,  self).__init(name=name)
+    
     assert isinstance(w, int)
     self.encoders = None
     self.verbosity = verbosity
@@ -220,12 +225,6 @@ class ScalarEncoder(Encoder):
     # nInternal represents the output area excluding the possible padding on each
     #  side
     self.nInternal = self.n - 2 * self.padding
-
-    # Our name
-    if name is not None:
-      self.name = name
-    else:
-      self.name = "[%s:%s]" % (self.minval, self.maxval)
 
     # This matrix is used for the topDownCompute. We build it the first time
     #  topDownCompute is called
@@ -321,10 +320,6 @@ class ScalarEncoder(Encoder):
       self.range = self.rangeInternal + self.resolution
 
     name = "[%s:%s]" % (self.minval, self.maxval)
-
-  ############################################################################
-  def getDescription(self):
-    return [(self.name, 0)]
 
 
   ############################################################################
