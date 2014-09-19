@@ -23,6 +23,7 @@ import math
 import numpy
 
 from nupic.encoders.scalar import ScalarEncoder
+from nupic.data.fieldmeta import FieldMetaType
 
 
 class LogEncoder(ScalarEncoder):
@@ -90,10 +91,11 @@ class LogEncoder(ScalarEncoder):
     super(LogEncoder, self).__init__(w=w,
                                  minval=self.minScaledValue,
                                  maxval=self.maxScaledValue,
-                                 periodic=False,
+                                 periodic=periodic,
                                  n=n,
                                  radius=radius,
                                  resolution=resolution,
+				 name=name,
                                  verbosity=verbosity,
                                  clipInput=clipInput,
 				 forced=forced)
