@@ -42,10 +42,6 @@ class NonUniformScalarEncoder(ScalarEncoder):
   def __init__(self, w, n, data = None, bins = None,
                       weights=None, name=None, verbosity=0, forced=False):
 
-
-
-    super(NonUniformScalarEncoder,  self).__init__(w, name=name, verbosity=verbosity, forced=forced)
-    
     self._numBins = n - w + 1
     self.weights = weights
     super(NonUniformScalarEncoder, self).__init__(w=w, n=n, minval= 0, maxval=self._numBins-1,
