@@ -1,3 +1,3 @@
 # Default nupic.core dependencies (override in optional .nupic_config)
 NUPIC_CORE_REMOTE = 'git://github.com/utensil/nupic.core.git'
-NUPIC_CORE_COMMITISH = '7daa677c0a1b1296066ab2380dbe1e03b8c568cb'
+NUPIC_CORE_COMMITISH = '3a98a784bd8adab44358bad3e0f7dc1ff5bd9aeb'
