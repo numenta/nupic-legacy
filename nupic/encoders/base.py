@@ -85,7 +85,7 @@ class Encoder(object):
     # set width - w - for getWidth()
     self.w=width
     if (self.w % 2 == 0):
-      raise Exception("Width must be an odd number (%f)" % self.w)
+      raise ValueError("Width must be an odd number (%f)" % self.w)
     if self.w < 21 and not forced:
       raise ValueError("Number of bits in the SDR (%d) must be greater than 2,\
       and recommended >= 21 (use forced=True to override)" % self.w)

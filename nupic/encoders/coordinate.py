@@ -55,7 +55,8 @@ class CoordinateEncoder(Encoder):
                w=21,
                n=1000,
                name=None,
-               verbosity=0):
+               verbosity=0,
+	       forced=False):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
@@ -64,7 +65,7 @@ class CoordinateEncoder(Encoder):
     
     if name is None:
       name = "[%s:%s]" % (self.n, self.w)
-    super(CoordinateEncoder, self).__init__(w,  name=name, verbosity=verbosity)
+    super(CoordinateEncoder, self).__init__(w,  name=name, verbosity=verbosity, forced=forced)
     
     # Validate inputs
     
