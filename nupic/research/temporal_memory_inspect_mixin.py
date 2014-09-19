@@ -122,8 +122,6 @@ class TemporalMemoryInspectMixin(object):
     """
     Pretty print the connections in the temporal memory.
 
-    @param verbosity (int) Verbosity level
-
     @return (string) Pretty-printed text
     """
     text = ""
@@ -161,6 +159,25 @@ class TemporalMemoryInspectMixin(object):
     text += "------------------------------------\n"
 
     return text
+
+
+  def prettyPrintSequenceCellRepresentations(self, sortby="Column"):
+    """
+    Pretty print the cell representations for sequences in the history.
+
+    @param sortby (string) Column of table to sort by
+
+    @return (string) Pretty-printed text
+    """
+    table = PrettyTable(["Pattern", "Column", "predicted=>active cells"])
+
+    for sequenceLabel, predictedActiveCells in (
+          self.predictedActiveCellsForSequenceDict.iteritems()):
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
+      for column, cells in cellsForColumn.iteritems():
+        table.add_row([sequenceLabel, column, list(cells)])
+
+    return table.get_string(sortby=sortby)
 
 
   def getStatistics(self):
