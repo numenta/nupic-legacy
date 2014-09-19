@@ -33,8 +33,8 @@ class SDRRandomEncoderTest(unittest.TestCase):
   def testSDRRandomEncoder(self):
       print "Testing RandomEncoder...",
 
-      fieldWidth = 25
-      bitsOn = 10
+      fieldWidth = 250
+      bitsOn = 21
 
       s = SDRRandomEncoder(n=fieldWidth, w=bitsOn, name="foo")
 
