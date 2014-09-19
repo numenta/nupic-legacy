@@ -382,12 +382,18 @@ class ScalarEncoder(Encoder):
   def encodeIntoArray(self, input, output, learn=True):
     """ See method description in base.py """
 
+    
+
     if input is not None and not isinstance(input, numbers.Number):
       raise TypeError(
           "Expected a scalar input but got input of type %s" % type(input))
 
     if type(input) is float and math.isnan(input):
       input = self.SENTINEL_VALUE_FOR_MISSING_DATA
+    
+    if input is not self.SENTINEL_VALUE_FOR_MISSING_DATA and (
+      input < self.minval or input > self.maxval):
+      raise ValueError("OutOfBounds error for %r <%r , %r>" %(input, self.minval, self.maxval))
 
     # Get the bucket index to use
     bucketIdx = self._getFirstOnBit(input)[0]
