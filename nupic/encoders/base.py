@@ -72,18 +72,19 @@ class Encoder(object):
   """
 
   ############################################################################
-  def __init__(self,  width,  name=None,  verbosity=0,  forced=False):
+  def __init__(self,  w,  n, name=None,  verbosity=0,  forced=False):
     """
-    @param  width --        The number of bits that are set to encode a single value - the
+    @param  w --        The number of bits that are set to encode a single value - the
                 "width" of the output signal
               restriction: w must be odd to avoid centering problems.
+    @param n -- number of bits of encoder, total width
     @param name -- name of field(s) in output. Used in getDescription()
     """
     # set name - for getDescription()
     self.name=name
     
     # set width - w - for getWidth()
-    self.w=width
+    self.w=w
     if (self.w % 2 == 0):
       raise ValueError("Width must be an odd number (%f)" % self.w)
     if self.w < 21 and not forced:
@@ -91,6 +92,11 @@ class Encoder(object):
       and recommended >= 21 (use forced=True to override)" % self.w)
 
     
+    #set width
+    self.n=n
+    if (not isinstance(n,int)) or w>n: 
+      raise ValueError("w must be > n : %r > %r" % (w, n))
+
     # set verbosity
     self.verbosity=verbosity
     
