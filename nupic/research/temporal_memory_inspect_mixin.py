@@ -23,6 +23,8 @@
 Temporal Memory mixin that enables detailed inspection of history.
 """
 
+from collections import namedtuple
+
 import numpy
 from prettytable import PrettyTable
 
@@ -38,6 +40,7 @@ class TemporalMemoryInspectMixin(object):
 
     # Initialize history
     self.patterns = None
+    self.sequenceLabels = None
     self.predictedActiveCellsList = None
     self.predictedInactiveCellsList = None
     self.predictedActiveColumnsList = None
@@ -48,6 +51,7 @@ class TemporalMemoryInspectMixin(object):
 
   def clearHistory(self):
     self.patterns = []
+    self.sequenceLabels = []
     self.predictedActiveCellsList = []
     self.predictedInactiveCellsList = []
     self.predictedActiveColumnsList = []
@@ -59,12 +63,13 @@ class TemporalMemoryInspectMixin(object):
     """
     Pretty print history.
 
-    @param verbosity       (int)            Verbosity level
+    @param verbosity (int) Verbosity level
 
     @return (string) Pretty-printed text
     """
     cols = ["#",
             "Pattern",
+            "Sequence Label",
             "pred=>active columns",
             "pred=>inactive columns",
             "unpred=>active columns",
@@ -73,21 +78,24 @@ class TemporalMemoryInspectMixin(object):
 
     if verbosity == 0:
       cols[1] = "Pattern (# bits)"
-      cols[2:] = ["# {0}".format(x) for x in cols[2:]]
+      cols[3:] = ["# {0}".format(x) for x in cols[3:]]
 
     table = PrettyTable(cols)
 
     for i in xrange(len(self.patterns)):
       pattern = self.patterns[i]
+      sequenceLabel = self.sequenceLabels[i]
+      sequenceLabel = "" if sequenceLabel is None else sequenceLabel
 
       if pattern is None:
-        row = [i] + ["<reset>"] * 6
+        row = [i] + ["<reset>"] * 7
 
       else:
         row = [i]
 
         if verbosity == 0:
           row.append(len(pattern))
+          row.append(sequenceLabel)
           row.append(len(self.predictedActiveColumnsList[i]))
           row.append(len(self.predictedInactiveColumnsList[i]))
           row.append(len(self.unpredictedActiveColumnsList[i]))
@@ -96,6 +104,7 @@ class TemporalMemoryInspectMixin(object):
 
         else:
           row.append(list(pattern))
+          row.append(sequenceLabel)
           row.append(list(self.predictedActiveColumnsList[i]))
           row.append(list(self.predictedInactiveColumnsList[i]))
           row.append(list(self.unpredictedActiveColumnsList[i]))
@@ -154,33 +163,52 @@ class TemporalMemoryInspectMixin(object):
 
   def getStatistics(self):
     """
-    Returns statistics for the history, as tuple:
+    Returns statistics for the history, as a named tuple with the following
+    fields:
 
-        (`predictedActiveCellsStats`,
-         `predictedInactiveCellsStats`,
-         `predictedActiveColumnsStats`,
-         `predictedInactiveColumnsStats`,
-         `unpredictedActiveColumnsStats`)
+        - `predictedActiveCells`
+        - `predictedInactiveCells`
+        - `predictedActiveColumns`
+        - `predictedInactiveColumns`
+        - `unpredictedActiveColumns`
 
-    Each element in the returned tuple is itself a tuple with the following form:
+    Each element in the tuple is a named tuple with the following fields:
 
-        (min, max, sum, average, standard deviation)
+        - `min`
+        - `max`
+        - `sum`
+        - `average`
+        - `standardDeviation`
 
     Note: The first element, any reset and the element immediately following it
     is ignored when computing stats.
 
-    @return (tuple) Statistics for detailed results
+    @return (namedtuple) Statistics for detailed results
     """
+    Stats = namedtuple('Stats', [
+      'predictedActiveCells',
+      'predictedInactiveCells',
+      'predictedActiveColumns',
+      'predictedInactiveColumns',
+      'unpredictedActiveColumns'
+    ])
+    Data = namedtuple('Data', [
+      'min',
+      'max',
+      'sum',
+      'average',
+      'standardDeviation'
+    ])
     def statsForResult(result):
       counts = [len(x) for idx, x in enumerate(result)
                 if (idx > 0 and
                     self.patterns[idx] is not None and
                     self.patterns[idx-1] is not None)]
-      return (min(counts),
-              max(counts),
-              sum(counts),
-              numpy.mean(counts),
-              numpy.std(counts))
+      return Data(min(counts),
+                  max(counts),
+                  sum(counts),
+                  numpy.mean(counts),
+                  numpy.std(counts))
 
     history = (
       self.predictedActiveCellsList,
@@ -189,21 +217,21 @@ class TemporalMemoryInspectMixin(object):
       self.predictedInactiveColumnsList,
       self.unpredictedActiveColumnsList
     )
-    return tuple([statsForResult(result) for result in history])
+    return Stats._make([statsForResult(result) for result in history])
 
 
   # ==============================
   # Overrides
   # ==============================
 
-  def compute(self, activeColumns, **kwargs):
-    self._record(activeColumns)
+  def compute(self, activeColumns, sequenceLabel=None, **kwargs):
+    self._record(activeColumns, sequenceLabel)
 
     super(TemporalMemoryInspectMixin, self).compute(activeColumns, **kwargs)
 
 
   def reset(self):
-    self._record(None)
+    self._record(None, None)
 
     super(TemporalMemoryInspectMixin, self).reset()
 
@@ -212,8 +240,9 @@ class TemporalMemoryInspectMixin(object):
   # Helper methods
   # ==============================
 
-  def _record(self, activeColumns):
+  def _record(self, activeColumns, sequenceLabel):
     self.patterns.append(activeColumns)
+    self.sequenceLabels.append(sequenceLabel)
 
     activeColumns = activeColumns if activeColumns else set()
     predictedActiveCells = set()
