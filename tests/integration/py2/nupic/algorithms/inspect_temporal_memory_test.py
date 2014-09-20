@@ -51,14 +51,18 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     # Replace last pattern (before the None) with an unpredicted one
     sequence[-2] = self.patternMachine.get(4)
 
-    self._feedSequence(sequence)
+    self._feedSequence(sequence, sequenceLabel="Test")
 
+    self.assertEqual(len(self.tm.patterns), len(sequence))
+    self.assertEqual(len(self.tm.sequenceLabels), len(sequence))
     self.assertEqual(len(self.tm.predictedActiveCellsList), len(sequence))
     self.assertEqual(len(self.tm.predictedInactiveCellsList), len(sequence))
     self.assertEqual(len(self.tm.predictedActiveColumnsList), len(sequence))
     self.assertEqual(len(self.tm.predictedInactiveColumnsList), len(sequence))
     self.assertEqual(len(self.tm.unpredictedActiveColumnsList), len(sequence))
 
+    self.assertEqual(self.tm.patterns[-2], self.patternMachine.get(4))
+    self.assertEqual(self.tm.sequenceLabels[-2], "Test")
     self.assertEqual(len(self.tm.predictedActiveCellsList[-2]), 0)
     self.assertEqual(len(self.tm.predictedInactiveCellsList[-2]), 5)
     self.assertEqual(len(self.tm.predictedActiveColumnsList[-2]), 0)
@@ -75,9 +79,9 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     stats = self.tm.getStatistics()
 
     self.assertEqual(len(stats), 5)
-    self.assertEqual(stats[1][2], 0)
-    self.assertEqual(stats[3][2], 0)
-    self.assertEqual(stats[4][2], 0)
+    self.assertEqual(stats.predictedInactiveCells.sum, 0)
+    self.assertEqual(stats.predictedInactiveColumns.sum, 0)
+    self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
 
 
   # ==============================
@@ -93,12 +97,12 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     return sequence
 
 
-  def _feedSequence(self, sequence):
+  def _feedSequence(self, sequence, sequenceLabel=None):
     for pattern in sequence:
       if pattern is None:
         self.tm.reset()
       else:
-        self.tm.compute(pattern)
+        self.tm.compute(pattern, sequenceLabel=sequenceLabel)
 
 
 
