@@ -289,7 +289,7 @@ class RecordSensor(PyRegion):
       category = data["_category"]
 
       # Encode the processed records
-      self.encoder.encodeIntoArray(data, outputs["dataOut"])
+      outputs["dataOut"] = self.encoder.encode(data)
 
       # Write out the scalar values obtained from the data source. These
       #  are often logged to a file
