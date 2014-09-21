@@ -69,6 +69,29 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self.assertEqual(len(self.tm.predictedInactiveColumnsList[-2]), 5)
     self.assertEqual(len(self.tm.unpredictedActiveColumnsList[-2]), 5)
 
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    predictedActiveCells = reduce(lambda x, y: x | y,
+                                  self.tm.predictedActiveCellsList)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, sequenceLabel="Test2")
+
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+    self.assertTrue("Test2" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertNotEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                        self.tm.predictedActiveCellsForSequenceDict["Test2"])
+
+
+  def testFeedSequenceNoSequenceLabel(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence)
+    self.assertEqual(len(self.tm.predictedActiveCellsForSequenceDict), 0)
+
 
   def testComputeStatistics(self):
     sequence = self._generateSequence()
@@ -78,10 +101,40 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self._feedSequence(sequence)  # test
     stats = self.tm.getStatistics()
 
-    self.assertEqual(len(stats), 5)
+    self.assertEqual(len(stats), 7)
     self.assertEqual(stats.predictedInactiveCells.sum, 0)
     self.assertEqual(stats.predictedInactiveColumns.sum, 0)
     self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.sum, None)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.sum, None)
+
+
+  def testComputeStatisticsSequenceStatistics(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence, "Test1")
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, "Test2")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.average, 1)
+
+    self._feedSequence(sequence, "Test3")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertTrue(stats.sequencesPredictedActiveCellsShared.average > 1)
+
+
+  def testMapCellsToColumns(self):
+    columnsForCells = self.tm.mapCellsToColumns(set([0, 1, 2, 5, 399]))
+    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
+    self.assertEqual(columnsForCells[1], set([5]))
+    self.assertEqual(columnsForCells[99], set([399]))
 
 
   # ==============================

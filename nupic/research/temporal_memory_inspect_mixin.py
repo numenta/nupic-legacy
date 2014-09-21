@@ -23,7 +23,7 @@
 Temporal Memory mixin that enables detailed inspection of history.
 """
 
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 
 import numpy
 from prettytable import PrettyTable
@@ -46,6 +46,7 @@ class TemporalMemoryInspectMixin(object):
     self.predictedActiveColumnsList = None
     self.predictedInactiveColumnsList = None
     self.unpredictedActiveColumnsList = None
+    self.predictedActiveCellsForSequenceDict = None
     self.clearHistory()
 
 
@@ -57,6 +58,7 @@ class TemporalMemoryInspectMixin(object):
     self.predictedActiveColumnsList = []
     self.predictedInactiveColumnsList = []
     self.unpredictedActiveColumnsList = []
+    self.predictedActiveCellsForSequenceDict = defaultdict(set)
 
 
   def prettyPrintHistory(self, verbosity=0):
@@ -70,10 +72,10 @@ class TemporalMemoryInspectMixin(object):
     cols = ["#",
             "Pattern",
             "Sequence Label",
-            "pred=>active columns",
+            "pred=>active columns (correctly predicted)",
             "pred=>inactive columns",
-            "unpred=>active columns",
-            "pred=>active cells",
+            "unpred=>active columns (bursting)",
+            "pred=>active cells (correctly predicted)",
             "pred=>inactive cells"]
 
     if verbosity == 0:
@@ -120,8 +122,6 @@ class TemporalMemoryInspectMixin(object):
     """
     Pretty print the connections in the temporal memory.
 
-    @param verbosity (int) Verbosity level
-
     @return (string) Pretty-printed text
     """
     text = ""
@@ -161,6 +161,25 @@ class TemporalMemoryInspectMixin(object):
     return text
 
 
+  def prettyPrintSequenceCellRepresentations(self, sortby="Column"):
+    """
+    Pretty print the cell representations for sequences in the history.
+
+    @param sortby (string) Column of table to sort by
+
+    @return (string) Pretty-printed text
+    """
+    table = PrettyTable(["Pattern", "Column", "predicted=>active cells"])
+
+    for sequenceLabel, predictedActiveCells in (
+          self.predictedActiveCellsForSequenceDict.iteritems()):
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
+      for column, cells in cellsForColumn.iteritems():
+        table.add_row([sequenceLabel, column, list(cells)])
+
+    return table.get_string(sortby=sortby)
+
+
   def getStatistics(self):
     """
     Returns statistics for the history, as a named tuple with the following
@@ -171,6 +190,11 @@ class TemporalMemoryInspectMixin(object):
         - `predictedActiveColumns`
         - `predictedInactiveColumns`
         - `unpredictedActiveColumns`
+        - `sequencesPredictedActiveCellsPerColumn`
+        - `sequencesPredictedActiveCellsShared`
+
+    Note: `sequencesPredictedActiveCellsShared` metric is flawed when it
+    comes to high-order sequences.
 
     Each element in the tuple is a named tuple with the following fields:
 
@@ -190,8 +214,11 @@ class TemporalMemoryInspectMixin(object):
       'predictedInactiveCells',
       'predictedActiveColumns',
       'predictedInactiveColumns',
-      'unpredictedActiveColumns'
+      'unpredictedActiveColumns',
+      'sequencesPredictedActiveCellsPerColumn',
+      'sequencesPredictedActiveCellsShared'
     ])
+
     Data = namedtuple('Data', [
       'min',
       'max',
@@ -199,16 +226,22 @@ class TemporalMemoryInspectMixin(object):
       'average',
       'standardDeviation'
     ])
-    def statsForResult(result):
-      counts = [len(x) for idx, x in enumerate(result)
-                if (idx > 0 and
-                    self.patterns[idx] is not None and
-                    self.patterns[idx-1] is not None)]
+
+    def statsForCounts(counts):
+      if len(counts) == 0:
+        return Data._make([None] * 5)
       return Data(min(counts),
                   max(counts),
                   sum(counts),
                   numpy.mean(counts),
                   numpy.std(counts))
+
+    def statsForHistoryItem(historyItem):
+      counts = [len(x) for idx, x in enumerate(historyItem)
+                if (idx > 0 and
+                    self.patterns[idx] is not None and
+                    self.patterns[idx-1] is not None)]
+      return statsForCounts(counts)
 
     history = (
       self.predictedActiveCellsList,
@@ -217,7 +250,40 @@ class TemporalMemoryInspectMixin(object):
       self.predictedInactiveColumnsList,
       self.unpredictedActiveColumnsList
     )
-    return Stats._make([statsForResult(result) for result in history])
+    stats = [statsForHistoryItem(item) for item in history]
+
+    numCellsPerColumn = []
+    numSequencesForCell = defaultdict(lambda: 0)
+
+    for predictedActiveCells in (
+        self.predictedActiveCellsForSequenceDict.values()):
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
+      numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
+
+      for cell in predictedActiveCells:
+        numSequencesForCell[cell] += 1
+
+    stats.append(statsForCounts(numCellsPerColumn))
+    stats.append(statsForCounts(numSequencesForCell.values()))
+
+    return Stats._make(stats)
+
+
+  def mapCellsToColumns(self, cells):
+    """
+    Maps cells to the columns they belong to
+
+    @param cells (set) Cells
+
+    @return (dict) Mapping from columns to their cells in `cells`
+    """
+    cellsForColumns = defaultdict(set)
+
+    for cell in cells:
+      column = self.connections.columnForCell(cell)
+      cellsForColumns[column].add(cell)
+
+    return cellsForColumns
 
 
   # ==============================
@@ -257,6 +323,10 @@ class TemporalMemoryInspectMixin(object):
       if prevPredictedColumn in activeColumns:
         predictedActiveCells.add(prevPredictedCell)
         predictedActiveColumns.add(prevPredictedColumn)
+
+        if sequenceLabel is not None:
+          self.predictedActiveCellsForSequenceDict[sequenceLabel].add(
+            prevPredictedCell)
       else:
         predictedInactiveCells.add(prevPredictedCell)
         predictedInactiveColumns.add(prevPredictedColumn)
