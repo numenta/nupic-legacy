@@ -116,10 +116,68 @@ class AnomalyTest(unittest.TestCase):
   ####################################################################
   def testAnomalyWithLikelihood(self):
     """example use of anomaly and tests likelihood code"""
-    from nupic.encoders.scalar import ScalarEncoder
+    from nupic.encoders.scalar import ScalarEncoder as DataEncoder
     from nupic.research.spatial_pooler import SpatialPooler
-    from nupic.research.TP10X2 import TP as TemporalPooler
+#    from nupic.bindings.algorithms import SpatialPooler
+#    from nupic.research.TP10X2 import TP as TemporalPooler
+    from nupic.research.TP import TP as TemporalPooler
+    from nupic.algorithms.anomaly import Anomaly
+
+    import numpy
+    import math
+
+    # init
+    encoder= DataEncoder(w=21, minval=0, maxval=10, resolution=0.1)
+    sp= SpatialPooler(inputDimensions=[encoder.getWidth(), 1], columnDimensions=[30, 30])
+    _numCols=sp.getColumnDimensions()[0]*sp.getColumnDimensions()[1]
+    tp= TemporalPooler(numberOfCols=int(math.sqrt(_numCols)))
+    an= Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+
+    data=range(10)
+    nTrainSPTP=200
+    nTrainLikelihood=0
+   
+    # first, some training to stabilize patterns in SP, TP 
+    for i in xrange(nTrainSPTP): # train the weights in SP, TP
+      # run some data through the pipes
+      for raw in data:
+        encD=encoder.encode(raw)
+        spD=numpy.array([0]*_numCols, dtype=float)
+        sp.compute(encD, True, spD) # learn
+        spD=spD.nonzero()[0]
+        tpD=tp.compute(spD, enableLearn=True, computeInfOutput=False).nonzero()[0] # learn
+
+    # now train the likelihood model
+    for i in xrange(nTrainLikelihood):
+      _prev=[]
+      tpD=[]
+      for raw in data:
+        encD=encoder.encode(raw)
+        spD=numpy.array([0]*_numCols, dtype=float)
+        sp.compute(encD, False, spD)
+        spD=spD.nonzero()[0]
+        _prev=tpD
+        tpD=tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
+        anD=an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
+
+    # evaluate 
+    data= [0, 1, 2, 3, 4, 5, 6, 1, 9, 8, 1, 5, 3, 4, 5, 1, 9]
+    for raw in data:
+      encD=encoder.encode(raw)
+      spD=numpy.array([0]*_numCols, dtype=float)
+      sp.compute(encD, False, spD)
+      spD=spD.nonzero()[0]
+      _prev=tpD
+      tpD=tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
+      
+      anD=an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
+
+      print "------\ndata= %r\tanomaly=%r" % (raw, anD)
+      print "ENC=", encD.nonzero()
+      print "SP =", spD
+      print "TP =", tpD
 
 
+    
 if __name__ == "__main__":
   unittest.main()
