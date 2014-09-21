@@ -427,16 +427,16 @@ else()
 endif()
 set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC")
 set(NTA_PLATFORM_LINKFLAGS "")
-set(NTA_PLATFORM_LIBS "-std=c++98")
+set(NTA_PLATFORM_LIBS "")
 set(NUPIC_CORE_EXTRA_CXXFLAGS "")
 set(NUPIC_CORE_EXTRA_LINKFLAGS "")
 if(OSX)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
-  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64 -stdlib=libc++")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
-  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -stdlib=libc++")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -541,7 +541,7 @@ execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(n
 # Later versions greater than 2.0.3 also *will* fail (SWIGPY_SLICE_ARG bug)
 #
 set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
-set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/1.3.36")
+set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/2.0.3")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
@@ -600,7 +600,7 @@ message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
 # The reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
 # cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
 #add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
-add_definitions(-std=c++98) # smart flag setting for gcc/clang
+add_definitions(-std=c++11) # smart flag setting for gcc/clang
 
 #
 # Include directories of headers
@@ -618,7 +618,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_LIBRARIES_DIR} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_LIBRARIES_DIR} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -lyaml-cpp -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 

@@ -1,0 +1,3 @@
+
+// ***** move the director stuff from octrun.swg here...
+

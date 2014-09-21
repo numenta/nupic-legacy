@@ -27,11 +27,20 @@ echo
 # Necessary Linux prep work
 echo ">>> Doing prep work..."
 sudo add-apt-repository -y ppa:fkrull/deadsnakes
-sudo apt-get update
+sudo apt-get -qq update
+
+# Install gcc 4.8
+echo ">>> Installing gcc 4.8"
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+sudo apt-get -qq update
+sudo apt-get -qq install g++-4.8
+alias gcc='gcc-4.8'
+alias g++='g++-4.8'
+if [ $CC = 'gcc' ]; then export CC='gcc-4.8'; export CXX='g++-4.8'; fi
 
 # Install virtualenv
 echo ">>> Installing virtualenv..."
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
+sudo apt-get -qq install python$PY_VER python$PY_VER-dev python-virtualenv
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
 # Execute virtualenv
