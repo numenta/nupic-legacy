@@ -308,8 +308,8 @@ class SpatialPooler(object):
 
     if self._spVerbosity > 0:
       self.printParameters()
-
-
+      
+    
   def getColumnDimensions(self):
     """Returns the dimensions of the columns in the region"""
     return self._columnDimensions
@@ -616,11 +616,15 @@ class SpatialPooler(object):
 
   def setPotential(self, column, potential):
     """Sets the potential mapping for a given column. 'potential' size
-    must match the number of inputs"""
+    must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
+    
     potentialSparse = numpy.where(potential > 0)[0]
+    assert(len(potentialSparse > self._stimulusThreshold)),("len(potentialSparse)" +
+      "must be >= self._stimulusThreshold (see #1322)")
+    
     self._potentialPools.replaceSparseRow(column, potentialSparse)
-
+    
 
   def getPermanence(self, column, permanence):
     """Returns the permanence values for a given column. 'permanence' size
@@ -988,6 +992,13 @@ class SpatialPooler(object):
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
+    
+    """
+    The number of mask 'on' bits must be >= stimulusThreshold or the while
+    loop below will never exit (see issue #1322)"""
+    assert(len(mask) >= self._stimulusThreshold), ("'1' bits in 'mask' must " +
+      "be >= stimulusThreshold (see  issue #1322)")
+    
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
       numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
