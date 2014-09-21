@@ -115,11 +115,9 @@ class Encoder(object):
     """
     Should return the output width, in bits.
 
-    **Must be overridden by subclasses.**
-
     @returns output width in bits
     """
-    raise Exception("getWidth must be implemented by all subclasses")
+    return self.n
 
   ############################################################################
   def isDelta(self):

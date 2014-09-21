@@ -47,11 +47,10 @@ class PassThruEncoder(Encoder):
     """
     wFake=w
     if w is None:
-      wFake=21
-    super(PassThruEncoder, self).__init__(wFake, name=name, verbosity=verbosity, forced=True)
+      wFake=1
+    super(PassThruEncoder, self).__init__(w=wFake,n=n, name=name, verbosity=verbosity, forced=True)
     self.w = w # override wFake
     self.forced = forced # override
-    self.n = n
     self.m = int(multiply)
 
   ############################################################################
@@ -59,10 +58,6 @@ class PassThruEncoder(Encoder):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.string,)
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
 
   
   ############################################################################

@@ -44,12 +44,14 @@ class CategoryEncoder(Encoder):
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
-    super(CategoryEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
+   # number of categories includes "unknown"
+    self.ncategories = len(categoryList) + 1
+    n = w * self.ncategories
+
+    super(CategoryEncoder, self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
     
     self.encoders = None
 
-    # number of categories includes "unknown"
-    self.ncategories = len(categoryList) + 1
 
     self.categoryToIndex = dict()
     self.indexToCategory = dict()
@@ -58,13 +60,9 @@ class CategoryEncoder(Encoder):
       self.categoryToIndex[categoryList[i]] = i+1
       self.indexToCategory[i+1] = categoryList[i]
 
-    self.encoder = ScalarEncoder(w, minval=0, maxval=self.ncategories - 1,
+    self.encoder = ScalarEncoder(w=w, minval=0, maxval=self.ncategories - 1,
                       radius=1, periodic=False, forced=forced)
-    self.width = w * self.ncategories
-    assert self.encoder.getWidth() == self.width
-
-    #TODO fix
-    self.description = [(name, 0)]
+    assert self.encoder.getWidth() == self.getWidth() == n
 
     # These are used to support the topDownCompute method
     self._topDownMappingM = None
@@ -82,10 +80,6 @@ class CategoryEncoder(Encoder):
     #return (FieldMetaType.string,)
     return (FieldMetaType.integer,)
 
-
-  ############################################################################
-  def getWidth(self):
-    return self.width
 
   ############################################################################
   def getDescription(self):

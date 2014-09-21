@@ -39,7 +39,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     """[ScalarEncoder class method override]"""
     
     # periodic must be False for Delta encoders
-    super(DeltaEncoder,  self).__init__(w, n=n, name=name, verbosity=verbosity, forced=forced)
+    super(DeltaEncoder,  self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
     
     self._learningEnabled = True
     self._stateLock = False
@@ -79,12 +79,6 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   ############################################################################
   def isDelta(self):
     return True
-  ############################################################################
-  def getBucketIndices(self, input, learn=None):
-    return super(DeltaEncoder, self).getBucketIndices(input, learn)
-  ############################################################################
-  def getBucketInfo(self, buckets):
-    return super(DeltaEncoder, self).getBucketInfo(buckets)
   ############################################################################
   def topDownCompute(self, encoded):
     """[ScalarEncoder class method override]"""

@@ -49,6 +49,8 @@ class VectorEncoder(Encoder):
     self._typeCastFn = typeCastFn
     self.encoders = None
 
+    super(VectorEncoder, self).__init__(w=self._len*encoder.w, n=self._len*encoder.getWidth(), name=name, forced=True)
+
   def encodeIntoArray(self, input, output):
     if not isinstance(input, list) and len(input) == self._len:
       raise Exception("input must be list of size %d (it is %d)" % (self._len, len(input)))
@@ -101,9 +103,6 @@ class VectorEncoder(Encoder):
 
   def getBucketValues(self):
     raise NotImplementedError("Not implemented yet.")
-
-  def getWidth(self):
-    return self._len * self._enc.getWidth()
 
   def getDecoderOutputFieldTypes(self):
     return [FieldMetaType.list]

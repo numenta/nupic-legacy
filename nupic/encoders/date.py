@@ -68,7 +68,7 @@ class DateEncoder(Encoder):
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
                 name = '', forced=True):
 
-    super(DateEncoder, self).__init__(21, name=name, forced=forced) # sets w to a dummy 21 value 
+    super(DateEncoder, self).__init__(w=21, n=210, name=name, forced=forced) # sets w, n to a dummy values 
 # so that Encoder() is happy. It's overriden later on!
     
     self.width = 0
@@ -206,9 +206,8 @@ class DateEncoder(Encoder):
       self.description.append(("time of day", self.timeOfDayOffset))
       self.encoders.append(("time of day", self.timeOfDayEncoder, self.timeOfDayOffset))
 
-  ############################################################################
-  def getWidth(self):
-    return self.width
+    # atlast, assign n
+    self.n=self.width
 
   ############################################################################
   def getScalarNames(self, parentFieldName=''):

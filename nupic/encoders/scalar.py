@@ -147,7 +147,7 @@ class ScalarEncoder(Encoder):
                w,
                minval,
                maxval,
-               n,
+               n=0,
                periodic=False,
                radius=0,
                resolution=0,
@@ -183,9 +183,7 @@ class ScalarEncoder(Encoder):
     # Our name
     if name is None:
       name = "[%s:%s]" % (minval, maxval)
-      
-    super(ScalarEncoder,  self).__init__(w, name=name,  verbosity=verbosity,  forced=forced)
-    
+
     self.encoders = None
    
     self.minval = minval
@@ -213,9 +211,12 @@ class ScalarEncoder(Encoder):
 
       self.rangeInternal = float(self.maxval - self.minval)
 
+
     # There are three different ways of thinking about the representation. Handle
     # each case here.
     self._initEncoder(w, minval, maxval, n, radius, resolution)
+
+    super(ScalarEncoder,  self).__init__(w, self.n, name=name,  verbosity=verbosity,  forced=forced)
 
     # nInternal represents the output area excluding the possible padding on each
     #  side
@@ -238,30 +239,29 @@ class ScalarEncoder(Encoder):
     if n != 0:
       assert radius == 0
       assert resolution == 0
-      assert n > w
       self.n = n
 
       if (minval is not None and maxval is not None):
         if not self.periodic:
-          self.resolution = float(self.rangeInternal) / (self.n - self.w)
+          self.resolution = float(self.rangeInternal) / (n - w)
         else:
-          self.resolution = float(self.rangeInternal) / (self.n)
+          self.resolution = float(self.rangeInternal) / (n)
 
-        self.radius = self.w * self.resolution
+        self.radius = w * self.resolution
 
         if self.periodic:
           self.range = self.rangeInternal
         else:
           self.range = self.rangeInternal + self.resolution
 
-    else:
+    else: # n==0
       if radius != 0:
         assert resolution == 0
         self.radius = radius
-        self.resolution = float(self.radius) / w
+        self.resolution = float(radius) / w
       elif resolution != 0:
         self.resolution = float(resolution)
-        self.radius = self.resolution * self.w
+        self.radius = self.resolution * w
       else:
         raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
 
@@ -270,7 +270,7 @@ class ScalarEncoder(Encoder):
       else:
         self.range = self.rangeInternal + self.resolution
 
-      nfloat = self.w * (self.range / self.radius) + 2 * self.padding
+      nfloat = w * (self.range / self.radius) + 2 * self.padding
       self.n = int(math.ceil(nfloat))
 
 
@@ -279,11 +279,6 @@ class ScalarEncoder(Encoder):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.float, )
-
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
 
 
   ############################################################################

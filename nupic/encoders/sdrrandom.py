@@ -40,19 +40,14 @@ class SDRRandomEncoder(Encoder):
     w is the number of bits that are turned on for each rep
     """
 
-    super(SDRRandomEncoder, self).__init__(w, name=name,  verbosity=verbosity)
+    super(SDRRandomEncoder, self).__init__(w=w, n=n, name=name,  verbosity=verbosity)
     
-    self.n = n
     
   ############################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.string,)
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
 
   ############################################################################
   def getScalars(self, input):

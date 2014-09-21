@@ -65,7 +65,7 @@ class CoordinateEncoder(Encoder):
     
     if name is None:
       name = "[%s:%s]" % (n, w)
-    super(CoordinateEncoder, self).__init__(w,  name=name, verbosity=verbosity, forced=forced)
+    super(CoordinateEncoder, self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
     
     # Validate inputs
     
@@ -74,14 +74,8 @@ class CoordinateEncoder(Encoder):
                        "good results we recommend n be strictly greater "
                        "than 11*w")
 
-    self.n = n
     self.encoders = None
     
-
-
-  def getWidth(self):
-    """See `nupic.encoders.base.Encoder` for more information."""
-    return self.n
 
 
   def getDescription(self):

@@ -117,7 +117,7 @@ class RandomDistributedScalarEncoder(Encoder):
     if name is None:
       self.name = "[%s]" % (resolution)
     
-    super(RandomDistributedScalarEncoder, self).__init__(w, 
+    super(RandomDistributedScalarEncoder, self).__init__(w=w, n=n,
           name=name, verbosity=verbosity, forced=forced)
     
 
@@ -130,7 +130,6 @@ class RandomDistributedScalarEncoder(Encoder):
       raise ValueError("resolution must be a positive number")
  
     self.encoders = None
-    self.n = n
     self.resolution = float(resolution)
     
     # The largest overlap we allow for non-adjacent encodings
@@ -153,12 +152,6 @@ class RandomDistributedScalarEncoder(Encoder):
     return (FieldMetaType.float, )
 
 
-  def getWidth(self):
-    """ See method description in base.py """
-    return self.n
-
-
- 
   def getBucketIndices(self, x):
     """ See method description in base.py """
 

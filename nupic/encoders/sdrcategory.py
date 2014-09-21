@@ -53,10 +53,8 @@ class SDRCategoryEncoder(Encoder):
     forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
-    super(SDRCategoryEncoder, self).__init__(w, name=name,  verbosity=verbosity,  forced=forced)
+    super(SDRCategoryEncoder, self).__init__(w=w, n=n, name=name,  verbosity=verbosity,  forced=forced)
     
-    self.n = n
-
     self._learningEnabled = True
     self.random = random.Random()
     if encoderSeed != -1:
@@ -166,10 +164,6 @@ class SDRCategoryEncoder(Encoder):
                          "%d attempts" % (self.ncategories, maxAttempts))
     return sdr
 
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
 
 
   ############################################################################

@@ -58,9 +58,8 @@ class ArithmeticEncoder(Encoder):
     @param verbosity TODO: document
     """
     
-    super(ArithmeticEncoder,  self).__init__(w,  name=name, verbosity=verbosity)
+    super(ArithmeticEncoder,  self).__init__(w=w, n=n,  name=name, verbosity=verbosity)
     
-    self.n = n
     self.periodic = periodic
     self.window = window
     self.history = deque(maxlen=window)
@@ -94,13 +93,6 @@ class ArithmeticEncoder(Encoder):
     encoding = numpy.zeros(self.n, dtype=DEFAULT_DTYPE)
     self._encode(encoding, [buckets[0]])
     return [EncoderResult(value=b.minVal, scalar=b.minVal, encoding=encoding)]
-
-
-  def getWidth(self):
-    """
-    TODO: document
-    """
-    return self.n
 
 
   def isDelta(self):

@@ -46,20 +46,14 @@ class BitmapArrayEncoder(Encoder):
     w is the number of bits used to encode each input bit
     """
 
-    super(BitmapArrayEncoder, self).__init__(w, name=name, verbosity=verbosity, forced=forced)
+    super(BitmapArrayEncoder, self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
     
-    self.n = n
     self.onbits = onbits
     ###########################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.string,)
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
-
 
   ############################################################################
   def getScalars(self, input):
