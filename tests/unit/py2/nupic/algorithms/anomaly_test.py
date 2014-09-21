@@ -113,6 +113,13 @@ class AnomalyTest(unittest.TestCase):
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
+  ####################################################################
+  def testAnomalyWithLikelihood(self):
+    """example use of anomaly and tests likelihood code"""
+    from nupic.encoders.scalar import ScalarEncoder
+    from nupic.research.spatial_pooler import SpatialPooler
+    from nupic.research.TP10X2 import TP as TemporalPooler
+
 
 if __name__ == "__main__":
   unittest.main()
