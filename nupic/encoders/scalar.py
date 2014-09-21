@@ -184,8 +184,6 @@ class ScalarEncoder(Encoder):
     if name is None:
       name = "[%s:%s]" % (minval, maxval)
 
-    self.encoders = None
-   
     self.minval = minval
     self.maxval = maxval
 

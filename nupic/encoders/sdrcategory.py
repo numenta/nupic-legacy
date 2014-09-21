@@ -97,9 +97,6 @@ class SDRCategoryEncoder(Encoder):
         self._addCategory(category)
       assert self.ncategories == len(categoryList) + 1
 
-    # Not used by this class. Used for decoding (scalarsToStr())
-    self.encoders = None
-
     # This matrix is used for the topDownCompute. We build it the first time
     #  topDownCompute is called
     self._topDownMappingM = None

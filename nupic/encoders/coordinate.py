@@ -74,8 +74,6 @@ class CoordinateEncoder(Encoder):
                        "good results we recommend n be strictly greater "
                        "than 11*w")
 
-    self.encoders = None
-    
 
 
   def getDescription(self):

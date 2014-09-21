@@ -129,7 +129,6 @@ class RandomDistributedScalarEncoder(Encoder):
     if (resolution <= 0):
       raise ValueError("resolution must be a positive number")
  
-    self.encoders = None
     self.resolution = float(resolution)
     
     # The largest overlap we allow for non-adjacent encodings

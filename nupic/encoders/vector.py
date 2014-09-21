@@ -47,7 +47,6 @@ class VectorEncoder(Encoder):
     self._w = encoder.getWidth()
     self._name = name
     self._typeCastFn = typeCastFn
-    self.encoders = None
 
     super(VectorEncoder, self).__init__(w=self._len*encoder.w, n=self._len*encoder.getWidth(), name=name, forced=True)
 

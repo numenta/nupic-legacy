@@ -43,7 +43,6 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     
     self._learningEnabled = True
     self._stateLock = False
-    self.encoders = None
     self.description = []
     assert n!=0           #An adaptive encoder can only be intialized using n
 

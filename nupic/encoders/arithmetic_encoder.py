@@ -71,9 +71,6 @@ class ArithmeticEncoder(Encoder):
     # corresponds to negative and positive infinity.
     self.buckets = [Bucket(float('-inf'), float('inf'), [])]
 
-    # Used in base.Encoder.
-    self.encoders = None
-
     self._learningEnabled = True
 
 
@@ -93,13 +90,6 @@ class ArithmeticEncoder(Encoder):
     encoding = numpy.zeros(self.n, dtype=DEFAULT_DTYPE)
     self._encode(encoding, [buckets[0]])
     return [EncoderResult(value=b.minVal, scalar=b.minVal, encoding=encoding)]
-
-
-  def isDelta(self):
-    """
-    TODO: document
-    """
-    pass
 
 
   def getBucketIndices(self, inputValue):

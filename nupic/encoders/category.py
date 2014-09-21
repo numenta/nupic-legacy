@@ -50,9 +50,6 @@ class CategoryEncoder(Encoder):
 
     super(CategoryEncoder, self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
     
-    self.encoders = None
-
-
     self.categoryToIndex = dict()
     self.indexToCategory = dict()
     self.indexToCategory[0] = "<UNKNOWN>"
