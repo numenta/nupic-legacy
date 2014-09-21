@@ -389,5 +389,38 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSerialize("cpp", params)
 
 
+  def testCompatibilityCppPy(self):
+    """example use of anomaly and tests likelihood code"""
+    from nupic.encoders.scalar import ScalarEncoder as DataEncoder
+    from nupic.research.spatial_pooler import SpatialPooler as PySP
+    from nupic.bindings.algorithms import SpatialPooler as CppSP
+
+    import numpy
+
+    # init
+    encoder= DataEncoder(w=21, minval=0, maxval=10, resolution=0.1)
+    pySp= PySP(inputDimensions=[encoder.getWidth(), 1], columnDimensions=[30, 30])
+    cppSp= CppSP(inputDimensions=[encoder.getWidth(), 1], columnDimensions=[30, 30])
+
+
+    data=range(10)
+    nTrainSP=200
+    _nCols=pySp.getColumnDimensions()[0]*pySp.getColumnDimensions()[1]
+
+    # first, some training to stabilize patterns in SP
+    for i in xrange(nTrainSP):
+      # run some data through the pipes
+      for raw in data:
+        encD=encoder.encode(raw)
+        d1=numpy.array([0]*_nCols, dtype=float)
+        d2=numpy.array([0]*_nCols, dtype=float)
+
+        pySp.compute(encD, True, d1) # learn
+        cppSp.compute(encD, True, d2)
+        d1=d1.nonzero()[0].tolist()
+        d2=d2.nonzero()[0].tolist()
+
+        self.assertListEqual(d1, d2, "SP outputs are not equal: \n%s \n%s" % (str(d1), str(d2)) )
+
 if __name__ == "__main__":
   unittest.main()
