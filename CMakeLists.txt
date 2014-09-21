@@ -300,6 +300,9 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   copy_directory(${submodule_dir}/build/release/bin ${PROJECT_BUILD_BINARIES_DIR})
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_INCLUDE_DIR})
+  
+  # Copy gtest source file for cpp_region unit tests (temporarily)
+  copy_file(${submodule_dir}/src/test/unit/gtest-all.cpp ${REPOSITORY_DIR}/extensions/cpp_region/unittests/gtest-all.cpp)
 
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
