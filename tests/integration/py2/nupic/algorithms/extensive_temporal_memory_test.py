@@ -520,11 +520,13 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   @classmethod
   def tearDownClass(cls):
     cols = ["Test",
-            "predicted active cells (stats)",
-            "predicted inactive cells (stats)",
-            "predicted active columns (stats)",
-            "predicted inactive columns (stats)",
-            "unpredicted active columns (stats)"]
+            "# of predicted active cells (stats)",
+            "# of predicted inactive cells (stats)",
+            "# of predicted active columns (stats)",
+            "# of predicted inactive columns (stats)",
+            "# of unpredicted active columns (stats)",
+            "# of predicted active cells per column in each sequence (stats)",
+            "# of sequences each predicted active cell shows up in"]
 
     table = PrettyTable(cols)
 
