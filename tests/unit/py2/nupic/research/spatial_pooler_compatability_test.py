@@ -389,12 +389,13 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSerialize("cpp", params)
 
 
-  def testCompatibilityCppPy(self):
+  def testCompatibilityCppPyDirectCall(self):
     """example use of anomaly and tests likelihood code"""
     from nupic.encoders.scalar import ScalarEncoder as DataEncoder
     from nupic.research.spatial_pooler import SpatialPooler as PySP
     from nupic.bindings.algorithms import SpatialPooler as CppSP
-
+    #from nupic.bindings.math import GetNTAReal # already imported
+    
     import numpy
 
     # init
@@ -412,8 +413,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       # run some data through the pipes
       for raw in data:
         encD=encoder.encode(raw)
-        d1=numpy.array([0]*_nCols, dtype=float)
-        d2=numpy.array([0]*_nCols, dtype=float)
+        d1=numpy.zeros(_nCols).astype(realType)
+        d2=numpy.zeros(_nCols).astype(realType)
 
         pySp.compute(encD, True, d1) # learn
         cppSp.compute(encD, True, d2)
