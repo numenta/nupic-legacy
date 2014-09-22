@@ -51,19 +51,46 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     # Replace last pattern (before the None) with an unpredicted one
     sequence[-2] = self.patternMachine.get(4)
 
-    self._feedSequence(sequence)
+    self._feedSequence(sequence, sequenceLabel="Test")
 
+    self.assertEqual(len(self.tm.patterns), len(sequence))
+    self.assertEqual(len(self.tm.sequenceLabels), len(sequence))
     self.assertEqual(len(self.tm.predictedActiveCellsList), len(sequence))
     self.assertEqual(len(self.tm.predictedInactiveCellsList), len(sequence))
     self.assertEqual(len(self.tm.predictedActiveColumnsList), len(sequence))
     self.assertEqual(len(self.tm.predictedInactiveColumnsList), len(sequence))
     self.assertEqual(len(self.tm.unpredictedActiveColumnsList), len(sequence))
 
+    self.assertEqual(self.tm.patterns[-2], self.patternMachine.get(4))
+    self.assertEqual(self.tm.sequenceLabels[-2], "Test")
     self.assertEqual(len(self.tm.predictedActiveCellsList[-2]), 0)
     self.assertEqual(len(self.tm.predictedInactiveCellsList[-2]), 5)
     self.assertEqual(len(self.tm.predictedActiveColumnsList[-2]), 0)
     self.assertEqual(len(self.tm.predictedInactiveColumnsList[-2]), 5)
     self.assertEqual(len(self.tm.unpredictedActiveColumnsList[-2]), 5)
+
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    predictedActiveCells = reduce(lambda x, y: x | y,
+                                  self.tm.predictedActiveCellsList)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, sequenceLabel="Test2")
+
+    self.assertTrue("Test" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                     predictedActiveCells)
+    self.assertTrue("Test2" in self.tm.predictedActiveCellsForSequenceDict)
+    self.assertNotEqual(self.tm.predictedActiveCellsForSequenceDict["Test"],
+                        self.tm.predictedActiveCellsForSequenceDict["Test2"])
+
+
+  def testFeedSequenceNoSequenceLabel(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence)
+    self.assertEqual(len(self.tm.predictedActiveCellsForSequenceDict), 0)
 
 
   def testComputeStatistics(self):
@@ -74,10 +101,40 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     self._feedSequence(sequence)  # test
     stats = self.tm.getStatistics()
 
-    self.assertEqual(len(stats), 5)
-    self.assertEqual(stats[1][2], 0)
-    self.assertEqual(stats[3][2], 0)
-    self.assertEqual(stats[4][2], 0)
+    self.assertEqual(len(stats), 7)
+    self.assertEqual(stats.predictedInactiveCells.sum, 0)
+    self.assertEqual(stats.predictedInactiveColumns.sum, 0)
+    self.assertEqual(stats.unpredictedActiveColumns.sum, 0)
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.sum, None)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.sum, None)
+
+
+  def testComputeStatisticsSequenceStatistics(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence, "Test1")
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, "Test2")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertEqual(stats.sequencesPredictedActiveCellsShared.average, 1)
+
+    self._feedSequence(sequence, "Test3")
+
+    stats = self.tm.getStatistics()
+
+    self.assertEqual(stats.sequencesPredictedActiveCellsPerColumn.average, 1)
+    self.assertTrue(stats.sequencesPredictedActiveCellsShared.average > 1)
+
+
+  def testMapCellsToColumns(self):
+    columnsForCells = self.tm.mapCellsToColumns(set([0, 1, 2, 5, 399]))
+    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
+    self.assertEqual(columnsForCells[1], set([5]))
+    self.assertEqual(columnsForCells[99], set([399]))
 
 
   # ==============================
@@ -93,12 +150,12 @@ class InspectTemporalMemoryTest(unittest.TestCase):
     return sequence
 
 
-  def _feedSequence(self, sequence):
+  def _feedSequence(self, sequence, sequenceLabel=None):
     for pattern in sequence:
       if pattern is None:
         self.tm.reset()
       else:
-        self.tm.compute(pattern)
+        self.tm.compute(pattern, sequenceLabel=sequenceLabel)
 
 
 
