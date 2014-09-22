@@ -413,8 +413,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       # run some data through the pipes
       for raw in data:
         encD=encoder.encode(raw)
-        d1=numpy.zeros(_nCols).astype(realType)
-        d2=numpy.zeros(_nCols).astype(realType)
+        d1=numpy.zeros(_nCols).astype(uintType)
+        d2=numpy.zeros(_nCols).astype(uintType)
 
         pySp.compute(encD, True, d1) # learn
         cppSp.compute(encD, True, d2)
