@@ -38,7 +38,7 @@ sudo apt-get install python-libtiff
 
 echo ">>> Installing nupic-linux64..."
 git clone https://github.com/rhyolight/nupic-linux64.git
-(cd nupic-linux64 && git fetch rhyolight && git checkout remove-pil rhyolight/remove-pil)
+(cd nupic-linux64 && git checkout -b remove-pil origin/remove-pil)
 source nupic-linux64/bin/activate
 
 # Let's see what pip packages have been installed now...
