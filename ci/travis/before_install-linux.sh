@@ -37,6 +37,9 @@ git clone https://github.com/numenta/nupic-linux64.git
 (cd nupic-linux64 && git reset --hard fb9e6502993b1c4480714ad8e933145fcbb883a8)
 source nupic-linux64/bin/activate
 
+# Let's see what pip packages have been installed now...
+pip list
+
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
