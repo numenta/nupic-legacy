@@ -32,9 +32,9 @@ echo ">>> Installing virtualenv..."
 sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
-echo ">>> sudo apt-get install libtiff5"
+echo ">>> sudo apt-get install libtiff4"
 # debugging
-sudo apt-get install libtiff5
+sudo apt-get install libtiff4
 
 echo ">>> Installing nupic-linux64..."
 git clone https://github.com/numenta/nupic-linux64.git
