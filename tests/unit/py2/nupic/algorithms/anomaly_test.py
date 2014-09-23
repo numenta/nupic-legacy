@@ -119,22 +119,24 @@ class AnomalyTest(unittest.TestCase):
     from nupic.encoders.scalar import ScalarEncoder as DataEncoder
     from nupic.research.spatial_pooler import SpatialPooler
 #    from nupic.bindings.algorithms import SpatialPooler
-#    from nupic.research.TP10X2 import TP as TemporalPooler
-    from nupic.research.TP import TP as TemporalPooler
+    from nupic.research.TP10X2 import TP as TemporalPooler
+#    from nupic.research.TP import TP as TemporalPooler
     from nupic.algorithms.anomaly import Anomaly
+    from nupic.bindings.math import GetNTAReal
 
     import numpy
     import math
 
     # init
-    encoder= DataEncoder(w=21, minval=0, maxval=10, resolution=0.1)
-    sp= SpatialPooler(inputDimensions=[encoder.getWidth(), 1], columnDimensions=[30, 30])
-    _numCols=sp.getColumnDimensions()[0]*sp.getColumnDimensions()[1]
-    tp= TemporalPooler(numberOfCols=int(math.sqrt(_numCols)))
+    realType=GetNTAReal()
+    encoder= DataEncoder(w=5, minval=0, maxval=9, resolution=0.1, forced=True)
+    _numCols=10**2 # must be power of 2
+    sp= SpatialPooler(inputDimensions=[encoder.getWidth()], columnDimensions=[_numCols])
+    tp= TemporalPooler(numberOfCols=_numCols)#int(math.sqrt(_numCols)))
     an= Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
 
     data=range(10)
-    nTrainSPTP=200
+    nTrainSPTP=300
     nTrainLikelihood=0
    
     # first, some training to stabilize patterns in SP, TP 
@@ -142,10 +144,12 @@ class AnomalyTest(unittest.TestCase):
       # run some data through the pipes
       for raw in data:
         encD=encoder.encode(raw)
-        spD=numpy.array([0]*_numCols, dtype=float)
+        spD=numpy.zeros(_numCols)
         sp.compute(encD, True, spD) # learn
+        spD=sp.stripUnlearnedColumns(spD)
         spD=spD.nonzero()[0]
-        tpD=tp.compute(spD, enableLearn=True, computeInfOutput=False).nonzero()[0] # learn
+        spD=spD[spD>0.2]
+        tpD=[]#tp.compute(spD, enableLearn=True, computeInfOutput=True).nonzero()[0] # learn
 
     # now train the likelihood model
     for i in xrange(nTrainLikelihood):
@@ -162,11 +166,14 @@ class AnomalyTest(unittest.TestCase):
 
     # evaluate 
     data= [0, 1, 2, 3, 4, 5, 6, 1, 9, 8, 1, 5, 3, 4, 5, 1, 9]
+    _prev=[]
+    tpD=[]
     for raw in data:
       encD=encoder.encode(raw)
       spD=numpy.array([0]*_numCols, dtype=float)
       sp.compute(encD, False, spD)
       spD=spD.nonzero()[0]
+      spD=spD[spD>0.5]
       _prev=tpD
       tpD=tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
       
@@ -175,7 +182,7 @@ class AnomalyTest(unittest.TestCase):
       print "------\ndata= %r\tanomaly=%r" % (raw, anD)
       print "ENC=", encD.nonzero()
       print "SP =", spD
-      print "TP =", tpD
+    #  print "TP =", tpD
 
 
     
