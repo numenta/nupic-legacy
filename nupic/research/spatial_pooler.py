@@ -614,14 +614,16 @@ class SpatialPooler(object):
     potential[:] = self._potentialPools.getRow(column)
 
 
-  def setPotential(self, column, potential):
+  def setPotential(self, column, potential):    
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
     
     potentialSparse = numpy.where(potential > 0)[0]
-    assert(len(potentialSparse > self._stimulusThreshold)),("len(potentialSparse)" +
-      "must be >= self._stimulusThreshold (see #1322)")
+    if len(potentialSparse) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size.")
     
     self._potentialPools.replaceSparseRow(column, potentialSparse)
     
@@ -992,12 +994,10 @@ class SpatialPooler(object):
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
-    
-    """
-    The number of mask 'on' bits must be >= stimulusThreshold or the while
-    loop below will never exit (see issue #1322)"""
-    assert(len(mask) >= self._stimulusThreshold), ("'1' bits in 'mask' must " +
-      "be >= stimulusThreshold (see  issue #1322)")
+    if len(mask) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size. [len(mask) < self._stimulusThreshold]")
     
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
