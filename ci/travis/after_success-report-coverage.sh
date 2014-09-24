@@ -33,6 +33,6 @@ cd $actDir
 if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi
 
 # Only publishing unit test coverage at this point.
-if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi
+if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls --gcov /usr/bin/gcov-4.8 --exclude external -i --data_file=.coverage_unit; fi
 
 # TODO: figure out how to publish integration test coverage as well.
