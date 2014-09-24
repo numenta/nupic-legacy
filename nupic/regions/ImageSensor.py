@@ -34,7 +34,7 @@ from unicodedata import normalize
 
 from PyRegion import PyRegion
 import numpy
-from pillow import (Image,
+from PIL import (Image,
                  ImageChops,
                  ImageDraw)
 from nupic.bindings.math import GetNTAReal
