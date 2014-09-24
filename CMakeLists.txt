@@ -425,18 +425,18 @@ if(${CMAKE_SIZEOF_VOID_P} MATCHES "8")
 else()
   set(NTA_PLATFORM_ARCH "32")
 endif()
-set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC")
-set(NTA_PLATFORM_LINKFLAGS "")
-set(NTA_PLATFORM_LIBS "-std=c++98")
+set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC -fvisibility=hidden")
+set(NTA_PLATFORM_LINKFLAGS "-fPIC")
+set(NTA_PLATFORM_LIBS "")
 set(NUPIC_CORE_EXTRA_CXXFLAGS "")
 set(NUPIC_CORE_EXTRA_LINKFLAGS "")
 if(OSX)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
-  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64 -stdlib=libstdc++")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
-  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -stdlib=libstdc++")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -600,7 +600,7 @@ message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
 # The reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
 # cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
 #add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
-add_definitions(-std=c++98) # smart flag setting for gcc/clang
+add_definitions(-std=c++11) # smart flag setting for gcc/clang
 
 #
 # Include directories of headers
