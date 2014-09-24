@@ -34,11 +34,11 @@ sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
 echo ">>> sudo apt-get install python-libtiff"
 # debugging
-sudo apt-get install python-libtiff
+sudo apt-get install libtiff5 libtiff5-dev python-libtiff
 
 echo ">>> Installing nupic-linux64..."
-git clone https://github.com/rhyolight/nupic-linux64.git
-(cd nupic-linux64 && git checkout -b remove-pil origin/remove-pil)
+git clone https://github.com/numenta/nupic-linux64.git
+(cd nupic-linux64 && git checkout master && git reset --hard fb9e6502993b1c4480714ad8e933145fcbb883a8)
 source nupic-linux64/bin/activate
 
 # Let's see what pip packages have been installed now...
