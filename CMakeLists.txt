@@ -204,6 +204,7 @@ endmacro()
 
 # This macro generates a dynamic library
 macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags project_libraries external_libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_library(${name} SHARED
     ${SOURCE_RETURNED}
@@ -227,10 +228,12 @@ macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags proj
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a swig module
 macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
@@ -255,6 +258,7 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   swig_link_libraries(${name}
     ${libraries}
   )
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates imported library from submodules
