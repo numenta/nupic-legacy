@@ -195,6 +195,49 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._transitionTracesStale = False
 
 
+  def prettyPrintConnections(self):
+    """
+    Pretty print the connections in the temporal memory.
+
+    @return (string) Pretty-printed text
+    """
+    text = ""
+
+    text += ("Segments: (format => "
+             "[[(source cell, permanence), ...], ...])\n")
+    text += "------------------------------------\n"
+
+    columns = range(self.connections.numberOfColumns())
+
+    for column in columns:
+      cells = self.connections.cellsForColumn(column)
+
+      for cell in cells:
+        segmentDict = dict()
+
+        for seg in self.connections.segmentsForCell(cell):
+          synapseList = []
+
+          for synapse in self.connections.synapsesForSegment(seg):
+            (_, sourceCell, permanence) = self.connections.dataForSynapse(
+              synapse)
+
+            synapseList.append((sourceCell,
+                                "{0:.2f}".format(permanence)))
+
+          segmentDict[seg] = synapseList
+
+        text += ("Column {0} / Cell {1}:\t{2}\n".format(
+          column, cell, segmentDict.values()))
+
+      if column < len(columns) - 1:  # not last
+        text += "\n"
+
+    text += "------------------------------------\n"
+
+    return text
+
+
   # ==============================
   # Overrides
   # ==============================
