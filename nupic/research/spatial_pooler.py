@@ -21,6 +21,8 @@
 
 import itertools
 
+import random as r
+
 import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
@@ -280,6 +282,8 @@ class SpatialPooler(object):
     # stored separately for efficiency purposes.
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
 
+    r.seed(42)
+      
     # Initialize the set of permanence values for each column. Ensure that
     # each column is connected to enough input bits to allow it to be
     # activated.
@@ -308,8 +312,9 @@ class SpatialPooler(object):
 
     if self._spVerbosity > 0:
       self.printParameters()
-
-
+    
+    
+    
   def getColumnDimensions(self):
     """Returns the dimensions of the columns in the region"""
     return self._columnDimensions
@@ -614,13 +619,19 @@ class SpatialPooler(object):
     potential[:] = self._potentialPools.getRow(column)
 
 
-  def setPotential(self, column, potential):
+  def setPotential(self, column, potential):    
     """Sets the potential mapping for a given column. 'potential' size
-    must match the number of inputs"""
+    must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
+    
     potentialSparse = numpy.where(potential > 0)[0]
+    if len(potentialSparse) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size.")
+    
     self._potentialPools.replaceSparseRow(column, potentialSparse)
-
+    
 
   def getPermanence(self, column, permanence):
     """Returns the permanence values for a given column. 'permanence' size
@@ -988,6 +999,11 @@ class SpatialPooler(object):
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
+    if len(mask) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size. [len(mask) < self._stimulusThreshold]")
+    
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
       numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
@@ -1068,6 +1084,7 @@ class SpatialPooler(object):
     p = int(p*100000) / 100000.0
     return p
 
+  
   def _initPermanence(self, potential, connectedPct):
     """
     Initializes the permanences of a column. The method
@@ -1089,21 +1106,24 @@ class SpatialPooler(object):
     # to the inputs. Initially a subset of the input bits in a
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
+    mask = numpy.where(potential > 0)[0]
+    count = round(len(mask) * connectedPct)
+    
+    pick = set()
+    while len(pick) < count:
+      pick.add(r.choice(mask))  
+   
     perm = numpy.zeros(self._numInputs)
-    for i in xrange(self._numInputs):
-      if (potential[i] < 1):
-        continue
-
-      if (self._random.getReal64() <= connectedPct):
+    for i in mask:
+      if i in pick:
         perm[i] = self._initPermConnected()
       else:
         perm[i] = self._initPermNonConnected()
-
+    
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
     perm[perm < self._synPermTrimThreshold] = 0
-
     return perm
 
 
