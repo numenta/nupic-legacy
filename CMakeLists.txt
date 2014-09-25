@@ -170,6 +170,7 @@ endmacro()
 
 # This macro generates a executable
 macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_executable(${name}
     ${SOURCE_RETURNED}
@@ -184,6 +185,7 @@ macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a static library
@@ -202,6 +204,7 @@ endmacro()
 
 # This macro generates a dynamic library
 macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags project_libraries external_libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_library(${name} SHARED
     ${SOURCE_RETURNED}
@@ -225,10 +228,12 @@ macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags proj
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a swig module
 macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
@@ -253,6 +258,7 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   swig_link_libraries(${name}
     ${libraries}
   )
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates imported library from submodules
@@ -301,9 +307,13 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_INCLUDE_DIR})
 
+  message(STATUS "Binaries copied.  Configure ${name} at ${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
   set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
+  message(STATUS "Done.")
 endmacro()
 
 # This macro converts a "snake_case" style string to an "UpperCamelCase" style string
@@ -427,16 +437,16 @@ else()
 endif()
 set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC")
 set(NTA_PLATFORM_LINKFLAGS "")
-set(NTA_PLATFORM_LIBS "-std=c++98")
+set(NTA_PLATFORM_LIBS "")
 set(NUPIC_CORE_EXTRA_CXXFLAGS "")
 set(NUPIC_CORE_EXTRA_LINKFLAGS "")
 if(OSX)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
-  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64 -stdlib=libc++")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
-  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -stdlib=libc++")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -lyaml-cpp")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -541,7 +551,7 @@ execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(n
 # Later versions greater than 2.0.3 also *will* fail (SWIGPY_SLICE_ARG bug)
 #
 set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
-set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/1.3.36")
+set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/2.0.3")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
@@ -600,7 +610,7 @@ message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
 # The reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
 # cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
 #add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
-add_definitions(-std=c++98) # smart flag setting for gcc/clang
+add_definitions(-std=c++11) # smart flag setting for gcc/clang
 
 #
 # Include directories of headers
@@ -880,6 +890,7 @@ if(NTA_PYTHON_SUPPORT)
   generate_swig_module(${LIB_SHARED_IORANGE} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
+message(STATUS "Bindings built.")
 
 ############################################################################################################################
 ###                                                                                                                      ###
@@ -903,6 +914,8 @@ install(CODE "execute_process(COMMAND ${PYTHON} setup.py develop
 #
 # Tests
 #
+message(STATUS "Adding custom targets")
+
 add_custom_target(python_unit_tests
                   COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u --coverage
                   COMMENT "Python unit tests")
@@ -957,5 +970,5 @@ add_custom_target(distclean
                   COMMENT "Cleaning temporary & release build files")
 
 # Just to separate from result message
-message(STATUS "")
+message(STATUS "Completely done!")
 

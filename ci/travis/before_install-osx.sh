@@ -36,3 +36,10 @@ echo ">>> brew install mysql"
 brew install mysql
 echo ">>> mysql.server start"
 mysql.server start
+
+# Install libpcre on OSX
+echo ">>> brew install pcre"
+brew install pcre
+echo ">>> brew install pcre++"
+brew install pcre++
+
