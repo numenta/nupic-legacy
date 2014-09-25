@@ -21,6 +21,8 @@
 
 import itertools
 
+import random as r
+
 import numpy
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
@@ -308,8 +310,9 @@ class SpatialPooler(object):
 
     if self._spVerbosity > 0:
       self.printParameters()
-
-
+    
+    r.seed(42)  
+    
   def getColumnDimensions(self):
     """Returns the dimensions of the columns in the region"""
     return self._columnDimensions
@@ -614,13 +617,19 @@ class SpatialPooler(object):
     potential[:] = self._potentialPools.getRow(column)
 
 
-  def setPotential(self, column, potential):
+  def setPotential(self, column, potential):    
     """Sets the potential mapping for a given column. 'potential' size
-    must match the number of inputs"""
+    must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
+    
     potentialSparse = numpy.where(potential > 0)[0]
+    if len(potentialSparse) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size.")
+    
     self._potentialPools.replaceSparseRow(column, potentialSparse)
-
+    
 
   def getPermanence(self, column, permanence):
     """Returns the permanence values for a given column. 'permanence' size
@@ -988,6 +997,11 @@ class SpatialPooler(object):
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
+    if len(mask) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size. [len(mask) < self._stimulusThreshold]")
+    
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
       numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
@@ -1068,7 +1082,7 @@ class SpatialPooler(object):
     p = int(p*100000) / 100000.0
     return p
 
-  def _initPermanence(self, potential, connectedPct):
+  def _initPermanenceOld(self, potential, connectedPct):
     """
     Initializes the permanences of a column. The method
     returns a 1-D array the size of the input, where each entry in the
@@ -1104,6 +1118,49 @@ class SpatialPooler(object):
     # requirements.
     perm[perm < self._synPermTrimThreshold] = 0
 
+    return perm
+
+
+  def _initPermanence(self, potential, connectedPct):
+    """
+    Initializes the permanences of a column. The method
+    returns a 1-D array the size of the input, where each entry in the
+    array represents the initial permanence value between the input bit
+    at the particular index in the array, and the column represented by
+    the 'index' parameter.
+
+    Parameters:
+    ----------------------------
+    potential:      A numpy array specifying the potential pool of the column.
+                    Permanence values will only be generated for input bits
+                    corresponding to indices for which the mask value is 1.
+    connectedPct:   A value between 0 or 1 specifying the percent of the input
+                    bits that will start off in a connected state.
+
+    """
+    # Determine which inputs bits will start out as connected
+    # to the inputs. Initially a subset of the input bits in a
+    # column's potential pool will be connected. This number is
+    # given by the parameter "connectedPct"
+    mask = numpy.where(potential > 0)[0]
+    count = round(len(mask) * connectedPct)
+    
+    pick = set()
+    while len(pick) < count:
+      pick.add(r.choice(mask))  
+   
+    perm = numpy.zeros(self._numInputs)
+    for i in mask:
+      if i in pick:
+        perm[i] = self._initPermConnected()
+      else:
+        perm[i] = self._initPermNonConnected()
+    
+    # Clip off low values. Since we use a sparse representation
+    # to store the permanence values this helps reduce memory
+    # requirements.
+    perm[perm < self._synPermTrimThreshold] = 0
+#    print "perm = " + str(perm)
     return perm
 
 

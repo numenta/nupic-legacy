@@ -145,11 +145,10 @@ class SpatialPoolerTest(unittest.TestCase):
     
     Previously output varied between platforms (OSX/Linux etc)
     '''
-    
-    expectedOutput = [10, 29, 110, 114, 210, 221, 253, 260, 289, 340, 393,
-                      408, 473, 503, 534, 639, 680, 712, 739, 791, 905, 912,
-                      961, 1048, 1086, 1131, 1173, 1210, 1223, 1261, 1276,
-                      1285, 1302, 1617, 1679, 1712, 1721, 1780, 1920, 1951]
+    expectedOutput = [62, 69, 118, 138, 156, 249, 285, 309, 389, 456, 498, 608, 
+                      626, 628, 650, 694, 730, 753, 754, 994, 1091, 1140, 1142, 
+                      1200, 1241, 1313, 1368, 1421, 1479, 1583, 1611, 1633, 1654, 
+                      1681, 1731, 1743, 1757, 1811, 1849, 1936]
     
     sp = SpatialPooler(
       inputDimensions = [1,188],
@@ -198,6 +197,7 @@ class SpatialPoolerTest(unittest.TestCase):
     
     # Get only the active column indices
     spOutput = [i for i, v in enumerate(activeArray) if v != 0]
+    print "output = \n" + str(spOutput)
     self.assertEqual(spOutput, expectedOutput)
 
 
@@ -997,7 +997,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testRaisePermanenceThreshold(self):
     sp = self._sp
-    sp._inputDimensions=numpy.array([5])
+    sp._inputDimensions=numpy.array([9])
     sp._columnDimensions=numpy.array([5])
     sp._synPermConnected=0.1
     sp._stimulusThreshold=3
