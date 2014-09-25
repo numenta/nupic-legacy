@@ -86,6 +86,11 @@ class IndicesTrace(Trace):
     return trace
 
 
+  @staticmethod
+  def prettyPrintDatum(datum):
+    return str(list(datum))
+
+
 
 class BoolsTrace(Trace):
   """

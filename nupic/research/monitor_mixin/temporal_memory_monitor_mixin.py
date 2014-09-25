@@ -120,6 +120,21 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._transitionTracesStale = True
 
 
+  def getDefaultTraces(self, verbosity=1):
+    traces = [
+      self.getTracePredictedActiveColumns(),
+      self.getTracePredictedInactiveColumns(),
+      self.getTraceUnpredictedActiveColumns(),
+      self.getTracePredictedActiveCells(),
+      self.getTracePredictedInactiveCells()
+    ]
+
+    if verbosity == 1:
+      traces = [trace.makeCountsTrace() for trace in traces]
+
+    return traces + [self.getTraceSequenceLabels()]
+
+
   def _computeTransitionTraces(self):
     """
     Computes the transition traces, if necessary.

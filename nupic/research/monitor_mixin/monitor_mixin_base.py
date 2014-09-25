@@ -25,6 +25,8 @@ MonitorMixinBase class used in monitor mixin framework.
 
 import abc
 
+from prettytable import PrettyTable
+
 
 class MonitorMixinBase(object):
   """
@@ -47,3 +49,33 @@ class MonitorMixinBase(object):
     Clears the stored history.
     """
     self._traces = {}
+
+
+  @staticmethod
+  def prettyPrintTraces(traces, breakOnResets=None):
+    """
+    Returns pretty-printed table of traces.
+
+    @param traces (list) Traces to print in table
+    @param breakOnResets (BoolsTrace) Trace of resets to break table on
+
+    @return (string) Pretty-printed table of traces.
+    """
+    assert len(traces) > 0, "No traces found"
+    table = PrettyTable([trace.title for trace in traces])
+
+    for i in xrange(len(traces[0].data)):
+      table.add_row([trace.prettyPrintDatum(trace.data[i]) for trace in traces])
+
+    return table.get_string()
+
+
+  def getDefaultTraces(self, verbosity=1):
+    """
+    Returns list of default traces. (To be overridden.)
+
+    @param verbosity (int) Verbosity level
+
+    @return (list) Default traces
+    """
+    return []
