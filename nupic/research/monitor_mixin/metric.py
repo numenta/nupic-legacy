@@ -20,5 +20,41 @@
 # ----------------------------------------------------------------------
 
 """
+Metric class used in monitor mixin framework.
 """
 
+import numpy
+
+
+
+class Metric(object):
+  """
+  A metric computed over a set of data (usually from a `CountsTrace`).
+  """
+
+  def __init__(self, title, data):
+    self.title = title
+
+    self.min = None
+    self.max = None
+    self.sum = None
+    self.mean = None
+    self.standardDeviation = None
+
+    self._computeStats(data)
+
+
+  @staticmethod
+  def createFromTrace(trace, excludeResets=None):
+    data = list(trace.data)
+    if excludeResets is not None:
+      data = [x for i, x in enumerate(trace.data) if not excludeResets.data[i]]
+    return Metric(trace.title, data)
+
+
+  def _computeStats(self, data):
+    self.min = min(data)
+    self.max = max(data)
+    self.sum = sum(data)
+    self.mean = numpy.mean(data)
+    self.standardDeviation = numpy.std(data)
