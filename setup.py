@@ -93,9 +93,10 @@ def buildExtensionsNupic():
 
   # Generate build files with CMake
   returnCode = subprocess.call(
-    "cmake %s %s" % (sourceDir, cmakeOptions), shell=True
+    "cmake %s %s 2> stderr.txt" % (sourceDir, cmakeOptions), shell=True
   )
   if returnCode != 0:
+    print open("stderr.txt", "r").outp.read()
     sys.exit("Unable to generate build scripts!")
 
   # Fixup swigged build flags to use libstdc++
