@@ -282,6 +282,8 @@ class SpatialPooler(object):
     # stored separately for efficiency purposes.
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
 
+    r.seed(42)
+      
     # Initialize the set of permanence values for each column. Ensure that
     # each column is connected to enough input bits to allow it to be
     # activated.
@@ -311,7 +313,7 @@ class SpatialPooler(object):
     if self._spVerbosity > 0:
       self.printParameters()
     
-    r.seed(42)  
+    
     
   def getColumnDimensions(self):
     """Returns the dimensions of the columns in the region"""
