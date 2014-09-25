@@ -41,10 +41,10 @@ class MonitorMixinBase(object):
 
     # Mapping from key (string) => trace (Trace)
     self._traces = None
-    self.clearTraces()
+    self.clearHistory()
 
 
-  def clearTraces(self):
+  def clearHistory(self):
     """
     Clears the stored history.
     """
