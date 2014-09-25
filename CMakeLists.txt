@@ -301,9 +301,13 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_INCLUDE_DIR})
 
+  message(STATUS "Binaries copied.  Configure ${name} at ${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
   set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
+  message(STATUS "Done.")
 endmacro()
 
 # This macro converts a "snake_case" style string to an "UpperCamelCase" style string
