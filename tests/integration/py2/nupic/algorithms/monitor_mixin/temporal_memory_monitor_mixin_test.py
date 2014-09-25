@@ -80,6 +80,10 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
 
     self.assertEqual(activeColumnsTrace.data[-1], self.patternMachine.get(4))
     self.assertEqual(sequenceLabelsTrace.data[-1], "Test")
+    self.assertEqual(resetsTrace.data[0], True)
+    self.assertEqual(resetsTrace.data[1], False)
+    self.assertEqual(resetsTrace.data[10], True)
+    self.assertEqual(resetsTrace.data[-1], False)
     self.assertEqual(len(predictedActiveCellsTrace.data[-2]), 5)
     self.assertEqual(len(predictedActiveCellsTrace.data[-1]), 0)
     self.assertEqual(len(predictedInactiveCellsTrace.data[-2]), 0)
