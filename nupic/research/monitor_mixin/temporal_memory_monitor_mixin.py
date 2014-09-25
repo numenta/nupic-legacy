@@ -42,6 +42,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["sequenceLabels"] = StringsTrace("sequence labels")
     self._traces["resets"] = BoolsTrace("resets")
 
+    self._resetActive = True  # First iteration is always a reset
     self._transitionTracesComputed = False
 
 
@@ -194,10 +195,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["activeColumns"].data.append(activeColumns)
     self._traces["sequenceLabels"].data.append(sequenceLabel)
 
-    resetsTrace = self._traces["resets"]
-    # First iteration is always a reset
-    reset = False if len(resetsTrace.data) else True
-    self._traces["resets"].data.append(reset)
+    self._traces["resets"].data.append(self._resetActive)
+    self._resetActive = False
 
     self._clearTransitionTraces()
 
@@ -205,7 +204,5 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def reset(self):
     super(TemporalMemoryMonitorMixin, self).reset()
 
-    self._traces["resets"].data[-1] = True
-
-    self._clearTransitionTraces()
+    self._resetActive = True
 
