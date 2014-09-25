@@ -436,7 +436,7 @@ if(OSX)
   set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64 -stdlib=libc++")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
   set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -stdlib=libc++")
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate -L${PROJECT_BUILD_RELEASE_DIR}/lib -L ${REPOSITORY_DIR}/lib/external/sparc64/lib -lyaml-cpp")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -618,7 +618,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_LIBRARIES_DIR} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -lyaml-cpp -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_LIBRARIES_DIR} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
