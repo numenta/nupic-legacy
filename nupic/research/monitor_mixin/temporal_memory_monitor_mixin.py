@@ -37,13 +37,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def __init__(self, *args, **kwargs):
     super(TemporalMemoryMonitorMixin, self).__init__(*args, **kwargs)
 
-    self._traces["activeColumns"] = IndicesTrace("active columns")
-    self._traces["predictiveCells"] = IndicesTrace("predictive cells")
-    self._traces["sequenceLabels"] = StringsTrace("sequence labels")
-    self._traces["resets"] = BoolsTrace("resets")
-
     self._resetActive = True  # First iteration is always a reset
-    self._transitionTracesComputed = False
+    self._transitionTracesStale = True
 
 
   def getTraceActiveColumns(self):
@@ -114,6 +109,17 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     return self._traces["unpredictedActiveColumns"]
 
 
+  def clearTraces(self):
+    super(TemporalMemoryMonitorMixin, self).clearTraces()
+
+    self._traces["activeColumns"] = IndicesTrace("active columns")
+    self._traces["predictiveCells"] = IndicesTrace("predictive cells")
+    self._traces["sequenceLabels"] = StringsTrace("sequence labels")
+    self._traces["resets"] = BoolsTrace("resets")
+
+    self._transitionTracesStale = True
+
+
   def _computeTransitionTraces(self):
     """
     Computes the transition traces, if necessary.
@@ -126,7 +132,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
         predicted => inactive columns
         unpredicted => active columns
     """
-    if self._transitionTracesComputed:
+    if not self._transitionTracesStale:
       return
 
     self._traces["predictedActiveCells"] = IndicesTrace(
@@ -171,17 +177,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
       prevPredictiveCells = predictiveCellsTrace.data[i]
 
-    self._transitionTracesComputed = True
-
-
-  def _clearTransitionTraces(self):
-    """
-    Clears the transition traces. (See `_computeTransitionTraces` for more
-    information.)
-    """
-    self._traces["predictedActiveCells"] = None
-
-    self._transitionTracesComputed = False
+    self._transitionTracesStale = False
 
 
   # ==============================
@@ -198,7 +194,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["resets"].data.append(self._resetActive)
     self._resetActive = False
 
-    self._clearTransitionTraces()
+    self._transitionTracesStale = True
 
 
   def reset(self):
