@@ -65,7 +65,7 @@ class MonitorMixinBase(object):
     table = PrettyTable(["Iteration"] + [trace.title for trace in traces])
 
     for i in xrange(len(traces[0].data)):
-      if i > 0 and breakOnResets and breakOnResets.data[i]:
+      if breakOnResets and breakOnResets.data[i]:
         table.add_row(["<reset>"] * (len(traces) + 1))
       table.add_row([i] +
         [trace.prettyPrintDatum(trace.data[i]) for trace in traces])

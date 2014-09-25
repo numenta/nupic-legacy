@@ -122,6 +122,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
   def getDefaultTraces(self, verbosity=1):
     traces = [
+      self.getTraceActiveColumns(),
       self.getTracePredictedActiveColumns(),
       self.getTracePredictedInactiveColumns(),
       self.getTraceUnpredictedActiveColumns(),
