@@ -100,3 +100,11 @@ class CountsTrace(Trace):
   Each entry contains counts (for example # of predicted => active cells).
   """
   pass
+
+
+
+class StringsTrace(Trace):
+  """
+  Each entry contains strings (for example sequence labels).
+  """
+  pass

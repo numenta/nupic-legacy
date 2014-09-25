@@ -20,5 +20,23 @@
 # ----------------------------------------------------------------------
 
 """
+MonitorMixinBase class used in monitor mixin framework.
 """
+
+import abc
+
+
+class MonitorMixinBase(object):
+  """
+  Base class for MonitorMixin. Each subclass will be a mixin for a particular
+  algorithm.
+  """
+  __metaclass__ = abc.ABCMeta
+
+
+  def __init__(self, *args, **kwargs):
+    super(MonitorMixinBase, self).__init__(*args, **kwargs)
+
+    # Mapping from key (string) => trace (Trace)
+    self._traces = {}
 
