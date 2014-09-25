@@ -29,6 +29,9 @@ echo ">>> Doing prep work..."
 sudo add-apt-repository -y ppa:fkrull/deadsnakes
 sudo apt-get update
 
+# Install pcre
+sudo apt-get install libpcre3-dev libpcre3
+
 # Install virtualenv
 echo ">>> Installing virtualenv..."
 sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
@@ -42,6 +45,7 @@ source bin/activate
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
+
 
 # Install NuPIC python dependencies
 echo ">>> Installing python requirements..."
