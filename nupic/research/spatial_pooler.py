@@ -1122,7 +1122,6 @@ class SpatialPooler(object):
     # to store the permanence values this helps reduce memory
     # requirements.
     perm[perm < self._synPermTrimThreshold] = 0
-#    print "perm = " + str(perm)
     return perm
 
 
