@@ -890,6 +890,7 @@ if(NTA_PYTHON_SUPPORT)
   generate_swig_module(${LIB_SHARED_IORANGE} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
+message(STATUS "Bindings built.")
 
 ############################################################################################################################
 ###                                                                                                                      ###
@@ -913,6 +914,8 @@ install(CODE "execute_process(COMMAND ${PYTHON} setup.py develop
 #
 # Tests
 #
+message(STATUS "Adding custom targets")
+
 add_custom_target(python_unit_tests
                   COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u --coverage
                   COMMENT "Python unit tests")
@@ -967,5 +970,5 @@ add_custom_target(distclean
                   COMMENT "Cleaning temporary & release build files")
 
 # Just to separate from result message
-message(STATUS "")
+message(STATUS "Completely done!")
 
