@@ -109,8 +109,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     return self._traces["unpredictedActiveColumns"]
 
 
-  def clearTraces(self):
-    super(TemporalMemoryMonitorMixin, self).clearTraces()
+  def clearHistory(self):
+    super(TemporalMemoryMonitorMixin, self).clearHistory()
 
     self._traces["predictedCells"] = IndicesTrace("predicted cells")
     self._traces["activeColumns"] = IndicesTrace("active columns")
