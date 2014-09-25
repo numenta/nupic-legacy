@@ -62,10 +62,13 @@ class MonitorMixinBase(object):
     @return (string) Pretty-printed table of traces.
     """
     assert len(traces) > 0, "No traces found"
-    table = PrettyTable([trace.title for trace in traces])
+    table = PrettyTable(["Iteration"] + [trace.title for trace in traces])
 
     for i in xrange(len(traces[0].data)):
-      table.add_row([trace.prettyPrintDatum(trace.data[i]) for trace in traces])
+      if i > 0 and breakOnResets and breakOnResets.data[i]:
+        table.add_row(["<reset>"] * (len(traces) + 1))
+      table.add_row([i] +
+        [trace.prettyPrintDatum(trace.data[i]) for trace in traces])
 
     return table.get_string()
 
