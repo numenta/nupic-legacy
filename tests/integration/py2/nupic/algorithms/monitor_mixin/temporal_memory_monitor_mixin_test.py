@@ -96,6 +96,32 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
     self.assertEqual(len(unpredictedActiveColumnsTrace.data[-1]), 5)
 
 
+  def testClearTraces(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence, sequenceLabel="Test")
+    self.tm.clearTraces()
+
+    activeColumnsTrace = self.tm.getTraceActiveColumns()
+    predictiveCellsTrace = self.tm.getTracePredictiveCells()
+    sequenceLabelsTrace = self.tm.getTraceSequenceLabels()
+    resetsTrace = self.tm.getTraceResets()
+    predictedActiveCellsTrace = self.tm.getTracePredictedActiveCells()
+    predictedInactiveCellsTrace = self.tm.getTracePredictedInactiveCells()
+    predictedActiveColumnsTrace = self.tm.getTracePredictedActiveColumns()
+    predictedInactiveColumnsTrace = self.tm.getTracePredictedInactiveColumns()
+    unpredictedActiveColumnsTrace = self.tm.getTraceUnpredictedActiveColumns()
+
+    self.assertEqual(len(activeColumnsTrace.data), 0)
+    self.assertEqual(len(predictiveCellsTrace.data), 0)
+    self.assertEqual(len(sequenceLabelsTrace.data), 0)
+    self.assertEqual(len(resetsTrace.data), 0)
+    self.assertEqual(len(predictedActiveCellsTrace.data), 0)
+    self.assertEqual(len(predictedInactiveCellsTrace.data), 0)
+    self.assertEqual(len(predictedActiveColumnsTrace.data), 0)
+    self.assertEqual(len(predictedInactiveColumnsTrace.data), 0)
+    self.assertEqual(len(unpredictedActiveColumnsTrace.data), 0)
+
+
   # ==============================
   # Helper functions
   # ==============================
