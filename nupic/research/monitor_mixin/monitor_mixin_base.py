@@ -40,14 +40,6 @@ class MonitorMixinBase(object):
     super(MonitorMixinBase, self).__init__(*args, **kwargs)
 
     # Mapping from key (string) => trace (Trace)
-    self._traces = None
-    self.clearTraces()
-
-
-  def clearTraces(self):
-    """
-    Clears the stored history.
-    """
     self._traces = {}
 
 
