@@ -170,6 +170,7 @@ endmacro()
 
 # This macro generates a executable
 macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_executable(${name}
     ${SOURCE_RETURNED}
@@ -184,6 +185,7 @@ macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a static library
