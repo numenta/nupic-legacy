@@ -50,7 +50,7 @@ class Trace(object):
 
     @return (string) Pretty-printed datum
     """
-    return str(datum)
+    return str(datum) if datum is not None else ""
 
 
 
