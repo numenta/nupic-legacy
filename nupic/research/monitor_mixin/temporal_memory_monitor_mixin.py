@@ -110,6 +110,19 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     return self._traces["unpredictedActiveColumns"]
 
 
+  def getMetricFromTrace(self, trace):
+    """
+    Convenience method to compute a metric over an indices trace, excluding
+    resets.
+
+    @param (IndicesTrace) Trace of indices
+
+    @return (Metric) Metric over trace excluding resets
+    """
+    return Metric.createFromTrace(trace.makeCountsTrace(),
+                                  excludeResets=self.getTraceResets())
+
+
   def prettyPrintConnections(self):
     """
     Pretty print the connections in the temporal memory.
