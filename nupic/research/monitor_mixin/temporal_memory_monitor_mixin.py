@@ -23,6 +23,8 @@
 Temporal Memory mixin that enables detailed monitoring of history.
 """
 
+from collections import defaultdict
+
 from nupic.research.monitor_mixin.trace import (
   IndicesTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
@@ -123,6 +125,46 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
                                   excludeResets=self.getTraceResets())
 
 
+  def getMetricSequencesPredictedActiveCellsPerColumn(self):
+    """
+    Metric for number of predicted => active cells per column for each sequence
+
+    @return (Metric) metric
+    """
+    self._computeTransitionTraces()
+
+    numCellsPerColumn = []
+
+    for predictedActiveCells in (
+        self._data["predictedActiveCellsForSequence"].values()):
+      cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
+      numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
+
+    return Metric("# predicted => active cells per column for each sequence",
+                  numCellsPerColumn)
+
+
+  def getMetricSequencesPredictedActiveCellsShared(self):
+    """
+    Metric for number of sequences each predicted => active cell appears in
+
+    Note: This metric is flawed when it comes to high-order sequences.
+
+    @return (Metric) metric
+    """
+    self._computeTransitionTraces()
+
+    numSequencesForCell = defaultdict(lambda: 0)
+
+    for predictedActiveCells in (
+          self._data["predictedActiveCellsForSequence"].values()):
+      for cell in predictedActiveCells:
+        numSequencesForCell[cell] += 1
+
+    return Metric("# sequences each predicted => active cells appears in",
+                  numSequencesForCell.values())
+
+
   def prettyPrintConnections(self):
     """
     Pretty print the connections in the temporal memory.
@@ -212,6 +254,11 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
         if predictedColumn  in activeColumns:
           predictedActiveCells.add(predictedCell)
           predictedActiveColumns.add(predictedColumn)
+
+          sequenceLabel = self.getTraceSequenceLabels().data[i]
+          if sequenceLabel is not None:
+            self._data["predictedActiveCellsForSequence"][sequenceLabel].add(
+              predictedCell)
         else:
           predictedInactiveCells.add(predictedCell)
           predictedInactiveColumns.add(predictedColumn)
@@ -272,8 +319,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
   def getDefaultMetrics(self, verbosity=1):
     resetsTrace = self.getTraceResets()
-    return [Metric.createFromTrace(trace, excludeResets=resetsTrace)
-            for trace in self.getDefaultTraces()[:-1]]
+    return ([Metric.createFromTrace(trace, excludeResets=resetsTrace)
+            for trace in self.getDefaultTraces()[:-1]] +
+            [self.getMetricSequencesPredictedActiveCellsPerColumn(),
+             self.getMetricSequencesPredictedActiveCellsShared()])
 
 
   def clearHistory(self):
@@ -284,5 +333,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["predictiveCells"] = IndicesTrace("predictive cells")
     self._traces["sequenceLabels"] = StringsTrace("sequence labels")
     self._traces["resets"] = BoolsTrace("resets")
+
+    self._data["predictedActiveCellsForSequence"] = defaultdict(set)
 
     self._transitionTracesStale = True
