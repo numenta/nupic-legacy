@@ -73,6 +73,30 @@ class MonitorMixinBase(object):
     return table.get_string()
 
 
+  @staticmethod
+  def prettyPrintMetrics(metrics):
+    """
+    Returns pretty-printed table of metrics.
+
+    @param metrics (list) Traces to print in table
+
+    @return (string) Pretty-printed table of metrics.
+    """
+    assert len(metrics) > 0, "No metrics found"
+    table = PrettyTable(["Metric",
+                         "min", "max", "sum", "mean", "standard deviation"])
+
+    for metric in metrics:
+      table.add_row([metric.title,
+                     metric.min,
+                     metric.max,
+                     metric.sum,
+                     metric.mean,
+                     metric.standardDeviation])
+
+    return table.get_string()
+
+
   def getDefaultTraces(self, verbosity=1):
     """
     Returns list of default traces. (To be overridden.)
@@ -80,5 +104,16 @@ class MonitorMixinBase(object):
     @param verbosity (int) Verbosity level
 
     @return (list) Default traces
+    """
+    return []
+
+
+  def getDefaultMetrics(self, verbosity=1):
+    """
+    Returns list of default metrics. (To be overridden.)
+
+    @param verbosity (int) Verbosity level
+
+    @return (list) Default metrics
     """
     return []
