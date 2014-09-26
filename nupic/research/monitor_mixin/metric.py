@@ -53,6 +53,9 @@ class Metric(object):
 
 
   def _computeStats(self, data):
+    if not len(data):
+      return
+
     self.min = min(data)
     self.max = max(data)
     self.sum = sum(data)
