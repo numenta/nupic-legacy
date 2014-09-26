@@ -183,6 +183,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     """
     Pretty print the connections in the temporal memory.
 
+    TODO: Use PrettyTable.
+
     @return (string) Pretty-printed text
     """
     text = ""
