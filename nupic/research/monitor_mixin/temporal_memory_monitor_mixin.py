@@ -25,6 +25,7 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 from nupic.research.monitor_mixin.trace import (
   IndicesTrace, BoolsTrace, StringsTrace)
+from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
 
 
@@ -119,22 +120,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["resets"] = BoolsTrace("resets")
 
     self._transitionTracesStale = True
-
-
-  def getDefaultTraces(self, verbosity=1):
-    traces = [
-      self.getTraceActiveColumns(),
-      self.getTracePredictedActiveColumns(),
-      self.getTracePredictedInactiveColumns(),
-      self.getTraceUnpredictedActiveColumns(),
-      self.getTracePredictedActiveCells(),
-      self.getTracePredictedInactiveCells()
-    ]
-
-    if verbosity == 1:
-      traces = [trace.makeCountsTrace() for trace in traces]
-
-    return traces + [self.getTraceSequenceLabels()]
 
 
   def _computeTransitionTraces(self):
@@ -260,4 +245,26 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     super(TemporalMemoryMonitorMixin, self).reset()
 
     self._resetActive = True
+
+
+  def getDefaultTraces(self, verbosity=1):
+    traces = [
+      self.getTraceActiveColumns(),
+      self.getTracePredictedActiveColumns(),
+      self.getTracePredictedInactiveColumns(),
+      self.getTraceUnpredictedActiveColumns(),
+      self.getTracePredictedActiveCells(),
+      self.getTracePredictedInactiveCells()
+    ]
+
+    if verbosity == 1:
+      traces = [trace.makeCountsTrace() for trace in traces]
+
+    return traces + [self.getTraceSequenceLabels()]
+
+
+  def getDefaultMetrics(self, verbosity=1):
+    resetsTrace = self.getTraceResets()
+    return [Metric.createFromTrace(trace, excludeResets=resetsTrace)
+            for trace in self.getDefaultTraces()[:-1]]
 
