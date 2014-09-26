@@ -27,8 +27,6 @@ from collections import defaultdict
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.temporal_memory_inspect_mixin import (
-  TemporalMemoryInspectMixin)
 
 
 
@@ -950,11 +948,3 @@ class Connections(object):
     """
     if permanence < 0 or permanence > 1:
       raise ValueError("Invalid permanence")
-
-
-
-class InspectTemporalMemory(TemporalMemoryInspectMixin, TemporalMemory):
-  """
-  Temporal Memory subclass that enables detailed inspection of history.
-  """
-  pass
