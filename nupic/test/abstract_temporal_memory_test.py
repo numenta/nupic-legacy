@@ -22,11 +22,13 @@
 import unittest2 as unittest
 
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.research.temporal_memory import (
-  InspectTemporalMemory as TemporalMemory)
+from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+  TemporalMemoryMonitorMixin)
+from nupic.research.temporal_memory import TemporalMemory
 # Uncomment the lines below to run tests with TP10X2 implementation instead
 # from nupic.research.temporal_memory_shim import (
-#   InspectTemporalMemoryShim as TemporalMemory)
+#   TemporalMemoryShim as TemporalMemory)
+class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
 
@@ -50,7 +52,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     :param overrides: overrides for default Temporal Memory parameters
     """
     params = self._computeTMParams(overrides)
-    self.tm = TemporalMemory(**params)
+    self.tm = MonitoredTemporalMemory(**params)
 
     self.patternMachine = self.PATTERN_MACHINE
     self.sequenceMachine = SequenceMachine(self.patternMachine)
