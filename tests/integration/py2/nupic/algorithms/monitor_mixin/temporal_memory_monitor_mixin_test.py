@@ -122,6 +122,33 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
     self.assertEqual(len(unpredictedActiveColumnsTrace.data), 0)
 
 
+  def testSequencesMetrics(self):
+    sequence = self._generateSequence()
+    self._feedSequence(sequence, "Test1")
+
+    sequence.reverse()
+    sequence.append(sequence.pop(0))  # Move None (reset) to the end
+    self._feedSequence(sequence, "Test2")
+
+    sequencesPredictedActiveCellsPerColumnMetric = \
+      self.tm.getMetricSequencesPredictedActiveCellsPerColumn()
+    sequencesPredictedActiveCellsSharedMetric = \
+      self.tm.getMetricSequencesPredictedActiveCellsShared()
+
+    self.assertEqual(sequencesPredictedActiveCellsPerColumnMetric.mean, 1)
+    self.assertEqual(sequencesPredictedActiveCellsSharedMetric.mean, 1)
+
+    self._feedSequence(sequence, "Test3")
+
+    sequencesPredictedActiveCellsPerColumnMetric = \
+      self.tm.getMetricSequencesPredictedActiveCellsPerColumn()
+    sequencesPredictedActiveCellsSharedMetric = \
+      self.tm.getMetricSequencesPredictedActiveCellsShared()
+
+    self.assertEqual(sequencesPredictedActiveCellsPerColumnMetric.mean, 1)
+    self.assertTrue(sequencesPredictedActiveCellsSharedMetric.mean > 1)
+
+
   # ==============================
   # Helper functions
   # ==============================
