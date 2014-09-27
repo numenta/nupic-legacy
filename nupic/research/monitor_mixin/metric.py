@@ -32,7 +32,14 @@ class Metric(object):
   A metric computed over a set of data (usually from a `CountsTrace`).
   """
 
-  def __init__(self, title, data):
+  def __init__(self, monitor, title, data):
+    """
+    @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
+                                      this trace
+    @param title   (string)           Title
+    @param data    (list)             List of numbers to compute metric from
+    """
+    self.monitor = monitor
     self.title = title
 
     self.min = None
@@ -49,7 +56,7 @@ class Metric(object):
     data = list(trace.data)
     if excludeResets is not None:
       data = [x for i, x in enumerate(trace.data) if not excludeResets.data[i]]
-    return Metric(trace.title, data)
+    return Metric(trace.monitor, trace.title, data)
 
 
   def _computeStats(self, data):
