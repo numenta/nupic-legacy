@@ -18,6 +18,7 @@ install:
   - ls $NUPIC/install/lib/python2.7/site-packages/
   - ls $NUPIC/install/lib/python2.7/site-packages/nupic/bindings/
   - mkdir tmp; cd tmp
+  - python -c "import os; print os.environ['PYTHONPATH']"
 
 script:
   - py.test --junit-xml=../shippable/testresults/tests.xml --cov=nupic --cov-report=xml ../tests/unit/py2/
