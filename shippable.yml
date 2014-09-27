@@ -20,4 +20,4 @@ install:
   - mkdir tmp; cd tmp
 
 script:
-  - py.test --junit-xml=shippable/testresults/tests.xml --cov=nupic --cov-report=xml tests/unit/py2/
+  - py.test --junit-xml=../shippable/testresults/tests.xml --cov=nupic --cov-report=xml ../tests/unit/py2/
