@@ -140,7 +140,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
       numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
 
-    return Metric("# predicted => active cells per column for each sequence",
+    return Metric(self,
+                  "# predicted => active cells per column for each sequence",
                   numCellsPerColumn)
 
 
@@ -161,7 +162,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       for cell in predictedActiveCells:
         numSequencesForCell[cell] += 1
 
-    return Metric("# sequences each predicted => active cells appears in",
+    return Metric(self,
+                  "# sequences each predicted => active cells appears in",
                   numSequencesForCell.values())
 
 
@@ -229,15 +231,15 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if not self._transitionTracesStale:
       return
 
-    self._traces["predictedActiveCells"] = IndicesTrace(
+    self._traces["predictedActiveCells"] = IndicesTrace(self,
       "predicted => active cells")
-    self._traces["predictedInactiveCells"] = IndicesTrace(
+    self._traces["predictedInactiveCells"] = IndicesTrace(self,
       "predicted => inactive cells")
-    self._traces["predictedActiveColumns"] = IndicesTrace(
+    self._traces["predictedActiveColumns"] = IndicesTrace(self,
       "predicted => active columns")
-    self._traces["predictedInactiveColumns"] = IndicesTrace(
+    self._traces["predictedInactiveColumns"] = IndicesTrace(self,
       "predicted => inactive columns")
-    self._traces["unpredictedActiveColumns"] = IndicesTrace(
+    self._traces["unpredictedActiveColumns"] = IndicesTrace(self,
       "unpredicted => active columns")
 
     predictedCellsTrace = self._traces["predictedCells"]
@@ -328,11 +330,11 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def clearHistory(self):
     super(TemporalMemoryMonitorMixin, self).clearHistory()
 
-    self._traces["predictedCells"] = IndicesTrace("predicted cells")
-    self._traces["activeColumns"] = IndicesTrace("active columns")
-    self._traces["predictiveCells"] = IndicesTrace("predictive cells")
-    self._traces["sequenceLabels"] = StringsTrace("sequence labels")
-    self._traces["resets"] = BoolsTrace("resets")
+    self._traces["predictedCells"] = IndicesTrace(self, "predicted cells")
+    self._traces["activeColumns"] = IndicesTrace(self, "active columns")
+    self._traces["predictiveCells"] = IndicesTrace(self, "predictive cells")
+    self._traces["sequenceLabels"] = StringsTrace(self, "sequence labels")
+    self._traces["resets"] = BoolsTrace(self, "resets")
 
     self._data["predictedActiveCellsForSequence"] = defaultdict(set)
 
