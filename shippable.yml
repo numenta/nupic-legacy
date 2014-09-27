@@ -17,7 +17,7 @@ install:
   - ls $NUPIC/install/bin/
   - ls $NUPIC/install/lib/python2.7/site-packages/
   - ls $NUPIC/install/lib/python2.7/site-packages/nupic/bindings/
-  - mkdir tmp; cd tmp
+  - mkdir tmp; cd tmp; pwd; echo $NUPIC
   - python -c "import os; print os.environ['PYTHONPATH']"
 
 script:
