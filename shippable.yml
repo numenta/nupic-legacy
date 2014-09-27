@@ -7,14 +7,12 @@ python:
 env:
   - PYTHONPATH=$PYTHONPATH:`pwd`/install/lib/python2.7/site-packages NUPIC=`pwd`
 
-before_install:
+install:
   - pwd
   - ls
   - pip install --install-option="--prefix=$NUPIC/install" -r external/common/requirements.txt
   - sudo apt-get install cmake
-
-install:
-  - python setup.py install --install-option="--prefix=$NUPIC/install"
+  - pip install --install-option="--prefix=$NUPIC/install" .
 
 script:
   - make python_unit_tests
