@@ -5,15 +5,15 @@ python:
   - "2.7"
 
 env:
-  - PYTHONPATH=$PYTHONPATH:/install/lib/python2.7/site-packages NUPIC=$SHIPPABLE_VE_DIR
+  - PYTHONPATH=$PYTHONPATH:`pwd`/install/lib/python2.7/site-packages NUPIC=`pwd`
 
 before_install:
   - pwd
   - ls
-  - pip install --install-option="--prefix=$SHIPPABLE_VE_DIR/install" -r $NUPIC/external/common/requirements.txt
+  - pip install --install-option="--prefix=$NUPIC/install" -r external/common/requirements.txt
 
 install:
-  - python setup.py install --install-option="--prefix=$SHIPPABLE_VE_DIR/install"
+  - python setup.py install --install-option="--prefix=$NUPIC/install"
 
 script:
   - make python_unit_tests
