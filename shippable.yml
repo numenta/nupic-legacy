@@ -15,4 +15,4 @@ install:
   - pip install --install-option="--prefix=$NUPIC/install" .
 
 script:
-  - make python_unit_tests
+  - py.test --junit-xml=shippable/testresults/tests.xml --cov=nupic --cov-report=xml tests/unit/py2/
