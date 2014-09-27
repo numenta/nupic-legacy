@@ -11,6 +11,7 @@ before_install:
   - pwd
   - ls
   - pip install --install-option="--prefix=$NUPIC/install" -r external/common/requirements.txt
+  - sudo apt-get install cmake
 
 install:
   - python setup.py install --install-option="--prefix=$NUPIC/install"
