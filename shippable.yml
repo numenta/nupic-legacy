@@ -13,6 +13,10 @@ install:
   - pip install --install-option="--prefix=$NUPIC/install" -r external/common/requirements.txt
   - sudo apt-get install cmake
   - pip install --install-option="--prefix=$NUPIC/install" .
+  - ls $NUPIC/install
+  - ls $NUPIC/install/bin/
+  - ls $NUPIC/install/lib/python2.7/site-packages/
+  - ls $NUPIC/install/lib/python2.7/site-packages/nupic/bindings/
 
 script:
   - py.test --junit-xml=shippable/testresults/tests.xml --cov=nupic --cov-report=xml tests/unit/py2/
