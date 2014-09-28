@@ -41,7 +41,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     super(TemporalMemoryMonitorMixin, self).__init__(*args, **kwargs)
 
     self._resetActive = True  # First iteration is always a reset
-    self._transitionTracesStale = True
 
 
   def getTraceActiveColumns(self):
