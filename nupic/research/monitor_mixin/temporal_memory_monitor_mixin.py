@@ -253,6 +253,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if not self._transitionTracesStale:
       return
 
+    self._data["predictedActiveCellsForSequence"] = defaultdict(set)
+
     self._traces["predictedActiveCells"] = IndicesTrace(self,
       "predicted => active cells (correct)")
     self._traces["predictedInactiveCells"] = IndicesTrace(self,
@@ -357,7 +359,5 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._traces["predictiveCells"] = IndicesTrace(self, "predictive cells")
     self._traces["sequenceLabels"] = StringsTrace(self, "sequence labels")
     self._traces["resets"] = BoolsTrace(self, "resets")
-
-    self._data["predictedActiveCellsForSequence"] = defaultdict(set)
 
     self._transitionTracesStale = True
