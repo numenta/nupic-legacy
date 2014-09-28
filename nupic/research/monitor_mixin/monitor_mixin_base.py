@@ -98,7 +98,7 @@ class MonitorMixinBase(object):
                          "min", "max", "sum", "mean", "standard deviation"])
 
     for metric in metrics:
-      table.add_row([metric.title,
+      table.add_row([metric.prettyPrintTitle(),
                      metric.min,
                      metric.max,
                      metric.sum,

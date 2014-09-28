@@ -59,6 +59,11 @@ class Metric(object):
     return Metric(trace.monitor, trace.title, data)
 
 
+  def prettyPrintTitle(self):
+    return ("[{0}] {1}".format(self.monitor.name, self.title)
+            if self.monitor.name is not None else self.title)
+
+
   def _computeStats(self, data):
     if not len(data):
       return
