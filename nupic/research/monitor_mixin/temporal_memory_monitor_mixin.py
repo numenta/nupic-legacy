@@ -232,15 +232,15 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       return
 
     self._traces["predictedActiveCells"] = IndicesTrace(self,
-      "predicted => active cells")
+      "predicted => active cells (correct)")
     self._traces["predictedInactiveCells"] = IndicesTrace(self,
-      "predicted => inactive cells")
+      "predicted => inactive cells (extra)")
     self._traces["predictedActiveColumns"] = IndicesTrace(self,
-      "predicted => active columns")
+      "predicted => active columns (correct)")
     self._traces["predictedInactiveColumns"] = IndicesTrace(self,
-      "predicted => inactive columns")
+      "predicted => inactive columns (extra)")
     self._traces["unpredictedActiveColumns"] = IndicesTrace(self,
-      "unpredicted => active columns")
+      "unpredicted => active columns (bursting)")
 
     predictedCellsTrace = self._traces["predictedCells"]
 
