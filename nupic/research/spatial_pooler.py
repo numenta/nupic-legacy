@@ -1184,8 +1184,8 @@ class SpatialPooler(object):
     # Select a subset of the receptive field to serve as the
     # the potential pool
     sample = numpy.empty(int(round(
-      indices.size*self._potentialPct)),dtype=uintType)
-    self._random.getUInt32Sample(indices.astype(uintType), sample)
+      indices.size*self._potentialPct)), dtype=uintType)
+    self._random.sample(indices.astype(uintType), sample)
 
     mask = numpy.zeros(self._numInputs)
     mask[sample] = 1
