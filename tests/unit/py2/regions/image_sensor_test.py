@@ -72,7 +72,7 @@ class ImageSensorTest(unittest.TestCase):
     # Test setting and getting parameters
     net = Network()
 
-    # Add sensor
+    # Add sensor to the network
     sensor = net.addRegion("sensor", "py.ImageSensor",
         "{width: 100, height: 50}")
 
