@@ -83,6 +83,7 @@ _MATH = _math
 #include <nta/math/Functions.hpp>
 #include <nta/math/ArrayAlgo.hpp>
 #include <nta/utils/Random.hpp>
+#include <numpy/arrayobject.h>
 %}
 
 %naturalvar;
@@ -96,6 +97,7 @@ _MATH = _math
 %init %{
 
 // Perform necessary library initialization (in C++).
+import_array();
   
 %}
 
@@ -262,21 +264,52 @@ inline void initializeReal32Array_01(PyObject* py_array, nta::Real32 proba)
     array_data[i] = (nta::Real32)(self->getReal64() <= proba ? 1.0 : 0.0);
 }
 
-inline void getUInt32Sample(PyObject* py_values, PyObject* py_result, bool sorted =false)
+inline PyObject* sample(PyObject* population, PyObject* sample)
 {
-  PyArrayObject* values = (PyArrayObject*) py_values;
-  nta::UInt32* values_beg = (nta::UInt32*) values->data;
-  nta::UInt32* values_end = values_beg + values->dimensions[0];
+  if (PyArray_Check(population) && PyArray_Check(sample))
+  {
+    PyArrayObject* values = (PyArrayObject*) population;
+    PyArrayObject* result = (PyArrayObject*) sample;
 
-  PyArrayObject* result = (PyArrayObject*) py_result;
-  nta::UInt32* result_beg = (nta::UInt32*) result->data;
-  nta::UInt32* result_end = result_beg + result->dimensions[0];
+    if (values->nd != 1 || result->nd != 1)
+    {
+      PyErr_SetString(PyExc_TypeError,
+                     "Only one dimensional arrays are supported.");
+      return NULL;
+    }
 
-  std::random_shuffle(values_beg, values_end, *self);
-  std::copy(values_beg, values_beg + (result_end - result_beg), result_beg);
+    if (PyArray_DESCR(values)->type_num == NPY_UINT32)
+    {
+      nta::UInt32* valuesStart = (nta::UInt32*) values->data;
+      nta::UInt32 valuesSize = values->dimensions[0];
 
-  if (sorted) 
-    std::sort(result_beg, result_end);
+      nta::UInt32* resultStart = (nta::UInt32*) result->data;
+      nta::UInt32 resultSize = result->dimensions[0];
+
+      self->sample(valuesStart, valuesSize, resultStart, resultSize);
+    } else if (PyArray_DESCR(values)->type_num == NPY_UINT64) {
+      nta::UInt64* valuesStart = (nta::UInt64*) values->data;
+      nta::UInt64 valuesSize = values->dimensions[0];
+
+      nta::UInt64* resultStart = (nta::UInt64*) result->data;
+      nta::UInt64 resultSize = result->dimensions[0];
+
+      self->sample(valuesStart, valuesSize, resultStart, resultSize);
+    } else {
+      PyErr_SetString(PyExc_TypeError,
+                     "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
+      return NULL;
+    }
+  }
+  else
+  {
+    PyErr_SetString(PyExc_TypeError,
+                   "Unsupported type. Expected Numpy array.");
+    return NULL;
+  }
+
+  Py_INCREF(sample);
+  return sample;
 }
 
 } // End extend nta::Random.
@@ -296,5 +329,3 @@ class StdRandom(random.Random):
     if seed is None: self.rgen.setSeed(0)
     else: self.rgen.setSeed(seed)
 %}
-
-
