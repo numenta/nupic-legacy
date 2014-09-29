@@ -2419,7 +2419,7 @@ class ImageSensor(PyRegion):
           dataOut=dict(
             description="""Pixels of the image.""",
             dataType='Real32',
-            count=1,
+            count=0,
             regionLevel=False,
             isDefaultOutput=True),
 
@@ -3067,7 +3067,7 @@ class ImageSensor(PyRegion):
     if name == 'auxDataOut':
       return self._auxDataWidth if self._auxDataWidth else 0
     elif name == 'dataOut':
-      return 1
+      return self.width * self.height * self.depth
     elif name == 'alphaOut':
       return 1
     else:
