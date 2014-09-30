@@ -300,9 +300,7 @@ inline PyObject* sample(PyObject* population, PyObject* sample)
                      "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
       return NULL;
     }
-  }
-  else
-  {
+  } else {
     PyErr_SetString(PyExc_TypeError,
                    "Unsupported type. Expected Numpy array.");
     return NULL;
@@ -310,6 +308,45 @@ inline PyObject* sample(PyObject* population, PyObject* sample)
 
   Py_INCREF(sample);
   return sample;
+}
+
+inline PyObject* shuffle(PyObject* obj)
+{
+  if (PyArray_Check(obj))
+  {
+    PyArrayObject* arr = (PyArrayObject*) obj;
+
+    if (arr->nd != 1)
+    {
+      PyErr_SetString(PyExc_TypeError,
+                     "Only one dimensional arrays are supported.");
+      return NULL;
+    }
+
+    if (PyArray_DESCR(arr)->type_num == NPY_UINT32)
+    {
+      nta::UInt32* arrStart = (nta::UInt32*) arr->data;
+      nta::UInt32* arrEnd = arrStart + arr->dimensions[0];
+
+      self->shuffle(arrStart, arrEnd);
+    } else if (PyArray_DESCR(arr)->type_num == NPY_UINT64) {
+      nta::UInt64* arrStart = (nta::UInt64*) arr->data;
+      nta::UInt64* arrEnd = arrStart + arr->dimensions[0];
+
+      self->shuffle(arrStart, arrEnd);
+    } else {
+      PyErr_SetString(PyExc_TypeError,
+                     "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
+      return NULL;
+    }
+  } else {
+    PyErr_SetString(PyExc_TypeError,
+                   "Unsupported type. Expected Numpy array.");
+    return NULL;
+  }
+
+  Py_INCREF(obj);
+  return obj;
 }
 
 } // End extend nta::Random.
