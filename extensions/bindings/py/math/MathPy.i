@@ -264,7 +264,20 @@ inline void initializeReal32Array_01(PyObject* py_array, nta::Real32 proba)
     array_data[i] = (nta::Real32)(self->getReal64() <= proba ? 1.0 : 0.0);
 }
 
-inline PyObject* sample(PyObject* population, PyObject* sample)
+// For unpickling.
+%pythoncode %{
+
+  def sample(self, population, n):
+    if not isinstance(population, numpy.ndarray):
+      raise TypeError("Expected numpy.ndarray but got type %s" %
+                      type(population))
+    result = numpy.zeros([n], dtype=population.dtype)
+    self.cSample(population, result)
+    return result
+
+%}
+
+inline PyObject* cSample(PyObject* population, PyObject* sample)
 {
   if (PyArray_Check(population) && PyArray_Check(sample))
   {

@@ -90,9 +90,8 @@ class TestNupicRandom(unittest.TestCase):
   def testSample(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([2], dtype="uint32")
 
-    r.sample(population, sample)
+    sample = r.sample(population, 2)
 
     self.assertEqual(sample[0], 2)
     self.assertEqual(sample[1], 4)
@@ -101,10 +100,8 @@ class TestNupicRandom(unittest.TestCase):
   def testSampleNone(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([0], dtype="uint32")
 
-    # Just make sure there is no exception thrown.
-    r.sample(population, sample)
+    sample = r.sample(population, 0)
 
     self.assertEqual(sample.size, 0)
 
@@ -112,9 +109,8 @@ class TestNupicRandom(unittest.TestCase):
   def testSampleAll(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([4], dtype="uint32")
 
-    r.sample(population, sample)
+    sample = r.sample(population, 4)
 
     self.assertEqual(sample[0], 1)
     self.assertEqual(sample[1], 2)
@@ -122,13 +118,12 @@ class TestNupicRandom(unittest.TestCase):
     self.assertEqual(sample[3], 4)
 
 
-  def testSampleSequence(self):
+  def testSampleSequenceError(self):
     r = Random(42)
     population = [1, 2, 3, 4]
-    sample = [0, 0]
 
     with self.assertRaises(TypeError):
-      r.sample(population, sample)
+      r.sample(population, 2)
 
 
   def testSampleBadDtype(self):
