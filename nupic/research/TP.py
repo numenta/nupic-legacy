@@ -3040,7 +3040,8 @@ class TP(ConsolePrinterMixin):
     # If we need more than one candidate
     indices = numpy.array([j for j in range(len(cands))], dtype='uint32')
     tmp = numpy.zeros(min(n, len(indices)), dtype='uint32')
-    self._random.getUInt32Sample(indices, tmp, True)
+    self._random.sample(indices, tmp)
+    tmp.sort()
     return [cands[j] for j in tmp]
 
 
