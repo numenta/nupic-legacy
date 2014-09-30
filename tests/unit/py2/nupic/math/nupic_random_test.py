@@ -23,8 +23,9 @@
 """NuPIC random module tests."""
 
 import cPickle as pickle
+import unittest
 
-import unittest2 as unittest
+import numpy
 
 from nupic.bindings.math import Random, StdRandom
 
@@ -84,6 +85,85 @@ class TestNupicRandom(unittest.TestCase):
 
     self.assertEqual(sr.random(), r1)
     self.assertEqual(sr.random(), r2)
+
+
+  def testSample(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    sample = numpy.zeros([2], dtype="uint32")
+
+    r.sample(population, sample)
+
+    self.assertEqual(sample[0], 2)
+    self.assertEqual(sample[1], 4)
+
+
+  def testSampleNone(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    sample = numpy.zeros([0], dtype="uint32")
+
+    # Just make sure there is no exception thrown.
+    r.sample(population, sample)
+
+    self.assertEqual(sample.size, 0)
+
+
+  def testSampleAll(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    sample = numpy.zeros([4], dtype="uint32")
+
+    r.sample(population, sample)
+
+    self.assertEqual(sample[0], 1)
+    self.assertEqual(sample[1], 2)
+    self.assertEqual(sample[2], 3)
+    self.assertEqual(sample[3], 4)
+
+
+  def testSampleSequence(self):
+    r = Random(42)
+    population = [1, 2, 3, 4]
+    sample = [0, 0]
+
+    with self.assertRaises(TypeError):
+      r.sample(population, sample)
+
+
+  def testSampleBadDtype(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="int64")
+    sample = numpy.zeros([2], dtype="int64")
+
+    with self.assertRaises(TypeError):
+      r.sample(population, sample)
+
+
+  def testShuffle(self):
+    r = Random(42)
+    arr = numpy.array([1, 2, 3, 4], dtype="uint32")
+
+    r.shuffle(arr)
+
+    self.assertSequenceEqual(list(arr), (3, 4, 2, 1))
+
+
+  def testShuffleEmpty(self):
+    r = Random(42)
+    arr = numpy.zeros([0], dtype="uint32")
+
+    r.shuffle(arr)
+
+    self.assertEqual(arr.size, 0)
+
+
+  def testShuffleBadDtype(self):
+    r = Random(42)
+    arr = numpy.array([1, 2, 3, 4], dtype="int64")
+
+    with self.assertRaises(TypeError):
+      r.shuffle(arr)
 
 
 
