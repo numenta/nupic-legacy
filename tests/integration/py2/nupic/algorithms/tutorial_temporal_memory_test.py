@@ -211,7 +211,7 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     super(TutorialTemporalMemoryTest, self).feedTM(
       sequence, learn=learn, num=num)
 
-    print self.tm.prettyPrintTraces(self.tm.getDefaultTraces(verbosity=2),
+    print self.tm.mmPrettyPrintTraces(self.tm.mmGetDefaultTraces(verbosity=2),
                                     breakOnResets=self.tm.getTraceResets())
     print
 
