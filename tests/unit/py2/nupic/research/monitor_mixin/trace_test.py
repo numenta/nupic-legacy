@@ -30,7 +30,7 @@ class IndicesTraceTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.trace = IndicesTrace("active cells")
+    self.trace = IndicesTrace(self, "active cells")
     self.trace.data.append(set([1, 2, 3]))
     self.trace.data.append(set([4, 5]))
     self.trace.data.append(set([6]))

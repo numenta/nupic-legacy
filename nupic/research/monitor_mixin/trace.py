@@ -37,10 +37,21 @@ class Trace(object):
   __metaclass__ = abc.ABCMeta
 
 
-  def __init__(self, title):
+  def __init__(self, monitor, title):
+    """
+    @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
+                                      this trace
+    @param title   (string)           Title
+    """
+    self.monitor = monitor
     self.title = title
 
     self.data = []
+
+
+  def prettyPrintTitle(self):
+    return ("[{0}] {1}".format(self.monitor.name, self.title)
+            if self.monitor.name is not None else self.title)
 
 
   @staticmethod
@@ -63,7 +74,7 @@ class IndicesTrace(Trace):
     """
     @return (CountsTrace) A new Trace made up of counts of this trace's indices.
     """
-    trace = CountsTrace("# {0}".format(self.title))
+    trace = CountsTrace(self.monitor, "# {0}".format(self.title))
     trace.data = [len(indices) for indices in self.data]
     return trace
 
@@ -73,7 +84,7 @@ class IndicesTrace(Trace):
     @return (CountsTrace) A new Trace made up of cumulative counts of this
     trace's indices.
     """
-    trace = CountsTrace("# (cumulative) {0}".format(self.title))
+    trace = CountsTrace(self.monitor, "# (cumulative) {0}".format(self.title))
     countsTrace = self.makeCountsTrace()
 
     def accumulate(iterator):
