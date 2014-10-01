@@ -53,17 +53,17 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     sequence = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
 
     self.feedTM(sequence)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 0)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 0)
 
     self.feedTM(sequence, num=2)
 
     self.feedTM(sequence)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
 
     self.feedTM(sequence, num=4)
 
     self.feedTM(sequence)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
 
 
   def testHighOrder(self):
@@ -76,35 +76,35 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.feedTM(sequenceA, num=5)
 
     self.feedTM(sequenceA, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
 
     self.feedTM(sequenceB)
 
     self.feedTM(sequenceB, num=2)
 
     self.feedTM(sequenceB, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[1]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[1]), 1)
 
     self.feedTM(sequenceB, num=3)
 
     self.feedTM(sequenceB, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[2]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[2]), 1)
 
     self.feedTM(sequenceB, num=3)
 
     self.feedTM(sequenceB, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
 
     self.feedTM(sequenceA, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
-    self.assertEqual(len(self.tm.predictedInactiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedInactiveColumns().data[3]), 1)
 
     self.feedTM(sequenceA, num=10)
     self.feedTM(sequenceA, learn=False)
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
     # TODO: Requires some form of synaptic decay to forget the ABC=>Y
     # transition that's initially formed
-    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    # self.assertEqual(len(self.tm.getTracePredictedInactiveColumns().data[3]), 0)
 
 
   def testHighOrderAlternating(self):
@@ -122,11 +122,11 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # TODO: Requires some form of synaptic decay to forget the
     # ABC=>Y and XBC=>D transitions that are initially formed
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[3]), 1)
-    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[3]), 1)
+    # self.assertEqual(len(self.tm.getTracePredictedInactiveColumns().data[3]), 0)
 
-    self.assertEqual(len(self.tm.predictedActiveColumnsList[8]), 1)
-    # self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
+    self.assertEqual(len(self.tm.getTracePredictedActiveColumns().data[7]), 1)
+    # self.assertEqual(len(self.tm.getTracePredictedInactiveColumns().data[7]), 0)
 
 
   def testEndlesslyRepeating(self):
@@ -211,7 +211,8 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
     super(TutorialTemporalMemoryTest, self).feedTM(
       sequence, learn=learn, num=num)
 
-    print self.tm.prettyPrintHistory(verbosity=self.VERBOSITY)
+    print self.tm.prettyPrintTraces(self.tm.getDefaultTraces(verbosity=2),
+                                    breakOnResets=self.tm.getTraceResets())
     print
 
     if learn:
