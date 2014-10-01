@@ -140,6 +140,18 @@ class TestNupicRandom(unittest.TestCase):
       r.sample(population, sample)
 
 
+  def testSamplePopulationTooSmall(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    sample = numpy.zeros([5], dtype="uint32")
+
+    with self.assertRaises(ValueError) as exc:
+      r.sample(population, sample)
+
+    self.assertEqual(exc.exception.message,
+                     "population size must be greater than number of choices")
+
+
   def testShuffle(self):
     r = Random(42)
     arr = numpy.array([1, 2, 3, 4], dtype="uint32")
