@@ -25,6 +25,8 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 from collections import defaultdict
 
+from prettytable import PrettyTable
+
 from nupic.research.monitor_mixin.trace import (
   IndicesTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
@@ -208,6 +210,26 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     text += "------------------------------------\n"
 
     return text
+
+
+  def prettyPrintSequenceCellRepresentations(self, sortby="Column"):
+    """
+    Pretty print the cell representations for sequences in the history.
+
+    @param sortby (string) Column of table to sort by
+
+    @return (string) Pretty-printed text
+    """
+    self._computeTransitionTraces()
+    table = PrettyTable(["Pattern", "Column", "predicted=>active cells"])
+
+    for sequenceLabel, predictedActiveCells in (
+          self._data["predictedActiveCellsForSequence"].iteritems()):
+      cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
+      for column, cells in cellsForColumn.iteritems():
+        table.add_row([sequenceLabel, column, list(cells)])
+
+    return table.get_string(sortby=sortby)
 
 
   # ==============================
