@@ -31,7 +31,7 @@ class MetricTest(unittest.TestCase):
 
 
   def setUp(self):
-    self.trace = CountsTrace("# active cells")
+    self.trace = CountsTrace(self, "# active cells")
     self.trace.data = [1, 2, 3, 4, 5, 0]
 
 
@@ -46,7 +46,7 @@ class MetricTest(unittest.TestCase):
 
 
   def testCreateFromTraceExcludeResets(self):
-    resetTrace = BoolsTrace("resets")
+    resetTrace = BoolsTrace(self, "resets")
     resetTrace.data = [True, False, False, True, False, False]
     metric = Metric.createFromTrace(self.trace, excludeResets=resetTrace)
     self.assertEqual(metric.title, self.trace.title)

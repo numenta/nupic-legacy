@@ -37,6 +37,15 @@ class MonitorMixinBase(object):
 
 
   def __init__(self, *args, **kwargs):
+    """
+    Note: If you set the kwarg "__name__", then pretty-printing of traces and
+          metrics will include the name you specify as a tag before every title.
+    """
+    self.name = None
+    if "__name__" in kwargs:
+      self.name = kwargs["__name__"]
+      del kwargs["__name__"]
+
     super(MonitorMixinBase, self).__init__(*args, **kwargs)
 
     # Mapping from key (string) => trace (Trace)
@@ -64,7 +73,7 @@ class MonitorMixinBase(object):
     @return (string) Pretty-printed table of traces.
     """
     assert len(traces) > 0, "No traces found"
-    table = PrettyTable(["Iteration"] + [trace.title for trace in traces])
+    table = PrettyTable(["#"] + [trace.prettyPrintTitle()for trace in traces])
 
     for i in xrange(len(traces[0].data)):
       if breakOnResets and breakOnResets.data[i]:
@@ -89,7 +98,7 @@ class MonitorMixinBase(object):
                          "min", "max", "sum", "mean", "standard deviation"])
 
     for metric in metrics:
-      table.add_row([metric.title,
+      table.add_row([metric.prettyPrintTitle(),
                      metric.min,
                      metric.max,
                      metric.sum,
