@@ -32,6 +32,9 @@ class MonitorMixinBase(object):
   """
   Base class for MonitorMixin. Each subclass will be a mixin for a particular
   algorithm.
+
+  All arguments, variables, and methods in monitor mixin classes should be
+  prefixed with "mm" (to avoid collision with the classes they mix in to).
   """
   __metaclass__ = abc.ABCMeta
 
@@ -41,29 +44,29 @@ class MonitorMixinBase(object):
     Note: If you set the kwarg "__name__", then pretty-printing of traces and
           metrics will include the name you specify as a tag before every title.
     """
-    self.name = None
-    if "__name__" in kwargs:
-      self.name = kwargs["__name__"]
-      del kwargs["__name__"]
+    self.mmName = None
+    if "mmName" in kwargs:
+      self.mmName = kwargs["mmName"]
+      del kwargs["mmName"]
 
     super(MonitorMixinBase, self).__init__(*args, **kwargs)
 
     # Mapping from key (string) => trace (Trace)
-    self._traces = None
-    self._data = None
-    self.clearHistory()
+    self._mmTraces = None
+    self._mmData = None
+    self.mmClearHistory()
 
 
-  def clearHistory(self):
+  def mmClearHistory(self):
     """
     Clears the stored history.
     """
-    self._traces = {}
-    self._data = {}
+    self._mmTraces = {}
+    self._mmData = {}
 
 
   @staticmethod
-  def prettyPrintTraces(traces, breakOnResets=None):
+  def mmPrettyPrintTraces(traces, breakOnResets=None):
     """
     Returns pretty-printed table of traces.
 
@@ -85,7 +88,7 @@ class MonitorMixinBase(object):
 
 
   @staticmethod
-  def prettyPrintMetrics(metrics):
+  def mmPrettyPrintMetrics(metrics):
     """
     Returns pretty-printed table of metrics.
 
@@ -108,7 +111,7 @@ class MonitorMixinBase(object):
     return table.get_string()
 
 
-  def getDefaultTraces(self, verbosity=1):
+  def mmGetDefaultTraces(self, verbosity=1):
     """
     Returns list of default traces. (To be overridden.)
 
@@ -119,7 +122,7 @@ class MonitorMixinBase(object):
     return []
 
 
-  def getDefaultMetrics(self, verbosity=1):
+  def mmGetDefaultMetrics(self, verbosity=1):
     """
     Returns list of default metrics. (To be overridden.)
 

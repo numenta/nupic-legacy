@@ -527,8 +527,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       sequence, learn=learn, num=num)
 
     if self.VERBOSITY >= 2:
-      print self.tm.prettyPrintTraces(
-        self.tm.getDefaultTraces(verbosity=self.VERBOSITY-1))
+      print self.tm.mmPrettyPrintTraces(
+        self.tm.mmGetDefaultTraces(verbosity=self.VERBOSITY-1))
       print
 
     if learn and self.VERBOSITY >= 3:
@@ -542,7 +542,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   def _testTM(self, sequence):
     self.feedTM(sequence, learn=False)
 
-    print self.tm.prettyPrintMetrics(self.tm.getDefaultMetrics())
+    print self.tm.mmPrettyPrintMetrics(self.tm.mmGetDefaultMetrics())
 
 
   def assertAllActiveWerePredicted(self):

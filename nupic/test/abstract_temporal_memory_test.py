@@ -61,7 +61,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
   def feedTM(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
 
-    self.tm.clearHistory()
+    self.tm.mmClearHistory()
 
     for pattern in repeatedSequence:
       if pattern is None:
