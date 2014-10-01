@@ -41,12 +41,11 @@ class MonitorMixinBase(object):
 
   def __init__(self, *args, **kwargs):
     """
-    Note: If you set the kwarg "__name__", then pretty-printing of traces and
+    Note: If you set the kwarg "mmName", then pretty-printing of traces and
           metrics will include the name you specify as a tag before every title.
     """
-    self.mmName = None
+    self.mmName = kwargs.get("mmName")
     if "mmName" in kwargs:
-      self.mmName = kwargs["mmName"]
       del kwargs["mmName"]
 
     super(MonitorMixinBase, self).__init__(*args, **kwargs)
