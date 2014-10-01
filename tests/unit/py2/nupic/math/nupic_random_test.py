@@ -90,63 +90,67 @@ class TestNupicRandom(unittest.TestCase):
   def testSample(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([2], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint32")
 
-    r.sample(population, sample)
+    r.sample(population, choices)
 
-    self.assertEqual(sample[0], 2)
-    self.assertEqual(sample[1], 4)
+    self.assertEqual(choices[0], 2)
+    self.assertEqual(choices[1], 4)
 
 
   def testSampleNone(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([0], dtype="uint32")
+    choices = numpy.zeros([0], dtype="uint32")
 
     # Just make sure there is no exception thrown.
-    r.sample(population, sample)
+    r.sample(population, choices)
 
-    self.assertEqual(sample.size, 0)
+    self.assertEqual(choices.size, 0)
 
 
   def testSampleAll(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([4], dtype="uint32")
+    choices = numpy.zeros([4], dtype="uint32")
 
-    r.sample(population, sample)
+    r.sample(population, choices)
 
-    self.assertEqual(sample[0], 1)
-    self.assertEqual(sample[1], 2)
-    self.assertEqual(sample[2], 3)
-    self.assertEqual(sample[3], 4)
+    self.assertEqual(choices[0], 1)
+    self.assertEqual(choices[1], 2)
+    self.assertEqual(choices[2], 3)
+    self.assertEqual(choices[3], 4)
 
 
   def testSampleSequence(self):
+    """Check that passing lists throws a TypeError.
+
+    This behavior may change if sample is extended to understand sequences.
+    """
     r = Random(42)
     population = [1, 2, 3, 4]
-    sample = [0, 0]
+    choices = [0, 0]
 
     with self.assertRaises(TypeError):
-      r.sample(population, sample)
+      r.sample(population, choices)
 
 
   def testSampleBadDtype(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="int64")
-    sample = numpy.zeros([2], dtype="int64")
+    choices = numpy.zeros([2], dtype="int64")
 
     with self.assertRaises(TypeError):
-      r.sample(population, sample)
+      r.sample(population, choices)
 
 
   def testSamplePopulationTooSmall(self):
     r = Random(42)
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
-    sample = numpy.zeros([5], dtype="uint32")
+    choices = numpy.zeros([5], dtype="uint32")
 
     with self.assertRaises(ValueError) as exc:
-      r.sample(population, sample)
+      r.sample(population, choices)
 
     self.assertEqual(exc.exception.message,
                      "population size must be greater than number of choices")
