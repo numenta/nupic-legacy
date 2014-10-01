@@ -191,6 +191,7 @@ import_array();
 
 // ----- Random -----
 
+%include <nta/utils/LoggingException.hpp>
 %include <nta/utils/Random.hpp>
 
 %extend nta::Random {
@@ -264,12 +265,12 @@ inline void initializeReal32Array_01(PyObject* py_array, nta::Real32 proba)
     array_data[i] = (nta::Real32)(self->getReal64() <= proba ? 1.0 : 0.0);
 }
 
-inline PyObject* sample(PyObject* population, PyObject* sample)
+inline PyObject* sample(PyObject* population, PyObject* choices)
 {
-  if (PyArray_Check(population) && PyArray_Check(sample))
+  if (PyArray_Check(population) && PyArray_Check(choices))
   {
     PyArrayObject* values = (PyArrayObject*) population;
-    PyArrayObject* result = (PyArrayObject*) sample;
+    PyArrayObject* result = (PyArrayObject*) choices;
 
     if (values->nd != 1 || result->nd != 1)
     {
@@ -278,26 +279,34 @@ inline PyObject* sample(PyObject* population, PyObject* sample)
       return NULL;
     }
 
-    if (PyArray_DESCR(values)->type_num == NPY_UINT32)
+    try
     {
-      nta::UInt32* valuesStart = (nta::UInt32*) values->data;
-      nta::UInt32 valuesSize = values->dimensions[0];
+      if (PyArray_DESCR(values)->type_num == NPY_UINT32)
+      {
+        nta::UInt32* valuesStart = (nta::UInt32*) values->data;
+        nta::UInt32 valuesSize = values->dimensions[0];
 
-      nta::UInt32* resultStart = (nta::UInt32*) result->data;
-      nta::UInt32 resultSize = result->dimensions[0];
+        nta::UInt32* resultStart = (nta::UInt32*) result->data;
+        nta::UInt32 resultSize = result->dimensions[0];
 
-      self->sample(valuesStart, valuesSize, resultStart, resultSize);
-    } else if (PyArray_DESCR(values)->type_num == NPY_UINT64) {
-      nta::UInt64* valuesStart = (nta::UInt64*) values->data;
-      nta::UInt64 valuesSize = values->dimensions[0];
+        self->sample(valuesStart, valuesSize, resultStart, resultSize);
+      } else if (PyArray_DESCR(values)->type_num == NPY_UINT64) {
+        nta::UInt64* valuesStart = (nta::UInt64*) values->data;
+        nta::UInt64 valuesSize = values->dimensions[0];
 
-      nta::UInt64* resultStart = (nta::UInt64*) result->data;
-      nta::UInt64 resultSize = result->dimensions[0];
+        nta::UInt64* resultStart = (nta::UInt64*) result->data;
+        nta::UInt64 resultSize = result->dimensions[0];
 
-      self->sample(valuesStart, valuesSize, resultStart, resultSize);
-    } else {
-      PyErr_SetString(PyExc_TypeError,
-                     "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
+        self->sample(valuesStart, valuesSize, resultStart, resultSize);
+      } else {
+        PyErr_SetString(PyExc_TypeError,
+                       "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
+        return NULL;
+      }
+    }
+    catch (nta::LoggingException& exception)
+    {
+      PyErr_SetString(PyExc_ValueError, exception.getMessage());
       return NULL;
     }
   } else {
@@ -306,8 +315,8 @@ inline PyObject* sample(PyObject* population, PyObject* sample)
     return NULL;
   }
 
-  Py_INCREF(sample);
-  return sample;
+  Py_INCREF(choices);
+  return choices;
 }
 
 inline PyObject* shuffle(PyObject* obj)
