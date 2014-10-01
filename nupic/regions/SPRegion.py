@@ -866,10 +866,7 @@ class SPRegion(PyRegion):
         self._fpLogSPInput = None
       # Open a new log file
       if parameterValue:
-        if self.disableSpatial:
-          raise RuntimeError ("Spatial pooler is disabled for this level, "
-            "can not turn on logging of SP inputs.")
-        self._fpLogSPInput = open(self.logPathSPInput, 'w')
+        self._fpLogSPInput = open(self.logPathInput, 'w')
 
     elif parameterName == "logPathOutput":
       self.logPathOutput = parameterValue
@@ -879,10 +876,7 @@ class SPRegion(PyRegion):
         self._fpLogSP = None
       # Open a new log file
       if parameterValue:
-        if self.disableSpatial:
-          raise RuntimeError ("Spatial pooler is disabled for this level, "
-            "can not turn on logging of SP outputs.")
-        self._fpLogSP = open(self.logPathSP, 'w')
+        self._fpLogSP = open(self.logPathOutput, 'w')
 
     elif parameterName == "logPathOutputDense":
       self.logPathOutputDense = parameterValue
@@ -892,7 +886,7 @@ class SPRegion(PyRegion):
         self._fpLogSPDense = None
       # Open a new log file
       if parameterValue:
-        self._fpLogSPDense = open(self.logPathSPDense, 'w')
+        self._fpLogSPDense = open(self.logPathOutputDense, 'w')
 
     elif hasattr(self, parameterName):
       setattr(self, parameterName, parameterValue)
