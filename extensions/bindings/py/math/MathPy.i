@@ -274,8 +274,16 @@ inline PyObject* sample(PyObject* population, PyObject* choices)
 
     if (values->nd != 1 || result->nd != 1)
     {
-      PyErr_SetString(PyExc_TypeError,
+      PyErr_SetString(PyExc_ValueError,
                      "Only one dimensional arrays are supported.");
+      return NULL;
+    }
+
+    if (PyArray_DESCR(values)->type_num != PyArray_DESCR(result)->type_num)
+    {
+      PyErr_SetString(
+          PyExc_ValueError,
+          "Type of value in polation and choices arrays must match.");
       return NULL;
     }
 
@@ -327,7 +335,7 @@ inline PyObject* shuffle(PyObject* obj)
 
     if (arr->nd != 1)
     {
-      PyErr_SetString(PyExc_TypeError,
+      PyErr_SetString(PyExc_ValueError,
                      "Only one dimensional arrays are supported.");
       return NULL;
     }
@@ -344,7 +352,7 @@ inline PyObject* shuffle(PyObject* obj)
 
       self->shuffle(arrStart, arrEnd);
     } else {
-      PyErr_SetString(PyExc_TypeError,
+      PyErr_SetString(PyExc_ValueError,
                      "Unexpected array dtype. Expected 'uint32' or 'uint64'.");
       return NULL;
     }

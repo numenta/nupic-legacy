@@ -122,7 +122,27 @@ class TestNupicRandom(unittest.TestCase):
     self.assertEqual(choices[3], 4)
 
 
-  def testSampleSequence(self):
+  def testSampleWrongDimensionsPopulation(self):
+    """Check that passing a multi-dimensional array throws a ValueError."""
+    r = Random(42)
+    population = numpy.array([[1, 2], [3, 4]], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint32")
+
+    with self.assertRaises(ValueError):
+      r.sample(population, choices)
+
+
+  def testSampleWrongDimensionsChoices(self):
+    """Check that passing a multi-dimensional array throws a ValueError."""
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([2, 2], dtype="uint32")
+
+    with self.assertRaises(ValueError):
+      r.sample(population, choices)
+
+
+  def testSampleSequenceRaisesTypeError(self):
     """Check that passing lists throws a TypeError.
 
     This behavior may change if sample is extended to understand sequences.
@@ -141,6 +161,15 @@ class TestNupicRandom(unittest.TestCase):
     choices = numpy.zeros([2], dtype="int64")
 
     with self.assertRaises(TypeError):
+      r.sample(population, choices)
+
+
+  def testSampleDifferentDtypes(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint64")
+
+    with self.assertRaises(ValueError):
       r.sample(population, choices)
 
 
@@ -174,11 +203,19 @@ class TestNupicRandom(unittest.TestCase):
     self.assertEqual(arr.size, 0)
 
 
+  def testShuffleEmpty(self):
+    r = Random(42)
+    arr = numpy.zeros([2, 2], dtype="uint32")
+
+    with self.assertRaises(ValueError):
+      r.shuffle(arr)
+
+
   def testShuffleBadDtype(self):
     r = Random(42)
     arr = numpy.array([1, 2, 3, 4], dtype="int64")
 
-    with self.assertRaises(TypeError):
+    with self.assertRaises(ValueError):
       r.shuffle(arr)
 
 
