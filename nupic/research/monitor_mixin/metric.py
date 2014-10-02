@@ -60,8 +60,8 @@ class Metric(object):
 
 
   def prettyPrintTitle(self):
-    return ("[{0}] {1}".format(self.monitor.name, self.title)
-            if self.monitor.name is not None else self.title)
+    return ("[{0}] {1}".format(self.monitor.mmName, self.title)
+            if self.monitor.mmName is not None else self.title)
 
 
   def _computeStats(self, data):

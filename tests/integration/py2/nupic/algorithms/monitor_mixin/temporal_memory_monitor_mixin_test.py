@@ -58,15 +58,15 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
 
     self._feedSequence(sequence, sequenceLabel="Test")
 
-    activeColumnsTrace = self.tm.getTraceActiveColumns()
-    predictiveCellsTrace = self.tm.getTracePredictiveCells()
-    sequenceLabelsTrace = self.tm.getTraceSequenceLabels()
-    resetsTrace = self.tm.getTraceResets()
-    predictedActiveCellsTrace = self.tm.getTracePredictedActiveCells()
-    predictedInactiveCellsTrace = self.tm.getTracePredictedInactiveCells()
-    predictedActiveColumnsTrace = self.tm.getTracePredictedActiveColumns()
-    predictedInactiveColumnsTrace = self.tm.getTracePredictedInactiveColumns()
-    unpredictedActiveColumnsTrace = self.tm.getTraceUnpredictedActiveColumns()
+    activeColumnsTrace = self.tm.mmGetTraceActiveColumns()
+    predictiveCellsTrace = self.tm.mmGetTracePredictiveCells()
+    sequenceLabelsTrace = self.tm.mmGetTraceSequenceLabels()
+    resetsTrace = self.tm.mmGetTraceResets()
+    predictedActiveCellsTrace = self.tm.mmGetTracePredictedActiveCells()
+    predictedInactiveCellsTrace = self.tm.mmGetTracePredictedInactiveCells()
+    predictedActiveColumnsTrace = self.tm.mmGetTracePredictedActiveColumns()
+    predictedInactiveColumnsTrace = self.tm.mmGetTracePredictedInactiveColumns()
+    unpredictedActiveColumnsTrace = self.tm.mmGetTraceUnpredictedActiveColumns()
 
     self.assertEqual(len(activeColumnsTrace.data), sequenceLength)
     self.assertEqual(len(predictiveCellsTrace.data), sequenceLength)
@@ -99,17 +99,17 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
   def testClearHistory(self):
     sequence = self._generateSequence()
     self._feedSequence(sequence, sequenceLabel="Test")
-    self.tm.clearHistory()
+    self.tm.mmClearHistory()
 
-    activeColumnsTrace = self.tm.getTraceActiveColumns()
-    predictiveCellsTrace = self.tm.getTracePredictiveCells()
-    sequenceLabelsTrace = self.tm.getTraceSequenceLabels()
-    resetsTrace = self.tm.getTraceResets()
-    predictedActiveCellsTrace = self.tm.getTracePredictedActiveCells()
-    predictedInactiveCellsTrace = self.tm.getTracePredictedInactiveCells()
-    predictedActiveColumnsTrace = self.tm.getTracePredictedActiveColumns()
-    predictedInactiveColumnsTrace = self.tm.getTracePredictedInactiveColumns()
-    unpredictedActiveColumnsTrace = self.tm.getTraceUnpredictedActiveColumns()
+    activeColumnsTrace = self.tm.mmGetTraceActiveColumns()
+    predictiveCellsTrace = self.tm.mmGetTracePredictiveCells()
+    sequenceLabelsTrace = self.tm.mmGetTraceSequenceLabels()
+    resetsTrace = self.tm.mmGetTraceResets()
+    predictedActiveCellsTrace = self.tm.mmGetTracePredictedActiveCells()
+    predictedInactiveCellsTrace = self.tm.mmGetTracePredictedInactiveCells()
+    predictedActiveColumnsTrace = self.tm.mmGetTracePredictedActiveColumns()
+    predictedInactiveColumnsTrace = self.tm.mmGetTracePredictedInactiveColumns()
+    unpredictedActiveColumnsTrace = self.tm.mmGetTraceUnpredictedActiveColumns()
 
     self.assertEqual(len(activeColumnsTrace.data), 0)
     self.assertEqual(len(predictiveCellsTrace.data), 0)
@@ -131,9 +131,9 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
     self._feedSequence(sequence, "Test2")
 
     sequencesPredictedActiveCellsPerColumnMetric = \
-      self.tm.getMetricSequencesPredictedActiveCellsPerColumn()
+      self.tm.mmGetMetricSequencesPredictedActiveCellsPerColumn()
     sequencesPredictedActiveCellsSharedMetric = \
-      self.tm.getMetricSequencesPredictedActiveCellsShared()
+      self.tm.mmGetMetricSequencesPredictedActiveCellsShared()
 
     self.assertEqual(sequencesPredictedActiveCellsPerColumnMetric.mean, 1)
     self.assertEqual(sequencesPredictedActiveCellsSharedMetric.mean, 1)
@@ -141,9 +141,9 @@ class TemporalMemoryMonitorMixinTest(unittest.TestCase):
     self._feedSequence(sequence, "Test3")
 
     sequencesPredictedActiveCellsPerColumnMetric = \
-      self.tm.getMetricSequencesPredictedActiveCellsPerColumn()
+      self.tm.mmGetMetricSequencesPredictedActiveCellsPerColumn()
     sequencesPredictedActiveCellsSharedMetric = \
-      self.tm.getMetricSequencesPredictedActiveCellsShared()
+      self.tm.mmGetMetricSequencesPredictedActiveCellsShared()
 
     self.assertEqual(sequencesPredictedActiveCellsPerColumnMetric.mean, 1)
     self.assertTrue(sequencesPredictedActiveCellsSharedMetric.mean > 1)
