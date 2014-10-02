@@ -353,8 +353,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
 
     self._testTM(sequence)
-    unpredictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTraceUnpredictedActiveColumns())
+    unpredictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTraceUnpredictedActiveColumns())
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 1)
 
 
@@ -373,16 +373,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self._testTM(sequence)
     self.assertAllActiveWerePredicted()
 
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
     self.assertTrue(predictedInactiveColumnsMetric.mean > 0)
 
     # At the end of both shared sequences, there should be
     # predicted but inactive columns
     self.assertTrue(
-      len(self.tm.getTracePredictedInactiveColumns().data[15]) > 0)
+      len(self.tm.mmGetTracePredictedInactiveColumns().data[15]) > 0)
     self.assertTrue(
-      len(self.tm.getTracePredictedInactiveColumns().data[35]) > 0)
+      len(self.tm.mmGetTracePredictedInactiveColumns().data[35]) > 0)
 
 
   def testH2(self):
@@ -401,14 +401,14 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     # Without some kind of decay, expect predicted inactive columns at the
     # end of the first shared sequence
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
     self.assertTrue(predictedInactiveColumnsMetric.sum < 26)
 
     # At the end of the second shared sequence, there should be no
     # predicted but inactive columns
     self.assertEqual(
-      len(self.tm.getTracePredictedInactiveColumns().data[36]), 0)
+      len(self.tm.mmGetTracePredictedInactiveColumns().data[36]), 0)
 
 
   def testH3(self):
@@ -427,16 +427,16 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self._testTM(sequence)
     self.assertAllActiveWerePredicted()
 
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
     self.assertTrue(predictedInactiveColumnsMetric.sum < 26 * 2)
 
     # At the end of each shared sequence, there should be
     # predicted but inactive columns
     self.assertTrue(
-      len(self.tm.getTracePredictedInactiveColumns().data[5]) > 0)
+      len(self.tm.mmGetTracePredictedInactiveColumns().data[5]) > 0)
     self.assertTrue(
-      len(self.tm.getTracePredictedInactiveColumns().data[25]) > 0)
+      len(self.tm.mmGetTracePredictedInactiveColumns().data[25]) > 0)
 
 
   def testH4(self):
@@ -457,8 +457,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self._testTM(sequence)
     self.assertAllActiveWerePredicted()
 
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
     self.assertTrue(predictedInactiveColumnsMetric.mean < 3)
 
 
@@ -482,8 +482,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self._testTM(sequence)
     self.assertAllActiveWerePredicted()
 
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
     self.assertTrue(predictedInactiveColumnsMetric.mean < 3)
 
 
@@ -502,8 +502,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     sequence = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
 
     self._testTM(sequence)
-    unpredictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTraceUnpredictedActiveColumns())
+    unpredictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTraceUnpredictedActiveColumns())
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 3)
 
 
@@ -527,12 +527,12 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       sequence, learn=learn, num=num)
 
     if self.VERBOSITY >= 2:
-      print self.tm.prettyPrintTraces(
-        self.tm.getDefaultTraces(verbosity=self.VERBOSITY-1))
+      print self.tm.mmPrettyPrintTraces(
+        self.tm.mmGetDefaultTraces(verbosity=self.VERBOSITY-1))
       print
 
     if learn and self.VERBOSITY >= 3:
-      print self.tm.prettyPrintConnections()
+      print self.tm.mmPrettyPrintConnections()
 
 
   # ==============================
@@ -542,14 +542,14 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
   def _testTM(self, sequence):
     self.feedTM(sequence, learn=False)
 
-    print self.tm.prettyPrintMetrics(self.tm.getDefaultMetrics())
+    print self.tm.mmPrettyPrintMetrics(self.tm.mmGetDefaultMetrics())
 
 
   def assertAllActiveWerePredicted(self):
-    unpredictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTraceUnpredictedActiveColumns())
-    predictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedActiveColumns())
+    unpredictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTraceUnpredictedActiveColumns())
+    predictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedActiveColumns())
 
     self.assertEqual(unpredictedActiveColumnsMetric.sum, 0)
 
@@ -558,17 +558,17 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def assertAllInactiveWereUnpredicted(self):
-    predictedInactiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedInactiveColumns())
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
 
     self.assertEqual(predictedInactiveColumnsMetric.sum, 0)
 
 
   def assertAllActiveWereUnpredicted(self):
-    unpredictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTraceUnpredictedActiveColumns())
-    predictedActiveColumnsMetric = self.tm.getMetricFromTrace(
-      self.tm.getTracePredictedActiveColumns())
+    unpredictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTraceUnpredictedActiveColumns())
+    predictedActiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedActiveColumns())
 
     self.assertEqual(predictedActiveColumnsMetric.sum, 0)
 

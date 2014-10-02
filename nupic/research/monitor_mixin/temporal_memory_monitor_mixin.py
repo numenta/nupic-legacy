@@ -42,78 +42,78 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def __init__(self, *args, **kwargs):
     super(TemporalMemoryMonitorMixin, self).__init__(*args, **kwargs)
 
-    self._resetActive = True  # First iteration is always a reset
+    self._mmResetActive = True  # First iteration is always a reset
 
 
-  def getTraceActiveColumns(self):
+  def mmGetTraceActiveColumns(self):
     """
     @return (Trace) Trace of active columns
     """
-    return self._traces["activeColumns"]
+    return self._mmTraces["activeColumns"]
 
 
-  def getTracePredictiveCells(self):
+  def mmGetTracePredictiveCells(self):
     """
     @return (Trace) Trace of predictive cells
     """
-    return self._traces["predictiveCells"]
+    return self._mmTraces["predictiveCells"]
 
 
-  def getTraceSequenceLabels(self):
+  def mmGetTraceSequenceLabels(self):
     """
     @return (Trace) Trace of sequence labels
     """
-    return self._traces["sequenceLabels"]
+    return self._mmTraces["sequenceLabels"]
 
 
-  def getTraceResets(self):
+  def mmGetTraceResets(self):
     """
     @return (Trace) Trace of resets
     """
-    return self._traces["resets"]
+    return self._mmTraces["resets"]
 
 
-  def getTracePredictedActiveCells(self):
+  def mmGetTracePredictedActiveCells(self):
     """
     @return (Trace) Trace of predicted => active cells
     """
-    self._computeTransitionTraces()
-    return self._traces["predictedActiveCells"]
+    self._mmComputeTransitionTraces()
+    return self._mmTraces["predictedActiveCells"]
 
 
-  def getTracePredictedInactiveCells(self):
+  def mmGetTracePredictedInactiveCells(self):
     """
     @return (Trace) Trace of predicted => inactive cells
     """
-    self._computeTransitionTraces()
-    return self._traces["predictedInactiveCells"]
+    self._mmComputeTransitionTraces()
+    return self._mmTraces["predictedInactiveCells"]
 
 
-  def getTracePredictedActiveColumns(self):
+  def mmGetTracePredictedActiveColumns(self):
     """
     @return (Trace) Trace of predicted => active columns
     """
-    self._computeTransitionTraces()
-    return self._traces["predictedActiveColumns"]
+    self._mmComputeTransitionTraces()
+    return self._mmTraces["predictedActiveColumns"]
 
 
-  def getTracePredictedInactiveColumns(self):
+  def mmGetTracePredictedInactiveColumns(self):
     """
     @return (Trace) Trace of predicted => inactive columns
     """
-    self._computeTransitionTraces()
-    return self._traces["predictedInactiveColumns"]
+    self._mmComputeTransitionTraces()
+    return self._mmTraces["predictedInactiveColumns"]
 
 
-  def getTraceUnpredictedActiveColumns(self):
+  def mmGetTraceUnpredictedActiveColumns(self):
     """
     @return (Trace) Trace of unpredicted => active columns
     """
-    self._computeTransitionTraces()
-    return self._traces["unpredictedActiveColumns"]
+    self._mmComputeTransitionTraces()
+    return self._mmTraces["unpredictedActiveColumns"]
 
 
-  def getMetricFromTrace(self, trace):
+  def mmGetMetricFromTrace(self, trace):
     """
     Convenience method to compute a metric over an indices trace, excluding
     resets.
@@ -123,21 +123,21 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     @return (Metric) Metric over trace excluding resets
     """
     return Metric.createFromTrace(trace.makeCountsTrace(),
-                                  excludeResets=self.getTraceResets())
+                                  excludeResets=self.mmGetTraceResets())
 
 
-  def getMetricSequencesPredictedActiveCellsPerColumn(self):
+  def mmGetMetricSequencesPredictedActiveCellsPerColumn(self):
     """
     Metric for number of predicted => active cells per column for each sequence
 
     @return (Metric) metric
     """
-    self._computeTransitionTraces()
+    self._mmComputeTransitionTraces()
 
     numCellsPerColumn = []
 
     for predictedActiveCells in (
-        self._data["predictedActiveCellsForSequence"].values()):
+        self._mmData["predictedActiveCellsForSequence"].values()):
       cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
       numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
 
@@ -146,7 +146,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
                   numCellsPerColumn)
 
 
-  def getMetricSequencesPredictedActiveCellsShared(self):
+  def mmGetMetricSequencesPredictedActiveCellsShared(self):
     """
     Metric for number of sequences each predicted => active cell appears in
 
@@ -154,12 +154,12 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     @return (Metric) metric
     """
-    self._computeTransitionTraces()
+    self._mmComputeTransitionTraces()
 
     numSequencesForCell = defaultdict(lambda: 0)
 
     for predictedActiveCells in (
-          self._data["predictedActiveCellsForSequence"].values()):
+          self._mmData["predictedActiveCellsForSequence"].values()):
       for cell in predictedActiveCells:
         numSequencesForCell[cell] += 1
 
@@ -168,7 +168,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
                   numSequencesForCell.values())
 
 
-  def prettyPrintConnections(self):
+  def mmPrettyPrintConnections(self):
     """
     Pretty print the connections in the temporal memory.
 
@@ -213,7 +213,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     return text
 
 
-  def prettyPrintSequenceCellRepresentations(self, sortby="Column"):
+  def mmPrettyPrintSequenceCellRepresentations(self, sortby="Column"):
     """
     Pretty print the cell representations for sequences in the history.
 
@@ -221,11 +221,11 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     @return (string) Pretty-printed text
     """
-    self._computeTransitionTraces()
+    self._mmComputeTransitionTraces()
     table = PrettyTable(["Pattern", "Column", "predicted=>active cells"])
 
     for sequenceLabel, predictedActiveCells in (
-          self._data["predictedActiveCellsForSequence"].iteritems()):
+          self._mmData["predictedActiveCellsForSequence"].iteritems()):
       cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
       for column, cells in cellsForColumn.iteritems():
         table.add_row([sequenceLabel, column, list(cells)])
@@ -237,7 +237,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   # Helper methods
   # ==============================
 
-  def _computeTransitionTraces(self):
+  def _mmComputeTransitionTraces(self):
     """
     Computes the transition traces, if necessary.
 
@@ -249,25 +249,25 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
         predicted => inactive columns
         unpredicted => active columns
     """
-    if not self._transitionTracesStale:
+    if not self._mmTransitionTracesStale:
       return
 
-    self._data["predictedActiveCellsForSequence"] = defaultdict(set)
+    self._mmData["predictedActiveCellsForSequence"] = defaultdict(set)
 
-    self._traces["predictedActiveCells"] = IndicesTrace(self,
+    self._mmTraces["predictedActiveCells"] = IndicesTrace(self,
       "predicted => active cells (correct)")
-    self._traces["predictedInactiveCells"] = IndicesTrace(self,
+    self._mmTraces["predictedInactiveCells"] = IndicesTrace(self,
       "predicted => inactive cells (extra)")
-    self._traces["predictedActiveColumns"] = IndicesTrace(self,
+    self._mmTraces["predictedActiveColumns"] = IndicesTrace(self,
       "predicted => active columns (correct)")
-    self._traces["predictedInactiveColumns"] = IndicesTrace(self,
+    self._mmTraces["predictedInactiveColumns"] = IndicesTrace(self,
       "predicted => inactive columns (extra)")
-    self._traces["unpredictedActiveColumns"] = IndicesTrace(self,
+    self._mmTraces["unpredictedActiveColumns"] = IndicesTrace(self,
       "unpredicted => active columns (bursting)")
 
-    predictedCellsTrace = self._traces["predictedCells"]
+    predictedCellsTrace = self._mmTraces["predictedCells"]
 
-    for i, activeColumns in enumerate(self.getTraceActiveColumns().data):
+    for i, activeColumns in enumerate(self.mmGetTraceActiveColumns().data):
       predictedActiveCells = set()
       predictedInactiveCells = set()
       predictedActiveColumns = set()
@@ -280,9 +280,9 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           predictedActiveCells.add(predictedCell)
           predictedActiveColumns.add(predictedColumn)
 
-          sequenceLabel = self.getTraceSequenceLabels().data[i]
+          sequenceLabel = self.mmGetTraceSequenceLabels().data[i]
           if sequenceLabel is not None:
-            self._data["predictedActiveCellsForSequence"][sequenceLabel].add(
+            self._mmData["predictedActiveCellsForSequence"][sequenceLabel].add(
               predictedCell)
         else:
           predictedInactiveCells.add(predictedCell)
@@ -290,15 +290,15 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
       unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-      self._traces["predictedActiveCells"].data.append(predictedActiveCells)
-      self._traces["predictedInactiveCells"].data.append(predictedInactiveCells)
-      self._traces["predictedActiveColumns"].data.append(predictedActiveColumns)
-      self._traces["predictedInactiveColumns"].data.append(
+      self._mmTraces["predictedActiveCells"].data.append(predictedActiveCells)
+      self._mmTraces["predictedInactiveCells"].data.append(predictedInactiveCells)
+      self._mmTraces["predictedActiveColumns"].data.append(predictedActiveColumns)
+      self._mmTraces["predictedInactiveColumns"].data.append(
         predictedInactiveColumns)
-      self._traces["unpredictedActiveColumns"].data.append(
+      self._mmTraces["unpredictedActiveColumns"].data.append(
         unpredictedActiveColumns)
 
-    self._transitionTracesStale = False
+    self._mmTransitionTracesStale = False
 
 
   # ==============================
@@ -306,57 +306,57 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   # ==============================
 
   def compute(self, activeColumns, sequenceLabel=None, **kwargs):
-    self._traces["predictedCells"].data.append(self.predictiveCells)
+    self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
     super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
 
-    self._traces["predictiveCells"].data.append(self.predictiveCells)
-    self._traces["activeColumns"].data.append(activeColumns)
-    self._traces["sequenceLabels"].data.append(sequenceLabel)
+    self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
+    self._mmTraces["activeColumns"].data.append(activeColumns)
+    self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
 
-    self._traces["resets"].data.append(self._resetActive)
-    self._resetActive = False
+    self._mmTraces["resets"].data.append(self._mmResetActive)
+    self._mmResetActive = False
 
-    self._transitionTracesStale = True
+    self._mmTransitionTracesStale = True
 
 
   def reset(self):
     super(TemporalMemoryMonitorMixin, self).reset()
 
-    self._resetActive = True
+    self._mmResetActive = True
 
 
-  def getDefaultTraces(self, verbosity=1):
+  def mmGetDefaultTraces(self, verbosity=1):
     traces = [
-      self.getTraceActiveColumns(),
-      self.getTracePredictedActiveColumns(),
-      self.getTracePredictedInactiveColumns(),
-      self.getTraceUnpredictedActiveColumns(),
-      self.getTracePredictedActiveCells(),
-      self.getTracePredictedInactiveCells()
+      self.mmGetTraceActiveColumns(),
+      self.mmGetTracePredictedActiveColumns(),
+      self.mmGetTracePredictedInactiveColumns(),
+      self.mmGetTraceUnpredictedActiveColumns(),
+      self.mmGetTracePredictedActiveCells(),
+      self.mmGetTracePredictedInactiveCells()
     ]
 
     if verbosity == 1:
       traces = [trace.makeCountsTrace() for trace in traces]
 
-    return traces + [self.getTraceSequenceLabels()]
+    return traces + [self.mmGetTraceSequenceLabels()]
 
 
-  def getDefaultMetrics(self, verbosity=1):
-    resetsTrace = self.getTraceResets()
+  def mmGetDefaultMetrics(self, verbosity=1):
+    resetsTrace = self.mmGetTraceResets()
     return ([Metric.createFromTrace(trace, excludeResets=resetsTrace)
-            for trace in self.getDefaultTraces()[:-1]] +
-            [self.getMetricSequencesPredictedActiveCellsPerColumn(),
-             self.getMetricSequencesPredictedActiveCellsShared()])
+            for trace in self.mmGetDefaultTraces()[:-1]] +
+            [self.mmGetMetricSequencesPredictedActiveCellsPerColumn(),
+             self.mmGetMetricSequencesPredictedActiveCellsShared()])
 
 
-  def clearHistory(self):
-    super(TemporalMemoryMonitorMixin, self).clearHistory()
+  def mmClearHistory(self):
+    super(TemporalMemoryMonitorMixin, self).mmClearHistory()
 
-    self._traces["predictedCells"] = IndicesTrace(self, "predicted cells")
-    self._traces["activeColumns"] = IndicesTrace(self, "active columns")
-    self._traces["predictiveCells"] = IndicesTrace(self, "predictive cells")
-    self._traces["sequenceLabels"] = StringsTrace(self, "sequence labels")
-    self._traces["resets"] = BoolsTrace(self, "resets")
+    self._mmTraces["predictedCells"] = IndicesTrace(self, "predicted cells")
+    self._mmTraces["activeColumns"] = IndicesTrace(self, "active columns")
+    self._mmTraces["predictiveCells"] = IndicesTrace(self, "predictive cells")
+    self._mmTraces["sequenceLabels"] = StringsTrace(self, "sequence labels")
+    self._mmTraces["resets"] = BoolsTrace(self, "resets")
 
-    self._transitionTracesStale = True
+    self._mmTransitionTracesStale = True
