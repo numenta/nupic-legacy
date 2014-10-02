@@ -3041,8 +3041,7 @@ class TP(ConsolePrinterMixin):
     indices = numpy.array([j for j in range(len(cands))], dtype='uint32')
     tmp = numpy.zeros(min(n, len(indices)), dtype='uint32')
     self._random.sample(indices, tmp)
-    tmp.sort()
-    return [cands[j] for j in tmp]
+    return sorted([cands[j] for j in tmp])
 
 
   def processSegmentUpdates(self, activeColumns):
