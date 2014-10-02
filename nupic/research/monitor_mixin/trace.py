@@ -99,7 +99,7 @@ class IndicesTrace(Trace):
 
   @staticmethod
   def prettyPrintDatum(datum):
-    return str(list(datum))
+    return str(sorted(list(datum)))
 
 
 
