@@ -183,7 +183,10 @@ class TestNupicRandom(unittest.TestCase):
 
     r.shuffle(arr)
 
-    self.assertSequenceEqual(list(arr), (3, 4, 2, 1))
+    self.assertEqual(arr[0], 3)
+    self.assertEqual(arr[1], 4)
+    self.assertEqual(arr[2], 2)
+    self.assertEqual(arr[3], 1)
 
 
   def testShuffleEmpty(self):
