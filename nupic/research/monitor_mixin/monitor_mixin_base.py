@@ -75,7 +75,7 @@ class MonitorMixinBase(object):
     @return (string) Pretty-printed table of traces.
     """
     assert len(traces) > 0, "No traces found"
-    table = PrettyTable(["#"] + [trace.prettyPrintTitle()for trace in traces])
+    table = PrettyTable(["#"] + [trace.prettyPrintTitle() for trace in traces])
 
     for i in xrange(len(traces[0].data)):
       if breakOnResets and breakOnResets.data[i]:
@@ -83,7 +83,7 @@ class MonitorMixinBase(object):
       table.add_row([i] +
         [trace.prettyPrintDatum(trace.data[i]) for trace in traces])
 
-    return table.get_string()
+    return table.get_string().encode("utf-8")
 
 
   @staticmethod
@@ -107,7 +107,7 @@ class MonitorMixinBase(object):
                      metric.mean,
                      metric.standardDeviation])
 
-    return table.get_string()
+    return table.get_string().encode("utf-8")
 
 
   def mmGetDefaultTraces(self, verbosity=1):
