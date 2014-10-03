@@ -230,7 +230,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       for column, cells in cellsForColumn.iteritems():
         table.add_row([sequenceLabel, column, list(cells)])
 
-    return table.get_string(sortby=sortby)
+    return table.get_string(sortby=sortby).encode("utf-8")
 
 
   # ==============================
