@@ -28,7 +28,7 @@ from collections import defaultdict
 from prettytable import PrettyTable
 
 from nupic.research.monitor_mixin.trace import (
-  IndicesTrace, BoolsTrace, StringsTrace)
+  IndicesTrace, CountsTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
 
@@ -57,6 +57,20 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     @return (Trace) Trace of predictive cells
     """
     return self._mmTraces["predictiveCells"]
+
+
+  def mmGetTraceNumSegments(self):
+    """
+    @return (Trace) Trace of # segments
+    """
+    return self._mmTraces["numSegments"]
+
+
+  def mmGetTraceNumSynapses(self):
+    """
+    @return (Trace) Trace of # synapses
+    """
+    return self._mmTraces["numSynapses"]
 
 
   def mmGetTraceSequenceLabels(self):
@@ -312,8 +326,11 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
-    self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
 
+    self._mmTraces["numSegments"].data.append(len(self.connections._segments))
+    self._mmTraces["numSynapses"].data.append(len(self.connections._synapses))
+
+    self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
     self._mmTraces["resets"].data.append(self._mmResetActive)
     self._mmResetActive = False
 
@@ -339,13 +356,20 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if verbosity == 1:
       traces = [trace.makeCountsTrace() for trace in traces]
 
+    traces += [
+      self.mmGetTraceNumSegments(),
+      self.mmGetTraceNumSynapses()
+    ]
+
     return traces + [self.mmGetTraceSequenceLabels()]
 
 
   def mmGetDefaultMetrics(self, verbosity=1):
     resetsTrace = self.mmGetTraceResets()
     return ([Metric.createFromTrace(trace, excludeResets=resetsTrace)
-            for trace in self.mmGetDefaultTraces()[:-1]] +
+              for trace in self.mmGetDefaultTraces()[:-3]] +
+            [Metric.createFromTrace(trace)
+              for trace in self.mmGetDefaultTraces()[-3:-1]] +
             [self.mmGetMetricSequencesPredictedActiveCellsPerColumn(),
              self.mmGetMetricSequencesPredictedActiveCellsShared()])
 
@@ -356,6 +380,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._mmTraces["predictedCells"] = IndicesTrace(self, "predicted cells")
     self._mmTraces["activeColumns"] = IndicesTrace(self, "active columns")
     self._mmTraces["predictiveCells"] = IndicesTrace(self, "predictive cells")
+    self._mmTraces["numSegments"] = CountsTrace(self, "# segments")
+    self._mmTraces["numSynapses"] = CountsTrace(self, "# synapses")
     self._mmTraces["sequenceLabels"] = StringsTrace(self, "sequence labels")
     self._mmTraces["resets"] = BoolsTrace(self, "resets")
 
