@@ -22,8 +22,6 @@
 
 """NuPIC random module tests."""
 
-from __future__ import with_statement
-
 import cPickle as pickle
 import unittest
 
@@ -130,8 +128,7 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([[1, 2], [3, 4]], dtype="uint32")
     choices = numpy.zeros([2], dtype="uint32")
 
-    with self.assertRaises(ValueError):
-      r.sample(population, choices)
+    self.assertRaises(ValueError, r.sample, population, choices)
 
 
   def testSampleWrongDimensionsChoices(self):
@@ -140,8 +137,7 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
     choices = numpy.zeros([2, 2], dtype="uint32")
 
-    with self.assertRaises(ValueError):
-      r.sample(population, choices)
+    self.assertRaises(ValueError, r.sample, population, choices)
 
 
   def testSampleSequenceRaisesTypeError(self):
@@ -153,8 +149,7 @@ class TestNupicRandom(unittest.TestCase):
     population = [1, 2, 3, 4]
     choices = [0, 0]
 
-    with self.assertRaises(TypeError):
-      r.sample(population, choices)
+    self.assertRaises(TypeError, r.sample, population, choices)
 
 
   def testSampleBadDtype(self):
@@ -162,8 +157,7 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([1, 2, 3, 4], dtype="int64")
     choices = numpy.zeros([2], dtype="int64")
 
-    with self.assertRaises(TypeError):
-      r.sample(population, choices)
+    self.assertRaises(TypeError, r.sample, population, choices)
 
 
   def testSampleDifferentDtypes(self):
@@ -171,8 +165,7 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
     choices = numpy.zeros([2], dtype="uint64")
 
-    with self.assertRaises(ValueError):
-      r.sample(population, choices)
+    self.assertRaises(ValueError, r.sample, population, choices)
 
 
   def testSamplePopulationTooSmall(self):
@@ -180,11 +173,9 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
     choices = numpy.zeros([5], dtype="uint32")
 
-    with self.assertRaises(ValueError) as exc:
-      r.sample(population, choices)
-
-    self.assertEqual(exc.exception.message,
-                     "population size must be greater than number of choices")
+    self.assertRaisesRegexp(
+        ValueError, "population size must be greater than number of choices",
+        r.sample, population, choices)
 
 
   def testShuffle(self):
@@ -209,16 +200,14 @@ class TestNupicRandom(unittest.TestCase):
     r = Random(42)
     arr = numpy.zeros([2, 2], dtype="uint32")
 
-    with self.assertRaises(ValueError):
-      r.shuffle(arr)
+    self.assertRaises(ValueError, r.shuffle, arr)
 
 
   def testShuffleBadDtype(self):
     r = Random(42)
     arr = numpy.array([1, 2, 3, 4], dtype="int64")
 
-    with self.assertRaises(ValueError):
-      r.shuffle(arr)
+    self.assertRaises(ValueError, r.shuffle, arr)
 
 
 
