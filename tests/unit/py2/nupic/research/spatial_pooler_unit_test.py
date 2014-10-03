@@ -139,18 +139,18 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testExactOutput(self):
-    '''
+    """
     Given a specific input and initialization params the SP should return this
     exact output.
-    
+
     Previously output varied between platforms (OSX/Linux etc)
-    '''
-    
-    expectedOutput = [10, 29, 110, 114, 210, 221, 253, 260, 289, 340, 393,
-                      408, 473, 503, 534, 639, 680, 712, 739, 791, 905, 912,
-                      961, 1048, 1086, 1131, 1173, 1210, 1223, 1261, 1276,
-                      1285, 1302, 1617, 1679, 1712, 1721, 1780, 1920, 1951]
-    
+    """
+
+    expectedOutput = [32, 223, 295, 307, 336, 381, 385, 428, 498, 543, 624,
+                      672, 687, 731, 733, 751, 760, 790, 791, 797, 860, 955,
+                      1024, 1037, 1184, 1303, 1347, 1454, 1475, 1483, 1494,
+                      1497, 1580, 1671, 1701, 1774, 1787, 1830, 1868, 1878]
+
     sp = SpatialPooler(
       inputDimensions = [1,188],
       columnDimensions = [2048, 1],
