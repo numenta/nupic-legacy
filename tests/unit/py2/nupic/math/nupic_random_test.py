@@ -173,9 +173,8 @@ class TestNupicRandom(unittest.TestCase):
     population = numpy.array([1, 2, 3, 4], dtype="uint32")
     choices = numpy.zeros([5], dtype="uint32")
 
-    self.assertRaisesRegexp(
-        ValueError, "population size must be greater than number of choices",
-        r.sample, population, choices)
+    self.assertRaises(
+        ValueError, r.sample, population, choices)
 
 
   def testShuffle(self):
