@@ -22,10 +22,12 @@
 
 """NuPIC random module tests."""
 
+from __future__ import with_statement
+
 import cPickle as pickle
-import unittest
 
 import numpy
+from unittest2 import unittest
 
 from nupic.bindings.math import Random, StdRandom
 
