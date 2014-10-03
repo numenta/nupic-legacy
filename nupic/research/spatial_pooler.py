@@ -1187,20 +1187,21 @@ class SpatialPooler(object):
                                    self._potentialRadius,
                                    wrapAround=wrapAround)
     indices.append(index)
-    indices = numpy.array(indices)
+    indices = numpy.array(indices, dtype=uintType)
 
     # TODO: See https://github.com/numenta/nupic.core/issues/128
     indices.sort()
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
-    numPotential = int(round(indices.size*self._potentialPct))
-    sample = numpy.empty(numPotential, dtype=uintType)
-    self._random.sample(indices.astype(uintType), sample)
+    numPotential = int(round(indices.size * self._potentialPct))
+    selectedIndices = numpy.empty(numPotential, dtype=uintType)
+    self._random.sample(indices, selectedIndices)
 
-    mask = numpy.zeros(self._numInputs)
-    mask[sample] = 1
-    return mask
+    potential = numpy.zeros(self._numInputs, dtype=uintType)
+    potential[selectedIndices] = 1
+
+    return potential
 
 
   @staticmethod
