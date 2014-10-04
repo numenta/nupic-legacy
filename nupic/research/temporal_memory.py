@@ -407,8 +407,8 @@ class TemporalMemory(object):
     predictiveCells = set()
 
     for cell in activeCells:
-      for synapse in connections.synapsesForSourceCell(cell):
-        segment, _, permanence = connections.dataForSynapse(synapse)
+      for synapse, synapseData in connections.synapsesForSourceCell(cell):
+        segment, _, permanence = synapseData
 
         (numActiveSynapses,
          numActiveConnectedSynapses) = numActiveSynapsesForSegment[segment]
@@ -651,7 +651,7 @@ class Connections(object):
     # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
     self._synapsesForSegment = dict()
-    self._synapsesForSourceCell = dict()
+    self._synapsesForSourceCell = defaultdict(set)
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -754,9 +754,6 @@ class Connections(object):
     """
     self._validateCell(sourceCell)
 
-    if not sourceCell in self._synapsesForSourceCell:
-      return set()
-
     return self._synapsesForSourceCell[sourceCell]
 
 
@@ -799,7 +796,8 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    self._synapses[synapse] = (segment, sourceCell, permanence)
+    synapseData = (segment, sourceCell, permanence)
+    self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
     # Update indexes
@@ -807,9 +805,7 @@ class Connections(object):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
 
-    if not len(self.synapsesForSourceCell(sourceCell)):
-      self._synapsesForSourceCell[sourceCell] = set()
-    self._synapsesForSourceCell[sourceCell].add(synapse)
+    self._synapsesForSourceCell[sourceCell].add((synapse, synapseData))
 
     return synapse
 
@@ -824,7 +820,13 @@ class Connections(object):
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
-    self._synapses[synapse] = data[:-1] + (permanence,)
+    newData = data[:-1] + (permanence,)
+    self._synapses[synapse] = newData
+
+    # Update indexes
+    sourceCell = data[1]
+    self._synapsesForSourceCell[sourceCell].remove((synapse, data))
+    self._synapsesForSourceCell[sourceCell].add((synapse, newData))
 
 
   # ==============================
