@@ -300,9 +300,6 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   copy_directory(${submodule_dir}/build/release/bin ${PROJECT_BUILD_BINARIES_DIR})
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_INCLUDE_DIR})
-  
-  # Copy gtest source file for cpp_region unit tests (temporarily)
-  copy_file(${submodule_dir}/src/test/unit/gtest-all.cpp ${REPOSITORY_DIR}/extensions/cpp_region/unittests/gtest-all.cpp)
 
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
@@ -793,6 +790,8 @@ endif()
 # Needed by `cpp_region`
 #
 set(LIB_STATIC_GTEST gtest)
+add_library(${LIB_STATIC_GTEST} STATIC IMPORTED GLOBAL)
+set_property(TARGET ${LIB_STATIC_GTEST} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/extensions/core/build/temp/lib/lib${LIB_STATIC_GTEST}.${STATIC_LIB_EXTENSION}")
 
 #
 # HtmTest
@@ -814,10 +813,10 @@ set(LIB_DYNAMIC_CPPREGION cpp_region)
 set(PROJECT_LIBRARIES
   ${LIB_STATIC_SUPPORT}
   ${LIB_STATIC_NUPICCORE}
+  ${LIB_STATIC_GTEST}
 )
 set(EXTERNAL_LIBRARIES
   ${PYTHON_LIBRARY}
-  ${LIB_STATIC_GTEST}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${REPOSITORY_DIR}/extensions/cpp_region" "${REPOSITORY_DIR}/nupic" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
 
