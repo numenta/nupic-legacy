@@ -402,7 +402,8 @@ class TemporalMemory(object):
                       `activeSegments`  (set),
                       `predictiveCells` (set)
     """
-    numActiveSynapsesForSegment = defaultdict(lambda: (0, 0))
+    numActiveSynapsesForSegment = defaultdict(lambda: 0)
+    numActiveConnectedSynapsesForSegment = defaultdict(lambda: 0)
     activeSegments = set()
     predictiveCells = set()
 
@@ -410,20 +411,15 @@ class TemporalMemory(object):
       for synapse, synapseData in connections.synapsesForSourceCell(cell):
         segment, _, permanence = synapseData
 
-        (numActiveSynapses,
-         numActiveConnectedSynapses) = numActiveSynapsesForSegment[segment]
-
-        numActiveSynapses += 1
+        numActiveSynapsesForSegment[segment] += 1
 
         if permanence >= self.connectedPermanence:
-          numActiveConnectedSynapses += 1
+          numActiveConnectedSynapsesForSegment[segment] += 1
 
-        numActiveSynapsesForSegment[segment] = (numActiveSynapses,
-                                                numActiveConnectedSynapses)
-
-        if numActiveConnectedSynapses >= self.activationThreshold:
-          activeSegments.add(segment)
-          predictiveCells.add(connections.cellForSegment(segment))
+          if (numActiveConnectedSynapsesForSegment[segment] >=
+              self.activationThreshold):
+            activeSegments.add(segment)
+            predictiveCells.add(connections.cellForSegment(segment))
 
     return activeSegments, predictiveCells, numActiveSynapsesForSegment
 
@@ -498,7 +494,7 @@ class TemporalMemory(object):
       if not segment in numActiveSynapsesForSegment:
         continue
 
-      numActiveSynapses, _ = numActiveSynapsesForSegment[segment]
+      numActiveSynapses = numActiveSynapsesForSegment[segment]
 
       if numActiveSynapses >= maxSynapses:
         maxSynapses = numActiveSynapses
