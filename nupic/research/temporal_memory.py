@@ -695,8 +695,6 @@ class Connections(object):
 
     @return (int) Cell index
     """
-    self._validateSegment(segment)
-
     return self._segments[segment]
 
 
@@ -727,8 +725,6 @@ class Connections(object):
                       `sourceCell` (int),
                       `permanence` (float)
     """
-    self._validateSynapse(synapse)
-
     return self._synapses[synapse]
 
 
@@ -825,7 +821,6 @@ class Connections(object):
     @param synapse    (int)   Synapse index
     @param permanence (float) New permanence
     """
-    self._validateSynapse(synapse)
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
@@ -903,16 +898,6 @@ class Connections(object):
     """
     if not segment in self._segments:
       raise IndexError("Invalid segment")
-
-
-  def _validateSynapse(self, synapse):
-    """
-    Raises an error if synapse index is invalid.
-
-    @param synapse (int) Synapse index
-    """
-    if not synapse in self._synapses:
-      raise IndexError("Invalid synapse")
 
 
   @staticmethod
