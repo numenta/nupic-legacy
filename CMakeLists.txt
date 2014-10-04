@@ -788,6 +788,13 @@ else()
 endif()
 
 #
+# Google Test static library compiled in `nupic.core`
+# 
+# Needed by `cpp_region`
+#
+set(LIB_STATIC_GTEST gtest)
+
+#
 # HtmTest
 #
 set(EXECUTABLE_HTMTEST testpyhtm)
@@ -810,6 +817,7 @@ set(PROJECT_LIBRARIES
 )
 set(EXTERNAL_LIBRARIES
   ${PYTHON_LIBRARY}
+  ${LIB_STATIC_GTEST}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${REPOSITORY_DIR}/extensions/cpp_region" "${REPOSITORY_DIR}/nupic" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
 
@@ -961,4 +969,3 @@ add_custom_target(distclean
 
 # Just to separate from result message
 message(STATUS "")
-
