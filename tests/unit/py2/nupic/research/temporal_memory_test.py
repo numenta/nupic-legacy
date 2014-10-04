@@ -680,7 +680,7 @@ class ConnectionsTest(unittest.TestCase):
     connections.createSegment(0)
 
     args = [1]
-    self.assertRaises(IndexError, connections.cellForSegment, *args)
+    self.assertRaises(KeyError, connections.cellForSegment, *args)
 
 
   def testSegmentsForCellInvalidCell(self):
@@ -737,7 +737,7 @@ class ConnectionsTest(unittest.TestCase):
     connections.createSynapse(0, 834, 0.1284)
 
     args = [1]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    self.assertRaises(KeyError, connections.dataForSynapse, *args)
 
 
   def testSynapsesForSegmentInvalidSegment(self):
@@ -777,7 +777,7 @@ class ConnectionsTest(unittest.TestCase):
 
     # Invalid synapse
     args = [1, 0.4374]
-    self.assertRaises(IndexError, connections.updateSynapsePermanence, *args)
+    self.assertRaises(KeyError, connections.updateSynapsePermanence, *args)
 
     # Invalid permanence
     args = [0, 1.4374]
