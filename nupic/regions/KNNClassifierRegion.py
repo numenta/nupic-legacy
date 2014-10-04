@@ -177,7 +177,7 @@ class KNNClassifierRegion(PyRegion):
             defaultValue=None,
             accessMode='Read'),
 
-          coincidenceCount=dict(
+          patternCount=dict(
             description='Number of patterns learned by the classifier.',
             dataType='UInt32',
             count=1,
@@ -185,8 +185,9 @@ class KNNClassifierRegion(PyRegion):
             defaultValue=None,
             accessMode='Read'),
 
-          coincidenceMatrix=dict(
-            description='The actual patterns learned by the classifier.',
+          patternMatrix=dict(
+            description='The actual patterns learned by the classifier, '
+                        'returned as a matrix.',
             dataType='Handle',
             count=1,
             constraints='',
@@ -253,7 +254,6 @@ class KNNClassifierRegion(PyRegion):
             count=1,
             constraints='',
             defaultValue=0.0,
-            #accessMode='Create'),
             accessMode='ReadWrite'),
 
           inputThresh=dict(
@@ -453,7 +453,7 @@ class KNNClassifierRegion(PyRegion):
                k=1,
                distanceNorm=2.0,
                distanceMethod='norm',
-               distThreshold=0,
+               distThreshold=0.0,
                doBinarization=False,
                inputThresh=0.500,
                useSparseMemory=True,
@@ -634,7 +634,7 @@ class KNNClassifierRegion(PyRegion):
 
 
   #---------------------------------------------------------------------------------
-  def _getCoincidenceMatrix(self):
+  def _getPatternMatrix(self):
 
     if self._knn._M is not None:
       return self._knn._M
@@ -665,10 +665,10 @@ class KNNClassifierRegion(PyRegion):
     @param name -- the name of the parameter to retrieve, as defined
             by the Node Spec.
     """
-    if name == "coincidenceCount":
+    if name == "patternCount":
       return self._knn._numPatterns
-    elif name == "coincidenceMatrix":
-      return self._getCoincidenceMatrix()
+    elif name == "patternMatrix":
+      return self._getPatternMatrix()
     elif name == "k":
       return self._knn.k
     elif name == "distanceNorm":
