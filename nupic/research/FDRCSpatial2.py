@@ -1331,7 +1331,7 @@ class FDRCSpatial2(object):
     toUse = numpy.empty(coincInputPool, dtype='uint32')
     denseM = numpy.zeros(coincRfArea, dtype=realDType)
     for i in xrange(numCloneMasters):
-      nupicRandom.getUInt32Sample(toSample, toUse)
+      nupicRandom.sample(toSample, toUse)
 
       # Put in 1's into the potential locations
       denseM.fill(0)
