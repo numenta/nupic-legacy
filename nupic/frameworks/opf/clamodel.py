@@ -109,7 +109,7 @@ class CLAModel(Model):
 
   #############################################################################
   def __init__(self,
-      sensorParams, #TODO provide init() with all default values
+      sensorParams,
       inferenceType=InferenceType.TemporalNextStep,
       predictedField=None,
       spEnable=True,
