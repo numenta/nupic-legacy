@@ -74,10 +74,6 @@ class CLAModelTest(unittest.TestCase):
     self.assertDictEqual(result, {1: 0.1, 2: 0.2, 3: 0.3})
 
 
-  def testInitBasicCLAModel(self):
-    #TODO enable this test
-    #self.assertTrue(CLAModel(), CLAModel)
-    pass
 
 if __name__ == "__main__":
   unittest.main()
