@@ -121,14 +121,15 @@ class TemporalMemory(object):
      winnerCells,
      numActiveSynapsesForSegment,
      activeSegments,
-     predictiveCells) = self.computeFn(activeColumns,
-                                       self.predictiveCells,
-                                       self.activeSegments,
-                                       self.numActiveSynapsesForSegment,
-                                       self.activeCells,
-                                       self.winnerCells,
-                                       self.connections,
-                                       learn=learn)
+     predictiveCells,
+     predictedColumns) = self.computeFn(activeColumns,
+                                        self.predictiveCells,
+                                        self.activeSegments,
+                                        self.numActiveSynapsesForSegment,
+                                        self.activeCells,
+                                        self.winnerCells,
+                                        self.connections,
+                                        learn=learn)
 
     self.activeCells = activeCells
     self.winnerCells = winnerCells
@@ -211,7 +212,8 @@ class TemporalMemory(object):
             winnerCells,
             numActiveSynapsesForSegment,
             activeSegments,
-            predictiveCells)
+            predictiveCells,
+            predictedColumns)
 
 
   def reset(self):
