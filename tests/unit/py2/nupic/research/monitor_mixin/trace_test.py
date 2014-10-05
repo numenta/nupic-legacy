@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,19 +20,35 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-echo
-echo Running `basename $0`...
-echo
+import unittest
 
-# Get Darwin64 libs for OSX
-echo ">>> Cloning nupic-darwin64 at 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906..."
-git clone https://github.com/numenta/nupic-darwin64.git
-(cd nupic-darwin64 && git reset --hard 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906) || exit
-echo ">>> Activating nupic-darwin64..."
-source nupic-darwin64/bin/activate
+from nupic.research.monitor_mixin.trace import IndicesTrace
 
-# Install and start MySQL on OSX
-echo ">>> brew install mysql"
-brew install mysql
-echo ">>> mysql.server start"
-mysql.server start
+
+
+class IndicesTraceTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.trace = IndicesTrace(self, "active cells")
+    self.trace.data.append(set([1, 2, 3]))
+    self.trace.data.append(set([4, 5]))
+    self.trace.data.append(set([6]))
+    self.trace.data.append(set([]))
+
+
+  def testMakeCountsTrace(self):
+    countsTrace = self.trace.makeCountsTrace()
+    self.assertEqual(countsTrace.title, "# active cells")
+    self.assertEqual(countsTrace.data, [3, 2, 1, 0])
+
+
+  def testMakeCumCountsTrace(self):
+    countsTrace = self.trace.makeCumCountsTrace()
+    self.assertEqual(countsTrace.title, "# (cumulative) active cells")
+    self.assertEqual(countsTrace.data, [3, 5, 6, 6])
+
+
+
+if __name__ == '__main__':
+  unittest.main()
