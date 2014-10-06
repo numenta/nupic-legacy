@@ -136,8 +136,8 @@ class AnomalyTest(unittest.TestCase):
     an= Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
 
     data=range(10)
-    nTrainSPTP=100
-    nTrainLikelihood=150 # TODO find minimal acceptable values (to speed up the test)
+    nTrainSPTP=200
+    nTrainLikelihood=300 # TODO find minimal acceptable values (to speed up the test)
    
     # first, some training to stabilize patterns in SP, TP 
     for i in xrange(nTrainSPTP): # train the weights in SP, TP
