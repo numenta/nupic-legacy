@@ -48,40 +48,17 @@ class TemporalMemory(object):
                permanenceDecrement=0.10,
                seed=42):
     """
-    @param columnDimensions    (list)   Dimensions of the column space
-
-    @param cellsPerColumn      (int)    Number of cells per column
-
-    @param activationThreshold (int)    If the number of active connected
-                                        synapses on a segment is at least
-                                        this threshold, the segment is
-                                        said to be active.
-
-    @param learningRadius      (int)    Radius around cell from which it can
-                                        sample to form distal dendrite
-                                        connections.
-
-    @param initialPermanence   (float)  Initial permanence of a new synapse.
-
-    @param connectedPermanence (float)  If the permanence value for a synapse
-                                        is greater than this value, it is said
-                                        to be connected.
-
-    @param minThreshold        (int)    If the number of synapses active on
-                                        a segment is at least this threshold,
-                                        it is selected as the best matching
-                                        cell in a bursing column.
-
-    @param maxNewSynapseCount  (int)    The maximum number of synapses added
-                                        to a segment during learning.
-
-    @param permanenceIncrement (float)  Amount by which permanences of synapses
-                                        are incremented during learning.
-
-    @param permanenceDecrement (float)  Amount by which permanences of synapses
-                                        are decremented during learning.
-
-    @param seed                (int)    Seed for the random number generator.
+    @param columnDimensions    (list)  Dimensions of the column space
+    @param cellsPerColumn      (int)   Number of cells per column
+    @param activationThreshold (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
+    @param learningRadius      (int)   Radius around cell from which it can sample to form distal dendrite connections.
+    @param initialPermanence   (float) Initial permanence of a new synapse.
+    @param connectedPermanence (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
+    @param minThreshold        (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
+    @param maxNewSynapseCount  (int)   The maximum number of synapses added to a segment during learning.
+    @param permanenceIncrement (float) Amount by which permanences of synapses are incremented during learning.
+    @param permanenceDecrement (float) Amount by which permanences of synapses are decremented during learning.
+    @param seed                (int)   Seed for the random number generator.
     """
     # TODO: Validate all parameters (and add validation tests)
 
@@ -151,19 +128,14 @@ class TemporalMemory(object):
     'Functional' version of compute.
     Returns new state.
 
-    @param activeColumns                (set)         Indices of active columns
-                                                      in `t`
-    @param prevPredictiveCells          (set)         Indices of predictive
-                                                      cells in `t-1`
-    @param prevActiveSegments           (set)         Indices of active segments
-                                                      in `t-1`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param prevWinnerCells              (set)         Indices of winner cells
-                                                      in `t-1`
-    @param connections                  (Connections) Connectivity of layer
+    @param activeColumns                   (set)         Indices of active columns in `t`
+    @param prevPredictiveCells             (set)         Indices of predictive cells in `t-1`
+    @param prevActiveSegments              (set)         Indices of active segments in `t-1`
+    @param prevNumActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses in `t-1` (see `TM.computePredictiveCells`)
+    @param prevActiveCells                 (set)         Indices of active cells in `t-1`
+    @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
+    @param connections                     (Connections) Connectivity of layer
+    @param learn                           (bool)        Whether or not learning is enabled
 
     @return (tuple) Contains:
                       `activeCells`               (set),
@@ -288,15 +260,10 @@ class TemporalMemory(object):
                 - add a segment to it
             - mark the segment as learning
 
-    @param activeColumns                (set)         Indices of active columns
-                                                      in `t`
-    @param predictedColumns             (set)         Indices of predicted
-                                                      columns in `t`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param connections                  (Connections) Connectivity of layer
+    @param activeColumns                   (set)         Indices of active columns in `t`
+    @param predictedColumns                (set)         Indices of predicted columns in `t`
+    @param prevNumActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses in `t-1` (see `TM.computePredictiveCells`)
+    @param connections                     (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeCells`      (set),
@@ -348,18 +315,11 @@ class TemporalMemory(object):
           - add some synapses to the segment
             - subsample from prev winner cells
 
-    @param prevActiveSegments           (set)         Indices of active segments
-                                                      in `t-1`
-    @param learningSegments             (set)         Indices of learning
-                                                      segments in `t`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param winnerCells                  (set)         Indices of winner cells
-                                                      in `t`
-    @param prevWinnerCells              (set)         Indices of winner cells
-                                                      in `t-1`
+    @param prevActiveSegments           (set)         Indices of active segments in `t-1`
+    @param learningSegments             (set)         Indices of learning segments in `t`
+    @param prevActiveCells              (set)         Indices of active cells in `t-1`
+    @param winnerCells                  (set)         Indices of winner cells in `t`
+    @param prevWinnerCells              (set)         Indices of winner cells in `t-1`
     @param connections                  (Connections) Connectivity of layer
     """
     for segment in prevActiveSegments | learningSegments:
@@ -395,10 +355,11 @@ class TemporalMemory(object):
         - mark the segment as active
         - mark the cell as predictive
 
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    Forward propagates activity from active cells to the synapses that touch
+    them, to determine which synapses are active.
+
+    @param activeCells (set)         Indices of active cells in `t`
+    @param connections (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeSegments`  (set),
@@ -441,11 +402,9 @@ class TemporalMemory(object):
 
     If none were found, pick the least used cell (see `TM.getLeastUsedCell`).
 
-    @param cells                    (set)         Indices of cells
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    @param cells                       (set)         Indices of cells
+    @param numActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses (see `TM.computePredictiveCells`)
+    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `cell`        (int),
@@ -478,11 +437,9 @@ class TemporalMemory(object):
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
 
-    @param cell                     (int)         Cell index
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    @param cell                        (int)         Cell index
+    @param numActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses (see `TM.computePredictiveCells`)
+    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `segment`                 (int),
@@ -511,8 +468,8 @@ class TemporalMemory(object):
     Gets the cell with the smallest number of segments.
     Break ties randomly.
 
-    @param cells                    (set)         Indices of cells
-    @param connections              (Connections) Connectivity of layer
+    @param cells       (set)         Indices of cells
+    @param connections (Connections) Connectivity of layer
 
     @return (int) Cell index
     """
@@ -539,14 +496,9 @@ class TemporalMemory(object):
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
 
-    @param segment                   (int)         Segment index
-    @param activeSynapsesForSegment  (dict)        Mapping from segments to
-                                                   active synapses (see
-                                                   `TM.computeActiveSynapses`)
-    @param permanenceThreshold       (float)       Minimum threshold for
-                                                   permanence for synapse to
-                                                   be connected
-    @param connections               (Connections) Connectivity of layer
+    @param segment     (int)         Segment index
+    @param activeCells (set)         Indices of active cells
+    @param connections (Connections) Connectivity of layer
 
     @return (set) Indices of active synapses on segment
     """
