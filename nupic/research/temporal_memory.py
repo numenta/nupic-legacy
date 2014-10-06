@@ -264,7 +264,7 @@ class TemporalMemory(object):
         winnerCells.add(cell)
         predictedColumns.add(column)
 
-    return (activeCells, winnerCells, predictedColumns)
+    return activeCells, winnerCells, predictedColumns
 
 
   def burstColumns(self,
@@ -317,13 +317,13 @@ class TemporalMemory(object):
                                                connections)
       winnerCells.add(bestCell)
 
-      if bestSegment == None:
+      if bestSegment is None:
         # TODO: (optimization) Only do this if there are prev winner cells
         bestSegment = connections.createSegment(bestCell)
 
       learningSegments.add(bestSegment)
 
-    return (activeCells, winnerCells, learningSegments)
+    return activeCells, winnerCells, learningSegments
 
 
   def learnOnSegments(self,
@@ -362,7 +362,7 @@ class TemporalMemory(object):
     """
     for segment in prevActiveSegments | learningSegments:
       isLearningSegment = segment in learningSegments
-      isFromWinnerCell  = connections.cellForSegment(segment) in winnerCells
+      isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 
       activeSynapses = self.getConnectedActiveSynapsesForSegment(
         segment,
@@ -417,7 +417,7 @@ class TemporalMemory(object):
         activeSegments.add(segment)
         predictiveCells.add(connections.cellForSegment(segment))
 
-    return (activeSegments, predictiveCells)
+    return activeSegments, predictiveCells
 
 
   # ==============================
@@ -473,22 +473,18 @@ class TemporalMemory(object):
     bestSegment = None
 
     for cell in cells:
-      (
-        segment,
-        connectedActiveSynapses
-      ) = self.getBestMatchingSegment(cell,
-                                      activeSynapsesForSegment,
-                                      connections)
+      segment, connectedActiveSynapses = self.getBestMatchingSegment(
+        cell, activeSynapsesForSegment, connections)
 
-      if segment != None and len(connectedActiveSynapses) > maxSynapses:
+      if segment is not None and len(connectedActiveSynapses) > maxSynapses:
         maxSynapses = len(connectedActiveSynapses)
         bestCell = cell
         bestSegment = segment
 
-    if bestCell == None:
+    if bestCell is None:
       bestCell = self.getLeastUsedCell(cells, connections)
 
-    return (bestCell, bestSegment)
+    return bestCell, bestSegment
 
 
   def getBestMatchingSegment(self, cell, activeSynapsesForSegment, connections):
@@ -522,7 +518,7 @@ class TemporalMemory(object):
         bestSegment = segment
         connectedActiveSynapses = set(synapses)
 
-    return (bestSegment, connectedActiveSynapses)
+    return bestSegment, connectedActiveSynapses
 
 
   def getLeastUsedCell(self, cells, connections):
@@ -572,19 +568,19 @@ class TemporalMemory(object):
 
     @return (set) Indices of active synapses on segment
     """
-    connectedSynapses = set()
+    synapses = set()
 
     if not segment in activeSynapsesForSegment:
-      return connectedSynapses
+      return synapses
 
     # TODO: (optimization) Can skip this logic if permanenceThreshold = 0
     for synapse in activeSynapsesForSegment[segment]:
       (_, _, permanence) = connections.dataForSynapse(synapse)
 
       if permanence >= permanenceThreshold:
-        connectedSynapses.add(synapse)
+        synapses.add(synapse)
 
-    return connectedSynapses
+    return synapses
 
 
   def adaptSegment(self, segment, activeSynapses, connections):
