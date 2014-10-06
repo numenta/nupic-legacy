@@ -429,7 +429,7 @@ class SpatialPoolerTest(unittest.TestCase):
     # Test translation of numColumnsPerInhArea into local area density
     sp._numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._columnDimensions = numpy.array([10, 10])
+    sp._columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
     sp._numActiveColumnsPerInhArea = 3
@@ -449,7 +449,7 @@ class SpatialPoolerTest(unittest.TestCase):
     # Test clipping of local area density to 0.5
     sp._numColumns = 1000
     sp._tieBreaker = numpy.zeros(1000)
-    sp._columnDimensions = numpy.array([10, 10])
+    sp._columnDimensions = numpy.array([100, 10])
     sp._inhibitColumnsGlobal.reset_mock()
     sp._inhibitColumnsLocal.reset_mock()
     sp._numActiveColumnsPerInhArea = 7
