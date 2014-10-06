@@ -23,11 +23,10 @@
 Temporal Memory implementation in Python.
 """
 
+from collections import defaultdict
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.temporal_memory_inspect_mixin import (
-  TemporalMemoryInspectMixin)
 
 
 
@@ -879,6 +878,23 @@ class Connections(object):
     return self.numberOfColumns() * self.cellsPerColumn
 
 
+  def mapCellsToColumns(self, cells):
+    """
+    Maps cells to the columns they belong to
+
+    @param cells (set) Cells
+
+    @return (dict) Mapping from columns to their cells in `cells`
+    """
+    cellsForColumns = defaultdict(set)
+
+    for cell in cells:
+      column = self.columnForCell(cell)
+      cellsForColumns[column].add(cell)
+
+    return cellsForColumns
+
+
   # ==============================
   # Helper functions
   # ==============================
@@ -932,11 +948,3 @@ class Connections(object):
     """
     if permanence < 0 or permanence > 1:
       raise ValueError("Invalid permanence")
-
-
-
-class InspectTemporalMemory(TemporalMemoryInspectMixin, TemporalMemory):
-  """
-  Temporal Memory subclass that enables detailed inspection of history.
-  """
-  pass

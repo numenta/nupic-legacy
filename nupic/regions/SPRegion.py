@@ -646,10 +646,17 @@ class SPRegion(PyRegion):
                                                      learn=self.learningMode,
                                                      infer=self.inferenceMode,
                                                      computeAnomaly=self.anomalyMode)
-    else:  
+    else:
       inputVector = numpy.array(rfInput[0]).astype('uint32')
       outputVector = numpy.zeros(self._sfdr.getNumColumns()).astype('uint32')
-      self._sfdr.compute(inputVector, self.learningMode, outputVector)
+
+      # Switch to using a random SP if learning mode is off and the SP hasn't
+      # learned anything yet.
+      if (not self.learningMode) and (self._sfdr.getIterationLearnNum() == 0):
+        self._sfdr.compute(inputVector, self.learningMode, outputVector, False)
+      else:
+        self._sfdr.compute(inputVector, self.learningMode, outputVector)
+
       self._spatialPoolerOutput[:] = outputVector[:]
 
     # Direct logging of SP outputs if requested
@@ -866,10 +873,7 @@ class SPRegion(PyRegion):
         self._fpLogSPInput = None
       # Open a new log file
       if parameterValue:
-        if self.disableSpatial:
-          raise RuntimeError ("Spatial pooler is disabled for this level, "
-            "can not turn on logging of SP inputs.")
-        self._fpLogSPInput = open(self.logPathSPInput, 'w')
+        self._fpLogSPInput = open(self.logPathInput, 'w')
 
     elif parameterName == "logPathOutput":
       self.logPathOutput = parameterValue
@@ -879,10 +883,7 @@ class SPRegion(PyRegion):
         self._fpLogSP = None
       # Open a new log file
       if parameterValue:
-        if self.disableSpatial:
-          raise RuntimeError ("Spatial pooler is disabled for this level, "
-            "can not turn on logging of SP outputs.")
-        self._fpLogSP = open(self.logPathSP, 'w')
+        self._fpLogSP = open(self.logPathOutput, 'w')
 
     elif parameterName == "logPathOutputDense":
       self.logPathOutputDense = parameterValue
@@ -892,7 +893,7 @@ class SPRegion(PyRegion):
         self._fpLogSPDense = None
       # Open a new log file
       if parameterValue:
-        self._fpLogSPDense = open(self.logPathSPDense, 'w')
+        self._fpLogSPDense = open(self.logPathOutputDense, 'w')
 
     elif hasattr(self, parameterName):
       setattr(self, parameterName, parameterValue)
