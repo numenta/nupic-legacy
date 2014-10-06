@@ -32,13 +32,9 @@ echo ">>> Installing virtualenv..."
 sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
-echo ">>> sudo apt-get install python-libtiff"
-# debugging
-sudo apt-get install python-libtiff
-
 echo ">>> Installing nupic-linux64..."
-git clone https://github.com/rhyolight/nupic-linux64.git
-(cd nupic-linux64 && git checkout -b remove-pil origin/remove-pil)
+git clone https://github.com/oxtopus/nupic-linux64.git
+(cd nupic-linux64 && git reset --hard 3aba138e2db0ca4b1caad65379208c4ac10ac2dd)
 source nupic-linux64/bin/activate
 
 # Let's see what pip packages have been installed now...
