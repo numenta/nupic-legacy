@@ -27,70 +27,33 @@ import os
 from PIL import Image, ImageDraw
 
 from nupic.engine import Network
-from nupic.regions.ImageSensor import ImageSensor
 
 
 
-class ImageSensorTest(unittest.TestCase):
+class ImageKNNTest(unittest.TestCase):
+  """
+  This test is a simple end to end test. It creates a simple network with an
+  ImageSensor and a KNNClassifier region. It creates a 'dataset' with two random
+  images, trains the network and then runs inference to ensures we can correctly
+  classify them.  This tests that the plumbing is working well.
+  """
 
 
-  def testGetSelf(self):
-    # Create network
-    net = Network()
 
-    # Add sensor
-    sensor = net.addRegion("sensor", "py.ImageSensor",
-        "{width: 100, height: 50}")
-    pysensor = sensor.getSelf()
+  def testSimpleImageNetwork(self):
 
-    # Verify set parameters
-    self.assertEqual(type(pysensor), ImageSensor)
-    self.assertEqual(pysensor.height, 50)
-    self.assertEqual(pysensor.width, 100)
-
-    self.assertEqual(pysensor.width, sensor.getParameter('width'))
-    self.assertEqual(pysensor.height, sensor.getParameter('height'))
-
-    sensor.setParameter('width', 444)
-    sensor.setParameter('height', 444)
-    self.assertEqual(pysensor.width, 444)
-    self.assertEqual(pysensor.height, 444)
-
-    # Verify py object is not a copy
-    sensor.getSelf().height = 100
-    sensor.getSelf().width = 200
-    self.assertEqual(pysensor.height, 100)
-    self.assertEqual(pysensor.width, 200)
-
-    pysensor.height = 50
-    pysensor.width = 100
-    self.assertEqual(sensor.getSelf().height, 50)
-    self.assertEqual(sensor.getSelf().width, 100)
-
-
-  def testParameters(self):
-    # Test setting and getting parameters
-    net = Network()
-
-    # Add sensor to the network
-    sensor = net.addRegion("sensor", "py.ImageSensor",
-        "{width: 100, height: 50}")
-
-    # Verify get parameters
-    self.assertEqual(sensor.getParameter('height'), 50)
-    self.assertEqual(sensor.getParameter('width'), 100)
-
-    # Verify set parameters
-    sensor.setParameter('width', 42)
-    self.assertEqual(sensor.getParameter('width'), 42)
-
-
-  def testLoadImages(self):
-    # Create a simple network with an ImageSensor. You can't actually run
-    # the network because the region isn't connected to anything
+    # Create the network and get region instances
     net = Network()
     net.addRegion("sensor", "py.ImageSensor", "{width: 32, height: 32}")
+    net.addRegion("classifier","py.KNNClassifierRegion",
+                  "{distThreshold: 0.01, maxCategoryCount: 2}")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput = "dataOut", destInput = "bottomUpIn")
+    net.link("sensor", "classifier", "UniformLink", "",
+             srcOutput = "categoryOut", destInput = "categoryIn")
+    net.initialize()
     sensor = net.regions['sensor']
+    classifier = net.regions['classifier']
 
     # Create a dataset with two categories, one image in each category
     # Each image consists of a unique rectangle
@@ -108,16 +71,36 @@ class ImageSensorTest(unittest.TestCase):
     draw.rectangle((15,15,25,25), outline=255)
     im1.save(os.path.join(tmpDir,'1','im1.png'))
 
-    # Load the dataset and check we loaded the correct number
+    # Load the dataset
     sensor.executeCommand(["loadMultipleImages", tmpDir])
     numImages = sensor.getParameter('numImages')
     self.assertEqual(numImages, 2)
 
-    # Load a single image (this will replace the previous images)
-    sensor.executeCommand(["loadSingleImage",
-                           os.path.join(tmpDir,'1','im1.png')])
-    numImages = sensor.getParameter('numImages')
-    self.assertEqual(numImages, 1)
+    # Ensure learning is turned ON
+    self.assertEqual(classifier.getParameter('learningMode'), 1)
+
+    # Train the network (by default learning is ON in the classifier)
+    # and then turn off learning and turn on inference mode
+    net.run(2)
+    classifier.setParameter('inferenceMode', 1)
+    classifier.setParameter('learningMode', 0)
+
+    # Check to make sure learning is turned OFF and that the classifier learned
+    # something
+    self.assertEqual(classifier.getParameter('learningMode'), 0)
+    self.assertEqual(classifier.getParameter('inferenceMode'), 1)
+    self.assertEqual(classifier.getParameter('categoryCount'),2)
+    self.assertEqual(classifier.getParameter('patternCount'),2)
+
+    # Now test the network to make sure it categories the images correctly
+    numCorrect = 0
+    for i in range(2):
+      net.run(1)
+      inferredCategory = classifier.getOutputData('categoriesOut').argmax()
+      if sensor.getOutputData('categoryOut') == inferredCategory:
+        numCorrect += 1
+
+    self.assertEqual(numCorrect,2)
 
     # Cleanup the temp files
     os.unlink(os.path.join(tmpDir,'0','im0.png'))

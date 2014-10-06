@@ -22,11 +22,13 @@
 import unittest2 as unittest
 
 from nupic.data.sequence_machine import SequenceMachine
-from nupic.test.temporal_memory_test_machine import TemporalMemoryTestMachine
+from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+  TemporalMemoryMonitorMixin)
 from nupic.research.temporal_memory import TemporalMemory
 # Uncomment the lines below to run tests with TP10X2 implementation instead
-# from nupic.research.temporal_memory_shim import (TemporalMemoryShim as
-#                                                  TemporalMemory)
+# from nupic.research.temporal_memory_shim import (
+#   TemporalMemoryShim as TemporalMemory)
+class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
 
@@ -41,7 +43,6 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     self.tm = None
     self.patternMachine = None
     self.sequenceMachine = None
-    self.tmTestMachine = None
 
 
   def init(self, overrides=None):
@@ -51,22 +52,22 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     :param overrides: overrides for default Temporal Memory parameters
     """
     params = self._computeTMParams(overrides)
-    self.tm = TemporalMemory(**params)
+    self.tm = MonitoredTemporalMemory(**params)
 
     self.patternMachine = self.PATTERN_MACHINE
     self.sequenceMachine = SequenceMachine(self.patternMachine)
-    self.tmTestMachine = TemporalMemoryTestMachine(self.tm)
 
 
   def feedTM(self, sequence, learn=True, num=1):
     repeatedSequence = sequence * num
-    results = self.tmTestMachine.feedSequence(repeatedSequence, learn=learn)
 
-    detailedResults = self.tmTestMachine.computeDetailedResults(
-      results,
-      repeatedSequence)
+    self.tm.mmClearHistory()
 
-    return detailedResults
+    for pattern in repeatedSequence:
+      if pattern is None:
+        self.tm.reset()
+      else:
+        self.tm.compute(pattern, learn=learn)
 
 
   # ==============================

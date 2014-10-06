@@ -25,7 +25,7 @@ import unittest2 as unittest
 
 from nupic.data.pattern_machine import ConsecutivePatternMachine
 
-from abstract_temporal_memory_test import AbstractTemporalMemoryTest
+from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 
 
 
@@ -52,18 +52,18 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     sequence = self.sequenceMachine.generateFromNumbers([0, 1, 2, 3, None])
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequence)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 0)
+    self.feedTM(sequence)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 0)
 
     self.feedTM(sequence, num=2)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequence)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.feedTM(sequence)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
 
     self.feedTM(sequence, num=4)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequence)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.feedTM(sequence)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
 
 
   def testHighOrder(self):
@@ -75,44 +75,36 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequenceA, num=5)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequenceA,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.feedTM(sequenceA, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
 
     self.feedTM(sequenceB)
 
     self.feedTM(sequenceB, num=2)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequenceB,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[1]), 1)
+    self.feedTM(sequenceB, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[1]), 1)
 
     self.feedTM(sequenceB, num=3)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequenceB,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[2]), 1)
+    self.feedTM(sequenceB, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[2]), 1)
 
     self.feedTM(sequenceB, num=3)
 
-    (_, _, predictedActiveColumnsList, _, _) = self.feedTM(sequenceB,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.feedTM(sequenceB, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
 
-    (_, _, predictedActiveColumnsList,
-           predictedInactiveColumnsList, _) = self.feedTM(sequenceA,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
-    self.assertEqual(len(predictedInactiveColumnsList[3]), 1)
+    self.feedTM(sequenceA, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
+    self.assertEqual(len(self.tm.mmGetTracePredictedInactiveColumns().data[3]), 1)
 
     self.feedTM(sequenceA, num=10)
-    (_, _, predictedActiveColumnsList,
-           predictedInactiveColumnsList, _) = self.feedTM(sequenceA,
-                                                            learn=False)
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
+    self.feedTM(sequenceA, learn=False)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
     # TODO: Requires some form of synaptic decay to forget the ABC=>Y
     # transition that's initially formed
-    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    # self.assertEqual(len(self.tm.mmGetTracePredictedInactiveColumns().data[3]), 0)
 
 
   def testHighOrderAlternating(self):
@@ -126,17 +118,15 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.feedTM(sequence, num=10)
 
-    (_, _, predictedActiveColumnsList,
-           predictedInactiveColumnsList, _) = self.feedTM(sequence,
-                                                            learn=False)
+    self.feedTM(sequence, learn=False)
 
     # TODO: Requires some form of synaptic decay to forget the
     # ABC=>Y and XBC=>D transitions that are initially formed
-    self.assertEqual(len(predictedActiveColumnsList[3]), 1)
-    # self.assertEqual(len(predictedInactiveColumnsList[3]), 0)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[3]), 1)
+    # self.assertEqual(len(self.tm.mmGetTracePredictedInactiveColumns().data[3]), 0)
 
-    self.assertEqual(len(predictedActiveColumnsList[8]), 1)
-    # self.assertEqual(len(predictedInactiveColumnsList[8]), 0)
+    self.assertEqual(len(self.tm.mmGetTracePredictedActiveColumns().data[7]), 1)
+    # self.assertEqual(len(self.tm.mmGetTracePredictedInactiveColumns().data[7]), 0)
 
 
   def testEndlesslyRepeating(self):
@@ -218,20 +208,15 @@ class TutorialTemporalMemoryTest(AbstractTemporalMemoryTest):
   def feedTM(self, sequence, learn=True, num=1):
     self._showInput(sequence, learn=learn, num=num)
 
-    detailedResults = super(TutorialTemporalMemoryTest, self).feedTM(
+    super(TutorialTemporalMemoryTest, self).feedTM(
       sequence, learn=learn, num=num)
 
-    print self.tmTestMachine.prettyPrintDetailedResults(
-      detailedResults,
-      sequence * num,
-      self.patternMachine,
-      verbosity=self.VERBOSITY)
+    print self.tm.mmPrettyPrintTraces(self.tm.mmGetDefaultTraces(verbosity=2),
+                                    breakOnResets=self.tm.mmGetTraceResets())
     print
 
     if learn:
-      print self.tmTestMachine.prettyPrintConnections()
-
-    return detailedResults
+      print self.tm.mmPrettyPrintConnections()
 
 
   # ==============================

@@ -796,6 +796,14 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(connections.numberOfCells(), 64 * 64 * 32)
 
 
+  def testMapCellsToColumns(self):
+    connections = Connections([100], 4)
+    columnsForCells = connections.mapCellsToColumns(set([0, 1, 2, 5, 399]))
+    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
+    self.assertEqual(columnsForCells[1], set([5]))
+    self.assertEqual(columnsForCells[99], set([399]))
+
+
 
 if __name__ == '__main__':
   unittest.main()
