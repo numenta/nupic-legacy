@@ -36,6 +36,8 @@ echo ">>> Installing nupic-linux64..."
 git clone https://github.com/oxtopus/nupic-linux64.git
 (cd nupic-linux64 && git reset --hard 3aba138e2db0ca4b1caad65379208c4ac10ac2dd)
 source nupic-linux64/bin/activate
+ls -laFh nupic-linux64/lib
+ldd -d lib/python2.7/site-packages/PIL/_imaging.so
 
 # Let's see what pip packages have been installed now...
 pip list
