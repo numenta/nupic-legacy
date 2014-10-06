@@ -52,7 +52,7 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.assertEqual(len(alist), len(blist))
     for a, b in zip(alist, blist):
       diff = abs(a - b)
-      self.assertLess(diff, 1e-5)
+      self.assertLess(diff, 1e-4)
 
 
   def compare(self, pySp, cppSp):
