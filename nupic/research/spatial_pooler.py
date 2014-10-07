@@ -285,7 +285,7 @@ class SpatialPooler(object):
     # activated.
     for i in xrange(numColumns):
       potential = self._mapPotential(i, wrapAround=self._wrapAround)
-      self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
+      self._potentialPools.replaceSparseRow(i, potential)
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(perm, i, raisePerm=True)
 
@@ -1102,9 +1102,6 @@ class SpatialPooler(object):
     # given by the parameter "connectedPct"
     perm = numpy.zeros(self._numInputs)
     for i in xrange(self._numInputs):
-      if (potential[i] < 1):
-        continue
-
       if (self._random.getReal64() <= connectedPct):
         perm[i] = self._initPermConnected()
       else:
@@ -1176,10 +1173,11 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    index:          The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    wrapAround:     A boolean value indicating that boundaries should be
-                    ignored.
+    @param index:          The index identifying a column in the permanence, 
+                    potential and connectivity matrices.(UInt)
+    @param wrapAround:     A boolean value indicating that boundaries should be
+                    ignored. (default=False)
+    @return list of indices of input bits belonging to the column's pool 
     """
     index = self._mapColumn(index)
     indices = self._getNeighborsND(index,
@@ -1198,10 +1196,7 @@ class SpatialPooler(object):
     selectedIndices = numpy.empty(numPotential, dtype=uintType)
     self._random.sample(indices, selectedIndices)
 
-    potential = numpy.zeros(self._numInputs, dtype=uintType)
-    potential[selectedIndices] = 1
-
-    return potential
+    return selectedIndices
 
 
   @staticmethod
