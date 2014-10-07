@@ -936,7 +936,7 @@ add_custom_target(tests_cpphtm
                   COMMENT "Basic tests in C++")
 
 add_custom_target(cpp_unit_tests
-                  COMMAND ${PROJECT_BUILD_BINARIES_DIR}/testeverything
+                  COMMAND ${PROJECT_BUILD_BINARIES_DIR}/unit_tests
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
