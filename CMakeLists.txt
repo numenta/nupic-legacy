@@ -771,7 +771,6 @@ if("${NUPIC_CORE}" STREQUAL "")
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
   generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
-
 else()
   message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
   # Use user-specified NUPIC_CORE
@@ -785,7 +784,6 @@ else()
   set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
 endif()
 
-#
 # Compile google test from source for linking with tests
 #
 set(LIB_STATIC_GTEST gtest)
@@ -811,6 +809,7 @@ set(LIB_DYNAMIC_CPPREGION cpp_region)
 set(PROJECT_LIBRARIES
   ${LIB_STATIC_SUPPORT}
   ${LIB_STATIC_NUPICCORE}
+  ${LIB_STATIC_GTEST}
 )
 set(EXTERNAL_LIBRARIES
   ${LIB_STATIC_GTEST}
@@ -936,7 +935,7 @@ add_custom_target(tests_cpphtm
                   COMMENT "Basic tests in C++")
 
 add_custom_target(cpp_unit_tests
-                  COMMAND ${PROJECT_BUILD_BINARIES_DIR}/testeverything
+                  COMMAND ${PROJECT_BUILD_BINARIES_DIR}/unit_tests
                   COMMENT "C++ unit tests")
 
 # Tests_all just calls other targets
@@ -966,4 +965,3 @@ add_custom_target(distclean
 
 # Just to separate from result message
 message(STATUS "")
-
