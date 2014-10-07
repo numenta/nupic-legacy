@@ -784,14 +784,10 @@ else()
   set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
 endif()
 
-#
-# Google Test static library compiled in `nupic.core`
-# 
-# Needed by `cpp_region`
+# Compile google test from source for linking with tests
 #
 set(LIB_STATIC_GTEST gtest)
-add_library(${LIB_STATIC_GTEST} STATIC IMPORTED GLOBAL)
-set_property(TARGET ${LIB_STATIC_GTEST} PROPERTY IMPORTED_LOCATION "${REPOSITORY_DIR}/extensions/core/build/temp/lib/lib${LIB_STATIC_GTEST}.${STATIC_LIB_EXTENSION}")
+generate_static_library(${LIB_STATIC_GTEST} "${REPOSITORY_DIR}/extensions/core/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
 # HtmTest
@@ -816,6 +812,7 @@ set(PROJECT_LIBRARIES
   ${LIB_STATIC_GTEST}
 )
 set(EXTERNAL_LIBRARIES
+  ${LIB_STATIC_GTEST}
   ${PYTHON_LIBRARY}
 )
 generate_dynamic_library(${LIB_DYNAMIC_CPPREGION} "${REPOSITORY_DIR}/extensions/cpp_region" "${REPOSITORY_DIR}/nupic" "${NTA_CXXFLAGS}" "${NTA_LINKFLAGS} ${NTA_LINKFLAGS_PYEMBED}" "${PROJECT_LIBRARIES}" "${EXTERNAL_LIBRARIES}")
