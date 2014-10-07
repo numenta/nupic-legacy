@@ -117,8 +117,8 @@ class AnomalyTest(unittest.TestCase):
   def testAnomalyWithLikelihood(self):
     """example use of anomaly and tests likelihood code"""
     from nupic.encoders.scalar import ScalarEncoder as DataEncoder
-#    from nupic.research.spatial_pooler import SpatialPooler
-    from nupic.bindings.algorithms import SpatialPooler
+    from nupic.research.spatial_pooler import SpatialPooler
+#    from nupic.bindings.algorithms import SpatialPooler
     from nupic.research.TP10X2 import TP as TemporalPooler
 #    from nupic.research.TP import TP as TemporalPooler
     from nupic.algorithms.anomaly import Anomaly
@@ -136,8 +136,11 @@ class AnomalyTest(unittest.TestCase):
     an= Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
 
     data=range(10)
-    nTrainSPTP=200
-    nTrainLikelihood=300 # TODO find minimal acceptable values (to speed up the test)
+    nTrainSPTP=70 # find minimal acceptable values (to speed up the test)
+    nTrainLikelihood=50 # generally needs to be >=300 as it's a burn-in time for likelihood
+    # ^^ or "hack" likelihood to use shorter time:
+    an._likelihood._claLearningPeriod = 30
+    an._likelihood._probationaryPeriod = 330
    
     # first, some training to stabilize patterns in SP, TP 
     for i in xrange(nTrainSPTP): # train the weights in SP, TP
@@ -191,8 +194,8 @@ class AnomalyTest(unittest.TestCase):
     # finally check results
     hi=sum(results[0:10])
     low=sum(results[11:20])
-    # TODO if the test below is failing, increase SP/likelihood training times, or reduce confidence
-    self.assertTrue(low*3 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 3x difference in likelihoods for known vs. unexpected data
+    # if the test below is failing, increase SP/likelihood training times, or reduce confidence
+    self.assertTrue(low*5 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 5x difference in likelihoods for known vs. unexpected data
 
 
     
