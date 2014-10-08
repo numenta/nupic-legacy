@@ -169,8 +169,8 @@ class AnomalyTest(unittest.TestCase):
         anD=an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
 
     # evaluate 
-    likely=range(10) # trained data -> high likelihood
-    unlikely=numpy.random.randint(0,10,10) # random data -> low likelihood
+    likely=range(10) # trained data -> high likelihood -> low anomaly
+    unlikely=numpy.random.randint(0,10,10) # random data -> low likelihood -> hi an.
     data= likely + unlikely.tolist()
     results=[]
     _prev=[]
@@ -192,8 +192,8 @@ class AnomalyTest(unittest.TestCase):
     #  print "TP =", tpD
 
     # finally check results
-    hi=sum(results[0:10])
-    low=sum(results[11:20])
+    low=sum(results[0:10])
+    hi=sum(results[11:20])
     # if the test below is failing, increase SP/likelihood training times, or reduce confidence
     self.assertTrue(low*3 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 5x difference in likelihoods for known vs. unexpected data
 
