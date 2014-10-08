@@ -1072,7 +1072,7 @@ class SpatialPooler(object):
     p = self._synPermConnected * self._random.getReal64()
 
 
-  def _initPermanence(self, potential, connectedPct):
+  def _initPermanence(self, potentialMask, connectedPct):
     """
     Initializes the permanences of a column. The method
     returns a 1-D array the size of the input, where each entry in the
@@ -1082,19 +1082,18 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    potential:      A numpy array specifying the potential pool of the column.
+    @param potential - A numpy array specifying the potential pool of the column.
                     Permanence values will only be generated for input bits
                     corresponding to indices for which the mask value is 1.
-    connectedPct:   A value between 0 or 1 specifying the percent of the input
+    @param connectedPct - A value between 0 or 1 specifying the percent of the input
                     bits that will start off in a connected state.
-
     """
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
     perm = numpy.zeros(self._numInputs)
-    for i in xrange(self._numInputs):
+    for i in potentialMask:
       if (self._random.getReal64() <= connectedPct):
         perm[i] = self.__initPermConnected()
       else:
