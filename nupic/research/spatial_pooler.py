@@ -1046,7 +1046,7 @@ class SpatialPooler(object):
     self._connectedCounts[index] = newConnected.size
 
 
-  def _initPermConnected(self):
+  def __initPermConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is
     initialized in a connected state. The basic idea here is to initialize
@@ -1055,29 +1055,22 @@ class SpatialPooler(object):
 
     Note: experimentation was done a long time ago on the best way to initialize
     permanence values, but the history for this particular scheme has been lost.
+
+    Internal method! use _initPermanence() instead
     """
     p =  (self._synPermConnected + self._random.getReal64() *
       self._synPermActiveInc / 4.0)
 
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
-    return p
 
-
-  def _initPermNonConnected(self):
+  def __initPermNonConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is to be
     initialized in a non-connected state.
+
+    Internal method! use _initPermanence() instead
     """
     p = self._synPermConnected * self._random.getReal64()
 
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
-    return p
 
   def _initPermanence(self, potential, connectedPct):
     """
@@ -1103,14 +1096,19 @@ class SpatialPooler(object):
     perm = numpy.zeros(self._numInputs)
     for i in xrange(self._numInputs):
       if (self._random.getReal64() <= connectedPct):
-        perm[i] = self._initPermConnected()
+        perm[i] = self.__initPermConnected()
       else:
-        perm[i] = self._initPermNonConnected()
+        perm[i] = self.__initPermNonConnected()
 
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
     perm[perm < self._synPermTrimThreshold] = 0
+
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations
+    perm = int(perm*100000) / 100000.0
 
     return perm
 
