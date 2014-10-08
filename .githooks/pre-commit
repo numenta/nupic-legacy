@@ -49,7 +49,7 @@ def checkLint():
   py_files_changed = [file for file in [f.strip() for f in
                                         sub.stdout.readlines()]
                       if (file.endswith('.py') and os.path.exists(file)) or
-                          is_py_script(file)]
+                          isPythonScript(file)]
 
   for file in py_files_changed:
     try:
@@ -60,7 +60,7 @@ def checkLint():
       sys.exit(1)
 
 
-def is_py_script(filename):
+def isPythonScript(filename):
   """Returns True if a file is a python executable."""
   if not os.access(filename, os.X_OK):
     return False
