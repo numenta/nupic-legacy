@@ -630,9 +630,9 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(connections.synapsesForSegment(0), set([0, 1]))
 
-    self.assertEqual(connections.synapsesForSourceCell(174), set())
+    self.assertEqual(connections.synapsesForSourceCell(174), {})
     self.assertEqual(connections.synapsesForSourceCell(254),
-                     set([(0, (0, 254, 0.1173))]))
+                     {0: (0, 254, 0.1173)})
 
 
   def testCreateSynapseInvalidParams(self):

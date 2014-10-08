@@ -371,7 +371,7 @@ class TemporalMemory(object):
     predictiveCells = set()
 
     for cell in activeCells:
-      for synapse, synapseData in connections.synapsesForSourceCell(cell):
+      for synapseData in connections.synapsesForSourceCell(cell).values():
         segment, _, permanence = synapseData
 
         numActiveSynapsesForSegment[segment] += 1
@@ -601,7 +601,7 @@ class Connections(object):
     # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
     self._synapsesForSegment = dict()
-    self._synapsesForSourceCell = defaultdict(set)
+    self._synapsesForSourceCell = defaultdict(dict)
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -755,7 +755,7 @@ class Connections(object):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
 
-    self._synapsesForSourceCell[sourceCell].add((synapse, synapseData))
+    self._synapsesForSourceCell[sourceCell][synapse] = synapseData
 
     return synapse
 
@@ -775,8 +775,7 @@ class Connections(object):
 
     # Update indexes
     sourceCell = data[1]
-    self._synapsesForSourceCell[sourceCell].remove((synapse, data))
-    self._synapsesForSourceCell[sourceCell].add((synapse, newData))
+    self._synapsesForSourceCell[sourceCell][synapse] = newData
 
 
   # ==============================
