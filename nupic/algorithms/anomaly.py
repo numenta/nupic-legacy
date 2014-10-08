@@ -139,7 +139,7 @@ requires 'inputValue' as parameter to compute() method. ")
     elif self._mode == Anomaly.MODE_WEIGHTED:
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
-      score = anomalyScore * probability
+      score = anomalyScore * (1 - probability)
 
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
