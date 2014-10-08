@@ -1000,20 +1000,18 @@ class SpatialPooler(object):
       "to the input size. [len(mask) < self._stimulusThreshold]")
     
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    while True:
-      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
-      if numConnected >= self._stimulusThreshold:
-        return
-      perm[mask] += self._synPermBelowStimulusInc
+    # grow (mask) permanences (perm) to >= stimulusThreshold : 
+    while numpy.nonzero(perm > self._synPermConnected)[0].size < self._stimulusThreshold:
+      perm[mask] += self._synPermBelowStimulusInc #TODO: optimize the while loop
 
 
   def _updatePermanencesForColumn(self, perm, index, raisePerm=True):
     """
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
-    the matrix, and the permanence is given in 'dense' form, i.e. a full
-    array containing all the zeros as well as the non-zero values. It is in
-    charge of implementing 'clipping' - ensuring that the permanence values are
+    the matrix, and the permanence is given in sparse form 
+    (indces of non-zero values). It is in charge of implementing 'clipping' 
+    - ensuring that the permanence values are
     always between 0 and 1 - and 'trimming' - enforcing sparsity by zeroing out
     all permanence values below '_synPermTrimThreshold'. It also maintains
     the consistency between 'self._permanences' (the matrix storing the
@@ -1025,8 +1023,7 @@ class SpatialPooler(object):
     Parameters:
     ----------------------------
     perm:           An array of permanence values for a column. The array is
-                    "dense", i.e. it contains an entry for each input bit, even
-                    if the permanence value is 0.
+                    "sparse", i.e. it contains an index for each non-zero value
     index:          The index identifying a column in the permanence, potential
                     and connectivity matrices
     raisePerm:      a boolean value indicating whether the permanence values
