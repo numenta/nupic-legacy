@@ -287,7 +287,7 @@ class SpatialPooler(object):
       potential = self._mapPotential(i, wrapAround=self._wrapAround)
       self._potentialPools.replaceSparseRow(i, potential)
       perm = self._initPermanence(potential, initConnectedPct)
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      self._updatePermanencesForColumn(potential, perm, i, raisePerm=True)
 
 
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -639,7 +639,9 @@ class SpatialPooler(object):
     """Sets the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
     assert(column < self._numColumns)
-    self._updatePermanencesForColumn(permanence, column, raisePerm=False)
+    permIdx=numpy.where(permanence > 0)[0] # TODO remove these and assume input params are sparse already
+    permVal=permanence[permIdx]
+    self._updatePermanencesForColumn(permIdx, permVal, column, raisePerm=False)
 
 
   def getConnectedSynapses(self, column, connectedSynapses):
@@ -953,10 +955,10 @@ class SpatialPooler(object):
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     for i in activeColumns:
-      perm = self._permanences.getRow(i)
       maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskPotential] += permChanges[maskPotential]
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      perm = self._permanences.getRow(i)[maskPotential] # sparse
+      perm += permChanges[maskPotential]
+      self._updatePermanencesForColumn(maskPotential, perm, i, raisePerm=True)
 
 
   def _bumpUpWeakColumns(self):
@@ -969,10 +971,10 @@ class SpatialPooler(object):
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for i in weakColumns:
-      perm = self._permanences.getRow(i).astype(realDType)
       maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskPotential] += self._synPermBelowStimulusInc
-      self._updatePermanencesForColumn(perm, i, raisePerm=False)
+      perm = self._permanences.getRow(i).astype(realDType)[maskPotential] # sparse
+      perm += self._synPermBelowStimulusInc
+      self._updatePermanencesForColumn(maskPotential, perm, i, raisePerm=False)
 
 
   def _raisePermanenceToThreshold(self, perm, mask):
@@ -989,8 +991,7 @@ class SpatialPooler(object):
     Parameters:
     ----------------------------
     perm:           An array of permanence values for a column. The array is
-                    "dense", i.e. it contains an entry for each input bit, even
-                    if the permanence value is 0.
+                    "sparse".
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
@@ -1005,7 +1006,7 @@ class SpatialPooler(object):
       perm[mask] += self._synPermBelowStimulusInc #TODO: optimize the while loop
 
 
-  def _updatePermanencesForColumn(self, perm, index, raisePerm=True):
+  def _updatePermanencesForColumn(self, permIdx, permVal, index, raisePerm=True):
     """
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
@@ -1035,10 +1036,10 @@ class SpatialPooler(object):
     maskPotential = numpy.where(self._potentialPools.getRow(index) > 0)[0]
     if raisePerm:
       self._raisePermanenceToThreshold(perm, maskPotential)
-    perm[perm < self._synPermTrimThreshold] = 0
-    numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    newConnected = numpy.where(perm >= self._synPermConnected)[0]
-    self._permanences.setRowFromDense(index, perm)
+    permVal[permVal < self._synPermTrimThreshold] = 0
+    numpy.clip(permVal, self._synPermMin, self._synPermMax, out=permVal)
+    newConnected = numpy.where(permVal >= self._synPermConnected)[0]
+    self._permanences.setRowFromSparse(index, permIdx, permVal)
     self._connectedSynapses.replaceSparseRow(index, newConnected)
     self._connectedCounts[index] = newConnected.size
 
