@@ -30,8 +30,6 @@ from nupic.math import GetNTAReal
 from nupic.research.TP import TP
 from nupic.research.TP10X2 import TP10X2
 from nupic.research.temporal_memory import Connections
-from nupic.research.temporal_memory_inspect_mixin import (
-  TemporalMemoryInspectMixin)
 
 
 
@@ -97,11 +95,3 @@ class TemporalMemoryShim(TPClass):
 
     predictedState = self.getPredictedState()
     self.predictiveCells = set(numpy.flatnonzero(predictedState))
-
-
-
-class InspectTemporalMemoryShim(TemporalMemoryInspectMixin, TemporalMemoryShim):
-  """
-  Temporal Memory Shim subclass that enables detailed inspection of history.
-  """
-  pass
