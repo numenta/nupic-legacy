@@ -1032,10 +1032,8 @@ class SpatialPooler(object):
                     a connected state. Should be set to 'false' when a direct
                     assignment is required.
     """
-
-    maskPotential = numpy.where(self._potentialPools.getRow(index) > 0)[0]
     if raisePerm:
-      self._raisePermanenceToThreshold(perm, maskPotential)
+      self._raisePermanenceToThreshold(permVal, permIdx)
     permVal[permVal < self._synPermTrimThreshold] = 0
     numpy.clip(permVal, self._synPermMin, self._synPermMax, out=permVal)
     newConnected = numpy.where(permVal >= self._synPermConnected)[0]
