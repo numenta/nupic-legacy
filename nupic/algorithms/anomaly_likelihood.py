@@ -64,7 +64,7 @@ import datetime
 
 import numpy
 
-from nupic.common.utils import MovingAverage
+from nupic.utils import MovingAverage
 
 
 class AnomalyLikelihood(object):
