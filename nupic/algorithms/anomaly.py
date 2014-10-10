@@ -24,7 +24,7 @@
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
-from nupic.common.utils import MovingAverage
+from nupic.utils import MovingAverage
 
 
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):

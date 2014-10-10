@@ -26,7 +26,7 @@ import math
 import numpy
 import unittest2 as unittest
 
-from nupic.common.utils import MovingAverage
+from nupic.utils import MovingAverage
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
