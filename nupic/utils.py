@@ -28,8 +28,8 @@ class MovingAverage(object):
   """
   computes moving average;
   @method compute() - static, requires all parameters set
-  @method next() - from an instance of MovingAverage object, does the bookkeeping
-	for you.
+  @method next() - from an instance of MovingAverage object, 
+              does the bookkeeping for you.
   """
 
 
@@ -43,16 +43,17 @@ class MovingAverage(object):
     try:
       int(windowSize)
     except:
-      TypeError("MovingAverage - windowSize must be integer type")
+      raise TypeError("MovingAverage - windowSize must be integer type")
     if  windowSize <= 0:
       raise ValueError("MovingAverage - windowSize must be >0")
 
-    self.windowSize_=windowSize
+    self.windowSize=windowSize
     if existingHistoricalValues is not None:
-      self.slidingWindow_=existingHistoricalValues[len(existingHistoricalValues)-windowSize:]
+      self.slidingWindow=\
+        existingHistoricalValues[len(existingHistoricalValues)-windowSize:]
     else:
-      self.slidingWindow_=[]
-    self.total_=sum(self.slidingWindow_)
+      self.slidingWindow=[]
+    self.total=sum(self.slidingWindow)
     
   
   @staticmethod
@@ -65,8 +66,8 @@ class MovingAverage(object):
     @param windowSize - length of sliding window used
 
     @returns an updated windowed average, the new list of ``historicalValues``,
-        and the new running total. Ensures the list of ``historicalValues`` is at
-        most ``windowSize``.
+        and the new running total. Ensures the list of ``historicalValues`` is
+        at most ``windowSize``.
     """
     while len(historicalValues) >= windowSize:
       total -= historicalValues[0]
@@ -83,12 +84,12 @@ class MovingAverage(object):
     update moving average with the new value added
     @param newValue - integer value to be added
     @return an updated windowed average, the new list of ``historicalValues``,
-        and the new running total. Ensures the list of ``historicalValues`` is at
-        most ``windowSize``.
+        and the new running total. Ensures the list of ``historicalValues`` is
+        at most ``windowSize``.
     """
-    newAverage, self.slidingWindow_, self.total_ = (MovingAverage.compute(
-							self.slidingWindow_,
-							self.total_,
+    newAverage, self.slidingWindow, self.total = (MovingAverage.compute(
+							self.slidingWindow,
+							self.total,
 							newValue,
-							self.windowSize_) )
-    return newAverage, self.slidingWindow_, self.total_
+							self.windowSize) )
+    return newAverage, self.slidingWindow, self.total

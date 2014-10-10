@@ -22,8 +22,6 @@
 
 """Unit tests for utils module."""
 
-import math
-import numpy
 import unittest2 as unittest
 
 from nupic.utils import MovingAverage
