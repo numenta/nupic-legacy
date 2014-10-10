@@ -614,11 +614,17 @@ class SpatialPooler(object):
     potential[:] = self._potentialPools.getRow(column)
 
 
-  def setPotential(self, column, potential):
+  def setPotential(self, column, potential):    
     """Sets the potential mapping for a given column. 'potential' size
-    must match the number of inputs"""
+    must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
+    
     potentialSparse = numpy.where(potential > 0)[0]
+    if len(potentialSparse) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size.")
+    
     self._potentialPools.replaceSparseRow(column, potentialSparse)
 
 
@@ -680,7 +686,15 @@ class SpatialPooler(object):
         the current behavior you should additionally pass the resulting
         activeArray to the stripUnlearnedColumns method manually.
     """
-    assert (numpy.size(inputVector) == self._numInputs)
+    if not isinstance(inputVector, numpy.ndarray):
+      raise TypeError("Input vector must be a numpy array, not %s" %
+                      str(type(inputVector)))
+
+    if inputVector.size != self._numInputs:
+      raise ValueError(
+          "Input vector dimensions don't match. Expecting %s but got %s" % (
+              inputVector.size(), self._numInputs))
+
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
     inputVector.reshape(-1)
@@ -988,6 +1002,11 @@ class SpatialPooler(object):
     mask:           the indices of the columns whose permanences need to be
                     raised.
     """
+    if len(mask) < self._stimulusThreshold:
+      raise Exception("This is likely due to a " +
+      "value of stimulusThreshold that is too large relative " +
+      "to the input size. [len(mask) < self._stimulusThreshold]")
+    
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
       numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
@@ -1176,20 +1195,21 @@ class SpatialPooler(object):
                                    self._potentialRadius,
                                    wrapAround=wrapAround)
     indices.append(index)
-    indices = numpy.array(indices)
+    indices = numpy.array(indices, dtype=uintType)
 
     # TODO: See https://github.com/numenta/nupic.core/issues/128
     indices.sort()
 
     # Select a subset of the receptive field to serve as the
     # the potential pool
-    sample = numpy.empty(int(round(
-      indices.size*self._potentialPct)),dtype=uintType)
-    self._random.getUInt32Sample(indices.astype(uintType), sample)
+    numPotential = int(round(indices.size * self._potentialPct))
+    selectedIndices = numpy.empty(numPotential, dtype=uintType)
+    self._random.sample(indices, selectedIndices)
 
-    mask = numpy.zeros(self._numInputs)
-    mask[sample] = 1
-    return mask
+    potential = numpy.zeros(self._numInputs, dtype=uintType)
+    potential[selectedIndices] = 1
+
+    return potential
 
 
   @staticmethod

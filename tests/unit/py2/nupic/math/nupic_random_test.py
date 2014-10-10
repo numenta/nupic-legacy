@@ -23,8 +23,9 @@
 """NuPIC random module tests."""
 
 import cPickle as pickle
+import unittest
 
-import unittest2 as unittest
+import numpy
 
 from nupic.bindings.math import Random, StdRandom
 
@@ -84,6 +85,131 @@ class TestNupicRandom(unittest.TestCase):
 
     self.assertEqual(sr.random(), r1)
     self.assertEqual(sr.random(), r2)
+
+
+  def testSample(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint32")
+
+    r.sample(population, choices)
+
+    self.assertEqual(choices[0], 2)
+    self.assertEqual(choices[1], 4)
+
+
+  def testSampleNone(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([0], dtype="uint32")
+
+    # Just make sure there is no exception thrown.
+    r.sample(population, choices)
+
+    self.assertEqual(choices.size, 0)
+
+
+  def testSampleAll(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([4], dtype="uint32")
+
+    r.sample(population, choices)
+
+    self.assertEqual(choices[0], 1)
+    self.assertEqual(choices[1], 2)
+    self.assertEqual(choices[2], 3)
+    self.assertEqual(choices[3], 4)
+
+
+  def testSampleWrongDimensionsPopulation(self):
+    """Check that passing a multi-dimensional array throws a ValueError."""
+    r = Random(42)
+    population = numpy.array([[1, 2], [3, 4]], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint32")
+
+    self.assertRaises(ValueError, r.sample, population, choices)
+
+
+  def testSampleWrongDimensionsChoices(self):
+    """Check that passing a multi-dimensional array throws a ValueError."""
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([2, 2], dtype="uint32")
+
+    self.assertRaises(ValueError, r.sample, population, choices)
+
+
+  def testSampleSequenceRaisesTypeError(self):
+    """Check that passing lists throws a TypeError.
+
+    This behavior may change if sample is extended to understand sequences.
+    """
+    r = Random(42)
+    population = [1, 2, 3, 4]
+    choices = [0, 0]
+
+    self.assertRaises(TypeError, r.sample, population, choices)
+
+
+  def testSampleBadDtype(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="int64")
+    choices = numpy.zeros([2], dtype="int64")
+
+    self.assertRaises(TypeError, r.sample, population, choices)
+
+
+  def testSampleDifferentDtypes(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([2], dtype="uint64")
+
+    self.assertRaises(ValueError, r.sample, population, choices)
+
+
+  def testSamplePopulationTooSmall(self):
+    r = Random(42)
+    population = numpy.array([1, 2, 3, 4], dtype="uint32")
+    choices = numpy.zeros([5], dtype="uint32")
+
+    self.assertRaises(
+        ValueError, r.sample, population, choices)
+
+
+  def testShuffle(self):
+    r = Random(42)
+    arr = numpy.array([1, 2, 3, 4], dtype="uint32")
+
+    r.shuffle(arr)
+
+    self.assertEqual(arr[0], 3)
+    self.assertEqual(arr[1], 4)
+    self.assertEqual(arr[2], 2)
+    self.assertEqual(arr[3], 1)
+
+
+  def testShuffleEmpty(self):
+    r = Random(42)
+    arr = numpy.zeros([0], dtype="uint32")
+
+    r.shuffle(arr)
+
+    self.assertEqual(arr.size, 0)
+
+
+  def testShuffleEmpty(self):
+    r = Random(42)
+    arr = numpy.zeros([2, 2], dtype="uint32")
+
+    self.assertRaises(ValueError, r.shuffle, arr)
+
+
+  def testShuffleBadDtype(self):
+    r = Random(42)
+    arr = numpy.array([1, 2, 3, 4], dtype="int64")
+
+    self.assertRaises(ValueError, r.shuffle, arr)
 
 
 
