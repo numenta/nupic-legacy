@@ -34,9 +34,7 @@ class MovingAverage(object):
     @param existingHistoricalValues - construct the object with already
     	some values in it.
     """
-    try:
-      int(windowSize)
-    except:
+    if not isinstance(windowSize, numbers.Integral):  
       raise TypeError("MovingAverage - windowSize must be integer type")
     if  windowSize <= 0:
       raise ValueError("MovingAverage - windowSize must be >0")
