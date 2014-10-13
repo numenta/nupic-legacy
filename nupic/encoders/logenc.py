@@ -131,13 +131,12 @@ class LogEncoder(ScalarEncoder):
     if inpt == self.SENTINEL_VALUE_FOR_MISSING_DATA:
       return None
     else:
-      val = inpt
-      if val < self.minvalRaw:
-        val = self.minvalRaw
-      elif val > self.maxvalRaw:
-        val = self.maxvalRaw
+      if inpt < self.minvalRaw:
+        inpt = self.minvalRaw
+      elif inpt > self.maxvalRaw:
+        inpt = self.maxvalRaw
 
-      scaledVal = math.log10(val) #TODO do other log too
+      scaledVal = math.log10(inpt) #TODO do other log too
       return scaledVal
 
   ###########################################################################
@@ -155,6 +154,8 @@ class LogEncoder(ScalarEncoder):
       val = self.maxval
 
     rawVal = math.pow(10, val) #TODO do other log too
+    # round to 6th place to avoid float operation errors
+    rawVal=float(int((rawVal*1000000)/1000000))
     return rawVal
 
 

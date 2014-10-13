@@ -128,7 +128,8 @@ class LogEncoderTest(unittest.TestCase):
       
       # Verify the range surrounds this scaled val
       self.assertTrue(topDown.value >= minTopDown and
-                      topDown.value <= maxTopDown)
+                      topDown.value <= maxTopDown, 
+                      "Should be: %r >= %r and %r <= %r" %(topDown.value, minTopDown, topDown.value, maxTopDown))
       
       # Test bucket support
       bucketIndices = le.getBucketIndices(value)
