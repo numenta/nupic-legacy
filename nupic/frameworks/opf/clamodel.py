@@ -625,7 +625,7 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-                     activeColumns, self._prevPredictedColumns)
+          activeColumns, self._prevPredictedColumns)
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]

@@ -28,9 +28,9 @@ from nupic.utils import MovingAverage
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
+
 class UtilsTest(TestCaseBase):
   """testing common.utils"""
-
 
 
   def testMovingAverage(self):
@@ -105,4 +105,3 @@ class UtilsTest(TestCaseBase):
 
 if __name__ == "__main__":
   unittest.main()
-

@@ -129,16 +129,16 @@ class AnomalyTest(unittest.TestCase):
     import math
 
     # init
-    realType=GetNTAReal()
-    encoder= DataEncoder(w=21, minval=0, maxval=9, resolution=0.1, forced=True)
-    _numCols=10**2 # must be power of 2
-    sp= SpatialPooler(inputDimensions=[encoder.getWidth()], columnDimensions=[_numCols])
-    tp= TemporalPooler(numberOfCols=_numCols)#int(math.sqrt(_numCols)))
-    an= Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    realType = GetNTAReal()
+    encoder = DataEncoder(w=21, minval=0, maxval=9, resolution=0.1, forced=True)
+    _numCols = 10**2 # must be power of 2
+    sp = SpatialPooler(inputDimensions=[encoder.getWidth()], columnDimensions=[_numCols])
+    tp = TemporalPooler(numberOfCols=_numCols)#int(math.sqrt(_numCols)))
+    an = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
 
-    data=range(10)
-    nTrainSPTP=70 # find minimal acceptable values (to speed up the test)
-    nTrainLikelihood=50 # generally needs to be >=300 as it's a burn-in time for likelihood
+    data = range(10)
+    nTrainSPTP = 70 # find minimal acceptable values (to speed up the test)
+    nTrainLikelihood = 50 # generally needs to be >=300 as it's a burn-in time for likelihood
     # ^^ or "hack" likelihood to use shorter time:
     an._likelihood._claLearningPeriod = 30
     an._likelihood._probationaryPeriod = 330
@@ -147,45 +147,45 @@ class AnomalyTest(unittest.TestCase):
     for i in xrange(nTrainSPTP): # train the weights in SP, TP
       # run some data through the pipes
       for raw in data:
-        encD=encoder.encode(raw)
-        spD=numpy.zeros(_numCols)
+        encD = encoder.encode(raw)
+        spD = numpy.zeros(_numCols)
         sp.compute(encD, True, spD) # learn
 #        spD=sp.stripUnlearnedColumns(spD)
-        spD=spD.nonzero()[0]
-        spD=spD[spD>0.5]
-        tpD=tp.compute(spD, enableLearn=True, computeInfOutput=True).nonzero()[0] # learn
+        spD = spD.nonzero()[0]
+        spD = spD[spD>0.5]
+        tpD = tp.compute(spD, enableLearn=True, computeInfOutput=True).nonzero()[0] # learn
 
     # now train the likelihood model
     for i in xrange(nTrainLikelihood):
-      _prev=[]
-      tpD=[]
+      _prev = []
+      tpD = []
       for raw in data:
-        encD=encoder.encode(raw)
-        spD=numpy.array([0]*_numCols, dtype=float)
+        encD = encoder.encode(raw)
+        spD = numpy.array([0]*_numCols, dtype=float)
         sp.compute(encD, False, spD)
-        spD=spD.nonzero()[0]
-        spD=spD[spD>0.5]
-        _prev=tpD
-        tpD=tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
-        anD=an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
+        spD = spD.nonzero()[0]
+        spD = spD[spD>0.5]
+        _prev = tpD
+        tpD = tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
+        anD = an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
 
     # evaluate 
-    likely=range(10) # trained data -> high likelihood -> low anomaly
-    unlikely=numpy.random.randint(0,10,10) # random data -> low likelihood -> hi an.
-    data= likely + unlikely.tolist()
-    results=[]
-    _prev=[]
+    likely = range(10) # trained data -> high likelihood -> low anomaly
+    unlikely = numpy.random.randint(0,10,10) # random data -> low likelihood -> hi an.
+    data = likely + unlikely.tolist()
+    results = []
+    _prev = []
     tpD=[]
     for raw in data:
-      encD=encoder.encode(raw)
-      spD=numpy.array([0]*_numCols, dtype=float)
+      encD = encoder.encode(raw)
+      spD = numpy.array([0]*_numCols, dtype=float)
       sp.compute(encD, False, spD)
-      spD=spD.nonzero()[0]
-      spD=spD[spD>0.5]
-      _prev=tpD
-      tpD=tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
+      spD = spD.nonzero()[0]
+      spD = spD[spD>0.5]
+      _prev = tpD
+      tpD = tp.compute(spD, enableLearn=False, computeInfOutput=True).nonzero()[0]
       
-      anD=an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
+      anD = an.compute(tpD, _prev, inputValue=raw) # anomaly likelihood
       results.append(anD)
     #  print "------\ndata= %r\tanomaly=%r" % (raw, anD)
     #  print "ENC=", encD.nonzero()
@@ -193,8 +193,8 @@ class AnomalyTest(unittest.TestCase):
     #  print "TP =", tpD
 
     # finally check results
-    low=sum(results[0:10])
-    hi=sum(results[11:20])
+    low = sum(results[0:10])
+    hi = sum(results[11:20])
     # if the test below is failing, increase SP/likelihood training times, or reduce confidence
     self.assertTrue(low*2 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 2x difference in likelihoods for known vs. unexpected data
 
