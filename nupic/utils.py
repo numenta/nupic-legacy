@@ -24,8 +24,14 @@ utils.py are a collection of methods that can be reused by different classes
 in our codebase.
 """
 
+import numpy
+import numbers
+
+
+
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
+
 
   def __init__(self, windowSize, existingHistoricalValues=None):
     """
@@ -41,10 +47,11 @@ class MovingAverage(object):
 
     self.windowSize = windowSize
     if existingHistoricalValues is not None:
-      self.slidingWindow =
-        existingHistoricalValues[len(existingHistoricalValues)-windowSize:]
+      self.slidingWindow = existingHistoricalValues[
+                              len(existingHistoricalValues)-windowSize:]
     else:
       self.slidingWindow = []
+    self.slidingWindow = numpy.array(self.slidingWindow)
     self.total = sum(self.slidingWindow)
     
   
@@ -63,11 +70,10 @@ class MovingAverage(object):
     """
     while len(historicalValues) >= windowSize:
       total -= historicalValues[0]
-      historicalValues.pop(0)
-    historicalValues.append(newVal)
+      historicalValues = numpy.delete(historicalValues, 0)
+    historicalValues = numpy.append(historicalValues, [newVal])
     total += newVal
-    newAverage = float(total) / len(historicalValues)
-
+    newAverage = numpy.average(historicalValues)
     return newAverage, historicalValues, total
 
 
@@ -85,3 +91,7 @@ class MovingAverage(object):
 							newValue,
 							self.windowSize) )
     return newAverage, self.slidingWindow, self.total
+
+
+  def getSlidingWindow(self):
+    return self.slidingWindow
