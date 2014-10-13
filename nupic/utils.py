@@ -39,13 +39,13 @@ class MovingAverage(object):
     if  windowSize <= 0:
       raise ValueError("MovingAverage - windowSize must be >0")
 
-    self.windowSize=windowSize
+    self.windowSize = windowSize
     if existingHistoricalValues is not None:
-      self.slidingWindow=\
+      self.slidingWindow =
         existingHistoricalValues[len(existingHistoricalValues)-windowSize:]
     else:
-      self.slidingWindow=[]
-    self.total=sum(self.slidingWindow)
+      self.slidingWindow = []
+    self.total = sum(self.slidingWindow)
     
   
   @staticmethod
