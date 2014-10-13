@@ -25,13 +25,7 @@ in our codebase.
 """
 
 class MovingAverage(object):
-  """
-  computes moving average;
-  @method compute() - static, requires all parameters set
-  @method next() - from an instance of MovingAverage object, 
-              does the bookkeeping for you.
-  """
-
+  """Helper class for computing moving average and sliding window"""
 
   def __init__(self, windowSize, existingHistoricalValues=None):
     """
