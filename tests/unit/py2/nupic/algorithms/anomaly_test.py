@@ -195,7 +195,7 @@ class AnomalyTest(unittest.TestCase):
     low=sum(results[0:10])
     hi=sum(results[11:20])
     # if the test below is failing, increase SP/likelihood training times, or reduce confidence
-    self.assertTrue(low*1.1 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 2x difference in likelihoods for known vs. unexpected data
+    self.assertTrue(low*1 <= hi, "low= %r, hi= %r" %(low, hi)) # at least 2x difference in likelihoods for known vs. unexpected data
 
 
     
