@@ -20,17 +20,15 @@
 # ----------------------------------------------------------------------
 
 import math
-import sys
 
 import numpy
-
-from nupic.encoders.scalar import ScalarEncoder
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
-from nupic.encoders.base import EncoderResult
+from nupic.encoders.base import Encoder, EncoderResult
+from nupic.encoders.scalar import ScalarEncoder
 
-PRECISION=10000000 # floating point math valid to 8th place
 
-class LogEncoder(ScalarEncoder):
+class LogEncoder(Encoder):
   """
   This class wraps the ScalarEncoder class.
 
@@ -66,7 +64,7 @@ class LogEncoder(ScalarEncoder):
   """
 
   def __init__(self,
-               w=5, #TODO save is >=21
+               w=5,
                minval=1e-07,
                maxval=10000,
                periodic=False,
@@ -77,48 +75,58 @@ class LogEncoder(ScalarEncoder):
                verbosity=0,
                clipInput=True,
                forced=False):
-    
+
     # Lower bound for log encoding near machine precision limit
-    lowLimit = 1e-07 #sys.float_info.min
-    hiLimit = sys.float_info.max
+    lowLimit = 1e-07
 
     # Limit minval as log10(0) is undefined.
     if minval < lowLimit:
-      raise ValueError("log(0) is undefined, your specified minval= %r is below system \
-          supported limit= %r" % (minval, lowLimit))
+      minval = lowLimit
 
-    if maxval > hiLimit:
-      raise ValueError("Given maxvalue=%r is too high! Limit is %r" % (maxval, hiLimit))
+    # Check that minval is still lower than maxval
+    if not minval < maxval:
+      raise ValueError("Max val must be larger than min val or the lower limit "
+                       "for this encoder %.7f" % lowLimit)
 
+    self.encoders = None
+    self.verbosity = verbosity
 
     # Scale values for calculations within the class
     self.minScaledValue = math.log10(minval)
     self.maxScaledValue = math.log10(maxval)
-    self.minvalRaw = minval # different than minval/maxval after super() call
-    self.maxvalRaw = maxval
-    self.resolutionRaw=resolution
     
     if not self.maxScaledValue > self.minScaledValue:
       raise ValueError("Max val must be larger, in log space, than min val.")
-      
-    super(LogEncoder, self).__init__(w=w,
+
+    self.clipInput = clipInput    
+    self.minval = minval
+    self.maxval = maxval
+
+    self.encoder = ScalarEncoder(w=w,
                                  minval=self.minScaledValue,
                                  maxval=self.maxScaledValue,
-                                 periodic=periodic,
+                                 periodic=False,
                                  n=n,
                                  radius=radius,
                                  resolution=resolution,
-				 name=name,
-                                 verbosity=verbosity,
-                                 clipInput=clipInput,
+                                 verbosity=self.verbosity,
+                                 clipInput=self.clipInput,
 				 forced=forced)
+    self.width = self.encoder.getWidth()
+    self.description = [(name, 0)]
+    self.name = name
 
     # This list is created by getBucketValues() the first time it is called,
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
 
-    # unset self.minval/maxval inherited from parent, to avoid confusion;
-    # use minvalRaw & minScaledValue instead
+  ############################################################################
+  def getWidth(self):
+    return self.width
+
+  ############################################################################
+  def getDescription(self):
+    return self.description
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
@@ -132,36 +140,17 @@ class LogEncoder(ScalarEncoder):
     """
     Convert the input, which is in normal space, into log space
     """
-    if inpt == self.SENTINEL_VALUE_FOR_MISSING_DATA:
+    if inpt == SENTINEL_VALUE_FOR_MISSING_DATA:
       return None
     else:
-      if inpt < self.minvalRaw:
-        inpt = self.minvalRaw
-      elif inpt > self.maxvalRaw:
-        inpt = self.maxvalRaw
+      val = inpt
+      if val < self.minval:
+        val = self.minval
+      elif val > self.maxval:
+        val = self.maxval
 
-      scaledVal = math.log10(inpt) #TODO do other log too
+      scaledVal = math.log10(val)
       return scaledVal
-
-  ###########################################################################
-  def _getDescaledValue(self, scaledInpt):
-    """
-    convert from log-space back to normal space
-    """
-    if scaledInpt == self.SENTINEL_VALUE_FOR_MISSING_DATA:
-      return None
-
-    val = scaledInpt
-    if val < self.minScaledValue:
-      val = self.minScaledValue
-    elif val > self.maxScaledValue:
-      val = self.maxScaledValue
-
-    rawVal = math.pow(10, val) #TODO do other log too
-    # round to 6th place to avoid float operation errors
-    rawVal=float(int(rawVal*PRECISION)/PRECISION)
-    return rawVal
-
 
   ############################################################################
   def getBucketIndices(self, inpt):
@@ -172,10 +161,13 @@ class LogEncoder(ScalarEncoder):
     # Get the scaled value
     scaledVal = self._getScaledValue(inpt)
 
-    return super(LogEncoder, self).getBucketIndices(scaledVal)
+    if scaledVal is None:
+      return [None]
+    else:
+      return self.encoder.getBucketIndices(scaledVal)
 
   ############################################################################
-  def encodeIntoArray(self, inpt, output, learn=True):
+  def encodeIntoArray(self, inpt, output):
     """
     See the function description in base.py
     """
@@ -186,10 +178,7 @@ class LogEncoder(ScalarEncoder):
     if scaledVal is None:
       output[0:] = 0
     else:
-      super(LogEncoder, self).encodeIntoArray(scaledVal, output, learn)
-
-    for i in xrange(len(output)):
-      output[i]=float(output[i])
+      self.encoder.encodeIntoArray(scaledVal, output)
 
       if self.verbosity >= 2:
         print "input:", inpt, "scaledVal:", scaledVal, "output:", output
@@ -202,7 +191,7 @@ class LogEncoder(ScalarEncoder):
     """
 
     # Get the scalar values from the underlying scalar encoder
-    (fieldsDict, fieldNames) = super(LogEncoder, self).decode(encoded)
+    (fieldsDict, fieldNames) = self.encoder.decode(encoded)
     if len(fieldsDict) == 0:
       return (fieldsDict, fieldNames)
 
@@ -213,7 +202,7 @@ class LogEncoder(ScalarEncoder):
     (inRanges, inDesc) = fieldsDict.values()[0]
     outRanges = []
     for (minV, maxV) in inRanges:
-      outRanges.append((math.pow(10, minV), #TODO do other log too
+      outRanges.append((math.pow(10, minV),
                         math.pow(10, maxV)))
 
     # Generate a text description of the ranges
@@ -242,14 +231,10 @@ class LogEncoder(ScalarEncoder):
 
     # Need to re-create?
     if self._bucketValues is None:
-      scaledValues = super(LogEncoder, self).getBucketValues()
+      scaledValues = self.encoder.getBucketValues()
       self._bucketValues = []
       for scaledValue in scaledValues:
-        try:
-          value = math.pow(10, scaledValue)
-        except:
-          print "ERR", scaledValue
-          raise
+        value = math.pow(10, scaledValue)
         self._bucketValues.append(value)
 
     return self._bucketValues
@@ -260,7 +245,7 @@ class LogEncoder(ScalarEncoder):
     See the function description in base.py
     """
 
-    scaledResult = super(LogEncoder, self).getBucketInfo(buckets)[0]
+    scaledResult = self.encoder.getBucketInfo(buckets)[0]
     scaledValue = scaledResult.value
     value = math.pow(10, scaledValue)
 
@@ -273,7 +258,7 @@ class LogEncoder(ScalarEncoder):
     See the function description in base.py
     """
 
-    scaledResult = super(LogEncoder, self).topDownCompute(encoded)[0]
+    scaledResult = self.encoder.topDownCompute(encoded)[0]
     scaledValue = scaledResult.value
     value = math.pow(10, scaledValue)
 
