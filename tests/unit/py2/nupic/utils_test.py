@@ -23,6 +23,7 @@
 """Unit tests for utils module."""
 
 import unittest2 as unittest
+import numpy
 
 from nupic.utils import MovingAverage
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
@@ -39,7 +40,7 @@ class UtilsTest(TestCaseBase):
     even for null initial condition and when the number of values goes over
     windowSize.  Pass in integers and floats.
     """
-    historicalValues = []
+    historicalValues = numpy.array([])
     total = 0
     windowSize = 3
     newAverage, historicalValues, total = (
@@ -53,14 +54,14 @@ class UtilsTest(TestCaseBase):
       MovingAverage.compute(historicalValues, total, 4, windowSize)
     )
     self.assertEqual(newAverage, 3.5)
-    self.assertEqual(historicalValues, [3.0, 4.0])
+    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0])
     self.assertEqual(total, 7.0)
 
     newAverage, historicalValues, total = (
       MovingAverage.compute(historicalValues, total, 5.0, windowSize)
     )
     self.assertEqual(newAverage, 4.0)
-    self.assertEqual(historicalValues, [3.0, 4.0, 5.0])
+    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0, 5.0])
     self.assertEqual(total, 12.0)
 
     # Ensure the first value gets popped
@@ -68,7 +69,7 @@ class UtilsTest(TestCaseBase):
       MovingAverage.compute(historicalValues, total, 6.0, windowSize)
     )
     self.assertEqual(newAverage, 5.0)
-    self.assertEqual(historicalValues, [4.0, 5.0, 6.0])
+    self.assertListEqual(historicalValues.tolist(), [4.0, 5.0, 6.0])
     self.assertEqual(total, 15.0)
 
 
@@ -83,23 +84,23 @@ class UtilsTest(TestCaseBase):
 
     newAverage, historicalValues, total = (ma.next(3))
     self.assertEqual(newAverage, 3.0)
-    self.assertEqual(historicalValues, [3.0])
+    self.assertListEqual(historicalValues.tolist(), [3.0])
     self.assertEqual(total, 3.0)
 
     newAverage, historicalValues, total = (ma.next(4))
     self.assertEqual(newAverage, 3.5)
-    self.assertEqual(historicalValues, [3.0, 4.0])
+    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0])
     self.assertEqual(total, 7.0)
 
     newAverage, historicalValues, total = (ma.next(5))
     self.assertEqual(newAverage, 4.0)
-    self.assertEqual(historicalValues, [3.0, 4.0, 5.0])
+    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0, 5.0])
     self.assertEqual(total, 12.0)
 
     # Ensure the first value gets popped
     newAverage, historicalValues, total = (ma.next(6))
     self.assertEqual(newAverage, 5.0)
-    self.assertEqual(historicalValues, [4.0, 5.0, 6.0])
+    self.assertListEqual(historicalValues.tolist(), [4.0, 5.0, 6.0])
     self.assertEqual(total, 15.0)
 
 
