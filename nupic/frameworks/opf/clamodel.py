@@ -192,6 +192,7 @@ class CLAModel(Model):
     windowSize=anomalyParams.get('slidingWindowSize', None)
     mode=anomalyParams.get('mode', 'pure')
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
+    self.__logger.debug(self._anomalyInst)
 
     # -----------------------------------------------------------------------
     # Create the network
