@@ -69,6 +69,7 @@ nupic/bindings/*engine_internal.*
 nupic/bindings/*algorithms.*
 nupic/bindings/*iorange.*
 nupic/bindings/*math.*
+nupic/bindings/*.cxx
 
 # Pip stuff
 dist/

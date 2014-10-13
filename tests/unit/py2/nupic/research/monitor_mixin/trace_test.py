@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,23 +20,35 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-echo
-echo Running `basename $0`...
-echo
+import unittest
 
-echo ">>> Doing prep work..."
-sudo add-apt-repository -y ppa:fkrull/deadsnakes
-sudo apt-get update
+from nupic.research.monitor_mixin.trace import IndicesTrace
 
-echo ">>> Installing virtualenv..."
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
-sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
-echo ">>> Installing nupic-linux64..."
-git clone https://github.com/numenta/nupic-linux64.git
-(cd nupic-linux64 && git reset --hard 99863c7da8b923c57bb4e59530ab087c91fd3992)
-source nupic-linux64/bin/activate
 
-# Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
-# See: https://github.com/travis-ci/travis-cookbooks/issues/155
-sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
+class IndicesTraceTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.trace = IndicesTrace(self, "active cells")
+    self.trace.data.append(set([1, 2, 3]))
+    self.trace.data.append(set([4, 5]))
+    self.trace.data.append(set([6]))
+    self.trace.data.append(set([]))
+
+
+  def testMakeCountsTrace(self):
+    countsTrace = self.trace.makeCountsTrace()
+    self.assertEqual(countsTrace.title, "# active cells")
+    self.assertEqual(countsTrace.data, [3, 2, 1, 0])
+
+
+  def testMakeCumCountsTrace(self):
+    countsTrace = self.trace.makeCumCountsTrace()
+    self.assertEqual(countsTrace.title, "# (cumulative) active cells")
+    self.assertEqual(countsTrace.data, [3, 5, 6, 6])
+
+
+
+if __name__ == '__main__':
+  unittest.main()
