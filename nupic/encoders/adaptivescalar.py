@@ -48,11 +48,12 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   """
 
   ############################################################################
-  def __init__(self, w, n, minval=None, maxval=None, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
+  def __init__(self, w, n, minval=None, maxval=None, 
+                name=None, verbosity=0, forced=False):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
     cannot be periodic
+    clipInput=True
     n must be set >0
     """
     self._learningEnabled = True
