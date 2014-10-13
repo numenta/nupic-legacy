@@ -245,7 +245,11 @@ class LogEncoder(ScalarEncoder):
       scaledValues = super(LogEncoder, self).getBucketValues()
       self._bucketValues = []
       for scaledValue in scaledValues:
-        value = scaledValue
+        try:
+          value = math.pow(10, scaledValue)
+        except:
+          print "ERR", scaledValue
+          raise
         self._bucketValues.append(value)
 
     return self._bucketValues
