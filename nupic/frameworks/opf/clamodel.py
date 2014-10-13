@@ -189,7 +189,9 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    self._anomalyInst = Anomaly()
+    windowSize=anomalyParams.get('slidingWindowSize', None)
+    mode=anomalyParams.get('mode', 'pure')
+    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
 
     # -----------------------------------------------------------------------
     # Create the network
