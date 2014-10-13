@@ -89,7 +89,7 @@ class Anomaly(object):
               (anomaly * likelihood)
     """
     self._mode = mode
-    if slidingWindowSize > 0:
+    if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
