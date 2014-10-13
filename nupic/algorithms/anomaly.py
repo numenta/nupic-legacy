@@ -141,3 +141,11 @@ class Anomaly(object):
       score = self._movingAverage.next(score)
 
     return score
+
+
+  def __str__(self):
+    windowSize = 0
+    if self._movingAverage is not None:
+      windowSize = self._movingAverage.windowSize
+    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
+      
