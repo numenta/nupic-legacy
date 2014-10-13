@@ -28,6 +28,7 @@ from nupic.encoders.scalar import ScalarEncoder
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import EncoderResult
 
+PRECISION=10000000 # floating point math valid to 8th place
 
 class LogEncoder(ScalarEncoder):
   """
@@ -78,7 +79,7 @@ class LogEncoder(ScalarEncoder):
                forced=False):
     
     # Lower bound for log encoding near machine precision limit
-    lowLimit = sys.float_info.min
+    lowLimit = 1e-07 #sys.float_info.min
     hiLimit = sys.float_info.max
 
     # Limit minval as log10(0) is undefined.
@@ -116,6 +117,9 @@ class LogEncoder(ScalarEncoder):
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
 
+    # unset self.minval/maxval inherited from parent, to avoid confusion;
+    # use minvalRaw & minScaledValue instead
+
   ############################################################################
   def getDecoderOutputFieldTypes(self):
     """
@@ -148,14 +152,14 @@ class LogEncoder(ScalarEncoder):
       return None
 
     val = scaledInpt
-    if val < self.minval:
-      val = self.minval
-    elif val > self.maxval:
-      val = self.maxval
+    if val < self.minScaledValue:
+      val = self.minScaledValue
+    elif val > self.maxScaledValue:
+      val = self.maxScaledValue
 
     rawVal = math.pow(10, val) #TODO do other log too
     # round to 6th place to avoid float operation errors
-    rawVal=float(int((rawVal*1000000)/1000000))
+    rawVal=float(int(rawVal*PRECISION)/PRECISION)
     return rawVal
 
 

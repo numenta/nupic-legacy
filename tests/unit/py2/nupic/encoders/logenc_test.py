@@ -112,19 +112,23 @@ class LogEncoderTest(unittest.TestCase):
     
     #######################################################################
     # Test top-down for all values
-    value = le.minvalRaw
-    while value <= le.maxvalRaw:
+    value = le.minval
+    while value <= le.maxval:
       
       output = le.encode(value)
       topDown = le.topDownCompute(output)
       
       # Do the scaling by hand here.
-      scaledVal = math.log10(value)
+      try:
+        scaledVal = math.log10(value)
+      except ValueError:
+        print "Warn"
+        scaledVal=math.log10(1e-07)
       
       # Find the range of values that would also produce this top down
       # output.
-      minTopDown = math.pow(10, (scaledVal - le.resolutionRaw))
-      maxTopDown = math.pow(10, (scaledVal + le.resolutionRaw))
+      minTopDown = math.pow(10, (scaledVal - le.resolution))
+      maxTopDown = math.pow(10, (scaledVal + le.resolution))
       
       # Verify the range surrounds this scaled val
       self.assertTrue(topDown.value >= minTopDown and
