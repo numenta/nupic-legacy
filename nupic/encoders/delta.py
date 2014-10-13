@@ -87,10 +87,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     if self._prevAbsolute is None or self._prevDelta is None:
       return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
     ret = super(DeltaEncoder, self).topDownCompute(encoded)
-    if self._prevAbsolute is not None:
-      ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
+    ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
                           scalar=ret[0].scalar+self._prevAbsolute,
                           encoding=ret[0].encoding)]
-#      ret[0].value+=self._prevAbsolute
-#      ret[0].scalar+=self._prevAbsolute
     return ret
