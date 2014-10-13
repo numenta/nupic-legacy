@@ -90,15 +90,9 @@ class Anomaly(object):
     """
     self._mode = mode
     if slidingWindowSize > 0:
-      self._movingAverage = MovingAverage(windowSize=int(slidingWindowSize))
+      self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
-
-    # Using cumulative anomaly, sliding window
-    if (self._movingAverage is None) and (slidingWindowSize is not None):
-      raise TypeError(
-          "Anomaly: if you define slidingWindowSize, it has to be an "
-          "integer > 0;  slidingWindowSize=%r" % slidingWindowSize)
 
     if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
