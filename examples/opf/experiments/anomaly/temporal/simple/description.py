@@ -125,15 +125,16 @@ config = {
             #
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {
-                u'f':     {   'clipInput': True,
-    'fieldname': u'f',
-    'n': 100,
-    'name': u'f',
-    'minval': 0,
-    'maxval': 5,
-    'type': 'ScalarEncoder',
-    'w': 21},
-            },
+                u'f':     {   
+			'clipInput': True,
+			'fieldname': u'f',
+    			'n': 100,
+    			'name': u'f',
+    			'minval': 0,
+    			'maxval': 5,
+    			'type': 'ScalarEncoder',
+    			'w': 21},
+            	},
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
@@ -156,7 +157,7 @@ config = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            'spatialImp' : 'oldpy',
+            'spatialImp' : 'cpp',
 
             'globalInhibition': 1,
 
