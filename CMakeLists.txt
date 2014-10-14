@@ -437,6 +437,8 @@ if(OSX)
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
   set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
   set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  # hack for yaml-cpp.a TODO remove
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -L ${REPOSITORY_DIR}/external/darwin64/lib")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
