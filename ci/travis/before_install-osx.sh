@@ -38,4 +38,5 @@ echo ">>> mysql.server start"
 mysql.server start
 # Install dependencies for swig
 brew install pcre # TODO provide in nupic-darwing64
+brew install pkg-config
 brew install yaml-cpp
