@@ -42,4 +42,7 @@ source nupic-linux64/bin/activate
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
 
 # Install swig dependencies
+sudo add-apt-repository -y ppa:kubuntu-ppa/backports 
+sudo apt-get update
 sudo apt-get install libyaml-cpp-dev # TODO provide in nupic-linux64
+
