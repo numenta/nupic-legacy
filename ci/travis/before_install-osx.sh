@@ -36,3 +36,6 @@ echo ">>> brew install mysql"
 brew install mysql
 echo ">>> mysql.server start"
 mysql.server start
+# Install dependencies for swig
+brew install pcre # TODO provide in nupic-darwing64
+brew install yaml-cpp
