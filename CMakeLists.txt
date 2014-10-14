@@ -547,6 +547,12 @@ string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
 #
+# Checks for yaml-cpp library
+#
+find_package(PkgConfig)
+pkg_check_modules(YamlCpp yaml-cpp)
+
+#
 # Shows components details.
 #
 message(STATUS "Python details:")
