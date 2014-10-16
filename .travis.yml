@@ -73,7 +73,8 @@ install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/install-osx.sh; fi"
 
 script:
-  - . ./ci/travis/script-run-tests.sh
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/script-run-tests-linux.sh; fi"
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/script-run-tests-osx.sh; fi"
 
 after_success:
  - cd $TRAVIS_BUILD_DIR
