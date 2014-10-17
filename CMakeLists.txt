@@ -607,7 +607,23 @@ add_definitions(-std=c++98) # smart flag setting for gcc/clang
 # Allows us to find includes for external libraries and enables
 # #include <nta/common/...>
 #
-set(NTA_INCLUDEFLAGS "-I${REPOSITORY_DIR} -I${REPOSITORY_DIR}/include -I${PROJECT_BUILD_INCLUDE_DIR}  -I${REPOSITORY_DIR}/extensions -I${PROJECT_BUILD_RELEASE_DIR}/include -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/extensions/core/external/common/include -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include -isystem${REPOSITORY_DIR}/external/common/include")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${REPOSITORY_DIR}")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${REPOSITORY_DIR}/include")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${PROJECT_BUILD_INCLUDE_DIR}")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${REPOSITORY_DIR}/extensions")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${PROJECT_BUILD_RELEASE_DIR}/include")
+if("${NUPIC_CORE}" STREQUAL "")
+  set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/include")
+  set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${REPOSITORY_DIR}/extensions/core/external/common/include")
+else()
+  if("${NUPIC_CORE_SOURCE}" STREQUAL "")
+    message(FATAL_ERROR "Missing NUPIC_CORE_SOURCE.  Set to nupic.core repository location via -DNUPIC_CORE_SOURCE=...")
+  endif()
+  set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/include")
+  set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${NUPIC_CORE_SOURCE}/external/common/include")
+endif()
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/include")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${REPOSITORY_DIR}/external/common/include")
 
 #
 # NTA_INTERNAL tells us that the code is being built under the build system
@@ -618,7 +634,15 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 #
 # All executables and plugins are linked with these flags
 #
-set(NTA_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} ${NTA_PLATFORM_LIBS} -L${PROJECT_BUILD_LIBRARIES_DIR} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LINKFLAGS}")
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LIBS}")
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${PROJECT_BUILD_LIBRARIES_DIR}")
+if("${NUPIC_CORE}" STREQUAL "")
+  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib")
+else()
+  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib")
+endif()
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
 
@@ -759,6 +783,7 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_s
 # Put content from module config (.nupic_modules) file into variables
 
 set(LIB_STATIC_NUPICCORE nupic_core)
+set(LIB_STATIC_GTEST gtest)
 if("${NUPIC_CORE}" STREQUAL "")
   # User has not specified NUPIC_CORE location, build it from scratch
   if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
@@ -772,6 +797,8 @@ if("${NUPIC_CORE}" STREQUAL "")
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
   generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
+  generate_static_library(${LIB_STATIC_GTEST} "${REPOSITORY_DIR}/extensions/core/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
+
 else()
   message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
   # Use user-specified NUPIC_CORE
@@ -783,6 +810,8 @@ else()
   # Configure submodule libraries
   add_library(${LIB_STATIC_NUPICCORE} STATIC IMPORTED GLOBAL)
   set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
+
+  generate_static_library(${LIB_STATIC_GTEST} "I${NUPIC_CORE_SOURCE}/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 endif()
 
 #
