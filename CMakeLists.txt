@@ -543,7 +543,7 @@ execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(n
 # Later versions greater than 2.0.3 also *will* fail (SWIGPY_SLICE_ARG bug)
 #
 set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
-set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/2.0.3")
+set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/2.0.4")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
