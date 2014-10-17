@@ -142,7 +142,6 @@ def setupNupic():
     data_files=[
       ("", [
         "CMakeLists.txt",
-        "external/common/requirements.txt",
         "config/default/nupic-default.xml"
         ]
       )
