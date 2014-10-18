@@ -435,10 +435,8 @@ if(OSX)
   set(NTA_PLATFORM_OS "darwin64")
   set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
-  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -L/usr/local/Cellar/yaml-cpp/0.5.1/lib -I/usr/local/Cellar/yaml-cpp/0.5.1/include -llibyaml-cpp")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
   set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
-  # hack for yaml-cpp.a TODO remove
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -L/usr/local/Cellar/yaml-cpp/0.5.1/lib -I/usr/local/Cellar/yaml-cpp/0.5.1/include -lyaml-cpp ")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -643,7 +641,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 # All executables and plugins are linked with these flags
 #
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LINKFLAGS}")
-SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LIBS} -lyaml-cpp")
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LIBS}")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${PROJECT_BUILD_LIBRARIES_DIR}")
 if("${NUPIC_CORE}" STREQUAL "")
   set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib")
