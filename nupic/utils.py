@@ -85,7 +85,7 @@ class MovingAverage(object):
         and the new running total. Ensures the list of ``historicalValues`` is
         at most ``windowSize``.
     """
-    newAverage, self.slidingWindow, self.total = (MovingAverage.compute(
+    newAverage, self.slidingWindow, self.total = (self.compute(
 							self.slidingWindow,
 							self.total,
 							newValue,
