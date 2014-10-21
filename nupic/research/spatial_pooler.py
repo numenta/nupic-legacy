@@ -1021,8 +1021,9 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    perm:           An array of permanence values for a column. The array is
-                    "sparse", i.e. it contains an index for each non-zero value
+    permIdx:	    A sparse array of indices, mask for permVal values
+    permVal:        An array of permanence values for a column. The array is
+                    "sparse", masked by permIdx
     index:          The index identifying a column in the permanence, potential
                     and connectivity matrices
     raisePerm:      a boolean value indicating whether the permanence values
