@@ -26,7 +26,7 @@ in our codebase.
 
 import numpy
 import numbers
-
+from collections import deque
 
 
 class MovingAverage(object):
@@ -51,7 +51,7 @@ class MovingAverage(object):
                               len(existingHistoricalValues)-windowSize:]
     else:
       self.slidingWindow = []
-    self.slidingWindow = numpy.array(self.slidingWindow)
+    self.slidingWindow = deque(self.slidingWindow)
     self.total = sum(self.slidingWindow)
     
   
