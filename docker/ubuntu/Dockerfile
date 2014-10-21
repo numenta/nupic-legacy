@@ -28,13 +28,12 @@ ENV NTA_DATA_PATH /usr/local/src/nupic/prediction/data
 ENV USER docker
 
 # Copy context into container file system
-ADD . /usr/local/src/nupic
+ADD . $NUPIC
 
 # Install Python dependencies
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
 
-# Docker don't expand ENV variables!
-WORKDIR /usr/local/src/nupic
+WORKDIR $NUPIC
 
 # Install NuPIC with using SetupTools
 RUN python setup.py install
