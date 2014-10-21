@@ -82,26 +82,26 @@ class UtilsTest(TestCaseBase):
     """
     ma = MovingAverage(windowSize=3)
 
-    newAverage, historicalValues, total = (ma.next(3))
+    newAverage = ma.next(3)
     self.assertEqual(newAverage, 3.0)
-    self.assertListEqual(historicalValues.tolist(), [3.0])
-    self.assertEqual(total, 3.0)
+    self.assertListEqual(ma.getSlidingWindow(), [3.0])
+    self.assertEqual(ma.total, 3.0)
 
-    newAverage, historicalValues, total = (ma.next(4))
+    newAverage = ma.next(4)
     self.assertEqual(newAverage, 3.5)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0])
-    self.assertEqual(total, 7.0)
+    self.assertListEqual(ma.getSlidingWindow(), [3.0, 4.0])
+    self.assertEqual(ma.total, 7.0)
 
-    newAverage, historicalValues, total = (ma.next(5))
+    newAverage = ma.next(5)
     self.assertEqual(newAverage, 4.0)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0, 5.0])
-    self.assertEqual(total, 12.0)
+    self.assertListEqual(ma.getSlidingWindow(), [3.0, 4.0, 5.0])
+    self.assertEqual(ma.total, 12.0)
 
     # Ensure the first value gets popped
-    newAverage, historicalValues, total = (ma.next(6))
+    newAverage = ma.next(6)
     self.assertEqual(newAverage, 5.0)
-    self.assertListEqual(historicalValues.tolist(), [4.0, 5.0, 6.0])
-    self.assertEqual(total, 15.0)
+    self.assertListEqual(ma.getSlidingWindow(), [4.0, 5.0, 6.0])
+    self.assertEqual(ma.total, 15.0)
 
 
 if __name__ == "__main__":
