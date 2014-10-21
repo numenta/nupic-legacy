@@ -70,8 +70,6 @@ class SpatialPooler(object):
                wrapAround=True
                ):
     """
-    Parameters:
-    ----------------------------
     @param inputDimensions: 
       A list representing the dimensions of the input vector. Format is [height,
       width, depth, ...], where each value represents the size of the dimension.
@@ -639,8 +637,8 @@ class SpatialPooler(object):
     """Sets the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
     assert(column < self._numColumns)
-    permIdx=numpy.where(permanence > 0)[0] # TODO remove these and assume input params are sparse already
-    permVal=permanence[permIdx]
+    permIdx = numpy.where(permanence > 0)[0] # TODO remove these and assume input params are sparse already
+    permVal = permanence[permIdx]
     self._updatePermanencesForColumn(permIdx, permVal, column, raisePerm=False)
 
 

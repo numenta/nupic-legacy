@@ -317,7 +317,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     supersetMask = numpy.array([0, 1, 2, 3, 11]) #[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
     mask = sp._mapPotential(0, wrapAround=True)
-    self.assertEqual(len(mask.tolist()), 3)
+    self.assertEqual(mask.size, 3)
     unionMask = supersetMask | mask.astype(int)
     self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
 
