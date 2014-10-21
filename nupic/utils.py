@@ -81,17 +81,15 @@ class MovingAverage(object):
     """
     update moving average with the new value added
     @param newValue - integer value to be added
-    @return an updated windowed average, the new list of ``historicalValues``,
-        and the new running total. Ensures the list of ``historicalValues`` is
-        at most ``windowSize``.
+    @return an updated windowed average
     """
     newAverage, self.slidingWindow, self.total = (self.compute(
 							self.slidingWindow,
 							self.total,
 							newValue,
 							self.windowSize) )
-    return newAverage, self.slidingWindow, self.total
+    return newAverage
 
 
   def getSlidingWindow(self):
-    return self.slidingWindow
+    return self.slidingWindow.tolist()
