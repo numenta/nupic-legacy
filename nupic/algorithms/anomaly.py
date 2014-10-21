@@ -138,6 +138,6 @@ class Anomaly(object):
 
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
-      score, _, _ = self._movingAverage.next(score)
+      score = self._movingAverage.next(score)
 
     return score
