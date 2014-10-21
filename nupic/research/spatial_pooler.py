@@ -1101,9 +1101,9 @@ class SpatialPooler(object):
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
     # implementations
-    perm = int(perm*100000) / 100000.0
+    roundedPerm = [round(p, 5) for p in perm]
 
-    return perm
+    return roundedPerm
 
 
   def _mapColumn(self, index):
