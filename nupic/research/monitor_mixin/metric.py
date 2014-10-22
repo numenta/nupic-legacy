@@ -59,6 +59,18 @@ class Metric(object):
     return Metric(trace.monitor, trace.title, data)
 
 
+  def copy(self):
+    metric = Metric(self.monitor, self.title, [])
+
+    metric.min = self.min
+    metric.max = self.max
+    metric.sum = self.sum
+    metric.mean = self.mean
+    metric.standardDeviation = self.standardDeviation
+
+    return metric
+
+
   def prettyPrintTitle(self):
     return ("[{0}] {1}".format(self.monitor.mmName, self.title)
             if self.monitor.mmName is not None else self.title)

@@ -124,3 +124,16 @@ class StringsTrace(Trace):
   Each entry contains strings (for example sequence labels).
   """
   pass
+
+
+
+class MetricsTrace(Trace):
+  """
+  Each entry contains Metrics (for example metric for # of predicted => active
+  cells).
+  """
+  @staticmethod
+  def prettyPrintDatum(datum):
+    return ("min: {0:.2f}, max: {1:.2f}, sum: {2:.2f}, "
+            "mean: {3:.2f}, std dev: {4:.2f}").format(
+      datum.min, datum.max, datum.sum, datum.mean, datum.standardDeviation)
