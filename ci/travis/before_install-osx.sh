@@ -25,23 +25,14 @@ echo Running `basename $0`...
 echo
 
 # Get Darwin64 libs for OSX
-echo ">>> git clone https://github.com/numenta/nupic-darwin64.git"
+echo ">>> Cloning nupic-darwin64 at 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906..."
 git clone https://github.com/numenta/nupic-darwin64.git
-echo ">>> (cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b)"
-(cd nupic-darwin64 && git reset --hard 6496136d3748f5f15eaf8e85e48c113d7447149b)
-echo ">>> source nupic-darwin64/bin/activate"
+(cd nupic-darwin64 && git reset --hard 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906) || exit
+echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
-
-# Install cmake on OSX
-echo ">>> brew install cmake"
-brew install cmake
 
 # Install and start MySQL on OSX
 echo ">>> brew install mysql"
 brew install mysql
 echo ">>> mysql.server start"
 mysql.server start
-
-# Prefix env with our user installation
-echo ">>> export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages"
-export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages

@@ -41,13 +41,6 @@ from nupic.bindings.math import GetNTAReal
 
 RealNumpyDType = GetNTAReal()
 
-#from nupic.regions.PyRegion import (PyNode,
-#                                  NodeSpec,
-#                                  NodeSpecItem,
-#                                  RealTypeName,
-#                                  RealNumpyDType)
-#from nupic.regions import PyNode as PyNodeModule
-
 from nupic.image import (serializeImage,
                          deserializeImage,
                          imageExtensions)
@@ -2061,7 +2054,7 @@ class ImageSensor(PyRegion):
       # Pad the images to fit the full output size if necessary generating
       # a stack of images, each of them self.width X self.height
       pad = self._cubeOutputs and \
-            (self.depth > 1 or \
+            (self.depth > 1 or
             croppedArrays[0].shape != (self.height, self.width))
       if pad:
         fullArrays = [numpy.zeros((self.height, self.width), RealNumpyDType)
@@ -2074,9 +2067,10 @@ class ImageSensor(PyRegion):
       # Flatten and concatenate the arrays
       outputArray = numpy.concatenate([a.flat for a in fullArrays])
 
-      # Send black and white images as (0, 1) instead of (0, 255)
+      # Send black and white images as binary (0, 1) instead of (0..255)
       if self.mode == 'bw':
         outputArray /= 255
+        outputArray = outputArray.round()
 
       # dataOut - main output
       if final_output is None:
@@ -2419,7 +2413,7 @@ class ImageSensor(PyRegion):
           dataOut=dict(
             description="""Pixels of the image.""",
             dataType='Real32',
-            count=1,
+            count=0,
             regionLevel=False,
             isDefaultOutput=True),
 
@@ -3067,7 +3061,7 @@ class ImageSensor(PyRegion):
     if name == 'auxDataOut':
       return self._auxDataWidth if self._auxDataWidth else 0
     elif name == 'dataOut':
-      return 1
+      return self.width * self.height * self.depth
     elif name == 'alphaOut':
       return 1
     else:
