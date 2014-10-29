@@ -81,6 +81,8 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/InSynapse.hpp>
 #include <nta/algorithms/Cell.hpp>
 
+#include <nta/algorithms/Connections.hpp>
+
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
 #include <py_support/PythonStream.hpp>
@@ -2212,4 +2214,20 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     }
     return d;
   }
+}
+
+//--------------------------------------------------------------------------------
+// Data structures (Connections)
+%include <nta/algorithms/Connections.hpp>
+
+
+//--------------------------------------------------------------------------------
+%extend nta::algorithms::connections::Connections
+{
+  %pythoncode %{
+
+    def __init__(self, *args, **kwargs):
+      self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
+
+  %}
 }
