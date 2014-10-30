@@ -81,6 +81,7 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/InSynapse.hpp>
 #include <nta/algorithms/Cell.hpp>
 
+#include <nta/algorithms/Activity.hpp>
 #include <nta/algorithms/Connections.hpp>
 
 #include <numpy/arrayobject.h>
@@ -2218,10 +2219,22 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // Data structures (Connections)
+%include <nta/algorithms/Activity.hpp>
 %include <nta/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------
+%extend nta::algorithms::activity::Activity
+{
+  %pythoncode %{
+
+    def __init__(self, *args, **kwargs):
+      self.this = _ALGORITHMS.new_Activity(*args, **kwargs)
+
+  %}
+
+}
+
 %extend nta::algorithms::connections::Connections
 {
   %pythoncode %{
@@ -2235,9 +2248,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   %}
 
-  inline bool computeActivity(PyObject *py_input,
-                              Real permanenceThreshold,
-                              UInt synapseThreshold)
+  inline Activity computeActivity(PyObject *py_input,
+                                  Real permanenceThreshold,
+                                  UInt synapseThreshold)
   {
     PyArrayObject* input = (PyArrayObject*) py_input;
     return self->computeActivity((nta::UInt*) input->data,
