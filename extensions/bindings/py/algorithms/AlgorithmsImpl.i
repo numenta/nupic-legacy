@@ -2219,12 +2219,11 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // Data structures (Connections)
-%include <nta/algorithms/Activity.hpp>
 %include <nta/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::activity::Activity
+%extend nta::algorithms::connections::Activity
 {
   %pythoncode %{
 
@@ -2248,9 +2247,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   %}
 
-  inline Activity computeActivity(PyObject *py_input,
-                                  Real permanenceThreshold,
-                                  UInt synapseThreshold)
+  inline ActivityContainer computeActivity(PyObject *py_input,
+                                           Real permanenceThreshold,
+                                           UInt synapseThreshold)
   {
     PyArrayObject* input = (PyArrayObject*) py_input;
     return self->computeActivity((nta::UInt*) input->data,
