@@ -25,7 +25,7 @@ import csv
 import json
 import os
 
-from nupic.algorithms.anomaly import computeAnomalyScore
+from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
@@ -116,7 +116,7 @@ def createNetwork(dataSource):
   """
   network = Network()
 
-  # Our input is sensor data from the gym.csv file. The RecordSensor region
+  # Our input is sensor data from the gym file. The RecordSensor region
   # allows us to specify a file record stream as the input source via the
   # dataSource attribute.
   network.addRegion("sensor", "py.RecordSensor",
@@ -196,7 +196,7 @@ def runNetwork(network, writer):
 
     # Calculate the anomaly score using the active columns
     # and previous predicted columns
-    anomalyScore = computeAnomalyScore(activeColumns, prevPredictedColumns)
+    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
 
     # Write out the anomaly score along with the record number and consumption
     # value.

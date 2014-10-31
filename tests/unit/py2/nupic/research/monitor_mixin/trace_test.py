@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,24 +20,35 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-echo
-echo Running `basename $0`...
-echo
+import unittest
 
-# Verify cmake version
-cmake --version
+from nupic.research.monitor_mixin.trace import IndicesTrace
 
-# Verify python version
-python$PY_VER --version
 
-if [ $PY_VERSION != "2.7" ]; then
-   (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make)
-fi
 
-# Build NuPIC
-cd $NUPIC
-python$PY_VER setup.py install --user --cmake_options="-DCMAKE_VERBOSE_MAKEFILE=ON"
+class IndicesTraceTest(unittest.TestCase):
 
-# Show nupic installation folder by trying to import nupic, if works, it prints
-# the absolute path of nupic.__file__, which the installation folder itself.
-python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, "../..")))' || exit
+
+  def setUp(self):
+    self.trace = IndicesTrace(self, "active cells")
+    self.trace.data.append(set([1, 2, 3]))
+    self.trace.data.append(set([4, 5]))
+    self.trace.data.append(set([6]))
+    self.trace.data.append(set([]))
+
+
+  def testMakeCountsTrace(self):
+    countsTrace = self.trace.makeCountsTrace()
+    self.assertEqual(countsTrace.title, "# active cells")
+    self.assertEqual(countsTrace.data, [3, 2, 1, 0])
+
+
+  def testMakeCumCountsTrace(self):
+    countsTrace = self.trace.makeCumCountsTrace()
+    self.assertEqual(countsTrace.title, "# (cumulative) active cells")
+    self.assertEqual(countsTrace.data, [3, 5, 6, 6])
+
+
+
+if __name__ == '__main__':
+  unittest.main()
