@@ -2247,9 +2247,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   %}
 
-  inline ActivityContainer computeActivity(PyObject *py_input,
-                                           Real permanenceThreshold,
-                                           UInt synapseThreshold)
+  inline Activity computeActivity(PyObject *py_input,
+                                  Real permanenceThreshold,
+                                  UInt synapseThreshold)
   {
     PyArrayObject* input = (PyArrayObject*) py_input;
     return self->computeActivity((nta::UInt*) input->data,
