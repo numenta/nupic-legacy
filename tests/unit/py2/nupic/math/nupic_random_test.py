@@ -184,8 +184,8 @@ class TestNupicRandom(unittest.TestCase):
     r.shuffle(arr)
 
     self.assertEqual(arr[0], 3)
-    self.assertEqual(arr[1], 4)
-    self.assertEqual(arr[2], 2)
+    self.assertEqual(arr[1], 2)
+    self.assertEqual(arr[2], 4)
     self.assertEqual(arr[3], 1)
 
 
