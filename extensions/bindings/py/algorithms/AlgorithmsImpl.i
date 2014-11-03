@@ -2242,17 +2242,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
 
     def computeActivity(self, input, *args, **kwargs):
-      return self.this.computeActivity(numpy.array(list(input)),
-                                       *args,  **kwargs)
+      return self.wrap_computeActivity(numpy.array(list(input)),
+                                       *args, **kwargs)
 
   %}
 
-  inline Activity computeActivity(PyObject *py_input,
-                                  Real permanenceThreshold,
-                                  UInt synapseThreshold)
+  inline Activity wrap_computeActivity(PyObject *py_input,
+                                       Real permanenceThreshold,
+                                       UInt synapseThreshold)
   {
-    PyArrayObject* input = (PyArrayObject*) py_input;
-    return self->computeActivity((nta::UInt*) input->data,
+    PyArrayObject* inputObj = (PyArrayObject*) py_input;
+    UInt* inputData = (UInt*)inputObj->data;
+    vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
+    return self->computeActivity(input,
                                  permanenceThreshold,
                                  synapseThreshold);
   }
