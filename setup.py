@@ -98,6 +98,19 @@ def buildExtensionsNupic():
   if returnCode != 0:
     sys.exit("Unable to generate build scripts!")
 
+  # Fixup swigged build flags to use libstdc++
+  def _fixup(fn):
+    with open(fn, "r+") as fp:
+      data = fp.read()
+      fp.seek(0)
+      fp.write(data.replace("libc++", "libstdc++"))
+      fp.truncate()
+
+  _fixup("CMakeFiles/_algorithms.dir/flags.make")
+  _fixup("CMakeFiles/_engine_internal.dir/flags.make")
+  _fixup("CMakeFiles/_iorange.dir/flags.make")
+  _fixup("CMakeFiles/_math.dir/flags.make")
+
   # Build library with Make
   returnCode = subprocess.call("make " + makeOptions, shell=True)
   if returnCode != 0:
