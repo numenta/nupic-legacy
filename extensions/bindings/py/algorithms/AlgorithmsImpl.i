@@ -2223,12 +2223,12 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::connections::Activity
+%extend nta::algorithms::connections::CellActivity
 {
   %pythoncode %{
 
     def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_Activity(*args, **kwargs)
+      self.this = _ALGORITHMS.new_CellActivity(*args, **kwargs)
 
   %}
 
@@ -2247,9 +2247,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   %}
 
-  inline Activity wrap_computeActivity(PyObject *py_input,
-                                       Real permanenceThreshold,
-                                       UInt synapseThreshold)
+  inline CellActivity wrap_computeActivity(PyObject *py_input,
+                                           Real permanenceThreshold,
+                                           UInt synapseThreshold)
   {
     PyArrayObject* inputObj = (PyArrayObject*) py_input;
     UInt* inputData = (UInt*)inputObj->data;
