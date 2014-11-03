@@ -41,12 +41,6 @@ html/
 
 Servers/
 
-# Build files
-build/
-include/
-bin/
-lib/
-
 conf/default/nupic-site.xml
 
 # /
