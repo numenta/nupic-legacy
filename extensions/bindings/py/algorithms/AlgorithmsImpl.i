@@ -2221,6 +2221,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 // Data structures (Connections)
 %rename(ConnectionsSegment) nta::algorithms::connections::Segment;
 %rename(ConnectionsSynapse) nta::algorithms::connections::Synapse;
+%template(ConnectionsSynapseVector) vector<nta::algorithms::connections::Synapse*>;
 %include <nta/algorithms/Connections.hpp>
 
 
