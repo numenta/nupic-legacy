@@ -2219,10 +2219,34 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // Data structures (Connections)
+%rename(ConnectionsSegment) nta::algorithms::connections::Segment;
+%rename(ConnectionsSynapse) nta::algorithms::connections::Synapse;
 %include <nta/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------
+%extend nta::algorithms::connections::Segment
+{
+  %pythoncode %{
+
+    def __init__(self, *args, **kwargs):
+      self.this = _ALGORITHMS.new_Segment(*args, **kwargs)
+
+  %}
+
+}
+
+%extend nta::algorithms::connections::Synapse
+{
+  %pythoncode %{
+
+    def __init__(self, *args, **kwargs):
+      self.this = _ALGORITHMS.new_Synapse(*args, **kwargs)
+
+  %}
+
+}
+
 %extend nta::algorithms::connections::CellActivity
 {
   %pythoncode %{
@@ -2254,9 +2278,13 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     PyArrayObject* inputObj = (PyArrayObject*) py_input;
     UInt* inputData = (UInt*)inputObj->data;
     vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
-    return self->computeActivity(input,
-                                 permanenceThreshold,
-                                 synapseThreshold);
+
+    nta::algorithms::CellActivity activity;
+    self->computeActivity(input,
+                          permanenceThreshold,
+                          synapseThreshold,
+                          activity);
+    return activity;
   }
 
 }
