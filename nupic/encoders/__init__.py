@@ -29,7 +29,6 @@ from sdrcategory import SDRCategoryEncoder
 from sdrrandom import SDRRandomEncoder
 from nonuniformscalar import NonUniformScalarEncoder
 from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
 from coordinate import CoordinateEncoder
 from geospatial_coordinate import GeospatialCoordinateEncoder
 from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder
