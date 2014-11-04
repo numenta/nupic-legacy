@@ -2263,10 +2263,6 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     def __init__(self, *args, **kwargs):
       self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
 
-    def computeActivity(self, input, *args, **kwargs):
-      return self.wrap_computeActivity(numpy.array(list(input)),
-                                       *args, **kwargs)
-
     def createSegment(self, cell):
       segment = ConnectionsSegment()
       _ALGORITHMS.Connections_createSegment(self, cell, segment)
@@ -2281,22 +2277,54 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                                             synapse)
       return synapse
 
+    def getMostActiveSegmentForCells(self, cells, input, synapseThreshold):
+      segment = ConnectionsSegment()
+      result = self.wrap_getMostActiveSegmentForCells(numpy.array(list(cells)),
+                                                      numpy.array(list(input)),
+                                                      synapseThreshold,
+                                                      segment)
+      return segment if result else None
+
+    def computeActivity(self, input, permanenceThreshold, synapseThreshold):
+      activity = CellActivity()
+      self.wrap_computeActivity(numpy.array(list(input)),
+                                permanenceThreshold,
+                                synapseThreshold,
+                                activity)
+      return activity
+
   %}
 
-  inline CellActivity wrap_computeActivity(PyObject *py_input,
-                                           Real permanenceThreshold,
-                                           UInt synapseThreshold)
+  inline void wrap_computeActivity(PyObject *py_input,
+                                   Real permanenceThreshold,
+                                   UInt synapseThreshold,
+                                   CellActivity& activity)
   {
     PyArrayObject* inputObj = (PyArrayObject*) py_input;
     UInt* inputData = (UInt*)inputObj->data;
     vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
 
-    nta::algorithms::CellActivity activity;
     self->computeActivity(input,
                           permanenceThreshold,
                           synapseThreshold,
                           activity);
-    return activity;
+  }
+
+  inline bool wrap_getMostActiveSegmentForCells(PyObject *py_cells,
+                                                PyObject *py_input,
+                                                UInt synapseThreshold,
+                                                Segment& segment)
+  {
+    PyArrayObject* cellsObj = (PyArrayObject*) py_cells;
+    PyArrayObject* inputObj = (PyArrayObject*) py_input;
+    UInt* cellsData = (UInt*)cellsObj->data;
+    UInt* inputData = (UInt*)inputObj->data;
+    vector<UInt> cells(cellsData, cellsData + cellsObj->dimensions[0]);
+    vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
+
+    return self->getMostActiveSegmentForCells(cells,
+                                              input,
+                                              synapseThreshold,
+                                              segment);
   }
 }
-
