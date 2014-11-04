@@ -2271,6 +2271,15 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       _ALGORITHMS.Connections_createSegment(self, cell, segment)
       return segment
 
+    def createSynapse(self, segment, presynapticCell, permanence):
+      synapse = ConnectionsSynapse()
+      _ALGORITHMS.Connections_createSynapse(self,
+                                            segment,
+                                            presynapticCell,
+                                            permanence,
+                                            synapse)
+      return synapse
+
   %}
 
   inline CellActivity wrap_computeActivity(PyObject *py_input,
