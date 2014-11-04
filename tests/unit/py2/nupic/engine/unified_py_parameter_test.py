@@ -42,8 +42,8 @@ class NetworkUnifiedPyParameterTest(unittest.TestCase):
     scalars = [
       ("int32Param", 32, int, 35),
       ("uint32Param", 33, int, 36),
-      ("int64Param", 64, int, 74),
-      ("uint64Param", 65, int, 75),
+      ("int64Param", 64, long, 74),
+      ("uint64Param", 65, long, 75),
       ("real32Param", 32.1, float, 33.1),
       ("real64Param", 64.1, float, 65.1),
       ("stringParam", "nodespec value", str, "new value")]
