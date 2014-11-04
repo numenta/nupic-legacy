@@ -2230,10 +2230,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %pythoncode %{
 
     def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_Segment(*args, **kwargs)
+      self.this = _ALGORITHMS.new_ConnectionsSegment(*args, **kwargs)
 
   %}
-
 }
 
 %extend nta::algorithms::connections::Synapse
@@ -2241,10 +2240,9 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %pythoncode %{
 
     def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_Synapse(*args, **kwargs)
+      self.this = _ALGORITHMS.new_ConnectionsSynapse(*args, **kwargs)
 
   %}
-
 }
 
 %extend nta::algorithms::connections::CellActivity
@@ -2255,7 +2253,6 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       self.this = _ALGORITHMS.new_CellActivity(*args, **kwargs)
 
   %}
-
 }
 
 %extend nta::algorithms::connections::Connections
@@ -2268,6 +2265,11 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     def computeActivity(self, input, *args, **kwargs):
       return self.wrap_computeActivity(numpy.array(list(input)),
                                        *args, **kwargs)
+
+    def createSegment(self, cell):
+      segment = ConnectionsSegment()
+      _ALGORITHMS.Connections_createSegment(self, cell, segment)
+      return segment
 
   %}
 
@@ -2286,5 +2288,5 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                           activity);
     return activity;
   }
-
 }
+
