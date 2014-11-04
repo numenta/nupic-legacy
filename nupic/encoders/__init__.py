@@ -34,7 +34,6 @@ from coordinate import CoordinateEncoder
 from geospatial_coordinate import GeospatialCoordinateEncoder
 from nupic.encoders.vector import VectorEncoder, SimpleVectorEncoder
 from nupic.encoders.passthru import PassThruEncoder
-from nupic.encoders.extras.utility import UtilityEncoder, SimpleUtilityEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder
 from utils import bitsToString
