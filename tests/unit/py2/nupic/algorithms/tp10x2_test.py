@@ -260,7 +260,7 @@ class TP10X2Test(unittest.TestCase):
              maxAge=0,
              maxSegmentsPerCell=2, maxSynapsesPerSegment=10,
              checkSynapseConsistency=True)
-      tp.cells4.setCellSegmentOrder(1)
+      tp.cells4.setCellSegmentOrder(True)
       self.basicTest2(tp, numPatterns=15, numRepetitions=1)
 
     if not short:

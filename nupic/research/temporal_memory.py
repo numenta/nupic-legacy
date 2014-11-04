@@ -69,7 +69,6 @@ class TemporalMemory(object):
     self.activeCells = set()
     self.predictiveCells = set()
     self.activeSegments = set()
-    self.numActiveSynapsesForSegment = dict()
     self.winnerCells = set()
 
     # Save member variables
@@ -96,13 +95,11 @@ class TemporalMemory(object):
     """
     (activeCells,
      winnerCells,
-     numActiveSynapsesForSegment,
      activeSegments,
      predictiveCells,
      predictedColumns) = self.computeFn(activeColumns,
                                         self.predictiveCells,
                                         self.activeSegments,
-                                        self.numActiveSynapsesForSegment,
                                         self.activeCells,
                                         self.winnerCells,
                                         self.connections,
@@ -110,7 +107,6 @@ class TemporalMemory(object):
 
     self.activeCells = activeCells
     self.winnerCells = winnerCells
-    self.numActiveSynapsesForSegment = numActiveSynapsesForSegment
     self.activeSegments = activeSegments
     self.predictiveCells = predictiveCells
 
@@ -119,7 +115,6 @@ class TemporalMemory(object):
                 activeColumns,
                 prevPredictiveCells,
                 prevActiveSegments,
-                prevNumActiveSynapsesForSegment,
                 prevActiveCells,
                 prevWinnerCells,
                 connections,
@@ -131,7 +126,6 @@ class TemporalMemory(object):
     @param activeColumns                   (set)         Indices of active columns in `t`
     @param prevPredictiveCells             (set)         Indices of predictive cells in `t-1`
     @param prevActiveSegments              (set)         Indices of active segments in `t-1`
-    @param prevNumActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses in `t-1` (see `TM.computePredictiveCells`)
     @param prevActiveCells                 (set)         Indices of active cells in `t-1`
     @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
     @param connections                     (Connections) Connectivity of layer
@@ -140,7 +134,6 @@ class TemporalMemory(object):
     @return (tuple) Contains:
                       `activeCells`               (set),
                       `winnerCells`               (set),
-                      `activeSynapsesForSegment`  (dict),
                       `activeSegments`            (set),
                       `predictiveCells`           (set)
     """
@@ -161,7 +154,7 @@ class TemporalMemory(object):
      _winnerCells,
      learningSegments) = self.burstColumns(activeColumns,
                                            predictedColumns,
-                                           prevNumActiveSynapsesForSegment,
+                                           prevActiveCells,
                                            connections)
 
     activeCells.update(_activeCells)
@@ -176,13 +169,10 @@ class TemporalMemory(object):
                            connections)
 
     (activeSegments,
-     predictiveCells,
-     numActiveSynapsesForSegment) = self.computePredictiveCells(activeCells,
-                                                                connections)
+     predictiveCells) = self.computePredictiveCells(activeCells, connections)
 
     return (activeCells,
             winnerCells,
-            numActiveSynapsesForSegment,
             activeSegments,
             predictiveCells,
             predictedColumns)
@@ -195,7 +185,6 @@ class TemporalMemory(object):
     self.activeCells = set()
     self.predictiveCells = set()
     self.activeSegments = set()
-    self.numActiveSynapsesForSegment = dict()
     self.winnerCells = set()
 
 
@@ -244,7 +233,7 @@ class TemporalMemory(object):
   def burstColumns(self,
                    activeColumns,
                    predictedColumns,
-                   prevNumActiveSynapsesForSegment,
+                   prevActiveCells,
                    connections):
     """
     Phase 2: Burst unpredicted columns.
@@ -262,7 +251,7 @@ class TemporalMemory(object):
 
     @param activeColumns                   (set)         Indices of active columns in `t`
     @param predictedColumns                (set)         Indices of predicted columns in `t`
-    @param prevNumActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses in `t-1` (see `TM.computePredictiveCells`)
+    @param prevActiveCells                 (set)         Indices of active cells in `t-1`
     @param connections                     (Connections) Connectivity of layer
 
     @return (tuple) Contains:
@@ -282,7 +271,7 @@ class TemporalMemory(object):
 
       (bestCell,
        bestSegment) = self.getBestMatchingCell(cells,
-                                               prevNumActiveSynapsesForSegment,
+                                               prevActiveCells,
                                                connections)
       winnerCells.add(bestCell)
 
@@ -365,7 +354,6 @@ class TemporalMemory(object):
                       `activeSegments`  (set),
                       `predictiveCells` (set)
     """
-    numActiveSynapsesForSegment = defaultdict(lambda: 0)
     numActiveConnectedSynapsesForSegment = defaultdict(lambda: 0)
     activeSegments = set()
     predictiveCells = set()
@@ -373,8 +361,6 @@ class TemporalMemory(object):
     for cell in activeCells:
       for synapseData in connections.synapsesForSourceCell(cell).values():
         segment, _, permanence = synapseData
-
-        numActiveSynapsesForSegment[segment] += 1
 
         if permanence >= self.connectedPermanence:
           numActiveConnectedSynapsesForSegment[segment] += 1
@@ -384,17 +370,14 @@ class TemporalMemory(object):
             activeSegments.add(segment)
             predictiveCells.add(connections.cellForSegment(segment))
 
-    return activeSegments, predictiveCells, numActiveSynapsesForSegment
+    return activeSegments, predictiveCells
 
 
   # ==============================
   # Helper functions
   # ==============================
 
-  def getBestMatchingCell(self,
-                          cells,
-                          numActiveSynapsesForSegment,
-                          connections):
+  def getBestMatchingCell(self, cells, activeCells, connections):
     """
     Gets the cell with the best matching segment
     (see `TM.getBestMatchingSegment`) that has the largest number of active
@@ -403,7 +386,7 @@ class TemporalMemory(object):
     If none were found, pick the least used cell (see `TM.getLeastUsedCell`).
 
     @param cells                       (set)         Indices of cells
-    @param numActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses (see `TM.computePredictiveCells`)
+    @param activeCells                 (set)         Indices of active cells
     @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
@@ -416,7 +399,7 @@ class TemporalMemory(object):
 
     for cell in cells:
       segment, numActiveSynapses = self.getBestMatchingSegment(
-        cell, numActiveSynapsesForSegment, connections)
+        cell, activeCells, connections)
 
       if segment is not None and numActiveSynapses > maxSynapses:
         maxSynapses = numActiveSynapses
@@ -429,16 +412,13 @@ class TemporalMemory(object):
     return bestCell, bestSegment
 
 
-  def getBestMatchingSegment(self,
-                             cell,
-                             numActiveSynapsesForSegment,
-                             connections):
+  def getBestMatchingSegment(self, cell, activeCells, connections):
     """
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
 
     @param cell                        (int)         Cell index
-    @param numActiveSynapsesForSegment (dict)        Mapping from segments to # active synapses (see `TM.computePredictiveCells`)
+    @param activeCells                 (set)         Indices of active cells
     @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
@@ -450,10 +430,12 @@ class TemporalMemory(object):
     bestNumActiveSynapses = None
 
     for segment in connections.segmentsForCell(cell):
-      if not segment in numActiveSynapsesForSegment:
-        continue
+      numActiveSynapses = 0
 
-      numActiveSynapses = numActiveSynapsesForSegment[segment]
+      for synapse in connections.synapsesForSegment(segment):
+        _, sourceCell, _ = connections.dataForSynapse(synapse)
+        if sourceCell in activeCells:
+          numActiveSynapses += 1
 
       if numActiveSynapses >= maxSynapses:
         maxSynapses = numActiveSynapses
