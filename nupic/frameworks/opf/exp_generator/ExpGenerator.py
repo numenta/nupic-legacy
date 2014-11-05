@@ -452,8 +452,8 @@ def _generateEncoderChoicesV1(fieldInfo):
     aggFunction = 'mean'
     encoders = [None]
     for n in (13, 50, 150, 500):
-      encoder = dict(type='ScalarSpaceEncoder', name=fieldName, fieldname=fieldName,
-                     n=n, w=width, clipInput=True,space="absolute")
+      encoder = dict(type='AdaptiveScalarEncoder', name=fieldName, fieldname=fieldName,
+                     n=n, w=width, clipInput=True)
       if 'minValue' in fieldInfo:
         encoder['minval'] = fieldInfo['minValue']
       if 'maxValue' in fieldInfo:
@@ -675,8 +675,8 @@ def _generatePermEncoderStr(options, encoderDict):
   
   else:
     # Scalar encoders
-    if encoderDict["type"] in ["ScalarSpaceEncoder", "AdaptiveScalarEncoder",
-                             "ScalarEncoder", "LogEncoder"]:
+    if encoderDict["type"] in ["AdaptiveScalarEncoder",
+                               "ScalarEncoder", "LogEncoder"]:
       permStr = "PermuteEncoder("
       for key, value in encoderDict.items():
         if key == "fieldname":
@@ -689,12 +689,7 @@ def _generatePermEncoderStr(options, encoderDict):
         if key == "n":
           permStr += "n=PermuteInt(%d, %d), " % (encoderDict["w"] + 1, 
                                                  encoderDict["w"] + 500)
-        elif key == "runDelta":
-          if value and not "space" in encoderDict:
-            permStr += "space=PermuteChoices([%s,%s]), " \
-                     % (_quoteAndEscape("delta"), _quoteAndEscape("absolute"))
-          encoderDict.pop("runDelta")
-          
+
         else:
           if issubclass(type(value), basestring):
             permStr += "%s='%s', " % (key, value)
@@ -702,7 +697,7 @@ def _generatePermEncoderStr(options, encoderDict):
             permStr += "%s=%s, " % (key, value)
       permStr += ")"
 
-    # Category encoder          
+    # Category encoder
     elif encoderDict["type"] in ["SDRCategoryEncoder"]:
       permStr = "PermuteEncoder("
       for key, value in encoderDict.items():
@@ -838,15 +833,8 @@ def _generateEncoderStringsV2(includedFields, options):
       # n=100 is reasonably hardcoded value for n when used by description.py
       # The swarming will use PermuteEncoder below, where n is variable and
       # depends on w
-      runDelta = fieldInfo.get("runDelta", False) 
-      if runDelta or "space" in fieldInfo:
-        encoderDict = dict(type='ScalarSpaceEncoder', name=fieldName,
-                            fieldname=fieldName, n=100, w=width, clipInput=True)
-        if runDelta:
-          encoderDict["runDelta"] = True
-      else:
-        encoderDict = dict(type='AdaptiveScalarEncoder', name=fieldName,
-                            fieldname=fieldName, n=100, w=width, clipInput=True)
+      encoderDict = dict(type='AdaptiveScalarEncoder', name=fieldName,
+                          fieldname=fieldName, n=100, w=width, clipInput=True)
 
       if 'minValue' in fieldInfo:
         encoderDict['minval'] = fieldInfo['minValue']
