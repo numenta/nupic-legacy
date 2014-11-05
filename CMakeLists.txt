@@ -295,6 +295,7 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   # Generate the Make scripts
   execute_process(COMMAND ${CMAKE_COMMAND} ${submodule_dir}/src -DUSER_CXXFLAGS:STRING=${extra_cxxflags} -DUSER_LINKFLAGS:STRING=${extra_linkflags}
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts)
+
   # Execute the Make scripts
   execute_process(COMMAND ${USER_MAKE_COMMAND} -j3
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts
@@ -391,6 +392,16 @@ set(PROJECT_BUILD_TEMP_DIR ${REPOSITORY_DIR}/temp)
 
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
+
+if("${NUPIC_CORE}" STREQUAL "")
+  if("${NUPIC_CORE_SOURCE}" STREQUAL "")
+    SET(NUPIC_CORE_SOURCE "${REPOSITORY_DIR}/extensions/core")
+  endif()
+  SET(NUPIC_CORE "${NUPIC_CORE_SOURCE}/build/release")
+  SET(BUILD_NUPIC_CORE "TRUE")
+else()
+  SET(BUILD_NUPIC_CORE "")
+endif()
 
 #
 # Prepare directory structure
@@ -642,11 +653,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LINKFLAGS}")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LIBS}")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${PROJECT_BUILD_LIBRARIES_DIR}")
-if("${NUPIC_CORE}" STREQUAL "")
-  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib")
-else()
-  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib")
-endif()
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
@@ -789,7 +796,7 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_s
 
 set(LIB_STATIC_NUPICCORE nupic_core)
 set(LIB_STATIC_GTEST gtest)
-if("${NUPIC_CORE}" STREQUAL "")
+if(BUILD_NUPIC_CORE)
   # User has not specified NUPIC_CORE location, build it from scratch
   if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
     file(STRINGS "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT REGEX "^[^#]")
@@ -800,13 +807,8 @@ if("${NUPIC_CORE}" STREQUAL "")
   endif()
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
-  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
-  #
-  # Compile google test from source for linking with tests
-  #
-  generate_static_library(${LIB_STATIC_GTEST} "${REPOSITORY_DIR}/extensions/core/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
-
+  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 else()
   message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
   # Use user-specified NUPIC_CORE
@@ -814,16 +816,12 @@ else()
   copy_directory(${NUPIC_CORE}/bin ${PROJECT_BUILD_BINARIES_DIR})
   copy_directory(${NUPIC_CORE}/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${NUPIC_CORE}/include ${PROJECT_BUILD_INCLUDE_DIR})
-
-  # Configure submodule libraries
-  add_library(${LIB_STATIC_NUPICCORE} STATIC IMPORTED GLOBAL)
-  set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
-
-  #
-  # Compile google test from source for linking with tests
-  #
-  generate_static_library(${LIB_STATIC_GTEST} "${NUPIC_CORE_SOURCE}/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 endif()
+
+#
+# Compile google test from source for linking with tests
+#
+generate_static_library(${LIB_STATIC_GTEST} "${NUPIC_CORE_SOURCE}/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
 # HtmTest
