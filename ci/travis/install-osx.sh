@@ -32,10 +32,8 @@ python$PY_VER --version
 
 # Build NuPIC
 cd $NUPIC
-VERBOSE=1 python$PY_VER setup.py install --user
+python$PY_VER setup.py install --user
 
-cat /Users/travis/build/numenta/nupic/build/scripts/CMakeFiles/CMakeOutput.log
-
-# Show nupic installation folder by trying to import nupic, if works, it prints
+# Show nupic installation folder by trying to import nupic, if works, it prints 
 # the absolute path of nupic.__file__, which the installation folder itself.
 python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, "../..")))' || exit
