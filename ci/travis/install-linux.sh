@@ -36,7 +36,7 @@ fi
 
 # Build NuPIC
 cd $NUPIC
-python$PY_VER setup.py install --user --cmake_options="-DCMAKE_VERBOSE_MAKEFILE=ON"
+python$PY_VER setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
