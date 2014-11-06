@@ -2236,12 +2236,59 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     def __init__(self, *args, **kwargs):
       self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
 
-    def getMostActiveSegmentForCells(self, cells, input, synapseThreshold):
+    def mostActiveSegmentForCells(self, cells, input, synapseThreshold):
       segment = ConnectionsSegment()
-      result = _ALGORITHMS.Connections_getMostActiveSegmentForCells(
+      result = _ALGORITHMS.Connections_mostActiveSegmentForCells(
         self, cells, input, synapseThreshold, segment)
       return segment if result else None
 
   %}
+}
 
+%extend nta::algorithms::connections::Cell
+{
+  %pythoncode %{
+
+    def __key(self):
+        return (self.idx,)
+
+    def __eq__(x, y):
+        return x.__key() == y.__key()
+
+    def __hash__(self):
+        return hash(self.__key())
+
+  %}
+}
+
+%extend nta::algorithms::connections::Segment
+{
+  %pythoncode %{
+
+    def __key(self):
+        return (self.idx, self.cell)
+
+    def __eq__(x, y):
+        return x.__key() == y.__key()
+
+    def __hash__(self):
+        return hash(self.__key())
+
+  %}
+}
+
+%extend nta::algorithms::connections::Synapse
+{
+  %pythoncode %{
+
+    def __key(self):
+        return (self.idx, self.segment)
+
+    def __eq__(x, y):
+        return x.__key() == y.__key()
+
+    def __hash__(self):
+        return hash(self.__key())
+
+  %}
 }
