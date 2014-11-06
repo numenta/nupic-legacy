@@ -29,53 +29,44 @@ import unittest2 as unittest
 
 import numpy
 
-from nupic.encoders.bitmaparray import BitmapArrayEncoder
+from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 
 
 
-class BitmapArrayEncoderTest(unittest.TestCase):
-  """Unit tests for BitmapArrayEncoder class."""
+class SparsePassThroughEncoderTest(unittest.TestCase):
+  """Unit tests for SparsePassThroughEncoder class."""
 
 
   def setUp(self):
     self.n = 25
-    self.w = 1
     self.name = "foo"
-    self._encoder = BitmapArrayEncoder
-
-
-  def testInitialization(self):
-    e = self._encoder(self.n, self.w, name=self.name)
-    self.assertIsInstance(e, self._encoder)
-
-
-  def testEncodeString(self):
-    """Send array as csv string."""
-    e = self._encoder(self.n, self.w, name=self.name)
-    bitmap = "2,7,15,18,23"
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), len(bitmap.split(','))*self.w)
-
-    x = e.decode(out)
-    self.assertIsInstance(x[0], dict)
-    self.assertTrue(self.name in x[0])
+    self._encoder = SparsePassThroughEncoder
 
 
   def testEncodeArray(self):
     """Send bitmap as array of indicies"""
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, name=self.name)
     bitmap = [2,7,15,18,23]
     out = e.encode(bitmap)
-    self.assertEqual(out.sum(), len(bitmap)*self.w)
+    self.assertEqual(out.sum(), len(bitmap))
 
     x = e.decode(out)
     self.assertIsInstance(x[0], dict)
     self.assertTrue(self.name in x[0])
 
 
+  def testEncodeArrayInvalidW(self):
+    """Send bitmap as array of indicies"""
+    e = self._encoder(self.n, 3, name=self.name)
+    with self.assertRaises(ValueError):
+      e.encode([2])
+    with self.assertRaises(ValueError):
+      e.encode([2,7,15,18,23])
+
+
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
-    e = self._encoder(self.n, self.w, name=self.name)
+    e = self._encoder(self.n, name=self.name)
 
     """Identical => 1"""
     bitmap1 = [2,7,15,18,23]
@@ -126,34 +117,6 @@ class BitmapArrayEncoderTest(unittest.TestCase):
     self.assertEqual(c[0], 0.8)
 
 
-  def testRobustness(self):
-    """Encode bitmaps with robustness (w) set"""
-    self.w = 3
-    self.n = self.n * self.w
-    self.testEncodeString()
-    self.testEncodeArray()
-    self.testClosenessScores()
 
-
-  def testSparsity(self):
-    """Set sparsity nomalization"""
-    self.n = 25
-    self.w = 1
-    self.onbits = 5
-    e = self._encoder(self.n, self.w, self.onbits, self.name)
-    bitmap = [2,7,15,18,23]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.onbits)
-
-    bitmap = [2]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.onbits)
-
-    bitmap = [0,1,2,3,7,15,18,23]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.onbits)
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
