@@ -2238,10 +2238,8 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
     def getMostActiveSegmentForCells(self, cells, input, synapseThreshold):
       segment = ConnectionsSegment()
-      result = self.wrap_getMostActiveSegmentForCells(cells,
-                                                      input,
-                                                      synapseThreshold,
-                                                      segment)
+      result = _ALGORITHMS.Connections_getMostActiveSegmentForCells(
+        self, cells, input, synapseThreshold, segment)
       return segment if result else None
 
   %}
