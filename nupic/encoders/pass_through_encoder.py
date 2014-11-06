@@ -81,9 +81,9 @@ class PassThroughEncoder(Encoder):
       raise ValueError("Different input (%i) and output (%i) sizes." % (
           len(input), len(output)))
 
-    if self.w is not None and len(input.nonzero()) != self.w:
+    if self.w is not None and sum(input) != self.w:
       raise ValueError("Input has %i bits but w was set to %i." % (
-          len(input.nonzero()), self.w))
+          sum(input), self.w))
 
     output[:] = input[:]
 

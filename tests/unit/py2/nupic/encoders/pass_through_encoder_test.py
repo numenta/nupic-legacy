@@ -39,22 +39,16 @@ class PassThroughEncoderTest(unittest.TestCase):
 
   def setUp(self):
     self.n = 9
-    self.m = 1
     self.name = "foo"
     self._encoder = PassThroughEncoder
 
 
-  def testInitialization(self):
-    e = self._encoder(self.n, multiply=self.m, name=self.name)
-    self.assertIsInstance(e, self._encoder)
-
-
   def testEncodeArray(self):
     """Send bitmap as array"""
-    e = self._encoder(self.n, multiply=self.m, name=self.name)
+    e = self._encoder(self.n, name=self.name)
     bitmap = [0,0,0,1,0,0,0,0,0]
     out = e.encode(bitmap)
-    self.assertEqual(out.sum(), sum(bitmap)*self.m)
+    self.assertEqual(out.sum(), sum(bitmap))
 
     x = e.decode(out)
     self.assertIsInstance(x[0], dict)
@@ -63,20 +57,19 @@ class PassThroughEncoderTest(unittest.TestCase):
 
   def testEncodeBitArray(self):
     """Send bitmap as numpy bit array"""
-    e = self._encoder(self.n, multiply=self.m, name=self.name)
-    bitmap = numpy.zeros(self.n/self.m, dtype=numpy.uint8)
+    e = self._encoder(self.n, name=self.name)
+    bitmap = numpy.zeros(self.n, dtype=numpy.uint8)
     bitmap[3] = 1
     bitmap[5] = 1
     out = e.encode(bitmap)
-    sum_expected = sum(bitmap)*self.m
+    sum_expected = sum(bitmap)
     sum_real = out.sum()
-    print "bitmap=", bitmap, "out=", out
     self.assertEqual(sum_real, sum_expected)
 
 
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
-    e = self._encoder(self.n, multiply=self.m, name=self.name)
+    e = self._encoder(self.n, name=self.name)
 
     """Identical => 1"""
     bitmap1 = [0,0,0,1,1,1,0,0,0]
@@ -127,34 +120,6 @@ class PassThroughEncoderTest(unittest.TestCase):
     self.assertEqual(c[0], 0.8)
 
 
-  def testRobustness(self):
-    """Encode bitmaps with robustness (m) set"""
-    self.n = 27 
-    self.m = 3
-    self.testEncodeArray()
-    self.testEncodeBitArray()
-    self.testClosenessScores()
 
-
-  def testSparsity(self):
-    """Set sparsity nomalization"""
-    self.n = 9 
-    self.m = 1
-    self.w = 3
-    e = self._encoder(self.n, multiply=self.m, w=self.w, name=self.name)
-    bitmap = [0,0,0,1,0,0,0,1,1]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.w)
-
-    bitmap = [1,0,0,0,0,0,0,0,0]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.w)
-
-    bitmap = [1,1,1,1,0,0,0,0,0]
-    out = e.encode(bitmap)
-    self.assertEqual(out.sum(), self.w)
-
-
-
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
