@@ -2250,13 +2250,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %pythoncode %{
 
     def __key(self):
-        return (self.idx,)
+      return (self.idx,)
 
     def __eq__(x, y):
-        return x.__key() == y.__key()
+      return x.__key() == y.__key()
 
     def __hash__(self):
-        return hash(self.__key())
+      return hash(self.__key())
+
+    def __str__(self):
+      return str(self.idx)
+
+    def __repr__(self):
+      return str(self)
 
   %}
 }
@@ -2266,13 +2272,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %pythoncode %{
 
     def __key(self):
-        return (self.idx, self.cell)
+      return (self.idx, self.cell)
 
     def __eq__(x, y):
-        return x.__key() == y.__key()
+      return x.__key() == y.__key()
 
     def __hash__(self):
-        return hash(self.__key())
+      return hash(self.__key())
+
+    def __str__(self):
+      return "-".join([self.idx, self.cell])
+
+    def __repr__(self):
+      return str(self)
 
   %}
 }
@@ -2282,13 +2294,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %pythoncode %{
 
     def __key(self):
-        return (self.idx, self.segment)
+      return (self.idx, self.segment)
 
     def __eq__(x, y):
-        return x.__key() == y.__key()
+      return x.__key() == y.__key()
 
     def __hash__(self):
-        return hash(self.__key())
+      return hash(self.__key())
+
+    def __str__(self):
+      return "-".join([self.idx, self.segment])
+
+    def __repr__(self):
+      return str(self)
 
   %}
 }
