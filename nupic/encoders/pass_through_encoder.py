@@ -81,9 +81,9 @@ class PassThroughEncoder(Encoder):
       raise ValueError("Different input (%i) and output (%i) sizes." % (
           len(input), len(output)))
 
-    if self.w is not None and input.nonzero().size != self.w:
+    if self.w is not None and len(input.nonzero()) != self.w:
       raise ValueError("Input has %i bits but w was set to %i." % (
-          input.nonzero().size, self.w))
+          len(input.nonzero()), self.w))
 
     output[:] = input[:]
 
@@ -125,7 +125,6 @@ class PassThroughEncoder(Encoder):
 
     kwargs will have the keyword "fractional", which is assumed by this encoder
     """
-
     ratio = 1.0
     esum = int(expValues.sum())
     asum = int(actValues.sum())
