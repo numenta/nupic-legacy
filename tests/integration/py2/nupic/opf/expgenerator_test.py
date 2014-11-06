@@ -1199,6 +1199,82 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       base.config['modelParams']['sensorParams']['encoders'].keys())
 
 
+  def test_DeltaEncoders(self):
+    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
+
+    streamDef = dict(
+      version = 1,
+      info = "test_NoProviders",
+      streams = [
+        dict(source="file://%s" % (dataPath),
+             info="hotGym.csv",
+             columns=["*"]),
+        ],
+    )
+
+    # Generate the experiment description
+    expDesc = {
+      "inferenceType":"TemporalMultiStep",
+      "inferenceArgs":{
+        "predictedField":"consumption"
+      },
+      'environment':OpfEnvironment.Nupic,
+      "streamDef": streamDef,
+      "includedFields": [
+        { "fieldName": "timestamp",
+          "fieldType": "datetime"
+        },
+        { "fieldName": "consumption",
+          "fieldType": "float",
+          "minValue":  0,
+          "maxValue":  200,
+          "runDelta": True
+        },
+      ],
+    }
+
+    (base, perms) = self.getModules(expDesc)
+
+    encoder = base.config["modelParams"]["sensorParams"]["encoders"]\
+                          ["consumption"]
+    encoderPerm = perms.permutations["modelParams"]["sensorParams"]\
+                          ["encoders"]["consumption"]
+
+    self.assertEqual(encoder["type"], "ScalarSpaceEncoder")
+    self.assertIsInstance(encoderPerm.kwArgs['space'], PermuteChoices)
+
+    expDesc = {
+      "inferenceType":"TemporalMultiStep",
+      "inferenceArgs":{
+        "predictedField":"consumption"
+      },
+      'environment':OpfEnvironment.Nupic,
+      "streamDef": streamDef,
+      "includedFields": [
+        { "fieldName": "timestamp",
+          "fieldType": "datetime"
+        },
+        { "fieldName": "consumption",
+          "fieldType": "float",
+          "minValue":  0,
+          "maxValue":  200,
+          "runDelta": True,
+          "space": "delta"
+        },
+      ],
+    }
+
+    (base, perms) = self.getModules(expDesc)
+    encoder = base.config["modelParams"]["sensorParams"] \
+      ["encoders"]["consumption"]
+    encoderPerm = perms.permutations["modelParams"]["sensorParams"] \
+      ["encoders"]["consumption"]
+
+    self.assertEqual(encoder["type"], "ScalarSpaceEncoder")
+    self.assertEqual(encoder["space"], "delta")
+    self.assertEqual(encoderPerm.kwArgs['space'], "delta")
+
+
   def test_AggregationSwarming(self):
     """ Test the we correctly generate a multi-step prediction experiment that
     uses aggregation swarming

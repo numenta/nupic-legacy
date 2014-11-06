@@ -42,13 +42,13 @@ permutations = {
     'sensorParams': {
       'encoders': {
         'value': PermuteEncoder(fieldName='value', 
-                                encoderClass='AdaptiveScalarEncoder', 
+                                encoderClass='ScalarSpaceEncoder', 
                                 space=PermuteChoices(['delta', 'absolute']), 
                                 clipInput=True, 
                                 w=21, 
                                 n=PermuteInt(28, 521)),
         '_classifierInput': dict(fieldname='value', 
-                                type='AdaptiveScalarEncoder', 
+                                type='ScalarSpaceEncoder', 
                                 classifierOnly=True,
                                 space=PermuteChoices(['delta', 'absolute']), 
                                 clipInput=True, 
