@@ -29,6 +29,7 @@ from nupic.encoders.sdrcategory import SDRCategoryEncoder
 from nupic.encoders.sdrrandom import SDRRandomEncoder
 from nupic.encoders.nonuniformscalar import NonUniformScalarEncoder
 from nupic.encoders.delta import DeltaEncoder
+from nupic.encoders.scalarspace import ScalarSpaceEncoder
 from nupic.encoders.passthru import PassThruEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder

@@ -18,21 +18,28 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
+from nupic.encoders.base import Encoder
+from nupic.encoders.delta import DeltaEncoder
+from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 
-from arithmetic_encoder import ArithmeticEncoder
-from scalar import ScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder
-from date import DateEncoder
-from logenc import LogEncoder
-from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder
-from nonuniformscalar import NonUniformScalarEncoder
-from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
-from coordinate import CoordinateEncoder
-from geospatial_coordinate import GeospatialCoordinateEncoder
-from nupic.encoders.passthru import PassThruEncoder
-# multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder
-from utils import bitsToString
+
+class ScalarSpaceEncoder(Encoder):
+  """An encoder that can be used to permute the encodings through different spaces
+  These include absolute value,delta, log space, etc.
+  """
+
+  
+  SPACE_ABSOLUTE="absolute"
+  SPACE_DELTA="delta"
+  def __init__(self):
+    pass
+  def __new__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
+                resolution=0, name=None, verbosity=0, clipInput=False, 
+                space="absolute", forced=False):
+    self._encoder = None
+    if space == "absolute":
+      ret = AdaptiveScalarEncoder(w,minval,maxval,periodic,n,radius,
+                                            resolution,name,verbosity,clipInput, forced=forced)
+    else:
+      ret = DeltaEncoder(w,minval,maxval,periodic,n,radius,resolution,name,verbosity,clipInput, forced=forced)
+    return ret
