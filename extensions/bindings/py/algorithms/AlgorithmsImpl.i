@@ -2219,43 +2219,16 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // Data structures (Connections)
-%rename(ConnectionsSegment) nta::algorithms::connections::Segment;
 %rename(ConnectionsSynapse) nta::algorithms::connections::Synapse;
-%template(ConnectionsSynapseVector) vector<nta::algorithms::connections::Synapse*>;
+%rename(ConnectionsSegment) nta::algorithms::connections::Segment;
+%rename(ConnectionsCell) nta::algorithms::connections::Cell;
+%template(ConnectionsSynapseVector) vector<nta::algorithms::connections::Synapse>;
+%template(ConnectionsSegmentVector) vector<nta::algorithms::connections::Segment>;
+%template(ConnectionsCellVector) vector<nta::algorithms::connections::Cell>;
 %include <nta/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::connections::Segment
-{
-  %pythoncode %{
-
-    def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_ConnectionsSegment(*args, **kwargs)
-
-  %}
-}
-
-%extend nta::algorithms::connections::Synapse
-{
-  %pythoncode %{
-
-    def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_ConnectionsSynapse(*args, **kwargs)
-
-  %}
-}
-
-%extend nta::algorithms::connections::CellActivity
-{
-  %pythoncode %{
-
-    def __init__(self, *args, **kwargs):
-      self.this = _ALGORITHMS.new_CellActivity(*args, **kwargs)
-
-  %}
-}
-
 %extend nta::algorithms::connections::Connections
 {
   %pythoncode %{
@@ -2263,68 +2236,14 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     def __init__(self, *args, **kwargs):
       self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
 
-    def createSegment(self, cell):
-      segment = ConnectionsSegment()
-      _ALGORITHMS.Connections_createSegment(self, cell, segment)
-      return segment
-
-    def createSynapse(self, segment, presynapticCell, permanence):
-      synapse = ConnectionsSynapse()
-      _ALGORITHMS.Connections_createSynapse(self,
-                                            segment,
-                                            presynapticCell,
-                                            permanence,
-                                            synapse)
-      return synapse
-
     def getMostActiveSegmentForCells(self, cells, input, synapseThreshold):
       segment = ConnectionsSegment()
-      result = self.wrap_getMostActiveSegmentForCells(numpy.array(list(cells)),
-                                                      numpy.array(list(input)),
+      result = self.wrap_getMostActiveSegmentForCells(cells,
+                                                      input,
                                                       synapseThreshold,
                                                       segment)
       return segment if result else None
 
-    def computeActivity(self, input, permanenceThreshold, synapseThreshold):
-      activity = CellActivity()
-      self.wrap_computeActivity(numpy.array(list(input)),
-                                permanenceThreshold,
-                                synapseThreshold,
-                                activity)
-      return activity
-
   %}
 
-  inline void wrap_computeActivity(PyObject *py_input,
-                                   Real permanenceThreshold,
-                                   UInt synapseThreshold,
-                                   CellActivity& activity)
-  {
-    PyArrayObject* inputObj = (PyArrayObject*) py_input;
-    UInt* inputData = (UInt*)inputObj->data;
-    vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
-
-    self->computeActivity(input,
-                          permanenceThreshold,
-                          synapseThreshold,
-                          activity);
-  }
-
-  inline bool wrap_getMostActiveSegmentForCells(PyObject *py_cells,
-                                                PyObject *py_input,
-                                                UInt synapseThreshold,
-                                                Segment& segment)
-  {
-    PyArrayObject* cellsObj = (PyArrayObject*) py_cells;
-    PyArrayObject* inputObj = (PyArrayObject*) py_input;
-    UInt* cellsData = (UInt*)cellsObj->data;
-    UInt* inputData = (UInt*)inputObj->data;
-    vector<UInt> cells(cellsData, cellsData + cellsObj->dimensions[0]);
-    vector<UInt> input(inputData, inputData + inputObj->dimensions[0]);
-
-    return self->getMostActiveSegmentForCells(cells,
-                                              input,
-                                              synapseThreshold,
-                                              segment);
-  }
 }
