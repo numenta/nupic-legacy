@@ -76,32 +76,16 @@ class PassThroughEncoder(Encoder):
 
   ############################################################################
   def encodeIntoArray(self, input, output):
-    """ See method description in base.py """
-    if self.forced:
-      return input # total identity
-
+    """See method description in base.py"""
     if len(input) != len(output):
       raise ValueError("Different input (%i) and output (%i) sizes." % (
           len(input), len(output)))
 
+    if self.w is not None and input.nonzero().size != self.w:
+      raise ValueError("Input has %i bits but w was set to %i." % (
+          input.nonzero().size, self.w))
+
     output[:] = input[:]
-
-    if self.w is not None:
-      random.seed(hash(str(output)))
-      t = self.w - output.sum()
-      while t > 0:
-        """ turn on more bits to normalize """
-        i = random.randint(0, self.n-1)
-        if output[i] == 0:
-          output[i] = 1
-          t -= 1
-
-      while t < 0:
-        """ turn off some bits to normalize """
-        i = random.randint(0, self.n-1)
-        if output[i] == 1:
-          output[i] = 0
-          t += 1
 
     if self.verbosity >= 2:
       print "input:", input, "index:", index, "output:", output
@@ -110,36 +94,32 @@ class PassThroughEncoder(Encoder):
 
   ############################################################################
   def decode(self, encoded, parentFieldName=""):
-    """ See the function description in base.py
-    """
+    """See the function description in base.py"""
 
     if parentFieldName != "":
       fieldName = "%s.%s" % (parentFieldName, self.name)
     else:
       fieldName = self.name
-    return ({fieldName: ([[0, 0]], "input")}, [fieldName])  #TODO: these methods should be properly implemented
+    # TODO: these methods should be properly implemented
+    return ({fieldName: ([[0, 0]], "input")}, [fieldName])
 
 
   ############################################################################
   def getBucketInfo(self, buckets):
-    """ See the function description in base.py
-    """
-
+    """See the function description in base.py"""
     return [EncoderResult(value=0, scalar=0,
                          encoding=numpy.zeros(self.n))]
 
   ############################################################################
   def topDownCompute(self, encoded):
-    """ See the function description in base.py
-    """
-
+    """See the function description in base.py"""
     return EncoderResult(value=0, scalar=0,
                          encoding=numpy.zeros(self.n))
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):
-    """ Does a bitwise compare of the two bitmaps and returns a fractonal 
-    value between 0 and 1 of how similar they are. 
+    """Does a bitwise compare of the two bitmaps and returns a fractonal
+    value between 0 and 1 of how similar they are.
     1 => identical
     0 => no overlaping bits
 
@@ -165,4 +145,3 @@ class PassThroughEncoder(Encoder):
     r = r * ratio
 
     return numpy.array([r])
-
