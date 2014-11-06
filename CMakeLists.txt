@@ -566,6 +566,9 @@ set(SWIG_EXECUTABLE ${DEFAULT_SWIG_EXECUTABLE} CACHE STRING "Path to swig binary
 set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/3.0.2")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
+if(NOT ${SWIG_VERSION} STREQUAL "3.0.2")
+  message(FATAL_ERROR "NuPIC requires Swig version 3.0.2, but ${SWIG_EXECUTABLE} is ${SWIG_VERSION}")
+endif()
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
 #
