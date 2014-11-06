@@ -29,25 +29,21 @@ from nupic.encoders.base import Encoder
 
 ############################################################################
 class PassThroughEncoder(Encoder):
-  """Pass an encoded SDR straight to the model
+  """Pass an encoded SDR straight to the model.
 
   Each encoding is an SDR in which w out of n bits are turned on.
   The input should be a 1-D array or numpy.ndarray of length n
-
   """
 
   ############################################################################
-  def __init__(self, n, w=None, multiply=1, name="passthru", forced=False, verbosity=0):
+  def __init__(self, n, w=None, name="pass_through", forced=False, verbosity=0):
     """
-    n -- is the total #bits in output (must equal input bits * multiply)
-    multiply -- each input bit is represented as multiply-bits in the output
+    n -- is the total #bits in output
     w -- is used to normalize the sparsity of the output, exactly w bits ON,
          if None (default) - do not alter the input, just pass it further.
     forced -- if forced, encode will accept any data, and just return it back.
     """
-
     self.n = n
-    self.m = int(multiply)
     self.w = w
     self.verbosity = verbosity
     self.description = [(name, 0)]
@@ -84,24 +80,25 @@ class PassThroughEncoder(Encoder):
     if self.forced:
       return input # total identity
 
-    if len(input)*self.m != len(output):
-      raise Exception("Wrong input size")
+    if len(input) != len(output):
+      raise ValueError("Different input (%i) and output (%i) sizes." % (
+          len(input), len(output)))
 
-    output[:]=numpy.repeat(input, self.m).tolist()
+    output[:] = input[:]
 
-    if self.w is not None: # require w bits ON sparsity in SDR
+    if self.w is not None:
       random.seed(hash(str(output)))
       t = self.w - output.sum()
       while t > 0:
         """ turn on more bits to normalize """
-        i = random.randint(0,self.n-1)
+        i = random.randint(0, self.n-1)
         if output[i] == 0:
           output[i] = 1
           t -= 1
 
       while t < 0:
         """ turn off some bits to normalize """
-        i = random.randint(0,self.n-1)
+        i = random.randint(0, self.n-1)
         if output[i] == 1:
           output[i] = 0
           t += 1
@@ -112,15 +109,15 @@ class PassThroughEncoder(Encoder):
 
 
   ############################################################################
-  def decode(self, encoded, parentFieldName=''):
+  def decode(self, encoded, parentFieldName=""):
     """ See the function description in base.py
     """
 
-    if parentFieldName != '':
+    if parentFieldName != "":
       fieldName = "%s.%s" % (parentFieldName, self.name)
     else:
       fieldName = self.name
-    return ({fieldName: ([[0, 0]], 'input')}, [fieldName])  #TODO: these methods should be properly implemented
+    return ({fieldName: ([[0, 0]], "input")}, [fieldName])  #TODO: these methods should be properly implemented
 
 
   ############################################################################
