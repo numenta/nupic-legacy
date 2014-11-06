@@ -556,7 +556,7 @@ string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR})
 execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
                 OUTPUT_VARIABLE NUMPY_VERSION)
 
-set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
+set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig" CACHE STRING "Path to swig binary.")
 set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/3.0.2")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
