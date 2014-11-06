@@ -29,19 +29,19 @@ import unittest2 as unittest
 
 import numpy
 
-from nupic.encoders.passthru import PassThruEncoder
+from nupic.encoders.pass_through_encoder import PassThroughEncoder
 
 
 
-class PassThruEncoderTest(unittest.TestCase):
-  """Unit tests for PassThruEncoder class."""
+class PassThroughEncoderTest(unittest.TestCase):
+  """Unit tests for PassThroughEncoder class."""
 
 
   def setUp(self):
     self.n = 9
     self.m = 1
     self.name = "foo"
-    self._encoder = PassThruEncoder
+    self._encoder = PassThroughEncoder
 
 
   def testInitialization(self):
