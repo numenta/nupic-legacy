@@ -24,8 +24,6 @@ echo
 echo Running after_success-report-coverage-linux.sh...
 echo
 
-cd ${TRAVIS_BUILD_DIR}
-
 if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then
   sudo pip install python-coveralls;
   # Only publishing unit test coverage at this point.
