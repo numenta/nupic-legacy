@@ -333,11 +333,13 @@ class TemporalMemory(object):
       if isLearningSegment:
         n = self.maxNewSynapseCount - len(activeSynapses)
 
-        for sourceCell in self.pickCellsToLearnOn(n,
-                                                  segment,
-                                                  prevWinnerCells,
-                                                  connections):
-          connections.createSynapse(segment, sourceCell, self.initialPermanence)
+        for presynapticCell in self.pickCellsToLearnOn(n,
+                                                       segment,
+                                                       prevWinnerCells,
+                                                       connections):
+          connections.createSynapse(segment,
+                                    presynapticCell,
+                                    self.initialPermanence)
 
 
   def computePredictiveCells(self, activeCells, connections):
@@ -366,7 +368,7 @@ class TemporalMemory(object):
     predictiveCells = set()
 
     for cell in activeCells:
-      for synapseData in connections.synapsesForSourceCell(cell).values():
+      for synapseData in connections.synapsesForPresynapticCell(cell).values():
         segment, _, permanence = synapseData
 
         if permanence >= self.connectedPermanence:
@@ -440,8 +442,8 @@ class TemporalMemory(object):
       numActiveSynapses = 0
 
       for synapse in connections.synapsesForSegment(segment):
-        _, sourceCell, _ = connections.dataForSynapse(synapse)
-        if sourceCell in activeCells:
+        _, presynapticCell, _ = connections.dataForSynapse(synapse)
+        if presynapticCell in activeCells:
           numActiveSynapses += 1
 
       if numActiveSynapses >= maxSynapses:
@@ -494,9 +496,9 @@ class TemporalMemory(object):
     synapses = set()
 
     for synapse in connections.synapsesForSegment(segment):
-      _, sourceCell, permanence = connections.dataForSynapse(synapse)
+      _, presynapticCell, permanence = connections.dataForSynapse(synapse)
 
-      if sourceCell in activeCells and permanence >= 0:
+      if presynapticCell in activeCells and permanence >= 0:
         synapses.add(synapse)
 
     return synapses
@@ -542,9 +544,9 @@ class TemporalMemory(object):
 
     # Remove cells that are already synapsed on by this segment
     for synapse in connections.synapsesForSegment(segment):
-      (_, sourceCell, _) = connections.dataForSynapse(synapse)
-      if sourceCell in candidates:
-        candidates.remove(sourceCell)
+      (_, presynapticCell, _) = connections.dataForSynapse(synapse)
+      if presynapticCell in candidates:
+        candidates.remove(presynapticCell)
 
     n = min(n, len(candidates))
     candidates = sorted(candidates)
@@ -663,7 +665,7 @@ class Connections(object):
     # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
     self._synapsesForSegment = dict()
-    self._synapsesForSourceCell = defaultdict(dict)
+    self._synapsesForPresynapticCell = defaultdict(dict)
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -704,10 +706,7 @@ class Connections(object):
 
     @param synapse (int) Synapse index
 
-    @return (tuple) Contains:
-                      `segment`    (int),
-                      `sourceCell` (int),
-                      `permanence` (float)
+    @return (SynapseData) Synapse data
     """
     return self._synapses[synapse]
 
@@ -728,15 +727,15 @@ class Connections(object):
     return self._synapsesForSegment[segment]
 
 
-  def synapsesForSourceCell(self, sourceCell):
+  def synapsesForPresynapticCell(self, presynapticCell):
     """
     Returns the synapses for the source cell that they synapse on.
 
-    @param sourceCell (int) Source cell index
+    @param presynapticCell (int) Source cell index
 
     @return (set) Synapse indices
     """
-    return self._synapsesForSourceCell[sourceCell]
+    return self._synapsesForPresynapticCell[presynapticCell]
 
 
   def createSegment(self, cell):
@@ -762,13 +761,13 @@ class Connections(object):
     return segment
 
 
-  def createSynapse(self, segment, sourceCell, permanence):
+  def createSynapse(self, segment, presynapticCell, permanence):
     """
     Creates a new synapse on a segment.
 
-    @param segment    (int)   Segment index
-    @param sourceCell (int)   Source cell index
-    @param permanence (float) Initial permanence
+    @param segment         (int)   Segment index
+    @param presynapticCell (int)   Source cell index
+    @param permanence      (float) Initial permanence
 
     @return (int) Synapse index
     """
@@ -777,7 +776,7 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    synapseData = (segment, sourceCell, permanence)
+    synapseData = (segment, presynapticCell, permanence)
     self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
@@ -786,7 +785,7 @@ class Connections(object):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
 
-    self._synapsesForSourceCell[sourceCell][synapse] = synapseData
+    self._synapsesForPresynapticCell[presynapticCell][synapse] = synapseData
 
     return synapse
 
@@ -805,8 +804,8 @@ class Connections(object):
     self._synapses[synapse] = newData
 
     # Update indexes
-    sourceCell = data[1]
-    self._synapsesForSourceCell[sourceCell][synapse] = newData
+    presynapticCell = data[1]
+    self._synapsesForPresynapticCell[presynapticCell][synapse] = newData
 
 
   def _validateCell(self, cell):
