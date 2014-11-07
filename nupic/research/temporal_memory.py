@@ -270,9 +270,9 @@ class TemporalMemory(object):
       activeCells.update(cells)
 
       (bestCell,
-       bestSegment) = self.getBestMatchingCell(cells,
-                                               prevActiveCells,
-                                               connections)
+       bestSegment) = self.bestMatchingCell(cells,
+                                            prevActiveCells,
+                                            connections)
       winnerCells.add(bestCell)
 
       if bestSegment is None:
@@ -315,7 +315,7 @@ class TemporalMemory(object):
       isLearningSegment = segment in learningSegments
       isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 
-      activeSynapses = self.getActiveSynapsesForSegment(
+      activeSynapses = self.activeSynapsesForSegment(
         segment,
         prevActiveCells,
         connections)
@@ -377,13 +377,13 @@ class TemporalMemory(object):
   # Helper functions
   # ==============================
 
-  def getBestMatchingCell(self, cells, activeCells, connections):
+  def bestMatchingCell(self, cells, activeCells, connections):
     """
     Gets the cell with the best matching segment
-    (see `TM.getBestMatchingSegment`) that has the largest number of active
+    (see `TM.bestMatchingSegment`) that has the largest number of active
     synapses of all best matching segments.
 
-    If none were found, pick the least used cell (see `TM.getLeastUsedCell`).
+    If none were found, pick the least used cell (see `TM.leastUsedCell`).
 
     @param cells                       (set)         Indices of cells
     @param activeCells                 (set)         Indices of active cells
@@ -398,7 +398,7 @@ class TemporalMemory(object):
     bestSegment = None
 
     for cell in cells:
-      segment, numActiveSynapses = self.getBestMatchingSegment(
+      segment, numActiveSynapses = self.bestMatchingSegment(
         cell, activeCells, connections)
 
       if segment is not None and numActiveSynapses > maxSynapses:
@@ -407,12 +407,12 @@ class TemporalMemory(object):
         bestSegment = segment
 
     if bestCell is None:
-      bestCell = self.getLeastUsedCell(cells, connections)
+      bestCell = self.leastUsedCell(cells, connections)
 
     return bestCell, bestSegment
 
 
-  def getBestMatchingSegment(self, cell, activeCells, connections):
+  def bestMatchingSegment(self, cell, activeCells, connections):
     """
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
@@ -445,7 +445,7 @@ class TemporalMemory(object):
     return bestSegment, bestNumActiveSynapses
 
 
-  def getLeastUsedCell(self, cells, connections):
+  def leastUsedCell(self, cells, connections):
     """
     Gets the cell with the smallest number of segments.
     Break ties randomly.
@@ -473,7 +473,7 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def getActiveSynapsesForSegment(segment, activeCells, connections):
+  def activeSynapsesForSegment(segment, activeCells, connections):
     """
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
