@@ -23,7 +23,7 @@
 Temporal Memory implementation in Python.
 """
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from operator import mul
 
 from nupic.bindings.math import Random
@@ -323,9 +323,7 @@ class TemporalMemory(object):
       isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 
       activeSynapses = self.activeSynapsesForSegment(
-        segment,
-        prevActiveCells,
-        connections)
+        segment, prevActiveCells, connections)
 
       if isLearningSegment or isFromWinnerCell:
         self.adaptSegment(segment, activeSynapses, connections)
@@ -369,7 +367,8 @@ class TemporalMemory(object):
 
     for cell in activeCells:
       for synapseData in connections.synapsesForPresynapticCell(cell).values():
-        segment, _, permanence = synapseData
+        segment = synapseData.segment
+        permanence = synapseData.permanence
 
         if permanence >= self.connectedPermanence:
           numActiveConnectedSynapsesForSegment[segment] += 1
@@ -442,8 +441,8 @@ class TemporalMemory(object):
       numActiveSynapses = 0
 
       for synapse in connections.synapsesForSegment(segment):
-        _, presynapticCell, _ = connections.dataForSynapse(synapse)
-        if presynapticCell in activeCells:
+        synapseData = connections.dataForSynapse(synapse)
+        if synapseData.presynapticCell in activeCells:
           numActiveSynapses += 1
 
       if numActiveSynapses >= maxSynapses:
@@ -496,9 +495,10 @@ class TemporalMemory(object):
     synapses = set()
 
     for synapse in connections.synapsesForSegment(segment):
-      _, presynapticCell, permanence = connections.dataForSynapse(synapse)
+      synapseData = connections.dataForSynapse(synapse)
 
-      if presynapticCell in activeCells and permanence >= 0:
+      if (synapseData.presynapticCell in activeCells and
+          synapseData.permanence >= 0):
         synapses.add(synapse)
 
     return synapses
@@ -514,7 +514,8 @@ class TemporalMemory(object):
     @param connections    (Connections) Connectivity of layer
     """
     for synapse in connections.synapsesForSegment(segment):
-      (_, _, permanence) = connections.dataForSynapse(synapse)
+      synapseData = connections.dataForSynapse(synapse)
+      permanence = synapseData.permanence
 
       if synapse in activeSynapses:
         permanence += self.permanenceIncrement
@@ -544,7 +545,9 @@ class TemporalMemory(object):
 
     # Remove cells that are already synapsed on by this segment
     for synapse in connections.synapsesForSegment(segment):
-      (_, presynapticCell, _) = connections.dataForSynapse(synapse)
+      synapseData = connections.dataForSynapse(synapse)
+      presynapticCell = synapseData.presynapticCell
+
       if presynapticCell in candidates:
         candidates.remove(presynapticCell)
 
@@ -649,6 +652,10 @@ class Connections(object):
   """
   Class to hold data representing the connectivity of a collection of cells.
   """
+
+  SynapseData = namedtuple("SyanpseData", ["segment",
+                                           "presynapticCell",
+                                           "permanence"])
 
   def __init__(self, numCells):
     """
@@ -776,7 +783,7 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    synapseData = (segment, presynapticCell, permanence)
+    synapseData = self.SynapseData(segment, presynapticCell, permanence)
     self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
@@ -800,12 +807,13 @@ class Connections(object):
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
-    newData = data[:-1] + (permanence,)
+    newData = self.SynapseData(data.segment,
+                               data.presynapticCell,
+                               permanence)
     self._synapses[synapse] = newData
 
     # Update indexes
-    presynapticCell = data[1]
-    self._synapsesForPresynapticCell[presynapticCell][synapse] = newData
+    self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
 
 
   def _validateCell(self, cell):
