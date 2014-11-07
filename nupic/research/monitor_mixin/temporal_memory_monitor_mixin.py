@@ -152,7 +152,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     for predictedActiveCells in (
         self._mmData["predictedActiveCellsForSequence"].values()):
-      cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
       numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
 
     return Metric(self,
@@ -288,7 +288,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       predictedInactiveColumns = set()
 
       for predictedCell in predictedCellsTrace.data[i]:
-        predictedColumn = self.connections.columnForCell(predictedCell)
+        predictedColumn = self.columnForCell(predictedCell)
 
         if predictedColumn  in activeColumns:
           predictedActiveCells.add(predictedCell)

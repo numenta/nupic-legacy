@@ -60,18 +60,18 @@ class TemporalMemory(object):
     @param permanenceDecrement (float) Amount by which permanences of synapses are decremented during learning.
     @param seed                (int)   Seed for the random number generator.
     """
+    # Error checking
+    if not len(columnDimensions):
+      raise ValueError("Number of column dimensions must be greater than 0")
+
+    if not cellsPerColumn > 0:
+      raise ValueError("Number of cells per column must be greater than 0")
+
     # TODO: Validate all parameters (and add validation tests)
 
-    # Initialize member variables
-    self.connections = Connections(columnDimensions, cellsPerColumn)
-    self._random = Random(seed)
-
-    self.activeCells = set()
-    self.predictiveCells = set()
-    self.activeSegments = set()
-    self.winnerCells = set()
-
     # Save member variables
+    self.columnDimensions = columnDimensions
+    self.cellsPerColumn = cellsPerColumn
     self.activationThreshold = activationThreshold
     self.learningRadius = learningRadius
     self.initialPermanence = initialPermanence
@@ -80,6 +80,15 @@ class TemporalMemory(object):
     self.maxNewSynapseCount = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
+
+    # Initialize member variables
+    self.connections = Connections(self.numberOfCells())
+    self._random = Random(seed)
+
+    self.activeCells = set()
+    self.predictiveCells = set()
+    self.activeSegments = set()
+    self.winnerCells = set()
 
 
   # ==============================
@@ -144,8 +153,7 @@ class TemporalMemory(object):
      _winnerCells,
      predictedColumns) = self.activateCorrectlyPredictiveCells(
        prevPredictiveCells,
-       activeColumns,
-       connections)
+       activeColumns)
 
     activeCells.update(_activeCells)
     winnerCells.update(_winnerCells)
@@ -192,10 +200,9 @@ class TemporalMemory(object):
   # Phases
   # ==============================
 
-  @staticmethod
-  def activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                       activeColumns,
-                                       connections):
+  def activateCorrectlyPredictiveCells(self,
+                                       prevPredictiveCells,
+                                       activeColumns):
     """
     Phase 1: Activate the correctly predictive cells.
 
@@ -220,7 +227,7 @@ class TemporalMemory(object):
     predictedColumns = set()
 
     for cell in prevPredictiveCells:
-      column = connections.columnForCell(cell)
+      column = self.columnForCell(cell)
 
       if column in activeColumns:
         activeCells.add(cell)
@@ -266,7 +273,7 @@ class TemporalMemory(object):
     unpredictedColumns = activeColumns - predictedColumns
 
     for column in unpredictedColumns:
-      cells = connections.cellsForColumn(column)
+      cells = self.cellsForColumn(column)
       activeCells.update(cells)
 
       (bestCell,
@@ -552,45 +559,6 @@ class TemporalMemory(object):
     return cells
 
 
-class Connections(object):
-  """
-  Class to hold data representing the connectivity of a layer of cells,
-  that the TM operates on.
-  """
-
-  def __init__(self,
-               columnDimensions,
-               cellsPerColumn):
-    """
-    @param columnDimensions (list) Dimensions of the column space
-    @param cellsPerColumn   (int)  Number of cells per column
-    """
-    # Error checking
-    if not len(columnDimensions):
-      raise ValueError("Number of column dimensions must be greater than 0")
-
-    if not cellsPerColumn > 0:
-      raise ValueError("Number of cells per column must be greater than 0")
-
-    # Save member variables
-    self.columnDimensions = columnDimensions
-    self.cellsPerColumn = cellsPerColumn
-
-    # Mappings
-    self._segments = dict()
-    self._synapses = dict()
-
-    # Indexes into the mappings (for performance)
-    self._segmentsForCell = dict()
-    self._synapsesForSegment = dict()
-    self._synapsesForSourceCell = defaultdict(dict)
-
-    # Index of the next segment to be created
-    self._nextSegmentIdx = 0
-    # Index of the next synapse to be created
-    self._nextSynapseIdx = 0
-
-
   def columnForCell(self, cell):
     """
     Returns the index of the column that a cell belongs to.
@@ -617,6 +585,90 @@ class Connections(object):
     start = self.cellsPerColumn * column
     end = start + self.cellsPerColumn
     return set([cell for cell in range(start, end)])
+
+
+  def numberOfColumns(self):
+    """
+    Returns the number of columns in this layer.
+
+    @return (int) Number of columns
+    """
+    return reduce(mul, self.columnDimensions, 1)
+
+
+  def numberOfCells(self):
+    """
+    Returns the number of cells in this layer.
+
+    @return (int) Number of cells
+    """
+    return self.numberOfColumns() * self.cellsPerColumn
+
+
+  def mapCellsToColumns(self, cells):
+    """
+    Maps cells to the columns they belong to
+
+    @param cells (set) Cells
+
+    @return (dict) Mapping from columns to their cells in `cells`
+    """
+    cellsForColumns = defaultdict(set)
+
+    for cell in cells:
+      column = self.columnForCell(cell)
+      cellsForColumns[column].add(cell)
+
+    return cellsForColumns
+
+
+  def _validateColumn(self, column):
+    """
+    Raises an error if column index is invalid.
+
+    @param column (int) Column index
+    """
+    if column >= self.numberOfColumns() or column < 0:
+      raise IndexError("Invalid column")
+
+
+  def _validateCell(self, cell):
+    """
+    Raises an error if cell index is invalid.
+
+    @param cell (int) Cell index
+    """
+    if cell >= self.numberOfCells() or cell < 0:
+      raise IndexError("Invalid cell")
+
+
+
+class Connections(object):
+  """
+  Class to hold data representing the connectivity of a collection of cells.
+  """
+
+  def __init__(self, numCells):
+    """
+    @param numCells (int) Number of cells in collection
+    """
+
+    # Save member variables
+    self.numCells = numCells
+
+    # Mappings
+    self._segments = dict()
+    self._synapses = dict()
+
+    # Indexes into the mappings (for performance)
+    self._segmentsForCell = dict()
+    self._synapsesForSegment = dict()
+    self._synapsesForSourceCell = defaultdict(dict)
+
+    # Index of the next segment to be created
+    self._nextSegmentIdx = 0
+    # Index of the next synapse to be created
+    self._nextSynapseIdx = 0
 
 
   def cellForSegment(self, segment):
@@ -684,8 +736,6 @@ class Connections(object):
 
     @return (set) Synapse indices
     """
-    self._validateCell(sourceCell)
-
     return self._synapsesForSourceCell[sourceCell]
 
 
@@ -723,7 +773,6 @@ class Connections(object):
     @return (int) Synapse index
     """
     self._validateSegment(segment)
-    self._validateCell(sourceCell)
     self._validatePermanence(permanence)
 
     # Add data
@@ -760,66 +809,13 @@ class Connections(object):
     self._synapsesForSourceCell[sourceCell][synapse] = newData
 
 
-  # ==============================
-  # Convenience accesors
-  # ==============================
-
-  def numberOfColumns(self):
-    """
-    Returns the number of columns in this layer.
-
-    @return (int) Number of columns
-    """
-    return reduce(mul, self.columnDimensions, 1)
-
-
-  def numberOfCells(self):
-    """
-    Returns the number of cells in this layer.
-
-    @return (int) Number of cells
-    """
-    return self.numberOfColumns() * self.cellsPerColumn
-
-
-  def mapCellsToColumns(self, cells):
-    """
-    Maps cells to the columns they belong to
-
-    @param cells (set) Cells
-
-    @return (dict) Mapping from columns to their cells in `cells`
-    """
-    cellsForColumns = defaultdict(set)
-
-    for cell in cells:
-      column = self.columnForCell(cell)
-      cellsForColumns[column].add(cell)
-
-    return cellsForColumns
-
-
-  # ==============================
-  # Helper functions
-  # ==============================
-
-  def _validateColumn(self, column):
-    """
-    Raises an error if column index is invalid.
-
-    @param column (int) Column index
-    """
-    if column >= self.numberOfColumns() or column < 0:
-      raise IndexError("Invalid column")
-
-
   def _validateCell(self, cell):
     """
     Raises an error if cell index is invalid.
 
     @param cell (int) Cell index
     """
-    if cell >= self.numberOfCells() or cell < 0:
+    if cell >= self.numCells or cell < 0:
       raise IndexError("Invalid cell")
 
 
