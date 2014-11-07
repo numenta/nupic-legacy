@@ -170,6 +170,7 @@ endmacro()
 
 # This macro generates a executable
 macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_executable(${name}
     ${SOURCE_RETURNED}
@@ -184,6 +185,7 @@ macro(generate_executable name src_dir output_dir cxx_flags link_flags libraries
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a static library
@@ -202,6 +204,7 @@ endmacro()
 
 # This macro generates a dynamic library
 macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags project_libraries external_libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   get_source_groups(${src_dir})
   add_library(${name} SHARED
     ${SOURCE_RETURNED}
@@ -225,10 +228,12 @@ macro(generate_dynamic_library name src_dir output_dir cxx_flags link_flags proj
     string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
     set_target_properties(${name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${output_dir})
   endforeach()
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates a swig module
 macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_source link_flags libraries)
+  message(STATUS "Building ${name} from ${src_dir}")
   string(REPLACE " " ";" swig_flags ${swig_flags})
   file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/${sub_dir}")
 
@@ -253,6 +258,7 @@ macro(generate_swig_module name output_dir sub_dir swig_flags cxx_flags extra_so
   swig_link_libraries(${name}
     ${libraries}
   )
+  message(STATUS "Done building ${name} at ${output_dir}")
 endmacro()
 
 # This macro generates imported library from submodules
@@ -289,6 +295,7 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   # Generate the Make scripts
   execute_process(COMMAND ${CMAKE_COMMAND} ${submodule_dir}/src -DUSER_CXXFLAGS:STRING=${extra_cxxflags} -DUSER_LINKFLAGS:STRING=${extra_linkflags}
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts)
+
   # Execute the Make scripts
   execute_process(COMMAND ${USER_MAKE_COMMAND} -j3
                   WORKING_DIRECTORY ${submodule_dir}/build/scripts
@@ -301,9 +308,13 @@ macro(generate_submodule_library name submodule_dir extra_cxxflags extra_linkfla
   copy_directory(${submodule_dir}/build/release/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${submodule_dir}/build/release/include ${PROJECT_BUILD_INCLUDE_DIR})
 
+  message(STATUS "Binaries copied.  Configure ${name} at ${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
   # Configure submodule libraries
   add_library(${name} STATIC IMPORTED GLOBAL)
   set_property(TARGET ${name} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${name}.${STATIC_LIB_EXTENSION}")
+
+  message(STATUS "Done.")
 endmacro()
 
 # This macro converts a "snake_case" style string to an "UpperCamelCase" style string
@@ -382,6 +393,16 @@ set(PROJECT_BUILD_TEMP_DIR ${REPOSITORY_DIR}/temp)
 # CMAKE_CURRENT_BINARY_DIR is used by swig module for put wrappers on, so don't erase this line!
 set(CMAKE_CURRENT_BINARY_DIR ${PROJECT_BUILD_TEMP_DIR})
 
+if("${NUPIC_CORE}" STREQUAL "")
+  if("${NUPIC_CORE_SOURCE}" STREQUAL "")
+    SET(NUPIC_CORE_SOURCE "${REPOSITORY_DIR}/extensions/core")
+  endif()
+  SET(NUPIC_CORE "${NUPIC_CORE_SOURCE}/build/release")
+  SET(BUILD_NUPIC_CORE "TRUE")
+else()
+  SET(BUILD_NUPIC_CORE "")
+endif()
+
 #
 # Prepare directory structure
 #
@@ -427,16 +448,16 @@ else()
 endif()
 set(NTA_PLATFORM_CXXFLAGS "-fPIC -DPIC")
 set(NTA_PLATFORM_LINKFLAGS "")
-set(NTA_PLATFORM_LIBS "-std=c++98")
+set(NTA_PLATFORM_LIBS "")
 set(NUPIC_CORE_EXTRA_CXXFLAGS "")
 set(NUPIC_CORE_EXTRA_LINKFLAGS "")
 if(OSX)
   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.7")
   set(NTA_PLATFORM_OS "darwin64")
-  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64")
+  set(NTA_PLATFORM_CXXFLAGS "${NTA_PLATFORM_CXXFLAGS} -m64 -stdlib=libc++")
   set(NTA_PLATFORM_DEBUGFLAGS "-gfull")
-  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap")
-  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -stdlib=libstdc++ -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate")
+  set(NTA_PLATFORM_LINKFLAGS "${NTA_PLATFORM_LINKFLAGS} -Wl,-u,_munmap -stdlib=libc++")
+  set(NTA_PLATFORM_LIBS "${NTA_PLATFORM_LIBS} -lc++abi -liconv -lsqlite3 -framework CoreServices -framework Accelerate -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib -lyaml-cpp")
   set(NTA_PLATFORM_LINKFLAGS_PYMODULE "-bundle -undefined dynamic_lookup -fPIC")
   set(NTA_PLATFORM_LINKFLAGS_PYEMBED "")
 elseif(LINUX)
@@ -535,15 +556,19 @@ string(REGEX REPLACE "\\\\" "/" NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR})
 execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(numpy.__version__)"
                 OUTPUT_VARIABLE NUMPY_VERSION)
 
-#
-# Checks if Swig is installed and gets its variables.
-# Minimum version of Swig is 1.3.36 -- earlier versions *will* fail
-# Later versions greater than 2.0.3 also *will* fail (SWIGPY_SLICE_ARG bug)
-#
-set(SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
-set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/1.3.36")
+if(NOT "$ENV{SWIG_EXECUTABLE}" STREQUAL "")
+  set(DEFAULT_SWIG_EXECUTABLE "$ENV{SWIG_EXECUTABLE}")
+else()
+  set(DEFAULT_SWIG_EXECUTABLE "${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/bin/swig")
+endif()
+
+set(SWIG_EXECUTABLE ${DEFAULT_SWIG_EXECUTABLE} CACHE STRING "Path to swig binary.")
+set(SWIG_DIR "${REPOSITORY_DIR}/external/common/share/swig/3.0.2")
 execute_process(COMMAND ${SWIG_EXECUTABLE} -version OUTPUT_VARIABLE SWIG_VERSION)
 string(REGEX REPLACE ".*SWIG Version[^0-9.]*\([0-9.]+\).*" "\\1" SWIG_VERSION ${SWIG_VERSION})
+if(NOT ${SWIG_VERSION} STREQUAL "3.0.2")
+  message(FATAL_ERROR "NuPIC requires Swig version 3.0.2, but ${SWIG_EXECUTABLE} is ${SWIG_VERSION}")
+endif()
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
 #
@@ -600,7 +625,7 @@ message(STATUS "  Build System: ${PROJECT_BINARY_DIR}")
 # The reason to use add_definitions() instead of appending flag -std=c++0x directly to CXXBASE_FLAGS is that
 # cmake deploys "internal smarts" for compatibility with different compilers (clang, gcc 4.6 vs 4.8)
 #add_definitions(-DNPY_NO_DEPRECATED_API=NPY_1_7_API_VERSION) # silence numpy1.7 deprecated warning
-add_definitions(-std=c++98) # smart flag setting for gcc/clang
+add_definitions(-std=c++11) # smart flag setting for gcc/clang
 
 #
 # Include directories of headers
@@ -637,11 +662,7 @@ set(NTA_CXXFLAGS_BASE "${NTA_INCLUDEFLAGS} ${NTA_PLATFORM_CXXFLAGS} -DHAVE_CONFI
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LINKFLAGS}")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} ${NTA_PLATFORM_LIBS}")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${PROJECT_BUILD_LIBRARIES_DIR}")
-if("${NUPIC_CORE}" STREQUAL "")
-  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/extensions/core/external/${NTA_PLATFORM_OS}/lib")
-else()
-  set(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib")
-endif()
+SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${NUPIC_CORE_SOURCE}/external/${NTA_PLATFORM_OS}/lib")
 SET(NTA_LINKFLAGS "${NTA_LINKFLAGS} -L${REPOSITORY_DIR}/external/${NTA_PLATFORM_OS}/lib")
 
 message(STATUS "Options:")
@@ -733,7 +754,7 @@ endif()
 #
 if(NTA_PYTHON_SUPPORT)
 
-  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR} ${NTA_INCLUDEFLAGS}")
+  set(NTA_SWIG_FLAGS "${NTA_SWIG_FLAGS} -features autodoc=0,directors=0 -noproxyimport -keyword -modern -modernargs -noproxydel -fvirtual -fastunpack -nofastproxy -fastquery -outputtuple -castmode -w402 -w503 -w511 -w302 -w362 -w312 -w389 -DSWIG_PYTHON_LEGACY_BOOL -DNTA_PLATFORM_${NTA_PLATFORM_OS} -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION} -I${NUMPY_INCLUDE_DIR} -I${SWIG_DIR}/python -I${SWIG_DIR} ${NTA_INCLUDEFLAGS}")
   string(REGEX REPLACE "-isystem" "-I" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS}) # C++ includes need -isystem, but swig can't handle that
   string(REPLACE " " ";" NTA_SWIG_FLAGS ${NTA_SWIG_FLAGS})
 
@@ -784,7 +805,7 @@ generate_static_library(${LIB_STATIC_SUPPORT} "${REPOSITORY_DIR}/extensions/py_s
 
 set(LIB_STATIC_NUPICCORE nupic_core)
 set(LIB_STATIC_GTEST gtest)
-if("${NUPIC_CORE}" STREQUAL "")
+if(BUILD_NUPIC_CORE)
   # User has not specified NUPIC_CORE location, build it from scratch
   if(EXISTS "${REPOSITORY_DIR}/.nupic_config")
     file(STRINGS "${REPOSITORY_DIR}/.nupic_config" MODULES_FILE_CONTENT REGEX "^[^#]")
@@ -795,13 +816,8 @@ if("${NUPIC_CORE}" STREQUAL "")
   endif()
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
-  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${REPOSITORY_DIR}/extensions/core" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 
-  #
-  # Compile google test from source for linking with tests
-  #
-  generate_static_library(${LIB_STATIC_GTEST} "${REPOSITORY_DIR}/extensions/core/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
-
+  generate_submodule_library(${LIB_STATIC_NUPICCORE} "${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_EXTRA_CXXFLAGS}" "${NUPIC_CORE_EXTRA_LINKFLAGS}" "${NUPIC_CORE_REMOTE}" "${NUPIC_CORE_COMMITISH}")
 else()
   message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
   # Use user-specified NUPIC_CORE
@@ -809,16 +825,12 @@ else()
   copy_directory(${NUPIC_CORE}/bin ${PROJECT_BUILD_BINARIES_DIR})
   copy_directory(${NUPIC_CORE}/lib ${PROJECT_BUILD_LIBRARIES_DIR})
   copy_directory(${NUPIC_CORE}/include ${PROJECT_BUILD_INCLUDE_DIR})
-
-  # Configure submodule libraries
-  add_library(${LIB_STATIC_NUPICCORE} STATIC IMPORTED GLOBAL)
-  set_property(TARGET ${LIB_STATIC_NUPICCORE} PROPERTY IMPORTED_LOCATION "${PROJECT_BUILD_LIBRARIES_DIR}/lib${LIB_STATIC_NUPICCORE}.${STATIC_LIB_EXTENSION}")
-
-  #
-  # Compile google test from source for linking with tests
-  #
-  generate_static_library(${LIB_STATIC_GTEST} "${NUPIC_CORE_SOURCE}/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 endif()
+
+#
+# Compile google test from source for linking with tests
+#
+generate_static_library(${LIB_STATIC_GTEST} "${NUPIC_CORE_SOURCE}/external/common/src/gtest" "${PROJECT_BUILD_TEMP_DIR}/lib" "${NTA_CXXFLAGS}")
 
 #
 # HtmTest
@@ -917,6 +929,7 @@ if(NTA_PYTHON_SUPPORT)
   generate_swig_module(${LIB_SHARED_IORANGE} "${REPOSITORY_DIR}/nupic/bindings" "/extensions/bindings/py/iorange" "${NTA_SWIG_FLAGS}" "${NTA_CXXFLAGS_PYMODULE}" "" "${NTA_LINKFLAGS_PYMODULE}" "${LIBRARIES}")
 endif()
 
+message(STATUS "Bindings built.")
 
 ############################################################################################################################
 ###                                                                                                                      ###
@@ -940,6 +953,8 @@ install(CODE "execute_process(COMMAND ${PYTHON} setup.py develop
 #
 # Tests
 #
+message(STATUS "Adding custom targets")
+
 add_custom_target(python_unit_tests
                   COMMAND ${PYTHON} ${REPOSITORY_DIR}/scripts/run_tests.py -u --coverage
                   COMMENT "Python unit tests")
@@ -994,5 +1009,5 @@ add_custom_target(distclean
                   COMMENT "Cleaning temporary & release build files")
 
 # Just to separate from result message
-message(STATUS "")
+message(STATUS "Completely done!")
 
