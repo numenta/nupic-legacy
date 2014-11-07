@@ -250,7 +250,7 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(predictiveCells, set([0]))
 
 
-  def testGetBestMatchingCell(self):
+  def testBestMatchingCell(self):
     tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1,
@@ -275,23 +275,23 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeCells = set([23, 37, 49, 733])
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(0),
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(connections.cellsForColumn(0),
+                                         activeCells,
+                                         connections),
                      (0, 0))
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(3),  # column containing cell 108
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(connections.cellsForColumn(3),  # column containing cell 108
+                                         activeCells,
+                                         connections),
                      (96, None))  # Random cell from column
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(999),
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(connections.cellsForColumn(999),
+                                         activeCells,
+                                         connections),
                      (31972, None))  # Random cell from column
 
 
-  def testGetBestMatchingCellFewestSegments(self):
+  def testBestMatchingCellFewestSegments(self):
     tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
@@ -308,13 +308,13 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      (cell, _) = tm.getBestMatchingCell(connections.cellsForColumn(0),
-                                         activeSynapsesForSegment,
-                                         connections)
+      (cell, _) = tm.bestMatchingCell(connections.cellsForColumn(0),
+                                      activeSynapsesForSegment,
+                                      connections)
       self.assertEqual(cell, 1)
 
 
-  def testGetBestMatchingSegment(self):
+  def testBestMatchingSegment(self):
     tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1
@@ -338,28 +338,28 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeCells = set([23, 37, 49, 733])
 
-    self.assertEqual(tm.getBestMatchingSegment(0,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(0,
+                                            activeCells,
+                                            connections),
                      (0, 2))
 
-    self.assertEqual(tm.getBestMatchingSegment(1,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(1,
+                                            activeCells,
+                                            connections),
                      (2, 1))
 
-    self.assertEqual(tm.getBestMatchingSegment(8,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(8,
+                                            activeCells,
+                                            connections),
                      (None, None))
 
-    self.assertEqual(tm.getBestMatchingSegment(100,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(100,
+                                            activeCells,
+                                            connections),
                      (None, None))
 
 
-  def testGetLeastUsedCell(self):
+  def testLeastUsedCell(self):
     tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
@@ -372,8 +372,8 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.getLeastUsedCell(connections.cellsForColumn(0),
-                                           connections),
+      self.assertEqual(tm.leastUsedCell(connections.cellsForColumn(0),
+                                        connections),
                        1)
 
 
