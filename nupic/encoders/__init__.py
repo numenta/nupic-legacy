@@ -30,7 +30,7 @@ from delta import DeltaEncoder
 from scalarspace import ScalarSpaceEncoder
 from coordinate import CoordinateEncoder
 from geospatial_coordinate import GeospatialCoordinateEncoder
-from nupic.encoders.passthru import PassThruEncoder
+from nupic.encoders.pass_through_encoder import PassThroughEncoder
 # multiencoder must be imported last because it imports * from this module!
 from multi import MultiEncoder
 from utils import bitsToString
