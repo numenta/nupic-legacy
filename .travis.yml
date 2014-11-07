@@ -79,5 +79,4 @@ script:
   - . ./ci/travis/script-run-tests.sh
 
 after_success:
- - cd $TRAVIS_BUILD_DIR
- - . ./ci/travis/after_success-report-coverage.sh
+ - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/after_success-report-coverage-linux.sh; fi"
