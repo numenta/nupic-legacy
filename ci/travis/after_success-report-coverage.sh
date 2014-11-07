@@ -30,7 +30,7 @@ cd ${TRAVIS_BUILD_DIR}
 coveralls -i
 cd $actDir
 
-if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls; fi
+if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then pip install python-coveralls --user; fi
 
 # Only publishing unit test coverage at this point.
 if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi
