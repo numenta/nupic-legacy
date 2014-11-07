@@ -389,5 +389,58 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
     self.runSerialize("cpp", params)
 
 
+  @unittest.skip("Currently fails due to non-fixed randomness in C++ SP.")
+  def testCompatibilityCppPyDirectCall1D(self):
+    """Check SP implementations have same behavior with 1D input."""
+
+    pySp = PySpatialPooler(
+        inputDimensions=[121], columnDimensions=[300])
+    cppSp = CPPSpatialPooler(
+        inputDimensions=[121], columnDimensions=[300])
+
+    data = numpy.zeros([121], dtype=uintType)
+    for i in xrange(21):
+      data[i] = 1
+
+    nCols = 300
+    d1 = numpy.zeros(nCols, dtype=uintType)
+    d2 = numpy.zeros(nCols, dtype=uintType)
+
+    pySp.compute(data, True, d1) # learn
+    cppSp.compute(data, True, d2)
+
+    d1 = d1.nonzero()[0].tolist()
+    d2 = d2.nonzero()[0].tolist()
+    self.assertListEqual(
+        d1, d2, "SP outputs are not equal: \n%s \n%s" % (str(d1), str(d2)))
+
+
+  @unittest.skip("Currently fails due to non-fixed randomness in C++ SP.")
+  def testCompatibilityCppPyDirectCall2D(self):
+    """Check SP implementations have same behavior with 2D input."""
+
+    pySp = PySpatialPooler(
+        inputDimensions=[121, 1], columnDimensions=[30, 30])
+    cppSp = CPPSpatialPooler(
+        inputDimensions=[121, 1], columnDimensions=[30, 30])
+
+    data = numpy.zeros([121, 1], dtype=uintType)
+    for i in xrange(21):
+      data[i][0] = 1
+
+    nCols = 900
+    d1 = numpy.zeros(nCols, dtype=uintType)
+    d2 = numpy.zeros(nCols, dtype=uintType)
+
+    pySp.compute(data, True, d1) # learn
+    cppSp.compute(data, True, d2)
+
+    d1 = d1.nonzero()[0].tolist()
+    d2 = d2.nonzero()[0].tolist()
+    self.assertListEqual(
+        d1, d2, "SP outputs are not equal: \n%s \n%s" % (str(d1), str(d2)))
+
+
+
 if __name__ == "__main__":
   unittest.main()
