@@ -21,14 +21,15 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running after_success-report-coverage-linux.sh...
 echo
 
 cd ${TRAVIS_BUILD_DIR}
 
-if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then sudo pip install python-coveralls; fi
-
-# Only publishing unit test coverage at this point.
-if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then coveralls -i --data_file=.coverage_unit; fi
+if [ $PY_VER = '2.7' ] && [ $CC = 'clang' ]; then
+  sudo pip install python-coveralls;
+  # Only publishing unit test coverage at this point.
+  coveralls -i --data_file=.coverage_unit;
+fi
 
 # TODO: figure out how to publish integration test coverage as well.

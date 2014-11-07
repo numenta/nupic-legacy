@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running install-linux.sh...
 echo
 
 # Verify cmake version
