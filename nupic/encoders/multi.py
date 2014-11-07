@@ -26,7 +26,6 @@ from nupic.encoders.date import DateEncoder
 from nupic.encoders.logenc import LogEncoder
 from nupic.encoders.category import CategoryEncoder
 from nupic.encoders.sdrcategory import SDRCategoryEncoder
-from nupic.encoders.sdrrandom import SDRRandomEncoder
 from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
 from nupic.encoders.pass_through_encoder import PassThroughEncoder

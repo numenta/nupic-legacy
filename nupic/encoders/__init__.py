@@ -25,7 +25,6 @@ from date import DateEncoder
 from logenc import LogEncoder
 from category import CategoryEncoder
 from sdrcategory import SDRCategoryEncoder
-from sdrrandom import SDRRandomEncoder
 from delta import DeltaEncoder
 from scalarspace import ScalarSpaceEncoder
 from coordinate import CoordinateEncoder
