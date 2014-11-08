@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running before_install-linux.sh...
 echo
 
 echo ">>> Doing prep work..."
