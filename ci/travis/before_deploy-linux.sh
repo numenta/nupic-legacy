@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running before_deploy-linux.sh...
 echo
 
 cd ${TRAVIS_BUILD_DIR}
