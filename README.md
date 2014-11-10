@@ -16,7 +16,7 @@ For all installation options, see the [Installing and Building NuPIC](https://gi
 
 ### Currently supported platforms:
 
- * Linux (32/64bit)
+ * Linux (64bit)
  * Mac OSX
  * Raspberry Pi (ARMv6)
  * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
