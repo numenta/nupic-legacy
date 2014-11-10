@@ -20,5 +20,66 @@
 # ----------------------------------------------------------------------
 
 """
+Plot class used in monitor mixin framework.
 """
 
+import matplotlib.pyplot as plt
+
+
+
+class Plot(object):
+  """
+  A plot graphed over a list of numbers.
+  """
+  def __init__(self, monitor, title):
+    """
+    @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
+                                      this plot
+    @param title   (string)           Title
+    @param data    (list)             List of numbers to graph plot over
+    """
+    self._monitor = monitor
+    self._title = title
+
+    self._fig = self._initFigure()
+    plt.ion()
+    plt.show()
+
+
+  def addGraph(self, data, position=111, xlabel=None, ylabel=None):
+    ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
+    ax.plot(data)
+    plt.draw()
+
+
+  def addHistogram(self, data, position=111, xlabel=None, ylabel=None,
+                   bins=None):
+    """
+    @param bucketSize (int) Size of each bucket
+    """
+    ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
+    ax.hist(data, bins=bins, color="green", alpha=0.8)
+    plt.draw()
+
+
+  def _initFigure(self):
+    fig = plt.figure()
+    fig.suptitle(self._prettyPrintTitle())
+    return fig
+
+
+  def _addBase(self, position, xlabel=None, ylabel=None):
+    """
+    @param data (list) List of numbers to graph plot over
+
+    @return (matplotlib.Axes) subplot
+    """
+    ax = self._fig.add_subplot(position)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    return ax
+
+
+  def _prettyPrintTitle(self):
+    return ("[{0}] {1}".format(self._monitor.mmName, self._title)
+            if self._monitor.mmName is not None else self._title)

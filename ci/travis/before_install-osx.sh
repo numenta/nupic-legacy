@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running before_install-osx.sh...
 echo
 
 # Get Darwin64 libs for OSX
