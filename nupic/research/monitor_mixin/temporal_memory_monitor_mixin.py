@@ -327,8 +327,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
 
-    self._mmTraces["numSegments"].data.append(len(self.connections._segments))
-    self._mmTraces["numSynapses"].data.append(len(self.connections._synapses))
+    self._mmTraces["numSegments"].data.append(self.connections.numSegments())
+    self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
 
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
     self._mmTraces["resets"].data.append(self._mmResetActive)
