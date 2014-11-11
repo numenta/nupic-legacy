@@ -99,56 +99,6 @@ class FastTemporalMemory(TemporalMemory):
     return activeCells, winnerCells, learningSegments
 
 
-  def learnOnSegments(self,
-                      prevActiveSegments,
-                      learningSegments,
-                      prevActiveCells,
-                      winnerCells,
-                      prevWinnerCells,
-                      connections):
-    """
-    Phase 3: Perform learning by adapting segments.
-
-    Pseudocode:
-
-      - (learning) for each prev active or learning segment
-        - if learning segment or from winner cell
-          - strengthen active synapses
-          - weaken inactive synapses
-        - if learning segment
-          - add some synapses to the segment
-            - subsample from prev winner cells
-
-    @param prevActiveSegments           (set)         Indices of active segments in `t-1`
-    @param learningSegments             (set)         Indices of learning segments in `t`
-    @param prevActiveCells              (set)         Indices of active cells in `t-1`
-    @param winnerCells                  (set)         Indices of winner cells in `t`
-    @param prevWinnerCells              (set)         Indices of winner cells in `t-1`
-    @param connections                  (Connections) Connectivity of layer
-    """
-    # TODO: Merge this into TemporalMemory.learnOnSegments
-    for segment in prevActiveSegments | learningSegments:
-      isLearningSegment = segment in learningSegments
-      isFromWinnerCell = segment.cell in winnerCells
-
-      activeSynapses = self.activeSynapsesForSegment(
-        segment, prevActiveCells, connections)
-
-      if isLearningSegment or isFromWinnerCell:
-        self.adaptSegment(segment, activeSynapses, connections)
-
-      if isLearningSegment:
-        n = self.maxNewSynapseCount - len(activeSynapses)
-
-        for presynapticCell in self.pickCellsToLearnOn(n,
-                                                       segment,
-                                                       prevWinnerCells,
-                                                       connections):
-          connections.createSynapse(segment,
-                                    presynapticCell,
-                                    self.initialPermanence)
-
-
   def computePredictiveCells(self, activeCells, connections):
     """
     Phase 4: Compute predictive cells due to lateral input

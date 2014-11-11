@@ -2249,6 +2249,10 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
         self, cells, input, synapseThreshold, segment)
       return segment if result else None
 
+    def cellForSegment(self, segment):
+      """Used by TemporalMemory.learnOnSegments"""
+      return segment.cell
+
   %}
 }
 
