@@ -816,6 +816,20 @@ class Connections(object):
     self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
 
 
+  def numSegments(self):
+    """
+    Returns the number of segments.
+    """
+    return len(self._segments)
+
+
+  def numSynapses(self):
+    """
+    Returns the number of synapses.
+    """
+    return len(self._synapses)
+
+
   def _validateCell(self, cell):
     """
     Raises an error if cell index is invalid.
