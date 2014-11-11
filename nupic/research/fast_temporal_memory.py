@@ -34,6 +34,8 @@ from nupic.bindings.algorithms import Connections, ConnectionsCell
 class FastTemporalMemory(TemporalMemory):
   """
   Class implementing the Temporal Memory algorithm.
+
+  Uses C++ Connections data structure for optimization.
   """
 
   def __init__(self, *args, **kwargs):
