@@ -686,7 +686,15 @@ class SpatialPooler(object):
         the current behavior you should additionally pass the resulting
         activeArray to the stripUnlearnedColumns method manually.
     """
-    assert (numpy.size(inputVector) == self._numInputs)
+    if not isinstance(inputVector, numpy.ndarray):
+      raise TypeError("Input vector must be a numpy array, not %s" %
+                      str(type(inputVector)))
+
+    if inputVector.size != self._numInputs:
+      raise ValueError(
+          "Input vector dimensions don't match. Expecting %s but got %s" % (
+              inputVector.size(), self._numInputs))
+
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
     inputVector.reshape(-1)

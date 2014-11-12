@@ -1,9 +1,0 @@
-To use these git hooks, ln the githooks directory into the appropriate repo.
-For example, adding the hooks to trunk located at ~/nta/trunk, use the
-following (must use absolute paths):
-  ln -s ~/nta/trunk/githooks ~/nta/trunk/.git/hooks
-
-The pre-commit file is executed before each commit and the commit fails if it
-returns a non-zero exit code.  This can be overridden by committing files as
-follows:
-  git commit --no-verify ...

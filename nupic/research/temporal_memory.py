@@ -48,40 +48,17 @@ class TemporalMemory(object):
                permanenceDecrement=0.10,
                seed=42):
     """
-    @param columnDimensions    (list)   Dimensions of the column space
-
-    @param cellsPerColumn      (int)    Number of cells per column
-
-    @param activationThreshold (int)    If the number of active connected
-                                        synapses on a segment is at least
-                                        this threshold, the segment is
-                                        said to be active.
-
-    @param learningRadius      (int)    Radius around cell from which it can
-                                        sample to form distal dendrite
-                                        connections.
-
-    @param initialPermanence   (float)  Initial permanence of a new synapse.
-
-    @param connectedPermanence (float)  If the permanence value for a synapse
-                                        is greater than this value, it is said
-                                        to be connected.
-
-    @param minThreshold        (int)    If the number of synapses active on
-                                        a segment is at least this threshold,
-                                        it is selected as the best matching
-                                        cell in a bursing column.
-
-    @param maxNewSynapseCount  (int)    The maximum number of synapses added
-                                        to a segment during learning.
-
-    @param permanenceIncrement (float)  Amount by which permanences of synapses
-                                        are incremented during learning.
-
-    @param permanenceDecrement (float)  Amount by which permanences of synapses
-                                        are decremented during learning.
-
-    @param seed                (int)    Seed for the random number generator.
+    @param columnDimensions    (list)  Dimensions of the column space
+    @param cellsPerColumn      (int)   Number of cells per column
+    @param activationThreshold (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
+    @param learningRadius      (int)   Radius around cell from which it can sample to form distal dendrite connections.
+    @param initialPermanence   (float) Initial permanence of a new synapse.
+    @param connectedPermanence (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
+    @param minThreshold        (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
+    @param maxNewSynapseCount  (int)   The maximum number of synapses added to a segment during learning.
+    @param permanenceIncrement (float) Amount by which permanences of synapses are incremented during learning.
+    @param permanenceDecrement (float) Amount by which permanences of synapses are decremented during learning.
+    @param seed                (int)   Seed for the random number generator.
     """
     # TODO: Validate all parameters (and add validation tests)
 
@@ -92,7 +69,6 @@ class TemporalMemory(object):
     self.activeCells = set()
     self.predictiveCells = set()
     self.activeSegments = set()
-    self.activeSynapsesForSegment = dict()
     self.winnerCells = set()
 
     # Save member variables
@@ -119,19 +95,18 @@ class TemporalMemory(object):
     """
     (activeCells,
      winnerCells,
-     activeSynapsesForSegment,
      activeSegments,
-     predictiveCells) = self.computeFn(activeColumns,
-                                       self.predictiveCells,
-                                       self.activeSegments,
-                                       self.activeSynapsesForSegment,
-                                       self.winnerCells,
-                                       self.connections,
-                                       learn=learn)
+     predictiveCells,
+     predictedColumns) = self.computeFn(activeColumns,
+                                        self.predictiveCells,
+                                        self.activeSegments,
+                                        self.activeCells,
+                                        self.winnerCells,
+                                        self.connections,
+                                        learn=learn)
 
     self.activeCells = activeCells
     self.winnerCells = winnerCells
-    self.activeSynapsesForSegment = activeSynapsesForSegment
     self.activeSegments = activeSegments
     self.predictiveCells = predictiveCells
 
@@ -140,7 +115,7 @@ class TemporalMemory(object):
                 activeColumns,
                 prevPredictiveCells,
                 prevActiveSegments,
-                prevActiveSynapsesForSegment,
+                prevActiveCells,
                 prevWinnerCells,
                 connections,
                 learn=True):
@@ -148,24 +123,17 @@ class TemporalMemory(object):
     'Functional' version of compute.
     Returns new state.
 
-    @param activeColumns                (set)         Indices of active columns
-                                                      in `t`
-    @param prevPredictiveCells          (set)         Indices of predictive
-                                                      cells in `t-1`
-    @param prevActiveSegments           (set)         Indices of active segments
-                                                      in `t-1`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param prevWinnerCells              (set)         Indices of winner cells
-                                                      in `t-1`
-    @param connections                  (Connections) Connectivity of layer
+    @param activeColumns                   (set)         Indices of active columns in `t`
+    @param prevPredictiveCells             (set)         Indices of predictive cells in `t-1`
+    @param prevActiveSegments              (set)         Indices of active segments in `t-1`
+    @param prevActiveCells                 (set)         Indices of active cells in `t-1`
+    @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
+    @param connections                     (Connections) Connectivity of layer
+    @param learn                           (bool)        Whether or not learning is enabled
 
     @return (tuple) Contains:
                       `activeCells`               (set),
                       `winnerCells`               (set),
-                      `activeSynapsesForSegment`  (dict),
                       `activeSegments`            (set),
                       `predictiveCells`           (set)
     """
@@ -186,7 +154,7 @@ class TemporalMemory(object):
      _winnerCells,
      learningSegments) = self.burstColumns(activeColumns,
                                            predictedColumns,
-                                           prevActiveSynapsesForSegment,
+                                           prevActiveCells,
                                            connections)
 
     activeCells.update(_activeCells)
@@ -195,23 +163,19 @@ class TemporalMemory(object):
     if learn:
       self.learnOnSegments(prevActiveSegments,
                            learningSegments,
-                           prevActiveSynapsesForSegment,
+                           prevActiveCells,
                            winnerCells,
                            prevWinnerCells,
                            connections)
 
-    activeSynapsesForSegment = self.computeActiveSynapses(activeCells,
-                                                          connections)
-
     (activeSegments,
-     predictiveCells) = self.computePredictiveCells(activeSynapsesForSegment,
-                                                    connections)
+     predictiveCells) = self.computePredictiveCells(activeCells, connections)
 
     return (activeCells,
             winnerCells,
-            activeSynapsesForSegment,
             activeSegments,
-            predictiveCells)
+            predictiveCells,
+            predictedColumns)
 
 
   def reset(self):
@@ -221,7 +185,6 @@ class TemporalMemory(object):
     self.activeCells = set()
     self.predictiveCells = set()
     self.activeSegments = set()
-    self.activeSynapsesForSegment = dict()
     self.winnerCells = set()
 
 
@@ -264,13 +227,13 @@ class TemporalMemory(object):
         winnerCells.add(cell)
         predictedColumns.add(column)
 
-    return (activeCells, winnerCells, predictedColumns)
+    return activeCells, winnerCells, predictedColumns
 
 
   def burstColumns(self,
                    activeColumns,
                    predictedColumns,
-                   prevActiveSynapsesForSegment,
+                   prevActiveCells,
                    connections):
     """
     Phase 2: Burst unpredicted columns.
@@ -286,15 +249,10 @@ class TemporalMemory(object):
                 - add a segment to it
             - mark the segment as learning
 
-    @param activeColumns                (set)         Indices of active columns
-                                                      in `t`
-    @param predictedColumns             (set)         Indices of predicted
-                                                      columns in `t`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param connections                  (Connections) Connectivity of layer
+    @param activeColumns                   (set)         Indices of active columns in `t`
+    @param predictedColumns                (set)         Indices of predicted columns in `t`
+    @param prevActiveCells                 (set)         Indices of active cells in `t-1`
+    @param connections                     (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeCells`      (set),
@@ -313,23 +271,23 @@ class TemporalMemory(object):
 
       (bestCell,
        bestSegment) = self.getBestMatchingCell(cells,
-                                               prevActiveSynapsesForSegment,
+                                               prevActiveCells,
                                                connections)
       winnerCells.add(bestCell)
 
-      if bestSegment == None:
+      if bestSegment is None:
         # TODO: (optimization) Only do this if there are prev winner cells
         bestSegment = connections.createSegment(bestCell)
 
       learningSegments.add(bestSegment)
 
-    return (activeCells, winnerCells, learningSegments)
+    return activeCells, winnerCells, learningSegments
 
 
   def learnOnSegments(self,
                       prevActiveSegments,
                       learningSegments,
-                      prevActiveSynapsesForSegment,
+                      prevActiveCells,
                       winnerCells,
                       prevWinnerCells,
                       connections):
@@ -346,28 +304,20 @@ class TemporalMemory(object):
           - add some synapses to the segment
             - subsample from prev winner cells
 
-    @param prevActiveSegments           (set)         Indices of active segments
-                                                      in `t-1`
-    @param learningSegments             (set)         Indices of learning
-                                                      segments in `t`
-    @param prevActiveSynapsesForSegment (dict)        Mapping from segments to
-                                                      active synapses in `t-1`,
-                                                      see
-                                                      `TM.computeActiveSynapses`
-    @param winnerCells                  (set)         Indices of winner cells
-                                                      in `t`
-    @param prevWinnerCells              (set)         Indices of winner cells
-                                                      in `t-1`
+    @param prevActiveSegments           (set)         Indices of active segments in `t-1`
+    @param learningSegments             (set)         Indices of learning segments in `t`
+    @param prevActiveCells              (set)         Indices of active cells in `t-1`
+    @param winnerCells                  (set)         Indices of winner cells in `t`
+    @param prevWinnerCells              (set)         Indices of winner cells in `t-1`
     @param connections                  (Connections) Connectivity of layer
     """
     for segment in prevActiveSegments | learningSegments:
       isLearningSegment = segment in learningSegments
-      isFromWinnerCell  = connections.cellForSegment(segment) in winnerCells
+      isFromWinnerCell = connections.cellForSegment(segment) in winnerCells
 
-      activeSynapses = self.getConnectedActiveSynapsesForSegment(
+      activeSynapses = self.getActiveSynapsesForSegment(
         segment,
-        prevActiveSynapsesForSegment,
-        0,
+        prevActiveCells,
         connections)
 
       if isLearningSegment or isFromWinnerCell:
@@ -383,7 +333,7 @@ class TemporalMemory(object):
           connections.createSynapse(segment, sourceCell, self.initialPermanence)
 
 
-  def computePredictiveCells(self, activeSynapsesForSegment, connections):
+  def computePredictiveCells(self, activeCells, connections):
     """
     Phase 4: Compute predictive cells due to lateral input
     on distal dendrites.
@@ -394,63 +344,40 @@ class TemporalMemory(object):
         - mark the segment as active
         - mark the cell as predictive
 
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    Forward propagates activity from active cells to the synapses that touch
+    them, to determine which synapses are active.
+
+    @param activeCells (set)         Indices of active cells in `t`
+    @param connections (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `activeSegments`  (set),
                       `predictiveCells` (set)
     """
+    numActiveConnectedSynapsesForSegment = defaultdict(lambda: 0)
     activeSegments = set()
     predictiveCells = set()
 
-    for segment in activeSynapsesForSegment.keys():
-      synapses = self.getConnectedActiveSynapsesForSegment(
-        segment,
-        activeSynapsesForSegment,
-        self.connectedPermanence,
-        connections)
+    for cell in activeCells:
+      for synapseData in connections.synapsesForSourceCell(cell).values():
+        segment, _, permanence = synapseData
 
-      if len(synapses) >= self.activationThreshold:
-        activeSegments.add(segment)
-        predictiveCells.add(connections.cellForSegment(segment))
+        if permanence >= self.connectedPermanence:
+          numActiveConnectedSynapsesForSegment[segment] += 1
 
-    return (activeSegments, predictiveCells)
+          if (numActiveConnectedSynapsesForSegment[segment] >=
+              self.activationThreshold):
+            activeSegments.add(segment)
+            predictiveCells.add(connections.cellForSegment(segment))
+
+    return activeSegments, predictiveCells
 
 
   # ==============================
   # Helper functions
   # ==============================
 
-  @staticmethod
-  def computeActiveSynapses(activeCells, connections):
-    """
-    Forward propagates activity from active cells to the synapses that touch
-    them, to determine which synapses are active.
-
-    @param activeCells (set)         Indicies of active cells
-    @param connections (Connections) Connectivity of layer
-
-    @return (dict) Mapping from segment (int) to indices of
-                   active synapses (set)
-    """
-    activeSynapsesForSegment = dict()
-
-    for cell in activeCells:
-      for synapse in connections.synapsesForSourceCell(cell):
-        segment, _, _ = connections.dataForSynapse(synapse)
-
-        if not segment in activeSynapsesForSegment:
-          activeSynapsesForSegment[segment] = set()
-
-        activeSynapsesForSegment[segment].add(synapse)
-
-    return activeSynapsesForSegment
-
-
-  def getBestMatchingCell(self, cells, activeSynapsesForSegment, connections):
+  def getBestMatchingCell(self, cells, activeCells, connections):
     """
     Gets the cell with the best matching segment
     (see `TM.getBestMatchingSegment`) that has the largest number of active
@@ -458,11 +385,9 @@ class TemporalMemory(object):
 
     If none were found, pick the least used cell (see `TM.getLeastUsedCell`).
 
-    @param cells                    (set)         Indices of cells
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    @param cells                       (set)         Indices of cells
+    @param activeCells                 (set)         Indices of active cells
+    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `cell`        (int),
@@ -473,34 +398,28 @@ class TemporalMemory(object):
     bestSegment = None
 
     for cell in cells:
-      (
-        segment,
-        connectedActiveSynapses
-      ) = self.getBestMatchingSegment(cell,
-                                      activeSynapsesForSegment,
-                                      connections)
+      segment, numActiveSynapses = self.getBestMatchingSegment(
+        cell, activeCells, connections)
 
-      if segment != None and len(connectedActiveSynapses) > maxSynapses:
-        maxSynapses = len(connectedActiveSynapses)
+      if segment is not None and numActiveSynapses > maxSynapses:
+        maxSynapses = numActiveSynapses
         bestCell = cell
         bestSegment = segment
 
-    if bestCell == None:
+    if bestCell is None:
       bestCell = self.getLeastUsedCell(cells, connections)
 
-    return (bestCell, bestSegment)
+    return bestCell, bestSegment
 
 
-  def getBestMatchingSegment(self, cell, activeSynapsesForSegment, connections):
+  def getBestMatchingSegment(self, cell, activeCells, connections):
     """
     Gets the segment on a cell with the largest number of activate synapses,
     including all synapses with non-zero permanences.
 
-    @param cell                     (int)         Cell index
-    @param activeSynapsesForSegment (dict)        Mapping from segments to
-                                                  active synapses (see
-                                                  `TM.computeActiveSynapses`)
-    @param connections              (Connections) Connectivity of layer
+    @param cell                        (int)         Cell index
+    @param activeCells                 (set)         Indices of active cells
+    @param connections                 (Connections) Connectivity of layer
 
     @return (tuple) Contains:
                       `segment`                 (int),
@@ -508,21 +427,22 @@ class TemporalMemory(object):
     """
     maxSynapses = self.minThreshold
     bestSegment = None
-    connectedActiveSynapses = None
+    bestNumActiveSynapses = None
 
     for segment in connections.segmentsForCell(cell):
-      synapses = self.getConnectedActiveSynapsesForSegment(
-        segment,
-        activeSynapsesForSegment,
-        0,
-        connections)
+      numActiveSynapses = 0
 
-      if len(synapses) >= maxSynapses:
-        maxSynapses = len(synapses)
+      for synapse in connections.synapsesForSegment(segment):
+        _, sourceCell, _ = connections.dataForSynapse(synapse)
+        if sourceCell in activeCells:
+          numActiveSynapses += 1
+
+      if numActiveSynapses >= maxSynapses:
+        maxSynapses = numActiveSynapses
         bestSegment = segment
-        connectedActiveSynapses = set(synapses)
+        bestNumActiveSynapses = numActiveSynapses
 
-    return (bestSegment, connectedActiveSynapses)
+    return bestSegment, bestNumActiveSynapses
 
 
   def getLeastUsedCell(self, cells, connections):
@@ -530,8 +450,8 @@ class TemporalMemory(object):
     Gets the cell with the smallest number of segments.
     Break ties randomly.
 
-    @param cells                    (set)         Indices of cells
-    @param connections              (Connections) Connectivity of layer
+    @param cells       (set)         Indices of cells
+    @param connections (Connections) Connectivity of layer
 
     @return (int) Cell index
     """
@@ -553,38 +473,26 @@ class TemporalMemory(object):
 
 
   @staticmethod
-  def getConnectedActiveSynapsesForSegment(segment,
-                                           activeSynapsesForSegment,
-                                           permanenceThreshold,
-                                           connections):
+  def getActiveSynapsesForSegment(segment, activeCells, connections):
     """
     Returns the synapses on a segment that are active due to lateral input
     from active cells.
 
-    @param segment                   (int)         Segment index
-    @param activeSynapsesForSegment  (dict)        Mapping from segments to
-                                                   active synapses (see
-                                                   `TM.computeActiveSynapses`)
-    @param permanenceThreshold       (float)       Minimum threshold for
-                                                   permanence for synapse to
-                                                   be connected
-    @param connections               (Connections) Connectivity of layer
+    @param segment     (int)         Segment index
+    @param activeCells (set)         Indices of active cells
+    @param connections (Connections) Connectivity of layer
 
     @return (set) Indices of active synapses on segment
     """
-    connectedSynapses = set()
+    synapses = set()
 
-    if not segment in activeSynapsesForSegment:
-      return connectedSynapses
+    for synapse in connections.synapsesForSegment(segment):
+      _, sourceCell, permanence = connections.dataForSynapse(synapse)
 
-    # TODO: (optimization) Can skip this logic if permanenceThreshold = 0
-    for synapse in activeSynapsesForSegment[segment]:
-      (_, _, permanence) = connections.dataForSynapse(synapse)
+      if sourceCell in activeCells and permanence >= 0:
+        synapses.add(synapse)
 
-      if permanence >= permanenceThreshold:
-        connectedSynapses.add(synapse)
-
-    return connectedSynapses
+    return synapses
 
 
   def adaptSegment(self, segment, activeSynapses, connections):
@@ -675,7 +583,7 @@ class Connections(object):
     # Indexes into the mappings (for performance)
     self._segmentsForCell = dict()
     self._synapsesForSegment = dict()
-    self._synapsesForSourceCell = dict()
+    self._synapsesForSourceCell = defaultdict(dict)
 
     # Index of the next segment to be created
     self._nextSegmentIdx = 0
@@ -719,8 +627,6 @@ class Connections(object):
 
     @return (int) Cell index
     """
-    self._validateSegment(segment)
-
     return self._segments[segment]
 
 
@@ -751,8 +657,6 @@ class Connections(object):
                       `sourceCell` (int),
                       `permanence` (float)
     """
-    self._validateSynapse(synapse)
-
     return self._synapses[synapse]
 
 
@@ -781,9 +685,6 @@ class Connections(object):
     @return (set) Synapse indices
     """
     self._validateCell(sourceCell)
-
-    if not sourceCell in self._synapsesForSourceCell:
-      return set()
 
     return self._synapsesForSourceCell[sourceCell]
 
@@ -827,7 +728,8 @@ class Connections(object):
 
     # Add data
     synapse = self._nextSynapseIdx
-    self._synapses[synapse] = (segment, sourceCell, permanence)
+    synapseData = (segment, sourceCell, permanence)
+    self._synapses[synapse] = synapseData
     self._nextSynapseIdx += 1
 
     # Update indexes
@@ -835,9 +737,7 @@ class Connections(object):
       self._synapsesForSegment[segment] = set()
     self._synapsesForSegment[segment].add(synapse)
 
-    if not len(self.synapsesForSourceCell(sourceCell)):
-      self._synapsesForSourceCell[sourceCell] = set()
-    self._synapsesForSourceCell[sourceCell].add(synapse)
+    self._synapsesForSourceCell[sourceCell][synapse] = synapseData
 
     return synapse
 
@@ -849,11 +749,15 @@ class Connections(object):
     @param synapse    (int)   Synapse index
     @param permanence (float) New permanence
     """
-    self._validateSynapse(synapse)
     self._validatePermanence(permanence)
 
     data = self._synapses[synapse]
-    self._synapses[synapse] = data[:-1] + (permanence,)
+    newData = data[:-1] + (permanence,)
+    self._synapses[synapse] = newData
+
+    # Update indexes
+    sourceCell = data[1]
+    self._synapsesForSourceCell[sourceCell][synapse] = newData
 
 
   # ==============================
@@ -927,16 +831,6 @@ class Connections(object):
     """
     if not segment in self._segments:
       raise IndexError("Invalid segment")
-
-
-  def _validateSynapse(self, synapse):
-    """
-    Raises an error if synapse index is invalid.
-
-    @param synapse (int) Synapse index
-    """
-    if not synapse in self._synapses:
-      raise IndexError("Invalid synapse")
 
 
   @staticmethod

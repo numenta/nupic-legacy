@@ -21,28 +21,22 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running before_install-linux.sh...
 echo
 
-# Necessary Linux prep work
 echo ">>> Doing prep work..."
 sudo add-apt-repository -y ppa:fkrull/deadsnakes
 sudo apt-get update
 
-# Install virtualenv
 echo ">>> Installing virtualenv..."
 sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
-# Execute virtualenv
-echo ">>> Executing virtualenv..."
-virtualenv --python=`which python$PY_VER` .
-source bin/activate
+echo ">>> Installing nupic-linux64..."
+git clone https://github.com/numenta/nupic-linux64.git
+(cd nupic-linux64 && git reset --hard 99863c7da8b923c57bb4e59530ab087c91fd3992)
+source nupic-linux64/bin/activate
 
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
-
-# Install NuPIC python dependencies
-echo ">>> Installing python requirements..."
-pip install -q -r $NUPIC/external/common/requirements.txt
