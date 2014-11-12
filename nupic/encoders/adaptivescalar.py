@@ -53,7 +53,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
     cannot be periodic
-    clipInput=True
+    clipInput = True
     n must be set >0
     """
     self._learningEnabled = True
@@ -61,7 +61,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     super(AdaptiveScalarEncoder, self).__init__(w=w, n=n, minval=minval, maxval=maxval,
                                 clipInput=True, name=name, periodic=False, verbosity=verbosity, forced=forced)
-    self.recordNum=0    #how many inputs have been sent to the encoder?
+    self.recordNum = 0    #how many inputs have been sent to the encoder?
     self.slidingWindow = np.array([])
     self.windowSize = 300
 
@@ -96,7 +96,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     self.minval = fieldStats[fieldName]['min']
     self.maxval = fieldStats[fieldName]['max']
     if self.minval == self.maxval:
-      self.maxval+=1
+      self.maxval += 1
     self._setEncoderParams()
 
   ############################################################################
@@ -144,7 +144,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.getBucketIndices]
     """
 
-    self.recordNum +=1
+    self.recordNum += 1
     if learn is None:
       learn = self._learningEnabled
 
@@ -163,16 +163,16 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.encodeIntoArray]
     """
 
-    self.recordNum +=1
+    self.recordNum += 1
     if learn is None:
       learn = self._learningEnabled
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
         output[0:self.n] = 0
     elif not math.isnan(input):
       self._setMinAndMax(input, learn)
-    skipTest=False
+    skipTest = False
     if not learn:
-      skipTest=True
+      skipTest = True
     super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output, skipOutOfBounds=skipTest)
 
 
