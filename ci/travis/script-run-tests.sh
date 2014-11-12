@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running script-run-tests.sh...
 echo
 
 cd $TRAVIS_BUILD_DIR/build/scripts
