@@ -128,17 +128,13 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeColumns = set([0, 1, 26])
     predictedColumns = set([26])
-    prevNumActiveSynapsesForSegment = {
-      0: 2,
-      1: 1,
-      2: 1
-    }
+    prevActiveCells = set([23, 37, 49, 733])
 
     (activeCells,
      winnerCells,
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
-                                         prevNumActiveSynapsesForSegment,
+                                         prevActiveCells,
                                          connections)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
@@ -249,15 +245,9 @@ class TemporalMemoryTest(unittest.TestCase):
     activeCells = set([23, 37, 733, 974])
 
     (activeSegments,
-     predictiveCells,
-     numActiveSynapsesForSegment) = tm.computePredictiveCells(activeCells,
-                                                              connections)
+     predictiveCells) = tm.computePredictiveCells(activeCells, connections)
     self.assertEqual(activeSegments, set([0]))
     self.assertEqual(predictiveCells, set([0]))
-
-    self.assertEqual(numActiveSynapsesForSegment, {0: 2,
-                                                   1: 2,
-                                                   2: 1})
 
 
   def testGetBestMatchingCell(self):
@@ -283,24 +273,20 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(108)
     connections.createSynapse(3, 486, 0.9)
 
-    numActiveSynapsesForSegment = {
-      0: 2,
-      1: 1,
-      2: 1
-    }
+    activeCells = set([23, 37, 49, 733])
 
     self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(0),
-                                            numActiveSynapsesForSegment,
+                                            activeCells,
                                             connections),
                      (0, 0))
 
     self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(3),  # column containing cell 108
-                                            numActiveSynapsesForSegment,
+                                            activeCells,
                                             connections),
                      (96, None))  # Random cell from column
 
     self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(999),
-                                            numActiveSynapsesForSegment,
+                                            activeCells,
                                             connections),
                      (31972, None))  # Random cell from column
 
@@ -350,29 +336,25 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSegment(8)
     connections.createSynapse(3, 486, 0.9)
 
-    numActiveSynapsesForSegment = {
-      0: 2,
-      1: 1,
-      2: 1
-    }
+    activeCells = set([23, 37, 49, 733])
 
     self.assertEqual(tm.getBestMatchingSegment(0,
-                                               numActiveSynapsesForSegment,
+                                               activeCells,
                                                connections),
                      (0, 2))
 
     self.assertEqual(tm.getBestMatchingSegment(1,
-                                               numActiveSynapsesForSegment,
+                                               activeCells,
                                                connections),
                      (2, 1))
 
     self.assertEqual(tm.getBestMatchingSegment(8,
-                                               numActiveSynapsesForSegment,
+                                               activeCells,
                                                connections),
                      (None, None))
 
     self.assertEqual(tm.getBestMatchingSegment(100,
-                                               numActiveSynapsesForSegment,
+                                               activeCells,
                                                connections),
                      (None, None))
 

@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running script-run-examples.sh...
 echo
 
 python$PY_VER $NUPIC/examples/bindings/sparse_matrix_how_to.py || exit
