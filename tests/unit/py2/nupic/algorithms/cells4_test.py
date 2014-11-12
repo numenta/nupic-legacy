@@ -142,7 +142,6 @@ class Cells4Test(unittest.TestCase):
     segUpdateValidDuration = 2
     permInitial = .5
     permConnected = .8
-    permHysteresis = .1
     permMax = 1.0
     permDec = .1
     permInc = .2
@@ -168,7 +167,6 @@ class Cells4Test(unittest.TestCase):
                    segUpdateValidDuration,
                    permInitial,
                    permConnected,
-                   permHysteresis,
                    permMax,
                    permDec,
                    permInc,

@@ -41,12 +41,6 @@ html/
 
 Servers/
 
-# Build files
-build/
-include/
-bin/
-lib/
-
 conf/default/nupic-site.xml
 
 # /
@@ -69,6 +63,7 @@ nupic/bindings/*engine_internal.*
 nupic/bindings/*algorithms.*
 nupic/bindings/*iorange.*
 nupic/bindings/*math.*
+nupic/bindings/*.cxx
 
 # Pip stuff
 dist/

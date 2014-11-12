@@ -47,9 +47,10 @@ if len(sys.argv) == 1:
   mustBuildExtensions = True
 
 
-# Get properties of the project like version, notes, etc
-properties = {}
-execfile(os.path.join(repositoryDir, "nupic", "__init__.py"), {}, properties)
+# Get version from local file.
+version = None
+with open("VERSION", "r") as versionFile:
+  version = versionFile.read().strip()
 
 # Replace py_compile.compile with a function that skips certain files that are meant to fail
 orig_py_compile = py_compile.compile
@@ -113,7 +114,7 @@ def setupNupic():
   os.chdir(repositoryDir)
   setup(
     name = "nupic",
-    version = properties["__version__"],
+    version = version,
     packages = findPackages(repositoryDir),
     package_data = {
       "nupic": ["README.md", "LICENSE.txt",
@@ -129,7 +130,6 @@ def setupNupic():
     data_files=[
       ("", [
         "CMakeLists.txt",
-        "external/common/requirements.txt",
         "config/default/nupic-default.xml"
         ]
       )
