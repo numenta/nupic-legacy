@@ -23,9 +23,6 @@
 Temporal Memory implementation in Python.
 """
 
-from collections import defaultdict
-from operator import mul
-
 from nupic.research.temporal_memory import TemporalMemory
 from nupic.bindings.algorithms import Connections, ConnectionsCell
 
