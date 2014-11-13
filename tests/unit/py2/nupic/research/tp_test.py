@@ -54,6 +54,10 @@ class TPTest(unittest.TestCase):
   def tearDown(self):
     shutil.rmtree(self._tmpDir)
 
+  
+  def testInitDefaultTP(self):
+    self.assertTrue(isinstance(TP(), TP))
+
 
   def testCheckpointLearned(self):
     # Create a model and give it some inputs to learn.
@@ -215,7 +219,6 @@ class TPTest(unittest.TestCase):
     x[ind] = 1
 
     return x
-
 
 
 if __name__ == '__main__':
