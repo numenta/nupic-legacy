@@ -20,11 +20,11 @@
 # ----------------------------------------------------------------------
 
 import math
-
 import numpy as np
+
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.scalar import ScalarEncoder
-
+from nupic.utils import MovingAverage
 
 class AdaptiveScalarEncoder(ScalarEncoder):
   """
@@ -59,11 +59,17 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     self._learningEnabled = True
     assert n>0           #An adaptive encoder can only be intialized using n
 
-    super(AdaptiveScalarEncoder, self).__init__(w=w, n=n, minval=minval, maxval=maxval,
-                                clipInput=True, name=name, periodic=False, verbosity=verbosity, forced=forced)
+    super(AdaptiveScalarEncoder, self).__init__(w=w, 
+						n=n, 
+						minval=minval, 
+						maxval=maxval,
+                                		clipInput=True, 
+						name=name, 
+						periodic=False, 
+                                		verbosity=verbosity, 
+						forced=forced)
     self.recordNum = 0    #how many inputs have been sent to the encoder?
-    self.slidingWindow = np.array([])
-    self.windowSize = 300
+    self.slidingWindow = MovingAverage(300)
 
   ############################################################################
   def _setEncoderParams(self):
@@ -106,9 +112,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     **The learn flag is currently not supported by cla regions.**
     """
 
-    if len(self.slidingWindow)>=self.windowSize:
-      self.slidingWindow = np.delete(self.slidingWindow, 0)
-    self.slidingWindow = np.append(self.slidingWindow, [input])
+    self.slidingWindow.next(input)
 
     if self.minval is None and self.maxval is None:
       self.minval = input
@@ -116,7 +120,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
       self._setEncoderParams()
 
     elif learn:
-      sorted = np.array(self.slidingWindow)
+      sorted = self.slidingWindow.getSlidingWindow()
       sorted.sort()
 
       minOverWindow = sorted[0]

@@ -134,45 +134,6 @@ class AnomalyLikelihoodTest(TestCaseBase):
                              1.0 - an.normalProbability(-1.5, p))
 
 
-  def testMovingAverage(self):
-    """
-    Test that the (internal) moving average maintains the averages correctly,
-    even for null initial condition and when the number of values goes over
-    windowSize.  Pass in integers and floats.
-    """
-    historicalValues = []
-    total = 0
-    windowSize = 3
-    newAverage, historicalValues, total = (
-      an._movingAverage(historicalValues, total, 3, windowSize)
-    )
-    self.assertEqual(newAverage, 3.0)
-    self.assertEqual(historicalValues, [3.0])
-    self.assertEqual(total, 3.0)
-
-    newAverage, historicalValues, total = (
-      an._movingAverage(historicalValues, total, 4, windowSize)
-    )
-    self.assertEqual(newAverage, 3.5)
-    self.assertEqual(historicalValues, [3.0, 4.0])
-    self.assertEqual(total, 7.0)
-
-    newAverage, historicalValues, total = (
-      an._movingAverage(historicalValues, total, 5.0, windowSize)
-    )
-    self.assertEqual(newAverage, 4.0)
-    self.assertEqual(historicalValues, [3.0, 4.0, 5.0])
-    self.assertEqual(total, 12.0)
-
-    # Ensure the first value gets popped
-    newAverage, historicalValues, total = (
-      an._movingAverage(historicalValues, total, 6.0, windowSize)
-    )
-    self.assertEqual(newAverage, 5.0)
-    self.assertEqual(historicalValues, [4.0, 5.0, 6.0])
-    self.assertEqual(total, 15.0)
-
-
   def testEstimateNormal(self):
     """
     This passes in a known set of data and ensures the estimateNormal
