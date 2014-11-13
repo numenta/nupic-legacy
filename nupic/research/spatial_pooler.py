@@ -693,7 +693,7 @@ class SpatialPooler(object):
     if inputVector.size != self._numInputs:
       raise ValueError(
           "Input vector dimensions don't match. Expecting %s but got %s" % (
-              inputVector.size(), self._numInputs))
+              inputVector.size, self._numInputs))
 
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
