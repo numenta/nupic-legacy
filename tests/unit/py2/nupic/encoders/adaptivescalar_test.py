@@ -169,7 +169,7 @@ class AdaptiveScalarTest(unittest.TestCase):
       """Test setting the min and max using setFieldStats"""
       def _dumpParams(enc):
         return (enc.n, enc.w, enc.minval, enc.maxval, enc.resolution,
-                enc._learningEnabled, enc.recordNum, 
+                enc._learningEnabled, 
                 enc.radius, enc.rangeInternal, enc.padding, enc.nInternal)
       sfs = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
                                 forced=True)

@@ -68,7 +68,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 						periodic=False, 
                                 		verbosity=verbosity, 
 						forced=forced)
-    self.recordNum = 0    #how many inputs have been sent to the encoder?
     self.slidingWindow = MovingAverage(300)
 
   ############################################################################
@@ -148,7 +147,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.getBucketIndices]
     """
 
-    self.recordNum += 1
     if learn is None:
       learn = self._learningEnabled
 
@@ -167,7 +165,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.encodeIntoArray]
     """
 
-    self.recordNum += 1
     if learn is None:
       learn = self._learningEnabled
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
