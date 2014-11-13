@@ -57,37 +57,34 @@ class AnomalyTest(unittest.TestCase):
     score = anomaly.computeRawAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
-
+###################
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
     anomalyComputer = anomaly.Anomaly()
-    score = anomalyComputer.computeAnomalyScore(array([]), array([]))
+    score = anomalyComputer.compute(array([]), array([]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoActive(self):
     anomalyComputer = anomaly.Anomaly()
-    score = anomalyComputer.computeAnomalyScore(array([]), array([3, 5]))
+    score = anomalyComputer.compute(array([]), array([3, 5]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePerfectMatch(self):
     anomalyComputer = anomaly.Anomaly()
-    score = anomalyComputer.computeAnomalyScore(array([3, 5, 7]),
-                                                array([3, 5, 7]))
+    score = anomalyComputer.compute(array([3, 5, 7]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 0.0)
 
 
   def testComputeAnomalyScoreNoMatch(self):
     anomalyComputer = anomaly.Anomaly()
-    score = anomalyComputer.computeAnomalyScore(array([2, 4, 6]),
-                                                array([3, 5, 7]))
+    score = anomalyComputer.compute(array([2, 4, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 1.0)
 
 
   def testComputeAnomalyScorePartialMatch(self):
     anomalyComputer = anomaly.Anomaly()
-    score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
-                                                array([3, 5, 7]))
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
@@ -104,7 +101,7 @@ class AnomalyTest(unittest.TestCase):
                        2.0/3.0, 1.0/3.0)
 
     for act, pred, expected in zip(actual, predicted, anomalyExpected):
-      score = anomalyComputer.computeAnomalyScore(act, pred)
+      score = anomalyComputer.compute(act, pred)
       self.assertAlmostEqual(
           score, expected, places=5,
           msg="Anomaly score of %f doesn't match expected of %f" % (
@@ -113,9 +110,9 @@ class AnomalyTest(unittest.TestCase):
 
   def testComputeAnomalySelectModePure(self):
     anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
-    score = anomalyComputer.computeAnomalyScore(array([2, 3, 6]),
-                                                array([3, 5, 7]))
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
+
 
 
 if __name__ == "__main__":
