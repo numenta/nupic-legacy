@@ -2292,7 +2292,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       return hash(self.__key())
 
     def __str__(self):
-      return "-".join([self.idx, self.cell])
+      return "{0}-{1}".format(self.idx, self.cell)
 
     def __repr__(self):
       return str(self)
@@ -2314,7 +2314,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       return hash(self.__key())
 
     def __str__(self):
-      return "-".join([self.idx, self.segment])
+      return "{0}-{1}".format(self.idx, self.segment)
 
     def __repr__(self):
       return str(self)
