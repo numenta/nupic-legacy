@@ -1,3 +1,3 @@
 # Default nupic.core dependencies (override in optional .nupic_config)
 NUPIC_CORE_REMOTE = 'git://github.com/numenta/nupic.core.git'
-NUPIC_CORE_COMMITISH = 'ddc622bf99c886692f2b19892a56ecc70e8fa5de'
+NUPIC_CORE_COMMITISH = 'c2815d7d05f2a62503e8615048c1a29f863cbbdb'
