@@ -1,3 +1,4 @@
+import shutil
 import sys
 import os
 import subprocess
@@ -18,7 +19,7 @@ repositoryDir = os.getcwd()
 #   python setup.py install make_options="-j3"
 # which will add "-j3" option to Make commandline
 cmakeOptions = ""
-makeOptions = ""
+makeOptions = "install"
 setupOptions = ""
 mustBuildExtensions = False
 for arg in sys.argv[:]:
@@ -28,13 +29,12 @@ for arg in sys.argv[:]:
       cmakeOptions = rhs
       sys.argv.remove(arg)
     if option == "--make_options":
-      makeOptions = rhs
+      makeOptions = makeOptions + " " + rhs
       sys.argv.remove(arg)
   elif not "setup.py" in arg:
     if ("build" in arg) or ("install" in arg):
       mustBuildExtensions = True
     setupOptions += arg + " "
-
 
 
 # Check if no option was passed, i.e. if "setup.py" is the only option
@@ -88,8 +88,9 @@ def buildExtensionsNupic():
   # Prepare directories to the CMake process
   sourceDir = repositoryDir
   buildScriptsDir = repositoryDir + "/build/scripts"
-  if not os.path.exists(buildScriptsDir):
-    os.makedirs(buildScriptsDir)
+  if os.path.exists(buildScriptsDir):
+    shutil.rmtree(buildScriptsDir)
+  os.makedirs(buildScriptsDir)
   os.chdir(buildScriptsDir)
 
   # Generate build files with CMake
