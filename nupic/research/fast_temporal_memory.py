@@ -87,12 +87,7 @@ class FastTemporalMemory(TemporalMemory):
         # TODO: (optimization) Only do this if there are prev winner cells
         bestSegment = connections.createSegment(cell)
 
-      # TODO: For some reason, bestSegment.cell is garbage-collected after
-      # this function returns. So we have to use the below hack. Figure out
-      # why and clean up.
-      bestCell = ConnectionsCell(bestSegment.cell.idx)
-
-      winnerCells.add(bestCell)
+      winnerCells.add(bestSegment.cell)
       learningSegments.add(bestSegment)
 
     return activeCells, winnerCells, learningSegments
