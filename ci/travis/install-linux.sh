@@ -30,13 +30,15 @@ cmake --version
 # Verify python version
 python$PY_VER --version
 
-if [ $PY_VERSION != "2.7" ]; then
-   (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make)
+if [ "$PY_VER" == "2.6" ]; then
+  virtualenv -p python2.6 .
+  source bin/activate
+  pip install -q -r $NUPIC/external/common/requirements.txt
 fi
 
 # Build NuPIC
 cd $NUPIC
-python$PY_VER setup.py install --user
+python setup.py install
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
