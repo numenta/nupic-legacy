@@ -163,6 +163,7 @@ class TemporalMemory(object):
      learningSegments) = self.burstColumns(activeColumns,
                                            predictedColumns,
                                            prevActiveCells,
+                                           prevWinnerCells,
                                            connections)
 
     activeCells.update(_activeCells)
@@ -241,6 +242,7 @@ class TemporalMemory(object):
                    activeColumns,
                    predictedColumns,
                    prevActiveCells,
+                   prevWinnerCells,
                    connections):
     """
     Phase 2: Burst unpredicted columns.
@@ -282,11 +284,11 @@ class TemporalMemory(object):
                                             connections)
       winnerCells.add(bestCell)
 
-      if bestSegment is None:
-        # TODO: (optimization) Only do this if there are prev winner cells
+      if bestSegment is None and len(prevWinnerCells):
         bestSegment = connections.createSegment(bestCell)
 
-      learningSegments.add(bestSegment)
+      if bestSegment is not None:
+        learningSegments.add(bestSegment)
 
     return activeCells, winnerCells, learningSegments
 

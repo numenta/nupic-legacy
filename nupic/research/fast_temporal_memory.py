@@ -44,6 +44,7 @@ class FastTemporalMemory(TemporalMemory):
                    activeColumns,
                    predictedColumns,
                    prevActiveCells,
+                   prevWinnerCells,
                    connections):
     """
     Phase 2: Burst unpredicted columns.
@@ -83,17 +84,19 @@ class FastTemporalMemory(TemporalMemory):
         list(cells), list(prevActiveCells), self.minThreshold)
 
       if bestSegment is None:
-        cell = self.leastUsedCell(cells, connections)
-        # TODO: (optimization) Only do this if there are prev winner cells
-        bestSegment = connections.createSegment(cell)
-
-      # TODO: For some reason, bestSegment.cell is garbage-collected after
-      # this function returns. So we have to use the below hack. Figure out
-      # why and clean up.
-      bestCell = ConnectionsCell(bestSegment.cell.idx)
+        bestCell = self.leastUsedCell(cells, connections)
+        if len(prevWinnerCells):
+          bestSegment = connections.createSegment(bestCell)
+      else:
+        # TODO: For some reason, bestSegment.cell is garbage-collected after
+        # this function returns. So we have to use the below hack. Figure out
+        # why and clean up.
+        bestCell = ConnectionsCell(bestSegment.cell.idx)
 
       winnerCells.add(bestCell)
-      learningSegments.add(bestSegment)
+
+      if bestSegment:
+        learningSegments.add(bestSegment)
 
     return activeCells, winnerCells, learningSegments
 
