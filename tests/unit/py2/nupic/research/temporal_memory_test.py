@@ -137,12 +137,14 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = set([0, 1, 26])
     predictedColumns = set([26])
     prevActiveCells = set([23, 37, 49, 733])
+    prevWinnerCells = set([23, 37, 49, 733])
 
     (activeCells,
      winnerCells,
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
                                          prevActiveCells,
+                                         prevWinnerCells,
                                          connections)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
@@ -158,14 +160,16 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeColumns    = set()
     predictedColumns = set()
-    prevActiveSynapsesForSegment = dict()
+    prevActiveCells = set()
+    prevWinnerCells = set()
     connections = tm.connections
 
     (activeCells,
      winnerCells,
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
-                                         prevActiveSynapsesForSegment,
+                                         prevActiveCells,
+                                         prevWinnerCells,
                                          connections)
 
     self.assertEqual(activeCells,      set())
