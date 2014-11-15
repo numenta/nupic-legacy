@@ -645,8 +645,8 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(connections.synapsesForSegment(0), set([0, 1]))
 
-    self.assertEqual(connections.synapsesForSourceCell(174), {})
-    self.assertEqual(connections.synapsesForSourceCell(254),
+    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
+    self.assertEqual(connections.synapsesForPresynapticCell(254),
                      {0: (0, 254, 0.1173)})
 
 
