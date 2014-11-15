@@ -196,10 +196,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
              "[[(source cell, permanence), ...], ...])\n")
     text += "------------------------------------\n"
 
-    columns = range(self.connections.numberOfColumns())
+    columns = range(self.numberOfColumns())
 
     for column in columns:
-      cells = self.connections.cellsForColumn(column)
+      cells = self.cellsForColumn(column)
 
       for cell in cells:
         segmentDict = dict()
