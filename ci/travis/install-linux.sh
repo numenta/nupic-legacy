@@ -38,7 +38,7 @@ fi
 
 # Build NuPIC
 cd $NUPIC
-python setup.py install
+python setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
