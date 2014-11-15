@@ -261,6 +261,7 @@ class TemporalMemory(object):
     @param activeColumns                   (set)         Indices of active columns in `t`
     @param predictedColumns                (set)         Indices of predicted columns in `t`
     @param prevActiveCells                 (set)         Indices of active cells in `t-1`
+    @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
     @param connections                     (Connections) Connectivity of layer
 
     @return (tuple) Contains:
