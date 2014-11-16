@@ -32,7 +32,7 @@ python$PY_VER --version
 
 # Build NuPIC
 cd $NUPIC
-python$PY_VER setup.py install --user --cmake_options="-DPYTHON_LIBRARIES=/usr/lib/libpython${PY_VER}.so"
+python$PY_VER setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
