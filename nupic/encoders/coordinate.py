@@ -22,6 +22,7 @@
 import itertools
 
 import numpy
+from nupic.bindings.math import Random
 from nupic.encoders.base import Encoder
 
 
@@ -147,6 +148,15 @@ class CoordinateEncoder(Encoder):
 
 
   @staticmethod
+  def _hashCoordinate(coordinate):
+    """Hash a coordinate to a 64 bit integer."""
+    coordinateStr = ",".join(str(v) for v in coordinate)
+    # Compute the hash and convert to 64 bit int.
+    hash = int(int(hashlib.md5(coordinateStr).hexdigest(), 16) % (2 ** 64))
+    return hash
+
+
+  @staticmethod
   def _orderForCoordinate(coordinate):
     """
     Returns the order for a coordinate.
@@ -155,8 +165,9 @@ class CoordinateEncoder(Encoder):
     @return (float) A value in the interval [0, 1), representing the
                     order of the coordinate
     """
-    random = numpy.random.RandomState(coordinate)
-    return random.rand()
+    seed = _hashCoordinate(coordinate)
+    random = Random(seed)
+    return random.getReal64()
 
 
   @staticmethod
@@ -168,8 +179,9 @@ class CoordinateEncoder(Encoder):
     @param n (int) The number of available bits in the SDR
     @return (int) The index to a bit in the SDR
     """
-    random = numpy.random.RandomState(coordinate)
-    return random.randint(0, n)
+    seed = _hashCoordinate(coordinate)
+    random = Random(seed)
+    return random.getUInt32(n)
 
 
   def dump(self):
