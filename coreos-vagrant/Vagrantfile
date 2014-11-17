@@ -83,6 +83,12 @@ Vagrant.configure("2") do |config|
         vb.gui = $vb_gui
         vb.memory = $vb_memory
         vb.cpus = $vb_cpus
+        file_to_disk = "docker.vdi"
+        vb.customize ["storagectl", :id, "--name", "SATA Controller", "--add", "sata", "--controller", "IntelAHCI"]
+        unless File.exist?(file_to_disk)
+          vb.customize ["createhd", "--filename", file_to_disk, "--size", 60 * 1024, "--format", "VDI"]
+        end
+        vb.customize ["storageattach", :id, "--storagectl", "SATA Controller", "--port", 0, "--device", 0, "--type", "hdd", "--medium", file_to_disk]
       end
 
       ip = "172.17.8.#{i+100}"
