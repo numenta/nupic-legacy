@@ -81,7 +81,6 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/InSynapse.hpp>
 #include <nta/algorithms/Cell.hpp>
 
-#include <nta/algorithms/Activity.hpp>
 #include <nta/algorithms/Connections.hpp>
 
 #include <numpy/arrayobject.h>
