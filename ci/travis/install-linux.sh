@@ -30,10 +30,6 @@ cmake --version
 # Verify python version
 python$PY_VER --version
 
-if [ $PY_VERSION != "2.7" ]; then
-   (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make)
-fi
-
 # Build NuPIC
 cd $NUPIC
 python$PY_VER setup.py install --user
