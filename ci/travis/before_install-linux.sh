@@ -29,7 +29,7 @@ sudo add-apt-repository -y ppa:fkrull/deadsnakes
 sudo apt-get update
 
 echo ">>> Installing virtualenv..."
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
+sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv cmake-data
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
 echo ">>> Installing nupic-linux64..."
