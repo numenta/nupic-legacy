@@ -152,7 +152,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     for predictedActiveCells in (
         self._mmData["predictedActiveCellsForSequence"].values()):
-      cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
       numCellsPerColumn += [len(x) for x in cellsForColumn.values()]
 
     return Metric(self,
@@ -196,10 +196,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
              "[[(source cell, permanence), ...], ...])\n")
     text += "------------------------------------\n"
 
-    columns = range(self.connections.numberOfColumns())
+    columns = range(self.numberOfColumns())
 
     for column in columns:
-      cells = self.connections.cellsForColumn(column)
+      cells = self.cellsForColumn(column)
 
       for cell in cells:
         segmentDict = dict()
@@ -288,7 +288,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
       predictedInactiveColumns = set()
 
       for predictedCell in predictedCellsTrace.data[i]:
-        predictedColumn = self.connections.columnForCell(predictedCell)
+        predictedColumn = self.columnForCell(predictedCell)
 
         if predictedColumn  in activeColumns:
           predictedActiveCells.add(predictedCell)
@@ -327,8 +327,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
 
-    self._mmTraces["numSegments"].data.append(len(self.connections._segments))
-    self._mmTraces["numSynapses"].data.append(len(self.connections._synapses))
+    self._mmTraces["numSegments"].data.append(self.connections.numSegments())
+    self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
 
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
     self._mmTraces["resets"].data.append(self._mmResetActive)
