@@ -38,6 +38,18 @@ class TemporalMemoryTest(unittest.TestCase):
     self.tm = TemporalMemory()
 
 
+  def testInitInvalidParams(self):
+    # Invalid columnDimensions
+    kwargs = {"columnDimensions": [], "cellsPerColumn": 32}
+    self.assertRaises(ValueError, TemporalMemory, **kwargs)
+
+    # Invalid cellsPerColumn
+    kwargs = {"columnDimensions": [2048], "cellsPerColumn": 0}
+    self.assertRaises(ValueError, TemporalMemory, **kwargs)
+    kwargs = {"columnDimensions": [2048], "cellsPerColumn": -10}
+    self.assertRaises(ValueError, TemporalMemory, **kwargs)
+
+
   def testActivateCorrectlyPredictiveCells(self):
     tm = self.tm
 
@@ -47,8 +59,7 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns,
-                                                            tm.connections)
+                                                            activeColumns)
 
     self.assertEqual(activeCells, set([1026, 26337, 26339]))
     self.assertEqual(winnerCells, set([1026, 26337, 26339]))
@@ -64,8 +75,7 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns,
-                                                            tm.connections)
+                                                            activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -79,8 +89,7 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns,
-                                                            tm.connections)
+                                                            activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -94,8 +103,7 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            activeColumns,
-                                                            tm.connections)
+                                                            activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
@@ -129,12 +137,14 @@ class TemporalMemoryTest(unittest.TestCase):
     activeColumns = set([0, 1, 26])
     predictedColumns = set([26])
     prevActiveCells = set([23, 37, 49, 733])
+    prevWinnerCells = set([23, 37, 49, 733])
 
     (activeCells,
      winnerCells,
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
                                          prevActiveCells,
+                                         prevWinnerCells,
                                          connections)
 
     self.assertEqual(activeCells, set([0, 1, 2, 3, 4, 5, 6, 7]))
@@ -150,14 +160,16 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeColumns    = set()
     predictedColumns = set()
-    prevActiveSynapsesForSegment = dict()
+    prevActiveCells = set()
+    prevWinnerCells = set()
     connections = tm.connections
 
     (activeCells,
      winnerCells,
      learningSegments) = tm.burstColumns(activeColumns,
                                          predictedColumns,
-                                         prevActiveSynapsesForSegment,
+                                         prevActiveCells,
+                                         prevWinnerCells,
                                          connections)
 
     self.assertEqual(activeCells,      set())
@@ -250,7 +262,7 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(predictiveCells, set([0]))
 
 
-  def testGetBestMatchingCell(self):
+  def testBestMatchingCell(self):
     tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1,
@@ -275,23 +287,23 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeCells = set([23, 37, 49, 733])
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(0),
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(0),
+                                         activeCells,
+                                         connections),
                      (0, 0))
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(3),  # column containing cell 108
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(3),  # column containing cell 108
+                                         activeCells,
+                                         connections),
                      (96, None))  # Random cell from column
 
-    self.assertEqual(tm.getBestMatchingCell(connections.cellsForColumn(999),
-                                            activeCells,
-                                            connections),
+    self.assertEqual(tm.bestMatchingCell(tm.cellsForColumn(999),
+                                         activeCells,
+                                         connections),
                      (31972, None))  # Random cell from column
 
 
-  def testGetBestMatchingCellFewestSegments(self):
+  def testBestMatchingCellFewestSegments(self):
     tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
@@ -308,13 +320,13 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      (cell, _) = tm.getBestMatchingCell(connections.cellsForColumn(0),
-                                         activeSynapsesForSegment,
-                                         connections)
+      (cell, _) = tm.bestMatchingCell(tm.cellsForColumn(0),
+                                      activeSynapsesForSegment,
+                                      connections)
       self.assertEqual(cell, 1)
 
 
-  def testGetBestMatchingSegment(self):
+  def testBestMatchingSegment(self):
     tm = TemporalMemory(
       connectedPermanence=0.50,
       minThreshold=1
@@ -338,28 +350,28 @@ class TemporalMemoryTest(unittest.TestCase):
 
     activeCells = set([23, 37, 49, 733])
 
-    self.assertEqual(tm.getBestMatchingSegment(0,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(0,
+                                            activeCells,
+                                            connections),
                      (0, 2))
 
-    self.assertEqual(tm.getBestMatchingSegment(1,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(1,
+                                            activeCells,
+                                            connections),
                      (2, 1))
 
-    self.assertEqual(tm.getBestMatchingSegment(8,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(8,
+                                            activeCells,
+                                            connections),
                      (None, None))
 
-    self.assertEqual(tm.getBestMatchingSegment(100,
-                                               activeCells,
-                                               connections),
+    self.assertEqual(tm.bestMatchingSegment(100,
+                                            activeCells,
+                                            connections),
                      (None, None))
 
 
-  def testGetLeastUsedCell(self):
+  def testLeastUsedCell(self):
     tm = TemporalMemory(
       columnDimensions=[2],
       cellsPerColumn=2,
@@ -372,8 +384,8 @@ class TemporalMemoryTest(unittest.TestCase):
 
     for _ in range(100):
       # Never pick cell 0, always pick cell 1
-      self.assertEqual(tm.getLeastUsedCell(connections.cellsForColumn(0),
-                                           connections),
+      self.assertEqual(tm.leastUsedCell(tm.cellsForColumn(0),
+                                        connections),
                        1)
 
 
@@ -464,90 +476,115 @@ class TemporalMemoryTest(unittest.TestCase):
                      set())
 
 
-class ConnectionsTest(unittest.TestCase):
-
-
-  def setUp(self):
-    self.connections = Connections([2048], 32)
-
-
-  def testInit(self):
-    columnDimensions = [2048]
-    cellsPerColumn = 32
-
-    connections = Connections(columnDimensions, cellsPerColumn)
-    self.assertEqual(connections.columnDimensions, columnDimensions)
-    self.assertEqual(connections.cellsPerColumn, cellsPerColumn)
-
-
-  def testInitInvalidParams(self):
-    # Invalid columnDimensions
-    args = [[], 32]
-    self.assertRaises(ValueError, Connections, *args)
-
-    # Invalid cellsPerColumn
-    args = [[2048], 0]
-    self.assertRaises(ValueError, Connections, *args)
-    args = [[2048], -10]
-    self.assertRaises(ValueError, Connections, *args)
-
-
   def testColumnForCell1D(self):
-    connections = Connections([2048], 5)
-    self.assertEqual(connections.columnForCell(0), 0)
-    self.assertEqual(connections.columnForCell(4), 0)
-    self.assertEqual(connections.columnForCell(5), 1)
-    self.assertEqual(connections.columnForCell(10239), 2047)
+    tm = TemporalMemory(
+      columnDimensions=[2048],
+      cellsPerColumn=5
+    )
+    self.assertEqual(tm.columnForCell(0), 0)
+    self.assertEqual(tm.columnForCell(4), 0)
+    self.assertEqual(tm.columnForCell(5), 1)
+    self.assertEqual(tm.columnForCell(10239), 2047)
 
 
   def testColumnForCell2D(self):
-    connections = Connections([64, 64], 4)
-    self.assertEqual(connections.columnForCell(0), 0)
-    self.assertEqual(connections.columnForCell(3), 0)
-    self.assertEqual(connections.columnForCell(4), 1)
-    self.assertEqual(connections.columnForCell(16383), 4095)
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=4
+    )
+    self.assertEqual(tm.columnForCell(0), 0)
+    self.assertEqual(tm.columnForCell(3), 0)
+    self.assertEqual(tm.columnForCell(4), 1)
+    self.assertEqual(tm.columnForCell(16383), 4095)
 
 
   def testColumnForCellInvalidCell(self):
-    connections = Connections([64, 64], 4)
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=4
+    )
 
     try:
-      connections.columnForCell(16383)
+      tm.columnForCell(16383)
     except IndexError:
       self.fail("IndexError raised unexpectedly")
 
     args = [16384]
-    self.assertRaises(IndexError, connections.columnForCell, *args)
+    self.assertRaises(IndexError, tm.columnForCell, *args)
 
     args = [-1]
-    self.assertRaises(IndexError, connections.columnForCell, *args)
+    self.assertRaises(IndexError, tm.columnForCell, *args)
 
 
   def testCellsForColumn1D(self):
-    connections = Connections([2048], 5)
+    tm = TemporalMemory(
+      columnDimensions=[2048],
+      cellsPerColumn=5
+    )
     expectedCells = set([5, 6, 7, 8, 9])
-    self.assertEqual(connections.cellsForColumn(1), expectedCells)
+    self.assertEqual(tm.cellsForColumn(1), expectedCells)
 
 
   def testCellsForColumn2D(self):
-    connections = Connections([64, 64], 4)
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=4
+    )
     expectedCells = set([256, 257, 258, 259])
-    self.assertEqual(connections.cellsForColumn(64), expectedCells)
+    self.assertEqual(tm.cellsForColumn(64), expectedCells)
 
 
   def testCellsForColumnInvalidColumn(self):
-    connections = Connections([64, 64], 4)
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=4
+    )
 
     try:
-      connections.cellsForColumn(4095)
+      tm.cellsForColumn(4095)
     except IndexError:
       self.fail("IndexError raised unexpectedly")
 
     args = [4096]
-    self.assertRaises(IndexError, connections.cellsForColumn, *args)
+    self.assertRaises(IndexError, tm.cellsForColumn, *args)
 
     args = [-1]
-    self.assertRaises(IndexError, connections.cellsForColumn, *args)
+    self.assertRaises(IndexError, tm.cellsForColumn, *args)
+
+
+  def testNumberOfColumns(self):
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=32
+    )
+    self.assertEqual(tm.numberOfColumns(), 64 * 64)
+
+
+  def testNumberOfCells(self):
+    tm = TemporalMemory(
+      columnDimensions=[64, 64],
+      cellsPerColumn=32
+    )
+    self.assertEqual(tm.numberOfCells(), 64 * 64 * 32)
+
+
+  def testMapCellsToColumns(self):
+    tm = TemporalMemory(
+      columnDimensions=[100],
+      cellsPerColumn=4
+    )
+    columnsForCells = tm.mapCellsToColumns(set([0, 1, 2, 5, 399]))
+    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
+    self.assertEqual(columnsForCells[1], set([5]))
+    self.assertEqual(columnsForCells[99], set([399]))
+
+
+
+class ConnectionsTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.connections = Connections(2048 * 32)
 
 
   def testCreateSegment(self):
@@ -612,8 +649,8 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(connections.synapsesForSegment(0), set([0, 1]))
 
-    self.assertEqual(connections.synapsesForSourceCell(174), {})
-    self.assertEqual(connections.synapsesForSourceCell(254),
+    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
+    self.assertEqual(connections.synapsesForPresynapticCell(254),
                      {0: (0, 254, 0.1173)})
 
 
@@ -624,10 +661,6 @@ class ConnectionsTest(unittest.TestCase):
 
     # Invalid segment
     args = [1, 48, 0.124]
-    self.assertRaises(IndexError, connections.createSynapse, *args)
-
-    # Invalid sourceCell
-    args = [0, 65536, 0.124]
     self.assertRaises(IndexError, connections.createSynapse, *args)
 
     # Invalid permanence
@@ -656,16 +689,6 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(IndexError, connections.synapsesForSegment, *args)
 
 
-  def testSynapsesForSourceCellInvalidCell(self):
-    connections = self.connections
-
-    args = [65536]
-    self.assertRaises(IndexError, connections.synapsesForSourceCell, *args)
-
-    args = [-1]
-    self.assertRaises(IndexError, connections.synapsesForSourceCell, *args)
-
-
   def testUpdateSynapsePermanence(self):
     connections = self.connections
 
@@ -691,24 +714,6 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
     args = [0, -0.4374]
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
-
-
-  def testNumberOfColumns(self):
-    connections = Connections([64, 64], 32)
-    self.assertEqual(connections.numberOfColumns(), 64 * 64)
-
-
-  def testNumberOfCells(self):
-    connections = Connections([64, 64], 32)
-    self.assertEqual(connections.numberOfCells(), 64 * 64 * 32)
-
-
-  def testMapCellsToColumns(self):
-    connections = Connections([100], 4)
-    columnsForCells = connections.mapCellsToColumns(set([0, 1, 2, 5, 399]))
-    self.assertEqual(columnsForCells[0], set([0, 1, 2]))
-    self.assertEqual(columnsForCells[1], set([5]))
-    self.assertEqual(columnsForCells[99], set([399]))
 
 
 
