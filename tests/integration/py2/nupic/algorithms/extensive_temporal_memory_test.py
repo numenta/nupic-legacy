@@ -20,7 +20,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from prettytable import PrettyTable
 import unittest2 as unittest
 
 from nupic.data.pattern_machine import PatternMachine
