@@ -253,7 +253,6 @@ elseif("${PLATFORM}" STREQUAL "darwin")
   set(COMPILE_FLAGS "${COMPILE_FLAGS} -O3")
 endif()
 
-
 set(EXECUTABLE_HTMTEST testpyhtm)
 set(LIBRARIES ${LIB_STATIC_SUPPORT})
 add_executable(${EXECUTABLE_HTMTEST} extensions/htmtest/htmtest.cpp)
@@ -387,6 +386,28 @@ set_target_properties(${SWIG_MODULE_${LIB_SHARED_IORANGE}_REAL_NAME}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 swig_link_libraries(${LIB_SHARED_IORANGE} ${SWIG_COMMON_LIBRARIES})
+
+set(SKIP_COMPARE_VERSIONS (NOT ${BUILD_NUPIC_CORE}) CACHE BOOL "Skip nupic.core version comparison")
+
+if (NOT ${SKIP_COMPARE_VERSIONS})
+  # Compare expected version of nupic.core against installed version
+  set(EXECUTABLE_COMPAREVERSION compare_nupic_core_version)
+  add_executable(${EXECUTABLE_COMPAREVERSION} extensions/compare_nupic_core_version.cpp)
+  target_link_libraries(${EXECUTABLE_COMPAREVERSION} ${COMMON_LIBS})
+  set_target_properties(${EXECUTABLE_COMPAREVERSION}
+                        PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
+                                   LINK_FLAGS "${COMMON_LINK_FLAGS}")
+
+  add_dependencies(${EXECUTABLE_COMPAREVERSION} ${COMMON_LIBS})
+
+  add_custom_target(assert_nupic_core_version
+                    COMMAND ${EXECUTABLE_COMPAREVERSION} ${NUPIC_CORE_COMMITISH}
+                    DEPENDS ${EXECUTABLE_COMPAREVERSION})
+
+  add_dependencies(${LIB_DYNAMIC_CPPREGION} assert_nupic_core_version)
+endif()
+
+
 
 #
 # Custom targets
