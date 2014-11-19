@@ -22,15 +22,13 @@
 
 """Unit tests for utils module."""
 
-import unittest2 as unittest
-import numpy
+import unittest
 
 from nupic.utils import MovingAverage
-from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
 
-class UtilsTest(TestCaseBase):
+class UtilsTest(unittest.TestCase):
   """testing common.utils"""
 
 
@@ -40,7 +38,7 @@ class UtilsTest(TestCaseBase):
     even for null initial condition and when the number of values goes over
     windowSize.  Pass in integers and floats.
     """
-    historicalValues = numpy.array([])
+    historicalValues = []
     total = 0
     windowSize = 3
     newAverage, historicalValues, total = (
@@ -102,6 +100,7 @@ class UtilsTest(TestCaseBase):
     self.assertEqual(newAverage, 5.0)
     self.assertListEqual(ma.getSlidingWindow(), [4.0, 5.0, 6.0])
     self.assertEqual(ma.total, 15.0)
+
 
 
 if __name__ == "__main__":
