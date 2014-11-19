@@ -141,6 +141,7 @@ include_directories(SYSTEM
                     "${PROJECT_SOURCE_DIR}/extensions"
                     "${PROJECT_SOURCE_DIR}"
                     "${PROJECT_BINARY_DIR}"
+                    "${PYTHON_PREFIX}/lib"
                     "${PYTHON_INCLUDE_DIR}"
                     ${CMAKE_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIR})
@@ -245,6 +246,7 @@ set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} -std=c++11")
 set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} ${STDLIB}")
 set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} -L${NUPIC_CORE}/lib")
 set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} -lyaml-cpp")
+set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} -L${PYTHON_PREFIX}/lib")
 
 set(COMMON_LIBS ${LIB_STATIC_NUPICCORE})
 if("${PLATFORM}" STREQUAL "linux")
@@ -298,6 +300,7 @@ set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${PROJECT_SOURCE_DIR}/external
 set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${PROJECT_SOURCE_DIR}/external/common/include")
 set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${NUPIC_CORE}/include")
 set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -isystem${NUPIC_CORE}/include/yaml-cpp")
+set(NTA_INCLUDEFLAGS "${NTA_INCLUDEFLAGS} -I${PYTHON_PREFIX}/lib")
 
 include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
@@ -329,7 +332,8 @@ set(CMAKE_SWIG_FLAGS
     -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}
     -I${NUMPY_INCLUDE_DIR}
     -I${SWIG_DIR}/python
-    -I${SWIG_DIR})
+    -I${SWIG_DIR}
+    -I${PYTHON_PREFIX}/lib)
 
 set(SWIG_COMMON_LIBRARIES
     ${PYTHON_LIBRARIES}
