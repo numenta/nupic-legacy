@@ -72,7 +72,7 @@ class MovingAverage(object):
 
     slidingWindow.append(newVal)
     total += newVal
-    return total / len(slidingWindow), slidingWindow, total
+    return float(total) / len(slidingWindow), slidingWindow, total
 
 
   def next(self, newValue):
