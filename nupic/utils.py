@@ -24,7 +24,6 @@ utils.py are a collection of methods that can be reused by different classes
 in our codebase.
 """
 
-import collections
 import numbers
 
 
