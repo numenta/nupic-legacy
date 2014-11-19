@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import hashlib
 import itertools
 
 import numpy
@@ -156,8 +157,8 @@ class CoordinateEncoder(Encoder):
     return hash
 
 
-  @staticmethod
-  def _orderForCoordinate(coordinate):
+  @classmethod
+  def _orderForCoordinate(cls, coordinate):
     """
     Returns the order for a coordinate.
 
@@ -165,13 +166,13 @@ class CoordinateEncoder(Encoder):
     @return (float) A value in the interval [0, 1), representing the
                     order of the coordinate
     """
-    seed = _hashCoordinate(coordinate)
-    random = Random(seed)
-    return random.getReal64()
+    seed = cls._hashCoordinate(coordinate)
+    rng = Random(seed)
+    return rng.getReal64()
 
 
-  @staticmethod
-  def _bitForCoordinate(coordinate, n):
+  @classmethod
+  def _bitForCoordinate(cls, coordinate, n):
     """
     Maps the coordinate to a bit in the SDR.
 
@@ -179,9 +180,9 @@ class CoordinateEncoder(Encoder):
     @param n (int) The number of available bits in the SDR
     @return (int) The index to a bit in the SDR
     """
-    seed = _hashCoordinate(coordinate)
-    random = Random(seed)
-    return random.getUInt32(n)
+    seed = cls._hashCoordinate(coordinate)
+    rng = Random(seed)
+    return rng.getUInt32(n)
 
 
   def dump(self):
