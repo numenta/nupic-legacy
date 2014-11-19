@@ -141,6 +141,7 @@ include_directories(SYSTEM
                     "${PROJECT_SOURCE_DIR}/extensions"
                     "${PROJECT_SOURCE_DIR}"
                     "${PROJECT_BINARY_DIR}"
+                    "${PYTHON_PREFIX}/lib"
                     "${PYTHON_INCLUDE_DIR}"
                     ${CMAKE_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIR})
