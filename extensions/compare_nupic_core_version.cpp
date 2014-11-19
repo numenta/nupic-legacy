@@ -1,3 +1,4 @@
+#include <string.h>
 #include <iostream>
 #include <nta/Version.hpp>
 
