@@ -413,15 +413,15 @@ add_custom_target(python_all_tests
                   COMMENT "Python tests + integration + swarming (requires DB)")
 
 add_custom_target(tests_pyhtm
-                  COMMAND ${PROJECT_BINARY_DIR}/testpyhtm
+                  COMMAND testpyhtm
                   COMMENT "Basic tests in Python")
 
 add_custom_target(tests_cpphtm
-                  COMMAND ${PROJECT_BINARY_DIR}/testcpphtm
+                  COMMAND testcpphtm
                   COMMENT "Basic tests in C++")
 
 add_custom_target(cpp_unit_tests
-                  COMMAND ${PROJECT_BINARY_DIR}/unit_tests
+                  COMMAND unit_tests
                   COMMENT "C++ unit tests")
 
 add_custom_target(tests_all
