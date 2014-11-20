@@ -52,14 +52,14 @@ class UtilsTest(unittest.TestCase):
       MovingAverage.compute(historicalValues, total, 4, windowSize)
     )
     self.assertEqual(newAverage, 3.5)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0])
+    self.assertListEqual(historicalValues, [3.0, 4.0])
     self.assertEqual(total, 7.0)
 
     newAverage, historicalValues, total = (
       MovingAverage.compute(historicalValues, total, 5.0, windowSize)
     )
     self.assertEqual(newAverage, 4.0)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0, 5.0])
+    self.assertListEqual(historicalValues, [3.0, 4.0, 5.0])
     self.assertEqual(total, 12.0)
 
     # Ensure the first value gets popped
@@ -67,7 +67,7 @@ class UtilsTest(unittest.TestCase):
       MovingAverage.compute(historicalValues, total, 6.0, windowSize)
     )
     self.assertEqual(newAverage, 5.0)
-    self.assertListEqual(historicalValues.tolist(), [4.0, 5.0, 6.0])
+    self.assertListEqual(historicalValues, [4.0, 5.0, 6.0])
     self.assertEqual(total, 15.0)
 
 
