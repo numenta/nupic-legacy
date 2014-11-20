@@ -16,8 +16,6 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
-  matrix:
-    - PY_VER=2.7
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc and Python 2.6
@@ -39,12 +37,11 @@ deploy:
   local-dir: "dist"
   upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
   skip_cleanup: true
-  # Only deploy on master from one build job: linux, clang, python 2.7
+  # Only deploy on master from one build job: linux, clang
   on:
     branch: master
     condition:
       - "$TRAVIS_OS_NAME == linux"
-      - "$PY_VER == 2.7"
       - "$CC == clang"
 
 git:
@@ -64,9 +61,7 @@ before_install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; sudo apt-get -qq update; sudo apt-get -qq install g++-4.8; alias gcc='gcc-4.8'; alias g++='g++-4.8'; fi"
   - "if [ $CC = 'gcc' ]; then export CC='gcc-4.8'; export CXX='g++-4.8'; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then export PYTHONPATH=$PYTHONPATH:/home/travis/.local/lib/python$PY_VER/site-packages; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then export PYTHONPATH=$PYTHONPATH:/Users/travis/Library/Python/$PY_VER/lib/python/site-packages; fi"
 
 install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/install-linux.sh; fi"
