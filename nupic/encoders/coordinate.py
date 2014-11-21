@@ -19,9 +19,11 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import hashlib
 import itertools
 
 import numpy
+from nupic.bindings.math import Random
 from nupic.encoders.base import Encoder
 
 
@@ -147,7 +149,16 @@ class CoordinateEncoder(Encoder):
 
 
   @staticmethod
-  def _orderForCoordinate(coordinate):
+  def _hashCoordinate(coordinate):
+    """Hash a coordinate to a 64 bit integer."""
+    coordinateStr = ",".join(str(v) for v in coordinate)
+    # Compute the hash and convert to 64 bit int.
+    hash = int(int(hashlib.md5(coordinateStr).hexdigest(), 16) % (2 ** 64))
+    return hash
+
+
+  @classmethod
+  def _orderForCoordinate(cls, coordinate):
     """
     Returns the order for a coordinate.
 
@@ -155,12 +166,13 @@ class CoordinateEncoder(Encoder):
     @return (float) A value in the interval [0, 1), representing the
                     order of the coordinate
     """
-    random = numpy.random.RandomState(coordinate)
-    return random.rand()
+    seed = cls._hashCoordinate(coordinate)
+    rng = Random(seed)
+    return rng.getReal64()
 
 
-  @staticmethod
-  def _bitForCoordinate(coordinate, n):
+  @classmethod
+  def _bitForCoordinate(cls, coordinate, n):
     """
     Maps the coordinate to a bit in the SDR.
 
@@ -168,8 +180,9 @@ class CoordinateEncoder(Encoder):
     @param n (int) The number of available bits in the SDR
     @return (int) The index to a bit in the SDR
     """
-    random = numpy.random.RandomState(coordinate)
-    return random.randint(0, n)
+    seed = cls._hashCoordinate(coordinate)
+    rng = Random(seed)
+    return rng.getUInt32(n)
 
 
   def dump(self):
