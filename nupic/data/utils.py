@@ -133,7 +133,7 @@ def parseSdr(s):
   """Parses a string containing only 0's and 1's and return a Python list object.
   """
   assert isinstance(s, basestring)
-  sdr = [int(x) for x in s if x in _allowed]
+  sdr = [int(c) for c in s if c in ("0", "1")]
   if len(sdr) != len(s):
     raise ValueError("The provided string %s is malformed. The string should "
                      "have only 0's and 1's.")

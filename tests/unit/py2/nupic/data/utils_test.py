@@ -57,10 +57,10 @@ class UtilsTest(TestCaseBase):
         '2011-09-08 05:30:32')
 
   def testParseSdr(self):
-    self.assertEqual(utils.parseSdr("000101000"), [0,0,0,1,0,1,0,0,0])
+    self.assertSequenceEqual(utils.parseSdr("000101000"), [0, 0, 0, 1, 0, 1, 0, 0, 0])
 
   def testSerializeSdr(self):
-    self.assertEqual(utils.serializeSdr([0,0,0,1,0,1,0,0,0]), "000101000")
+    self.assertSequenceEqual(utils.serializeSdr([0, 0, 0, 1, 0, 1, 0, 0, 0]), "000101000")
 
 
 if __name__ == '__main__':
