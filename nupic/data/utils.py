@@ -133,28 +133,22 @@ def parseSdr(s):
   """Parses a string containing only 0's and 1's and return a Python list object.
   """
   assert isinstance(s, basestring)
-  try:
-    sdr = []
-    for c in s:
-      if c == "0":
-        sdr.append(0)
-      elif c == "1":
-        sdr.append(1)
-    return sdr
-  except ValueError:
-    pass
-  raise ValueError("The provided string %s is malformed. The string should "
-                   "have only 0's and 1's.")
+  sdr = []
+  for c in s:
+    if c == "0":
+      sdr.append(0)
+    elif c == "1":
+      sdr.append(1)
+    else:
+      raise ValueError("The provided string %s is malformed. The string should "
+                       "have only 0's and 1's.")
+
+  return sdr
 
 
 #############################################################################
 def serializeSdr(sdr):
   """Serialize Python list object containing only 0's and 1's to string.
   """
-  s = ""
-  for elem in sdr:
-    if elem == 0:
-      s += "0"
-    elif elem == 1:
-      s += "1"
-  return s
+
+  return "".join(str(bit) for bit in sdr)
