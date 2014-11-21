@@ -21,7 +21,12 @@
 # Contributor(s):
 #   David Ragazzi (@DavidRagazzi): Full conversion and adaptation from Autotools scripts
 #   Austin Marshall (amarshall@numenta.com): On-going maintenance
+#   Matthew Taylor (matt@numenta.org): Updates for nupic.core integration
 # --------------------------------------------------------------------------------------------------------------------------
+
+# Command Line Options
+# ====================
+# -DNUPIC_CORE        : (optional) Path to nupic.core binary release directory
 
 cmake_minimum_required(VERSION 2.8)
 project(nupic CXX)
@@ -38,6 +43,23 @@ function (read_variable_from_file file_content variable value)
       set(${value} "${tag_value}" PARENT_SCOPE)
     endif()
   endforeach()
+endfunction()
+
+function (unpack_nupic_core source_path package_file)
+  message(STATUS "Unpacking ${package_file} into ${source_path}...")
+  set(RELEASE_DIR "${source_path}/build/release")
+  file(REMOVE_RECURSE "${source_path}/build/release/bin")
+  file(REMOVE_RECURSE "${source_path}/build/release/include")
+  file(REMOVE_RECURSE "${source_path}/build/release/lib")
+  execute_process(
+    COMMAND ${CMAKE_COMMAND} -E tar xzf "${package_file}"
+    WORKING_DIRECTORY "${source_path}/build/release"
+  )
+  string(REGEX REPLACE "\\.tar\\.gz" "" UNPACK_DIR "${package_file}")
+  file(RENAME "${UNPACK_DIR}/bin" "${RELEASE_DIR}/bin")
+  file(RENAME "${UNPACK_DIR}/include" "${RELEASE_DIR}/include")
+  file(RENAME "${UNPACK_DIR}/lib" "${RELEASE_DIR}/lib")
+  file(REMOVE_RECURSE "${UNPACK_DIR}")
 endfunction()
 
 #
@@ -113,17 +135,16 @@ execute_process(COMMAND ${PYTHON} -c "import sys;import numpy;sys.stdout.write(n
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 
 if("${NUPIC_CORE}" STREQUAL "")
-  # User did not specify NUPIC_CORE location, assume relative to nupic
-
-  set(NUPIC_CORE_SOURCE "${PROJECT_SOURCE_DIR}/extensions/core")
+  # User did not specify NUPIC_CORE binary location, assume relative to nupic
   set(NUPIC_CORE "${PROJECT_SOURCE_DIR}/extensions/core/build/release")
-  set(CMAKE_PREFIX_PATH ${NUPIC_CORE})
-  set(BUILD_NUPIC_CORE "TRUE")
+  set(NUPIC_CORE_SOURCE "${PROJECT_SOURCE_DIR}/extensions/core")
+  set(FETCH_NUPIC_CORE "TRUE")
 else()
-  set(CMAKE_PREFIX_PATH ${NUPIC_CORE})
-  set(BUILD_NUPIC_CORE "")
+  # User specified that they have their own nupic.core
+  set(FETCH_NUPIC_CORE "")
 endif()
 
+set(CMAKE_PREFIX_PATH ${NUPIC_CORE})
 set(CMAKE_INCLUDE_PATH "${NUPIC_CORE}/include")
 
 add_definitions(-DNTA_PLATFORM_${PLATFORM}${BITNESS}
@@ -162,8 +183,10 @@ set_target_properties(${LIB_STATIC_SUPPORT} PROPERTIES COMPILE_FLAGS ${COMMON_CO
 set_target_properties(${LIB_STATIC_SUPPORT} PROPERTIES LINK_FLAGS "-m${BITNESS} {STDLIB}")
 
 
-if(BUILD_NUPIC_CORE)
-  # User has not specified NUPIC_CORE location, build it from scratch
+if(FETCH_NUPIC_CORE)
+  # User has not specified NUPIC_CORE location, so we'll download the binaries
+
+  # First, get the nupic.core SHA and remote location from local config.
   if(EXISTS "${PROJECT_SOURCE_DIR}/.nupic_config")
     file(STRINGS "${PROJECT_SOURCE_DIR}/.nupic_config" MODULES_FILE_CONTENT REGEX "^[^#]")
   elseif(EXISTS "$ENV{HOME}/.nupic_config")
@@ -174,61 +197,97 @@ if(BUILD_NUPIC_CORE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 
-  # checkout git dependency
-  if (NOT EXISTS ${NUPIC_CORE_SOURCE})
-    execute_process(COMMAND git clone ${NUPIC_CORE_REMOTE} ${NUPIC_CORE_SOURCE}
-                    RESULT_VARIABLE EXIT_CODE)
-    if(NOT EXIT_CODE EQUAL 0)
-      message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${NUPIC_CORE_SOURCE}")
-    endif()
+  set(NUPIC_CORE_REMOTE_URL "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-${PLATFORM}${BITNESS}.tar.gz")
+  set(NUPIC_CORE_LOCAL_PACKAGE "${NUPIC_CORE}/nupic_core-${NUPIC_CORE_COMMITISH}-${PLATFORM}${BITNESS}.tar.gz")
+
+  if(EXISTS "${NUPIC_CORE_LOCAL_PACKAGE}")
+    message(STATUS "Target nupic.core package already exists at ${NUPIC_CORE_LOCAL_PACKAGE}.")
+    unpack_nupic_core("${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_LOCAL_PACKAGE}")
   else()
-    execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE}
-                    WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                    RESULT_VARIABLE EXIT_CODE)
-    if(NOT EXIT_CODE EQUAL 0)
-      message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
+    message(STATUS "Attempting to fetch nupic.core binaries from ${NUPIC_CORE_REMOTE_URL} and save to ${NUPIC_CORE_LOCAL_PACKAGE}...")
+    file(DOWNLOAD "${NUPIC_CORE_REMOTE_URL}" "${NUPIC_CORE_LOCAL_PACKAGE}" 
+      INACTIVITY_TIMEOUT 30
+      TIMEOUT 300 
+      STATUS "NUPIC_CORE_DOWNLOAD_STATUS" 
+      SHOW_PROGRESS)
+    
+    # TODO: Give user a way to clean up all the downloaded binaries. It can be 
+    # manually done with `rm -rf ${NUPIC_CORE}/extensions/core` but would be 
+    # cleaner with something like `python setup.py clean`.
+    
+    if(NOT NUPIC_CORE_DOWNLOAD_STATUS EQUAL 0)
+      message(WARNING "Error downloading nupic.core package: ${NUPIC_CORE_DOWNLOAD_STATUS}")
+      message(STATUS "Building nupic.core from local checkout ${NUPIC_CORE_SOURCE}...")
+      # Remove the local package file, which didn't get populated due to the
+      # download failure.
+      file(REMOVE "${NUPIC_CORE_LOCAL_PACKAGE}")
+      
+      # Get nupic.core dependency through git.
+      if (NOT(EXISTS "${NUPIC_CORE_SOURCE}/.git"))
+        # There's not a git repo in NUPIC_CORE_SOURCE, so we can blow the whole
+        # directory away and clone nupic.core there.
+        file(REMOVE_RECURSE "${NUPIC_CORE_SOURCE}")
+        file(MAKE_DIRECTORY "${NUPIC_CORE_SOURCE}")
+        execute_process(COMMAND git clone ${NUPIC_CORE_REMOTE} ${NUPIC_CORE_SOURCE}
+                        RESULT_VARIABLE EXIT_CODE)
+        if(NOT EXIT_CODE EQUAL 0)
+          message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${NUPIC_CORE_SOURCE}")
+        endif()
+      else()
+        # Fetch if already cloned.
+        execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE}
+                        WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
+                        RESULT_VARIABLE EXIT_CODE)
+        if(NOT EXIT_CODE EQUAL 0)
+          message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
+        endif()
+      endif()
+
+      # Get the exact SHA we need for nupic.core.
+      execute_process(COMMAND git reset --hard ${NUPIC_CORE_COMMITISH}
+                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
+                      RESULT_VARIABLE EXIT_CODE)
+      if(NOT EXIT_CODE EQUAL 0)
+        message(FATAL_ERROR "Unable to checkout ${NUPIC_CORE_COMMITISH} in ${NUPIC_CORE_SOURCE}")
+      endif()
+
+      # Execute the Make scripts
+      execute_process(COMMAND git clean -fdx
+                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
+                      RESULT_VARIABLE EXIT_CODE)
+      if(NOT EXIT_CODE EQUAL 0)
+        message(FATAL_ERROR "Compiling 'nupic.core' library within ${PROJECT_SOURCE_DIR} failed: ${BUILD_NUPIC_CORE_OUTP}")
+      endif()
+
+      # Build and set external libraries
+      message(STATUS "Building 'nupic.core' library...")
+
+      # Clean 'build/scripts' subfolder at submodule folder
+      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
+      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
+      execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${NUPIC_CORE_SOURCE}/build/scripts)
+      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE})
+      # Generate the Make scripts
+      execute_process(COMMAND ${CMAKE_COMMAND} ${NUPIC_CORE_SOURCE}/src -DCMAKE_INSTALL_PREFIX=${NUPIC_CORE}
+                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts)
+
+      set(USER_MAKE_COMMAND "make" CACHE STRING "Default `make` command used to build nupic.core")
+
+      # Execute the Make scripts
+      execute_process(COMMAND ${USER_MAKE_COMMAND} install -j3
+                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts
+                      RESULT_VARIABLE EXIT_CODE
+                      OUTPUT_VARIABLE OUTP)
+      if(NOT EXIT_CODE EQUAL 0)
+        message(FATAL_ERROR "Compiling 'nupic.core' library within ${NUPIC_SOURCE_DIR} failed")
+      endif()
+
+      message(STATUS "Done.")
+    else()
+      message(STATUS "Download successful.")
+      unpack_nupic_core("${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_LOCAL_PACKAGE}")
     endif()
   endif()
-  execute_process(COMMAND git reset --hard ${NUPIC_CORE_COMMITISH}
-                  WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                  RESULT_VARIABLE EXIT_CODE)
-  if(NOT EXIT_CODE EQUAL 0)
-    message(FATAL_ERROR "Unable to checkout ${NUPIC_CORE_COMMITISH} in ${NUPIC_CORE_SOURCE}")
-  endif()
-
-  # Execute the Make scripts
-  execute_process(COMMAND git clean -fdx
-                  WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                  RESULT_VARIABLE EXIT_CODE)
-  if(NOT EXIT_CODE EQUAL 0)
-    message(FATAL_ERROR "Compiling 'nupic_core' library within ${PROJECT_SOURCE_DIR} failed: ${BUILD_NUPIC_CORE_OUTP}")
-  endif()
-
-
-  # Build and set external libraries
-  message(STATUS "Building 'nupic_core' library...")
-
-  # Clean 'build/scripts' subfolder at submodule folder
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-  execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE})
-  # Generate the Make scripts
-  execute_process(COMMAND ${CMAKE_COMMAND} ${NUPIC_CORE_SOURCE}/src -DCMAKE_INSTALL_PREFIX=${NUPIC_CORE}
-                  WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts)
-
-  set(USER_MAKE_COMMAND "make" CACHE STRING "Default `make` command used to build nupic.core")
-
-  # Execute the Make scripts
-  execute_process(COMMAND ${USER_MAKE_COMMAND} install -j3
-                  WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts
-                  RESULT_VARIABLE EXIT_CODE
-                  OUTPUT_VARIABLE OUTP)
-  if(NOT EXIT_CODE EQUAL 0)
-    message(FATAL_ERROR "Compiling 'nupic_core' library within ${NUPIC_SOURCE_DIR} failed")
-  endif()
-
-  message(STATUS "Done.")
 else()
   message(STATUS "Using nupic.core binaries at ${NUPIC_CORE}")
 endif()
@@ -391,7 +450,7 @@ set_target_properties(${SWIG_MODULE_${LIB_SHARED_IORANGE}_REAL_NAME}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 swig_link_libraries(${LIB_SHARED_IORANGE} ${SWIG_COMMON_LIBRARIES})
 
-set(SKIP_COMPARE_VERSIONS (NOT ${BUILD_NUPIC_CORE}) CACHE BOOL "Skip nupic.core version comparison")
+set(SKIP_COMPARE_VERSIONS (NOT ${FETCH_NUPIC_CORE}) CACHE BOOL "Skip nupic.core version comparison")
 
 if (NOT ${SKIP_COMPARE_VERSIONS})
   # Compare expected version of nupic.core against installed version
