@@ -182,6 +182,7 @@ add_library(${LIB_STATIC_SUPPORT}
 set_target_properties(${LIB_STATIC_SUPPORT} PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS})
 set_target_properties(${LIB_STATIC_SUPPORT} PROPERTIES LINK_FLAGS "-m${BITNESS} {STDLIB}")
 
+set(NUPIC_CORE_BUCKET "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core")
 
 if(FETCH_NUPIC_CORE)
   # User has not specified NUPIC_CORE location, so we'll download the binaries
@@ -197,7 +198,7 @@ if(FETCH_NUPIC_CORE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_REMOTE" NUPIC_CORE_REMOTE)
   read_variable_from_file("${MODULES_FILE_CONTENT}" "NUPIC_CORE_COMMITISH" NUPIC_CORE_COMMITISH)
 
-  set(NUPIC_CORE_REMOTE_URL "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core/nupic_core-${NUPIC_CORE_COMMITISH}-${PLATFORM}${BITNESS}.tar.gz")
+  set(NUPIC_CORE_REMOTE_URL "${NUPIC_CORE_BUCKET}/nupic_core-${NUPIC_CORE_COMMITISH}-${PLATFORM}${BITNESS}.tar.gz")
   set(NUPIC_CORE_LOCAL_PACKAGE "${NUPIC_CORE}/nupic_core-${NUPIC_CORE_COMMITISH}-${PLATFORM}${BITNESS}.tar.gz")
 
   if(EXISTS "${NUPIC_CORE_LOCAL_PACKAGE}")
