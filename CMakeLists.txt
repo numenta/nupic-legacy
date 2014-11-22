@@ -138,10 +138,10 @@ if("${NUPIC_CORE}" STREQUAL "")
   # User did not specify NUPIC_CORE binary location, assume relative to nupic
   set(NUPIC_CORE "${PROJECT_SOURCE_DIR}/extensions/core/build/release")
   set(NUPIC_CORE_SOURCE "${PROJECT_SOURCE_DIR}/extensions/core")
-  set(FETCH_NUPIC_CORE "TRUE")
+  set(FETCH_NUPIC_CORE TRUE)
 else()
   # User specified that they have their own nupic.core
-  set(FETCH_NUPIC_CORE "")
+  set(FETCH_NUPIC_CORE FALSE)
 endif()
 
 set(CMAKE_PREFIX_PATH ${NUPIC_CORE})
