@@ -26,7 +26,7 @@
 
 # Command Line Options
 # ====================
-# -DNUPIC_CORE        : (optional) Path to nupic.core binary release directory
+# -DNUPIC_CORE        : (optional) Absolute path to nupic.core binary release directory
 
 cmake_minimum_required(VERSION 2.8)
 project(nupic CXX)
