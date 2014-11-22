@@ -46,7 +46,8 @@ function (read_variable_from_file file_content variable value)
 endfunction()
 
 function (unpack_nupic_core source_path package_file)
-  message(STATUS "Unpacking ${package_file} into ${source_path}...")
+  string(REGEX REPLACE "\\.tar\\.gz" "" UNPACK_DIR "${package_file}")
+  message(STATUS "Unpacking ${package_file} into ${UNPACK_DIR}...")
   set(RELEASE_DIR "${source_path}/build/release")
   file(REMOVE_RECURSE "${source_path}/build/release/bin")
   file(REMOVE_RECURSE "${source_path}/build/release/include")
@@ -55,7 +56,6 @@ function (unpack_nupic_core source_path package_file)
     COMMAND ${CMAKE_COMMAND} -E tar xzf "${package_file}"
     WORKING_DIRECTORY "${source_path}/build/release"
   )
-  string(REGEX REPLACE "\\.tar\\.gz" "" UNPACK_DIR "${package_file}")
   file(RENAME "${UNPACK_DIR}/bin" "${RELEASE_DIR}/bin")
   file(RENAME "${UNPACK_DIR}/include" "${RELEASE_DIR}/include")
   file(RENAME "${UNPACK_DIR}/lib" "${RELEASE_DIR}/lib")
