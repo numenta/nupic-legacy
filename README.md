@@ -1,11 +1,11 @@
 # ![Numenta Logo](http://numenta.org/images/numenta-icon128.png) NuPIC
 
-## Numenta Platform for Intelligent Computing 
+## Numenta Platform for Intelligent Computing
 
 * Build: [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 * Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
 * [Regression Tests](https://github.com/numenta/nupic.regression): [![Build Status](https://travis-ci.org/numenta/nupic.regression.svg?branch=master)](https://travis-ci.org/numenta/nupic.regression)
- 
+
 NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the [Cortical Learning Algorithm (CLA)](https://github.com/numenta/nupic/wiki/Cortical-Learning-Algorithm), but also the [Online Prediction Framework (OPF)] (https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) that allows clients to build prediction systems out of encoders, models, and metrics.
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
@@ -75,10 +75,6 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 #### To run the tests:
 
     cd $NUPIC/build/scripts
-    # all C++ unit tests
-    make cpp_unit_tests
-    # C++ HTM Network API tests
-    make tests_cpphtm
     # Python HTM Network API tests
     make tests_pyhtm
     # Python OPF unit tests
