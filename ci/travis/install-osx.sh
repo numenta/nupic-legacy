@@ -28,12 +28,12 @@ echo
 cmake --version
 
 # Verify python version
-python$PY_VER --version
+python --version
 
 # Build NuPIC
 cd $NUPIC
-python$PY_VER setup.py install --user
+python setup.py install --user
 
-# Show nupic installation folder by trying to import nupic, if works, it prints 
+# Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.
 python -c 'import sys;import os;import nupic;sys.stdout.write(os.path.abspath(os.path.join(nupic.__file__, "../..")))' || exit

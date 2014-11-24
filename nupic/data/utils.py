@@ -127,3 +127,23 @@ def unescape(s):
 
   return s
 
+
+#############################################################################
+def parseSdr(s):
+  """Parses a string containing only 0's and 1's and return a Python list object.
+  """
+  assert isinstance(s, basestring)
+  sdr = [int(c) for c in s if c in ("0", "1")]
+  if len(sdr) != len(s):
+    raise ValueError("The provided string %s is malformed. The string should "
+                     "have only 0's and 1's.")
+
+  return sdr
+
+
+#############################################################################
+def serializeSdr(sdr):
+  """Serialize Python list object containing only 0's and 1's to string.
+  """
+
+  return "".join(str(bit) for bit in sdr)
