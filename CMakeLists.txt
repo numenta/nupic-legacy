@@ -206,23 +206,23 @@ if(FETCH_NUPIC_CORE)
     unpack_nupic_core("${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_LOCAL_PACKAGE}")
   else()
     message(STATUS "Attempting to fetch nupic.core binaries from ${NUPIC_CORE_REMOTE_URL} and save to ${NUPIC_CORE_LOCAL_PACKAGE}...")
-    file(DOWNLOAD "${NUPIC_CORE_REMOTE_URL}" "${NUPIC_CORE_LOCAL_PACKAGE}" 
+    file(DOWNLOAD "${NUPIC_CORE_REMOTE_URL}" "${NUPIC_CORE_LOCAL_PACKAGE}"
       INACTIVITY_TIMEOUT 30
-      TIMEOUT 300 
-      STATUS "NUPIC_CORE_DOWNLOAD_STATUS" 
+      TIMEOUT 300
+      STATUS "NUPIC_CORE_DOWNLOAD_STATUS"
       SHOW_PROGRESS)
-    
-    # TODO: Give user a way to clean up all the downloaded binaries. It can be 
-    # manually done with `rm -rf ${NUPIC_CORE}/extensions/core` but would be 
+
+    # TODO: Give user a way to clean up all the downloaded binaries. It can be
+    # manually done with `rm -rf ${NUPIC_CORE}/extensions/core` but would be
     # cleaner with something like `python setup.py clean`.
-    
+
     if(NOT NUPIC_CORE_DOWNLOAD_STATUS EQUAL 0)
       message(WARNING "Error downloading nupic.core package: ${NUPIC_CORE_DOWNLOAD_STATUS}")
       message(STATUS "Building nupic.core from local checkout ${NUPIC_CORE_SOURCE}...")
       # Remove the local package file, which didn't get populated due to the
       # download failure.
       file(REMOVE "${NUPIC_CORE_LOCAL_PACKAGE}")
-      
+
       # Get nupic.core dependency through git.
       if (NOT(EXISTS "${NUPIC_CORE_SOURCE}/.git"))
         # There's not a git repo in NUPIC_CORE_SOURCE, so we can blow the whole
@@ -497,19 +497,9 @@ add_custom_target(tests_pyhtm
                   COMMAND testpyhtm
                   COMMENT "Basic tests in Python")
 
-add_custom_target(tests_cpphtm
-                  COMMAND testcpphtm
-                  COMMENT "Basic tests in C++")
-
-add_custom_target(cpp_unit_tests
-                  COMMAND unit_tests
-                  COMMENT "C++ unit tests")
-
 add_custom_target(tests_all
                   DEPENDS python_all_tests
                   DEPENDS tests_pyhtm
-                  DEPENDS tests_cpphtm
-                  DEPENDS cpp_unit_tests
                   COMMENT "Running all tests")
 
 #
