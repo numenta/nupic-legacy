@@ -182,7 +182,7 @@ class CoordinateEncoderTest(unittest.TestCase):
 
   def testEncodeRelativePositions(self):
     # As you get farther from a coordinate, the overlap should decrease
-    overlaps = overlapsForRelativeAreas(999, 25, np.array([100, 200]), 10,
+    overlaps = overlapsForRelativeAreas(999, 51, np.array([100, 200]), 10,
                                         dPosition=np.array([2, 2]),
                                         num=5)
     self.assertDecreasingOverlaps(overlaps)
@@ -191,12 +191,12 @@ class CoordinateEncoderTest(unittest.TestCase):
   def testEncodeRelativeRadii(self):
     # As radius increases, the overlap should decrease
     overlaps = overlapsForRelativeAreas(999, 25, np.array([100, 200]), 5,
-                                        dRadius=1,
+                                        dRadius=2,
                                         num=5)
     self.assertDecreasingOverlaps(overlaps)
 
     # As radius decreases, the overlap should decrease
-    overlaps = overlapsForRelativeAreas(999, 25, np.array([100, 200]), 20,
+    overlaps = overlapsForRelativeAreas(999, 51, np.array([100, 200]), 20,
                                         dRadius=-2,
                                         num=5)
     self.assertDecreasingOverlaps(overlaps)
@@ -288,6 +288,15 @@ def overlapsForRelativeAreas(n, w,
                              num=100, verbose=False):
   """
   Return overlaps between an encoding and other encodings relative to it
+
+  :param n: the size of the encoder output
+  :param w: the number of active bits in the encoder output
+  :param initPosition: the position of the first encoding
+  :param initRadius: the radius of the first encoding
+  :param dPosition: the offset to apply to each subsequent position
+  :param dRadius: the offset to apply to each subsequent radius
+  :param num: the number of encodings to generate
+  :param verbose: whether to print verbose output
   """
   encoder = CoordinateEncoder(name="coordinate",
                               n=n,
