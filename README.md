@@ -62,7 +62,7 @@ For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC
 
 ## Developer instructions
 
-If you want develop, debug, or simply test NuPIC, clone it and follow the instructions:
+If you want to develop, debug, or simply test NuPIC, clone it and follow the instructions:
 
 ### Using command line
 
