@@ -57,6 +57,7 @@ conf/default/nupic-site.xml
 
 # nupic.core repo is located under $NUPIC/extensions/core/
 extensions/core/
+experimental/
 
 # nupic bindings swig libraries
 nupic/bindings/*engine_internal.*

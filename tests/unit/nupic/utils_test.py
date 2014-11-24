@@ -22,15 +22,13 @@
 
 """Unit tests for utils module."""
 
-import unittest2 as unittest
-import numpy
+import unittest
 
 from nupic.utils import MovingAverage
-from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
 
-class UtilsTest(TestCaseBase):
+class UtilsTest(unittest.TestCase):
   """testing common.utils"""
 
 
@@ -40,7 +38,7 @@ class UtilsTest(TestCaseBase):
     even for null initial condition and when the number of values goes over
     windowSize.  Pass in integers and floats.
     """
-    historicalValues = numpy.array([])
+    historicalValues = []
     total = 0
     windowSize = 3
     newAverage, historicalValues, total = (
@@ -54,14 +52,14 @@ class UtilsTest(TestCaseBase):
       MovingAverage.compute(historicalValues, total, 4, windowSize)
     )
     self.assertEqual(newAverage, 3.5)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0])
+    self.assertListEqual(historicalValues, [3.0, 4.0])
     self.assertEqual(total, 7.0)
 
     newAverage, historicalValues, total = (
       MovingAverage.compute(historicalValues, total, 5.0, windowSize)
     )
     self.assertEqual(newAverage, 4.0)
-    self.assertListEqual(historicalValues.tolist(), [3.0, 4.0, 5.0])
+    self.assertListEqual(historicalValues, [3.0, 4.0, 5.0])
     self.assertEqual(total, 12.0)
 
     # Ensure the first value gets popped
@@ -69,7 +67,7 @@ class UtilsTest(TestCaseBase):
       MovingAverage.compute(historicalValues, total, 6.0, windowSize)
     )
     self.assertEqual(newAverage, 5.0)
-    self.assertListEqual(historicalValues.tolist(), [4.0, 5.0, 6.0])
+    self.assertListEqual(historicalValues, [4.0, 5.0, 6.0])
     self.assertEqual(total, 15.0)
 
 
@@ -102,6 +100,7 @@ class UtilsTest(TestCaseBase):
     self.assertEqual(newAverage, 5.0)
     self.assertListEqual(ma.getSlidingWindow(), [4.0, 5.0, 6.0])
     self.assertEqual(ma.total, 15.0)
+
 
 
 if __name__ == "__main__":
