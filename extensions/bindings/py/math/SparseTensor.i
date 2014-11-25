@@ -63,15 +63,15 @@
 %ignore PyTensorIndex::operator==;
 %ignore PyTensorIndex::operator!=;
 
-%ignore nta::Domain::operator[];
-%ignore nta::Domain::operator=;
-%ignore nta::Domain::operator<<;
-%ignore nta::Domain::operator==;
-%ignore nta::Domain::operator!=;
-%ignore nta::DimRange::operator=;
+%ignore nupic::Domain::operator[];
+%ignore nupic::Domain::operator=;
+%ignore nupic::Domain::operator<<;
+%ignore nupic::Domain::operator==;
+%ignore nupic::Domain::operator!=;
+%ignore nupic::DimRange::operator=;
 
 %include <nta/math/Domain.hpp>
- //%template(BaseDomain) nta::Domain<nta::UInt32>;
+ //%template(BaseDomain) nupic::Domain<nupic::UInt32>;
 
 %include <bindings/py/math/PySparseTensor.hpp>
 

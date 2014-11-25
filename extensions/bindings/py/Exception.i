@@ -12,21 +12,21 @@
   {
     $action
   }
-  catch (const nta::Exception & e)
+  catch (const nupic::Exception & e)
   {
     // Don't replace the error message if it is already set
     if (!PyErr_Occurred())
     {
       // Create a RuntimeError Python exception object
-      nta::py::Tuple args(1);
-      args.setItem(0, nta::py::String(e.getMessage()));
-      nta::py::Instance ex(PyExc_RuntimeError, args);
+      nupic::py::Tuple args(1);
+      args.setItem(0, nupic::py::String(e.getMessage()));
+      nupic::py::Instance ex(PyExc_RuntimeError, args);
   
       // Add a new attribute "stackTrace" if available
       if (e.getStackTrace())
       {
-        ex.setAttr("stackTrace", nta::py::String(e.getStackTrace()));
-        //nta::py::String st(ex.getAttr("stackTrace"));
+        ex.setAttr("stackTrace", nupic::py::String(e.getStackTrace()));
+        //nupic::py::String st(ex.getAttr("stackTrace"));
         //NTA_DEBUG << "*** stackTrace: " << std::string(st);
         //NTA_ASSERT(!(std::string(st).empty()));
       }

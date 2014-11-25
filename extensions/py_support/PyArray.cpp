@@ -35,7 +35,7 @@
 #include <string>
 #include <sstream>
 
-namespace nta
+namespace nupic
 {    
   // -------------------------------------
   //

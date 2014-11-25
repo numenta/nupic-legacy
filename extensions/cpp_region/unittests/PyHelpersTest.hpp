@@ -29,7 +29,7 @@
 
 #include <nta/test/Tester.hpp>
 
-namespace nta
+namespace nupic
 {
   struct PyHelpersTest : public Tester
   {

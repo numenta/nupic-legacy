@@ -34,7 +34,7 @@
 #include <nta/engine/Spec.hpp>
 #include <nta/ntypes/Value.hpp>
 
-namespace nta 
+namespace nupic
 {
   struct Spec;
 
