@@ -48,6 +48,7 @@ class PassThroughEncoder(Encoder):
     self.verbosity = verbosity
     self.description = [(name, 0)]
     self.name = name
+    self.encoders = None
     self.forced = forced
 
   ############################################################################
