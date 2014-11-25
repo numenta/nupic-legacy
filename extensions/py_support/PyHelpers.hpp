@@ -31,7 +31,7 @@
 #include <Python.h>
 #include <frameobject.h>
 
-#include <nta/utils/Log.hpp>
+#include <nupic/utils/Log.hpp>
 #include <iostream>
 #include <fstream>
 

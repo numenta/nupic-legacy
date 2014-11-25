@@ -39,7 +39,7 @@ type in C code.
 
 %inline %{
 
-#include <nta/types/BasicType.hpp>
+#include <nupic/types/BasicType.hpp>
 
 NTA_BasicType GetBasicTypeFromName(const std::string &type)
 {

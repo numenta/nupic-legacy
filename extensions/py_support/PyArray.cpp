@@ -28,7 +28,7 @@
 #include <Python.h>
 
 #include "PyArray.hpp"
-#include <nta/utils/Log.hpp>
+#include <nupic/utils/Log.hpp>
 
 #include <numpy/arrayobject.h>
 #include <iostream>

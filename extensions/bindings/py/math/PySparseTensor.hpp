@@ -28,9 +28,9 @@
 
 
 #include <py_support/NumpyVector.hpp>
-#include <nta/math/Index.hpp>
-#include <nta/math/Domain.hpp>
-#include <nta/math/SparseTensor.hpp>
+#include <nupic/math/Index.hpp>
+#include <nupic/math/Domain.hpp>
+#include <nupic/math/SparseTensor.hpp>
 
 #include <vector>
 #include <sstream>
