@@ -36,28 +36,28 @@
 
 
 %include <py_support/PyArray.hpp>
-%template(ByteArray) nta::PyArray<nta::Byte>;
-%template(Int16Array) nta::PyArray<nta::Int16>;
-%template(UInt16Array) nta::PyArray<nta::UInt16>;
-%template(Int32Array) nta::PyArray<nta::Int32>;
-%template(UInt32Array) nta::PyArray<nta::UInt32>;
-%template(Int64Array) nta::PyArray<nta::Int64>;
-%template(UInt64Array) nta::PyArray<nta::UInt64>;
-%template(Real32Array) nta::PyArray<nta::Real32>;
-%template(Real64Array) nta::PyArray<nta::Real64>;
+%template(ByteArray) nupic::PyArray<nupic::Byte>;
+%template(Int16Array) nupic::PyArray<nupic::Int16>;
+%template(UInt16Array) nupic::PyArray<nupic::UInt16>;
+%template(Int32Array) nupic::PyArray<nupic::Int32>;
+%template(UInt32Array) nupic::PyArray<nupic::UInt32>;
+%template(Int64Array) nupic::PyArray<nupic::Int64>;
+%template(UInt64Array) nupic::PyArray<nupic::UInt64>;
+%template(Real32Array) nupic::PyArray<nupic::Real32>;
+%template(Real64Array) nupic::PyArray<nupic::Real64>;
 
-%template(ByteArrayRef) nta::PyArrayRef<nta::Byte>;
-%template(Int16ArrayRef) nta::PyArrayRef<nta::Int16>;
-%template(UInt16ArrayRef) nta::PyArrayRef<nta::UInt16>;
-%template(Int32ArrayRef) nta::PyArrayRef<nta::Int32>;
-%template(UInt32ArrayRef) nta::PyArrayRef<nta::UInt32>;
-%template(Int64ArrayRef) nta::PyArrayRef<nta::Int64>;
-%template(UInt64ArrayRef) nta::PyArrayRef<nta::UInt64>;
-%template(Real32ArrayRef) nta::PyArrayRef<nta::Real32>;
-%template(Real64ArrayRef) nta::PyArrayRef<nta::Real64>;
+%template(ByteArrayRef) nupic::PyArrayRef<nupic::Byte>;
+%template(Int16ArrayRef) nupic::PyArrayRef<nupic::Int16>;
+%template(UInt16ArrayRef) nupic::PyArrayRef<nupic::UInt16>;
+%template(Int32ArrayRef) nupic::PyArrayRef<nupic::Int32>;
+%template(UInt32ArrayRef) nupic::PyArrayRef<nupic::UInt32>;
+%template(Int64ArrayRef) nupic::PyArrayRef<nupic::Int64>;
+%template(UInt64ArrayRef) nupic::PyArrayRef<nupic::UInt64>;
+%template(Real32ArrayRef) nupic::PyArrayRef<nupic::Real32>;
+%template(Real64ArrayRef) nupic::PyArrayRef<nupic::Real64>;
 
 
-%extend nta::Timer
+%extend nupic::Timer
 {
   // Extend here (engine_internal) rather than nupic.engine because
   // in order to have properties, we would have to define a wrapper
@@ -71,23 +71,23 @@
   %}
 }
 
-%extend nta::Region
+%extend nupic::Region
 {
   PyObject * getSelf()
   {
-    nta::Handle h = self->getParameterHandle("self");
+    nupic::Handle h = self->getParameterHandle("self");
     PyObject * p = (PyObject *)h;
     return p;
   }
   
   PyObject * getInputArray(std::string name)
   {
-    return nta::PyArrayRef<nta::Byte>(self->getInputData(name)).asNumpyArray();
+    return nupic::PyArrayRef<nupic::Byte>(self->getInputData(name)).asNumpyArray();
   }
 
   PyObject * getOutputArray(std::string name)
   {
-    return nta::PyArrayRef<nta::Byte>(self->getOutputData(name)).asNumpyArray();
+    return nupic::PyArrayRef<nupic::Byte>(self->getOutputData(name)).asNumpyArray();
   }
 }
 
@@ -99,7 +99,7 @@
 // magic swig incantation
 // provides: (real, virtual) = OS.getProcessMemoryUsage()
 %include <typemaps.i>
-class nta::OS
+class nupic::OS
 {
 public:
   static void OS::getProcessMemoryUsage(size_t& OUTPUT, size_t& OUTPUT);

@@ -70,16 +70,16 @@
 // An easy-to-wrap vector class that is designed to 
 // look like a Python container.
 
-%ignore nta::WrappedVectorIter::operator[];
-%ignore nta::WrappedVectorIter::operator++;
-%ignore nta::WrappedVectorIter::operator--;
-%ignore nta::WrappedVector::operator=;
+%ignore nupic::WrappedVectorIter::operator[];
+%ignore nupic::WrappedVectorIter::operator++;
+%ignore nupic::WrappedVectorIter::operator--;
+%ignore nupic::WrappedVector::operator=;
 
 %include <py_support/NumpyVector.hpp>
 %include <bindings/py/iorange/WrappedVector.hpp>
-%template(WrappedVectorList) std::vector<nta::WrappedVector>;
+%template(WrappedVectorList) std::vector<nupic::WrappedVector>;
 
-%extend nta::WrappedVector {
+%extend nupic::WrappedVector {
 
   // Used by NuPIC 2 to directly wrap an array object
   void setFromArray(PyObject* parray)
@@ -88,30 +88,30 @@
     {
       throw std::invalid_argument("setFromArray -- object is not a CObject");
     }
-    nta::ArrayBase* array = (nta::ArrayBase*)PyCObject_AsVoidPtr(parray);
+    nupic::ArrayBase* array = (nupic::ArrayBase*)PyCObject_AsVoidPtr(parray);
     if (array->getType() != NTA_BasicType_Real32)
     {
       throw std::invalid_argument("setFromArray -- array datatype is not Real32");
     }
-    self->setPointer(array->getCount(), (nta::Real*)array->getBuffer());
+    self->setPointer(array->getCount(), (nupic::Real*)array->getBuffer());
   }
 
 
 void copyFromPointer(size_t n, PyObject * obj) {
-  nta::Real * p = (nta::Real *) PyCObject_AsVoidPtr(obj);
+  nupic::Real * p = (nupic::Real *) PyCObject_AsVoidPtr(obj);
   if (n != self->__len__())
     throw std::invalid_argument("Sizes must match.");
   self->copyFromT(n, 1, p);
 }
 
 void copyFromArray(PyObject *obj) {
-  nta::NumpyVector v(obj);
-  nta::Size n = v.size();
+  nupic::NumpyVector v(obj);
+  nupic::Size n = v.size();
   if(!(n == self->__len__())) throw std::invalid_argument("Sizes must match.");
   self->copyFromT(n, v.incr(), v.addressOf(0));
 }
 
-nta::WrappedVector __getslice__(long long i, long long j) const {
+nupic::WrappedVector __getslice__(long long i, long long j) const {
   self->adjust(i);
   self->adjust(j);
   return self->slice(i, j);
@@ -120,9 +120,9 @@ nta::WrappedVector __getslice__(long long i, long long j) const {
 void __setslice__(long long i, long long j, PyObject *obj) {
   self->adjust(i);
   self->adjust(j);
-  nta::NumpyVector v(obj);
-  nta::Size n = v.size();
-  nta::WrappedVector toSet = self->slice(i, j);
+  nupic::NumpyVector v(obj);
+  nupic::Size n = v.size();
+  nupic::WrappedVector toSet = self->slice(i, j);
   if(!(n == toSet.__len__())) {
     char errBuffer[256];
     snprintf(errBuffer, 256-1, 
@@ -135,7 +135,7 @@ void __setslice__(long long i, long long j, PyObject *obj) {
 
 PyObject *array() const {
   int n = self->__len__();
-  nta::NumpyVector v(n);
+  nupic::NumpyVector v(n);
   self->copyIntoT(n, v.incr(), v.addressOf(0));
   return v.forPython();
 }

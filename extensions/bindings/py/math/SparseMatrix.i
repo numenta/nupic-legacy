@@ -35,11 +35,11 @@
 //--------------------------------------------------------------------------------
 %inline { 
 
-  nta::Real getGlobalEpsilon() { return nta::Epsilon; }
+  nupic::Real getGlobalEpsilon() { return nupic::Epsilon; }
 
 }
 
-%ignore nta::Domain::operator[];
+%ignore nupic::Domain::operator[];
 %ignore print;
 
 //--------------------------------------------------------------------------------
@@ -50,30 +50,30 @@
 %include <nta/math/SparseBinaryMatrix.hpp>
  //%include <nta/math/SparseRLEMatrix.hpp>
 
-%template(_Domain32) nta::Domain<nta::UInt32>;
-%template(_Domain2D32) nta::Domain2D<nta::UInt32>;
-%template(_DistanceToZero32) nta::DistanceToZero<nta::Real32>;
+%template(_Domain32) nupic::Domain<nupic::UInt32>;
+%template(_Domain2D32) nupic::Domain2D<nupic::UInt32>;
+%template(_DistanceToZero32) nupic::DistanceToZero<nupic::Real32>;
 
-//%template(_DistanceToZero64) nta::DistanceToZero<nta::Real64>;
-//%template(_DistanceToZero128) nta::DistanceToZero<nta::Real128>;
+//%template(_DistanceToZero64) nupic::DistanceToZero<nupic::Real64>;
+//%template(_DistanceToZero128) nupic::DistanceToZero<nupic::Real128>;
 
-%template(_SparseMatrix32) nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >;
-//%template(_SparseMatrix64) nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >;
-//%template(_SparseMatrix128) nta::SparseMatrix<nta::UInt32,nta::Real128,nta::Int32,nta::Real128,nta::DistanceToZero<nta::Real128 > >;
+%template(_SparseMatrix32) nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >;
+//%template(_SparseMatrix64) nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >;
+//%template(_SparseMatrix128) nupic::SparseMatrix<nupic::UInt32,nupic::Real128,nupic::Int32,nupic::Real128,nupic::DistanceToZero<nupic::Real128 > >;
 
-//%template(_SM_01_32_16) nta::SparseBinaryMatrix<nta::UInt32, nta::UInt16>;
-%template(_SM_01_32_32) nta::SparseBinaryMatrix<nta::UInt32, nta::UInt32>;
+//%template(_SM_01_32_16) nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt16>;
+%template(_SM_01_32_32) nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt32>;
 
-//%template(_SM_RLE_16_8) nta::SparseRLEMatrix<nta::UInt16, unsigned char>;
-//%template(_SM_RLE_16_16) nta::SparseRLEMatrix<nta::UInt16, nta::UInt16>;
-//%template(_SM_RLE_32_32) nta::SparseRLEMatrix<nta::UInt32, nta::Real32>;
+//%template(_SM_RLE_16_8) nupic::SparseRLEMatrix<nupic::UInt16, unsigned char>;
+//%template(_SM_RLE_16_16) nupic::SparseRLEMatrix<nupic::UInt16, nupic::UInt16>;
+//%template(_SM_RLE_32_32) nupic::SparseRLEMatrix<nupic::UInt32, nupic::Real32>;
 
 //--------------------------------------------------------------------------------
 %define SparseMatrix_(N1, N2, N3, N4)
 
-#define SparseMatrix ## N2 nta::SparseMatrix<nta::UInt ## N1,nta::Real ## N2,nta::Int ## N3,nta::Real ## N4,nta::DistanceToZero<nta::Real ## N2 > >
+#define SparseMatrix ## N2 nupic::SparseMatrix<nupic::UInt ## N1,nupic::Real ## N2,nupic::Int ## N3,nupic::Real ## N4,nupic::DistanceToZero<nupic::Real ## N2 > >
 
-%extend nta::SparseMatrix<nta::UInt ## N1,nta::Real ## N2,nta::Int ## N3,nta::Real ## N4,nta::DistanceToZero<nta::Real ## N2 > >
+%extend nupic::SparseMatrix<nupic::UInt ## N1,nupic::Real ## N2,nupic::Int ## N3,nupic::Real ## N4,nupic::DistanceToZero<nupic::Real ## N2 > >
 {
 %pythoncode %{
 
@@ -402,34 +402,34 @@ def __div__(self, other):
                          
   void __initializeWithRows(const SparseMatrix ##N2& other, PyObject* py_take)
   {
-    nta::NumpyVectorT<nta::UInt32> take(py_take);   
+    nupic::NumpyVectorT<nupic::UInt32> take(py_take);
     self->initializeWithRows(other, take.begin(), take.end());
   }
   
   void __initializeWithCols(const SparseMatrix ##N2& other, PyObject* py_take)
   {
-    nta::NumpyVectorT<nta::UInt32> take(py_take);   
+    nupic::NumpyVectorT<nupic::UInt32> take(py_take);
     self->initializeWithCols(other, take.begin(), take.end());
   }
 
   void __add(PyObject* val)     
   {
-    self->add(nta::convertToValueType<nta::Real ## N2>(val));
+    self->add(nupic::convertToValueType<nupic::Real ## N2>(val));
   }
   
   void __multiply(PyObject* val)
   {
-    self->multiply(nta::convertToValueType<nta::Real ## N2>(val));
+    self->multiply(nupic::convertToValueType<nupic::Real ## N2>(val));
   }
 
   void __subtract(PyObject* val)
   {
-    self->subtract(nta::convertToValueType<nta::Real ## N2>(val));
+    self->subtract(nupic::convertToValueType<nupic::Real ## N2>(val));
   }
            
   void __divide(PyObject* val)
   {
-    self->divide(nta::convertToValueType<nta::Real ## N2>(val));
+    self->divide(nupic::convertToValueType<nupic::Real ## N2>(val));
   }
 
   void copy(const SparseMatrix ## N2& other)
@@ -439,28 +439,28 @@ def __div__(self, other):
 
   void fromDense(PyObject *matrix)
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(matrix);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(matrix);
     self->fromDense(m.rows(), m.columns(), m.addressOf(0, 0));
   }
 
   PyObject *toDense() const 
   {
     int dims[] = { static_cast<int>(self->nRows()), static_cast<int>(self->nCols()) };
-    nta::NumpyMatrixT<nta::Real ## N2> out(dims);
+    nupic::NumpyMatrixT<nupic::Real ## N2> out(dims);
     self->toDense(out.addressOf(0, 0));
     return out.forPython();
   }
 
-  void setRowFromDense(nta::UInt ## N1 row, PyObject* py_row) 
+  void setRowFromDense(nupic::UInt ## N1 row, PyObject* py_row)
   { 
-    nta::NumpyVectorT<nta::Real ## N2> row_data(py_row);
+    nupic::NumpyVectorT<nupic::Real ## N2> row_data(py_row);
     self->setRowFromDense(row, row_data.begin());
   }
 
-  void setRowFromSparse(nta::UInt ## N1 row, PyObject* py_ind, PyObject* py_nz)
+  void setRowFromSparse(nupic::UInt ## N1 row, PyObject* py_ind, PyObject* py_nz)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> ind(py_ind);
-    nta::NumpyVectorT<nta::Real ## N2> nz(py_nz);
+    nupic::NumpyVectorT<nupic::UInt ## N1> ind(py_ind);
+    nupic::NumpyVectorT<nupic::Real ## N2> nz(py_nz);
     self->setRowFromSparse(row, ind.begin(), ind.end(), nz.begin());
   }
 
@@ -480,151 +480,151 @@ def __div__(self, other):
 
   void addRow(PyObject *row)
   {
-    nta::NumpyVectorT<nta::Real ## N2> v(row);
+    nupic::NumpyVectorT<nupic::Real ## N2> v(row);
     self->addRow(v.begin());
   }
 
   void addRowNZ(PyObject *ind, PyObject *nz, bool zero_permissive =false)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> cpp_ind(ind);
-    nta::NumpyVectorT<nta::Real ## N2> cpp_nz(nz);
+    nupic::NumpyVectorT<nupic::UInt ## N1> cpp_ind(ind);
+    nupic::NumpyVectorT<nupic::Real ## N2> cpp_nz(nz);
     self->addRow(cpp_ind.begin(), cpp_ind.end(), cpp_nz.begin(),
 		 zero_permissive);
   }
 
   void addCol(PyObject *col)
   {
-    nta::NumpyVectorT<nta::Real ## N2> cpp_col(col);
+    nupic::NumpyVectorT<nupic::Real ## N2> cpp_col(col);
     self->addCol(cpp_col.begin());
   }
 
   void addColNZ(PyObject *ind, PyObject *nz)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> cpp_ind(ind);
-    nta::NumpyVectorT<nta::Real ## N2> cpp_nz(nz);
+    nupic::NumpyVectorT<nupic::UInt ## N1> cpp_ind(ind);
+    nupic::NumpyVectorT<nupic::Real ## N2> cpp_nz(nz);
     self->addCol(cpp_ind.begin(), cpp_ind.end(), cpp_nz.begin());
   }
   
   void deleteRows(PyObject *rowIndices)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> cpp_rowIndices(rowIndices);
+    nupic::NumpyVectorT<nupic::UInt ## N1> cpp_rowIndices(rowIndices);
     self->deleteRows(cpp_rowIndices.begin(), cpp_rowIndices.end());
   }
   
   void deleteCols(PyObject *colIndices)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> cpp_colIndices(colIndices);
+    nupic::NumpyVectorT<nupic::UInt ## N1> cpp_colIndices(colIndices);
     self->deleteCols(cpp_colIndices.begin(), cpp_colIndices.end());
   }
 
-  PyObject* getRow(nta::UInt ## N1 row) const
+  PyObject* getRow(nupic::UInt ## N1 row) const
   {
-    const nta::UInt ## N1 ncols = self->nCols();
-    nta::NumpyVectorT<nta::Real ## N2> dense_row(ncols);
+    const nupic::UInt ## N1 ncols = self->nCols();
+    nupic::NumpyVectorT<nupic::Real ## N2> dense_row(ncols);
     self->getRowToDense(row, dense_row.begin());
     return dense_row.forPython();
   }
 
-  PyObject* getCol(nta::UInt ## N1 col) const
+  PyObject* getCol(nupic::UInt ## N1 col) const
   {
-    const nta::UInt ## N1 nrows = self->nRows();
-    nta::NumpyVectorT<nta::Real ## N2> dense_col(nrows);
+    const nupic::UInt ## N1 nrows = self->nRows();
+    nupic::NumpyVectorT<nupic::Real ## N2> dense_col(nrows);
     self->getColToDense(col, dense_col.begin());
     return dense_col.forPython();
   }
 
   PyObject* getDiagonal() const
   {
-    const nta::UInt ## N1 nrows = self->nRows();
-    nta::NumpyVectorT<nta::Real ## N2> diag(nrows);
+    const nupic::UInt ## N1 nrows = self->nRows();
+    nupic::NumpyVectorT<nupic::Real ## N2> diag(nrows);
     self->getDiagonalToDense(diag.begin());
     return diag.forPython();
   }
 
-  PyObject* rowNonZeros(nta::UInt ## N1 row) const 
+  PyObject* rowNonZeros(nupic::UInt ## N1 row) const
   {
-    const nta::UInt ## N1 n = self->nNonZerosOnRow(row);
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    const nupic::UInt ## N1 n = self->nNonZerosOnRow(row);
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->getRowToSparse(row, ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
-  PyObject* rowNonZeroIndices(nta::UInt ## N1 row) const 
+  PyObject* rowNonZeroIndices(nupic::UInt ## N1 row) const
   {
-    const nta::UInt ## N1 n = self->nNonZerosOnRow(row);
-    nta::NumpyVectorT<nta::UInt ## N1> ind(n);
+    const nupic::UInt ## N1 n = self->nNonZerosOnRow(row);
+    nupic::NumpyVectorT<nupic::UInt ## N1> ind(n);
     self->getRowIndicesToSparse(row, ind.begin());
     return ind.forPython();
   }
 
-  PyObject* colNonZeros(nta::UInt ## N1 col) const
+  PyObject* colNonZeros(nupic::UInt ## N1 col) const
   {
-    const nta::UInt ## N1 n = self->nNonZerosOnCol(col);
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    const nupic::UInt ## N1 n = self->nNonZerosOnCol(col);
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->getColToSparse(col, ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
   PyObject* nonZeroRows() const
   {
-    const nta::UInt ## N1 nNonZeroRows = self->nNonZeroRows();
-    nta::NumpyVectorT<nta::UInt ## N1> nzRows(nNonZeroRows);
+    const nupic::UInt ## N1 nNonZeroRows = self->nNonZeroRows();
+    nupic::NumpyVectorT<nupic::UInt ## N1> nzRows(nNonZeroRows);
     self->nonZeroRows(nzRows.begin());
     return nzRows.forPython();
   }
 
   PyObject* zeroRows() const
   {
-    const nta::UInt ## N1 nZeroRows = self->nZeroRows();
-    nta::NumpyVectorT<nta::UInt ## N1> zRows(nZeroRows);
+    const nupic::UInt ## N1 nZeroRows = self->nZeroRows();
+    nupic::NumpyVectorT<nupic::UInt ## N1> zRows(nZeroRows);
     self->zeroRows(zRows.begin());
     return zRows.forPython();
   }
 
   PyObject* nonZeroCols() const
   {
-    const nta::UInt ## N1 nNonZeroCols = self->nNonZeroCols();
-    nta::NumpyVectorT<nta::UInt ## N1> nzCols(nNonZeroCols);
+    const nupic::UInt ## N1 nNonZeroCols = self->nNonZeroCols();
+    nupic::NumpyVectorT<nupic::UInt ## N1> nzCols(nNonZeroCols);
     self->nonZeroCols(nzCols.begin());
     return nzCols.forPython();
   }
 
   PyObject* zeroCols() const
   {
-    const nta::UInt ## N1 nZeroCols = self->nZeroCols();
-    nta::NumpyVectorT<nta::UInt ## N1> zCols(nZeroCols);
+    const nupic::UInt ## N1 nZeroCols = self->nZeroCols();
+    nupic::NumpyVectorT<nupic::UInt ## N1> zCols(nZeroCols);
     self->zeroCols(zCols.begin());
     return zCols.forPython();
   }
 
   PyObject* zeroRowAndCol() const
   {
-    std::vector<nta::UInt ## N1> zrc;
-    nta::UInt ## N1 c = self->zeroRowAndCol(std::back_inserter(zrc));
-    nta::NumpyVectorT<nta::UInt ## N1> toReturn(c);
+    std::vector<nupic::UInt ## N1> zrc;
+    nupic::UInt ## N1 c = self->zeroRowAndCol(std::back_inserter(zrc));
+    nupic::NumpyVectorT<nupic::UInt ## N1> toReturn(c);
     std::copy(zrc.begin(), zrc.end(), toReturn.begin());
     return toReturn.forPython();
   }
 
   void setElements(PyObject* py_i, PyObject* py_j, PyObject* py_v)
   {
-    const nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
-    const nta::NumpyVectorT<nta::Real ## N2> v(py_v);
+    const nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
+    const nupic::NumpyVectorT<nupic::Real ## N2> v(py_v);
     self->setElements(i.begin(), i.end(), j.begin(), v.begin());
   }
 
   PyObject* getElements(PyObject* py_i, PyObject* py_j) const
   {
-    const nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
-    nta::NumpyVectorT<nta::Real ## N2> v(i.size());
+    const nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
+    nupic::NumpyVectorT<nupic::Real ## N2> v(i.size());
     self->getElements(i.begin(), i.end(), j.begin(), v.begin());
     return v.forPython();
   }
@@ -632,15 +632,15 @@ def __div__(self, other):
   // Sets on the outer product of the passed ranges.
   void setOuter(PyObject* py_i, PyObject* py_j, PyObject* py_v)
   {
-    const nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
-    const nta::NumpyMatrixT<nta::Real ## N2> v(py_v);
+    const nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
+    const nupic::NumpyMatrixT<nupic::Real ## N2> v(py_v);
     self->setOuter(i.begin(), i.end(), j.begin(), j.end(), v);
   }
 
   // Get on the outer products of the passed ranges.
   SparseMatrix ## N2 getOuter(PyObject* py_i, PyObject* py_j) const
   {
-    const nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
+    const nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
     SparseMatrix ## N2 v(i.size(), j.size());
     self->getOuter(i.begin(), i.end(), j.begin(), j.end(), v);
     return v;
@@ -651,9 +651,9 @@ def __div__(self, other):
   // or one list of triples (i,j,v).
   PyObject* getAllNonZeros(bool three_lists =false) const
   {
-    const nta::UInt ## N1 nnz = self->nNonZeros();
-    nta::NumpyVectorT<nta::UInt ## N1> rows(nnz), cols(nnz);
-    nta::NumpyVectorT<nta::Real ## N2> vals(nnz);
+    const nupic::UInt ## N1 nnz = self->nNonZeros();
+    nupic::NumpyVectorT<nupic::UInt ## N1> rows(nnz), cols(nnz);
+    nupic::NumpyVectorT<nupic::Real ## N2> vals(nnz);
 
     self->getAllNonZeros(rows.begin(), cols.begin(), vals.begin());
 
@@ -662,8 +662,8 @@ def __div__(self, other):
     if (!three_lists) {
       // Return one list of triples
       toReturn = PyTuple_New(nnz);
-      for (nta::UInt ## N1 i = 0; i != nnz; ++i) {
-	PyObject* tuple = nta::createTriplet ## N1(rows.get(i), cols.get(i), vals.get(i));
+      for (nupic::UInt ## N1 i = 0; i != nnz; ++i) {
+	PyObject* tuple = nupic::createTriplet ## N1(rows.get(i), cols.get(i), vals.get(i));
 	PyTuple_SET_ITEM(toReturn, i, tuple);
       }
     } else {
@@ -677,11 +677,11 @@ def __div__(self, other):
     return toReturn;
   }
 
-  void setAllNonZeros(nta::UInt ## N1 nrows, nta::UInt ## N1 ncols,
+  void setAllNonZeros(nupic::UInt ## N1 nrows, nupic::UInt ## N1 ncols,
 		      PyObject* py_i, PyObject* py_j, PyObject* py_v, bool sorted =true)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
-    nta::NumpyVectorT<nta::Real ## N2> v(py_v);
+    nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
+    nupic::NumpyVectorT<nupic::Real ## N2> v(py_v);
     self->setAllNonZeros(nrows, ncols,
 			 i.begin(), i.end(),
 			 j.begin(), j.end(),
@@ -689,18 +689,18 @@ def __div__(self, other):
 			 sorted);
   }
 
-  PyObject* getNonZerosInBox(nta::UInt ## N1 row_begin, nta::UInt ## N1 row_end,
-			     nta::UInt ## N1 col_begin, nta::UInt ## N1 col_end) const
+  PyObject* getNonZerosInBox(nupic::UInt ## N1 row_begin, nupic::UInt ## N1 row_end,
+			     nupic::UInt ## N1 col_begin, nupic::UInt ## N1 col_end) const
   {
-    std::vector<nta::UInt ## N1> rows, cols;
-    std::vector<nta::Real ## N2> vals;
+    std::vector<nupic::UInt ## N1> rows, cols;
+    std::vector<nupic::Real ## N2> vals;
     self->getNonZerosInBox(row_begin, row_end, col_begin, col_end,
 			   std::back_inserter(rows),
 			   std::back_inserter(cols),
 			   std::back_inserter(vals));
     PyObject* toReturn = PyList_New(rows.size());
-    for (nta::UInt ## N1 i = 0; i != rows.size(); ++i) {
-      PyObject* tuple = nta::createTriplet ## N1(rows[i], cols[i], vals[i]);
+    for (nupic::UInt ## N1 i = 0; i != rows.size(); ++i) {
+      PyObject* tuple = nupic::createTriplet ## N1(rows[i], cols[i], vals[i]);
       PyList_SET_ITEM(toReturn, i, tuple);
     }
     return toReturn;
@@ -708,13 +708,13 @@ def __div__(self, other):
 
   PyObject* tolist() const
   {
-    const nta::UInt ## N1 nnz = self->nNonZeros();
-    std::vector<nta::UInt ## N1> rows(nnz), cols(nnz);
-    nta::NumpyVectorT<nta::Real ## N2> vals(nnz);
+    const nupic::UInt ## N1 nnz = self->nNonZeros();
+    std::vector<nupic::UInt ## N1> rows(nnz), cols(nnz);
+    nupic::NumpyVectorT<nupic::Real ## N2> vals(nnz);
     self->getAllNonZeros(rows.begin(), cols.begin(), vals.begin());
 
     PyObject* ind_list = PyTuple_New(nnz);
-    for (nta::UInt32 i = 0; i != nnz; ++i) {
+    for (nupic::UInt32 i = 0; i != nnz; ++i) {
       PyObject* idx = PyTuple_New(2);
       PyTuple_SET_ITEM(idx, 0, PyInt_FromLong(rows[i]));
       PyTuple_SET_ITEM(idx, 1, PyInt_FromLong(cols[i]));
@@ -726,22 +726,22 @@ def __div__(self, other):
     return toReturn;
   }
 
-  void setSlice(nta::UInt ## N1 i_begin, nta::UInt ## N1 j_begin, 
+  void setSlice(nupic::UInt ## N1 i_begin, nupic::UInt ## N1 j_begin,
 		const SparseMatrix ## N2& other)
   {
     self->setSlice(i_begin, j_begin, other);
   }
 
-  void setSlice(nta::UInt ## N1 i_begin, nta::UInt ## N1 j_begin, 
+  void setSlice(nupic::UInt ## N1 i_begin, nupic::UInt ## N1 j_begin,
 		PyObject* py_other)
   {
-    nta::NumpyMatrixT<nta::Real ## N2> other(py_other);
+    nupic::NumpyMatrixT<nupic::Real ## N2> other(py_other);
     self->setSlice(i_begin, j_begin, other);
   }
 
   SparseMatrix ## N2
-    getSlice(nta::UInt ## N1 i_begin, nta::UInt ## N1 i_end, 
-	     nta::UInt ## N1 j_begin, nta::UInt ## N1 j_end) const
+    getSlice(nupic::UInt ## N1 i_begin, nupic::UInt ## N1 i_end,
+	     nupic::UInt ## N1 j_begin, nupic::UInt ## N1 j_end) const
   {
     SparseMatrix ## N2 other(i_end - i_begin, j_end - j_begin);
     self->getSlice(i_begin, i_end, j_begin, j_end, other);
@@ -749,8 +749,8 @@ def __div__(self, other):
   }
 
   SparseMatrix ## N2
-    getSlice2(nta::UInt ## N1 i_begin, nta::UInt ## N1 i_end, 
-	     nta::UInt ## N1 j_begin, nta::UInt ## N1 j_end) const
+    getSlice2(nupic::UInt ## N1 i_begin, nupic::UInt ## N1 i_end,
+	     nupic::UInt ## N1 j_begin, nupic::UInt ## N1 j_end) const
   {
     SparseMatrix ## N2 other(i_end - i_begin, j_end - j_begin);
     self->getSlice2(i_begin, i_end, j_begin, j_end, other);
@@ -759,32 +759,32 @@ def __div__(self, other):
 
   inline void setRowsToZero(PyObject* py_rows)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> rows(py_rows);
+    nupic::NumpyVectorT<nupic::UInt ## N1> rows(py_rows);
     self->setRowsToZero(rows.begin(), rows.end());
   }
 
   inline void setColsToZero(PyObject* py_cols)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> cols(py_cols);
+    nupic::NumpyVectorT<nupic::UInt ## N1> cols(py_cols);
     self->setColsToZero(cols.begin(), cols.end());
   }
 
   inline void setDiagonal(PyObject* py_v)
   {
-    nta::NumpyVectorT<nta::Real ## N2> v(py_v);
+    nupic::NumpyVectorT<nupic::Real ## N2> v(py_v);
     self->setDiagonal(v.begin());
   }
 
-  void incrementOnOuterWNZ(PyObject* py_i, PyObject* py_j, nta::Real ## N2 delta=1)
+  void incrementOnOuterWNZ(PyObject* py_i, PyObject* py_j, nupic::Real ## N2 delta=1)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
+    nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
     self->incrementOnOuterWNZ(i.begin(), i.end(), j.begin(), j.end(), delta);
   }
 
   void incrementOnOuterWNZWThreshold(PyObject* py_i, PyObject* py_j, 
-                                     nta::Real ## N2 threshold, nta::Real ## N2 delta=1)
+                                     nupic::Real ## N2 threshold, nupic::Real ## N2 delta=1)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> i(py_i), j(py_j);
+    nupic::NumpyVectorT<nupic::UInt ## N1> i(py_i), j(py_j);
     self->incrementOnOuterWNZWThreshold(i.begin(), i.end(), j.begin(), j.end(), 
                                         threshold, delta);
   }
@@ -792,7 +792,7 @@ def __div__(self, other):
   // Returns the number of non-zeros per row, for all rows
   PyObject* nNonZerosPerRow() const
   {
-    nta::NumpyVectorT<nta::UInt ## N1> nnzpr(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt ## N1> nnzpr(self->nRows());
     self->nNonZerosPerRow(nnzpr.begin());
     return nnzpr.forPython();
   }
@@ -800,21 +800,21 @@ def __div__(self, other):
   // Returns the number of non-zeros per col, for all cols
   PyObject* nNonZerosPerCol() const
   {
-    nta::NumpyVectorT<nta::UInt ## N1> nnzpc(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt ## N1> nnzpc(self->nCols());
     self->nNonZerosPerCol(nnzpc.begin());
     return nnzpc.forPython();
   }
 
   PyObject* rowBandwidths() const
   {
-    nta::NumpyVectorT<nta::UInt ## N1> nnzpc(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt ## N1> nnzpc(self->nRows());
     self->rowBandwidths(nnzpc.begin());
     return nnzpc.forPython();
   }
 
   PyObject* colBandwidths() const
   {
-    nta::NumpyVectorT<nta::UInt ## N1> nnzpc(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt ## N1> nnzpc(self->nCols());
     self->colBandwidths(nnzpc.begin());
     return nnzpc.forPython();
   }
@@ -822,8 +822,8 @@ def __div__(self, other):
   SparseMatrix ## N1
     nNonZerosPerBox(PyObject* box_i, PyObject* box_j) const
     {
-      nta::NumpyVectorT<nta::UInt ## N1> bounds_i(box_i);
-      nta::NumpyVectorT<nta::UInt ## N1> bounds_j(box_j);
+      nupic::NumpyVectorT<nupic::UInt ## N1> bounds_i(box_i);
+      nupic::NumpyVectorT<nupic::UInt ## N1> bounds_j(box_j);
       SparseMatrix ## N1 result(bounds_i.size(), bounds_j.size());
       self->nNonZerosPerBox(bounds_i.begin(), bounds_i.end(),
 			    bounds_j.begin(), bounds_j.end(), 
@@ -833,123 +833,123 @@ def __div__(self, other):
 
   PyObject* max() const
   {
-    nta::UInt ## N1 max_row, max_col;
-    nta::Real ## N2 max_val;
+    nupic::UInt ## N1 max_row, max_col;
+    nupic::Real ## N2 max_val;
     self->max(max_row, max_col, max_val);
-    return nta::createTriplet ## N1(max_row, max_col, max_val);
+    return nupic::createTriplet ## N1(max_row, max_col, max_val);
   }
 
   PyObject* min() const
   {
-    nta::UInt ## N1 min_row, min_col;
-    nta::Real ## N2 min_val;
+    nupic::UInt ## N1 min_row, min_col;
+    nupic::Real ## N2 min_val;
     self->min(min_row, min_col, min_val);
-    return nta::createTriplet ## N1(min_row, min_col, min_val);
+    return nupic::createTriplet ## N1(min_row, min_col, min_val);
   }
 
-  PyObject* rowMin(nta::UInt ## N1 row_index) const
+  PyObject* rowMin(nupic::UInt ## N1 row_index) const
   {
-    nta::UInt ## N1 idx;
-    nta::Real ## N2 min_val;
+    nupic::UInt ## N1 idx;
+    nupic::Real ## N2 min_val;
     self->rowMin(row_index, idx, min_val);
-    return nta::createPair ## N1(idx, min_val);
+    return nupic::createPair ## N1(idx, min_val);
   }
 	
-  PyObject* rowMax(nta::UInt ## N1 row_index) const
+  PyObject* rowMax(nupic::UInt ## N1 row_index) const
   {
-    nta::UInt ## N1 idx;
-    nta::Real ## N2 max_val;
+    nupic::UInt ## N1 idx;
+    nupic::Real ## N2 max_val;
     self->rowMax(row_index, idx, max_val);
-    return nta::createPair ## N1(idx, max_val);
+    return nupic::createPair ## N1(idx, max_val);
   }
 	
-  PyObject* colMin(nta::UInt ## N1 col_index) const
+  PyObject* colMin(nupic::UInt ## N1 col_index) const
   {
-    nta::UInt ## N1 idx;
-    nta::Real ## N2 min_val;
+    nupic::UInt ## N1 idx;
+    nupic::Real ## N2 min_val;
     self->colMin(col_index, idx, min_val);
-    return nta::createPair ## N1(idx, min_val);
+    return nupic::createPair ## N1(idx, min_val);
   }
 	
-  PyObject* colMax(nta::UInt ## N1 row_index) const
+  PyObject* colMax(nupic::UInt ## N1 row_index) const
   {
-    nta::UInt ## N1 idx;
-    nta::Real ## N2 max_val;
+    nupic::UInt ## N1 idx;
+    nupic::Real ## N2 max_val;
     self->colMax(row_index, idx, max_val);
-    return nta::createPair ## N1(idx, max_val);
+    return nupic::createPair ## N1(idx, max_val);
   }
 
   PyObject* rowMax() const
   {
-    nta::UInt ## N1 n = self->nRows();
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    nupic::UInt ## N1 n = self->nRows();
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->rowMax(ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
   PyObject* rowMin() const
   {
-    nta::UInt ## N1 n = self->nRows();
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    nupic::UInt ## N1 n = self->nRows();
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->rowMin(ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
   PyObject* colMax() const
   {
-    nta::UInt ## N1 n = self->nCols();
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    nupic::UInt ## N1 n = self->nCols();
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->colMax(ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
   PyObject* colMin() const
   {
-    nta::UInt ## N1 n = self->nCols();
-    std::vector<nta::UInt ## N1> ind(n);
-    nta::NumpyVectorT<nta::Real ## N2> val(n);
+    nupic::UInt ## N1 n = self->nCols();
+    std::vector<nupic::UInt ## N1> ind(n);
+    nupic::NumpyVectorT<nupic::Real ## N2> val(n);
     self->colMin(ind.begin(), val.begin());
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt ## N1 ## Vector(ind.begin(), ind.end()));
     PyTuple_SET_ITEM(toReturn, 1, val.forPython());
     return toReturn;
   }
 
-  PyObject* boxMin(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-		   nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col) const
+  PyObject* boxMin(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+		   nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col) const
   {
-    nta::UInt ## N1 min_row, min_col;
-    nta::Real ## N2 min_val;
+    nupic::UInt ## N1 min_row, min_col;
+    nupic::Real ## N2 min_val;
     self->boxMin(begin_row, end_row, begin_col, end_col, min_row, min_col, min_val);
-    return nta::createTriplet ## N1(min_row, min_col, min_val);
+    return nupic::createTriplet ## N1(min_row, min_col, min_val);
   }
 
-  PyObject* boxMax(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-		   nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col) const
+  PyObject* boxMax(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+		   nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col) const
   {
-    nta::UInt ## N1 max_row, max_col;
-    nta::Real ## N2 max_val;
+    nupic::UInt ## N1 max_row, max_col;
+    nupic::Real ## N2 max_val;
     self->boxMax(begin_row, end_row, begin_col, end_col, max_row, max_col, max_val);
-    return nta::createTriplet ## N1(max_row, max_col, max_val);
+    return nupic::createTriplet ## N1(max_row, max_col, max_val);
   }
 
-  PyObject* whereEqual(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-		       nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col,
-		       const nta::Real ## N2& value) const
+  PyObject* whereEqual(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+		       nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col,
+		       const nupic::Real ## N2& value) const
   {
-    std::vector<nta::UInt ## N1> rows, cols;
+    std::vector<nupic::UInt ## N1> rows, cols;
     self->whereEqual(begin_row, end_row, begin_col, end_col, value, 
 		     std::back_inserter(rows), std::back_inserter(cols));
 
@@ -965,16 +965,16 @@ def __div__(self, other):
     return toReturn;
   }
 
-  PyObject* whereGreater(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-			 nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col,
-			 const nta::Real ## N2& value) const
+  PyObject* whereGreater(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+			 nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col,
+			 const nupic::Real ## N2& value) const
   {
-    std::vector<nta::UInt ## N1> rows, cols;
+    std::vector<nupic::UInt ## N1> rows, cols;
     self->whereGreater(begin_row, end_row, begin_col, end_col, value, 
 		       std::back_inserter(rows), std::back_inserter(cols));
 
     int dims[] = {static_cast<int>(rows.size()), 2};
-    nta::NumpyMatrixT<nta::UInt ## N1> toReturn(dims);
+    nupic::NumpyMatrixT<nupic::UInt ## N1> toReturn(dims);
     for (size_t i = 0; i != rows.size(); ++i) {  
       toReturn.set(i, 0, rows[i]);
       toReturn.set(i, 1, cols[i]);
@@ -994,17 +994,17 @@ def __div__(self, other):
     */
   }
 
-  PyObject* whereGreaterEqual(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-                              nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col,
-                              const nta::Real ## N2& value) const
+  PyObject* whereGreaterEqual(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+                              nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col,
+                              const nupic::Real ## N2& value) const
   {
-    std::vector<nta::UInt ## N1> rows, cols;
+    std::vector<nupic::UInt ## N1> rows, cols;
     self->whereGreaterEqual(begin_row, end_row, begin_col, end_col, value, 
                             std::back_inserter(rows), std::back_inserter(cols));
     
     
     int dims[] = {static_cast<int>(rows.size()), 2};
-    nta::NumpyMatrixT<nta::UInt ## N1> toReturn(dims);
+    nupic::NumpyMatrixT<nupic::UInt ## N1> toReturn(dims);
     for (size_t i = 0; i != rows.size(); ++i) {  
       toReturn.set(i, 0, rows[i]);
       toReturn.set(i, 1, cols[i]);
@@ -1025,136 +1025,136 @@ def __div__(self, other):
 
   }
 
-  nta::UInt32 countWhereGreaterOrEqual(nta::UInt ## N1 begin_row, nta::UInt ## N1 end_row,
-                                       nta::UInt ## N1 begin_col, nta::UInt ## N1 end_col,
-                                       const nta::Real ## N2& value) const
+  nupic::UInt32 countWhereGreaterOrEqual(nupic::UInt ## N1 begin_row, nupic::UInt ## N1 end_row,
+                                       nupic::UInt ## N1 begin_col, nupic::UInt ## N1 end_col,
+                                       const nupic::Real ## N2& value) const
   {
-    std::vector<nta::UInt ## N1> rows, cols;
+    std::vector<nupic::UInt ## N1> rows, cols;
     return self->countWhereGreaterEqual(begin_row, end_row, begin_col, end_col, value);
   }
 
   void permuteRows(PyObject* py_permutation)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> p(py_permutation);
+    nupic::NumpyVectorT<nupic::UInt ## N1> p(py_permutation);
     self->permuteRows(p.begin());
   }
 
   void permuteCols(PyObject* py_permutation)
   {
-    nta::NumpyVectorT<nta::UInt ## N1> p(py_permutation);
+    nupic::NumpyVectorT<nupic::UInt ## N1> p(py_permutation);
     self->permuteCols(p.begin());
   }
 
   PyObject* rowSums() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nRows());
     self->rowSums(m.begin());
     return m.forPython();
   }
 
   PyObject* colSums() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nCols());
     self->colSums(m.begin());
     return m.forPython();
   }
 
   PyObject* addRows(PyObject* whichRows) const 
   {
-    nta::NumpyVectorT<nta::UInt ## N1> indicator(whichRows);
-    nta::NumpyVectorT<nta::Real ## N2> res(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt ## N1> indicator(whichRows);
+    nupic::NumpyVectorT<nupic::Real ## N2> res(self->nCols());
     self->addRows(indicator.begin(), indicator.end(), res.begin(), res.end());
     return res.forPython();
   }
 
   PyObject* addListOfRows(PyObject* py_whichRows) const 
   {
-    nta::NumpyVectorT<nta::UInt ## N1> whichRows(py_whichRows);
-    nta::NumpyVectorT<nta::Real ## N2> res(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt ## N1> whichRows(py_whichRows);
+    nupic::NumpyVectorT<nupic::Real ## N2> res(self->nCols());
     self->addListOfRows(whichRows.begin(), whichRows.end(), res.begin(), res.end());
     return res.forPython();
   }
 
   PyObject* rowProds() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nRows());
     self->rowProds(m.begin());
     return m.forPython();
   }
 
   PyObject* colProds() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nCols());
     self->colProds(m.begin());
     return m.forPython();
   }
 
   PyObject* logRowSums() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nRows());
     self->logRowSums(m.begin(), m.end());
     return m.forPython();
   }
 
   PyObject* logColSums() const
   {
-    nta::NumpyVectorT<nta::Real ## N2> m(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> m(self->nCols());
     self->logColSums(m.begin(), m.end());
     return m.forPython();
   }
 
   void scaleRows(PyObject* py_s)
   {
-    nta::NumpyVectorT<nta::Real ## N2> s(py_s);
+    nupic::NumpyVectorT<nupic::Real ## N2> s(py_s);
     self->scaleRows(s.begin());
   }
 
   void scaleCols(PyObject* py_s)
   {
-    nta::NumpyVectorT<nta::Real ## N2> s(py_s);
+    nupic::NumpyVectorT<nupic::Real ## N2> s(py_s);
     self->scaleCols(s.begin());
   }
 
   void normalizeBlockByRows(PyObject* py_inds, 
-			    nta::Real ## N2 val=-1.0, nta::Real ## N2 eps_n=1e-6)
+			    nupic::Real ## N2 val=-1.0, nupic::Real ## N2 eps_n=1e-6)
   {
-    nta::NumpyVectorT<nta::UInt ## N2> inds(py_inds);
+    nupic::NumpyVectorT<nupic::UInt ## N2> inds(py_inds);
     self->normalizeBlockByRows(inds.begin(), inds.end(), val, eps_n);
   }
 
   void normalizeBlockByRows_binary(PyObject* py_inds, 
-				   nta::Real ## N2 val=-1.0, nta::Real ## N2 eps_n=1e-6)
+				   nupic::Real ## N2 val=-1.0, nupic::Real ## N2 eps_n=1e-6)
   {
-    nta::NumpyVectorT<nta::UInt ## N2> inds(py_inds);
+    nupic::NumpyVectorT<nupic::UInt ## N2> inds(py_inds);
     self->normalizeBlockByRows_binary(inds.begin(), inds.end(), val, eps_n);
   }
 
-  void axby(nta::UInt ## N1 row, nta::Real ## N2 a, nta::Real ## N2 b, PyObject *xIn)
+  void axby(nupic::UInt ## N1 row, nupic::Real ## N2 a, nupic::Real ## N2 b, PyObject *xIn)
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     self->axby(row, a, b, x_begin);
   }
 
-  void axby(nta::Real ## N2 a, nta::Real ## N2 b, PyObject *xIn)
+  void axby(nupic::Real ## N2 a, nupic::Real ## N2 b, PyObject *xIn)
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     self->axby(a, b, x_begin);
   }
 
   // Computes the dot product of the given row with the given vector.
-  nta::Real ## N2 rightVecProd(nta::UInt ## N1 row, PyObject *xIn) const
+  nupic::Real ## N2 rightVecProd(nupic::UInt ## N1 row, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     return self->rightVecProd(row, x.begin());
   }
 
   // Regular matrix vector multiplication, with allocation of the result.
   inline PyObject* rightVecProd(PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(self->nRows());
     self->rightVecProd(x.begin(), y.begin());
     return y.forPython();
   }
@@ -1165,35 +1165,35 @@ def __div__(self, other):
   inline void rightVecProd_fast(PyObject *xIn, PyObject *yOut) const
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     PyArrayObject* y = (PyArrayObject*) yOut;
-    nta::Real ## N2* y_begin = (nta::Real ## N2*)(y->data);
+    nupic::Real ## N2* y_begin = (nupic::Real ## N2*)(y->data);
     self->rightVecProd(x_begin, y_begin);
   }
 
   // Matrix vector product on the right side, only for some rows.
   PyObject* rightVecProd(PyObject* pyRows, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::UInt ## N1> rows(pyRows);
-    nta::NumpyVectorT<nta::Real ## N2> y(rows.size());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::UInt ## N1> rows(pyRows);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(rows.size());
     self->rightVecProd(rows.begin(), rows.end(), x.begin(), y.begin());
     return y.forPython();
   }
 
   SparseMatrix ## N2 
-    blockRightVecProd(nta::UInt ## N1 block_size, PyObject* xIn) const
+    blockRightVecProd(nupic::UInt ## N1 block_size, PyObject* xIn) const
   {
     SparseMatrix ## N2 result;
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->blockRightVecProd(block_size, x.begin(), result);
     return result;
   }
 
   // Dot product of column col and vector xIn. 
-  nta::Real ## N2 leftVecProd(nta::UInt ## N1 col, PyObject *xIn) const
+  nupic::Real ## N2 leftVecProd(nupic::UInt ## N1 col, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     return self->leftVecProd(col, x.begin());
   }
 
@@ -1201,16 +1201,16 @@ def __div__(self, other):
   // each column of the matrix.
   PyObject* leftVecProd(PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> y(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(self->nCols());
     self->leftVecProd(x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* leftVecProd(PyObject* pyCols, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::UInt ## N2> cols(pyCols);
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(cols.size());
+    nupic::NumpyVectorT<nupic::UInt ## N2> cols(pyCols);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(cols.size());
     self->leftVecProd(cols.begin(), cols.end(), x.begin(), y.begin());
     return y.forPython();
   }
@@ -1218,108 +1218,108 @@ def __div__(self, other):
   // Binary search for the columns.
   PyObject* leftVecProd_binary(PyObject* pyCols, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::UInt ## N2> cols(pyCols);
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(cols.size());
+    nupic::NumpyVectorT<nupic::UInt ## N2> cols(pyCols);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(cols.size());
     self->leftVecProd_binary(cols.begin(), cols.end(), x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* rightDenseMatProd(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = self->nRows();
     nRowsCols[1] = m.nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     self->rightDenseMatProd(m,r);
     return r.forPython();
   }
 
   PyObject* rightDenseMatProdAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = self->nRows();
     nRowsCols[1] = m.nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     self->rightDenseMatProdAtNZ(m,r);
     return r.forPython();
   }
 
   PyObject* denseMatExtract(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = self->nRows();
     nRowsCols[1] = m.nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     self->denseMatExtract(m,r);
     return r.forPython();
   }
 
   PyObject* leftDenseMatProd(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecProd(m.begin(i), r.begin(i));
     return r.forPython();
   }
 
-  void elementRowAdd(nta::UInt ## N1 i, PyObject* xIn)
+  void elementRowAdd(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementRowAdd(i, x.begin());
   }
 
-  void elementRowSubtract(nta::UInt ## N1 i, PyObject* xIn)
+  void elementRowSubtract(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementRowSubtract(i, x.begin());
   }
 
-  void elementRowMultiply(nta::UInt ## N1 i, PyObject* xIn)
+  void elementRowMultiply(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementRowMultiply(i, x.begin());
   }
 
-  void elementRowDivide(nta::UInt ## N1 i, PyObject* xIn)
+  void elementRowDivide(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementRowDivide(i, x.begin());
   }
 
-  void elementColAdd(nta::UInt ## N1 i, PyObject* xIn)
+  void elementColAdd(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementColAdd(i, x.begin());
   }
 
-  void elementColSubtract(nta::UInt ## N1 i, PyObject* xIn)
+  void elementColSubtract(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementColSubtract(i, x.begin());
   }
 
-  void elementColMultiply(nta::UInt ## N1 i, PyObject* xIn)
+  void elementColMultiply(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementColMultiply(i, x.begin());
   }
 
-  void elementColDivide(nta::UInt ## N1 i, PyObject* xIn)
+  void elementColDivide(nupic::UInt ## N1 i, PyObject* xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     self->elementColDivide(i, x.begin());
   }
 
   void elementMultiply(PyObject* mIn)
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     self->elementMultiply(m.begin(0));
   }
 
@@ -1328,14 +1328,14 @@ def __div__(self, other):
   //--------------------------------------------------------------------------------
   PyObject* rightVecProdAtNZ(PyObject* xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(self->nRows());
     self->rightVecProdAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* leftVecProdAtNZ(PyObject* xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(self->nCols());
     self->leftVecProdAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
@@ -1346,17 +1346,17 @@ def __div__(self, other):
   // on each row. 
   inline PyObject* rightVecSumAtNZ(PyObject* xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(self->nRows());
     self->rightVecSumAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
   
   inline PyObject* 
-    rightVecSumAtNZGtThreshold(PyObject* xIn, nta::Real ## 32 threshold) const
+    rightVecSumAtNZGtThreshold(PyObject* xIn, nupic::Real ## 32 threshold) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(self->nRows());
     self->rightVecSumAtNZGtThreshold(x.begin(), y.begin(), threshold);
     return y.forPython();
   }
@@ -1369,9 +1369,9 @@ def __div__(self, other):
   inline void rightVecSumAtNZ_fast(PyObject *xIn, PyObject *yOut) const
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     PyArrayObject* y = (PyArrayObject*) yOut;
-    nta::Real ## N2* y_begin = (nta::Real ## N2*)(y->data);
+    nupic::Real ## N2* y_begin = (nupic::Real ## N2*)(y->data);
     self->rightVecSumAtNZ(x_begin, y_begin);
   }
 
@@ -1380,8 +1380,8 @@ def __div__(self, other):
   // the multiplications. Allocates the result.
   inline PyObject* leftVecSumAtNZ(PyObject* xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> y(self->nCols());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> y(self->nCols());
     self->leftVecSumAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
@@ -1394,29 +1394,29 @@ def __div__(self, other):
   inline void leftVecSumAtNZ_fast(PyObject *xIn, PyObject *yOut) const
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     PyArrayObject* y = (PyArrayObject*) yOut;
-    nta::Real ## N2* y_begin = (nta::Real ## N2*)(y->data);
+    nupic::Real ## N2* y_begin = (nupic::Real ## N2*)(y->data);
     self->leftVecSumAtNZ(x_begin, y_begin);
   }
 
    inline void
-    rightVecSumAtNZGtThreshold_fast(PyObject* xIn, PyObject *yOut, nta::Real ## 32 threshold) const
+    rightVecSumAtNZGtThreshold_fast(PyObject* xIn, PyObject *yOut, nupic::Real ## 32 threshold) const
   {
     PyArrayObject* x = (PyArrayObject*) xIn;
-    nta::Real ## N2* x_begin = (nta::Real ## N2*)(x->data);
+    nupic::Real ## N2* x_begin = (nupic::Real ## N2*)(x->data);
     PyArrayObject* y = (PyArrayObject*) yOut;
-    nta::Real ## N2* y_begin = (nta::Real ## N2*)(y->data);
+    nupic::Real ## N2* y_begin = (nupic::Real ## N2*)(y->data);
     self->rightVecSumAtNZGtThreshold(x_begin, y_begin, threshold);
   }
 
   PyObject* rightDenseMatProdAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nRows();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->rightVecProdAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1424,11 +1424,11 @@ def __div__(self, other):
 
   PyObject* leftDenseMatProdAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecProdAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1436,11 +1436,11 @@ def __div__(self, other):
 
   PyObject* rightDenseMatSumAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nRows();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->rightVecSumAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1448,11 +1448,11 @@ def __div__(self, other):
 
   PyObject* leftDenseMatSumAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecSumAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1460,11 +1460,11 @@ def __div__(self, other):
 
   PyObject* rightDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nRows();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->rightVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1472,11 +1472,11 @@ def __div__(self, other):
 
   PyObject* leftDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real ## N2> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real ## N2> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real ## N2> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real ## N2> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -1484,79 +1484,79 @@ def __div__(self, other):
 
   PyObject* vecArgMaxAtNZ(PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::UInt ## N1> y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::UInt ## N1> y(self->nRows());
     self->vecArgMaxAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* vecMaxAtNZ(PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(self->nRows());
     self->vecMaxAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
 
-  PyObject* rowVecProd(PyObject* xIn, nta::Real ## N2 lb =nta::Epsilon) const
+  PyObject* rowVecProd(PyObject* xIn, nupic::Real ## N2 lb =nupic::Epsilon) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(self->nRows());
     self->rowVecProd(x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* vecMaxProd(PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn), y(self->nRows());
     self->vecMaxProd(x.begin(), y.begin());
     return y.forPython();
   }
 
   PyObject* vecArgMaxProd(PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::UInt ## N1> y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::UInt ## N1> y(self->nRows());
     self->vecArgMaxProd(x.begin(), y.begin());
     return y.forPython();
   }
 
-  PyObject* getNonZerosSorted(nta::Int n =-1, bool ascending_values =true) const
+  PyObject* getNonZerosSorted(nupic::Int n =-1, bool ascending_values =true) const
   {
-    typedef nta::ijv<nta::UInt ## N1, nta::Real ## N2> IJV;
+    typedef nupic::ijv<nupic::UInt ## N1, nupic::Real ## N2> IJV;
 
-    nta::UInt ## N1 nnz = self->nNonZeros();
-    nta::UInt ## N1 N = n == -1 ? nnz : n;
+    nupic::UInt ## N1 nnz = self->nNonZeros();
+    nupic::UInt ## N1 N = n == -1 ? nnz : n;
     std::vector<IJV> ijvs(N);
     if (ascending_values)
       self->getNonZerosSorted(ijvs.begin(), N, IJV::greater_value());
     else
       self->getNonZerosSorted(ijvs.begin(), N, IJV::less_value());
     PyObject* toReturn = PyTuple_New(N);
-    for (nta::UInt ## N1 i = 0; i != N; ++i) {
+    for (nupic::UInt ## N1 i = 0; i != N; ++i) {
       PyObject* tuple = 
-	nta::createTriplet ## N1(ijvs[i].i(), ijvs[i].j(), ijvs[i].v());
+	nupic::createTriplet ## N1(ijvs[i].i(), ijvs[i].j(), ijvs[i].v());
       PyTuple_SET_ITEM(toReturn, i, tuple);
     }
     return toReturn;
   }
 
   //--------------------------------------------------------------------------------
-  PyObject* threshold(nta::Real ## N2 threshold, bool getCuts=false)
+  PyObject* threshold(nupic::Real ## N2 threshold, bool getCuts=false)
   {
     if (!getCuts) {
       self->threshold(threshold);
       return NULL;
     } 
 
-    std::vector<nta::UInt ## N1> cut_i, cut_j;
-    std::vector<nta::Real ## N2> cut_nz;
-    nta::UInt ## N1 c = 0;
+    std::vector<nupic::UInt ## N1> cut_i, cut_j;
+    std::vector<nupic::Real ## N2> cut_nz;
+    nupic::UInt ## N1 c = 0;
     c = self->threshold(threshold, 
 			std::back_inserter(cut_i),
 			std::back_inserter(cut_j),
 			std::back_inserter(cut_nz));
     PyObject* toReturn = PyTuple_New(c);
-    for (nta::UInt ## N1 i = 0; i != c; ++i) {
-      PyObject* tuple = nta::createTriplet ## N1(cut_i[i], cut_j[i], cut_nz[i]);
+    for (nupic::UInt ## N1 i = 0; i != c; ++i) {
+      PyObject* tuple = nupic::createTriplet ## N1(cut_i[i], cut_j[i], cut_nz[i]);
       PyTuple_SET_ITEM(toReturn, i, tuple);
     }
     return toReturn;
@@ -1604,16 +1604,16 @@ SparseMatrix_(32, 32, 32, 64)
 
   /*
 void _copyFrom__SparseMatrix64(
-    const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &input,
-    nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > &output
+    const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &input,
+    nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > &output
   )
 {
   output.copy(input);
 }
 
 void _copyFrom__SparseMatrix32(
-    const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > &input,
-    nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &output
+    const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > &input,
+    nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &output
   )
 {
   output.copy(input);
@@ -1621,58 +1621,58 @@ void _copyFrom__SparseMatrix32(
 
 void aX_plus_bX_elementMultiply_Y(
     double a,
-    nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &X,
+    nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &X,
     double b,
-    const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > &Y
+    const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > &Y
   )
 {
-  nta::SparseMatrixAlgorithms::aX_plus_bX_elementMultiply_Y(a, X, b, Y);
+  nupic::SparseMatrixAlgorithms::aX_plus_bX_elementMultiply_Y(a, X, b, Y);
 }
 
 void aX_plus_bX_elementMultiply_Y(
     double a,
-    nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &X,
+    nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &X,
     double b,
-    const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &Y
+    const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &Y
   )
 {
-  nta::SparseMatrixAlgorithms::aX_plus_bX_elementMultiply_Y(a, X, b, Y);
+  nupic::SparseMatrixAlgorithms::aX_plus_bX_elementMultiply_Y(a, X, b, Y);
 }
   */
 
 PyObject* 
-kthroot_product(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > & sm, nta::UInt32 segment_size, PyObject* xIn, nta::Real32 threshold)
+kthroot_product(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > & sm, nupic::UInt32 segment_size, PyObject* xIn, nupic::Real32 threshold)
 {
-  nta::NumpyVectorT<nta::Real32> x(xIn), y(sm.nRows());
-  nta::SparseMatrixAlgorithms::kthroot_product(sm, segment_size, x.begin(), y.begin(), threshold);
+  nupic::NumpyVectorT<nupic::Real32> x(xIn), y(sm.nRows());
+  nupic::SparseMatrixAlgorithms::kthroot_product(sm, segment_size, x.begin(), y.begin(), threshold);
   return y.forPython();
 }
 
 /*
 PyObject* 
-kthroot_product(const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > & sm, nta::UInt32 segment_size, PyObject* xIn, nta::Real64 threshold)
+kthroot_product(const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > & sm, nupic::UInt32 segment_size, PyObject* xIn, nupic::Real64 threshold)
 {
-  nta::NumpyVectorT<nta::Real64> x(xIn), y(sm.nRows());
-  nta::SparseMatrixAlgorithms::kthroot_product(sm, segment_size, x.begin(), y.begin(), threshold);
+  nupic::NumpyVectorT<nupic::Real64> x(xIn), y(sm.nRows());
+  nupic::SparseMatrixAlgorithms::kthroot_product(sm, segment_size, x.begin(), y.begin(), threshold);
   return y.forPython();
 }
 
-PyObject* sparseRightVecProd(const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& a,
-                             nta::UInt32 m, nta::UInt32 n,
+PyObject* sparseRightVecProd(const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& a,
+                             nupic::UInt32 m, nupic::UInt32 n,
                              PyObject* x)
 {
-  nta::NumpyVectorT<nta::Real64> xx(x), yy(a.nRows());
-  nta::SparseMatrixAlgorithms::sparseRightVecProd(a, m, n, xx.begin(), yy.begin());
+  nupic::NumpyVectorT<nupic::Real64> xx(x), yy(a.nRows());
+  nupic::SparseMatrixAlgorithms::sparseRightVecProd(a, m, n, xx.begin(), yy.begin());
   return yy.forPython();
 }
 */
 
-PyObject* sparseRightVecProd(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& a,
-                             nta::UInt32 m, nta::UInt32 n,
+PyObject* sparseRightVecProd(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& a,
+                             nupic::UInt32 m, nupic::UInt32 n,
                              PyObject* x)
 {
-  nta::NumpyVectorT<nta::Real32> xx(x), yy(a.nRows());
-  nta::SparseMatrixAlgorithms::sparseRightVecProd(a, m, n, xx.begin(), yy.begin());
+  nupic::NumpyVectorT<nupic::Real32> xx(x), yy(a.nRows());
+  nupic::SparseMatrixAlgorithms::sparseRightVecProd(a, m, n, xx.begin(), yy.begin());
   return yy.forPython();
 }
 
@@ -1682,34 +1682,34 @@ PyObject* sparseRightVecProd(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta
 inline bool isZero_01(PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  return nta::isZero_01(begin, end);
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  return nupic::isZero_01(begin, end);
 }
 
 //--------------------------------------------------------------------------------
 // A function that sums the elements in a dense range, faster than numpy and C++.
 // Uses SIMD instructions in asm.
 //--------------------------------------------------------------------------------
-inline nta::Real32 dense_vector_sum(PyObject* py_x)
+inline nupic::Real32 dense_vector_sum(PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  return nta::sum(begin, end);
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  return nupic::sum(begin, end);
 }
 
 //--------------------------------------------------------------------------------
 // A function that binarizes a dense vector.
 //--------------------------------------------------------------------------------
-inline PyObject* binarize_with_threshold(nta::Real32 threshold, PyObject* py_x)
+inline PyObject* binarize_with_threshold(nupic::Real32 threshold, PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  nta::NumpyVectorT<nta::Real32> y(end - begin);
-  nta::UInt32 c = 
-    nta::binarize_with_threshold(threshold, begin, end, y.begin(), y.end());
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  nupic::NumpyVectorT<nupic::Real32> y(end - begin);
+  nupic::UInt32 c =
+    nupic::binarize_with_threshold(threshold, begin, end, y.begin(), y.end());
   PyObject* toReturn = PyTuple_New(2);
   PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(c));
   PyTuple_SET_ITEM(toReturn, 1, y.forPython());
@@ -1720,41 +1720,41 @@ inline PyObject* binarize_with_threshold(nta::Real32 threshold, PyObject* py_x)
 // Functions on 2D dense arrays of 0/1
 //--------------------------------------------------------------------------------
 inline PyObject* 
-nonZeroRowsIndicator_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObject* py_x)
+nonZeroRowsIndicator_01(nupic::UInt32 nrows, nupic::UInt32 ncols, PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  nta::NumpyVectorT<nta::UInt32> ind(nrows);
-  nta::nonZeroRowsIndicator_01(nrows, ncols, begin, end, ind.begin(), ind.end());
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  nupic::NumpyVectorT<nupic::UInt32> ind(nrows);
+  nupic::nonZeroRowsIndicator_01(nrows, ncols, begin, end, ind.begin(), ind.end());
   return ind.forPython();
 }
 
 inline PyObject* 
-nonZeroColsIndicator_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObject* py_x)
+nonZeroColsIndicator_01(nupic::UInt32 nrows, nupic::UInt32 ncols, PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  nta::NumpyVectorT<nta::UInt32> ind(ncols);
-  nta::nonZeroColsIndicator_01(nrows, ncols, begin, end, ind.begin(), ind.end());
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  nupic::NumpyVectorT<nupic::UInt32> ind(ncols);
+  nupic::nonZeroColsIndicator_01(nrows, ncols, begin, end, ind.begin(), ind.end());
   return ind.forPython();
 }
 
-inline nta::UInt32 nNonZeroRows_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObject* py_x)
+inline nupic::UInt32 nNonZeroRows_01(nupic::UInt32 nrows, nupic::UInt32 ncols, PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  return nta::nNonZeroRows_01(nrows, ncols, begin, end);
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  return nupic::nNonZeroRows_01(nrows, ncols, begin, end);
 }
 
-inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObject* py_x)
+inline nupic::UInt32 nNonZeroCols_01(nupic::UInt32 nrows, nupic::UInt32 ncols, PyObject* py_x)
 {
   PyArrayObject* x = (PyArrayObject*) py_x;
-  nta::Real32* begin = (nta::Real32*)(x->data);
-  nta::Real32* end = begin + x->dimensions[0];
-  return nta::nNonZeroCols_01(nrows, ncols, begin, end);
+  nupic::Real32* begin = (nupic::Real32*)(x->data);
+  nupic::Real32* end = begin + x->dimensions[0];
+  return nupic::nNonZeroCols_01(nrows, ncols, begin, end);
 }
 
 //--------------------------------------------------------------------------------
@@ -1764,10 +1764,10 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
 %inline {
 
   //--------------------------------------------------------------------------------
-  PyObject* matrix_entropy(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& sm, nta::Real32 s =1.0)
+  PyObject* matrix_entropy(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& sm, nupic::Real32 s =1.0)
   {
-    nta::NumpyVectorT<nta::Real32> e_rows(sm.nRows()), e_cols(sm.nCols());
-    nta::SparseMatrixAlgorithms::matrix_entropy(sm, 
+    nupic::NumpyVectorT<nupic::Real32> e_rows(sm.nRows()), e_cols(sm.nCols());
+    nupic::SparseMatrixAlgorithms::matrix_entropy(sm,
 						e_rows.begin(), e_rows.end(),
 						e_cols.begin(), e_cols.end(),
 						s);
@@ -1779,10 +1779,10 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
 
   //--------------------------------------------------------------------------------
   /*
-  PyObject* matrix_entropy(const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& sm, nta::Real64 s =1.0)
+  PyObject* matrix_entropy(const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& sm, nupic::Real64 s =1.0)
   {
-    nta::NumpyVectorT<nta::Real64> e_rows(sm.nRows()), e_cols(sm.nCols());
-    nta::SparseMatrixAlgorithms::matrix_entropy(sm, 
+    nupic::NumpyVectorT<nupic::Real64> e_rows(sm.nRows()), e_cols(sm.nCols());
+    nupic::SparseMatrixAlgorithms::matrix_entropy(sm,
 						e_rows.begin(), e_rows.end(),
 						e_cols.begin(), e_cols.end(),
 						s);
@@ -1794,189 +1794,189 @@ inline nta::UInt32 nNonZeroCols_01(nta::UInt32 nrows, nta::UInt32 ncols, PyObjec
   */
 
   //--------------------------------------------------------------------------------
-  PyObject* smoothVecMaxProd(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& sm, nta::Real32 k, PyObject *xIn)
+  PyObject* smoothVecMaxProd(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& sm, nupic::Real32 k, PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real32> x(xIn), y(sm.nRows());
-    nta::SparseMatrixAlgorithms::smoothVecMaxProd(sm, k, x.begin(), x.end(), y.begin(), y.end());
+    nupic::NumpyVectorT<nupic::Real32> x(xIn), y(sm.nRows());
+    nupic::SparseMatrixAlgorithms::smoothVecMaxProd(sm, k, x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
 
   //--------------------------------------------------------------------------------
-  PyObject* smoothVecArgMaxProd(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& sm, nta::Real32 k, PyObject *xIn)
+  PyObject* smoothVecArgMaxProd(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& sm, nupic::Real32 k, PyObject *xIn)
   {
-    nta::NumpyVectorT<nta::Real32> x(xIn);
-    nta::NumpyVectorT<nta::UInt32> y(sm.nRows());
-    nta::SparseMatrixAlgorithms::smoothVecArgMaxProd(sm, k, x.begin(), x.end(), y.begin(), y.end());
+    nupic::NumpyVectorT<nupic::Real32> x(xIn);
+    nupic::NumpyVectorT<nupic::UInt32> y(sm.nRows());
+    nupic::SparseMatrixAlgorithms::smoothVecArgMaxProd(sm, k, x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
   
   //--------------------------------------------------------------------------------
   // LBP
   //--------------------------------------------------------------------------------
-  void LBP_piPrime(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& mat, nta::Real32 min_floor =0)
+  void LBP_piPrime(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& mat, nupic::Real32 min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::LBP_piPrime(mat, min_floor);
+    nupic::SparseMatrixAlgorithms::LBP_piPrime(mat, min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void LBP_piPrime(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& mat, nta::Real64 min_floor =0)
+  void LBP_piPrime(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& mat, nupic::Real64 min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::LBP_piPrime(mat, min_floor);
+    nupic::SparseMatrixAlgorithms::LBP_piPrime(mat, min_floor);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_subtractNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,  
-			  const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor =0)
+  void SM_subtractNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+			  const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::subtractNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::subtractNoAlloc(A, B, min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_subtractNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A,  
-			  nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& B, double min_floor =0)
+  void SM_subtractNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A,
+			  nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::subtractNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::subtractNoAlloc(A, B, min_floor);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_assignNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,  
-		     const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B)
+  void SM_assignNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+		     const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& B)
   {
-    nta::SparseMatrixAlgorithms::assignNoAlloc(A, B);
+    nupic::SparseMatrixAlgorithms::assignNoAlloc(A, B);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_assignNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A,  
-		     nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& B)
+  void SM_assignNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A,
+		     nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& B)
   {
-    nta::SparseMatrixAlgorithms::assignNoAlloc(A, B);
+    nupic::SparseMatrixAlgorithms::assignNoAlloc(A, B);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_assignNoAllocFromBinary(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, const nta::SparseBinaryMatrix<nta::UInt32,nta::UInt32>& B)
+  void SM_assignNoAllocFromBinary(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, const nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>& B)
   {
-    nta::SparseMatrixAlgorithms::assignNoAllocFromBinary(A, B);
+    nupic::SparseMatrixAlgorithms::assignNoAllocFromBinary(A, B);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_assignNoAllocFromBinary(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, const nta::SparseBinaryMatrix<nta::UInt32,nta::UInt16>& B)
+  void SM_assignNoAllocFromBinary(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, const nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt16>& B)
   {
-    nta::SparseMatrixAlgorithms::assignNoAllocFromBinary(A, B);
+    nupic::SparseMatrixAlgorithms::assignNoAllocFromBinary(A, B);
   }
   */
 	//--------------------------------------------------------------------------------
-	void SM_addConstantOnNonZeros(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, 
-								  const nta::SparseBinaryMatrix<nta::UInt32,nta::UInt32>& B,
+	void SM_addConstantOnNonZeros(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+								  const nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>& B,
 								  double cval)
 	{
-		nta::SparseMatrixAlgorithms::addConstantOnNonZeros(A, B, cval);
+		nupic::SparseMatrixAlgorithms::addConstantOnNonZeros(A, B, cval);
 	}
 	
 	//--------------------------------------------------------------------------------
 	/*
-	 void SM_addConstantOnNonZeros(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, 
-								   const nta::SparseBinaryMatrix<nta::UInt32,nta::UInt32>& B,
-								   nta::Real32 cval)
+	 void SM_addConstantOnNonZeros(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+								   const nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>& B,
+								   nupic::Real32 cval)
 	 {
-	 nta::SparseMatrixAlgorithms::addConstantOnNonZeros(A, B, cval);
+	 nupic::SparseMatrixAlgorithms::addConstantOnNonZeros(A, B, cval);
 	 }
 	 */
 
   //--------------------------------------------------------------------------------
-  void SM_logSumNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,  
-			const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor =0)
+  void SM_logSumNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+			const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logSumNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::logSumNoAlloc(A, B, min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_logSumNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A,  
-		     nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& B, double min_floor =0)
+  void SM_logSumNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A,
+		     nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logSumNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::logSumNoAlloc(A, B, min_floor);
   }
   */
 
  //--------------------------------------------------------------------------------
-  void SM_logAddValNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, double val, double min_floor =0)
+  void SM_logAddValNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, double val, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logAddValNoAlloc(A, val, min_floor);
+    nupic::SparseMatrixAlgorithms::logAddValNoAlloc(A, val, min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_logAddValNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A, double val, double min_floor =0)
+  void SM_logAddValNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A, double val, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logAddValNoAlloc(A, val, min_floor);
+    nupic::SparseMatrixAlgorithms::logAddValNoAlloc(A, val, min_floor);
   }
   */
  
   //--------------------------------------------------------------------------------
-  void SM_logDiffNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A,  
-		     nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& B, double min_floor =0)
+  void SM_logDiffNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A,
+		     nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::logDiffNoAlloc(A, B, min_floor);
   }
 
   /*
   //--------------------------------------------------------------------------------
-  void SM_logDiffNoAlloc(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A,  
-		     nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& B, double min_floor =0)
+  void SM_logDiffNoAlloc(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A,
+		     nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& B, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::logDiffNoAlloc(A, B, min_floor);
+    nupic::SparseMatrixAlgorithms::logDiffNoAlloc(A, B, min_floor);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_addToNZOnly(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, double v, double min_floor =0)
+  void SM_addToNZOnly(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, double v, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::addToNZOnly(A, v, min_floor);
+    nupic::SparseMatrixAlgorithms::addToNZOnly(A, v, min_floor);
   }
   /*
   //--------------------------------------------------------------------------------
-  void SM_addToNZOnly(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A, double v, double min_floor =0)
+  void SM_addToNZOnly(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A, double v, double min_floor =0)
   {
-    nta::SparseMatrixAlgorithms::addToNZOnly(A, v, min_floor);
+    nupic::SparseMatrixAlgorithms::addToNZOnly(A, v, min_floor);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_addToNZDownCols(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, PyObject* py_x, double min_floor =0)
+  void SM_addToNZDownCols(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, PyObject* py_x, double min_floor =0)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    nta::SparseMatrixAlgorithms::addToNZDownCols(A, x.begin(), x.end(), min_floor);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
+    nupic::SparseMatrixAlgorithms::addToNZDownCols(A, x.begin(), x.end(), min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_addToNZDownCols(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A, PyObject* py_x, double min_floor =0)
+  void SM_addToNZDownCols(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A, PyObject* py_x, double min_floor =0)
   {
-    nta::NumpyVectorT<nta::Real64> x(py_x);
-    nta::SparseMatrixAlgorithms::addToNZDownCols(A, x.begin(), x.end(), min_floor);
+    nupic::NumpyVectorT<nupic::Real64> x(py_x);
+    nupic::SparseMatrixAlgorithms::addToNZDownCols(A, x.begin(), x.end(), min_floor);
   }
   */
 
   //--------------------------------------------------------------------------------
-  void SM_addToNZAcrossRows(nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > >& A, PyObject* py_x, double min_floor =0)
+  void SM_addToNZAcrossRows(nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > >& A, PyObject* py_x, double min_floor =0)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    nta::SparseMatrixAlgorithms::addToNZAcrossRows(A, x.begin(), x.end(), min_floor);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
+    nupic::SparseMatrixAlgorithms::addToNZAcrossRows(A, x.begin(), x.end(), min_floor);
   }
 
   //--------------------------------------------------------------------------------
   /*
-  void SM_addToNZAcrossRows(nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > >& A, PyObject* py_x, double min_floor =0)
+  void SM_addToNZAcrossRows(nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > >& A, PyObject* py_x, double min_floor =0)
   {
-    nta::NumpyVectorT<nta::Real64> x(py_x);
-    nta::SparseMatrixAlgorithms::addToNZAcrossRows(A, x.begin(), x.end(), min_floor);
+    nupic::NumpyVectorT<nupic::Real64> x(py_x);
+    nupic::SparseMatrixAlgorithms::addToNZAcrossRows(A, x.begin(), x.end(), min_floor);
   }
   */
 }
@@ -1999,15 +1999,15 @@ def SM_assignNoAlloc(sm, right):
 */
 
 //--------------------------------------------------------------------------------
-%extend nta::LogSumApprox 
+%extend nupic::LogSumApprox
 {
   // For unit testing
-  inline nta::Real32 logSum(nta::Real32 x, nta::Real32 y) const
+  inline nupic::Real32 logSum(nupic::Real32 x, nupic::Real32 y) const
   {
     return self->sum_of_logs(x, y);
   }
 
-  inline nta::Real32 fastLogSum(nta::Real32 x, nta::Real32 y) const
+  inline nupic::Real32 fastLogSum(nupic::Real32 x, nupic::Real32 y) const
   {
     return self->fast_sum_of_logs(x, y);
   }
@@ -2015,15 +2015,15 @@ def SM_assignNoAlloc(sm, right):
 }
 
 //--------------------------------------------------------------------------------
-%extend nta::LogDiffApprox
+%extend nupic::LogDiffApprox
 {
   // For unit testing
-  inline nta::Real32 logDiff(nta::Real32 x, nta::Real32 y) const
+  inline nupic::Real32 logDiff(nupic::Real32 x, nupic::Real32 y) const
   {
     return self->diff_of_logs(x, y);
   }
 
-  inline nta::Real32 fastLogDiff(nta::Real32 x, nta::Real32 y) const
+  inline nupic::Real32 fastLogDiff(nupic::Real32 x, nupic::Real32 y) const
   {
     return self->fast_diff_of_logs(x, y);
   }
@@ -2040,45 +2040,45 @@ def SM_assignNoAlloc(sm, right):
   // Count the number of elements greater than the passed in threshold in the given
   // range.
   //--------------------------------------------------------------------------------
-  inline nta::UInt32 count_gt(PyObject* py_x, nta::Real32 threshold)
+  inline nupic::UInt32 count_gt(PyObject* py_x, nupic::Real32 threshold)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
-    return nta::count_gt(x_begin, x_end, threshold);
+    return nupic::count_gt(x_begin, x_end, threshold);
   }
 
   //--------------------------------------------------------------------------------
   // Count the number of elements greater than or equal to the passed in 
   //  threshold in the given range.
   //--------------------------------------------------------------------------------
-  inline nta::UInt32 count_gte(PyObject* py_x, nta::Real32 threshold)
+  inline nupic::UInt32 count_gte(PyObject* py_x, nupic::Real32 threshold)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
-    return nta::count_gte(x_begin, x_end, threshold);
+    return nupic::count_gte(x_begin, x_end, threshold);
   }
 
   //--------------------------------------------------------------------------------
   // Count the number of elements less than the passed in threshold in the given
   // range.
   //--------------------------------------------------------------------------------
-  inline nta::UInt32 count_lt(PyObject* py_x, nta::Real32 threshold)
+  inline nupic::UInt32 count_lt(PyObject* py_x, nupic::Real32 threshold)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
-    return nta::count_lt(x_begin, x_end, threshold);
+    return nupic::count_lt(x_begin, x_end, threshold);
   }
 
   //--------------------------------------------------------------------------------
   // A partial argsort that can use an already allocated buffer to avoid creating 
   // a data structure each time it's called. Assumes that the elements to be sorted
-  // are nta::Real32, or at least that they have the same size.
+  // are nupic::Real32, or at least that they have the same size.
   //
   // A partial sort is much faster than a full sort. The elements after the k first
   // in the result are not sorted, except that they are greater (or lesser) than
@@ -2094,14 +2094,14 @@ def SM_assignNoAlloc(sm, right):
     partialArgsort(size_t k, PyObject* py_x, PyObject* py_r, int direction =-1)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
     PyArrayObject* r = (PyArrayObject*) py_r;
-    nta::UInt32* r_begin = (nta::UInt32*)(r->data);
-    nta::UInt32* r_end = r_begin + r->dimensions[0];
+    nupic::UInt32* r_begin = (nupic::UInt32*)(r->data);
+    nupic::UInt32* r_end = r_begin + r->dimensions[0];
 
-    nta::partial_argsort(k, x_begin, x_end, r_begin, r_end, direction);
+    nupic::partial_argsort(k, x_begin, x_end, r_begin, r_end, direction);
   }
 
   //--------------------------------------------------------------------------------
@@ -2113,18 +2113,18 @@ def SM_assignNoAlloc(sm, right):
   inline void 
     positiveLearningPartialArgsort(size_t k, 
                                    PyObject* py_x, PyObject* py_r,
-                                   nta::Random& rng,
+                                   nupic::Random& rng,
                                    bool real_random =false)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
     PyArrayObject* r = (PyArrayObject*) py_r;
-    nta::UInt32* r_begin = (nta::UInt32*)(r->data);
-    nta::UInt32* r_end = r_begin + r->dimensions[0];
+    nupic::UInt32* r_begin = (nupic::UInt32*)(r->data);
+    nupic::UInt32* r_end = r_begin + r->dimensions[0];
 
-    nta::partial_argsort_rnd_tie_break(k, 
+    nupic::partial_argsort_rnd_tie_break(k,
                                        x_begin, x_end, 
                                        r_begin, r_end, 
                                        rng, real_random);
@@ -2142,16 +2142,16 @@ def SM_assignNoAlloc(sm, right):
   inline PyObject* logicalAnd(PyObject* py_x, PyObject* py_y)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
 
-    nta::NumpyVectorT<nta::Real32> z(x_end - x_begin);
+    nupic::NumpyVectorT<nupic::Real32> z(x_end - x_begin);
 
-    nta::logical_and(x_begin, x_end, y_begin, y_end, z.begin(), z.end());
+    nupic::logical_and(x_begin, x_end, y_begin, y_end, z.begin(), z.end());
 
     return z.forPython();
   }
@@ -2166,14 +2166,14 @@ def SM_assignNoAlloc(sm, right):
   inline void logicalAnd2(PyObject* py_x, PyObject* py_y)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
 
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
 
-    nta::in_place_logical_and(x_begin, x_end, y_begin, y_end);
+    nupic::in_place_logical_and(x_begin, x_end, y_begin, y_end);
   }
 }
 
@@ -2229,47 +2229,47 @@ def SM_assignNoAlloc(sm, right):
 //--------------------------------------------------------------------------------
 
 // Need those typemaps *BEFORE* %template
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >::size_type {
-  $1 = (nta::UInt32) PyLong_AsLong($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > >::size_type {
+  $1 = (nupic::UInt32) PyLong_AsLong($input);
  }
 
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >::value_type {
-  $1 = (nta::Real32) PyFloat_AsDouble($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > >::value_type {
+  $1 = (nupic::Real32) PyFloat_AsDouble($input);
 }
 
 /*
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > >::size_type {
-  $1 = (nta::UInt32) PyLong_AsLong($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > >::size_type {
+  $1 = (nupic::UInt32) PyLong_AsLong($input);
  }
 
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > >::value_type {
-  $1 = (nta::Real64) PyFloat_AsDouble($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > >::value_type {
+  $1 = (nupic::Real64) PyFloat_AsDouble($input);
 }
 
 #ifdef NTA_QUAD_PRECISION
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real128,nta::Int32,nta::Real128,nta::DistanceToZero<nta::Real128 > > >::size_type {
-  $1 = (nta::UInt32) PyLong_AsLong($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real128,nupic::Int32,nupic::Real128,nupic::DistanceToZero<nupic::Real128 > > >::size_type {
+  $1 = (nupic::UInt32) PyLong_AsLong($input);
 }
 
-%typemap(in) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real128,nta::Int32,nta::Real128,nta::DistanceToZero<nta::Real128 > > >::value_type {
-  $1 = (nta::Real128) PyFloat_AsDouble($input);
+%typemap(in) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real128,nupic::Int32,nupic::Real128,nupic::DistanceToZero<nupic::Real128 > > >::value_type {
+  $1 = (nupic::Real128) PyFloat_AsDouble($input);
 }
 #endif
 */
 //--------------------------------------------------------------------------------
-%template(_NearestNeighbor32) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > >;
+%template(_NearestNeighbor32) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > >;
 
 /*
-%template(_NearestNeighbor64) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > >;
+%template(_NearestNeighbor64) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > >;
 
 #ifdef NTA_QUAD_PRECISION
-%template(_NearestNeighbor128) nta::NearestNeighbor<nta::SparseMatrix<nta::UInt32,nta::Real128,nta::Int32,nta::Real128,nta::DistanceToZero<nta::Real128 > > >;
+%template(_NearestNeighbor128) nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt32,nupic::Real128,nupic::Int32,nupic::Real128,nupic::DistanceToZero<nupic::Real128 > > >;
 #endif
 */
 //--------------------------------------------------------------------------------
 %define NearestNeighbor_(N1, N2, N3, N4)
 
-%extend nta::NearestNeighbor<nta::SparseMatrix<nta::UInt ## N1,nta::Real ## N2,nta::Int ## N3,nta::Real ## N4,nta::DistanceToZero<nta::Real ## N2 > > >
+%extend nupic::NearestNeighbor<nupic::SparseMatrix<nupic::UInt ## N1,nupic::Real ## N2,nupic::Int ## N3,nupic::Real ## N4,nupic::DistanceToZero<nupic::Real ## N2 > > >
 {
 %pythoncode %{
 
@@ -2332,63 +2332,63 @@ def __str__(self):
   return self.toDense().__str__()
 %}
 
-  nta::Real rowDist(int row, PyObject *xIn) const
+  nupic::Real rowDist(int row, PyObject *xIn) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
     return self->rowL2Dist(row, x.addressOf(0));
   }
 
-  PyObject* vecLpDist(nta::Real ## N2 p, PyObject *xIn, bool take_root =true) const
+  PyObject* vecLpDist(nupic::Real ## N2 p, PyObject *xIn, bool take_root =true) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(xIn);
-    nta::NumpyVectorT<nta::Real ## N2> output(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(xIn);
+    nupic::NumpyVectorT<nupic::Real ## N2> output(self->nRows());
     self->LpDist(p, x.addressOf(0), output.addressOf(0), take_root);
     return output.forPython();
   }
 	
-  PyObject *LpNearest(nta::Real ## N2 p, PyObject *row, 
-		      nta::UInt ## N1 k =1, bool take_root =true) const
+  PyObject *LpNearest(nupic::Real ## N2 p, PyObject *row,
+		      nupic::UInt ## N1 k =1, bool take_root =true) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(row);
-    std::vector<std::pair<nta::UInt ## N1, nta::Real ## N2> > nn(k);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(row);
+    std::vector<std::pair<nupic::UInt ## N1, nupic::Real ## N2> > nn(k);
     self->LpNearest(p, x.begin(), nn.begin(), k, take_root);
     PyObject* toReturn = PyTuple_New(k);
-    for (nta::UInt ## N1 i = 0; i != k; ++i) 
-      PyTuple_SET_ITEM(toReturn, i, nta::createPair ## N2(nn[i].first, nn[i].second));
+    for (nupic::UInt ## N1 i = 0; i != k; ++i)
+      PyTuple_SET_ITEM(toReturn, i, nupic::createPair ## N2(nn[i].first, nn[i].second));
     return toReturn;
   }
 
-  PyObject *closestLp_w(nta::Real ## N2 p, PyObject *row)
+  PyObject *closestLp_w(nupic::Real ## N2 p, PyObject *row)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(row);
-    std::pair<int, nta::Real ## N2> nn;
+    nupic::NumpyVectorT<nupic::Real ## N2> x(row);
+    std::pair<int, nupic::Real ## N2> nn;
     self->LpNearest_w(p, x.addressOf(0), &nn, true);
     return Py_BuildValue("(if)", nn.first, nn.second);
   }
 
   PyObject *closestDot(PyObject *row)
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(row);
-    std::pair<int, nta::Real ## N2> r = self->dotNearest(x.addressOf(0));
+    nupic::NumpyVectorT<nupic::Real ## N2> x(row);
+    std::pair<int, nupic::Real ## N2> r = self->dotNearest(x.addressOf(0));
     return Py_BuildValue("(if)", r.first, r.second);
   }
 
-  PyObject* projLpNearest(nta::Real ## N2 p, PyObject* py_x, 
-			  nta::UInt ## N1 k =1, bool take_root =false) const
+  PyObject* projLpNearest(nupic::Real ## N2 p, PyObject* py_x,
+			  nupic::UInt ## N1 k =1, bool take_root =false) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(py_x);
-    std::vector<std::pair<nta::UInt ## N1, nta::Real ## N2> > nn(k);
+    nupic::NumpyVectorT<nupic::Real ## N2> x(py_x);
+    std::vector<std::pair<nupic::UInt ## N1, nupic::Real ## N2> > nn(k);
     self->projLpNearest(p, x.begin(), nn.begin(), k, take_root);
     PyObject* toReturn = PyTuple_New(k);
-    for (nta::UInt ## N1 i = 0; i != k; ++i) 
-      PyTuple_SET_ITEM(toReturn, i, nta::createPair ## N2(nn[i].first, nn[i].second));
+    for (nupic::UInt ## N1 i = 0; i != k; ++i)
+      PyTuple_SET_ITEM(toReturn, i, nupic::createPair ## N2(nn[i].first, nn[i].second));
     return toReturn;
   }
 
   PyObject* 
-    projRbf(nta::Real ## N2 p, nta::Real ## N2 k, PyObject* py_x) const
+    projRbf(nupic::Real ## N2 p, nupic::Real ## N2 k, PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::Real ## N2> x(py_x), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real ## N2> x(py_x), y(self->nRows());
     self->projRbf(p, k, x.begin(), y.begin());
     return y.forPython();
   }
@@ -2426,26 +2426,26 @@ NearestNeighbor_(32, 32, 32, 64)
 %inline 
 {
   //--------------------------------------------------------------------------------
-  PyObject* enumerate_sequences(nta::Real threshold, 
+  PyObject* enumerate_sequences(nupic::Real threshold,
                                 PyObject* g, 
                                 int cr=0, 
                                 int ns=0) 
   {
     try {
       void* argp1 = SWIG_Python_GetSwigThis(g)->ptr; 
-      nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > *arg1 = reinterpret_cast< nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > * >(argp1);
+      nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > *arg1 = reinterpret_cast< nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > * >(argp1);
 
-      std::list<std::vector<nta::UInt32> > sequences;
-      nta::EnumerateSequences(threshold, *arg1, sequences, ns);
-      nta::UInt32 N = sequences.size();
+      std::list<std::vector<nupic::UInt32> > sequences;
+      nupic::EnumerateSequences(threshold, *arg1, sequences, ns);
+      nupic::UInt32 N = sequences.size();
       PyObject* toReturn = PyList_New(N);
-      std::list<std::vector<nta::UInt32> >::const_iterator it;
-      nta::UInt32 i = 0;
+      std::list<std::vector<nupic::UInt32> >::const_iterator it;
+      nupic::UInt32 i = 0;
       for (it = sequences.begin(); it != sequences.end(); ++it, ++i) {
-	const std::vector<nta::UInt32>& seq = *it;
-	nta::UInt32 M = it->size();
+	const std::vector<nupic::UInt32>& seq = *it;
+	nupic::UInt32 M = it->size();
 	PyObject* py_seq = PyList_New(M);
-	for (nta::UInt32 j = 0; j != M; ++j)
+	for (nupic::UInt32 j = 0; j != M; ++j)
 	  PyList_SET_ITEM(py_seq, j, PyInt_FromLong(seq[j]));
 	PyList_SET_ITEM(toReturn, i, py_seq);
       }
@@ -2458,24 +2458,24 @@ NearestNeighbor_(32, 32, 32, 64)
   }
 
   //--------------------------------------------------------------------------------
-  PyObject* find_connected_components(nta::Real threshold, 
+  PyObject* find_connected_components(nupic::Real threshold,
                                       PyObject* g)
   {
     try {
       void* argp1 = SWIG_Python_GetSwigThis(g)->ptr; 
-      nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > *arg1 = reinterpret_cast< nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > * >(argp1);
+      nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > *arg1 = reinterpret_cast< nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > * >(argp1);
 
-      std::list<std::vector<nta::UInt32> > comps;
-      nta::FindConnectedComponents(threshold, *arg1, comps);
-      nta::UInt32 N = comps.size();
+      std::list<std::vector<nupic::UInt32> > comps;
+      nupic::FindConnectedComponents(threshold, *arg1, comps);
+      nupic::UInt32 N = comps.size();
       PyObject* toReturn = PyList_New(N);
-      std::list<std::vector<nta::UInt32> >::const_iterator it;
-      nta::UInt32 i = 0;
+      std::list<std::vector<nupic::UInt32> >::const_iterator it;
+      nupic::UInt32 i = 0;
       for (it = comps.begin(); it != comps.end(); ++it, ++i) {
-        const std::vector<nta::UInt32>& comp = *it;
-        nta::UInt32 M = it->size();
+        const std::vector<nupic::UInt32>& comp = *it;
+        nupic::UInt32 M = it->size();
         PyObject* py_comp = PyList_New(M);
-        for (nta::UInt32 j = 0; j != M; ++j)
+        for (nupic::UInt32 j = 0; j != M; ++j)
           PyList_SET_ITEM(py_comp, j, PyInt_FromLong(comp[j]));
         PyList_SET_ITEM(toReturn, i, py_comp);
       }
@@ -2492,18 +2492,18 @@ NearestNeighbor_(32, 32, 32, 64)
 template<typename TSM>
 inline PyObject *_find_connected_components2(const TSM &sm)
 {
-  std::list<std::vector<nta::UInt32> > comps;
-  nta::FindConnectedComponents_boost(sm, comps);
-  nta::UInt32 N = comps.size();
+  std::list<std::vector<nupic::UInt32> > comps;
+  nupic::FindConnectedComponents_boost(sm, comps);
+  nupic::UInt32 N = comps.size();
   // PyRequiredRef toReturn(PyList_New(N));
   PyObject *toReturn = PyList_New(N);
-  std::list<std::vector<nta::UInt32> >::const_iterator it;
-  nta::UInt32 i = 0;
+  std::list<std::vector<nupic::UInt32> >::const_iterator it;
+  nupic::UInt32 i = 0;
   for (it = comps.begin(); it != comps.end(); ++it, ++i) {
-    const std::vector<nta::UInt32>& comp = *it;
-    nta::UInt32 M = it->size();
+    const std::vector<nupic::UInt32>& comp = *it;
+    nupic::UInt32 M = it->size();
     PyObject* py_comp = PyList_New(M);
-    for (nta::UInt32 j = 0; j != M; ++j)
+    for (nupic::UInt32 j = 0; j != M; ++j)
       PyList_SET_ITEM(py_comp, j, PyInt_FromLong(comp[j]));
     PyList_SET_ITEM(toReturn, i, py_comp);
   }
@@ -2518,10 +2518,10 @@ inline PyObject *_find_connected_components2(const TSM &sm)
   /*
   //--------------------------------------------------------------------------------
   // PyObject* find_connected_components2(PyObject* g)
-  PyObject* find_connected_components2(const nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > &sm)
+  PyObject* find_connected_components2(const nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > &sm)
       { return _find_connected_components2(sm); }
 
-  PyObject* find_connected_components2(const nta::SparseMatrix<nta::UInt32,nta::Real64,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real64 > > &sm)
+  PyObject* find_connected_components2(const nupic::SparseMatrix<nupic::UInt32,nupic::Real64,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real64 > > &sm)
       { return _find_connected_components2(sm); }
 
   //--------------------------------------------------------------------------------
@@ -2529,11 +2529,11 @@ inline PyObject *_find_connected_components2(const TSM &sm)
   {
     try {
       void* argp1 = SWIG_Python_GetSwigThis(g)->ptr; 
-      nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > *arg1 = reinterpret_cast< nta::SparseMatrix<nta::UInt32,nta::Real32,nta::Int32,nta::Real64,nta::DistanceToZero<nta::Real32 > > * >(argp1);
+      nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > *arg1 = reinterpret_cast< nupic::SparseMatrix<nupic::UInt32,nupic::Real32,nupic::Int32,nupic::Real64,nupic::DistanceToZero<nupic::Real32 > > * >(argp1);
 
-      nta::NumpyVectorT<nta::UInt32> p(arg1->nRows());
-      nta::NumpyVectorT<nta::UInt32> rp(arg1->nRows());
-      nta::CuthillMcKeeOrdering(*arg1, p.begin(), rp.begin());
+      nupic::NumpyVectorT<nupic::UInt32> p(arg1->nRows());
+      nupic::NumpyVectorT<nupic::UInt32> rp(arg1->nRows());
+      nupic::CuthillMcKeeOrdering(*arg1, p.begin(), rp.begin());
       PyObject* toReturn = PyList_New(2);
       PyList_SET_ITEM(toReturn, 0, p.forPython());
       PyList_SET_ITEM(toReturn, 1, rp.forPython());
@@ -2546,14 +2546,14 @@ inline PyObject *_find_connected_components2(const TSM &sm)
   }
  */
   //--------------------------------------------------------------------------------
-  PyObject* min_score_per_category(nta::UInt32 maxCategoryIdx, PyObject* c_py, 
+  PyObject* min_score_per_category(nupic::UInt32 maxCategoryIdx, PyObject* c_py,
             PyObject* d_py)
   {
-    nta::NumpyVectorT<nta::UInt32> c(c_py);
-    nta::NumpyVectorT<nta::Real32> d(d_py);
+    nupic::NumpyVectorT<nupic::UInt32> c(c_py);
+    nupic::NumpyVectorT<nupic::Real32> d(d_py);
 
     int n = int(maxCategoryIdx + 1);
-    nta::NumpyVectorT<nta::Real32> s(n, std::numeric_limits<nta::Real32>::max());
+    nupic::NumpyVectorT<nupic::Real32> s(n, std::numeric_limits<nupic::Real32>::max());
 
     int nScores = int(c.end() - c.begin());
     for (int i = 0; i != nScores; ++i) 
@@ -2567,7 +2567,7 @@ inline PyObject *_find_connected_components2(const TSM &sm)
 // BINARY MATRIX
 //--------------------------------------------------------------------------------
  /*
-%extend nta::SparseBinaryMatrix<nta::UInt32, nta::UInt16>
+%extend nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt16>
 {
 %pythoncode %{
 
@@ -2615,27 +2615,27 @@ def __setstate__(self, inString):
     }
   }
 
-  inline void set(nta::UInt32 i, nta::UInt16 j, nta::Real32 v)
+  inline void set(nupic::UInt32 i, nupic::UInt16 j, nupic::Real32 v)
   {
     self->set(i, j, v);
   }
 
-  inline void set(nta::UInt32 row, PyObject* py_indices, nta::Real32 v)
+  inline void set(nupic::UInt32 row, PyObject* py_indices, nupic::Real32 v)
   {
-    nta::NumpyVectorT<nta::UInt16> indices(py_indices);
+    nupic::NumpyVectorT<nupic::UInt16> indices(py_indices);
     self->set(row, indices.begin(), indices.end(), v);
   }
 
-  inline void setForAllRows(PyObject* py_indices, nta::Real32 v)
+  inline void setForAllRows(PyObject* py_indices, nupic::Real32 v)
   {
-    nta::NumpyVectorT<nta::UInt16> indices(py_indices);
+    nupic::NumpyVectorT<nupic::UInt16> indices(py_indices);
     self->setForAllRows(indices.begin(), indices.end(), v);
   }
 
   inline PyObject* getAllNonZeros(bool two_lists =false) const
   {
-    const nta::UInt32 nnz = self->nNonZeros();
-    nta::NumpyVectorT<nta::UInt32> rows(nnz), cols(nnz);
+    const nupic::UInt32 nnz = self->nNonZeros();
+    nupic::NumpyVectorT<nupic::UInt32> rows(nnz), cols(nnz);
 
     self->getAllNonZeros(rows.begin(), cols.begin());
 
@@ -2644,7 +2644,7 @@ def __setstate__(self, inString):
     if (!two_lists) {
       // Return one list of triples
       toReturn = PyTuple_New(nnz);
-      for (nta::UInt32 i = 0; i != nnz; ++i) {
+      for (nupic::UInt32 i = 0; i != nnz; ++i) {
 	PyObject* tuple = PyTuple_New(2);
 	PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(rows.get(i)));
 	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(cols.get(i)));
@@ -2660,38 +2660,38 @@ def __setstate__(self, inString):
     return toReturn;
   } 
 
-  inline void setAllNonZeros(nta::UInt32 nrows, nta::UInt16 ncols,
+  inline void setAllNonZeros(nupic::UInt32 nrows, nupic::UInt16 ncols,
 		      PyObject* py_i, PyObject* py_j, bool sorted =true)
   {
-    nta::NumpyVectorT<nta::UInt32> i(py_i);
-    nta::NumpyVectorT<nta::UInt16> j(py_j);
+    nupic::NumpyVectorT<nupic::UInt32> i(py_i);
+    nupic::NumpyVectorT<nupic::UInt16> j(py_j);
     self->setAllNonZeros(nrows, ncols, i.begin(), i.end(), j.begin(), j.end(), sorted);
   }
 
-  inline void setSlice(nta::UInt32 i_begin, nta::UInt32 j_begin, 
-                       const SparseBinaryMatrix<nta::UInt32,nta::UInt16>& other)
+  inline void setSlice(nupic::UInt32 i_begin, nupic::UInt32 j_begin,
+                       const SparseBinaryMatrix<nupic::UInt32,nupic::UInt16>& other)
   {
     self->setSlice(i_begin, j_begin, other);
   }
 
-  inline void setSlice(nta::UInt32 i_begin, nta::UInt32 j_begin, PyObject* py_other)
+  inline void setSlice(nupic::UInt32 i_begin, nupic::UInt32 j_begin, PyObject* py_other)
   {
-    nta::NumpyMatrixT<nta::Real32> other(py_other);
+    nupic::NumpyMatrixT<nupic::Real32> other(py_other);
     self->setSlice(i_begin, j_begin, other);
   }
 
-  inline PyObject* getCol(nta::UInt32 col) const
+  inline PyObject* getCol(nupic::UInt32 col) const
   {
-    const nta::UInt32 nrows = self->nRows();
-    nta::NumpyVectorT<nta::UInt32> dense_col(nrows);
+    const nupic::UInt32 nrows = self->nRows();
+    nupic::NumpyVectorT<nupic::UInt32> dense_col(nrows);
     self->getColToDense(col, dense_col.begin(), dense_col.end());
     return dense_col.forPython();
   }
 
   inline PyObject* zeroRowsIndicator() const
   {
-    nta::NumpyVectorT<nta::UInt32> res(self->nRows());
-    nta::UInt32 count = self->zeroRowsIndicator(res.begin(), res.end());
+    nupic::NumpyVectorT<nupic::UInt32> res(self->nRows());
+    nupic::UInt32 count = self->zeroRowsIndicator(res.begin(), res.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(count));
     PyTuple_SET_ITEM(toReturn, 1, res.forPython());
@@ -2700,8 +2700,8 @@ def __setstate__(self, inString):
 
   inline PyObject* nonZeroRowsIndicator() const
   {
-    nta::NumpyVectorT<nta::UInt32> res(self->nRows());
-    nta::UInt32 count = self->nonZeroRowsIndicator(res.begin(), res.end());
+    nupic::NumpyVectorT<nupic::UInt32> res(self->nRows());
+    nupic::UInt32 count = self->nonZeroRowsIndicator(res.begin(), res.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(count));
     PyTuple_SET_ITEM(toReturn, 1, res.forPython());
@@ -2710,24 +2710,24 @@ def __setstate__(self, inString):
 
   inline PyObject* nNonZerosPerRow() const
   {
-    nta::NumpyVectorT<nta::UInt16> x(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt16> x(self->nRows());
     self->nNonZerosPerRow(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* nNonZerosPerCol() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nCols());
     self->nNonZerosPerCol(x.begin(), x.end());
     return x.forPython();
   }
   
-  inline nta::SparseMatrix<nta::UInt32,nta::Real32>
+  inline nupic::SparseMatrix<nupic::UInt32,nupic::Real32>
     nNonZerosPerBox(PyObject* box_i, PyObject* box_j) const
     {
-      nta::NumpyVectorT<nta::UInt32> bounds_i(box_i);
-      nta::NumpyVectorT<nta::UInt32> bounds_j(box_j);
-      nta::SparseMatrix<nta::UInt32,nta::Real32> result(bounds_i.size(), bounds_j.size());
+      nupic::NumpyVectorT<nupic::UInt32> bounds_i(box_i);
+      nupic::NumpyVectorT<nupic::UInt32> bounds_j(box_j);
+      nupic::SparseMatrix<nupic::UInt32,nupic::Real32> result(bounds_i.size(), bounds_j.size());
       self->nNonZerosPerBox(bounds_i.begin(), bounds_i.end(),
 			    bounds_j.begin(), bounds_j.end(), 
 			    result);
@@ -2736,81 +2736,81 @@ def __setstate__(self, inString):
   
   inline PyObject* rowSums() const
   {
-    nta::NumpyVectorT<nta::UInt16> x(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt16> x(self->nRows());
     self->rowSums(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* colSums() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nCols());
     self->colSums(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* overlap(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::NumpyVectorT<nta::UInt32> y(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> y(self->nRows());
     self->overlap(x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
 
-  inline bool maxAllowedOverlap(nta::Real32 maxDistance, PyObject* py_x) const
+  inline bool maxAllowedOverlap(nupic::Real32 maxDistance, PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     return self->maxAllowedOverlap(maxDistance, x.begin(), x.end());
   }
 
   inline void appendSparseRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt16> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt16> x(py_x);
     self->appendSparseRow(x.begin(), x.end());
   }
 
   inline void appendDenseRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->appendDenseRow(x.begin(), x.end());
   }
 
   inline void appendSparseCol(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->appendSparseCol(x.begin(), x.end());
   }
 
-  inline PyObject* getRowSparse(nta::UInt16 row) const
+  inline PyObject* getRowSparse(nupic::UInt16 row) const
   {
-    nta::NumpyVectorT<nta::UInt16> x(self->nNonZerosOnRow(row));
-    const nta::SparseBinaryMatrix<nta::UInt32, nta::UInt16>::Row& _row =
+    nupic::NumpyVectorT<nupic::UInt16> x(self->nNonZerosOnRow(row));
+    const nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt16>::Row& _row =
       self->getSparseRow(row);
-    for (nta::UInt16 i = 0; i != _row.size(); ++i)
+    for (nupic::UInt16 i = 0; i != _row.size(); ++i)
       x.set(i,_row[i]);
     return x.forPython();
   }
 
-  inline void replaceSparseRow(nta::UInt32 row, PyObject* py_x)
+  inline void replaceSparseRow(nupic::UInt32 row, PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt16> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt16> x(py_x);
     self->replaceSparseRow(row, x.begin(), x.end());
   }
 
-  inline nta::UInt32 findRowSparse(PyObject* py_x) const
+  inline nupic::UInt32 findRowSparse(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt16> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt16> x(py_x);
     return self->findRowSparse(x.begin(), x.end());
   }
 
-  inline nta::UInt32 findRowDense(PyObject* py_x) const
+  inline nupic::UInt32 findRowDense(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt16> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt16> x(py_x);
     return self->findRowDense(x.begin(), x.end());
   }
 
   inline void fromDense(PyObject* py_m)
   {
-    nta::NumpyMatrixT<nta::UInt32> m(py_m);
+    nupic::NumpyMatrixT<nupic::UInt32> m(py_m);
     self->fromDense(m.rows(), m.columns(), 
 		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
   }
@@ -2818,7 +2818,7 @@ def __setstate__(self, inString):
   inline PyObject* toDense() const 
   {
     int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::UInt32> out(dims);
+    nupic::NumpyMatrixT<nupic::UInt32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
   }
@@ -2872,36 +2872,36 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
-  inline void fromSparseVector(nta::UInt32 nrows, nta::UInt16 ncols,
-			       PyObject *py_x, nta::UInt16 offset =0)
+  inline void fromSparseVector(nupic::UInt32 nrows, nupic::UInt16 ncols,
+			       PyObject *py_x, nupic::UInt16 offset =0)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->fromSparseVector(nrows, ncols, x.begin(), x.end(), offset);
   }
 
-  inline PyObject* toSparseVector(nta::UInt32 offset =0)
+  inline PyObject* toSparseVector(nupic::UInt32 offset =0)
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nNonZeros());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nNonZeros());
     self->toSparseVector(x.begin(), x.end(), offset);
     return x.forPython();
   }
 
-  inline void rowFromDense(nta::UInt32 row, PyObject* py_x)
+  inline void rowFromDense(nupic::UInt32 row, PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->rowFromDense(row, x.begin(), x.end());
   }
 
-  inline PyObject* rowToDense(nta::UInt32 row) const
+  inline PyObject* rowToDense(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->rowToDense(row, x.begin(), x.end());
     return x.forPython();
   }
   
-  inline PyObject* getRow(nta::UInt32 row) const
+  inline PyObject* getRow(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->getRow(row, x.begin(), x.end());
     return x.forPython();
   }
@@ -2912,9 +2912,9 @@ def __setstate__(self, inString):
   inline PyObject* rightVecSumAtNZ(PyObject* py_x) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
-    nta::NumpyVectorT<nta::Real32> y(self->nRows());
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::NumpyVectorT<nupic::Real32> y(self->nRows());
     self->rightVecSumAtNZ(x_begin, x_end, y.begin(), y.end());
     return y.forPython();
   }
@@ -2925,11 +2925,11 @@ def __setstate__(self, inString):
   inline void rightVecSumAtNZ_fast(PyObject* py_x, PyObject* py_y) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
     self->rightVecSumAtNZ(x_begin, x_end, y_begin, y_end);
   }
 
@@ -2939,9 +2939,9 @@ def __setstate__(self, inString):
   inline PyObject* leftVecSumAtNZ(PyObject* py_x) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
-    nta::NumpyVectorT<nta::Real32> y(self->nCols());
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::NumpyVectorT<nupic::Real32> y(self->nCols());
     self->leftVecSumAtNZ(x_begin, x_end, y.begin(), y.end());
     return y.forPython();
   }
@@ -2952,21 +2952,21 @@ def __setstate__(self, inString):
   inline void leftVecSumAtNZ_fast(PyObject* py_x, PyObject* py_y) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
     self->leftVecSumAtNZ(x_begin, x_end, y_begin, y_end);
   }
 
   PyObject* rightDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nRows();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->rightVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -2974,11 +2974,11 @@ def __setstate__(self, inString):
 
   PyObject* leftDenseMatSumAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecSumAtNZ(m.begin(i), m.end(i), r.begin(i), r.end(i));
     return r.forPython();
@@ -2986,11 +2986,11 @@ def __setstate__(self, inString):
 
   PyObject* leftDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -2998,8 +2998,8 @@ def __setstate__(self, inString):
 
   inline PyObject* minHammingDistance(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    std::pair<nta::UInt32, nta::UInt32> r =
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    std::pair<nupic::UInt32, nupic::UInt32> r =
       self->minHammingDistance(x.begin(), x.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(r.first));
@@ -3007,42 +3007,42 @@ def __setstate__(self, inString):
     return toReturn;
   }
 
-  inline PyObject* firstRowCloserThan(PyObject* py_x, nta::UInt16 distance) const
+  inline PyObject* firstRowCloserThan(PyObject* py_x, nupic::UInt16 distance) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::UInt32 i = self->firstRowCloserThan(x.begin(), x.end(), distance);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::UInt32 i = self->firstRowCloserThan(x.begin(), x.end(), distance);
     return PyInt_FromLong(i);
   }
 
-  inline PyObject* firstRowCloserThan_dense(PyObject* py_x, nta::UInt16 distance) const
+  inline PyObject* firstRowCloserThan_dense(PyObject* py_x, nupic::UInt16 distance) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::UInt32 i = self->firstRowCloserThan_dense(x.begin(), x.end(), distance);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::UInt32 i = self->firstRowCloserThan_dense(x.begin(), x.end(), distance);
     return PyInt_FromLong(i);
   }
 
   inline PyObject* vecMaxProd(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::Real64> x(py_x), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real64> x(py_x), y(self->nRows());
     self->vecMaxProd(x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
 
-  inline bool __eq__(const nta::SparseBinaryMatrix<nta::UInt32, nta::UInt16>& other) const
+  inline bool __eq__(const nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt16>& other) const
   { 
     return self->equals(other); 
   }
   
-  inline bool __ne__(const nta::SparseBinaryMatrix<nta::UInt32, nta::UInt16>& other) const
+  inline bool __ne__(const nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt16>& other) const
   { 
     return ! self->equals(other); 
   }
 
-} // end extend nta::SparseBinaryMatrix
+} // end extend nupic::SparseBinaryMatrix
 */
 
 //--------------------------------------------------------------------------------
-%extend nta::SparseBinaryMatrix<nta::UInt32, nta::UInt32>
+%extend nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt32>
 {
 %pythoncode %{
 def __init__(self, *args): 
@@ -3093,27 +3093,27 @@ def __setstate__(self, inString):
     }
   }
 
-  inline void set(nta::UInt32 i, nta::UInt32 j, nta::Real32 v)
+  inline void set(nupic::UInt32 i, nupic::UInt32 j, nupic::Real32 v)
   {
     self->set(i, j, v);
   }
 
-  inline void set(nta::UInt32 row, PyObject* py_indices, nta::Real32 v)
+  inline void set(nupic::UInt32 row, PyObject* py_indices, nupic::Real32 v)
   {
-    nta::NumpyVectorT<nta::UInt32> indices(py_indices);
+    nupic::NumpyVectorT<nupic::UInt32> indices(py_indices);
     self->set(row, indices.begin(), indices.end(), v);
   }
 
-  inline void setForAllRows(PyObject* py_indices, nta::Real32 v)
+  inline void setForAllRows(PyObject* py_indices, nupic::Real32 v)
   {
-    nta::NumpyVectorT<nta::UInt32> indices(py_indices);
+    nupic::NumpyVectorT<nupic::UInt32> indices(py_indices);
     self->setForAllRows(indices.begin(), indices.end(), v);
   }
 
   inline PyObject* getAllNonZeros(bool two_lists =false) const
   {
-    const nta::UInt32 nnz = self->nNonZeros();
-    nta::NumpyVectorT<nta::UInt32> rows(nnz), cols(nnz);
+    const nupic::UInt32 nnz = self->nNonZeros();
+    nupic::NumpyVectorT<nupic::UInt32> rows(nnz), cols(nnz);
 
     self->getAllNonZeros(rows.begin(), cols.begin());
 
@@ -3122,7 +3122,7 @@ def __setstate__(self, inString):
     if (!two_lists) {
       // Return one list of triples
       toReturn = PyTuple_New(nnz);
-      for (nta::UInt32 i = 0; i != nnz; ++i) {
+      for (nupic::UInt32 i = 0; i != nnz; ++i) {
 	PyObject* tuple = PyTuple_New(2);
 	PyTuple_SET_ITEM(tuple, 0, PyInt_FromLong(rows.get(i)));
 	PyTuple_SET_ITEM(tuple, 1, PyInt_FromLong(cols.get(i)));
@@ -3138,37 +3138,37 @@ def __setstate__(self, inString):
     return toReturn;
   } 
 
-  inline void setAllNonZeros(nta::UInt32 nrows, nta::UInt32 ncols,
+  inline void setAllNonZeros(nupic::UInt32 nrows, nupic::UInt32 ncols,
 		      PyObject* py_i, PyObject* py_j, bool sorted =true)
   {
-    nta::NumpyVectorT<nta::UInt32> i(py_i), j(py_j);
+    nupic::NumpyVectorT<nupic::UInt32> i(py_i), j(py_j);
     self->setAllNonZeros(nrows, ncols, i.begin(), i.end(), j.begin(), j.end(), sorted);
   }
 
-  inline void setSlice(nta::UInt32 i_begin, nta::UInt32 j_begin, 
-                       const SparseBinaryMatrix<nta::UInt32,nta::UInt32>& other)
+  inline void setSlice(nupic::UInt32 i_begin, nupic::UInt32 j_begin,
+                       const SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>& other)
   {
     self->setSlice(i_begin, j_begin, other);
   }
 
-  inline void setSlice(nta::UInt32 i_begin, nta::UInt32 j_begin, PyObject* py_other)
+  inline void setSlice(nupic::UInt32 i_begin, nupic::UInt32 j_begin, PyObject* py_other)
   {
-    nta::NumpyMatrixT<nta::Real32> other(py_other);
+    nupic::NumpyMatrixT<nupic::Real32> other(py_other);
     self->setSlice(i_begin, j_begin, other);
   }
 
-  inline PyObject* getCol(nta::UInt32 col) const
+  inline PyObject* getCol(nupic::UInt32 col) const
   {
-    const nta::UInt32 nrows = self->nRows();
-    nta::NumpyVectorT<nta::UInt32> dense_col(nrows);
+    const nupic::UInt32 nrows = self->nRows();
+    nupic::NumpyVectorT<nupic::UInt32> dense_col(nrows);
     self->getColToDense(col, dense_col.begin(), dense_col.end());
     return dense_col.forPython();
   }
 
   inline PyObject* zeroRowsIndicator() const
   {
-    nta::NumpyVectorT<nta::UInt32> res(self->nRows());
-    nta::UInt32 count = self->zeroRowsIndicator(res.begin(), res.end());
+    nupic::NumpyVectorT<nupic::UInt32> res(self->nRows());
+    nupic::UInt32 count = self->zeroRowsIndicator(res.begin(), res.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(count));
     PyTuple_SET_ITEM(toReturn, 1, res.forPython());
@@ -3177,8 +3177,8 @@ def __setstate__(self, inString):
 
   inline PyObject* nonZeroRowsIndicator() const
   {
-    nta::NumpyVectorT<nta::UInt32> res(self->nRows());
-    nta::UInt32 count = self->nonZeroRowsIndicator(res.begin(), res.end());
+    nupic::NumpyVectorT<nupic::UInt32> res(self->nRows());
+    nupic::UInt32 count = self->nonZeroRowsIndicator(res.begin(), res.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(count));
     PyTuple_SET_ITEM(toReturn, 1, res.forPython());
@@ -3187,24 +3187,24 @@ def __setstate__(self, inString):
 
   inline PyObject* nNonZerosPerRow() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nRows());
     self->nNonZerosPerRow(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* nNonZerosPerCol() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nCols());
     self->nNonZerosPerCol(x.begin(), x.end());
     return x.forPython();
   }
 
-  inline nta::SparseMatrix<nta::UInt32,nta::Real32>
+  inline nupic::SparseMatrix<nupic::UInt32,nupic::Real32>
    nNonZerosPerBox(PyObject* box_i, PyObject* box_j) const
     {
-      nta::NumpyVectorT<nta::UInt32> bounds_i(box_i);
-      nta::NumpyVectorT<nta::UInt32> bounds_j(box_j);
-      nta::SparseMatrix<nta::UInt32,nta::Real32> result(bounds_i.size(), bounds_j.size());
+      nupic::NumpyVectorT<nupic::UInt32> bounds_i(box_i);
+      nupic::NumpyVectorT<nupic::UInt32> bounds_j(box_j);
+      nupic::SparseMatrix<nupic::UInt32,nupic::Real32> result(bounds_i.size(), bounds_j.size());
       self->nNonZerosPerBox(bounds_i.begin(), bounds_i.end(),
 			    bounds_j.begin(), bounds_j.end(), 
 			    result);
@@ -3213,81 +3213,81 @@ def __setstate__(self, inString):
 
   inline PyObject* rowSums() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nRows());
     self->rowSums(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* colSums() const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nCols());
     self->colSums(x.begin(), x.end());
     return x.forPython();
   }
 
   inline PyObject* overlap(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::NumpyVectorT<nta::UInt32> y(self->nRows());
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> y(self->nRows());
     self->overlap(x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
 
-  inline bool maxAllowedOverlap(nta::Real32 maxDistance, PyObject* py_x) const
+  inline bool maxAllowedOverlap(nupic::Real32 maxDistance, PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     return self->maxAllowedOverlap(maxDistance, x.begin(), x.end());
   }
 
   inline void appendSparseRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->appendSparseRow(x.begin(), x.end());
   }
 
   inline void appendDenseRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->appendDenseRow(x.begin(), x.end());
   }
 
-  inline void replaceSparseRow(nta::UInt32 row, PyObject* py_x)
+  inline void replaceSparseRow(nupic::UInt32 row, PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->replaceSparseRow(row, x.begin(), x.end());
   }
 
   inline void appendSparseCol(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->appendSparseCol(x.begin(), x.end());
   }
 
-  inline PyObject* getRowSparse(nta::UInt32 row) const
+  inline PyObject* getRowSparse(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nNonZerosOnRow(row));
-    const nta::SparseBinaryMatrix<nta::UInt32>::Row& _row =
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nNonZerosOnRow(row));
+    const nupic::SparseBinaryMatrix<nupic::UInt32>::Row& _row =
       self->getSparseRow(row);
-    for (nta::UInt32 i = 0; i != _row.size(); ++i)
+    for (nupic::UInt32 i = 0; i != _row.size(); ++i)
       x.set(i, _row[i]);
     return x.forPython();
   }
 
-  inline nta::UInt32 findRowSparse(PyObject* py_x) const
+  inline nupic::UInt32 findRowSparse(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     return self->findRowSparse(x.begin(), x.end());
   }
 
-  inline nta::UInt32 findRowDense(PyObject* py_x) const
+  inline nupic::UInt32 findRowDense(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     return self->findRowDense(x.begin(), x.end());
   }
 
   inline void fromDense(PyObject* py_m)
   {
-    nta::NumpyMatrixT<nta::UInt32> m(py_m);
+    nupic::NumpyMatrixT<nupic::UInt32> m(py_m);
     self->fromDense(m.rows(), m.columns(), 
 		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
   }
@@ -3295,7 +3295,7 @@ def __setstate__(self, inString):
   inline PyObject* toDense() const 
   {
     int dims[] = { static_cast<int>(self->nRows()), static_cast<int>(self->nCols()) };
-    nta::NumpyMatrixT<nta::UInt32> out(dims);
+    nupic::NumpyMatrixT<nupic::UInt32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
   }
@@ -3373,36 +3373,36 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
-  inline void fromSparseVector(nta::UInt32 nrows, nta::UInt32 ncols,
-			       PyObject *py_x, nta::UInt32 offset =0)
+  inline void fromSparseVector(nupic::UInt32 nrows, nupic::UInt32 ncols,
+			       PyObject *py_x, nupic::UInt32 offset =0)
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
     self->fromSparseVector(nrows, ncols, x.begin(), x.end(), offset);
   }
 
-  inline PyObject* toSparseVector(nta::UInt32 offset =0)
+  inline PyObject* toSparseVector(nupic::UInt32 offset =0)
   {
-    nta::NumpyVectorT<nta::UInt32> x(self->nNonZeros());
+    nupic::NumpyVectorT<nupic::UInt32> x(self->nNonZeros());
     self->toSparseVector(x.begin(), x.end(), offset);
     return x.forPython();
   }
 
-  inline PyObject* getRow(nta::UInt32 row) const
+  inline PyObject* getRow(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->getRow(row, x.begin(), x.end());
     return x.forPython();
   }
 
-  inline void rowFromDense(nta::UInt32 row, PyObject* py_x)
+  inline void rowFromDense(nupic::UInt32 row, PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->rowFromDense(row, x.begin(), x.end());
   }
 
-  inline PyObject* rowToDense(nta::UInt32 row) const
+  inline PyObject* rowToDense(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->rowToDense(row, x.begin(), x.end());
     return x.forPython();
   }
@@ -3413,9 +3413,9 @@ def __setstate__(self, inString):
   inline PyObject* rightVecSumAtNZ(PyObject* py_x) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
-    nta::NumpyVectorT<nta::Real32> y(self->nRows());
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::NumpyVectorT<nupic::Real32> y(self->nRows());
     self->rightVecSumAtNZ(x_begin, x_end, y.begin(), y.end());
     return y.forPython();
   }
@@ -3426,11 +3426,11 @@ def __setstate__(self, inString):
   inline void rightVecSumAtNZ_fast(PyObject* py_x, PyObject* py_y) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
     self->rightVecSumAtNZ(x_begin, x_end, y_begin, y_end);
   }
 
@@ -3440,9 +3440,9 @@ def __setstate__(self, inString):
   inline PyObject* leftVecSumAtNZ(PyObject* py_x) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
-    nta::NumpyVectorT<nta::Real32> y(self->nCols());
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::NumpyVectorT<nupic::Real32> y(self->nCols());
     self->leftVecSumAtNZ(x_begin, x_end, y.begin(), y.end());
     return y.forPython();
   }
@@ -3453,21 +3453,21 @@ def __setstate__(self, inString):
   inline void leftVecSumAtNZ_fast(PyObject* py_x, PyObject* py_y) const
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::Real32* x_begin = (nta::Real32*)(x->data);
-    nta::Real32* x_end = x_begin + x->dimensions[0];
+    nupic::Real32* x_begin = (nupic::Real32*)(x->data);
+    nupic::Real32* x_end = x_begin + x->dimensions[0];
     PyArrayObject* y = (PyArrayObject*) py_y;
-    nta::Real32* y_begin = (nta::Real32*)(y->data);
-    nta::Real32* y_end = y_begin + y->dimensions[0];
+    nupic::Real32* y_begin = (nupic::Real32*)(y->data);
+    nupic::Real32* y_end = y_begin + y->dimensions[0];
     self->leftVecSumAtNZ(x_begin, x_end, y_begin, y_end);
   }
 
   PyObject* rightDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nRows();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->rightVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -3475,11 +3475,11 @@ def __setstate__(self, inString):
   
   PyObject* leftDenseMatSumAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecSumAtNZ(m.begin(i), m.end(i), r.begin(i), r.end(i));
     return r.forPython();
@@ -3487,11 +3487,11 @@ def __setstate__(self, inString):
 
   PyObject* leftDenseMatMaxAtNZ(PyObject* mIn) const
   {
-    nta::NumpyMatrixT<nta::Real32> m(mIn);
+    nupic::NumpyMatrixT<nupic::Real32> m(mIn);
     int nRowsCols[2];
     nRowsCols[0] = m.nRows();
     nRowsCols[1] = self->nCols();
-    nta::NumpyMatrixT<nta::Real32> r(nRowsCols);
+    nupic::NumpyMatrixT<nupic::Real32> r(nRowsCols);
     for (int i = 0; i != m.nRows(); ++i)
       self->leftVecMaxAtNZ(m.begin(i), r.begin(i));
     return r.forPython();
@@ -3499,8 +3499,8 @@ def __setstate__(self, inString):
 
   inline PyObject* minHammingDistance(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    std::pair<nta::UInt32, nta::UInt32> r =
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    std::pair<nupic::UInt32, nupic::UInt32> r =
       self->minHammingDistance(x.begin(), x.end());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, PyInt_FromLong(r.first));
@@ -3508,45 +3508,45 @@ def __setstate__(self, inString):
     return toReturn;
   }
 
-  inline PyObject* firstRowCloserThan(PyObject* py_x, nta::UInt32 distance) const
+  inline PyObject* firstRowCloserThan(PyObject* py_x, nupic::UInt32 distance) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::UInt32 i = self->firstRowCloserThan(x.begin(), x.end(), distance);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::UInt32 i = self->firstRowCloserThan(x.begin(), x.end(), distance);
     return PyInt_FromLong(i);
   }
 
-  inline PyObject* firstRowCloserThan_dense(PyObject* py_x, nta::UInt32 distance) const
+  inline PyObject* firstRowCloserThan_dense(PyObject* py_x, nupic::UInt32 distance) const
   {
-    nta::NumpyVectorT<nta::UInt32> x(py_x);
-    nta::UInt32 i = self->firstRowCloserThan_dense(x.begin(), x.end(), distance);
+    nupic::NumpyVectorT<nupic::UInt32> x(py_x);
+    nupic::UInt32 i = self->firstRowCloserThan_dense(x.begin(), x.end(), distance);
     return PyInt_FromLong(i);
   }
 
   inline PyObject* vecMaxProd(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real32> x(py_x), y(self->nRows());
     self->vecMaxProd(x.begin(), x.end(), y.begin(), y.end());
     return y.forPython();
   }
 
   inline PyObject* rightVecArgMaxAtNZ(PyObject* py_x) const
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(self->nRows());
+    nupic::NumpyVectorT<nupic::Real32> x(py_x), y(self->nRows());
     self->rightVecArgMaxAtNZ(x.begin(), y.begin());
     return y.forPython();
   }
 
-  inline bool __eq__(const nta::SparseBinaryMatrix<nta::UInt32, nta::UInt32>& other) const
+  inline bool __eq__(const nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt32>& other) const
   { 
     return self->equals(other); 
   }
   
-  inline bool __ne__(const nta::SparseBinaryMatrix<nta::UInt32, nta::UInt32>& other) const
+  inline bool __ne__(const nupic::SparseBinaryMatrix<nupic::UInt32, nupic::UInt32>& other) const
   { 
     return ! self->equals(other); 
   }
 
-} // end extend nta::SparseBinaryMatrix
+} // end extend nupic::SparseBinaryMatrix
 
 %pythoncode %{
   
@@ -3562,7 +3562,7 @@ def __setstate__(self, inString):
 // SPARSE RLE MATRIX
 //--------------------------------------------------------------------------------
 /*
-%extend nta::SparseRLEMatrix<nta::UInt16, unsigned char>
+%extend nupic::SparseRLEMatrix<nupic::UInt16, unsigned char>
 {
 %pythoncode %{
 
@@ -3609,26 +3609,26 @@ def __setstate__(self, inString):
 
   inline void appendRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->appendRow(x.begin(), x.end());
   }
 
-  inline PyObject* getRowToDense(nta::UInt32 row) const
+  inline PyObject* getRowToDense(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->getRowToDense(row, x.begin(), x.end());
     return x.forPython();
   }
 
-  inline nta::UInt16 firstRowCloserThan(PyObject* py_x, nta::Real32 d) const
+  inline nupic::UInt16 firstRowCloserThan(PyObject* py_x, nupic::Real32 d) const
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     return self->firstRowCloserThan(x.begin(), x.end(), d);
   }
 
   inline void fromDense(PyObject* py_m)
   {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
+    nupic::NumpyMatrixT<nupic::Real32> m(py_m);
     self->fromDense(m.rows(), m.columns(), 
 		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
   }
@@ -3636,7 +3636,7 @@ def __setstate__(self, inString):
   inline PyObject* toDense() const 
   {
     int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
+    nupic::NumpyMatrixT<nupic::Real32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
   }
@@ -3676,10 +3676,10 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
-} // end extend nta::SparseRLEMatrix
+} // end extend nupic::SparseRLEMatrix
 
 //--------------------------------------------------------------------------------
-%extend nta::SparseRLEMatrix<nta::UInt16, nta::UInt16>
+%extend nupic::SparseRLEMatrix<nupic::UInt16, nupic::UInt16>
 {
 %pythoncode %{
 
@@ -3726,26 +3726,26 @@ def __setstate__(self, inString):
 
   inline void appendRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->appendRow(x.begin(), x.end());
   }
 
-  inline PyObject* getRowToDense(nta::UInt32 row) const
+  inline PyObject* getRowToDense(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->getRowToDense(row, x.begin(), x.end());
     return x.forPython();
   }
 
-  inline nta::UInt16 firstRowCloserThan(PyObject* py_x, nta::Real32 d) const
+  inline nupic::UInt16 firstRowCloserThan(PyObject* py_x, nupic::Real32 d) const
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     return self->firstRowCloserThan(x.begin(), x.end(), d);
   }
 
   inline void fromDense(PyObject* py_m)
   {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
+    nupic::NumpyMatrixT<nupic::Real32> m(py_m);
     self->fromDense(m.rows(), m.columns(), 
 		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
   }
@@ -3753,7 +3753,7 @@ def __setstate__(self, inString):
   inline PyObject* toDense() const 
   {
     int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
+    nupic::NumpyMatrixT<nupic::Real32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
   }
@@ -3793,12 +3793,12 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
-} // end extend nta::SparseRLEMatrix
+} // end extend nupic::SparseRLEMatrix
 */
 
 //--------------------------------------------------------------------------------
  /*
-%extend nta::SparseRLEMatrix<nta::UInt32, nta::Real32>
+%extend nupic::SparseRLEMatrix<nupic::UInt32, nupic::Real32>
 {
 %pythoncode %{
 
@@ -3845,26 +3845,26 @@ def __setstate__(self, inString):
 
   inline void appendRow(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     self->appendRow(x.begin(), x.end());
   }
 
-  inline PyObject* getRowToDense(nta::UInt32 row) const
+  inline PyObject* getRowToDense(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> x(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> x(self->nCols());
     self->getRowToDense(row, x.begin(), x.end());
     return x.forPython();
   }
 
-  inline nta::UInt32 firstRowCloserThan(PyObject* py_x, nta::Real32 d) const
+  inline nupic::UInt32 firstRowCloserThan(PyObject* py_x, nupic::Real32 d) const
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     return self->firstRowCloserThan(x.begin(), x.end(), d);
   }
 
   inline void fromDense(PyObject* py_m)
   {
-    nta::NumpyMatrixT<nta::Real32> m(py_m);
+    nupic::NumpyMatrixT<nupic::Real32> m(py_m);
     self->fromDense(m.rows(), m.columns(), 
 		    m.addressOf(0,0), m.addressOf(0,0) + m.rows() * m.columns());
   }
@@ -3872,7 +3872,7 @@ def __setstate__(self, inString):
   inline PyObject* toDense() const 
   {
     int dims[] = { self->nRows(), self->nCols() };
-    nta::NumpyMatrixT<nta::Real32> out(dims);
+    nupic::NumpyMatrixT<nupic::Real32> out(dims);
     self->toDense(out.addressOf(0, 0), out.addressOf(0, 0) + dims[0] * dims[1]);
     return out.forPython();
   }
@@ -3912,7 +3912,7 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
-} // end extend nta::SparseRLEMatrix
+} // end extend nupic::SparseRLEMatrix
 
 %pythoncode %{
   
@@ -3932,19 +3932,19 @@ def __setstate__(self, inString):
 //--------------------------------------------------------------------------------
 %inline {
 
-  inline nta::Real32 l2_norm(PyObject* py_x)
+  inline nupic::Real32 l2_norm(PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    return nta::l2_norm(x.begin(), x.end());
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
+    return nupic::l2_norm(x.begin(), x.end());
   }
  }
 
 //--------------------------------------------------------------------------------
 // GAUSSIAN 2D
 //--------------------------------------------------------------------------------
-%template(_Gaussian2D_32) nta::Gaussian2D<nta::Real32>;
+%template(_Gaussian2D_32) nupic::Gaussian2D<nupic::Real32>;
 
-%extend nta::Gaussian2D<nta::Real32>
+%extend nupic::Gaussian2D<nupic::Real32>
 {
   %pythoncode %{
     
@@ -3959,12 +3959,12 @@ def __setstate__(self, inString):
       return self.eval(x, y)
   %}
 
-  inline nta::Real32 eval(nta::Real32 x, nta::Real32 y) const
+  inline nupic::Real32 eval(nupic::Real32 x, nupic::Real32 y) const
   {
     return self->operator()(x, y);
   }
 
-} // end extend nta::Gaussian2D
+} // end extend nupic::Gaussian2D
 
 %pythoncode %{
   
@@ -3983,9 +3983,9 @@ def __setstate__(self, inString):
 
 %include <nta/math/Set.hpp>
 
-%template (_Set) nta::Set<nta::UInt32>;
+%template (_Set) nupic::Set<nupic::UInt32>;
 
-%extend nta::Set<nta::UInt32>
+%extend nupic::Set<nupic::UInt32>
 {
   %pythoncode %{
     
@@ -3998,26 +3998,26 @@ def __setstate__(self, inString):
       self.construct(args[0], args[1])
   %}
 
-  inline void construct(nta::UInt32 m, PyObject* py_a)
+  inline void construct(nupic::UInt32 m, PyObject* py_a)
   {
     PyArrayObject* _a = (PyArrayObject*) py_a;
-    nta::UInt32* a = (nta::UInt32*)(_a->data);
-    nta::UInt32 n = _a->dimensions[0];
+    nupic::UInt32* a = (nupic::UInt32*)(_a->data);
+    nupic::UInt32 n = _a->dimensions[0];
     self->construct(m, n, a);
   }
 
-  inline nta::UInt32 intersection(PyObject* py_s2, PyObject* py_r) const
+  inline nupic::UInt32 intersection(PyObject* py_s2, PyObject* py_r) const
   {
     PyArrayObject* _s2 = (PyArrayObject*) py_s2;
-    nta::UInt32* s2 = (nta::UInt32*)(_s2->data);
-    nta::UInt32 n2 = _s2->dimensions[0];
+    nupic::UInt32* s2 = (nupic::UInt32*)(_s2->data);
+    nupic::UInt32 n2 = _s2->dimensions[0];
     PyArrayObject* _r = (PyArrayObject*) py_r;
-    nta::UInt32* r = (nta::UInt32*)(_r->data);
+    nupic::UInt32* r = (nupic::UInt32*)(_r->data);
 
     return self->intersection(n2, s2, r);
   }
 
-} // end extend nta::Set
+} // end extend nupic::Set
 
 %pythoncode %{
   

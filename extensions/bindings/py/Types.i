@@ -54,17 +54,17 @@
 %template(StringMapList) std::vector< std::map<std::string, std::string> >;
 %template(StringIntPair) std::pair<std::string, NTA_Int32>;
 
-%template(PairOfUInt32) std::pair<nta::UInt32, nta::UInt32>;
-%template(VectorOfPairsOfUInt32) std::vector<std::pair<nta::UInt32,nta::UInt32> >;
-%template(VectorOfVectorsOfPairsOfUInt32) std::vector<std::vector<std::pair<nta::UInt32,nta::UInt32> > >;
+%template(PairOfUInt32) std::pair<nupic::UInt32, nupic::UInt32>;
+%template(VectorOfPairsOfUInt32) std::vector<std::pair<nupic::UInt32,nupic::UInt32> >;
+%template(VectorOfVectorsOfPairsOfUInt32) std::vector<std::vector<std::pair<nupic::UInt32,nupic::UInt32> > >;
 
-%template(PairUInt32Real32) std::pair<nta::UInt32,nta::Real32>;
-%template(PairUInt32Real64) std::pair<nta::UInt32,nta::Real64>;
-%template(VectorOfPairsUInt32Real32) std::vector<std::pair<nta::UInt32,nta::Real32> >;
-%template(VectorOfPairsUInt32Real64) std::vector<std::pair<nta::UInt32,nta::Real64> >;
+%template(PairUInt32Real32) std::pair<nupic::UInt32,nupic::Real32>;
+%template(PairUInt32Real64) std::pair<nupic::UInt32,nupic::Real64>;
+%template(VectorOfPairsUInt32Real32) std::vector<std::pair<nupic::UInt32,nupic::Real32> >;
+%template(VectorOfPairsUInt32Real64) std::vector<std::pair<nupic::UInt32,nupic::Real64> >;
 #ifdef NTA_QUAD_PRECISION
-%template(PairUInt32Real128) std::pair<nta::UInt32,nta::Real128>;
-%template(SizeTReal128Vector) std::vector<std::pair<nta::UInt32,nta::Real128> >;
+%template(PairUInt32Real128) std::pair<nupic::UInt32,nupic::Real128>;
+%template(SizeTReal128Vector) std::vector<std::pair<nupic::UInt32,nupic::Real128> >;
 #endif
 
 
