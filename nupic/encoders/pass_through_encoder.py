@@ -89,7 +89,7 @@ class PassThroughEncoder(Encoder):
     output[:] = input[:]
 
     if self.verbosity >= 2:
-      print "input:", input, "index:", index, "output:", output
+      print "input:", input, "output:", output
       print "decoded:", self.decodedToStr(self.decode(output))
 
 
