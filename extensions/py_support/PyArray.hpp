@@ -37,9 +37,9 @@
 #define NTA_PY_ARRAY_HPP
 
 #include <py_support/PyHelpers.hpp>
-#include <nta/types/Types.h>
-#include <nta/ntypes/Array.hpp>
-#include <nta/ntypes/ArrayRef.hpp>
+#include <nupic/types/Types.h>
+#include <nupic/ntypes/Array.hpp>
+#include <nupic/ntypes/ArrayRef.hpp>
 
 namespace nupic
 {

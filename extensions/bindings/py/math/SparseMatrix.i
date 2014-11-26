@@ -21,10 +21,10 @@
  */
 
 %{
-#include <nta/math/SparseMatrix.hpp>
-#include <nta/math/SparseMatrixAlgorithms.hpp>
-#include <nta/math/SparseBinaryMatrix.hpp>
-#include <nta/math/NearestNeighbor.hpp>
+#include <nupic/math/SparseMatrix.hpp>
+#include <nupic/math/SparseMatrixAlgorithms.hpp>
+#include <nupic/math/SparseBinaryMatrix.hpp>
+#include <nupic/math/NearestNeighbor.hpp>
 #include <py_support/NumpyVector.hpp>
 #include <py_support/PythonStream.hpp>
 
@@ -43,12 +43,12 @@
 %ignore print;
 
 //--------------------------------------------------------------------------------
-%include <nta/math/Math.hpp>
-%include <nta/math/Domain.hpp>
-%include <nta/math/SparseMatrix.hpp>
-%include <nta/math/SparseMatrixAlgorithms.hpp>
-%include <nta/math/SparseBinaryMatrix.hpp>
- //%include <nta/math/SparseRLEMatrix.hpp>
+%include <nupic/math/Math.hpp>
+%include <nupic/math/Domain.hpp>
+%include <nupic/math/SparseMatrix.hpp>
+%include <nupic/math/SparseMatrixAlgorithms.hpp>
+%include <nupic/math/SparseBinaryMatrix.hpp>
+ //%include <nupic/math/SparseRLEMatrix.hpp>
 
 %template(_Domain32) nupic::Domain<nupic::UInt32>;
 %template(_Domain2D32) nupic::Domain2D<nupic::UInt32>;
@@ -2222,7 +2222,7 @@ def SM_assignNoAlloc(sm, right):
 %}
 
 //--------------------------------------------------------------------------------
-%include <nta/math/NearestNeighbor.hpp>
+%include <nupic/math/NearestNeighbor.hpp>
 
 //--------------------------------------------------------------------------------
 // k-NN
@@ -3978,10 +3978,10 @@ def __setstate__(self, inString):
 // SET
 //--------------------------------------------------------------------------------
 %{
-#include <nta/math/Set.hpp>
+#include <nupic/math/Set.hpp>
 %}
 
-%include <nta/math/Set.hpp>
+%include <nupic/math/Set.hpp>
 
 %template (_Set) nupic::Set<nupic::UInt32>;
 

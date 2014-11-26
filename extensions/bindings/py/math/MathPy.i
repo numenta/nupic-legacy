@@ -77,12 +77,12 @@ _MATH = _math
  */
 
 #include <cmath>
-#include <nta/types/Types.hpp>
-#include <nta/math/Utils.hpp>
-#include <nta/math/Math.hpp>
-#include <nta/math/Functions.hpp>
-#include <nta/math/ArrayAlgo.hpp>
-#include <nta/utils/Random.hpp>
+#include <nupic/types/Types.hpp>
+#include <nupic/math/Utils.hpp>
+#include <nupic/math/Math.hpp>
+#include <nupic/math/Functions.hpp>
+#include <nupic/math/ArrayAlgo.hpp>
+#include <nupic/utils/Random.hpp>
 #include <numpy/arrayobject.h>
 %}
 
@@ -187,12 +187,12 @@ import_array();
 
 //--------------------------------------------------------------------------------
 
-%include <nta/math/Functions.hpp>
+%include <nupic/math/Functions.hpp>
 
 // ----- Random -----
 
-%include <nta/utils/LoggingException.hpp>
-%include <nta/utils/Random.hpp>
+%include <nupic/utils/LoggingException.hpp>
+%include <nupic/utils/Random.hpp>
 
 %extend nupic::Random {
 

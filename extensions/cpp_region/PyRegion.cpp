@@ -25,19 +25,19 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <nta/engine/Spec.hpp>
-#include <nta/engine/Region.hpp>
-#include <nta/engine/Input.hpp>
-#include <nta/engine/Output.hpp>
-#include <nta/utils/Log.hpp>
-#include <nta/ntypes/ObjectModel.hpp> // IWrite/ReadBuffer
-#include <nta/ntypes/Value.hpp>
-#include <nta/ntypes/Array.hpp>
-#include <nta/ntypes/ArrayRef.hpp>
-#include <nta/types/BasicType.hpp>
-#include <nta/ntypes/BundleIO.hpp>
-#include <nta/utils/Log.hpp>
-#include <nta/os/Path.hpp>
+#include <nupic/engine/Spec.hpp>
+#include <nupic/engine/Region.hpp>
+#include <nupic/engine/Input.hpp>
+#include <nupic/engine/Output.hpp>
+#include <nupic/utils/Log.hpp>
+#include <nupic/ntypes/ObjectModel.hpp> // IWrite/ReadBuffer
+#include <nupic/ntypes/Value.hpp>
+#include <nupic/ntypes/Array.hpp>
+#include <nupic/ntypes/ArrayRef.hpp>
+#include <nupic/types/BasicType.hpp>
+#include <nupic/ntypes/BundleIO.hpp>
+#include <nupic/utils/Log.hpp>
+#include <nupic/os/Path.hpp>
 #include <py_support/PyArray.hpp>
 
 using namespace nupic;

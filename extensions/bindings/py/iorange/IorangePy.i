@@ -56,7 +56,7 @@
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
 #include <bindings/py/iorange/WrappedVector.hpp>
-#include <nta/ntypes/ArrayBase.hpp>
+#include <nupic/ntypes/ArrayBase.hpp>
 
 %}
 

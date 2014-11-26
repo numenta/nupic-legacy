@@ -56,32 +56,32 @@ _ALGORITHMS = _algorithms
 #include <fstream>
 #include <vector>
 
-#include <nta/math/Types.hpp>
-#include <nta/math/Convolution.hpp>
-#include <nta/math/Rotation.hpp>
-#include <nta/math/Erosion.hpp>
-#include <nta/algorithms/GaborNode.hpp>
-#include <nta/algorithms/ImageSensorLite.hpp>
-#include <nta/algorithms/Scanning.hpp>
+#include <nupic/math/Types.hpp>
+#include <nupic/math/Convolution.hpp>
+#include <nupic/math/Rotation.hpp>
+#include <nupic/math/Erosion.hpp>
+#include <nupic/algorithms/GaborNode.hpp>
+#include <nupic/algorithms/ImageSensorLite.hpp>
+#include <nupic/algorithms/Scanning.hpp>
 
-#include <nta/math/SparseMatrix.hpp>
-#include <nta/math/SparseBinaryMatrix.hpp>
-#include <nta/algorithms/Svm.hpp>
-#include <nta/algorithms/Linear.hpp>
-#include <nta/algorithms/FDRSpatial.hpp>
-#include <nta/algorithms/FDRCSpatial.hpp>
-#include <nta/algorithms/SpatialPooler.hpp>
-#include <nta/algorithms/FlatSpatialPooler.hpp>
+#include <nupic/math/SparseMatrix.hpp>
+#include <nupic/math/SparseBinaryMatrix.hpp>
+#include <nupic/algorithms/Svm.hpp>
+#include <nupic/algorithms/Linear.hpp>
+#include <nupic/algorithms/FDRSpatial.hpp>
+#include <nupic/algorithms/FDRCSpatial.hpp>
+#include <nupic/algorithms/SpatialPooler.hpp>
+#include <nupic/algorithms/FlatSpatialPooler.hpp>
 
-#include <nta/algorithms/Cells4.hpp>
-#include <nta/algorithms/ClassifierResult.hpp>
-#include <nta/algorithms/FastClaClassifier.hpp>
-#include <nta/algorithms/SegmentUpdate.hpp>
-#include <nta/algorithms/OutSynapse.hpp>
-#include <nta/algorithms/InSynapse.hpp>
-#include <nta/algorithms/Cell.hpp>
+#include <nupic/algorithms/Cells4.hpp>
+#include <nupic/algorithms/ClassifierResult.hpp>
+#include <nupic/algorithms/FastClaClassifier.hpp>
+#include <nupic/algorithms/SegmentUpdate.hpp>
+#include <nupic/algorithms/OutSynapse.hpp>
+#include <nupic/algorithms/InSynapse.hpp>
+#include <nupic/algorithms/Cell.hpp>
 
-#include <nta/algorithms/Connections.hpp>
+#include <nupic/algorithms/Connections.hpp>
 
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
@@ -272,7 +272,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // LINEAR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/Linear.hpp>
+%include <nupic/algorithms/Linear.hpp>
 
 %extend nupic::algorithms::linear::linear
 {
@@ -318,7 +318,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // SVM
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/Svm.hpp>
+%include <nupic/algorithms/Svm.hpp>
 
 %ignore nupic::algorithms::svm::operator=;
 
@@ -555,7 +555,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // CONVOLUTION
 //--------------------------------------------------------------------------------
-%include <nta/math/Convolution.hpp>
+%include <nupic/math/Convolution.hpp>
 
 %template(Float32SeparableConvolution2D) SeparableConvolution2D<float>;
 
@@ -591,7 +591,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // ROTATION
 //--------------------------------------------------------------------------------
-%include <nta/math/Rotation.hpp>
+%include <nupic/math/Rotation.hpp>
 
 %template(Float32Rotation45) Rotation45<float>;
 
@@ -621,7 +621,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // EROSION
 //--------------------------------------------------------------------------------
-%include <nta/math/Erosion.hpp>
+%include <nupic/math/Erosion.hpp>
 
 %template(Float32Erosion) Erosion<float>;
 
@@ -655,7 +655,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 // SCANNING
 //--------------------------------------------------------------------------------
 
-%include <nta/algorithms/Scanning.hpp>
+%include <nupic/algorithms/Scanning.hpp>
 %inline {
   void computeAlpha(nupic::UInt32 xstep, nupic::UInt32 ystep,
                     nupic::UInt32 widthS, nupic::UInt32 heightS,
@@ -683,8 +683,8 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 %template(Byte_Vector) std::vector<nupic::Byte>;
 
-%include <nta/math/Types.hpp>
- ///%include <nta/algorithms/Cells.hpp>
+%include <nupic/math/Types.hpp>
+ ///%include <nupic/algorithms/Cells.hpp>
 
  ///%template(Segment_32) nupic::algorithms::Segment<nupic::UInt32, nupic::Real32>;
  ///%template(Branch_32) nupic::algorithms::Branch<nupic::UInt32, nupic::Real32>;
@@ -768,7 +768,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // FDR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/FDRSpatial.hpp>
+%include <nupic/algorithms/FDRSpatial.hpp>
 
  // Functions to speed-up Python continuous FDR SP and TP
 %inline {
@@ -911,7 +911,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // Continuous FDR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/FDRCSpatial.hpp>
+%include <nupic/algorithms/FDRCSpatial.hpp>
 
 //--------------------------------------------------------------------------------
 %extend nupic::algorithms::FDRCSpatial
@@ -1591,11 +1591,11 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 
 //--------------------------------------------------------------------------------
 // NEW ALGORITHMS (Cells4)
-%include <nta/algorithms/Segment.hpp>
-%include <nta/algorithms/SegmentUpdate.hpp>
-%include <nta/algorithms/OutSynapse.hpp>
-%include <nta/algorithms/InSynapse.hpp>
-%include <nta/algorithms/Cell.hpp>
+%include <nupic/algorithms/Segment.hpp>
+%include <nupic/algorithms/SegmentUpdate.hpp>
+%include <nupic/algorithms/OutSynapse.hpp>
+%include <nupic/algorithms/InSynapse.hpp>
+%include <nupic/algorithms/Cell.hpp>
 
 
 
@@ -1646,7 +1646,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 
 //--------------------------------------------------------------------------------
 // EVEN NEWER ALGORITHMS (Cells4)
-%include <nta/algorithms/Cells4.hpp>
+%include <nupic/algorithms/Cells4.hpp>
 
 
 //--------------------------------------------------------------------------------
@@ -1798,7 +1798,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   }
 }
 
-%include <nta/algorithms/SpatialPooler.hpp>
+%include <nupic/algorithms/SpatialPooler.hpp>
 
 %extend nupic::algorithms::spatial_pooler::SpatialPooler
 {
@@ -1994,7 +1994,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 }
 
 
-%include <nta/algorithms/FlatSpatialPooler.hpp>
+%include <nupic/algorithms/FlatSpatialPooler.hpp>
 
 %extend nupic::algorithms::spatial_pooler::FlatSpatialPooler
 {
@@ -2098,7 +2098,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 
 }
 
-%include <nta/algorithms/FastClaClassifier.hpp>
+%include <nupic/algorithms/FastClaClassifier.hpp>
 
 %pythoncode %{
   import numpy
@@ -2231,7 +2231,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 %template(ConnectionsSynapseVector) vector<nupic::algorithms::connections::Synapse>;
 %template(ConnectionsSegmentVector) vector<nupic::algorithms::connections::Segment>;
 %template(ConnectionsCellVector) vector<nupic::algorithms::connections::Cell>;
-%include <nta/algorithms/Connections.hpp>
+%include <nupic/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------

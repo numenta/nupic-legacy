@@ -93,7 +93,7 @@
 
 
 %{
-#include <nta/os/OS.hpp>
+#include <nupic/os/OS.hpp>
 %}
 
 // magic swig incantation
