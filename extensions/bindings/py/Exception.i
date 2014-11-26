@@ -1,6 +1,6 @@
 %{
 #include <Python.h>
-#include <nta/types/Exception.hpp>
+#include <nupic/types/Exception.hpp>
 #include <py_support/PyHelpers.hpp>
 #include <iostream>
 %}

@@ -29,7 +29,7 @@
  * Contains the NumpyArray class, a wrapper for Python numpy arrays.
  */
 
-#include <nta/types/Types.hpp> // For nupic::Real.
+#include <nupic/types/Types.hpp> // For nupic::Real.
 #include <algorithm> // For std::copy.
 #include <numpy/arrayobject.h>
 
@@ -132,7 +132,7 @@ namespace nupic {
   /// problems. This wrapper should only be used within Python bindings,
   /// as numpy data structures will only be passed in from Python code.
   /// For an example of its use, see the nupic::SparseMatrix Python bindings
-  /// in nta/python/bindings/math/SparseMatrix.i
+  /// in nupic/python/bindings/math/SparseMatrix.i
   ///////////////////////////////////////////////////////////
   template<typename T=nupic::Real>
   class NumpyVectorT : public NumpyArray

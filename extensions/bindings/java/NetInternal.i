@@ -20,8 +20,8 @@ using namespace nupic;
 %include <nta2/utils2/LogItem.hpp>
 %include <nta2/utils2/LoggingException.hpp>
 
-%include <nta/types/Types.h>
-%include <nta/types/Types.hpp>
+%include <nupic/types/Types.h>
+%include <nupic/types/Types.hpp>
 
 %include <nta2/net/Network.hpp>
 %include <nta2/net/Region.hpp>
