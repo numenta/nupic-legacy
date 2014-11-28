@@ -81,6 +81,8 @@ _ALGORITHMS = _algorithms
 #include <nta/algorithms/InSynapse.hpp>
 #include <nta/algorithms/Cell.hpp>
 
+#include <nta/algorithms/Connections.hpp>
+
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
 #include <py_support/PythonStream.hpp>
@@ -2219,4 +2221,102 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     }
     return d;
   }
+}
+
+//--------------------------------------------------------------------------------
+// Data structures (Connections)
+%rename(ConnectionsSynapse) nta::algorithms::connections::Synapse;
+%rename(ConnectionsSegment) nta::algorithms::connections::Segment;
+%rename(ConnectionsCell) nta::algorithms::connections::Cell;
+%template(ConnectionsSynapseVector) vector<nta::algorithms::connections::Synapse>;
+%template(ConnectionsSegmentVector) vector<nta::algorithms::connections::Segment>;
+%template(ConnectionsCellVector) vector<nta::algorithms::connections::Cell>;
+%include <nta/algorithms/Connections.hpp>
+
+
+//--------------------------------------------------------------------------------
+%extend nta::algorithms::connections::Connections
+{
+  %pythoncode %{
+
+    def __init__(self, *args, **kwargs):
+      self.this = _ALGORITHMS.new_Connections(*args, **kwargs)
+
+    def mostActiveSegmentForCells(self, cells, input, synapseThreshold):
+      segment = ConnectionsSegment()
+      result = _ALGORITHMS.Connections_mostActiveSegmentForCells(
+        self, cells, input, synapseThreshold, segment)
+      return segment if result else None
+
+    def cellForSegment(self, segment):
+      """Used by TemporalMemory.learnOnSegments"""
+      return segment.cell
+
+  %}
+}
+
+%extend nta::algorithms::connections::Cell
+{
+  %pythoncode %{
+
+    def __key(self):
+      return (self.idx,)
+
+    def __eq__(x, y):
+      return x.__key() == y.__key()
+
+    def __hash__(self):
+      return hash(self.__key())
+
+    def __str__(self):
+      return str(self.idx)
+
+    def __repr__(self):
+      return str(self)
+
+  %}
+}
+
+%extend nta::algorithms::connections::Segment
+{
+  %pythoncode %{
+
+    def __key(self):
+      return (self.idx, self.cell)
+
+    def __eq__(x, y):
+      return x.__key() == y.__key()
+
+    def __hash__(self):
+      return hash(self.__key())
+
+    def __str__(self):
+      return "{0}-{1}".format(self.cell, self.idx)
+
+    def __repr__(self):
+      return str(self)
+
+  %}
+}
+
+%extend nta::algorithms::connections::Synapse
+{
+  %pythoncode %{
+
+    def __key(self):
+      return (self.idx, self.segment)
+
+    def __eq__(x, y):
+      return x.__key() == y.__key()
+
+    def __hash__(self):
+      return hash(self.__key())
+
+    def __str__(self):
+      return "{0}-{1}".format(self.segment, self.idx)
+
+    def __repr__(self):
+      return str(self)
+
+  %}
 }
