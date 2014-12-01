@@ -20,6 +20,8 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from mock import Mock
+from mock import patch
 import unittest2 as unittest
 
 from nupic import engine
@@ -40,12 +42,20 @@ class NetworkTest(unittest.TestCase):
                      "Matching Python module for " +
                      "py.NonExistingNode not found.")
 
-    # Test failure during import
-    with self.assertRaises(Exception) as cm:
-      n.addRegion('r', 'py.UnimportableNode', '')
+    orig_import = __import__
+    def import_mock(name, *args):
+      if name == "nupic.regions.UnimportableNode":
+        raise SyntaxError("invalid syntax (UnimportableNode.py, line 5)")
 
-    self.assertEqual(str(cm.exception),
-      'invalid syntax (UnimportableNode.py, line 5)')
+      return orig_import(name, *args)
+
+    with patch('__builtin__.__import__', side_effect=import_mock):
+      # Test failure during import
+      with self.assertRaises(Exception) as cm:
+        n.addRegion('r', 'py.UnimportableNode', '')
+
+      self.assertEqual(str(cm.exception),
+        'invalid syntax (UnimportableNode.py, line 5)')
 
     # Test failure in the __init__() method
     with self.assertRaises(Exception) as cm:
