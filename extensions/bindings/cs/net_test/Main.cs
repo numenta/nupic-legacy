@@ -1,5 +1,5 @@
 using System;
-using nta;
+using nupic;
 
 namespace net_test
 {

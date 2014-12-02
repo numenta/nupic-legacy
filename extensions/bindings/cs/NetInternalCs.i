@@ -74,7 +74,7 @@
 //%include <nta2/types2/Exception.hpp>
 
 // For Network::get/setPhases()
-%template(UInt32Set) std::set<nta::UInt32>;
+%template(UInt32Set) std::set<nupic::UInt32>;
 
 
 %template(Dimset) std::vector<size_t>;
@@ -82,11 +82,11 @@
 %include <nta2/ntypes/Array.hpp>
 
 %include <nta2/ntypes/Collection.hpp>
-%template(InputCollection) nta::Collection<nta::InputSpec>;
-%template(OutputCollection) nta::Collection<nta::OutputSpec>;
-%template(ParameterCollection) nta::Collection<nta::ParameterSpec>;
-%template(CommandCollection) nta::Collection<nta::CommandSpec>;
-%template(RegionCollection) nta::Collection<nta::Region *>;
+%template(InputCollection) nupic::Collection<nupic::InputSpec>;
+%template(OutputCollection) nupic::Collection<nupic::OutputSpec>;
+%template(ParameterCollection) nupic::Collection<nupic::ParameterSpec>;
+%template(CommandCollection) nupic::Collection<nupic::CommandSpec>;
+%template(RegionCollection) nupic::Collection<nupic::Region *>;
 
 %include <nta2/net/NuPIC.hpp>
 %include <nta2/net/Network.hpp>
@@ -95,11 +95,11 @@
 %include <nta2/utils2/Watcher.hpp>
 %include <nta2/net/Spec.hpp>
 
-%template(InputPair) std::pair<std::string, nta::InputSpec>;
-%template(OutputPair) std::pair<std::string, nta::OutputSpec>;
-%template(ParameterPair) std::pair<std::string, nta::ParameterSpec>;
-%template(CommandPair) std::pair<std::string, nta::CommandSpec>;
-%template(RegionPair) std::pair<std::string, nta::Region *>;
+%template(InputPair) std::pair<std::string, nupic::InputSpec>;
+%template(OutputPair) std::pair<std::string, nupic::OutputSpec>;
+%template(ParameterPair) std::pair<std::string, nupic::ParameterSpec>;
+%template(CommandPair) std::pair<std::string, nupic::CommandSpec>;
+%template(RegionPair) std::pair<std::string, nupic::Region *>;
 
 %include <nta2/os2/Timer.hpp>
 

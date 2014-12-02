@@ -11,7 +11,7 @@
 #include <nta2/net/Network.hpp>
 #include <nta2/net/Region.hpp>
 #include <nta2/net/Node.hpp>
-using namespace nta;
+using namespace nupic;
 %}
 
 # 'lock' is a keyword in C# so rename it to 'lockObject'
@@ -26,8 +26,8 @@ using namespace nta;
 %include "std_string.i"
 %include "std_vector.i"
 
-%include <nta/types/Types.h>
-%include <nta/types/Types.hpp>
+%include <nupic/types/Types.h>
+%include <nupic/types/Types.hpp>
 %include <nta2/types/Exception.hpp>
 
 %include <nta2/utils2/Log.hpp>

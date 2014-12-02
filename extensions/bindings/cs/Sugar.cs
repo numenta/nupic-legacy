@@ -1,6 +1,6 @@
 
 
-namespace nta
+namespace nupic
 {
 	using System;
 	

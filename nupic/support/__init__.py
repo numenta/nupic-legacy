@@ -355,12 +355,12 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   configuration file is expected to be in the NTA_CONF_PATH directory. If
   NTA_CONF_PATH is not defined, then it is found in the 'conf/default'
   subdirectory of the NuPic installation directory (typically
-  ~/nta/current/conf/default)
+  ~/nupic/current/conf/default)
 
   The logging configuration file can use the environment variable 'NTA_LOG_DIR'
   to set the locations of log files. If this variable is not defined already in
   the environment, this method will set it to the 'logs' subdirectory of the
-  NuPic install directory (typically ~/nta/eng/logs) before loading in the
+  NuPic install directory (typically ~/nupic/eng/logs) before loading in the
   configuration file.
   
   console:    Defines console output for the default "root" logging
