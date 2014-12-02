@@ -30,11 +30,11 @@
 #include <vector>
 #include <set>
 
-#include <nta/engine/RegionImpl.hpp>
-#include <nta/engine/Spec.hpp>
-#include <nta/ntypes/Value.hpp>
+#include <nupic/engine/RegionImpl.hpp>
+#include <nupic/engine/Spec.hpp>
+#include <nupic/ntypes/Value.hpp>
 
-namespace nta 
+namespace nupic
 {
   struct Spec;
 
