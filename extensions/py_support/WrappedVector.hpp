@@ -26,7 +26,7 @@
 /** @file 
  */
  
-#include <nta/types/Types.hpp>
+#include <nupic/types/Types.hpp>
 
 #include <algorithm>
 #include <vector>
@@ -35,7 +35,7 @@
 #include <sstream>
 #include <iterator>
 
-namespace nta {
+namespace nupic {
 
 template<typename T>
 inline std::string tts(const T x) {
@@ -165,13 +165,13 @@ public:
 /// any way (similar to the way Vector references 
 /// memory managed elsewhere).
 class WrappedVector {
-  WrappedVectorIter<nta::Real> p_;
-  nta::Real *own_;
+  WrappedVectorIter<nupic::Real> p_;
+  nupic::Real *own_;
   void free() { if(own_) { delete own_; own_ = 0; } }
 
 public:
   /// Extremely dangerous constructor! Only use for unit testing!
-  WrappedVector(int n) : p_(n, 1, new nta::Real[n]), own_(0) { own_ = p_.p_; }
+  WrappedVector(int n) : p_(n, 1, new nupic::Real[n]), own_(0) { own_ = p_.p_; }
 
 public:
   void checkIndex(int i) const {
@@ -199,14 +199,14 @@ public:
   }
 
 public:
-  typedef WrappedVectorIter<nta::Real> iterator;
+  typedef WrappedVectorIter<nupic::Real> iterator;
 
   WrappedVector() : p_(0, 1, 0), own_(0) {}
-  WrappedVector(const WrappedVectorIter<nta::Real> &p) : p_(p), own_(0) {}
-  WrappedVector(int size, nta::Real *p) : p_(size, 1, p), own_(0) {}
+  WrappedVector(const WrappedVectorIter<nupic::Real> &p) : p_(p), own_(0) {}
+  WrappedVector(int size, nupic::Real *p) : p_(size, 1, p), own_(0) {}
   
-//  WrappedVector(const nta::Belief &b) : p_(b.size(), 1, const_cast<nta::Real *>(b.ptr())), own_(0) {}
-  WrappedVector(const std::vector<nta::Real> &v) : p_(int(v.size()), 1, const_cast<nta::Real *>(&(v[0]))), own_(0) {}
+//  WrappedVector(const nupic::Belief &b) : p_(b.size(), 1, const_cast<nupic::Real *>(b.ptr())), own_(0) {}
+  WrappedVector(const std::vector<nupic::Real> &v) : p_(int(v.size()), 1, const_cast<nupic::Real *>(&(v[0]))), own_(0) {}
   WrappedVector(const WrappedVector &v) : p_(v.p_), own_(0) {}
   WrappedVector &operator=(const WrappedVector &v) { this->free(); p_ = v.p_; own_ = 0; return *this; }
   
@@ -215,8 +215,8 @@ public:
   WrappedVector wvector(size_t lag=0) const { return *this; }
 
   void clear() { this->free(); p_.n_ = 0; p_.incr_ = 1; p_.p_ = 0; }
-  void setPointer(int n, int incr, nta::Real *p) { this->free(); p_.n_ = n; p_.incr_ = incr; p_.p_ = p; }
-  void setPointer(int n, nta::Real *p) { this->free(); p_.n_ = n; p_.incr_ = 1; p_.p_ = p; }
+  void setPointer(int n, int incr, nupic::Real *p) { this->free(); p_.n_ = n; p_.incr_ = incr; p_.p_ = p; }
+  void setPointer(int n, nupic::Real *p) { this->free(); p_.n_ = n; p_.incr_ = 1; p_.p_ = p; }
 
   // Returns the beginning address of the underlying
   // data buffer as an integer.
@@ -225,7 +225,7 @@ public:
   iterator begin() { return p_; }
   iterator end() { return p_.end(); }
 
-  nta::Size __len__() const { return p_.size(); }
+  nupic::Size __len__() const { return p_.size(); }
 
   template<typename T>
   void adjust(T &endPoint) const {
@@ -234,13 +234,13 @@ public:
     else if(endPoint > n) endPoint = n;
   }
 
-  nta::Real __getitem__(int i) const { 
+  nupic::Real __getitem__(int i) const {
     adjust(i); 
     checkIndex(i); 
     return p_[i]; 
   }
 
-  void __setitem__(int i, nta::Real x) { 
+  void __setitem__(int i, nupic::Real x) {
     adjust(i);
     checkIndex(i); 
     p_[i] = x; 
@@ -249,7 +249,7 @@ public:
   std::string __repr__() const {
     std::ostringstream s;
     s << "[";
-    const nta::Real *p = p_.p_;
+    const nupic::Real *p = p_.p_;
     int nm1 = p_.n_-1;
     for(int i=0; i<nm1; ++i) {
       s << (*p) << ", ";
@@ -289,8 +289,8 @@ public:
       throw std::invalid_argument("Sizes must match: " +
         tts(p_.n_) + " " + tts(v.p_.n_));
     const int n = p_.n_, inc1 = p_.incr_, inc2 = v.p_.incr_;
-    nta::Real *p1 = p_.p_;
-    const nta::Real *p2 = v.p_.p_;
+    nupic::Real *p1 = p_.p_;
+    const nupic::Real *p2 = v.p_.p_;
     for(int i=0; i<n; ++i) { *p1 += *p2; p1 += inc1; p2 += inc2; }
 //    return *this;
   }
@@ -301,8 +301,8 @@ public:
       throw std::invalid_argument("Sizes must match: " +
         tts(p_.n_) + " " + tts(v.p_.n_));
     const int n = p_.n_, inc1 = p_.incr_, inc2 = v.p_.incr_;
-    nta::Real *p1 = p_.p_;
-    const nta::Real *p2 = v.p_.p_;
+    nupic::Real *p1 = p_.p_;
+    const nupic::Real *p2 = v.p_.p_;
     for(int i=0; i<n; ++i) { *p1 *= *p2; p1 += inc1; p2 += inc2; }
 //    return *this;
   }
@@ -343,9 +343,9 @@ public:
   /// Iterator functionality.
   WrappedVector next() const { return p_ + 1; }
 
-  void fill(nta::Real x) {
+  void fill(nupic::Real x) {
     const int n = p_.n_, inc1 = p_.incr_;
-    nta::Real *p1 = p_.p_;
+    nupic::Real *p1 = p_.p_;
     for(int i=0; i<n; ++i) { *p1 = x; p1 += inc1; }
   }
 
@@ -353,33 +353,33 @@ public:
     const int n = p_.n_, inc1 = p_.incr_;
     if(!(n >= 1))
       throw std::runtime_error("Cannot call argmax on a 0-length vector.");
-    const nta::Real *p1 = p_.p_;
+    const nupic::Real *p1 = p_.p_;
     int mi = 0;
-    nta::Real mv = *p1; p1 += inc1;
+    nupic::Real mv = *p1; p1 += inc1;
     for(int i=1; i<n; ++i) { 
-      nta::Real x = *p1; p1 += inc1;
+      nupic::Real x = *p1; p1 += inc1;
       if(x > mv) { mi = i; mv = x; }
     }
     return mi;
   }
 
-  nta::Real sum() const {
+  nupic::Real sum() const {
     const int n = p_.n_, inc1 = p_.incr_;
-    const nta::Real *p1 = p_.p_;
-    nta::Real sum = 0;
+    const nupic::Real *p1 = p_.p_;
+    nupic::Real sum = 0;
     for(int i=0; i<n; ++i) { 
-      nta::Real x = *p1; p1 += inc1;
+      nupic::Real x = *p1; p1 += inc1;
       sum += x;
     }
     return sum;
   }
 
-  nta::Real sumSq() const {
+  nupic::Real sumSq() const {
     const int n = p_.n_, inc1 = p_.incr_;
-    const nta::Real *p1 = p_.p_;
-    nta::Real sum = 0;
+    const nupic::Real *p1 = p_.p_;
+    nupic::Real sum = 0;
     for(int i=0; i<n; ++i) { 
-      nta::Real x = *p1; p1 += inc1;
+      nupic::Real x = *p1; p1 += inc1;
       sum += x*x;
     }
     return sum;
@@ -387,26 +387,26 @@ public:
     
   bool any() const {
     const int n = p_.n_, inc1 = p_.incr_;
-    const nta::Real *p1 = p_.p_;
+    const nupic::Real *p1 = p_.p_;
     for(int i=0; i<n; ++i) { 
-      nta::Real x = *p1; p1 += inc1;
+      nupic::Real x = *p1; p1 += inc1;
       if(x) return true;
     }
     return false;
   }
 
-  nta::Real all() const {
+  nupic::Real all() const {
     const int n = p_.n_, inc1 = p_.incr_;
-    const nta::Real *p1 = p_.p_;
+    const nupic::Real *p1 = p_.p_;
     for(int i=0; i<n; ++i) { 
-      nta::Real x = *p1; p1 += inc1;
+      nupic::Real x = *p1; p1 += inc1;
       if(!x) return false;
     }
     return true;
   }
 };
 
-} // End namespace nta.
+} // End namespace nupic.
 
 #endif
 

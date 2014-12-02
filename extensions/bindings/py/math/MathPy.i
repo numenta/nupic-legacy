@@ -77,12 +77,12 @@ _MATH = _math
  */
 
 #include <cmath>
-#include <nta/types/Types.hpp>
-#include <nta/math/Utils.hpp>
-#include <nta/math/Math.hpp>
-#include <nta/math/Functions.hpp>
-#include <nta/math/ArrayAlgo.hpp>
-#include <nta/utils/Random.hpp>
+#include <nupic/types/Types.hpp>
+#include <nupic/math/Utils.hpp>
+#include <nupic/math/Math.hpp>
+#include <nupic/math/Functions.hpp>
+#include <nupic/math/ArrayAlgo.hpp>
+#include <nupic/utils/Random.hpp>
 #include <numpy/arrayobject.h>
 %}
 
@@ -115,57 +115,57 @@ import_array();
 //--------------------------------------------------------------------------------
 %inline {
 
-  inline nta::Real64 lgamma(nta::Real64 x)
+  inline nupic::Real64 lgamma(nupic::Real64 x)
   {
-    return nta::lgamma(x);
+    return nupic::lgamma(x);
   }
 
-  inline nta::Real64 digamma(nta::Real64 x)
+  inline nupic::Real64 digamma(nupic::Real64 x)
   {
-    return nta::digamma(x);
+    return nupic::digamma(x);
   }
 
-  inline nta::Real64 beta(nta::Real64 x, nta::Real64 y)
+  inline nupic::Real64 beta(nupic::Real64 x, nupic::Real64 y)
   {
-    return nta::beta(x, y);
+    return nupic::beta(x, y);
   }
 
-  inline nta::Real64 erf(nta::Real64 x)
+  inline nupic::Real64 erf(nupic::Real64 x)
   {
-    return nta::erf(x);
+    return nupic::erf(x);
   }
 
-  bool nearlyZeroRange(PyObject* py_x, nta::Real32 eps =nta::Epsilon)
+  bool nearlyZeroRange(PyObject* py_x, nupic::Real32 eps =nupic::Epsilon)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    return nta::nearlyZeroRange(x.begin(), x.end(), eps);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
+    return nupic::nearlyZeroRange(x.begin(), x.end(), eps);
   }
 
-  bool nearlyEqualRange(PyObject* py_x, PyObject* py_y, nta::Real32 eps =nta::Epsilon)
+  bool nearlyEqualRange(PyObject* py_x, PyObject* py_y, nupic::Real32 eps =nupic::Epsilon)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(py_y);
-    return nta::nearlyEqualRange(x.begin(), x.end(), y.begin(), y.end(), eps);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x), y(py_y);
+    return nupic::nearlyEqualRange(x.begin(), x.end(), y.begin(), y.end(), eps);
   }
 
-  bool positive_less_than(PyObject* py_x, nta::Real32 eps =nta::Epsilon)
+  bool positive_less_than(PyObject* py_x, nupic::Real32 eps =nupic::Epsilon)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
-    return nta::positive_less_than(x.begin(), x.end(), eps);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
+    return nupic::positive_less_than(x.begin(), x.end(), eps);
   }
 
   /*
-  inline PyObject* quantize_255(PyObject* py_x, nta::Real32 x_min, nta::Real32 x_max)
+  inline PyObject* quantize_255(PyObject* py_x, nupic::Real32 x_min, nupic::Real32 x_max)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(x.size());
-    nta::quantize(x.begin(), x.end(), y.begin(), y.end(),
+    nupic::NumpyVectorT<nupic::Real32> x(py_x), y(x.size());
+    nupic::quantize(x.begin(), x.end(), y.begin(), y.end(),
 		  x_min, x_max, 1, 255);
     return y.forPython();
   }
 
-  inline PyObject* quantize_65535(PyObject* py_x, nta::Real32 x_min, nta::Real32 x_max)
+  inline PyObject* quantize_65535(PyObject* py_x, nupic::Real32 x_min, nupic::Real32 x_max)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x), y(x.size());
-    nta::quantize(x.begin(), x.end(), y.begin(), y.end(),
+    nupic::NumpyVectorT<nupic::Real32> x(py_x), y(x.size());
+    nupic::quantize(x.begin(), x.end(), y.begin(), y.end(),
 		  x_min, x_max, 1, 65535);
     return y.forPython();
   }
@@ -173,28 +173,28 @@ import_array();
 
   PyObject* winnerTakesAll_3(size_t k, size_t seg_size, PyObject* py_x)
   {
-    nta::NumpyVectorT<nta::Real32> x(py_x);
+    nupic::NumpyVectorT<nupic::Real32> x(py_x);
     std::vector<int> ind;
-    std::vector<nta::Real32> nz;
-    nta::winnerTakesAll3(k, seg_size, x.begin(), x.end(),
+    std::vector<nupic::Real32> nz;
+    nupic::winnerTakesAll3(k, seg_size, x.begin(), x.end(),
 		    std::back_inserter(ind), std::back_inserter(nz));
     PyObject *toReturn = PyTuple_New(2);
-    PyTuple_SET_ITEM(toReturn, 0, nta::PyInt32Vector(ind.begin(), ind.end()));
-    PyTuple_SET_ITEM(toReturn, 1, nta::PyFloatVector(nz.begin(), nz.end()));
+    PyTuple_SET_ITEM(toReturn, 0, nupic::PyInt32Vector(ind.begin(), ind.end()));
+    PyTuple_SET_ITEM(toReturn, 1, nupic::PyFloatVector(nz.begin(), nz.end()));
     return toReturn;
   }
 }
 
 //--------------------------------------------------------------------------------
 
-%include <nta/math/Functions.hpp>
+%include <nupic/math/Functions.hpp>
 
 // ----- Random -----
 
-%include <nta/utils/LoggingException.hpp>
-%include <nta/utils/Random.hpp>
+%include <nupic/utils/LoggingException.hpp>
+%include <nupic/utils/Random.hpp>
 
-%extend nta::Random {
+%extend nupic::Random {
 
 // For unpickling.
 %pythoncode %{
@@ -230,39 +230,39 @@ void setState(const std::string &s)
 void setSeed(PyObject *x)
 {
   long seed_ = PyObject_Hash(x);
-  *self = nta::Random(seed_);
+  *self = nupic::Random(seed_);
 }
 
 void jumpAhead(unsigned int n)
 { // WARNING: Slow!
-  while(n) { self->getUInt32(nta::Random::MAX32); --n; }
+  while(n) { self->getUInt32(nupic::Random::MAX32); --n; }
 }
 
-inline void initializeUInt32Array(PyObject* py_array, nta::UInt32 max_value)
+inline void initializeUInt32Array(PyObject* py_array, nupic::UInt32 max_value)
 {
   PyArrayObject* array = (PyArrayObject*) py_array;
-  nta::UInt32* array_data = (nta::UInt32*) array->data;
-  nta::UInt32 size = array->dimensions[0];
-  for (nta::UInt32 i = 0; i != size; ++i)
+  nupic::UInt32* array_data = (nupic::UInt32*) array->data;
+  nupic::UInt32 size = array->dimensions[0];
+  for (nupic::UInt32 i = 0; i != size; ++i)
     array_data[i] = self->getUInt32() % max_value;
 }
 
 inline void initializeReal32Array(PyObject* py_array)
 {
   PyArrayObject* array = (PyArrayObject*) py_array;
-  nta::Real32* array_data = (nta::Real32*) array->data;
-  nta::UInt32 size = array->dimensions[0];
-  for (nta::UInt32 i = 0; i != size; ++i)
-    array_data[i] = (nta::Real32) self->getReal64();
+  nupic::Real32* array_data = (nupic::Real32*) array->data;
+  nupic::UInt32 size = array->dimensions[0];
+  for (nupic::UInt32 i = 0; i != size; ++i)
+    array_data[i] = (nupic::Real32) self->getReal64();
 }
 
-inline void initializeReal32Array_01(PyObject* py_array, nta::Real32 proba)
+inline void initializeReal32Array_01(PyObject* py_array, nupic::Real32 proba)
 {
   PyArrayObject* array = (PyArrayObject*) py_array;
-  nta::Real32* array_data = (nta::Real32*) array->data;
-  nta::Real32 size = array->dimensions[0];
-  for (nta::UInt32 i = 0; i != size; ++i)
-    array_data[i] = (nta::Real32)(self->getReal64() <= proba ? 1.0 : 0.0);
+  nupic::Real32* array_data = (nupic::Real32*) array->data;
+  nupic::Real32 size = array->dimensions[0];
+  for (nupic::UInt32 i = 0; i != size; ++i)
+    array_data[i] = (nupic::Real32)(self->getReal64() <= proba ? 1.0 : 0.0);
 }
 
 inline PyObject* sample(PyObject* population, PyObject* choices)
@@ -291,19 +291,19 @@ inline PyObject* sample(PyObject* population, PyObject* choices)
     {
       if (PyArray_DESCR(values)->type_num == NPY_UINT32)
       {
-        nta::UInt32* valuesStart = (nta::UInt32*) values->data;
-        nta::UInt32 valuesSize = values->dimensions[0];
+        nupic::UInt32* valuesStart = (nupic::UInt32*) values->data;
+        nupic::UInt32 valuesSize = values->dimensions[0];
 
-        nta::UInt32* resultStart = (nta::UInt32*) result->data;
-        nta::UInt32 resultSize = result->dimensions[0];
+        nupic::UInt32* resultStart = (nupic::UInt32*) result->data;
+        nupic::UInt32 resultSize = result->dimensions[0];
 
         self->sample(valuesStart, valuesSize, resultStart, resultSize);
       } else if (PyArray_DESCR(values)->type_num == NPY_UINT64) {
-        nta::UInt64* valuesStart = (nta::UInt64*) values->data;
-        nta::UInt64 valuesSize = values->dimensions[0];
+        nupic::UInt64* valuesStart = (nupic::UInt64*) values->data;
+        nupic::UInt64 valuesSize = values->dimensions[0];
 
-        nta::UInt64* resultStart = (nta::UInt64*) result->data;
-        nta::UInt64 resultSize = result->dimensions[0];
+        nupic::UInt64* resultStart = (nupic::UInt64*) result->data;
+        nupic::UInt64 resultSize = result->dimensions[0];
 
         self->sample(valuesStart, valuesSize, resultStart, resultSize);
       } else {
@@ -312,7 +312,7 @@ inline PyObject* sample(PyObject* population, PyObject* choices)
         return NULL;
       }
     }
-    catch (nta::LoggingException& exception)
+    catch (nupic::LoggingException& exception)
     {
       PyErr_SetString(PyExc_ValueError, exception.getMessage());
       return NULL;
@@ -342,13 +342,13 @@ inline PyObject* shuffle(PyObject* obj)
 
     if (PyArray_DESCR(arr)->type_num == NPY_UINT32)
     {
-      nta::UInt32* arrStart = (nta::UInt32*) arr->data;
-      nta::UInt32* arrEnd = arrStart + arr->dimensions[0];
+      nupic::UInt32* arrStart = (nupic::UInt32*) arr->data;
+      nupic::UInt32* arrEnd = arrStart + arr->dimensions[0];
 
       self->shuffle(arrStart, arrEnd);
     } else if (PyArray_DESCR(arr)->type_num == NPY_UINT64) {
-      nta::UInt64* arrStart = (nta::UInt64*) arr->data;
-      nta::UInt64* arrEnd = arrStart + arr->dimensions[0];
+      nupic::UInt64* arrStart = (nupic::UInt64*) arr->data;
+      nupic::UInt64* arrEnd = arrStart + arr->dimensions[0];
 
       self->shuffle(arrStart, arrEnd);
     } else {
@@ -366,12 +366,12 @@ inline PyObject* shuffle(PyObject* obj)
   return obj;
 }
 
-} // End extend nta::Random.
+} // End extend nupic::Random.
 
 %pythoncode %{
 import random
 class StdRandom(random.Random):
-  """An adapter for nta::Random that allows use of inherited samplers 
+  """An adapter for nupic::Random that allows use of inherited samplers
   from the Python standard library 'random' module."""
   def __init__(self, *args, **keywords):
     self.rgen = Random(*args, **keywords)
