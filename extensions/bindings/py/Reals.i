@@ -39,16 +39,16 @@ type in C code.
 
 %inline %{
 
-#include <nta/types/BasicType.hpp>
+#include <nupic/types/BasicType.hpp>
 
 NTA_BasicType GetBasicTypeFromName(const std::string &type)
 {
-  return nta::BasicType::parse(type);
+  return nupic::BasicType::parse(type);
 }
 
 size_t GetBasicTypeSize(const std::string &type)
 {
-  return nta::BasicType::getSize(nta::BasicType::parse(type));
+  return nupic::BasicType::getSize(nupic::BasicType::parse(type));
 }
 
 %}
