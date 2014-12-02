@@ -54,7 +54,7 @@ s = SparseMatrix(dtype='Float32')
 # If this is not enough, NuPIC can be recompiled to access more precision.
 # With NTA_DOUBLE_PRECISION or NTA_QUAD_PRECISION set at compile time, NuPIC can 
 # use 32 bits to represent floating point values. The global epsilon can 
-# then be set to smaller values via the variable nta::Epsilon in nta/math/math.hpp 
+# then be set to smaller values via the variable nupic::Epsilon in nupic/math/math.hpp
 print '\nGlobal epsilon :', getGlobalEpsilon()
 
 
