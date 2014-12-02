@@ -33,12 +33,12 @@
 // 1) Add an include line inside the %{ %} block. For example:
 //    %{
 //    ... other includes ...
-//    #include <nta/tools/NetworkElement.hpp>
+//    #include <nupic/tools/NetworkElement.hpp>
 //    ... other includes ...
 //    %}
 // 2) Add a binding-generating include line outside any block. 
 //    Binding-generating includes start with %. For example:
-//    %include <nta/tools/NetworkElement.hpp>
+//    %include <nupic/tools/NetworkElement.hpp>
 // That is it! If this fails to generate the desired bindings, consult
 // the extensive SWIG documentation on customizing and extending the 
 // existing bindings, available at:
@@ -48,9 +48,9 @@
 
 %{
 #include <py_support/NumpyVector.hpp>
-#include <nta/math/Index.hpp>
-#include <nta/math/Domain.hpp>
-#include <nta/math/SparseTensor.hpp>
+#include <nupic/math/Index.hpp>
+#include <nupic/math/Domain.hpp>
+#include <nupic/math/SparseTensor.hpp>
 #include <bindings/py/math/PySparseTensor.hpp>
 %}
 
@@ -63,15 +63,15 @@
 %ignore PyTensorIndex::operator==;
 %ignore PyTensorIndex::operator!=;
 
-%ignore nta::Domain::operator[];
-%ignore nta::Domain::operator=;
-%ignore nta::Domain::operator<<;
-%ignore nta::Domain::operator==;
-%ignore nta::Domain::operator!=;
-%ignore nta::DimRange::operator=;
+%ignore nupic::Domain::operator[];
+%ignore nupic::Domain::operator=;
+%ignore nupic::Domain::operator<<;
+%ignore nupic::Domain::operator==;
+%ignore nupic::Domain::operator!=;
+%ignore nupic::DimRange::operator=;
 
-%include <nta/math/Domain.hpp>
- //%template(BaseDomain) nta::Domain<nta::UInt32>;
+%include <nupic/math/Domain.hpp>
+ //%template(BaseDomain) nupic::Domain<nupic::UInt32>;
 
 %include <bindings/py/math/PySparseTensor.hpp>
 

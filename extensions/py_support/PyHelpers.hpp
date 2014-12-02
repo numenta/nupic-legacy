@@ -31,7 +31,7 @@
 #include <Python.h>
 #include <frameobject.h>
 
-#include <nta/utils/Log.hpp>
+#include <nupic/utils/Log.hpp>
 #include <iostream>
 #include <fstream>
 
@@ -52,7 +52,7 @@
 // It is not a comprehensive wrapper around the Python C-API.
 // 
 //The follwoing classes are implemented in the
-// namespac nta::py
+// namespac nupic::py
 //
 // Ptr:
 //   A class that manages a PyObject pointer and serves as base class
@@ -85,8 +85,8 @@
 //   instantiating objects and invoking their methods.
 // ===
 
-// Nested namespace nta::py
-namespace nta { namespace py
+// Nested namespace nupic::py
+namespace nupic { namespace py
 {
   void setRunningUnderPython();
   
@@ -399,7 +399,7 @@ namespace nta { namespace py
 
 
 
-} } // end of nta::py namespace
+} } // end of nupic::py namespace
 
 #endif // NTA_PY_HELPERS_HPP
 

@@ -23,7 +23,7 @@
 /** @file 
  * Definitions for the PyArrayBase class
   * 
-  * A PyArrayBase object is a Python compatible wrapper around an nta::Array object 
+  * A PyArrayBase object is a Python compatible wrapper around an nupic::Array object
   * 
   * It delegates everything to its Array and exposes a Python facade that
   * includes: indexed access with operator[], len() support, An Array contains:
@@ -37,11 +37,11 @@
 #define NTA_PY_ARRAY_HPP
 
 #include <py_support/PyHelpers.hpp>
-#include <nta/types/Types.h>
-#include <nta/ntypes/Array.hpp>
-#include <nta/ntypes/ArrayRef.hpp>
+#include <nupic/types/Types.h>
+#include <nupic/ntypes/Array.hpp>
+#include <nupic/ntypes/ArrayRef.hpp>
 
-namespace nta
+namespace nupic
 {
 // -------------------------------------
 //

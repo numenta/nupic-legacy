@@ -64,7 +64,7 @@ class MyTestEnvironment(object):
     # Save all command line options
     self.options = options
 
-    # Build installation root (e.g., ~/nta/current)
+    # Build installation root (e.g., ~/nupic/current)
     installRootDir = os.path.abspath(options.installDir)
     if not os.path.exists(installRootDir):
       raise RuntimeError("install directory %s doesn't exist" % \
