@@ -270,7 +270,7 @@ class ScalarEncoder(Encoder):
         self.radius = radius
         self.resolution = float(self.radius) / w
       elif resolution != 0:
-        self.resolution = resolution
+        self.resolution = float(resolution)
         self.radius = self.resolution * self.w
       else:
         raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
@@ -653,9 +653,10 @@ class ScalarEncoder(Encoder):
 
     # Which input value does this correspond to?
     if self.periodic:
-      inputVal = self.minval + self.resolution/2 + category * self.resolution
+      inputVal = (self.minval + (self.resolution / 2.0) +
+                  (category * self.resolution))
     else:
-      inputVal = self.minval + category * self.resolution
+      inputVal = self.minval + (category * self.resolution)
 
     return [EncoderResult(value=inputVal, scalar=inputVal, encoding=encoding)]
 
