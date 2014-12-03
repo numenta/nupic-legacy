@@ -313,7 +313,7 @@ class Setup:
       "python" + pythonVersion]
 
     libSharedEngineInternal = setuptools.Extension(
-      "nupic.bindings.engine_internal",
+      "nupic.bindings._engine_internal",
       swig_opts=swigFlags,
       extra_compile_args=commonCompileFlags,
       define_macros=commonDefines,
@@ -338,7 +338,7 @@ class Setup:
     extensions.append(libSharedMath)
 
     libSharedAlgorithms = setuptools.Extension(
-      "nupic.bindings.algorithms",
+      "nupic.bindings._algorithms",
       swig_opts=swigFlags,
       extra_compile_args=commonCompileFlags,
       define_macros=commonDefines,
