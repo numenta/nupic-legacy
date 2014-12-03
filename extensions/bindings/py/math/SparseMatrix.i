@@ -454,7 +454,7 @@ def __div__(self, other):
     return out.forPython();
   }
 
-  void _setRowFromDense(nta::UInt ## N1 row, PyObject* py_row)
+  void _setRowFromDense(nupic::UInt ## N1 row, PyObject* py_row)
   { 
     nupic::NumpyVectorT<nupic::Real ## N2> row_data(py_row);
     self->setRowFromDense(row, row_data.begin());
