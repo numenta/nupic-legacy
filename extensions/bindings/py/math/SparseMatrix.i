@@ -205,6 +205,9 @@ def __init__(self, *args):
 #   else:
 #     return _MATH.SparseMatrix ## N2_set(self, (key,), value)
 
+def setRowFromDense(self, row, x):
+  self._setRowFromDense(row, x)
+
 def __getitem__(self, index):
   return numpy.float ## N2(self.get(index[0], index[1]))
 
@@ -451,7 +454,7 @@ def __div__(self, other):
     return out.forPython();
   }
 
-  void setRowFromDense(nta::UInt ## N1 row, PyObject* py_row) 
+  void _setRowFromDense(nta::UInt ## N1 row, PyObject* py_row)
   { 
     nta::NumpyVectorT<nta::Real ## N2> row_data(py_row);
     self->setRowFromDense(row, row_data.begin());
