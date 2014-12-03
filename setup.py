@@ -325,7 +325,7 @@ class Setup:
     extensions.append(libSharedEngineInternal)
 
     libSharedMath = setuptools.Extension(
-      "nupic.bindings.math",
+      "nupic.bindings._math",
       swig_opts=swigFlags,
       extra_compile_args=commonCompileFlags,
       define_macros=commonDefines,
