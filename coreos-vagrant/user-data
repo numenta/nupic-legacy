@@ -1,0 +1,35 @@
+#cloud-config
+
+coreos:
+  etcd:
+      addr: $public_ipv4:4001
+      peer-addr: $public_ipv4:7001
+  fleet:
+      public-ip: $public_ipv4
+  units:
+    - name: etcd.service
+      command: start
+    - name: fleet.service
+      command: start
+    - name: format-ephemeral.service
+      command: start
+      content: |
+        [Unit]
+        Description=Formats the ephemeral drive
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/usr/sbin/wipefs -f /dev/sda
+        ExecStart=/usr/sbin/mkfs.btrfs -f /dev/sda
+    - name: var-lib-docker.mount
+      command: start
+      content: |
+        [Unit]
+        Description=Mount ephemeral to /var/lib/docker
+        Requires=format-ephemeral.service
+        After=format-ephemeral.service
+        Before=docker.service
+        [Mount]
+        What=/dev/sda
+        Where=/var/lib/docker
+        Type=btrfs
