@@ -56,32 +56,32 @@ _ALGORITHMS = _algorithms
 #include <fstream>
 #include <vector>
 
-#include <nta/math/Types.hpp>
-#include <nta/math/Convolution.hpp>
-#include <nta/math/Rotation.hpp>
-#include <nta/math/Erosion.hpp>
-#include <nta/algorithms/GaborNode.hpp>
-#include <nta/algorithms/ImageSensorLite.hpp>
-#include <nta/algorithms/Scanning.hpp>
+#include <nupic/math/Types.hpp>
+#include <nupic/math/Convolution.hpp>
+#include <nupic/math/Rotation.hpp>
+#include <nupic/math/Erosion.hpp>
+#include <nupic/algorithms/GaborNode.hpp>
+#include <nupic/algorithms/ImageSensorLite.hpp>
+#include <nupic/algorithms/Scanning.hpp>
 
-#include <nta/math/SparseMatrix.hpp>
-#include <nta/math/SparseBinaryMatrix.hpp>
-#include <nta/algorithms/Svm.hpp>
-#include <nta/algorithms/Linear.hpp>
-#include <nta/algorithms/FDRSpatial.hpp>
-#include <nta/algorithms/FDRCSpatial.hpp>
-#include <nta/algorithms/SpatialPooler.hpp>
-#include <nta/algorithms/FlatSpatialPooler.hpp>
+#include <nupic/math/SparseMatrix.hpp>
+#include <nupic/math/SparseBinaryMatrix.hpp>
+#include <nupic/algorithms/Svm.hpp>
+#include <nupic/algorithms/Linear.hpp>
+#include <nupic/algorithms/FDRSpatial.hpp>
+#include <nupic/algorithms/FDRCSpatial.hpp>
+#include <nupic/algorithms/SpatialPooler.hpp>
+#include <nupic/algorithms/FlatSpatialPooler.hpp>
 
-#include <nta/algorithms/Cells4.hpp>
-#include <nta/algorithms/ClassifierResult.hpp>
-#include <nta/algorithms/FastClaClassifier.hpp>
-#include <nta/algorithms/SegmentUpdate.hpp>
-#include <nta/algorithms/OutSynapse.hpp>
-#include <nta/algorithms/InSynapse.hpp>
-#include <nta/algorithms/Cell.hpp>
+#include <nupic/algorithms/Cells4.hpp>
+#include <nupic/algorithms/ClassifierResult.hpp>
+#include <nupic/algorithms/FastClaClassifier.hpp>
+#include <nupic/algorithms/SegmentUpdate.hpp>
+#include <nupic/algorithms/OutSynapse.hpp>
+#include <nupic/algorithms/InSynapse.hpp>
+#include <nupic/algorithms/Cell.hpp>
 
-#include <nta/algorithms/Connections.hpp>
+#include <nupic/algorithms/Connections.hpp>
 
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
@@ -95,13 +95,13 @@ _ALGORITHMS = _algorithms
 # define SWIGPY_SLICE_ARG(obj) ((PySliceObject*) (obj))
 #endif
 
-/// %template(_InSynapse) nta::algorithms::Cells3::InSynapse<nta::UInt32, nta::Real32>;
-/// %template(Segment3_32) nta::algorithms::Cells3::Segment<nta::UInt32, nta::Real32>;
-/// %template(Cell3_32) nta::algorithms::Cells3::Cell<nta::UInt32, nta::Real32>;
-/// %template(Cells3_32) nta::algorithms::Cells3::Cells3<nta::UInt32, nta::Real32>;
-using namespace nta::algorithms::Cells4;
-using namespace nta::algorithms::cla_classifier;
-using namespace nta;
+/// %template(_InSynapse) nupic::algorithms::Cells3::InSynapse<nupic::UInt32, nupic::Real32>;
+/// %template(Segment3_32) nupic::algorithms::Cells3::Segment<nupic::UInt32, nupic::Real32>;
+/// %template(Cell3_32) nupic::algorithms::Cells3::Cell<nupic::UInt32, nupic::Real32>;
+/// %template(Cells3_32) nupic::algorithms::Cells3::Cells3<nupic::UInt32, nupic::Real32>;
+using namespace nupic::algorithms::Cells4;
+using namespace nupic::algorithms::cla_classifier;
+using namespace nupic;
 
 #define CHECKSIZE(var) \
   NTA_ASSERT((var)->descr->elsize == 4) << " elsize:" << (var)->descr->elsize
@@ -272,9 +272,9 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // LINEAR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/Linear.hpp>
+%include <nupic/algorithms/Linear.hpp>
 
-%extend nta::algorithms::linear::linear
+%extend nupic::algorithms::linear::linear
 {
   inline void create_problem(int size, int n_dims,
                  PyObject* labelsIn, PyObject* samplesIn,
@@ -318,11 +318,11 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // SVM
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/Svm.hpp>
+%include <nupic/algorithms/Svm.hpp>
 
-%ignore nta::algorithms::svm::operator=;
+%ignore nupic::algorithms::svm::operator=;
 
-%extend nta::algorithms::svm::svm_problem
+%extend nupic::algorithms::svm::svm_problem
 {
   inline void get_samples(PyObject* samplesIn)
   {
@@ -336,7 +336,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 }
 
-%extend nta::algorithms::svm::svm_problem01
+%extend nupic::algorithms::svm::svm_problem01
 {
   inline void get_samples(PyObject* samplesIn)
   {
@@ -351,7 +351,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 }
 
-%extend nta::algorithms::svm::svm_model
+%extend nupic::algorithms::svm::svm_model
 {
   inline void get_support_vectors(PyObject* svIn)
   {
@@ -380,7 +380,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 
     size_t m = self->w.size(), n = self->w[0].size();
     int dims[] = { int(m), int(n) };
-    nta::NumpyMatrix out(dims);
+    nupic::NumpyMatrix out(dims);
     for (size_t i = 0; i != m; ++i)
       for (size_t j = 0; j != n; ++j)
     *(out.addressOf(0,0) + i*n + j) = self->w[i][j];
@@ -388,7 +388,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 }
 
-%extend nta::algorithms::svm::svm_dense
+%extend nupic::algorithms::svm::svm_dense
 {
   PyObject* __getstate__()
   {
@@ -404,7 +404,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
       __init__(self, kernel=0, n_dims=0, threshold=.9, cache_size=100, shrinking=1,
         probability=False, seed=-1) -> svm_dense
 
-      nta::algorithms::svm::svm_dense::svm_dense(int kernel=0, int n_dims=0,
+      nupic::algorithms::svm::svm_dense::svm_dense(int kernel=0, int n_dims=0,
       float threshold=.9, int cache_size=100, int shrinking=1, bool
       probability=false)
       """
@@ -479,7 +479,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 };
 
-%extend nta::algorithms::svm::svm_01
+%extend nupic::algorithms::svm::svm_01
 {
   PyObject* __getstate__()
   {
@@ -555,14 +555,14 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // CONVOLUTION
 //--------------------------------------------------------------------------------
-%include <nta/math/Convolution.hpp>
+%include <nupic/math/Convolution.hpp>
 
 %template(Float32SeparableConvolution2D) SeparableConvolution2D<float>;
 
 %extend SeparableConvolution2D<float>
 {
-  inline void init(nta::UInt32 nrows, nta::UInt32 ncols,
-           nta::UInt32 f1_size, nta::UInt32 f2_size,
+  inline void init(nupic::UInt32 nrows, nupic::UInt32 ncols,
+           nupic::UInt32 f1_size, nupic::UInt32 f2_size,
            PyObject* pyF1, PyObject* pyF2)
   {
     PyArrayObject *f1 = (PyArrayObject*) pyF1;
@@ -591,14 +591,14 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // ROTATION
 //--------------------------------------------------------------------------------
-%include <nta/math/Rotation.hpp>
+%include <nupic/math/Rotation.hpp>
 
 %template(Float32Rotation45) Rotation45<float>;
 
 %extend Rotation45<float>
 {
   inline void rotate(PyObject* pyOriginal, PyObject* pyRotated,
-             nta::UInt32 nrows, nta::UInt32 ncols, nta::UInt32 z)
+             nupic::UInt32 nrows, nupic::UInt32 ncols, nupic::UInt32 z)
   {
     PyArrayObject* original = (PyArrayObject*)pyOriginal;
     PyArrayObject* rotated = (PyArrayObject*)pyRotated;
@@ -608,7 +608,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   }
 
   inline void unrotate(PyObject* pyUnrotated, PyObject* pyRotated,
-               nta::UInt32 nrows, nta::UInt32 ncols, nta::UInt32 z)
+               nupic::UInt32 nrows, nupic::UInt32 ncols, nupic::UInt32 z)
   {
     PyArrayObject* unrotated = (PyArrayObject*)pyUnrotated;
     PyArrayObject* rotated = (PyArrayObject*)pyRotated;
@@ -621,19 +621,19 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // EROSION
 //--------------------------------------------------------------------------------
-%include <nta/math/Erosion.hpp>
+%include <nupic/math/Erosion.hpp>
 
 %template(Float32Erosion) Erosion<float>;
 
 %extend Erosion<float>
 {
-  inline void init(nta::UInt32 nrows, nta::UInt32 ncols)
+  inline void init(nupic::UInt32 nrows, nupic::UInt32 ncols)
   {
     self->init(nrows, ncols);
   }
 
   inline void compute(PyObject* pyData, PyObject* pyEroded,
-                      nta::UInt32 iterations, bool dilate=false)
+                      nupic::UInt32 iterations, bool dilate=false)
   {
     PyArrayObject* data = (PyArrayObject*)pyData;
     PyArrayObject* eroded = (PyArrayObject*)pyEroded;
@@ -655,13 +655,13 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 // SCANNING
 //--------------------------------------------------------------------------------
 
-%include <nta/algorithms/Scanning.hpp>
+%include <nupic/algorithms/Scanning.hpp>
 %inline {
-  void computeAlpha(nta::UInt32 xstep, nta::UInt32 ystep,
-                    nta::UInt32 widthS, nta::UInt32 heightS,
-                    nta::UInt32 imageWidth, nta::UInt32 imageHeight,
-                    nta::UInt32 xcount, nta::UInt32 ycount,
-                    nta::UInt32 weightWidth, float sharpness,
+  void computeAlpha(nupic::UInt32 xstep, nupic::UInt32 ystep,
+                    nupic::UInt32 widthS, nupic::UInt32 heightS,
+                    nupic::UInt32 imageWidth, nupic::UInt32 imageHeight,
+                    nupic::UInt32 xcount, nupic::UInt32 ycount,
+                    nupic::UInt32 weightWidth, float sharpness,
                     PyObject* pyData, PyObject* pyValues,
                     PyObject* pyCounts, PyObject* pyWeights)
   {
@@ -681,18 +681,18 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // DENDRITIC TREE - started Jan 2010
 //--------------------------------------------------------------------------------
-%template(Byte_Vector) std::vector<nta::Byte>;
+%template(Byte_Vector) std::vector<nupic::Byte>;
 
-%include <nta/math/Types.hpp>
- ///%include <nta/algorithms/Cells.hpp>
+%include <nupic/math/Types.hpp>
+ ///%include <nupic/algorithms/Cells.hpp>
 
- ///%template(Segment_32) nta::algorithms::Segment<nta::UInt32, nta::Real32>;
- ///%template(Branch_32) nta::algorithms::Branch<nta::UInt32, nta::Real32>;
- ///%template(Cell_32) nta::algorithms::Cell<nta::UInt32, nta::Real32>;
- ///%template(SegVector_32) std::vector<nta::algorithms::Segment<nta::UInt32, nta::Real32>*>;
- ///%template(BranchVector_32) std::vector<nta::algorithms::Branch<nta::UInt32, nta::Real32>*>;
- ///%template(Cells_32) nta::algorithms::Cells<nta::UInt32, nta::Real32>;
- ///%template(Int_Seg_32) std::pair<nta::UInt32, nta::algorithms::Segment<nta::UInt32,nta::Real32>*>;
+ ///%template(Segment_32) nupic::algorithms::Segment<nupic::UInt32, nupic::Real32>;
+ ///%template(Branch_32) nupic::algorithms::Branch<nupic::UInt32, nupic::Real32>;
+ ///%template(Cell_32) nupic::algorithms::Cell<nupic::UInt32, nupic::Real32>;
+ ///%template(SegVector_32) std::vector<nupic::algorithms::Segment<nupic::UInt32, nupic::Real32>*>;
+ ///%template(BranchVector_32) std::vector<nupic::algorithms::Branch<nupic::UInt32, nupic::Real32>*>;
+ ///%template(Cells_32) nupic::algorithms::Cells<nupic::UInt32, nupic::Real32>;
+ ///%template(Int_Seg_32) std::pair<nupic::UInt32, nupic::algorithms::Segment<nupic::UInt32,nupic::Real32>*>;
 
 // Already seen by swig on linux32 where size_t is the same size as unsigned int
 #if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
@@ -704,41 +704,41 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 %inline {
 
-  inline nta::UInt32 non_zeros_ui8(PyObject* py_x, PyObject* py_y)
+  inline nupic::UInt32 non_zeros_ui8(PyObject* py_x, PyObject* py_y)
   {
     PyArrayObject* x = (PyArrayObject*)py_x;
     PyArrayObject* y = (PyArrayObject*)py_y;
-    nta::UInt32 nnz = 0;
+    nupic::UInt32 nnz = 0;
     unsigned char* x_data = (unsigned char*) x->data;
-    nta::UInt32* y_res = (nta::UInt32*) y->data;
+    nupic::UInt32* y_res = (nupic::UInt32*) y->data;
     for (int i = 0; i != x->dimensions[0]; ++i)
       if (x_data[i] != 0)
         y_res[nnz++] = i;
     return nnz;
   }
 
-  inline nta::UInt32 non_zeros_i32(PyObject* py_x, PyObject* py_y)
+  inline nupic::UInt32 non_zeros_i32(PyObject* py_x, PyObject* py_y)
   {
     PyArrayObject* x = (PyArrayObject*)py_x;
     PyArrayObject* y = (PyArrayObject*)py_y;
-    nta::UInt32 nnz = 0;
-    nta::UInt32* x_data = (nta::UInt32*) x->data;
-    nta::UInt32* y_res = (nta::UInt32*) y->data;
+    nupic::UInt32 nnz = 0;
+    nupic::UInt32* x_data = (nupic::UInt32*) x->data;
+    nupic::UInt32* y_res = (nupic::UInt32*) y->data;
     for (int i = 0; i != x->dimensions[0]; ++i)
       if (x_data[i] != 0)
         y_res[nnz++] = i;
     return nnz;
   }
 
-  inline nta::UInt32 non_zeros_f32(PyObject* py_x, PyObject* py_y)
+  inline nupic::UInt32 non_zeros_f32(PyObject* py_x, PyObject* py_y)
   {
     PyArrayObject* x = (PyArrayObject*)py_x;
     CHECKSIZE(x);
     PyArrayObject* y = (PyArrayObject*)py_y;
     CHECKSIZE(y);
-    nta::UInt32 nnz = 0;
-    nta::Real32* x_data = (nta::Real32*) x->data;
-    nta::UInt32* y_res = (nta::UInt32*) y->data;
+    nupic::UInt32 nnz = 0;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
+    nupic::UInt32* y_res = (nupic::UInt32*) y->data;
     for (int i = 0; i != x->dimensions[0]; ++i)
       if (x_data[i] != 0)
         y_res[nnz++] = i;
@@ -750,15 +750,15 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
     PyArrayObject* ind = (PyArrayObject*)py_ind;
     PyArrayObject* x = (PyArrayObject*)py_x;
     PyArrayObject* y = (PyArrayObject*)py_y;
-    nta::UInt32 nc = ind->dimensions[0];
-    nta::UInt32 ni = ind->dimensions[1];
-    nta::UInt32* ind_data = (nta::UInt32*) ind->data;
-    nta::Real32* x_data = (nta::Real32*) x->data;
-    nta::Real32* y_res = (nta::Real32*) y->data;
+    nupic::UInt32 nc = ind->dimensions[0];
+    nupic::UInt32 ni = ind->dimensions[1];
+    nupic::UInt32* ind_data = (nupic::UInt32*) ind->data;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
+    nupic::Real32* y_res = (nupic::Real32*) y->data;
 
-    for (nta::UInt32 c = 0; c != nc; ++c, ind_data += ni) {
-      nta::Real32 val = 0;
-      for (nta::UInt32 i = 0; i != ni; ++i)
+    for (nupic::UInt32 c = 0; c != nc; ++c, ind_data += ni) {
+      nupic::Real32 val = 0;
+      for (nupic::UInt32 i = 0; i != ni; ++i)
         val += x_data[ind_data[i]];
       *y_res++ = val;
     }
@@ -768,36 +768,36 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // FDR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/FDRSpatial.hpp>
+%include <nupic/algorithms/FDRSpatial.hpp>
 
  // Functions to speed-up Python continuous FDR SP and TP
 %inline {
 
   // Continuous cell sweep found in FDR continuous SP
-  inline PyObject* CSPSweep(nta::UInt32 cfx, nta::UInt32 cfy,
-                            nta::UInt32 stimulusThreshold,
-                            nta::UInt32 inhibitionRadius,
+  inline PyObject* CSPSweep(nupic::UInt32 cfx, nupic::UInt32 cfy,
+                            nupic::UInt32 stimulusThreshold,
+                            nupic::UInt32 inhibitionRadius,
                             PyObject* py_denseOutput,
                             PyObject* py_afterInhibition)
   {
     PyArrayObject* denseOutput = (PyArrayObject*) py_denseOutput;
     CHECKSIZE(denseOutput);
-    nta::Real32* denseOutput_begin = (nta::Real32*)(denseOutput->data);
-    nta::Real32* denseOutput_end = denseOutput_begin + denseOutput->dimensions[0];
+    nupic::Real32* denseOutput_begin = (nupic::Real32*)(denseOutput->data);
+    nupic::Real32* denseOutput_end = denseOutput_begin + denseOutput->dimensions[0];
 
     PyArrayObject* afterInhibition = (PyArrayObject*) py_afterInhibition;
     CHECKSIZE(afterInhibition);
-    nta::Real32* afterInhibition_begin = (nta::Real32*)(afterInhibition->data);
-    nta::Real32* afterInhibition_end = afterInhibition_begin + afterInhibition->dimensions[0];
+    nupic::Real32* afterInhibition_begin = (nupic::Real32*)(afterInhibition->data);
+    nupic::Real32* afterInhibition_end = afterInhibition_begin + afterInhibition->dimensions[0];
 
-    std::vector<nta::UInt32> activeElements;
+    std::vector<nupic::UInt32> activeElements;
 
-    nta::algorithms::csp_sweep(cfx, cfy, stimulusThreshold, inhibitionRadius,
+    nupic::algorithms::csp_sweep(cfx, cfy, stimulusThreshold, inhibitionRadius,
                                denseOutput_begin, denseOutput_end,
                                activeElements,
                                afterInhibition_begin, afterInhibition_end);
 
-    nta::NumpyVectorT<nta::UInt32> ae(activeElements.size());
+    nupic::NumpyVectorT<nupic::UInt32> ae(activeElements.size());
     for (size_t i = 0; i != activeElements.size(); ++i)
       ae.set(i, activeElements[i]);
     return ae.forPython();
@@ -805,7 +805,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 }
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::FDRSpatial
+%extend nupic::algorithms::FDRSpatial
 {
   %pythoncode %{
     def __init__(self, *args):
@@ -830,19 +830,19 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   {
     PyArrayObject* x = (PyArrayObject*)py_dense;
     CHECKSIZE(x);
-    nta::Real32* x_data = (nta::Real32*) x->data;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
     self->set_cm_from_dense(x_data, x_data + x->dimensions[0] * x->dimensions[1]);
   }
 
-  inline void compute(nta::UInt32 i, PyObject* py_x, PyObject* py_y,
+  inline void compute(nupic::UInt32 i, PyObject* py_x, PyObject* py_y,
                       bool doLearn, bool doInfer)
   {
     PyArrayObject* x = (PyArrayObject*)py_x;
     CHECKSIZE(x);
     PyArrayObject* y = (PyArrayObject*)py_y;
     CHECKSIZE(y);
-    nta::Real32* x_data = (nta::Real32*) x->data;
-    nta::Real32* y_res = (nta::Real32*) y->data;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
+    nupic::Real32* y_res = (nupic::Real32*) y->data;
 
     self->compute(i,
                   x_data, x_data + x->dimensions[0],
@@ -850,17 +850,17 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
                   doLearn, doInfer);
   }
 
-  inline PyObject* getDenseCoincidence(nta::UInt32 row) const
+  inline PyObject* getDenseCoincidence(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::Real32> c(self->nCols());
+    nupic::NumpyVectorT<nupic::Real32> c(self->nCols());
     self->get_cm_row_dense(row, c.begin(), c.end());
     return c.forPython();
   }
 
-  inline PyObject* getSparseCoincidence(nta::UInt32 row) const
+  inline PyObject* getSparseCoincidence(nupic::UInt32 row) const
   {
-    nta::NumpyVectorT<nta::UInt32> cpp_ind(self->nNonZerosPerRow());
-    nta::NumpyVectorT<nta::Real32> cpp_nz(self->nNonZerosPerRow());
+    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(self->nNonZerosPerRow());
+    nupic::NumpyVectorT<nupic::Real32> cpp_nz(self->nNonZerosPerRow());
     self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin());
     PyObject *toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, cpp_ind.forPython());
@@ -872,13 +872,13 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   {
     PyArrayObject* x = (PyArrayObject*)py_x;
     CHECKSIZE(x);
-    nta::Real32* x_data = (nta::Real32*) x->data;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
     PyArrayObject* output = (PyArrayObject*)py_output;
     CHECKSIZE(output);
-    nta::Real32* output_data = (nta::Real32*) output->data;
-    std::vector<nta::Real32> y(self->nRows());
+    nupic::Real32* output_data = (nupic::Real32*) output->data;
+    std::vector<nupic::Real32> y(self->nRows());
     size_t n = self->overlaps(x_data, output_data, y.begin());
-    nta::NumpyVectorT<nta::Real32> py_y(n);
+    nupic::NumpyVectorT<nupic::Real32> py_y(n);
     for (size_t i = 0; i != n; ++i)
       py_y.set(i, y[i]);
     return py_y.forPython();
@@ -911,10 +911,10 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // Continuous FDR
 //--------------------------------------------------------------------------------
-%include <nta/algorithms/FDRCSpatial.hpp>
+%include <nupic/algorithms/FDRCSpatial.hpp>
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::FDRCSpatial
+%extend nupic::algorithms::FDRCSpatial
 {
   %pythoncode %{
     def __init__(self, *args):
@@ -941,22 +941,22 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
     CHECKSIZE(x);
     PyArrayObject* y = (PyArrayObject*)py_y;
     CHECKSIZE(y);
-    nta::Real32* x_data = (nta::Real32*) x->data;
-    nta::Real32* y_data = (nta::Real32*) y->data;
+    nupic::Real32* x_data = (nupic::Real32*) x->data;
+    nupic::Real32* y_data = (nupic::Real32*) y->data;
 
     self->compute(x_data, x_data + x->dimensions[0],
                   y_data, y_data + y->dimensions[0],
                   doLearn, doInfer);
   }
 
-  inline PyObject* getSparseCoincidence(nta::UInt32 row, bool learnt =false) const
+  inline PyObject* getSparseCoincidence(nupic::UInt32 row, bool learnt =false) const
   {
-    nta::UInt32 n = learnt ?
+    nupic::UInt32 n = learnt ?
       self->getNSamplingBitsPerCoincidence() :
       self->getBitPoolSizePerCoincidence();
 
-    nta::NumpyVectorT<nta::UInt32> cpp_ind(n);
-    nta::NumpyVectorT<nta::Real32> cpp_nz(n);
+    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(n);
+    nupic::NumpyVectorT<nupic::Real32> cpp_nz(n);
     self->get_cm_row_sparse(row, cpp_ind.begin(), cpp_nz.begin(), learnt);
 
     PyObject *toReturn = PyTuple_New(2);
@@ -965,19 +965,19 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
     return toReturn;
   }
 
-  inline PyObject* getHistogram(nta::UInt32 c) const
+  inline PyObject* getHistogram(nupic::UInt32 c) const
   {
-    nta::NumpyVectorT<nta::UInt32> cpp_ind(self->getBitPoolSizePerCoincidence());
-    nta::NumpyVectorT<nta::Real32> cpp_nz(self->getBitPoolSizePerCoincidence());
+    nupic::NumpyVectorT<nupic::UInt32> cpp_ind(self->getBitPoolSizePerCoincidence());
+    nupic::NumpyVectorT<nupic::Real32> cpp_nz(self->getBitPoolSizePerCoincidence());
     self->get_cm_row_sparse(c, cpp_ind.begin(), cpp_nz.begin());
     return cpp_nz.forPython();
   }
 
-  inline PyObject* getMasterLearnedCoincidence(nta::UInt32 m)
+  inline PyObject* getMasterLearnedCoincidence(nupic::UInt32 m)
   {
-    nta::UInt32 n = self->getNSamplingBitsPerCoincidence();
-    nta::NumpyVectorT<nta::UInt32> py_rows(n);
-    nta::NumpyVectorT<nta::UInt32> py_cols(n);
+    nupic::UInt32 n = self->getNSamplingBitsPerCoincidence();
+    nupic::NumpyVectorT<nupic::UInt32> py_rows(n);
+    nupic::NumpyVectorT<nupic::UInt32> py_cols(n);
     self->getMasterLearnedCoincidence(m, py_rows.begin(), py_cols.begin());
     PyObject* toReturn = PyTuple_New(2);
     PyTuple_SET_ITEM(toReturn, 0, py_rows.forPython());
@@ -985,13 +985,13 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
     return toReturn;
   }
 
-  inline PyObject* getMasterHistogram(nta::UInt32 m)
+  inline PyObject* getMasterHistogram(nupic::UInt32 m)
   {
-    nta::UInt32 n = self->getBitPoolSizePerCoincidence();
-    std::vector<nta::UInt32> rows(n), cols(n);
-    std::vector<nta::Real32> vals(n);
+    nupic::UInt32 n = self->getBitPoolSizePerCoincidence();
+    std::vector<nupic::UInt32> rows(n), cols(n);
+    std::vector<nupic::Real32> vals(n);
     self->getMasterHistogram(m, rows.begin(), cols.begin(), vals.begin());
-    nta::NumpyVectorT<nta::Real32> mat(self->getRFSide() * self->getRFSide());
+    nupic::NumpyVectorT<nupic::Real32> mat(self->getRFSide() * self->getRFSide());
     for (size_t i = 0; i != n; ++i)
       mat.set(rows[i] * self->getRFSide() + cols[i], vals[i]);
     return mat.forPython();
@@ -999,7 +999,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 
   inline PyObject* getDenseOutput() const
   {
-    nta::NumpyVectorT<nta::Real32> y(self->getNColumns());
+    nupic::NumpyVectorT<nupic::Real32> y(self->getNColumns());
     self->get_dense_output(y.begin());
     return y.forPython();
   }
@@ -1031,7 +1031,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
 //--------------------------------------------------------------------------------
 // LearningSet for continuous FDR TP
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::Inhibition
+%extend nupic::algorithms::Inhibition
 {
   %pythoncode %{
 
@@ -1044,24 +1044,24 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   %}
 
   inline
-    nta::UInt32 compute(PyObject* py_x, PyObject* py_y, nta::UInt32 stimulus_threshold,
-                          nta::Real32 k =.95f)
+    nupic::UInt32 compute(PyObject* py_x, PyObject* py_y, nupic::UInt32 stimulus_threshold,
+                          nupic::Real32 k =.95f)
   {
     PyArrayObject* _x = (PyArrayObject*) py_x;
     CHECKSIZE(_x);
-    nta::Real32* x = (nta::Real32*)(_x->data);
+    nupic::Real32* x = (nupic::Real32*)(_x->data);
 
     PyArrayObject* _y = (PyArrayObject*) py_y;
     CHECKSIZE(_y);
-    nta::UInt32* y = (nta::UInt32*)(_y->data);
+    nupic::UInt32* y = (nupic::UInt32*)(_y->data);
 
     return self->compute(x, y, stimulus_threshold, k);
   }
 
-}; // end extend nta::Inhibition
+}; // end extend nupic::Inhibition
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::Inhibition2
+%extend nupic::algorithms::Inhibition2
 {
   %pythoncode %{
 
@@ -1074,34 +1074,34 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
   %}
 
   inline
-    nta::UInt32 compute(PyObject* py_x, PyObject* py_y,
-        nta::Real32 stimulus_threshold, nta::Real32 add_to_winners)
+    nupic::UInt32 compute(PyObject* py_x, PyObject* py_y,
+        nupic::Real32 stimulus_threshold, nupic::Real32 add_to_winners)
   {
     PyArrayObject* _x = (PyArrayObject*) py_x;
     CHECKSIZE(_x);
-    nta::Real32* x = (nta::Real32*)(_x->data);
+    nupic::Real32* x = (nupic::Real32*)(_x->data);
 
     PyArrayObject* _y = (PyArrayObject*) py_y;
     CHECKSIZE(_y);
-    nta::UInt32* y = (nta::UInt32*)(_y->data);
+    nupic::UInt32* y = (nupic::UInt32*)(_y->data);
 
     return self->compute(x, y, stimulus_threshold, add_to_winners);
   }
 
-}; // end extend nta::Inhibition2
+}; // end extend nupic::Inhibition2
 
 //--------------------------------------------------------------------------------
 %inline {
 
-inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
-                                          nta::UInt32 nnzpr, nta::UInt32 rf_x,
-                                          nta::Real32 sigma,
-                                          nta::Int32 seed =-1,
+inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 ncols,
+                                          nupic::UInt32 nnzpr, nupic::UInt32 rf_x,
+                                          nupic::Real32 sigma,
+                                          nupic::Int32 seed =-1,
                                           bool sorted =true)
 {
-  std::vector<std::pair<nta::UInt32, nta::Real32> > x;
-  nta::gaussian_2d_pair_sample(nrows, ncols, nnzpr, rf_x, sigma, x,
-                               (nta::Real32) 1.0f, seed, sorted);
+  std::vector<std::pair<nupic::UInt32, nupic::Real32> > x;
+  nupic::gaussian_2d_pair_sample(nrows, ncols, nnzpr, rf_x, sigma, x,
+                               (nupic::Real32) 1.0f, seed, sorted);
   PyObject* toReturn = PyList_New(nrows);
   for (size_t i = 0; i != nrows; ++i) {
     PyObject* one_master = PyList_New(nnzpr);
@@ -1123,61 +1123,61 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                           PyObject* py_coincSlices,
                           PyObject* py_inputShaped,
                           PyObject* py_masterConnectedM,
-                          nta::Real32 stimulusThreshold,
+                          nupic::Real32 stimulusThreshold,
                           PyObject* py_overlaps)
   {
     PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
     CHECKSIZE(_cloneMap);
-    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
-    nta::UInt32 nColumns = _cloneMap->dimensions[0];
+    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
+    nupic::UInt32 nColumns = _cloneMap->dimensions[0];
 
     PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
     CHECKSIZE(_inputSlices);
-    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
 
     PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
     CHECKSIZE(_coincSlices);
-    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
-    //nta::UInt32 coincNCols = _coincSlices->dimensions[1];
+    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
+    //nupic::UInt32 coincNCols = _coincSlices->dimensions[1];
 
     PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
     CHECKSIZE(_inputShaped);
-    nta::Real32* inputShaped = (nta::Real32*)(_inputShaped->data);
-    nta::UInt32 inputNCols = _inputShaped->dimensions[1];
+    nupic::Real32* inputShaped = (nupic::Real32*)(_inputShaped->data);
+    nupic::UInt32 inputNCols = _inputShaped->dimensions[1];
 
     PyArrayObject* _masterConnectedM = (PyArrayObject*) py_masterConnectedM;
     // A bool's size is one byte both in Python and C++
     bool* masterConnectedM = (bool*)(_masterConnectedM->data);
-    nta::UInt32 masterNRows = _masterConnectedM->dimensions[1];
-    nta::UInt32 masterNCols = _masterConnectedM->dimensions[2];
-    nta::UInt32 masterSize = masterNRows * masterNCols;
+    nupic::UInt32 masterNRows = _masterConnectedM->dimensions[1];
+    nupic::UInt32 masterNCols = _masterConnectedM->dimensions[2];
+    nupic::UInt32 masterSize = masterNRows * masterNCols;
 
     PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
     CHECKSIZE(_overlaps);
-    nta::Real32* overlaps = (nta::Real32*)(_overlaps->data);
+    nupic::Real32* overlaps = (nupic::Real32*)(_overlaps->data);
 
-    nta::UInt32 inputStartC_p = 0, inputStopC_p = 0;
-    nta::Real32 inputSum = 0.0;
+    nupic::UInt32 inputStartC_p = 0, inputStopC_p = 0;
+    nupic::Real32 inputSum = 0.0;
 
-    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
 
-      nta::UInt32 masterNum = cloneMap[columnNum];
+      nupic::UInt32 masterNum = cloneMap[columnNum];
 
-      nta::UInt32 inputStartR = inputSlices[4*columnNum];
-      nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
-      nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
-      nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+      nupic::UInt32 inputStartR = inputSlices[4*columnNum];
+      nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
+      nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
+      nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
 
-      nta::UInt32 coincStartR = coincSlices[4*columnNum];
-      //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
-      nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
-      //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+      nupic::UInt32 coincStartR = coincSlices[4*columnNum];
+      //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
+      nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
+      //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
 
       bool* masterConnected = masterConnectedM + masterNum * masterSize;
 
       overlaps[columnNum] = 0;
 
-      nta::UInt32 r_input, c_input, r_coinc, c_coinc;
+      nupic::UInt32 r_input, c_input, r_coinc, c_coinc;
 
       if (inputStartC == 0) {
 
@@ -1204,7 +1204,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
       if (inputSum < stimulusThreshold)
         continue;
 
-      nta::Real32 sum = 0.0;
+      nupic::Real32 sum = 0.0;
 
       for (r_input = inputStartR, r_coinc = coincStartR;
            r_input != inputStopR; ++r_input, ++r_coinc)
@@ -1227,7 +1227,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                           PyObject* py_coincSlices,
                           PyObject* py_inputShaped,
                           PyObject* py_masterConnectedM,
-                          nta::Real32 stimulusThreshold,
+                          nupic::Real32 stimulusThreshold,
                           PyObject* py_overlaps)
   {
 
@@ -1244,61 +1244,61 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
     PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
     CHECKSIZE(_cloneMap);
-    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
-    nta::UInt32 nColumns = _cloneMap->dimensions[0];
+    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
+    nupic::UInt32 nColumns = _cloneMap->dimensions[0];
 
     PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
     CHECKSIZE(_inputSlices);
-    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
 
     PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
     CHECKSIZE(_coincSlices);
-    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
-    //nta::UInt32 coincNCols = _coincSlices->dimensions[1];
+    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
+    //nupic::UInt32 coincNCols = _coincSlices->dimensions[1];
 
     PyArrayObject* _inputShaped = (PyArrayObject*) py_inputShaped;
     CHECKSIZE(_inputShaped);
-    nta::Real32* inputShaped = (nta::Real32*)(_inputShaped->data);
-    nta::UInt32 inputNCols = _inputShaped->dimensions[1];
+    nupic::Real32* inputShaped = (nupic::Real32*)(_inputShaped->data);
+    nupic::UInt32 inputNCols = _inputShaped->dimensions[1];
 
 
-    typedef nta::SparseBinaryMatrix<nta::UInt32,nta::UInt32>* SBM32Ptr;
+    typedef nupic::SparseBinaryMatrix<nupic::UInt32,nupic::UInt32>* SBM32Ptr;
 
     PyObject* p = PyList_GET_ITEM(py_masterConnectedM, 0);
 
 
-    nta::UInt32 masterNRows = masterConnectedM->nRows();
+    nupic::UInt32 masterNRows = masterConnectedM->nRows();
     masterConnectedM = (SBM32Ptr)(PyList_GET_ITEM(_masterConnectedM, 1))
-    nta::UInt32 masterNRows2 = masterConnectedM->nRows();
+    nupic::UInt32 masterNRows2 = masterConnectedM->nRows();
 
 
     PyArrayObject* _overlaps = (PyArrayObject*) py_overlaps;
     CHECKSIZE(_overlaps);
-    nta::Real32* overlaps = (nta::Real32*)(_overlaps->data);
+    nupic::Real32* overlaps = (nupic::Real32*)(_overlaps->data);
 
-    nta::UInt32 inputStartC_p = 0, inputStopC_p = 0;
-    nta::Real32 inputSum = 0.0;
+    nupic::UInt32 inputStartC_p = 0, inputStopC_p = 0;
+    nupic::Real32 inputSum = 0.0;
 
-    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
 
-      nta::UInt32 masterNum = cloneMap[columnNum];
+      nupic::UInt32 masterNum = cloneMap[columnNum];
 
-      nta::UInt32 inputStartR = inputSlices[4*columnNum];
-      nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
-      nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
-      nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+      nupic::UInt32 inputStartR = inputSlices[4*columnNum];
+      nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
+      nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
+      nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
 
-      nta::UInt32 coincStartR = coincSlices[4*columnNum];
-      //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
-      nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
-      //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+      nupic::UInt32 coincStartR = coincSlices[4*columnNum];
+      //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
+      nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
+      //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
 
       SBM32Ptr masterConnected = masterConnectedM[masterNum];
 
       overlaps[columnNum] = 0;
 
-      nta::UInt32 r_input, c_input, r_coinc, c_coinc;
-      nta::Real32 sum = 0.0;
+      nupic::UInt32 r_input, c_input, r_coinc, c_coinc;
+      nupic::Real32 sum = 0.0;
 
       for (r_input = inputStartR, r_coinc = coincStartR;
            r_input != inputStopR; ++r_input, ++r_coinc)
@@ -1316,29 +1316,29 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 
   // Update duty cycles
-  inline void cpp_updateDutyCycles(nta::UInt32 dutyCyclePeriod,
+  inline void cpp_updateDutyCycles(nupic::UInt32 dutyCyclePeriod,
                                    PyObject* py_cloneMapFlat,
                                    PyObject* py_onCells,
                                    PyObject* py_dutyCycles)
   {
     PyArrayObject* _cloneMap = (PyArrayObject*) py_cloneMapFlat;
     CHECKSIZE(_cloneMap);
-    nta::UInt32* cloneMap = (nta::UInt32*)(_cloneMap->data);
+    nupic::UInt32* cloneMap = (nupic::UInt32*)(_cloneMap->data);
 
     PyArrayObject* _onCells = (PyArrayObject*) py_onCells;
     CHECKSIZE(_onCells);
-    nta::UInt32* onCells = (nta::UInt32*)(_onCells->data);
-    nta::UInt32 nColumns = _onCells->dimensions[0];
+    nupic::UInt32* onCells = (nupic::UInt32*)(_onCells->data);
+    nupic::UInt32 nColumns = _onCells->dimensions[0];
 
     PyArrayObject* _dutyCycles = (PyArrayObject*) py_dutyCycles;
     CHECKSIZE(_dutyCycles);
-    nta::Real32* dutyCycles = (nta::Real32*)(_dutyCycles->data);
+    nupic::Real32* dutyCycles = (nupic::Real32*)(_dutyCycles->data);
 
-    nta::Real32 dcp = (nta::Real32) dutyCyclePeriod;
-    nta::Real32 dcp_1 = dcp - 1.0;
+    nupic::Real32 dcp = (nupic::Real32) dutyCyclePeriod;
+    nupic::Real32 dcp_1 = dcp - 1.0;
 
-    for (nta::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
-      nta::UInt32 masterNum = cloneMap[columnNum];
+    for (nupic::UInt32 columnNum = 0; columnNum != nColumns; ++columnNum) {
+      nupic::UInt32 masterNum = cloneMap[columnNum];
       dutyCycles[masterNum] =
         (dcp_1 * dutyCycles[masterNum] + onCells[columnNum]) / dcp;
     }
@@ -1346,18 +1346,18 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   // Adjust master valid permanence
   // This code implements a bit more, commented out for now
-  inline void adjustMasterValidPermanence(nta::UInt32 columnNum,
-                                          nta::UInt32 masterNum,
-                                          nta::UInt32 inputNCols,
-                                          nta::UInt32 masterNCols,
-                                          //nta::Real32 stimulusThreshold,
-                                          nta::Real32 synPermActiveInc,
-                                          nta::Real32 synPermInactiveDec,
-                                          nta::Real32 synPermActiveSharedDec,
-                                          //nta::Real32 synPermBelowStimulusInc,
-                                          //nta::Real32 synPermConnected,
-                                          //nta::Real32 synPermMin,
-                                          //nta::Real32 synPermMax,
+  inline void adjustMasterValidPermanence(nupic::UInt32 columnNum,
+                                          nupic::UInt32 masterNum,
+                                          nupic::UInt32 inputNCols,
+                                          nupic::UInt32 masterNCols,
+                                          //nupic::Real32 stimulusThreshold,
+                                          nupic::Real32 synPermActiveInc,
+                                          nupic::Real32 synPermInactiveDec,
+                                          nupic::Real32 synPermActiveSharedDec,
+                                          //nupic::Real32 synPermBelowStimulusInc,
+                                          //nupic::Real32 synPermConnected,
+                                          //nupic::Real32 synPermMin,
+                                          //nupic::Real32 synPermMax,
                                           PyObject* py_inputShaped,
                                           PyObject* py_inputUse,
                                           PyObject* py_inputSlices,
@@ -1367,43 +1367,43 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
                                           //PyObject* py_masterPotential)
   {
     PyArrayObject* _input = (PyArrayObject*) py_inputShaped;
-    nta::Real32* input = (nta::Real32*)(_input->data);
+    nupic::Real32* input = (nupic::Real32*)(_input->data);
 
     PyArrayObject* _inputUse = (PyArrayObject*) py_inputUse;
-    nta::UInt32* inputUse = (nta::UInt32*)(_inputUse->data);
+    nupic::UInt32* inputUse = (nupic::UInt32*)(_inputUse->data);
 
     PyArrayObject* _inputSlices = (PyArrayObject*) py_inputSlices;
-    nta::UInt32* inputSlices = (nta::UInt32*)(_inputSlices->data);
+    nupic::UInt32* inputSlices = (nupic::UInt32*)(_inputSlices->data);
 
     PyArrayObject* _coincSlices = (PyArrayObject*) py_coincSlices;
-    nta::UInt32* coincSlices = (nta::UInt32*)(_coincSlices->data);
+    nupic::UInt32* coincSlices = (nupic::UInt32*)(_coincSlices->data);
 
     PyArrayObject* _spbf = (PyArrayObject*) py_synPermBoostFactors;
-    nta::Real32* spbf = (nta::Real32*)(_spbf->data);
+    nupic::Real32* spbf = (nupic::Real32*)(_spbf->data);
 
     PyArrayObject* _mpe = (PyArrayObject*) py_masterPermanence;
-    nta::Real32* perm = (nta::Real32*)(_mpe->data);
+    nupic::Real32* perm = (nupic::Real32*)(_mpe->data);
 
     //PyArrayObject* _mpo = (PyArrayObject*) py_masterPotential;
     //bool* potential = (bool*)(_mpo->data);
 
-    nta::UInt32 inputStartR = inputSlices[4*columnNum];
-    nta::UInt32 inputStopR = inputSlices[4*columnNum+1];
-    nta::UInt32 inputStartC = inputSlices[4*columnNum+2];
-    nta::UInt32 inputStopC = inputSlices[4*columnNum+3];
+    nupic::UInt32 inputStartR = inputSlices[4*columnNum];
+    nupic::UInt32 inputStopR = inputSlices[4*columnNum+1];
+    nupic::UInt32 inputStartC = inputSlices[4*columnNum+2];
+    nupic::UInt32 inputStopC = inputSlices[4*columnNum+3];
 
-    nta::UInt32 coincStartR = coincSlices[4*columnNum];
-    //nta::UInt32 coincStopR = coincSlices[4*columnNum+1];
-    nta::UInt32 coincStartC = coincSlices[4*columnNum+2];
-    //nta::UInt32 coincStopC = coincSlices[4*columnNum+3];
+    nupic::UInt32 coincStartR = coincSlices[4*columnNum];
+    //nupic::UInt32 coincStopR = coincSlices[4*columnNum+1];
+    nupic::UInt32 coincStartC = coincSlices[4*columnNum+2];
+    //nupic::UInt32 coincStopC = coincSlices[4*columnNum+3];
 
-    nta::UInt32 r_input = inputStartR, c_input = inputStartC;
-    nta::UInt32 r_coinc = coincStartR, c_coinc = coincStartC;
+    nupic::UInt32 r_input = inputStartR, c_input = inputStartC;
+    nupic::UInt32 r_coinc = coincStartR, c_coinc = coincStartC;
 
     // Vectors to remember the indices of the potential synapses
     // and which syns are connected
-    //std::vector<nta::UInt32> potentialV;
-    //std::vector<nta::UInt32> connectedSyns;
+    //std::vector<nupic::UInt32> potentialV;
+    //std::vector<nupic::UInt32> connectedSyns;
 
     for (; r_input != inputStopR; ++r_input, ++r_coinc) {
 
@@ -1412,7 +1412,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
       for (; c_input != inputStopC; ++c_input, ++c_coinc) {
 
-        nta::UInt32 mp_idx = r_coinc*masterNCols + c_coinc;
+        nupic::UInt32 mp_idx = r_coinc*masterNCols + c_coinc;
 
         // Skip updates of permanence based on input
         // if not even a potential synapse
@@ -1420,7 +1420,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
           // Remember index of potential synapes for later
           //potentialV.push_back(mp_idx);
-          nta::UInt32 input_idx = r_input*inputNCols + c_input;
+          nupic::UInt32 input_idx = r_input*inputNCols + c_input;
 
           // Decrease permanence on inactive inputs
           if (input[input_idx] == 0.0) {
@@ -1467,36 +1467,36 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 
   //--------------------------------------------------------------------------------
-  inline nta::UInt32 getSegmentActivityLevel(PyObject* py_seg, PyObject* py_state,
+  inline nupic::UInt32 getSegmentActivityLevel(PyObject* py_seg, PyObject* py_state,
                                              bool connectedSynapsesOnly,
-                                             nta::Real32 connectedPerm)
+                                             nupic::Real32 connectedPerm)
   {
     PyArrayObject* _state = (PyArrayObject*) py_state;
-    nta::Byte* state = (nta::Byte*) _state->data;
-    nta::UInt32 stride0 = _state->strides[0];
+    nupic::Byte* state = (nupic::Byte*) _state->data;
+    nupic::UInt32 stride0 = _state->strides[0];
 
-    nta::py::List seg;
+    nupic::py::List seg;
     seg.assign(py_seg);
     Py_ssize_t n = seg.getCount();
-    nta::UInt32 activity = 0;
+    nupic::UInt32 activity = 0;
 
     if (connectedSynapsesOnly)
       for (Py_ssize_t i = 0; i < n; ++i) {
-        nta::py::List syn;
+        nupic::py::List syn;
         syn.assign(seg.fastGetItem(i));
-        nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+        nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
         if (p >= connectedPerm) {
-          nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
-          nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+          nupic::UInt32 c = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+          nupic::UInt32 j = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(1));
           activity += state[c * stride0 + j];
         }
       }
     else
       for (Py_ssize_t i = 0; i < n; ++i) {
-        nta::py::List syn;
+        nupic::py::List syn;
         syn.assign(seg.fastGetItem(i));
-        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
-        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        nupic::UInt32 c = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nupic::UInt32 j = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(1));
         activity += state[c * stride0 + j];
       }
 
@@ -1504,19 +1504,19 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 
   //--------------------------------------------------------------------------------
-  inline nta::Real32
-    getSegmentAvgPermanence(PyObject* py_seg, nta::Real32 connectedPerm)
+  inline nupic::Real32
+    getSegmentAvgPermanence(PyObject* py_seg, nupic::Real32 connectedPerm)
   {
-     nta::py::List seg;
+     nupic::py::List seg;
      seg.assign(py_seg);
      Py_ssize_t n = seg.getCount();
-     nta::Real32 avg_p = 0;
-     nta::UInt32 count = 0;
+     nupic::Real32 avg_p = 0;
+     nupic::UInt32 count = 0;
 
      for (Py_ssize_t i = 0; i < n; ++i) {
-       nta::py::List syn;
+       nupic::py::List syn;
        syn.assign(seg.fastGetItem(i));
-       nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+       nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
        if (p >= connectedPerm) {
         ++count;
         avg_p += p;
@@ -1527,26 +1527,26 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 
   //--------------------------------------------------------------------------------
-  inline nta::Real32
+  inline nupic::Real32
     getSegmentSumActivePermanence(PyObject* py_seg, PyObject* py_state,
-                                  nta::Real32 connectedPerm)
+                                  nupic::Real32 connectedPerm)
   {
     PyArrayObject* _state = (PyArrayObject*) py_state;
-    nta::Byte* state = (nta::Byte*) _state->data;
-    nta::UInt32 stride0 = _state->strides[0];
+    nupic::Byte* state = (nupic::Byte*) _state->data;
+    nupic::UInt32 stride0 = _state->strides[0];
 
-    nta::py::List seg;
+    nupic::py::List seg;
     seg.assign(py_seg);
     Py_ssize_t n = seg.getCount();
-    nta::Real32 sum_p = 0;
+    nupic::Real32 sum_p = 0;
 
     for (Py_ssize_t i = 0; i < n; ++i) {
-      nta::py::List syn;
+      nupic::py::List syn;
       syn.assign(seg.fastGetItem(i));
-      nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+      nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
       if (p >= connectedPerm) {
-        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
-        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        nupic::UInt32 c = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nupic::UInt32 j = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(1));
         sum_p += state[c * stride0 + j]*p;
       }
     }
@@ -1556,28 +1556,28 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   //--------------------------------------------------------------------------------
   inline bool isSegmentActive(PyObject* py_seg, PyObject* py_state,
-                              nta::Real32 connectedPerm,
-                              nta::UInt32 activationThreshold)
+                              nupic::Real32 connectedPerm,
+                              nupic::UInt32 activationThreshold)
   {
     PyArrayObject* _state = (PyArrayObject*) py_state;
-    nta::Byte* state = (nta::Byte*) _state->data;
-    nta::UInt32 stride0 = _state->strides[0];
+    nupic::Byte* state = (nupic::Byte*) _state->data;
+    nupic::UInt32 stride0 = _state->strides[0];
 
-    nta::py::List seg;
+    nupic::py::List seg;
     seg.assign(py_seg);
     Py_ssize_t n = seg.getCount();
-    nta::UInt32 activity = 0;
+    nupic::UInt32 activity = 0;
 
     if (n < (Py_ssize_t) activationThreshold)
       return false;
 
     for (Py_ssize_t i = 0; i < n; ++i) {
-      nta::py::List syn;
+      nupic::py::List syn;
       syn.assign(seg.fastGetItem(i));
-      nta::Real32 p = (nta::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
+      nupic::Real32 p = (nupic::Real32) PyFloat_AsDouble(syn.fastGetItem(2));
       if (p >= connectedPerm) {
-        nta::UInt32 c = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(0));
-        nta::UInt32 j = (nta::UInt32) PyLong_AsLong(syn.fastGetItem(1));
+        nupic::UInt32 c = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(0));
+        nupic::UInt32 j = (nupic::UInt32) PyLong_AsLong(syn.fastGetItem(1));
         activity += state[c * stride0 + j];
         if (activity >= activationThreshold)
           return true;
@@ -1591,16 +1591,16 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // NEW ALGORITHMS (Cells4)
-%include <nta/algorithms/Segment.hpp>
-%include <nta/algorithms/SegmentUpdate.hpp>
-%include <nta/algorithms/OutSynapse.hpp>
-%include <nta/algorithms/InSynapse.hpp>
-%include <nta/algorithms/Cell.hpp>
+%include <nupic/algorithms/Segment.hpp>
+%include <nupic/algorithms/SegmentUpdate.hpp>
+%include <nupic/algorithms/OutSynapse.hpp>
+%include <nupic/algorithms/InSynapse.hpp>
+%include <nupic/algorithms/Cell.hpp>
 
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::Cells4::Segment<nta::UInt32, nta::Real32>
+%extend nupic::algorithms::Cells4::Segment<nupic::UInt32, nupic::Real32>
 {
   %pythoncode %{
     def __init__(self, *args):
@@ -1608,11 +1608,11 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %}
 
   inline bool isActive(PyObject* py_activities,
-                       nta::Real32 permConnected,
-                       nta::UInt32 activationThreshold) const
+                       nupic::Real32 permConnected,
+                       nupic::UInt32 activationThreshold) const
   {
     PyArrayObject* act = (PyArrayObject*) py_activities;
-    return self->isActive((nta::UInt32*) act->data,
+    return self->isActive((nupic::UInt32*) act->data,
                           permConnected,
                           activationThreshold);
   }
@@ -1630,12 +1630,12 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 /*
 %inline {
 
-  inline void scalarEncoding(nta::UInt32 minval, nta::UInt32 nInternal,
-                             nta::Real32 range, nta::UInt32 padding, nta::UInt32 n,
-                             nta::Real32 input, PyObject* py_output)
+  inline void scalarEncoding(nupic::UInt32 minval, nupic::UInt32 nInternal,
+                             nupic::Real32 range, nupic::UInt32 padding, nupic::UInt32 n,
+                             nupic::Real32 input, PyObject* py_output)
   {
     PyArrayObject* p_output = (PyArrayObject*) py_output;
-    nta::Real32 output = p_output->data;
+    nupic::Real32 output = p_output->data;
     int centerbin = padding + int((input - minval) * nInternal / range);
 
   }
@@ -1646,11 +1646,11 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // EVEN NEWER ALGORITHMS (Cells4)
-%include <nta/algorithms/Cells4.hpp>
+%include <nupic/algorithms/Cells4.hpp>
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::Cells4::Cells4
+%extend nupic::algorithms::Cells4::Cells4
 {
   %pythoncode %{
 
@@ -1694,39 +1694,39 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
     PyArrayObject* cellConfidenceT = (PyArrayObject*) py_cellConfidenceT;
     PyArrayObject* cellConfidenceT1 = (PyArrayObject*) py_cellConfidenceT1;
 
-    self->setStatePointers((nta::Byte*) infActiveStateT->data,
-                           (nta::Byte*) infActiveStateT1->data,
-                           (nta::Byte*) infPredictedStateT->data,
-                           (nta::Byte*) infPredictedStateT1->data,
-                           (nta::Real32*) colConfidenceT->data,
-                           (nta::Real32*) colConfidenceT1->data,
-                           (nta::Real32*) cellConfidenceT->data,
-                           (nta::Real32*) cellConfidenceT1->data);
+    self->setStatePointers((nupic::Byte*) infActiveStateT->data,
+                           (nupic::Byte*) infActiveStateT1->data,
+                           (nupic::Byte*) infPredictedStateT->data,
+                           (nupic::Byte*) infPredictedStateT1->data,
+                           (nupic::Real32*) colConfidenceT->data,
+                           (nupic::Real32*) colConfidenceT1->data,
+                           (nupic::Real32*) cellConfidenceT->data,
+                           (nupic::Real32*) cellConfidenceT1->data);
   }
 
   inline PyObject* getStates() const
   {
-    nta::UInt32 nCells = self->nCells();
-    nta::UInt32 nColumns = self->nColumns();
+    nupic::UInt32 nCells = self->nCells();
+    nupic::UInt32 nColumns = self->nColumns();
 
-    nta::Byte* cpp_activeT, *cpp_activeT1;
-    nta::Byte* cpp_predT, *cpp_predT1;
-    nta::Real32* cpp_colConfidenceT, *cpp_colConfidenceT1;
-    nta::Real32* cpp_confidenceT, *cpp_confidenceT1;
+    nupic::Byte* cpp_activeT, *cpp_activeT1;
+    nupic::Byte* cpp_predT, *cpp_predT1;
+    nupic::Real32* cpp_colConfidenceT, *cpp_colConfidenceT1;
+    nupic::Real32* cpp_confidenceT, *cpp_confidenceT1;
 
     self->getStatePointers(cpp_activeT, cpp_activeT1,
                            cpp_predT, cpp_predT1,
                            cpp_colConfidenceT, cpp_colConfidenceT1,
                            cpp_confidenceT, cpp_confidenceT1);
 
-    nta::NumpyVectorT<nta::Byte> activeT(nCells, cpp_activeT);
-    nta::NumpyVectorT<nta::Byte> activeT1(nCells, cpp_activeT1);
-    nta::NumpyVectorT<nta::Byte> predT(nCells, cpp_predT);
-    nta::NumpyVectorT<nta::Byte> predT1(nCells, cpp_predT1);
-    nta::NumpyVectorT<nta::Real32> colConfidenceT(nColumns, cpp_colConfidenceT);
-    nta::NumpyVectorT<nta::Real32> colConfidenceT1(nColumns, cpp_colConfidenceT1);
-    nta::NumpyVectorT<nta::Real32> confidenceT(nCells, cpp_confidenceT);
-    nta::NumpyVectorT<nta::Real32> confidenceT1(nCells, cpp_confidenceT1);
+    nupic::NumpyVectorT<nupic::Byte> activeT(nCells, cpp_activeT);
+    nupic::NumpyVectorT<nupic::Byte> activeT1(nCells, cpp_activeT1);
+    nupic::NumpyVectorT<nupic::Byte> predT(nCells, cpp_predT);
+    nupic::NumpyVectorT<nupic::Byte> predT1(nCells, cpp_predT1);
+    nupic::NumpyVectorT<nupic::Real32> colConfidenceT(nColumns, cpp_colConfidenceT);
+    nupic::NumpyVectorT<nupic::Real32> colConfidenceT1(nColumns, cpp_colConfidenceT1);
+    nupic::NumpyVectorT<nupic::Real32> confidenceT(nCells, cpp_confidenceT);
+    nupic::NumpyVectorT<nupic::Real32> confidenceT1(nCells, cpp_confidenceT1);
 
     PyObject *result = PyTuple_New(8);
     PyTuple_SET_ITEM(result, 0, activeT.forPython());
@@ -1743,18 +1743,18 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
   inline PyObject* getLearnStates() const
   {
-    nta::UInt32 nCells = self->nCells();
+    nupic::UInt32 nCells = self->nCells();
 
-    nta::Byte* cpp_activeT, *cpp_activeT1;
-    nta::Byte* cpp_predT, *cpp_predT1;
+    nupic::Byte* cpp_activeT, *cpp_activeT1;
+    nupic::Byte* cpp_predT, *cpp_predT1;
 
     self->getLearnStatePointers(cpp_activeT, cpp_activeT1,
                            cpp_predT, cpp_predT1);
 
-    nta::NumpyVectorT<nta::Byte> activeT(nCells, cpp_activeT);
-    nta::NumpyVectorT<nta::Byte> activeT1(nCells, cpp_activeT1);
-    nta::NumpyVectorT<nta::Byte> predT(nCells, cpp_predT);
-    nta::NumpyVectorT<nta::Byte> predT1(nCells, cpp_predT1);
+    nupic::NumpyVectorT<nupic::Byte> activeT(nCells, cpp_activeT);
+    nupic::NumpyVectorT<nupic::Byte> activeT1(nCells, cpp_activeT1);
+    nupic::NumpyVectorT<nupic::Byte> predT(nCells, cpp_predT);
+    nupic::NumpyVectorT<nupic::Byte> predT1(nCells, cpp_predT1);
 
     PyObject *result = PyTuple_New(4);
     PyTuple_SET_ITEM(result, 0, activeT.forPython());
@@ -1766,25 +1766,25 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   }
 
   /*
-  inline std::pair<nta::UInt32, nta::UInt32>
-    getBestMatchingCell(nta::UInt32 colIdx, PyObject* py_state)
+  inline std::pair<nupic::UInt32, nupic::UInt32>
+    getBestMatchingCell(nupic::UInt32 colIdx, PyObject* py_state)
     {
       PyArrayObject* st = (PyArrayObject*) py_state;
-      return self->getBestMatchingCell(colIdx, (nta::UInt32*) st->data);
+      return self->getBestMatchingCell(colIdx, (nupic::UInt32*) st->data);
     }
   */
 
   /*
-  inline void computeUpdate(nta::UInt32 colIdx, nta::UInt32 cellIdxInCol,
-                            nta::UInt32 segIdx, PyObject* py_state,
+  inline void computeUpdate(nupic::UInt32 colIdx, nupic::UInt32 cellIdxInCol,
+                            nupic::UInt32 segIdx, PyObject* py_state,
                             PyObject* py_learnState,
                             bool sequenceSegmentFlag = false,
                             bool newSynapsesFlag = false)
   {
     PyArrayObject* st = (PyArrayObject*) py_state;
     PyArrayObject* lst = (PyArrayObject*) py_learnState;
-    self->computeUpdate(colIdx, cellIdxInCol, segIdx, (nta::UInt32*) st->data,
-                        (nta::UInt32*) lst->data,
+    self->computeUpdate(colIdx, cellIdxInCol, segIdx, (nupic::UInt32*) st->data,
+                        (nupic::UInt32*) lst->data,
                         sequenceSegmentFlag, newSynapsesFlag);
   }
   */
@@ -1792,15 +1792,15 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   inline PyObject* compute(PyObject* py_x, bool doInference, bool doLearning)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    nta::NumpyVectorT<nta::Real32> y(self->nCells());
-    self->compute((nta::Real32*) x->data, y.begin(), doInference, doLearning);
+    nupic::NumpyVectorT<nupic::Real32> y(self->nCells());
+    self->compute((nupic::Real32*) x->data, y.begin(), doInference, doLearning);
     return y.forPython();
   }
 }
 
-%include <nta/algorithms/SpatialPooler.hpp>
+%include <nupic/algorithms/SpatialPooler.hpp>
 
-%extend nta::algorithms::spatial_pooler::SpatialPooler
+%extend nupic::algorithms::spatial_pooler::SpatialPooler
 {
   %pythoncode %{
     import numpy
@@ -1859,7 +1859,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data,
+    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data,
                   (bool)stripNeverLearned);
   }
 
@@ -1867,13 +1867,13 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data);
   }
 
   inline void stripUnlearnedColumns(PyObject *py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->stripUnlearnedColumns((nta::UInt*) x->data);
+    self->stripUnlearnedColumns((nupic::UInt*) x->data);
   }
 
   void loadFromString(const std::string& inString)
@@ -1897,106 +1897,106 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   inline void setBoostFactors(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setBoostFactors((nta::Real*) x->data);
+    self->setBoostFactors((nupic::Real*) x->data);
   }
 
   inline void getBoostFactors(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getBoostFactors((nta::Real*) x->data);
+    self->getBoostFactors((nupic::Real*) x->data);
   }
 
   inline void setOverlapDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setOverlapDutyCycles((nta::Real*) x->data);
+    self->setOverlapDutyCycles((nupic::Real*) x->data);
   }
 
   inline void getOverlapDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getOverlapDutyCycles((nta::Real*) x->data);
+    self->getOverlapDutyCycles((nupic::Real*) x->data);
   }
 
   inline void setActiveDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setActiveDutyCycles((nta::Real*) x->data);
+    self->setActiveDutyCycles((nupic::Real*) x->data);
   }
 
   inline void getActiveDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getActiveDutyCycles((nta::Real*) x->data);
+    self->getActiveDutyCycles((nupic::Real*) x->data);
   }  
 
 
   inline void setMinOverlapDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setMinOverlapDutyCycles((nta::Real*) x->data);
+    self->setMinOverlapDutyCycles((nupic::Real*) x->data);
   }
 
   inline void getMinOverlapDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getMinOverlapDutyCycles((nta::Real*) x->data);
+    self->getMinOverlapDutyCycles((nupic::Real*) x->data);
   }
 
   inline void setMinActiveDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setMinActiveDutyCycles((nta::Real*) x->data);
+    self->setMinActiveDutyCycles((nupic::Real*) x->data);
   }
 
   inline void getMinActiveDutyCycles(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getMinActiveDutyCycles((nta::Real*) x->data);
+    self->getMinActiveDutyCycles((nupic::Real*) x->data);
   }  
 
   inline void setPotential(UInt column, PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setPotential(column, (nta::UInt*) x->data);
+    self->setPotential(column, (nupic::UInt*) x->data);
   }
 
   inline void getPotential(UInt column, PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getPotential(column, (nta::UInt*) x->data);
+    self->getPotential(column, (nupic::UInt*) x->data);
   }
 
   inline void setPermanence(UInt column, PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->setPermanence(column, (nta::Real*) x->data);
+    self->setPermanence(column, (nupic::Real*) x->data);
   }
 
   inline void getPermanence(UInt column, PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getPermanence(column, (nta::Real*) x->data);
+    self->getPermanence(column, (nupic::Real*) x->data);
   }
 
   inline void getConnectedSynapses(UInt column, PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getConnectedSynapses(column, (nta::UInt*) x->data);
+    self->getConnectedSynapses(column, (nupic::UInt*) x->data);
   }
 
   inline void getConnectedCounts(PyObject* py_x)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->getConnectedCounts((nta::UInt*) x->data);
+    self->getConnectedCounts((nupic::UInt*) x->data);
   }
 
 }
 
 
-%include <nta/algorithms/FlatSpatialPooler.hpp>
+%include <nupic/algorithms/FlatSpatialPooler.hpp>
 
-%extend nta::algorithms::spatial_pooler::FlatSpatialPooler
+%extend nupic::algorithms::spatial_pooler::FlatSpatialPooler
 {
   %pythoncode %{ 
     import numpy
@@ -2085,7 +2085,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data,
+    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data,
                   (bool)stripNeverLearned);
   }
 
@@ -2093,18 +2093,18 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nta::UInt*) x->data, (bool)learn, (nta::UInt*) y->data);
+    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data);
   }
 
 }
 
-%include <nta/algorithms/FastClaClassifier.hpp>
+%include <nupic/algorithms/FastClaClassifier.hpp>
 
 %pythoncode %{
   import numpy
 %}
 
-%extend nta::algorithms::cla_classifier::FastCLAClassifier
+%extend nupic::algorithms::cla_classifier::FastCLAClassifier
 {
   %pythoncode %{
     VERSION = 0
@@ -2225,17 +2225,17 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
 
 //--------------------------------------------------------------------------------
 // Data structures (Connections)
-%rename(ConnectionsSynapse) nta::algorithms::connections::Synapse;
-%rename(ConnectionsSegment) nta::algorithms::connections::Segment;
-%rename(ConnectionsCell) nta::algorithms::connections::Cell;
-%template(ConnectionsSynapseVector) vector<nta::algorithms::connections::Synapse>;
-%template(ConnectionsSegmentVector) vector<nta::algorithms::connections::Segment>;
-%template(ConnectionsCellVector) vector<nta::algorithms::connections::Cell>;
-%include <nta/algorithms/Connections.hpp>
+%rename(ConnectionsSynapse) nupic::algorithms::connections::Synapse;
+%rename(ConnectionsSegment) nupic::algorithms::connections::Segment;
+%rename(ConnectionsCell) nupic::algorithms::connections::Cell;
+%template(ConnectionsSynapseVector) vector<nupic::algorithms::connections::Synapse>;
+%template(ConnectionsSegmentVector) vector<nupic::algorithms::connections::Segment>;
+%template(ConnectionsCellVector) vector<nupic::algorithms::connections::Cell>;
+%include <nupic/algorithms/Connections.hpp>
 
 
 //--------------------------------------------------------------------------------
-%extend nta::algorithms::connections::Connections
+%extend nupic::algorithms::connections::Connections
 {
   %pythoncode %{
 
@@ -2255,7 +2255,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %}
 }
 
-%extend nta::algorithms::connections::Cell
+%extend nupic::algorithms::connections::Cell
 {
   %pythoncode %{
 
@@ -2277,7 +2277,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %}
 }
 
-%extend nta::algorithms::connections::Segment
+%extend nupic::algorithms::connections::Segment
 {
   %pythoncode %{
 
@@ -2299,7 +2299,7 @@ inline PyObject* generate2DGaussianSample(nta::UInt32 nrows, nta::UInt32 ncols,
   %}
 }
 
-%extend nta::algorithms::connections::Synapse
+%extend nupic::algorithms::connections::Synapse
 {
   %pythoncode %{
 

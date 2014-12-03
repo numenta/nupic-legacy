@@ -21,21 +21,21 @@
  */
 
 
-#include <nta/engine/NuPIC.hpp>
-#include <nta/engine/Network.hpp>
-#include <nta/engine/Region.hpp>
-#include <nta/engine/Spec.hpp>
-#include <nta/engine/Input.hpp>
-#include <nta/engine/Output.hpp>
-#include <nta/engine/Link.hpp>
-#include <nta/ntypes/Dimensions.hpp>
-#include <nta/ntypes/Array.hpp>
-#include <nta/ntypes/ArrayRef.hpp>
-#include <nta/types/Exception.hpp>
-#include <nta/os/OS.hpp> // memory leak detection
-#include <nta/os/Env.hpp>
-#include <nta/os/Path.hpp>
-#include <nta/os/Timer.hpp>
+#include <nupic/engine/NuPIC.hpp>
+#include <nupic/engine/Network.hpp>
+#include <nupic/engine/Region.hpp>
+#include <nupic/engine/Spec.hpp>
+#include <nupic/engine/Input.hpp>
+#include <nupic/engine/Output.hpp>
+#include <nupic/engine/Link.hpp>
+#include <nupic/ntypes/Dimensions.hpp>
+#include <nupic/ntypes/Array.hpp>
+#include <nupic/ntypes/ArrayRef.hpp>
+#include <nupic/types/Exception.hpp>
+#include <nupic/os/OS.hpp> // memory leak detection
+#include <nupic/os/Env.hpp>
+#include <nupic/os/Path.hpp>
+#include <nupic/os/Timer.hpp>
 
 #include <string>
 #include <vector>
@@ -62,7 +62,7 @@ bool ignore_negative_tests = false;
     } \
   }
 
-using namespace nta;
+using namespace nupic;
 
 bool verbose = false;
 
@@ -628,7 +628,7 @@ int main(int argc, char *argv[])
       }
     }
 
-  } catch (nta::Exception& e) {
+  } catch (nupic::Exception& e) {
     std::cout 
       << "Exception: " << e.getMessage() 
       << " at: " << e.getFilename() << ":" << e.getLineNumber()

@@ -191,7 +191,7 @@ class ConditionalProbabilityTable2D(object):
   """Holds frequencies in a 2D grid of bins.
   Binning is not performed automatically by this class.
   Bin updates must be done one row at a time.
-  Based on nta::SparseMatrix which is a compressed sparse row matrix.
+  Based on nupic::SparseMatrix which is a compressed sparse row matrix.
   Number of columns cannot be changed once set.
   Number of rows may be increased.
   Also maintains the row and column sumProp distributions.
