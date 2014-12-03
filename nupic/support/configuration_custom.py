@@ -46,7 +46,7 @@ class Configuration(ConfigurationBase):
   If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
   files are expected to be in the NTA_CONF_PATH search path, which is a ':'
   separated list of directories. If NTA_CONF_PATH is not defined, then it is
-  assumed to be NTA/conf/default (typically ~/nta/current/conf/default).
+  assumed to be NTA/conf/default (typically ~/nupic/current/conf/default).
   """
 
 

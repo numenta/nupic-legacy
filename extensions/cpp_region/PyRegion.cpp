@@ -25,22 +25,22 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <nta/engine/Spec.hpp>
-#include <nta/engine/Region.hpp>
-#include <nta/engine/Input.hpp>
-#include <nta/engine/Output.hpp>
-#include <nta/utils/Log.hpp>
-#include <nta/ntypes/ObjectModel.hpp> // IWrite/ReadBuffer
-#include <nta/ntypes/Value.hpp>
-#include <nta/ntypes/Array.hpp>
-#include <nta/ntypes/ArrayRef.hpp>
-#include <nta/types/BasicType.hpp>
-#include <nta/ntypes/BundleIO.hpp>
-#include <nta/utils/Log.hpp>
-#include <nta/os/Path.hpp>
+#include <nupic/engine/Spec.hpp>
+#include <nupic/engine/Region.hpp>
+#include <nupic/engine/Input.hpp>
+#include <nupic/engine/Output.hpp>
+#include <nupic/utils/Log.hpp>
+#include <nupic/ntypes/ObjectModel.hpp> // IWrite/ReadBuffer
+#include <nupic/ntypes/Value.hpp>
+#include <nupic/ntypes/Array.hpp>
+#include <nupic/ntypes/ArrayRef.hpp>
+#include <nupic/types/BasicType.hpp>
+#include <nupic/ntypes/BundleIO.hpp>
+#include <nupic/utils/Log.hpp>
+#include <nupic/os/Path.hpp>
 #include <py_support/PyArray.hpp>
 
-using namespace nta;
+using namespace nupic;
 
 #define LAST_ERROR_LENGTH 1024
 static char lastError[LAST_ERROR_LENGTH];
@@ -100,16 +100,16 @@ extern "C"
       NTA_CHECK(nodeParams != NULL);
       NTA_CHECK(region != NULL);
 
-      ValueMap * valueMap = static_cast<nta::ValueMap *>(nodeParams);
-      Region * r = static_cast<nta::Region*>(region);
+      ValueMap * valueMap = static_cast<nupic::ValueMap *>(nodeParams);
+      Region * r = static_cast<nupic::Region*>(region);
       RegionImpl * p = NULL;
-      p = new nta::PyRegion(module, *valueMap, r);
+      p = new nupic::PyRegion(module, *valueMap, r);
 
       return p;
     }
-    catch (nta::Exception & e)
+    catch (nupic::Exception & e)
     {
-      *exception = new nta::Exception(e);
+      *exception = new nupic::Exception(e);
       return NULL;
     }
     catch (...)
@@ -126,15 +126,15 @@ extern "C"
     {
       NTA_CHECK(region != NULL);
 
-      Region * r = static_cast<nta::Region*>(region);
-      BundleIO *b = static_cast<nta::BundleIO*>(bundle);
+      Region * r = static_cast<nupic::Region*>(region);
+      BundleIO *b = static_cast<nupic::BundleIO*>(bundle);
       RegionImpl * p = NULL;
       p = new PyRegion(module, *b, r);
       return p;
     }
-    catch (nta::Exception & e)
+    catch (nupic::Exception & e)
     {
-      *exception = new nta::Exception(e);
+      *exception = new nupic::Exception(e);
       return NULL;
     }
     catch (...)
@@ -158,9 +158,9 @@ extern "C"
     {
       return PyRegion::createSpec(nodeType);
     }
-    catch (nta::Exception & e)
+    catch (nupic::Exception & e)
     {
-      *exception = new nta::Exception(e);
+      *exception = new nupic::Exception(e);
       return NULL;
     }
     catch (...)
@@ -219,7 +219,7 @@ void PyRegion::destroySpec(const char * nodeType)
   specs_.erase(nodeType);
 }
 
-namespace nta
+namespace nupic
 {
 
 class RegionImpl;
@@ -1045,7 +1045,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
  
 // Return the size of the longest raw in a slitter map
 // which is the max number of inputs that go into one node
-static size_t getMaxInputCount(const nta::Input::SplitterMap & sm)
+static size_t getMaxInputCount(const nupic::Input::SplitterMap & sm)
 {
   size_t maxInputCount = 0;
   for (size_t i = 0; i < sm.size(); ++i)
@@ -1101,7 +1101,7 @@ void PyRegion::initialize()
     Array & a = *(inputArrays_[p.first]);
     a.allocateBuffer(inp->getData().getCount() + 1);
 
-    const nta::Input::SplitterMap & sm = inp->getSplitterMap();
+    const nupic::Input::SplitterMap & sm = inp->getSplitterMap();
     size_t rawSize = getMaxInputCount(sm);
     
     // The sentinel is padding each input raw
@@ -1176,4 +1176,4 @@ void PyRegion::initialize()
 }
 
 
-} // end namespace nta
+} // end namespace nupic

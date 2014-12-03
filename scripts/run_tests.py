@@ -192,7 +192,7 @@ def main(parser, parse_args):
     else:
       runid = datetime.now().strftime('%Y%m%d%H%M%S')
 
-    results = os.path.join(root, "results", "py2", "xunit", str(runid))
+    results = os.path.join(root, "results", "xunit", str(runid))
 
     try:
       os.makedirs(results)
@@ -205,13 +205,13 @@ def main(parser, parse_args):
     tests.update(options.tests)
 
   if options.unit or options.all:
-    tests.add(os.path.join(root, "unit", "py2"))
+    tests.add(os.path.join(root, "unit"))
 
   if options.integration or options.all:
-    tests.add(os.path.join(root, "integration", "py2"))
+    tests.add(os.path.join(root, "integration"))
 
   if options.swarming or options.all:
-    tests.add(os.path.join(root, "swarming", "py2"))
+    tests.add(os.path.join(root, "swarming"))
 
   if options.verbose:
     args.append("-v")
@@ -220,8 +220,8 @@ def main(parser, parse_args):
     args.append("-x")
 
   if not tests or options.all:
-    tests.add(os.path.join(root, "external", "py2"))
-    tests.add(os.path.join(root, "unit", "py2"))
+    tests.add(os.path.join(root, "external"))
+    tests.add(os.path.join(root, "unit"))
 
   # Run tests
 

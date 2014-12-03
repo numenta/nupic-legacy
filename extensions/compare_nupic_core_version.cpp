@@ -1,6 +1,6 @@
 #include <string.h>
 #include <iostream>
-#include <nta/Version.hpp>
+#include <nupic/Version.hpp>
 
 int main(int argc, char *argv[])
 {
