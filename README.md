@@ -27,7 +27,7 @@ For all installation options, see the [Installing and Building NuPIC](https://gi
  * Make
  * CMake
 
-The dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
+The _python_ dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
