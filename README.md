@@ -16,19 +16,18 @@ For all installation options, see the [Installing and Building NuPIC](https://gi
 
 ### Currently supported platforms:
 
- * Linux (64bit)
- * Mac OSX
- * Raspberry Pi (ARMv6)
- * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
+ * 64-bit Linux
+ * Mac OS X
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 ### Dependencies:
 
- * Python (2.6-2.7) (with development headers)
- * GCC (4.6-4.8), or Clang
- * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
+ * Python 2.7 (with development headers)
+ * Compiler toolchain with support for C++11 such as GCC >= 4.7 (Linux-only), or llvm/clang
+ * Make
+ * CMake
 
-The dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
+The _python_ dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
