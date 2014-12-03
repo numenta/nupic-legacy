@@ -402,6 +402,14 @@ class ScalarEncoderTest(unittest.TestCase):
     with self.assertRaises(TypeError):
       encoder.encode("String")
 
+  # ============================================================================
+  def testGetBucketInfoIntResolution(self):
+    """Ensures that passing resolution as an int doesn't truncate values."""
+    encoder = ScalarEncoder(w=3, resolution=1, minval=1, maxval=8,
+                            periodic=True, forced=True)
+    self.assertEqual(4.5, encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
+
+
 ###########################################
 if __name__ == '__main__':
   unittest.main()
