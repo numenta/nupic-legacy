@@ -3,14 +3,16 @@
 The included `Vagrantfile` and configuration files are provided to support a
 docker-based workflow on top of [CoreOS](https://coreos.com/) and
 [Vagrant](https://www.vagrantup.com/), in which nupic may be built in an
-isolated, and replicable Linux environment.  CoreOS, the guest OS in the virtual
-machine (VM) in this example, is a minimal linux distribution that works
-particularly well with [Docker](https://www.docker.com/), a platform for
+isolated, and replicable Linux environment.  CoreOS, the guest OS in the
+virtual machine (VM) in this example, is a minimal linux distribution that
+works particularly well with [Docker](https://www.docker.com/), a platform for
 automating and running isolated linux containers.  Vagrant provides a
 high-level interface for provisioning and launching VMs
 
-Before you begin, install Vagrant from, checkout this repository from GitHub,
-and cd into `vagrant-coreos-docker`.
+Before you begin, install Vagrant from
+(https://www.vagrantup.com/downloads.html), checkout this repository from
+[GitHub](https://github.com/numenta/nupic), and cd into
+`vagrant-coreos-docker`.
 
 Bring up vm with vagrant and log in:
 
@@ -34,8 +36,10 @@ Then, launch the docker container, replacing the id with your own:
 
     docker run -t -i nupic:`git rev-parse HEAD` /bin/bash
 
-Then, cd into /usr/local/src/nupic and run tests"
+Then, cd into /usr/local/src/nupic and run tests:
 
-    cd /usr/local/src/nupic
-    ./run_tests.sh -u
-    ./bin/testpyhtm
+    cd /usr/local/src/nupic/build/scripts
+    make tests_htm
+    make tests_pyhtm
+    make python_unit_tests
+

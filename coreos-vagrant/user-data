@@ -19,8 +19,8 @@ coreos:
         [Service]
         Type=oneshot
         RemainAfterExit=yes
-        ExecStart=/usr/sbin/wipefs -f /dev/sdb
-        ExecStart=/usr/sbin/mkfs.btrfs -f /dev/sdb
+        ExecStart=/usr/sbin/wipefs -f /dev/sda
+        ExecStart=/usr/sbin/mkfs.btrfs -f /dev/sda
     - name: var-lib-docker.mount
       command: start
       content: |
@@ -30,6 +30,6 @@ coreos:
         After=format-ephemeral.service
         Before=docker.service
         [Mount]
-        What=/dev/sdb
+        What=/dev/sda
         Where=/var/lib/docker
         Type=btrfs
