@@ -259,7 +259,7 @@ class Configuration(object):
         # If the file was not found in the normal search paths, which includes
         # checking the NTA_CONF_DIR, we'll try loading it from pkg_resources.
         try:
-          contents = resource_string(__name__, filename)
+          contents = resource_string("nupic.support", filename)
         except:
           contents = '<configuration/>'
 
