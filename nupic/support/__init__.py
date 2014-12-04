@@ -78,6 +78,7 @@ import struct
 from StringIO import StringIO
 import time
 import traceback
+from pkg_resources import resource_string
 
 
 from configuration import Configuration
@@ -401,8 +402,8 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   # Setup logging. Look for the nupic-logging.conf file, first in the
   #   NTA_CONFIG_DIR path (if defined), then in a subdirectory of the nupic
   #   module
-  # TODO: move into nupic.support
   configFilename = 'nupic-logging.conf'
+
   try:
     configFilePath = Configuration.findConfigFile(configFilename)
   except:
@@ -478,20 +479,24 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
     replacements[makeKey('CONSOLE_LOG_LEVEL')] = consoleLevel
     
     customConfig = StringIO()
-    with open(configFilePath) as src:
-      for lineNum, line in enumerate(src):
-        if "$$" in line:
-          for (key, value) in replacements.items():
-            line = line.replace(key, value)
-            
-        # If there is still a replacement string in the line, we're missing it
-        #  from our replacements dict
-        if "$$" in line and "$$<key>$$" not in line:
-          raise RuntimeError(("The text %r, found at line #%d of file %r, "
-                              "contains a string not found in our replacement "
-                              "dict.") % (line, lineNum, configFilePath))
-        
-        customConfig.write(line)
+
+    # Using pkg_resources to get the logging file, which should be packaged and
+    # associated with this source file name.
+    loggingFileContents = resource_string(__name__, configFilename)
+
+    for lineNum, line in enumerate(loggingFileContents):
+      if "$$" in line:
+        for (key, value) in replacements.items():
+          line = line.replace(key, value)
+
+      # If there is still a replacement string in the line, we're missing it
+      #  from our replacements dict
+      if "$$" in line and "$$<key>$$" not in line:
+        raise RuntimeError(("The text %r, found at line #%d of file %r, "
+                            "contains a string not found in our replacement "
+                            "dict.") % (line, lineNum, configFilePath))
+
+      customConfig.write(line)
     
     customConfig.seek(0)
     if python_version()[:3] >= '2.6':

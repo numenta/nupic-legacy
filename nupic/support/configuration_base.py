@@ -25,8 +25,7 @@ from __future__ import with_statement
 import os
 import logging
 from xml.etree import ElementTree
-
-import nupic
+from pkg_resources import resource_string
 
 # Turn on additional print statements
 DEBUG = False
@@ -257,8 +256,13 @@ class Configuration(object):
         except Exception:
           contents = '<configuration/>'
       else:
-        contents = '<configuration/>'
-      
+        # If the file was not found in the normal search paths, which includes
+        # checking the NTA_CONF_DIR, we'll try loading it from pkg_resources.
+        try:
+          contents = resource_string(__name__, filename)
+        except:
+          contents = '<configuration/>'
+
       elements = ElementTree.XML(contents)
 
       if elements.tag != 'configuration':
