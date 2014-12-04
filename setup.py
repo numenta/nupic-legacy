@@ -102,7 +102,14 @@ def setupNupic():
     name = "nupic",
     version = version,
     packages = findPackages(repositoryDir),
+    # A lot of this stuff may not be packaged properly, most if it was added in
+    # an effort to get a binary package prepared for nupic.regression testing
+    # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
+    # of this for https://github.com/numenta/nupic/issues/408, so this will be
+    # changing soon. -- Matt
     package_data = {
+      "nupic.support.configuration_base": ["nupic-default.xml"],
+      "nupic.support.__init__": ["nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt",
                 "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
       "nupic.bindings": ["_*.so", "_*.dll"],
@@ -116,7 +123,6 @@ def setupNupic():
     data_files=[
       ("", [
         "CMakeLists.txt",
-        "config/default/nupic-default.xml"
         ]
       )
     ],
