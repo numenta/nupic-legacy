@@ -24,6 +24,11 @@ echo
 echo Running script-run-tests.sh...
 echo
 
+# Tests should run out of nupic source in order to avoid the use of python modules of it
+cd ${TRAVIS_BUILD_DIR}
+ls build/bdist.linux-x86_64/egg/nupic/bindings
+cd ..
+
 # Python unit tests and prep for coveralls reporting
 python ${TRAVIS_BUILD_DIR}/scripts/run_tests.py -u --coverage || exit
 

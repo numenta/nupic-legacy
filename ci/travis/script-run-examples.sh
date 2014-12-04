@@ -24,11 +24,6 @@ echo
 echo Running script-run-examples.sh...
 echo
 
-# Tests should run out of nupic source in order to avoid the use of python modules of it
-cd ${TRAVIS_BUILD_DIR}
-ls build/bdist.linux-x86_64/egg/nupic/bindings
-cd ..
-
 python ${TRAVIS_BUILD_DIR}/examples/bindings/sparse_matrix_how_to.py || exit
 # python ${TRAVIS_BUILD_DIR}/examples/bindings/svm_how_to.py || exit # tkinter missing in Travis build machine
 # python ${TRAVIS_BUILD_DIR}/examples/bindings/temporal_pooler_how_to.py || exit # tkinter too
