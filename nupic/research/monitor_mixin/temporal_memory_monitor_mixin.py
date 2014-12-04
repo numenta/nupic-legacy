@@ -240,7 +240,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     for sequenceLabel, predictedActiveCells in (
           self._mmData["predictedActiveCellsForSequence"].iteritems()):
-      cellsForColumn = self.connections.mapCellsToColumns(predictedActiveCells)
+      cellsForColumn = self.mapCellsToColumns(predictedActiveCells)
       for column, cells in cellsForColumn.iteritems():
         table.add_row([sequenceLabel, column, list(cells)])
 
