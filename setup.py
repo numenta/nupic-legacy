@@ -9,17 +9,23 @@ import re
 import numpy
 import py_compile
 from distutils.command.build import build
+from setuptools.command.install import install
 
 """
 This file build and install the NuPIC binaries.
 """
 
 class CustomBuild(build):
-  # Compile extensions before python modules to avoid that SWIG generated modules get out of the dist
-  sub_commands = [('build_ext', build.has_ext_modules),
-    ('build_py', build.has_pure_modules),
-    ('build_clib', build.has_c_libraries),
-    ('build_scripts', build.has_scripts),]
+  def run(self):
+    # Compile extensions before python modules to avoid that SWIG generated modules get out of the dist
+    self.run_command('build_ext')
+    build.run(self)
+
+class CustomInstall(install):
+  def run(self):
+    # Compile extensions before python modules to avoid that SWIG generated modules get out of the dist
+    self.run_command('build_ext')
+    self.do_egg_install()
 
 class Setup:
 
@@ -40,7 +46,7 @@ class Setup:
     setuptools.setup(
       name="nupic",
       version=self.getVersion(),
-      cmdclass={'build': CustomBuild},
+      cmdclass={'build': CustomBuild, 'install': CustomInstall},
       packages=setuptools.find_packages(),
       package_data={
         "nupic": ["README.md", "LICENSE.txt"],

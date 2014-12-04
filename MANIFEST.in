@@ -1,4 +1,3 @@
-recursive-include nupic/bindings _*.so _*.dll
 recursive-include nupic/data *.json
 recursive-include nupic/frameworks/opf/exp_generator *.json *.tpl
 recursive-include nupic/frameworks/opf/jsonschema *.json
