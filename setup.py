@@ -233,17 +233,19 @@ class Setup:
       "-std=c++11",
       "-m" + self.bitness,
       "-fPIC",
-      "-L" + nupicCoreReleaseDir + "/lib",
       "-L" + pythonPrefix + "/lib"]
     if stdLib != "":
       commonLinkFlags.append(stdLib)
 
-    commonLibraries = [
-      "nupic_core",
-      "gtest",
-      "yaml-cpp"]
+    commonLibraries = []
     if self.platform == "linux":
       commonLibraries.extend(["pthread", "dl"])
+
+    commonObjects = [
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("nupic_core"),
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("gtest"),
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("gtest"),
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("yaml-cpp")]
 
     pythonSupportSources = [
       "extensions/py_support/NumpyVector.cpp",
@@ -265,7 +267,8 @@ class Setup:
         "python" + pythonVersion],
       sources=pythonSupportSources +
         ["extensions/cpp_region/PyRegion.cpp",
-        "extensions/cpp_region/unittests/PyHelpersTest.cpp"])
+        "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
+      extra_objects=commonObjects)
     extensions.append(libDynamicCppRegion)
 
     #
@@ -321,7 +324,8 @@ class Setup:
       include_dirs=commonIncludeDirs,
       libraries=swigLibraries,
       sources=pythonSupportSources +
-        ["nupic/bindings/engine_internal.i"])
+        ["nupic/bindings/engine_internal.i"],
+      extra_objects=commonObjects)
     extensions.append(libSharedEngineInternal)
 
     libSharedMath = setuptools.Extension(
@@ -334,7 +338,8 @@ class Setup:
       libraries=swigLibraries,
       sources=pythonSupportSources +
         ["nupic/bindings/math.i",
-        "nupic/bindings/PySparseTensor.cpp"])
+        "nupic/bindings/PySparseTensor.cpp"],
+      extra_objects=commonObjects)
     extensions.append(libSharedMath)
 
     libSharedAlgorithms = setuptools.Extension(
@@ -346,10 +351,22 @@ class Setup:
       include_dirs=commonIncludeDirs,
       libraries=swigLibraries,
       sources=pythonSupportSources +
-        ["nupic/bindings/algorithms.i"])
+        ["nupic/bindings/algorithms.i"],
+      extra_objects=commonObjects)
     extensions.append(libSharedAlgorithms)
 
     return extensions
+
+
+  def getStaticLibFile(self, libName):
+    """
+    Returns the default system name of a compiled static library.
+    """
+
+    if self.platform == "linux" or self.platform == "darwin":
+      return "lib" + libName + ".a"
+    elif self.platform == "windows":
+      return libName + ".lib"
 
 
   def prepareNupicCore(self):
@@ -511,6 +528,10 @@ class Setup:
 
 
   def downloadFile(self, url, destFile, silent=False):
+    """
+    Download a file to the specified location
+    """
+
     success = True
 
     if not silent:

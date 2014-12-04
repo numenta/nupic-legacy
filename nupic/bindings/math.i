@@ -87,19 +87,16 @@ _MATH = _math
 
 %}
 
+#include <nupic/types/Types.hpp>
+#include <nupic/math/Utils.hpp>
+#include <nupic/math/Math.hpp>
+#include <nupic/math/Functions.hpp>
+#include <nupic/math/ArrayAlgo.hpp>
+#include <nupic/utils/Random.hpp>
+
 %naturalvar;
 
-%{
-#define SWIG_FILE_WITH_INIT
-%}
-
 %include <nupic/bindings/numpy.i> // %import does not work.
-
-%init %{
-
-// Perform necessary library initialization (in C++).
-import_array();
-%}
 
 %include <nupic/bindings/types.i>
 %include <nupic/bindings/reals.i>

@@ -19,9 +19,6 @@ http://mail.scipy.org/pipermail/numpy-discussion/2008-October/038143.html
 #ifdef SWIGPYTHON
 
 %{
-#ifndef SWIG_FILE_WITH_INIT
-#  define NO_IMPORT_ARRAY
-#endif
 #include "stdio.h"
 #include <numpy/arrayobject.h>
 %}

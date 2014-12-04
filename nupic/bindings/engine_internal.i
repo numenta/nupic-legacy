@@ -70,8 +70,6 @@
  * ----------------------------------------------------------------------
 */
 
-#define SWIG_FILE_WITH_INIT
-
 
 #include <nupic/types/Types.hpp>
 #include <nupic/types/Types.h>
@@ -149,10 +147,6 @@
 %include <nupic/os/Timer.hpp>
 
 %include <nupic/bindings/numpy.i>
-
-%init %{
- import_array();
-%}
 
 
 %include <py_support/PyArray.hpp>
