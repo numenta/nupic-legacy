@@ -354,7 +354,7 @@ def _runExperimentImpl(options, model=None):
     model: For testing: may pass in an existing OPF Model instance
         to use instead of creating a new one.
 
-  Returns: referece to OPFExperiment instance that was constructed (this
+  Returns: reference to OPFExperiment instance that was constructed (this
       is provided to aid with debugging) or None, if none was
       created.
   """
