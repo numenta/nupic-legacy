@@ -193,7 +193,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     text = ""
 
     text += ("Segments: (format => "
-             "[[(source cell, permanence), ...], ...])\n")
+             "(#) [(source cell=permanence ...),        ...]\n")
     text += "------------------------------------\n"
 
     columns = range(self.numberOfColumns())
@@ -211,13 +211,17 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
             (_, sourceCell, permanence) = self.connections.dataForSynapse(
               synapse)
 
-            synapseList.append((sourceCell,
-                                "{0:.2f}".format(permanence)))
+            synapseList.append((sourceCell, permanence))
 
-          segmentDict[seg] = synapseList
+          synapseList.sort()
+          synapseStringList = ["{0}={1}".format(sourceCell, permanence) for
+                               sourceCell, permanence in synapseList]
+          segmentDict[seg] = "({0})".format(" ".join(synapseStringList))
 
-        text += ("Column {0} / Cell {1}:\t{2}\n".format(
-          column, cell, segmentDict.values()))
+        text += ("Column {0} / Cell {1}:\t({2}) {3}\n".format(
+          column, cell,
+          len(segmentDict.values()),
+          "[{0}]".format(",        ".join(segmentDict.values()))))
 
       if column < len(columns) - 1:  # not last
         text += "\n"
