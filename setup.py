@@ -248,7 +248,7 @@ class Setup:
       commonLibraries.extend(["pthread", "dl"])
 
     commonObjects = [
-      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("nupic_core")]]
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("nupic_core")]
 
     pythonSupportSources = [
       "extensions/py_support/NumpyVector.cpp",
