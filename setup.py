@@ -207,14 +207,14 @@ class Setup:
       stdLib = "-stdlib=libc++"
 
     commonDefines = [
-      ("NUPIC2", ""),
-      ("NTA_PLATFORM_" + self.platform + self.bitness, ""),
+      ("NUPIC2", None),
+      ("NTA_PLATFORM_" + self.platform + self.bitness, None),
       ("NTA_PYTHON_SUPPORT", pythonVersion),
-      ("NTA_INTERNAL", ""),
-      ("NTA_ASSERTIONS_ON", ""),
-      ("NTA_ASM", ""),
-      ("HAVE_CONFIG_H", ""),
-      ("BOOST_NO_WREGEX", "")]
+      ("NTA_INTERNAL", None),
+      ("NTA_ASSERTIONS_ON", None),
+      ("NTA_ASM", None),
+      ("HAVE_CONFIG_H", None),
+      ("BOOST_NO_WREGEX", None)]
 
     commonIncludeDirs = [
       self.repositoryDir + "/external/" + self.platform + self.bitness + "/include",
@@ -250,10 +250,7 @@ class Setup:
       commonLibraries.extend(["pthread", "dl"])
 
     commonObjects = [
-      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("nupic_core"),
-      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("gtest"),
-      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("gtest"),
-      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("yaml-cpp")]
+      nupicCoreReleaseDir + "/lib/" + self.getStaticLibFile("nupic_core")]
 
     pythonSupportSources = [
       "extensions/py_support/NumpyVector.cpp",
