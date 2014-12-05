@@ -43,20 +43,26 @@ class Setup:
 
     # Build and setup NuPIC
     os.chdir(self.repositoryDir)
+
     setuptools.setup(
       name="nupic",
       version=self.getVersion(),
       cmdclass={'build': CustomBuild, 'install': CustomInstall},
       packages=setuptools.find_packages(),
+      # A lot of this stuff may not be packaged properly, most of it was added in
+      # an effort to get a binary package prepared for nupic.regression testing
+      # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
+      # of this for https://github.com/numenta/nupic/issues/408, so this will be
+      # changing soon. -- Matt
       package_data={
+        "nupic.support": ["nupic-default.xml",
+                          "nupic-logging.conf"],
         "nupic": ["README.md", "LICENSE.txt"],
         "nupic.data": ["*.json"],
         "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
         "nupic.frameworks.opf.jsonschema": ["*.json"],
         "nupic.support.resources.images": ["*.png", "*.gif", "*.ico", "*.graffle"],
         "nupic.swarming.jsonschema": ["*.json"]},
-      data_files=[
-        ("", ["config/default/nupic-default.xml"])],
       include_package_data=True,
       ext_modules=self.getExtensionModules(),
       description="Numenta Platform for Intelligent Computing",
@@ -166,12 +172,8 @@ class Setup:
     """
     Get version from local file.
     """
-
-    version = None
     with open("VERSION", "r") as versionFile:
-      version = versionFile.read().strip()
-
-    return version
+      return versionFile.read().strip()
 
 
   def getExtensionModules(self):
