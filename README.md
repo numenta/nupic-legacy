@@ -61,7 +61,7 @@ For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC
 
 ## Developer instructions
 
-If you want to develop, debug, or simply test NuPIC, clone it and follow the instructions:
+If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#for-potential-contributors) it and follow the instructions below.
 
 ### Using command line
 
@@ -94,3 +94,8 @@ See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tip
  * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
 For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
+
+### Contributing to NuPIC:
+
+ * Please see the [Contributing to NuPIC wiki](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC).
+ * Details on the dependency on `nupic.core` [here](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#relationship-with-nupiccore).
