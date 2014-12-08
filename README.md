@@ -16,19 +16,18 @@ For all installation options, see the [Installing and Building NuPIC](https://gi
 
 ### Currently supported platforms:
 
- * Linux (64bit)
- * Mac OSX
- * Raspberry Pi (ARMv6)
- * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
+ * 64-bit Linux
+ * Mac OS X
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 ### Dependencies:
 
- * Python (2.6-2.7) (with development headers)
- * GCC (4.6-4.8), or Clang
- * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
+ * Python 2.7 (with development headers)
+ * Compiler toolchain with support for C++11 such as GCC >= 4.7 (Linux-only), or llvm/clang
+ * Make
+ * CMake
 
-The dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
+The _python_ dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
@@ -62,8 +61,7 @@ For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC
 
 ## Developer instructions
 
-If you want to develop, debug, or simply test NuPIC, clone it and follow the instructions below.
-If you wish to contribute to NuPIC, please follow the [Potential Contributor setup](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#for-potential-contributors) in the wiki.
+If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#for-potential-contributors) it and follow the instructions below.
 
 ### Using command line
 
@@ -96,3 +94,8 @@ See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tip
  * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
 For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
+
+### Contributing to NuPIC:
+
+ * Please see the [Contributing to NuPIC wiki](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC).
+ * Details on the dependency on `nupic.core` [here](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#relationship-with-nupiccore).
