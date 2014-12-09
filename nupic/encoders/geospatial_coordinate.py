@@ -96,7 +96,7 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
 
     @param longitude (float) Longitude of position
     @param latitude (float) Latitude of position
-    @param latitude (float) Altitude of position
+    @param altitude (float) Altitude of position
     @return (numpy.array) Coordinate that the given GPS position
                           maps to
     """
