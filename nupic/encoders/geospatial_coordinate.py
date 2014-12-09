@@ -66,30 +66,35 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
 
   def getDescription(self):
     """See `nupic.encoders.base.Encoder` for more information."""
-    return [('longitude', 0), ('latitude', 1), ('speed', 2)]
+    return [('speed', 0), ('longitude', 1), ('latitude', 2), ('altitude', 3)]
 
 
   def encodeIntoArray(self, inputData, output):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
-    @param inputData (tuple) Contains longitude (float),
-                             latitude (float), speed (float)
+    @param inputData (tuple) Contains speed (float), longitude (float),
+                             latitude (float), altitude (float)
     @param output (numpy.array) Stores encoded SDR in this numpy array
     """
-    (longitude, latitude, speed) = inputData
-    coordinate = self.coordinateForPosition(longitude, latitude)
+    altitude = None
+    if len(inputData) == 4:
+      (speed, longitude, latitude, altitude) = inputData
+    else:
+      (speed, longitude, latitude) = inputData
+    coordinate = self.coordinateForPosition(longitude, latitude, altitude)
     radius = self.radiusForSpeed(speed)
     super(GeospatialCoordinateEncoder, self).encodeIntoArray(
      (coordinate, radius), output)
 
 
-  def coordinateForPosition(self, longitude, latitude):
+  def coordinateForPosition(self, longitude, latitude, altitude=None):
     """
     Returns coordinate for given GPS position.
 
     @param longitude (float) Longitude of position
     @param latitude (float) Latitude of position
+    @param latitude (float) Altitude of position
     @return (numpy.array) Coordinate that the given GPS position
                           maps to
     """
