@@ -44,6 +44,25 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     self.assertEqual(coordinate.tolist(), [-453549, 150239])
 
 
+  def testCoordinateForPosition3D(self):
+    scale = 30 # meters
+    encoder = GeospatialCoordinateEncoder(scale, 60)
+    coordinate = encoder.coordinateForPosition(
+      -122.229194, 37.486782, 1500
+    )
+    self.assertEqual(coordinate.tolist(), [-90102, -142918, 128710])
+
+
+  def testCoordinateForPositionOrigin3D(self):
+    scale = 1 # meters
+    encoder = GeospatialCoordinateEncoder(scale, 60)
+    coordinate = encoder.coordinateForPosition(0,0,0)
+
+    # see WGS80 defining parameters (semi-major axis) on
+    # http://en.wikipedia.org/wiki/Geodetic_datum#Parameters_for_some_geodetic_systems
+    self.assertEqual(coordinate.tolist(), [6378137, 0, 0])  
+
+
   def testCoordinateForPositionOrigin(self):
     scale = 30  # meters
     encoder = GeospatialCoordinateEncoder(scale, 60)
