@@ -22,15 +22,17 @@
 import math
 
 import numpy
-from pyproj import Proj
+from pyproj import Proj, transform
 from nupic.encoders.coordinate import CoordinateEncoder
 
 
 
-PROJ = Proj(init="epsg:3785")  # Spherical Mercator
 # From http://spatialreference.org/ref/epsg/popular-visualisation-crs-mercator/
+PROJ = Proj(init="epsg:3785")  # Spherical Mercator
 PROJ_RANGE=(20037508.3428, 19971868.8804)  # in meters
 
+# See http://gis.stackexchange.com/a/73829/41082
+geocentric = Proj('+proj=geocent +datum=WGS84 +units=m +no_defs')
 
 
 class GeospatialCoordinateEncoder(CoordinateEncoder):
@@ -98,7 +100,12 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     @return (numpy.array) Coordinate that the given GPS position
                           maps to
     """
-    coordinate = numpy.array(PROJ(longitude, latitude))
+    coords = PROJ(longitude, latitude)
+
+    if altitude is not None:
+      coords = transform(PROJ,geocentric,coords[0],coords[1],altitude)
+
+    coordinate = numpy.array(coords)
     coordinate = coordinate / self.scale
     return coordinate.astype(int)
 
