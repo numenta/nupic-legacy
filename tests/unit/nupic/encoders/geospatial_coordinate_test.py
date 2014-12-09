@@ -88,9 +88,9 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     encoder = GeospatialCoordinateEncoder(scale, timestep,
                                           n=999,
                                           w=25)
-    encoding1 = encode(encoder, -122.229194, 37.486782, speed)
-    encoding2 = encode(encoder, -122.229294, 37.486882, speed)
-    encoding3 = encode(encoder, -122.229294, 37.486982, speed)
+    encoding1 = encode(encoder, speed, -122.229194, 37.486782)
+    encoding2 = encode(encoder, speed, -122.229294, 37.486882)
+    encoding3 = encode(encoder, speed, -122.229294, 37.486982)
 
     overlap1 = overlap(encoding1, encoding2)
     overlap2 = overlap(encoding1, encoding3)
@@ -99,9 +99,9 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
 
 
 
-def encode(encoder, longitude, latitude, speed):
+def encode(encoder, speed, longitude, latitude):
   output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
-  encoder.encodeIntoArray((longitude, latitude, speed), output)
+  encoder.encodeIntoArray((speed, longitude, latitude), output)
   return output
 
 def overlap(sdr1, sdr2):
