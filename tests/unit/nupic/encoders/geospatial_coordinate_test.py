@@ -117,6 +117,40 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     self.assertTrue(overlap1 > overlap2)
 
 
+  def testEncodeIntoArrayAltitude(self):
+    scale = 30 # meters
+    timestep = 60 # seconds
+    speed = 2.5 # meters per second
+    longitude, latitude = -122.229294, 37.486782
+    encoder = GeospatialCoordinateEncoder(scale, timestep,
+                                          n=999,
+                                          w=25)
+    encoding1 = encode(encoder, speed, longitude, latitude, 0)
+    encoding2 = encode(encoder, speed, longitude, latitude, 100)
+    encoding3 = encode(encoder, speed, longitude, latitude, 1000)
+
+    overlap1 = overlap(encoding1, encoding2)
+    overlap2 = overlap(encoding1, encoding3)
+
+    self.assertTrue(overlap1 > overlap2)
+
+
+  def testEncodeIntoArray3D(self):
+    scale = 30 # meters
+    timestep = 60 # seconds
+    speed = 2.5 # meters per second
+    encoder = GeospatialCoordinateEncoder(scale, timestep,
+                                          n=999,
+                                          w=25)
+    encoding1 = encode(encoder, speed, -122.229194, 37.486782, 0)
+    encoding2 = encode(encoder, speed, -122.229294, 37.486882, 100)
+    encoding3 = encode(encoder, speed, -122.229294, 37.486982, 1000)
+
+    overlap1 = overlap(encoding1, encoding2)
+    overlap2 = overlap(encoding1, encoding3)
+
+    self.assertTrue(overlap1 > overlap2)
+
 
 def encode(encoder, speed, longitude, latitude, altitude=None):
   output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
