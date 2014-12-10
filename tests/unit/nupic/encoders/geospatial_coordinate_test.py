@@ -118,9 +118,9 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
 
 
 
-def encode(encoder, speed, longitude, latitude):
+def encode(encoder, speed, longitude, latitude, altitude=None):
   output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
-  encoder.encodeIntoArray((speed, longitude, latitude), output)
+  encoder.encodeIntoArray((speed, longitude, latitude, altitude), output)
   return output
 
 def overlap(sdr1, sdr2):
