@@ -103,7 +103,7 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     coords = PROJ(longitude, latitude)
 
     if altitude is not None:
-      coords = transform(PROJ,geocentric,coords[0],coords[1],altitude)
+      coords = transform(PROJ, geocentric, coords[0], coords[1], altitude)
 
     coordinate = numpy.array(coords)
     coordinate = coordinate / self.scale
