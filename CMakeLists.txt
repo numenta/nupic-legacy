@@ -315,17 +315,6 @@ elseif("${PLATFORM}" STREQUAL "darwin")
   set(COMPILE_FLAGS "${COMPILE_FLAGS} -O3")
 endif()
 
-set(EXECUTABLE_HTMTEST testpyhtm)
-set(LIBRARIES ${LIB_STATIC_SUPPORT})
-add_executable(${EXECUTABLE_HTMTEST} extensions/htmtest/htmtest.cpp)
-target_link_libraries(${EXECUTABLE_HTMTEST} ${COMMON_LIBS})
-set_target_properties(${EXECUTABLE_HTMTEST}
-                      PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
-                                 LINK_FLAGS "${COMMON_LINK_FLAGS}")
-add_custom_target(tests_htm
-                  COMMAND ${EXECUTABLE_HTMTEST}
-                  DEPENDS ${EXECUTABLE_HTMTEST})
-
 set(LIB_DYNAMIC_CPPREGION cpp_region)
 add_library(${LIB_DYNAMIC_CPPREGION}
             SHARED
@@ -481,13 +470,8 @@ add_custom_target(python_all_tests
                   COMMAND ${PYTHON} ${PROJECT_SOURCE_DIR}/scripts/run_tests.py --all --coverage # swarming tests fail with the -n parallel run
                   COMMENT "Python tests + integration + swarming (requires DB)")
 
-add_custom_target(tests_pyhtm
-                  COMMAND testpyhtm
-                  COMMENT "Basic tests in Python")
-
 add_custom_target(tests_all
                   DEPENDS python_all_tests
-                  DEPENDS tests_pyhtm
                   COMMENT "Running all tests")
 
 #

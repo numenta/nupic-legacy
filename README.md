@@ -74,8 +74,6 @@ If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/
 #### To run the tests:
 
     cd $NUPIC/build/scripts
-    # Python HTM Network API tests
-    make tests_pyhtm
     # Python OPF unit tests
     make python_unit_tests
     # Python OPF integration tests
