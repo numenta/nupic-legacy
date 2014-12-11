@@ -192,7 +192,7 @@ class CLAModel(Model):
     windowSize=anomalyParams.get('slidingWindowSize', None)
     mode=anomalyParams.get('mode', 'pure')
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
-    self.__logger.debug(self._anomalyInst)
+    #FIXME self.__logger.debug(self._anomalyInst)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -368,6 +368,8 @@ class CLAModel(Model):
     self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
+    self._in = inputRecord
+##FIXME    raise ValueError(inputRecord['ch1'])
 
     # -------------------------------------------------------------------------
     # Turn learning on or off?
@@ -623,7 +625,7 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-          activeColumns, self._prevPredictedColumns)
+          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1'])
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
