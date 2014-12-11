@@ -57,9 +57,6 @@ notifications:
       - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 before_install:
-  # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; sudo apt-get -qq update; sudo apt-get -qq install g++-4.8; alias gcc='gcc-4.8'; alias g++='g++-4.8'; fi"
-  - "if [ $CC = 'gcc' ]; then export CC='gcc-4.8'; export CXX='g++-4.8'; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
