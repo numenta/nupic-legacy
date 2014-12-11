@@ -462,35 +462,6 @@ endif()
 
 
 #
-# Custom targets
-#
-
-add_custom_target(python_unit_tests
-                  COMMAND ${PYTHON} ${PROJECT_SOURCE_DIR}/scripts/run_tests.py -u --coverage
-                  COMMENT "Python unit tests")
-
-add_custom_target(python_integration_tests
-                  COMMAND ${PYTHON} ${PROJECT_SOURCE_DIR}/scripts/run_tests.py -i --coverage
-                  COMMENT "Python integration tests")
-
-add_custom_target(python_swarming_tests
-                  COMMAND ${PYTHON} ${PROJECT_SOURCE_DIR}/scripts/run_tests.py -w --coverage
-                  COMMENT "Python swarming tests")
-
-add_custom_target(python_all_tests
-                  COMMAND ${PYTHON} ${PROJECT_SOURCE_DIR}/scripts/run_tests.py --all --coverage # swarming tests fail with the -n parallel run
-                  COMMENT "Python tests + integration + swarming (requires DB)")
-
-add_custom_target(tests_pyhtm
-                  COMMAND testpyhtm
-                  COMMENT "Basic tests in Python")
-
-add_custom_target(tests_all
-                  DEPENDS python_all_tests
-                  DEPENDS tests_pyhtm
-                  COMMENT "Running all tests")
-
-#
 # Installation targets
 #
 

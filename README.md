@@ -73,17 +73,17 @@ If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/
 
 #### To run the tests:
 
-    cd $NUPIC/build/scripts
-    # Python HTM Network API tests
-    make tests_pyhtm
-    # Python OPF unit tests
-    make python_unit_tests
-    # Python OPF integration tests
-    make python_integration_tests
-    # Python OPF swarming tests (requires mysql)
-    make python_swarming_tests
+    # Python unit tests
+    python $NUPIC/scripts/run_tests.py -u --coverage
+    
+    # Python integration tests
+    python $NUPIC/scripts/run_tests.py -i --coverage
+    
+    # Python swarming tests (requires mysql)
+    python $NUPIC/scripts/run_tests.py -w --coverage
+    
     # Run all tests!
-    make tests_all
+    python $NUPIC/scripts/run_tests.py --all --coverage # swarming tests fail with the -n parallel run
 
 ### Using an IDE
 
