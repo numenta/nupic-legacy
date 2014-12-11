@@ -94,7 +94,7 @@ class Anomaly(object):
     else:
       self._movingAverage = None
 
-    if self._mode == Anomaly.MODE_LIKELIHOOD:
+    if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
