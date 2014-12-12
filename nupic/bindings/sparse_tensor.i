@@ -51,7 +51,7 @@
 #include <nupic/math/Index.hpp>
 #include <nupic/math/Domain.hpp>
 #include <nupic/math/SparseTensor.hpp>
-#include <bindings/py/math/PySparseTensor.hpp>
+#include <nupic/bindings/PySparseTensor.hpp>
 %}
 
 %ignore operator<<;
@@ -73,7 +73,7 @@
 %include <nupic/math/Domain.hpp>
  //%template(BaseDomain) nupic::Domain<nupic::UInt32>;
 
-%include <bindings/py/math/PySparseTensor.hpp>
+%include <nupic/bindings/PySparseTensor.hpp>
 
 %extend PyTensorIndex {
 %pythoncode %{
