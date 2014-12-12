@@ -83,7 +83,7 @@ If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/
     python $NUPIC/scripts/run_tests.py -w --coverage
     
     # Run all tests!
-    python $NUPIC/scripts/run_tests.py --all --coverage # swarming tests fail with the -n parallel run
+    python $NUPIC/scripts/run_tests.py --all --coverage
 
 ### Using an IDE
 
