@@ -402,13 +402,14 @@ set(SWIG_COMMON_LIBRARIES
     ${LIB_STATIC_NUPICCORE}
     ${LIB_STATIC_SUPPORT})
 
+file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/nupic/bindings")
+
 set(LIB_SHARED_ENGINEINTERNAL engine_internal)
-file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/extensions/bindings/py/engine_internal")
-set_source_files_properties(extensions/bindings/py/engine_internal/EngineInternalPy.i PROPERTIES CPLUSPLUS ON)
-set_property(SOURCE extensions/bindings/py/engine_internal/EngineInternalPy.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
+set_source_files_properties(nupic/bindings/engine_internal.i PROPERTIES CPLUSPLUS ON)
+set_property(SOURCE nupic/bindings/engine_internal.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
 swig_add_module(${LIB_SHARED_ENGINEINTERNAL}
                 python
-                extensions/bindings/py/engine_internal/EngineInternalPy.i)
+                nupic/bindings/engine_internal.i)
 set_target_properties(${SWIG_MODULE_${LIB_SHARED_ENGINEINTERNAL}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
@@ -416,13 +417,12 @@ set_target_properties(${SWIG_MODULE_${LIB_SHARED_ENGINEINTERNAL}_REAL_NAME}
 swig_link_libraries(${LIB_SHARED_ENGINEINTERNAL} ${SWIG_COMMON_LIBRARIES})
 
 set(LIB_SHARED_MATH math)
-file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/extensions/bindings/py/math")
-set_source_files_properties(extensions/bindings/py/math/MathPy.i PROPERTIES CPLUSPLUS ON)
-set_property(SOURCE extensions/bindings/py/math/MathPy.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
+set_source_files_properties(nupic/bindings/math.i PROPERTIES CPLUSPLUS ON)
+set_property(SOURCE nupic/bindings/math.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
 swig_add_module(${LIB_SHARED_MATH}
                 python
-                extensions/bindings/py/math/MathPy.i
-                extensions/bindings/py/math/PySparseTensor.cpp)
+                nupic/bindings/math.i
+                nupic/bindings/PySparseTensor.cpp)
 set_target_properties(${SWIG_MODULE_${LIB_SHARED_MATH}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
@@ -430,26 +430,14 @@ set_target_properties(${SWIG_MODULE_${LIB_SHARED_MATH}_REAL_NAME}
 swig_link_libraries(${LIB_SHARED_MATH} ${SWIG_COMMON_LIBRARIES})
 
 set(LIB_SHARED_ALGORITHMS algorithms)
-file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/extensions/bindings/py/algorithms")
-set_source_files_properties(extensions/bindings/py/algorithms/AlgorithmsPy.i PROPERTIES CPLUSPLUS ON)
-set_property(SOURCE extensions/bindings/py/algorithms/AlgorithmsPy.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
-swig_add_module(${LIB_SHARED_ALGORITHMS} python extensions/bindings/py/algorithms/AlgorithmsPy.i)
+set_source_files_properties(nupic/bindings/algorithms.i PROPERTIES CPLUSPLUS ON)
+set_property(SOURCE nupic/bindings/algorithms.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
+swig_add_module(${LIB_SHARED_ALGORITHMS} python nupic/bindings/algorithms.i)
 set_target_properties(${SWIG_MODULE_${LIB_SHARED_ALGORITHMS}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 swig_link_libraries(${LIB_SHARED_ALGORITHMS} ${SWIG_COMMON_LIBRARIES})
-
-set(LIB_SHARED_IORANGE iorange)
-file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/extensions/bindings/py/iorange")
-set_source_files_properties(extensions/bindings/py/iorange/IorangePy.i PROPERTIES CPLUSPLUS ON)
-set_property(SOURCE extensions/bindings/py/iorange/IorangePy.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
-swig_add_module(${LIB_SHARED_IORANGE} python extensions/bindings/py/iorange/IorangePy.i)
-set_target_properties(${SWIG_MODULE_${LIB_SHARED_IORANGE}_REAL_NAME}
-                      PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
-                                 LINK_FLAGS ${COMMON_LINK_FLAGS}
-                                 LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-swig_link_libraries(${LIB_SHARED_IORANGE} ${SWIG_COMMON_LIBRARIES})
 
 set(SKIP_COMPARE_VERSIONS (NOT ${FETCH_NUPIC_CORE}) CACHE BOOL "Skip nupic.core version comparison")
 
@@ -519,6 +507,4 @@ install(FILES
         "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_MATH}.py"
         "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_SHARED_ALGORITHMS}_REAL_NAME}.so"
         "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_ALGORITHMS}.py"
-        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_SHARED_IORANGE}_REAL_NAME}.so"
-        "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_IORANGE}.py"
         DESTINATION ${PROJECT_SOURCE_DIR}/nupic/bindings)
