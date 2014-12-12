@@ -1033,7 +1033,7 @@ def test():
 
 ###############################################################################
 #def testLogging():
-#  dir = os.path.expanduser('~/nta/trunk/examples/opf/experiments/opfrunexperiment_test/base')
+#  dir = os.path.expanduser('~/nupic/trunk/examples/opf/experiments/opfrunexperiment_test/base')
 #  outfile = "test.log"
 #  message = "This is a test message."
 #  filepath = "%s/%s" % (dir,outfile)

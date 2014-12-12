@@ -25,8 +25,7 @@ from __future__ import with_statement
 import os
 import logging
 from xml.etree import ElementTree
-
-import nupic
+from pkg_resources import resource_string
 
 # Turn on additional print statements
 DEBUG = False
@@ -48,7 +47,7 @@ class Configuration(object):
   If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
   files are expected to be in the NTA_CONF_PATH search path, which is a ':'
   separated list of directories. If NTA_CONF_PATH is not defined, then it is
-  assumed to be NTA/conf/default (typically ~/nta/current/conf/default).
+  assumed to be NTA/conf/default (typically ~/nupic/current/conf/default).
 
   """
 
@@ -257,8 +256,13 @@ class Configuration(object):
         except Exception:
           contents = '<configuration/>'
       else:
-        contents = '<configuration/>'
-      
+        # If the file was not found in the normal search paths, which includes
+        # checking the NTA_CONF_DIR, we'll try loading it from pkg_resources.
+        try:
+          contents = resource_string("nupic.support", filename)
+        except:
+          contents = '<configuration/>'
+
       elements = ElementTree.XML(contents)
 
       if elements.tag != 'configuration':

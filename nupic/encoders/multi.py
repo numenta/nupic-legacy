@@ -29,6 +29,7 @@ from nupic.encoders.sdrcategory import SDRCategoryEncoder
 from nupic.encoders.delta import DeltaEncoder
 from nupic.encoders.scalarspace import ScalarSpaceEncoder
 from nupic.encoders.pass_through_encoder import PassThroughEncoder
+from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
 # multiencoder must be imported last because it imports * from this module!

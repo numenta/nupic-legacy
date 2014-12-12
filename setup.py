@@ -1,8 +1,8 @@
+import shutil
 import sys
 import os
 import subprocess
 from setuptools import setup
-import py_compile
 
 """
 This file only will call CMake process to generate scripts, build, and then
@@ -18,7 +18,7 @@ repositoryDir = os.getcwd()
 #   python setup.py install make_options="-j3"
 # which will add "-j3" option to Make commandline
 cmakeOptions = ""
-makeOptions = ""
+makeOptions = "install"
 setupOptions = ""
 mustBuildExtensions = False
 for arg in sys.argv[:]:
@@ -28,13 +28,12 @@ for arg in sys.argv[:]:
       cmakeOptions = rhs
       sys.argv.remove(arg)
     if option == "--make_options":
-      makeOptions = rhs
+      makeOptions = makeOptions + " " + rhs
       sys.argv.remove(arg)
   elif not "setup.py" in arg:
     if ("build" in arg) or ("install" in arg):
       mustBuildExtensions = True
     setupOptions += arg + " "
-
 
 
 # Check if no option was passed, i.e. if "setup.py" is the only option
@@ -51,20 +50,6 @@ if len(sys.argv) == 1:
 version = None
 with open("VERSION", "r") as versionFile:
   version = versionFile.read().strip()
-
-# Replace py_compile.compile with a function that skips certain files that are meant to fail
-orig_py_compile = py_compile.compile
-
-PY_COMPILE_SKIP_FILES = [
-  "UnimportableNode.py",
-]
-
-
-def skip_py_compile(file, cfile=None, dfile=None, doraise=False):
-  if os.path.basename(file) not in PY_COMPILE_SKIP_FILES:
-    orig_py_compile(file, cfile=cfile, dfile=dfile, doraise=doraise)
-
-py_compile.compile = skip_py_compile
 
 
 def findPackages(repositoryDir):
@@ -88,8 +73,9 @@ def buildExtensionsNupic():
   # Prepare directories to the CMake process
   sourceDir = repositoryDir
   buildScriptsDir = repositoryDir + "/build/scripts"
-  if not os.path.exists(buildScriptsDir):
-    os.makedirs(buildScriptsDir)
+  if os.path.exists(buildScriptsDir):
+    shutil.rmtree(buildScriptsDir)
+  os.makedirs(buildScriptsDir)
   os.chdir(buildScriptsDir)
 
   # Generate build files with CMake
@@ -116,7 +102,14 @@ def setupNupic():
     name = "nupic",
     version = version,
     packages = findPackages(repositoryDir),
+    # A lot of this stuff may not be packaged properly, most of it was added in
+    # an effort to get a binary package prepared for nupic.regression testing
+    # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
+    # of this for https://github.com/numenta/nupic/issues/408, so this will be
+    # changing soon. -- Matt
     package_data = {
+      "nupic.support": ["nupic-default.xml",
+                        "nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt",
                 "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
       "nupic.bindings": ["_*.so", "_*.dll"],
@@ -130,7 +123,6 @@ def setupNupic():
     data_files=[
       ("", [
         "CMakeLists.txt",
-        "config/default/nupic-default.xml"
         ]
       )
     ],

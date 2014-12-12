@@ -29,9 +29,9 @@
 #include <bindings/py/math/PySparseTensor.hpp>
 
 using namespace std;
-using namespace nta;
+using namespace nupic;
 
-typedef nta::SparseTensor<PyTensorIndex, nta::Real> STBase;
+typedef nupic::SparseTensor<PyTensorIndex, nupic::Real> STBase;
 
 PySparseTensor::PySparseTensor(PyObject *numpyArray)
   // TODO: Switch to rank 0 (or at least dimension 0) default.
@@ -51,7 +51,7 @@ void PySparseTensor::set(const PyTensorIndex &i, PyObject *x)
 {
   PyObject *num = PyNumber_Float(x);
   if(!num) throw std::invalid_argument("value is not a float.");
-  nta::Real y = (nta::Real) PyFloat_AsDouble(num);
+  nupic::Real y = (nupic::Real) PyFloat_AsDouble(num);
   Py_CLEAR(num);
   set(i, y);
 }
@@ -116,12 +116,12 @@ PyTensorIndex PySparseTensor::argmax() const
   return tensor_.max().first;
 }
 
-nta::Real PySparseTensor::max() const
+nupic::Real PySparseTensor::max() const
 {
   return tensor_.max().second;
 }
 
-PySparseTensor PySparseTensor::__mul__(const nta::Real& x) const
+PySparseTensor PySparseTensor::__mul__(const nupic::Real& x) const
 {
   PySparseTensor out(tensor_.getBounds());
   tensor_.multiply(x, out.tensor_);

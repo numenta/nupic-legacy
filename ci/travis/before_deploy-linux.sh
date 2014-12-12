@@ -25,4 +25,4 @@ echo Running before_deploy-linux.sh...
 echo
 
 cd ${TRAVIS_BUILD_DIR}
-python${PY_VER} setup.py bdist
+python setup.py bdist

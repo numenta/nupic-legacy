@@ -632,9 +632,10 @@ class ScalarEncoder(Encoder):
 
     # Which input value does this correspond to?
     if self.periodic:
-      inputVal = self.minval + self.resolution/2 + category * self.resolution
+      inputVal = (self.minval + (self.resolution / 2.0) +
+                  (category * self.resolution))
     else:
-      inputVal = self.minval + category * self.resolution
+      inputVal = self.minval + (category * self.resolution)
 
     return [EncoderResult(value=inputVal, scalar=inputVal, encoding=encoding)]
 

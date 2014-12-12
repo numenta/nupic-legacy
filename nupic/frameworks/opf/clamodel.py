@@ -35,7 +35,6 @@ import traceback
 from collections import defaultdict, deque
 from datetime import timedelta
 from operator import itemgetter
-from abc import ABCMeta, abstractmethod
 
 import numpy
 
@@ -95,7 +94,7 @@ class NetworkInfo(object):
     return "NetworkInfo(net=%r, statsCollectors=%r)" % (
               self.net, self.statsCollectors)
 
-
+###############################################################
 class CLAModel(Model):
 
   __supportedInferenceKindSet = set((InferenceType.TemporalNextStep,
@@ -110,9 +109,9 @@ class CLAModel(Model):
 
   #############################################################################
   def __init__(self,
+      sensorParams,
       inferenceType=InferenceType.TemporalNextStep,
       predictedField=None,
-      sensorParams={},
       spEnable=True,
       spParams={},
 
@@ -164,12 +163,8 @@ class CLAModel(Model):
 
     # Intitialize logging
     self.__logger = initLogger(self)
-
     self.__logger.debug("Instantiating %s." % self.__myClassName)
 
-
-    # TODO: VERBOSITY should be deprecated since we now have logging with levels
-    self.__VERBOSITY = 0
 
     self._minLikelihoodThreshold = minLikelihoodThreshold
     self._maxPredictionsPerStep = maxPredictionsPerStep
@@ -1066,46 +1061,6 @@ class CLAModel(Model):
     sensor.disabledEncoder = MultiEncoder(disabledEncoders)
     sensor.dataSource = DataBuffer()
 
-    # This is old functionality that would automatically reset the TP state
-    # at a regular interval, such as every week for daily data, every day for
-    # hourly data, etc.
-    # TODO: remove, not being used anymore
-    if sensorParams['sensorAutoReset']:
-      sensorAutoResetDict = sensorParams['sensorAutoReset']
-
-      supportedUnits = set(('days', 'hours', 'minutes', 'seconds',
-                            'milliseconds', 'microseconds', 'weeks'))
-      units = set(sensorAutoResetDict.keys())
-      assert units.issubset(supportedUnits), \
-             "Unexpected units: %s" % (units - supportedUnits)
-
-      dd = defaultdict(lambda: 0,  sensorAutoResetDict)
-      # class timedelta([days[, seconds[, microseconds[, milliseconds[, minutes[,
-      #                 hours[, weeks]]]]]]])
-      if not (0 == dd['days'] == dd['hours'] == dd['minutes'] == dd['seconds'] \
-              == dd['milliseconds'] == dd['microseconds'] == dd['weeks']):
-        interval = timedelta(days=dd['days'],
-                             hours=dd['hours'],
-                             minutes=dd['minutes'],
-                             seconds=dd['seconds'],
-                             milliseconds=dd['milliseconds'],
-                             microseconds=dd['microseconds'],
-                             weeks=dd['weeks'])
-
-        self.__logger.debug(
-          "Adding AutoResetFilter; sensorAutoResetDict: %r, timeDelta: %r" % (
-            sensorAutoResetDict, interval))
-
-        # see if sensor already has an autoreset filter
-        for filter_ in sensor.preEncodingFilters:
-          if isinstance(filter_, AutoResetFilter):
-            break
-        else:
-          filter_ = AutoResetFilter()
-          sensor.preEncodingFilters.append(filter_)
-
-        filter_.setInterval(interval)
-
     prevRegion = "sensor"
     prevRegionWidth = encoder.getWidth()
 
@@ -1179,24 +1134,7 @@ class CLAModel(Model):
     # but users may want to access components in a setup callback
     n.initialize()
 
-
-    # Stats collector is used to collect statistics about the various regions as
-    # it goes along. The concept is very useful for debugging but not used
-    # anymore.
-    # TODO: remove, including NetworkInfo, DutyCycleStatistic, CLAStatistic
-
-    #--------------------------------------------------
-    # Create stats collectors for this network
-    #
-    # TODO: need to extract stats requests from description
-    stats = []
-    # Suppressing DutyCycleStatistic as there is no need for it at this time.
-    #stats.append(DutyCycleStatistic())
-
-    ## Why do we need a separate tiny class for NetworkInfo??
-    result = NetworkInfo(net=n, statsCollectors=stats)
-
-    return result
+    return NetworkInfo(net=n, statsCollectors=[])
 
 
 
@@ -1566,55 +1504,3 @@ class DataBuffer(object):
 
 
 
-###############################################################################
-class CLAStatistic(object):
-
-  __metaclass__ = ABCMeta
-
-  @abstractmethod
-  def compute(self, net):
-    """
-        Compute the statistic represented by this object
-        args:
-            net: the CLA network that we wish to compute statistics for
-        return:
-            nothing
-    """
-
-  @abstractmethod
-  def getStats(self):
-    """
-        return:
-            a dict of key/value pairs of the form {<stat_name> : <stat_value>, ...}
-    """
-
-
-###############################################################################
-class DutyCycleStatistic(CLAStatistic):
-
-  def __init__(self):
-    self.numSamples = 0
-    self.coincActiveCount = None
-
-  def compute(self, net):
-    self.numSamples += 1
-    sensor = net.regions['sensor']
-    # initialize if necessary
-    if self.coincActiveCount is None:
-      self.coincActiveCount = numpy.zeros(sensor.getSelf().encoder.getWidth())
-
-    ## TODO: this call is possibly wrong...need to verify
-    buOutputNZ = numpy.nonzero(net.regions['SP'].getOutputData('topDownOut'))
-    #print numpy.nonzero(net.regions['SP'].getOutputData('topDownOut'))
-
-    self.coincActiveCount[buOutputNZ] += 1
-
-    return
-
-
-  def getStats(self):
-    ret = dict()
-    ret['cellDutyCycleAvg'] = self.coincActiveCount.mean() / self.numSamples
-    ret['cellDutyCycleMin'] = self.coincActiveCount.min() / self.numSamples
-    ret['cellDutyCycleMax'] = self.coincActiveCount.max() / self.numSamples
-    return ret
