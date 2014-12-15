@@ -44,6 +44,7 @@ class UtilsTest(unittest.TestCase):
     newAverage, historicalValues, total = (
       MovingAverage.compute(historicalValues, total, 3, windowSize)
     )
+    
     self.assertEqual(newAverage, 3.0)
     self.assertEqual(historicalValues, [3.0])
     self.assertEqual(total, 3.0)
@@ -100,7 +101,20 @@ class UtilsTest(unittest.TestCase):
     self.assertEqual(newAverage, 5.0)
     self.assertListEqual(ma.getSlidingWindow(), [4.0, 5.0, 6.0])
     self.assertEqual(ma.total, 15.0)
+  
 
+  def testMovingAverageSlidingWindowInit(self):
+    """
+    Test the slidingWindow value is correctly assigned when initializing a
+    new MovingAverage object.
+    """
+    # With exisiting historical values; same values as tested in testMovingAverage()
+    ma = MovingAverage(windowSize = 3, existingHistoricalValues = [3.0, 4.0, 5.0])
+    self.assertListEqual(ma.getSlidingWindow(), [3.0, 4.0, 5.0])
+
+    # Withoout exisiting historical values
+    ma = MovingAverage(windowSize = 3)
+    self.assertListEqual(ma.getSlidingWindow(), [])
 
 
 if __name__ == "__main__":
