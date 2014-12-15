@@ -39,7 +39,5 @@ Then, launch the docker container, replacing the id with your own:
 Then, cd into /usr/local/src/nupic and run tests:
 
     cd /usr/local/src/nupic/build/scripts
-    make tests_htm
-    make tests_pyhtm
-    make python_unit_tests
+    python $NUPIC/scripts/run_tests.py --all --coverage
 
