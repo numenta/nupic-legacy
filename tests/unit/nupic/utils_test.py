@@ -109,11 +109,11 @@ class UtilsTest(unittest.TestCase):
     new MovingAverage object.
     """
     # With exisiting historical values; same values as tested in testMovingAverage()
-    ma = MovingAverage(windowSize = 3, existingHistoricalValues = [3.0, 4.0, 5.0])
+    ma = MovingAverage(windowSize=3, existingHistoricalValues=[3.0, 4.0, 5.0])
     self.assertListEqual(ma.getSlidingWindow(), [3.0, 4.0, 5.0])
 
     # Withoout exisiting historical values
-    ma = MovingAverage(windowSize = 3)
+    ma = MovingAverage(windowSize=3)
     self.assertListEqual(ma.getSlidingWindow(), [])
 
 
