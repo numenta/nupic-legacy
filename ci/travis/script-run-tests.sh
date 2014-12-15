@@ -25,8 +25,6 @@ echo Running script-run-tests.sh...
 echo
 
 cd $TRAVIS_BUILD_DIR/build/scripts
-# legacy binary tests
-make tests_pyhtm || exit
 
 # Python unit tests and prep for coveralls reporting
 make python_unit_tests || exit
