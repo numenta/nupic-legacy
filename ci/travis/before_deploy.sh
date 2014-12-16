@@ -24,5 +24,13 @@ echo
 echo Running before_deploy-linux.sh...
 echo
 
+echo "sudo pip install wheel"
+sudo pip install wheel
+
 cd ${TRAVIS_BUILD_DIR}
-python setup.py bdist
+
+# Wheel fails unless we remove this.
+sudo rm -rf external/linux32arm
+
+echo "pip wheel --wheel-dir=dist/wheel -r external/common/requirements.txt ."
+pip wheel --wheel-dir=dist/wheel -r external/common/requirements.txt .
