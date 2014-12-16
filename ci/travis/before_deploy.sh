@@ -36,5 +36,9 @@ cd ${TRAVIS_BUILD_DIR}
 # Wheel fails unless we remove this.
 sudo rm -rf external/linux32arm
 
-echo "pip wheel --wheel-dir=dist/wheel -r external/common/requirements.txt ."
-pip wheel --wheel-dir=dist/wheel -r external/common/requirements.txt .
+# Build all NuPIC and all required python packages into dist/wheels as .whl
+# files.
+echo "pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt ."
+pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt .
+
+# The dist/wheels folder is expected to be published as the release.
