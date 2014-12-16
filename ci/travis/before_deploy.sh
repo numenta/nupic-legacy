@@ -27,6 +27,10 @@ echo
 echo "sudo pip install wheel"
 sudo pip install wheel
 
+# pycapnp needs this for some reason.
+echo "sudo pip install cython"
+sudo pip install cython
+
 cd ${TRAVIS_BUILD_DIR}
 
 # Wheel fails unless we remove this.
