@@ -1,13 +1,13 @@
 #See http://www.pip-installer.org/en/latest/requirements.html for details
 # TODO: Remove setuptools/cython: https://github.com/jparyani/pycapnp/pull/36
 cython>=0.21
+setuptools>=0.8
 asteval==0.9.1
 coverage==3.7.1
 mock==1.0.1
 ordereddict==1.1
 pillow==2.3.0
 psutil==1.0.1
-setuptools>=0.8
 pycapnp==0.5.0
 pylint==1.1.0
 pytest==2.4.2
