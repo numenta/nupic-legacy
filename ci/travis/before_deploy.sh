@@ -38,7 +38,7 @@ sudo rm -rf external/linux32arm
 
 # Build all NuPIC and all required python packages into dist/wheels as .whl
 # files.
-echo "pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt ."
-pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt .
+echo "pip wheel --wheel-dir=dist/wheels ."
+pip wheel --wheel-dir=dist/wheels .
 
 # The dist/wheels folder is expected to be published as the release.
