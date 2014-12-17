@@ -24,5 +24,21 @@ echo
 echo Running before_deploy-linux.sh...
 echo
 
+echo "sudo pip install wheel"
+sudo pip install wheel
+
+# pycapnp needs this for some reason.
+echo "sudo pip install cython"
+sudo pip install cython
+
 cd ${TRAVIS_BUILD_DIR}
-python setup.py bdist
+
+# Wheel fails unless we remove this.
+sudo rm -rf external/linux32arm
+
+# Build all NuPIC and all required python packages into dist/wheels as .whl
+# files.
+echo "pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt ."
+pip wheel --wheel-dir=dist/wheels -r external/common/requirements.txt .
+
+# The dist/wheels folder is expected to be published as the release.
