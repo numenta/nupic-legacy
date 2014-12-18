@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.7-dev
+
 ## 0.0.6
 
 * Updated pypi encrypted password because of authenitcation failure.
