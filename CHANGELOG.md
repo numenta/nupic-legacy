@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.4-dev
+
 ## 0.0.3
 
 * Updated deployment logic to account for both deployment scenarios (iterative and release).
