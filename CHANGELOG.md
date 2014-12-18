@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.2 (in progress): Pre-pre release, mostly deployment testing
+## 0.0.3 (in progress): Pre-pre release, mostly deployment testing
+
+## 0.0.2
 
 * Configured pypi deployment on all branches with tags.
 
