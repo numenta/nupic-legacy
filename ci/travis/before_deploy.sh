@@ -50,6 +50,7 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
 else
 
     echo "Building docs for pypi..."
+    sudo apt-get install doxygen -y
     doxygen ./docs/Doxyfile
     mv ./html ./build/docs
 

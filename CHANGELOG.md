@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.5
+
+* Installing doxygen before doc-build for pypi.
+
 ## 0.0.4
 
 * Temporarily removing pycapnp dependency to help current release situation.
