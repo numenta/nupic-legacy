@@ -49,10 +49,9 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
 # for pypi...
 else
 
-    echo "Building docs for pypi..."
-    sudo apt-get install doxygen -y
-    doxygen ./docs/Doxyfile
-    mv ./html ./build/docs
+    # For docs, direct people to numenta.org/docs/nupic.
+    mkdir ./build/docs
+    echo "<html><body>See NuPIC docs at <a href='http://numenta.org/docs/nupic/'>http://numenta.org/docs/nupic/</a>.</body></html>" > build/docs/index.html
 
 fi
 
