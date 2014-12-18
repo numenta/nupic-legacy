@@ -24,16 +24,16 @@ echo
 echo Running before_deploy-linux.sh...
 echo
 
-echo "sudo pip install --upgrade pip"
-sudo pip install --upgrade pip
-echo "sudo pip install wheel"
-sudo pip install wheel
-
 cd ${TRAVIS_BUILD_DIR}
 
 # If this branch is master, this is an iterative deployment, so we'll package
 # wheels ourselves for deployment to S3. No need to build docs.
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
+
+    echo "sudo pip install --upgrade pip"
+    sudo pip install --upgrade pip
+    echo "sudo pip install wheel"
+    sudo pip install wheel
 
     # Wheel fails unless we remove this.
     sudo rm -rf external/linux32arm

@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.0.6-dev
+## 0.0.6
+
+* Updated pypi encrypted password because of authenitcation failure.
+* Only installing wheel on iterative builds, because Travis-CI automatically installs it if "bdist_wheel" is specified in deploy provider directive.
 
 ## 0.0.5
 

@@ -52,7 +52,7 @@ deploy:
   - provider: pypi
     user: numenta
     password:
-      secure: "Rba43HiztHRypL9UnsqxP3Cy34hOq7Y7rJdAgXRv9W+s4UEJ4jgnZTE50eNHSXF8owWGzEZcGiMhQCB7Ta3eZ/y+Wj6DhtG4Uhcs4WRrXUwHmcNbl99yFcews9Raj+rv7ajTWy8odMDGsJDvPEndz8pef0AvB3cTVq8Xv8/g860="
+      secure: "Sx+MRU59kHzf53ed8bhg/oKie8P+Sd7mntoscGJiHiJKiVbZjj+bCqcXaf0iAfNowaGDX1qV6ohf9+t8sEZHIK/Ge9Sffyd/EWLB3M2hSvTFbz1PEAMlj4q4JX1iBMSbB5OqX3HY/48a5XaRtlW7r7m/V8cg3k9Zzw6EzewGGhs="
     distributions: "bdist_wheel"
     skip_cleanup: true
     # Only deploying from clang jobs.
