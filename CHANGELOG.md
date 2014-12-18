@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.6-dev
+
 ## 0.0.5
 
 * Installing doxygen before doc-build for pypi.
