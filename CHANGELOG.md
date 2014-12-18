@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.0.1 (in progress): Pre-pre release, mostly deployment testing
+## 0.0.2 (in progress): Pre-pre release, mostly deployment testing
+
+* Configured pypi deployment on all branches with tags.
+
+## 0.0.1
 
 * Added pypi deployment configuration for binary releases.
 * Parsing python requirements in setuptools so they are included within published packages (working toward releases).
