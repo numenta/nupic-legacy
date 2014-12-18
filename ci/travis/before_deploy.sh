@@ -24,21 +24,36 @@ echo
 echo Running before_deploy-linux.sh...
 echo
 
+echo "sudo pip install --upgrade pip"
+sudo pip install --upgrade pip
 echo "sudo pip install wheel"
 sudo pip install wheel
 
-# pycapnp needs this for some reason.
-echo "sudo pip install cython"
-sudo pip install cython
-
 cd ${TRAVIS_BUILD_DIR}
 
-# Wheel fails unless we remove this.
-sudo rm -rf external/linux32arm
+# If this branch is master, this is an iterative deployment, so we'll package
+# wheels ourselves for deployment to S3. No need to build docs.
+if [ "${TRAVIS_BRANCH}" = "master" ]; then
 
-# Build all NuPIC and all required python packages into dist/wheels as .whl
-# files.
-echo "pip wheel --wheel-dir=dist/wheels ."
-pip wheel --wheel-dir=dist/wheels .
+    # Wheel fails unless we remove this.
+    sudo rm -rf external/linux32arm
 
-# The dist/wheels folder is expected to be published as the release.
+    # Build all NuPIC and all required python packages into dist/wheels as .whl
+    # files.
+    echo "pip wheel --wheel-dir=dist/wheels ."
+    pip wheel --wheel-dir=dist/wheels .
+
+    # The dist/wheels folder is expected to be deployed to S3.
+
+# If this is a tag, we're doing a release deployment, so we want to build docs
+# for pypi...
+else
+
+    echo "Building docs for pypi..."
+    doxygen ./docs/Doxyfile
+    mv ./html ./build/docs
+
+fi
+
+
+
