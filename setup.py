@@ -3,7 +3,6 @@ import sys
 import os
 import subprocess
 from setuptools import setup
-from pip.req import parse_requirements
 
 """
 This file only will call CMake process to generate scripts, build, and then
@@ -75,10 +74,12 @@ def findRequirements(repositoryDir):
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
-  requirements = parse_requirements(
-    os.path.join(repositoryDir, requirementsFile)
-  )
-  return [str(requirement.req) for requirement in requirements]
+  requirementsPath = os.path.join(repositoryDir, requirementsFile)
+  return [
+    line.strip()
+    for line in open(requirementsPath).readlines()
+    if not line.startswith("#")
+  ]
 
 
 
@@ -114,13 +115,16 @@ def setupNupic():
   Package setup operations
   """
 
+  packages = findPackages(repositoryDir)
+  requires = findRequirements(repositoryDir)
+
   # Setup library
   os.chdir(repositoryDir)
   setup(
     name = "nupic",
     version = version,
-    packages = findPackages(repositoryDir),
-    install_requires = findRequirements(repositoryDir),
+    packages = packages,
+    install_requires = requires,
     # A lot of this stuff may not be packaged properly, most of it was added in
     # an effort to get a binary package prepared for nupic.regression testing
     # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
