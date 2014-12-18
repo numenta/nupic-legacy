@@ -27,6 +27,9 @@ matrix:
 before_deploy:
   - . ./ci/travis/before_deploy.sh
 
+# S3 deployment of NuPIC and dependency wheels on every push to master. These
+# packages are used in dependent projects like nupic.regression and
+# nupic.research.
 deploy:
   provider: s3
   access_key_id: AKIAIGHYSEHV3WFKOWNQ
@@ -42,6 +45,20 @@ deploy:
     branch: master
     condition:
       - "$TRAVIS_OS_NAME == linux"
+      - "$CC == clang"
+
+# Pypi deployment happens only for release tags.
+deploy:
+  provider: pypi
+  user: numenta
+  password:
+    secure: "Rba43HiztHRypL9UnsqxP3Cy34hOq7Y7rJdAgXRv9W+s4UEJ4jgnZTE50eNHSXF8owWGzEZcGiMhQCB7Ta3eZ/y+Wj6DhtG4Uhcs4WRrXUwHmcNbl99yFcews9Raj+rv7ajTWy8odMDGsJDvPEndz8pef0AvB3cTVq8Xv8/g860="
+  distributions: "bdist_wheel"
+  skip_cleanup: true
+  # Only deploying from clang jobs.
+  on:
+    tags: true
+    condition:
       - "$CC == clang"
 
 git:
