@@ -2,6 +2,7 @@
 
 ## 0.0.1 (in progress): Pre-pre release, mostly deployment testing
 
+* Parsing python requirements in setuptools so they are included within published packages (working toward releases).
 * Setting up python wheels packaging and upload to S3 for future distribution.
 * Implement logic for reusing segments, to enforce a fixed-size connectivity (nupic.core).
 * Added CHANGELOG.md to track changes for versions.

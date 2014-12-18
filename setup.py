@@ -21,6 +21,8 @@ cmakeOptions = ""
 makeOptions = "install"
 setupOptions = ""
 mustBuildExtensions = False
+requirementsFile = "external/common/requirements.txt"
+
 for arg in sys.argv[:]:
   if ("cmake_options" in arg) or ("make_options" in arg):
     (option, _, rhs) = arg.partition("=")
@@ -52,6 +54,7 @@ with open("VERSION", "r") as versionFile:
   version = versionFile.read().strip()
 
 
+
 def findPackages(repositoryDir):
   """
   Traverse nupic directory and create packages for each subdir containing a
@@ -63,6 +66,21 @@ def findPackages(repositoryDir):
       subdir = root.replace(repositoryDir + "/", "")
       packages.append(subdir.replace("/", "."))
   return packages
+
+
+
+def findRequirements(repositoryDir):
+  """
+  Read the requirements.txt file and parse into requirements for setup's
+  install_requirements option.
+  """
+  requirementsPath = os.path.join(repositoryDir, requirementsFile)
+  return [
+    line.strip()
+    for line in open(requirementsPath).readlines()
+    if not line.startswith("#")
+  ]
+
 
 
 def buildExtensionsNupic():
@@ -91,17 +109,22 @@ def buildExtensionsNupic():
     sys.exit("Unable to build the library!")
 
 
+
 def setupNupic():
   """
   Package setup operations
   """
+
+  packages = findPackages(repositoryDir)
+  requires = findRequirements(repositoryDir)
 
   # Setup library
   os.chdir(repositoryDir)
   setup(
     name = "nupic",
     version = version,
-    packages = findPackages(repositoryDir),
+    packages = packages,
+    install_requires = requires,
     # A lot of this stuff may not be packaged properly, most of it was added in
     # an effort to get a binary package prepared for nupic.regression testing
     # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
@@ -147,6 +170,7 @@ NuPIC is a library that provides the building blocks for online prediction syste
 For more information, see numenta.org or the NuPIC wiki (https://github.com/numenta/nupic/wiki).
 """
   )
+
 
 
 # Build and setup NuPIC
