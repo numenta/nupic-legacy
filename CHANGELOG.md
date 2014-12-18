@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.3 (in progress): Pre-pre release, mostly deployment testing
+## 0.0.3
+
+* Updated deployment logic to account for both deployment scenarios (iterative and release).
 
 ## 0.0.2
 
