@@ -22,6 +22,9 @@ nbproject/
 *.pydevproject
 .idea
 
+# Wheels
+wheelhouse/
+
 # swarming output files
 data/
 
