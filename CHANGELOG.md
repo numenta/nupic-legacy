@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.4-dev
+## 0.0.4
+
+* Temporarily removing pycapnp dependency to help current release situation.
 
 ## 0.0.3
 
