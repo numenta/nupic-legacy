@@ -29,6 +29,9 @@ from pkg_resources import resource_string
 
 # Turn on additional print statements
 DEBUG = False
+DEFAULT_CONFIG = "nupic-default.xml"
+USER_CONFIG = "nupic-site.xml"
+CUSTOM_CONFIG = "nupic-custom.xml"
 
 
 def _getLogger():
@@ -258,7 +261,13 @@ class Configuration(object):
       else:
         # If the file was not found in the normal search paths, which includes
         # checking the NTA_CONF_PATH, we'll try loading it from pkg_resources.
-        contents = resource_string("nupic.support", filename)
+        try:
+          contents = resource_string("nupic.support", filename)
+        except Exception as resourceException:
+          if filename.endswith(USER_CONFIG) or filename.endswith(CUSTOM_CONFIG):
+            contents = '<configuration/>'
+          else:
+            raise resourceException
 
       elements = ElementTree.XML(contents)
 
@@ -415,7 +424,7 @@ class Configuration(object):
     """
 
     # Default one first
-    cls.readConfigFile('nupic-default.xml')
+    cls.readConfigFile(DEFAULT_CONFIG)
 
     # Site specific one can override properties defined in default
-    cls.readConfigFile('nupic-site.xml')
+    cls.readConfigFile(USER_CONFIG)
