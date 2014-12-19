@@ -158,16 +158,17 @@ def setupNupic():
       "Programming Language :: Python",
       "Programming Language :: Python :: 2",
       "License :: OSI Approved :: GNU General Public License (GPL)",
-      "Operating System :: OS Independent",
-      "Development Status :: 5 - Production/Stable",
+      "Operating System :: MacOS :: MacOS X",
+      "Operating System :: POSIX :: Linux",
+      "Development Status :: Development Status :: 3 - Alpha",
       "Environment :: Console",
       "Intended Audience :: Science/Research",
       "Topic :: Scientific/Engineering :: Artificial Intelligence"
     ],
     long_description = """\
-NuPIC is a library that provides the building blocks for online prediction systems. The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
+Numenta Platform for Intelligent Computing: a machine intelligence platform that implements the HTM learning algorithms. HTM is a detailed computational theory of the neocortex. At the core of HTM are time-based continuous learning algorithms that store and recall spatial and temporal patterns. NuPIC is suited to a variety of problems, particularly anomaly detection and prediction of streaming data sources.
 
-For more information, see numenta.org or the NuPIC wiki (https://github.com/numenta/nupic/wiki).
+For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
 """
   )
 
