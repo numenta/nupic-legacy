@@ -254,14 +254,11 @@ class Configuration(object):
           with open(filePath, 'rb') as inp:
             contents = inp.read()
         except Exception:
-          contents = '<configuration/>'
+          raise RuntimeError("Expected configuration file at %s" % filePath)
       else:
         # If the file was not found in the normal search paths, which includes
         # checking the NTA_CONF_PATH, we'll try loading it from pkg_resources.
-        try:
-          contents = resource_string("nupic.support", filename)
-        except:
-          contents = '<configuration/>'
+        contents = resource_string("nupic.support", filename)
 
       elements = ElementTree.XML(contents)
 
