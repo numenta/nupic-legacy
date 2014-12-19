@@ -30,3 +30,9 @@ git clone https://github.com/numenta/nupic-darwin64.git
 (cd nupic-darwin64 && git reset --hard 40eee5d8b4f79fe52b282c393c8e1a1f5ba7a906) || exit
 echo ">>> Activating nupic-darwin64..."
 source nupic-darwin64/bin/activate
+
+# Install and start MySQL on OSX
+echo ">>> brew install mysql"
+brew install mysql
+echo ">>> mysql.server start"
+mysql.server start
