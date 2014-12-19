@@ -2,6 +2,8 @@
 
 ## 0.0.7-dev
 
+* Updates test entry points to pure python. README instructions for running tests were updated.
+
 ## 0.0.6
 
 * Updated pypi encrypted password because of authenitcation failure.
