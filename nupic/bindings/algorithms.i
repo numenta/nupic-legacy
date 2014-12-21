@@ -720,10 +720,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
  ///%template(Cells_32) nupic::algorithms::Cells<nupic::UInt32, nupic::Real32>;
  ///%template(Int_Seg_32) std::pair<nupic::UInt32, nupic::algorithms::Segment<nupic::UInt32,nupic::Real32>*>;
 
-// Already seen by swig on linux32 where size_t is the same size as unsigned int
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
 %template(Size_T_Vector) std::vector<size_t>;
-#endif
 
 //--------------------------------------------------------------------------------
 // Some functions, faster than numpy.
