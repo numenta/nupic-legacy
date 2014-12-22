@@ -625,7 +625,8 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1']) 
+          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1']) #FIXME for anomaly.likelihood we need to pass the 'raw' input value; name 'ch1' is hardcoded here, how do I determine the name of 
+# current channel in question from this class?  
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
