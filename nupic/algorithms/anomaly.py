@@ -104,7 +104,7 @@ class Anomaly(object):
 
 
   def compute(self, activeColumns, predictedColumns, 
-				inputValue=None, timestamp=None):
+			inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
