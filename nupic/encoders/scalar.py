@@ -384,10 +384,11 @@ class ScalarEncoder(Encoder):
     if type(input) is float and math.isnan(input):
       input = self.SENTINEL_VALUE_FOR_MISSING_DATA
     
-    if not skipOutOfBounds and \
-      input is not self.SENTINEL_VALUE_FOR_MISSING_DATA and \
-      self.minval is not None and self.maxval is not None and \
-      (input < self.minval or input > self.maxval):
+    if not (skipOutOfBounds and 
+      input is not self.SENTINEL_VALUE_FOR_MISSING_DATA and 
+      self.minval is not None and 
+      self.maxval is not None and 
+      (input < self.minval or input > self.maxval)):
       raise ValueError("OutOfBounds error for %r <%r , %r>" %(input, self.minval, self.maxval))
 
     # Get the bucket index to use

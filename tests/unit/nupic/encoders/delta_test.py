@@ -47,7 +47,7 @@ class DeltaEncoderTest(unittest.TestCase):
       for i in range(5, 7):
         encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
       res = self._dencoder.topDownCompute(encarr)
-#      self.assertEqual(res[0].value, 6)
+      self.assertEqual(res[0].value, 6) #FIXME fails on this line
       self.assertEqual(self._dencoder.topDownCompute(encarr)[0].value, res[0].value)
       self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar, res[0].scalar)
       self.assertTrue((self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all())
