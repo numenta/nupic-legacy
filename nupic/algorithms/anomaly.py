@@ -100,7 +100,6 @@ class Anomaly(object):
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
-    self.score = 1 # current anomaly score (starts at 1, anything is unexpected)
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -122,7 +121,7 @@ class Anomaly(object):
 
     # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
-      self.score = anomalyScore
+      score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
       if inputValue is None:
         raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
@@ -131,23 +130,22 @@ class Anomaly(object):
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
       # low likelihood -> hi anomaly
-      self.score = 1 - probability
+      score = 1 - probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
-      self.score = anomalyScore * (1 - probability)
+      score = anomalyScore * (1 - probability)
 
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
-      self.score = self._movingAverage.next(self.score)
+      score = self._movingAverage.next(score)
 
-    return self.score
+    return score
 
 
   def __str__(self):
     windowSize = 0
     if self._movingAverage is not None:
       windowSize = self._movingAverage.windowSize
-    msg = "Anomaly:\tmode=%s\twindowSize=%r\tscore=%r" % (self._mode, windowSize, self.score)
-    return msg
-
+    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
+      
