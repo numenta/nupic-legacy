@@ -187,8 +187,8 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    windowSize=anomalyParams.get('slidingWindowSize', None)
-    mode=anomalyParams.get('mode', 'pure')
+    windowSize = anomalyParams.get('slidingWindowSize', None)
+    mode = anomalyParams.get('mode', 'pure')
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
     #FIXME self.__logger.debug(self._anomalyInst)
 
