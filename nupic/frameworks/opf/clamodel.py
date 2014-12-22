@@ -32,8 +32,7 @@ import json
 import itertools
 import logging
 import traceback
-from collections import defaultdict, deque
-from datetime import timedelta
+from collections import deque
 from operator import itemgetter
 
 import numpy
@@ -42,7 +41,6 @@ from nupic.frameworks.opf.model import Model
 from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
-from nupic.data.filters import AutoResetFilter
 from nupic.encoders import MultiEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
@@ -222,6 +220,8 @@ class CLAModel(Model):
 
     self.__logger.debug("Instantiated %s" % self.__class__.__name__)
 
+    self._in = None # input data
+
     return
 
 
@@ -300,10 +300,7 @@ class CLAModel(Model):
 
 
   def setEncoderLearning(self,learningEnabled):
-    Encoder  = self._getEncoder()
-    Encoder.setLearning(learningEnabled)
-
-    return
+    self._getEncoder().setLearning(learningEnabled)
 
 
   # Anomaly Accessor Methods
@@ -383,9 +380,6 @@ class CLAModel(Model):
     ###########################################################################
     # Predictions and Learning
     ###########################################################################
-    predictions = dict()
-    inputRecordSensorMappings = dict()
-    inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
     if inferenceArgs is None:
       inferenceArgs = {}
@@ -569,7 +563,6 @@ class CLAModel(Model):
     if not self.isInferenceEnabled():
       return {}
 
-    tp = self._getTPRegion()
     sp = self._getSPRegion()
     sensor = self._getSensorRegion()
 
@@ -1030,8 +1023,6 @@ class CLAModel(Model):
     Returns:      NetworkInfo instance;
     """
 
-    isTemporal = self._hasTP
-
     #--------------------------------------------------
     # Create the network
     n = Network()
@@ -1473,7 +1464,7 @@ class CLAModel(Model):
 
     if not skipCheck:
       # This will throw an exception if the member is missing
-      value = getattr(self, realName)
+      getattr(self, realName)
 
     return realName
 
