@@ -38,7 +38,7 @@ from operator import itemgetter
 
 import numpy
 
-from model import Model
+from nupic.frameworks.opf.model import Model
 from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
@@ -46,7 +46,7 @@ from nupic.data.filters import AutoResetFilter
 from nupic.encoders import MultiEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from opfutils import (InferenceType,
+from nupic.frameworks.opf.opfutils import (InferenceType,
                       InferenceElement,
                       SensorInput,
                       initLogger)
@@ -65,7 +65,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not (self.getInferenceType() == InferenceType.TemporalAnomaly):
+    if not self.getInferenceType() == InferenceType.TemporalAnomaly:
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -355,8 +355,8 @@ class CLAModel(Model):
 
             return:
                 An ModelResult namedtuple (see opfutils.py) The contents of
-                ModelResult.inferences depends on the the specific inference type
-                of this model, which can be queried by getInferenceType()
+                ModelResult.inferences depends on the the specific inference 
+                type of this model, which can be queried by getInferenceType()
     """
     assert not self.__restoringFromState
     assert inputRecord
@@ -515,7 +515,7 @@ class CLAModel(Model):
 
 
   def _isClassificationModel(self):
-    return self.getInferenceType() in (InferenceType.TemporalClassification)
+    return self.getInferenceType() in InferenceType.TemporalClassification
 
 
   def _multiStepCompute(self, rawInput):
@@ -625,7 +625,7 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1'])
+          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1']) 
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
@@ -1394,7 +1394,7 @@ class CLAModel(Model):
 
     # Set defaults if not set
     if allParams['trainRecords'] is None:
-        allParams['trainRecords'] = DEFAULT_ANOMALY_TRAINRECORDS
+      allParams['trainRecords'] = DEFAULT_ANOMALY_TRAINRECORDS
 
     if allParams['anomalyThreshold'] is None:
       allParams['anomalyThreshold'] = DEFAULT_ANOMALY_THRESHOLD
