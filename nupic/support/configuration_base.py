@@ -247,6 +247,7 @@ class Configuration(object):
     else:
       filePath = os.path.join(path, filename)
 
+
     # ------------------------------------------------------------------
     # Read in the config file
     try:
@@ -392,7 +393,7 @@ class Configuration(object):
     ----------------------------------------------------------------
     retval:    list of paths.
     """
-
+    configPaths = []
     if cls._configPaths is not None:
       return cls._configPaths
       
@@ -401,9 +402,7 @@ class Configuration(object):
         configVar = os.environ['NTA_CONF_PATH']
         # Return as a list of paths
         configPaths = configVar.split(':')
-      else:
-        configPaths = [os.path.join(os.environ['NUPIC'], 'config', 'default')]
-        
+
       return configPaths
 
 
