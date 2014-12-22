@@ -22,31 +22,14 @@
 
 """Unit tests for the clamodel module."""
 
-import os
 import sys
 import copy
-import tempfile
-import json
-import tarfile
-import hashlib
-import shutil
-import pprint
-import pkg_resources
-import cPickle as pickle
 from datetime import datetime
-import unittest2 as unittest
-from unittest2 import skip
 import numpy
 from mock import Mock, patch, ANY, call
 
-import nupic.frameworks.opf.opfhelpers as opfhelpers
-from subprocess import Popen, PIPE, check_call, CalledProcessError
-from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.support.unittesthelpers.testcasebase import (unittest,
-                                                        TestOptionParser,
-                                                        TestCaseBase)
-from nupic.frameworks.opf.opfutils import (InferenceType,
-                                           InferenceElement)
+                                                        TestOptionParser)
 
 from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.clamodel_classifier_helper import \
@@ -54,9 +37,7 @@ from nupic.frameworks.opf.clamodel_classifier_helper import \
 
 from nupic.frameworks.opf.opfutils import InferenceType
 
-from nupic.frameworks.opf.exceptions import (CLAModelException,
-                                            CLAModelInvalidArgument,
-                                            CLAModelInvalidRangeError)
+from nupic.frameworks.opf.exceptions import CLAModelInvalidRangeError
 
 experimentDesc = {
     "inferenceType": InferenceType.TemporalAnomaly,
@@ -172,7 +153,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
   @patch.object(Configuration, 'get')
   @patch.object(CLAModelClassifierHelper, 'compute')
-  def testInit(self,compute, configurationGet):
+  def testInit(self, compute, configurationGet):
     anomalyParams = {
       'autoDetectWaitRecords': 100,
       'autoDetectThreshold': 101,
