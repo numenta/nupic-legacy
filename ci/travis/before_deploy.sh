@@ -30,8 +30,7 @@ cd ${TRAVIS_BUILD_DIR}
 # wheels ourselves for deployment to S3. No need to build docs.
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
 
-    echo "sudo pip install --upgrade pip=1.5.6"
-    sudo pip install --upgrade pip
+    # Assuming pip 1.5.X is installed.
     echo "sudo pip install wheel"
     sudo pip install wheel
 
