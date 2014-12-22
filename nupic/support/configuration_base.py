@@ -29,6 +29,9 @@ from pkg_resources import resource_string
 
 # Turn on additional print statements
 DEBUG = False
+DEFAULT_CONFIG = "nupic-default.xml"
+USER_CONFIG = "nupic-site.xml"
+CUSTOM_CONFIG = "nupic-custom.xml"
 
 
 def _getLogger():
@@ -254,14 +257,19 @@ class Configuration(object):
           with open(filePath, 'rb') as inp:
             contents = inp.read()
         except Exception:
-          contents = '<configuration/>'
+          raise RuntimeError("Expected configuration file at %s" % filePath)
       else:
         # If the file was not found in the normal search paths, which includes
         # checking the NTA_CONF_PATH, we'll try loading it from pkg_resources.
         try:
           contents = resource_string("nupic.support", filename)
-        except:
-          contents = '<configuration/>'
+        except Exception as resourceException:
+          # We expect these to be read, and if they don't exist we'll just use
+          # an empty configuration string.
+          if filename in [USER_CONFIG, CUSTOM_CONFIG]:
+            contents = '<configuration/>'
+          else:
+            raise resourceException
 
       elements = ElementTree.XML(contents)
 
@@ -300,7 +308,7 @@ class Configuration(object):
               raise RuntimeError("Missing 'value' element within the property "
                                  "element: => %s " % (str(propInfo)))
         
-        # The value is allowed to contain substituation tags of the form
+        # The value is allowed to contain substitution tags of the form
         # ${env.VARNAME}, which should be substituted with the corresponding
         # environment variable values
         restOfValue = value
@@ -418,7 +426,7 @@ class Configuration(object):
     """
 
     # Default one first
-    cls.readConfigFile('nupic-default.xml')
+    cls.readConfigFile(DEFAULT_CONFIG)
 
     # Site specific one can override properties defined in default
-    cls.readConfigFile('nupic-site.xml')
+    cls.readConfigFile(USER_CONFIG)

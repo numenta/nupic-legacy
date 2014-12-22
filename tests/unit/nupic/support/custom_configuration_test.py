@@ -287,6 +287,7 @@ class ConfigurationCustomTest(unittest.TestCase):
     environ.__getitem__.side_effect = dict(
       NTA_DYNAMIC_CONF_DIR=os.path.dirname(self.files['nupic-custom.xml'])).get
     configuration.Configuration.clear()
+
     with open(self.files['nupic-custom.xml'], 'w') as fp:
       fp.write('\n'.join((
           '<?xml version="1.0"?>',
@@ -307,6 +308,10 @@ class ConfigurationCustomTest(unittest.TestCase):
         configuration.Configuration.setCustomProperty('foo', 'value')
       self.assertIn("File contents of custom configuration is corrupt.",
         cm.exception.args[0])
+
+    # NTA_CONF_PATH is not being mocked out in this test, so we have to mock out
+    # findConfigFile to return the right path to the config file.
+    findConfigFile.return_value = self.files['nupic-custom.xml']
 
     configuration.Configuration.resetCustomConfig()
     configuration.Configuration.setCustomProperty('foo', 'value')
