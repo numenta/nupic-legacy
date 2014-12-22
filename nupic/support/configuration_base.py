@@ -47,7 +47,7 @@ class Configuration(object):
   If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
   files are expected to be in the NTA_CONF_PATH search path, which is a ':'
   separated list of directories. If NTA_CONF_PATH is not defined, then it is
-  assumed to be NTA/conf/default (typically ~/nupic/current/conf/default).
+  loaded via pkg_resources.
 
   """
 
@@ -257,7 +257,7 @@ class Configuration(object):
           contents = '<configuration/>'
       else:
         # If the file was not found in the normal search paths, which includes
-        # checking the NTA_CONF_DIR, we'll try loading it from pkg_resources.
+        # checking the NTA_CONF_PATH, we'll try loading it from pkg_resources.
         try:
           contents = resource_string("nupic.support", filename)
         except:

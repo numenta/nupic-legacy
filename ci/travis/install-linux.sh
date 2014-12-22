@@ -31,7 +31,7 @@ cmake --version
 python --version
 
 # Build NuPIC
-cd $NUPIC
+cd ${TRAVIS_BUILD_DIR}
 python setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints

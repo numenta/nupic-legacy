@@ -21,11 +21,7 @@
  */
 
 %module(package="nupic.bindings") math
-%include <bindings/py/Exception.i>
-
-///////////////////////////////////////////////////////////////////
-/// Includes necessary to compile the C wrappers
-///////////////////////////////////////////////////////////////////
+%include <nupic/bindings/exception.i>
 
 %pythoncode %{
 # ----------------------------------------------------------------------
@@ -92,7 +88,7 @@ _MATH = _math
 #define SWIG_FILE_WITH_INIT
 %}
 
-%include <bindings/py/Numpy.i> // %import does not work.
+%include <nupic/bindings/numpy.i> // %import does not work.
 
 %init %{
 
@@ -101,16 +97,16 @@ import_array();
   
 %}
 
-%include <bindings/py/Types.i>
-%include <bindings/py/Reals.i>
+%include <nupic/bindings/types.i>
+%include <nupic/bindings/reals.i>
 
 ///////////////////////////////////////////////////////////////////
 /// Utility functions that are expensive in Python but fast in C.
 ///////////////////////////////////////////////////////////////////
 
 
-%include <bindings/py/math/SparseMatrix.i>
-%include <bindings/py/math/SparseTensor.i>
+%include <nupic/bindings/sparse_matrix.i>
+%include <nupic/bindings/sparse_tensor.i>
 
 //--------------------------------------------------------------------------------
 %inline {
