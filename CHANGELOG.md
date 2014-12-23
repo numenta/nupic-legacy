@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.8-dev
+
 ## 0.0.7
 
 * Updates test entry points to pure python. README instructions for running tests were updated.
