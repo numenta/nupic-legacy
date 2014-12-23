@@ -135,7 +135,7 @@ def setupNupic():
                         "nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt",
                 "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
-      "nupic.bindings": ["_*.so", "_*.dll"],
+      "nupic.bindings": ["_*.so", "_*.dll", "*.i"],
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
