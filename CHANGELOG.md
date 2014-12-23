@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.9-dev
+
 ## 0.0.8
 
 * Updated pypi development status to "Stable", otherwise pypi rejects it.
