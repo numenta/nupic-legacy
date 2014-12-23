@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.0.7-dev
+## 0.0.7
 
 * Updates test entry points to pure python. README instructions for running tests were updated.
 * Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found. 
