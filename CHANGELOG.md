@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.0.9-dev
+## 0.0.9
+
+* Fixed missing `__version__` number problem.
+* Distributing `*.i` files from `nupic.bindings` in binary packages.
 
 ## 0.0.8
 
