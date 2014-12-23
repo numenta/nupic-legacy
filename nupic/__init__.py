@@ -18,5 +18,4 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-from pkg_resources import get_distribution
-__version__ = get_distribution("nupic").version
+__version__ = "0.0.9"
