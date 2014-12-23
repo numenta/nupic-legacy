@@ -28,21 +28,40 @@ before_deploy:
   - . ./ci/travis/before_deploy.sh
 
 deploy:
-  provider: s3
-  access_key_id: AKIAIGHYSEHV3WFKOWNQ
-  secret_access_key:
-    secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
-  bucket: artifacts.numenta.org
-  region: us-west-2
-  local-dir: "dist/wheels"
-  upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
-  skip_cleanup: true
-  # Only deploy on master from linux/clang job
-  on:
-    branch: master
-    condition:
-      - "$TRAVIS_OS_NAME == linux"
-      - "$CC == clang"
+
+  # S3 deployment of NuPIC and dependency wheels on every push to master. These
+  # packages are used in dependent projects like nupic.regression and
+  # nupic.research.
+  - provider: s3
+    access_key_id: AKIAIGHYSEHV3WFKOWNQ
+    secret_access_key:
+      secure: "ONG00ZCPpfU/nugFiON3K2q8IMk3nB/aAUj2Ggjf1z0CJS/cvnfIexmJhe+DJCccoco2l5gpiqp7gweH5vXEcyrzTt1I3Z+iFNas2cQ/wF3LjW0NcbdGeC9NN9kGIoOvr8g6L66CUvazYoirgbJO01ktm7LVNeGS3Q1pk36Vp10="
+    bucket: artifacts.numenta.org
+    region: us-west-2
+    local-dir: "dist/wheels"
+    upload-dir: "numenta/nupic/${TRAVIS_COMMIT}"
+    skip_cleanup: true
+    # Only deploy on master from linux/clang job
+    on:
+      branch: master
+      condition:
+        - "$TRAVIS_OS_NAME == linux"
+        - "$CC == clang"
+
+  # Pypi deployment happens only for release tags.
+  - provider: pypi
+    user: numenta
+    password:
+      secure: "Sx+MRU59kHzf53ed8bhg/oKie8P+Sd7mntoscGJiHiJKiVbZjj+bCqcXaf0iAfNowaGDX1qV6ohf9+t8sEZHIK/Ge9Sffyd/EWLB3M2hSvTFbz1PEAMlj4q4JX1iBMSbB5OqX3HY/48a5XaRtlW7r7m/V8cg3k9Zzw6EzewGGhs="
+    distributions: "bdist_wheel"
+    skip_cleanup: true
+    # Only deploying from clang jobs.
+    on:
+      all_branches: true
+      tags: true
+      condition:
+        - "$CC == clang"
+
 
 git:
   submodules: false
@@ -57,9 +76,6 @@ notifications:
       - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 before_install:
-  # install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
-  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; sudo apt-get -qq update; sudo apt-get -qq install g++-4.8; alias gcc='gcc-4.8'; alias g++='g++-4.8'; fi"
-  - "if [ $CC = 'gcc' ]; then export CC='gcc-4.8'; export CXX='g++-4.8'; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'osx' ]; then . ./ci/travis/before_install-osx.sh; fi"
 
