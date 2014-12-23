@@ -21,6 +21,8 @@ cmakeOptions = ""
 makeOptions = "install"
 setupOptions = ""
 mustBuildExtensions = False
+requirementsFile = "external/common/requirements.txt"
+
 for arg in sys.argv[:]:
   if ("cmake_options" in arg) or ("make_options" in arg):
     (option, _, rhs) = arg.partition("=")
@@ -52,6 +54,7 @@ with open("VERSION", "r") as versionFile:
   version = versionFile.read().strip()
 
 
+
 def findPackages(repositoryDir):
   """
   Traverse nupic directory and create packages for each subdir containing a
@@ -63,6 +66,21 @@ def findPackages(repositoryDir):
       subdir = root.replace(repositoryDir + "/", "")
       packages.append(subdir.replace("/", "."))
   return packages
+
+
+
+def findRequirements(repositoryDir):
+  """
+  Read the requirements.txt file and parse into requirements for setup's
+  install_requirements option.
+  """
+  requirementsPath = os.path.join(repositoryDir, requirementsFile)
+  return [
+    line.strip()
+    for line in open(requirementsPath).readlines()
+    if not line.startswith("#")
+  ]
+
 
 
 def buildExtensionsNupic():
@@ -91,17 +109,22 @@ def buildExtensionsNupic():
     sys.exit("Unable to build the library!")
 
 
+
 def setupNupic():
   """
   Package setup operations
   """
+
+  packages = findPackages(repositoryDir)
+  requires = findRequirements(repositoryDir)
 
   # Setup library
   os.chdir(repositoryDir)
   setup(
     name = "nupic",
     version = version,
-    packages = findPackages(repositoryDir),
+    packages = packages,
+    install_requires = requires,
     # A lot of this stuff may not be packaged properly, most of it was added in
     # an effort to get a binary package prepared for nupic.regression testing
     # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
@@ -112,7 +135,7 @@ def setupNupic():
                         "nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt",
                 "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
-      "nupic.bindings": ["_*.so", "_*.dll"],
+      "nupic.bindings": ["_*.so", "_*.dll", "*.i"],
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
@@ -135,18 +158,21 @@ def setupNupic():
       "Programming Language :: Python",
       "Programming Language :: Python :: 2",
       "License :: OSI Approved :: GNU General Public License (GPL)",
-      "Operating System :: OS Independent",
+      "Operating System :: MacOS :: MacOS X",
+      "Operating System :: POSIX :: Linux",
+      # It has to be "5 - Production/Stable" or else pypi rejects it!
       "Development Status :: 5 - Production/Stable",
       "Environment :: Console",
       "Intended Audience :: Science/Research",
       "Topic :: Scientific/Engineering :: Artificial Intelligence"
     ],
     long_description = """\
-NuPIC is a library that provides the building blocks for online prediction systems. The library contains the Cortical Learning Algorithm (CLA), but also the Online Prediction Framework (OPF) that allows clients to build prediction systems out of encoders, models, and metrics.
+Numenta Platform for Intelligent Computing: a machine intelligence platform that implements the HTM learning algorithms. HTM is a detailed computational theory of the neocortex. At the core of HTM are time-based continuous learning algorithms that store and recall spatial and temporal patterns. NuPIC is suited to a variety of problems, particularly anomaly detection and prediction of streaming data sources.
 
-For more information, see numenta.org or the NuPIC wiki (https://github.com/numenta/nupic/wiki).
+For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
 """
   )
+
 
 
 # Build and setup NuPIC
