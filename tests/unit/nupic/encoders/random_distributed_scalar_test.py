@@ -411,8 +411,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     _stdout = sys.stdout
     sys.stdout = _stringio = StringIO()
     enc = RandomDistributedScalarEncoder(name='mv', resolution=1.0, verbosity=0)
-    output = numpy.zeros(enc.getWidth(), dtype=defaultDtype)
-    enc.encodeIntoArray(23.0, output)
+    output = enc.encode(23.0)
     enc.getBucketIndices(23.0)
     sys.stdout = _stdout
     self.assertEqual(len(_stringio.getvalue()), 0,

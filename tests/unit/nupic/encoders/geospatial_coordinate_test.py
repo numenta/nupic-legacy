@@ -100,9 +100,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
 
 
 def encode(encoder, longitude, latitude, speed):
-  output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
-  encoder.encodeIntoArray((longitude, latitude, speed), output)
-  return output
+  return encoder.encode((longitude, latitude, speed))
 
 def overlap(sdr1, sdr2):
   assert sdr1.size == sdr2.size

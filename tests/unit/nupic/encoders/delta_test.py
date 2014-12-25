@@ -42,10 +42,10 @@ class DeltaEncoderTest(unittest.TestCase):
   def testDeltaEncoder(self):
       """simple delta reconstruction test"""
       for i in range(5):
-        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
+        encarr =  self._dencoder.encode(i, learn=True)
       self._dencoder.setStateLock(True)
       for i in range(5, 7):
-        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
+        encarr =  self._dencoder.encode(i, learn=True)
       res = self._dencoder.topDownCompute(encarr)
       self.assertEqual(res[0].value, 6) #FIXME fails on this line
       self.assertEqual(self._dencoder.topDownCompute(encarr)[0].value, res[0].value)
@@ -60,10 +60,8 @@ class DeltaEncoderTest(unittest.TestCase):
       self._dencoder.setStateLock(False)
       #Check that the deltas are being returned correctly.
       for i in range(len(feedIn)):
-        aseencode = np.zeros(100)
-        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
-        delencode = np.zeros(100)
-        self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
+        aseencode = self._adaptscalar.encode(expectedOut[i], learn=True)
+        delencode = self._dencoder.encode(feedIn[i], learn=True)
         self.assertTrue((delencode[0] == aseencode[0]).all())
 
 
@@ -75,13 +73,11 @@ class DeltaEncoderTest(unittest.TestCase):
         if i == 3:
           self._dencoder.setStateLock(True)
 
-        aseencode = np.zeros(100)
-        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
-        delencode = np.zeros(100)
+        aseencode = self._adaptscalar.encode(expectedOut[i], learn=True)
         if i>=3:
-          self._dencoder.encodeIntoArray(feedIn[i]-feedIn[2], delencode, learn=True)
+          delencode = self._dencoder.encode(feedIn[i]-feedIn[2], learn=True)
         else:
-          self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
+          delencode = self._dencoder.encode(expectedOut[i], learn=True)
 
         self.assertTrue((delencode[0] == aseencode[0]).all())
 

@@ -279,9 +279,7 @@ class CoordinateEncoderTest(unittest.TestCase):
 
 
 def encode(encoder, coordinate, radius):
-  output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
-  encoder.encodeIntoArray((coordinate, radius), output)
-  return output
+  return encoder.encode((coordinate, radius))
 
 
 def overlap(sdr1, sdr2):
