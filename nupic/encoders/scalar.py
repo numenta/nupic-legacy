@@ -384,7 +384,7 @@ class ScalarEncoder(Encoder):
     if type(input) is float and math.isnan(input):
       input = self.SENTINEL_VALUE_FOR_MISSING_DATA
     
-    if not (skipOutOfBounds and 
+    if ((not skipOutOfBounds) and 
       input is not self.SENTINEL_VALUE_FOR_MISSING_DATA and 
       self.minval is not None and 
       self.maxval is not None and 
