@@ -135,7 +135,7 @@ def setupNupic():
                         "nupic-logging.conf"],
       "nupic": ["README.md", "LICENSE.txt",
                 "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
-      "nupic.bindings": ["_*.so", "_*.dll"],
+      "nupic.bindings": ["_*.so", "_*.dll", "*.i"],
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
@@ -160,7 +160,8 @@ def setupNupic():
       "License :: OSI Approved :: GNU General Public License (GPL)",
       "Operating System :: MacOS :: MacOS X",
       "Operating System :: POSIX :: Linux",
-      "Development Status :: Development Status :: 3 - Alpha",
+      # It has to be "5 - Production/Stable" or else pypi rejects it!
+      "Development Status :: 5 - Production/Stable",
       "Environment :: Console",
       "Intended Audience :: Science/Research",
       "Topic :: Scientific/Engineering :: Artificial Intelligence"
