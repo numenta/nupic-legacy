@@ -113,7 +113,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     self.slidingWindow.next(input)
 
-    if self.minval is None and self.maxval is None:
+    if self.minval is None or self.maxval is None:
       self.minval = input
       self.maxval = input+1   #When the min and max and unspecified and only one record has been encoded
       self._setEncoderParams()
@@ -171,10 +171,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
         output[0:self.n] = 0
     elif not math.isnan(input):
       self._setMinAndMax(input, learn)
-    skipTest = False
-    if not learn:
-      skipTest = True
-    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output, skipOutOfBounds=skipTest)
+    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output, skipOutOfBounds=(not learn))
 
 
   ############################################################################
