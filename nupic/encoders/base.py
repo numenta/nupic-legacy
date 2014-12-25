@@ -167,13 +167,14 @@ class Encoder(object):
     pass
 
   ############################################################################
-  def encode(self, inputData):
+  def encode(self, inputData, learn=False):
     """Convenience wrapper for encodeIntoArray.
 
     This may be less efficient because it allocates a new numpy array every
     call.
 
     @param inputData TODO: document
+    @param learn: (False) enable learning (if available) in the encoder
     @returns a numpy array with the encoded representation of inputData
     """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
