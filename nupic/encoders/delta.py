@@ -62,7 +62,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     else:
       #make the first delta zero so that the delta ranges are not messed up.
       if self._prevAbsolute is None:
-        self._prevAbsolute= input
+        self._prevAbsolute = input
       delta = input - self._prevAbsolute
       super(DeltaEncoder, self).encodeIntoArray(delta, output, learn)
       if not self._stateLock:

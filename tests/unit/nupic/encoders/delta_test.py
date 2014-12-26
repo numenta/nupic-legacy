@@ -43,11 +43,15 @@ class DeltaEncoderTest(unittest.TestCase):
       """simple delta reconstruction test"""
       for i in range(5):
         encarr =  self._dencoder.encode(i, learn=True)
+        td = self._dencoder.topDownCompute(encarr)[0].value
+        self.assertEqual(td, i)
+
       self._dencoder.setStateLock(True)
       for i in range(5, 7):
         encarr =  self._dencoder.encode(i, learn=True)
-      res = self._dencoder.topDownCompute(encarr)
-      self.assertEqual(res[0].value, 6) #FIXME fails on this line
+        td = self._dencoder.topDownCompute(encarr)[0].value
+        self.assertEqual(td, i) #FIXME fails on this line
+
 
 
   def testEncodingVerification(self):
