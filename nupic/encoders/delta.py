@@ -44,11 +44,9 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     
     self._learningEnabled = True
     self._stateLock = False
-    self.description = []
     assert n>0           #An adaptive encoder can only be intialized using n
 
     self._prevAbsolute = None    #how many inputs have been sent to the encoder?
-    self._prevDelta = None
 
   def encodeIntoArray(self, input, output, learn=None):
     if not isinstance(input, numbers.Number):
@@ -67,7 +65,6 @@ class DeltaEncoder(AdaptiveScalarEncoder):
       super(DeltaEncoder, self).encodeIntoArray(delta, output, learn)
       if not self._stateLock:
         self._prevAbsolute = input
-        self._prevDelta = delta
       return output
 
   ############################################################################
@@ -84,7 +81,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     """[ScalarEncoder class method override]"""
 
     #Decode to delta scalar
-    if self._prevAbsolute is None or self._prevDelta is None:
+    if self._prevAbsolute is None:
       return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
     ret = super(DeltaEncoder, self).topDownCompute(encoded)
     ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
