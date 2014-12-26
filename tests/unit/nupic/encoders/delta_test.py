@@ -48,9 +48,6 @@ class DeltaEncoderTest(unittest.TestCase):
         encarr =  self._dencoder.encode(i, learn=True)
       res = self._dencoder.topDownCompute(encarr)
       self.assertEqual(res[0].value, 6) #FIXME fails on this line
-      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].value, res[0].value)
-      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar, res[0].scalar)
-      self.assertTrue((self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all())
 
 
   def testEncodingVerification(self):
