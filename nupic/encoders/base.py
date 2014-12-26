@@ -83,7 +83,6 @@ class Encoder(object):
     # set name - for getDescription()
     self.name=name
     
-    # set width - w - for getWidth()
     self.w=w
     if (self.w % 2 == 0):
       raise ValueError("Width must be an odd number (%f)" % self.w)
