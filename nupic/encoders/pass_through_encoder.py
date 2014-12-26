@@ -94,7 +94,7 @@ class PassThroughEncoder(Encoder):
     else:
       fieldName = self.name
     # TODO: these methods should be properly implemented
-    return ({fieldName: ([[0, 0]], "input")}, [fieldName])
+    return ({fieldName: ([[0, 0]], encoded)}, [fieldName])
 
 
   ############################################################################
@@ -107,7 +107,7 @@ class PassThroughEncoder(Encoder):
   def topDownCompute(self, encoded):
     """See the function description in base.py"""
     return EncoderResult(value=0, scalar=0,
-                         encoding=numpy.zeros(self.n))
+                         encoding=encoded)
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):
