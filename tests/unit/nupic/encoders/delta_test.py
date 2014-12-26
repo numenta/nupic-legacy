@@ -53,6 +53,28 @@ class DeltaEncoderTest(unittest.TestCase):
         self.assertEqual(td, i) #FIXME fails on this line
 
 
+  def testTopDown(self):
+    e = DeltaEncoder(w=21, n=100)
+    enc = e.encode(0)
+    dec = e.topDownCompute(enc)
+    self.assertEqual(dec[0].value, 0) # init -> 0
+
+    enc = e.encode(0)
+    dec = e.topDownCompute(enc)
+    self.assertEqual(dec[0].value, 0) # 0 -> 0
+
+    enc = e.encode(10)
+    dec = e.topDownCompute(enc)
+    self.assertEqual(dec[0].value, 10) # 0 -> 10
+
+    enc = e.encode(10)
+    dec = e.topDownCompute(enc)
+    self.assertEqual(dec[0].value, 10) # 10 -> 10
+
+    enc = e.encode(-100)
+    dec = e.topDownCompute(enc)
+    self.assertEqual(dec[0].value, -100) # 10 -> -100
+
 
   def testEncodingVerification(self):
       """encoding verification test passed"""
