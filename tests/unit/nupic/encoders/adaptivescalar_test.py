@@ -185,6 +185,28 @@ class AdaptiveScalarTest(unittest.TestCase):
             "but they are not. sFS should be equivalent to initialization.")
 
 
+    def testTopDown2(self):
+      e = AdaptiveScalarEncoder(w=21, n=100)
+      enc = e.encode(0)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 0) # init -> 0
+
+      enc = e.encode(0)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 0) # 0 -> 0
+
+      enc = e.encode(10)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 10) # 0 -> 10
+
+      enc = e.encode(10)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 10) # 10 -> 10
+
+      enc = e.encode(-100)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, -100) # 10 -> -100
+
 ################################################################################
 if __name__ == '__main__':
   unittest.main()
