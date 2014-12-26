@@ -115,7 +115,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     if self.minval is None or self.maxval is None:
       self.minval = input
-      self.maxval = input+1   #When the min and max and unspecified and only one record has been encoded
+      self.maxval = input+1   #When the min/max are unspecified and only one record has been encoded
       self._setEncoderParams()
 
     elif learn:
