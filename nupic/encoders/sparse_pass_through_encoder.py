@@ -21,11 +21,11 @@
 
 import numpy
 
-from nupic.encoders import pass_through_encoder
+from nupic.encoders.pass_through_encoder import PassThroughEncoder
 
 
 ############################################################################
-class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
+class SparsePassThroughEncoder(PassThroughEncoder):
   """Convert a bitmap encoded as array indicies to an SDR
 
   Each encoding is an SDR in which w out of n bits are turned on.
@@ -36,6 +36,8 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
 
   i.e. for n=24 w=3 [0,2,5] => 111000111000000111000000000
     or for n=24 w=3 "0,2,5" => 111000111000000111000000000
+
+  Note: the meaning of 'w' is not the usual (as used in other encoders)!
   """
 
   ############################################################################

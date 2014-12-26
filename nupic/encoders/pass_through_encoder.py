@@ -47,7 +47,7 @@ class PassThroughEncoder(Encoder):
     if w is None:
       wFake=1
     super(PassThroughEncoder, self).__init__(w=wFake,n=n, name=name, verbosity=verbosity, forced=True)
-    self.w = w # override wFake
+    self.w = w # override wFake, this hack is used bcs Encoder cannot accept w=None
     self.forced = forced # override
 
   ############################################################################
@@ -60,12 +60,12 @@ class PassThroughEncoder(Encoder):
   ############################################################################
   def getScalars(self, input):
     """ See method description in base.py """
-    return numpy.array([0])
+    raise RuntimeError('getScalars() does not make sense for PassThroughEncoder')
 
   ############################################################################
   def getBucketIndices(self, input):
     """ See method description in base.py """
-    return [0]
+    raise RuntimeError('getBucketIndices() does not make sense for PassThroughEncoder')
 
   ############################################################################
   def encodeIntoArray(self, input, output):
