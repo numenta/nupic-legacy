@@ -46,7 +46,7 @@ class PassThroughEncoder(Encoder):
     wFake=w
     if w is None:
       wFake=1
-    super(PassThruEncoder, self).__init__(w=wFake,n=n, name=name, verbosity=verbosity, forced=True)
+    super(PassThroughEncoder, self).__init__(w=wFake,n=n, name=name, verbosity=verbosity, forced=True)
     self.w = w # override wFake
     self.forced = forced # override
 
