@@ -38,13 +38,11 @@ class ScalarSpaceEncoder(Encoder):
                 space="absolute"):
     self._encoder = None
     if space == "absolute":
-      ret = AdaptiveScalarEncoder(w=w,minval=minval,maxval=maxval,n=n,radius=radius,
-               resolution=resolution,name=name,verbosity=verbosity,
-               clipInput=clipInput)
+      ret = AdaptiveScalarEncoder(w=w, n=n, minval=minval, maxval=maxval,
+               name=name, verbosity=verbosity)
     else:
-      ret = DeltaEncoder(w=w,minval=minval,maxval=maxval,n=n,radius=radius,
-               resolution=resolution,name=name,verbosity=verbosity,
-               clipInput=clipInput)
+      ret = DeltaEncoder(w=w, n=n, minval=minval, maxval=maxval,
+               name=name, verbosity=verbosity, clipInput=clipInput)
 
     return ret
 #TODO: add other Encoders - log, scalar,..
