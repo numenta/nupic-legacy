@@ -18,7 +18,7 @@ repositoryDir = os.getcwd()
 #   python setup.py install make_options="-j3"
 # which will add "-j3" option to Make commandline
 cmakeOptions = ""
-makeOptions = "install"
+makeOptions = "install -j4"
 setupOptions = ""
 mustBuildExtensions = False
 requirementsFile = "external/common/requirements.txt"
