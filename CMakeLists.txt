@@ -377,10 +377,14 @@ set(CMAKE_SWIG_FLAGS
     -noproxydel
     -fvirtual
     -fastunpack
-    -nofastproxy
+    -nofastproxy #TODO remove this for optimization -O
     -fastquery
     -outputtuple
     -castmode
+    -fastdispatch
+    -nosafecstrings
+    -fastinit
+    -nobuildnone
     -w402 #TODO what are these?
     -w503
     -w511
