@@ -366,6 +366,7 @@ include(${CMAKE_ROOT}/Modules/UseSWIG.cmake)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+# swig options from: https://github.com/swig/swig/blob/master/Source/Modules/python.cxx#L111
 set(CMAKE_SWIG_FLAGS
     -features
     autodoc=0,directors=0
@@ -380,7 +381,7 @@ set(CMAKE_SWIG_FLAGS
     -fastquery
     -outputtuple
     -castmode
-    -w402
+    -w402 #TODO what are these?
     -w503
     -w511
     -w302
