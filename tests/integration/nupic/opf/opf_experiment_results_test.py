@@ -281,7 +281,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
             ('DefaultTask.TemporalAnomaly.predictionLog.csv',
              'anomalyScore:passThruPrediction:window=1000:field=f'): (0.0254,
-                                                                      0.0257),
+                                                                      0.026),
           }
       },
 
