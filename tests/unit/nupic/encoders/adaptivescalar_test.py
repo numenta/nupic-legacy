@@ -49,7 +49,7 @@ class AdaptiveScalarTest(unittest.TestCase):
       """Non-periodic encoder, min and max specified"""
       
       self.assertTrue((self._l.encode(1) == numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                         dtype=defaultDtype)).all())
+                                         dtype=defaultDtype)).all(), "got: %s" % str(self._l.encode(1)))
       self.assertTrue((self._l.encode(2) == numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
                                          dtype=defaultDtype)).all())
       self.assertTrue((self._l.encode(10) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
