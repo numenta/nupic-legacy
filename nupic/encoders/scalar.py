@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
+from nupic.encoders.simple_scalar import SimpleScalarEncoder
 
 ############################################################################
 class ScalarEncoder(RDSE):
@@ -36,4 +37,42 @@ class ScalarEncoder(RDSE):
 
   WARNING: no logic should be written in this class, it only defines (extends) the chosen implementation!
   """
-  pass
+  
+  def __init__(self, resolution, w=21, n=400, name=None, offset = None,
+               seed=42, verbosity=0):
+    """this is the default constructor from RDSE class"""
+    super(ScalarEncoder, self).__init__(resolution,
+                                        w=w,
+                                        n=n,
+                                        name=name,
+                                        offset=offset,
+                                        seed=seed,
+                                        verbosity=verbosity)
+
+
+  def __init__(self,
+               w,
+               minval,
+               maxval,
+               periodic=False,
+               n=0,
+               radius=0,
+               resolution=0,
+               name=None,
+               verbosity=0,
+               clipInput=False,
+               forced=False):
+    """backwards compatibility constructor - from SimpleScalarEncoder"""
+ 
+    "get resolution by constructing a dummy SimpleScalar encoder and asking its resolution"
+    dummySimpleScalar = SimpleScalarEncoder(w, minval, maxval, periodic=periodic,
+                                            n=n, radius=radius, resolution=resolution,
+                                            name=name, verbosity=verbosity,
+                                            clipInput=clipInput, forced=forced)
+    res = dummySimpleScalar.resolution
+    super(ScalarEncoder, self).__init__(res,
+                                   #     w=w, #TODO should we: a) add 'forced' to RDSE and allow given w,n; or
+                                              #                b) pass only resolution and not w,n from former SimpleScalar to RDSE ?
+                                   #     n=n,
+                                        name=name,
+                                        verbosity=verbosity)
