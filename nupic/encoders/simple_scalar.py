@@ -31,8 +31,11 @@ from nupic.encoders.base import Encoder, EncoderResult
 
 
 ############################################################################
-class ScalarEncoder(Encoder):
+class SimpleScalarEncoder(Encoder):
   """
+  SimpleScalar encoder is a reference (demo) class for demonstration/learning 
+  purposes. For real-world use-cases RDSE is prefered.
+
   A scalar encoder encodes a numeric (floating point) value into an array
   of bits. The output is 0's except for a contiguous block of 1's. The
   location of this contiguous block varies continuously with the input value.
