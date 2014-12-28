@@ -19,18 +19,21 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from scalar import ScalarEncoder
-from simple_scalar import SimpleScalarEncoder
-from adaptivescalar import AdaptiveScalarEncoder
-from date import DateEncoder
-from logenc import LogEncoder
-from category import CategoryEncoder
-from sdrcategory import SDRCategoryEncoder
-from delta import DeltaEncoder
-from scalarspace import ScalarSpaceEncoder
-from coordinate import CoordinateEncoder
-from geospatial_coordinate import GeospatialCoordinateEncoder
-from nupic.encoders.pass_through_encoder import PassThroughEncoder
-# multiencoder must be imported last because it imports * from this module!
-from multi import MultiEncoder
-from utils import bitsToString
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
+
+############################################################################
+class ScalarEncoder(RDSE):
+  """
+  A scalar encoder encodes a numeric (floating point) value into an array
+  of bits.
+
+  This is a META class that defines the default implementation of "scalar encoder". 
+  Options:
+    RandomDistributedScalarEncoder (default)
+    SimpleScalarEncoder
+
+  Other encoders that use scalar encoder (extend/instantiate) will use this implementation.
+
+  WARNING: no logic should be written in this class, it only defines (extends) the chosen implementation!
+  """
+  pass
