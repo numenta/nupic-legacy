@@ -16,6 +16,9 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
+    - PYPI_USERNAME=numenta
+    # PYPI_PASSWD encrypted below.
+    - secure: "elm3E3MwpbZqTCz+EHPQ7CEBwoBvRgqS3q5MHY+jUcpdrWeSjmy7TZoRN5+rAjDQYuR5g33pMXnyeRGw/DG7Xa5FG0g3PoMnO6fnIe7Hs7gPlDXbwilfYxfi462N7Y9aAGPFuvNkZsgd0dfwXKwNEiZ5hYfsbFFwHMeXMQA/SA8="
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc and Python 2.6
@@ -48,19 +51,21 @@ deploy:
         - "$TRAVIS_OS_NAME == linux"
         - "$CC == clang"
 
-  # Pypi deployment happens only for release tags.
-  - provider: pypi
-    user: numenta
-    password:
-      secure: "Sx+MRU59kHzf53ed8bhg/oKie8P+Sd7mntoscGJiHiJKiVbZjj+bCqcXaf0iAfNowaGDX1qV6ohf9+t8sEZHIK/Ge9Sffyd/EWLB3M2hSvTFbz1PEAMlj4q4JX1iBMSbB5OqX3HY/48a5XaRtlW7r7m/V8cg3k9Zzw6EzewGGhs="
-    distributions: "bdist_wheel"
-    skip_cleanup: true
-    # Only deploying from clang jobs.
-    on:
-      all_branches: true
-      tags: true
-      condition:
-        - "$CC == clang"
+# Replacing this Pypi deployment with a custom deployment so we can control the 
+# names of the files being uploaded to pypi.
+  # # Pypi deployment happens only for release tags.
+  # - provider: pypi
+  #   user: numenta
+  #   password:
+  #     secure: "Sx+MRU59kHzf53ed8bhg/oKie8P+Sd7mntoscGJiHiJKiVbZjj+bCqcXaf0iAfNowaGDX1qV6ohf9+t8sEZHIK/Ge9Sffyd/EWLB3M2hSvTFbz1PEAMlj4q4JX1iBMSbB5OqX3HY/48a5XaRtlW7r7m/V8cg3k9Zzw6EzewGGhs="
+  #   distributions: "bdist_wheel"
+  #   skip_cleanup: true
+  #   # Only deploying from clang jobs.
+  #   on:
+  #     all_branches: true
+  #     tags: true
+  #     condition:
+  #       - "$CC == clang"
 
 
 git:
@@ -88,4 +93,6 @@ script:
 
 after_success:
  - cd ${TRAVIS_BUILD_DIR}
+ # Run release script if this is a tagged build.
+ - "if [ -n \"${TRAVIS_TAG}\" -a \"$CC\" = 'clang']; then . ./ci/travis/after_success-release.sh; fi"
  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/after_success-report-coverage-linux.sh; fi"
