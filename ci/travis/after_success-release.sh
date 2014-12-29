@@ -24,7 +24,8 @@ echo
 echo Running after_success-release.sh...
 echo
 
-sudo pip install twine
+echo Installing python modules: wheel, twine
+sudo pip install twine wheel
 
 # Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
 python setup.py bdist_wheel
