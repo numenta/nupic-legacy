@@ -326,18 +326,18 @@ add_custom_target(tests_htm
                   COMMAND ${EXECUTABLE_HTMTEST}
                   DEPENDS ${EXECUTABLE_HTMTEST})
 
-set(LIB_DYNAMIC_CPPREGION cpp_region)
-add_library(${LIB_DYNAMIC_CPPREGION}
-            SHARED
+set(LIB_MODULE_CPPREGION cpp_region)
+add_library(${LIB_MODULE_CPPREGION}
+            MODULE
             extensions/cpp_region/PyRegion.cpp
             extensions/cpp_region/unittests/PyHelpersTest.cpp)
-target_link_libraries(${LIB_DYNAMIC_CPPREGION}
+target_link_libraries(${LIB_MODULE_CPPREGION}
                       dl
                       python${PYTHON_VERSION}
                       ${LIB_STATIC_SUPPORT}
                       ${LIB_STATIC_GTEST}
                       ${COMMON_LIBS})
-set_target_properties(${LIB_DYNAMIC_CPPREGION}
+set_target_properties(${LIB_MODULE_CPPREGION}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS})
 
@@ -404,40 +404,40 @@ set(SWIG_COMMON_LIBRARIES
 
 file(MAKE_DIRECTORY "${PROJECT_BUILD_TEMP_DIR}/nupic/bindings")
 
-set(LIB_SHARED_ENGINEINTERNAL engine_internal)
+set(LIB_MODULE_ENGINEINTERNAL engine_internal)
 set_source_files_properties(nupic/bindings/engine_internal.i PROPERTIES CPLUSPLUS ON)
 set_property(SOURCE nupic/bindings/engine_internal.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
-swig_add_module(${LIB_SHARED_ENGINEINTERNAL}
+swig_add_module(${LIB_MODULE_ENGINEINTERNAL}
                 python
                 nupic/bindings/engine_internal.i)
-set_target_properties(${SWIG_MODULE_${LIB_SHARED_ENGINEINTERNAL}_REAL_NAME}
+set_target_properties(${SWIG_MODULE_${LIB_MODULE_ENGINEINTERNAL}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-swig_link_libraries(${LIB_SHARED_ENGINEINTERNAL} ${SWIG_COMMON_LIBRARIES})
+swig_link_libraries(${LIB_MODULE_ENGINEINTERNAL} ${SWIG_COMMON_LIBRARIES})
 
-set(LIB_SHARED_MATH math)
+set(LIB_MODULE_MATH math)
 set_source_files_properties(nupic/bindings/math.i PROPERTIES CPLUSPLUS ON)
 set_property(SOURCE nupic/bindings/math.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
-swig_add_module(${LIB_SHARED_MATH}
+swig_add_module(${LIB_MODULE_MATH}
                 python
                 nupic/bindings/math.i
                 nupic/bindings/PySparseTensor.cpp)
-set_target_properties(${SWIG_MODULE_${LIB_SHARED_MATH}_REAL_NAME}
+set_target_properties(${SWIG_MODULE_${LIB_MODULE_MATH}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-swig_link_libraries(${LIB_SHARED_MATH} ${SWIG_COMMON_LIBRARIES})
+swig_link_libraries(${LIB_MODULE_MATH} ${SWIG_COMMON_LIBRARIES})
 
-set(LIB_SHARED_ALGORITHMS algorithms)
+set(LIB_MODULE_ALGORITHMS algorithms)
 set_source_files_properties(nupic/bindings/algorithms.i PROPERTIES CPLUSPLUS ON)
 set_property(SOURCE nupic/bindings/algorithms.i PROPERTY SWIG_FLAGS ${CMAKE_SWIG_FLAGS})
-swig_add_module(${LIB_SHARED_ALGORITHMS} python nupic/bindings/algorithms.i)
-set_target_properties(${SWIG_MODULE_${LIB_SHARED_ALGORITHMS}_REAL_NAME}
+swig_add_module(${LIB_MODULE_ALGORITHMS} python nupic/bindings/algorithms.i)
+set_target_properties(${SWIG_MODULE_${LIB_MODULE_ALGORITHMS}_REAL_NAME}
                       PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
                                  LINK_FLAGS ${COMMON_LINK_FLAGS}
                                  LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
-swig_link_libraries(${LIB_SHARED_ALGORITHMS} ${SWIG_COMMON_LIBRARIES})
+swig_link_libraries(${LIB_MODULE_ALGORITHMS} ${SWIG_COMMON_LIBRARIES})
 
 set(SKIP_COMPARE_VERSIONS (NOT ${FETCH_NUPIC_CORE}) CACHE BOOL "Skip nupic.core version comparison")
 
@@ -456,7 +456,7 @@ if (NOT ${SKIP_COMPARE_VERSIONS})
                     COMMAND ${EXECUTABLE_COMPAREVERSION} ${NUPIC_CORE_COMMITISH}
                     DEPENDS ${EXECUTABLE_COMPAREVERSION})
 
-  add_dependencies(${LIB_DYNAMIC_CPPREGION} assert_nupic_core_version)
+  add_dependencies(${LIB_MODULE_CPPREGION} assert_nupic_core_version)
 endif()
 
 
@@ -469,13 +469,13 @@ install(TARGETS
         ${EXECUTABLE_HTMTEST}
         DESTINATION ${PROJECT_SOURCE_DIR}/bin)
 install(TARGETS
-        ${LIB_DYNAMIC_CPPREGION}
+        ${LIB_MODULE_CPPREGION}
         DESTINATION ${PROJECT_SOURCE_DIR}/nupic)
 install(FILES
-        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_SHARED_ENGINEINTERNAL}_REAL_NAME}.so"
-        "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_ENGINEINTERNAL}.py"
-        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_SHARED_MATH}_REAL_NAME}.so"
-        "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_MATH}.py"
-        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_SHARED_ALGORITHMS}_REAL_NAME}.so"
-        "${PROJECT_BUILD_TEMP_DIR}/${LIB_SHARED_ALGORITHMS}.py"
+        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_MODULE_ENGINEINTERNAL}_REAL_NAME}.so"
+        "${PROJECT_BUILD_TEMP_DIR}/${LIB_MODULE_ENGINEINTERNAL}.py"
+        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_MODULE_MATH}_REAL_NAME}.so"
+        "${PROJECT_BUILD_TEMP_DIR}/${LIB_MODULE_MATH}.py"
+        "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_MODULE_ALGORITHMS}_REAL_NAME}.so"
+        "${PROJECT_BUILD_TEMP_DIR}/${LIB_MODULE_ALGORITHMS}.py"
         DESTINATION ${PROJECT_SOURCE_DIR}/nupic/bindings)
