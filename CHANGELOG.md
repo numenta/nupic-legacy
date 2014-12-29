@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.11-dev
+
 ## 0.0.10
 
 * Trying a custom deployment configuration for better control of pypi deployment files.
