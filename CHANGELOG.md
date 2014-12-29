@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.12-dev
+
 ## 0.0.11
 
 * Fixed bug in release condition.
