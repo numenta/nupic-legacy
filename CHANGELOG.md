@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.16-dev
+## 0.0.16
+
+* Triggering a build for next release version
 
 ## 0.0.15
 
