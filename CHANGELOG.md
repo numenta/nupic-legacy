@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.17-dev
+## 0.0.17
+
+* Installing pip==1.5.6 for twine explicitly
 
 ## 0.0.16
 
