@@ -24,6 +24,11 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
+echo "From where is pip executing?"
+which pip
+echo "What pip version are we using?"
+pip --version
+
 echo "Updating setuptools..."
 sudo pip install -U "setuptools>=0.9" || exit
 echo "Updating pip..."
