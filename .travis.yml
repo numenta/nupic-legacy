@@ -94,5 +94,5 @@ script:
 after_success:
  - cd ${TRAVIS_BUILD_DIR}
  # Run release script if this is a tagged build.
- - "if [ -n \"${TRAVIS_TAG}\" -a \"$CC\" = 'clang' ]; then . ./ci/travis/after_success-release.sh; fi"
  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/after_success-report-coverage-linux.sh; fi"
+ - "if [ -n \"${TRAVIS_TAG}\" -a \"$CC\" = 'clang' ]; then . ./ci/travis/after_success-release.sh; fi"
