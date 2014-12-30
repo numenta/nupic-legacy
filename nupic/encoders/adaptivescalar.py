@@ -63,32 +63,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
                                 clipInput=True, name=name, verbosity=verbosity, forced=forced)
     self.recordNum=0    #how many inputs have been sent to the encoder?
     self.slidingWindow = MovingAverage(300)
-    # save these variables (used to be part of SimpleScalar, but not in RDSE)
-    self.minval = minval
-    self.maxval = maxval
-    self.n = n
-    self.w = w
-    self.encoders = []
-    self.periodic = periodic
-
-    # figure padding (from SimpleScalar)
-    self.halfwidth = (w - 1) / 2
-    # For non-periodic inputs, padding is the number of bits "outside" the range,
-    # on each side. I.e. the representation of minval is centered on some bit, and
-    # there are "padding" bits to the left of that centered bit; similarly with
-    # bits to the right of the center bit of maxval
-    if self.periodic:
-      self.padding = 0
-    else:
-      self.padding = self.halfwidth
-
-    # other settings
-    if minval is None:
-      self.minval = 0
-    if maxval is None:
-      self.maxval = 1
-    self._setEncoderParams()
-
 
   ############################################################################
   def _setEncoderParams(self):
