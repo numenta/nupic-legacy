@@ -1289,7 +1289,7 @@ class TP(ConsolePrinterMixin):
 
 
     elif self.outputType == 'activeState':
-      self.currentOutput = self.infActiveState['t']
+      self.currentOutput = self.infActiveState['t'].astype('float32')
 
     elif self.outputType == 'normal':
       self.currentOutput = numpy.logical_or(self.infPredictedState['t'],
@@ -1298,7 +1298,7 @@ class TP(ConsolePrinterMixin):
     else:
       raise RuntimeError("Unimplemented outputType")
 
-    return self.currentOutput.reshape(-1).astype('float32')
+    return self.currentOutput.reshape(-1)
 
 
   def getActiveState(self):
