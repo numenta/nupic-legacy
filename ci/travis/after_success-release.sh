@@ -24,15 +24,6 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
-echo "From where is pip executing?"
-which pip
-echo "What pip version are we using?"
-pip --version
-
-echo "Updating setuptools..."
-sudo pip install -U "setuptools>=0.9" || exit
-echo "Updating pip..."
-sudo pip install -U "pip==1.5.6" || exit
 echo "Installing wheel..."
 sudo pip install wheel || exit
 echo "Installing twine..."
@@ -55,4 +46,4 @@ else
     new_filename="${generic_filename}"
 fi
 
-twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+twine upload "{$new_filename}" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
