@@ -1,6 +1,11 @@
 # Changelog
 
-## 0.0.13-dev
+## 0.0.13
+
+* Using a different pip upgrade method.
+* Continuing work on 0.0.13-dev.
+* Release 0.0.13.
+* Upgrade pip before release with wheels. Only change platform name in wheel file if on OSX because platform-specific binaries for Linux are unsupported.
 
 ## 0.0.13
 
