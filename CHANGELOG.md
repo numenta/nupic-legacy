@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.18-dev
+## 0.0.18
+
+* Expanded one pip call into 3 for twine/wheel dependencies. Fixed a bug in wheel filename usage.
 
 ## 0.0.17
 
