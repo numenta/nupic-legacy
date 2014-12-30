@@ -38,7 +38,7 @@ class ScalarEncoder(RDSE):
   WARNING: no logic should be written in this class, it only defines (extends) the chosen implementation!
   """
   
-  def __init__(self, resolution, w=21, n=400, name=None, offset=None,
+  def __init__(self, resolution, w=21, n=400, name=None, offset = None,
                seed=42, verbosity=0):
     """this is the default constructor from RDSE class"""
     super(ScalarEncoder, self).__init__(resolution,
@@ -69,13 +69,7 @@ class ScalarEncoder(RDSE):
                                             n=n, radius=radius, resolution=resolution,
                                             name=name, verbosity=verbosity,
                                             clipInput=clipInput, forced=forced)
-    # in some cases (calling init() with minval&maxval=None) resolution is not known
-    # this is adaptive encoder, so just use some default and modify later.
-    try:
-      res = dummySimpleScalar.resolution
-    except AttributeError:
-      res = 0.01 # fallback value
-
+    res = dummySimpleScalar.resolution
     super(ScalarEncoder, self).__init__(res,
                                    #     w=w, #TODO should we: a) add 'forced' to RDSE and allow given w,n; or
                                               #                b) pass only resolution and not w,n from former SimpleScalar to RDSE ?
