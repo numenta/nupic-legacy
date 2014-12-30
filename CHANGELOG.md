@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.0.14-dev
+## 0.0.14
+
+* Reverting to 0.0.14-dev... sorry.
+* Botched 0.0.14 release, moving manually to 0.0.15-dev
+* Continuing work on 0.0.14-dev.
+* Release 0.0.13.
+* Continuing work on 0.0.13-dev.
+* Release 0.0.13.
+* Using a different pip upgrade method.
 
 ## 0.0.13
 
