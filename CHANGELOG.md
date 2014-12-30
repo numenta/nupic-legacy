@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.20-dev
+## 0.0.20
+
+* Debugging pip
 
 ## 0.0.19
 
