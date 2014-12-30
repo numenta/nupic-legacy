@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.13-dev
+
 ## 0.0.13
 
 * Upgrade pip before release with wheels. Only change platform name in wheel file if on OSX because platform-specific binaries for Linux are unsupported.
