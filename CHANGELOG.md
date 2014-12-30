@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.16-dev
+
 ## 0.0.15
 
 * Upgrading to pip==1.5.1 explicitly for wheels dependency before release
