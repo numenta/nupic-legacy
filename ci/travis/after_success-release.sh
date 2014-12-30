@@ -24,22 +24,23 @@ echo
 echo Running after_success-release.sh...
 echo
 
-echo Updating pip to 1.5.6...
-sudo pip install --upgrade pip==1.5.6
+echo Updating python modules for wheel...
+sudo pip install -U "pip>=1.4" "setuptools>=0.9" "wheel>=0.21" || exit
 
-echo Installing python modules: wheel, twine
-sudo pip install twine wheel
+echo Installing twine...
+sudo pip install twine || exit
 
 # Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
-python setup.py bdist_wheel
+python setup.py bdist_wheel || exit
 
+generic_filename=`ls dist/*.whl`
 # Change the name of the wheel based on our platform if on OS X...
 if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    platform=`python -c "import distutils.util; print distutils.util.get_platform()"`
-    generic_filename=`ls dist/*.whl`
+    platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
     new_filename=$(echo $generic_filename | sed -e "s/none/${platform}/")
     mv $generic_filename $new_filename
+else
+    new_filename=generic_filename
 fi
-
 
 twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
