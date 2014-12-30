@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.22-dev
+
 ## 0.0.21
 
 * Trying release w/o pip, setuptools update
