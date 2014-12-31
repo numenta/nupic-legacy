@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running before_deploy-linux.sh...
+echo Running before_deploy.sh...
 echo
 
 cd ${TRAVIS_BUILD_DIR}
@@ -30,8 +30,7 @@ cd ${TRAVIS_BUILD_DIR}
 # wheels ourselves for deployment to S3. No need to build docs.
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
 
-    echo "sudo pip install --upgrade pip"
-    sudo pip install --upgrade pip
+    # Assuming pip 1.5.X is installed.
     echo "sudo pip install wheel"
     sudo pip install wheel
 
