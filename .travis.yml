@@ -19,6 +19,7 @@ env:
     - PYPI_USERNAME=numenta
     # PYPI_PASSWD encrypted below.
     - secure: "elm3E3MwpbZqTCz+EHPQ7CEBwoBvRgqS3q5MHY+jUcpdrWeSjmy7TZoRN5+rAjDQYuR5g33pMXnyeRGw/DG7Xa5FG0g3PoMnO6fnIe7Hs7gPlDXbwilfYxfi462N7Y9aAGPFuvNkZsgd0dfwXKwNEiZ5hYfsbFFwHMeXMQA/SA8="
+    - NUPIC_DEPLOYMENT_BUILD=true
 
 matrix:
   # This excludes OSX builds from the build matrix for gcc and Python 2.6
