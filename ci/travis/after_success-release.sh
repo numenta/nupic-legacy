@@ -24,17 +24,12 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    echo "Manually updating setuptools on OS X..."
-    sudo easy_install --upgrade setuptools==1.0
-    echo "Manually updating pip on OS X..."
-    sudo easy_install pip==1.4.1
-fi
+pip --version
 
 echo "Installing wheel..."
-sudo pip install wheel || exit
+pip install wheel || exit
 echo "Installing twine..."
-sudo pip install twine || exit
+pip install twine || exit
 
 # Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
 echo "Creating wheel..."
