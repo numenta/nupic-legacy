@@ -33,11 +33,9 @@ ADD . $NUPIC
 # Install Python dependencies
 RUN pip install --allow-all-external --allow-unverified PIL --allow-unverified  psutil -r $NUPIC/external/common/requirements.txt
 
-WORKDIR $NUPIC
+WORKDIR /usr/local/src/nupic
 
 # Install NuPIC with using SetupTools
 RUN python setup.py install
-RUN python setup.py build
-RUN python setup.py develop
 
 WORKDIR /home/docker

@@ -29,24 +29,24 @@
  * Contains the NumpyArray class, a wrapper for Python numpy arrays.
  */
 
-#include <nta/types/Types.hpp> // For nta::Real.
+#include <nupic/types/Types.hpp> // For nupic::Real.
 #include <algorithm> // For std::copy.
 #include <numpy/arrayobject.h>
 
-namespace nta {
+namespace nupic {
 
   extern int LookupNumpyDType(const size_t *);
-  extern int LookupNumpyDType(const nta::Byte *);
-  extern int LookupNumpyDType(const nta::Int16 *);
-  extern int LookupNumpyDType(const nta::UInt16 *);
-  extern int LookupNumpyDType(const nta::Int32 *);
-  extern int LookupNumpyDType(const nta::UInt32 *);
-  extern int LookupNumpyDType(const nta::Int64 *);
-  extern int LookupNumpyDType(const nta::UInt64 *);
-  extern int LookupNumpyDType(const nta::Real32 *);
-  extern int LookupNumpyDType(const nta::Real64 *);
+  extern int LookupNumpyDType(const nupic::Byte *);
+  extern int LookupNumpyDType(const nupic::Int16 *);
+  extern int LookupNumpyDType(const nupic::UInt16 *);
+  extern int LookupNumpyDType(const nupic::Int32 *);
+  extern int LookupNumpyDType(const nupic::UInt32 *);
+  extern int LookupNumpyDType(const nupic::Int64 *);
+  extern int LookupNumpyDType(const nupic::UInt64 *);
+  extern int LookupNumpyDType(const nupic::Real32 *);
+  extern int LookupNumpyDType(const nupic::Real64 *);
 #if defined(NTA_QUAD_PRECISION)
-  extern int LookupNumpyDType(const nta::Real128 *);
+  extern int LookupNumpyDType(const nupic::Real128 *);
 #endif
   /**
    * Concrete Numpy multi-d array wrapper who's implementation cannot be visible
@@ -120,7 +120,7 @@ namespace nta {
   };
 
   ///////////////////////////////////////////////////////////
-  /// A wrapper for 1D numpy arrays of data type equaivalent to nta::Real.
+  /// A wrapper for 1D numpy arrays of data type equaivalent to nupic::Real.
   ///
   /// Numpy is a Python extension written in C.
   /// Accessing numpy's C API directly is tricky but possible.
@@ -131,10 +131,10 @@ namespace nta {
   /// a faster interface that nags (warns) about potential performance
   /// problems. This wrapper should only be used within Python bindings,
   /// as numpy data structures will only be passed in from Python code.
-  /// For an example of its use, see the nta::SparseMatrix Python bindings
-  /// in nta/python/bindings/math/SparseMatrix.i
+  /// For an example of its use, see the nupic::SparseMatrix Python bindings
+  /// in nupic/python/bindings/math/SparseMatrix.i
   ///////////////////////////////////////////////////////////
-  template<typename T=nta::Real>
+  template<typename T=nupic::Real>
   class NumpyVectorT : public NumpyArray
   {
 
@@ -165,7 +165,7 @@ namespace nta {
     /// Produces a really annoying warning if this will do a slow copy.
     /// Do not use in this case. Make sure the data coming in is in
     /// the appropriate format (1D contiguous numpy array of type
-    /// equivalent to nta::Real). If nta::Real is float,
+    /// equivalent to nupic::Real). If nupic::Real is float,
     /// the incoming array should have been created with dtype=numpy.float32
     ///
     /// @note I do not believe the data is copied unless necessary.
@@ -215,7 +215,7 @@ namespace nta {
   };
 
   //--------------------------------------------------------------------------------
-  template<typename T=nta::Real>
+  template<typename T=nupic::Real>
   class NumpyMatrixT : public NumpyArray
   {
     NumpyMatrixT(const NumpyMatrixT &); // Verboten.
@@ -271,7 +271,7 @@ namespace nta {
     inline void set(int i, int j, const T& val) { *addressOf(i,j) = val; }
   };
 
-  template<typename T=nta::Real>
+  template<typename T=nupic::Real>
   class NumpyNDArrayT : public NumpyArray
   {
     NumpyNDArrayT(const NumpyNDArrayT &); // Verboten.
@@ -299,13 +299,13 @@ namespace nta {
   template <typename T>
   inline T convertToValueType(PyObject *val)
   {
-    return * nta::NumpyNDArrayT<T>(val).getData();
+    return * nupic::NumpyNDArrayT<T>(val).getData();
   }
 
   //--------------------------------------------------------------------------------
   template <typename T>
   inline PyObject* convertFromValueType(const T& value) {
-    nta::NumpyNDArrayT<T> ret(0, NULL);
+    nupic::NumpyNDArrayT<T> ret(0, NULL);
     *ret.getData() = value;
     return ret.forPython();
   }
@@ -422,7 +422,7 @@ namespace nta {
 
   //--------------------------------------------------------------------------------
 
-} // End namespace nta.
+} // End namespace nupic.
 
 #endif // NTA_PYTHON_SUPPORT
 

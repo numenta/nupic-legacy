@@ -1,6 +1,2 @@
-"""This file does NOT contain valid Python code. It is used to test
-error handling when trying to import "bad" Python nodes
+"""This file need only exist for testing purposes, and is not a valid region.
 """
-
-Try to
-interpreter...

@@ -22,6 +22,9 @@ nbproject/
 *.pydevproject
 .idea
 
+# Wheels
+wheelhouse/
+
 # swarming output files
 data/
 
@@ -41,12 +44,6 @@ html/
 
 Servers/
 
-# Build files
-build/
-include/
-bin/
-lib/
-
 conf/default/nupic-site.xml
 
 # /
@@ -63,6 +60,7 @@ conf/default/nupic-site.xml
 
 # nupic.core repo is located under $NUPIC/extensions/core/
 extensions/core/
+experimental/
 
 # nupic bindings swig libraries
 nupic/bindings/*engine_internal.*

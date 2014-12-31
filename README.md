@@ -1,11 +1,11 @@
 # ![Numenta Logo](http://numenta.org/images/numenta-icon128.png) NuPIC
 
-## Numenta Platform for Intelligent Computing 
+## Numenta Platform for Intelligent Computing
 
 * Build: [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
 * Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
 * [Regression Tests](https://github.com/numenta/nupic.regression): [![Build Status](https://travis-ci.org/numenta/nupic.regression.svg?branch=master)](https://travis-ci.org/numenta/nupic.regression)
- 
+
 NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the [Cortical Learning Algorithm (CLA)](https://github.com/numenta/nupic/wiki/Cortical-Learning-Algorithm), but also the [Online Prediction Framework (OPF)] (https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) that allows clients to build prediction systems out of encoders, models, and metrics.
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
@@ -16,19 +16,18 @@ For all installation options, see the [Installing and Building NuPIC](https://gi
 
 ### Currently supported platforms:
 
- * Linux (32/64bit)
- * Mac OSX
- * Raspberry Pi (ARMv6)
- * Chromebook (Ubuntu ARM, Crouton) (ARMv7)
+ * 64-bit Linux
+ * Mac OS X
  * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
 
 ### Dependencies:
 
- * Python (2.6-2.7) (with development headers)
- * GCC (4.6-4.8), or Clang
- * Make or any IDE supported by CMake (Visual Studio, Eclipse, XCode, KDevelop, etc)
+ * Python 2.7 (with development headers)
+ * Compiler toolchain with support for C++11 such as GCC >= 4.7 (Linux-only), or llvm/clang
+ * Make
+ * CMake
 
-The dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
+The _python_ dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
 
 * [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
 * [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
@@ -38,10 +37,12 @@ compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requi
 
 ### Installing Python Dependencies
 
+    pip install cython
     pip install -r external/common/requirements.txt
 
 > _Note_: If using pip 1.5 or later:
 
+    pip install cython
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
 > _Note_: If you get a "permission denied" error when using pip, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with `sudo`.
@@ -62,7 +63,7 @@ For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC
 
 ## Developer instructions
 
-If you want develop, debug, or simply test NuPIC, clone it and follow the instructions:
+If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#for-potential-contributors) it and follow the instructions below.
 
 ### Using command line
 
@@ -74,21 +75,20 @@ If you want develop, debug, or simply test NuPIC, clone it and follow the instru
 
 #### To run the tests:
 
-    cd $NUPIC/build/scripts
-    # all C++ unit tests
-    make cpp_unit_tests
-    # C++ HTM Network API tests
-    make tests_cpphtm
     # Python HTM Network API tests
-    make tests_pyhtm
-    # Python OPF unit tests
-    make python_unit_tests
-    # Python OPF integration tests
-    make python_integration_tests
-    # Python OPF swarming tests (requires mysql)
-    make python_swarming_tests
+    $NUPIC/bin/testpyhtm
+
+    # Python unit tests
+    $NUPIC/scripts/run_nupic_tests -u --coverage
+
+    # Python integration tests
+    $NUPIC/scripts/run_nupic_tests -i --coverage
+
+    # Python swarming tests (requires mysql)
+    $NUPIC/scripts/run_nupic_tests -w --coverage
+
     # Run all tests!
-    make tests_all
+    $NUPIC/scripts/run_nupic_tests --all --coverage
 
 ### Using an IDE
 
@@ -99,3 +99,8 @@ See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tip
  * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
 
 For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
+
+### Contributing to NuPIC:
+
+ * Please see the [Contributing to NuPIC wiki](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC).
+ * Details on the dependency on `nupic.core` [here](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#relationship-with-nupiccore).

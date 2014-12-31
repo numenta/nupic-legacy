@@ -21,15 +21,27 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running before_install-linux.sh...
 echo
 
 echo ">>> Doing prep work..."
 sudo add-apt-repository -y ppa:fkrull/deadsnakes
 sudo apt-get update
 
+# install gcc-4.8 for C++11 compatibility, #TODO remove when Travis has gcc>=4.8, (it's used for clang too, in coveralls)
+sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+sudo apt-get -qq update
+sudo apt-get -qq install g++-4.8
+alias gcc='gcc-4.8'        
+alias g++='g++-4.8'
+
+if [ $CC == 'gcc' ]; then
+    export CC='gcc-4.8'
+    export CXX='g++-4.8'
+fi
+
 echo ">>> Installing virtualenv..."
-sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv
+sudo apt-get install python$PY_VER python$PY_VER-dev python-virtualenv cmake-data
 sudo ls -laFh /usr/lib/libpython$PY_VER.so
 
 echo ">>> Installing nupic-linux64..."

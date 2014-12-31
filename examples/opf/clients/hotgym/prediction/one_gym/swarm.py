@@ -26,6 +26,10 @@ Groups together the code dealing with swarming.
 import os
 import pprint
 
+# add logging to output errors to stdout
+import logging
+logging.basicConfig()
+
 from nupic.swarming import permutations_runner
 from swarm_description import SWARM_DESCRIPTION
 

@@ -23,8 +23,8 @@
 
 #include "PyHelpers.hpp"
 
-// Nested namespace nta::py
-namespace nta { namespace py
+// Nested namespace nupic::py
+namespace nupic { namespace py
 {
   static bool runningUnderPython = false;
   
@@ -128,7 +128,7 @@ namespace nta { namespace py
     }
 
     // Throw a correponding C++ exception
-    throw nta::Exception(__FILE__, lineno, exception, traceback);
+    throw nupic::Exception(__FILE__, lineno, exception, traceback);
   }
 
   // ---
@@ -763,7 +763,7 @@ namespace nta { namespace py
 
 
 
-} } // end of nta::py namespace
+} } // end of nupic::py namespace
 
 
 

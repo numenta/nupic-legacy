@@ -109,11 +109,11 @@ class SpatialPooler(object):
       potential pools of all columns). The inhibition logic will insure that
       at most N columns remain ON within a local inhibition area, where 
       N = localAreaDensity * (total number of columns in inhibition area).
-    @param numActivePerInhArea:
+    @param numActiveColumnsPerInhArea:
       An alternate way to control the density of the active columns. If 
-      numActivePerInhArea is specified then localAreaDensity must be less than
-      0, and vice versa.  When using numActivePerInhArea, the inhibition logic
-      will insure that at most 'numActivePerInhArea' columns remain ON within a
+      numActiveColumnsPerInhArea is specified then localAreaDensity must be less than
+      0, and vice versa.  When using numActiveColumnsPerInhArea, the inhibition logic
+      will insure that at most 'numActiveColumnsPerInhArea' columns remain ON within a
       local inhibition area (the size of which is set by the internally
       calculated inhibitionRadius, which is in turn determined from the average
       size of the connected receptive fields of all columns). When using this
@@ -379,7 +379,7 @@ class SpatialPooler(object):
 
 
   def setLocalAreaDensity(self, localAreaDensity):
-    """Sets the local area density. Invalidates the 'numActivePerInhArea'
+    """Sets the local area density. Invalidates the 'numActiveColumnsPerInhArea'
     parameter"""
     assert(localAreaDensity > 0 and localAreaDensity <= 1)
     self._localAreaDensity = localAreaDensity
@@ -686,7 +686,15 @@ class SpatialPooler(object):
         the current behavior you should additionally pass the resulting
         activeArray to the stripUnlearnedColumns method manually.
     """
-    assert (numpy.size(inputVector) == self._numInputs)
+    if not isinstance(inputVector, numpy.ndarray):
+      raise TypeError("Input vector must be a numpy array, not %s" %
+                      str(type(inputVector)))
+
+    if inputVector.size != self._numInputs:
+      raise ValueError(
+          "Input vector dimensions don't match. Expecting %s but got %s" % (
+              inputVector.size, self._numInputs))
+
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
     inputVector.reshape(-1)

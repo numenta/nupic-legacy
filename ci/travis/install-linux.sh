@@ -21,22 +21,18 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running install-linux.sh...
 echo
 
 # Verify cmake version
 cmake --version
 
 # Verify python version
-python$PY_VER --version
-
-if [ $PY_VERSION != "2.7" ]; then
-   (cd nupic-linux64/ && mkdir -p lib/python${PY_VERSION}/site-packages && make)
-fi
+python --version
 
 # Build NuPIC
-cd $NUPIC
-python$PY_VER setup.py install --user
+cd ${TRAVIS_BUILD_DIR}
+python setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.

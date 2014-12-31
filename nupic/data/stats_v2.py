@@ -150,8 +150,7 @@ class NumberStatsCollector(BaseStatsCollector):
     stats[self.fieldname]['meanResolution'] = meanResolution
 
     # TODO: Right now, always pass the data along.
-    # This is used for data-dependent encoders like
-    # NonUniformScalarEncoder
+    # This is used for data-dependent encoders.
     passData = True
     if passData:
       stats[self.fieldname]['data'] = self.valueList

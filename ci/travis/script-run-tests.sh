@@ -21,18 +21,17 @@
 # ----------------------------------------------------------------------
 
 echo
-echo Running `basename $0`...
+echo Running script-run-tests.sh...
 echo
 
-cd $TRAVIS_BUILD_DIR/build/scripts
 # legacy binary tests
-make tests_pyhtm || exit
+${TRAVIS_BUILD_DIR}/bin/testpyhtm || exit
 
 # Python unit tests and prep for coveralls reporting
-make python_unit_tests || exit
+${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests -u --coverage || exit
 
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_unit
 # Python integration tests and prep for coveralls reporting
-make python_integration_tests || exit
+${TRAVIS_BUILD_DIR}/scripts/run_nupic_tests -i --coverage || exit
 
 mv ${TRAVIS_BUILD_DIR}/.coverage ${TRAVIS_BUILD_DIR}/.coverage_integration

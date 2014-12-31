@@ -28,8 +28,7 @@ from nupic.encoders import (LogEncoder,
                                                   MultiEncoder, 
                                                   CategoryEncoder, 
                                                   ScalarEncoder,
-                                                  SDRCategoryEncoder,
-                                                  SDRRandomEncoder)
+                                                  SDRCategoryEncoder)
 #from nupic.data import TextFileSource
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.frameworks.prediction.callbacks import (printSPCoincidences,
@@ -76,7 +75,7 @@ config = dict(
   encodingFieldWidthA = 50,
   encodingOnBitsA = 21,
 
-  encodingFieldStyleB = 'sdr',   # contiguous, sdr, zero
+  encodingFieldStyleB = 'sdr',   # contiguous, sdr
   encodingFieldWidthB = 50,     # 15, None means set same as A
   encodingOnBitsB = 23,          # 3, None means set same as A
   )
@@ -231,9 +230,6 @@ def getDescription(datasets):
     encoder.addEncoder('fieldB', ScalarEncoder(w=config['encodingOnBitsB'], 
                       n=config['encodingFieldWidthB'], minval=0, 
                       maxval=config['numBValues'], periodic=True, name='fieldB'))
-  elif config['encodingFieldStyleB'] == 'zero':
-    encoder.addEncoder('fieldB', SDRRandomEncoder(w=0, n=config['encodingFieldWidthB'], 
-                      name='fieldB'))
   elif config['encodingFieldStyleB'] == 'sdr':
     encoder.addEncoder('fieldB', SDRCategoryEncoder(w=config['encodingOnBitsB'], 
                       n=config['encodingFieldWidthB'], 

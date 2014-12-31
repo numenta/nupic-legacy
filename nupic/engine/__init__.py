@@ -217,7 +217,7 @@ class CollectionIterator(object):
     return self.collection.getByIndex(index)[0]
 
 class CollectionWrapper(object):
-  """Wrap an nta::Collection with a dict-like interface
+  """Wrap an nupic::Collection with a dict-like interface
   
   The optional valueWrapper is used to wrap values for adaptation purposes.
   Maintains the original documentation

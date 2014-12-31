@@ -28,7 +28,7 @@
 #include "PyHelpersTest.hpp"
 #include <limits>
 
-namespace nta
+namespace nupic
 {
 
 PyHelpersTest::PyHelpersTest()
@@ -442,7 +442,7 @@ void PyHelpersTest::RunTests()
     {
       py::checkPyError(0);
     }
-    catch (const nta::Exception & e)
+    catch (const nupic::Exception & e)
     {
       NTA_DEBUG << e.getMessage();
     }

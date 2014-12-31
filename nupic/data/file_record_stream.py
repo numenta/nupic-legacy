@@ -77,7 +77,9 @@ from nupic.data.utils import (
                         serializeTimestamp,
                         serializeTimestampNoMS,
                         escape,
-                        unescape)
+                        unescape,
+                        parseSdr,
+                        serializeSdr)
 
 
 
@@ -193,7 +195,7 @@ class FileRecordStream(RecordStreamIface):
                       (streamID, len(names), len(types), len(specials)))
 
     # Verify standard file format
-    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool')
+    allowedTypes = ('string', 'datetime', 'int', 'float', 'bool', 'sdr')
     for i, t in enumerate(types):
       # This is a temporary hack for the Precog milestone, which passes in a
       # type 'address' for address fields. Here we simply map the type "address"
@@ -245,7 +247,8 @@ class FileRecordStream(RecordStreamIface):
                float=floatOrNone,
                bool=parseBool,
                string=unescape,
-               datetime=parseTimestamp)
+               datetime=parseTimestamp,
+               sdr=parseSdr)
     else:
       if includeMS:
         datetimeFunc = serializeTimestamp
@@ -255,7 +258,8 @@ class FileRecordStream(RecordStreamIface):
                float=str,
                string=escape,
                bool=str,
-               datetime=datetimeFunc)
+               datetime=datetimeFunc,
+               sdr=serializeSdr)
 
     self._adapters = [m[t] for t in types]
 

@@ -28,6 +28,9 @@ from nupic.research.temporal_memory import TemporalMemory
 # Uncomment the lines below to run tests with TP10X2 implementation instead
 # from nupic.research.temporal_memory_shim import (
 #   TemporalMemoryShim as TemporalMemory)
+# Uncomment the lines below to run tests with FastTemporalMemory implementation
+# from nupic.research.fast_temporal_memory import (
+#   FastTemporalMemory as TemporalMemory)
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
