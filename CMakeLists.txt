@@ -203,7 +203,7 @@ set(COMMON_COMPILE_FLAGS "-fPIC") # `position independent code`, required for sh
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -std=c++11") # Adhere to c++11 spec
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${STDLIB}") # Adhere to c++11 spec
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -m${BITNESS}") # Generate 32 or 64 bit code
-set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fvisibility=hidden -Werror -Wreturn-type -Wunused -Wno-unused-parameter")
+set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fvisibility=hidden -Wall -Wreturn-type -Wunused -Wno-unused-parameter")
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${OPTIMIZATION_FLAGS_CC}") # optimizations
 set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} ${OPTIMIZATION_FLAGS_LT}") # optimization
 
