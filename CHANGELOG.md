@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.0.22-dev
+## 0.0.23-dev
+
+## 0.0.22
+
+* Manually upgrading pip on OS X.
 
 ## 0.0.21
 
