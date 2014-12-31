@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.25-dev
+
 ## 0.0.24
 
 * Trying pip install w/o sudo
