@@ -366,7 +366,6 @@ class CLAModel(Model):
 
     results.inferences = {}
     self._in = inputRecord
-##FIXME    raise ValueError(inputRecord['ch1'])
 
     # -------------------------------------------------------------------------
     # Turn learning on or off?
@@ -617,9 +616,9 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = self._anomalyInst.compute(
-          activeColumns, self._prevPredictedColumns, inputValue=self._in['ch1']) #FIXME for anomaly.likelihood we need to pass the 'raw' input value; name 'ch1' is hardcoded here, how do I determine the name of 
-# current channel in question from this class?  
+      score = self._anomalyInst.compute(activeColumns, 
+                                        self._prevPredictedColumns, 
+                                        inputValue=self._in[self._predictedFieldName])
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
