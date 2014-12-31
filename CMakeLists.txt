@@ -31,6 +31,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(nupic CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF) # toggle for cmake debug
 
 # This function reads variables from a file in the following format:
 # FOO = 'bar'
@@ -167,11 +168,45 @@ include_directories(SYSTEM
                     ${CMAKE_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIR})
 
+
+#
+# Set linker (ld) 
+# use ld.gold if available
+#
+execute_process(COMMAND ld.gold --version
+                RESULT_VARIABLE EXIT_CODE)
+if(EXIT_CODE EQUAL 0)
+  message("Using ld.gold as LINKER.")
+  set(CMAKE_LINKER "ld.gold")
+endif()
+
+#
+# compiler specific settings here (clang/gcc)
+#
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(OPTIMIZATION_FLAGS_CC "${OPTIMIZATION_FLAGS_CC} -fuse-linker-plugin -flto-report -Ofast")
+  set(OPTIMIZATION_FLAGS_CC "${OPTIMIZATION_FLAGS_CC} -flto -fuse-ld=gold") #TODO fix LTO for clang
+  set(OPTIMIZATION_FLAGS_LT "${OPTIMIZATION_FLAGS_LT} -flto") #FIXME LTO for clang too
+endif()
+
+
+#
+# Enable Optimization flags here
+# these are quite aggresive flags, if your code misbehaves for strange reasons, try 
+# compiling without them.
+#
+set(OPTIMIZATION_FLAGS_CC "-O3 -march=native -pipe ${OPTIMIZATION_FLAGS_CC}") #TODO use -Ofast instead of -O3
+# for even better performance, buggy on TravisCI now.
+set(OPTIMIZATION_FLAGS_LT "-O3 ${OPTIMIZATION_FLAGS_LT}")
+
 set(COMMON_COMPILE_FLAGS "-fPIC") # `position independent code`, required for shared libraries
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -std=c++11") # Adhere to c++11 spec
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${STDLIB}") # Adhere to c++11 spec
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -m${BITNESS}") # Generate 32 or 64 bit code
-set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fvisibility=hidden -Wall -Wreturn-type -Wunused -Wno-unused-parameter")
+set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -fvisibility=hidden -Werror -Wreturn-type -Wunused -Wno-unused-parameter")
+set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${OPTIMIZATION_FLAGS_CC}") # optimizations
+set(COMMON_LINK_FLAGS "${COMMON_LINK_FLAGS} ${OPTIMIZATION_FLAGS_LT}") # optimization
+
 
 set(LIB_STATIC_SUPPORT py_support)
 add_library(${LIB_STATIC_SUPPORT}
@@ -312,7 +347,6 @@ set(COMMON_LIBS ${LIB_STATIC_NUPICCORE})
 if("${PLATFORM}" STREQUAL "linux")
   list(APPEND COMMON_LIBS pthread dl)
 elseif("${PLATFORM}" STREQUAL "darwin")
-  set(COMPILE_FLAGS "${COMPILE_FLAGS} -O3")
 endif()
 
 set(EXECUTABLE_HTMTEST testpyhtm)
