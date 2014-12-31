@@ -1,6 +1,54 @@
 # Changelog
 
-## 0.0.12-dev
+## 0.0.20-dev
+
+## 0.0.19
+
+
+## 0.0.18
+
+* Expanded one pip call into 3 for twine/wheel dependencies. Fixed a bug in wheel filename usage.
+
+## 0.0.17
+
+* Installing pip==1.5.6 for twine explicitly
+
+## 0.0.16
+
+* Triggering a build for next release version
+
+## 0.0.15
+
+* Upgrading to pip==1.5.1 explicitly for wheels dependency before release
+
+## 0.0.14
+
+* Reverting to 0.0.14-dev... sorry.
+* Botched 0.0.14 release, moving manually to 0.0.15-dev
+* Continuing work on 0.0.14-dev.
+* Release 0.0.13.
+* Continuing work on 0.0.13-dev.
+* Release 0.0.13.
+* Using a different pip upgrade method.
+
+## 0.0.13
+
+* Upgrade pip before release with wheels. Only change platform name in wheel file if on OSX because platform-specific binaries for Linux are unsupported.
+
+## 0.0.13
+
+* Using a different pip upgrade method.
+* Continuing work on 0.0.13-dev.
+* Release 0.0.13.
+* Upgrade pip before release with wheels. Only change platform name in wheel file if on OSX because platform-specific binaries for Linux are unsupported.
+
+## 0.0.13
+
+* Upgrade pip before release with wheels. Only change platform name in wheel file if on OSX because platform-specific binaries for Linux are unsupported.
+
+## 0.0.12
+
+* Installing python wheel manually.
 
 ## 0.0.11
 
