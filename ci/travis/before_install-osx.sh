@@ -36,3 +36,6 @@ echo ">>> brew install mysql"
 brew install mysql
 echo ">>> mysql.server start"
 mysql.server start
+
+# we are building in Travis, doing build for deployment
+export NUPIC_DEPLOYMENT_BUILD=true
