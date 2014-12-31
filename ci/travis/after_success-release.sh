@@ -24,6 +24,11 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
+if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+    echo "Manually updating pip on OS X..."
+    sudo easy_install pip==1.4.1
+fi
+
 echo "Installing wheel..."
 sudo pip install wheel || exit
 echo "Installing twine..."
@@ -46,4 +51,4 @@ else
     new_filename="${generic_filename}"
 fi
 
-twine upload "{$new_filename}" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
