@@ -52,3 +52,6 @@ source nupic-linux64/bin/activate
 # Workaround for multiprocessing.Queue SemLock error from run_opf_bechmarks_test.
 # See: https://github.com/travis-ci/travis-cookbooks/issues/155
 sudo rm -rf /dev/shm && sudo ln -s /run/shm /dev/shm
+
+# we are building in Travis, doing build for deployment
+export NUPIC_DEPLOYMENT_BUILD=true
