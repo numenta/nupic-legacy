@@ -186,7 +186,7 @@ endif()
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(OPTIMIZATION_FLAGS_CC "${OPTIMIZATION_FLAGS_CC} -fuse-linker-plugin -flto-report -Ofast")
   set(OPTIMIZATION_FLAGS_CC "${OPTIMIZATION_FLAGS_CC} -flto -fuse-ld=gold") #TODO fix LTO for clang
-  set(OPTIMIZATION_FLAGS_LT "${OPTIMIZATION_FLAGS_LT} -flto -Ofast") #FIXME LTO for clang too
+  set(OPTIMIZATION_FLAGS_LT "${OPTIMIZATION_FLAGS_LT} -flto") #FIXME LTO for clang too
 endif()
 
 
