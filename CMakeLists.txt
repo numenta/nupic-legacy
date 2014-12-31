@@ -387,7 +387,6 @@ set(CMAKE_SWIG_FLAGS
     -nobuildnone
     -dirvtable
     -threads
-    -builtin
     -w402 #TODO what are these?
     -w503
     -w511
