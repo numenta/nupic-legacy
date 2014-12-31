@@ -49,7 +49,6 @@ class MovingAverage(object):
                               len(existingHistoricalValues)-windowSize:]
     else:
       self.slidingWindow = []
-    self.slidingWindow = []
     self.total = float(sum(self.slidingWindow))
 
 
