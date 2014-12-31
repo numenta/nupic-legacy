@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.0.24-dev
+
 ## 0.0.23
 
 * Manually upgrading setuptools before pip upgrade before release
