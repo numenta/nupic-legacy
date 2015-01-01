@@ -1,6 +1,28 @@
 # Changelog
 
-## 0.0.20-dev
+## 0.0.25
+
+* Removing OS X release and using Linux GCC release only.
+
+## 0.0.24
+
+* Trying pip install w/o sudo
+
+## 0.0.23
+
+* Manually upgrading setuptools before pip upgrade before release
+
+## 0.0.22
+
+* Manually upgrading pip on OS X.
+
+## 0.0.21
+
+* Trying release w/o pip, setuptools update
+
+## 0.0.20
+
+* Debugging pip
 
 ## 0.0.19
 
