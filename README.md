@@ -76,7 +76,7 @@ If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/
 #### To run the tests:
 
     # Python HTM Network API tests
-    $NUPIC/bin/testpyhtm
+    $NUPIC/bin/py_region_test
 
     # Python unit tests
     $NUPIC/scripts/run_nupic_tests -u --coverage
