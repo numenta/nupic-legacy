@@ -24,10 +24,12 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
+pip --version
+
 echo "Installing wheel..."
-sudo pip install wheel || exit
+pip install wheel || exit
 echo "Installing twine..."
-sudo pip install twine || exit
+pip install twine || exit
 
 # Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
 echo "Creating wheel..."
@@ -46,4 +48,4 @@ else
     new_filename="${generic_filename}"
 fi
 
-twine upload "{$new_filename}" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
