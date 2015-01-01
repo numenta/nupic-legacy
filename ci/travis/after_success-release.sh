@@ -24,14 +24,12 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
-echo "Updating setuptools..."
-sudo pip install -U "setuptools>=0.9" || exit
-echo "Updating pip..."
-sudo pip install -U "pip==1.5.6" || exit
+pip --version
+
 echo "Installing wheel..."
-sudo pip install wheel || exit
+pip install wheel || exit
 echo "Installing twine..."
-sudo pip install twine || exit
+pip install twine || exit
 
 # Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
 echo "Creating wheel..."
@@ -40,14 +38,14 @@ python setup.py bdist_wheel || exit
 generic_filename=`ls dist/*.whl`
 echo "Wheel created at ${generic_filename}."
 
-# Change the name of the wheel based on our platform if on OS X...
-if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-    platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
-    new_filename=$(echo $generic_filename | sed -e "s/none/${platform}/")
-    mv $generic_filename $new_filename
-    echo "Moved wheel to ${new_filename} before ${platform} deployment."
-else
-    new_filename="${generic_filename}"
-fi
+# # Change the name of the wheel based on our platform if on OS X...
+# if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
+#     platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
+#     new_filename=$(echo $generic_filename | sed -e "s/none/${platform}/")
+#     mv $generic_filename $new_filename
+#     echo "Moved wheel to ${new_filename} before ${platform} deployment."
+# else
+#     new_filename="${generic_filename}"
+# fi
 
-twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+twine upload "$generic_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
