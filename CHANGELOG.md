@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.0.25-dev
+## 0.0.25
+
+* Removing OS X release and using Linux GCC release only.
 
 ## 0.0.24
 
