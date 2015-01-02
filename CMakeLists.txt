@@ -327,17 +327,6 @@ elseif("${PLATFORM}" STREQUAL "darwin")
   set(COMPILE_FLAGS "${COMPILE_FLAGS} -O3")
 endif()
 
-set(EXECUTABLE_HTMTEST testpyhtm)
-set(LIBRARIES ${LIB_STATIC_SUPPORT})
-add_executable(${EXECUTABLE_HTMTEST} extensions/htmtest/htmtest.cpp)
-target_link_libraries(${EXECUTABLE_HTMTEST} ${COMMON_LIBS})
-set_target_properties(${EXECUTABLE_HTMTEST}
-                      PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
-                                 LINK_FLAGS "${COMMON_LINK_FLAGS}")
-add_custom_target(tests_htm
-                  COMMAND ${EXECUTABLE_HTMTEST}
-                  DEPENDS ${EXECUTABLE_HTMTEST})
-
 set(LIB_MODULE_CPPREGION cpp_region)
 add_library(${LIB_MODULE_CPPREGION}
             MODULE
@@ -483,8 +472,8 @@ endif()
 # Installation targets
 #
 
-install(TARGETS
-        ${EXECUTABLE_HTMTEST}
+install(PROGRAMS
+        ${NUPIC_CORE}/bin/py_region_test
         DESTINATION ${PROJECT_SOURCE_DIR}/bin)
 install(TARGETS
         ${LIB_MODULE_CPPREGION}
