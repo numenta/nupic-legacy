@@ -167,6 +167,18 @@ include_directories(SYSTEM
                     ${CMAKE_INCLUDE_PATH}
                     ${NUMPY_INCLUDE_DIR})
 
+
+#
+# Identify build type - local or deployment (Travis)
+# the variable NUPIC_DEPLOYMENT_BUILD must be set in travis CI scripts
+#
+if($ENV{NUPIC_DEPLOYMENT_BUILD})
+  message("doing deployment build in TravisCI")
+else()
+  message("doing local build")
+endif()
+
+
 set(COMMON_COMPILE_FLAGS "-fPIC") # `position independent code`, required for shared libraries
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} -std=c++11") # Adhere to c++11 spec
 set(COMMON_COMPILE_FLAGS "${COMMON_COMPILE_FLAGS} ${STDLIB}") # Adhere to c++11 spec
@@ -315,17 +327,6 @@ elseif("${PLATFORM}" STREQUAL "darwin")
   set(COMPILE_FLAGS "${COMPILE_FLAGS} -O3")
 endif()
 
-set(EXECUTABLE_HTMTEST testpyhtm)
-set(LIBRARIES ${LIB_STATIC_SUPPORT})
-add_executable(${EXECUTABLE_HTMTEST} extensions/htmtest/htmtest.cpp)
-target_link_libraries(${EXECUTABLE_HTMTEST} ${COMMON_LIBS})
-set_target_properties(${EXECUTABLE_HTMTEST}
-                      PROPERTIES COMPILE_FLAGS ${COMMON_COMPILE_FLAGS}
-                                 LINK_FLAGS "${COMMON_LINK_FLAGS}")
-add_custom_target(tests_htm
-                  COMMAND ${EXECUTABLE_HTMTEST}
-                  DEPENDS ${EXECUTABLE_HTMTEST})
-
 set(LIB_MODULE_CPPREGION cpp_region)
 add_library(${LIB_MODULE_CPPREGION}
             MODULE
@@ -465,8 +466,8 @@ endif()
 # Installation targets
 #
 
-install(TARGETS
-        ${EXECUTABLE_HTMTEST}
+install(PROGRAMS
+        ${NUPIC_CORE}/bin/py_region_test
         DESTINATION ${PROJECT_SOURCE_DIR}/bin)
 install(TARGETS
         ${LIB_MODULE_CPPREGION}
