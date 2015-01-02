@@ -37,12 +37,10 @@ compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requi
 
 ### Installing Python Dependencies
 
-    pip install cython
     pip install -r external/common/requirements.txt
 
 > _Note_: If using pip 1.5 or later:
 
-    pip install cython
     pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
 
 > _Note_: If you get a "permission denied" error when using pip, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with `sudo`.
@@ -76,7 +74,7 @@ If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/
 #### To run the tests:
 
     # Python HTM Network API tests
-    $NUPIC/bin/testpyhtm
+    $NUPIC/bin/py_region_test
 
     # Python unit tests
     $NUPIC/scripts/run_nupic_tests -u --coverage

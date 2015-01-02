@@ -39,7 +39,6 @@ Then, launch the docker container, replacing the id with your own:
 Then, cd into /usr/local/src/nupic and run tests:
 
     cd /usr/local/src/nupic
-    bin/testcpphtm
-    bin/testpyhtm
+    bin/py_region_test
     scripts/run_nupic_tests -u --coverage
 
