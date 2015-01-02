@@ -187,10 +187,9 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    windowSize = anomalyParams.get('slidingWindowSize', None)
-    mode = anomalyParams.get('mode', 'pure')
+    windowSize = anomalyParams.get("slidingWindowSize", None)
+    mode = anomalyParams.get("mode", "pure")
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
-    #FIXME self.__logger.debug(self._anomalyInst)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -201,11 +200,11 @@ class CLAModel(Model):
 
     # Initialize Spatial Anomaly detection parameters
     if self.getInferenceType() == InferenceType.NontemporalAnomaly:
-      self._getSPRegion().setParameter('anomalyMode', True)
+      self._getSPRegion().setParameter("anomalyMode", True)
 
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
-      self._getTPRegion().setParameter('anomalyMode', True)
+      self._getTPRegion().setParameter("anomalyMode", True)
       self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
@@ -220,7 +219,7 @@ class CLAModel(Model):
 
     self.__logger.debug("Instantiated %s" % self.__class__.__name__)
 
-    self._in = None # input data
+    self._input = None
 
     return
 
@@ -365,7 +364,7 @@ class CLAModel(Model):
     self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
-    self._in = inputRecord
+    self._input = inputRecord
 
     # -------------------------------------------------------------------------
     # Turn learning on or off?
@@ -616,9 +615,10 @@ class CLAModel(Model):
 
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
-      score = self._anomalyInst.compute(activeColumns, 
-                                        self._prevPredictedColumns, 
-                                        inputValue=self._in[self._predictedFieldName])
+      score = self._anomalyInst.compute(
+                                   activeColumns, 
+                                   self._prevPredictedColumns, 
+                                   inputValue=self._input[self._predictedFieldName])
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
