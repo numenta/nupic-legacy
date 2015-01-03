@@ -383,7 +383,6 @@ set(CMAKE_SWIG_FLAGS
     -outputtuple
     -castmode
     -nosafecstrings
-    -dirvtable
     -w402 #TODO silence warnings
     -w503
     -w511
