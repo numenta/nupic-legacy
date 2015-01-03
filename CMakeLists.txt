@@ -382,9 +382,7 @@ set(CMAKE_SWIG_FLAGS
     -fastquery
     -outputtuple
     -castmode
-    -fastdispatch
     -nosafecstrings
-    -nobuildnone
     -dirvtable
     -w402 #TODO silence warnings
     -w503
