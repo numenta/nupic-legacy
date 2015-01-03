@@ -386,14 +386,13 @@ set(CMAKE_SWIG_FLAGS
     -nosafecstrings
     -nobuildnone
     -dirvtable
-    -w402 #TODO what are these?
+    -w402 #TODO silence warnings
     -w503
     -w511
     -w302
     -w362
     -w312
     -w389
-    -DSWIG_PYTHON_LEGACY_BOOL
     -DNTA_PLATFORM_${PLATFORM}${BITNESS}
     -DNTA_PYTHON_SUPPORT=${PYTHON_VERSION}
     -I${NUMPY_INCLUDE_DIR}
