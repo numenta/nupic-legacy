@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.28
+
+* Only release on tags.
+
 ## 0.0.27
 
 * Adding back test runs.
