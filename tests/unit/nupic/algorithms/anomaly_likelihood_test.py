@@ -495,40 +495,73 @@ class AnomalyLikelihoodTest(TestCaseBase):
       an.updateAnomalyLikelihoods(data1, 42.0)
 
 
-  def testFilterLikelihods2(self):
+  def testFilterLikelihodsInputType(self):
     """
-    Tests _filterLikelihoods function
+    Calls _filterLikelihoods with both input types -- numpy array of floats and 
+    list of floats.
     """
-    # redThreshold = 0.99999
+    l =[0.0, 0.0, 0.3, 0.3, 0.5]
+    n = numpy.array(l)
+    filtered = [0.0, 0.001, 0.3, 0.3, 0.5]
+
+    self.assertEqual(an._filterLikelihoods(l), filtered,
+                     "Input of type list returns incorrect result")
+    self.assertEqual(an._filterLikelihoods(n), filtered,
+                     "Input of type numpy array returns incorrect result")
+  
+  
+  def testFilterLikelihoods(self):
+    """
+    Tests _filterLikelihoods function for several cases:
+      i. Likelihood goes straight to redzone, skipping over yellowzone, repeats
+      ii. Case (i) with different values, and numpy array instead of float list
+      iii. A scenario where changing the redzone from four to five 9s should
+           filter differently
+    """
+    redThreshold = 0.9999
     yellowThreshold = 0.999
 
-    # Test first with a list of floats
-
-    # Since windowSize will be 3, the numbers with an underscore should
-    # be replaced with 1-yellowThreshold
-    l = [0.0, 0.0, 0.1, 0.2, 0.5, 0.6, 0.0, 0.0, 0.4, 0.0]
-    #             ___                           ___
+    # Case (i): values at indices 1 and 7 should be filtered to yellowzone
+    l = [1.0, 1.0, 0.9, 0.8, 0.5, 0.4, 1.0, 1.0, 0.6, 0.0]
+    l = [1 - x for x in l]
     l2 = copy.copy(l)
     l2[1] = 1 - yellowThreshold
     l2[7] = 1 - yellowThreshold
+    l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
+    
+    [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (i)")
+      for i in range(len(l2))]
+    
+    # Case (ii): values at indices 1-10 should be filtered to yellowzone
+    l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1, 1,
+                     0.999999994, 0.999999966, 0.999999966, 0.999994331,
+                     0.999516576, 0.99744487])
+    l = 1.0 - l
+    l2 = copy.copy(l)
+    l2[1:11] = 1 - yellowThreshold
+    l3 = an._filterLikelihoods(l, redThreshold=redThreshold)
+    
+    [self.assertAlmostEqual(l2[i], l3[i], msg="Failure in case (ii)")
+      for i in range(len(l2))]
 
-    l3 = an._filterLikelihoods(l)
-    for i, v in enumerate(l3):
-      self.assertAlmostEqual(v, l2[i])
-
-    # This time test with numpy arrays using values we really got
-    # Indices 1-10 should be at 1 - yellowThreshold
-    l = numpy.array([0.999978229, 0.999978229, 0.999999897, 1, 1, 1,
+    # Case (iii): redThreshold difference should be at index 2
+    l = numpy.array([0.999968329, 0.999999897, 1, 1, 1,
                      1, 0.999999994, 0.999999966, 0.999999966,
                      0.999994331, 0.999516576, 0.99744487])
     l = 1.0 - l
-    l2 = copy.copy(l)
-    for i in range(1, 11):
-      l2[i] = 1 - yellowThreshold
-    l3 = an._filterLikelihoods(l)
-    for i, v in enumerate(l3):
-      self.assertAlmostEqual(v, l2[i])
+    l2a = copy.copy(l)
+    l2b = copy.copy(l)
+    l2a[1:10] = 1 - yellowThreshold
+    l2b[2:10] = 1 - yellowThreshold
+    l3a = an._filterLikelihoods(l, redThreshold=redThreshold)
+    l3b = an._filterLikelihoods(l, redThreshold=0.99999)
 
+    [self.assertAlmostEqual(l2a[i], l3a[i], msg="Failure in case (iii), list a")
+      for i in range(len(l2a))]
+    [self.assertAlmostEqual(l2b[i], l3b[i], msg="Failure in case (iii), list b")
+      for i in range(len(l2b))]
+    self.assertFalse(numpy.array_equal(l3a, l3b),
+      msg="Failure in case (iii), list 3")
 
 
 if __name__ == "__main__":
