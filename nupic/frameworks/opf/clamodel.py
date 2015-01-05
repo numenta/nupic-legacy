@@ -32,21 +32,19 @@ import json
 import itertools
 import logging
 import traceback
-from collections import defaultdict, deque
-from datetime import timedelta
+from collections import deque
 from operator import itemgetter
 
 import numpy
 
-from model import Model
+from nupic.frameworks.opf.model import Model
 from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
-from nupic.data.filters import AutoResetFilter
 from nupic.encoders import MultiEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
-from opfutils import (InferenceType,
+from nupic.frameworks.opf.opfutils import (InferenceType,
                       InferenceElement,
                       SensorInput,
                       initLogger)
@@ -65,7 +63,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not (self.getInferenceType() == InferenceType.TemporalAnomaly):
+    if not self.getInferenceType() == InferenceType.TemporalAnomaly:
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -189,7 +187,9 @@ class CLAModel(Model):
     self._predictedFieldName = None
     self._numFields = None
     # init anomaly
-    self._anomalyInst = Anomaly()
+    windowSize = anomalyParams.get("slidingWindowSize", None)
+    mode = anomalyParams.get("mode", "pure")
+    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -200,11 +200,11 @@ class CLAModel(Model):
 
     # Initialize Spatial Anomaly detection parameters
     if self.getInferenceType() == InferenceType.NontemporalAnomaly:
-      self._getSPRegion().setParameter('anomalyMode', True)
+      self._getSPRegion().setParameter("anomalyMode", True)
 
     # Initialize Temporal Anomaly detection parameters
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
-      self._getTPRegion().setParameter('anomalyMode', True)
+      self._getTPRegion().setParameter("anomalyMode", True)
       self._prevPredictedColumns = numpy.array([])
 
     # -----------------------------------------------------------------------
@@ -218,6 +218,8 @@ class CLAModel(Model):
     self.__finishedLearning = False
 
     self.__logger.debug("Instantiated %s" % self.__class__.__name__)
+
+    self._input = None
 
     return
 
@@ -297,10 +299,7 @@ class CLAModel(Model):
 
 
   def setEncoderLearning(self,learningEnabled):
-    Encoder  = self._getEncoder()
-    Encoder.setLearning(learningEnabled)
-
-    return
+    self._getEncoder().setLearning(learningEnabled)
 
 
   # Anomaly Accessor Methods
@@ -352,8 +351,8 @@ class CLAModel(Model):
 
             return:
                 An ModelResult namedtuple (see opfutils.py) The contents of
-                ModelResult.inferences depends on the the specific inference type
-                of this model, which can be queried by getInferenceType()
+                ModelResult.inferences depends on the the specific inference 
+                type of this model, which can be queried by getInferenceType()
     """
     assert not self.__restoringFromState
     assert inputRecord
@@ -365,6 +364,7 @@ class CLAModel(Model):
     self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
+    self._input = inputRecord
 
     # -------------------------------------------------------------------------
     # Turn learning on or off?
@@ -378,9 +378,6 @@ class CLAModel(Model):
     ###########################################################################
     # Predictions and Learning
     ###########################################################################
-    predictions = dict()
-    inputRecordSensorMappings = dict()
-    inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
     if inferenceArgs is None:
       inferenceArgs = {}
@@ -510,7 +507,7 @@ class CLAModel(Model):
 
 
   def _isClassificationModel(self):
-    return self.getInferenceType() in (InferenceType.TemporalClassification)
+    return self.getInferenceType() in InferenceType.TemporalClassification
 
 
   def _multiStepCompute(self, rawInput):
@@ -564,7 +561,6 @@ class CLAModel(Model):
     if not self.isInferenceEnabled():
       return {}
 
-    tp = self._getTPRegion()
     sp = self._getSPRegion()
     sensor = self._getSensorRegion()
 
@@ -620,7 +616,9 @@ class CLAModel(Model):
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-          activeColumns, self._prevPredictedColumns)
+                                   activeColumns, 
+                                   self._prevPredictedColumns, 
+                                   inputValue=self._input[self._predictedFieldName])
 
       # Store the predicted columns for the next timestep.
       predictedColumns = tp.getOutputData("topDownOut").nonzero()[0]
@@ -1024,8 +1022,6 @@ class CLAModel(Model):
     Returns:      NetworkInfo instance;
     """
 
-    isTemporal = self._hasTP
-
     #--------------------------------------------------
     # Create the network
     n = Network()
@@ -1389,7 +1385,7 @@ class CLAModel(Model):
 
     # Set defaults if not set
     if allParams['trainRecords'] is None:
-        allParams['trainRecords'] = DEFAULT_ANOMALY_TRAINRECORDS
+      allParams['trainRecords'] = DEFAULT_ANOMALY_TRAINRECORDS
 
     if allParams['anomalyThreshold'] is None:
       allParams['anomalyThreshold'] = DEFAULT_ANOMALY_THRESHOLD
@@ -1467,7 +1463,7 @@ class CLAModel(Model):
 
     if not skipCheck:
       # This will throw an exception if the member is missing
-      value = getattr(self, realName)
+      getattr(self, realName)
 
     return realName
 
