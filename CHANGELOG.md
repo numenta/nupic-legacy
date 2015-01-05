@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.26
+
+* Split release logic into osx/linux scripts
+* Adds core capnp files to bindings.
+* Remove HtmTest and call it from nupic.core binaries
+* GCE now encodes altitude using a 3D coordinate system.
+
 ## 0.0.25
 
 * Removing OS X release and using Linux GCC release only.
