@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.27
+
+* Adding back test runs.
+
 ## 0.0.26
 
 * Split release logic into osx/linux scripts
