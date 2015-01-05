@@ -68,6 +68,7 @@ nupic/bindings/*algorithms.*
 nupic/bindings/*iorange.*
 nupic/bindings/*math.*
 nupic/bindings/*.cxx
+nupic/bindings/proto/*.capnp
 
 # Pip stuff
 dist/
