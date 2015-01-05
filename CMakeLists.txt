@@ -480,3 +480,6 @@ install(FILES
         "${PROJECT_BINARY_DIR}/${SWIG_MODULE_${LIB_MODULE_ALGORITHMS}_REAL_NAME}.so"
         "${PROJECT_BUILD_TEMP_DIR}/${LIB_MODULE_ALGORITHMS}.py"
         DESTINATION ${PROJECT_SOURCE_DIR}/nupic/bindings)
+install(DIRECTORY "${NUPIC_CORE}/include/nupic/proto/"
+        DESTINATION "${PROJECT_SOURCE_DIR}/nupic/bindings/proto"
+        FILES_MATCHING PATTERN "*.capnp")
