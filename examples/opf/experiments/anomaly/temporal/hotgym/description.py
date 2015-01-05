@@ -316,6 +316,11 @@ config = {
 
         },
 
+        'anomalyParams': {
+           'mode': 'likelihood', # pure(=default) / weighted / likelihood
+           'slidingWindowSize': 5, # >=0 / None
+        },
+
         'trainSPNetOnlyIfRequested': False,
     },
 
