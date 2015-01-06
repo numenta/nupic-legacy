@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.31
+
+* Manual wheel filename change for linux upload to pypi.
+
 ## 0.0.30
 
 * Creating platform dependent linux wheel file for pypi upload.
