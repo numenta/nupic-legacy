@@ -39,6 +39,9 @@ echo "Wheel created at ${generic_filename}."
 # Change the name of the wheel based on our platform...
 platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
 new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
+# This is an attempt to get the right platform for linux pypi.
+# See: https://mail.python.org/pipermail/distutils-sig/2014-October/025173.html
+new_filename=$(echo $new_filename | sed -e "s/py2/cpy27/")
 mv $generic_filename $new_filename
 echo "Moved wheel to ${new_filename} before ${platform} deployment."
 
