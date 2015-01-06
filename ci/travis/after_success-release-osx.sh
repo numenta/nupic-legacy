@@ -38,7 +38,7 @@ echo "Wheel created at ${generic_filename}."
 
 # Change the name of the wheel based on our platform if on OS X...
 platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
-new_filename=$(echo $generic_filename | sed -e "s/none/${platform}/")
+new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
 mv $generic_filename $new_filename
 echo "Moved wheel to ${new_filename} before ${platform} deployment."
 
