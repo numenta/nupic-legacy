@@ -229,73 +229,7 @@ if(FETCH_NUPIC_CORE)
     # cleaner with something like `python setup.py clean`.
 
     if(NOT NUPIC_CORE_DOWNLOAD_STATUS EQUAL 0)
-      message(WARNING "Error downloading nupic.core package: ${NUPIC_CORE_DOWNLOAD_STATUS}")
-      message(STATUS "Building nupic.core from local checkout ${NUPIC_CORE_SOURCE}...")
-      # Remove the local package file, which didn't get populated due to the
-      # download failure.
-      file(REMOVE "${NUPIC_CORE_LOCAL_PACKAGE}")
-
-      # Get nupic.core dependency through git.
-      if (NOT(EXISTS "${NUPIC_CORE_SOURCE}/.git"))
-        # There's not a git repo in NUPIC_CORE_SOURCE, so we can blow the whole
-        # directory away and clone nupic.core there.
-        file(REMOVE_RECURSE "${NUPIC_CORE_SOURCE}")
-        file(MAKE_DIRECTORY "${NUPIC_CORE_SOURCE}")
-        execute_process(COMMAND git clone ${NUPIC_CORE_REMOTE} ${NUPIC_CORE_SOURCE}
-                        RESULT_VARIABLE EXIT_CODE)
-        if(NOT EXIT_CODE EQUAL 0)
-          message(FATAL_ERROR "Unable to clone ${NUPIC_CORE_REMOTE} into ${NUPIC_CORE_SOURCE}")
-        endif()
-      else()
-        # Fetch if already cloned.
-        execute_process(COMMAND git fetch ${NUPIC_CORE_REMOTE}
-                        WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                        RESULT_VARIABLE EXIT_CODE)
-        if(NOT EXIT_CODE EQUAL 0)
-          message(FATAL_ERROR "Unable to fetch ${NUPIC_CORE_REMOTE}")
-        endif()
-      endif()
-
-      # Get the exact SHA we need for nupic.core.
-      execute_process(COMMAND git reset --hard ${NUPIC_CORE_COMMITISH}
-                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                      RESULT_VARIABLE EXIT_CODE)
-      if(NOT EXIT_CODE EQUAL 0)
-        message(FATAL_ERROR "Unable to checkout ${NUPIC_CORE_COMMITISH} in ${NUPIC_CORE_SOURCE}")
-      endif()
-
-      # Execute the Make scripts
-      execute_process(COMMAND git clean -fdx
-                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}
-                      RESULT_VARIABLE EXIT_CODE)
-      if(NOT EXIT_CODE EQUAL 0)
-        message(FATAL_ERROR "Compiling 'nupic.core' library within ${PROJECT_SOURCE_DIR} failed: ${BUILD_NUPIC_CORE_OUTP}")
-      endif()
-
-      # Build and set external libraries
-      message(STATUS "Building 'nupic.core' library...")
-
-      # Clean 'build/scripts' subfolder at submodule folder
-      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-      execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory ${NUPIC_CORE_SOURCE}/build/scripts)
-      execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory ${NUPIC_CORE})
-      # Generate the Make scripts
-      execute_process(COMMAND ${CMAKE_COMMAND} ${NUPIC_CORE_SOURCE}/src -DCMAKE_INSTALL_PREFIX=${NUPIC_CORE}
-                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts)
-
-      set(USER_MAKE_COMMAND "make" CACHE STRING "Default `make` command used to build nupic.core")
-
-      # Execute the Make scripts
-      execute_process(COMMAND ${USER_MAKE_COMMAND} install -j3
-                      WORKING_DIRECTORY ${NUPIC_CORE_SOURCE}/build/scripts
-                      RESULT_VARIABLE EXIT_CODE
-                      OUTPUT_VARIABLE OUTP)
-      if(NOT EXIT_CODE EQUAL 0)
-        message(FATAL_ERROR "Compiling 'nupic.core' library within ${NUPIC_SOURCE_DIR} failed")
-      endif()
-
-      message(STATUS "Done.")
+        message(FATAL_ERROR "Failed to download nupic.core tarball from ${NUPIC_CORE_REMOTE_URL}! Ensure you have an internet connection and that the remote tarball exists.")
     else()
       message(STATUS "Download successful.")
       unpack_nupic_core("${NUPIC_CORE_SOURCE}" "${NUPIC_CORE_LOCAL_PACKAGE}")
