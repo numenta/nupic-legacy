@@ -33,7 +33,13 @@ sudo pip install twine || exit
 echo "Creating wheel..."
 python setup.py bdist_wheel || exit
 
-wheel_filename=`ls dist/*.whl`
-echo "Wheel created at ${wheel_filename}."
+generic_filename=`ls dist/*.whl`
+echo "Wheel created at ${generic_filename}."
 
-sudo twine upload "$wheel_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+# Change the name of the wheel based on our platform...
+platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
+new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
+mv $generic_filename $new_filename
+echo "Moved wheel to ${new_filename} before ${platform} deployment."
+
+sudo twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
