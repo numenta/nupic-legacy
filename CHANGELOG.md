@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.30
+
+* Creating platform dependent linux wheel file for pypi upload.
+
 ## 0.0.29
 
 * Updated OS X wheel filename for pypi.
