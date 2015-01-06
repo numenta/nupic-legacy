@@ -36,7 +36,7 @@ python setup.py bdist_wheel || exit
 generic_filename=`ls dist/*.whl`
 echo "Wheel created at ${generic_filename}."
 
-# Change the name of the wheel based on our platform if on OS X...
+# Change the name of the wheel based on our platform...
 platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
 new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
 mv $generic_filename $new_filename
