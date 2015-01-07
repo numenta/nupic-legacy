@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.32
+
+* Faking extensions to get platform-specific wheels.
+
 ## 0.0.31
 
 * Manual wheel filename change for linux upload to pypi.
