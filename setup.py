@@ -118,9 +118,9 @@ def setupNupic():
   packages = findPackages(repositoryDir)
   requires = findRequirements(repositoryDir)
 
-  # This is a fake extension meant to fake out wheel to produce
-  # platform-specific .whl files. Without this, wheel assumed the binary file
-  # will be platform-independent, and we don't want that.
+  # This meant to fake out wheel to produce platform-specific .whl files. 
+  # Without this, wheel assumes the binary file will be platform-independent, 
+  # and we don't want that.
   fakeExtension = Extension(
       "fake-extension",
       swig_opts=[],
