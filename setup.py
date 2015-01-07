@@ -2,7 +2,7 @@ import shutil
 import sys
 import os
 import subprocess
-from setuptools import setup
+from setuptools import setup, Extension
 
 """
 This file only will call CMake process to generate scripts, build, and then
@@ -118,10 +118,26 @@ def setupNupic():
   packages = findPackages(repositoryDir)
   requires = findRequirements(repositoryDir)
 
+  # This meant to fake out wheel to produce platform-specific .whl files. 
+  # Without this, wheel assumes the binary file will be platform-independent, 
+  # and we don't want that.
+  fakeExtension = Extension(
+      "fake-extension",
+      swig_opts=[],
+      extra_compile_args=[],
+      define_macros=[],
+      extra_link_args=[],
+      include_dirs=[],
+      libraries=[],
+      sources=[],
+      extra_objects=[]
+  )
+
   # Setup library
   os.chdir(repositoryDir)
   setup(
     name = "nupic",
+    ext_modules=[fakeExtension],
     version = version,
     packages = packages,
     install_requires = requires,
