@@ -141,16 +141,10 @@ def setupNupic():
     version = version,
     packages = packages,
     install_requires = requires,
-    # A lot of this stuff may not be packaged properly, most of it was added in
-    # an effort to get a binary package prepared for nupic.regression testing
-    # on Travis-CI, but it wasn't done the right way. I'll be refactoring a lot
-    # of this for https://github.com/numenta/nupic/issues/408, so this will be
-    # changing soon. -- Matt
     package_data = {
       "nupic.support": ["nupic-default.xml",
                         "nupic-logging.conf"],
-      "nupic": ["README.md", "LICENSE.txt",
-                "CMakeLists.txt", "*.so", "*.dll", "*.dylib"],
+      "nupic": ["*.so", "*.dll", "*.dylib"],
       "nupic.bindings": ["_*.so", "_*.dll", "*.i"],
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
@@ -159,12 +153,6 @@ def setupNupic():
                                          "*.ico", "*.graffle"],
       "nupic.swarming.jsonschema": ["*.json"]
     },
-    data_files=[
-      ("", [
-        "CMakeLists.txt",
-        ]
-      )
-    ],
     include_package_data = True,
     description = "Numenta Platform for Intelligent Computing",
     author="Numenta",
