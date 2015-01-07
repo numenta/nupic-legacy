@@ -29,20 +29,13 @@ pip install wheel --user || exit
 echo "Installing twine..."
 sudo pip install twine || exit
 
-# Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
-echo "Creating wheel..."
-python setup.py bdist_wheel || exit
+echo "Creating distribution files..."
+# This release build creates the source distribution. All other release builds
+# should not.
+python setup.py sdist bdist bdist_wheel || exit
 
-generic_filename=`ls dist/*.whl`
-echo "Wheel created at ${generic_filename}."
+echo "Created the following distribution files:"
+ls -l dist
 
-# Change the name of the wheel based on our platform...
-platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
-new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
-# This is an attempt to get the right platform for linux pypi.
-# See: https://mail.python.org/pipermail/distutils-sig/2014-October/025173.html
-new_filename=$(echo $new_filename | sed -e "s/py2/cpy27/")
-mv $generic_filename $new_filename
-echo "Moved wheel to ${new_filename} before ${platform} deployment."
-
-sudo twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+echo "Attempting to upload all distribution files to PyPi..."
+twine upload dist/* -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"

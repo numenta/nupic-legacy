@@ -26,20 +26,22 @@ echo
 
 echo "Installing wheel..."
 pip install wheel --user || exit
+# `sudo install twine` doesn't put twine in a place we can use it, so we install
+# it at the --user level.
 echo "Installing twine..."
 pip install twine --user -v || exit
 
-# Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
-echo "Creating wheel..."
-python setup.py bdist_wheel || exit
+# Twine gets installed into /Users/travis/Library/Python/2.7/bin, which needs to
+# be added to the PATH
+export PATH=/Users/travis/Library/Python/2.7/bin:${PATH}
 
-generic_filename=`ls dist/*.whl`
-echo "Wheel created at ${generic_filename}."
+echo "Creating distribution files..."
+# We are not creating sdist here, because it's being created and uploaded in the
+# linux Travis-CI release build.
+python setup.py bdist bdist_wheel || exit
 
-# Change the name of the wheel based on our platform...
-platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
-new_filename=$(echo $generic_filename | sed -e "s/any/${platform}/")
-mv $generic_filename $new_filename
-echo "Moved wheel to ${new_filename} before ${platform} deployment."
+echo "Created the following distribution files:"
+ls -l dist
 
-/Users/travis/Library/Python/2.7/bin/twine upload "$new_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+echo "Attempting to upload all distribution files to PyPi..."
+twine upload dist/* -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
