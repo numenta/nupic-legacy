@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.33
+
+* Changed dev version pattern to match what python wants.
+* Cleaned up setup and manifest for proper sdists.
+
 ## 0.0.32
 
 * Faking extensions to get platform-specific wheels.
