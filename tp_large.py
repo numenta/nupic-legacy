@@ -45,13 +45,13 @@ class SpatialPoolerTest(object):
     """Checks that feeding in the same input vector leads to polarized
     permanence values: either zeros or ones, but no fractions"""
 
-    tpDim = 10000
+    tpDim = 2048
     
     tp = TP(numberOfCols=tpDim)
 
     tpArray = numpy.random.randint(0, 2, tpDim).astype('float32')
 
-    for i in xrange(100):
+    for i in xrange(10000):
       tp.compute(tpArray, True)
 
 
