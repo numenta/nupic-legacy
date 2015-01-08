@@ -46,8 +46,8 @@ class SpatialPoolerTest(object):
     """Checks that feeding in the same input vector leads to polarized
     permanence values: either zeros or ones, but no fractions"""
 
-    inDim = [100,10,10]
-    colDim = [10, 10, 10]
+    inDim = [10000,10,10]
+    colDim = [2048, 1, 1]
 
 
     sp = SpatialPooler(
@@ -69,10 +69,10 @@ class SpatialPoolerTest(object):
         seed=getSeed(),
         spVerbosity=0)
 
-    inputVector = numpy.zeros(inDim)
+    inputVector = numpy.random.randint(0, 2, inDim)
     activeArray = numpy.zeros(colDim)
 
-    for i in xrange(100):
+    for i in xrange(10000):
       sp.compute(inputVector, True, activeArray)
 
 

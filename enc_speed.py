@@ -3,7 +3,7 @@ from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEnco
 
 import numpy as np
 
-total=100000
+total=10000
 minV=0
 maxV=total
 
