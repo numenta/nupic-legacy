@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.34
+
+* Publishing select artifacts to pypi on release.
+* Adding empty __init__.py to swarming resource dir so it get's included in linux wheels.
+
 ## 0.0.33
 
 * Changed dev version pattern to match what python wants.
