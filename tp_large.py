@@ -32,11 +32,7 @@ from nupic.support.unittesthelpers.algorithm_test_helpers import (
 from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix,
                                  GetNTAReal)
-#from nupic.research.spatial_pooler import SpatialPooler as SP
-from nupic.bindings.algorithms import SpatialPooler as SP
 from nupic.research.TP10X2 import TP10X2 as TP 
-#import timeit as t
-
 
 
 realDType = GetNTAReal()
@@ -49,47 +45,14 @@ class SpatialPoolerTest(object):
     """Checks that feeding in the same input vector leads to polarized
     permanence values: either zeros or ones, but no fractions"""
 
-    inDim = [100,10,10]
-    colDim = [10, 10, 10]
     tpDim = 10000
-
-#    a= t.timeit()
-
-    sp = SP(
-        inputDimensions=inDim,
-        columnDimensions=colDim,
-        potentialRadius=3,
-        potentialPct=0.5,
-        globalInhibition=False,
-        localAreaDensity=-1.0,
-        numActiveColumnsPerInhArea=3,
-        stimulusThreshold=1,
-        synPermInactiveDec=0.01,
-        synPermActiveInc=0.1,
-        synPermConnected=0.10,
-        minPctOverlapDutyCycle=0.1,
-        minPctActiveDutyCycle=0.1,
-        dutyCyclePeriod=10,
-        maxBoost=10.0,
-        seed=getSeed(),
-        spVerbosity=0)
-
+    
     tp = TP(numberOfCols=tpDim)
 
-    inputVector = numpy.zeros(inDim, dtype='float32')
-    activeArray = numpy.zeros(colDim, dtype='float32')
-    tpArray = numpy.zeros(tpDim, dtype='float32')
+    tpArray = numpy.random.randint(0, 2, tpDim).astype('float32')
 
- #   b = t.timeit()
-  #  print "init: ", (b-a)
-
-    for i in xrange(10000):
-#      sp.compute(inputVector, True, activeArray)
+    for i in xrange(100):
       tp.compute(tpArray, True)
-#      print("."),
-
-   # c = t.timeit()
-   # print "compute() 20x : ", (c-a)
 
 
 

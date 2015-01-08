@@ -34,8 +34,6 @@ from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal)
 #from nupic.research.spatial_pooler import SpatialPooler
 from nupic.bindings.algorithms import SpatialPooler 
-#import timeit as t
-
 
 
 realDType = GetNTAReal()
@@ -51,8 +49,6 @@ class SpatialPoolerTest(object):
     inDim = [100,10,10]
     colDim = [10, 10, 10]
 
-
-#    a= t.timeit()
 
     sp = SpatialPooler(
         inputDimensions=inDim,
@@ -76,16 +72,8 @@ class SpatialPoolerTest(object):
     inputVector = numpy.zeros(inDim)
     activeArray = numpy.zeros(colDim)
 
- #   b = t.timeit()
-  #  print "init: ", (b-a)
-
     for i in xrange(100):
       sp.compute(inputVector, True, activeArray)
-#      print(".")
-
-   # c = t.timeit()
-   # print "compute() 20x : ", (c-a)
-
 
 
 if __name__ == "__main__":
