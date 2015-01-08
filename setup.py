@@ -149,8 +149,6 @@ def setupNupic():
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
-      "nupic.support.resources.images": ["*.png", "*.gif",
-                                         "*.ico", "*.graffle"],
       "nupic.swarming.jsonschema": ["*.json"]
     },
     include_package_data = True,
