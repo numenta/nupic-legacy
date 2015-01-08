@@ -36,15 +36,21 @@ python setup.py sdist bdist || exit
 
 echo "Created the following distribution files:"
 ls -l dist
+# These should get created on linux:
+# nupic-0.0.33.linux-x86_64.tar.gz
+# nupic-0.0.33-py2.7-linux-x86_64.egg
+# nupic-0.0.33.tar.gz
 
-echo "Attempting to upload all distribution files to PyPi..."
-twine upload dist/* -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+NUPIC_VERSION=`cat ${NUPIC}/VERSION`
+echo "Uploading Linux egg to PyPi..."
+twine upload dist/nupic-${NUPIC_VERSION}*.egg -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+echo "Uploading source package to PyPi..."
+twine upload dist/nupic-${NUPIC_VERSION}.tar.gz -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
 
-# I want to create the linux wheel here just to see what gets produced with the
-# intent to later upload it to a place other than PyPi, because PyPi rejects
-# linux platform wheel files.
+# This doesn't work because PyPi rejects linux platform wheel files.
 # See: https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for
-python setup.py bdist_wheel || exit
-echo "Created the following linux platform wheel:"
-ls dist/*.whl
-echo "Not doing anything with this wheel at this time."
+
+# python setup.py bdist_wheel || exit
+# echo "Created the following linux platform wheel:"
+# ls dist/*.whl
+# echo "Not doing anything with this wheel at this time."
