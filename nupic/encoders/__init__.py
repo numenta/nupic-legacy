@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+from simple_scalar import SimpleScalarEncoder
 from scalar import ScalarEncoder
 from adaptivescalar import AdaptiveScalarEncoder
 from date import DateEncoder

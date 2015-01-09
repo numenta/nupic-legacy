@@ -23,10 +23,10 @@ import math
 import numpy as np
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.simple_scalar import SimpleScalarEncoder
 from nupic.utils import MovingAverage
 
-class AdaptiveScalarEncoder(ScalarEncoder):
+class AdaptiveScalarEncoder(SimpleScalarEncoder):
   """
   This is an implementation of the scalar encoder that adapts the min and
   max of the scalar encoder dynamically. This is essential to the streaming
