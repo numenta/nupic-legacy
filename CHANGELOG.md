@@ -53,8 +53,6 @@
 
 * Manually upgrading setuptools before pip upgrade before release
 
-* anomaly mode (pure, likelihood, weighted) can be specified on OPF for swarming.
-
 ## 0.0.22
 
 * Manually upgrading pip on OS X.

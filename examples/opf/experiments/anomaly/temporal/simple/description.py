@@ -125,16 +125,15 @@ config = {
             #
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {
-                u'f':     {   
-			'clipInput': True,
-			'fieldname': u'f',
-    			'n': 100,
-    			'name': u'f',
-    			'minval': 0,
-    			'maxval': 5,
-    			'type': 'ScalarEncoder',
-    			'w': 21},
-            	},
+                u'f':     {   'clipInput': True,
+    'fieldname': u'f',
+    'n': 100,
+    'name': u'f',
+    'minval': 0,
+    'maxval': 5,
+    'type': 'ScalarEncoder',
+    'w': 21},
+            },
 
             # A dictionary specifying the period for automatically-generated
             # resets from a RecordSensor;
