@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.36
+
+* Fixed bad path to wheel s3 upload script
+
 ## 0.0.35
 
 * Script to deploy linux wheel to S3 on release.
