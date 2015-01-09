@@ -56,4 +56,4 @@ twine upload dist/nupic-${NUPIC_VERSION}.tar.gz -u "${PYPI_USERNAME}" -p "${PYPI
 
 wheel_file=`ls dist/*.whl`
 echo "Deploying ${wheel_file} to S3..."
-python deploy-wheel-to-s3.py "${wheel_file}"
+python ci/travis/deploy-wheel-to-s3.py "${wheel_file}"
