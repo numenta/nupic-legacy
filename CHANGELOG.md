@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.35
+
+* Script to deploy linux wheel to S3 on release.
+
 ## 0.0.34
 
 * Publishing select artifacts to pypi on release.
