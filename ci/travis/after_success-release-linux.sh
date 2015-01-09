@@ -24,6 +24,8 @@ echo
 echo "Running after_success-release.sh..."
 echo
 
+echo "Installing boto..."
+pip install boto --user || exit
 echo "Installing wheel..."
 pip install wheel --user || exit
 echo "Installing twine..."
@@ -32,11 +34,12 @@ sudo pip install twine || exit
 echo "Creating distribution files..."
 # This release build creates the source distribution. All other release builds
 # should not.
-python setup.py sdist bdist || exit
+python setup.py sdist bdist bdist_wheel || exit
 
 echo "Created the following distribution files:"
 ls -l dist
 # These should get created on linux:
+# nupic-0.0.33-cp27-none-linux-x86_64.whl
 # nupic-0.0.33.linux-x86_64.tar.gz
 # nupic-0.0.33-py2.7-linux-x86_64.egg
 # nupic-0.0.33.tar.gz
@@ -47,10 +50,10 @@ twine upload dist/nupic-${NUPIC_VERSION}*.egg -u "${PYPI_USERNAME}" -p "${PYPI_P
 echo "Uploading source package to PyPi..."
 twine upload dist/nupic-${NUPIC_VERSION}.tar.gz -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
 
-# This doesn't work because PyPi rejects linux platform wheel files.
+# We can't upload the wheel to PyPi because PyPi rejects linux platform wheel
+# files. So we'll push it up into S3.
 # See: https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for
 
-# python setup.py bdist_wheel || exit
-# echo "Created the following linux platform wheel:"
-# ls dist/*.whl
-# echo "Not doing anything with this wheel at this time."
+wheel_file=`ls dist/*.whl`
+echo "Deploying ${wheel_file} to S3..."
+python deploy-wheel-to-s3.py "${wheel_file}"
