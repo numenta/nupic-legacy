@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.37
+
+* added AWS keys for linux wheel upload to S3 on release
+
 ## 0.0.36
 
 * Fixed bad path to wheel s3 upload script
