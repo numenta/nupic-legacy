@@ -94,7 +94,7 @@ class Anomaly(object):
     else:
       self._movingAverage = None
 
-    if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
+    if self._mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
@@ -103,7 +103,7 @@ class Anomaly(object):
 
 
   def compute(self, activeColumns, predictedColumns, 
-			inputValue=None, timestamp=None):
+				inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
@@ -141,11 +141,3 @@ class Anomaly(object):
       score = self._movingAverage.next(score)
 
     return score
-
-
-  def __str__(self):
-    windowSize = 0
-    if self._movingAverage is not None:
-      windowSize = self._movingAverage.windowSize
-    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
-      
