@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.38
+
+* Removing leftover '-dev' from version numbers.
+* remove -dirvtable as it can lead to MEMleaks
+* review SWIG flags
+* Revert "swig optimization flags - threads"
+* Revert "enable swig optimization -builtin"
+* enable swig optimization -builtin
+* swig optimization flags - threads
+
 ## 0.0.37
 
 * added AWS keys for linux wheel upload to S3 on release
