@@ -16,6 +16,11 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
+    # AWS keys are for manual uploads of linux wheel to S3.
+    - AWS_ACCESS_KEY_ID=AKIAIGHYSEHV3WFKOWNQ
+    # AWS_SECRET_ACCESS_KEY encrypted below
+    - secure: "pYsMDbNp8k2i0d9p5mf/9TlDzxt2FiiR1QJV7QUn+S2/r372VYdZaplL+s9ItVGCGFpAyKk7HXcwm//DKw/ZKb6UlDJm3Fph9m+3aDDIiVFNB7g1uro+Yg8nIGuV8qZEtIaHRtR1zOt1EufoR9dg1Mq8ryRggN9rrB0FvCxUZAQ="
+    # PyPi credentials for manual uploads to Pypi on release.
     - PYPI_USERNAME=numenta
     # PYPI_PASSWD encrypted below.
     - secure: "elm3E3MwpbZqTCz+EHPQ7CEBwoBvRgqS3q5MHY+jUcpdrWeSjmy7TZoRN5+rAjDQYuR5g33pMXnyeRGw/DG7Xa5FG0g3PoMnO6fnIe7Hs7gPlDXbwilfYxfi462N7Y9aAGPFuvNkZsgd0dfwXKwNEiZ5hYfsbFFwHMeXMQA/SA8="
