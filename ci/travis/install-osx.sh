@@ -32,7 +32,7 @@ python --version
 
 # Build NuPIC
 cd ${TRAVIS_BUILD_DIR}
-python setup.py install --user
+ARCHFLAGS="-arch x86_64" python setup.py install --user
 
 # Show nupic installation folder by trying to import nupic, if works, it prints
 # the absolute path of nupic.__file__, which the installation folder itself.

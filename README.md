@@ -53,6 +53,10 @@ Move into the NuPIC installation directory and run:
 
 > _Note_: If you get a "permission denied" error when using this, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with `sudo`.
 
+If you are installing on Mac OS X, you should add the instruction `ARCHFLAGS="-arch x86_64"` before the python call:
+
+    ARCHFLAGS="-arch x86_64" python setup.py install
+
 Once it is installed, you can import NuPIC library to your python script using:
 
     import nupic
