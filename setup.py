@@ -606,7 +606,7 @@ os.chdir(REPO_DIR)
 
 try:
   haveBuild = False
-  buildCommands = ["build", "install", "develop"]
+  buildCommands = ["build", "install", "develop", "bdist", "bdist_wheel"]
   for arg in sys.argv[:]:
     if arg in buildCommands:
       haveBuild = True
