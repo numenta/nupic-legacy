@@ -124,16 +124,11 @@ def getCommandLineOptions():
      "",
      "(optional) Skip nupic.core version comparison"]
   )
-  optionsDesc.append(
-    ["user-make-command",
-     "file",
-     "(optional) Default `make` command used to build nupic.core"]
-  )
 
   # Read command line options looking for extra options
   # For example, an user could type:
-  #   python setup.py install --user-make-command="usr/bin/make"
-  # which will set the Make executable
+  #   python setup.py install --nupic-core-dir="path/to/release"
+  # which will set the nupic.core release dir
   optionsValues = dict()
   for arg in sys.argv[:]:
     optionFound = False
@@ -154,14 +149,6 @@ def getCommandLineOptions():
       if ("--help-nupic" in arg):
         printOptions(optionsDesc)
         sys.exit()
-
-  # Check if no option was passed, i.e. if "setup.py" is the only option
-  # If True, "develop" is passed by default. This is useful when a developer
-  # wishes to build the project directly from an IDE.
-  if len(sys.argv) == 1:
-    print ("No command passed. Using 'develop' as default command. Use "
-           "'python setup.py --help' for more information.")
-    sys.argv.append("develop")
 
   return optionsValues
 
@@ -618,10 +605,19 @@ cwd = os.getcwd()
 os.chdir(REPO_DIR)
 
 try:
-  nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
-  extensions = getExtensionModules(
-    nupicCoreReleaseDir, platform, bitness
-  )
+  haveBuild = False
+  buildCommands = ["build", "install", "develop"]
+  for arg in sys.argv[:]:
+    if arg in buildCommands:
+      haveBuild = True
+
+  if haveBuild:
+    nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
+    extensions = getExtensionModules(
+      nupicCoreReleaseDir, platform, bitness
+    )
+  else:
+    extensions = []
 
   setup(
     name="nupic",
@@ -667,6 +663,7 @@ try:
   For more information, see http://numenta.org or the NuPIC wiki at https://github.com/numenta/nupic/wiki.
   """)
 
-  postProcess()
+  if haveBuild:
+    postProcess()
 finally:
   os.chdir(cwd)
