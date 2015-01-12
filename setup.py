@@ -13,8 +13,9 @@ from setuptools import setup, find_packages, Extension
 This file builds and installs the NuPIC binaries.
 """
 
-NUPIC_CORE_BUCKET = \
+NUPIC_CORE_BUCKET = (
   "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core"
+)
 REPO_DIR = os.path.dirname(os.path.realpath(__file__))
 UNIX_PLATFORMS = ["linux", "darwin"]
 WINDOWS_PLATFORMS = ["win"]
@@ -38,34 +39,31 @@ def downloadFile(url, destFile, silent=False):
   except urllib2.URLError:
     return False
 
-  file = open(destFile, "wb")
+  with open(destFile, "wb") as fileObj:
+    totalSize = response.info().getheader("Content-Length").strip()
+    totalSize = int(totalSize)
+    bytesSoFar = 0
 
-  totalSize = response.info().getheader('Content-Length').strip()
-  totalSize = int(totalSize)
-  bytesSoFar = 0
+    # Download chunks writing them to target file
+    chunkSize = 8192
+    oldPercent = 0
+    while True:
+      chunk = response.read(chunkSize)
+      bytesSoFar += len(chunk)
 
-  # Download chunks writing them to target file
-  chunkSize = 8192
-  oldPercent = 0
-  while True:
-    chunk = response.read(chunkSize)
-    bytesSoFar += len(chunk)
+      if not chunk:
+        break
 
-    if not chunk:
-      break
+      fileObj.write(chunk)
 
-    file.write(chunk)
-
-    # Show progress
-    if not silent:
-      percent = (float(bytesSoFar) / totalSize) * 100
-      percent = int(percent)
-      if percent != oldPercent and percent % 5 == 0:
-        print ("Downloaded %i of %i bytes (%i%%)."
-               % (bytesSoFar, totalSize, int(percent)))
-        oldPercent = percent
-
-  file.close()
+      # Show progress
+      if not silent:
+        percent = (float(bytesSoFar) / totalSize) * 100
+        percent = int(percent)
+        if percent != oldPercent and percent % 5 == 0:
+          print ("Downloaded %i of %i bytes (%i%%)."
+                 % (bytesSoFar, totalSize, int(percent)))
+          oldPercent = percent
 
   return True
 
@@ -79,15 +77,16 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
   if not silent:
     print "Unpacking %s into %s..." % (package, destDir)
 
-  file = tarfile.open(package, 'r:gz')
-  file.extractall(destDir)
-  file.close()
+  with tarfile.open(package, "r:gz") as tarFileObj:
+    tarFileObj.extractall(destDir)
 
   # Copy subdirectories to a level up
   subDirs = os.listdir(destDir + "/" + dirToUnpack)
-  for dir in subDirs:
-    shutil.rmtree(destDir + "/" + dir, True)
-    shutil.move(destDir + "/" + dirToUnpack + "/" + dir, destDir + "/" + dir)
+  for subDir in subDirs:
+    shutil.rmtree(destDir + "/" + subDir, True)
+    shutil.move(destDir + "/" + dirToUnpack + "/" + subDir,
+                destDir + "/" + subDir)
+
   shutil.rmtree(destDir + "/" + dirToUnpack, True)
 
 
@@ -98,10 +97,12 @@ def printOptions(optionsDesc):
   """
 
   print "Options:\n"
+
   for option in optionsDesc:
     optionUsage = "--" + option[0]
     if option[1] != "":
       optionUsage += "=[" + option[1] + "]"
+
     optionDesc = option[2]
     print "    " + optionUsage.ljust(30) + " = " + optionDesc
 
@@ -140,12 +141,13 @@ def getCommandLineOptions():
         value = None
         hasValue = (option[1] != "")
         if hasValue:
-          (_, _, value) = arg.partition("=")
+          value = arg.partition("=")[2]
 
         optionsValues[name] = value
         sys.argv.remove(arg)
         optionFound = True
         break
+
     if not optionFound:
       if ("--help-nupic" in arg):
         printOptions(optionsDesc)
@@ -155,8 +157,8 @@ def getCommandLineOptions():
   # If True, "develop" is passed by default. This is useful when a developer
   # wishes to build the project directly from an IDE.
   if len(sys.argv) == 1:
-    print "No command passed. Using 'develop' as default command. Use " \
-          "'python setup.py --help' for more information."
+    print ("No command passed. Using 'develop' as default command. Use "
+           "'python setup.py --help' for more information.")
     sys.argv.append("develop")
 
   return optionsValues
@@ -218,9 +220,7 @@ def findRequirements():
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
-  requirementsPath = os.path.join(
-    REPO_DIR, "external/common/requirements.txt"
-  )
+  requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
   return [
     line.strip()
     for line in open(requirementsPath).readlines()
@@ -278,14 +278,16 @@ def extractNupicCoreTarget():
     execfile(
       os.path.join(REPO_DIR, ".nupic_modules"), {}, nupicConfig
     )
-  return nupicConfig["NUPIC_CORE_REMOTE"], nupicConfig["NUPIC_CORE_COMMITISH"]
+  return nupicConfig["NUPIC_CORE_COMMITISH"]
 
 
 
 def getDefaultNupicCoreDirectories():
   # Default nupic.core location is relative to the NuPIC checkout.
-  return REPO_DIR + "/extensions/core/build/release", \
-         REPO_DIR + "/extensions/core"
+  return (
+    REPO_DIR + "/extensions/core/build/release",
+    REPO_DIR + "/extensions/core"
+  )
 
 
 
@@ -394,7 +396,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     libraries=commonLibraries,
     sources=pythonSupportSources +
       ["extensions/cpp_region/PyRegion.cpp",
-      "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
+       "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
     extra_objects=commonObjects)
   extensions.append(libDynamicCppRegion)
 
@@ -402,8 +404,9 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
   # SWIG
   #
   swigDir = REPO_DIR + "/external/common/share/swig/3.0.2"
-  swigExecutable = REPO_DIR + "/external/" + platform \
-                   + bitness + "/bin/swig"
+  swigExecutable = (
+    REPO_DIR + "/external/" + platform + bitness + "/bin/swig"
+  )
 
   # SWIG options from:
   # https://github.com/swig/swig/blob/master/Source/Modules/python.cxx#L111
@@ -437,12 +440,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     if define[1]:
       item += define[0] + "=" + define[1]
     swigFlags.append(item)
-  for dir in commonIncludeDirs:
-    item = "-I" + dir
+  for includeDir in commonIncludeDirs:
+    item = "-I" + includeDir
     swigFlags.append(item)
 
-  wrapAlgorithms = generateSwigWrap(swigExecutable, swigFlags,
-                                         "nupic/bindings/algorithms.i")
+  wrapAlgorithms = generateSwigWrap(swigExecutable,
+                                    swigFlags,
+                                    "nupic/bindings/algorithms.i")
   libModuleAlgorithms = Extension(
     "nupic.bindings._algorithms",
     extra_compile_args=commonCompileFlags,
@@ -450,13 +454,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources +
-      [wrapAlgorithms],
+    sources=pythonSupportSources + [wrapAlgorithms],
     extra_objects=commonObjects)
   extensions.append(libModuleAlgorithms)
 
-  wrapEngineInternal = generateSwigWrap(swigExecutable, swigFlags,
-                                             "nupic/bindings/engine_internal.i")
+  wrapEngineInternal = generateSwigWrap(swigExecutable,
+                                        swigFlags,
+                                        "nupic/bindings/engine_internal.i")
   libModuleEngineInternal = Extension(
     "nupic.bindings._engine_internal",
     extra_compile_args=commonCompileFlags,
@@ -464,13 +468,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources +
-      [wrapEngineInternal],
+    sources=pythonSupportSources + [wrapEngineInternal],
     extra_objects=commonObjects)
   extensions.append(libModuleEngineInternal)
 
-  wrapMath = generateSwigWrap(swigExecutable, swigFlags,
-                                   "nupic/bindings/math.i")
+  wrapMath = generateSwigWrap(swigExecutable,
+                              swigFlags,
+                              "nupic/bindings/math.i")
   libModuleMath = Extension(
     "nupic.bindings._math",
     extra_compile_args=commonCompileFlags,
@@ -478,9 +482,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources +
-      [wrapMath,
-      "nupic/bindings/PySparseTensor.cpp"],
+    sources=pythonSupportSources + [wrapMath,
+                                    "nupic/bindings/PySparseTensor.cpp"],
     extra_objects=commonObjects)
   extensions.append(libModuleMath)
 
@@ -504,10 +507,9 @@ def prepareNupicCore(options, platform, bitness):
     # User specified that they have their own nupic.core
     fetchNupicCore = False
   else:
-    nupicCoreReleaseDir, nupicCoreSourceDir = \
-      getDefaultNupicCoreDirectories()
+    nupicCoreReleaseDir, nupicCoreSourceDir = getDefaultNupicCoreDirectories()
 
-  nupicCoreRemote, nupicCoreCommitish = extractNupicCoreTarget()
+  nupicCoreCommitish = extractNupicCoreTarget()
 
   if fetchNupicCore:
     # User has not specified 'nupic.core' location, so we'll download the
@@ -559,9 +561,10 @@ def prepareNupicCore(options, platform, bitness):
 
   if not skipCompareVersions:
     # Compare expected version of nupic.core against installed version
-    file = open(nupicCoreReleaseDir + "/include/nupic/Version.hpp", "r")
-    content = file.read()
-    file.close()
+    with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
+              "r") as fileObj:
+      content = fileObj.read()
+
     nupicCoreVersionFound = re.search(
       "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
     ).group(1)
@@ -584,12 +587,12 @@ def postProcess():
   protoSourceDir = buildDir + "/nupic/bindings/proto"
   if not os.path.exists(protoSourceDir):
     os.makedirs(protoSourceDir)
-  for file in glob.glob(protoBuildDir + "/*.capnp"):
-    shutil.copy(file, protoSourceDir)
+  for fileName in glob.glob(protoBuildDir + "/*.capnp"):
+    shutil.copy(fileName, protoSourceDir)
 
   # Copy binaries located at nupic.core dir into source dir
-  print "Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to " \
-        + REPO_DIR + "/bin..."
+  print ("Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to "
+         + REPO_DIR + "/bin...")
   if not os.path.exists(REPO_DIR + "/bin"):
     os.makedirs(REPO_DIR + "/bin")
   shutil.copy(
@@ -598,7 +601,6 @@ def postProcess():
   # Copy cpp_region located at build dir into source dir
   shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
               getSharedLibExtension(platform), REPO_DIR + "/nupic")
-
 
 
 
