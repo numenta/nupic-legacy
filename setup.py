@@ -17,7 +17,9 @@ NUPIC_CORE_BUCKET = (
   "https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic.core"
 )
 REPO_DIR = os.path.dirname(os.path.realpath(__file__))
-UNIX_PLATFORMS = ["linux", "darwin"]
+DARWIN_PLATFORM = "darwin"
+LINUX_PLATFORM = "linux"
+UNIX_PLATFORMS = [LINUX_PLATFORM, DARWIN_PLATFORM]
 WINDOWS_PLATFORMS = ["win"]
 
 
@@ -593,6 +595,10 @@ def postProcess():
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
+
+if platform == DARWIN_PLATFORM and not "ARCHFLAGS" in os.environ:
+  raise Exception("To build NuPIC in OS X, you must "
+                  "`export ARCHFLAGS=\"-arch x86_64\"`.")
 
 # Build and setup NuPIC
 cwd = os.getcwd()
