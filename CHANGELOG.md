@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0
+
+* Cleaned up README and CHANGELOG for 0.1 release.
+
 ## 0.0.38
 
 * SWIG optimizations.
