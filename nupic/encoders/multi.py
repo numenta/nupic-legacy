@@ -44,6 +44,7 @@ class MultiEncoder(Encoder):
   """A MultiEncoder encodes a dictionary or object with
   multiple components. A MultiEncode contains a number
   of sub-encoders, each of which encodes a separate component."""
+  #TODO expand this docstring.
 
 
   def __init__(self, encoderDescriptions=None):
