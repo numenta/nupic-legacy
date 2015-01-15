@@ -33,8 +33,8 @@ from nupic.encoders import MultiEncoder
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
-_OUTPUT_PATH = "test_output.csv"
+_DATA_PATH = "../prediction/data/extra/hotgym/rec-center-hourly.csv"
+_OUTPUT_PATH = "network-demo-output.csv"
 _NUM_RECORDS = 2000
 
 # Config field for SPRegion
