@@ -44,8 +44,9 @@ _SEED = 2045
 _INPUT_FILE_PATH = "../prediction/data/extra/hotgym/rec-center-hourly.csv"
 _OUTPUT_FILE_NAME = "hierarchy-demo-output.csv"
 
-# TODO Determine this from the FileRecordStream?
-_NUM_INPUT_RECORDS = 2000
+# TODO Determine this from the FileRecordStream somehow?
+_NUM_INPUT_RECORDS = 20
+# _NUM_INPUT_RECORDS = 2000
 
 # Parameter dict for SPRegion
 SP_PARAMS = {
@@ -53,10 +54,10 @@ SP_PARAMS = {
     "spatialImp": "cpp",
     "seed": _SEED,
 
-    # inputWidth value will be determined and set during network creation
+    # determined and set during network creation
     "inputWidth": 0,
 
-    # TODO mention source file where these params are explained
+    # @see nupic.research.spatial_pooler.SpatialPooler for explanations
     "globalInhibition": 1,
     "columnCount": 2048,
     "numActiveColumnsPerInhArea": 40,
@@ -73,7 +74,8 @@ TP_PARAMS = {
     "temporalImp": "cpp",
     "seed": _SEED,
 
-    # TODO mention source file where these params are explained
+    # @see nupic.research.temporal_memory.TemporalMemory for explanations
+    # TODO some of these params are not found there
     "columnCount": 2048,
     "cellsPerColumn": 32,
     "inputWidth": 2048,
@@ -91,6 +93,13 @@ TP_PARAMS = {
     "pamLength": 3,
 }
 
+_RECORD_SENSOR = "sensorRegion"
+_L1_SPATIAL_POOLER = "l1spatialPoolerRegion"
+_L1_TEMPORAL_POOLER = "l1temporalPoolerRegion"
+_L1_CLASSIFIER = "l1classifier"
+
+_L2_SPATIAL_POOLER = "l2spatialPoolerRegion"
+_L2_TEMPORAL_POOLER = "l2temporalPoolerRegion"
 
 def createEncoder():
   """
@@ -134,7 +143,9 @@ def createRecordSensor(network, name, dataSource):
   # Creates a json from specified dictionary.
   regionParams = json.dumps({"verbosity": _VERBOSITY})
   network.addRegion(name, regionType, regionParams)
-  sensorRegion = network.regions[name].getSelf() # TODO why getSelf()?
+
+  # getSelf returns the actual region, instead of a region wrapper
+  sensorRegion = network.regions[name].getSelf()
 
   # Specify how RecordSensor encodes input values
   sensorRegion.encoder = createEncoder()
@@ -173,23 +184,17 @@ def createTemporalPooler(network, name):
   temporalPoolerRegion.setParameter("anomalyMode", True)
   return temporalPoolerRegion
 
-_RECORD_SENSOR = "sensor"
-_L1_SPATIAL_POOLER = "spatialPoolerRegion"
-_L1_TEMPORAL_POOLER = "temporalPoolerRegion"
-
 
 def createNetwork(dataSource):
-  """Create the Network instance.
-
-  The network has a sensor region reading data from `dataSource` and passing
-  the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
-
-  :param dataSource: a RecordStream instance to get data from
-  :returns: a Network instance ready to run
+  """Creates and returns a new Network with a sensor region reading data from
+  'dataSource'.
+  TODO describe hierarchy
+  @param dataSource - A RecordStream containing the input data
+  @returns a Network ready to run
   """
   network = Network()
 
+  # Create and add a record sensor and a SP region
   sensor = createRecordSensor(network, name=_RECORD_SENSOR,
                               dataSource=dataSource)
   createSpatialPooler(network, name=_L1_SPATIAL_POOLER,
@@ -199,45 +204,42 @@ def createNetwork(dataSource):
   linkType = "UniformLink"
   linkParams = ""
   network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams)
-  network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams,
-               srcOutput="resetOut", destInput="resetIn")
-  network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, linkParams,
-               srcOutput="spatialTopDownOut", destInput="spatialTopDownIn")
-  network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, "",
-               srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
+  # TODO remove
+  # network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams,
+  #              srcOutput="resetOut", destInput="resetIn")
+  # network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, linkParams,
+  #              srcOutput="spatialTopDownOut", destInput="spatialTopDownIn")
+  # network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, "",
+  #              srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
-  createTemporalPooler(network, _L1_TEMPORAL_POOLER)
-  # Add the TPRegion on top of the SPRegion
-  # network.addRegion(_L1_TEMPORAL_POOLER, "py.TPRegion",
-  #                   json.dumps(TP_PARAMS))
+  # Create and add a TP region
+  TP_PARAMS["cellsPerColumn"] = 12
+  l1temporalPooler = createTemporalPooler(network, _L1_TEMPORAL_POOLER)
 
+  # Link SP region to TP region in FF direction
   network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_POOLER, linkType, linkParams)
-  network.link(_L1_TEMPORAL_POOLER, _L1_SPATIAL_POOLER, linkType, linkParams,
-               srcOutput="topDownOut", destInput="topDownIn")
-  #
-  #
-  #
-  # spatialPoolerRegion = network.regions[_L1_SPATIAL_POOLER]
-  #
-  # # Make sure learning is enabled
-  # spatialPoolerRegion.setParameter("learningMode", True)
-  # # We want temporal anomalies so disable anomalyMode in the SP. This mode is
-  # # used for computing anomalies in a non-temporal model.
-  # spatialPoolerRegion.setParameter("anomalyMode", False)
-  #
-  # temporalPoolerRegion = network.regions[_L1_TEMPORAL_POOLER]
-  #
-  # # Enable topDownMode to get the predicted columns output
-  # temporalPoolerRegion.setParameter("topDownMode", True)
-  # # Make sure learning is enabled (this is the default)
-  # temporalPoolerRegion.setParameter("learningMode", True)
-  # # Enable inference mode so we get predictions
-  # temporalPoolerRegion.setParameter("inferenceMode", True)
-  # # Enable anomalyMode to compute the anomaly score. This actually doesn't work
-  # # now so doesn't matter. We instead compute the anomaly score based on
-  # # topDownOut (predicted columns) and SP bottomUpOut (active columns).
-  # temporalPoolerRegion.setParameter("anomalyMode", True)
+  # TODO remove
+  # network.link(_L1_TEMPORAL_POOLER, _L1_SPATIAL_POOLER, linkType, linkParams,
+  #              srcOutput="topDownOut", destInput="topDownIn")
 
+  # Add a classifier
+  # @see clamodel.py
+  # TODO mention params and give defaults
+  clParams = {}
+  network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
+                    json.dumps(clParams))
+  network.link(_RECORD_SENSOR, _L1_CLASSIFIER, "UniformLink", "",
+               srcOutput="categoryOut", destInput="categoryIn")
+  # TODO Mention srcOutput="bottomUpOut" destInput="bottomUpIn"
+  network.link(_L1_TEMPORAL_POOLER, _L1_CLASSIFIER, "UniformLink", "")
+
+  # Second Level
+  l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
+  createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
+  network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
+
+  createTemporalPooler(network, _L2_TEMPORAL_POOLER)
+  network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
   return network
 
 
@@ -249,8 +251,13 @@ def runNetwork(network, writer):
   @param writer: A csv.writer used to write to output file.
   """
   sensorRegion = network.regions[_RECORD_SENSOR]
-  spRegion = network.regions[_L1_SPATIAL_POOLER]
-  tpRegion = network.regions[_L1_TEMPORAL_POOLER]
+  l1SpRegion = network.regions[_L1_SPATIAL_POOLER]
+  l1TpRegion = network.regions[_L1_TEMPORAL_POOLER]
+  l1Classifier = network.regions[_L1_CLASSIFIER]
+
+  l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
+  l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
+  # TODO Print something out from L2?
 
   iterations = 1
   prevPredictedColumns = []
@@ -258,9 +265,15 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(iterations)
 
+    # recordNum, patternNZ, classification
+    # l1Classifier.getSelf().customCompute(recordNum=i, patternNZ=,
+    #                                      classification=)
+    # Get
+    # customCompute(self, recordNum, patternNZ, classification)
+
     # nonzero() returns the indices of the elements that are non-zero,
     # here the elements are the indices of the active columns
-    activeColumns = spRegion.getOutputData("bottomUpOut").nonzero()[0]
+    activeColumns = l1SpRegion.getOutputData("bottomUpOut").nonzero()[0]
 
     # Calculate the anomaly score using the active columns
     # and previous predicted columns
@@ -272,7 +285,7 @@ def runNetwork(network, writer):
     writer.writerow((i, consumption, anomalyScore))
 
     # Store the predicted columns for the next timestep
-    predictedColumns = tpRegion.getOutputData("topDownOut").nonzero()[0]
+    predictedColumns = l1TpRegion.getOutputData("topDownOut").nonzero()[0]
     prevPredictedColumns = copy.deepcopy(predictedColumns)
 
 
