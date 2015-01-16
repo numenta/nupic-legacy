@@ -44,54 +44,46 @@ _SEED = 2045
 _INPUT_FILE_PATH = "../prediction/data/extra/hotgym/rec-center-hourly.csv"
 _OUTPUT_FILE_NAME = "hierarchy-demo-output.csv"
 
-# TODO Determine this from the FileRecordStream somehow?
-_NUM_INPUT_RECORDS = 20
-# _NUM_INPUT_RECORDS = 2000
-
 # Parameter dict for SPRegion
-SP_PARAMS = {
-    "spVerbosity": _VERBOSITY,
-    "spatialImp": "cpp",
-    "seed": _SEED,
+SP_PARAMS = {"spVerbosity": _VERBOSITY,
+             "spatialImp": "cpp",
+             "seed": _SEED,
 
-    # determined and set during network creation
-    "inputWidth": 0,
+             # determined and set during network creation
+             "inputWidth": 0,
 
-    # @see nupic.research.spatial_pooler.SpatialPooler for explanations
-    "globalInhibition": 1,
-    "columnCount": 2048,
-    "numActiveColumnsPerInhArea": 40,
-    "potentialPct": 0.8,
-    "synPermConnected": 0.1,
-    "synPermActiveInc": 0.0001,
-    "synPermInactiveDec": 0.0005,
-    "maxBoost": 1.0,
-}
+             # @see nupic.research.spatial_pooler.SpatialPooler for explanations
+             "globalInhibition": 1,
+             "columnCount": 2048,
+             "numActiveColumnsPerInhArea": 40,
+             "potentialPct": 0.8,
+             "synPermConnected": 0.1,
+             "synPermActiveInc": 0.0001,
+             "synPermInactiveDec": 0.0005,
+             "maxBoost": 1.0}
 
 # Parameter dict for TPRegion
-TP_PARAMS = {
-    "verbosity": _VERBOSITY,
-    "temporalImp": "cpp",
-    "seed": _SEED,
+TP_PARAMS = {"verbosity": _VERBOSITY,
+             "temporalImp": "cpp",
+             "seed": _SEED,
 
-    # @see nupic.research.temporal_memory.TemporalMemory for explanations
-    # TODO some of these params are not found there
-    "columnCount": 2048,
-    "cellsPerColumn": 32,
-    "inputWidth": 2048,
-    "newSynapseCount": 20,
-    "maxSynapsesPerSegment": 32,
-    "maxSegmentsPerCell": 128,
-    "initialPerm": 0.21,
-    "permanenceInc": 0.1,
-    "permanenceDec": 0.1,
-    "globalDecay": 0.0,
-    "maxAge": 0,
-    "minThreshold": 9,
-    "activationThreshold": 12,
-    "outputType": "normal",
-    "pamLength": 3,
-}
+             # @see nupic.research.temporal_memory.TemporalMemory
+             # for explanations
+             "columnCount": 2048,
+             "cellsPerColumn": 12,
+             "inputWidth": 2048,
+             "newSynapseCount": 20,
+             "maxSynapsesPerSegment": 32,
+             "maxSegmentsPerCell": 128,
+             "initialPerm": 0.21,
+             "permanenceInc": 0.1,
+             "permanenceDec": 0.1,
+             "globalDecay": 0.0,
+             "maxAge": 0,
+             "minThreshold": 9,
+             "activationThreshold": 12,
+             "outputType": "normal",
+             "pamLength": 3}
 
 _RECORD_SENSOR = "sensorRegion"
 _L1_SPATIAL_POOLER = "l1spatialPoolerRegion"
@@ -100,6 +92,7 @@ _L1_CLASSIFIER = "l1classifier"
 
 _L2_SPATIAL_POOLER = "l2spatialPoolerRegion"
 _L2_TEMPORAL_POOLER = "l2temporalPoolerRegion"
+
 
 def createEncoder():
   """
@@ -111,22 +104,18 @@ def createEncoder():
   """
   encoder = MultiEncoder()
   encoder.addMultipleEncoders({
-      "consumption": {
-          "fieldname": u"consumption",
-          "type": "ScalarEncoder",
-          "name": u"consumption",
-          "minval": 0.0,
-          "maxval": 100.0,
-          "clipInput": True,
-          "w": 21,
-          "n": 50,
-      },
-      "timestamp_timeOfDay": {
-          "fieldname": u"timestamp",
-          "type": "DateEncoder",
-          "name": u"timestamp_timeOfDay",
-          "timeOfDay": (21, 9.5),
-      },
+      "consumption": {"fieldname": u"consumption",
+                      "type": "ScalarEncoder",
+                      "name": u"consumption",
+                      "minval": 0.0,
+                      "maxval": 100.0,
+                      "clipInput": True,
+                      "w": 21,
+                      "n": 50},
+      "timestamp_timeOfDay": {"fieldname": u"timestamp",
+                              "type": "DateEncoder",
+                              "name": u"timestamp_timeOfDay",
+                              "timeOfDay": (21, 9.5)}
   })
   return encoder
 
@@ -169,8 +158,7 @@ def createSpatialPooler(network, name, inputWidth):
 
 
 def createTemporalPooler(network, name):
-  temporalPoolerRegion = network.addRegion(name,
-                                           "py.TPRegion",
+  temporalPoolerRegion = network.addRegion(name, "py.TPRegion",
                                            json.dumps(TP_PARAMS))
   # Enable topDownMode to get the predicted columns output
   temporalPoolerRegion.setParameter("topDownMode", True)
@@ -204,46 +192,47 @@ def createNetwork(dataSource):
   linkType = "UniformLink"
   linkParams = ""
   network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams)
-  # TODO remove
-  # network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams,
-  #              srcOutput="resetOut", destInput="resetIn")
-  # network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, linkParams,
-  #              srcOutput="spatialTopDownOut", destInput="spatialTopDownIn")
-  # network.link(_L1_SPATIAL_POOLER, _RECORD_SENSOR, linkType, "",
-  #              srcOutput="temporalTopDownOut", destInput="temporalTopDownIn")
 
   # Create and add a TP region
-  TP_PARAMS["cellsPerColumn"] = 12
   l1temporalPooler = createTemporalPooler(network, _L1_TEMPORAL_POOLER)
 
-  # Link SP region to TP region in FF direction
+  # Link SP region to TP region in the feedforward direction
   network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_POOLER, linkType, linkParams)
-  # TODO remove
-  # network.link(_L1_TEMPORAL_POOLER, _L1_SPATIAL_POOLER, linkType, linkParams,
-  #              srcOutput="topDownOut", destInput="topDownIn")
 
   # Add a classifier
-  # @see clamodel.py
-  # TODO mention params and give defaults
-  clParams = {}
+  clParams = {  # Classifier learning/forgetting rate. Higher
+                # values make it adapt faster and forget older patterns faster.
+                'alpha': 0.005,
+
+                # Comma separated list of the desired steps of
+                # prediction that the classifier should learn
+                'steps': '1',
+
+                # Which implementation of the classifier to use.
+                # See CLAClassifierFactory#create
+                'implementation': 'cpp',
+
+                # Diagnostic output verbosity control;
+                # 0: silent; [1..6]: increasing levels of verbosity
+                'clVerbosity': 0}
   network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
                     json.dumps(clParams))
-  network.link(_RECORD_SENSOR, _L1_CLASSIFIER, "UniformLink", "",
+  network.link(_RECORD_SENSOR, _L1_CLASSIFIER, linkType, linkParams,
                srcOutput="categoryOut", destInput="categoryIn")
-  # TODO Mention srcOutput="bottomUpOut" destInput="bottomUpIn"
-  network.link(_L1_TEMPORAL_POOLER, _L1_CLASSIFIER, "UniformLink", "")
+  network.link(_L1_TEMPORAL_POOLER, _L1_CLASSIFIER, linkType, linkParams,
+               srcOutput="bottomUpOut", destInput="bottomUpIn")
 
   # Second Level
-  l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
-  createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
-  network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
-
-  createTemporalPooler(network, _L2_TEMPORAL_POOLER)
-  network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
+  # l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
+  # createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
+  # network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
+  #
+  # createTemporalPooler(network, _L2_TEMPORAL_POOLER)
+  # network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
   return network
 
 
-def runNetwork(network, writer):
+def runNetwork(network, numRecords, writer):
   """
   Runs specified Network writing the ensuing anomaly score to writer.
 
@@ -251,25 +240,44 @@ def runNetwork(network, writer):
   @param writer: A csv.writer used to write to output file.
   """
   sensorRegion = network.regions[_RECORD_SENSOR]
+  encoder = sensorRegion.getSelf().encoder
   l1SpRegion = network.regions[_L1_SPATIAL_POOLER]
   l1TpRegion = network.regions[_L1_TEMPORAL_POOLER]
   l1Classifier = network.regions[_L1_CLASSIFIER]
 
-  l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
-  l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
+  # l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
+  # l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
   # TODO Print something out from L2?
 
-  iterations = 1
   prevPredictedColumns = []
-  for i in xrange(_NUM_INPUT_RECORDS):
+  for i in xrange(numRecords):
     # Run the network for a single iteration
-    network.run(iterations)
+    network.run(1)
 
-    # recordNum, patternNZ, classification
-    # l1Classifier.getSelf().customCompute(recordNum=i, patternNZ=,
-    #                                      classification=)
-    # Get
-    # customCompute(self, recordNum, patternNZ, classification)
+    l1tpOutput = l1TpRegion.getOutputData("bottomUpOut").nonzero()[0]
+    print type(l1tpOutput)
+    consumption = float(sensorRegion.getOutputData("sourceOut")[0])
+    bucketIndex = float(sensorRegion.getOutputData("categoryOut")[0])
+
+    clDict = {"actValue": consumption, "bucketIdx": bucketIndex}
+
+    # patternNZ:      list of the active indices from the output below
+    # classification: dict of the classification information:
+    #                   bucketIdx: index of the encoder bucket
+    #                   actValue:  actual value going into the encoder
+    #
+    # retval:     dict containing inference results, one entry for each step in
+    #             self.steps. The key is the number of steps, the value is an
+    #             array containing the relative likelihood for each bucketIdx
+    #             starting from bucketIdx 0.
+    #
+    #             for example:
+    #               {1 : [0.1, 0.3, 0.2, 0.7]
+    #                4 : [0.2, 0.4, 0.3, 0.5]}
+    inferenceResults = l1Classifier.getSelf().customCompute(recordNum=i,
+                                         patternNZ=l1tpOutput,
+                                         classification=clDict)
+    print "results: ", inferenceResults, "\n"
 
     # nonzero() returns the indices of the elements that are non-zero,
     # here the elements are the indices of the active columns
@@ -279,9 +287,7 @@ def runNetwork(network, writer):
     # and previous predicted columns
     anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
 
-    # Write out the anomaly score along with the record number and consumption
-    # value.
-    consumption = sensorRegion.getOutputData("sourceOut")[0]
+    # Write record number, consumption, and anomaly score
     writer.writerow((i, consumption, anomalyScore))
 
     # Store the predicted columns for the next timestep
@@ -292,12 +298,14 @@ def runNetwork(network, writer):
 def runDemo():
   trainFile = findDataset(_INPUT_FILE_PATH)
   dataSource = FileRecordStream(streamID=trainFile)
+  # numRecords = dataSource.getDataRowCount()
+  numRecords = 100
   network = createNetwork(dataSource)
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_FILE_NAME)
   with open(outputPath, "w") as outputFile:
     writer = csv.writer(outputFile)
     print "Writing output to: %s" % outputPath
-    runNetwork(network, writer)
+    runNetwork(network, numRecords, writer)
 
 
 if __name__ == "__main__":
