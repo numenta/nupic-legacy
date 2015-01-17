@@ -27,7 +27,7 @@ import unittest
 
 import numpy
 
-from nupic.bindings.math import Random, StdRandom
+from nupic.bindings.math import Random
 
 
 
@@ -64,27 +64,6 @@ class TestNupicRandom(unittest.TestCase):
 
     self.assertNotEqual(test1, test3,
                         "NuPIC random gave the same result twice?!?")
-
-
-  def testStdRandomStateFunctions(self):
-    """Test the NuPIC StdRandom to make sure getstate / setstate works."""
-    sr = StdRandom(43)
-
-    srState = sr.getstate()
-    r1 = sr.random()
-    r2 = sr.random()
-    sr.setstate(srState)
-
-    self.assertEqual(sr.random(), r1)
-    self.assertEqual(sr.random(), r2)
-
-    srState = sr.getstate()
-    r1 = sr.random()
-    r2 = sr.random()
-    sr.setstate(srState)
-
-    self.assertEqual(sr.random(), r1)
-    self.assertEqual(sr.random(), r2)
 
 
   def testSample(self):
