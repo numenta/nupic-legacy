@@ -175,8 +175,7 @@ def createTemporalPooler(network, name):
 
 def createNetwork(dataSource):
   """Creates and returns a new Network with a sensor region reading data from
-  'dataSource'.
-  TODO describe hierarchy
+  'dataSource'. There are two hierarchical levels, each with one SP and one TP.
   @param dataSource - A RecordStream containing the input data
   @returns a Network ready to run
   """
@@ -223,12 +222,12 @@ def createNetwork(dataSource):
                srcOutput="bottomUpOut", destInput="bottomUpIn")
 
   # Second Level
-  # l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
-  # createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
-  # network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
-  #
-  # createTemporalPooler(network, _L2_TEMPORAL_POOLER)
-  # network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
+  l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
+  createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
+  network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
+
+  createTemporalPooler(network, _L2_TEMPORAL_POOLER)
+  network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
   return network
 
 
@@ -240,22 +239,22 @@ def runNetwork(network, numRecords, writer):
   @param writer: A csv.writer used to write to output file.
   """
   sensorRegion = network.regions[_RECORD_SENSOR]
-  encoder = sensorRegion.getSelf().encoder
   l1SpRegion = network.regions[_L1_SPATIAL_POOLER]
   l1TpRegion = network.regions[_L1_TEMPORAL_POOLER]
   l1Classifier = network.regions[_L1_CLASSIFIER]
 
-  # l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
-  # l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
+  l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
+  l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
   # TODO Print something out from L2?
 
-  prevPredictedColumns = []
+  l1PreviousPredictedColumns = []
+  l2PreviousPredictedColumns = []
   for i in xrange(numRecords):
     # Run the network for a single iteration
     network.run(1)
 
     l1tpOutput = l1TpRegion.getOutputData("bottomUpOut").nonzero()[0]
-    print type(l1tpOutput)
+    # print type(l1tpOutput)
     consumption = float(sensorRegion.getOutputData("sourceOut")[0])
     bucketIndex = float(sensorRegion.getOutputData("categoryOut")[0])
 
@@ -274,25 +273,32 @@ def runNetwork(network, numRecords, writer):
     #             for example:
     #               {1 : [0.1, 0.3, 0.2, 0.7]
     #                4 : [0.2, 0.4, 0.3, 0.5]}
-    inferenceResults = l1Classifier.getSelf().customCompute(recordNum=i,
-                                         patternNZ=l1tpOutput,
-                                         classification=clDict)
-    print "results: ", inferenceResults, "\n"
+    results = l1Classifier.getSelf().customCompute(recordNum=i,
+                                                   patternNZ=l1tpOutput,
+                                                   classification=clDict)
+    # print "results: ", results, "\n"
 
     # nonzero() returns the indices of the elements that are non-zero,
     # here the elements are the indices of the active columns
-    activeColumns = l1SpRegion.getOutputData("bottomUpOut").nonzero()[0]
+    l1ActiveColumns = l1SpRegion.getOutputData("bottomUpOut").nonzero()[0]
+    l2ActiveColumns = l2SpRegion.getOutputData("bottomUpOut").nonzero()[0]
 
     # Calculate the anomaly score using the active columns
     # and previous predicted columns
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
+    l1AnomalyScore = computeRawAnomalyScore(l1ActiveColumns,
+                                            l1PreviousPredictedColumns)
+    l2AnomalyScore = computeRawAnomalyScore(l2ActiveColumns,
+                                            l2PreviousPredictedColumns)
 
-    # Write record number, consumption, and anomaly score
-    writer.writerow((i, consumption, anomalyScore))
+    # Write record number, consumption, and anomaly scores
+    writer.writerow((i, consumption, l1AnomalyScore, l2AnomalyScore))
 
     # Store the predicted columns for the next timestep
-    predictedColumns = l1TpRegion.getOutputData("topDownOut").nonzero()[0]
-    prevPredictedColumns = copy.deepcopy(predictedColumns)
+    l1PredictedColumns = l1TpRegion.getOutputData("topDownOut").nonzero()[0]
+    l1PreviousPredictedColumns = copy.deepcopy(l1PredictedColumns)
+    #
+    l2PredictedColumns = l2TpRegion.getOutputData("topDownOut").nonzero()[0]
+    l2PreviousPredictedColumns = copy.deepcopy(l2PredictedColumns)
 
 
 def runDemo():
