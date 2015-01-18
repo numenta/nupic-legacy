@@ -188,7 +188,7 @@ def getVersion():
 
 def generateSwigWrap(swigExecutable, swigFlags, interfaceFile):
   """
-  Generate a swig wrap c++ file from a interface file.
+  Generate C++ code from the specified SWIG interface file.
   """
   wrap = interfaceFile.replace(".i", "_wrap.cxx")
 
@@ -505,14 +505,11 @@ def prepareNupicCore(options, platform, bitness):
     # binaries.
 
     nupicCoreRemoteUrl = (NUPIC_CORE_BUCKET + "/nupic_core-"
-                          + nupicCoreCommitish + "-" + platform
-                          + bitness + ".tar.gz")
+                          + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
     nupicCoreLocalPackage = (nupicCoreSourceDir + "/nupic_core-"
-                             + nupicCoreCommitish + "-" + platform
-                             + bitness + ".tar.gz")
+                             + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
     nupicCoreLocalDirToUnpack = ("nupic_core-"
-                                 + nupicCoreCommitish + "-" + platform
-                                 + bitness)
+                                 + nupicCoreCommitish + "-" + platform + bitness)
 
     if os.path.exists(nupicCoreLocalPackage):
       print ("Target nupic.core package already exists at "
