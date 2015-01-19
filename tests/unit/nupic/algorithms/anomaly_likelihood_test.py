@@ -501,14 +501,17 @@ class AnomalyLikelihoodTest(TestCaseBase):
     list of floats.
     """
     l =[0.0, 0.0, 0.3, 0.3, 0.5]
+    l2 = an._filterLikelihoods(l)
     n = numpy.array(l)
+    n2 = an._filterLikelihoods(n)
     filtered = [0.0, 0.001, 0.3, 0.3, 0.5]
 
-    self.assertEqual(an._filterLikelihoods(l), filtered,
-                     "Input of type list returns incorrect result")
-    self.assertEqual(an._filterLikelihoods(n), filtered,
-                     "Input of type numpy array returns incorrect result")
-  
+    [self.assertAlmostEqual(l2[i], filtered[i],
+      msg="Input of type list returns incorrect result")
+      for i in range(len(l))]
+    [self.assertAlmostEqual(n2[i], filtered[i],
+      msg="Input of type numpy array returns incorrect result")
+      for i in range(len(n))]
   
   def testFilterLikelihoods(self):
     """
