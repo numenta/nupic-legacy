@@ -437,24 +437,23 @@ def _filterLikelihoods(likelihoods,
   """
   redThreshold    = 1.0 - redThreshold
   yellowThreshold = 1.0 - yellowThreshold
-
+  
   # The first value is untouched
   filteredLikelihoods = [likelihoods[0]]
 
   for i, v in enumerate(likelihoods[1:]):
 
-    # If we are below threshold
     if v <= redThreshold:
+      # Value is in the redzone
 
-      # If previous value is above threshold
       if likelihoods[i] > redThreshold:
+        # Previous value is not in redzone, so leave as-is
         filteredLikelihoods.append(v)
-      # else set to a lower value
       else:
         filteredLikelihoods.append(yellowThreshold)
 
-    # If we're not above threshold, just stay as-is
     else:
+      # Value is below the redzone, so leave as-is
       filteredLikelihoods.append(v)
 
   return filteredLikelihoods
