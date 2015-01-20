@@ -427,7 +427,7 @@ def updateAnomalyLikelihoods(anomalyScores,
 
 
 def _filterLikelihoods(likelihoods,
-                       redThreshold=0.9999, yellowThreshold=0.999):
+                       redThreshold=0.99999, yellowThreshold=0.999):
   """
   Filter the list of raw (pre-filtered) likelihoods so that we only preserve
   sharp increases in likelihood. 'likelihoods' can be a numpy array of floats or
