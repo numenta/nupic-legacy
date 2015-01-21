@@ -21,13 +21,17 @@
 # ----------------------------------------------------------------------
 
 """
-An example of a hierarchy of cortical regions in a Network.
+An example of a hierarchy of cortical regions in a Network. There are two
+levels in this demo each with a Spatial Pooler, Temporal Pooler,
+and a classifier. Anomaly scores are output to a file while classification
+scores are output to console.
 """
 
 import copy
 import csv
 import json
 import os
+import math
 
 from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.datasethelpers import findDataset
@@ -86,12 +90,13 @@ TP_PARAMS = {"verbosity": _VERBOSITY,
              "pamLength": 3}
 
 _RECORD_SENSOR = "sensorRegion"
-_L1_SPATIAL_POOLER = "l1spatialPoolerRegion"
-_L1_TEMPORAL_POOLER = "l1temporalPoolerRegion"
-_L1_CLASSIFIER = "l1classifier"
+_L1_SPATIAL_POOLER = "l1SpatialPoolerRegion"
+_L1_TEMPORAL_POOLER = "l1TemporalPoolerRegion"
+_L1_CLASSIFIER = "l1Classifier"
 
-_L2_SPATIAL_POOLER = "l2spatialPoolerRegion"
-_L2_TEMPORAL_POOLER = "l2temporalPoolerRegion"
+_L2_SPATIAL_POOLER = "l2SpatialPoolerRegion"
+_L2_TEMPORAL_POOLER = "l2TemporalPoolerRegion"
+_L2_CLASSIFIER = "l2Classifier"
 
 
 def createEncoder():
@@ -199,25 +204,24 @@ def createNetwork(dataSource):
   network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_POOLER, linkType, linkParams)
 
   # Add a classifier
-  clParams = {  # Classifier learning/forgetting rate. Higher
-                # values make it adapt faster and forget older patterns faster.
-                'alpha': 0.005,
+  classifierParams = {  # Learning rate. Higher values make it adapt faster.
+                        'alpha': 0.005,
 
-                # Comma separated list of the desired steps of
-                # prediction that the classifier should learn
-                'steps': '1',
+                        # A comma separated list of the number of steps the
+                        # classifier predicts in the future. The classifier will
+                        # learn predictions of each order specified.
+                        'steps': '1',
 
-                # Which implementation of the classifier to use.
-                # See CLAClassifierFactory#create
-                'implementation': 'cpp',
+                        # The specific implementation of the classifier to use
+                        # See CLAClassifierFactory#create for options
+                        'implementation': 'cpp',
 
-                # Diagnostic output verbosity control;
-                # 0: silent; [1..6]: increasing levels of verbosity
-                'clVerbosity': 0}
+                        # Diagnostic output verbosity control;
+                        # 0: silent; [1..6]: increasing levels of verbosity
+                        'clVerbosity': 0}
 
   l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
-                                   json.dumps(clParams))
-
+                                   json.dumps(classifierParams))
   # TODO set default values to true? not intuitive
   l1Classifier.setParameter('inferenceMode', True)
   l1Classifier.setParameter('learningMode', True)
@@ -232,13 +236,41 @@ def createNetwork(dataSource):
   createTemporalPooler(network, _L2_TEMPORAL_POOLER)
   network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
 
-  # TODO classifier for level 2
+  l2Classifier = network.addRegion(_L2_CLASSIFIER, "py.CLAClassifierRegion",
+                                   json.dumps(classifierParams))
+  l2Classifier.setParameter('inferenceMode', True)
+  l2Classifier.setParameter('learningMode', True)
+  network.link(_L2_TEMPORAL_POOLER, _L2_CLASSIFIER, linkType, linkParams,
+               srcOutput="bottomUpOut", destInput="bottomUpIn")
   return network
+
+
+def runClassifier(classifier, sensorRegion, tpRegion, recordNumber):
+  """Calls classifier manually, not using network"""
+
+  # Obtain input, its encoding, and the tp output for classification
+  actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
+  scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
+  bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]
+  tpOutput = tpRegion.getOutputData("bottomUpOut").nonzero()[0]
+  classDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
+
+  # Call classifier
+  results = classifier.getSelf().customCompute(recordNum=recordNumber,
+                                               patternNZ=tpOutput,
+                                               classification=classDict)
+
+  # Sort results by prediction confidence taking most confident prediction
+  mostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
+  predictionConfidence = mostLikelyResult[0]
+  predictedValue = mostLikelyResult[1]
+  return actualInput, predictedValue, predictionConfidence
 
 
 def runNetwork(network, numRecords, writer):
   """
-  Runs specified Network writing the ensuing anomaly score to writer.
+  Runs specified Network writing the ensuing anomaly
+  scores to writer.
 
   @param network: The Network instance to be run
   @param writer: A csv.writer used to write to output file.
@@ -250,39 +282,34 @@ def runNetwork(network, numRecords, writer):
 
   l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
   l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
+  l2Classifier = network.regions[_L2_CLASSIFIER]
 
   l1PreviousPredictedColumns = []
   l2PreviousPredictedColumns = []
-  for i in xrange(numRecords):
+
+  l1PreviousPrediction = None
+  l2PreviousPrediction = None
+  l1ErrorSum = 0.0
+  l2ErrorSum = 0.0
+  for record in xrange(numRecords):
     # Run the network for a single iteration
     network.run(1)
 
-    # Call classifier manually, not using network
-    l1tpOutput = l1TpRegion.getOutputData("bottomUpOut").nonzero()[0]
-    actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
-    scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
-    bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]
-    clDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
+    # Run l1 classifier manually and tally its error score
+    actual, l1Prediction, l1Confidence = runClassifier(l1Classifier,
+                                                       sensorRegion,
+                                                       l1TpRegion, record)
+    if l1PreviousPrediction is not None:
+      l1ErrorSum += math.fabs(l1PreviousPrediction - actual)
+    l1PreviousPrediction = l1Prediction
 
-    # patternNZ:      list of the active indices from the output below
-    # classification: dict of the classification information:
-    #                   bucketIdx: index of the encoder bucket
-    #                   actValue:  actual value going into the encoder
-    #
-    # retval:     dict containing inference results, one entry for each step in
-    #             self.steps. The key is the number of steps, the value is an
-    #             array containing the relative likelihood for each bucketIdx
-    #             starting from bucketIdx 0.
-    #
-    #             for example:
-    #               {1 : [0.1, 0.3, 0.2, 0.7]
-    #                4 : [0.2, 0.4, 0.3, 0.5]}
-    results = l1Classifier.getSelf().customCompute(recordNum=i,
-                                                   patternNZ=l1tpOutput,
-                                                   classification=clDict)
-    l1MostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
-    l1Confidence = l1MostLikelyResult[0]
-    l1PredictedValue = l1MostLikelyResult[1]
+    # Run l2 classifier manually and tally its error score
+    actual, l2Prediction, l2Confidence = runClassifier(l2Classifier,
+                                                       sensorRegion,
+                                                       l2TpRegion, record)
+    if l2PreviousPrediction is not None:
+      l2ErrorSum += math.fabs(l2PreviousPrediction - actual)
+    l2PreviousPrediction = l2Prediction
 
     # nonzero() returns the indices of the elements that are non-zero,
     # here the elements are the indices of the active columns
@@ -297,8 +324,7 @@ def runNetwork(network, numRecords, writer):
                                             l2PreviousPredictedColumns)
 
     # Write record number, actualInput, and anomaly scores
-    writer.writerow((i, actualInput, l1AnomalyScore, l2AnomalyScore,
-                     l1PredictedValue, l1Confidence))
+    writer.writerow((record, actual, l1AnomalyScore, l2AnomalyScore))
 
     # Store the predicted columns for the next timestep
     l1PredictedColumns = l1TpRegion.getOutputData("topDownOut").nonzero()[0]
@@ -306,6 +332,11 @@ def runNetwork(network, numRecords, writer):
     #
     l2PredictedColumns = l2TpRegion.getOutputData("topDownOut").nonzero()[0]
     l2PreviousPredictedColumns = copy.deepcopy(l2PredictedColumns)
+
+  # Output absolute average error for each level
+  if numRecords > 1:
+    print "L1 ave abs class. error: %f" % (l1ErrorSum / (numRecords - 1))
+    print "L2 ave abs class. error: %f" % (l2ErrorSum / (numRecords - 1))
 
 
 def runDemo():
@@ -317,7 +348,8 @@ def runDemo():
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_FILE_NAME)
   with open(outputPath, "w") as outputFile:
     writer = csv.writer(outputFile)
-    print "Running network and writing output to: %s" % outputPath
+    print "Running network"
+    print "Writing output to: %s" % outputPath
     runNetwork(network, numRecords, writer)
   print "Hierarchy demo finished"
 
