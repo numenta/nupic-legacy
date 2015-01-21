@@ -111,7 +111,7 @@ def createEncoder():
                       "maxval": 100.0,
                       "clipInput": True,
                       "w": 21,
-                      "n": 50},
+                      "n": 500},
       "timestamp_timeOfDay": {"fieldname": u"timestamp",
                               "type": "DateEncoder",
                               "name": u"timestamp_timeOfDay",
@@ -214,10 +214,13 @@ def createNetwork(dataSource):
                 # Diagnostic output verbosity control;
                 # 0: silent; [1..6]: increasing levels of verbosity
                 'clVerbosity': 0}
-  network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
-                    json.dumps(clParams))
-  network.link(_RECORD_SENSOR, _L1_CLASSIFIER, linkType, linkParams,
-               srcOutput="categoryOut", destInput="categoryIn")
+
+  l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
+                                   json.dumps(clParams))
+
+  # TODO set default values to true? not intuitive
+  l1Classifier.setParameter('inferenceMode', True)
+  l1Classifier.setParameter('learningMode', True)
   network.link(_L1_TEMPORAL_POOLER, _L1_CLASSIFIER, linkType, linkParams,
                srcOutput="bottomUpOut", destInput="bottomUpIn")
 
@@ -228,6 +231,8 @@ def createNetwork(dataSource):
 
   createTemporalPooler(network, _L2_TEMPORAL_POOLER)
   network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
+
+  # TODO classifier for level 2
   return network
 
 
@@ -245,7 +250,6 @@ def runNetwork(network, numRecords, writer):
 
   l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
   l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
-  # TODO Print something out from L2?
 
   l1PreviousPredictedColumns = []
   l2PreviousPredictedColumns = []
@@ -253,12 +257,12 @@ def runNetwork(network, numRecords, writer):
     # Run the network for a single iteration
     network.run(1)
 
+    # Call classifier manually, not using network
     l1tpOutput = l1TpRegion.getOutputData("bottomUpOut").nonzero()[0]
-    # print type(l1tpOutput)
-    consumption = float(sensorRegion.getOutputData("sourceOut")[0])
-    bucketIndex = float(sensorRegion.getOutputData("categoryOut")[0])
-
-    clDict = {"actValue": consumption, "bucketIdx": bucketIndex}
+    actualInput = float(sensorRegion.getOutputData("sourceOut")[0])
+    scalarEncoder = sensorRegion.getSelf().encoder.encoders[0][1]
+    bucketIndex = scalarEncoder.getBucketIndices(actualInput)[0]
+    clDict = {"actValue": actualInput, "bucketIdx": bucketIndex}
 
     # patternNZ:      list of the active indices from the output below
     # classification: dict of the classification information:
@@ -276,7 +280,9 @@ def runNetwork(network, numRecords, writer):
     results = l1Classifier.getSelf().customCompute(recordNum=i,
                                                    patternNZ=l1tpOutput,
                                                    classification=clDict)
-    # print "results: ", results, "\n"
+    l1MostLikelyResult = sorted(zip(results[1], results["actualValues"]))[-1]
+    l1Confidence = l1MostLikelyResult[0]
+    l1PredictedValue = l1MostLikelyResult[1]
 
     # nonzero() returns the indices of the elements that are non-zero,
     # here the elements are the indices of the active columns
@@ -290,8 +296,9 @@ def runNetwork(network, numRecords, writer):
     l2AnomalyScore = computeRawAnomalyScore(l2ActiveColumns,
                                             l2PreviousPredictedColumns)
 
-    # Write record number, consumption, and anomaly scores
-    writer.writerow((i, consumption, l1AnomalyScore, l2AnomalyScore))
+    # Write record number, actualInput, and anomaly scores
+    writer.writerow((i, actualInput, l1AnomalyScore, l2AnomalyScore,
+                     l1PredictedValue, l1Confidence))
 
     # Store the predicted columns for the next timestep
     l1PredictedColumns = l1TpRegion.getOutputData("topDownOut").nonzero()[0]
@@ -304,14 +311,15 @@ def runNetwork(network, numRecords, writer):
 def runDemo():
   trainFile = findDataset(_INPUT_FILE_PATH)
   dataSource = FileRecordStream(streamID=trainFile)
-  # numRecords = dataSource.getDataRowCount()
-  numRecords = 100
+  numRecords = dataSource.getDataRowCount()
+  print "Creating network"
   network = createNetwork(dataSource)
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_FILE_NAME)
   with open(outputPath, "w") as outputFile:
     writer = csv.writer(outputFile)
-    print "Writing output to: %s" % outputPath
+    print "Running network and writing output to: %s" % outputPath
     runNetwork(network, numRecords, writer)
+  print "Hierarchy demo finished"
 
 
 if __name__ == "__main__":
