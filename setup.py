@@ -360,22 +360,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
 
   extensions = []
 
-  # This meant to fake out wheel to produce platform-specific .whl files.
-  # Without this, wheel assumes the binary file will be platform-independent,
-  # and we don't want that.
-  fakeExtension = Extension(
-    "fake-extension",
-    swig_opts=[],
-    extra_compile_args=[],
-    define_macros=[],
-    extra_link_args=[],
-    include_dirs=[],
-    libraries=[],
-    sources=[],
-    extra_objects=[]
-  )
-  extensions.append(fakeExtension)
-
   libDynamicCppRegion = Extension(
     "nupic." + getLibPrefix(platform) + "cpp_region",
     extra_compile_args=commonCompileFlags,
