@@ -24,8 +24,9 @@ CSV file based implementation of a record stream
 
 FileRecordStream is class that can read and write .csv files that contain
 records. The file has 3 header lines that contain, for each field, the name
-(line 1), type (line 2), and a special indicator (line 3) for those fields that
-serve as the reset field, sequence id field, and timestamp field.
+(line 1), type (line 2), and a special indicator (line 3). The special indicator
+can indicate that the field specifies a reset, is a sequence ID, or is a
+timestamp for the record.
 
 The header lines look like:
 
