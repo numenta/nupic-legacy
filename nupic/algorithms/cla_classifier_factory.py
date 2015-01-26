@@ -44,5 +44,5 @@ class CLAClassifierFactory(object):
     elif impl == 'diff':
       return CLAClassifierDiff(*args, **kwargs)
     else:
-      raise ValueError('Invalid classifier implementation (%s). Value must be '
-                       '"py" or "cpp".')
+      raise ValueError('Invalid classifier implementation (%r). Value must be '
+                       '"py" or "cpp".' % impl)

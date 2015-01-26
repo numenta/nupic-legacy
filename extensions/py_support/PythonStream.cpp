@@ -23,7 +23,7 @@
  */
 
 #include <py_support/PythonStream.hpp>
-#include <nta/utils/Log.hpp>
+#include <nupic/utils/Log.hpp>
 
 /**
  * Bumps up size to a nicely aligned larger size.

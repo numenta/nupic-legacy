@@ -48,7 +48,7 @@
 #include <iostream>
 
 using namespace std;
-using namespace nta;
+using namespace nupic;
 
 // --------------------------------------------------------------
 // Auto-convert a compile-time type to a Numpy dtype.
@@ -63,11 +63,11 @@ int LookupNumpyDTypeT(const T *)
 
 #define NTA_DEF_NUMPY_DTYPE_TRAIT(a, b) \
 template<> class NumpyDTypeTraits<a> { public: enum { numpyDType=b }; }; \
-int nta::LookupNumpyDType(const a *p) { return LookupNumpyDTypeT(p); }
+int nupic::LookupNumpyDType(const a *p) { return LookupNumpyDTypeT(p); }
 
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Byte, PyArray_BYTE);
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int16, PyArray_INT16);
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt16, PyArray_UINT16);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Byte, PyArray_BYTE);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int16, PyArray_INT16);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt16, PyArray_UINT16);
 
 #if defined(NTA_PLATFORM_linux64) || defined(NTA_PLATFORM_sparc64) || defined(NTA_PLATFORM_darwin64)
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT64);
@@ -75,25 +75,25 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT64);
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
 #endif
 
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int32, PyArray_INT32);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int32, PyArray_INT32);
 
 #if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
 // size_t (above) is the same as UInt32 on linux32
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt32, PyArray_UINT32);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt32, PyArray_UINT32);
 #endif
 
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Int64, PyArray_INT64);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int64, PyArray_INT64);
 
 #if !defined(NTA_PLATFORM_linux64) && !defined(NTA_PLATFORM_sparc64) && !defined(NTA_PLATFORM_darwin64)
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::UInt64, PyArray_UINT64);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt64, PyArray_UINT64);
 #endif
 
 
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Real32, PyArray_FLOAT32);
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Real64, PyArray_FLOAT64);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Real32, PyArray_FLOAT32);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Real64, PyArray_FLOAT64);
 
 #ifdef NTA_QUAD_PRECISION
-NTA_DEF_NUMPY_DTYPE_TRAIT(nta::Real128, PyArray_FLOAT128);
+NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Real128, PyArray_FLOAT128);
 #endif
 
 // --------------------------------------------------------------

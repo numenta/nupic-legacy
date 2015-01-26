@@ -27,9 +27,9 @@
 #ifndef NTA_PY_HELPERS_TEST_HPP
 #define NTA_PY_HELPERS_TEST_HPP
 
-#include <nta/test/Tester.hpp>
+#include <nupic/test/Tester.hpp>
 
-namespace nta
+namespace nupic
 {
   struct PyHelpersTest : public Tester
   {

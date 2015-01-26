@@ -25,11 +25,13 @@ from __future__ import with_statement
 import os
 import logging
 from xml.etree import ElementTree
-
-import nupic
+from pkg_resources import resource_string
 
 # Turn on additional print statements
 DEBUG = False
+DEFAULT_CONFIG = "nupic-default.xml"
+USER_CONFIG = "nupic-site.xml"
+CUSTOM_CONFIG = "nupic-custom.xml"
 
 
 def _getLogger():
@@ -48,7 +50,7 @@ class Configuration(object):
   If the environment variable 'NTA_CONF_PATH' is defined, then the configuration
   files are expected to be in the NTA_CONF_PATH search path, which is a ':'
   separated list of directories. If NTA_CONF_PATH is not defined, then it is
-  assumed to be NTA/conf/default (typically ~/nta/current/conf/default).
+  loaded via pkg_resources.
 
   """
 
@@ -245,6 +247,7 @@ class Configuration(object):
     else:
       filePath = os.path.join(path, filename)
 
+
     # ------------------------------------------------------------------
     # Read in the config file
     try:
@@ -255,10 +258,20 @@ class Configuration(object):
           with open(filePath, 'rb') as inp:
             contents = inp.read()
         except Exception:
-          contents = '<configuration/>'
+          raise RuntimeError("Expected configuration file at %s" % filePath)
       else:
-        contents = '<configuration/>'
-      
+        # If the file was not found in the normal search paths, which includes
+        # checking the NTA_CONF_PATH, we'll try loading it from pkg_resources.
+        try:
+          contents = resource_string("nupic.support", filename)
+        except Exception as resourceException:
+          # We expect these to be read, and if they don't exist we'll just use
+          # an empty configuration string.
+          if filename in [USER_CONFIG, CUSTOM_CONFIG]:
+            contents = '<configuration/>'
+          else:
+            raise resourceException
+
       elements = ElementTree.XML(contents)
 
       if elements.tag != 'configuration':
@@ -296,7 +309,7 @@ class Configuration(object):
               raise RuntimeError("Missing 'value' element within the property "
                                  "element: => %s " % (str(propInfo)))
         
-        # The value is allowed to contain substituation tags of the form
+        # The value is allowed to contain substitution tags of the form
         # ${env.VARNAME}, which should be substituted with the corresponding
         # environment variable values
         restOfValue = value
@@ -380,7 +393,7 @@ class Configuration(object):
     ----------------------------------------------------------------
     retval:    list of paths.
     """
-
+    configPaths = []
     if cls._configPaths is not None:
       return cls._configPaths
       
@@ -389,9 +402,7 @@ class Configuration(object):
         configVar = os.environ['NTA_CONF_PATH']
         # Return as a list of paths
         configPaths = configVar.split(':')
-      else:
-        configPaths = [os.path.join(os.environ['NUPIC'], 'config', 'default')]
-        
+
       return configPaths
 
 
@@ -414,7 +425,7 @@ class Configuration(object):
     """
 
     # Default one first
-    cls.readConfigFile('nupic-default.xml')
+    cls.readConfigFile(DEFAULT_CONFIG)
 
     # Site specific one can override properties defined in default
-    cls.readConfigFile('nupic-site.xml')
+    cls.readConfigFile(USER_CONFIG)
