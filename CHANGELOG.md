@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1
+
+* Removal of CMakeLists.txt
+* Removes fake C extension from setup.
+* Adds warning on darwin platform when ARCHFLAGS not set.
+* Cleanup re: #1579.  Fixup namespace conflicts with builtins (file, dir, etc.) as well as minor alignment issues
+* Switch from cmake to distutils extensions for nupic installation
+
 ## 0.1.0
 
 * Cleaned up README and CHANGELOG for 0.1 release.
