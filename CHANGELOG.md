@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+
+* Add archflags env var before deploy command on OSX
+
 ## 0.1.1
 
 * Removal of CMakeLists.txt
