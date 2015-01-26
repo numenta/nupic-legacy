@@ -22,7 +22,7 @@
 
 """
 An example of a hierarchy of cortical regions in a Network. There are two
-levels in this demo each with a Spatial Pooler, Temporal Pooler,
+levels in this demo each with a Spatial Pooler, Temporal Memory,
 and a classifier. Anomaly scores are output to a file while classification
 scores are output to console.
 """
@@ -91,12 +91,13 @@ TP_PARAMS = {"verbosity": _VERBOSITY,
 
 _RECORD_SENSOR = "sensorRegion"
 _L1_SPATIAL_POOLER = "l1SpatialPoolerRegion"
-_L1_TEMPORAL_POOLER = "l1TemporalPoolerRegion"
+_L1_TEMPORAL_MEMORY = "l1TemporalMemoryRegion"
 _L1_CLASSIFIER = "l1Classifier"
 
 _L2_SPATIAL_POOLER = "l2SpatialPoolerRegion"
-_L2_TEMPORAL_POOLER = "l2TemporalPoolerRegion"
+_L2_TEMPORAL_MEMORY = "l2TemporalMemoryRegion"
 _L2_CLASSIFIER = "l2Classifier"
+
 
 
 def createEncoder():
@@ -125,6 +126,7 @@ def createEncoder():
   return encoder
 
 
+
 def createRecordSensor(network, name, dataSource):
   """
   Creates a RecordSensor region that allows us to specify a file record
@@ -149,6 +151,7 @@ def createRecordSensor(network, name, dataSource):
   return sensorRegion
 
 
+
 def createSpatialPooler(network, name, inputWidth):
   # Create the spatial pooler region
   SP_PARAMS["inputWidth"] = inputWidth
@@ -162,20 +165,22 @@ def createSpatialPooler(network, name, inputWidth):
   return spatialPoolerRegion
 
 
-def createTemporalPooler(network, name):
-  temporalPoolerRegion = network.addRegion(name, "py.TPRegion",
+
+def createTemporalMemory(network, name):
+  temporalMemoryRegion = network.addRegion(name, "py.TPRegion",
                                            json.dumps(TP_PARAMS))
   # Enable topDownMode to get the predicted columns output
-  temporalPoolerRegion.setParameter("topDownMode", True)
+  temporalMemoryRegion.setParameter("topDownMode", True)
   # Make sure learning is enabled (this is the default)
-  temporalPoolerRegion.setParameter("learningMode", True)
+  temporalMemoryRegion.setParameter("learningMode", True)
   # Enable inference mode so we get predictions
-  temporalPoolerRegion.setParameter("inferenceMode", True)
+  temporalMemoryRegion.setParameter("inferenceMode", True)
   # Enable anomalyMode to compute the anomaly score. This actually doesn't work
   # now so doesn't matter. We instead compute the anomaly score based on
   # topDownOut (predicted columns) and SP bottomUpOut (active columns).
-  temporalPoolerRegion.setParameter("anomalyMode", True)
-  return temporalPoolerRegion
+  temporalMemoryRegion.setParameter("anomalyMode", True)
+  return temporalMemoryRegion
+
 
 
 def createNetwork(dataSource):
@@ -198,10 +203,10 @@ def createNetwork(dataSource):
   network.link(_RECORD_SENSOR, _L1_SPATIAL_POOLER, linkType, linkParams)
 
   # Create and add a TP region
-  l1temporalPooler = createTemporalPooler(network, _L1_TEMPORAL_POOLER)
+  l1temporalMemory = createTemporalMemory(network, _L1_TEMPORAL_MEMORY)
 
   # Link SP region to TP region in the feedforward direction
-  network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_POOLER, linkType, linkParams)
+  network.link(_L1_SPATIAL_POOLER, _L1_TEMPORAL_MEMORY, linkType, linkParams)
 
   # Add a classifier
   classifierParams = {  # Learning rate. Higher values make it adapt faster.
@@ -225,24 +230,25 @@ def createNetwork(dataSource):
   # TODO set default values to true? not intuitive
   l1Classifier.setParameter('inferenceMode', True)
   l1Classifier.setParameter('learningMode', True)
-  network.link(_L1_TEMPORAL_POOLER, _L1_CLASSIFIER, linkType, linkParams,
+  network.link(_L1_TEMPORAL_MEMORY, _L1_CLASSIFIER, linkType, linkParams,
                srcOutput="bottomUpOut", destInput="bottomUpIn")
 
   # Second Level
-  l2inputWidth = l1temporalPooler.getSelf().getOutputElementCount("bottomUpOut")
+  l2inputWidth = l1temporalMemory.getSelf().getOutputElementCount("bottomUpOut")
   createSpatialPooler(network, name=_L2_SPATIAL_POOLER, inputWidth=l2inputWidth)
-  network.link(_L1_TEMPORAL_POOLER, _L2_SPATIAL_POOLER, linkType, linkParams)
+  network.link(_L1_TEMPORAL_MEMORY, _L2_SPATIAL_POOLER, linkType, linkParams)
 
-  createTemporalPooler(network, _L2_TEMPORAL_POOLER)
-  network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_POOLER, linkType, linkParams)
+  createTemporalMemory(network, _L2_TEMPORAL_MEMORY)
+  network.link(_L2_SPATIAL_POOLER, _L2_TEMPORAL_MEMORY, linkType, linkParams)
 
   l2Classifier = network.addRegion(_L2_CLASSIFIER, "py.CLAClassifierRegion",
                                    json.dumps(classifierParams))
   l2Classifier.setParameter('inferenceMode', True)
   l2Classifier.setParameter('learningMode', True)
-  network.link(_L2_TEMPORAL_POOLER, _L2_CLASSIFIER, linkType, linkParams,
+  network.link(_L2_TEMPORAL_MEMORY, _L2_CLASSIFIER, linkType, linkParams,
                srcOutput="bottomUpOut", destInput="bottomUpIn")
   return network
+
 
 
 def runClassifier(classifier, sensorRegion, tpRegion, recordNumber):
@@ -267,6 +273,7 @@ def runClassifier(classifier, sensorRegion, tpRegion, recordNumber):
   return actualInput, predictedValue, predictionConfidence
 
 
+
 def runNetwork(network, numRecords, writer):
   """
   Runs specified Network writing the ensuing anomaly
@@ -277,11 +284,11 @@ def runNetwork(network, numRecords, writer):
   """
   sensorRegion = network.regions[_RECORD_SENSOR]
   l1SpRegion = network.regions[_L1_SPATIAL_POOLER]
-  l1TpRegion = network.regions[_L1_TEMPORAL_POOLER]
+  l1TpRegion = network.regions[_L1_TEMPORAL_MEMORY]
   l1Classifier = network.regions[_L1_CLASSIFIER]
 
   l2SpRegion = network.regions[_L2_SPATIAL_POOLER]
-  l2TpRegion = network.regions[_L2_TEMPORAL_POOLER]
+  l2TpRegion = network.regions[_L2_TEMPORAL_MEMORY]
   l2Classifier = network.regions[_L2_CLASSIFIER]
 
   l1PreviousPredictedColumns = []
@@ -339,6 +346,7 @@ def runNetwork(network, numRecords, writer):
     print "L2 ave abs class. error: %f" % (l2ErrorSum / (numRecords - 1))
 
 
+
 def runDemo():
   trainFile = findDataset(_INPUT_FILE_PATH)
   dataSource = FileRecordStream(streamID=trainFile)
@@ -352,6 +360,7 @@ def runDemo():
     print "Writing output to: %s" % outputPath
     runNetwork(network, numRecords, writer)
   print "Hierarchy demo finished"
+
 
 
 if __name__ == "__main__":
