@@ -610,6 +610,11 @@ class CLAModel(Model):
         sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
+      if not self._predictedFieldName in self._input:
+        raise ValueError(
+          "Expected predicted field '%s' in input row, but was not found!" 
+          % self._predictedFieldName
+        )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
@@ -659,6 +664,10 @@ class CLAModel(Model):
     """
     inferenceArgs = self.getInferenceArgs()
     predictedFieldName = inferenceArgs.get('predictedField', None)
+    if predictedFieldName is None:
+      raise ValueError(
+        "No predicted field was enabled! Did you call enableInference()?"
+      )
     self._predictedFieldName = predictedFieldName
 
     classifier = self._getClassifierRegion()
