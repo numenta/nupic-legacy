@@ -1,49 +1,37 @@
 # Changelog
 
-## 0.0.10-dev
+## 0.1.2
 
+* Add archflags env var before deploy command on OSX
 
+## 0.1.1
 
-## 0.0.9
+* Removal of CMakeLists.txt
+* Removes fake C extension from setup.
+* Adds warning on darwin platform when ARCHFLAGS not set.
+* Cleanup re: #1579.  Fixup namespace conflicts with builtins (file, dir, etc.) as well as minor alignment issues
+* Switch from cmake to distutils extensions for nupic installation
 
-* Fixed missing `__version__` number problem.
+## 0.1.0
+
+* Cleaned up README and CHANGELOG for 0.1 release.
+
+## 0.0.38
+
+* SWIG optimizations.
+* Script to deploy linux wheel to S3 on release.
+* Publishing select artifacts to pypi on release.
+* Changed dev version pattern to match what python wants.
+* Cleaned up setup and manifest for proper sdists.
+* Faking extensions to get platform-specific wheels.
+* Added core capnp files to bindings.
+* GCE now encodes altitude using a 3D coordinate system.
 * Distributing `*.i` files from `nupic.bindings` in binary packages.
-
-## 0.0.8
-
-* Updated pypi development status to "Stable", otherwise pypi rejects it.
-
-## 0.0.7
-
 * Updates test entry points to pure python. README instructions for running tests were updated.
 * Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found. 
-
-## 0.0.6
-
-* Updated pypi encrypted password because of authenitcation failure.
-* Only installing wheel on iterative builds, because Travis-CI automatically installs it if "bdist_wheel" is specified in deploy provider directive.
-
-## 0.0.5
-
-* Installing doxygen before doc-build for pypi.
-
-## 0.0.4
-
-* Temporarily removing pycapnp dependency to help current release situation.
-
-## 0.0.3
-
 * Updated deployment logic to account for both deployment scenarios (iterative and release).
-
-## 0.0.2
-
 * Configured pypi deployment on all branches with tags.
-
-## 0.0.1
-
 * Added pypi deployment configuration for binary releases.
 * Parsing python requirements in setuptools so they are included within published packages (working toward releases).
 * Setting up python wheels packaging and upload to S3 for future distribution.
-* Implement logic for reusing segments, to enforce a fixed-size connectivity (nupic.core).
-* Added CHANGELOG.md to track changes for versions.
-* Added version.txt file to root, read by setuptools to establish version.
+* Implemented logic for reusing segments, to enforce a fixed-size connectivity (nupic.core).
