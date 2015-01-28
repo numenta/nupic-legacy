@@ -44,6 +44,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     
     self._learningEnabled = True
     self._stateLock = False
+    self._init = True
     assert n>0           #An adaptive encoder can only be intialized using n
 
     self._prevAbsolute = None    #how many inputs have been sent to the encoder?
@@ -84,7 +85,15 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     if self._prevAbsolute is None:
       return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
     ret = super(DeltaEncoder, self).topDownCompute(encoded)
-    ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
-                          scalar=ret[0].scalar+self._prevAbsolute,
+    val = float(super(DeltaEncoder, self).decode(encoded)[0].values()[0][1])
+    print ret
+    diff = self._prevAbsolute
+    if self._stateLock or self._init: 
+      diff = 0
+      self._init = False
+    print "abs",self._prevAbsolute," diff",diff," val",val," ",self._init
+    ret = [EncoderResult(value=val-diff,
+                          scalar=val-diff,
                           encoding=ret[0].encoding)]
+    print "pos",ret[0]
     return ret

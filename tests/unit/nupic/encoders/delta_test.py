@@ -58,6 +58,7 @@ class DeltaEncoderTest(unittest.TestCase):
     e = DeltaEncoder(w=21, n=100)
     enc = e.encode(0)
     dec = e.topDownCompute(enc)
+    print "CCC", enc,"CC", dec
     self.assertEqual(dec[0].value, 0) # init -> 0
 
     enc = e.encode(0)

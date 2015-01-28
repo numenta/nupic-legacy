@@ -410,6 +410,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(4.5, encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
 
 
+
 ###########################################
 if __name__ == '__main__':
   unittest.main()
