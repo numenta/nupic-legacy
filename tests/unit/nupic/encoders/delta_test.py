@@ -44,7 +44,7 @@ class DeltaEncoderTest(unittest.TestCase):
       for i in range(5):
         encarr =  self._dencoder.encode(i, learn=True)
         td = self._dencoder.topDownCompute(encarr)[0].value
-        self.assertEqual(td, i)
+        self.assertEqual(td, i) #FIXME
 
       self._dencoder.setStateLock(True)
       for i in range(5, 7):

@@ -90,6 +90,14 @@ class AdaptiveScalarTest(unittest.TestCase):
 
         # Next value
         v += l.resolution / 4
+
+
+    def testTopDownCompute2(self):
+      l = self._l
+      enc = l.encode(0)
+      dec = l.topDownCompute(enc)[0].encoding
+      self.assertTrue((dec == enc).all(), "topDownComputed value(0) differs!")
+
     def testFillHoles(self):
       """Make sure we can fill in holes"""
       l=self._l
