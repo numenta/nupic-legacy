@@ -51,6 +51,7 @@ class DeltaEncoderTest(unittest.TestCase):
         encarr =  self._dencoder.encode(i, learn=True)
         td = self._dencoder.topDownCompute(encarr)[0].value
         self.assertEqual(td, i) #FIXME fails on this line
+      self._dencoder.setStateLock(False)
 
 
   def testTopDown(self):
@@ -103,7 +104,7 @@ class DeltaEncoderTest(unittest.TestCase):
           delencode = self._dencoder.encode(expectedOut[i], learn=True)
 
         self.assertTrue((delencode[0] == aseencode[0]).all())
-
+      self._dencoder.setStateLock(False)
 
   def testEncodeInvalidInputType(self):
     try:
