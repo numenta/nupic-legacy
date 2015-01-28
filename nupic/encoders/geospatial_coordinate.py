@@ -22,15 +22,17 @@
 import math
 
 import numpy
-from pyproj import Proj
+from pyproj import Proj, transform
 from nupic.encoders.coordinate import CoordinateEncoder
 
 
 
-PROJ = Proj(init="epsg:3785")  # Spherical Mercator
 # From http://spatialreference.org/ref/epsg/popular-visualisation-crs-mercator/
+PROJ = Proj(init="epsg:3785")  # Spherical Mercator
 PROJ_RANGE=(20037508.3428, 19971868.8804)  # in meters
 
+# See http://gis.stackexchange.com/a/73829/41082
+geocentric = Proj('+proj=geocent +datum=WGS84 +units=m +no_defs')
 
 
 class GeospatialCoordinateEncoder(CoordinateEncoder):
@@ -66,34 +68,44 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
 
   def getDescription(self):
     """See `nupic.encoders.base.Encoder` for more information."""
-    return [('longitude', 0), ('latitude', 1), ('speed', 2)]
+    return [('speed', 0), ('longitude', 1), ('latitude', 2), ('altitude', 3)]
 
 
   def encodeIntoArray(self, inputData, output):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
-    @param inputData (tuple) Contains longitude (float),
-                             latitude (float), speed (float)
+    @param inputData (tuple) Contains speed (float), longitude (float),
+                             latitude (float), altitude (float)
     @param output (numpy.array) Stores encoded SDR in this numpy array
     """
-    (longitude, latitude, speed) = inputData
-    coordinate = self.coordinateForPosition(longitude, latitude)
+    altitude = None
+    if len(inputData) == 4:
+      (speed, longitude, latitude, altitude) = inputData
+    else:
+      (speed, longitude, latitude) = inputData
+    coordinate = self.coordinateForPosition(longitude, latitude, altitude)
     radius = self.radiusForSpeed(speed)
     super(GeospatialCoordinateEncoder, self).encodeIntoArray(
      (coordinate, radius), output)
 
 
-  def coordinateForPosition(self, longitude, latitude):
+  def coordinateForPosition(self, longitude, latitude, altitude=None):
     """
     Returns coordinate for given GPS position.
 
     @param longitude (float) Longitude of position
     @param latitude (float) Latitude of position
+    @param altitude (float) Altitude of position
     @return (numpy.array) Coordinate that the given GPS position
                           maps to
     """
-    coordinate = numpy.array(PROJ(longitude, latitude))
+    coords = PROJ(longitude, latitude)
+
+    if altitude is not None:
+      coords = transform(PROJ, geocentric, coords[0], coords[1], altitude)
+
+    coordinate = numpy.array(coords)
     coordinate = coordinate / self.scale
     return coordinate.astype(int)
 

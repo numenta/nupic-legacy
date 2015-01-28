@@ -1,6 +1,12 @@
-recursive-include nupic/bindings _*.so _*.dll
-recursive-include nupic/data *.json
-recursive-include nupic/frameworks/opf/exp_generator *.json *.tpl
-recursive-include nupic/frameworks/opf/jsonschema *.json
-recursive-include nupic/support/resources/images *.png *.gif *.ico *.graffle
-recursive-include nupic/swarming/jsonschema *.json
+include external/common/requirements.txt
+include .nupic_modules
+include *.md
+include *.txt
+include VERSION
+
+recursive-include nupic/bindings *.hpp *.cpp *.i
+recursive-include extensions *.hpp *.cpp
+
+recursive-include external/common/share/swig *.*
+recursive-include external/darwin64 swig *.a
+recursive-include external/linux64 swig *.a
