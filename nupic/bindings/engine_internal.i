@@ -115,7 +115,7 @@
 
 
 //32bit fix -  Already seen by swig on linux32 where size_t is the same size as unsigned int
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm)  && !defined(NTA_PLATFORM_linux32armv7)
+#if !(defined(NTA_ARCH_32) && defined(NTA_OS_LINUX))
 %template(Dimset) std::vector<size_t>;
 #endif
 

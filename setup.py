@@ -20,7 +20,7 @@ REPO_DIR = os.path.dirname(os.path.realpath(__file__))
 DARWIN_PLATFORM = "darwin"
 LINUX_PLATFORM = "linux"
 UNIX_PLATFORMS = [LINUX_PLATFORM, DARWIN_PLATFORM]
-WINDOWS_PLATFORMS = ["win"]
+WINDOWS_PLATFORMS = ["windows"]
 
 
 
@@ -163,8 +163,8 @@ def getPlatformInfo():
     platform = "linux"
   elif "darwin" in sys.platform:
     platform = "darwin"
-  elif "win" in sys.platform:
-    platform = "win"
+  elif "windows" in sys.platform:
+    platform = "windows"
   else:
     raise Exception("Platform '%s' is unsupported!" % sys.platform)
 
@@ -305,7 +305,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
 
   commonDefines = [
     ("NUPIC2", None),
-    ("NTA_PLATFORM_" + platform + bitness, None),
+    ("NTA_OS_" + platform.upper(), None),
+    ("NTA_ARCH_" + bitness, None),
     ("NTA_PYTHON_SUPPORT", pythonVersion),
     ("NTA_INTERNAL", None),
     ("NTA_ASSERTIONS_ON", None),
