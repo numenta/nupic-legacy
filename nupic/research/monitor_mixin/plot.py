@@ -32,13 +32,14 @@ class Plot(object):
 
   def __init__(self, monitor, title):
     """
+
     @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
                                       this plot
-    @param title  (string)          Plot title
+
+    @param title  (string)            Plot title
     """
     self._monitor = monitor
     self._title = title
-
     self._fig = self._initFigure()
     plt.ion()
     plt.show()
@@ -88,7 +89,7 @@ class Plot(object):
 
 
   def add2DArray(self, data, position=111, xlabel=None, ylabel=None,
-               cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
+                 cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
     """ Adds an image to the plot's figure.
 
     @param data a 2D array. See matplotlib.Axes.imshow documentation.
