@@ -341,7 +341,11 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
   commonLinkFlags = [
     "-m" + bitness,
     "-fPIC",
-    "-L" + pythonPrefix + "/lib"]
+    "-L" + pythonPrefix + "/lib",
+    "-lkj",
+    "-lcapnp",
+    "-lcapnpc",
+  ]
 
   commonLibraries = [
     "dl",
