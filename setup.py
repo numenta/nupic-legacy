@@ -342,6 +342,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-m" + bitness,
     "-fPIC",
     "-L" + pythonPrefix + "/lib",
+    "-L" + nupicCoreReleaseDir + "/lib",
     "-lkj",
     "-lcapnp",
     "-lcapnpc",
