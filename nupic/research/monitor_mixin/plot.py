@@ -87,7 +87,7 @@ class Plot(object):
     plt.draw()
 
 
-  def addImage(self, data, position=111, xlabel=None, ylabel=None,
+  def add2DArray(self, data, position=111, xlabel=None, ylabel=None,
                cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
     """ Adds an image to the plot's figure.
 
