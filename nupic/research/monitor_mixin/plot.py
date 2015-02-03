@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -22,7 +22,6 @@
 """
 Plot class used in monitor mixin framework.
 """
-import logging
 import matplotlib.pyplot as plt
 import matplotlib.cm as colorModel
 
@@ -30,16 +29,12 @@ import matplotlib.cm as colorModel
 
 class Plot(object):
 
-  g_log = logging.getLogger(__name__)
-
-
 
   def __init__(self, monitor, title):
     """
-
-    @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
+    :param monitor: (MonitorMixinBase) Monitor Mixin instance that generated
                                       this plot
-    @param title   (string)           Title
+    :param title:   (string)          Plot title
     """
     self._monitor = monitor
     self._title = title
@@ -49,12 +44,10 @@ class Plot(object):
     plt.show()
 
 
-
   def _initFigure(self):
     fig = plt.figure()
     fig.suptitle(self._prettyPrintTitle())
     return fig
-
 
 
   def _prettyPrintTitle(self):
@@ -63,19 +56,42 @@ class Plot(object):
     return self._title
 
 
-
   def addGraph(self, data, position=111, xlabel=None, ylabel=None):
+    """ Adds a graph to the plot's figure.
+
+    :param data: See matplotlib.Axes.plot documentation.
+    :param position: A 3-digit number. The first two digits define a 2D grid
+            where subplots may be added. The final digit specifies the nth grid
+            location for the added subplot
+    :param xlabel: text to be displayed on the x-axis
+    :param ylabel: text to be displayed on the y-axis
+    """
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.plot(data)
     plt.draw()
 
 
+  def addHistogram(self, data, position=111, xlabel=None, ylabel=None,
+                   bins=None):
+    """ Adds a histogram to the plot's figure.
+
+    :param data: See matplotlib.Axes.hist documentation.
+    :param position: A 3-digit number. The first two digits define a 2D grid
+            where subplots may be added. The final digit specifies the nth grid
+            location for the added subplot
+    :param xlabel: text to be displayed on the x-axis
+    :param ylabel: text to be displayed on the y-axis
+    """
+    ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
+    ax.hist(data, bins=bins, color="green", alpha=0.8)
+    plt.draw()
+
 
   def addImage(self, data, position=111, xlabel=None, ylabel=None,
                cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
-    """
-    Adds an image to the plot's figure.
-    :param data: a 2D array
+    """ Adds an image to the plot's figure.
+
+    :param data: a 2D array. See matplotlib.Axes.imshow documentation.
     :param position: A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
@@ -85,32 +101,20 @@ class Plot(object):
     :param aspect: how aspect ratio is handled during resize
     :param interpolation: interpolation method
     """
-    if data is not None:
-      ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
-      ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
-      plt.draw()
-    else:
-      self.g_log.warning("Cannot show None")
-
-
-
-  def addHistogram(self, data, position=111, xlabel=None, ylabel=None,
-                   bins=None):
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
-    ax.hist(data, bins=bins, color="green", alpha=0.8)
+    ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
     plt.draw()
 
 
-
   def _addBase(self, position, xlabel=None, ylabel=None):
-    """
-    Adds a subplot to the plot's figure at specified position.
-    @param position - A 3-digit number. The first two digits define a 2D grid
+    """ Adds a subplot to the plot's figure at specified position.
+
+    :param position: A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
-    @param xlabel - text to be displayed on the x-axis
-    @param ylabel - text to be displayed on the y-axis
-    @return (matplotlib.Axes) instance
+    :param xlabel: text to be displayed on the x-axis
+    :param ylabel: text to be displayed on the y-axis
+    :returns (matplotlib.Axes) Axes instance
     """
     ax = self._fig.add_subplot(position)
     ax.set_xlabel(xlabel)
