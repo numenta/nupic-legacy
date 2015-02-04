@@ -32,9 +32,9 @@ class Plot(object):
 
   def __init__(self, monitor, title):
     """
-    :param monitor: (MonitorMixinBase) Monitor Mixin instance that generated
+    @param monitor (MonitorMixinBase) Monitor Mixin instance that generated
                                       this plot
-    :param title:   (string)          Plot title
+    @param title  (string)          Plot title
     """
     self._monitor = monitor
     self._title = title
@@ -59,12 +59,12 @@ class Plot(object):
   def addGraph(self, data, position=111, xlabel=None, ylabel=None):
     """ Adds a graph to the plot's figure.
 
-    :param data: See matplotlib.Axes.plot documentation.
-    :param position: A 3-digit number. The first two digits define a 2D grid
+    @param data See matplotlib.Axes.plot documentation.
+    @param position A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
-    :param xlabel: text to be displayed on the x-axis
-    :param ylabel: text to be displayed on the y-axis
+    @param xlabel text to be displayed on the x-axis
+    @param ylabel text to be displayed on the y-axis
     """
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.plot(data)
@@ -75,12 +75,12 @@ class Plot(object):
                    bins=None):
     """ Adds a histogram to the plot's figure.
 
-    :param data: See matplotlib.Axes.hist documentation.
-    :param position: A 3-digit number. The first two digits define a 2D grid
+    @param data See matplotlib.Axes.hist documentation.
+    @param position A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
-    :param xlabel: text to be displayed on the x-axis
-    :param ylabel: text to be displayed on the y-axis
+    @param xlabel text to be displayed on the x-axis
+    @param ylabel text to be displayed on the y-axis
     """
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.hist(data, bins=bins, color="green", alpha=0.8)
@@ -91,15 +91,15 @@ class Plot(object):
                cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
     """ Adds an image to the plot's figure.
 
-    :param data: a 2D array. See matplotlib.Axes.imshow documentation.
-    :param position: A 3-digit number. The first two digits define a 2D grid
+    @param data a 2D array. See matplotlib.Axes.imshow documentation.
+    @param position A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
-    :param xlabel: text to be displayed on the x-axis
-    :param ylabel: text to be displayed on the y-axis
-    :param cmap: color map used in the rendering
-    :param aspect: how aspect ratio is handled during resize
-    :param interpolation: interpolation method
+    @param xlabel text to be displayed on the x-axis
+    @param ylabel text to be displayed on the y-axis
+    @param cmap color map used in the rendering
+    @param aspect how aspect ratio is handled during resize
+    @param interpolation interpolation method
     """
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
@@ -109,12 +109,12 @@ class Plot(object):
   def _addBase(self, position, xlabel=None, ylabel=None):
     """ Adds a subplot to the plot's figure at specified position.
 
-    :param position: A 3-digit number. The first two digits define a 2D grid
+    @param position A 3-digit number. The first two digits define a 2D grid
             where subplots may be added. The final digit specifies the nth grid
             location for the added subplot
-    :param xlabel: text to be displayed on the x-axis
-    :param ylabel: text to be displayed on the y-axis
-    :returns (matplotlib.Axes) Axes instance
+    @param xlabel text to be displayed on the x-axis
+    @param ylabel text to be displayed on the y-axis
+    @returns (matplotlib.Axes) Axes instance
     """
     ax = self._fig.add_subplot(position)
     ax.set_xlabel(xlabel)
