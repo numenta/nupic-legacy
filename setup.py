@@ -341,11 +341,19 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
   commonLinkFlags = [
     "-m" + bitness,
     "-fPIC",
-    "-L" + pythonPrefix + "/lib"]
+    "-L" + pythonPrefix + "/lib",
+    "-L" + nupicCoreReleaseDir + "/lib",
+    "-lkj",
+    "-lcapnp",
+    "-lcapnpc",
+  ]
 
   commonLibraries = [
     "dl",
-    "python" + pythonVersion]
+    "python" + pythonVersion,
+    "kj",
+    "capnp",
+    "capnpc"]
   if platform == "linux":
     commonLibraries.extend(["pthread"])
 
