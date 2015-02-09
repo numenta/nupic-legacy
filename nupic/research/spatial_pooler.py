@@ -1104,9 +1104,9 @@ class SpatialPooler(object):
     @param potential: A numpy array specifying the potential pool of the column.
                     Permanence values will only be generated for input bits
                     corresponding to indices for which the mask value is 1.
-    @param connectedPct: A value between 0 or 1 specifying the percent of the input
-                    bits that will start off in a connected state.
-
+    @param connectedPct: A value between 0 or 1 governing the chance, for each
+                         permanence, that the initial permanence value will
+                         be a value that is considered connected.
     """
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a
@@ -1332,7 +1332,7 @@ class SpatialPooler(object):
     """
     # determine how many columns should be selected in the inhibition phase.
     # This can be specified by either setting the 'numActiveColumnsPerInhArea'
-    # parameter of the 'localAreaDensity' parameter when initializing the class
+    # parameter or the 'localAreaDensity' parameter when initializing the class
     overlaps = overlaps.copy()
     if (self._localAreaDensity > 0):
       density = self._localAreaDensity
