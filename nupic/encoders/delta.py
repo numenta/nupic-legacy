@@ -34,19 +34,20 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   """
 
 
-  def __init__(self, w, n, minval=None, maxval=None, 
-                name=None, verbosity=0, clipInput=True, forced=False):
+  def __init__(self, w, n, minval=None, maxval=None,
+                name=None, verbosity=0, forced=False):
     """[AdaptiveScalarEncoder class method override]"""
-    
+
     # periodic must be False for Delta encoders
     super(DeltaEncoder,  self).__init__(w=w, n=n, minval=minval, maxval=maxval,
              name=name, verbosity=verbosity, forced=forced)
-    
+
     self._learningEnabled = True
     self._stateLock = False
-    self._init = True
     assert n>0           #An adaptive encoder can only be intialized using n
 
+    self._adaptiveScalarEnc = AdaptiveScalarEncoder(w=w, n=n, minval=minval,
+                   maxval=maxval, name=name, verbosity=verbosity, forced=forced)
     self._prevAbsolute = None    #how many inputs have been sent to the encoder?
 
   def encodeIntoArray(self, input, output, learn=None):
@@ -63,7 +64,7 @@ class DeltaEncoder(AdaptiveScalarEncoder):
       if self._prevAbsolute is None:
         self._prevAbsolute = input
       delta = input - self._prevAbsolute
-      super(DeltaEncoder, self).encodeIntoArray(delta, output, learn)
+      self._adaptiveScalarEnc.encodeIntoArray(delta, output, learn) # FIXME: using super().encodeIntoArray() causes problems here
       if not self._stateLock:
         self._prevAbsolute = input
       return output
@@ -84,16 +85,9 @@ class DeltaEncoder(AdaptiveScalarEncoder):
     #Decode to delta scalar
     if self._prevAbsolute is None:
       return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
-    ret = super(DeltaEncoder, self).topDownCompute(encoded)
-    val = float(super(DeltaEncoder, self).decode(encoded)[0].values()[0][1])
-    print ret
-    diff = self._prevAbsolute
-    if self._stateLock or self._init: 
-      diff = 0
-      self._init = False
-    print "abs",self._prevAbsolute," diff",diff," val",val," ",self._init
-    ret = [EncoderResult(value=val-diff,
-                          scalar=val-diff,
+    else:
+      ret = self._adaptiveScalarEnc.topDownCompute(encoded) #FIXME super() not working
+      ret = [EncoderResult(value=ret[0].value+self._prevAbsolute,
+                          scalar=ret[0].scalar+self._prevAbsolute,
                           encoding=ret[0].encoding)]
-    print "pos",ret[0]
     return ret

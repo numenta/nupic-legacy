@@ -20,9 +20,10 @@
 # ----------------------------------------------------------------------
 
 import math
-import numpy as np
+import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.base import EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
 
