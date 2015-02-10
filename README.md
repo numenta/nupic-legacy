@@ -24,6 +24,8 @@ NuPIC binaries are available for:
 
     pip install nupic
 
+> **WARNING**: OS X binary installation only works for the default system Python installation. Homebrew and Anaconda Python are currently unsupported. For instructions on local compilation (which does work for other Python versions), please see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
+
 ### Linux
 
 > The Linux wheel file is hosted on AWS S3 instead of on the standard PyPi servers because [Linux wheels are not allowed to be uploaded to pypi](https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for) yet.
