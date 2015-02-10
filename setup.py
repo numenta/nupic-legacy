@@ -332,6 +332,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-fPIC",
     "-fvisibility=hidden",
     "-Wall",
+    "-Wextra",
     "-Wreturn-type",
     "-Wunused",
     "-Wno-unused-parameter",
