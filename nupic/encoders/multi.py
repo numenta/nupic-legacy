@@ -78,6 +78,11 @@ class MultiEncoder(Encoder):
     return self.description
 
   ############################################################################
+  def getWidth(self):
+    """override the getWidth with custom value"""
+    return self.width
+
+  ############################################################################
   def setLearning(self,learningEnabled):
     encoders = self.getEncoderList()
     for encoder in encoders:
