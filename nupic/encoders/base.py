@@ -102,9 +102,6 @@ class Encoder(object):
     # set forced
     self.forced=forced
     
-    # value for <empty> missing data
-    self.SENTINEL_VALUE_FOR_MISSING_DATA=SENTINEL_VALUE_FOR_MISSING_DATA
-
     # if encoder uses sub-encoders, eg. MultiEncoder,... these must override the value
     self.encoders=None
     

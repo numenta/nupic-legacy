@@ -1,4 +1,4 @@
-# ----------------------------------------------------------------------
+
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
@@ -24,6 +24,7 @@ import numbers
 
 import numpy
 
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
 
@@ -304,7 +305,7 @@ class ScalarEncoder(Encoder):
     For periodic encoders, this can be a negative number when the encoded output
     wraps around. """
 
-    if input == self.SENTINEL_VALUE_FOR_MISSING_DATA:
+    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
       return [None]
 
     else:
@@ -352,9 +353,9 @@ class ScalarEncoder(Encoder):
     """ See method description in base.py """
 
     if type(input) is float and math.isnan(input):
-      input = self.SENTINEL_VALUE_FOR_MISSING_DATA
+      input = SENTINEL_VALUE_FOR_MISSING_DATA
 
-    if input == self.SENTINEL_VALUE_FOR_MISSING_DATA:
+    if input == SENTINEL_VALUE_FOR_MISSING_DATA:
       return [None]
 
     minbin = self._getFirstOnBit(input)[0]
@@ -382,10 +383,10 @@ class ScalarEncoder(Encoder):
           "Expected a scalar input but got input of type %s" % type(input))
 
     if type(input) is float and math.isnan(input):
-      input = self.SENTINEL_VALUE_FOR_MISSING_DATA
+      input = SENTINEL_VALUE_FOR_MISSING_DATA
     
     if ((not skipOutOfBounds) and 
-      input is not self.SENTINEL_VALUE_FOR_MISSING_DATA and 
+      input is not SENTINEL_VALUE_FOR_MISSING_DATA and 
       self.minval is not None and 
       self.maxval is not None and 
       (input < self.minval or input > self.maxval)):
