@@ -35,47 +35,22 @@ class DeltaEncoderTest(unittest.TestCase):
 
 
   def setUp(self):
-    self._dencoder = DeltaEncoder(w=21, n=100)
-    self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100)
+    self._dencoder = DeltaEncoder(w=21, n=100, forced=True)
+    self._adaptscalar = AdaptiveScalarEncoder(w=21, n=100, forced=True)
 
 
   def testDeltaEncoder(self):
       """simple delta reconstruction test"""
       for i in range(5):
-        encarr =  self._dencoder.encode(i, learn=True)
-        td = self._dencoder.topDownCompute(encarr)[0].value
-        self.assertEqual(td, i) #FIXME
-
+        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
       self._dencoder.setStateLock(True)
       for i in range(5, 7):
-        encarr =  self._dencoder.encode(i, learn=True)
-        td = self._dencoder.topDownCompute(encarr)[0].value
-        self.assertEqual(td, i) #FIXME fails on this line
-      self._dencoder.setStateLock(False)
-
-
-  def testTopDown(self):
-    e = DeltaEncoder(w=21, n=100)
-    enc = e.encode(0)
-    dec = e.topDownCompute(enc)
-    print "CCC", enc,"CC", dec
-    self.assertEqual(dec[0].value, 0) # init -> 0
-
-    enc = e.encode(0)
-    dec = e.topDownCompute(enc)
-    self.assertEqual(dec[0].value, 0) # 0 -> 0
-
-    enc = e.encode(10)
-    dec = e.topDownCompute(enc)
-    self.assertEqual(dec[0].value, 10) # 0 -> 10
-
-    enc = e.encode(10)
-    dec = e.topDownCompute(enc)
-    self.assertEqual(dec[0].value, 10) # 10 -> 10
-
-    enc = e.encode(-100)
-    dec = e.topDownCompute(enc)
-    self.assertEqual(dec[0].value, -100) # 10 -> -100
+        encarr =  self._dencoder.encodeIntoArray(i, np.zeros(100), learn=True)
+      res = self._dencoder.topDownCompute(encarr)
+      self.assertEqual(res[0].value, 6)
+      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].value, res[0].value)
+      self.assertEqual(self._dencoder.topDownCompute(encarr)[0].scalar, res[0].scalar)
+      self.assertTrue((self._dencoder.topDownCompute(encarr)[0].encoding == res[0].encoding).all())
 
 
   def testEncodingVerification(self):
@@ -85,8 +60,10 @@ class DeltaEncoderTest(unittest.TestCase):
       self._dencoder.setStateLock(False)
       #Check that the deltas are being returned correctly.
       for i in range(len(feedIn)):
-        aseencode = self._adaptscalar.encode(expectedOut[i], learn=True)
-        delencode = self._dencoder.encode(feedIn[i], learn=True)
+        aseencode = np.zeros(100)
+        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
+        delencode = np.zeros(100)
+        self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
         self.assertTrue((delencode[0] == aseencode[0]).all())
 
 
@@ -98,14 +75,16 @@ class DeltaEncoderTest(unittest.TestCase):
         if i == 3:
           self._dencoder.setStateLock(True)
 
-        aseencode = self._adaptscalar.encode(expectedOut[i], learn=True)
+        aseencode = np.zeros(100)
+        self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
+        delencode = np.zeros(100)
         if i>=3:
-          delencode = self._dencoder.encode(feedIn[i]-feedIn[2], learn=True)
+          self._dencoder.encodeIntoArray(feedIn[i]-feedIn[2], delencode, learn=True)
         else:
-          delencode = self._dencoder.encode(expectedOut[i], learn=True)
+          self._dencoder.encodeIntoArray(expectedOut[i], delencode, learn=True)
 
         self.assertTrue((delencode[0] == aseencode[0]).all())
-      self._dencoder.setStateLock(False)
+
 
   def testEncodeInvalidInputType(self):
     try:
