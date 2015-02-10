@@ -83,9 +83,9 @@ class CoordinateEncoder(Encoder):
     return [('coordinate', 0), ('radius', 1)]
 
 
-  def getScalars(self, _input):
+  def getScalars(self, inputData):
     """See `nupic.encoders.base.Encoder` for more information."""
-    return numpy.array([0])
+    return numpy.array([0]*len(inputData))
 
 
   def encodeIntoArray(self, inputData, output):
