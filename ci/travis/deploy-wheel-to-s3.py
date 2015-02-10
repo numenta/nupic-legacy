@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -20,32 +20,37 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-echo
-echo "Running after_success-release.sh..."
-echo
+import os
+import sys
+import boto
+from boto.s3.key import Key
 
-pip --version
+# This script assumes the following environment variables are set for boto:
+# - AWS_ACCESS_KEY_ID
+# - AWS_SECRET_ACCESS_KEY
 
-echo "Installing wheel..."
-pip install wheel || exit
-echo "Installing twine..."
-pip install twine || exit
+REGION = "us-west-2"
+BUCKET = "artifacts.numenta.org"
+RELEASE_FOLDER = "numenta/nupic/releases"
 
-# Creates wheel in dist/nupic-0.0.X-py2-none-any.whl
-echo "Creating wheel..."
-python setup.py bdist_wheel || exit
 
-generic_filename=`ls dist/*.whl`
-echo "Wheel created at ${generic_filename}."
 
-# # Change the name of the wheel based on our platform if on OS X...
-# if [ "${TRAVIS_OS_NAME}" = "osx" ]; then
-#     platform=`python -c "import distutils.util; print distutils.util.get_platform()"` || exit
-#     new_filename=$(echo $generic_filename | sed -e "s/none/${platform}/")
-#     mv $generic_filename $new_filename
-#     echo "Moved wheel to ${new_filename} before ${platform} deployment."
-# else
-#     new_filename="${generic_filename}"
-# fi
+def upload(artifactsBucket, wheelFileName, wheelPath):
+  key = Key(artifactsBucket)
+  key.key = "%s/%s" % (RELEASE_FOLDER, wheelFileName)
+  print "Uploading %s to %s/%s..." % (wheelFileName, BUCKET, RELEASE_FOLDER)
+  key.set_contents_from_filename(wheelPath)
 
-twine upload "$generic_filename" -u "${PYPI_USERNAME}" -p "${PYPI_PASSWD}"
+
+
+def run(wheelPath):
+  wheelFileName = os.path.basename(wheelPath)
+  conn = boto.connect_s3()
+  artifactsBucket = conn.get_bucket(BUCKET)
+  upload(artifactsBucket, wheelFileName, wheelPath)
+
+
+
+if __name__ == "__main__":
+  wheelPath = sys.argv[1]
+  run(wheelPath)
