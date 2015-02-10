@@ -152,7 +152,7 @@ class GeospatialCoordinateEncoderTest(unittest.TestCase):
     self.assertTrue(overlap1 > overlap2)
 
 
-def encode(encoder, longitude, latitude, speed):
+def encode(encoder, speed, longitude, latitude, altitude=None):
   return encoder.encode((speed, longitude, latitude, altitude))
 
 def overlap(sdr1, sdr2):
