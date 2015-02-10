@@ -831,15 +831,15 @@ class Encoder(object):
       return numpy.array([closeness])
 
 
-    # ---------------------------------------------------------------------
-    # Concatenate the results from closeness scores on each child encoder
-    scalarIdx = 0
-    retVals = numpy.array([])
-    for (name, encoder, offset) in self.encoders:
-      values = encoder.closenessScores(expValues[scalarIdx:], actValues[scalarIdx:],
+    else: # self.encoders is not None
+      # Concatenate the results from closeness scores on each child encoder
+      scalarIdx = 0
+      retVals = numpy.array([])
+      for (name, encoder, offset) in self.encoders:
+        values = encoder.closenessScores(expValues[scalarIdx:], actValues[scalarIdx:],
                                        fractional=fractional)
-      scalarIdx += len(values)
-      retVals = numpy.hstack((retVals, values))
+        scalarIdx += len(values)
+        retVals = numpy.hstack((retVals, values))
 
-    return retVals
+      return retVals
 
