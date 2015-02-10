@@ -124,6 +124,11 @@ def getCommandLineOptions():
      "",
      "(optional) Skip nupic.core version comparison"]
   )
+  optionsDesc.append(
+    ["enable-optimizations",
+    "value",
+    "(optional) enable aggressive compiler optimizations"]
+  )
 
   # Read command line options looking for extra options
   # For example, an user could type:
@@ -280,7 +285,7 @@ def getDefaultNupicCoreDirectories():
 
 
 
-def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
+def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None):
   #
   # Gives the version of Python necessary to get installation directories
   # for use with pythonVersion, etc.
@@ -355,6 +360,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     # optimization (safe defaults)
     "-O2",
   ]
+
+  # Optimizations
+  if cmdOptions is not None and getCommandLineOption("enable-optimizations", cmdOptions):
+    commonCompileFlags.append("-march=native")
+    commonCompileFlags.append("-O3")
+    commonLinkFlags.append("-O3")
+
 
   commonLibraries = [
     "dl",
@@ -612,7 +624,7 @@ try:
   if haveBuild:
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
     extensions = getExtensionModules(
-      nupicCoreReleaseDir, platform, bitness
+      nupicCoreReleaseDir, platform, bitness, cmdOptions=options
     )
   else:
     extensions = []
