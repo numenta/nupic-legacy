@@ -334,7 +334,11 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-Wall",
     "-Wreturn-type",
     "-Wunused",
-    "-Wno-unused-parameter"]
+    "-Wno-unused-parameter",
+    # optimization flags (generic builds used for binary distribution)
+    "-mtune=generic",
+    "-O2",
+  ]
   if platform == "darwin":
     commonCompileFlags.append("-stdlib=libc++")
 
@@ -343,9 +347,12 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-fPIC",
     "-L" + pythonPrefix + "/lib",
     "-L" + nupicCoreReleaseDir + "/lib",
+    # for Cap'n'Proto serialization
     "-lkj",
     "-lcapnp",
     "-lcapnpc",
+    # optimization (safe defaults)
+    "-O2",
   ]
 
   commonLibraries = [
