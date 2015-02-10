@@ -69,7 +69,7 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Byte, PyArray_BYTE);
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int16, PyArray_INT16);
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt16, PyArray_UINT16);
 
-#if defined(NTA_PLATFORM_linux64) || defined(NTA_PLATFORM_sparc64) || defined(NTA_PLATFORM_darwin64)
+#if defined(NTA_ARCH_64) && (defined(NTA_OS_LINUX) || defined(NTA_OS_DARWIN) || defined(NTA_OS_SPARC))
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT64);
 #else
 NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
@@ -77,14 +77,14 @@ NTA_DEF_NUMPY_DTYPE_TRAIT(size_t, PyArray_UINT32);
 
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int32, PyArray_INT32);
 
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
+#if !(defined(NTA_ARCH_32) && defined(NTA_OS_LINUX))
 // size_t (above) is the same as UInt32 on linux32
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt32, PyArray_UINT32);
 #endif
 
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::Int64, PyArray_INT64);
 
-#if !defined(NTA_PLATFORM_linux64) && !defined(NTA_PLATFORM_sparc64) && !defined(NTA_PLATFORM_darwin64)
+#if !(defined(NTA_ARCH_64) && (defined(NTA_OS_LINUX) || defined(NTA_OS_DARWIN) || defined(NTA_OS_SPARC)))
 NTA_DEF_NUMPY_DTYPE_TRAIT(nupic::UInt64, PyArray_UINT64);
 #endif
 

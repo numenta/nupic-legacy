@@ -16,23 +16,39 @@ env:
   global:
     - NUPIC=$TRAVIS_BUILD_DIR
     - PATH=$TRAVIS_BUILD_DIR/python/bin:$PATH
+    # AWS keys are for manual uploads of linux wheel to S3.
+    - AWS_ACCESS_KEY_ID=AKIAIGHYSEHV3WFKOWNQ
+    # AWS_SECRET_ACCESS_KEY encrypted below
+    - secure: "pYsMDbNp8k2i0d9p5mf/9TlDzxt2FiiR1QJV7QUn+S2/r372VYdZaplL+s9ItVGCGFpAyKk7HXcwm//DKw/ZKb6UlDJm3Fph9m+3aDDIiVFNB7g1uro+Yg8nIGuV8qZEtIaHRtR1zOt1EufoR9dg1Mq8ryRggN9rrB0FvCxUZAQ="
+    # PyPi credentials for manual uploads to Pypi on release.
     - PYPI_USERNAME=numenta
     # PYPI_PASSWD encrypted below.
     - secure: "elm3E3MwpbZqTCz+EHPQ7CEBwoBvRgqS3q5MHY+jUcpdrWeSjmy7TZoRN5+rAjDQYuR5g33pMXnyeRGw/DG7Xa5FG0g3PoMnO6fnIe7Hs7gPlDXbwilfYxfi462N7Y9aAGPFuvNkZsgd0dfwXKwNEiZ5hYfsbFFwHMeXMQA/SA8="
     - NUPIC_DEPLOYMENT_BUILD=true
 
 matrix:
-  # This excludes OSX builds from the build matrix for gcc and Python 2.6
+  # This excludes OSX GCC builds.
   exclude:
     - os: osx
       compiler: gcc
+
+git:
+  submodules: false
+
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.net#nupic-hackers"
+  webhooks:
+    urls:
+      - http://issues.numenta.org:8081/travis
+      - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
   - . ./ci/travis/before_deploy.sh
 
 deploy:
-
   # S3 deployment of NuPIC and dependency wheels on every push to master. These
   # packages are used in dependent projects like nupic.regression and
   # nupic.research.
@@ -50,36 +66,7 @@ deploy:
       branch: master
       condition:
         - "$TRAVIS_OS_NAME == linux"
-        - "$CC == clang"
-
-# Replacing this Pypi deployment with a custom deployment so we can control the 
-# names of the files being uploaded to pypi.
-  # # Pypi deployment happens only for release tags.
-  # - provider: pypi
-  #   user: numenta
-  #   password:
-  #     secure: "Sx+MRU59kHzf53ed8bhg/oKie8P+Sd7mntoscGJiHiJKiVbZjj+bCqcXaf0iAfNowaGDX1qV6ohf9+t8sEZHIK/Ge9Sffyd/EWLB3M2hSvTFbz1PEAMlj4q4JX1iBMSbB5OqX3HY/48a5XaRtlW7r7m/V8cg3k9Zzw6EzewGGhs="
-  #   distributions: "bdist_wheel"
-  #   skip_cleanup: true
-  #   # Only deploying from clang jobs.
-  #   on:
-  #     all_branches: true
-  #     tags: true
-  #     condition:
-  #       - "$CC == clang"
-
-
-git:
-  submodules: false
-
-notifications:
-  irc:
-    channels:
-      - "irc.freenode.net#nupic-hackers"
-  webhooks:
-    urls:
-      - http://issues.numenta.org:8081/travis
-      - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
+        - "$CC == gcc-4.8"
 
 before_install:
   - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/before_install-linux.sh; fi"
@@ -93,7 +80,8 @@ script:
   - . ./ci/travis/script-run-tests.sh
 
 after_success:
- - cd ${TRAVIS_BUILD_DIR}
- # Run release script if this is a tagged build.
- - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/after_success-report-coverage-linux.sh; fi"
- - "if [ -n \"${TRAVIS_TAG}\" -a \"$CC\" = 'gcc' ]; then . ./ci/travis/after_success-release.sh; fi"
+  - cd ${TRAVIS_BUILD_DIR}
+  # Run release script if this is a tagged build.
+  - "if [ ${TRAVIS_OS_NAME:-'linux'} = 'linux' ]; then . ./ci/travis/after_success-report-coverage-linux.sh; fi"
+  - "if [ -n \"${TRAVIS_TAG}\" -a \"${TRAVIS_OS_NAME}--${CC}\" = 'linux--gcc-4.8' ]; then . ./ci/travis/after_success-release-linux.sh; fi"
+  - "if [ -n \"${TRAVIS_TAG}\" -a \"${TRAVIS_OS_NAME}--${CC}\" = 'osx--clang' ]; then . ./ci/travis/after_success-release-osx.sh; fi"

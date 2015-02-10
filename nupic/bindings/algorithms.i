@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------
  * Numenta Platform for Intelligent Computing (NuPIC)
- * Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+ * Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
  * with Numenta, Inc., for a separate license for this software code, the
  * following terms and conditions apply:
  *
@@ -99,18 +99,20 @@ _ALGORITHMS = _algorithms
 #include <nupic/algorithms/SpatialPooler.hpp>
 #include <nupic/algorithms/FlatSpatialPooler.hpp>
 
+#include <nupic/algorithms/Cell.hpp>
 #include <nupic/algorithms/Cells4.hpp>
 #include <nupic/algorithms/ClassifierResult.hpp>
-#include <nupic/algorithms/FastClaClassifier.hpp>
-#include <nupic/algorithms/SegmentUpdate.hpp>
-#include <nupic/algorithms/OutSynapse.hpp>
-#include <nupic/algorithms/InSynapse.hpp>
-#include <nupic/algorithms/Cell.hpp>
-
 #include <nupic/algorithms/Connections.hpp>
+#include <nupic/algorithms/FastClaClassifier.hpp>
+#include <nupic/algorithms/InSynapse.hpp>
+#include <nupic/algorithms/OutSynapse.hpp>
+#include <nupic/algorithms/SegmentUpdate.hpp>
+
+#include <nupic/proto/SpatialPoolerProto.capnp.h>
 
 #include <numpy/arrayobject.h>
 #include <py_support/NumpyVector.hpp>
+#include <py_support/PyCapnp.hpp>
 #include <py_support/PythonStream.hpp>
 #include <py_support/PyHelpers.hpp>
 
@@ -721,7 +723,7 @@ void forceRetentionOfImageSensorLiteLibrary(void) {
  ///%template(Int_Seg_32) std::pair<nupic::UInt32, nupic::algorithms::Segment<nupic::UInt32,nupic::Real32>*>;
 
 // Already seen by swig on linux32 where size_t is the same size as unsigned int
-#if !defined(NTA_PLATFORM_linux32) && !defined(NTA_PLATFORM_linux32arm) && !defined(NTA_PLATFORM_linux32armv7)
+#if !(defined(NTA_ARCH_32) && defined(NTA_OS_LINUX))
 %template(Size_T_Vector) std::vector<size_t>;
 #endif
 
@@ -1900,6 +1902,19 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     self->stripUnlearnedColumns((nupic::UInt*) x->data);
+  }
+
+  inline void write(PyObject* pyBuilder) const
+  {
+    SpatialPoolerProto::Builder proto =
+        getBuilder<SpatialPoolerProto>(pyBuilder);
+    self->write(proto);
+  }
+
+  inline void read(PyObject* pyReader)
+  {
+    SpatialPoolerProto::Reader proto = getReader<SpatialPoolerProto>(pyReader);
+    self->read(proto);
   }
 
   void loadFromString(const std::string& inString)
