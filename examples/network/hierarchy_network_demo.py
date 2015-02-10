@@ -227,7 +227,6 @@ def createNetwork(dataSource):
 
   l1Classifier = network.addRegion(_L1_CLASSIFIER, "py.CLAClassifierRegion",
                                    json.dumps(classifierParams))
-  # TODO set default values to true? not intuitive
   l1Classifier.setParameter('inferenceMode', True)
   l1Classifier.setParameter('learningMode', True)
   network.link(_L1_TEMPORAL_MEMORY, _L1_CLASSIFIER, linkType, linkParams,
