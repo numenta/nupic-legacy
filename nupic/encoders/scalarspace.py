@@ -42,7 +42,7 @@ class ScalarSpaceEncoder(Encoder):
                name=name, verbosity=verbosity)
     else:
       ret = DeltaEncoder(w=w, n=n, minval=minval, maxval=maxval,
-               name=name, verbosity=verbosity, clipInput=clipInput)
+               name=name, verbosity=verbosity)
 
     return ret
 #TODO: add other Encoders - log, scalar,..
