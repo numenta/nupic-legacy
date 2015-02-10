@@ -482,10 +482,9 @@ class Encoder(object):
 
     # Return the field name and offset within the field
     # return (fieldName, bitOffset - fieldOffset)
-    width = self.getDisplayWidth() if formatted else self.getWidth()
 
     if prevFieldOffset is None or bitOffset > self.getWidth():
-      raise IndexError("Bit is outside of allowable range: [0 - %d]" % width)
+      raise IndexError("Bit is outside of allowable range: [0 - %d]" % self.getWidth())
 
     return (prevFieldName, bitOffset - prevFieldOffset)
 
@@ -844,16 +843,3 @@ class Encoder(object):
 
     return retVals
 
-
-
-  ############################################################################
-  def getDisplayWidth(self):
-    """
-    Calculate width of display for bits plus blanks between fields.
-
-    @returns width of display for bits plus blanks between fields
-    """
-    width = self.getWidth() + len(self.getDescription()) - 1
-    return width
-
-  ############################################################################
