@@ -23,6 +23,7 @@ import math
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
@@ -50,12 +51,13 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
   ############################################################################
   def __init__(self, w, n, minval=None, maxval=None, 
-                name=None, verbosity=0, forced=False):
+                name=None, verbosity=0, clipInput=True, forced=False):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
     cannot be periodic
     clipInput = True
     n must be set >0
+    #FIXME: remove clipInput field, currently some integration tests hardcode it
     """
     self._learningEnabled = True
     assert n>0           #An adaptive encoder can only be intialized using n
