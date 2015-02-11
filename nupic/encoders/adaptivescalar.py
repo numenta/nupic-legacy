@@ -23,7 +23,6 @@ import math
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
