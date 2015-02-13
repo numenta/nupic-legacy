@@ -87,25 +87,27 @@ class MonitorMixinBase(object):
 
 
   @staticmethod
-  def mmPrettyPrintMetrics(metrics):
+  def mmPrettyPrintMetrics(metrics, sigFigs=5):
     """
     Returns pretty-printed table of metrics.
 
     @param metrics (list) Traces to print in table
 
+    @param sigFigs  (int)  Number of significant figures to print
+
     @return (string) Pretty-printed table of metrics.
     """
     assert len(metrics) > 0, "No metrics found"
-    table = PrettyTable(["Metric",
-                         "min", "max", "sum", "mean", "standard deviation"])
+    table = PrettyTable(["Metric", "mean", "standard deviation",
+                         "min", "max", "sum", ])
 
     for metric in metrics:
       table.add_row([metric.prettyPrintTitle(),
-                     metric.min,
-                     metric.max,
-                     metric.sum,
-                     metric.mean,
-                     metric.standardDeviation])
+                     round(metric.mean, sigFigs),
+                     round(metric.standardDeviation, sigFigs),
+                     round(metric.min, sigFigs),
+                     round(metric.max, sigFigs),
+                     round(metric.sum, sigFigs)])
 
     return table.get_string().encode("utf-8")
 
