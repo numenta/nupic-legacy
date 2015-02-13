@@ -23,14 +23,18 @@
 Temporal Memory mixin that enables detailed monitoring of history.
 """
 
-from collections import defaultdict
+import numpy
 
+from collections import defaultdict
 from prettytable import PrettyTable
 
+from nupic.bindings.algorithms import ConnectionsCell
 from nupic.research.monitor_mixin.trace import (
   IndicesTrace, CountsTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
+from nupic.research.monitor_mixin.plot import Plot
+
 
 
 class TemporalMemoryMonitorMixin(MonitorMixinBase):
@@ -322,18 +326,20 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   # ==============================
   # Overrides
   # ==============================
-
   def compute(self, activeColumns, sequenceLabel=None, **kwargs):
+    # Append last cycle's predictiveCells to *predicTEDCells* trace
     self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
     super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
 
+    # Append last cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
-
+    self._mmTraces["activeCells"].data.append(self.activeCellsIndices())
+    self._mmTraces["correctlyPredictedCells"].data.append(
+                                             self.predictedActiveCellsIndices())
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
-
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
     self._mmTraces["resets"].data.append(self._mmResetActive)
     self._mmResetActive = False
@@ -383,10 +389,56 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     self._mmTraces["predictedCells"] = IndicesTrace(self, "predicted cells")
     self._mmTraces["activeColumns"] = IndicesTrace(self, "active columns")
+    self._mmTraces["activeCells"] = IndicesTrace(self, "active cells")
     self._mmTraces["predictiveCells"] = IndicesTrace(self, "predictive cells")
+    self._mmTraces["correctlyPredictedCells"] = IndicesTrace(self, "correctly "
+                                                             "predicted cells")
     self._mmTraces["numSegments"] = CountsTrace(self, "# segments")
     self._mmTraces["numSynapses"] = CountsTrace(self, "# synapses")
     self._mmTraces["sequenceLabels"] = StringsTrace(self, "sequence labels")
     self._mmTraces["resets"] = BoolsTrace(self, "resets")
-
     self._mmTransitionTracesStale = True
+
+
+  def mmGetCellActivityPlot(self, title="", showReset=False,
+                            resetShading=0.25, activityType="activeCells"):
+    """ Returns plot of the cell activity.
+    @param title an optional title for the figure
+
+    @param showReset if true, the first set of cell activities after a reset
+                        will have a gray background
+
+    @param resetShading If showReset is true, this float specifies the
+    intensity of the reset background with 0.0 being white and 1.0 being black
+
+    @param activityType The type of cell activity to display. Valid types
+    include "activeCells", "predictiveCells", "predictedCells",
+    and "correctlyPredictedCells"
+
+    @return (Plot) plot
+    """
+    plot = Plot(self, title)
+    cellTrace = self._mmTraces[activityType].data
+    resetTrace = self.mmGetTraceResets().data
+    cellCount = self.numberOfCells()
+    data = numpy.zeros((cellCount, 1))
+    for i in xrange(len(cellTrace)):
+      activeIdxSet = cellTrace[i]
+
+      # If the set contains ConnectionsCell, convert to int
+      if len(activeIdxSet) > 0:
+        elem = next(iter(activeIdxSet))
+        if isinstance(elem, ConnectionsCell):
+          activeIdxSet = [x.idx for x in activeIdxSet]
+
+      # Set up a "background" vector that is shaded or blank
+      if showReset and resetTrace[i]:
+        activity = numpy.ones((cellCount, 1)) * resetShading
+      else:
+        activity = numpy.zeros((cellCount, 1))
+
+      activity[list(activeIdxSet)] = 1
+      data = numpy.concatenate((data, activity), 1)
+
+    plot.add2DArray(data, xlabel="Time", ylabel=activityType)
+    return plot
