@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3
+
+* Removed unnecessary build flag and fix a bug that was causing duplicated definition names during build.  Fixes #1824 enabling support for brew-installed python and binary builds
+* pycapnp-related build improvements
+* Bugfix: When coordinate encoder is used with DateEncoder, ValueError occurs
+
 ## 0.1.2
 
 * Add archflags env var before deploy command on OSX
@@ -28,7 +34,7 @@
 * GCE now encodes altitude using a 3D coordinate system.
 * Distributing `*.i` files from `nupic.bindings` in binary packages.
 * Updates test entry points to pure python. README instructions for running tests were updated.
-* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found. 
+* Missing configuration files are no longer ignored. A runtime exception is raised immediately when an expected configuration file is not found.
 * Updated deployment logic to account for both deployment scenarios (iterative and release).
 * Configured pypi deployment on all branches with tags.
 * Added pypi deployment configuration for binary releases.
