@@ -264,22 +264,11 @@ class MetricsIface(object):
   def addInstance(self, groundTruth, prediction, record = None):
     """ add one instance consisting of ground truth and a prediction.
 
-      Parameters:
-      -----------------------------------------------------------------------
-      groundTruth:
-        The actual measured value at the current timestep
-      prediction:
-        The value predicted by the network at the current timestep
+      @param groundTruth The actual measured value at the current timestep
+      @param prediction  The value predicted by the network at the current timestep
+      @param record (opt) TODO explain?
 
-      groundTruthEncoding:
-        The binary encoding of the groundTruth value (as a numpy array). Right
-        now this is only used by CLA networks
-      predictionEncoding:
-        The binary encoding of the prediction value (as a numpy array). Right
-        now this is only used by CLA networks
-
-        return:
-            The average error as computed over the metric's window size
+      @return return The average error as computed over the metric's window size
     """
 
   @abstractmethod
