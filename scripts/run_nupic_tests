@@ -28,8 +28,8 @@ from pkg_resources import (
   get_distribution
 )
 from optparse import OptionParser
+from subprocess import call
 
-import pytest
 
 
 try:
@@ -245,14 +245,14 @@ def main(parser, parse_args):
             else arg
           for arg in args
         ]
-      testStatus = pytest.main(specific_args + [test])
+      testStatus = call(["py.test"] + specific_args + [test])
       # exitStatus defaults to 0, if any test returns non-0, we'll set it.
       if testStatus is not 0:
         exitStatus = testStatus
 
   else:
     # Standard tests
-    exitStatus = pytest.main(args + list(tests))
+    exitStatus = call(["py.test"] + args + list(tests))
 
   return exitStatus
 

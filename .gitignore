@@ -66,8 +66,9 @@ extensions/core/
 experimental/
 
 # nupic bindings swig libraries
-nupic/bindings/
-~nupic/bindings/*.i
+nupic/bindings/*.cxx
+nupic/bindings/*.py
+nupic/bindings/*.so
 
 # Pip stuff
 dist/
