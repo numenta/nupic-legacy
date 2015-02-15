@@ -1553,7 +1553,11 @@ class FDRCSpatial2(object):
       for masterNum in xrange(self.numCloneMasters):
         masterConnected = self._masterConnectedM[masterNum]
         nzs = masterConnected.getAllNonZeros()
-        rows, cols = zip(*nzs)
+        if len(nzs) == 0:
+          rows = []
+          cols = []
+        else:
+          rows, cols = zip(*nzs)
         rows = numpy.array(rows)
         cols = numpy.array(cols)
         if len(rows) >= 2:
