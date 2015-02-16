@@ -6,7 +6,7 @@ The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intellig
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-## Installing NuPIC 0.1.2
+## Installing NuPIC 0.1.3
 
 NuPIC binaries are available for:
 
@@ -24,11 +24,13 @@ NuPIC binaries are available for:
 
     pip install nupic
 
+> **WARNING**: OS X binary installation only works for the default system Python installation. Homebrew and Anaconda Python are currently unsupported. For instructions on local compilation (which does work for other Python versions), please see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
+
 ### Linux
 
 > The Linux wheel file is hosted on AWS S3 instead of on the standard PyPi servers because [Linux wheels are not allowed to be uploaded to pypi](https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for) yet.
 
-    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.1.2-cp27-none-linux_x86_64.whl
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.1.3-cp27-none-linux_x86_64.whl
 
 
 ### _Having problems?_

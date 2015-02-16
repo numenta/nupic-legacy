@@ -351,7 +351,6 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   commonLinkFlags = [
     "-m" + bitness,
     "-fPIC",
-    "-L" + pythonPrefix + "/lib",
     "-L" + nupicCoreReleaseDir + "/lib",
     # for Cap'n'Proto serialization
     "-lkj",
@@ -440,7 +439,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   for define in commonDefines:
     item = "-D" + define[0]
     if define[1]:
-      item += define[0] + "=" + define[1]
+      item += "=" + define[1]
     swigFlags.append(item)
   for includeDir in commonIncludeDirs:
     item = "-I" + includeDir
