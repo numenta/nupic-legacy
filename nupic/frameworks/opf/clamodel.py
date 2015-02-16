@@ -351,7 +351,7 @@ class CLAModel(Model):
 
             return:
                 An ModelResult namedtuple (see opfutils.py) The contents of
-                ModelResult.inferences depends on the the specific inference 
+                ModelResult.inferences depends on the the specific inference
                 type of this model, which can be queried by getInferenceType()
     """
     assert not self.__restoringFromState
@@ -378,10 +378,6 @@ class CLAModel(Model):
     ###########################################################################
     # Predictions and Learning
     ###########################################################################
-    inferenceArgs = self.getInferenceArgs()
-    if inferenceArgs is None:
-      inferenceArgs = {}
-
     self._sensorCompute(inputRecord)
     self._spCompute()
     self._tpCompute()
@@ -598,6 +594,7 @@ class CLAModel(Model):
     Compute Anomaly score, if required
     """
     inferenceType = self.getInferenceType()
+
     inferences = {}
     sp = self._getSPRegion()
     score = None
@@ -613,11 +610,16 @@ class CLAModel(Model):
         sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
+      if not self._predictedFieldName in self._input:
+        raise ValueError(
+          "Expected predicted field '%s' in input row, but was not found!" 
+          % self._predictedFieldName
+        )
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
-                                   activeColumns, 
-                                   self._prevPredictedColumns, 
+                                   activeColumns,
+                                   self._prevPredictedColumns,
                                    inputValue=self._input[self._predictedFieldName])
 
       # Store the predicted columns for the next timestep.
@@ -660,6 +662,14 @@ class CLAModel(Model):
                   None.
     rawInput:   The raw input to the sensor, as a dict.
     """
+    inferenceArgs = self.getInferenceArgs()
+    predictedFieldName = inferenceArgs.get('predictedField', None)
+    if predictedFieldName is None:
+      raise ValueError(
+        "No predicted field was enabled! Did you call enableInference()?"
+      )
+    self._predictedFieldName = predictedFieldName
+
     classifier = self._getClassifierRegion()
     if not self._hasCL or classifier is None:
       # No classifier so return an empty dict for inferences.
@@ -668,10 +678,8 @@ class CLAModel(Model):
     sensor = self._getSensorRegion()
     minLikelihoodThreshold = self._minLikelihoodThreshold
     maxPredictionsPerStep = self._maxPredictionsPerStep
-    inferenceArgs = self.getInferenceArgs()
     needLearning = self.isLearningEnabled()
     inferences = {}
-    predictedFieldName = inferenceArgs.get('predictedField', None)
 
     # Get the classifier input encoder, if we don't have it already
     if self._classifierInputEncoder is None:
@@ -680,10 +688,10 @@ class CLAModel(Model):
               "the 'predictedField' in its config, which is required "
               "for multi-step prediction inference.")
 
-      # This is getting index of predicted field if being fed to CLA.
-      self._predictedFieldName = predictedFieldName
       encoderList = sensor.getSelf().encoder.getEncoderList()
       self._numFields = len(encoderList)
+
+      # This is getting index of predicted field if being fed to CLA.
       fieldNames = sensor.getSelf().encoder.getScalarNames()
       if predictedFieldName in fieldNames:
         self._predictedFieldIdx = fieldNames.index(predictedFieldName)

@@ -12,6 +12,9 @@ test.out
 *.swp
 *.coverage*
 
+# build
+build/
+
 # personalized nupic configuration file
 .nupic_config
 
@@ -63,16 +66,12 @@ extensions/core/
 experimental/
 
 # nupic bindings swig libraries
-nupic/bindings/*engine_internal.*
-nupic/bindings/*algorithms.*
-nupic/bindings/*iorange.*
-nupic/bindings/*math.*
 nupic/bindings/*.cxx
-nupic/bindings/proto/*.capnp
+nupic/bindings/*.py
+nupic/bindings/*.so
 
 # Pip stuff
 dist/
 nupic.egg-info/
 nupic/*cpp_region.*
 temp/
-
