@@ -125,7 +125,7 @@ def getCommandLineOptions():
      "(optional) Skip nupic.core version comparison"]
   )
   optionsDesc.append(
-    ["enable-optimizations",
+    ["optimizations-native",
     "value",
     "(optional) enable aggressive compiler optimizations"]
   )
@@ -367,7 +367,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   ]
 
   # Optimizations
-  if cmdOptions is not None and getCommandLineOption("enable-optimizations", cmdOptions):
+  if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
     commonCompileFlags.append("-march=native")
     commonCompileFlags.append("-O3")
     commonLinkFlags.append("-O3")
