@@ -2,103 +2,52 @@
 
 ## Numenta Platform for Intelligent Computing
 
-* Build: [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
-* Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
-* [Regression Tests](https://github.com/numenta/nupic.regression): [![Build Status](https://travis-ci.org/numenta/nupic.regression.svg?branch=master)](https://travis-ci.org/numenta/nupic.regression)
-
-NuPIC is a library that provides the building blocks for online prediction and anomaly detection systems.  The library contains the [Cortical Learning Algorithm (CLA)](https://github.com/numenta/nupic/wiki/Cortical-Learning-Algorithm), but also the [Online Prediction Framework (OPF)] (https://github.com/numenta/nupic/wiki/Online-Prediction-Framework) that allows clients to build prediction systems out of encoders, models, and metrics.
+The Numenta Platform for Intelligent Computing (**NuPIC**) is a machine intelligence platform that implements the [HTM learning algorithms](http://numenta.com/learn/hierarchical-temporal-memory-white-paper.html). HTM is a detailed computational theory of the neocortex. At the core of HTM are time-based continuous learning algorithms that store and recall spatial and temporal patterns. NuPIC is suited to a variety of problems, particularly anomaly detection and prediction of streaming data sources.
 
 For more information, see [numenta.org](http://numenta.org) or the [NuPIC wiki](https://github.com/numenta/nupic/wiki).
 
-## Installation
+## Installing NuPIC 0.1.3
 
-For all installation options, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
+NuPIC binaries are available for:
 
-### Currently supported platforms:
+- Linux x86 64b
+- OS X 10.9
+- OS X 10.10
 
- * 64-bit Linux
- * Mac OS X
- * [VM images](https://github.com/numenta/nupic/wiki/Running-Nupic-in-a-Virtual-Machine)
+#### Dependencies
 
-### Dependencies:
+- [Python 2.7 & development headers](https://docs.python.org/devguide/setup.html#build-dependencies)
+- [pip](https://pypi.python.org/pypi/pip)
+- [wheel](http://pythonwheels.com)
 
- * Python 2.7 (with development headers)
- * Compiler toolchain with support for C++11 such as GCC >= 4.7 (Linux-only), or llvm/clang
- * Make
- * CMake
+### Mac OS X
 
-The _python_ dependencies are included in platform-specific repositories for convenience. Installing from these repositories is not required if the dependencies defined above have been manually installed or already exist on your system.
+    pip install nupic
 
-* [nupic-linux64](https://github.com/numenta/nupic-linux64) for 64-bit Linux systems
-* [nupic-darwin64](https://github.com/numenta/nupic-darwin64) for 64-bit OS X systems
+> **WARNING**: OS X binary installation only works for the default system Python installation. Homebrew and Anaconda Python are currently unsupported. For instructions on local compilation (which does work for other Python versions), please see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
 
-Complete set of python requirements are documented in [requirements.txt](/external/common/requirements.txt),
-compatible with [pip](http://www.pip-installer.org/en/latest/cookbook.html#requirements-files):
+### Linux
 
-### Installing Python Dependencies
+> The Linux wheel file is hosted on AWS S3 instead of on the standard PyPi servers because [Linux wheels are not allowed to be uploaded to pypi](https://bitbucket.org/pypa/pypi-metadata-formats/issue/15/enhance-the-platform-tag-definition-for) yet.
 
-    pip install -r external/common/requirements.txt
+    pip install https://s3-us-west-2.amazonaws.com/artifacts.numenta.org/numenta/nupic/releases/nupic-0.1.3-cp27-none-linux_x86_64.whl
 
-> _Note_: If using pip 1.5 or later:
 
-    pip install --allow-all-external --allow-unverified PIL --allow-unverified psutil -r external/common/requirements.txt
+### _Having problems?_
 
-> _Note_: If you get a "permission denied" error when using pip, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run pip with `sudo`.
+- You may need to use the `--user` flag for the commands above to install in a non-system location (depends on your environment). Alternatively, you can execute the `pip` commands with `sudo` (not recommended).
+- You may need to add the `--use-wheel` option if you have an older pip version (wheels are now the default binary package format for pip).
 
-### Installing NuPIC
+For any other installation issues, please see our [FAQ](https://github.com/numenta/nupic/wiki/FAQ) or email the [nupic-discuss](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org) mailing list.
 
-Move into the NuPIC installation directory and run:
+### Building NuPIC From Source Code
 
-    python setup.py install
+For details about checking out this repository and building in your local environment, see the [Installing and Building NuPIC](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC) wiki page.
 
-> _Note_: If you get a "permission denied" error when using this, you may add the `--user` flag to install to a location in your home directory, which should resolve any permissions issues. Doing this, you may need to add this location to your PATH and PYTHONPATH. Alternatively, you can run this with `sudo`.
+## How to Contribute:
 
-Once it is installed, you can import NuPIC library to your python script using:
+ Please see the [Contributing to NuPIC](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC) wiki page.
 
-    import nupic
-
-For examples, tutorials, and screencasts about using NuPIC, see the [Using NuPIC](https://github.com/numenta/nupic/wiki/Using-NuPIC) wiki page.
-
-## Developer instructions
-
-If you want to develop, debug, or simply test NuPIC, [clone](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#for-potential-contributors) it and follow the instructions below.
-
-### Using command line
-
-> This assumes the `NUPIC` environment variable is set to the directory where the NuPIC source code exists.
-
-    cd $NUPIC
-    python setup.py build
-    python setup.py develop
-
-#### To run the tests:
-
-    # Python HTM Network API tests
-    $NUPIC/bin/py_region_test
-
-    # Python unit tests
-    $NUPIC/scripts/run_nupic_tests -u --coverage
-
-    # Python integration tests
-    $NUPIC/scripts/run_nupic_tests -i --coverage
-
-    # Python swarming tests (requires mysql)
-    $NUPIC/scripts/run_nupic_tests -w --coverage
-
-    # Run all tests!
-    $NUPIC/scripts/run_nupic_tests --all --coverage
-
-### Using an IDE
-
-See our [Development Tips](https://github.com/numenta/nupic/wiki/Development-Tips) wiki page for details.
-
-#### To run the tests:
-
- * Run any [test](#run-the-tests) project from your IDE (check `output` panel to see the results).
-
-For more tips, please see [Development-Tips](https://github.com/numenta/nupic/wiki/Development-Tips)
-
-### Contributing to NuPIC:
-
- * Please see the [Contributing to NuPIC wiki](https://github.com/numenta/nupic/wiki/Contributing-to-NuPIC).
- * Details on the dependency on `nupic.core` [here](https://github.com/numenta/nupic/wiki/Installing-and-Building-NuPIC#relationship-with-nupiccore).
+ * Build: [![Build Status](https://travis-ci.org/numenta/nupic.png?branch=master)](https://travis-ci.org/numenta/nupic)
+ * Unit Test Coverage: [![Coverage Status](https://coveralls.io/repos/numenta/nupic/badge.png?branch=master)](https://coveralls.io/r/numenta/nupic?branch=master)
+ * [Regression Tests](https://github.com/numenta/nupic.regression): [![Build Status](https://travis-ci.org/numenta/nupic.regression.svg?branch=master)](https://travis-ci.org/numenta/nupic.regression)

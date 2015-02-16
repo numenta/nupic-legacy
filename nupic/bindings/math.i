@@ -363,19 +363,3 @@ inline PyObject* shuffle(PyObject* obj)
 }
 
 } // End extend nupic::Random.
-
-%pythoncode %{
-import random
-class StdRandom(random.Random):
-  """An adapter for nupic::Random that allows use of inherited samplers
-  from the Python standard library 'random' module."""
-  def __init__(self, *args, **keywords):
-    self.rgen = Random(*args, **keywords)
-  def random(self): return self.rgen.getReal64()
-  def setstate(self, state): self.rgen.setState(state)
-  def getstate(self): return self.rgen.getState()
-  def jumpahead(self, n): self.rgen.jumpAhead(n)
-  def seed(self, seed=None):
-    if seed is None: self.rgen.setSeed(0)
-    else: self.rgen.setSeed(seed)
-%}
