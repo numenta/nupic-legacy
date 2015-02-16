@@ -129,6 +129,12 @@ def getCommandLineOptions():
     "value",
     "(optional) enable aggressive compiler optimizations"]
   )
+  optionsDesc.append(
+    ["optimizations-lto",
+    "value",
+    "(optional) enable link-time optimizations (LTO); currently only for gcc and linker ld.gold"]
+  )
+
 
   # Read command line options looking for extra options
   # For example, an user could type:
@@ -365,6 +371,13 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     commonCompileFlags.append("-march=native")
     commonCompileFlags.append("-O3")
     commonLinkFlags.append("-O3")
+  if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
+    commonCompileFlags.append("-fuse-linker-plugin")
+    commonCompileFlags.append("-flto-report")
+    commonCompileFlags.append("-fuse-ld=gold")
+    commonCompileFlags.append("-flto")
+    commonLinkFlags.append("-flto")
+
 
 
   commonLibraries = [
