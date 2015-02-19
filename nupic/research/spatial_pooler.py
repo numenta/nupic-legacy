@@ -806,8 +806,8 @@ class SpatialPooler(object):
                     An array containing the indices of the active columns,
                     the sparse set of columns which survived inhibition
     """
-    overlapArray = numpy.zeros(self._numColumns)
-    activeArray = numpy.zeros(self._numColumns)
+    overlapArray = numpy.zeros(self._numColumns, dtype=realDType)
+    activeArray = numpy.zeros(self._numColumns, dtype=realDType)
     overlapArray[overlaps > 0] = 1
     if activeColumns.size > 0:
       activeArray[activeColumns] = 1
@@ -1597,6 +1597,134 @@ class SpatialPooler(object):
     # update version property to current SP version
     state['_version'] = VERSION
     self.__dict__.update(state)
+
+
+  def write(self, proto):
+    self._random.write(proto.random)
+    proto.numInputs = self._numInputs
+    proto.numColumns = self._numColumns
+    cdimsProto = proto.init("columnDimensions", len(self._columnDimensions))
+    for i, dim in enumerate(self._columnDimensions):
+      cdimsProto[i] = int(dim)
+    idimsProto = proto.init("inputDimensions", len(self._inputDimensions))
+    for i, dim in enumerate(self._inputDimensions):
+      idimsProto[i] = int(dim)
+    proto.potentialRadius = self._potentialRadius
+    proto.potentialPct = self._potentialPct
+    proto.inhibitionRadius = self._inhibitionRadius
+    proto.globalInhibition = self._globalInhibition
+    proto.numActiveColumnsPerInhArea = self._numActiveColumnsPerInhArea
+    proto.localAreaDensity = self._localAreaDensity
+    proto.stimulusThreshold = self._stimulusThreshold
+    proto.synPermInactiveDec = self._synPermInactiveDec
+    proto.synPermActiveInc = self._synPermActiveInc
+    proto.synPermBelowStimulusInc = self._synPermBelowStimulusInc
+    proto.synPermConnected = self._synPermConnected
+    proto.minPctOverlapDutyCycles = self._minPctOverlapDutyCycles
+    proto.minPctActiveDutyCycles = self._minPctActiveDutyCycles
+    proto.dutyCyclePeriod = self._dutyCyclePeriod
+    proto.maxBoost = self._maxBoost
+    proto.wrapAround = self._wrapAround
+    proto.spVerbosity = self._spVerbosity
+
+    proto.synPermMin = self._synPermMin
+    proto.synPermMax = self._synPermMax
+    proto.synPermTrimThreshold = self._synPermTrimThreshold
+    proto.updatePeriod = self._updatePeriod
+
+    proto.version = self._version
+    proto.iterationNum = self._iterationNum
+    proto.iterationLearnNum = self._iterationLearnNum
+
+    self._potentialPools.write(proto.potentialPools)
+    self._permanences.write(proto.permanences)
+
+    tieBreakersProto = proto.init("tieBreaker", len(self._tieBreaker))
+    for i, v in enumerate(self._tieBreaker):
+      tieBreakersProto[i] = float(v)
+
+    overlapDutyCyclesProto = proto.init("overlapDutyCycles",
+                                        len(self._overlapDutyCycles))
+    for i, v in enumerate(self._overlapDutyCycles):
+      overlapDutyCyclesProto[i] = float(v)
+
+    activeDutyCyclesProto = proto.init("activeDutyCycles",
+                                       len(self._activeDutyCycles))
+    for i, v in enumerate(self._activeDutyCycles):
+      activeDutyCyclesProto[i] = float(v)
+
+    minOverlapDutyCyclesProto = proto.init("minOverlapDutyCycles",
+                                           len(self._minOverlapDutyCycles))
+    for i, v in enumerate(self._minOverlapDutyCycles):
+      minOverlapDutyCyclesProto[i] = float(v)
+
+    minActiveDutyCyclesProto = proto.init("minActiveDutyCycles",
+                                          len(self._minActiveDutyCycles))
+    for i, v in enumerate(self._minActiveDutyCycles):
+      minActiveDutyCyclesProto[i] = float(v)
+
+    boostFactorsProto = proto.init("boostFactors", len(self._boostFactors))
+    for i, v in enumerate(self._boostFactors):
+      boostFactorsProto[i] = float(v)
+
+
+  def read(self, proto):
+    numInputs = int(proto.numInputs)
+    numColumns = int(proto.numColumns)
+
+    self._random.read(proto.random)
+    self._numInputs = numInputs
+    self._numColumns = numColumns
+    self._columnDimensions = numpy.array(proto.columnDimensions)
+    self._inputDimensions = numpy.array(proto.inputDimensions)
+    self._potentialRadius = int(proto.potentialRadius)
+    self._potentialPct = proto.potentialPct
+    self._inhibitionRadius = int(proto.inhibitionRadius)
+    self._globalInhibition = proto.globalInhibition
+    self._numActiveColumnsPerInhArea = int(proto.numActiveColumnsPerInhArea)
+    self._localAreaDensity = proto.localAreaDensity
+    self._stimulusThreshold = int(proto.stimulusThreshold)
+    self._synPermInactiveDec = proto.synPermInactiveDec
+    self._synPermActiveInc = proto.synPermActiveInc
+    self._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
+    self._synPermConnected = proto.synPermConnected
+    self._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
+    self._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
+    self._dutyCyclePeriod = int(proto.dutyCyclePeriod)
+    self._maxBoost = proto.maxBoost
+    self._wrapAround = proto.wrapAround
+    self._spVerbosity = int(proto.spVerbosity)
+
+    self._synPermMin = proto.synPermMin
+    self._synPermMax = proto.synPermMax
+    self._synPermTrimThreshold = proto.synPermTrimThreshold
+    self._updatePeriod = int(proto.updatePeriod)
+
+    self._version = VERSION
+    self._iterationNum = int(proto.iterationNum)
+    self._iterationLearnNum = int(proto.iterationLearnNum)
+
+    self._potentialPools.read(proto.potentialPools)
+
+    self._permanences.read(proto.permanences)
+    # Initialize ephemerals and make sure they get updated
+    self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
+    self._connectedSynapses = SparseBinaryMatrix(numInputs)
+    self._connectedSynapses.resize(numColumns, numInputs)
+    for i in xrange(proto.numColumns):
+      self._updatePermanencesForColumn(self._permanences.getRow(i), i, False)
+
+    self._tieBreaker = numpy.array(proto.tieBreaker)
+
+    self._overlapDutyCycles = numpy.array(proto.overlapDutyCycles,
+                                          dtype=realDType)
+    self._activeDutyCycles = numpy.array(proto.activeDutyCycles,
+                                         dtype=realDType)
+    self._minOverlapDutyCycles = numpy.array(proto.minOverlapDutyCycles,
+                                             dtype=realDType)
+    self._minActiveDutyCycles = numpy.array(proto.minActiveDutyCycles,
+                                            dtype=realDType)
+    self._boostFactors = numpy.array(proto.boostFactors, dtype=realDType)
 
 
   def printParameters(self):
