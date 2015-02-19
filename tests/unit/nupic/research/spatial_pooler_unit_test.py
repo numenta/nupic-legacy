@@ -23,15 +23,20 @@
 # Disable since test code accesses private members in the class to be tested
 # pylint: disable=W0212
 
+import tempfile
+import unittest
+
+import capnp
 from mock import Mock
 import numpy
-import unittest2 as unittest
 
 from nupic.support.unittesthelpers.algorithm_test_helpers import (
-  getNumpyRandomGenerator, getSeed )
+  getNumpyRandomGenerator, getSeed)
 from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix,
-                                 GetNTAReal)
+                                 GetNTAReal,
+                                 Random)
+from nupic.bindings.proto import SpatialPoolerProto_capnp
 from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
@@ -61,7 +66,7 @@ class SpatialPoolerTest(unittest.TestCase):
       "seed": getSeed(),
       "spVerbosity": 0
     }
-    
+
     self._sp = SpatialPooler(**self._params)
 
 
@@ -1698,6 +1703,87 @@ class SpatialPoolerTest(unittest.TestCase):
     negative = set(range(dimensions.prod())) - set(mask)
     self.assertEqual(layout1D[mask].all(), True)
     self.assertEqual(layout1D[list(negative)].any(), False)
+
+
+  def testWrite(self):
+    sp1 = SpatialPooler(
+        inputDimensions=[9],
+        columnDimensions=[5],
+        potentialRadius=3,
+        potentialPct=0.5,
+        globalInhibition=False,
+        localAreaDensity=-1.0,
+        numActiveColumnsPerInhArea=3,
+        stimulusThreshold=1,
+        synPermInactiveDec=0.01,
+        synPermActiveInc=0.1,
+        synPermConnected=0.10,
+        minPctOverlapDutyCycle=0.1,
+        minPctActiveDutyCycle=0.1,
+        dutyCyclePeriod=10,
+        maxBoost=10.0,
+        seed=42,
+        spVerbosity=0)
+    sp2 = SpatialPooler(
+        inputDimensions=[3, 3],
+        columnDimensions=[2, 2],
+        potentialRadius=5,
+        potentialPct=0.4,
+        globalInhibition=True,
+        localAreaDensity=1.0,
+        numActiveColumnsPerInhArea=4,
+        stimulusThreshold=2,
+        synPermInactiveDec=0.05,
+        synPermActiveInc=0.2,
+        synPermConnected=0.15,
+        minPctOverlapDutyCycle=0.2,
+        minPctActiveDutyCycle=0.2,
+        dutyCyclePeriod=11,
+        maxBoost=14.0,
+        seed=10,
+        spVerbosity=0)
+
+    # Run a record through before serializing
+    inputVector = numpy.array([1, 0, 1, 0, 1, 0, 0, 1, 1])
+    activeArray1 = numpy.zeros(5)
+    sp1.compute(inputVector, True, activeArray1)
+
+    proto1 = SpatialPoolerProto_capnp.SpatialPoolerProto.new_message()
+    sp1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = SpatialPoolerProto_capnp.SpatialPoolerProto.read(f)
+
+    # Load the deserialized proto
+    sp2.read(proto2)
+
+    # Check that the two spatial poolers have the same attributes
+    self.assertSetEqual(set(sp1.__dict__.keys()), set(sp2.__dict__.keys()))
+    for k, v1 in sp1.__dict__.iteritems():
+      v2 = getattr(sp2, k)
+      if isinstance(v1, numpy.ndarray):
+        self.assertEqual(v1.dtype, v2.dtype,
+                         "Key %s has differing dtypes: %s vs %s" % (
+                             k, v1.dtype, v2.dtype))
+        self.assertTrue(numpy.isclose(v1, v2).all(), k)
+      elif isinstance(v1, Random) or isinstance(v1, SparseBinaryMatrix):
+        pass
+      elif isinstance(v1, float):
+        self.assertAlmostEqual(v1, v2)
+      else:
+        self.assertEqual(type(v1), type(v2), k)
+        self.assertEqual(v1, v2, k)
+
+    # Run a record through after deserializing and check results match
+    activeArray2 = numpy.zeros(5)
+    sp1.compute(inputVector, True, activeArray1)
+    sp2.compute(inputVector, True, activeArray2)
+    indices1 = set(activeArray1.nonzero()[0])
+    indices2 = set(activeArray2.nonzero()[0])
+    self.assertSetEqual(indices1, indices2)
 
 
 
