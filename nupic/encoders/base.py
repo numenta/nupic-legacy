@@ -85,13 +85,6 @@ class Encoder(object):
     raise Exception("getWidth must be implemented by all subclasses")
 
   ############################################################################
-  def isDelta(self):
-    """
-    @returns true if the underlying encoder works on deltas
-    """
-    return False
-
-  ############################################################################
   def encodeIntoArray(self, inputData, output):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
