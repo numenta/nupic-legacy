@@ -92,7 +92,6 @@ class MonitorMixinBase(object):
     Returns pretty-printed table of metrics.
 
     @param metrics (list) Traces to print in table
-
     @param sigFigs  (int)  Number of significant figures to print
 
     @return (string) Pretty-printed table of metrics.

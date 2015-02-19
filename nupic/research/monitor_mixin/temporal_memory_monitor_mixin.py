@@ -23,17 +23,17 @@
 Temporal Memory mixin that enables detailed monitoring of history.
 """
 
-import numpy
-
 from collections import defaultdict
+
+import numpy
 from prettytable import PrettyTable
 
 from nupic.bindings.algorithms import ConnectionsCell
-from nupic.research.monitor_mixin.trace import (
-  IndicesTrace, CountsTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
 from nupic.research.monitor_mixin.plot import Plot
+from nupic.research.monitor_mixin.trace import (IndicesTrace, CountsTrace,
+                                                BoolsTrace, StringsTrace)
 
 
 
@@ -290,6 +290,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     predictedCellsTrace = self._mmTraces["predictedCells"]
 
     for i, activeColumns in enumerate(self.mmGetTraceActiveColumns().data):
+      activeCells = set()
       predictedActiveCells = set()
       predictedInactiveCells = set()
       predictedActiveColumns = set()
@@ -312,6 +313,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
       unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
+      # self._mmTraces["activeCells"].data.append(activeCells)
       self._mmTraces["predictedActiveCells"].data.append(predictedActiveCells)
       self._mmTraces["predictedInactiveCells"].data.append(predictedInactiveCells)
       self._mmTraces["predictedActiveColumns"].data.append(predictedActiveColumns)
@@ -332,12 +334,13 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
 
-    # Append last cycle's predictiveCells to *predicTIVECells* trace
+    # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
+
+    # TODO: Check this out
     self._mmTraces["activeCells"].data.append(self.activeCellsIndices())
-    self._mmTraces["correctlyPredictedCells"].data.append(
-                                             self.predictedActiveCellsIndices())
+
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
@@ -391,8 +394,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     self._mmTraces["activeColumns"] = IndicesTrace(self, "active columns")
     self._mmTraces["activeCells"] = IndicesTrace(self, "active cells")
     self._mmTraces["predictiveCells"] = IndicesTrace(self, "predictive cells")
-    self._mmTraces["correctlyPredictedCells"] = IndicesTrace(self, "correctly "
-                                                             "predicted cells")
     self._mmTraces["numSegments"] = CountsTrace(self, "# segments")
     self._mmTraces["numSynapses"] = CountsTrace(self, "# synapses")
     self._mmTraces["sequenceLabels"] = StringsTrace(self, "sequence labels")
@@ -413,11 +414,15 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     @param activityType The type of cell activity to display. Valid types
     include "activeCells", "predictiveCells", "predictedCells",
-    and "correctlyPredictedCells"
+    and "predictedActiveCells"
 
     @return (Plot) plot
     """
     plot = Plot(self, title)
+
+    if activityType == "predictedActiveCells":
+      self._mmComputeTransitionTraces()
+
     cellTrace = self._mmTraces[activityType].data
     resetTrace = self.mmGetTraceResets().data
     cellCount = self.numberOfCells()
