@@ -312,13 +312,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
       unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-      # Compute Active Cells
-      activeCells = set([x.idx for x in predictedActiveCells])
-      for col in unpredictedActiveColumns:
-        for cll in self.cellsForColumn(col):
-          activeCells.add(cll.idx)
-
-      self._mmTraces["activeCells"].data.append(activeCells)
       self._mmTraces["predictedActiveCells"].data.append(predictedActiveCells)
       self._mmTraces["predictedInactiveCells"].data.append(predictedInactiveCells)
       self._mmTraces["predictedActiveColumns"].data.append(predictedActiveColumns)
@@ -341,6 +334,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
+
+    self._mmTraces["activeCells"].data.append(self.activeCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
@@ -405,45 +400,30 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def mmGetCellActivityPlot(self, title="", showReset=False,
                             resetShading=0.25, activityType="activeCells"):
     """ Returns plot of the cell activity.
-    @param title an optional title for the figure
+    @param title (string) an optional title for the figure
 
-    @param showReset if true, the first set of cell activities after a reset
-                        will have a gray background
+    @param showReset (boolean) if true, the first set of cell activities
+    after a reset will have a gray background
 
-    @param resetShading If showReset is true, this float specifies the
+    @param resetShading (float) If showReset is true, this float specifies the
     intensity of the reset background with 0.0 being white and 1.0 being black
 
-    @param activityType The type of cell activity to display. Valid types
-    include "activeCells", "predictiveCells", "predictedCells",
+    @param activityType (string) The type of cell activity to display. Valid
+    types include "activeCells", "predictiveCells", "predictedCells",
     and "predictedActiveCells"
 
     @return (Plot) plot
     """
-    if activityType == "predictedActiveCells" or activityType == "activeCells":
+    if activityType == "predictedActiveCells":
       self._mmComputeTransitionTraces()
 
-    plot = Plot(self, title)
+    # If the trace contains ConnectionsCell, convert to int
     cellTrace = self._mmTraces[activityType].data
-    resetTrace = self.mmGetTraceResets().data
-    cellCount = self.numberOfCells()
-    data = numpy.zeros((cellCount, 1))
     for i in xrange(len(cellTrace)):
-      activeIdxSet = cellTrace[i]
-
-      # If the set contains ConnectionsCell, convert to int
-      if len(activeIdxSet) > 0:
-        elem = next(iter(activeIdxSet))
+      if len(cellTrace[i]) > 0:
+        elem = next(iter(cellTrace[i]))
         if isinstance(elem, ConnectionsCell):
-          activeIdxSet = [x.idx for x in activeIdxSet]
+          cellTrace[i] = [x.idx for x in cellTrace[i]]
 
-      # Set up a "background" vector that is shaded or blank
-      if showReset and resetTrace[i]:
-        activity = numpy.ones((cellCount, 1)) * resetShading
-      else:
-        activity = numpy.zeros((cellCount, 1))
-
-      activity[list(activeIdxSet)] = 1
-      data = numpy.concatenate((data, activity), 1)
-
-    plot.add2DArray(data, xlabel="Time", ylabel=activityType)
-    return plot
+    return super(TemporalMemoryMonitorMixin, self).mmGetCellActivityPlot(
+                 cellTrace, activityType, title, showReset, resetShading)
