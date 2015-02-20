@@ -25,7 +25,12 @@ MonitorMixinBase class used in monitor mixin framework.
 
 import abc
 
+import numpy
 from prettytable import PrettyTable
+
+from nupic.bindings.algorithms import ConnectionsCell
+from nupic.research.monitor_mixin.plot import Plot
+
 
 
 class MonitorMixinBase(object):
@@ -92,7 +97,7 @@ class MonitorMixinBase(object):
     Returns pretty-printed table of metrics.
 
     @param metrics (list) Traces to print in table
-    @param sigFigs  (int)  Number of significant figures to print
+    @param sigFigs (int) Number of significant figures to print
 
     @return (string) Pretty-printed table of metrics.
     """
@@ -131,3 +136,42 @@ class MonitorMixinBase(object):
     @return (list) Default metrics
     """
     return []
+
+
+  def mmGetCellActivityPlot(self, cellTrace, activityType, title="",
+                            showReset=False, resetShading=0.25):
+    """ Returns plot of the cell activity.
+
+    @param cellTrace a list of cell activities
+
+    @param activityType a label for the type of cell activity
+
+    @param activityType The type of cell activity displayed.
+
+    @param title an optional title for the figure
+
+    @param showReset if true, the first set of cell activities after a reset
+                        will have a gray background
+
+    @param resetShading If showReset is true, this float specifies the
+    intensity of the reset background with 0.0 being white and 1.0 being black
+
+    @return (Plot) plot
+    """
+    plot = Plot(self, title)
+    resetTrace = self.mmGetTraceResets().data
+    cellCount = self.numberOfCells()
+    data = numpy.zeros((cellCount, 1))
+    for i in xrange(len(cellTrace)):
+      # Set up a "background" vector that is shaded or blank
+      if showReset and resetTrace[i]:
+        activity = numpy.ones((cellCount, 1)) * resetShading
+      else:
+        activity = numpy.zeros((cellCount, 1))
+
+      activeIndices = cellTrace[i]
+      activity[list(activeIndices)] = 1
+      data = numpy.concatenate((data, activity), 1)
+
+    plot.add2DArray(data, xlabel="Time", ylabel=activityType)
+    return plot
