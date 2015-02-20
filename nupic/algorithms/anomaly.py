@@ -75,7 +75,7 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize = None, mode=MODE_PURE):
+  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -87,6 +87,8 @@ class Anomaly(object):
               models probability of receiving this value and anomalyScore
           - "weighted" - "pure" anomaly weighted by "likelihood"
               (anomaly * likelihood)
+    @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
+         will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -100,6 +102,12 @@ class Anomaly(object):
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
+    self._binaryThreshold = binaryAnomalyThreshold
+    if binaryAnomalyThreshold is not None and (
+          (binaryAnomalyThreshold >= 1  or binaryAnomalyThreshold <= 0) or
+          not isinstance(binaryAnomalyThreshold, float) ):
+      raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
+                       "or None if disabled.")
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -139,6 +147,17 @@ class Anomaly(object):
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
       score = self._movingAverage.next(score)
+
+    # apply binary discretization if required
+    if self._binaryThreshold is not None:
+      if score >= self._binaryThreshold:
+        score = 1.0
+      else:
+        score = 0.0
+
+    # final check on score within [0,1]
+    score = int(score * 100000000)/float(100000000) # 7 dec places
+    assert score >= 0 and score <= 1
 
     return score
 

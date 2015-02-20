@@ -189,7 +189,9 @@ class CLAModel(Model):
     # init anomaly
     windowSize = anomalyParams.get("slidingWindowSize", None)
     mode = anomalyParams.get("mode", "pure")
-    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode)
+    anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
+    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
+                                binaryAnomalyThreshold=anomalyThreshold)
 
     # -----------------------------------------------------------------------
     # Create the network
@@ -1128,7 +1130,6 @@ class CLAModel(Model):
     if self.getInferenceType() == InferenceType.TemporalAnomaly:
       anomalyClParams = dict(
           trainRecords=anomalyParams.get('autoDetectWaitRecords', None),
-          anomalyThreshold=anomalyParams.get('autoDetectThreshold', None),
           cacheSize=anomalyParams.get('anomalyCacheRecords', None)
       )
       self._addAnomalyClassifierRegion(n, anomalyClParams, spEnable, tpEnable)
@@ -1323,16 +1324,8 @@ class CLAModel(Model):
 
         anomalyClParams = dict(
           trainRecords=self._classifier_helper._autoDetectWaitRecords,
-          anomalyThreshold=None,
           cacheSize=self._classifier_helper._history_length,
         )
-
-        if '_classificationThreshold' in self._classifier_helper.__dict__:
-          anomalyClParams['anomalyThreshold'] = (
-              self._classifier_helper._classificationThreshold)
-        else:
-          anomalyClParams['anomalyThreshold'] = (
-            self._classifier_helper.getAutoDetectThreshold())
 
         spEnable = (self._getSPRegion() is not None)
         tpEnable = True
@@ -1394,9 +1387,6 @@ class CLAModel(Model):
     # Set defaults if not set
     if allParams['trainRecords'] is None:
       allParams['trainRecords'] = DEFAULT_ANOMALY_TRAINRECORDS
-
-    if allParams['anomalyThreshold'] is None:
-      allParams['anomalyThreshold'] = DEFAULT_ANOMALY_THRESHOLD
 
     if allParams['cacheSize'] is None:
       allParams['cacheSize'] = DEFAULT_ANOMALY_CACHESIZE
