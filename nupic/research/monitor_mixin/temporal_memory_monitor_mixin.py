@@ -290,7 +290,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     predictedCellsTrace = self._mmTraces["predictedCells"]
 
     for i, activeColumns in enumerate(self.mmGetTraceActiveColumns().data):
-      activeCells = set()
       predictedActiveCells = set()
       predictedInactiveCells = set()
       predictedActiveColumns = set()
@@ -313,7 +312,13 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
       unpredictedActiveColumns = activeColumns - predictedActiveColumns
 
-      # self._mmTraces["activeCells"].data.append(activeCells)
+      # Compute Active Cells
+      activeCells = set([x.idx for x in predictedActiveCells])
+      for col in unpredictedActiveColumns:
+        for cll in self.cellsForColumn(col):
+          activeCells.add(cll.idx)
+
+      self._mmTraces["activeCells"].data.append(activeCells)
       self._mmTraces["predictedActiveCells"].data.append(predictedActiveCells)
       self._mmTraces["predictedInactiveCells"].data.append(predictedInactiveCells)
       self._mmTraces["predictedActiveColumns"].data.append(predictedActiveColumns)
@@ -337,10 +342,6 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
     self._mmTraces["activeColumns"].data.append(activeColumns)
-
-    # TODO: Check this out
-    self._mmTraces["activeCells"].data.append(self.activeCellsIndices())
-
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
@@ -418,11 +419,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     @return (Plot) plot
     """
-    plot = Plot(self, title)
-
-    if activityType == "predictedActiveCells":
+    if activityType == "predictedActiveCells" or activityType == "activeCells":
       self._mmComputeTransitionTraces()
 
+    plot = Plot(self, title)
     cellTrace = self._mmTraces[activityType].data
     resetTrace = self.mmGetTraceResets().data
     cellCount = self.numberOfCells()
