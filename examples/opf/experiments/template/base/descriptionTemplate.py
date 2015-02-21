@@ -337,7 +337,7 @@ config = {
   #
   'tpNewSynapseCount' : 15,
 
-)
+}
 # end of config dictionary
 
 
