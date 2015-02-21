@@ -403,7 +403,7 @@ for steps in config['predictionSteps']:
                  params={'errorMetric': 'aae', 'window': 1000, 'steps': steps}))
   control['metrics'].append(
       MetricSpec(field=config['predictedField'], metric='multiStep',
-                 inferenceElement='multiStepBestPredictions',
+                 inferenceElement='anomalyScore',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
   control['metrics'].append(
       MetricSpec(field=config['predictedField'], metric='trivial',

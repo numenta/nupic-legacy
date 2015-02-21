@@ -396,6 +396,7 @@ class AggregateMetric(MetricsIface):
     """
 
     # Init default member variables
+    self.id = None
     self.verbosity = 0
     self.window = -1
     self.history = None
@@ -427,6 +428,7 @@ class AggregateMetric(MetricsIface):
     # Parse the metric's parameters
     if metricSpec.params is not None:
       
+      self.id = metricSpec.params.get('id', None)
       self._predictionSteps = metricSpec.params.get('steps', [0])
       # Make sure _predictionSteps is a list
       if not hasattr(self._predictionSteps, '__iter__'):
