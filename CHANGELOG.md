@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+* Code changes required for a Windows build.
+* Updates nupic.core to d233c58b64e8064d4d12684634dc5e5e78c7ce0b.
+* Implements capnp serialization for Python spatial pooler. Also implements temporary hack for putting .capnp files into the source tree since the build seems to be set up to install in-tree.
+
 ## 0.1.3
 
 * Remove unnecessary build flag and fix a bug that was causing duplicated definition names.
