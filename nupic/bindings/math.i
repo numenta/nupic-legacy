@@ -78,8 +78,11 @@ _MATH = _math
 #include <nupic/math/Math.hpp>
 #include <nupic/math/Functions.hpp>
 #include <nupic/math/ArrayAlgo.hpp>
+#include <nupic/proto/RandomProto.capnp.h>
 #include <nupic/utils/Random.hpp>
 #include <numpy/arrayobject.h>
+
+#include <py_support/PyCapnp.hpp>
 %}
 
 %naturalvar;
@@ -360,6 +363,18 @@ inline PyObject* shuffle(PyObject* obj)
 
   Py_INCREF(obj);
   return obj;
+}
+
+inline void write(PyObject* pyBuilder) const
+{
+  RandomProto::Builder proto = nupic::getBuilder<RandomProto>(pyBuilder);
+  self->write(proto);
+}
+
+inline void read(PyObject* pyReader)
+{
+  RandomProto::Reader proto = nupic::getReader<RandomProto>(pyReader);
+  self->read(proto);
 }
 
 } // End extend nupic::Random.
