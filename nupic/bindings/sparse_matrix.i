@@ -25,6 +25,9 @@
 #include <nupic/math/SparseMatrixAlgorithms.hpp>
 #include <nupic/math/SparseBinaryMatrix.hpp>
 #include <nupic/math/NearestNeighbor.hpp>
+#include <nupic/proto/SparseMatrixProto.capnp.h>
+#include <nupic/proto/SparseBinaryMatrixProto.capnp.h>
+#include <py_support/PyCapnp.hpp>
 #include <py_support/NumpyVector.hpp>
 #include <py_support/PythonStream.hpp>
 
@@ -479,6 +482,20 @@ def __div__(self, other):
     std::ifstream load_file(filename.c_str());
     self->fromBinary(load_file);
     load_file.close();
+  }
+
+  inline void write(PyObject* pyBuilder) const
+  {
+    SparseMatrixProto::Builder proto =
+        nupic::getBuilder<SparseMatrixProto>(pyBuilder);
+    self->write(proto);
+  }
+
+  inline void read(PyObject* pyReader)
+  {
+    SparseMatrixProto::Reader proto =
+        nupic::getReader<SparseMatrixProto>(pyReader);
+    self->read(proto);
   }
 
   void addRow(PyObject *row)
@@ -2875,6 +2892,20 @@ def __setstate__(self, inString):
     load_file.close();
   }
 
+  inline void write(PyObject* pyBuilder) const
+  {
+    SparseBinaryMatrixProto::Builder proto =
+        nupic::getBuilder<SparseBinaryMatrixProto>(pyBuilder);
+    self->write(proto);
+  }
+
+  inline void read(PyObject* pyReader)
+  {
+    SparseBinaryMatrixProto::Reader proto =
+        nupic::getReader<SparseBinaryMatrixProto>(pyReader);
+    self->read(proto);
+  }
+
   inline void fromSparseVector(nupic::UInt32 nrows, nupic::UInt16 ncols,
 			       PyObject *py_x, nupic::UInt16 offset =0)
   {
@@ -3374,6 +3405,20 @@ def __setstate__(self, inString):
     std::ifstream load_file(filename.c_str());
     self->fromBinary(load_file);
     load_file.close();
+  }
+
+  inline void write(PyObject* pyBuilder) const
+  {
+    SparseBinaryMatrixProto::Builder proto =
+        nupic::getBuilder<SparseBinaryMatrixProto>(pyBuilder);
+    self->write(proto);
+  }
+
+  inline void read(PyObject* pyReader)
+  {
+    SparseBinaryMatrixProto::Reader proto =
+        nupic::getReader<SparseBinaryMatrixProto>(pyReader);
+    self->read(proto);
   }
 
   inline void fromSparseVector(nupic::UInt32 nrows, nupic::UInt32 ncols,
