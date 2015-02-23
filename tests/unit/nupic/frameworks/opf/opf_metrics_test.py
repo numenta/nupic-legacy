@@ -765,12 +765,15 @@ record={"test":gt[i]})
     metric10 = getModule(ms2)
 
     multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
-  
-    gt = [str(i/4+1) for i in range(500, 1000)]
-    p = [str(i) for i in range(1000)]
-  
+    print multi 
+    
+    gt = [(i/4+1) for i in range(500, 1000)]
+    p = [i for i in range(500)]
+ 
+    metric10.addInstance(0,0) #FIXME is this needed for burn-in?
+    metric1000.addInstance(0,0) 
     for i in xrange(len(gt)):
-      check=multi.weights[1]*metric10.addInstance(gt[i], p[i]) + multi.weights[2]*metric1000.addInstance(gt[i], p[i])
+      check=multi.weights[0]*metric10.addInstance(gt[i], p[i]) + multi.weights[1]*metric1000.addInstance(gt[i], p[i])
       self.assertEqual(check, multi.addInstance(gt[i], p[i]))
 
 
