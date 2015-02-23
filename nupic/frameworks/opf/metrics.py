@@ -1465,3 +1465,7 @@ class MetricMulti(AggregateMetric):
       err += self.weights[i]*m
     self.aggregateError = err
     return err
+
+  def __repr__(self):
+    return "MetricMulti(weights=%s, metrics=%s)" % (self.weights, self.metrics) 
+
