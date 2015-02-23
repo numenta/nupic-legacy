@@ -31,8 +31,9 @@ import numpy as np
 from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from collections import deque
 from nupic.frameworks.opf.opfutils import InferenceType
+
+from collections import deque
 from operator import itemgetter
 from safe_interpreter import SafeInterpreter
 from io import BytesIO, StringIO
