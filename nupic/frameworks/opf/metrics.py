@@ -427,7 +427,7 @@ class AggregateMetric(MetricsIface):
     self._maxRecords = None
 
     # Parse the metric's parameters
-    if metricSpec.params is not None:
+    if metricSpec is not None and metricSpec.params is not None:
       
       self.id = metricSpec.params.get('id', None)
       self._predictionSteps = metricSpec.params.get('steps', [0])
@@ -1482,15 +1482,15 @@ class MetricMulti(AggregateMetric):
     """
     super(MetricMulti, self).__init__(metricSpec)
 
-    if weights is None or not isinstance(weights, list) 
-                       or not len(weights) > 0
-                       or not isinstance(weights[0], float)):
+    if (weights is None or not isinstance(weights, list) or 
+                          not len(weights) > 0 or
+                          not isinstance(weights[0], float)):
       raise ValueError("MetricMulti requires 'weights' parameter as a [list of floats]")
     self.weights = weights
 
-    if metrics is None or not isinstance(metrics, list) 
-                       or not len(metrics) > 0
-                       or not isinstance(metrics[0], MetricsIface)):
+    if (metrics is None or not isinstance(metrics, list) or
+                          not len(metrics) > 0 or
+                          not isinstance(metrics[0], MetricsIface)):
       raise ValueError("MetricMulti requires 'metrics' parameter as a [list of Metrics]")
     self.metrics = metrics
 
