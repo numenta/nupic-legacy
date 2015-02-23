@@ -24,7 +24,7 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec
+from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
 
 
 
@@ -756,6 +756,22 @@ record={"test":gt[i]})
       self.assertTrue (False , "error Window of 0 should fail self.assertTrue")
     except:
       pass
+
+
+  def testMultiMetric(self):
+    ms1 = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'errorMetric': 'aae', 'window': 1000, 'steps': 1})
+    ms2 = MetricSpec(metric='trivial', inferenceElement='prediction', field='a', params={'window': 10, 'steps': 1, 'errorMetric': 'rmse'})
+    metric1000 = getModule(ms1)
+    metric10 = getModule(ms2)
+
+    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
+  
+    gt = [str(i/4+1) for i in range(500, 1000)]
+    p = [str(i) for i in range(1000)]
+  
+    for i in xrange(len(gt)):
+      check=multi.weights[1]*metric10.addInstance(gt[i], p[i]) + multi.weights[2]*metric1000.addInstance(gt[i], p[i])
+      self.assertEqual(check, multi.addInstance(gt[i], p[i]))
 
 
 
