@@ -100,6 +100,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
                            cppSp.getMinPctOverlapDutyCycles())
     self.assertAlmostEqual(pySp.getMinPctActiveDutyCycles(),
                            cppSp.getMinPctActiveDutyCycles())
+#    self.assertEqual(pySp.getRandomSP(),  #FIXME enable when done in C++ too
+#                     cppSP.getRandomSP())
 
     numColumns = pySp.getNumColumns()
     numInputs = pySp.getNumInputs()
@@ -285,7 +287,8 @@ class SpatialPoolerCompatabilityTest(unittest.TestCase):
       "dutyCyclePeriod": 30,
       "maxBoost": 10.0,
       "seed": 4,
-      "spVerbosity": 0
+      "spVerbosity": 0,
+#      "randomSP": True #FIXME
     }
     self.runSideBySide(params, seed = None, learnMode = False)
 
