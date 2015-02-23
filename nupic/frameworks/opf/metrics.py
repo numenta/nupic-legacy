@@ -1464,8 +1464,10 @@ class MetricMulti(AggregateMetric):
     super(MetricMulti, self).addInstance(groundTruth, prediction, record)
     err = 0.0
     for i in xrange(len(self.weights)):
-      m = self.metrics[i].addInstance(groundTruth,prediction, record)
+      m = self.metrics[i].addInstance(groundTruth, prediction, record)
       err += self.weights[i]*m
+      if self.verbosity > 1:
+        print "w=",self.weights[i]," metric=",self.metrics[i]," value=",m," err=",err
     self.aggregateError = err
     return err
 
