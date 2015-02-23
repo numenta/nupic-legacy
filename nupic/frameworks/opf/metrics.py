@@ -1456,15 +1456,15 @@ class MetricMulti(AggregateMetric):
       raise ValueError("MetricMulti requires 'metrics' parameter as a [list of Metrics]")
     self.metrics = metrics
 
-    for metric in self.metrics:
-      metric.addInstance(0, 0) # FIXME is this burn-in needed? Otherwise 1st addInstance() call returns None and not a float
-
 
   def addInstance(self, groundTruth, prediction, record = None):
     super(MetricMulti, self).addInstance(groundTruth, prediction, record)
     err = 0.0
     for i in xrange(len(self.weights)):
       m = self.metrics[i].addInstance(groundTruth, prediction, record)
+      if m is None:
+        self.aggregateError = None
+        return None
       err += self.weights[i]*m
       if self.verbosity > 1:
         print "IN=",groundTruth," ",prediction,": w=",self.weights[i]," metric=",self.metrics[i]," value=",m," err=",err
