@@ -184,7 +184,8 @@ def getModule(metricSpec):
     return MetricAltMAPE(metricSpec)
   elif metricName == 'MAPE':
     return MetricMAPE(metricSpec)
-
+  elif metricName == 'multi':
+    return MetricMulti(metricSpec)
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -1461,7 +1462,44 @@ class MetricMultiStepProbability(AggregateMetric):
 
     return self.aggregateError
 
+###################################################################################
+class MetricMulti(AggregateMetric):
+  """Multi metric can combine multiple other (sub)metrics and 
+     weight them to provide combined score."""
+
+  def __init__(self, metricSpec):
+    """MetricMulti constructor using metricSpec is not allowed."""
+    raise ValueError("MetricMulti cannot be constructed from metricSpec string! "
+                     "Use MetricMulti(id,weights,metrics) constructor instead.")
+
+  def __init__(self, weights, metrics, id=None, metricSpec=None):
+    """MetricMulti 
+       @param id - unique name for this metric
+       @param weights - [list of floats] used as weights
+       @param (sub)metrics - [list of metrics] 
+       @param id - (opt) name of the metric
+       @param metricSpec - (opt) metricSpec used to construct superclass AggregateMetric
+    """
+    super(MetricMulti, self).__init__(metricSpec)
+
+    if weights is None or not isinstance(weights, list) 
+                       or not len(weights) > 0
+                       or not isinstance(weights[0], float)):
+      raise ValueError("MetricMulti requires 'weights' parameter as a [list of floats]")
+    self.weights = weights
+
+    if metrics is None or not isinstance(metrics, list) 
+                       or not len(metrics) > 0
+                       or not isinstance(metrics[0], MetricsIface)):
+      raise ValueError("MetricMulti requires 'metrics' parameter as a [list of Metrics]")
+    self.metrics = metrics
 
 
-
-
+  def addInstance(self, groundTruth, prediction, record = None):
+    super(MetricMulti, self).addInstance(groundTruth, prediction, record)
+    err = 0.0
+    for i in xrange(len(self.weights)):
+      m = self.metrics[i].addInstance(groundTruth,prediction, record)
+      err += self.weights[i]*m
+    self.aggregateError = err
+    return err
