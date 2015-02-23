@@ -764,7 +764,7 @@ record={"test":gt[i]})
     metric1000 = getModule(ms1)
     metric10 = getModule(ms2)
 
-    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
+    multi = MetricMulti(weights=[1.0, 0.0], metrics=[metric10, metric1000], id='multi1')
     multi.verbosity = 2
     print multi 
     
@@ -774,7 +774,10 @@ record={"test":gt[i]})
     metric10.addInstance(0,0) #FIXME is this needed for burn-in?
     metric1000.addInstance(0,0) 
     for i in xrange(len(gt)):
-      check=0.2*metric10.addInstance(gt[i], p[i]) + 0.8*metric1000.addInstance(gt[i], p[i])
+      v10=metric10.addInstance(gt[i], p[i])
+      v1000=metric1000.addInstance(gt[i], p[i])
+      check=1.0*float(v10) + 0.0*float(v1000)
+      print "v10=",v10," v1000=",v1000," err=",check
       self.assertEqual(check, multi.addInstance(gt[i], p[i]))
 
 
