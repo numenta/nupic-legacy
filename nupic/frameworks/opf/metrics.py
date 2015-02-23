@@ -1456,6 +1456,9 @@ class MetricMulti(AggregateMetric):
       raise ValueError("MetricMulti requires 'metrics' parameter as a [list of Metrics]")
     self.metrics = metrics
 
+    for metric in self.metrics:
+      metric.addInstance(0, 0) # FIXME is this burn-in needed? Otherwise 1st addInstance() call returns None and not a float
+
 
   def addInstance(self, groundTruth, prediction, record = None):
     super(MetricMulti, self).addInstance(groundTruth, prediction, record)
