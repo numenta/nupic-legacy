@@ -32,6 +32,7 @@ from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.frameworks.opf.opfutils import InferenceType
+from nupic.utils import MovingAverage
 
 from collections import deque
 from operator import itemgetter
@@ -193,47 +194,6 @@ def getModule(metricSpec):
 ################################################################################
 #               Helper Methods and Classes                                    #
 ################################################################################
-class _MovingAverage(object):
-  """ Helper class for computing windowed moving
-  averages of arbitrary values """
-  def __init__(self, windowSize = None):
-    """
-    Parameters:
-    -----------------------------------------------------------------------
-    windowSize:             The number of values that are used to compute the
-                            moving average. If the window is not specified,
-                            this returns an average over all the input values
-    """
-    self._windowSize = windowSize
-    self._sum = 0.0
-    self._n = 0
-    self._history = None
-
-    if windowSize is not None and windowSize > 1:
-      self._history = deque([])
-
-  def __call__(self, value):
-    if self._windowSize == 1:
-      return value
-
-    self._sum += value
-    self._n += 1
-
-    if self._windowSize is None:
-      return self._sum/self._n
-    else:
-      self._history.append(value)
-      if len(self._history) > self._windowSize:
-        oldVal = self._history.popleft()
-        self._sum -= oldVal
-      return self._sum/len(self._history)
-
-  def clear(self):
-    if self._history is not None:
-      self._history.clear()
-    self._sum = 0.0
-
-############################################################################
 class _MovingMode(object):
   """ Helper class for computing windowed moving
   mode of arbitrary values """
@@ -340,7 +300,7 @@ class AggregateMetric(MetricsIface):
   """
   ___metaclass__ = ABCMeta
 
-
+  #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
     """
         Updates the accumulated error given the prediction and the
@@ -367,6 +327,7 @@ class AggregateMetric(MetricsIface):
             self.spec.params["window"] indicates the maximum size of the window
     """
 
+  #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
   def aggregate(self, accumulatedError, historyBuffer, steps):
     """
         Updates the final aggregated score error given the prediction and the
@@ -701,7 +662,7 @@ class MetricPassThruPrediction(MetricsIface):
   def __init__(self, metricSpec):
     self.spec = metricSpec
     self.window = metricSpec.params.get("window", 1)
-    self.avg = _MovingAverage(self.window)
+    self.avg = MovingAverage(self.window)
     
     self.value = None
     
@@ -746,7 +707,7 @@ class MetricMovingMean(AggregateMetric):
       self.mean_window = metricSpec.params['mean_window']
 
     # Construct moving average instance
-    self._movingAverage = _MovingAverage(self.mean_window)
+    self._movingAverage = MovingAverage(self.mean_window)
 
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
@@ -1404,7 +1365,7 @@ class MetricMultiStepProbability(AggregateMetric):
       subErrorMetric.window = 1
       subErrorMetric.spec.params['window'] = 1
 
-    self._movingAverage = _MovingAverage(self.window)
+    self._movingAverage = MovingAverage(self.window)
 
   def getMetric(self):
     return {'value': self.aggregateError, "stats" :
