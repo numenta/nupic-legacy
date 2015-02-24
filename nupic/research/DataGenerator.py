@@ -484,7 +484,7 @@ class _field():
         self.maxval = encoderSpec.pop('maxval')
       else: self.maxval = None
       self.encoder=adaptivescalar.AdaptiveScalarEncoder(name='AdaptiveScalarEncoder',\
-        w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False)
+        w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False, forced=True)
 
     #Initializing category encoder
     elif self.encoderType=='category':
