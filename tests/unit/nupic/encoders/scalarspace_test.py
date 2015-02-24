@@ -24,7 +24,7 @@
 
 import unittest2 as unittest
 
-from nupic.encoders.scalarspace import ScalarSpaceEncoder
+from nupic.encoders.scalarspace import ScalarSpaceEncoder, DeltaEncoder
 
 
 #########################################################################
@@ -38,11 +38,11 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
     sse = ScalarSpaceEncoder(w=21, minval=1, maxval=2, n=100, radius=1,
             resolution=1, name="SP1", verbosity=0, 
             space="delta")
-    self.assertTrue(sse.isDelta())
+    self.assertTrue(isinstance(sse, DeltaEncoder))
     sse = ScalarSpaceEncoder(w=21, minval=1, maxval=2, n=100, radius=1,
             resolution=1, name="sp2", verbosity=0, 
             space="absolute")
-    self.assertFalse(sse.isDelta())
+    self.assertFalse(isinstance(sse, DeltaEncoder))
 
      
 ###########################################

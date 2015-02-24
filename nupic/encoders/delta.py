@@ -76,8 +76,11 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   def setFieldStats(self, fieldName, fieldStatistics):
     pass
   ############################################################################
-  def isDelta(self):
-    return True
+  def getBucketIndices(self, input, learn=None):  #FIXME remove?
+    return self._adaptiveScalarEnc.getBucketIndices(input, learn)
+  ############################################################################
+  def getBucketInfo(self, buckets):   #FIXME remove?
+    return self._adaptiveScalarEnc.getBucketInfo(buckets)
   ############################################################################
   def topDownCompute(self, encoded):
     """[ScalarEncoder class method override]"""

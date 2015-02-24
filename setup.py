@@ -562,7 +562,7 @@ def postProcess():
   # Copy proto files located at nupic.core dir into nupic dir
   buildDir = glob.glob(REPO_DIR + "/build/lib.*/")[0]
   protoBuildDir = nupicCoreReleaseDir + "/include/nupic/proto"
-  protoSourceDir = buildDir + "/nupic/bindings/proto"
+  protoSourceDir = REPO_DIR + "/nupic/bindings/proto"
   if not os.path.exists(protoSourceDir):
     os.makedirs(protoSourceDir)
   for fileName in glob.glob(protoBuildDir + "/*.capnp"):

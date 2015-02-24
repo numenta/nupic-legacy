@@ -116,13 +116,6 @@ class Encoder(object):
     return self.n
 
   ############################################################################
-  def isDelta(self):
-    """
-    @returns true if the underlying encoder works on deltas
-    """
-    return False
-
-  ############################################################################
   def encodeIntoArray(self, inputData, output,  learn=True):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
