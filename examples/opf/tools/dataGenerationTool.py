@@ -22,8 +22,8 @@
 
 from Tkinter import *
 import math
-from nupic.research import DataGenerator
-from nupic.research import distributions
+from nupic.data.generators import data_generator
+from nupic.data.generators import distributions
 
 class DataGeneratorApp(): 
 		
@@ -49,7 +49,7 @@ class DataGeneratorApp():
     self.numLines, self.records=[], {}
     self.pointer = None
     
-    self.dg=DataGenerator.DataGenerator()
+    self.dg=data_generator.DataGenerator()
     self.dg.defineField('xPos', dict(dataType='int',minval=0,maxval=self.width,
                                      forced=True))
     self.dg.defineField('yPos', dict(dataType='int',minval=0,maxval=self.height,

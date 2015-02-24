@@ -24,7 +24,7 @@ import random as rand
 from nupic.encoders import adaptivescalar, sdrcategory, date
 from nupic.bindings.math import GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from distributions import *
+from nupic.data.generators.distributions import *
 
 
 realDType = GetNTAReal()
