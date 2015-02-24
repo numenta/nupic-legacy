@@ -29,6 +29,8 @@ from nupic.utils import MovingAverage
 
 class AdaptiveScalarEncoder(ScalarEncoder):
   """
+  #FIXME this encoder should be removed, use RDSE instead
+
   This is an implementation of the scalar encoder that adapts the min and
   max of the scalar encoder dynamically. This is essential to the streaming
   model of the online prediction framework.
