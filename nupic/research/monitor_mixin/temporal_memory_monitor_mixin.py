@@ -25,13 +25,10 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 from collections import defaultdict
 
-import numpy
 from prettytable import PrettyTable
 
-from nupic.bindings.algorithms import ConnectionsCell
 from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
-from nupic.research.monitor_mixin.plot import Plot
 from nupic.research.monitor_mixin.trace import (IndicesTrace, CountsTrace,
                                                 BoolsTrace, StringsTrace)
 
@@ -399,19 +396,22 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
   def mmGetCellActivityPlot(self, title="", showReset=False,
                             resetShading=0.25, activityType="activeCells"):
-    """ Returns plot of the cell activity.
+    """
+    Returns plot of the cell activity.
 
-    @param title (string) an optional title for the figure
+    @param title        (string)  an optional title for the figure
 
-    @param showReset (boolean) if true, the first set of cell activities
-    after a reset will have a gray background
+    @param showReset    (bool)    if true, the first set of cell activities
+                                  after a reset will have a gray background
 
-    @param resetShading (float) If showReset is true, this float specifies the
-    intensity of the reset background with 0.0 being white and 1.0 being black
+    @param resetShading (float)   if showReset is true, this float specifies the
+                                  intensity of the reset background with 0.0
+                                  being white and 1.0 being black
 
-    @param activityType (string) The type of cell activity to display. Valid
-    types include "activeCells", "predictiveCells", "predictedCells",
-    and "predictedActiveCells"
+    @param activityType (string)  The type of cell activity to display. Valid
+                                  types include "activeCells",
+                                  "predictiveCells", "predictedCells",
+                                  and "predictedActiveCells"
 
     @return (Plot) plot
     """
@@ -421,10 +421,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # If the trace contains ConnectionsCell, convert them to int
     cellTrace = self._mmTraces[activityType].data
     for i in xrange(len(cellTrace)):
-      if len(cellTrace[i]) > 0:
-        elem = next(iter(cellTrace[i]))
-        if isinstance(elem, ConnectionsCell):
-          cellTrace[i] = [x.idx for x in cellTrace[i]]
+      cellTrace[i] = self.getCellIndices(cellTrace[i])
 
     return super(TemporalMemoryMonitorMixin, self).mmGetCellActivityPlot(
                  cellTrace, self.numberOfCells(), activityType, title,

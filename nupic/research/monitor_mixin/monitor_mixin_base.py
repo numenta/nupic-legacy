@@ -97,7 +97,7 @@ class MonitorMixinBase(object):
     Returns pretty-printed table of metrics.
 
     @param metrics (list) Traces to print in table
-    @param sigFigs (int) Number of significant figures to print
+    @param sigFigs (int)  Number of significant figures to print
 
     @return (string) Pretty-printed table of metrics.
     """
@@ -140,24 +140,26 @@ class MonitorMixinBase(object):
 
   def mmGetCellActivityPlot(self, cellTrace, cellCount, activityType,
                             title="", showReset=False, resetShading=0.25):
-    """ Returns plot of the cell activity. Note that if many timesteps of
+    """
+    Returns plot of the cell activity. Note that if many timesteps of
     activities are input, matplotlib's image interpolation may omit activities
     (columns in the image).
 
-    @param cellTrace (list) a temporally ordered list of sets of cell activities
+    @param cellTrace    (list)   a temporally ordered list of sets of cell
+                                 activities
 
-    @param cellCount (int) number of cells in the space being rendered
+    @param cellCount    (int)    number of cells in the space being rendered
 
     @param activityType (string) type of cell activity being displayed
 
-    @param title (string) an optional title for the figure
+    @param title        (string) an optional title for the figure
 
-    @param showReset (boolean) if true, the first set of cell activities
-                               after a reset will have a grayscale background
+    @param showReset    (bool)   if true, the first set of cell activities
+                                 after a reset will have a grayscale background
 
-    @param resetShading (float) applicable if showReset is true, specifies the
-                                intensity of the reset background with 0.0
-                                being white and 1.0 being black
+    @param resetShading (float)  applicable if showReset is true, specifies the
+                                 intensity of the reset background with 0.0
+                                 being white and 1.0 being black
 
     @return (Plot) plot
     """
