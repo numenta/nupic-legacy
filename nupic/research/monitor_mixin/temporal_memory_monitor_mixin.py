@@ -400,6 +400,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   def mmGetCellActivityPlot(self, title="", showReset=False,
                             resetShading=0.25, activityType="activeCells"):
     """ Returns plot of the cell activity.
+
     @param title (string) an optional title for the figure
 
     @param showReset (boolean) if true, the first set of cell activities
@@ -417,7 +418,7 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     if activityType == "predictedActiveCells":
       self._mmComputeTransitionTraces()
 
-    # If the trace contains ConnectionsCell, convert to int
+    # If the trace contains ConnectionsCell, convert them to int
     cellTrace = self._mmTraces[activityType].data
     for i in xrange(len(cellTrace)):
       if len(cellTrace[i]) > 0:
@@ -426,4 +427,5 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           cellTrace[i] = [x.idx for x in cellTrace[i]]
 
     return super(TemporalMemoryMonitorMixin, self).mmGetCellActivityPlot(
-                 cellTrace, activityType, title, showReset, resetShading)
+                 cellTrace, self.numberOfCells(), activityType, title,
+                 showReset, resetShading)
