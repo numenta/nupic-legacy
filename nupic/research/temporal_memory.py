@@ -26,6 +26,7 @@ Temporal Memory implementation in Python.
 from collections import defaultdict, namedtuple
 from operator import mul
 
+from nupic.bindings.algorithms import ConnectionsCell
 from nupic.bindings.math import Random
 
 
@@ -647,6 +648,16 @@ class TemporalMemory(object):
     """
     if cell >= self.numberOfCells() or cell < 0:
       raise IndexError("Invalid cell")
+
+
+  @staticmethod
+  def getCellIndices(cells):
+    return [TemporalMemory.getCellIndex(c) for c in cells]
+
+
+  @staticmethod
+  def getCellIndex(cell):
+    return cell.idx if isinstance(cell, ConnectionsCell) else cell
 
 
 
