@@ -1,9 +1,9 @@
 %{
 #include <Python.h>
+#include <iostream>
+
 #include "nupic/types/Exception.hpp"
 #include "py_support/PyHelpers.hpp"
-#include <iostream>
-#include "nupic/types/Exception.hpp"
 %}
 
 %exception
