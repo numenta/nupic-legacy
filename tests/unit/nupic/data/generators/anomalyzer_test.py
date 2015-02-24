@@ -29,7 +29,7 @@ from StringIO import StringIO
 import unittest2 as unittest
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.research import anomalyzer
+from nupic.data.generators import anomalyzer
 
 
 class AnomalyzerTest(unittest.TestCase):
