@@ -28,9 +28,6 @@ nbproject/
 # Wheels
 wheelhouse/
 
-# swarming output files
-data/
-
 # output from integration tests
 inference/
 savedmodels/
