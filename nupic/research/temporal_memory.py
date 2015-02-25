@@ -26,7 +26,6 @@ Temporal Memory implementation in Python.
 from collections import defaultdict, namedtuple
 from operator import mul
 
-from nupic.bindings.algorithms import ConnectionsCell
 from nupic.bindings.math import Random
 
 
