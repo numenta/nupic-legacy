@@ -765,7 +765,7 @@ record={"test":gt[i]})
     metric10 = getModule(ms2)
     # create multi metric
     multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
-    multi.verbosity = 2
+    multi.verbosity = 1
     print multi 
     # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
     metric1000ref = getModule(ms1)
@@ -782,8 +782,8 @@ record={"test":gt[i]})
         check=None
       else:
         check=0.2*float(v10) + 0.8*float(v1000)
-      print "v10=",v10," v1000=",v1000," err=",check
-      self.assertEqual(check, multi.addInstance(gt[i], p[i]))
+      metricValue = multi.addInstance(gt[i], p[i])
+      self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
 
 
