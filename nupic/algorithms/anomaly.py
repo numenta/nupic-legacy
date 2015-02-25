@@ -157,8 +157,6 @@ class Anomaly(object):
       else:
         score = 0.0
 
-    assert score >= 0.0 and score <= 1.0
-
     return score
 
 
