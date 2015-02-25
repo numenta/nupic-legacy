@@ -650,14 +650,14 @@ class TemporalMemory(object):
       raise IndexError("Invalid cell")
 
 
-  @staticmethod
-  def getCellIndices(cells):
-    return [TemporalMemory.getCellIndex(c) for c in cells]
+  @classmethod
+  def getCellIndices(cls, cells):
+    return [cls.getCellIndex(c) for c in cells]
 
 
   @staticmethod
   def getCellIndex(cell):
-    return cell.idx if isinstance(cell, ConnectionsCell) else cell
+    return cell.idx
 
 
 
