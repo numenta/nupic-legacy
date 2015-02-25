@@ -245,7 +245,6 @@ namespace nupic { namespace py
 
   PyObject * String::createString_(const char * s, size_t size)
   {
-    NTA_CHECK(size >= 0) << "String length must not be negative";
     if (size == 0)
     {
       NTA_CHECK(s) << "The input string must not be NULL when size == 0";
