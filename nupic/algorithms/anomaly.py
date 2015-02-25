@@ -89,6 +89,7 @@ class Anomaly(object):
               (anomaly * likelihood)
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
+         The transformation is applied after moving average is computed and updated.
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -103,9 +104,10 @@ class Anomaly(object):
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
     self._binaryThreshold = binaryAnomalyThreshold
-    if binaryAnomalyThreshold is not None and (
-          (binaryAnomalyThreshold >= 1  or binaryAnomalyThreshold <= 0) or
-          not isinstance(binaryAnomalyThreshold, float) ):
+    if binaryAnomalyThreshold is not None and ( 
+          not isinstance(binaryAnomalyThreshold, float) or
+          binaryAnomalyThreshold >= 1.0  or 
+          binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
 
@@ -155,9 +157,7 @@ class Anomaly(object):
       else:
         score = 0.0
 
-    # final check on score within [0,1]
-    score = int(score * 100000000)/float(100000000) # 7 dec places
-    assert score >= 0 and score <= 1
+    assert score >= 0.0 and score <= 1.0
 
     return score
 
