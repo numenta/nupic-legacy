@@ -82,9 +82,6 @@ class DeltaEncoder(AdaptiveScalarEncoder):
   def setFieldStats(self, fieldName, fieldStatistics):
     pass
   ############################################################################
-  def isDelta(self):
-    return True
-  ############################################################################
   def getBucketIndices(self, input, learn=None):
     return self._adaptiveScalarEnc.getBucketIndices(input, learn)
   ############################################################################
