@@ -24,6 +24,7 @@
 import cPickle as pickle
 import os
 import shutil
+import random
 from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opfutils as opfutils
@@ -40,17 +41,21 @@ class Model(object):
 
   __metaclass__ = ABCMeta
 
-  def __init__(self, inferenceType):
+  def __init__(self, inferenceType, name=None):
     """ Model constructor.
     @param inferenceType (nupic.frameworks.opf.opfutils.InferenceType)
            A value that specifies the type of inference (i.e. TemporalNextStep,
            Classification, etc.).
+    @param name (opt) unique ID of the model, if none, random will be generated
     """
     self._numPredictions = 0
     self.__inferenceType =  inferenceType
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
+    self._name = name
+    if name is None:
+      self._name = random.randint(0,10000)
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
