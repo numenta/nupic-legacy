@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.0
+
+* Code changes required for a Windows build.
+* Updates nupic.core to d233c58b64e8064d4d12684634dc5e5e78c7ce0b.
+* Implements capnp serialization for Python spatial pooler. Also implements temporary hack for putting .capnp files into the source tree since the build seems to be set up to install in-tree.
+
+## 0.1.3
+
+* Remove unnecessary build flag and fix a bug that was causing duplicated definition names.
+* Added warning in README for OS X.
+* Doc updates
+* Include additional libs in common libs
+* Use gcc in default docker configuration to match nupic.core binary release. Increase resources in coreos configuration.
+* Fixed ValueError When coordinate encoder is used with DateEncoder
+* Add library path for capnp libraries to linker.
+* Adds capnp libraries to linker args.
+* Adds interface file for converting from pycapnp schema to compiled in schema and uses it with SWIGed C++ SpatialPooler class's read and write methods.
+* Discard NTA_PLATFORM_* in favor of NTA_OS_* and NTA_ARCH_* macro variables
+* Raises exception when enableInference was not called, or when predicted field missing from input row.
+
 ## 0.1.2
 
 * Add archflags env var before deploy command on OSX
