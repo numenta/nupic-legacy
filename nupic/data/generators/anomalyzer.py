@@ -27,7 +27,6 @@ import sys
 
 from nupic.data.file_record_stream import FileRecordStream
 
-
 USAGE = """
 Usage:
   python anomalyzer.py input output action extraArgs
@@ -53,6 +52,7 @@ Actions:
 """
 
 
+
 class Actions(object):
   """Enum class for actions that can be performed."""
   ADD = 'add'
@@ -61,6 +61,7 @@ class Actions(object):
   SAMPLE = 'sample'
   SAMPLE2 = 'sample2'
   ACTIONS = (ADD, SCALE, COPY, SAMPLE, SAMPLE2)
+
 
 
 def add(reader, writer, column, start, stop, value):
@@ -80,6 +81,7 @@ def add(reader, writer, column, start, stop, value):
     writer.appendRecord(row)
 
 
+
 def scale(reader, writer, column, start, stop, multiple):
   """Multiplies a value over a range of rows.
 
@@ -95,6 +97,7 @@ def scale(reader, writer, column, start, stop, multiple):
     if i >= start and i <= stop:
       row[column] = type(multiple)(row[column]) * multiple
     writer.appendRecord(row)
+
 
 
 def copy(reader, writer, start, stop, insertLocation=None, tsCol=None):
@@ -134,6 +137,7 @@ def copy(reader, writer, start, stop, insertLocation=None, tsCol=None):
     row[tsCol] = ts
     writer.appendRecord(row)
     ts += inc
+
 
 
 def sample(reader, writer, n, start=None, stop=None, tsCol=None,
@@ -177,6 +181,7 @@ def sample(reader, writer, n, start=None, stop=None, tsCol=None,
       row[tsCol] = ts
       ts += inc
     writer.appendRecord(row)
+
 
 
 def main(args):
@@ -230,7 +235,8 @@ def main(args):
         sample(reader, writer, n, start, stop, tsCol, writeSampleOnly)
 
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
   if len(sys.argv) <= 1:
     print USAGE
     sys.exit(1)
