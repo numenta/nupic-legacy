@@ -1425,7 +1425,7 @@ class MetricMultiStepProbability(AggregateMetric):
     return self.aggregateError
 
 ###################################################################################
-class MetricMulti(AggregateMetric):
+class MetricMulti(MetricsIface):
   """Multi metric can combine multiple other (sub)metrics and 
      weight them to provide combined score."""
 
@@ -1434,16 +1434,14 @@ class MetricMulti(AggregateMetric):
     raise ValueError("MetricMulti cannot be constructed from metricSpec string! "
                      "Use MetricMulti(id,weights,metrics) constructor instead.")
 
-  def __init__(self, weights, metrics, id=None, metricSpec=None):
+  def __init__(self, weights, metrics, id=None, window=None):
     """MetricMulti 
        @param id - unique name for this metric
        @param weights - [list of floats] used as weights
        @param (sub)metrics - [list of metrics] 
        @param id - (opt) name of the metric
-       @param metricSpec - (opt) metricSpec used to construct superclass AggregateMetric
+       @param window - (opt) window size for moving average, or None
     """
-    super(MetricMulti, self).__init__(metricSpec)
-
     if (weights is None or not isinstance(weights, list) or 
                           not len(weights) > 0 or
                           not isinstance(weights[0], float)):
@@ -1455,22 +1453,34 @@ class MetricMulti(AggregateMetric):
                           not isinstance(metrics[0], MetricsIface)):
       raise ValueError("MetricMulti requires 'metrics' parameter as a [list of Metrics]")
     self.metrics = metrics
+    if window is not None:
+      self.movingAvg = MovingAverage(windowSize=window)
+    else:
+      self.movingAvg = None
 
 
   def addInstance(self, groundTruth, prediction, record = None):
-    super(MetricMulti, self).addInstance(groundTruth, prediction, record)
     err = 0.0
+    subResults = [m.addInstance(groundTruth, prediction, record) for m in self.metrics]
     for i in xrange(len(self.weights)):
-      m = self.metrics[i].addInstance(groundTruth, prediction, record)
-      if m is None:
-        self.aggregateError = None
+      try:
+        err += subResults[i]*self.weights[i]
+      except(TypeError):
+        self.err = None
         return None
-      err += self.weights[i]*m
-      if self.verbosity > 1:
-        print "IN=",groundTruth," ",prediction,": w=",self.weights[i]," metric=",self.metrics[i]," value=",m," err=",err
-    self.aggregateError = err
+
+    if self.verbosity > 2:
+      print "IN=",groundTruth," pred=",prediction,": w=",self.weights[i]," metric=",self.metrics[i]," value=",m," err=",err
+    if self.movingAvg is not None:
+      err=self.movingAvg(err)
+    self.err = err
     return err
+
 
   def __repr__(self):
     return "MetricMulti(weights=%s, metrics=%s)" % (self.weights, self.metrics) 
+
+
+  def getMetric(self):
+    return {'value': self.err, "stats" : {"weights" : self.weights}}
 
