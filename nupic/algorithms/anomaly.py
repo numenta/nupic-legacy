@@ -167,4 +167,15 @@ class Anomaly(object):
     if self._movingAverage is not None:
       windowSize = self._movingAverage.windowSize
     return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
-      
+
+
+  def __setstate__(self, state):
+    """deserialization"""
+    self.__dict__.update(state)
+
+    if not hasattr(self, '_mode'):
+      self._mode = Anomaly.MODE_PURE
+    if not hasattr(self, '_movingAverage'):
+      self._movingAverage = None
+    if not hasattr(self, '_binaryThreshold'):
+      self._binaryThreshold = None
