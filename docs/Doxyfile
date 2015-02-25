@@ -761,7 +761,6 @@ INPUT                  = docs \
                          nupic/frameworks/opf/modelfactory.py \
                          nupic/research/__init__.py \
                          nupic/research/TP10X2.py \
-                         nupic/research/TPTrivial.py \
                          nupic/research/TP.py \
                          nupic/research/temporal_memory.py \
                          nupic/research/spatial_pooler.py \
