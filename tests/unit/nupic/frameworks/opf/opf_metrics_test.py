@@ -763,19 +763,23 @@ record={"test":gt[i]})
     ms2 = MetricSpec(metric='trivial', inferenceElement='prediction', field='a', params={'window': 10, 'steps': 1, 'errorMetric': 'rmse'})
     metric1000 = getModule(ms1)
     metric10 = getModule(ms2)
-
+    # create multi metric
     multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
     multi.verbosity = 2
     print multi 
+    # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
+    metric1000ref = getModule(ms1)
+    metric10ref = getModule(ms2)
+
     
     gt = [(i/4+1) for i in range(500, 1000)]
     p = [i for i in range(500)]
  
     for i in xrange(len(gt)):
-      v10=metric10.addInstance(gt[i], p[i])
-      v1000=metric1000.addInstance(gt[i], p[i])
+      v10=metric10ref.addInstance(gt[i], p[i])
+      v1000=metric1000ref.addInstance(gt[i], p[i])
       if v10 is None or v1000 is None:
-        check=0.0
+        check=None
       else:
         check=0.2*float(v10) + 0.8*float(v1000)
       print "v10=",v10," v1000=",v1000," err=",check
