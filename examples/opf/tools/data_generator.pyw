@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
@@ -22,8 +23,8 @@
 
 from Tkinter import *
 import math
-from nupic.research import DataGenerator
-from nupic.research import distributions
+from nupic.data.generators import data_generator
+from nupic.data.generators import distributions
 
 class DataGeneratorApp(): 
 		
@@ -49,9 +50,11 @@ class DataGeneratorApp():
     self.numLines, self.records=[], {}
     self.pointer = None
     
-    self.dg=DataGenerator.DataGenerator()
-    self.dg.defineField('xPos', dict(dataType='int',minval=0,maxval=self.width))
-    self.dg.defineField('yPos', dict(dataType='int',minval=0,maxval=self.height))
+    self.dg=data_generator.DataGenerator()
+    self.dg.defineField('xPos', dict(dataType='int',minval=0,maxval=self.width,
+                                     forced=True))
+    self.dg.defineField('yPos', dict(dataType='int',minval=0,maxval=self.height,
+                                     forced=True))
     
     #Drawing the vertical grid lines
     for i in range(width/10, width, width/10):
@@ -214,7 +217,7 @@ class DataGeneratorApp():
     """Callback for drawing triangle waves"""
     records=[]
     for i in range(15):
-      for i in range(1,360,self.slider.get()):
+      for i in range(1,360,int(self.slider.get())):
         waveValue = self.triangle_function(math.radians(i), 1)
         records.append(waveValue)
     
