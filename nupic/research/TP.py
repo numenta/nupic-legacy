@@ -35,7 +35,6 @@ import numpy
 from nupic.bindings.math import Random
 from nupic.bindings.algorithms import getSegmentActivityLevel, isSegmentActive
 from nupic.math import GetNTAReal
-from nupic.research.TrivialPredictor import TrivialPredictor
 from nupic.support.consoleprinter import ConsolePrinterMixin
 
 
@@ -81,7 +80,6 @@ class TP(ConsolePrinterMixin):
                seed=42,
                verbosity=VERBOSITY,
                checkSynapseConsistency=False,  # for cpp only -- ignored
-               trivialPredictionMethods= '',
                pamLength=1,
                maxInfBacktrack=10,
                maxLrnBacktrack=5,
@@ -141,10 +139,6 @@ class TP(ConsolePrinterMixin):
                   most 1 cell/column. If more than 1 cell is active in a column,
                   the one with the highest confidence is sent up.
                   Default is 'normal'.
-
-    @param trivialPredictionMethods List (as string) of trivial predictions to compute alongside
-                  the full TP. See TrivialPredictor.py for a list of allowed
-                  methods.
 
     @param doPooling If True, pooling is enabled. False is the default.
 
@@ -266,15 +260,6 @@ class TP(ConsolePrinterMixin):
     # cells.
     self.pamCounter = self.pamLength
 
-
-    # Trivial prediction algorithms
-    if len(trivialPredictionMethods.strip()) > 0:
-      ## @todo document
-      self.trivialPredictor = TrivialPredictor(numberOfCols, verbosity,
-                                               trivialPredictionMethods)
-    else:
-      ## @todo document
-      self.trivialPredictor = None
 
     ## If True, the TP will compute a signature for each sequence
     self.collectSequenceStats = False
@@ -576,9 +561,6 @@ class TP(ConsolePrinterMixin):
     self._internalStats['curMissing'] = 0
     self._internalStats['curExtra'] = 0
 
-    if self.trivialPredictor is not None:
-      self.trivialPredictor.reset()
-
     # When a reset occurs, set prevSequenceSignature to the signature of the
     # just-completed sequence and start accumulating histogram for the next
     # sequence.
@@ -630,9 +612,6 @@ class TP(ConsolePrinterMixin):
       self._internalStats['confHistogram'] = (
           numpy.zeros((self.numberOfCols, self.cellsPerColumn),
                       dtype="float32"))
-
-    if self.trivialPredictor is not None:
-      self.trivialPredictor.resetStats()
 
 
   def getStats(self):
@@ -704,25 +683,6 @@ class TP(ConsolePrinterMixin):
     # This will be None if collectSequenceStats is False
     self._stats['prevSequenceSignature'] = (
         self._internalStats['prevSequenceSignature'])
-
-    bestScore = -1.0
-    bestMethod = "none"
-    if self.trivialPredictor is not None:
-      for m in self.trivialPredictor.methods:
-        key = "tr_%s" % m
-        score = (
-            self.trivialPredictor._internalStats[m]['predictionScoreTotal2'] /
-            nPredictions)
-        if score > bestScore:
-          bestScore = score
-          bestMethod = m
-        self._stats[key] = score
-
-        key = "vs_%s" % m
-        self._stats[key] = self._stats['predictionScoreAvg2'] - score
-
-      self._stats["vs_all"] = self._stats['predictionScoreAvg2'] - bestScore
-      self._stats["tr_best"] =  bestMethod
 
     return self._stats
 
@@ -2419,10 +2379,6 @@ class TP(ConsolePrinterMixin):
             self.cleanUpdatesList(c, i, seg)
             self.cells[c][i].remove(seg)
 
-      # Teach the trivial predictors
-      if self.trivialPredictor is not None:
-        self.trivialPredictor.learn(activeColumns)
-
     # Update the prediction score stats
     # Learning always includes inference
     if self.collectStats:
@@ -2434,17 +2390,6 @@ class TP(ConsolePrinterMixin):
                                 activeColumns,
                                 predictedState,
                                 self.colConfidence['t-1'])
-
-      # Make trivial predictions and collect stats
-      if self.trivialPredictor is not None:
-        for m in self.trivialPredictor.methods:
-          if computeInfOutput:
-            self.trivialPredictor.infer(activeColumns)
-          self._updateStatsInferEnd(
-              self.trivialPredictor._internalStats[m],
-              activeColumns,
-              self.trivialPredictor.predictedState[m]['t-1'],
-              self.trivialPredictor.confidence[m]['t-1'])
 
     # Finally return the TP output
     output = self.computeOutput()
