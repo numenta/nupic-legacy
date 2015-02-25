@@ -24,7 +24,7 @@ import random as rand
 from nupic.encoders import adaptivescalar, sdrcategory, date
 from nupic.bindings.math import GetNTAReal
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
-from distributions import *
+from nupic.data.generators.distributions import *
 
 
 realDType = GetNTAReal()
@@ -484,7 +484,7 @@ class _field():
         self.maxval = encoderSpec.pop('maxval')
       else: self.maxval = None
       self.encoder=adaptivescalar.AdaptiveScalarEncoder(name='AdaptiveScalarEncoder',\
-        w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False)
+        w=self.w, n=self.n, minval=self.minval, maxval=self.maxval, periodic=False, forced=True)
 
     #Initializing category encoder
     elif self.encoderType=='category':
