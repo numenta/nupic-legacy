@@ -22,6 +22,7 @@
 import itertools
 
 import numpy
+import math
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
@@ -283,6 +284,7 @@ class SpatialPooler(object):
     # activated.
     for i in xrange(numColumns):
       potential = self._mapPotential(i, wrapAround=self._wrapAround)
+      potential = numpy.array(potential)
       self._potentialPools.replaceSparseRow(i, potential)
       perm = self._initPermanence(potential, initConnectedPct)
       self._updatePermanencesForColumn(potential, perm, i, raisePerm=True)
@@ -1006,14 +1008,18 @@ class SpatialPooler(object):
     @param mask:    the indices of the columns whose permanences need to be
                     raised.
     """
+    if len(mask) == 0: #empty
+      return 
+
     if len(mask) < self._stimulusThreshold:
       raise Exception("This is likely due to a " +
       "value of stimulusThreshold that is too large relative " +
       "to the input size. [len(mask) < self._stimulusThreshold]")
-    
+   
+    perm=numpy.array(perm)
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     # grow (mask) permanences (perm) to >= stimulusThreshold : 
-    while numpy.nonzero(perm > self._synPermConnected)[0].size < self._stimulusThreshold:
+    while perm[perm > self._synPermConnected].size < self._stimulusThreshold:
       perm[mask] += self._synPermBelowStimulusInc #TODO: optimize the while loop
 
 
@@ -1046,9 +1052,12 @@ class SpatialPooler(object):
     """
     if raisePerm:
       self._raisePermanenceToThreshold(permVal, permIdx)
+    permVal = numpy.array(permVal)
     permVal[permVal < self._synPermTrimThreshold] = 0
     numpy.clip(permVal, self._synPermMin, self._synPermMax, out=permVal)
     newConnected = numpy.where(permVal >= self._synPermConnected)[0]
+    permVal = numpy.where(permVal > 0)[0]
+    print permVal
     self._permanences.setRowFromSparse(index, permIdx, permVal)
     self._connectedSynapses.replaceSparseRow(index, newConnected)
     self._connectedCounts[index] = newConnected.size
@@ -1068,6 +1077,7 @@ class SpatialPooler(object):
     """
     p =  (self._synPermConnected + self._random.getReal64() *
       self._synPermActiveInc / 4.0)
+    return p
 
 
   def __initPermNonConnected(self):
@@ -1078,7 +1088,7 @@ class SpatialPooler(object):
     Internal method! use _initPermanence() instead
     """
     p = self._synPermConnected * self._random.getReal64()
-
+    return p
 
   def _initPermanence(self, potentialMask, connectedPct):
     """
@@ -1088,13 +1098,12 @@ class SpatialPooler(object):
     at the particular index in the array, and the column represented by
     the 'index' parameter.
 
-    Parameters:
-    ----------------------------
     @param potential: A numpy array specifying the potential pool of the column.
                     Permanence values will only be generated for input bits
                     corresponding to indices for which the mask value is 1.
     @param connectedPct: A value between 0 or 1 specifying the percent of the input
                     bits that will start off in a connected state.
+    @return dense array of permanences
     """
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a
@@ -1699,8 +1708,8 @@ class SpatialPooler(object):
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
     self._connectedSynapses = SparseBinaryMatrix(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
-    for i in xrange(proto.numColumns):
-      self._updatePermanencesForColumn(self._permanences.getRow(i), i, False)
+    perms = [self._permanences.getRow(i) for i in xrange(proto.numColumns)]
+    self._updatePermanencesForColumn(perms, range(i), False)
 
     self._tieBreaker = numpy.array(proto.tieBreaker)
 
