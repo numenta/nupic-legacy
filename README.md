@@ -36,7 +36,9 @@ NuPIC binaries are available for:
 - You may need to use the `--user` flag for the commands above to install in a non-system location (depends on your environment). Alternatively, you can execute the `pip` commands with `sudo` (not recommended).
 - You may need to add the `--use-wheel` option if you have an older pip version (wheels are now the default binary package format for pip).
 
-For any other installation issues, please see our [FAQ](https://github.com/numenta/nupic/wiki/FAQ) or email the [nupic-discuss](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org) mailing list.
+For any other installation issues, please see our [FAQ](https://github.com/numenta/nupic/wiki/FAQ), email the [nupic-discuss](http://lists.numenta.org/mailman/listinfo/nupic_lists.numenta.org) mailing list, or chat with us on Gitter.
+
+[![Gitter](https://img.shields.io/badge/gitter-join_chat-blue.svg?style=flat)](https://gitter.im/numenta/public?utm_source=badge)
 
 ### Building NuPIC From Source Code
 
