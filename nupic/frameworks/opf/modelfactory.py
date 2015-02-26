@@ -25,6 +25,7 @@
 """
 
 import logging
+import random
 
 import nupic.frameworks.opf.opfutils as opfutils
 
@@ -77,7 +78,12 @@ class ModelFactory(object):
       raise Exception("ModelFactory received unsupported Model type: %s" % \
                       modelConfig['model'])
 
-    return modelClass(**modelConfig['modelParams'])
+    model = modelClass(**modelConfig['modelParams'])
+    print model, model._name
+    model._name = random.randint(0,10000)
+    _addGlobalModel(model)
+    return model
+
 
   @staticmethod
   def loadFromCheckpoint(savedModelDir):
@@ -86,4 +92,39 @@ class ModelFactory(object):
            Directory of where the experiment is to be or was saved
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
-    return Model.load(savedModelDir)
+    model = Model.load(savedModelDir)
+    _addGlobalModel(model)
+    return model
+
+
+###################
+# global variable
+globalModelsStorage=[]
+
+def _addGlobalModel(newModel, logLevel=logging.ERROR):
+  """ add a model to the global storage, used ie in Metrics
+      Models are stored in a global variable 'globalModelsStorage' 
+      and can be later accessed by name.
+      @param newModel - instance of Model to add
+  """
+  global globalModelsStorage
+  for model in globalModelsStorage:
+    if model._name == newModel._name:
+      raise ValueError("addGlobalModel: failed as model %s already exists." % model._name)
+  globalModelsStorage.append(newModel)
+
+  print "Globally stored model %s" % (newModel._name)
+
+  
+
+def getGlobalModel(name):
+  """
+  access models in global storage 'globalModelsStorage' by name
+  @return found model instance, or None when there is no such model with given name
+  """
+  global globalModelsStorage
+  for m in globalModelsStorage:
+    if m._name == name:
+      return m
+  return None
+
