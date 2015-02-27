@@ -138,7 +138,7 @@ class MonitorMixinBase(object):
     return []
 
 
-  def mmGetCellActivityPlot(self, cellTrace, cellCount, activityType,
+  def mmGetCellTracePlot(self, cellTrace, cellCount, activityType,
                             title="", showReset=False, resetShading=0.25):
     """
     Returns plot of the cell activity. Note that if many timesteps of
