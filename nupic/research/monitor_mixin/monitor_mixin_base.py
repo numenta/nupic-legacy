@@ -106,12 +106,7 @@ class MonitorMixinBase(object):
                          "min", "max", "sum", ])
 
     for metric in metrics:
-      table.add_row([metric.prettyPrintTitle(),
-                     round(metric.mean, sigFigs),
-                     round(metric.standardDeviation, sigFigs),
-                     round(metric.min, sigFigs),
-                     round(metric.max, sigFigs),
-                     round(metric.sum, sigFigs)])
+      table.add_row([metric.prettyPrintTitle()] + metric.getStats())
 
     return table.get_string().encode("utf-8")
 
