@@ -19,6 +19,7 @@ NuPIC binaries are available for:
 - [Python 2.7 & development headers](https://docs.python.org/devguide/setup.html#build-dependencies)
 - [pip](https://pypi.python.org/pypi/pip)
 - [wheel](http://pythonwheels.com)
+- [numpy](http://www.numpy.org/)
 
 ### Mac OS X
 
