@@ -423,6 +423,5 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     for i in xrange(len(cellTrace)):
       cellTrace[i] = self.getCellIndices(cellTrace[i])
 
-    return super(TemporalMemoryMonitorMixin, self).mmGetCellActivityPlot(
-                 cellTrace, self.numberOfCells(), activityType, title,
-                 showReset, resetShading)
+    return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),
+                                   activityType, title, showReset, resetShading)
