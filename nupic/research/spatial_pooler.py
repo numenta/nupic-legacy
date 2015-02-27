@@ -67,11 +67,10 @@ class SpatialPooler(object):
                maxBoost=10.0,
                seed=-1,
                spVerbosity=0,
-               wrapAround=True
+               wrapAround=True,
+               randomSP=False
                ):
     """
-    Parameters:
-    ----------------------------
     @param inputDimensions: 
       A list representing the dimensions of the input vector. Format is [height,
       width, depth, ...], where each value represents the size of the dimension.
@@ -177,6 +176,16 @@ class SpatialPooler(object):
     @param wrapAround:
       Determines if inputs at the beginning and end of an input dimension should
       be considered neighbors when mapping columns to inputs.
+    @param randomSP: 
+      (default False)
+      The randomSP option allows you to use a flat spatial pooler without invoking
+      any learning. This is extremely useful for understanding the properties of a
+      basic SP that is initialized with random permanences. A randomSP will give
+      reasonable SDR's and is easier to analyze and reason about. (A properly
+      trained SP should give even better SDR's.) You can't achieve this function
+      with SpatialPooler because it normally strips out unlearned columns when
+      learning is turned off.
+
     """
     # Verify input is valid
     inputDimensions = numpy.array(inputDimensions, ndmin=1)
@@ -215,6 +224,7 @@ class SpatialPooler(object):
     self._maxBoost = maxBoost
     self._spVerbosity = spVerbosity
     self._wrapAround = wrapAround
+    self._randomSP = randomSP
 
     # Extra parameter settings
     self._synPermMin = 0.0
@@ -655,12 +665,21 @@ class SpatialPooler(object):
     connectedCounts[:] = self._connectedCounts[:]
 
 
+  def gerRandomSP(self):
+    return self._randomSP
+
+
+  def setRandomSP(self, randomSP):
+    self._randomSP = randomSP
+
+
   def compute(self, inputVector, learn, activeArray, stripNeverLearned=True):
     """
     This is the primary public method of the SpatialPooler class. This
     function takes a input vector and outputs the indices of the active columns.
     If 'learn' is set to True, this method also updates the permanences of the
     columns.
+    If randomSP is True, it implies learn=False and no changes to the SP.
 
     @param inputVector: A numpy array of 0's and 1's that comprises the input
         to the spatial pooler. The array will be treated as a one dimensional
@@ -694,6 +713,9 @@ class SpatialPooler(object):
       raise ValueError(
           "Input vector dimensions don't match. Expecting %s but got %s" % (
               inputVector.size, self._numInputs))
+
+    if self._randomSP:
+      learn = False
 
     self._updateBookeepingVars(learn)
     inputVector = numpy.array(inputVector, dtype=realDType)
@@ -1749,3 +1771,4 @@ class SpatialPooler(object):
     print "maxBoost                   = ", self.getMaxBoost()
     print "spVerbosity                = ", self.getSpVerbosity()
     print "version                    = ", self._version
+    print "randomSP                   = ", self.getRandomSP()

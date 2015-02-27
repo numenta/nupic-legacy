@@ -25,6 +25,7 @@
 
 import tempfile
 import unittest
+from copy import copy
 
 import capnp
 from mock import Mock
@@ -40,6 +41,7 @@ from nupic.bindings.proto import SpatialPoolerProto_capnp
 from nupic.research.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
+uintDType = "uint32"
 
 class SpatialPoolerTest(unittest.TestCase):
   """Unit Tests for SpatialPooler class."""
@@ -1785,6 +1787,64 @@ class SpatialPoolerTest(unittest.TestCase):
     indices2 = set(activeArray2.nonzero()[0])
     self.assertSetEqual(indices1, indices2)
 
+
+# moved from flat_spatial pooler tests: 
+
+  def testRandomSPDoesNotLearn(self):
+
+    sp = SpatialPooler(inputDimensions=[5],
+                       columnDimensions=[10],
+                       randomSP=True)
+    inputArray = (numpy.random.rand(5) > 0.5).astype(uintDType)
+    activeArray = numpy.zeros(sp._numColumns).astype(realDType)
+    # Should start off at 0
+    self.assertEqual(sp._iterationNum, 0)
+    self.assertEqual(sp._iterationLearnNum, 0)
+
+    # Store the initialized state
+    initialPerms = copy(sp._permanences)
+
+    sp.compute(inputArray, False, activeArray)
+    # Should have incremented general counter but not learning counter
+    self.assertEqual(sp._iterationNum, 1)
+    self.assertEqual(sp._iterationLearnNum, 0)
+
+    # Should not learn even if learning set to True
+    sp.compute(inputArray, True, activeArray)
+    self.assertEqual(sp._iterationNum, 2)
+    self.assertEqual(sp._iterationLearnNum, 0)
+
+    # Check the initial perm state was not modified either
+    self.assertEqual(sp._permanences, initialPerms)
+
+
+  def testActiveColumnsEqualNumActive(self):
+    '''
+    After feeding in a record the number of active columns should
+    always be equal to numActivePerInhArea
+    '''
+
+    for i in [1, 10, 50]:
+      numActive = i
+      inputShape = 10
+      sp = SpatialPooler(inputDimensions=[inputShape],
+                         columnDimensions=[100],
+                         numActiveColumnsPerInhArea=numActive)
+      inputArray = (numpy.random.rand(inputShape) > 0.5).astype(uintDType)
+      inputArray2 = (numpy.random.rand(inputShape) > 0.8).astype(uintDType)
+      activeArray = numpy.zeros(sp._numColumns).astype(realDType)
+
+      # Default, learning on
+      sp.setRandomSP(False)
+      sp.compute(inputArray, True, activeArray)
+      sp.compute(inputArray2, True, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
+
+      # Random SP
+      sp.setRandomSP(True)
+      sp.compute(inputArray, False, activeArray)
+      sp.compute(inputArray2, False, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
 
 
 if __name__ == "__main__":
