@@ -132,9 +132,9 @@ class TPTest(unittest.TestCase):
   def testCheckpointMiddleOfSequence2(self):
     """More complex test of checkpointing in the middle of a sequence."""
     tp1 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-             False, 1960, 0, False, '', 3, 10, 5, 0, 32, 128, 32, 'normal')
+             False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
     tp2 = TP(2048, 32, 0.21, 0.5, 11, 20, 0.1, 0.1, 1.0, 0.0, 14, False, 5, 2,
-             False, 1960, 0, False, '', 3, 10, 5, 0, 32, 128, 32, 'normal')
+             False, 1960, 0, False, 3, 10, 5, 0, 32, 128, 32, 'normal')
 
     with open(resource_filename(__name__, 'data/tp_input.csv'), 'r') as fin:
       reader = csv.reader(fin)
