@@ -110,7 +110,7 @@ config = {
     # Model parameter dictionary.
     'modelParams': {
         # The type of inference that this model will perform
-        'inferenceType': 'TemporalAnomaly',
+        'inferenceType': 'multiStepBestPredictions',
 
         'sensorParams': {
             # Sensor diagnostic output verbosity control;

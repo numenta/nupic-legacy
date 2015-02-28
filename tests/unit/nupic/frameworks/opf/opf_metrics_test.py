@@ -772,8 +772,8 @@ record={"test":gt[i]})
     metric10ref = getModule(ms2)
 
     
-    gt = [(i/4+1) for i in range(500, 1000)]
-    p = [i for i in range(500)]
+    gt = range(500, 1000)
+    p = range(500)
  
     for i in xrange(len(gt)):
       v10=metric10ref.addInstance(gt[i], p[i])
