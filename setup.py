@@ -124,6 +124,17 @@ def getCommandLineOptions():
      "",
      "(optional) Skip nupic.core version comparison"]
   )
+  optionsDesc.append(
+    ["optimizations-native",
+    "value",
+    "(optional) enable aggressive compiler optimizations"]
+  )
+  optionsDesc.append(
+    ["optimizations-lto",
+    "value",
+    "(optional) enable link-time optimizations (LTO); currently only for gcc and linker ld.gold"]
+  )
+
 
   # Read command line options looking for extra options
   # For example, an user could type:
@@ -280,7 +291,7 @@ def getDefaultNupicCoreDirectories():
 
 
 
-def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
+def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None):
   #
   # Gives the version of Python necessary to get installation directories
   # for use with pythonVersion, etc.
@@ -332,9 +343,14 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-fPIC",
     "-fvisibility=hidden",
     "-Wall",
+    "-Wextra",
     "-Wreturn-type",
     "-Wunused",
-    "-Wno-unused-parameter"]
+    "-Wno-unused-parameter",
+    # optimization flags (generic builds used for binary distribution)
+    "-mtune=generic",
+    "-O2",
+  ]
   if platform == "darwin":
     commonCompileFlags.append("-stdlib=libc++")
 
@@ -342,10 +358,27 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness):
     "-m" + bitness,
     "-fPIC",
     "-L" + nupicCoreReleaseDir + "/lib",
+    # for Cap'n'Proto serialization
     "-lkj",
     "-lcapnp",
     "-lcapnpc",
+    # optimization (safe defaults)
+    "-O2",
   ]
+
+  # Optimizations
+  if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
+    commonCompileFlags.append("-march=native")
+    commonCompileFlags.append("-O3")
+    commonLinkFlags.append("-O3")
+  if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
+    commonCompileFlags.append("-fuse-linker-plugin")
+    commonCompileFlags.append("-flto-report")
+    commonCompileFlags.append("-fuse-ld=gold")
+    commonCompileFlags.append("-flto")
+    commonLinkFlags.append("-flto")
+
+
 
   commonLibraries = [
     "dl",
@@ -562,7 +595,7 @@ def postProcess():
   # Copy proto files located at nupic.core dir into nupic dir
   buildDir = glob.glob(REPO_DIR + "/build/lib.*/")[0]
   protoBuildDir = nupicCoreReleaseDir + "/include/nupic/proto"
-  protoSourceDir = buildDir + "/nupic/bindings/proto"
+  protoSourceDir = REPO_DIR + "/nupic/bindings/proto"
   if not os.path.exists(protoSourceDir):
     os.makedirs(protoSourceDir)
   for fileName in glob.glob(protoBuildDir + "/*.capnp"):
@@ -603,7 +636,7 @@ try:
   if haveBuild:
     nupicCoreReleaseDir = prepareNupicCore(options, platform, bitness)
     extensions = getExtensionModules(
-      nupicCoreReleaseDir, platform, bitness
+      nupicCoreReleaseDir, platform, bitness, cmdOptions=options
     )
   else:
     extensions = []

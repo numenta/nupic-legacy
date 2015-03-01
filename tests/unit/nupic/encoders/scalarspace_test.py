@@ -24,7 +24,7 @@
 
 import unittest2 as unittest
 
-from nupic.encoders.scalarspace import ScalarSpaceEncoder
+from nupic.encoders.scalarspace import ScalarSpaceEncoder, DeltaEncoder
 
 
 #########################################################################
@@ -35,10 +35,12 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
   def testScalarSpaceEncoder(self):
     """scalar space encoder"""
     # use of forced=True is not recommended, but used in the example for readibility, see scalar.py
-    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta", forced=True)
-    self.assertTrue(sse.isDelta())
-    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute", forced=True)
-    self.assertFalse(sse.isDelta())
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"delta",
+                             forced=True)
+    self.assertTrue(isinstance(sse, DeltaEncoder))
+    sse = ScalarSpaceEncoder(1,1,2,False,2,1,1,None,0,False,"absolute",
+                             forced=True)
+    self.assertFalse(isinstance(sse, DeltaEncoder))
 
      
 ###########################################

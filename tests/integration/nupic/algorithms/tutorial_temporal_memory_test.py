@@ -21,9 +21,9 @@
 # ----------------------------------------------------------------------
 
 import pprint
-import unittest2 as unittest
+import unittest
 
-from nupic.data.pattern_machine import ConsecutivePatternMachine
+from nupic.data.generators.pattern_machine import ConsecutivePatternMachine
 
 from nupic.test.abstract_temporal_memory_test import AbstractTemporalMemoryTest
 

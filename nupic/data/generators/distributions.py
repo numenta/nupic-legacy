@@ -155,5 +155,5 @@ class GaussianDistribution(Distributions):
 
   ############################################################################
   def getDescription(self):
-    description = dict(name='GaussianDistribution', mean=self.mean, \
+    description = dict(name='GaussianDistribution', mean=self.mean,
             standardDeviation=self.std, numOfValues=self.valueNum)
