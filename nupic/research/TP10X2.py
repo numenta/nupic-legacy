@@ -91,9 +91,6 @@ class TP10X2(TP):
                verbosity = VERBOSITY,
                checkSynapseConsistency = False,
 
-               # List (as string) of trivial predictions to compute alongside
-               # the full TP. See TrivialPredictor.py for a list of allowed methods
-               trivialPredictionMethods = '',
                pamLength = 1,
                maxInfBacktrack = 10,
                maxLrnBacktrack = 5,
@@ -143,7 +140,6 @@ class TP10X2(TP):
                collectStats = collectStats,
                seed = seed,
                verbosity = verbosity,
-               trivialPredictionMethods = trivialPredictionMethods,
                pamLength = pamLength,
                maxInfBacktrack = maxInfBacktrack,
                maxLrnBacktrack = maxLrnBacktrack,
@@ -320,13 +316,6 @@ class TP10X2(TP):
     self.avgLearnedSeqLength = self.cells4.getAvgLearnedSeqLength()
     self._copyAllocatedStates()
 
-    # ====================================================================
-    # Teach the trivial predictors
-    if enableLearn:
-      if self.trivialPredictor is not None:
-        activeColumns = bottomUpInput.nonzero()[0]
-        self.trivialPredictor.learn(activeColumns)
-
 
     # ========================================================================
     # Update the prediction score stats
@@ -341,16 +330,6 @@ class TP10X2(TP):
                                 activeColumns,
                                 predictedState,
                                 self.colConfidence['t-1'])
-
-      # Make trivial predictions and collect stats
-      if self.trivialPredictor is not None:
-        for m in self.trivialPredictor.methods:
-          if computeInfOutput:
-            self.trivialPredictor.infer(activeColumns)
-          self._updateStatsInferEnd(self.trivialPredictor._internalStats[m],
-                                    activeColumns,
-                                    self.trivialPredictor.predictedState[m]['t-1'],
-                                    self.trivialPredictor.confidence[m]['t-1'])
 
 
 
