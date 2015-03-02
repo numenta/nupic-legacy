@@ -88,7 +88,10 @@ class MovingAverage(object):
   def __setstate__(self, state):
     self.__dict__.update(state)
 
+    if not hasattr(self, "slidingWindow"):
+      self.slidingWindow = []
+
     if not hasattr(self, "total"):
       self.total = 0
-      self.slidingWindow = []
+      self.slidingWindow = sum(self.slidingWindow)
 
