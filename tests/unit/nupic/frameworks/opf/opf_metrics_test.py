@@ -764,7 +764,7 @@ record={"test":gt[i]})
     metric1000 = getModule(ms1)
     metric10 = getModule(ms2)
     # create multi metric
-    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000], id='multi1')
+    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000])
     multi.verbosity = 1
     print multi 
     # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
