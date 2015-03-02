@@ -20,8 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Disable since test code accesses private members in the class to be tested
-# pylint: disable=W0212
+## run python -m cProfile --sort cumTime tp_large.py 
 
 #from mock import Mock
 import numpy
