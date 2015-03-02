@@ -1437,7 +1437,7 @@ class MetricMulti(MetricsIface):
   def __init__(self, weights, metrics, id=None, window=None):
     """MetricMulti 
        @param weights - [list of floats] used as weights
-       @param (sub)metrics - [list of metrics] 
+       @param metrics - [list of submetrics] 
        @param id - (opt) name of the metric
        @param window - (opt) window size for moving average, or None when disabled
     """
