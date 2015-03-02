@@ -1434,11 +1434,10 @@ class MetricMulti(MetricsIface):
     raise ValueError("MetricMulti cannot be constructed from metricSpec string! "
                      "Use MetricMulti(weights,metrics) constructor instead.")
 
-  def __init__(self, weights, metrics, id=None, window=None):
+  def __init__(self, weights, metrics, window=None):
     """MetricMulti 
        @param weights - [list of floats] used as weights
        @param metrics - [list of submetrics] 
-       @param id - (opt) name of the metric
        @param window - (opt) window size for moving average, or None when disabled
     """
     if (weights is None or not isinstance(weights, list) or 
