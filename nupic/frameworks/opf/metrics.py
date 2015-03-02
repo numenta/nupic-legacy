@@ -1462,9 +1462,9 @@ class MetricMulti(MetricsIface):
     err = 0.0
     subResults = [m.addInstance(groundTruth, prediction, record) for m in self.metrics]
     for i in xrange(len(self.weights)):
-      try:
+      if subResults[i] is not None:
         err += subResults[i]*self.weights[i]
-      except(TypeError):
+      else: # submetric returned None, propagate
         self.err = None
         return None
 
