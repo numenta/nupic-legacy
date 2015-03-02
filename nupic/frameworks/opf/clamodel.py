@@ -363,7 +363,8 @@ class CLAModel(Model):
 
     self.__numRunCalls += 1
 
-    self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
+    if self.__logger.isEnabledFor(logging.DEBUG):
+      self.__logger.debug("CLAModel.run() inputRecord=%s", (inputRecord))
 
     results.inferences = {}
     self._input = inputRecord
