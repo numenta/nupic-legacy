@@ -24,9 +24,9 @@ import copy
 import csv
 import json
 import os
+from pkg_resources import resource_filename
 
 from nupic.algorithms.anomaly import computeRawAnomalyScore
-from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder
@@ -213,7 +213,7 @@ def runNetwork(network, writer):
 
 
 if __name__ == "__main__":
-  trainFile = findDataset(_DATA_PATH)
+  trainFile = resource_filename("examples.prediction.data", _DATA_PATH)
   dataSource = FileRecordStream(streamID=trainFile)
 
   network = createNetwork(dataSource)
