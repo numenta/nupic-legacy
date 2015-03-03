@@ -758,7 +758,7 @@ class AggregationTests(HelperTestCaseBase):
 2009-05-06 20:41:15,554.3
 2009-05-06 20:41:51,652.11"""
     fields = [('timestamp', 'datetime', 'T'), ('amount', 'float', '')]
-    with FileRecordStream('data/gap.csv', write=True, fields=fields) as f:
+    with FileRecordStream('examples/prediction/data/gap.csv', write=True, fields=fields) as f:
       lines = data.split('\n')
       for line in lines:
         t, a = line.split(',')
@@ -843,10 +843,7 @@ class AggregationTests(HelperTestCaseBase):
       ['dummy-5', datetime.datetime(2000, 3, 5), 0, 2],
     )
 
-    if not os.path.isdir('data'):
-      os.makedirs('data')
-
-    with FileRecordStream('data/auto_specials.csv', write=True, fields=fields) \
+    with FileRecordStream('examples/prediction/data/auto_specials.csv', write=True, fields=fields) \
            as o:
       for r in records:
         o.appendRecord(r)
@@ -908,7 +905,7 @@ class AggregationTests(HelperTestCaseBase):
     if not os.path.isdir('data'):
       os.makedirs('data')
 
-    with FileRecordStream('data/weighted_mean.csv', write=True, fields=fields) \
+    with FileRecordStream('examples/prediction/data/weighted_mean.csv', write=True, fields=fields) \
           as o:
       for r in records:
         o.appendRecord(r)
