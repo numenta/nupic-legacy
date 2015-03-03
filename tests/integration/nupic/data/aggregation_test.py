@@ -783,7 +783,7 @@ class AggregationTests(HelperTestCaseBase):
     handle = \
       tempfile.NamedTemporaryFile(prefix='agg_gap_hours_24', 
         suffix='.csv', 
-        dir='data')
+        dir='examples/prediction/data')
     outputFile = handle.name
     handle.close()
     
@@ -901,9 +901,6 @@ class AggregationTests(HelperTestCaseBase):
       [5, 0, datetime.datetime(2000, 3, 7)],
       [6, 0, datetime.datetime(2000, 3, 8)],
     )
-
-    if not os.path.isdir('data'):
-      os.makedirs('data')
 
     with FileRecordStream('examples/prediction/data/weighted_mean.csv', write=True, fields=fields) \
           as o:
