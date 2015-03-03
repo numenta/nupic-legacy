@@ -27,7 +27,9 @@ import traceback
 try:
   # We import in here to avoid creating a matplotlib dependency in nupic.
   import matplotlib.pyplot as plt
+  import matplotlib.cm as cm
 except ImportError:
+  print "Cannot import matplotlib. Plot class will not work."
   print traceback.format_exc() + "\n"
 
 
@@ -107,9 +109,7 @@ class Plot(object):
     @param interpolation interpolation method
     """
     if cmap is None:
-      # The default colormodel is an ugly blue-red model. We import here to
-      # avoid creating a matplotlib dependency in nupic.
-      import matplotlib.cm as cm
+      # The default colormodel is an ugly blue-red model.
       cmap = cm.Greys
 
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
