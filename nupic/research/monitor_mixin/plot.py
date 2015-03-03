@@ -22,9 +22,13 @@
 """
 Plot class used in monitor mixin framework.
 """
-import matplotlib.pyplot as plt
-import matplotlib.cm as colorModel
+import traceback
 
+try:
+  import matplotlib.pyplot as plt
+  import matplotlib.cm as colorModel
+except ImportError:
+  print traceback.format_exc() + "\n"
 
 
 class Plot(object):

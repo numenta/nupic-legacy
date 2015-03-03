@@ -28,7 +28,6 @@ import abc
 import numpy
 from prettytable import PrettyTable
 
-from nupic.bindings.algorithms import ConnectionsCell
 from nupic.research.monitor_mixin.plot import Plot
 
 
@@ -133,8 +132,8 @@ class MonitorMixinBase(object):
     return []
 
 
-  def mmGetCellTracePlot(self, cellTrace, cellCount, activityType,
-                            title="", showReset=False, resetShading=0.25):
+  def mmGetCellTracePlot(self, cellTrace, cellCount, activityType, title="",
+                         showReset=False, resetShading=0.25):
     """
     Returns plot of the cell activity. Note that if many timesteps of
     activities are input, matplotlib's image interpolation may omit activities
