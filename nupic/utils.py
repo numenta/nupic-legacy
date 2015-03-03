@@ -83,3 +83,8 @@ class MovingAverage(object):
 
   def getSlidingWindow(self):
     return self.slidingWindow
+
+
+  def __call__(self, value):
+    return self.next(value)
+

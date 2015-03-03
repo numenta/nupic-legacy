@@ -114,22 +114,22 @@ import_array();
 //--------------------------------------------------------------------------------
 %inline {
 
-  inline nupic::Real64 lgamma(nupic::Real64 x)
+  nupic::Real64 lgamma(nupic::Real64 x)
   {
     return nupic::lgamma(x);
   }
 
-  inline nupic::Real64 digamma(nupic::Real64 x)
+  nupic::Real64 digamma(nupic::Real64 x)
   {
     return nupic::digamma(x);
   }
 
-  inline nupic::Real64 beta(nupic::Real64 x, nupic::Real64 y)
+  nupic::Real64 beta(nupic::Real64 x, nupic::Real64 y)
   {
     return nupic::beta(x, y);
   }
 
-  inline nupic::Real64 erf(nupic::Real64 x)
+  nupic::Real64 erf(nupic::Real64 x)
   {
     return nupic::erf(x);
   }

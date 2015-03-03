@@ -19,9 +19,9 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest2 as unittest
+import unittest
 
-from nupic.data.sequence_machine import SequenceMachine
+from nupic.data.generators.sequence_machine import SequenceMachine
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
 from nupic.research.temporal_memory import TemporalMemory
