@@ -25,8 +25,8 @@ Plot class used in monitor mixin framework.
 import traceback
 
 try:
+  # We import in here to avoid creating a matplotlib dependency in nupic.
   import matplotlib.pyplot as plt
-  import matplotlib.cm as colorModel
 except ImportError:
   print traceback.format_exc() + "\n"
 
@@ -92,8 +92,8 @@ class Plot(object):
     plt.draw()
 
 
-  def add2DArray(self, data, position=111, xlabel=None, ylabel=None,
-                 cmap=colorModel.Greys, aspect="auto", interpolation="nearest"):
+  def add2DArray(self, data, position=111, xlabel=None, ylabel=None, cmap=None,
+                 aspect="auto", interpolation="nearest"):
     """ Adds an image to the plot's figure.
 
     @param data a 2D array. See matplotlib.Axes.imshow documentation.
@@ -106,6 +106,12 @@ class Plot(object):
     @param aspect how aspect ratio is handled during resize
     @param interpolation interpolation method
     """
+    if cmap is None:
+      # The default colormodel is an ugly blue-red model. We import here to
+      # avoid creating a matplotlib dependency in nupic.
+      import matplotlib.cm as cm
+      cmap = cm.Greys
+
     ax = self._addBase(position, xlabel=xlabel, ylabel=ylabel)
     ax.imshow(data, cmap=cmap, aspect=aspect, interpolation=interpolation)
     plt.draw()
