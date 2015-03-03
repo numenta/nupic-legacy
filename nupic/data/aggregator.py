@@ -24,10 +24,10 @@ import os
 import time
 import datetime
 from collections import defaultdict
+from pkg_resources import resource_filename
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data.datasethelpers import findDataset
 
 
 """The aggregator aggregates PF datasets
@@ -755,8 +755,7 @@ def generateDataset(aggregationInfo, inputFilename, outputFilename=None):
         have values of 0, then aggregation will be suppressed, and the given
         inputFile parameter value will be returned.
 
-  inputFilename: filename (or relative path form NTA_DATA_PATH) of
-               the input dataset
+  inputFilename: filename of the input dataset within examples/prediction/data
                
   outputFilename: name for the output file. If not given, a name will be
         generated based on the input filename and the aggregation params
@@ -781,7 +780,7 @@ def generateDataset(aggregationInfo, inputFilename, outputFilename=None):
 
 
   # Create the input stream
-  inputFullPath = findDataset(inputFilename)
+  inputFullPath = resource_filename("examples.prediction.data", inputFilename)
   inputObj = FileRecordStream(inputFullPath)
   
 
@@ -864,7 +863,7 @@ def getFilename(aggregationInfo, inputFile):
   """
 
   # Find the actual file, with an absolute path
-  inputFile = findDataset(inputFile)
+  inputFile = resource_filename("examples.prediction.data", inputFile)
 
   a = defaultdict(lambda: 0, aggregationInfo)
   outputDir = os.path.dirname(inputFile)

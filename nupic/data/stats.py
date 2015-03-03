@@ -21,8 +21,8 @@
 
 import os
 import pickle
+from pkg_resources import resource_filename
 
-from nupic.data.datasethelpers import findDataset
 from nupic.regions.RecordSensor import RecordSensor
 from nupic.data.file_record_stream import FileRecordStream
 
@@ -128,7 +128,7 @@ def generateStats(filename, statsInfo, maxSamples = None, filters=[], cache=True
     raise RuntimeError("statsInfo must be a dict -- "
                        "found '%s' instead" % type(statsInfo))
 
-  filename = findDataset(filename)
+  filename = resource_filename("examples.prediction.data", filename)
 
   if cache:
     statsFilename = getStatsFilename(filename, statsInfo, filters)
