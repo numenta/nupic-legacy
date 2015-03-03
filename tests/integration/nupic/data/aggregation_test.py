@@ -21,13 +21,11 @@
 # ----------------------------------------------------------------------
 
 import datetime
-import glob
 import os
-import sys
 import tempfile
+from pkg_resources import resource_filename
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data.datasethelpers import findDataset
 
 from nupic.data.aggregator import Aggregator, generateDataset
 
@@ -546,7 +544,9 @@ class AggregationTests(HelperTestCaseBase):
 
 
   def test_GymAggregateWithOldData(self):
-    filename = findDataset('extra/gym/gym.csv')
+    filename = resource_filename(
+      "examples.prediction.data", "extra/gym/gym.csv"
+    )
 
     input = []
 
@@ -598,7 +598,9 @@ class AggregationTests(HelperTestCaseBase):
     return
 
   def test_GymAggregate(self):
-    filename = findDataset('extra/gym/gym.csv')
+    filename = resource_filename(
+      "examples.prediction.data", "extra/gym/gym.csv"
+    )
 
     input = []
 
@@ -646,8 +648,9 @@ class AggregationTests(HelperTestCaseBase):
 
     print "Using input dataset: ", dataset
 
-    gymFileds = None
-    with FileRecordStream(findDataset(dataset)) as f:
+    filename = resource_filename("examples.prediction.data", dataset)
+
+    with FileRecordStream(filename) as f:
       gymFields = f.getFieldNames()
 
     aggregationOptions = dict(
@@ -662,14 +665,19 @@ class AggregationTests(HelperTestCaseBase):
     handle = \
       tempfile.NamedTemporaryFile(prefix='agg_gym_hours_5', 
         suffix='.csv', 
-        dir=os.path.dirname(findDataset(dataset)))
+        dir=os.path.dirname(
+          resource_filename("examples.prediction.data", dataset)
+        )
+      )
     outputFile = handle.name
     handle.close()
 
     print "Expected outputFile path: ", outputFile
 
     print "Files in the destination folder before the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(findDataset(dataset))))
+    print os.listdir(os.path.abspath(os.path.dirname(
+      resource_filename("examples.prediction.data", dataset)))
+    )
 
     if os.path.isfile(outputFile):
       print "Removing existing outputFile: ", outputFile
@@ -694,7 +702,9 @@ class AggregationTests(HelperTestCaseBase):
         outputFile, f1))
 
     print "Files in the destination folder after the test:"
-    print os.listdir(os.path.abspath(os.path.dirname(findDataset(dataset))))
+    print os.listdir(os.path.abspath(os.path.dirname(
+      resource_filename("examples.prediction.data", dataset)
+    )))
 
     print result
     print '-' * 30

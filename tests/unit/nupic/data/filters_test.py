@@ -29,10 +29,10 @@ from datetime import datetime
 
 import numpy
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
 from nupic.regions.RecordSensor import RecordSensor
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.data.datasethelpers import findDataset
 from nupic.encoders import MultiEncoder
 from nupic.data.filters import DeltaFilter
 
@@ -57,7 +57,7 @@ class FiltersTest(unittest.TestCase):
 
     """
     r = RecordSensor()
-    filename = findDataset("extra/qa/delta.csv")
+    filename = resource_filename("examples.prediction.data", "extra/qa/delta.csv")
     datasource = FileRecordStream(filename)
     r.dataSource = datasource
     n = 50
