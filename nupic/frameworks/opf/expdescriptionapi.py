@@ -219,7 +219,6 @@ class ExperimentDescriptionAPI(DescriptionIface):
       for subtask in task['tasks']:
         for stream in subtask['dataset']['streams']:
           self.normalizeStreamSource(stream)
-          self.normalizeStreamSource(stream)
 
 
   #############################################################################
