@@ -21,7 +21,7 @@
 # ----------------------------------------------------------------------
 
 """
-A simple client to create a CLA anomaly detection model for hotgym.
+A simple client to create a HTM anomaly detection model for hotgym.
 The script prints out all records that have an abnormally high anomaly
 score.
 """
@@ -29,10 +29,9 @@ score.
 import csv
 import datetime
 import logging
+from pkg_resources import resource_filename
 
-from nupic.data.datasethelpers import findDataset
 from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 
 import model_params
 
@@ -52,7 +51,7 @@ def createModel():
 def runHotgymAnomaly():
   model = createModel()
   model.enableInference({'predictedField': 'consumption'})
-  with open (findDataset(_DATA_PATH)) as fin:
+  with open (resource_filename("examples.prediction.data", _DATA_PATH)) as fin:
     reader = csv.reader(fin)
     csvWriter = csv.writer(open(_OUTPUT_PATH,"wb"))
     csvWriter.writerow(["timestamp", "consumption", "anomaly_score"])

@@ -27,7 +27,6 @@ import tempfile
 from pkg_resources import resource_filename
 
 from nupic.data.aggregator import Aggregator
-from nupic.data.datasethelpers import findDataset
 from nupic.data.fieldmeta import FieldMetaInfo
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.data import jsonhelpers
@@ -291,7 +290,10 @@ class StreamReader(RecordStreamIface):
 
     This only supports 'file://' prefixed paths.
     """
-    self._recordStoreName = findDataset(dataUrl[len(FILE_PREF):])
+    filePath = dataUrl[len(FILE_PREF):]
+    if not os.path.isabs(filePath):
+      filePath = os.path.join(os.getcwd(), filePath)
+    self._recordStoreName = filePath 
     self._recordStore = FileRecordStream(streamID=self._recordStoreName,
                                          write=False,
                                          bookmark=bookmark,
