@@ -24,7 +24,7 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec
+from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
 
 
 
@@ -756,6 +756,34 @@ record={"test":gt[i]})
       self.assertTrue (False , "error Window of 0 should fail self.assertTrue")
     except:
       pass
+
+
+  def testMultiMetric(self):
+    ms1 = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'errorMetric': 'aae', 'window': 1000, 'steps': 1})
+    ms2 = MetricSpec(metric='trivial', inferenceElement='prediction', field='a', params={'window': 10, 'steps': 1, 'errorMetric': 'rmse'})
+    metric1000 = getModule(ms1)
+    metric10 = getModule(ms2)
+    # create multi metric
+    multi = MetricMulti(weights=[0.2, 0.8], metrics=[metric10, metric1000])
+    multi.verbosity = 1
+    print multi 
+    # create reference metrics (must be diff from metrics above used in MultiMetric, as they keep history)
+    metric1000ref = getModule(ms1)
+    metric10ref = getModule(ms2)
+
+    
+    gt = range(500, 1000)
+    p = range(500)
+ 
+    for i in xrange(len(gt)):
+      v10=metric10ref.addInstance(gt[i], p[i])
+      v1000=metric1000ref.addInstance(gt[i], p[i])
+      if v10 is None or v1000 is None:
+        check=None
+      else:
+        check=0.2*float(v10) + 0.8*float(v1000)
+      metricValue = multi.addInstance(gt[i], p[i])
+      self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
 
 
