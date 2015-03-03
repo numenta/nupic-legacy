@@ -25,8 +25,8 @@
 import csv
 import datetime
 import logging
+from pkg_resources import resource_filename
 
-from nupic.data.datasethelpers import findDataset
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
@@ -66,7 +66,7 @@ def runHotgym():
   model.enableInference({'predictedField': 'consumption'})
   metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
                                   model.getInferenceType())
-  with open (findDataset(_DATA_PATH)) as fin:
+  with open (resource_filename("examples.prediction.data", _DATA_PATH)) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
     reader.next()

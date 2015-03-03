@@ -383,6 +383,10 @@ def _runExperimentImpl(options, model=None):
     expIface.convertNupicEnvToOPF()
     experimentTasks = expIface.getModelControl().get('tasks', [])
 
+  # Ensures all the source locations are either absolute paths or relative to
+  # the "examples.prediction.data" package_data location.
+  expIface.normalizeStreamSources()
+
   # Handle listTasks
   if options.privateOptions['listTasks']:
     print "Available tasks:"

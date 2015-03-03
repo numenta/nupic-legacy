@@ -47,15 +47,12 @@ import json
 import random
 import tempfile
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
-from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
-from nupic.research import fdrutilities as fdrutils
 from nupic.encoders import MultiEncoder
-from nupic.regions.RecordSensorFilters.ModifyFields import ModifyFields
-from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
-                                                        TestOptionParser)
+from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 _VERBOSITY = 0         # how chatty the unit tests should be
 _SEED = 35             # the random seed used throughout
@@ -144,7 +141,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   # Create the encoder and data source stuff we need to configure the sensor
   sensorParams = dict(verbosity = _VERBOSITY)
   encoder = _createEncoder()
-  trainFile = findDataset("extra/gym/gym.csv")
+  trainFile = resource_filename("examples.prediction.data", "extra/gym/gym.csv")
   dataSource = FileRecordStream(streamID=trainFile)
   dataSource.setAutoRewind(True)
 
@@ -239,7 +236,7 @@ class OPFRegionTest(TestCaseBase):
     level1OPF2 = netOPF2.regions['level1SP']
   
     sensor = netOPF.regions['sensor'].getSelf()
-    trainFile = findDataset("extra/gym/gym.csv")
+    trainFile = resource_filename("examples.prediction.data", "extra/gym/gym.csv")
     sensor.dataSource = FileRecordStream(streamID=trainFile)
     sensor.dataSource.setAutoRewind(True)
   
