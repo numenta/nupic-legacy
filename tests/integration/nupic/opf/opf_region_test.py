@@ -142,7 +142,7 @@ def _createOPFNetwork(addSP = True, addTP = False):
   # Create the encoder and data source stuff we need to configure the sensor
   sensorParams = dict(verbosity = _VERBOSITY)
   encoder = _createEncoder()
-  trainFile = resource_filename("examples.prediction.data", "extra/gym/gym.csv")
+  trainFile = resource_filename("nupic.datafiles", "extra/gym/gym.csv")
   dataSource = FileRecordStream(streamID=trainFile)
   dataSource.setAutoRewind(True)
 
@@ -237,7 +237,7 @@ class OPFRegionTest(TestCaseBase):
     level1OPF2 = netOPF2.regions['level1SP']
   
     sensor = netOPF.regions['sensor'].getSelf()
-    trainFile = resource_filename("examples.prediction.data", "extra/gym/gym.csv")
+    trainFile = resource_filename("nupic.datafiles", "extra/gym/gym.csv")
     sensor.dataSource = FileRecordStream(streamID=trainFile)
     sensor.dataSource.setAutoRewind(True)
   

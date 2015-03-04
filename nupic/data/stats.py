@@ -129,7 +129,7 @@ def generateStats(filename, statsInfo, maxSamples = None, filters=[], cache=True
     raise RuntimeError("statsInfo must be a dict -- "
                        "found '%s' instead" % type(statsInfo))
 
-  filename = resource_filename("examples.prediction.data", filename)
+  filename = resource_filename("nupic.datafiles", filename)
 
   if cache:
     statsFilename = getStatsFilename(filename, statsInfo, filters)
