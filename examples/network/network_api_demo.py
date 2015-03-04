@@ -24,6 +24,7 @@ import copy
 import csv
 import json
 import os
+
 from pkg_resources import resource_filename
 
 from nupic.algorithms.anomaly import computeRawAnomalyScore

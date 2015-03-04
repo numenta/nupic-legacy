@@ -32,6 +32,7 @@ import csv
 import json
 import os
 import math
+
 from pkg_resources import resource_filename
 
 from nupic.algorithms.anomaly import computeRawAnomalyScore

@@ -40,6 +40,7 @@ experiments.
 import os
 from abc import ABCMeta, abstractmethod
 import types
+
 from pkg_resources import resource_filename
 
 from nupic.frameworks.opf.opfutils import validateOpfJsonValue

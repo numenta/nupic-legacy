@@ -23,6 +23,7 @@
 import datetime
 import os
 import tempfile
+
 from pkg_resources import resource_filename
 
 from nupic.data.file_record_stream import FileRecordStream

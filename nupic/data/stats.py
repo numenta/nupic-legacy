@@ -21,6 +21,7 @@
 
 import os
 import pickle
+
 from pkg_resources import resource_filename
 
 from nupic.regions.RecordSensor import RecordSensor

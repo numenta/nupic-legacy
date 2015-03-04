@@ -21,14 +21,14 @@
 # ----------------------------------------------------------------------
 import os
 import sys
-
+from subprocess import call
+from optparse import OptionParser
 from datetime import datetime
+
 from pkg_resources import (
   DistributionNotFound,
   get_distribution
 )
-from optparse import OptionParser
-from subprocess import call
 
 
 
