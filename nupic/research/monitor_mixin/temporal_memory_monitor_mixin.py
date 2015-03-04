@@ -27,10 +27,11 @@ from collections import defaultdict
 
 from prettytable import PrettyTable
 
-from nupic.research.monitor_mixin.trace import (
-  IndicesTrace, CountsTrace, BoolsTrace, StringsTrace)
 from nupic.research.monitor_mixin.metric import Metric
 from nupic.research.monitor_mixin.monitor_mixin_base import MonitorMixinBase
+from nupic.research.monitor_mixin.trace import (IndicesTrace, CountsTrace,
+                                                BoolsTrace, StringsTrace)
+
 
 
 class TemporalMemoryMonitorMixin(MonitorMixinBase):
@@ -322,18 +323,19 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   # ==============================
   # Overrides
   # ==============================
-
   def compute(self, activeColumns, sequenceLabel=None, **kwargs):
+    # Append last cycle's predictiveCells to *predicTEDCells* trace
     self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
     super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
 
+    # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
-    self._mmTraces["activeColumns"].data.append(activeColumns)
 
+    self._mmTraces["activeCells"].data.append(self.activeCells)
+    self._mmTraces["activeColumns"].data.append(activeColumns)
     self._mmTraces["numSegments"].data.append(self.connections.numSegments())
     self._mmTraces["numSynapses"].data.append(self.connections.numSynapses())
-
     self._mmTraces["sequenceLabels"].data.append(sequenceLabel)
     self._mmTraces["resets"].data.append(self._mmResetActive)
     self._mmResetActive = False
@@ -383,10 +385,43 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
 
     self._mmTraces["predictedCells"] = IndicesTrace(self, "predicted cells")
     self._mmTraces["activeColumns"] = IndicesTrace(self, "active columns")
+    self._mmTraces["activeCells"] = IndicesTrace(self, "active cells")
     self._mmTraces["predictiveCells"] = IndicesTrace(self, "predictive cells")
     self._mmTraces["numSegments"] = CountsTrace(self, "# segments")
     self._mmTraces["numSynapses"] = CountsTrace(self, "# synapses")
     self._mmTraces["sequenceLabels"] = StringsTrace(self, "sequence labels")
     self._mmTraces["resets"] = BoolsTrace(self, "resets")
-
     self._mmTransitionTracesStale = True
+
+
+  def mmGetCellActivityPlot(self, title="", showReset=False,
+                            resetShading=0.25, activityType="activeCells"):
+    """
+    Returns plot of the cell activity.
+
+    @param title        (string)  an optional title for the figure
+
+    @param showReset    (bool)    if true, the first set of cell activities
+                                  after a reset will have a gray background
+
+    @param resetShading (float)   if showReset is true, this float specifies the
+                                  intensity of the reset background with 0.0
+                                  being white and 1.0 being black
+
+    @param activityType (string)  The type of cell activity to display. Valid
+                                  types include "activeCells",
+                                  "predictiveCells", "predictedCells",
+                                  and "predictedActiveCells"
+
+    @return (Plot) plot
+    """
+    if activityType == "predictedActiveCells":
+      self._mmComputeTransitionTraces()
+
+    # If the trace contains ConnectionsCell, convert them to int
+    cellTrace = self._mmTraces[activityType].data
+    for i in xrange(len(cellTrace)):
+      cellTrace[i] = self.getCellIndices(cellTrace[i])
+
+    return self.mmGetCellTracePlot(cellTrace, self.numberOfCells(),
+                                   activityType, title, showReset, resetShading)
