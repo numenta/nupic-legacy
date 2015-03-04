@@ -35,7 +35,7 @@ from nupic.encoders import MultiEncoder
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
 _INPUT_FILE_PATH = resource_filename(
-  "examples.prediction.data", "extra/hotgym/rec-center-hourly.csv"
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
 _OUTPUT_PATH = "network-demo-output.csv"
 _NUM_RECORDS = 2000

@@ -266,7 +266,7 @@ def generateStats(filename, maxSamples = None,):
                            'bool':     BoolStatsCollector,
                            }
 
-  filename = resource_filename("examples.prediction.data", filename)
+  filename = resource_filename("nupic.datafiles", filename)
   print "*"*40
   print "Collecting statistics for file:'%s'" % (filename,)
   dataFile = FileRecordStream(filename)

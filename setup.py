@@ -654,7 +654,7 @@ try:
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
       "nupic.swarming.jsonschema": ["*.json"],
-      "examples.prediction.data": ["*.csv", "*.txt"]
+      "nupic.datafiles": ["*.csv", "*.txt"]
     },
     include_package_data=True,
     ext_modules=extensions,

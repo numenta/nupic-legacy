@@ -39,7 +39,7 @@ import model_params
 _LOGGER = logging.getLogger(__name__)
 
 _INPUT_DATA_FILE = resource_filename(
-  "examples.prediction.data", "extra/hotgym/rec-center-hourly.csv"
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
 _OUTPUT_PATH = "anomaly_scores.csv"
 

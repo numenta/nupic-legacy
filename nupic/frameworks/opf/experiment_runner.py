@@ -384,7 +384,7 @@ def _runExperimentImpl(options, model=None):
     experimentTasks = expIface.getModelControl().get('tasks', [])
 
   # Ensures all the source locations are either absolute paths or relative to
-  # the "examples.prediction.data" package_data location.
+  # the nupic.datafiles package_data location.
   expIface.normalizeStreamSources()
 
   # Handle listTasks

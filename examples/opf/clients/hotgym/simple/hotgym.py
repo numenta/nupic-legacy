@@ -37,7 +37,7 @@ import model_params
 _LOGGER = logging.getLogger(__name__)
 
 _INPUT_FILE_PATH = resource_filename(
-  "examples.prediction.data", "extra/hotgym/rec-center-hourly.csv"
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
 
 _METRIC_SPECS = (

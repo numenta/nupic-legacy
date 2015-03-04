@@ -57,7 +57,7 @@ class FiltersTest(unittest.TestCase):
 
     """
     r = RecordSensor()
-    filename = resource_filename("examples.prediction.data", "extra/qa/delta.csv")
+    filename = resource_filename("nupic.datafiles", "extra/qa/delta.csv")
     datasource = FileRecordStream(filename)
     r.dataSource = datasource
     n = 50

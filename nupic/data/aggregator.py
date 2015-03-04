@@ -781,7 +781,7 @@ def generateDataset(aggregationInfo, inputFilename, outputFilename=None):
 
 
   # Create the input stream
-  inputFullPath = resource_filename("examples.prediction.data", inputFilename)
+  inputFullPath = resource_filename("nupic.datafiles", inputFilename)
   inputObj = FileRecordStream(inputFullPath)
   
 
@@ -864,7 +864,7 @@ def getFilename(aggregationInfo, inputFile):
   """
 
   # Find the actual file, with an absolute path
-  inputFile = resource_filename("examples.prediction.data", inputFile)
+  inputFile = resource_filename("nupic.datafiles", inputFile)
 
   a = defaultdict(lambda: 0, aggregationInfo)
   outputDir = os.path.dirname(inputFile)

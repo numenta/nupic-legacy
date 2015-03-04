@@ -47,7 +47,7 @@ _VERBOSITY = 0
 # Seed used for random number generation
 _SEED = 2045
 _INPUT_FILE_PATH = resource_filename(
-  "examples.prediction.data", "extra/hotgym/rec-center-hourly.csv"
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
 )
 _OUTPUT_FILE_NAME = "hierarchy-demo-output.csv"
 
