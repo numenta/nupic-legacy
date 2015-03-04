@@ -25,6 +25,7 @@
 import csv
 import datetime
 import logging
+
 from pkg_resources import resource_filename
 
 from nupic.frameworks.opf.metrics import MetricSpec

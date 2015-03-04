@@ -23,6 +23,7 @@ import itertools
 import pprint
 import operator
 from collections import defaultdict
+
 from pkg_resources import resource_filename
 
 import numpy

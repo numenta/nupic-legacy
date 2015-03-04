@@ -24,6 +24,7 @@ import os
 import time
 import datetime
 from collections import defaultdict
+
 from pkg_resources import resource_filename
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
