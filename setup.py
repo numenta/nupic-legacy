@@ -134,6 +134,12 @@ def getCommandLineOptions():
     "value",
     "(optional) enable link-time optimizations (LTO); currently only for gcc and linker ld.gold"]
   )
+  optionsDesc.append(
+    ["debug",
+    "value",
+    "(optional) compile in mode suitable for debugging; overrides any optimizations"]
+  )
+
 
 
   # Read command line options looking for extra options
@@ -367,16 +373,21 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   ]
 
   # Optimizations
-  if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
-    commonCompileFlags.append("-march=native")
-    commonCompileFlags.append("-O3")
-    commonLinkFlags.append("-O3")
-  if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
-    commonCompileFlags.append("-fuse-linker-plugin")
-    commonCompileFlags.append("-flto-report")
-    commonCompileFlags.append("-fuse-ld=gold")
-    commonCompileFlags.append("-flto")
-    commonLinkFlags.append("-flto")
+  if cmdOptions is not None and getCommandLineOption("debug", cmdOptions):
+    commonCompileFlags.append("-Og")
+    commonCompileFlags.append("-g")
+    commonLinkFlags.append("-O0")
+  else:
+    if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
+      commonCompileFlags.append("-march=native")
+      commonCompileFlags.append("-O3")
+      commonLinkFlags.append("-O3")
+    if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
+      commonCompileFlags.append("-fuse-linker-plugin")
+      commonCompileFlags.append("-flto-report")
+      commonCompileFlags.append("-fuse-ld=gold")
+      commonCompileFlags.append("-flto")
+      commonLinkFlags.append("-flto")
 
 
 
