@@ -46,7 +46,9 @@ _VERBOSITY = 0
 
 # Seed used for random number generation
 _SEED = 2045
-_INPUT_FILE_PATH = "extra/hotgym/rec-center-hourly.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "examples.prediction.data", "extra/hotgym/rec-center-hourly.csv"
+)
 _OUTPUT_FILE_NAME = "hierarchy-demo-output.csv"
 
 # Parameter dict for SPRegion
@@ -348,8 +350,7 @@ def runNetwork(network, numRecords, writer):
 
 
 def runDemo():
-  trainFile = resource_filename("examples.prediction.data", _INPUT_FILE_PATH)
-  dataSource = FileRecordStream(streamID=trainFile)
+  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
   numRecords = dataSource.getDataRowCount()
   print "Creating network"
   network = createNetwork(dataSource)
