@@ -363,7 +363,7 @@ control = {
   'dataset' :   {u'info': u'test_NoProviders',
       u'streams': [   {   u'columns': [u'*'],
                           u'info': "test data",
-                          u'source': "file://test_data.csv"}],
+                          u'source': "file://swarming/test_data.csv"}],
       u'version': 1},
 
   # Iteration count: maximum number of iterations.  Each iteration corresponds

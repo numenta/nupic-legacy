@@ -25,6 +25,7 @@ from __future__ import with_statement
 import os
 import logging
 from xml.etree import ElementTree
+
 from pkg_resources import resource_string
 
 # Turn on additional print statements
