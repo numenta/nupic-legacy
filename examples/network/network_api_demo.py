@@ -25,15 +25,18 @@ import csv
 import json
 import os
 
+from pkg_resources import resource_filename
+
 from nupic.algorithms.anomaly import computeRawAnomalyScore
-from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
 _OUTPUT_PATH = "network-demo-output.csv"
 _NUM_RECORDS = 2000
 
@@ -213,8 +216,7 @@ def runNetwork(network, writer):
 
 
 if __name__ == "__main__":
-  trainFile = findDataset(_DATA_PATH)
-  dataSource = FileRecordStream(streamID=trainFile)
+  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
   network = createNetwork(dataSource)
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)
