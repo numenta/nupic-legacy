@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.2.1
+
+* Moved data pkg_resource data into nupic/datafiles.
+* Replaces datasethelpers with pkg_resources.
+* refactor submetrics computation handling None
+* Adding numpy to README requirements.
+* Move pattern/sequence machine tests to proper location.
+* Moves pattern_machine and sequence_machine files into generators module.
+* Get cell indices methods added an amazing super cool docstring formatting
+* Updates data generator tool filename and adds executable bit.
+* Moves anomalyzer to nupic.data.generators module
+* Move data generators to nupic.data.generators module
+* fixme burn-in for multi metric addInstance()
+* fix AggregateMetric with None metricSpec
+* add MetricMulti class
+* AggregateMetric sets id from params (if specified)
+* Removes isDelta method from encoder base class.
+* fixed predicted active cells in tm-mm
+* rename --enable-optimizations to --optimizations-native
+* add --optimizations-lto option to setup.py to enable Link Time Optimizations
+* Simplify docker setup to single Dockerfile at root
+* Adding cell activity plt and improving metrics table
+* add python setup.py --enable-optimization
+* enable -Wextra warnings
+* sane optimization defaults for binary published builds
+* Revert "default make with -j4"
+* add Ofast linker flag for gcc
+* fix: remove inline - let LTO decide
+
 ## 0.2.0
 
 * Code changes required for a Windows build.
