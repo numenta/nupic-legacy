@@ -480,7 +480,7 @@ def _anomalyScoreMovingAverage(anomalyScores,
   for record in anomalyScores:
 
     # Skip (but log) records without correct number of entries
-    if not isinstance(record, list or tuple) or len(record) != 3:
+    if not isinstance(record, (list, tuple)) or len(record) != 3:
       if verbosity >= 1:
         print "Malformed record:", record
       continue
