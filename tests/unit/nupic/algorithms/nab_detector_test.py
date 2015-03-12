@@ -27,6 +27,8 @@ nab/detectors/numenta/numenta_detector.py. They are
 nupic/algorithms/anomaly_likelihood and
 nupic/frameworks/opf/modelfactory.ModelFactory. The intent here is not to test
 functionality but rather that the functions are able to run in NAB.
+
+NAB repo: https://github.com/numenta/NAB
 """
 
 import copy
@@ -59,15 +61,12 @@ def _getDateList(numSamples, startDatetime):
   return dateList
 
 
-def _addSampleData(origData=None, numSamples=20, spikeValue=1.0,
-                   spikePeriod=10):
+def _addSampleData(numSamples=20, spikeValue=1.0, spikePeriod=10):
   """
   Add sample anomaly data to the existing/new data list. Data is constant 0.0,
   where anomalies are spikes to 1.0 at an interval set by spikePeriod. The test
   data is trivial, as explicit testing of functions is done in other unit tests.
-  
-  @param origData     (list)      list of data entries; new data will be 
-                                  appended
+
   @param numSamples   (int)       number of data entries to produce
   @param spikeValue   (float)     value of the anomaly spikes
   @param spikePeriod  (int)       periodicity of anomaly spikes, where one will
@@ -75,15 +74,11 @@ def _addSampleData(origData=None, numSamples=20, spikeValue=1.0,
   @return data        (list)      list of generated data entries
   """
   # Generate datetimes
-  if origData is None:
-    origData = []
-    lastDate = datetime.datetime(2015, 4, 1)
-  else:
-    lastDate = origData[-1][0]
+  lastDate = datetime.datetime(2015, 4, 1)
   dateList = _getDateList(numSamples, lastDate)
 
-  # Add data and anomaly spikes
-  data = copy.copy(origData)
+  # Generate data with anomaly spikes
+  data = []
   for idx, date in enumerate(dateList):
     if (spikePeriod > 0) and ( (idx + 1) % spikePeriod == 0):
       data.append([date, idx, spikeValue])
@@ -225,8 +220,8 @@ class NABTest(TestCaseBase):
                   }
     sensorParams = modelParams["modelParams"]["sensorParams"]\
                                 ["encoders"]["value"]
-    sensorParams["resolution"] = max(0.001, (1.2 - 0.2) / \
-                                            sensorParams.pop("numBuckets"))
+    sensorParams["resolution"] = \
+      max(0.001, (1.2 - 0.2) / sensorParams.pop("numBuckets"))
     model = ModelFactory.create(modelParams)
 
     self.assertIs(type(model).__name__, "CLAModel", msg="The created model is "
