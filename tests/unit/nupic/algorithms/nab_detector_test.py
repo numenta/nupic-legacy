@@ -39,6 +39,7 @@ import unittest
 
 from nupic.algorithms import anomaly_likelihood as an
 from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.support.unittesthelpers.testcasebase import TestCaseBase
 
 
@@ -98,7 +99,7 @@ def _writeToCSV(data, headers, fileName):
   """
   with open(fileName, "wb") as f:
     writer = csv.writer(f, delimiter=",", lineterminator="\n")
-    writer.writerows([headers])
+    writer.writerow(headers)
     writer.writerows(data)
 
 
@@ -224,8 +225,8 @@ class NABTest(TestCaseBase):
       (1.2 - 0.2) / sensorParams.pop("numBuckets"))
     model = ModelFactory.create(modelParams)
     
-    self.assertIs(type(model).__name__, "CLAModel", msg="The created model is "
-                  "not a CLAModel, but rather is of type %s" % type(model))
+    self.assertIs(type(model), CLAModel, msg="The created model is not a"
+                  "CLAModel, but rather is of type %s" % type(model))
 
 
   def testNABAnomalyLikelihood(self):
@@ -266,9 +267,9 @@ class NABTest(TestCaseBase):
                            0.90319951499999995, 0.90319951499999995,
                            0.78814460099999994, 0.78814460099999994,
                            0.78814460099999994, 0.78814460099999994]
-    [self.assertAlmostEqual(likelihoodList[i], truthLikelihoodList[i],
-      msg="unequal values are at index %i" % i)
-      for i in range(len(likelihoodList))]
+    for i in xrange(len(likelihoodList)):
+      self.assertAlmostEqual(likelihoodList[i], truthLikelihoodList[i],
+        msg="unequal values are at index %i" % i)
 
 
 if __name__ == "__main__":
