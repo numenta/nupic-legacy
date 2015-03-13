@@ -35,7 +35,7 @@ import copy
 import csv
 import datetime
 import os
-import unittest2 as unittest
+import unittest
 
 from nupic.algorithms import anomaly_likelihood as an
 from nupic.frameworks.opf.modelfactory import ModelFactory
@@ -99,12 +99,12 @@ def _writeToCSV(data, headers, fileName):
   with open(fileName, "wb") as f:
     writer = csv.writer(f, delimiter=",", lineterminator="\n")
     writer.writerows([headers])
-    for entry in data:
-      writer.writerow([entry[0], entry[1], entry[2]])
+    writer.writerows(data)
 
 
 
 class NABTest(TestCaseBase):
+  
   
   def setUp(self):
     # Generate sample data, save to CSV (not used now, but put in place
@@ -121,121 +121,121 @@ class NABTest(TestCaseBase):
   def testModelCreator(self):
     """
     Tests the ModelFactory.create() method in 
-    'nupic/frameworks/opf/modelfactory.py' by creating a new model object, as
-    in 'NAB/detectors/numenta/numenta_detector.py'.
+    "nupic/frameworks/opf/modelfactory.py" by creating a new model object, as
+    in "NAB/detectors/numenta/numenta_detector.py".
     Model paramaters are same as in NAB v0.8.
     """
     # Create model as in NAB/.../numenta_detector.py
     modelParams = {
-                    'aggregationInfo': {
-                      'seconds': 0,
-                      'fields': [],
-                      'months': 0,
-                      'days': 0,
-                      'years': 0,
-                      'hours': 0,
-                      'microseconds': 0,
-                      'weeks': 0,
-                      'minutes': 0,
-                      'milliseconds': 0
+                    "aggregationInfo": {
+                      "seconds": 0,
+                      "fields": [],
+                      "months": 0,
+                      "days": 0,
+                      "years": 0,
+                      "hours": 0,
+                      "microseconds": 0,
+                      "weeks": 0,
+                      "minutes": 0,
+                      "milliseconds": 0
                     },
-                    'model': 'CLA',
-                    'version': 1,
-                    'modelParams': {
-                      'sensorParams': {
-                        'sensorAutoReset': None,
-                        'encoders': {
-                          'timestamp_weekend': None,
-                          'timestamp_timeOfDay': {
-                            'type': 'DateEncoder',
-                            'timeOfDay': [21, 9.49122334747737],
-                            'fieldname': 'timestamp',
-                            'name': 'timestamp_timeOfDay'
+                    "model": "CLA",
+                    "version": 1,
+                    "modelParams": {
+                      "sensorParams": {
+                        "sensorAutoReset": None,
+                        "encoders": {
+                          "timestamp_weekend": None,
+                          "timestamp_timeOfDay": {
+                            "type": "DateEncoder",
+                            "timeOfDay": [21, 9.49122334747737],
+                            "fieldname": "timestamp",
+                            "name": "timestamp_timeOfDay"
                           },
-                          'value': {
-                            'type': 'RandomDistributedScalarEncoder',
-                            'seed': 42,
-                            'fieldname': 'value',
-                            'name': 'value',
-                            'numBuckets': 94.0
+                          "value": {
+                            "type": "RandomDistributedScalarEncoder",
+                            "seed": 42,
+                            "fieldname": "value",
+                            "name": "value",
+                            "numBuckets": 94.0
                           },
-                          'timestamp_dayOfWeek': None
+                          "timestamp_dayOfWeek": None
                         },
-                        'verbosity': 0
+                        "verbosity": 0
                       },
-                      'clEnable': False,
-                      'spParams': {
-                        'columnCount': 2048,
-                        'synPermInactiveDec': 0.0005,
-                        'randomSP': 0,
-                        'maxBoost': 1.0,
-                        'spatialImp': 'cpp',
-                        'inputWidth': 0,
-                        'spVerbosity': 0,
-                        'useHighTier': 0,
-                        'synPermConnected': 0.1,
-                        'synPermActiveInc': 0.0015,
-                        'seed': 1956,
-                        'numActiveColumnsPerInhArea': 40,
-                        'coincInputPoolPct': 0.8,
-                        'globalInhibition': 1
+                      "clEnable": False,
+                      "spParams": {
+                        "columnCount": 2048,
+                        "synPermInactiveDec": 0.0005,
+                        "randomSP": 0,
+                        "maxBoost": 1.0,
+                        "spatialImp": "cpp",
+                        "inputWidth": 0,
+                        "spVerbosity": 0,
+                        "useHighTier": 0,
+                        "synPermConnected": 0.1,
+                        "synPermActiveInc": 0.0015,
+                        "seed": 1956,
+                        "numActiveColumnsPerInhArea": 40,
+                        "coincInputPoolPct": 0.8,
+                        "globalInhibition": 1
                       },
-                      'trainSPNetOnlyIfRequested': False,
-                      'clParams': {
-                        'alpha': 0.035828933612158,
-                        'regionName': 'CLAClassifierRegion',
-                        'steps': '1',
-                        'clVerbosity': 0
+                      "trainSPNetOnlyIfRequested": False,
+                      "clParams": {
+                        "alpha": 0.035828933612158,
+                        "regionName": "CLAClassifierRegion",
+                        "steps": "1",
+                        "clVerbosity": 0
                       },
-                      'tpParams': {
-                        'columnCount': 2048,
-                        'activationThreshold': 13,
-                        'pamLength': 3,
-                        'cellsPerColumn': 32,
-                        'permanenceDec': 0.1,
-                        'minThreshold': 10,
-                        'inputWidth': 2048,
-                        'maxSynapsesPerSegment': 32,
-                        'outputType': 'normal',
-                        'initialPerm': 0.21,
-                        'globalDecay': 0.0,
-                        'maxAge': 0,
-                        'newSynapseCount': 20,
-                        'maxSegmentsPerCell': 128,
-                        'permanenceInc': 0.1,
-                        'temporalImp': 'cpp',
-                        'seed': 1960,
-                        'verbosity': 0
+                      "tpParams": {
+                        "columnCount": 2048,
+                        "activationThreshold": 13,
+                        "pamLength": 3,
+                        "cellsPerColumn": 32,
+                        "permanenceDec": 0.1,
+                        "minThreshold": 10,
+                        "inputWidth": 2048,
+                        "maxSynapsesPerSegment": 32,
+                        "outputType": "normal",
+                        "initialPerm": 0.21,
+                        "globalDecay": 0.0,
+                        "maxAge": 0,
+                        "newSynapseCount": 20,
+                        "maxSegmentsPerCell": 128,
+                        "permanenceInc": 0.1,
+                        "temporalImp": "cpp",
+                        "seed": 1960,
+                        "verbosity": 0
                       },
-                      'anomalyParams': {
-                        'anomalyCacheRecords': None,
-                        'autoDetectThreshold': None,
-                        'autoDetectWaitRecords': 5030
+                      "anomalyParams": {
+                        "anomalyCacheRecords": None,
+                        "autoDetectThreshold": None,
+                        "autoDetectWaitRecords": 5030
                       },
-                      'spEnable': True,
-                      'inferenceType': 'TemporalAnomaly',
-                      'tpEnable': True
+                      "spEnable": True,
+                      "inferenceType": "TemporalAnomaly",
+                      "tpEnable": True
                       },
-                    'predictAheadTime': None
+                    "predictAheadTime": None
                   }
-    sensorParams = modelParams["modelParams"]["sensorParams"]\
-                                ["encoders"]["value"]
-    sensorParams["resolution"] = \
-      max(0.001, (1.2 - 0.2) / sensorParams.pop("numBuckets"))
+    sensorParams = (modelParams["modelParams"]["sensorParams"]
+                               ["encoders"]["value"])
+    sensorParams["resolution"] = max(0.001,
+      (1.2 - 0.2) / sensorParams.pop("numBuckets"))
     model = ModelFactory.create(modelParams)
-
+    
     self.assertIs(type(model).__name__, "CLAModel", msg="The created model is "
                   "not a CLAModel, but rather is of type %s" % type(model))
-  
-  
+
+
   def testNABAnomalyLikelihood(self):
     """
-    Tests the specific calls to nupic/algorithms/anomaly_likelihood as they're
-    made in 'NAB/detectors/numenta/numenta_detector.py'.
-    Note 'NAB/.../numenta_detector.py' has its own class AnomalyLikelihood,
+    Tests the specific calls to nupic/algorithms/anomaly_likelihood as they"re
+    made in "NAB/detectors/numenta/numenta_detector.py".
+    Note "NAB/.../numenta_detector.py" has its own class AnomalyLikelihood,
     different from nupic/algorithms/anomaly_likelihood.AnomalyLikelihood, but
     which calls the functions estimateAnomalyLikelihoods() and 
-    updateAnomalyLikelihoods() from 'nupic/algorithms/anomaly_likelihood.py'.
+    updateAnomalyLikelihoods() from "nupic/algorithms/anomaly_likelihood.py".
     """
     # AnomalyLikelihood object initial values
     iteration = 0
@@ -266,7 +266,9 @@ class NABTest(TestCaseBase):
                            0.90319951499999995, 0.90319951499999995,
                            0.78814460099999994, 0.78814460099999994,
                            0.78814460099999994, 0.78814460099999994]
-    self.assertAlmostEqual(likelihoodList, truthLikelihoodList)
+    [self.assertAlmostEqual(likelihoodList[i], truthLikelihoodList[i],
+      msg="unequal values are at index %i" % i)
+      for i in range(len(likelihoodList))]
 
 
 if __name__ == "__main__":
