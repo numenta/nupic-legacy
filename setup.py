@@ -373,16 +373,16 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   ]
 
   # Optimizations
-  if cmdOptions is not None and getCommandLineOption("debug", cmdOptions):
+  if getCommandLineOption("debug", cmdOptions):
     commonCompileFlags.append("-Og")
     commonCompileFlags.append("-g")
     commonLinkFlags.append("-O0")
   else:
-    if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
+    if getCommandLineOption("optimizations-native", cmdOptions):
       commonCompileFlags.append("-march=native")
       commonCompileFlags.append("-O3")
       commonLinkFlags.append("-O3")
-    if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
+    if getCommandLineOption("optimizations-lto", cmdOptions):
       commonCompileFlags.append("-fuse-linker-plugin")
       commonCompileFlags.append("-flto-report")
       commonCompileFlags.append("-fuse-ld=gold")
@@ -517,6 +517,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
 
 def getCommandLineOption(name, options):
+  if name is None or options is None:
+    return False
   if name in options:
     return options[name]
 
