@@ -222,6 +222,7 @@ class OPFModelRunner(object):
       self._experimentDir)
     expIface = opfhelpers.getExperimentDescriptionInterfaceFromModule(
       descriptionPyModule)
+    expIface.normalizeStreamSources()
 
     modelDescription = expIface.getModelDescription()
     self._modelControl = expIface.getModelControl()

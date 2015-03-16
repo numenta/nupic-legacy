@@ -657,12 +657,6 @@ try:
     version=getVersion(),
     install_requires=findRequirements(),
     packages=find_packages(),
-    # A lot of this stuff may not be packaged properly, most of it was added
-    # in an effort to get a binary package prepared for nupic.regression
-    # testing on Travis-CI, but it wasn't done the right way. I'll be
-    # refactoring a lot of this for
-    # https://github.com/numenta/nupic/issues/408, so this will be changing
-    # soon. -- Matt
     package_data={
       "nupic.support": ["nupic-default.xml",
                         "nupic-logging.conf"],
@@ -670,7 +664,8 @@ try:
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
-      "nupic.swarming.jsonschema": ["*.json"]
+      "nupic.swarming.jsonschema": ["*.json"],
+      "nupic.datafiles": ["*.csv", "*.txt"]
     },
     include_package_data=True,
     ext_modules=extensions,

@@ -348,7 +348,7 @@ control = {
   'dataset' : {   u'info': u'test_NoProviders',
       u'streams': [   {   u'columns': [u'*'],
                           u'info': u'test data',
-                          u'source': u'file://test_data.csv'}],
+                          u'source': u'file://swarming/test_data.csv'}],
       u'version': 1},
 
 
