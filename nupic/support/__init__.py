@@ -78,8 +78,8 @@ import struct
 from StringIO import StringIO
 import time
 import traceback
-from pkg_resources import resource_string, resource_filename
 
+from pkg_resources import resource_string, resource_filename
 
 from configuration import Configuration
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath

@@ -26,7 +26,8 @@ import csv
 import datetime
 import logging
 
-from nupic.data.datasethelpers import findDataset
+from pkg_resources import resource_filename
+
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
@@ -35,7 +36,9 @@ import model_params
 
 _LOGGER = logging.getLogger(__name__)
 
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
 
 _METRIC_SPECS = (
     MetricSpec(field='consumption', metric='multiStep',
@@ -66,7 +69,7 @@ def runHotgym():
   model.enableInference({'predictedField': 'consumption'})
   metricsManager = MetricsManager(_METRIC_SPECS, model.getFieldInfo(),
                                   model.getInferenceType())
-  with open (findDataset(_DATA_PATH)) as fin:
+  with open (_INPUT_FILE_PATH) as fin:
     reader = csv.reader(fin)
     headers = reader.next()
     reader.next()

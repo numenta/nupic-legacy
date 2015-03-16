@@ -31,6 +31,8 @@ import shutil
 import string
 import subprocess
 import sys
+
+from pkg_resources import resource_filename
 import unittest2 as unittest
 
 from nupic.data import dictutils
@@ -47,7 +49,7 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
-
+HOTGYM_INPUT = resource_filename("nupic.datafiles", "extra/hotgym/hotgym.csv")
 
 
 g_debug = False
@@ -84,10 +86,6 @@ class MyTestEnvironment(object):
 
     LOGGER.info("Generating experiment description files in: %s", \
                   os.path.abspath(self.testOutDir))
-
-    # Where to find out datasets
-    self.datasetSrcDir = os.path.join(installRootDir, "examples", "prediction", \
-      "data", "extra")
 
 
   def cleanUp(self):
@@ -414,12 +412,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -517,13 +514,13 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # =========================================================================
     # Test category predicted field
     # =========================================================================
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "nfl", "qa_nfl.csv")
     streamDef = dict(
       version = 1,
       info = "test_category_predicted_field",
       streams = [
-        dict(source="file://%s" % (dataPath),
-             info="nfl.csv",
+        # It doesn't matter if this stream source points to a real place or not.
+        dict(source="file://dummy",
+             info="dummy.csv",
              columns=["*"]),
         ],
     )
@@ -582,12 +579,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -766,12 +762,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "TestAggregation",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
       ],
@@ -869,12 +864,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -933,13 +927,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
-
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -979,12 +971,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=20),
@@ -1200,13 +1191,12 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
   def test_DeltaEncoders(self):
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
 
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1302,12 +1292,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       })
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=10),
@@ -1426,12 +1415,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1563,12 +1551,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1619,12 +1606,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1676,12 +1662,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"]),
         ],
@@ -1745,12 +1730,11 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     """
 
     # Form the stream definition
-    dataPath = os.path.join(g_myEnv.datasetSrcDir, "hotgym", "hotgym.csv")
     streamDef = dict(
       version = 1,
       info = "test_NoProviders",
       streams = [
-        dict(source="file://%s" % (dataPath),
+        dict(source="file://%s" % HOTGYM_INPUT,
              info="hotGym.csv",
              columns=["*"],
              last_record=10),

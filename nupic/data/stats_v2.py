@@ -24,8 +24,9 @@ import pprint
 import operator
 from collections import defaultdict
 
+from pkg_resources import resource_filename
+
 import numpy
-from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.encoders import date as DateEncoder
 
@@ -265,7 +266,7 @@ def generateStats(filename, maxSamples = None,):
                            'bool':     BoolStatsCollector,
                            }
 
-  filename = findDataset(filename)
+  filename = resource_filename("nupic.datafiles", filename)
   print "*"*40
   print "Collecting statistics for file:'%s'" % (filename,)
   dataFile = FileRecordStream(filename)
