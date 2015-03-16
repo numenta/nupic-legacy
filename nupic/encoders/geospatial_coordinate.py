@@ -127,7 +127,5 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     return max(radius, minRadius)
 
 
-  def dump(self):
-    print "GeospatialCoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+  def __str__(self):
+    return "GeospatialCoordinateEncoder:\nw:   %d\nn:   %d" % (self.w, self.n)

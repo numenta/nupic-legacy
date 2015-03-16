@@ -34,13 +34,12 @@ class AdaptiveScalarTest(unittest.TestCase):
 
     def setUp(self):
       # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
-      self._l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False, forced=True) 
+      self._l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10, forced=True) 
 
     def testMissingValues(self):
       """missing values"""
       # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readib.
-      mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False, forced=True)
+      mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, forced=True)
       empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
       print "\nEncoded missing data \'None\' as %s" % empty
       self.assertEqual(empty.sum(), 0)
@@ -91,6 +90,14 @@ class AdaptiveScalarTest(unittest.TestCase):
 
         # Next value
         v += l.resolution / 4
+
+
+    def testTopDownCompute2(self):
+      l = self._l
+      enc = l.encode(0)
+      dec = l.topDownCompute(enc)[0].encoding
+      self.assertTrue((dec == enc).all(), "topDownComputed value(0) differs!")
+
     def testFillHoles(self):
       """Make sure we can fill in holes"""
       l=self._l
@@ -114,7 +121,7 @@ class AdaptiveScalarTest(unittest.TestCase):
     def testNonPeriodicEncoderMinMaxNotSpec(self):
       """Non-periodic encoder, min and max not specified"""
       l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=None, maxval=None,
-                                periodic=False, forced=True)
+                                forced=True)
                                 
       def _verify(v, encoded, expV=None):
         if expV is None:
@@ -148,7 +155,7 @@ class AdaptiveScalarTest(unittest.TestCase):
 
       #"""Test switching learning off"""
       l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False, forced=True)
+                                forced=True)
       _verify(1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
       _verify(10, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
       _verify(20, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -170,12 +177,12 @@ class AdaptiveScalarTest(unittest.TestCase):
       """Test setting the min and max using setFieldStats"""
       def _dumpParams(enc):
         return (enc.n, enc.w, enc.minval, enc.maxval, enc.resolution,
-                enc._learningEnabled, enc.recordNum, 
+                enc._learningEnabled, 
                 enc.radius, enc.rangeInternal, enc.padding, enc.nInternal)
       sfs = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                                periodic=False, forced=True)
+                                forced=True)
       reg = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=100,
-                                periodic=False, forced=True)
+                                forced=True)
       self.assertTrue(_dumpParams(sfs) != _dumpParams(reg), "Params should not be equal, "\
                 "since the two encoders were instantiated with different values.")
       # set the min and the max using sFS to 1,100 respectively.
@@ -185,6 +192,28 @@ class AdaptiveScalarTest(unittest.TestCase):
       self.assertEqual(_dumpParams(sfs), _dumpParams(reg), "Params should now be equal, "\
             "but they are not. sFS should be equivalent to initialization.")
 
+
+    def testTopDown2(self):
+      e = AdaptiveScalarEncoder(w=21, n=100)
+      enc = e.encode(0)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 0) # init -> 0
+
+      enc = e.encode(0)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 0) # 0 -> 0
+
+      enc = e.encode(10)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 10) # 0 -> 10
+
+      enc = e.encode(10)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, 10) # 10 -> 10
+
+      enc = e.encode(-100)
+      dec = e.topDownCompute(enc)
+      self.assertEqual(dec[0].value, -100) # 10 -> -100
 
 ################################################################################
 if __name__ == '__main__':

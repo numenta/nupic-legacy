@@ -20,14 +20,17 @@
 # ----------------------------------------------------------------------
 
 import math
-import numpy as np
+import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.encoders.base import EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.utils import MovingAverage
 
 class AdaptiveScalarEncoder(ScalarEncoder):
   """
+  #FIXME this encoder should be removed, use RDSE instead
+
   This is an implementation of the scalar encoder that adapts the min and
   max of the scalar encoder dynamically. This is essential to the streaming
   model of the online prediction framework.
@@ -48,20 +51,27 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   """
 
   ############################################################################
-  def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
-                resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
+  def __init__(self, w, n, minval=None, maxval=None, 
+                name=None, verbosity=0, clipInput=True, forced=False):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.__init__]
+    cannot be periodic
+    clipInput = True
+    n must be set >0
+    #FIXME: remove clipInput field, currently some integration tests hardcode it
     """
     self._learningEnabled = True
-    if periodic:
-      #Adaptive scalar encoders take non-periodic inputs only
-      raise Exception('Adaptive scalar encoder does not encode periodic inputs')
-    assert n!=0           #An adaptive encoder can only be intialized using n
+    assert n>0           #An adaptive encoder can only be intialized using n
 
-    super(AdaptiveScalarEncoder, self).__init__(w=w, n=n, minval=minval, maxval=maxval,
-                                clipInput=True, name=name, verbosity=verbosity, forced=forced)
-    self.recordNum=0    #how many inputs have been sent to the encoder?
+    super(AdaptiveScalarEncoder, self).__init__(w=w, 
+						n=n, 
+						minval=minval, 
+						maxval=maxval,
+                                		clipInput=True, 
+						name=name, 
+						periodic=False, 
+                                		verbosity=verbosity, 
+						forced=forced)
     self.slidingWindow = MovingAverage(300)
 
   ############################################################################
@@ -95,7 +105,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     self.minval = fieldStats[fieldName]['min']
     self.maxval = fieldStats[fieldName]['max']
     if self.minval == self.maxval:
-      self.maxval+=1
+      self.maxval += 1
     self._setEncoderParams()
 
   ############################################################################
@@ -107,9 +117,9 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     self.slidingWindow.next(input)
 
-    if self.minval is None and self.maxval is None:
+    if self.minval is None or self.maxval is None:
       self.minval = input
-      self.maxval = input+1   #When the min and max and unspecified and only one record has been encoded
+      self.maxval = input+1   #When the min/max are unspecified and only one record has been encoded
       self._setEncoderParams()
 
     elif learn:
@@ -141,7 +151,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.getBucketIndices]
     """
 
-    self.recordNum +=1
     if learn is None:
       learn = self._learningEnabled
 
@@ -160,15 +169,13 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     [overrides nupic.encoders.scalar.ScalarEncoder.encodeIntoArray]
     """
 
-    self.recordNum +=1
     if learn is None:
       learn = self._learningEnabled
     if input == SENTINEL_VALUE_FOR_MISSING_DATA:
         output[0:self.n] = 0
     elif not math.isnan(input):
       self._setMinAndMax(input, learn)
-
-    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output)
+    super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output, skipOutOfBounds=(not learn))
 
 
   ############################################################################

@@ -154,7 +154,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that mapBucketIndexToNonZeroBits works and that max buckets and
     clipping are handled properly.
     """
-    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150)
+    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150, forced=True)
     # Set a low number of max buckets
     enc._initializeBucketMap(10, None)
     enc.encode(0.0)
@@ -218,7 +218,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
     # Generate about 600 encodings. Set n relatively low to increase
     # chance of false overlaps
-    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150, seed=seed)
+    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150, seed=seed, forced=True)
     enc.encode(0.0)
     enc.encode(-300.0)
     enc.encode(300.0)
@@ -252,8 +252,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual(enc._offset, 23.0,
               "Offset not specified and not initialized to first input")
 
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0,
-                                         offset=25.0)
+    enc=RandomDistributedScalarEncoder(name='enc', resolution=1.0, offset=25.0)
     enc.encode(23.0)
     self.assertEqual(enc._offset, 25.0,
               "Offset not initialized to specified constructor parameter")
@@ -290,7 +289,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     # Create a fake set of encodings.
     enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=5,
-                                         n=5*20)
+                                         n=5*20, forced=True)
     midIdx = enc._maxBuckets/2
     enc.bucketMap[midIdx-2] = numpy.array(range(3, 8))
     enc.bucketMap[midIdx-1] = numpy.array(range(4, 9))
@@ -324,7 +323,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     # Create a fake set of encodings.
     enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=5,
-                                         n=5*20)
+                                         n=5*20, forced=True)
     midIdx = enc._maxBuckets/2
     enc.bucketMap[midIdx-3] = numpy.array(range(4, 9))  # Not ok with midIdx-1
     enc.bucketMap[midIdx-2] = numpy.array(range(3, 8))
@@ -412,8 +411,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     _stdout = sys.stdout
     sys.stdout = _stringio = StringIO()
     enc = RandomDistributedScalarEncoder(name='mv', resolution=1.0, verbosity=0)
-    output = numpy.zeros(enc.getWidth(), dtype=defaultDtype)
-    enc.encodeIntoArray(23.0, output)
+    output = enc.encode(23.0)
     enc.getBucketIndices(23.0)
     sys.stdout = _stdout
     self.assertEqual(len(_stringio.getvalue()), 0,

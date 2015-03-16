@@ -38,14 +38,16 @@ class CoordinateEncoderTest(unittest.TestCase):
   def setUp(self):
     self.encoder = CoordinateEncoder(name="coordinate",
                                      n=33,
-                                     w=3)
+                                     w=3,
+				     forced=True)
 
 
   def testInvalidW(self):
     # Even
     args = {"name": "coordinate",
             "n": 45,
-            "w": 4}
+            "w": 4,
+	    "forced": True}
     self.assertRaises(ValueError, CoordinateEncoder, **args)
 
     # 0
@@ -154,7 +156,8 @@ class CoordinateEncoderTest(unittest.TestCase):
     w = 3
     encoder = CoordinateEncoder(name="coordinate",
                                 n=n,
-                                w=w)
+                                w=w,
+				forced=True)
 
     coordinate = np.array([100, 200])
     radius = 5
@@ -172,7 +175,8 @@ class CoordinateEncoderTest(unittest.TestCase):
     w = 25
     encoder = CoordinateEncoder(name="coordinate",
                                 n=n,
-                                w=w)
+                                w=w,
+				forced=True)
 
     outputA = encode(encoder, np.array([0, 0]), 2)
     outputB = encode(encoder, np.array([0, 1]), 2)
@@ -266,15 +270,16 @@ class CoordinateEncoderTest(unittest.TestCase):
       print "Average: {0}".format(np.average(allOverlaps))
 
 
+  def testPrint(self):
+    print self.encoder
+    self.assertTrue(True) # ok 
+
   def assertDecreasingOverlaps(self, overlaps):
     self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
 
 
-
 def encode(encoder, coordinate, radius):
-  output = np.zeros(encoder.getWidth(), dtype=defaultDtype)
-  encoder.encodeIntoArray((coordinate, radius), output)
-  return output
+  return encoder.encode((coordinate, radius))
 
 
 def overlap(sdr1, sdr2):
@@ -300,7 +305,8 @@ def overlapsForRelativeAreas(n, w,
   """
   encoder = CoordinateEncoder(name="coordinate",
                               n=n,
-                              w=w)
+                              w=w,
+                              forced=True)
 
   overlaps = np.empty(num)
   outputA = encode(encoder, np.array(initPosition), initRadius)

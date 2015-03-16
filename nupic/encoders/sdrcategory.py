@@ -53,9 +53,8 @@ class SDRCategoryEncoder(Encoder):
     forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
-    self.n = n
-    self.w = w
-
+    super(SDRCategoryEncoder, self).__init__(w=w, n=n, name=name,  verbosity=verbosity,  forced=forced)
+    
     self._learningEnabled = True
     self.random = random.Random()
     if encoderSeed != -1:
@@ -66,12 +65,6 @@ class SDRCategoryEncoder(Encoder):
       if (self.n/self.w) < 2: # w is 50% of total len
         raise ValueError("Number of ON bits in SDR (%d) must be much smaller than "
                            "the output width (%d)" % (self.w, self.n))
-
-      # Another arbitrary cutoff to catch likely mistakes
-      if self.w < 21:
-        raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and should be >= 21, pass forced=True to init() to override this check"
-                           % self.w)
-
 
     # Calculate average overlap of SDRs for decoding
     # Density is fraction of bits on, and it is also the
@@ -86,11 +79,6 @@ class SDRCategoryEncoder(Encoder):
     #  1.25 -- too sensitive for decode test, so make it less sensitive
     if self.thresholdOverlap < self.w - 3:
       self.thresholdOverlap = self.w - 3
-
-    self.verbosity = verbosity
-
-    self.description = [(name, 0)]
-    self.name = name
 
     self.categoryToIndex = dict()
     self.ncategories = 0
@@ -108,9 +96,6 @@ class SDRCategoryEncoder(Encoder):
       for category in categoryList:
         self._addCategory(category)
       assert self.ncategories == len(categoryList) + 1
-
-    # Not used by this class. Used for decoding (scalarsToStr())
-    self.encoders = None
 
     # This matrix is used for the topDownCompute. We build it the first time
     #  topDownCompute is called
@@ -177,13 +162,6 @@ class SDRCategoryEncoder(Encoder):
     return sdr
 
 
-  ############################################################################
-  def getWidth(self):
-    return self.n
-
-  ############################################################################
-  def getDescription(self):
-    return self.description
 
   ############################################################################
   def getScalars(self, input):

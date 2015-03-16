@@ -1,4 +1,4 @@
-# ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
@@ -73,7 +73,7 @@ class RandomDistributedScalarEncoder(Encoder):
 
   ############################################################################
   def __init__(self, resolution, w=21, n=400, name=None, offset = None,
-               seed=42, verbosity=0):
+               seed=42, verbosity=0, forced=False):
     """
 
     @param resolution A floating point positive number denoting the resolution 
@@ -113,22 +113,22 @@ class RandomDistributedScalarEncoder(Encoder):
 
     """
 
-    # Validate inputs
-    if (w <= 0) or (w%2 == 0):
-      raise ValueError("w must be an odd positive integer")
-
-    if (resolution <= 0):
-      raise ValueError("resolution must be a positive number")
+    # A name used for debug printouts
+    if name is None:
+      self.name = "[%s]" % (resolution)
+    
+    super(RandomDistributedScalarEncoder, self).__init__(w=w, n=n,
+          name=name, verbosity=verbosity, forced=forced)
+    
 
     if (n <= 6*w) or (not isinstance(n, int)):
       raise ValueError("n must be an int strictly greater than 6*w. For "
                        "good results we recommend n be strictly greater "
                        "than 11*w")
-    
-    self.encoders = None
-    self.verbosity = verbosity
-    self.w = w
-    self.n = n
+
+    if (resolution <= 0):
+      raise ValueError("resolution must be a positive number")
+ 
     self.resolution = float(resolution)
     
     # The largest overlap we allow for non-adjacent encodings
@@ -141,11 +141,6 @@ class RandomDistributedScalarEncoder(Encoder):
     # Internal parameters for bucket mapping
     self._initializeBucketMap(1000, offset)
     
-    # A name used for debug printouts
-    if name is not None:
-      self.name = name
-    else:
-      self.name = "[%s]" % (self.resolution)
       
     if self.verbosity > 0:
       self.dump()
@@ -154,15 +149,6 @@ class RandomDistributedScalarEncoder(Encoder):
   def getDecoderOutputFieldTypes(self):
     """ See method description in base.py """
     return (FieldMetaType.float, )
-
-
-  def getWidth(self):
-    """ See method description in base.py """
-    return self.n
-
-
-  def getDescription(self):
-    return [(self.name, 0)]
 
 
   def getBucketIndices(self, x):

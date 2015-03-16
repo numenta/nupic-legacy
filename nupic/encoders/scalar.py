@@ -1,4 +1,4 @@
-# ----------------------------------------------------------------------
+
 # Numenta Platform for Intelligent Computing (NuPIC)
 # Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
@@ -23,6 +23,7 @@ import math
 import numbers
 
 import numpy
+
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
@@ -148,8 +149,8 @@ class ScalarEncoder(Encoder):
                w,
                minval,
                maxval,
-               periodic=False,
                n=0,
+               periodic=False,
                radius=0,
                resolution=0,
                name=None,
@@ -158,35 +159,32 @@ class ScalarEncoder(Encoder):
                forced=False):
     """
 
-    w -- number of bits to set in output
-    minval -- minimum input value
-    maxval -- maximum input value (input is strictly less if periodic == True)
+    @param w -- number of bits to set in output
+    @param minval -- minimum input value
+    @param maxval -- maximum input value (input is strictly less if periodic == True)
 
     Exactly one of n, radius, resolution must be set. "0" is a special
     value that means "not set".
 
-    n -- number of bits in the representation (must be > w)
-    radius -- inputs separated by more than, or equal to this distance will have non-overlapping
+    @param n -- number of bits in the representation (must be > w)
+    @param radius -- inputs separated by more than, or equal to this distance will have non-overlapping
               representations
-    resolution -- inputs separated by more than, or equal to this distance will have different
+    @param resolution -- inputs separated by more than, or equal to this distance will have different
               representations
 
-    name -- an optional string which will become part of the description
+    @param name -- an optional string which will become part of the description
 
-    clipInput -- if true, non-periodic inputs smaller than minval or greater
+    @param clipInput -- if true, non-periodic inputs smaller than minval or greater
             than maxval will be clipped to minval/maxval
 
-    forced -- if true, skip some safety checks (for compatibility reasons), default false
+    @param forced -- if true, skip some safety checks (for compatibility reasons), default false
 
     See class documentation for more information.
     """
 
-    assert isinstance(w, int)
-    self.encoders = None
-    self.verbosity = verbosity
-    self.w = w
-    if (w % 2 == 0):
-      raise Exception("Width must be an odd number (%f)" % w)
+    # Our name
+    if name is None:
+      name = "[%s:%s]" % (minval, maxval)
 
     self.minval = minval
     self.maxval = maxval
@@ -213,19 +211,16 @@ class ScalarEncoder(Encoder):
 
       self.rangeInternal = float(self.maxval - self.minval)
 
+
     # There are three different ways of thinking about the representation. Handle
     # each case here.
     self._initEncoder(w, minval, maxval, n, radius, resolution)
 
+    super(ScalarEncoder,  self).__init__(w, self.n, name=name,  verbosity=verbosity,  forced=forced)
+
     # nInternal represents the output area excluding the possible padding on each
     #  side
     self.nInternal = self.n - 2 * self.padding
-
-    # Our name
-    if name is not None:
-      self.name = name
-    else:
-      self.name = "[%s:%s]" % (self.minval, self.maxval)
 
     # This matrix is used for the topDownCompute. We build it the first time
     #  topDownCompute is called
@@ -236,10 +231,6 @@ class ScalarEncoder(Encoder):
     #  and re-created whenever our buckets would be re-arranged.
     self._bucketValues = None
 
-    # checks for likely mistakes in encoder settings
-    if not forced:
-      self._checkReasonableSettings()
-
 
   ############################################################################
   def _initEncoder(self, w, minval, maxval, n, radius, resolution):
@@ -248,30 +239,29 @@ class ScalarEncoder(Encoder):
     if n != 0:
       assert radius == 0
       assert resolution == 0
-      assert n > w
       self.n = n
 
       if (minval is not None and maxval is not None):
         if not self.periodic:
-          self.resolution = float(self.rangeInternal) / (self.n - self.w)
+          self.resolution = float(self.rangeInternal) / (n - w)
         else:
-          self.resolution = float(self.rangeInternal) / (self.n)
+          self.resolution = float(self.rangeInternal) / (n)
 
-        self.radius = self.w * self.resolution
+        self.radius = w * self.resolution
 
         if self.periodic:
           self.range = self.rangeInternal
         else:
           self.range = self.rangeInternal + self.resolution
 
-    else:
+    else: # n==0
       if radius != 0:
         assert resolution == 0
         self.radius = radius
-        self.resolution = float(self.radius) / w
+        self.resolution = float(radius) / w
       elif resolution != 0:
         self.resolution = float(resolution)
-        self.radius = self.resolution * self.w
+        self.radius = self.resolution * w
       else:
         raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
 
@@ -280,16 +270,8 @@ class ScalarEncoder(Encoder):
       else:
         self.range = self.rangeInternal + self.resolution
 
-      nfloat = self.w * (self.range / self.radius) + 2 * self.padding
+      nfloat = w * (self.range / self.radius) + 2 * self.padding
       self.n = int(math.ceil(nfloat))
-
-  ############################################################################
-  def _checkReasonableSettings(self):
-    """(helper function) check if the settings are reasonable for SP to work"""
-    # checks for likely mistakes in encoder settings
-    if self.w < 21:
-      raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and recommended >= 21 (use forced=True to override)"
-                         % self.w)
 
 
   ############################################################################
@@ -297,11 +279,6 @@ class ScalarEncoder(Encoder):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.float, )
-
-
-  ############################################################################
-  def getWidth(self):
-    return self.n
 
 
   ############################################################################
@@ -321,10 +298,6 @@ class ScalarEncoder(Encoder):
       self.range = self.rangeInternal + self.resolution
 
     name = "[%s:%s]" % (self.minval, self.maxval)
-
-  ############################################################################
-  def getDescription(self):
-    return [(self.name, 0)]
 
 
   ############################################################################
@@ -401,8 +374,10 @@ class ScalarEncoder(Encoder):
     return [bucketIdx]
 
   ############################################################################
-  def encodeIntoArray(self, input, output, learn=True):
+  def encodeIntoArray(self, input, output, learn=True, skipOutOfBounds=False):
     """ See method description in base.py """
+
+    
 
     if input is not None and not isinstance(input, numbers.Number):
       raise TypeError(
@@ -410,6 +385,13 @@ class ScalarEncoder(Encoder):
 
     if type(input) is float and math.isnan(input):
       input = SENTINEL_VALUE_FOR_MISSING_DATA
+    
+    if ((not skipOutOfBounds) and 
+      input is not SENTINEL_VALUE_FOR_MISSING_DATA and 
+      self.minval is not None and 
+      self.maxval is not None and 
+      (input < self.minval or input > self.maxval)):
+      raise ValueError("OutOfBounds error for %r <%r , %r>" %(input, self.minval, self.maxval))
 
     # Get the bucket index to use
     bucketIdx = self._getFirstOnBit(input)[0]

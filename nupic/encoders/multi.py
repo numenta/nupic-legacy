@@ -19,7 +19,6 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from nupic.encoders.date import DateEncoder
@@ -32,7 +31,6 @@ from nupic.encoders.pass_through_encoder import PassThroughEncoder
 from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 from nupic.encoders.coordinate import CoordinateEncoder
 from nupic.encoders.geospatial_coordinate import GeospatialCoordinateEncoder
-# multiencoder must be imported last because it imports * from this module!
 from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
@@ -81,8 +79,10 @@ class MultiEncoder(Encoder):
 
   ############################################################################
   def getWidth(self):
+    """override the getWidth with custom value"""
     return self.width
 
+  ############################################################################
   def setLearning(self,learningEnabled):
     encoders = self.getEncoderList()
     for encoder in encoders:

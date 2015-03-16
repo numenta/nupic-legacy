@@ -57,34 +57,25 @@ class CoordinateEncoder(Encoder):
                w=21,
                n=1000,
                name=None,
-               verbosity=0):
+               verbosity=0,
+	       forced=False):
     """
     See `nupic.encoders.base.Encoder` for more information.
 
     @param name An optional string which will become part of the description
     """
+    
+    if name is None:
+      name = "[%s:%s]" % (n, w)
+    super(CoordinateEncoder, self).__init__(w=w, n=n, name=name, verbosity=verbosity, forced=forced)
+    
     # Validate inputs
-    if (w <= 0) or (w % 2 == 0):
-      raise ValueError("w must be an odd positive integer")
-
+    
     if (n <= 6 * w) or (not isinstance(n, int)):
       raise ValueError("n must be an int strictly greater than 6*w. For "
                        "good results we recommend n be strictly greater "
                        "than 11*w")
 
-    self.w = w
-    self.n = n
-    self.verbosity = verbosity
-    self.encoders = None
-
-    if name is None:
-      name = "[%s:%s]" % (self.n, self.w)
-    self.name = name
-
-
-  def getWidth(self):
-    """See `nupic.encoders.base.Encoder` for more information."""
-    return self.n
 
 
   def getDescription(self):
@@ -185,7 +176,5 @@ class CoordinateEncoder(Encoder):
     return rng.getUInt32(n)
 
 
-  def dump(self):
-    print "CoordinateEncoder:"
-    print "  w:   %d" % self.w
-    print "  n:   %d" % self.n
+  def __str__(self):
+    return "CoordinateEncoder:\nw:   %d\nn:   %d" % (self.w, self.n)

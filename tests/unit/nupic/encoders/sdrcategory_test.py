@@ -42,7 +42,7 @@ class SDRCategoryEncoderTest(unittest.TestCase):
                     "S17", "S18", "S19", "GB", "US"]
 
       fieldWidth = 100
-      bitsOn = 10
+      bitsOn = 11
 
       s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = categories,
                              name="foo", verbosity=0, forced=True)
@@ -210,19 +210,19 @@ class SDRCategoryEncoderTest(unittest.TestCase):
   def testAutogrow(self):
       """testing auto-grow"""
       fieldWidth = 100
-      bitsOn = 10
+      bitsOn = 11
 
       s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2, forced=True)
 
       encoded = numpy.zeros(fieldWidth)
       self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
-      s.encodeIntoArray("catA", encoded)
+      encoded = s.encode("catA")
       self.assertEqual(encoded.sum(), bitsOn)
       self.assertEqual(s.getScalars('catA'), 1)
       catA = encoded.copy()
 
-      s.encodeIntoArray("catB", encoded)
+      encoded = s.encode("catB")
       self.assertEqual(encoded.sum(), bitsOn)
       self.assertEqual(s.getScalars('catB'), 2)
       catB = encoded.copy()
@@ -230,19 +230,19 @@ class SDRCategoryEncoderTest(unittest.TestCase):
       self.assertEqual(s.topDownCompute(catA).value, 'catA')
       self.assertEqual(s.topDownCompute(catB).value, 'catB')
 
-      s.encodeIntoArray(SENTINEL_VALUE_FOR_MISSING_DATA, encoded)
+      encoded = s.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
       self.assertEqual(sum(encoded), 0)
       self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
       #Test Disabling Learning and autogrow
       s.setLearning(False)
-      s.encodeIntoArray("catC", encoded)
+      encoded = s.encode("catC")
       self.assertEqual(encoded.sum(), bitsOn)
       self.assertEqual(s.getScalars('catC'), 0)
       self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
       s.setLearning(True)
-      s.encodeIntoArray("catC", encoded)
+      encoded = s.encode("catC")
       self.assertEqual(encoded.sum(), bitsOn)
       self.assertEqual(s.getScalars('catC'), 3)
       self.assertEqual(s.topDownCompute(encoded).value, "catC")

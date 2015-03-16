@@ -22,7 +22,10 @@
 from collections import namedtuple
 
 import numpy
+
 from utils import bitsToString
+from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.data.fieldmeta import FieldMetaType
 
 
 defaultDtype = numpy.uint8
@@ -69,23 +72,51 @@ class Encoder(object):
   """
 
   ############################################################################
-  def __init__(self):
-    pass
+  def __init__(self,  w,  n, name=None,  verbosity=0,  forced=False):
+    """
+    @param  w --        The number of bits that are set to encode a single value - the
+                "width" of the output signal
+              restriction: w must be odd to avoid centering problems.
+    @param n -- number of bits of encoder, total width
+    @param name -- name of field(s) in output. Used in getDescription()
+    """
+    # set name - for getDescription()
+    self.name=name
+    
+    self.w=w
+    if (self.w % 2 == 0):
+      raise ValueError("Width must be an odd number (%f)" % self.w)
+    if self.w < 21 and not forced:
+      raise ValueError("Number of bits in the SDR (%d) must be greater than 2,\
+      and recommended >= 21 (use forced=True to override)" % self.w)
 
+    
+    #set width
+    self.n=n
+    if (not isinstance(n,int)) or w>n: 
+      raise ValueError("w must be > n : %r > %r" % (w, n))
 
+    # set verbosity
+    self.verbosity=verbosity
+    
+    # set forced
+    self.forced=forced
+    
+    # if encoder uses sub-encoders, eg. MultiEncoder,... these must override the value
+    self.encoders=None
+    
+  
   ############################################################################
   def getWidth(self):
     """
     Should return the output width, in bits.
 
-    **Must be overridden by subclasses.**
-
     @returns output width in bits
     """
-    raise Exception("getWidth must be implemented by all subclasses")
+    return self.n
 
   ############################################################################
-  def encodeIntoArray(self, inputData, output):
+  def encodeIntoArray(self, inputData, output,  learn=True):
     """
     Encodes inputData and puts the encoded value into the numpy output array,
     which is a 1-D array of length returned by getWidth().
@@ -125,13 +156,14 @@ class Encoder(object):
     pass
 
   ############################################################################
-  def encode(self, inputData):
+  def encode(self, inputData, learn=False):
     """Convenience wrapper for encodeIntoArray.
 
     This may be less efficient because it allocates a new numpy array every
     call.
 
     @param inputData TODO: document
+    @param learn: (False) enable learning (if available) in the encoder
     @returns a numpy array with the encoded representation of inputData
     """
     output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
@@ -378,15 +410,17 @@ class Encoder(object):
     The 'name' is a string description of each sub-field, and offset is the bit
     offset of the sub-field for that encoder.
 
-    For now, only the 'multi' and 'date' encoders have multiple (name, offset)
+    For now, only the 'multi' and 'date', 'coord/geo' encoders have multiple (name, offset)
     pairs. All other encoders have a single pair, where the offset is 0.
 
     **Must be overridden by subclasses.**
 
     @returns list of tuples containing (name, offset)
     """
-    raise Exception("getDescription must be implemented by all subclasses")
+    if self.name is None:
+      raise Exception("getDescription must be implemented by all subclasses")
 
+    return [(self.name,  0)]
 
   ############################################################################
   def getFieldDescription(self, fieldName):
@@ -441,10 +475,9 @@ class Encoder(object):
 
     # Return the field name and offset within the field
     # return (fieldName, bitOffset - fieldOffset)
-    width = self.getDisplayWidth() if formatted else self.getWidth()
 
     if prevFieldOffset is None or bitOffset > self.getWidth():
-      raise IndexError("Bit is outside of allowable range: [0 - %d]" % width)
+      raise IndexError("Bit is outside of allowable range: [0 - %d]" % self.getWidth())
 
     return (prevFieldName, bitOffset - prevFieldOffset)
 
@@ -791,53 +824,15 @@ class Encoder(object):
       return numpy.array([closeness])
 
 
-    # ---------------------------------------------------------------------
-    # Concatenate the results from closeness scores on each child encoder
-    scalarIdx = 0
-    retVals = numpy.array([])
-    for (name, encoder, offset) in self.encoders:
-      values = encoder.closenessScores(expValues[scalarIdx:], actValues[scalarIdx:],
+    else: # self.encoders is not None
+      # Concatenate the results from closeness scores on each child encoder
+      scalarIdx = 0
+      retVals = numpy.array([])
+      for (name, encoder, offset) in self.encoders:
+        values = encoder.closenessScores(expValues[scalarIdx:], actValues[scalarIdx:],
                                        fractional=fractional)
-      scalarIdx += len(values)
-      retVals = numpy.hstack((retVals, values))
+        scalarIdx += len(values)
+        retVals = numpy.hstack((retVals, values))
 
-    return retVals
+      return retVals
 
-
-
-  ############################################################################
-  def getDisplayWidth(self):
-    """
-    Calculate width of display for bits plus blanks between fields.
-
-    @returns width of display for bits plus blanks between fields
-    """
-    width = self.getWidth() + len(self.getDescription()) - 1
-    return width
-
-  ############################################################################
-  def formatBits(self, inarray, outarray, scale=1, blank=255, leftpad=0):
-    """
-    Copy one array to another, inserting blanks
-    between fields (for display)
-    If leftpad is one, then there is a dummy value at element 0
-    of the arrays, and we should start our counting from 1 rather than 0
-
-    @param inarray TODO: document
-    @param outarray TODO: document
-    @param scale TODO: document
-    @param blank TODO: document
-    @param leftpad TODO: document
-    """
-    description = self.getDescription() + [("end", self.getWidth())]
-
-    # copy the data, but put one blank in between each field
-    for i in xrange(len(description) - 1):
-      start = description[i][1]
-      end = description[i+1][1]
-      # print "Copying: %s" % inarray[start:end]
-      outarray[start+i+leftpad:end+i+leftpad] = inarray[(start+leftpad):(end+leftpad)] * scale
-      if end < self.getWidth():
-        outarray[end+i+leftpad] = blank
-
-################################################################################

@@ -43,13 +43,12 @@ class PassThroughEncoder(Encoder):
          if None (default) - do not alter the input, just pass it further.
     forced -- if forced, encode will accept any data, and just return it back.
     """
-    self.n = n
-    self.w = w
-    self.verbosity = verbosity
-    self.description = [(name, 0)]
-    self.name = name
-    self.encoders = None
-    self.forced = forced
+    wFake=w
+    if w is None:
+      wFake=1
+    super(PassThroughEncoder, self).__init__(w=wFake,n=n, name=name, verbosity=verbosity, forced=True)
+    self.w = w # override wFake, this hack is used bcs Encoder cannot accept w=None
+    self.forced = forced # override
 
   ############################################################################
   def getDecoderOutputFieldTypes(self):
@@ -57,23 +56,16 @@ class PassThroughEncoder(Encoder):
     """
     return (FieldMetaType.string,)
 
-  ############################################################################
-  def getWidth(self):
-    return self.n
-
-  ############################################################################
-  def getDescription(self):
-    return self.description
-
+  
   ############################################################################
   def getScalars(self, input):
     """ See method description in base.py """
-    return numpy.array([0])
+    raise RuntimeError('getScalars() does not make sense for PassThroughEncoder')
 
   ############################################################################
   def getBucketIndices(self, input):
     """ See method description in base.py """
-    return [0]
+    raise RuntimeError('getBucketIndices() does not make sense for PassThroughEncoder')
 
   ############################################################################
   def encodeIntoArray(self, input, output):
@@ -102,7 +94,7 @@ class PassThroughEncoder(Encoder):
     else:
       fieldName = self.name
     # TODO: these methods should be properly implemented
-    return ({fieldName: ([[0, 0]], "input")}, [fieldName])
+    return ({fieldName: ([[0, 0]], encoded)}, [fieldName])
 
 
   ############################################################################
@@ -115,7 +107,7 @@ class PassThroughEncoder(Encoder):
   def topDownCompute(self, encoded):
     """See the function description in base.py"""
     return EncoderResult(value=0, scalar=0,
-                         encoding=numpy.zeros(self.n))
+                         encoding=encoded)
 
   ############################################################################
   def closenessScores(self, expValues, actValues, **kwargs):

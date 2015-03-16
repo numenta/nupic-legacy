@@ -117,6 +117,5 @@ class SparsePassThroughEncoderTest(unittest.TestCase):
     self.assertEqual(c[0], 0.8)
 
 
-
 if __name__ == "__main__":
   unittest.main()
