@@ -21,9 +21,12 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import datetime
 
 import unittest2 as unittest
 
+from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.clamodel import CLAModel, modelConfig
 from nupic.frameworks.opf.metrics import (getModule, 
                                           MetricSpec, 
                                           MetricMulti, 
@@ -792,21 +795,46 @@ record={"test":gt[i]})
 
   def testAnomalyMetric(self):
     """testing AnomalyMetric"""
+    # create reference model
+    modelConfig['name']="demoModel"
+    model = ModelFactory.create(modelConfig)
     ms = MetricSpec(field='a', metric='anomaly',  inferenceElement='prediction', 
                     params={'errorMetric': 'aae', 'window': 1000, 'steps': 1,
                             'desiredPct': 0.1,
-                            'modelName': None})
+                            'modelName': "demoModel"})
     anomalyMetric = MetricAnomaly.initFromMetricSpec(ms)
     print anomalyMetric 
     
     gt = range(500, 1000)
     p = range(500)
- 
+    # data to match InputRecord format and for CLAModel.modelConfig settings
+    sampleInputRecord = {
+       '_category': None,
+       '_reset': 0,
+       '_sequenceId': 0,
+       '_timestamp': datetime.datetime(2013, 12, 5, 0, 0),
+       '_timestampRecordIdx': None,
+       u'c0': datetime.datetime(2013, 12, 5, 0, 0),
+       u'c1': 5.0}
+    inferenceArgs = {u'inputPredictedField': u'auto',
+                     u'predictedField': u'c1',
+                     u'predictionSteps': [1]}
+    model.enableLearning()
+    model.enableInference(inferenceArgs)
+    out=[]
+
     for i in xrange(len(gt)):
+      # must run reference model too
+      sampleInputRecord['c1']=gt[i]
+      model.run(sampleInputRecord)
       metricValue = anomalyMetric.addInstance(gt[i], p[i])
-      print metricValue
+      #print metricValue
+      # collect the anomalyScores/metric values
+      out.append(metricValue)
 
-
+    anomalySumStart=sum(out[0:100])
+    anomalySumEnd=sum(out[400:500])
+    self.assertTrue(anomalySumStart*0.75 > anomalySumEnd, "Reported anomaly metric scores should improve over the run!" )
 
 
 if __name__ == "__main__":
