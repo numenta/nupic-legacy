@@ -92,6 +92,9 @@ config = {
     # Version that specifies the format of the config.
     'version': 1,
 
+    # ID of the model
+    'name': "myHotgymModel001",
+
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
     'aggregationInfo': {   'days': 0,
