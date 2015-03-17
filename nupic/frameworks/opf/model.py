@@ -25,6 +25,7 @@ import cPickle as pickle
 import os
 import shutil
 import random
+import logging
 from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opfutils as opfutils
@@ -144,7 +145,7 @@ class Model(object):
     global globalModelsStorage
 
     newModel = self
-    logger = self._getLogger()
+    logger = logging.getLogger() # self._getLogger() not working because of subclass init
 
     # generate unique name
     if newModel._name is None:
