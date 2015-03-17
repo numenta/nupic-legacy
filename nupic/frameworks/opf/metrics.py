@@ -1496,6 +1496,9 @@ class MetricAnomaly(AggregateMetric):
   """
   def __init__(self, metricSpec):
     """
+    Computes metric on difference of current and desired anomalyScore.
+    The metric to compute is designated by the 'errorMetric' entry in the metric params.
+
     @param metricSpec metric specifications for Anomaly metric, must contain 
                       'modelName' and 'desiredPct' fields.
     """
@@ -1527,12 +1530,15 @@ class MetricAnomaly(AggregateMetric):
     self._anomaly = model.getParameter('anomaly')
     if self._anomaly is None or not isinstance(self._anomaly, Anomaly):
       raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, self._anomaly))
-
+    assert self._subErrorMetrics[0] is not None
 
   def addInstance(self, groundTruth, prediction, record = None):
-    err = 0.0
-    self.err = err
-    return err
+    """in this metric, groundTruth and prediction are ignored, 
+       desiredPct and anomalyScore are used instead
+    """
+    anomalyDesired = self._pct
+    anomalyActual = self._anomaly.getScore()
+    return self._subErrorMetrics[0].addInstance(anomalyDesired, anomalyActual, record)
 
 
   def __repr__(self):
@@ -1540,5 +1546,5 @@ class MetricAnomaly(AggregateMetric):
 
 
   def getMetric(self):
-    return {'value': self.err, "stats" : {"anomaly" : str(self._anomaly)}}
+    return {'value': self._subErrorMetrics[0].getMetric(), "stats" : {"anomaly" : str(self._anomaly)}}
 
