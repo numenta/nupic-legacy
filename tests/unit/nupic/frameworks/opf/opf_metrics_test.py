@@ -24,7 +24,10 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
+from nupic.frameworks.opf.metrics import (getModule, 
+                                          MetricSpec, 
+                                          MetricMulti, 
+                                          MetricAnomaly)
 
 
 
@@ -759,6 +762,7 @@ record={"test":gt[i]})
 
 
   def testMultiMetric(self):
+    """testing MultiMetric"""
     ms1 = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'errorMetric': 'aae', 'window': 1000, 'steps': 1})
     ms2 = MetricSpec(metric='trivial', inferenceElement='prediction', field='a', params={'window': 10, 'steps': 1, 'errorMetric': 'rmse'})
     metric1000 = getModule(ms1)
@@ -784,6 +788,24 @@ record={"test":gt[i]})
         check=0.2*float(v10) + 0.8*float(v1000)
       metricValue = multi.addInstance(gt[i], p[i])
       self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
+
+
+  def testAnomalyMetric(self):
+    """testing AnomalyMetric"""
+    ms = MetricSpec(field='a', metric='anomaly',  inferenceElement='prediction', 
+                    params={'errorMetric': 'aae', 'window': 1000, 'steps': 1,
+                            'desiredPct': 0.1,
+                            'modelName': None})
+    anomalyMetric = MetricAnomaly.initFromMetricSpec(ms)
+    print anomalyMetric 
+    
+    gt = range(500, 1000)
+    p = range(500)
+ 
+    for i in xrange(len(gt)):
+      metricValue = anomalyMetric.addInstance(gt[i], p[i])
+      print metricValue
+
 
 
 

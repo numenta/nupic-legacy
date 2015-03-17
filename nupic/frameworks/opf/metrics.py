@@ -1494,7 +1494,9 @@ class MetricAnomaly(AggregateMetric):
   Anomaly metric aims to hint swarming anomaly parameters or allowing you 
   to specify details (how much anomalies you see) on the dataset. 
   """
-  def __init__(self, metricSpec):
+
+  @classmethod
+  def initFromMetricSpec(cls, metricSpec):
     """
     Computes metric on difference of current and desired anomalyScore.
     The metric to compute is designated by the 'errorMetric' entry in the metric params.
@@ -1505,9 +1507,9 @@ class MetricAnomaly(AggregateMetric):
     modelName = metricSpec.params.get("modelName", None)
     anomalyDesiredPct = metricSpec.params.get("desiredPct", None)
 
-    self.__init__(desiredPct=desiredPct,
-                  modelName=modelName,
-                  metricSpec=metricSpec)
+    cls(desiredPct=anomalyDesiredPct,
+        modelName=modelName,
+        metricSpec=metricSpec)
 
 
   def __init__(self, desiredPct, modelName, metricSpec=None):
