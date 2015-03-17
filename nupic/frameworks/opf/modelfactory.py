@@ -83,8 +83,6 @@ class ModelFactory(object):
     name = modelConfig.get("name", None)
     if name is not None:
       model._name = name
-    else:
-      model._name = random.randint(0,10000)
     ModelFactory._addGlobalModel(model)
     return model
 
@@ -109,6 +107,15 @@ class ModelFactory(object):
         @param newModel - instance of Model to add
     """
     global globalModelsStorage
+    
+    # generate unique name
+    if newModel._name is None:
+      usedNames = [ model._name for model in globalModelsStorage]
+      id = random.randint(0,1000)
+      while id in usedNames:
+        id = random.randint(1001,10000)
+      newModel._name = id
+
     for model in globalModelsStorage:
       if model._name == newModel._name:
         raise ValueError("addGlobalModel: failed as model '%s' already exists." % model._name)

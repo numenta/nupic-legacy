@@ -53,8 +53,6 @@ class Model(object):
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
     self._name = name
-    if name is None:
-      self._name = random.randint(0,10000)
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
