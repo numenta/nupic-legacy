@@ -30,8 +30,8 @@ from abc import ABCMeta, abstractmethod
 import nupic.frameworks.opf.opfutils as opfutils
 
 # global variable
-globalModelsStorage=[]
 global globalModelsStorage
+globalModelsStorage={}
 
 
 class Model(object):
@@ -141,21 +141,24 @@ class Model(object):
         @param newModel - instance of Model to add
     """
     global globalModelsStorage
+
     newModel = self
+    logger = self._getLogger()
+
     # generate unique name
     if newModel._name is None:
-      usedNames = [ model._name for model in globalModelsStorage]
+      usedNames = globalModelsStorage.keys()
       id = random.randint(0,1000)
       while id in usedNames:
         id = random.randint(1001,10000)
       newModel._name = id
 
-    for model in globalModelsStorage:
-      if model._name == newModel._name:
-        print("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (model, model._name, newModel)) # happens for model.loadFromCheckPoint()
-    globalModelsStorage.append(newModel)
+    name = newModel._name
+    if name in globalModelsStorage.keys():
+        logger.debug("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (globalModelsStorage[name], name, newModel)) # happens for model.loadFromCheckPoint()
+    globalModelsStorage[name]=newModel
 
-    print "Globally stored model '%s' " % (newModel._name)
+    logger.debug("Globally stored model '%s' named '%s' " % (newModel, name))
 
 
   ###############################################################################
