@@ -1507,9 +1507,9 @@ class MetricAnomaly(AggregateMetric):
     modelName = metricSpec.params.get("modelName", None)
     anomalyDesiredPct = metricSpec.params.get("desiredPct", None)
 
-    cls(desiredPct=anomalyDesiredPct,
-        modelName=modelName,
-        metricSpec=metricSpec)
+    return cls(desiredPct=anomalyDesiredPct,
+               modelName=modelName,
+               metricSpec=metricSpec)
 
 
   def __init__(self, desiredPct, modelName, metricSpec=None):
