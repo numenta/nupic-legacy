@@ -118,7 +118,7 @@ class ModelFactory(object):
 
     for model in globalModelsStorage:
       if model._name == newModel._name:
-        raise ValueError("addGlobalModel: failed as model '%s' already exists." % model._name)
+        print("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (model, model._name, newModel)) # happens for model.loadFromCheckPoint()
     globalModelsStorage.append(newModel)
   
     print "Globally stored model '%s' " % (newModel._name)
