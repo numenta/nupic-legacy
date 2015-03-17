@@ -31,7 +31,6 @@ import nupic.frameworks.opf.opfutils as opfutils
 
 ###############################################################
 # global variable
-global globalModelsStorage
 globalModelsStorage={}
 
 
@@ -151,7 +150,7 @@ class Model(object):
       newModel._name = "model-"+str(id(newModel))
 
     name = newModel._name
-    if name in globalModelsStorage.keys():
+    if name in globalModelsStorage:
         logger.debug("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (globalModelsStorage[name], name, newModel)) # happens for model.loadFromCheckPoint()
     globalModelsStorage[name]=newModel
 
