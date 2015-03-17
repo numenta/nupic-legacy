@@ -78,7 +78,8 @@ class Anomaly(object):
   def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
-        enables moving average on final anomaly score; int >= 0
+        enables moving average on final anomaly score; int >= 0 
+        (value of 0/None means disabled)
     @param mode (optional) - (string) how to compute anomaly;
         possible values are:
           - "pure" - the default, how much anomal the value is;
@@ -92,7 +93,7 @@ class Anomaly(object):
          The transformation is applied after moving average is computed and updated.
     """
     self._mode = mode
-    if slidingWindowSize is not None:
+    if slidingWindowSize is not None and slidingWindowSize > 0:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
