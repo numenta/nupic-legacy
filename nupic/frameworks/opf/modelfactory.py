@@ -25,13 +25,12 @@
 """
 
 import logging
-import random
 
 import nupic.frameworks.opf.opfutils as opfutils
 
 # Import models
 from clamodel import CLAModel
-from model import Model
+from model import Model, globalModelsStorage
 from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
 
@@ -78,12 +77,9 @@ class ModelFactory(object):
       raise Exception("ModelFactory received unsupported Model type: %s" % \
                       modelConfig['model'])
 
-    model = modelClass(**modelConfig['modelParams'])
-    
     name = modelConfig.get("name", None)
-    if name is not None:
-      model._name = name
-    ModelFactory._addGlobalModel(model)
+
+    model = modelClass(name=name, **modelConfig['modelParams'])
     return model
 
 
@@ -95,35 +91,9 @@ class ModelFactory(object):
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
     model = Model.load(savedModelDir)
-    ModelFactory._addGlobalModel(model)
     return model
 
 
-  @staticmethod
-  def _addGlobalModel(newModel, logLevel=logging.ERROR):
-    """ add a model to the global storage, used ie in Metrics
-        Models are stored in a global variable 'globalModelsStorage' 
-        and can be later accessed by name.
-        @param newModel - instance of Model to add
-    """
-    global globalModelsStorage
-    
-    # generate unique name
-    if newModel._name is None:
-      usedNames = [ model._name for model in globalModelsStorage]
-      id = random.randint(0,1000)
-      while id in usedNames:
-        id = random.randint(1001,10000)
-      newModel._name = id
-
-    for model in globalModelsStorage:
-      if model._name == newModel._name:
-        print("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (model, model._name, newModel)) # happens for model.loadFromCheckPoint()
-    globalModelsStorage.append(newModel)
-  
-    print "Globally stored model '%s' " % (newModel._name)
-
-  
   @staticmethod
   def getGlobalModel(name):
     """
@@ -135,8 +105,3 @@ class ModelFactory(object):
       if m._name == name:
         return m
     return None
-
-###################
-# global variable
-globalModelsStorage=[]
-

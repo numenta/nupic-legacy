@@ -32,7 +32,6 @@ import json
 import itertools
 import logging
 import traceback
-import random
 from collections import deque
 from operator import itemgetter
 
@@ -1248,9 +1247,6 @@ class CLAModel(Model):
 
     if not hasattr(self, '_hasCL'):
       self._hasCL = (self._getClassifierRegion() is not None)
-
-    if not hasattr(self, '_name'):
-      self._name = None # _addGlobalModel will generate unique name
 
     self.__logger.debug("Restoring %s from state..." % self.__class__.__name__)
 
