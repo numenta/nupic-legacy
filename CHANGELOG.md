@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2
+
+* allow named models (in description.py: config{ 'name': xxx,}) and access them globally from ModelFactory.getGlobalModel(name)
+
 ## 0.2.1
 
 * Moved data pkg_resource data into nupic/datafiles.
