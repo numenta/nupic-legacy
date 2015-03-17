@@ -31,6 +31,7 @@ import numpy as np
 from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.algorithms.anomaly import Anomaly
 from nupic.frameworks.opf.opfutils import InferenceType
 from nupic.utils import MovingAverage
 
@@ -188,6 +189,9 @@ def getModule(metricSpec):
     return MetricMAPE(metricSpec)
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
+  elif metricName == 'anomaly':
+    return MetricAnomaly(metricSpec)
+
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -1481,4 +1485,63 @@ class MetricMulti(MetricsIface):
 
   def getMetric(self):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
+
+
+#################################################################################
+class MetricAnomaly(AggregateMetric):
+  """
+  Anomaly metric aims to hint swarming anomaly parameters or allowing you 
+  to specify details (how much anomalies you see) on the dataset. 
+
+  #FIXME this creates 2nd instance of Anomaly(), optimize and pass the anomalyScore
+  from OPF directly
+  """
+  def __init__(self, metricSpec):
+    """
+    @param metricSpec metric specifications for Anomaly metric, must contain 
+                      'anomalyParams' and 'desiredPct' fields.
+    """
+    anomalyParams = metricSpec.params.get("anomalyParams", None)
+    anomalyDesiredPct = metricSpec.params.get("desiredPct", None)
+
+    self.__init__(desiredPct=desiredPct,
+                  anomalyParams=anomalyParams,
+                  metricSpec=metricSpec)
+
+
+  def __init__(self, desiredPct, anomalyParams, metricSpec=None):
+    """
+    Anomaly metric constructor
+    @param desiredPct - (float) in range of [0, 1], swarming will aim to achieve 
+                        that desired percentage of anomalies in the dataset.
+    @param anomalyParams - (python dict), parameters used to construct anomaly instance.
+    @param metricSpec - (opt) parameters for the metric.
+    """
+    super(MetricAnomaly, self).__init__(metricSpec)
+    self._pct = desiredPct
+    if (desiredPct is None or not isinstance(desiredPct, float) or
+        desiredPct < 0.0 or desiredPct > 1):
+      raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
+
+    if anomalyParams is None:
+      self._anomaly = Anomaly()
+    else:
+      try:
+        self._anomaly = Anomaly(anomalyParams)
+      except:
+        ValueError("MetricAnomaly: failed to construct Anomaly() with params= %s" % (anomalyParams))
+
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    err = 0.0
+    self.err = err
+    return err
+
+
+  def __repr__(self):
+    return "MetricAnomaly(anomaly=%s, desiredPct=%s)" % (self._anomaly, self._pct)
+
+
+  def getMetric(self):
+    return {'value': self.err, "stats" : {"anomaly" : str(self._anomaly)}}
 
