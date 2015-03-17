@@ -24,27 +24,7 @@
 It executes a single experiment.
 """
 
-
-import sys
-
-from nupic.frameworks.opf.experiment_runner import (runExperiment,
-                                                    initExperimentPrng)
-import nupic.support
-
-
-
-def main():
-  """Run according to options in sys.argv"""
-  nupic.support.initLogging(verbose=True)
-
-  # Initialize pseudo-random number generators (PRNGs)
-  #
-  # This will fix the seed that is used by numpy when generating 'random'
-  # numbers. This allows for repeatability across experiments.
-  initExperimentPrng()
-
-  # Run it!
-  runExperiment(sys.argv[1:])
+from nupic.frameworks.opf.experiment_runner import main
 
 
 

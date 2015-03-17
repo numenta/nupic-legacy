@@ -85,3 +85,13 @@ class Metric(object):
     self.sum = sum(data)
     self.mean = numpy.mean(data)
     self.standardDeviation = numpy.std(data)
+
+
+  def getStats(self, sigFigs=7):
+    if self.mean is None:
+      return [None, None, None, None, None]
+    return [round(self.mean, sigFigs),
+            round(self.standardDeviation, sigFigs),
+            round(self.min, sigFigs),
+            round(self.max, sigFigs),
+            round(self.sum, sigFigs)]

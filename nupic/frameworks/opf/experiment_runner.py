@@ -41,6 +41,8 @@ from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opftaskdriver import OPFTaskDriver
 from nupic.frameworks.opf.opfutils import (InferenceElement, matchPatterns,
                                            validateOpfJsonValue)
+from nupic.support import initLogging
+
 
 
 g_defaultCheckpointExtension = ".nta"
@@ -382,6 +384,10 @@ def _runExperimentImpl(options, model=None):
       expIface.getModelControl()['environment'] == OpfEnvironment.Nupic):
     expIface.convertNupicEnvToOPF()
     experimentTasks = expIface.getModelControl().get('tasks', [])
+
+  # Ensures all the source locations are either absolute paths or relative to
+  # the nupic.datafiles package_data location.
+  expIface.normalizeStreamSources()
 
   # Handle listTasks
   if options.privateOptions['listTasks']:
@@ -829,3 +835,28 @@ class PeriodicActivityMgr(object):
           act.iteratorHolder[0] = None
 
     return True
+
+
+
+def main():
+  """ Module-level entry point.  Run according to options in sys.argv
+
+  Usage: python -m python -m nupic.frameworks.opf.experiment_runner
+
+  """
+  initLogging(verbose=True)
+
+  # Initialize pseudo-random number generators (PRNGs)
+  #
+  # This will fix the seed that is used by numpy when generating 'random'
+  # numbers. This allows for repeatability across experiments.
+  initExperimentPrng()
+
+  # Run it!
+  runExperiment(sys.argv[1:])
+
+
+
+if __name__ == "__main__":
+  main()
+

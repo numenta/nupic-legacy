@@ -134,6 +134,12 @@ def getCommandLineOptions():
     "value",
     "(optional) enable link-time optimizations (LTO); currently only for gcc and linker ld.gold"]
   )
+  optionsDesc.append(
+    ["debug",
+    "value",
+    "(optional) compile in mode suitable for debugging; overrides any optimizations"]
+  )
+
 
 
   # Read command line options looking for extra options
@@ -367,16 +373,21 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   ]
 
   # Optimizations
-  if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
-    commonCompileFlags.append("-march=native")
-    commonCompileFlags.append("-O3")
-    commonLinkFlags.append("-O3")
-  if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
-    commonCompileFlags.append("-fuse-linker-plugin")
-    commonCompileFlags.append("-flto-report")
-    commonCompileFlags.append("-fuse-ld=gold")
-    commonCompileFlags.append("-flto")
-    commonLinkFlags.append("-flto")
+  if getCommandLineOption("debug", cmdOptions):
+    commonCompileFlags.append("-Og")
+    commonCompileFlags.append("-g")
+    commonLinkFlags.append("-O0")
+  else:
+    if getCommandLineOption("optimizations-native", cmdOptions):
+      commonCompileFlags.append("-march=native")
+      commonCompileFlags.append("-O3")
+      commonLinkFlags.append("-O3")
+    if getCommandLineOption("optimizations-lto", cmdOptions):
+      commonCompileFlags.append("-fuse-linker-plugin")
+      commonCompileFlags.append("-flto-report")
+      commonCompileFlags.append("-fuse-ld=gold")
+      commonCompileFlags.append("-flto")
+      commonLinkFlags.append("-flto")
 
 
 
@@ -506,6 +517,8 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
 
 def getCommandLineOption(name, options):
+  if name is None or options is None:
+    return False
   if name in options:
     return options[name]
 
@@ -646,12 +659,6 @@ try:
     version=getVersion(),
     install_requires=findRequirements(),
     packages=find_packages(),
-    # A lot of this stuff may not be packaged properly, most of it was added
-    # in an effort to get a binary package prepared for nupic.regression
-    # testing on Travis-CI, but it wasn't done the right way. I'll be
-    # refactoring a lot of this for
-    # https://github.com/numenta/nupic/issues/408, so this will be changing
-    # soon. -- Matt
     package_data={
       "nupic.support": ["nupic-default.xml",
                         "nupic-logging.conf"],
@@ -659,7 +666,8 @@ try:
       "nupic.data": ["*.json"],
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
-      "nupic.swarming.jsonschema": ["*.json"]
+      "nupic.swarming.jsonschema": ["*.json"],
+      "nupic.datafiles": ["*.csv", "*.txt"]
     },
     include_package_data=True,
     ext_modules=extensions,
