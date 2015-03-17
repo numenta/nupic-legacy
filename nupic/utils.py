@@ -26,7 +26,7 @@ in our codebase.
 
 import numbers
 
-
+###################################################################################
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
 
@@ -125,3 +125,48 @@ class MovingAverage(object):
     proto.windowSize = self.windowSize
     proto.slidingWindow = self.slidingWindow
     proto.total = self.total
+
+###########################################################################
+class CircularBuffer(object):
+  """
+  implementation of a fixed size constant random access circular buffer
+  #TODO can this be merged with MovingAverage somehow?
+  """
+  def __init__(self,length):
+    #Create an array to back the buffer
+    #If the length<0 create a zero length array
+    self.data = [None for i in range(max(length,0))]
+    self.elements = 0
+    self.index = 0
+    self.dataLength = length
+
+  def getItem(self,n):
+    #Get item from n steps back
+    if n >= self.elements or (n >= self.dataLength and not self.dataLength < 0):
+      assert  False,"Trying to access data not in the stored window"
+      return None
+    if self.dataLength>=0:
+      getInd = (self.index-n-1)%min(self.elements,self.dataLength)
+    else:
+      getInd = (self.index-n-1)%self.elements
+    return self.data[getInd]
+
+  def pushToEnd(self,obj):
+    ret = None
+    #If storing everything simply append right to the list
+    if(self.dataLength < 0 ):
+      self.data.append(obj)
+      self.index+=1
+      self.elements+=1
+      return None
+    if(self.elements==self.dataLength):
+      #pop last added element
+      ret = self.data[self.index % self.dataLength]
+    else:
+      #else push new element and increment the element counter
+      self.elements += 1
+    self.data[self.index % self.dataLength] = obj
+    self.index += 1
+    return ret
+  def __len__(self):
+    return self.elements
