@@ -1261,7 +1261,7 @@ class CLAModel(Model):
       self._hasCL = (self._getClassifierRegion() is not None)
 
     if not hasattr(self, '_name'):
-      self._name = random.randint(0, 10000)
+      self._name = None # _addGlobalModel will generate unique name
 
     self.__logger.debug("Restoring %s from state..." % self.__class__.__name__)
 
