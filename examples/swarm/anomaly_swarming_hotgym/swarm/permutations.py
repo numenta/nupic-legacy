@@ -41,13 +41,13 @@ permutations = {
   
     'sensorParams': {
       'encoders': {
-        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteFloat(0.500000, 12.000000), w=21),
+#        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteFloat(0.500000, 12.000000), w=21),
       },
     },
   
   
     'tpParams': {
-      'pamLength': PermuteInt(1, 5),
+      'pamLength': PermuteInt(1, 10),
     },
  
    'anomalyParams': {
