@@ -960,26 +960,12 @@ class MetricAveError(AggregateMetric):
         More consistent with scalar metrics because
         they all report an error to be minimized"""
 
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
+
+
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-
-    error = 1.0 if groundTruth != prediction else 0.0
-    accumulatedError += error
-
-    if historyBuffer is not None:
-      historyBuffer.append(error)
-      if len(historyBuffer) > self.spec.params["window"] :
-        accumulatedError -= historyBuffer.popleft()
-
-    return accumulatedError
-
-  def aggregate(self, accumulatedError, historyBuffer, steps):
-    n = steps
-    if historyBuffer is not None:
-      n = len(historyBuffer)
-
-    return accumulatedError/ float(n)
-
-
+    return 1.0 if groundTruth != prediction else 0.0
 
 
 ################################################################################
@@ -992,6 +978,10 @@ class MetricNegAUC(AggregateMetric):
       we are generating an ROC curve with the TPR (True Positive Rate) of
       category 1 on the y-axis and the FPR (False Positive Rate) on the x-axis.
   """
+
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
+
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
     """ Accumulate history of groundTruth and "prediction" values.
