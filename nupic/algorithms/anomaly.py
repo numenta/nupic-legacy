@@ -112,6 +112,24 @@ class Anomaly(object):
                        "or None if disabled.")
 
 
+  def __init__(self, anomalyParamsDict):
+    """
+    factory-like helper constructor for Anomaly class
+    @param anomalyParamsDict - python dict{} of parameters to construct the anomaly instance,
+                               for possible fields see __init__ above.
+    """
+    if anomalyParamsDict is None or not isinstance(anomalyParamsDict, dict):
+      raise ValueError("Anomaly: anomalyParamsDict must be specified and be a dict object")
+
+    window = anomalyParamsDict.get("slidingWindowSize", None)
+    mode = anomalyParamsDict.get("mode", Anomaly.MODE_PURE)
+    binarize = anomalyParamsDict.get("binaryAnomalyThreshold", None)
+
+    self.__init__(slidingWindowSize=window, 
+                  mode=mode,
+                  binaryAnomalyThreshold=binarize)
+
+
   def compute(self, activeColumns, predictedColumns, 
 			inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.

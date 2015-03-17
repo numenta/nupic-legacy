@@ -191,7 +191,7 @@ class CLAModel(Model):
     self._numFields = None
     # init anomaly
     windowSize = anomalyParams.get("slidingWindowSize", None)
-    mode = anomalyParams.get("mode", "pure")
+    mode = anomalyParams.get("mode", Anomaly.MODE_PURE)
     anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
                                 binaryAnomalyThreshold=anomalyThreshold)
