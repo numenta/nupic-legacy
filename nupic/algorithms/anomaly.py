@@ -110,6 +110,7 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    self._score = 1.0 # current anomaly score
 
 
   def __init__(self, anomalyParamsDict):
@@ -175,14 +176,22 @@ class Anomaly(object):
       else:
         score = 0.0
 
+    self._score = score
     return score
+
+
+  def getScore(self):
+    """
+    @return current anomaly score
+    """
+    return self._score
 
 
   def __str__(self):
     windowSize = 0
     if self._movingAverage is not None:
       windowSize = self._movingAverage.windowSize
-    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
+    return "Anomaly:\tmode=%s\twindowSize=%r\tcurrent score=%.4f" % (self._mode, windowSize, self._score)
 
 
   def __setstate__(self, state):
@@ -195,3 +204,5 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
+    if not hasattr(self, '_score'):
+      self._score = 1.0
