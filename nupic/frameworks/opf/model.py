@@ -24,7 +24,6 @@
 import cPickle as pickle
 import os
 import shutil
-import random
 import logging
 from abc import ABCMeta, abstractmethod
 
@@ -148,11 +147,7 @@ class Model(object):
 
     # generate unique name
     if newModel._name is None:
-      usedNames = globalModelsStorage.keys()
-      id = random.randint(0,1000)
-      while id in usedNames:
-        id = random.randint(1001,10000)
-      newModel._name = id
+      newModel._name = "model-"+str(id(newModel))
 
     name = newModel._name
     if name in globalModelsStorage.keys():
