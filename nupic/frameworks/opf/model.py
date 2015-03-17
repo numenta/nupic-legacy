@@ -29,8 +29,11 @@ from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opfutils as opfutils
 
-
 ###############################################################
+# global variable
+globalModelsStorage=[]
+global globalModelsStorage
+
 
 class Model(object):
   """ This is the base class that all OPF Model implementations should
@@ -54,6 +57,8 @@ class Model(object):
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
     self._name = name
+    # expose in global store
+    self._addGlobalModel()
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
@@ -128,6 +133,31 @@ class Model(object):
     logger created by the subclass.
     @returns (Logger) A Logger object, it should not be None.
     """
+
+
+  def _addGlobalModel(self):
+    """ add a model to the global storage, used ie in Metrics
+        Models are stored in a global variable 'globalModelsStorage' 
+        and can be later accessed by name.
+        @param newModel - instance of Model to add
+    """
+    global globalModelsStorage
+    newModel = self
+    # generate unique name
+    if newModel._name is None:
+      usedNames = [ model._name for model in globalModelsStorage]
+      id = random.randint(0,1000)
+      while id in usedNames:
+        id = random.randint(1001,10000)
+      newModel._name = id
+
+    for model in globalModelsStorage:
+      if model._name == newModel._name:
+        print("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (model, model._name, newModel)) # happens for model.loadFromCheckPoint()
+    globalModelsStorage.append(newModel)
+
+    print "Globally stored model '%s' " % (newModel._name)
+
 
   ###############################################################################
   # Common learning/inference methods
@@ -261,7 +291,14 @@ class Model(object):
     model._deSerializeExtraData(
         extraDataDir=Model._getModelExtraDataDir(savedModelDir))
 
+    # compatibility
+    if not hasattr(model, '_name'):
+      model._name = None # _addGlobalModel will generate unique name
+
     logger.debug("Finished Loading model from local checkpoint")
+
+    # expose loaded model to global store
+    model._addGlobalModel()
 
     return model
 
