@@ -101,7 +101,4 @@ class ModelFactory(object):
     @return found model instance, or None when there is no such model with given name
     """
     global globalModelsStorage
-    for m in globalModelsStorage:
-      if m._name == name:
-        return m
-    return None
+    return globalModelsStorage.get(name, None)
