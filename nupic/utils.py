@@ -97,6 +97,17 @@ class MovingAverage(object):
       self.slidingWindow = sum(self.slidingWindow)
 
 
+  def __cmp__(self, o):
+    if not isinstance(o, MovingAverage):
+      return -1
+    if (o.slidingWindow == self.slidingWindow and
+        o.total == self.total and
+        o.windowSize == self.windowSize):
+      return 0
+    else: 
+      return -1
+
+
   def __call__(self, value):
     return self.next(value)
 
