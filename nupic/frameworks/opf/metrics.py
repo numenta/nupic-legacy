@@ -191,7 +191,7 @@ def getModule(metricSpec):
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
   elif metricName == 'anomaly':
-    return MetricAnomaly(metricSpec)
+    return MetricAnomaly.initFromMetricSpec(metricSpec)
 
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
