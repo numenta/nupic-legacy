@@ -73,7 +73,7 @@ report = [
 # NOTE: The value is used as a regular expressions by RunPermutations.py's
 #       report generator
 # (generated from minimize = 'prediction:aae:window=1000:field=consumption')
-minimize = "prediction:anomaly:desiredPct=0.1:errorMetric='altMAPE':modelName='hotgymAnomalySwarmingDemo':steps=1:window=100:field=consumption"
+minimize = "multiStepBestPredictions:anomaly:desiredPct=0.1:errorMetric='altMAPE':modelName='hotgymAnomalySwarmingDemo':steps=1:window=1000:field=consumption"
 
 
 

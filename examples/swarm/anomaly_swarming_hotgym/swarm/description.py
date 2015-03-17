@@ -205,7 +205,7 @@ config = {
 
             'synPermInactiveDec': 0.01,
 
-            'randomSP': 1
+            'randomSP': 0,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -314,7 +314,7 @@ config = {
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
-            'steps': '1,5',
+            'steps': '1',
 
 
         },
@@ -413,8 +413,8 @@ for steps in config['predictionSteps']:
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
   control['metrics'].append(
       MetricSpec(field=config['predictedField'], metric='anomaly',
-                 inferenceElement='prediction',
-                 params={'errorMetric': 'altMAPE', 'window': 100, 'steps': steps,
+                 inferenceElement='multiStepBestPredictions',
+                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps,
                          'desiredPct': 0.1, 'modelName': config['name']}))
 
 ################################################################################
