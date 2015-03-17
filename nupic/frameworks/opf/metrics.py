@@ -1548,5 +1548,5 @@ class MetricAnomaly(AggregateMetric):
 
 
   def getMetric(self):
-    return {'value': self._subErrorMetrics[0].getMetric(), "stats" : {"anomaly" : str(self._anomaly)}}
+    return self._subErrorMetrics[0].getMetric()
 
