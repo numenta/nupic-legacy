@@ -114,6 +114,15 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
+  def testAnomalyFactoryInit(self):
+    params = anomaly.anomalyParams
+    an1 = anomaly.Anomaly.initFromParams(params)
+    an2 = anomaly.Anomaly(params.get('slidingWindowSize'),
+                          params.get('mode'),
+                          params.get('binaryAnomalyThreshold'))
+    self.assertEqual(an1, an2, "anomaly instances '%s' and '%s' are not equal!" % (an1, an2))
+
+
 
 if __name__ == "__main__":
   unittest.main()

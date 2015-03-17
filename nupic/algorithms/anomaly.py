@@ -113,7 +113,8 @@ class Anomaly(object):
     self._score = 1.0 # current anomaly score
 
 
-  def __init__(self, anomalyParamsDict):
+  @classmethod
+  def initFromParams(cls, anomalyParamsDict):
     """
     factory-like helper constructor for Anomaly class
     @param anomalyParamsDict - python dict{} of parameters to construct the anomaly instance,
@@ -126,9 +127,9 @@ class Anomaly(object):
     mode = anomalyParamsDict.get("mode", Anomaly.MODE_PURE)
     binarize = anomalyParamsDict.get("binaryAnomalyThreshold", None)
 
-    self.__init__(slidingWindowSize=window, 
-                  mode=mode,
-                  binaryAnomalyThreshold=binarize)
+    return cls(slidingWindowSize=window, 
+               mode=mode,
+               binaryAnomalyThreshold=binarize)
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -206,3 +207,9 @@ class Anomaly(object):
       self._binaryThreshold = None
     if not hasattr(self, '_score'):
       self._score = 1.0
+
+###############################
+# example params
+anomalyParams = {'slidingWindowSize': 10,
+                 'mode': Anomaly.MODE_PURE,
+                 'binaryAnomalyThreshold': None}
