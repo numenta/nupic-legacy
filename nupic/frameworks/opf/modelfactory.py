@@ -85,7 +85,7 @@ class ModelFactory(object):
       model._name = name
     else:
       model._name = random.randint(0,10000)
-    _addGlobalModel(model)
+    ModelFactory._addGlobalModel(model)
     return model
 
 
@@ -97,38 +97,39 @@ class ModelFactory(object):
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
     model = Model.load(savedModelDir)
-    _addGlobalModel(model)
+    ModelFactory._addGlobalModel(model)
     return model
 
+
+  @staticmethod
+  def _addGlobalModel(newModel, logLevel=logging.ERROR):
+    """ add a model to the global storage, used ie in Metrics
+        Models are stored in a global variable 'globalModelsStorage' 
+        and can be later accessed by name.
+        @param newModel - instance of Model to add
+    """
+    global globalModelsStorage
+    for model in globalModelsStorage:
+      if model._name == newModel._name:
+        raise ValueError("addGlobalModel: failed as model '%s' already exists." % model._name)
+    globalModelsStorage.append(newModel)
+  
+    print "Globally stored model '%s' " % (newModel._name)
+
+  
+  @staticmethod
+  def getGlobalModel(name):
+    """
+    access models in global storage 'globalModelsStorage' by name
+    @return found model instance, or None when there is no such model with given name
+    """
+    global globalModelsStorage
+    for m in globalModelsStorage:
+      if m._name == name:
+        return m
+    return None
 
 ###################
 # global variable
 globalModelsStorage=[]
-
-def _addGlobalModel(newModel, logLevel=logging.ERROR):
-  """ add a model to the global storage, used ie in Metrics
-      Models are stored in a global variable 'globalModelsStorage' 
-      and can be later accessed by name.
-      @param newModel - instance of Model to add
-  """
-  global globalModelsStorage
-  for model in globalModelsStorage:
-    if model._name == newModel._name:
-      raise ValueError("addGlobalModel: failed as model '%s' already exists." % model._name)
-  globalModelsStorage.append(newModel)
-
-  print "Globally stored model '%s' " % (newModel._name)
-
-  
-
-def getGlobalModel(name):
-  """
-  access models in global storage 'globalModelsStorage' by name
-  @return found model instance, or None when there is no such model with given name
-  """
-  global globalModelsStorage
-  for m in globalModelsStorage:
-    if m._name == name:
-      return m
-  return None
 
