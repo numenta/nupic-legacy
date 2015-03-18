@@ -99,8 +99,8 @@ class Encoder(object):
 
     @param learningEnabled whether learning should be enabled
     """
-    # TODO: Make sure subclasses don't rely on this and remove it. Default
-    # behavior should be a noop.
+    # TODO: (#1943) Make sure subclasses don't rely on this and remove it.
+    # Default behavior should be a noop.
     if hasattr(self, "_learningEnabled"):
       self._learningEnabled = learningEnabled
 
