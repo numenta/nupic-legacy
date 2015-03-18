@@ -190,6 +190,8 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
+    if not hasattr(self, '_computeFn'):
+      self._computeFn = computeRawAnomalyScore
 
   ##################################################################
   # these methods are alternative implementations of 'how to compute'
