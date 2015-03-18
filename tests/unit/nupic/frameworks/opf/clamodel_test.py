@@ -29,7 +29,7 @@ import unittest2 as unittest
 from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfutils import ModelResult
-
+from nupic.utils import GlobalDict
 
 
 class CLAModelTest(unittest.TestCase):
@@ -132,8 +132,8 @@ class CLAModelTest(unittest.TestCase):
     conf['name']="myModel"
     model02 = ModelFactory.create(modelConfig=conf)
 
-    self.assertEqual(ModelFactory.getGlobalModel("myModel"), model02, "model with name 'myModel' should have been found!")
-    self.assertEqual(ModelFactory.getGlobalModel("noSuchModel"), None, "model 'noSuchModel' does not exist")
+    self.assertEqual(GlobalDict.get("myModel"), model02, "model with name 'myModel' should have been found!")
+    self.assertEqual(GlobalDict.get("noSuchModel"), None, "model 'noSuchModel' does not exist")
 
 ##################
 # example model config variable
