@@ -44,7 +44,7 @@ from nupic.frameworks.opf.opftaskdriver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
-
+from nupic.algorithms.anomaly import Anomaly
 
 # Model Configuration Dictionary:
 #
@@ -319,6 +319,8 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
+           'binaryAnomalyThreshold': None, # None or from (0,1)
+           'computeFn': Anomaly.compute_In1D_Satisfied,
         },
 
         'trainSPNetOnlyIfRequested': False,
