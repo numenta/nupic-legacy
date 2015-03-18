@@ -117,14 +117,14 @@ class AnomalyTest(unittest.TestCase):
 
   def testComputeAnomalyUnpredictedActive_ComputeXOR(self):
     """anomaly - unexpected occured using the XOR computeFn"""
-    an = anomaly.Anomaly(computeFn=anomaly.Anomaly.compute_XOR_Both)
+    an = anomaly.Anomaly(computeFn=anomaly.compute_XOR_Both)
     score = an.compute(array([2, 3, 6, 7]), 
                        array([2, 3, 6]))
     self.assertAlmostEqual(score, 1/7.0)
 
   def testComputeAnomalyPredictedNonActive_ComputeXOR(self):
     """anomaly - expected did not occur usint the XOR/Strict computeFn"""
-    an = anomaly.Anomaly(computeFn=anomaly.Anomaly.compute_XOR_Both)
+    an = anomaly.Anomaly(computeFn=anomaly.compute_XOR_Both)
     score = an.compute(array([2, 3]), 
                        array([2, 3, 6]))
     self.assertAlmostEqual(score, 1/5.0)
