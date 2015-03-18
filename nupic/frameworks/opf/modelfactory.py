@@ -30,7 +30,7 @@ import nupic.frameworks.opf.opfutils as opfutils
 
 # Import models
 from clamodel import CLAModel
-from model import Model, globalModelsStorage
+from model import Model
 from two_gram_model import TwoGramModel
 from previousvaluemodel import PreviousValueModel
 
@@ -92,13 +92,3 @@ class ModelFactory(object):
     """
     model = Model.load(savedModelDir)
     return model
-
-
-  @staticmethod
-  def getGlobalModel(name):
-    """
-    access models in global storage 'globalModelsStorage' by name
-    @return found model instance, or None when there is no such model with given name
-    """
-    global globalModelsStorage
-    return globalModelsStorage.get(name, None)

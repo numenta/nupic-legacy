@@ -24,13 +24,10 @@
 import cPickle as pickle
 import os
 import shutil
-import logging
 from abc import ABCMeta, abstractmethod
 
 import nupic.frameworks.opf.opfutils as opfutils
-
-# global variable
-globalModelsStorage={}
+from nupic.utils import GlobalDict 
 
 
 class Model(object):
@@ -56,7 +53,7 @@ class Model(object):
     self.__inferenceArgs = {}
     self._name = name
     # expose in global store
-    self._addGlobalModel()
+    GlobalDict.set(name, self)
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
@@ -131,29 +128,6 @@ class Model(object):
     logger created by the subclass.
     @returns (Logger) A Logger object, it should not be None.
     """
-
-
-  def _addGlobalModel(self):
-    """ add a model to the global storage, used ie in Metrics
-        Models are stored in a global variable 'globalModelsStorage' 
-        and can be later accessed by name.
-        @param newModel - instance of Model to add
-    """
-    global globalModelsStorage
-
-    newModel = self
-    logger = logging.getLogger() # self._getLogger() not working because of subclass init
-
-    # generate unique name
-    if newModel._name is None:
-      newModel._name = "model-"+str(id(newModel))
-
-    name = newModel._name
-    if name in globalModelsStorage:
-        logger.debug("Warning: addGlobalModel: replacing model '%s' named '%s' with '%s'." % (globalModelsStorage[name], name, newModel)) # happens for model.loadFromCheckPoint()
-    globalModelsStorage[name]=newModel
-
-    logger.debug("Globally stored model '%s' named '%s' " % (newModel, name))
 
 
   ###############################################################################
@@ -300,7 +274,7 @@ class Model(object):
     logger.debug("Finished Loading model from local checkpoint")
 
     # expose loaded model to global store
-    model._addGlobalModel()
+    GlobalDict.set(model._name, model)
 
     return model
 
