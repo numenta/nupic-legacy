@@ -115,21 +115,23 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
-  def testComputeAnomalyUnpredictedActive(self):
-    """anomaly - unexpected occured """
-    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3, 6, 7]), 
-                                                  array([2, 3, 6]))
+  def testComputeAnomalyUnpredictedActive_ComputeXOR(self):
+    """anomaly - unexpected occured using the XOR computeFn"""
+    an = anomaly.Anomaly(computeFn=anomaly.Anomaly.compute_XOR_Both)
+    score = an.compute(array([2, 3, 6, 7]), 
+                       array([2, 3, 6]))
     self.assertAlmostEqual(score, 1/7.0)
 
-  def testComputeAnomalyPredictedNonActive(self):
-    """anomaly - expected did not occur """
-    score = anomaly.Anomaly().computeAnomalyScore(array([2, 3]), 
-                                                  array([2, 3, 6]))
+  def testComputeAnomalyPredictedNonActive_ComputeXOR(self):
+    """anomaly - expected did not occur usint the XOR/Strict computeFn"""
+    an = anomaly.Anomaly(computeFn=anomaly.Anomaly.compute_XOR_Both)
+    score = an.compute(array([2, 3]), 
+                       array([2, 3, 6]))
     self.assertAlmostEqual(score, 1/5.0)
 
   def testComputeAnomalyEmpty(self):
     """anomaly called with empty params """
-    score = anomaly.Anomaly().computeAnomalyScore(array([]), array([]))
+    score = anomaly.computeRawAnomalyScore(array([]), array([]))
     self.assertEqual(score, 0)
 
 
