@@ -2,7 +2,8 @@
 
 ## 0.2.2
 
-* allow named models (in description.py: config{ 'name': xxx,}) and access them globally from ModelFactory.getGlobalModel(name)
+* new MetricAnomaly that allows swarming to optimize anomaly parameters (to match expected anomaly percentage on data).
+* allow named models (in description.py: config{ 'name': xxx,}) and access them globally from GlobalDict.get(name).
 
 ## 0.2.1
 
