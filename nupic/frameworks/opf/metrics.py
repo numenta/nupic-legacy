@@ -1471,7 +1471,7 @@ class MetricMulti(MetricsIface):
     return "MetricMulti(weights=%s, metrics=%s)" % (self.weights, self.metrics) 
 
 ###################################
-class SpeedMetric(AggregateMetric):
+class MetricSpeed(MetricAltMAPE):
   """ this metric optimizes for speed - time per iteraton.
   """
   def __init__(self, metricSpec):

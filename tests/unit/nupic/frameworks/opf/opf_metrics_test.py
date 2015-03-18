@@ -787,5 +787,20 @@ record={"test":gt[i]})
 
 
 
+  def testSpeedMetric(self):
+    """testing the speed metric"""
+    ms = MetricSpec(field='a', metric='speed',  inferenceElement='multistepBestPredictions', params={'window': 1000, 'steps': 1})
+    mSpeed = getModule(ms)
+    print mSpeed
+
+    gt = range(500, 1000)
+    p = range(500)
+    rec = {}
+
+    for i in xrange(len(gt)):
+      rec['time']=np.random.randint(1, 10)
+      metricValue = mSpeed.addInstance(gt[i], p[i], record=rec)
+
+
 if __name__ == "__main__":
   unittest.main()
