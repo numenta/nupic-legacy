@@ -1470,6 +1470,11 @@ class MetricMulti(MetricsIface):
   def __repr__(self):
     return "MetricMulti(weights=%s, metrics=%s)" % (self.weights, self.metrics) 
 
+
+  def getMetric(self):
+    return {'value': self.err, "stats" : {"weights" : self.weights}}
+
+
 ###################################
 class MetricSpeed(MetricAltMAPE):
   """ this metric optimizes for speed - time per iteraton.
@@ -1481,7 +1486,6 @@ class MetricSpeed(MetricAltMAPE):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
   def addInstance(self, groundTruth, prediction, record = None):
-    print record
     time = record.get('time', None)
     assert record is not None and time >= 0
     return super(MetricSpeed, self).addInstance(0.0, time, record)
