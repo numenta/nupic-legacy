@@ -33,8 +33,7 @@ import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.algorithms.anomaly import Anomaly
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.frameworks.opf.modelfactory import ModelFactory
-from nupic.utils import MovingAverage
+from nupic.utils import MovingAverage, GlobalDict
 
 from collections import deque
 from operator import itemgetter
@@ -1526,7 +1525,7 @@ class MetricAnomaly(AggregateMetric):
         desiredPct < 0.0 or desiredPct > 1):
       raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
 
-    model = ModelFactory.getGlobalModel(name=modelName)
+    model = GlobalDict.get(modelName)
     if model is None:
       raise ValueError("AnomalyMetric: failed to access model named '%s' " % (modelName))
     self._anomaly = model.getParameter('anomaly')
