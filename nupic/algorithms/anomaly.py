@@ -22,6 +22,7 @@
 """Anomaly-related algorithms."""
 
 import numpy
+import collections
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.utils import MovingAverage
@@ -68,9 +69,13 @@ class Anomaly(object):
   MODE_LIKELIHOOD = "likelihood"
   MODE_WEIGHTED = "weighted"
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
+  # functions for computing anomaly score that are supported
+  _computeImplementations = ()
 
-
-  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
+  def __init__(self, slidingWindowSize=None, 
+                     mode=MODE_PURE, 
+                     binaryAnomalyThreshold=None,
+                     computeFn=computeRawAnomalyScore):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -85,6 +90,9 @@ class Anomaly(object):
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
          The transformation is applied after moving average is computed and updated.
+    @param computeFn (opt) - method how the "raw" anomaly score is computed from temporal pooler, 
+                     All available implementations are listed in '_computeImplementations', 
+                     default value is same as 'computeRawAnomalyScore()'.
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -105,6 +113,16 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    # fill allowed implementations
+    Anomaly._computeImplementations += (Anomaly.compute_In1D_Satisfied,)
+    Anomaly._computeImplementations += (Anomaly.compute_In1D_Predicted,)
+    Anomaly._computeImplementations += (Anomaly.compute_XOR_Both,)
+    Anomaly._computeImplementations += (computeRawAnomalyScore,)
+
+    self._computeFn = computeFn
+    if (not isinstance(computeFn, collections.Callable) or 
+        not computeFn in Anomaly._computeImplementations):
+      raise ValueError("Anomaly: computeFn has to be on of '%s' but is '%s' " % (Anomaly._computeImplementations, computeFn) )
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -122,7 +140,7 @@ class Anomaly(object):
     @return the computed anomaly score; float 0..1
     """
     # Start by computing the raw anomaly score.
-    anomalyScore = computeRawAnomalyScore(activeColumns, predictedColumns)
+    anomalyScore = self._computeFn(activeColumns, predictedColumns)
 
     # Compute final anomaly based on selected mode.
     if self._mode == Anomaly.MODE_PURE:
@@ -179,61 +197,61 @@ class Anomaly(object):
   ##################################################################
   @staticmethod
   def compute_In1D_Satisfied(activeColumns, prevPredictedColumns):
-  """Computes the raw anomaly score.
+    """Computes the raw anomaly score.
 
-  The raw anomaly score is the fraction of active columns not predicted.
+    The raw anomaly score is the fraction of active columns not predicted.
 
-  The implementation is using in1D() function, 
-  "satisfied" means it only cares if activeColumns at time T have been 
-  predicted at T-1. 
+    The implementation is using in1D() function, 
+    "satisfied" means it only cares if activeColumns at time T have been 
+    predicted at T-1. 
 
-  Which means a temporal pooler TP with all columns in predictive state at T-1
-  would have zero anomaly score at T for any active state. 
+    Which means a temporal pooler TP with all columns in predictive state at T-1
+    would have zero anomaly score at T for any active state. 
 
-  @param activeColumns: array of active column indices
-  @param prevPredictedColumns: array of columns indices predicted in prev step
-  @return anomaly score 0..1 (float)
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in prev step
+    @return anomaly score 0..1 (float)
 
-  This is the "original" computeRawAnomalyScore() implementation.
-  """
-  nActiveColumns = len(activeColumns)
-  if nActiveColumns > 0:
-    # Test whether each element of a 1-D array is also present in a second
-    # array. Sum to get the total # of columns that are active and were
-    # predicted.
-    score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
-    # Get the percent of active columns that were NOT predicted, that is
-    # our anomaly score.
-    score = (nActiveColumns - score) / float(nActiveColumns)
-  elif len(prevPredictedColumns) > 0:
-    # There were predicted columns but none active.
-    score = 1.0
-  else:
-    # There were no predicted or active columns.
-    score = 0.0
-  return score
+    This is the "original" computeRawAnomalyScore() implementation.
+    """
+    nActiveColumns = len(activeColumns)
+    if nActiveColumns > 0:
+      # Test whether each element of a 1-D array is also present in a second
+      # array. Sum to get the total # of columns that are active and were
+      # predicted.
+      score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
+      # Get the percent of active columns that were NOT predicted, that is
+      # our anomaly score.
+      score = (nActiveColumns - score) / float(nActiveColumns)
+    elif len(prevPredictedColumns) > 0:
+      # There were predicted columns but none active.
+      score = 1.0
+    else:
+      # There were no predicted or active columns.
+      score = 0.0
+    return score
 
   ####################################################################
   @staticmethod
   def compute_In1D_Predicted(activeColumns, prevPredictedColumns):
-  """Computes the raw anomaly score.
+    """Computes the raw anomaly score.
 
-  The raw anomaly score is the fraction of predicted columns not activated.
+    The raw anomaly score is the fraction of predicted columns not activated.
 
-  The implementation is using in1D() function, 
-  "predicted" means it only cares if all predictedColumns at time T-1 are 
-  active at T. 
+    The implementation is using in1D() function, 
+    "predicted" means it only cares if all predictedColumns at time T-1 are 
+    active at T. 
 
-  Which means a temporal pooler TP with none columns in predictive state at T-1
-  would have zero anomaly score at T for any active state. 
+    Which means a temporal pooler TP with none columns in predictive state at T-1
+    would have zero anomaly score at T for any active state. 
 
-  Compare with compute_In1D_Satisfied(), this is a complement.
+    Compare with compute_In1D_Satisfied(), this is a complement.
 
-  @param activeColumns: array of active column indices
-  @param prevPredictedColumns: array of columns indices predicted in prev step
-  @return anomaly score 0..1 (float)
-  """
-  return Anomaly.compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in prev step
+    @return anomaly score 0..1 (float)
+    """
+    return Anomaly.compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
 
   ####################################################################
   @staticmethod
