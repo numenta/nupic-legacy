@@ -110,39 +110,33 @@ class GlobalDict(MutableMapping):
   for storing and accessing objects globally.
   """
 
-# global variable
-store = {}
+  # global variable
+  store = {}
 
+  logging.basicConfig()
+  logger = logging.getLogger(__name__)
 
   def __init__(self, *args, **kwargs):
-    global store # use global variable as a shared storage place
     self.update(dict(*args, **kwargs))
-    logging.basicConfig()
-    self.logger = logging.getLogger(__name__) 
   def __getitem__(self, key):
-    global store
-    return store[key]
+    return GlobalDict.get(key)
   def __setitem__(self, key, value):
     """if the key is in use, generate a unique one"""
-    global store
-    if key is None:
-      key = str(id(value)) # generate uniq name
-    if key in store: # replacing existing item
-      self.logger.error("replacing item '%s' named '%s' with new '%s'." % (self.get(key), key, value))
-    store[key] = value
-    self.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
+    self.__class__.set(key, value)
   def __delitem__(self, key):
-    global store
-    del store[key]
+    del GlobalDict.store[key]
   def __iter__(self):
-    global store
-    return iter(store)
+    return iter(GlobalDict.store)
   def __len__(self):
-    global store
-    return len(store)
+    return len(GlobalDict.store)
   @classmethod
   def set(cls, key, value):
-    return cls.__setitem__(key, value)
+    if key is None:
+      key = str(id(value)) # generate uniq name
+    if key in cls.store: # replacing existing item
+      cls.logger.error("replacing item '%s' named '%s' with new '%s'." % (cls.get(key), key, value))
+    cls.store[key] = value
+    cls.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
   @classmethod
   def get(cls, key):
-    return cls.__getitem__(key)
+    return cls.store.get(key, None)
