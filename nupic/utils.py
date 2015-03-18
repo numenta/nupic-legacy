@@ -26,7 +26,7 @@ in our codebase.
 
 import numbers
 from collections import MutableMapping
-
+import logging
 
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
@@ -126,13 +126,21 @@ class GlobalDict(MutableMapping):
   for storing and accessing objects globally.
   """
   def __init__(self, *args, **kwargs):
-    global _store
+    global _store # use global variable as a shared storage place
     self.store = _store
-    self.update(dict(*args, **kwargs))  # use the free update to set keys
+    self.update(dict(*args, **kwargs))
+    logging.basicConfig()
+    self.logger = logging.getLogger(__name__) 
   def __getitem__(self, key):
     return self.store[key]
   def __setitem__(self, key, value):
+    """if the key is in use, generate a unique one"""
+    if key is None:
+      key = str(id(value)) # generate uniq name
+    if key in self.store: # replacing existing item
+      self.logger.error("replacing item '%s' named '%s' with new '%s'." % (self.get(key), key, value))
     self.store[key] = value
+    self.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
   def __delitem__(self, key):
     del self.store[key]
   def __iter__(self):
