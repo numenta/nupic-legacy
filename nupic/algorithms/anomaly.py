@@ -48,7 +48,7 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
 
   This method is a placeholder for the default computeAnomalyScore() implementation.
   """
-  return Anomaly.compute_In1D_Satisfied(activeColumns, prevPredictedColumns)
+  return compute_In1D_Satisfied(activeColumns, prevPredictedColumns)
 
 
 
@@ -114,9 +114,9 @@ class Anomaly(object):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
     # fill allowed implementations
-    Anomaly._computeImplementations += (Anomaly.compute_In1D_Satisfied,)
-    Anomaly._computeImplementations += (Anomaly.compute_In1D_Predicted,)
-    Anomaly._computeImplementations += (Anomaly.compute_XOR_Both,)
+    Anomaly._computeImplementations += (compute_In1D_Satisfied,)
+    Anomaly._computeImplementations += (compute_In1D_Predicted,)
+    Anomaly._computeImplementations += (compute_XOR_Both,)
     Anomaly._computeImplementations += (computeRawAnomalyScore,)
 
     self._computeFn = computeFn
@@ -197,8 +197,7 @@ class Anomaly(object):
   # these methods are alternative implementations of 'how to compute'
   # anomaly score from the neural output (2 binary vectors)
   ##################################################################
-  @staticmethod
-  def compute_In1D_Satisfied(activeColumns, prevPredictedColumns):
+def compute_In1D_Satisfied(activeColumns, prevPredictedColumns):
     """Computes the raw anomaly score.
 
     The raw anomaly score is the fraction of active columns not predicted.
@@ -234,8 +233,7 @@ class Anomaly(object):
     return score
 
   ####################################################################
-  @staticmethod
-  def compute_In1D_Predicted(activeColumns, prevPredictedColumns):
+def compute_In1D_Predicted(activeColumns, prevPredictedColumns):
     """Computes the raw anomaly score.
 
     The raw anomaly score is the fraction of predicted columns not activated.
@@ -253,11 +251,10 @@ class Anomaly(object):
     @param prevPredictedColumns: array of columns indices predicted in prev step
     @return anomaly score 0..1 (float)
     """
-    return Anomaly.compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
+    return compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
 
   ####################################################################
-  @staticmethod
-  def compute_XOR_Both(activeColumns, prevPredictedColumns):
+def compute_XOR_Both(activeColumns, prevPredictedColumns):
     """Computes the raw anomaly score.
 
     The raw anomaly score is difference between predicted and actual state: 
