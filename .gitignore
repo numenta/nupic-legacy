@@ -66,6 +66,7 @@ experimental/
 nupic/bindings/*.cxx
 nupic/bindings/*.py
 nupic/bindings/*.so
+nupic/bindings/proto/*.capnp
 
 # Pip stuff
 dist/
