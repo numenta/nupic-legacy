@@ -116,8 +116,6 @@ class MovingAverage(object):
     proto.slidingWindow = self.slidingWindow
     proto.total = self.total
 #######################################################################
-# global variable
-_store = {}
 class GlobalDict(MutableMapping):
   """
   a dict{} storing its content globally. 
@@ -125,25 +123,40 @@ class GlobalDict(MutableMapping):
   GlobalDict class serves as a global look-up table addressed by names, 
   for storing and accessing objects globally.
   """
+
+# global variable
+store = {}
+
+
   def __init__(self, *args, **kwargs):
-    global _store # use global variable as a shared storage place
-    self.store = _store
+    global store # use global variable as a shared storage place
     self.update(dict(*args, **kwargs))
     logging.basicConfig()
     self.logger = logging.getLogger(__name__) 
   def __getitem__(self, key):
-    return self.store[key]
+    global store
+    return store[key]
   def __setitem__(self, key, value):
     """if the key is in use, generate a unique one"""
+    global store
     if key is None:
       key = str(id(value)) # generate uniq name
-    if key in self.store: # replacing existing item
+    if key in store: # replacing existing item
       self.logger.error("replacing item '%s' named '%s' with new '%s'." % (self.get(key), key, value))
-    self.store[key] = value
+    store[key] = value
     self.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
   def __delitem__(self, key):
-    del self.store[key]
+    global store
+    del store[key]
   def __iter__(self):
-    return iter(self.store)
+    global store
+    return iter(store)
   def __len__(self):
-    return len(self.store)
+    global store
+    return len(store)
+  @classmethod
+  def set(cls, key, value):
+    return cls.__setitem__(key, value)
+  @classmethod
+  def get(cls, key):
+    return cls.__getitem__(key)
