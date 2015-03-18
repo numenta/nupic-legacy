@@ -25,6 +25,7 @@ in our codebase.
 """
 
 import numbers
+from collections import MutableMapping
 
 
 class MovingAverage(object):
@@ -100,3 +101,27 @@ class MovingAverage(object):
   def __call__(self, value):
     return self.next(value)
 
+#######################################################################
+# global variable
+_store = {}
+class GlobalDict(MutableMapping):
+  """
+  a dict{} storing its content globally. 
+
+  GlobalDict class serves as a global look-up table addressed by names, 
+  for storing and accessing objects globally.
+  """
+  def __init__(self, *args, **kwargs):
+    global _store
+    self.store = _store
+    self.update(dict(*args, **kwargs))  # use the free update to set keys
+  def __getitem__(self, key):
+    return self.store[key]
+  def __setitem__(self, key, value):
+    self.store[key] = value
+  def __delitem__(self, key):
+    del self.store[key]
+  def __iter__(self):
+    return iter(self.store)
+  def __len__(self):
+    return len(self.store)
