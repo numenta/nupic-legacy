@@ -233,4 +233,30 @@ class Anomaly(object):
   return Anomaly.compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
 
   ####################################################################
+  @staticmethod
+  def compute_XOR_Both(activeColumns, prevPredictedColumns):
+    """Computes the raw anomaly score.
+
+    The raw anomaly score is difference between predicted and actual state: 
+     = the fraction of active columns not predicted +
+       the fraction of non-active columns predicted as active.
+
+    The implementation is using xor() function, 
+    "both" means either active & unpredicted and
+    predicted but inactive columns will contribute to the anomaly score.
+
+    It is a "combination" of compute_In1D_Satisfied() and compute_In1D_Predicted(), 
+    this method will also be the most sensitive (detect most & highest) anomalies.
+
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in prev step
+    @return anomaly score 0..1 (float)
+    """
+    nTotal = len(activeColumns) + len(prevPredictedColumns) #FIXME this does not look correct
+    if nTotal == 0:
+      score = 0.0
+    else:
+      unique = numpy.setxor1d(activeColumns, prevPredictedColumns)
+      score = len(unique)/float(nTotal)
+    return score
 
