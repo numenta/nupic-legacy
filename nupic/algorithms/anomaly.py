@@ -204,7 +204,6 @@ class Anomaly(object):
     if not isinstance(other, Anomaly): 
       return -1
     if (other._mode == self._mode and
-        other._score == self._score and
         other._binaryThreshold == self._binaryThreshold and
         other._movingAverage == self._movingAverage):
       return 0 #equal
