@@ -75,10 +75,11 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
+  def __init__(self, slidingWindowSize=0, mode=MODE_PURE, binaryAnomalyThreshold=0.0):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
-        enables moving average on final anomaly score; int >= 0
+        enables moving average on final anomaly score; int >= 0;
+        0 means disabled (default)
     @param mode (optional) - (string) how to compute anomaly;
         possible values are:
           - "pure" - the default, how much anomal the value is;
@@ -90,26 +91,27 @@ class Anomaly(object):
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
          The transformation is applied after moving average is computed and updated.
+         0.0 means disabled (default)
     """
     self._mode = mode
-    if slidingWindowSize is not None:
+    if slidingWindowSize > 0:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
 
-    if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
+    if self._mode == Anomaly.MODE_LIKELIHOOD or \
+       self._mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
     self._binaryThreshold = binaryAnomalyThreshold
-    if binaryAnomalyThreshold is not None and ( 
-          not isinstance(binaryAnomalyThreshold, float) or
-          binaryAnomalyThreshold >= 1.0  or 
-          binaryAnomalyThreshold <= 0.0 ):
-      raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
-                       "or None if disabled.")
+    if not isinstance(binaryAnomalyThreshold, float) or \
+       binaryAnomalyThreshold >= 1.0  or \
+       binaryAnomalyThreshold < 0.0:
+      raise ValueError("Anomaly: binaryAnomalyThreshold must be from [0,1) "
+                       "0 for disabled.")
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -151,7 +153,7 @@ class Anomaly(object):
       score = self._movingAverage.next(score)
 
     # apply binary discretization if required
-    if self._binaryThreshold is not None:
+    if self._binaryThreshold > 0.0:
       if score >= self._binaryThreshold:
         score = 1.0
       else:
@@ -189,6 +191,6 @@ class Anomaly(object):
     if not hasattr(self, '_mode'):
       self._mode = Anomaly.MODE_PURE
     if not hasattr(self, '_movingAverage'):
-      self._movingAverage = None
+      self._movingAverage = 0
     if not hasattr(self, '_binaryThreshold'):
-      self._binaryThreshold = None
+      self._binaryThreshold = 0.0
