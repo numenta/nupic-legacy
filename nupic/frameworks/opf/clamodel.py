@@ -190,8 +190,7 @@ class CLAModel(Model):
     windowSize = anomalyParams.get("slidingWindowSize", None)
     mode = anomalyParams.get("mode", "pure")
     anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
-    self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
-                                binaryAnomalyThreshold=anomalyThreshold)
+    self._anomalyInst = Anomaly.initFactory(windowSize, mode, anomalyThreshold)
 
     # -----------------------------------------------------------------------
     # Create the network
