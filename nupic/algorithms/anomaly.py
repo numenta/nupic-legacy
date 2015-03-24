@@ -160,6 +160,21 @@ class Anomaly(object):
     return score
 
 
+  @staticmethod
+  def initFactory(slidingWindowSize, mode, binaryAnomalyThreshold):
+    """
+    factory method for initiation of Anomaly() instance using parameters as text strings, 
+    useful eg for OPF. 
+    This method parses the parameters and calls the default __init__() properly. 
+    For details of the parameters see __init__. 
+    @param slidingWindowSize (str) length of sliding window
+    @param mode (str) Anomaly mode
+    @param binaryAnomalyThreshold (str) binary discretization threshold
+    @return Anomaly instance, call Anomaly.initFactory(....) 
+    """
+    pass
+
+
   def __str__(self):
     windowSize = 0
     if self._movingAverage is not None:
