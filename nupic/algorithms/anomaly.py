@@ -167,12 +167,30 @@ class Anomaly(object):
     useful eg for OPF. 
     This method parses the parameters and calls the default __init__() properly. 
     For details of the parameters see __init__. 
+    Use None to automatically supply default values.
+
     @param slidingWindowSize (str) length of sliding window
     @param mode (str) Anomaly mode
     @param binaryAnomalyThreshold (str) binary discretization threshold
     @return Anomaly instance, call Anomaly.initFactory(....) 
     """
-    pass
+    # defaults
+    if slidingWindowSize is None:
+      slidingWindowSize = "0"
+    if mode is None:
+      mode = "pure"
+    if binaryAnomalyThreshold is None:
+      binaryAnomalyThreshold = "0.0"
+
+    try:
+      iWindow = int(slidingWindowSize)
+      fThreshold = float(binaryAnomalyThreshold)
+    except:
+      raise ValueError("Anomaly.initFactory(): failed to parse parameters properly")
+
+    return Anomaly(slidingWindowSize=iWindow,
+                   mode=mode,
+                   binaryAnomalyThreshold=fThreshold)
 
 
   def __str__(self):
