@@ -102,15 +102,16 @@ class Anomaly(object):
     if self._mode == Anomaly.MODE_LIKELIHOOD or \
        self._mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-    assert self._mode in Anomaly._supportedModes, "Invalid anomaly mode; \
-                       only supported modes are: \n\
-                       Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, \n\
-                       Anomaly.MODE_WEIGHTED;\n you used: %r" % self._mode
+    if not self._mode in Anomaly._supportedModes:
+      raise ValueError("Invalid anomaly mode; only supported modes are: "
+                       "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
+                       "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
     self._binaryThreshold = binaryAnomalyThreshold
-    assert isinstance(binaryAnomalyThreshold, float) and \
-       binaryAnomalyThreshold < 1.0  and \
-       binaryAnomalyThreshold >= 0.0, "Anomaly: \
-      binaryAnomalyThreshold must be from [0,1); 0 for disabled."
+    if not isinstance(binaryAnomalyThreshold, float) or \
+       binaryAnomalyThreshold >= 1.0  or \
+       binaryAnomalyThreshold < 0.0:
+      raise ValueError("Anomaly: binaryAnomalyThreshold must be from [0,1) "
+                       "0 for disabled.")
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -134,8 +135,9 @@ class Anomaly(object):
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
-      assert inputValue is not None, "Selected anomaly mode \
-        'Anomaly.MODE_LIKELIHOOD' requires 'inputValue' as parameter to compute() method. "
+      if inputValue is None:
+        raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
+                 "requires 'inputValue' as parameter to compute() method. ")
 
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
