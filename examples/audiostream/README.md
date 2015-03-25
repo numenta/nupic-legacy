@@ -7,6 +7,7 @@ or become more familiar with your speech pattern.
 
 ## Requirements
 
+- Mac OS X
 - [matplotlib](http://matplotlib.org/)
 - [pyaudio](http://people.csail.mit.edu/hubert/pyaudio/)
 
