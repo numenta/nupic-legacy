@@ -132,15 +132,15 @@ class Anomaly(object):
     if self._mode == Anomaly.MODE_PURE:
       score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
-      if inputValue is None:
-        raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
-                 "requires 'inputValue' as parameter to compute() method. ")
-
+      assert inputValue is not None, ("Selected anomaly mode "
+        "'Anomaly.MODE_LIKELIHOOD' requires 'inputValue' as parameter to compute() method. ")
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
       # low likelihood -> hi anomaly
       score = 1 - probability
     elif self._mode == Anomaly.MODE_WEIGHTED:
+      assert inputValue is not None, ("Selected anomaly mode "
+        "'Anomaly.MODE_WEIGHTED' requires 'inputValue' as parameter to compute() method. ")
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
       score = anomalyScore * (1 - probability)
