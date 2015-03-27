@@ -718,33 +718,28 @@ class ScalarEncoder(Encoder):
     print "  padding: %d" % self.padding
 
 
-  def __new__(cls, *args, **kwargs):
-    if isinstance(cls, capnp.lib.capnp._DynamicStructReader):
-      encoder = object.__new__(ScalarEncoder)
-      encoder.read(cls)
-      return encoder
-    else:
-      return super(ScalarEncoder, cls).__new__(cls, *args, **kwargs)
-
-
-  def read(self, proto):
-    self.w = proto.w
-    self.minval = proto.minval
-    self.maxval = proto.maxval
-    self.periodic = proto.periodic
-    self.n = proto.n
-    self.radius = proto.radius
-    self.resolution = proto.radius
-    self.name = proto.name
-    self.verbosity = proto.verbosity
-    self.clipInput = proto.clipInput
-    self.halfwidth = proto.halfwidth
-    self.padding = proto.padding
-    self.rangeInternal = proto.rangeInternal
-    self.nInternal = proto.nInternal
-    self._bucketValues = None
-    self._topDownValues = None
-    self._topDownMappingM = None
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.w = proto.w
+    encoder.minval = proto.minval
+    encoder.maxval = proto.maxval
+    encoder.periodic = proto.periodic
+    encoder.n = proto.n
+    encoder.radius = proto.radius
+    encoder.resolution = proto.radius
+    encoder.name = proto.name
+    encoder.verbosity = proto.verbosity
+    encoder.clipInput = proto.clipInput
+    encoder.halfwidth = proto.halfwidth
+    encoder.padding = proto.padding
+    encoder.rangeInternal = proto.rangeInternal
+    encoder.nInternal = proto.nInternal
+    encoder.range = proto.range
+    encoder._bucketValues = None
+    encoder._topDownValues = None
+    encoder._topDownMappingM = None
+    return encoder
 
 
   def write(self, proto):
@@ -762,3 +757,4 @@ class ScalarEncoder(Encoder):
     proto.padding = self.padding
     proto.rangeInternal = self.rangeInternal
     proto.nInternal = self.nInternal
+    proto.range = self.range
