@@ -22,7 +22,9 @@
 import math
 import numbers
 
+import capnp
 import numpy
+
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
@@ -243,7 +245,7 @@ class ScalarEncoder(Encoder):
 
   ############################################################################
   def _initEncoder(self, w, minval, maxval, n, radius, resolution):
-    """ (helper function)  There are three different ways of thinking about the representation. 
+    """ (helper function)  There are three different ways of thinking about the representation.
      Handle each case here."""
     if n != 0:
       assert radius == 0
@@ -416,7 +418,7 @@ class ScalarEncoder(Encoder):
 
     if bucketIdx is None:
       # None is returned for missing value
-      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead? 
+      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead?
 
     else:
       # The bucket index is the index of the first bit to set in the output
@@ -641,7 +643,7 @@ class ScalarEncoder(Encoder):
   ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
-    
+
     # Get/generate the topDown mapping table
     #NOTE: although variable topDownMappingM is unused, some (bad-style) actions
     #are executed during _getTopDownMapping() so this line must stay here
@@ -714,3 +716,49 @@ class ScalarEncoder(Encoder):
     print "  nInternal: %d" % self.nInternal
     print "  rangeInternal: %f" % self.rangeInternal
     print "  padding: %d" % self.padding
+
+
+  def __new__(cls, *args, **kwargs):
+    if isinstance(cls, capnp.lib.capnp._DynamicStructReader):
+      encoder = object.__new__(ScalarEncoder)
+      encoder.read(cls)
+      return encoder
+    else:
+      return super(ScalarEncoder, cls).__new__(cls, *args, **kwargs)
+
+
+  def read(self, proto):
+    self.w = proto.w
+    self.minval = proto.minval
+    self.maxval = proto.maxval
+    self.periodic = proto.periodic
+    self.n = proto.n
+    self.radius = proto.radius
+    self.resolution = proto.radius
+    self.name = proto.name
+    self.verbosity = proto.verbosity
+    self.clipInput = proto.clipInput
+    self.halfwidth = proto.halfwidth
+    self.padding = proto.padding
+    self.rangeInternal = proto.rangeInternal
+    self.nInternal = proto.nInternal
+    self._bucketValues = None
+    self._topDownValues = None
+    self._topDownMappingM = None
+
+
+  def write(self, proto):
+    proto.w = self.w
+    proto.minval = self.minval
+    proto.maxval = self.maxval
+    proto.periodic = self.periodic
+    proto.n = self.n
+    proto.radius = self.radius
+    proto.resolution = self.radius
+    proto.name = self.name
+    proto.verbosity = self.verbosity
+    proto.clipInput = self.clipInput
+    proto.halfwidth = self.halfwidth
+    proto.padding = self.padding
+    proto.rangeInternal = self.rangeInternal
+    proto.nInternal = self.nInternal
