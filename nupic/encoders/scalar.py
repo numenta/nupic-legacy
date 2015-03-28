@@ -32,6 +32,11 @@ from nupic.encoders.base import Encoder, EncoderResult
 
 
 
+DEFAULT_RADIUS = 0
+DEFAULT_RESOLUTION = 0
+
+
+
 ############################################################################
 class ScalarEncoder(Encoder):
   """
@@ -152,8 +157,8 @@ class ScalarEncoder(Encoder):
                maxval,
                periodic=False,
                n=0,
-               radius=0,
-               resolution=0,
+               radius=DEFAULT_RADIUS,
+               resolution=DEFAULT_RESOLUTION,
                name=None,
                verbosity=0,
                clipInput=False,
@@ -183,7 +188,7 @@ class ScalarEncoder(Encoder):
     See class documentation for more information.
     """
 
-    assert isinstance(w, int)
+    assert isinstance(w, numbers.Integral)
     self.encoders = None
     self.verbosity = verbosity
     self.w = w
@@ -721,25 +726,24 @@ class ScalarEncoder(Encoder):
   @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
-    encoder.w = proto.w
-    encoder.minval = proto.minval
-    encoder.maxval = proto.maxval
-    encoder.periodic = proto.periodic
-    encoder.n = proto.n
-    encoder.radius = proto.radius
-    encoder.resolution = proto.radius
-    encoder.name = proto.name
-    encoder.verbosity = proto.verbosity
-    encoder.clipInput = proto.clipInput
-    encoder.halfwidth = proto.halfwidth
-    encoder.padding = proto.padding
-    encoder.rangeInternal = proto.rangeInternal
-    encoder.nInternal = proto.nInternal
-    encoder.range = proto.range
-    encoder._bucketValues = None
-    encoder._topDownValues = None
-    encoder._topDownMappingM = None
-    return encoder
+    if proto.n is not None:
+      radius = DEFAULT_RADIUS
+      resolution = DEFAULT_RESOLUTION
+    else:
+      radius = proto.radius
+      resolution = proto.resolution
+
+    return cls(w=proto.w,
+               minval=proto.minval,
+               maxval=proto.maxval,
+               periodic=proto.periodic,
+               n=proto.n,
+               radius=radius,
+               resolution=resolution,
+               name=proto.name,
+               verbosity=proto.verbosity,
+               clipInput=proto.clipInput,
+               forced=True)
 
 
   def write(self, proto):
@@ -753,8 +757,3 @@ class ScalarEncoder(Encoder):
     proto.name = self.name
     proto.verbosity = self.verbosity
     proto.clipInput = self.clipInput
-    proto.halfwidth = self.halfwidth
-    proto.padding = self.padding
-    proto.rangeInternal = self.rangeInternal
-    proto.nInternal = self.nInternal
-    proto.range = self.range

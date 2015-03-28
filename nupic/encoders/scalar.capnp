@@ -13,14 +13,4 @@ struct ScalarEncoderProto {
   name @7 :Text;
   verbosity @8 :UInt8;
   clipInput @9 :Bool;
-
-  # The following are not required part of the ScalarEncoder() constructor
-  # signature, but are derived in __init__() and represent the internal state
-  # of an instance that must be preserved between write and read
-
-  halfwidth @10 :UInt32;
-  padding @11 :UInt32;
-  rangeInternal @12 :Float32;
-  nInternal @13 :UInt32;
-  range @14 :UInt32;
 }
