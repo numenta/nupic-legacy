@@ -415,6 +415,8 @@ class ScalarEncoderTest(unittest.TestCase):
 
   def testCapNProtoSerialization(self):
     """Test ScalarEncoder CapNProto serialization implementation"""
+    originalValue = self._l.encode(1)
+
     proto1 = ScalarEncoderProto.new_message()
     self._l.write(proto1)
 
@@ -441,6 +443,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(encoder.padding, self._l.padding)
     self.assertEqual(encoder.rangeInternal, self._l.rangeInternal)
     self.assertEqual(encoder.nInternal, self._l.nInternal)
+    self.assertTrue(numpy.array_equal(encoder.encode(1), originalValue))
     self.assertEqual(self._l.decode(encoder.encode(1)),
                      encoder.decode(self._l.encode(1)))
 
