@@ -433,7 +433,7 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(encoder.periodic, self._l.periodic)
     self.assertEqual(encoder.n, self._l.n)
     self.assertEqual(encoder.radius, self._l.radius)
-    self.assertEqual(encoder.resolution, self._l.radius)
+    self.assertEqual(encoder.resolution, self._l.resolution)
     self.assertEqual(encoder.name, self._l.name)
     self.assertEqual(encoder.verbosity, self._l.verbosity)
     self.assertEqual(encoder.clipInput, self._l.clipInput)
