@@ -753,7 +753,7 @@ class ScalarEncoder(Encoder):
     proto.periodic = self.periodic
     proto.n = self.n
     proto.radius = self.radius
-    proto.resolution = self.radius
+    proto.resolution = self.resolution
     proto.name = self.name
     proto.verbosity = self.verbosity
     proto.clipInput = self.clipInput
