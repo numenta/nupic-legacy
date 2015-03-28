@@ -410,6 +410,20 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(4.5, encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
 
 
+  def testConstructor(self):
+    # Resolution w/ no min, max, or n
+    encoder1 = ScalarEncoder(3, None, None, name='scalar', n=0, radius=None,
+                             resolution=0.5, forced=True)
+
+    # Radius w/ no min, max, or n
+    encoder2 = ScalarEncoder(3, None, None, name='scalar', n=0, radius=1.5,
+                             resolution=0, forced=True)
+
+    # n w/ no min, max, radius, or resolution
+    encoder3 = ScalarEncoder(3, None, None, name='scalar', n=14, radius=0,
+                             resolution=0, forced=True)
+
+
 ###########################################
 if __name__ == '__main__':
   unittest.main()
