@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -36,7 +36,7 @@ from nupic.encoders.scalar_capnp import ScalarEncoderProto
 
 #########################################################################
 class ScalarEncoderTest(unittest.TestCase):
-  '''Unit tests for ScalarEncoder class'''
+  """Unit tests for ScalarEncoder class"""
 
   def setUp(self):
       # use of forced is not recommended, but used here for readability, see scalar.py
@@ -413,8 +413,8 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(4.5, encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
 
 
-  def testCapNProtoSerialization(self):
-    """Test ScalarEncoder CapNProto serialization implementation"""
+  def testReadWrite(self):
+    """Test ScalarEncoder Cap'n Proto serialization implementation."""
     originalValue = self._l.encode(1)
 
     proto1 = ScalarEncoderProto.new_message()
@@ -443,7 +443,13 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(self._l.decode(encoder.encode(1)),
                      encoder.decode(self._l.encode(1)))
 
+    # Feed in a new value and ensure the encodings match
+    result1 = self._l.encode(7)
+    result2 = encoder.encode(7)
+    self.assertTrue(numpy.array_equal(result1, result2))
+
+
 
 ###########################################
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()
