@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -737,8 +737,6 @@ class ScalarEncoder(Encoder):
                maxval=proto.maxval,
                periodic=proto.periodic,
                n=proto.n,
-               radius=radius,
-               resolution=resolution,
                name=proto.name,
                verbosity=proto.verbosity,
                clipInput=proto.clipInput,
@@ -750,9 +748,8 @@ class ScalarEncoder(Encoder):
     proto.minval = self.minval
     proto.maxval = self.maxval
     proto.periodic = self.periodic
+    # Radius and resolution can be recalculated based on n
     proto.n = self.n
-    proto.radius = self.radius
-    proto.resolution = self.resolution
     proto.name = self.name
     proto.verbosity = self.verbosity
     proto.clipInput = self.clipInput
