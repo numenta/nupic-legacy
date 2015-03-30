@@ -22,6 +22,7 @@
 
 from cStringIO import StringIO
 import sys
+import tempfile
 import unittest2 as unittest
 import numpy
 
@@ -31,10 +32,16 @@ from nupic.data.fieldmeta import FieldMetaType
 from nupic.support.unittesthelpers.algorithm_test_helpers import getSeed
 from nupic.encoders.random_distributed_scalar import (
   RandomDistributedScalarEncoder
-  )
+)
+from nupic.encoders.random_distributed_scalar_capnp import (
+  RandomDistributedScalarEncoderProto
+)
+
+
 
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
+
 
 
 def computeOverlap(x, y):
@@ -74,7 +81,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=23,
                                          n=500, offset = 0.0)
     e0 = enc.encode(-0.1)
-    
+
     self.assertEqual(e0.sum(), 23, "Number of on bits is incorrect")
     self.assertEqual(e0.size, 500, "Width of the vector is incorrect")
     self.assertEqual(enc.getBucketIndices(0.0)[0], enc._maxBuckets / 2,
@@ -99,7 +106,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual(e25.size, 500, "Width of the vector is incorrect")
     self.assertLess(computeOverlap(e0, e25), 4,
                      "Overlap is too high")
-    
+
     # Test encoding consistency. The encodings for previous numbers
     # shouldn't change even though we have added additional buckets
     self.assertEqual((e0 == enc.encode(-0.1)).sum(), 500,
@@ -108,6 +115,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual((e1 == enc.encode(1.0)).sum(), 500,
       "Encodings are not consistent - they have changed after new buckets "
       "have been created")
+
 
 
   def testMissingValues(self):
@@ -128,7 +136,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Numbers outside the resolution should return different encodings.
     """
     enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0)
-    
+
     # Since 23.0 is the first encoded number, it will be the offset.
     # Since resolution is 1, 22.9 and 23.4 should have the same bucket index and
     # encoding.
@@ -160,7 +168,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc.encode(0.0)
     enc.encode(-7.0)
     enc.encode(7.0)
-    
+
     self.assertEqual(len(enc.bucketMap), enc._maxBuckets,
       "_maxBuckets exceeded")
     self.assertTrue(
@@ -179,7 +187,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     e_7  = enc.encode(-7)
     self.assertEqual((e_8 == e_7).sum(), enc.getWidth(),
       "Values not clipped correctly during encoding")
-    
+
     self.assertEqual(enc.getBucketIndices(-8)[0], 0,
                 "getBucketIndices returned negative bucket index")
     self.assertEqual(enc.getBucketIndices(23)[0], enc._maxBuckets-1,
@@ -206,7 +214,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     with self.assertRaises(ValueError):
       RandomDistributedScalarEncoder(name='mv', resolution=-2)
 
- 
+
   def testOverlapStatistics(self):
     """
     Check that the overlaps for the encodings are within the expected range.
@@ -224,8 +232,8 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc.encode(300.0)
     self.assertTrue(validateEncoder(enc, subsampling=3),
                     "Illegal overlap encountered in encoder")
-  
-  
+
+
   def testGetMethods(self):
     """
     Test that the getWidth, getDescription, and getDecoderOutputFieldTypes
@@ -237,12 +245,12 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
     self.assertEqual(enc.getDescription(), [('theName', 0)],
                      "getDescription doesn't return the correct result")
-  
+
     self.assertEqual(enc.getDecoderOutputFieldTypes(),
                 (FieldMetaType.float, ),
                 "getDecoderOutputFieldTypes doesn't return the correct result")
-  
-  
+
+
   def testOffset(self):
     """
     Test that offset is working properly
@@ -257,8 +265,8 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc.encode(23.0)
     self.assertEqual(enc._offset, 25.0,
               "Offset not initialized to specified constructor parameter")
-  
-  
+
+
   def testSeed(self):
     """
     Test that initializing twice with the same seed returns identical encodings
@@ -268,18 +276,18 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc2 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=42)
     enc3 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=-1)
     enc4 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=-1)
-    
+
     e1 = enc1.encode(23.0)
     e2 = enc2.encode(23.0)
     e3 = enc3.encode(23.0)
     e4 = enc4.encode(23.0)
-    
+
     self.assertEqual((e1 == e2).sum(), enc1.getWidth(),
         "Same seed gives rise to different encodings")
 
     self.assertNotEqual((e1 == e3).sum(), enc1.getWidth(),
         "Different seeds gives rise to same encodings")
-  
+
     self.assertNotEqual((e3 == e4).sum(), enc1.getWidth(),
         "seeds of -1 give rise to same encodings")
 
@@ -335,7 +343,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     enc.bucketMap[midIdx+3] = numpy.array(range(8, 13))
     enc.minIndex = midIdx - 3
     enc.maxIndex = midIdx + 3
-    
+
     self.assertTrue(enc._overlapOK(midIdx, midIdx-1),
                     "_overlapOK didn't work")
     self.assertTrue(enc._overlapOK(midIdx-2, midIdx+3),
@@ -425,6 +433,41 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
                                              verbosity=0)
     with self.assertRaises(TypeError):
       encoder.encode("String")
+
+
+
+  def testCapNProtoSerialization(self):
+    original = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=23,
+                                              n=500, offset = 0.0)
+
+    originalValue = original.encode(1)
+
+    proto1 = RandomDistributedScalarEncoderProto.new_message()
+    original.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = RandomDistributedScalarEncoderProto.read(f)
+
+    encoder = RandomDistributedScalarEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, RandomDistributedScalarEncoder)
+    self.assertEqual(encoder.resolution, original.resolution)
+    self.assertEqual(encoder.w, original.w)
+    self.assertEqual(encoder.n, original.n)
+    self.assertEqual(encoder.name, original.name)
+    self.assertEqual(encoder.verbosity, original.verbosity)
+    self.assertEqual(encoder.minIndex, original.minIndex)
+    self.assertEqual(encoder.maxIndex, original.maxIndex)
+    self.assertTrue(numpy.array_equal(encoder.encode(1), originalValue))
+    self.assertEqual(original.decode(encoder.encode(1)),
+                     encoder.decode(original.encode(1)))
+    self.assertEqual(original.random.getSeed(), encoder.random.getSeed())
+
+    for key, value in original.bucketMap.items():
+      self.assertTrue(numpy.array_equal(value, encoder.bucketMap[key]))
 
 
 
