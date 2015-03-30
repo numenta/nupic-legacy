@@ -725,7 +725,6 @@ class ScalarEncoder(Encoder):
 
   @classmethod
   def read(cls, proto):
-    encoder = object.__new__(cls)
     if proto.n is not None:
       radius = DEFAULT_RADIUS
       resolution = DEFAULT_RESOLUTION
