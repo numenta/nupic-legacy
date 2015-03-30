@@ -55,7 +55,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     examples/prediction directory in the install tree (same as predictionDir)
 
     """
-    nupicDir = os.environ['NUPIC']
+    nupicDir = os.path.dirname('nupic/')
 
     opfDir = os.path.join(nupicDir, "examples", "opf")
 
