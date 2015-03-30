@@ -1677,32 +1677,32 @@ class SpatialPooler(object):
     self._numColumns = numColumns
     self._columnDimensions = numpy.array(proto.columnDimensions)
     self._inputDimensions = numpy.array(proto.inputDimensions)
-    self._potentialRadius = int(proto.potentialRadius)
+    self._potentialRadius = proto.potentialRadius
     self._potentialPct = proto.potentialPct
-    self._inhibitionRadius = int(proto.inhibitionRadius)
+    self._inhibitionRadius = proto.inhibitionRadius
     self._globalInhibition = proto.globalInhibition
-    self._numActiveColumnsPerInhArea = int(proto.numActiveColumnsPerInhArea)
+    self._numActiveColumnsPerInhArea = proto.numActiveColumnsPerInhArea
     self._localAreaDensity = proto.localAreaDensity
-    self._stimulusThreshold = int(proto.stimulusThreshold)
+    self._stimulusThreshold = proto.stimulusThreshold
     self._synPermInactiveDec = proto.synPermInactiveDec
     self._synPermActiveInc = proto.synPermActiveInc
     self._synPermBelowStimulusInc = proto.synPermBelowStimulusInc
     self._synPermConnected = proto.synPermConnected
     self._minPctOverlapDutyCycles = proto.minPctOverlapDutyCycles
     self._minPctActiveDutyCycles = proto.minPctActiveDutyCycles
-    self._dutyCyclePeriod = int(proto.dutyCyclePeriod)
+    self._dutyCyclePeriod = proto.dutyCyclePeriod
     self._maxBoost = proto.maxBoost
     self._wrapAround = proto.wrapAround
-    self._spVerbosity = int(proto.spVerbosity)
+    self._spVerbosity = proto.spVerbosity
 
     self._synPermMin = proto.synPermMin
     self._synPermMax = proto.synPermMax
     self._synPermTrimThreshold = proto.synPermTrimThreshold
-    self._updatePeriod = int(proto.updatePeriod)
+    self._updatePeriod = proto.updatePeriod
 
     self._version = VERSION
-    self._iterationNum = int(proto.iterationNum)
-    self._iterationLearnNum = int(proto.iterationLearnNum)
+    self._iterationNum = proto.iterationNum
+    self._iterationLearnNum = proto.iterationLearnNum
 
     self._potentialPools.read(proto.potentialPools)
 
