@@ -8,9 +8,7 @@ struct ScalarEncoderProto {
   maxval @2 :Float32;
   periodic @3 :Bool;
   n @4 :UInt32;
-  radius @5 :Float32;
-  resolution @6 :Float32;
-  name @7 :Text;
-  verbosity @8 :UInt8;
-  clipInput @9 :Bool;
+  name @5 :Text;
+  verbosity @6 :UInt8;
+  clipInput @7 :Bool;
 }
