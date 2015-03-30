@@ -803,7 +803,7 @@ class ConfigurationCustomTest(unittest.TestCase):
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
-    self.assertEqual(result, [os.path.join(os.environ['NUPIC'],
+    self.assertEqual(result, [os.path.join(NUPIC_ROOT,
                                            'config', 'default')])
 
   @patch.object(configuration.Configuration, '_configPaths',
