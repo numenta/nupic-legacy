@@ -47,7 +47,7 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    nupicDir = os.environ['NUPIC']
+    nupicDir = os.path.dirname('nupic/')
 
     examplesDir = os.path.join(nupicDir, "examples")
 
