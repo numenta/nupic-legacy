@@ -38,7 +38,7 @@ try:
 except ImportError:
     from xml.parsers.expat import ExpatError as ParseError
 
-import nupic
+from nupic import NUPIC_ROOT
 
 import nupic.support.configuration_custom as configuration
 

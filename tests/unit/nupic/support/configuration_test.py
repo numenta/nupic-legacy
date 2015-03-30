@@ -36,11 +36,10 @@ try:
     from xml.etree.ElementTree import ParseError
 except ImportError:
     from xml.parsers.expat import ExpatError as ParseError
-import nupic
+
+from nupic import NUPIC_ROOT
 
 import nupic.support.configuration_base as configuration
-
-
 
 class ConfigurationTest(unittest.TestCase):
 
