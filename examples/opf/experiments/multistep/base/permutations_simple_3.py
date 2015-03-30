@@ -58,8 +58,7 @@ permutations = {
   'predictedField': 'field2',
   'predictionSteps': [1,3],
   
-  'dataSource': 'file://%s' % (os.path.join(os.environ['NUPIC'], 'examples', 'opf', 
-                    'experiments', 'multistep', 'datasets', 'simple_3.csv')),
+  'dataSource': 'file://%s' % (os.path.join(os.path.dirname('nupic/examples/opf/experiments/multistep/datasets/simple_3.csv'), 'simple_3.csv')),
 
   '__field2_encoder' : PermuteEncoder(fieldName='field2',
               clipInput=True, minval = 0, maxval=50, 
