@@ -255,7 +255,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(os.path.dirname('nupic/examples/prediction/data/extra/qa/hotgym/qa_hotgym.csv'), "qa_hotgym.csv")
+      	dataPath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../../", "examples", "prediction", "data", extra", "qa", "hotgym", "qa_hotgym.csv")
       streamDef = dict(
         version = 1,
         info = "TestHypersearch",
