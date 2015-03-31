@@ -79,7 +79,8 @@ class ModelFactory(object):
 
     name = modelConfig['modelParams'].get("name", None)
 
-    model = modelClass(name=name, **modelConfig['modelParams'])
+    model = modelClass(**modelConfig['modelParams'])
+    model._name = name
     return model
 
 
