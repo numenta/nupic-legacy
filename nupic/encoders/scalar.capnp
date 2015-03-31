@@ -1,8 +1,7 @@
 @0xfa7d16f86048a6e4;
 
+# Next ID: 10
 struct ScalarEncoderProto {
-  # ScalarEncoder() constructor signature
-
   w @0 :UInt32;
   minval @1 :Float32;
   maxval @2 :Float32;
