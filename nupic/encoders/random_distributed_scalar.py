@@ -478,7 +478,7 @@ class RandomDistributedScalarEncoder(Encoder):
     proto.verbosity = self.verbosity
     proto.minIndex = self.minIndex
     proto.maxIndex = self.maxIndex
-    proto.bucketMap = [{"key": key, "value":value.tolist()}
+    proto.bucketMap = [{"key": key, "value": value.tolist()}
                        for key, value in self.bucketMap.items()]
 
 
