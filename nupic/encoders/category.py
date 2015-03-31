@@ -25,6 +25,8 @@ from nupic.data.fieldmeta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.scalar_capnp import ScalarEncoderProto
+
 
 
 class CategoryEncoder(Encoder):
@@ -228,3 +230,39 @@ class CategoryEncoder(Encoder):
 
     return EncoderResult(value=category, scalar=categoryIndex,
                          encoding=encoderResult.encoding)
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+
+    encoder.verbosity = proto.verbosity
+    encoder.encoder = ScalarEncoder.read(proto.encoder)
+    encoder.width = proto.width
+    encoder.description = [(proto.name, 0)]
+    encoder.name = proto.name
+    encoder.indexToCategory = {x.index: x.category
+                               for x in proto.indexToCategory}
+    encoder.categoryToIndex = {x.category: x.index
+                               for x in proto.categoryToIndex}
+    encoder._topDownMappingM = None
+    encoder._bucketValues = None
+
+    return encoder
+
+
+  def write(self, proto):
+    proto.width = self.width
+    proto.categoryToIndex = [
+      {"index": index, "category": category}
+      for category, index in self.categoryToIndex.items()
+    ]
+    proto.indexToCategory = [
+      {"index": index, "category": category}
+      for index, category in self.indexToCategory.items()
+    ]
+    proto.name = self.name
+    proto.verbosity = self.verbosity
+    encoderProto = ScalarEncoderProto.new_message()
+    self.encoder.write(encoderProto)
+    proto.encoder = encoderProto
