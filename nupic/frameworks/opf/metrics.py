@@ -1525,12 +1525,7 @@ class MetricAnomaly(AggregateMetric):
         desiredPct < 0.0 or desiredPct > 1):
       raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
 
-    model = GlobalDict.get(modelName)
-    if model is None:
-      raise ValueError("AnomalyMetric: failed to access model named '%s' " % (modelName))
-    self._anomaly = model.getParameter('anomaly')
-    if self._anomaly is None or not isinstance(self._anomaly, Anomaly):
-      raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, self._anomaly))
+    self.setModel(modelName)
     assert self._subErrorMetrics[0] is not None
 
   def addInstance(self, groundTruth, prediction, record = None):
@@ -1549,3 +1544,11 @@ class MetricAnomaly(AggregateMetric):
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
 
+
+  def setModel(self, modelName):
+    model = GlobalDict.get(modelName)
+    if model is None:
+      raise ValueError("AnomalyMetric: failed to access model named '%s' " % (modelName))
+    self._anomaly = model.getParameter('anomaly')
+    if self._anomaly is None or not isinstance(self._anomaly, Anomaly):
+      raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, self._anomaly))
