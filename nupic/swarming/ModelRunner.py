@@ -240,8 +240,16 @@ class OPFModelRunner(object):
     #Get field statistics from the input source
     fieldStats = self._getFieldStats()
     # -----------------------------------------------------------------------
+    self._logger.error("Model %s RUNNING", self._modelID)
+    # model.name needs to be overriden for swarming by modelID which is unique
+    modelDescription['modelParams']['name']=id(self._modelID)
+
     # Construct the model instance
     self._model = ModelFactory.create(modelDescription)
+    from nupic.utils import GlobalDict
+    assert GlobalDict.get(id(self._modelID)) is not None
+    print >>sys.stderr,"models=",str(GlobalDict())
+
     self._model.setFieldStatistics(fieldStats)
     self._model.enableLearning()
     self._model.enableInference(self._modelControl.get("inferenceArgs", None))
