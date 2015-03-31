@@ -129,7 +129,7 @@ class CLAModelTest(unittest.TestCase):
 
     # add name to config and create a named model
     conf=copy.deepcopy(modelConfig)
-    conf['name']="myModel"
+    conf['modelParams']['name']="myModel"
     model02 = ModelFactory.create(modelConfig=conf)
 
     self.assertEqual(GlobalDict.get("myModel"), model02, "model with name 'myModel' should have been found!")
