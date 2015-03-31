@@ -37,7 +37,7 @@ from nupic.encoders.random_distributed_scalar_capnp import (
 
 
 
-MAX_BUCKETS = 1000
+INITIAL_BUCKETS = 1000
 
 
 
@@ -148,7 +148,7 @@ class RandomDistributedScalarEncoder(Encoder):
     self.minIndex = None
     self.maxIndex = None
     self._offset = None
-    self._initializeBucketMap(MAX_BUCKETS, offset)
+    self._initializeBucketMap(INITIAL_BUCKETS, offset)
 
     # A name used for debug printouts
     if name is not None:
@@ -461,7 +461,7 @@ class RandomDistributedScalarEncoder(Encoder):
     encoder.minIndex = proto.minIndex
     encoder.maxIndex = proto.maxIndex
     encoder.encoders = None
-    encoder._maxBuckets = MAX_BUCKETS
+    encoder._maxBuckets = INITIAL_BUCKETS
     encoder.bucketMap = {x.key: numpy.array(x.value, dtype=numpy.uint32)
                          for x in proto.bucketMap}
 

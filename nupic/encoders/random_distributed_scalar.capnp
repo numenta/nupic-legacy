@@ -2,9 +2,8 @@
 
 using import "/nupic/bindings/proto/RandomProto.capnp".RandomProto;
 
+# Next ID: 10
 struct RandomDistributedScalarEncoderProto {
-  # RandomDistributedScalarEncoderProto() constructor signature
-
   resolution @0 :Float32;
   w @1 :UInt32;
   n @2 :UInt32;
@@ -16,6 +15,7 @@ struct RandomDistributedScalarEncoderProto {
   maxIndex @8 :UInt32;
   bucketMap @9 :List(BucketMapping);
 
+  # Next ID: 2
   struct BucketMapping {
     key @0 :UInt32;
     value @1 :List(UInt32);
