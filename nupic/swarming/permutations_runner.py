@@ -166,7 +166,7 @@ def _runHyperSearch(runOptions):
   print "Elapsed time (h:mm:ss): %d:%02d:%02d" % (hours, minutes, int(secs))
   jobID = search.peekSearchJob().getJobID()
   print "Hypersearch ClientJobs job ID: ", jobID
-
+  print "MODEL XXXXXX", gCurrentSearch
   return modelParams
 
 
