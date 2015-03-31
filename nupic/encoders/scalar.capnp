@@ -1,6 +1,6 @@
 @0xfa7d16f86048a6e4;
 
-# Next ID: 10
+# Next ID: 8
 struct ScalarEncoderProto {
   w @0 :UInt32;
   minval @1 :Float32;
