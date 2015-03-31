@@ -796,7 +796,7 @@ record={"test":gt[i]})
   def testAnomalyMetric(self):
     """testing AnomalyMetric"""
     # create reference model
-    modelConfig['name']="demoModel"
+    modelConfig['modelParams']['name']="demoModel"
     model = ModelFactory.create(modelConfig)
     ms = MetricSpec(field='a', metric='anomaly',  inferenceElement='prediction', 
                     params={'errorMetric': 'aae', 'window': 1000, 'steps': 1,

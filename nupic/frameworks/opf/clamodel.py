@@ -1517,8 +1517,9 @@ modelConfig = (
                             u'weeks': 0,
                             u'years': 0},
        u'model': u'CLA',
-       u'name': u'demoCLAModel-001',
-       u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
+       u'modelParams': {
+                        u'name': u'demoCLAModel-001',
+                        u'anomalyParams': {u'anomalyCacheRecords': None,
                                            u'autoDetectThreshold': None,
                                            u'autoDetectWaitRecords': 5030,
                                            u'slidingWindowSize': 100,
