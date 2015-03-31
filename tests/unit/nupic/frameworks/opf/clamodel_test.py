@@ -26,7 +26,7 @@ import datetime
 import copy
 import unittest2 as unittest
 
-from nupic.frameworks.opf.clamodel import CLAModel, modelConfig
+from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.opfutils import ModelResult
 from nupic.utils import GlobalDict
