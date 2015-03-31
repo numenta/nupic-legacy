@@ -77,9 +77,10 @@ class ModelFactory(object):
       raise Exception("ModelFactory received unsupported Model type: %s" % \
                       modelConfig['model'])
 
-    name = modelConfig.get("name", None)
+    name = modelConfig['modelParams'].get("name", None)
 
-    model = modelClass(name=name, **modelConfig['modelParams'])
+    model = modelClass(**modelConfig['modelParams'])
+    model._name = name
     return model
 
 

@@ -93,7 +93,7 @@ config = {
     'version': 1,
 
     # ID of the model
-    'name': "myHotgymModel001",
+    'name': "hotgymAnomalySwarmingDemo",
 
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
@@ -112,9 +112,6 @@ config = {
 
     # Model parameter dictionary.
     'modelParams': {
-        # ID of the model
-        'name': "myHotgymModel001",
-
         # The type of inference that this model will perform
         'inferenceType': 'TemporalAnomaly',
 
@@ -325,15 +322,15 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
+           'anomalyBinaryThreshold': None,
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
 
 
-  'predictionSteps': [1, 5],
+  'predictionSteps': [1],
   'predictedField': 'consumption',
-  'numRecords': 4000,
 }
 # end of config dictionary
 
@@ -366,7 +363,6 @@ control = {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
-                            u'last_record': config['numRecords'],
                             u'source': u'file://extra/hotgym/hotgym.csv'}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
@@ -415,7 +411,6 @@ for steps in config['predictionSteps']:
       MetricSpec(field=config['predictedField'], metric='trivial',
                  inferenceElement='prediction',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-
 
 ################################################################################
 ################################################################################
