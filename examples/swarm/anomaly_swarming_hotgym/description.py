@@ -415,7 +415,7 @@ for steps in config['predictionSteps']:
       MetricSpec(field=config['predictedField'], metric='anomaly',
                  inferenceElement='prediction',
                  params={'errorMetric': 'altMAPE', 'window': 100, 'steps': steps,
-                         'desiredPct': 0.1, 'modelName': config['name']}))
+                         'desiredPct': 0.1, 'modelName': config['modelParams']['name']}))
 
 ################################################################################
 ################################################################################
