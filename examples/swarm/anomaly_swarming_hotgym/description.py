@@ -92,9 +92,6 @@ config = {
     # Version that specifies the format of the config.
     'version': 1,
 
-    # ID of the model
-    'name': "hotgymAnomalySwarmingDemo",
-
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
     'aggregationInfo': {   'days': 0,
@@ -112,6 +109,9 @@ config = {
 
     # Model parameter dictionary.
     'modelParams': {
+        # ID of the model
+        'name': "hotgymAnomalySwarmingDemo",
+
         # The type of inference that this model will perform
         'inferenceType': 'TemporalAnomaly',
 
