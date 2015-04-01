@@ -51,9 +51,8 @@ class Model(object):
     self.__learningEnabled = True
     self.__inferenceEnabled = True
     self.__inferenceArgs = {}
-    self._name = name
-    # expose in global store
-    GlobalDict.set(name, self)
+    # expose in global store, (returns new uniq if needed)
+    self._name = GlobalDict.set(name, self)
 
   def run(self, inputRecord):
     """ Run one iteration of this model.
