@@ -115,7 +115,6 @@ class Anomaly(object):
                        "or None if disabled.")
     # fill allowed implementations
     Anomaly._computeImplementations += (compute_In1D_Satisfied,)
-    Anomaly._computeImplementations += (compute_In1D_Predicted,)
     Anomaly._computeImplementations += (computeRawAnomalyScore,)
 
     self._computeFn = computeFn
@@ -230,24 +229,3 @@ def compute_In1D_Satisfied(activeColumns, prevPredictedColumns):
       # There were no predicted or active columns.
       score = 0.0
     return score
-
-  ####################################################################
-def compute_In1D_Predicted(activeColumns, prevPredictedColumns):
-    """Computes the raw anomaly score.
-
-    The raw anomaly score is the fraction of predicted columns not activated.
-
-    The implementation is using in1D() function, 
-    "predicted" means it only cares if all predictedColumns at time T-1 are 
-    active at T. 
-
-    Which means a temporal pooler TP with none columns in predictive state at T-1
-    would have zero anomaly score at T for any active state. 
-
-    Compare with compute_In1D_Satisfied(), this is a complement.
-
-    @param activeColumns: array of active column indices
-    @param prevPredictedColumns: array of columns indices predicted in prev step
-    @return anomaly score 0..1 (float)
-    """
-    return compute_In1D_Satisfied(prevPredictedColumns, activeColumns)
