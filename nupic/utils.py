@@ -149,6 +149,7 @@ class GlobalDict(MutableMapping):
       raise ValueError("GlobalDict: key %s already exists! " %(key))
     cls.store[key] = value
     cls.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
+    return key # in case of new 
   @classmethod
   def get(cls, key):
     return cls.store.get(key, None)
