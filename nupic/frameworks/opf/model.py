@@ -273,6 +273,7 @@ class Model(object):
     logger.debug("Finished Loading model from local checkpoint")
 
     # expose loaded model to global store
+    GlobalDict.remove(model._name) # remove old model with the same name, if exists
     model._name = GlobalDict.set(model._name, model)
 
     return model
