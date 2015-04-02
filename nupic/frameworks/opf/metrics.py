@@ -1549,10 +1549,11 @@ class MetricAnomaly(AggregateMetric):
     self._activeModel = modelName
 
   
-  def getAnomalyInstance(self)
+  def getAnomalyInstance(self):
     model = GlobalDict.get(self._activeModel)
     if model is None:
       raise ValueError("AnomalyMetric: failed to access model named '%s' " % (self._activeModel))
     an = model.getParameter('anomaly')
     if an is None or not isinstance(an, Anomaly):
       raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, an))
+    return an
