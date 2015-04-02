@@ -1553,12 +1553,13 @@ class MetricAnomaly(MetricModelCallback):
     @param modelName - (string) name of the model where we can access Anomaly instance
     @param metricSpec - (opt) parameters for the metric.
     """
-    super(MetricModelCallback, self).__init__(metricSpec)
+    super(MetricAnomaly, self).__init__(metricSpec)
     self._pct = desiredPct
     if (desiredPct is None or not isinstance(desiredPct, float) or
         desiredPct < 0.0 or desiredPct > 1):
       raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
     self.setModel(modelName)
+
 
   def addInstance(self, groundTruth, prediction, record = None):
     """in this metric, groundTruth and prediction are ignored, 
