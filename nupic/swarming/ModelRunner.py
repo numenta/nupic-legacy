@@ -241,8 +241,15 @@ class OPFModelRunner(object):
     fieldStats = self._getFieldStats()
     # -----------------------------------------------------------------------
     self._logger.error("Model %s RUNNING", self._modelID)
+    ## special handling for global model sharing (for anomaly metrics,...)
     # model.name needs to be overriden for swarming by modelID which is unique
-    modelDescription['modelParams']['name']=id(self._modelID)
+    swarmingName = id(self._modelID)
+    modelDescription['modelParams']['name']=swarmingName
+    # rewrite metric's modelName (if it's AnomalyMetric)
+    for metric in self.__metricMgr.getMetricInstances():
+      if isinstance(metric, nupic.frameworks.opf.metrics.MetricAnomaly):
+        metric.setModel(swarmingName) 
+    ## end
 
     # Construct the model instance
     self._model = ModelFactory.create(modelDescription)
