@@ -37,6 +37,7 @@ from nupic.frameworks.opf.opfutils import (InferenceElement,
                                            matchPatterns)
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
+from nupic.frameworks.opf.metrics import MetricModelCallback
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
@@ -268,7 +269,7 @@ class OPFModelRunner(object):
     # rewrite metric's modelName (if it's MetricModelCallback type)
     # needs to be called after MetricManager is instantiated
     for metric in self.__metricMgr.getMetricInstances():
-      if isinstance(metric, nupic.frameworks.opf.metrics.MetricModelCallback):
+      if isinstance(metric, MetricModelCallback):
         metric.setModel(swarmingName)
 
     self.__loggedMetricPatterns = self._modelControl.get("loggedMetrics", [])
