@@ -1495,7 +1495,7 @@ class MetricModelCallback(AggregateMetric):
     """
     @param modelName - name of model stored globally in utils.GlobalDict
     """
-    super(self, AggregateMetric).__init__(metricSpec)
+    super(MetricModelCallback, self).__init__(metricSpec)
     self._activeModel = metricSpec.params.get('modelName', None)
     assert self._subErrorMetrics[0] is not None, "MetricModelCallback requires a subMetric defined!"
 
