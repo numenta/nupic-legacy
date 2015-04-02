@@ -2,7 +2,7 @@
 
 ### Run with ' ./run.py'
 
-This will read the sepcified part of the provided textfile, tokenize the words and remove stopwords.
+This will read the specified part of the provided textfile, tokenize the words and remove stopwords.
 Then, a HTM model using the CategoryEncoder and fitting parameters is built and used to classify the read words.
 The model predicts the next word for each word in a story, treating each word as a predefined category.
 After running the model, tokens.txt will contain all the relevant word tokens and results.csv will list the predicted probabilities for each.
