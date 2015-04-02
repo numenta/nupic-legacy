@@ -1487,6 +1487,40 @@ class MetricMulti(MetricsIface):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
 
+
+#############################################################################################
+class MetricModelCallback(AggregateMetric):
+  """
+  this is an abstract class for metrics that require a direct access to a (CLA)model, 
+  eg. to access specific internal values there. 
+
+  Examples are AnomalyMetric, SpeedMetric, ...
+  """
+
+  def __init__(self, metricSpec):
+    """
+    @param modelName - name of model stored globally in utils.GlobalDict
+    """
+    super(self, AggregateMetric).__init__(metricSpec)
+    self._activeModel = metricSpec.params.get('modelName', None)
+    assert self._subErrorMetrics[0] is not None, "MetricModelCallback requires a subMetric defined!"
+
+
+  def getMetric(self):
+    return self._subErrorMetrics[0].getMetric()
+
+
+  def setModel(self, modelName):
+    self._activeModel = modelName
+
+  
+  def getModelInstance(self):
+    """@return model linked to this metric"""
+    model = GlobalDict.get(self._activeModel)
+    if model is None:
+      raise ValueError("MetricModelCallback: failed to access model named '%s' " % (self._activeModel))
+    return model
+
 #################################################################################
 class MetricAnomaly(AggregateMetric):
   """
@@ -1548,7 +1582,8 @@ class MetricAnomaly(AggregateMetric):
   def setModel(self, modelName):
     self._activeModel = modelName
 
-  
+
+
   def getAnomalyInstance(self):
     model = GlobalDict.get(self._activeModel)
     if model is None:
