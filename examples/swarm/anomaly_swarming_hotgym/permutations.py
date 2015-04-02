@@ -56,7 +56,7 @@ permutations = {
     },
 
     'anomalyParams': {
-      'mode': PermuteChoices("pure", "likelihood", "weighted"),
+      'mode': PermuteChoices(["pure", "likelihood", "weighted"]),
       'slidingWindowSize': PermuteInt(0, 20),
       'binaryAnomalyThreshold': PermuteFloat(0.0, 0.9),
     },
@@ -79,8 +79,8 @@ report = [
 # NOTE: The value is used as a regular expressions by RunPermutations.py's
 #       report generator
 # (generated from minimize = 'prediction:aae:window=1000:field=consumption')
-minimize = "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=1000:field=consumption"
-
+#minimize = "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=1000:field=consumption"
+minimize = "prediction:anomaly:desiredPct=0.1:errorMetric='altMAPE':modelName='hotgymAnomalySwarmingDemo':steps=1:window=100:field=consumption"
 
 
 #############################################################################
