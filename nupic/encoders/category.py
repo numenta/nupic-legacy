@@ -28,6 +28,10 @@ from nupic.encoders.scalar import ScalarEncoder
 
 
 
+UNKNOWN = "<UNKNOWN>"
+
+
+
 class CategoryEncoder(Encoder):
   """Encodes a list of discrete categories (described by strings), that aren't
   related to each other, so we never emit a mixture of categories.
@@ -53,7 +57,7 @@ class CategoryEncoder(Encoder):
 
     self.categoryToIndex = dict()
     self.indexToCategory = dict()
-    self.indexToCategory[0] = "<UNKNOWN>"
+    self.indexToCategory[0] = UNKNOWN
     for i in xrange(len(categoryList)):
       self.categoryToIndex[categoryList[i]] = i+1
       self.indexToCategory[i+1] = categoryList[i]
@@ -242,8 +246,10 @@ class CategoryEncoder(Encoder):
     encoder.name = proto.name
     encoder.indexToCategory = {x.index: x.category
                                for x in proto.indexToCategory}
-    encoder.categoryToIndex = {x.category: x.index
-                               for x in proto.categoryToIndex}
+    encoder.categoryToIndex = {category: index
+                               for index, category
+                               in encoder.indexToCategory.items()
+                               if category != UNKNOWN}
     encoder._topDownMappingM = None
     encoder._bucketValues = None
 
@@ -252,10 +258,6 @@ class CategoryEncoder(Encoder):
 
   def write(self, proto):
     proto.width = self.width
-    proto.categoryToIndex = [
-      {"index": index, "category": category}
-      for category, index in self.categoryToIndex.items()
-    ]
     proto.indexToCategory = [
       {"index": index, "category": category}
       for index, category in self.indexToCategory.items()
