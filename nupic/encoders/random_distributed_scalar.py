@@ -22,12 +22,22 @@
 import math
 import numbers
 import pprint
+import sys
 
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.encoders.base import Encoder
+from nupic.bindings.math import Random as NupicRandom
+
+from nupic.encoders.random_distributed_scalar_capnp import (
+  RandomDistributedScalarEncoderProto
+)
+
+
+
+INITIAL_BUCKETS = 1000
 
 
 
@@ -131,15 +141,14 @@ class RandomDistributedScalarEncoder(Encoder):
     # The largest overlap we allow for non-adjacent encodings
     self._maxOverlap = 2
 
-    self.random = numpy.random.RandomState()
-    if seed != -1:
-      self.random.seed(seed)
+    # initialize the random number generators
+    self._seed(seed)
 
     # Internal parameters for bucket mapping
     self.minIndex = None
     self.maxIndex = None
     self._offset = None
-    self._initializeBucketMap(1000, offset)
+    self._initializeBucketMap(INITIAL_BUCKETS, offset)
 
     # A name used for debug printouts
     if name is not None:
@@ -149,6 +158,26 @@ class RandomDistributedScalarEncoder(Encoder):
 
     if self.verbosity > 0:
       self.dump()
+
+
+  def __setstate__(self, state):
+    self.__dict__.update(state)
+
+    # Initialize self.random as an instance of NupicRandom derived from the
+    # previous numpy random state
+    randomState = state["random"]
+    if isinstance(randomState, numpy.random.mtrand.RandomState):
+      self.random = NupicRandom(randomState.randint(sys.maxint))
+
+
+  def _seed(self, seed=-1):
+    """
+    Initialize the random seed
+    """
+    if seed != -1:
+      self.random = NupicRandom(seed)
+    else:
+      self.random = NupicRandom()
 
 
   def getDecoderOutputFieldTypes(self):
@@ -265,12 +294,12 @@ class RandomDistributedScalarEncoder(Encoder):
     ri = newIndex % self.w
 
     # Now we choose a bit such that the overlap rules are satisfied.
-    newBit = self.random.randint(self.n)
+    newBit = self.random.getUInt32(self.n)
     newRepresentation[ri] = newBit
     while newBit in self.bucketMap[index] or \
           not self._newRepresentationOK(newRepresentation, newIndex):
       self.numTries += 1
-      newBit = self.random.randint(self.n)
+      newBit = self.random.getUInt32(self.n)
       newRepresentation[ri] = newBit
 
     return newRepresentation
@@ -400,7 +429,13 @@ class RandomDistributedScalarEncoder(Encoder):
     # This dictionary maps a bucket index into its bit representation
     # We initialize the class with a single bucket with index 0
     self.bucketMap = {}
-    self.bucketMap[self.minIndex] = self.random.permutation(self.n)[0:self.w]
+
+    def _permutation(n):
+      r = numpy.arange(n, dtype=numpy.uint32)
+      self.random.shuffle(r)
+      return r
+
+    self.bucketMap[self.minIndex] = _permutation(self.n)[0:self.w]
 
     # How often we need to retry when generating valid encodings
     self.numTries = 0
@@ -419,3 +454,39 @@ class RandomDistributedScalarEncoder(Encoder):
     if self.verbosity > 2:
       print "  All buckets:     "
       pprint.pprint(self.bucketMap)
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.resolution = proto.resolution
+    encoder.w = proto.w
+    encoder.n = proto.n
+    encoder.name = proto.name
+    encoder._offset = proto.offset
+    encoder.random = NupicRandom()
+    encoder.random.read(proto.random)
+    encoder.resolution = proto.resolution
+    encoder.verbosity = proto.verbosity
+    encoder.minIndex = proto.minIndex
+    encoder.maxIndex = proto.maxIndex
+    encoder.encoders = None
+    encoder._maxBuckets = INITIAL_BUCKETS
+    encoder.bucketMap = {x.key: numpy.array(x.value, dtype=numpy.uint32)
+                         for x in proto.bucketMap}
+
+    return encoder
+
+
+  def write(self, proto):
+    proto.resolution = self.resolution
+    proto.w = self.w
+    proto.n = self.n
+    proto.name = self.name
+    proto.offset = self._offset
+    self.random.write(proto.random)
+    proto.verbosity = self.verbosity
+    proto.minIndex = self.minIndex
+    proto.maxIndex = self.maxIndex
+    proto.bucketMap = [{"key": key, "value": value.tolist()}
+                       for key, value in self.bucketMap.items()]
