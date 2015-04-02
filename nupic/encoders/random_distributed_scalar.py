@@ -22,8 +22,8 @@
 import math
 import numbers
 import pprint
+import sys
 
-import capnp
 import numpy
 
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
@@ -158,6 +158,16 @@ class RandomDistributedScalarEncoder(Encoder):
 
     if self.verbosity > 0:
       self.dump()
+
+
+  def __setstate__(self, state):
+    self.__dict__.update(state)
+
+    # Initialize self.random as an instance of NupicRandom derived from the
+    # previous numpy random state
+    randomState = state["random"]
+    if isinstance(randomState, numpy.random.mtrand.RandomState):
+      self.random = NupicRandom(randomState.randint(sys.maxint))
 
 
   def _seed(self, seed=-1):
@@ -480,5 +490,3 @@ class RandomDistributedScalarEncoder(Encoder):
     proto.maxIndex = self.maxIndex
     proto.bucketMap = [{"key": key, "value": value.tolist()}
                        for key, value in self.bucketMap.items()]
-
-
