@@ -26,7 +26,7 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
 from nupic.encoders.date_capnp import DateEncoderProto
-from nupic.encoders.scalar_capnp import ScalarEncoderProto
+
 
 
 class DateEncoder(Encoder):
@@ -419,8 +419,6 @@ class DateEncoder(Encoder):
                  "customDaysEncoder",
                  "holidayEncoder",
                  "timeOfDayEncoder"):
-      encoderProto = ScalarEncoderProto.new_message()
       encoder = getattr(self, name)
       if encoder:
-        encoder.write(encoderProto)
-        setattr(proto, name, encoderProto)
+        encoder.write(getattr(proto, name))
