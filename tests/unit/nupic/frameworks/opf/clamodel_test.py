@@ -134,7 +134,6 @@ class CLAModelTest(unittest.TestCase):
     self.assertEqual(GlobalDict.get("myModel"), model02, "model with name 'myModel' should have been found!")
     self.assertEqual(GlobalDict.get("noSuchModel"), None, "model 'noSuchModel' does not exist")
 
-
 ##################
 # example model config variable
 modelConfig = (
