@@ -156,6 +156,8 @@ class GlobalDict(MutableMapping):
   @classmethod
   def get(cls, key):
     return cls.store.get(key, None)
-
+  @classmethod
+  def getAll(cls):
+    return cls.store
   def __str__(self):
     return str(GlobalDict.store)
