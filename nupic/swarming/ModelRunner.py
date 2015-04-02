@@ -245,9 +245,9 @@ class OPFModelRunner(object):
     # model.name needs to be overriden for swarming by modelID which is unique
     swarmingName = id(self._modelID)
     modelDescription['modelParams']['name']=swarmingName
-    # rewrite metric's modelName (if it's AnomalyMetric)
+    # rewrite metric's modelName (if it's MetricModelCallback type)
     for metric in self.__metricMgr.getMetricInstances():
-      if isinstance(metric, nupic.frameworks.opf.metrics.MetricAnomaly):
+      if isinstance(metric, nupic.frameworks.opf.metrics.MetricModelCallback):
         metric.setModel(swarmingName) 
     ## end
 
