@@ -25,7 +25,6 @@ from nupic.data.fieldmeta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
 from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.scalar_capnp import ScalarEncoderProto
 
 
 
@@ -42,7 +41,7 @@ class CategoryEncoder(Encoder):
 
 
   def __init__(self, w, categoryList, name="category", verbosity=0, forced=False):
-    """params: 
+    """params:
        forced (default False) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
     """
 
@@ -263,6 +262,4 @@ class CategoryEncoder(Encoder):
     ]
     proto.name = self.name
     proto.verbosity = self.verbosity
-    encoderProto = ScalarEncoderProto.new_message()
-    self.encoder.write(encoderProto)
-    proto.encoder = encoderProto
+    self.encoder.write(proto.encoder)
