@@ -438,7 +438,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
   def testCapNProtoSerialization(self):
     original = RandomDistributedScalarEncoder(name="enc", resolution=1.0, w=23,
-                                              n=500, offset = 0.0)
+                                              n=500, offset=0.0)
 
     originalValue = original.encode(1)
 
