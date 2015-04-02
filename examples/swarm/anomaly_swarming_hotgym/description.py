@@ -322,7 +322,7 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
-           'anomalyBinaryThreshold': None,
+           'anomalyBinaryThreshold': 0.5,
         },
 
         'trainSPNetOnlyIfRequested': False,
@@ -374,7 +374,7 @@ control = {
   # whichever occurs first.
   #
   # iterationCount of -1 = iterate over the entire dataset
-  'iterationCount' : -1,
+  'iterationCount' : 500,
 
 
   # A dictionary containing all the supplementary parameters for inference

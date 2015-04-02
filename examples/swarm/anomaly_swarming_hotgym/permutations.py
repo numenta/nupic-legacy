@@ -38,14 +38,13 @@ predictedField = 'consumption'
 permutations = {
   
   'modelParams': {
-    'inferenceType': PermuteChoices(['NontemporalMultiStep', 'TemporalMultiStep']),
   
     'sensorParams': {
       'encoders': {
-        'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.dayOfWeek', radius=PermuteFloat(1.000000, 6.000000), w=21),
-        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteFloat(0.500000, 12.000000), w=21),
-        'consumption': PermuteEncoder(fieldName='consumption', encoderClass='AdaptiveScalarEncoder', n=PermuteInt(28, 521), w=21, clipInput=True),
-        'timestamp_weekend': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.weekend', radius=PermuteChoices([1]), w=21),
+#        'timestamp_dayOfWeek': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.dayOfWeek', radius=PermuteFloat(1.000000, 6.000000), w=21),
+#        'timestamp_timeOfDay': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.timeOfDay', radius=PermuteFloat(0.500000, 12.000000), w=21),
+#        'consumption': PermuteEncoder(fieldName='consumption', encoderClass='AdaptiveScalarEncoder', n=PermuteInt(28, 521), w=21, clipInput=True),
+#        'timestamp_weekend': PermuteEncoder(fieldName='timestamp', encoderClass='DateEncoder.weekend', radius=PermuteChoices([1]), w=21),
       },
     },
   
@@ -54,6 +53,12 @@ permutations = {
       'minThreshold': PermuteInt(9, 12),
       'activationThreshold': PermuteInt(12, 16),
       'pamLength': PermuteInt(1, 5),
+    },
+
+    'anomalyParams': {
+      'mode': PermuteChoices("pure", "likelihood", "weighted"),
+      'slidingWindowSize': PermuteInt(0, 20),
+      'binaryAnomalyThreshold': PermuteFloat(0.0, 0.9),
     },
   
   
