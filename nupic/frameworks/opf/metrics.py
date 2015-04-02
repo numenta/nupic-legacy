@@ -32,7 +32,7 @@ from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.utils import MovingAverage
+from nupic.utils import MovingAverage, CircularBuffer
 
 from collections import deque
 from operator import itemgetter
@@ -194,45 +194,6 @@ def getModule(metricSpec):
 ################################################################################
 #               Helper Methods and Classes                                    #
 ################################################################################
-class _MovingMode(object):
-  """ Helper class for computing windowed moving
-  mode of arbitrary values """
-
-  def __init__(self, windowSize = None):
-    """
-    Parameters:
-    -----------------------------------------------------------------------
-    windowSize:             The number of values that are used to compute the
-                            moving average
-    """
-    self._windowSize = windowSize
-    self._countDict = dict()
-    self._history = deque([])
-
-
-  def __call__(self, value):
-
-    if len(self._countDict) == 0:
-      pred = ""
-    else:
-      pred = max(self._countDict.items(), key = itemgetter(1))[0]
-
-    # Update count dict and history buffer
-    self._history.appendleft(value)
-
-    if not value in self._countDict:
-      self._countDict[value] = 0
-    self._countDict[value] += 1
-
-    if len(self._history) > self._windowSize:
-      removeElem = self._history.pop()
-      self._countDict[removeElem] -= 1
-      assert(self._countDict[removeElem] > -1)
-
-    return pred
-
-
-############################################################################
 def _isNumber(value):
   return isinstance(value, (numbers.Number, np.number))
 
@@ -300,55 +261,6 @@ class AggregateMetric(MetricsIface):
   """
   ___metaclass__ = ABCMeta
 
-  #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-    """
-        Updates the accumulated error given the prediction and the
-        ground truth.
-
-        groundTruth: Actual value that is observed for the current timestep
-
-        prediction: Value predicted by the network for the given timestep
-
-        accumulatedError: The total accumulated score from the previous
-          predictions (possibly over some finite window)
-
-        historyBuffer: A buffer of the last <self.window> ground truth values
-            that have been observed.
-
-            If historyBuffer = None,  it means that no history is being kept.
-
-
-          retval:
-            The new accumulated error. That is:
-            self.accumulatedError = self.accumulate(groundTruth, predictions, accumulatedError)
-
-            historyBuffer should also be updated in this method.
-            self.spec.params["window"] indicates the maximum size of the window
-    """
-
-  #FIXME @abstractmethod - this should be marked abstract method and required to be implemented
-  def aggregate(self, accumulatedError, historyBuffer, steps):
-    """
-        Updates the final aggregated score error given the prediction and the
-        ground truth.
-
-        accumulatedError: The total accumulated score from the previous
-          predictions (possibly over some finite window)
-
-        historyBuffer: A buffer of the last <self.window> ground truth values
-            that have been observed.
-
-            If historyBuffer = None,  it means that no history is being kept.
-
-        steps: The total number of (groundTruth, prediction) pairs that have
-        been passed to the metric. This does not include pairs where
-        the groundTruth = SENTINEL_VALUE_FOR_MISSING_DATA
-
-          retval:
-            The new aggregate (final) error measure.
-    """
-
   def __init__(self, metricSpec):
     """ Initialize this metric
 
@@ -363,7 +275,6 @@ class AggregateMetric(MetricsIface):
     self.verbosity = 0
     self.window = -1
     self.history = None
-    self.accumulatedError = 0
     self.aggregateError = None
     self.steps = 0
     self.spec = metricSpec
@@ -372,9 +283,6 @@ class AggregateMetric(MetricsIface):
     # Number of steps ahead we are trying to predict. This is a list of
     #  prediction steps are processing
     self._predictionSteps = [0]
-
-    # Where we store the ground truth history
-    self._groundTruthHistory = deque([])
 
     # The instances of another metric to which we will pass a possibly modified
     #  groundTruth and prediction to from addInstance(). There is one instance
@@ -403,8 +311,8 @@ class AggregateMetric(MetricsIface):
       # Get the metric window size
       if 'window' in metricSpec.params:
         assert metricSpec.params['window'] >= 1
-        self.history = deque([])
         self.window = metricSpec.params['window']
+        self.history = MovingAverage(self.window)
 
       # Get the name of the sub-metric to chain to from addInstance()
       if 'errorMetric' in metricSpec.params:
@@ -417,29 +325,6 @@ class AggregateMetric(MetricsIface):
           subSpec.metric = metricSpec.params['errorMetric']
           self._subErrorMetrics.append(getModule(subSpec))
 
-
-
-  def _getShiftedGroundTruth(self, groundTruth):
-    """ Utility function that saves the passed in groundTruth into a local
-    history buffer, and returns the groundTruth from self._predictionSteps ago, 
-    where self._predictionSteps is defined by the 'steps' parameter.
-    This can be called from the beginning of a derived class's addInstance()
-    before it passes groundTruth and prediction onto accumulate().
-    """
-
-    # Save this ground truth into our input history
-    self._groundTruthHistory.append(groundTruth)
-
-    # This is only supported when _predictionSteps has one item in it
-    assert (len(self._predictionSteps) == 1)
-    # Return the one from N steps ago
-    if len(self._groundTruthHistory) > self._predictionSteps[0]:
-      return self._groundTruthHistory.popleft()
-    else:
-      if hasattr(groundTruth, '__iter__'):
-        return [None] * len(groundTruth)
-      else:
-        return None
 
 
   def addInstance(self, groundTruth, prediction, record = None):
@@ -463,44 +348,45 @@ class AggregateMetric(MetricsIface):
     if self._maxRecords is not None and self.steps >= self._maxRecords:
       return self.aggregateError
 
-    # If there is a sub-metric, chain into it's addInstance
-    # Accumulate the error
-    self.accumulatedError = self.accumulate(groundTruth, prediction,
-                                            self.accumulatedError, self.history)
-
     self.steps += 1
-    return self._compute()
+
+    # compute error over the sliding window:
+    err = self.accumulate(groundTruth, predition)
+    self.accumulatedError = self.history(err)
+
+    self.aggregateError = self.aggregate()
+    return self.aggregateError
+
+
+  @abstractmethod
+  def accumulate(self, groundTruth, predition):
+    """compute the actual error (eg Absolute, squared, ...) for 1 step
+       and append it to the history buffer."""
+
+  def aggregate(self):
+    """compute the final error over a window of data (eg MSE, RMSE, Avg.)"""
+    n = self.window
+    buffer = self.history.getSlidingWindow()
+    return np.sum(buffer) / float(n)
+
 
   def getMetric(self):
     return {'value': self.aggregateError, "stats" : {"steps" : self.steps}}
-
-  def _compute(self):
-    self.aggregateError = self.aggregate(self.accumulatedError, self.history,
-                                         self.steps)
-    return self.aggregateError
 
 ################################################################################
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
   """
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-    error = (groundTruth - prediction)**2
-    accumulatedError += error
 
-    if historyBuffer is not None:
-      historyBuffer.append(error)
-      if len(historyBuffer) > self.spec.params["window"] :
-        accumulatedError -= historyBuffer.popleft()
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
 
-    return accumulatedError
+  def accumulate(self, groundTruth, prediction):
+    return (groundTruth - prediction)**2
 
-  def aggregate(self, accumulatedError, historyBuffer, steps):
-    n = steps
-    if historyBuffer is not None:
-      n = len(historyBuffer)
-
-    return np.sqrt(accumulatedError / float(n))
+  def aggregate(self):
+    return np.sqrt(super(MetricRMSE, self).aggregate())
 
 
 ################################################################################
@@ -508,23 +394,12 @@ class MetricAAE(AggregateMetric):
   """
       computes average absolute error
   """
-  def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-    error = abs(groundTruth - prediction)
-    accumulatedError += error
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
 
-    if historyBuffer is not None:
-      historyBuffer.append(error)
-      if len(historyBuffer) > self.spec.params["window"] :
-        accumulatedError -= historyBuffer.popleft()
 
-    return accumulatedError
-
-  def aggregate(self, accumulatedError, historyBuffer, steps):
-    n = steps
-    if historyBuffer is not None:
-      n = len(historyBuffer)
-
-    return accumulatedError/ float(n)
+  def accumulate(self, groundTruth, prediction):
+    return abs(groundTruth - prediction)
 
 ################################################################################
 class MetricAltMAPE(AggregateMetric):
@@ -675,15 +550,6 @@ class MetricPassThruPrediction(MetricsIface):
     return {"value": self.value}
     
 
-  #def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-  #  # Simply return the prediction as the accumulated error
-  #  return prediction
-  #
-  #def aggregate(self, accumulatedError, historyBuffer, steps):
-  #  # Simply return the prediction as the aggregateError
-  #  return accumulatedError
-
-
 
 ################################################################################
 class MetricMovingMean(AggregateMetric):
@@ -709,8 +575,10 @@ class MetricMovingMean(AggregateMetric):
     # Construct moving average instance
     self._movingAverage = MovingAverage(self.mean_window)
 
+
   def getMetric(self):
     return self._subErrorMetrics[0].getMetric()
+
 
   def addInstance(self, groundTruth, prediction, record = None):
 
@@ -730,6 +598,8 @@ class MetricMovingMean(AggregateMetric):
 
     return self._subErrorMetrics[0].addInstance(groundTruth, mean, record)
 
+
+
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
   if isinstance(prediction, dict):
@@ -748,49 +618,6 @@ class CustomErrorMetric(MetricsIface):
   """
     Custom Error Metric class that handles user defined error metrics
   """
-  class CircularBuffer():
-    """
-      implementation of a fixed size constant random access circular buffer
-    """
-    def __init__(self,length):
-      #Create an array to back the buffer
-      #If the length<0 create a zero length array
-      self.data = [None for i in range(max(length,0))]
-      self.elements = 0
-      self.index = 0
-      self.dataLength = length
-
-    def getItem(self,n):
-      #Get item from n steps back
-      if n >= self.elements or (n >= self.dataLength and not self.dataLength < 0):
-        assert  False,"Trying to access data not in the stored window"
-        return None
-      if self.dataLength>=0:
-        getInd = (self.index-n-1)%min(self.elements,self.dataLength)
-      else:
-        getInd = (self.index-n-1)%self.elements
-      return self.data[getInd]
-
-    def pushToEnd(self,obj):
-      ret = None
-      #If storing everything simply append right to the list
-      if(self.dataLength < 0 ):
-        self.data.append(obj)
-        self.index+=1
-        self.elements+=1
-        return None
-      if(self.elements==self.dataLength):
-        #pop last added element
-        ret = self.data[self.index % self.dataLength]
-      else:
-        #else push new element and increment the element counter
-        self.elements += 1
-      self.data[self.index % self.dataLength] = obj
-      self.index += 1
-      return ret
-    def __len__(self):
-      return self.elements
-  
   def __init__(self,metricSpec):
     self.metricSpec = metricSpec
     self.steps = 0
@@ -1133,26 +960,12 @@ class MetricAveError(AggregateMetric):
         More consistent with scalar metrics because
         they all report an error to be minimized"""
 
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
+
+
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
-
-    error = 1.0 if groundTruth != prediction else 0.0
-    accumulatedError += error
-
-    if historyBuffer is not None:
-      historyBuffer.append(error)
-      if len(historyBuffer) > self.spec.params["window"] :
-        accumulatedError -= historyBuffer.popleft()
-
-    return accumulatedError
-
-  def aggregate(self, accumulatedError, historyBuffer, steps):
-    n = steps
-    if historyBuffer is not None:
-      n = len(historyBuffer)
-
-    return accumulatedError/ float(n)
-
-
+    return 1.0 if groundTruth != prediction else 0.0
 
 
 ################################################################################
@@ -1165,6 +978,10 @@ class MetricNegAUC(AggregateMetric):
       we are generating an ROC curve with the TPR (True Positive Rate) of
       category 1 on the y-axis and the FPR (False Positive Rate) on the x-axis.
   """
+
+  def __init__(self, metricSpec):
+    super(MetricRMSE, self).__init__(metricSpec)
+
 
   def accumulate(self, groundTruth, prediction, accumulatedError, historyBuffer):
     """ Accumulate history of groundTruth and "prediction" values.
