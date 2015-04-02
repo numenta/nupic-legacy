@@ -24,7 +24,11 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.frameworks.opf.metrics import getModule, MetricSpec, MetricMulti
+from nupic.frameworks.opf.modelfactory import ModelFactory
+from nupic.frameworks.opf.clamodel import CLAModel
+from nupic.frameworks.opf.metrics import (getModule, 
+                                          MetricSpec, 
+                                          MetricMulti)
 
 
 
