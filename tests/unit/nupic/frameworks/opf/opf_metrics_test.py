@@ -25,6 +25,7 @@ import datetime
 
 import unittest2 as unittest
 
+import nupic
 from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.metrics import (getModule, 
@@ -796,6 +797,7 @@ record={"test":gt[i]})
   def testAnomalyMetric(self):
     """testing AnomalyMetric"""
     # create reference model
+    modelConfig = nupic.frameworks.opf.clamodel.modelConfig
     modelConfig['modelParams']['name']="demoModel"
     model = ModelFactory.create(modelConfig)
     ms = MetricSpec(field='a', metric='anomaly',  inferenceElement='prediction', 
