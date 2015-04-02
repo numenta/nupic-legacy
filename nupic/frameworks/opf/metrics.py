@@ -1522,7 +1522,7 @@ class MetricModelCallback(AggregateMetric):
     return model
 
 #################################################################################
-class MetricAnomaly(AggregateMetric):
+class MetricAnomaly(MetricModelCallback):
   """
   Anomaly metric aims to hint swarming anomaly parameters or allowing you 
   to specify details (how much anomalies you see) on the dataset. 
@@ -1553,14 +1553,12 @@ class MetricAnomaly(AggregateMetric):
     @param modelName - (string) name of the model where we can access Anomaly instance
     @param metricSpec - (opt) parameters for the metric.
     """
-    super(MetricAnomaly, self).__init__(metricSpec)
+    super(MetricModelCallback, self).__init__(metricSpec)
     self._pct = desiredPct
     if (desiredPct is None or not isinstance(desiredPct, float) or
         desiredPct < 0.0 or desiredPct > 1):
       raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
-
     self.setModel(modelName)
-    assert self._subErrorMetrics[0] is not None
 
   def addInstance(self, groundTruth, prediction, record = None):
     """in this metric, groundTruth and prediction are ignored, 
@@ -1575,20 +1573,8 @@ class MetricAnomaly(AggregateMetric):
     return "MetricAnomaly(anomaly=%s, desiredPct=%s)" % (self.getAnomalyInstance(), self._pct)
 
 
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
-
-  def setModel(self, modelName):
-    self._activeModel = modelName
-
-
-
   def getAnomalyInstance(self):
-    model = GlobalDict.get(self._activeModel)
-    if model is None:
-      raise ValueError("AnomalyMetric: failed to access model named '%s' " % (self._activeModel))
-    an = model.getParameter('anomaly')
+    an = self.getModelInstance().getParameter('anomaly')
     if an is None or not isinstance(an, Anomaly):
       raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, an))
     return an
