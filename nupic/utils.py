@@ -159,5 +159,9 @@ class GlobalDict(MutableMapping):
   @classmethod
   def getAll(cls):
     return cls.store
+  @classmethod
+  def remove(cls, key):
+    if key in cls.store:
+      del cls.store[key]
   def __str__(self):
     return str(GlobalDict.store)
