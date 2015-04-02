@@ -242,17 +242,14 @@ class OPFModelRunner(object):
     fieldStats = self._getFieldStats()
     # -----------------------------------------------------------------------
     self._logger.error("Model %s RUNNING", self._modelID)
-    ## special handling for global model sharing (for anomaly metrics,...)
+    ## Construct the model instance
+
+    # special handling for global model sharing (for anomaly metrics,...)
     # model.name needs to be overriden for swarming by modelID which is unique
+    # this needs to be called before model is created
     swarmingName = id(self._modelID)
     modelDescription['modelParams']['name']=swarmingName
-    # rewrite metric's modelName (if it's MetricModelCallback type)
-    for metric in self.__metricMgr.getMetricInstances():
-      if isinstance(metric, nupic.frameworks.opf.metrics.MetricModelCallback):
-        metric.setModel(swarmingName) 
-    ## end
 
-    # Construct the model instance
     self._model = ModelFactory.create(modelDescription)
     assert GlobalDict.get(swarmingName) is not None
     print >>sys.stderr,"models=",str(GlobalDict())
@@ -262,17 +259,22 @@ class OPFModelRunner(object):
     self._model.enableInference(self._modelControl.get("inferenceArgs", None))
 
     # -----------------------------------------------------------------------
-    # Instantiate the metrics
+    ## Instantiate the metrics
     self.__metricMgr = MetricsManager(self._modelControl.get('metrics',None),
                                       self._model.getFieldInfo(),
                                       self._model.getInferenceType())
+    # rewrite metric's modelName (if it's MetricModelCallback type)
+    # needs to be called after MetricManager is instantiated
+    for metric in self.__metricMgr.getMetricInstances():
+      if isinstance(metric, nupic.frameworks.opf.metrics.MetricModelCallback):
+        metric.setModel(swarmingName)
 
     self.__loggedMetricPatterns = self._modelControl.get("loggedMetrics", [])
 
     self._optimizedMetricLabel = self.__getOptimizedMetricLabel()
     self._reportMetricLabels = matchPatterns(self._reportKeyPatterns,
                                               self._getMetricLabels())
-
+    
 
     # -----------------------------------------------------------------------
     # Initialize periodic activities (e.g., for model result updates)
