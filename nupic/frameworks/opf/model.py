@@ -268,12 +268,12 @@ class Model(object):
 
     # compatibility
     if not hasattr(model, '_name'):
-      model._name = None # _addGlobalModel will generate unique name
+      model._name = None # will generate unique name
 
     logger.debug("Finished Loading model from local checkpoint")
 
     # expose loaded model to global store
-    GlobalDict.set(model._name, model)
+    model._name = GlobalDict.set(model._name, model)
 
     return model
 

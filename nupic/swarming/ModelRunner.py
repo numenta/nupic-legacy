@@ -43,6 +43,7 @@ from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
 from nupic.swarming import utils
+from nupic.utils import GlobalDict
 
 
 
@@ -253,8 +254,7 @@ class OPFModelRunner(object):
 
     # Construct the model instance
     self._model = ModelFactory.create(modelDescription)
-    from nupic.utils import GlobalDict
-    assert GlobalDict.get(id(self._modelID)) is not None
+    assert GlobalDict.get(swarmingName) is not None
     print >>sys.stderr,"models=",str(GlobalDict())
 
     self._model.setFieldStatistics(fieldStats)
