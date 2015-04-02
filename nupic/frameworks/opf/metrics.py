@@ -1533,12 +1533,12 @@ class MetricAnomaly(AggregateMetric):
        desiredPct and anomalyScore are used instead
     """
     anomalyDesired = self._pct
-    anomalyActual = self._anomaly.getScore()
+    anomalyActual = self.getAnomalyInstance().getScore()
     return self._subErrorMetrics[0].addInstance(anomalyDesired, anomalyActual, record)
 
 
   def __repr__(self):
-    return "MetricAnomaly(anomaly=%s, desiredPct=%s)" % (self._anomaly, self._pct)
+    return "MetricAnomaly(anomaly=%s, desiredPct=%s)" % (self.getAnomalyInstance(), self._pct)
 
 
   def getMetric(self):
@@ -1546,9 +1546,13 @@ class MetricAnomaly(AggregateMetric):
 
 
   def setModel(self, modelName):
-    model = GlobalDict.get(modelName)
+    self._activeModel = modelName
+
+  
+  def getAnomalyInstance(self)
+    model = GlobalDict.get(self._activeModel)
     if model is None:
-      raise ValueError("AnomalyMetric: failed to access model named '%s' " % (modelName))
-    self._anomaly = model.getParameter('anomaly')
-    if self._anomaly is None or not isinstance(self._anomaly, Anomaly):
-      raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, self._anomaly))
+      raise ValueError("AnomalyMetric: failed to access model named '%s' " % (self._activeModel))
+    an = model.getParameter('anomaly')
+    if an is None or not isinstance(an, Anomaly):
+      raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, an))
