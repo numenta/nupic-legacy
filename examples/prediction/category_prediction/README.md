@@ -1,15 +1,23 @@
-Word Prediction / classification example:
+# Word Prediction / classification example:
 
-Run with ' ./run.py'
+### Run with ' ./run.py'
 
-clean directory with './clean.py'
-
-change the stopwords in stopwords.txt if wanted
-
-You can also choose a different story to use. For JACK AND THE BEANSTALK use indicies 129017 - 138889.
+This will read the sepcified part of the provided textfile, tokenize the words and remove stopwords.
+Then, a HTM model with fitting parameters is built and used to classify the read words.
 
 After running the model, tokens.txt will contain all the relevant word tokens and results.csv will list the predicted probabilities for each.
 
+### Clean directory with './clean.py'
+
+Use this simply to reset the generated files.
+Strongly recommended if you intend to use this code multiple times!
+
+### Adapt this example for your needs
+
+Feel free to modify and change the code to meet the needs for your classification-problem.
+You might for example change the stopwords in stopwords.txt, edit the MODEL_PARAMS or simply choose a different story/text to classify. 
+For JACK AND THE BEANSTALK use indicies 129017 - 138889.
 
 
-Get the original files here: https://github.com/oxtopus/fee-fi-fo-fun
+
+Find the original files from here: https://github.com/oxtopus/fee-fi-fo-fun
