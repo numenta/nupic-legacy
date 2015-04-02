@@ -2,7 +2,7 @@
 
 using import "scalar.capnp".ScalarEncoderProto;
 
-# Next ID: 6
+# Next ID: 5
 struct CategoryEncoderProto {
 
   # Next ID: 2
@@ -12,9 +12,8 @@ struct CategoryEncoderProto {
   }
 
   width @0 :UInt32;
-  categoryToIndex @1 :List(CategoryMapping);
-  indexToCategory @2 :List(CategoryMapping);
-  name @3 :Text;
-  verbosity @4 :UInt8;
-  encoder @5 :ScalarEncoderProto;
+  indexToCategory @1 :List(CategoryMapping);
+  name @2 :Text;
+  verbosity @3 :UInt8;
+  encoder @4 :ScalarEncoderProto;
 }
