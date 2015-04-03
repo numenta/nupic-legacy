@@ -527,6 +527,7 @@ def getCommandLineOption(name, options):
 def prepareNupicCore(options, platform, bitness):
 
   nupicCoreReleaseDir = getCommandLineOption("nupic-core-dir", options)
+  nupicCoreReleaseDir = os.path.expanduser(nupicCoreReleaseDir)
   nupicCoreSourceDir = None
   fetchNupicCore = True
 
