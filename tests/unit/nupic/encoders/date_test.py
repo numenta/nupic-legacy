@@ -186,6 +186,21 @@ class DateEncoderTest(unittest.TestCase):
     encoder = DateEncoder.read(proto2)
 
     self.assertIsInstance(encoder, DateEncoder)
+    self.assertEqual(encoder.width, self._e.width)
+    self.assertEqual(encoder.weekendOffset, self._e.weekendOffset)
+    self.assertEqual(encoder.timeOfDayOffset, self._e.timeOfDayOffset)
+    self.assertEqual(encoder.seasonOffset, self._e.seasonOffset)
+    self.assertEqual(encoder.dayOfWeekOffset, self._e.dayOfWeekOffset)
+    self.assertIsInstance(encoder.customDaysEncoder,
+                          self._e.customDaysEncoder.__class__)
+    self.assertIsInstance(encoder.dayOfWeekEncoder,
+                          self._e.dayOfWeekEncoder.__class__)
+    self.assertIsInstance(encoder.seasonEncoder,
+                          self._e.seasonEncoder.__class__)
+    self.assertIsInstance(encoder.timeOfDayEncoder,
+                          self._e.timeOfDayEncoder.__class__)
+    self.assertIsInstance(encoder.weekendEncoder,
+                          self._e.weekendEncoder.__class__)
     self.assertTrue(numpy.array_equal(self._bits, encoder.encode(self._d)))
     self.assertTrue(numpy.array_equal(encoder.encode(originalTS),
                                       originalValue))
