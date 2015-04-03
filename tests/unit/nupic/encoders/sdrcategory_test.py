@@ -24,10 +24,11 @@
 
 import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+import tempfile
 import unittest2 as unittest
 
 from nupic.encoders.sdrcategory import SDRCategoryEncoder
-
+from nupic.encoders.sdrcategory_capnp import SDRCategoryEncoderProto
 
 #########################################################################
 class SDRCategoryEncoderTest(unittest.TestCase):
@@ -35,217 +36,287 @@ class SDRCategoryEncoderTest(unittest.TestCase):
 
 
   def testSDRCategoryEncoder(self):
-      print "Testing CategoryEncoder...",
-      # make sure we have > 16 categories so that we have to grow our sdrs
-      categories = ["ES", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
-                    "S9","S10", "S11", "S12", "S13", "S14", "S15", "S16",
-                    "S17", "S18", "S19", "GB", "US"]
+    print "Testing CategoryEncoder...",
+    # make sure we have > 16 categories so that we have to grow our sdrs
+    categories = ["ES", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
+                  "S9","S10", "S11", "S12", "S13", "S14", "S15", "S16",
+                  "S17", "S18", "S19", "GB", "US"]
 
-      fieldWidth = 100
-      bitsOn = 10
+    fieldWidth = 100
+    bitsOn = 10
 
-      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = categories,
-                             name="foo", verbosity=0, forced=True)
+    s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = categories,
+                           name="foo", verbosity=0, forced=True)
 
-      # internal check
-      self.assertEqual(s.sdrs.shape, (32, fieldWidth))
+    # internal check
+    self.assertEqual(s.sdrs.shape, (32, fieldWidth))
 
-      # ES
-      es = s.encode("ES")
-      self.assertEqual(es.sum(), bitsOn)
-      self.assertEqual(es.shape, (fieldWidth,))
-      self.assertEqual(es.sum(), bitsOn)
+    # ES
+    es = s.encode("ES")
+    self.assertEqual(es.sum(), bitsOn)
+    self.assertEqual(es.shape, (fieldWidth,))
+    self.assertEqual(es.sum(), bitsOn)
 
-      x = s.decode(es)
-      self.assertIsInstance(x[0], dict)
-      self.assertTrue("foo" in x[0])
-      self.assertEqual(x[0]["foo"][1], "ES")
+    x = s.decode(es)
+    self.assertIsInstance(x[0], dict)
+    self.assertTrue("foo" in x[0])
+    self.assertEqual(x[0]["foo"][1], "ES")
 
-      topDown = s.topDownCompute(es)
-      self.assertEqual(topDown.value, 'ES')
-      self.assertEqual(topDown.scalar, 1)
-      self.assertEqual(topDown.encoding.sum(), bitsOn)
+    topDown = s.topDownCompute(es)
+    self.assertEqual(topDown.value, 'ES')
+    self.assertEqual(topDown.scalar, 1)
+    self.assertEqual(topDown.encoding.sum(), bitsOn)
 
-      # ----------------------------------------------------------------------
-      # Test topdown compute
-      for v in categories:
-        output = s.encode(v)
-        topDown = s.topDownCompute(output)
-        self.assertEqual(topDown.value, v)
-        self.assertEqual(topDown.scalar, s.getScalars(v)[0])
+    # ----------------------------------------------------------------------
+    # Test topdown compute
+    for v in categories:
+      output = s.encode(v)
+      topDown = s.topDownCompute(output)
+      self.assertEqual(topDown.value, v)
+      self.assertEqual(topDown.scalar, s.getScalars(v)[0])
 
-        bucketIndices = s.getBucketIndices(v)
-        print "bucket index =>", bucketIndices[0]
-        topDown = s.getBucketInfo(bucketIndices)[0]
-        self.assertEqual(topDown.value, v)
-        self.assertEqual(topDown.scalar, s.getScalars(v)[0])
-        self.assertTrue((topDown.encoding == output).all())
-        self.assertEqual(topDown.value, s.getBucketValues()[bucketIndices[0]])
-
-
-      # Unknown
-      unknown = s.encode("ASDFLKJLK")
-      self.assertEqual(unknown.sum(), bitsOn)
-      self.assertEqual(unknown.shape, (fieldWidth,))
-      self.assertEqual(unknown.sum(), bitsOn)
-      x = s.decode(unknown)
-      self.assertEqual(x[0]["foo"][1], "<UNKNOWN>")
-
-      topDown = s.topDownCompute(unknown)
-      self.assertEqual(topDown.value, "<UNKNOWN>")
-      self.assertEqual(topDown.scalar, 0)
-
-      # US
-      us = s.encode("US")
-      self.assertEqual(us.sum(), bitsOn)
-      self.assertEqual(us.shape, (fieldWidth,))
-      self.assertEqual(us.sum(), bitsOn)
-      x = s.decode(us)
-      self.assertEqual(x[0]["foo"][1], "US")
-
-      topDown = s.topDownCompute(us)
-      self.assertEqual(topDown.value, "US")
-      self.assertEqual(topDown.scalar, len(categories))
-      self.assertEqual(topDown.encoding.sum(), bitsOn)
-
-      # empty field
-      empty = s.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-      self.assertEqual(empty.sum(), 0)
-      self.assertEqual(empty.shape, (fieldWidth,))
-      self.assertEqual(empty.sum(), 0)
-
-      # make sure it can still be decoded after a change
-      bit =  s.random.randint(0, s.getWidth()-1)
-      us[bit] = 1 - us[bit]
-      x = s.decode(us)
-      self.assertEqual(x[0]["foo"][1], "US")
+      bucketIndices = s.getBucketIndices(v)
+      print "bucket index =>", bucketIndices[0]
+      topDown = s.getBucketInfo(bucketIndices)[0]
+      self.assertEqual(topDown.value, v)
+      self.assertEqual(topDown.scalar, s.getScalars(v)[0])
+      self.assertTrue((topDown.encoding == output).all())
+      self.assertEqual(topDown.value, s.getBucketValues()[bucketIndices[0]])
 
 
-      # add two reps together
-      newrep = ((us + unknown) > 0).astype('uint8')
-      x = s.decode(newrep)
-      name =x[0]["foo"][1]
-      if name != "US <UNKNOWN>" and name != "<UNKNOWN> US":
-        othercategory = name.replace("US", "")
-        othercategory = othercategory.replace("<UNKNOWN>", "")
-        othercategory = othercategory.replace(" ", "")
-        otherencoded = s.encode(othercategory)
-        print "Got: %s instead of US/unknown" % name
-        print "US: %s" % us
-        print "unknown: %s" % unknown
-        print "Sum: %s" % newrep
-        print "%s: %s" % (othercategory, s.encode(othercategory))
+    # Unknown
+    unknown = s.encode("ASDFLKJLK")
+    self.assertEqual(unknown.sum(), bitsOn)
+    self.assertEqual(unknown.shape, (fieldWidth,))
+    self.assertEqual(unknown.sum(), bitsOn)
+    x = s.decode(unknown)
+    self.assertEqual(x[0]["foo"][1], "<UNKNOWN>")
 
-        print "Matches with US: %d" % (us * newrep).sum()
-        print "Matches with unknown: %d" % (unknown * newrep).sum()
-        print "Matches with %s: %d" % (othercategory,
-                         (otherencoded * newrep).sum())
+    topDown = s.topDownCompute(unknown)
+    self.assertEqual(topDown.value, "<UNKNOWN>")
+    self.assertEqual(topDown.scalar, 0)
 
-        raise RuntimeError("Decoding failure")
+    # US
+    us = s.encode("US")
+    self.assertEqual(us.sum(), bitsOn)
+    self.assertEqual(us.shape, (fieldWidth,))
+    self.assertEqual(us.sum(), bitsOn)
+    x = s.decode(us)
+    self.assertEqual(x[0]["foo"][1], "US")
 
-      # serialization
-      import cPickle as pickle
-      t = pickle.loads(pickle.dumps(s))
-      self.assertTrue((t.encode("ES") == es).all())
-      self.assertTrue((t.encode("GB") == s.encode("GB")).all())
+    topDown = s.topDownCompute(us)
+    self.assertEqual(topDown.value, "US")
+    self.assertEqual(topDown.scalar, len(categories))
+    self.assertEqual(topDown.encoding.sum(), bitsOn)
 
+    # empty field
+    empty = s.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
+    self.assertEqual(empty.sum(), 0)
+    self.assertEqual(empty.shape, (fieldWidth,))
+    self.assertEqual(empty.sum(), 0)
 
-      # Test autogrow
-      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = None, name="bar", forced=True)
-
-      es = s.encode("ES")
-      self.assertEqual(es.shape, (fieldWidth,))
-      self.assertEqual(es.sum(), bitsOn)
-      x = s.decode(es)
-      self.assertIsInstance(x[0], dict)
-      self.assertTrue("bar" in x[0])
-      self.assertEqual(x[0]["bar"][1], "ES")
+    # make sure it can still be decoded after a change
+    bit =  s.random.getUInt32(s.getWidth()-1)
+    us[bit] = 1 - us[bit]
+    x = s.decode(us)
+    self.assertEqual(x[0]["foo"][1], "US")
 
 
-      us = s.encode("US")
-      self.assertEqual(us.shape, (fieldWidth,))
-      self.assertEqual(us.sum(), bitsOn)
-      x = s.decode(us)
-      self.assertEqual(x[0]["bar"][1], "US")
+    # add two reps together
+    newrep = ((us + unknown) > 0).astype('uint8')
+    x = s.decode(newrep)
+    name =x[0]["foo"][1]
+    if name != "US <UNKNOWN>" and name != "<UNKNOWN> US":
+      othercategory = name.replace("US", "")
+      othercategory = othercategory.replace("<UNKNOWN>", "")
+      othercategory = othercategory.replace(" ", "")
+      otherencoded = s.encode(othercategory)
+      print "Got: %s instead of US/unknown" % name
+      print "US: %s" % us
+      print "unknown: %s" % unknown
+      print "Sum: %s" % newrep
+      print "%s: %s" % (othercategory, s.encode(othercategory))
 
-      es2 = s.encode("ES")
-      self.assertTrue((es2 == es).all())
+      print "Matches with US: %d" % (us * newrep).sum()
+      print "Matches with unknown: %d" % (unknown * newrep).sum()
+      print "Matches with %s: %d" % (othercategory,
+                       (otherencoded * newrep).sum())
 
-      us2 = s.encode("US")
-      self.assertTrue((us2 == us).all())
+      raise RuntimeError("Decoding failure")
 
-      # make sure it can still be decoded after a change
-      bit =  s.random.randint(0, s.getWidth()-1)
-      us[bit] = 1 - us[bit]
-      x = s.decode(us)
-      self.assertEqual(x[0]["bar"][1], "US")
+    # serialization
+    import cPickle as pickle
+    t = pickle.loads(pickle.dumps(s))
+    self.assertTrue((t.encode("ES") == es).all())
+    self.assertTrue((t.encode("GB") == s.encode("GB")).all())
 
-      # add two reps together
-      newrep = ((us + es) > 0).astype('uint8')
-      x = s.decode(newrep)
-      name =x[0]["bar"][1]
-      self.assertTrue(name == "US ES" or name == "ES US")
 
-      # Catch duplicate categories
-      caughtException = False
-      newcategories = categories[:]
-      self.assertTrue("ES" in newcategories)
-      newcategories.append("ES")
-      try:
-        s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = newcategories, name="foo", forced=True)
-      except RuntimeError, e:
-        caughtException = True
-      if not caughtException:
-        raise RuntimeError("Did not catch duplicate category in constructor")
-        raise
+    # Test autogrow
+    s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = None, name="bar", forced=True)
 
-      # serialization for autogrow encoder
-      gs = s.encode("GS")
-      t = pickle.loads(pickle.dumps(s))
-      self.assertTrue((t.encode("ES") == es).all())
-      self.assertTrue((t.encode("GS") == gs).all())
+    es = s.encode("ES")
+    self.assertEqual(es.shape, (fieldWidth,))
+    self.assertEqual(es.sum(), bitsOn)
+    x = s.decode(es)
+    self.assertIsInstance(x[0], dict)
+    self.assertTrue("bar" in x[0])
+    self.assertEqual(x[0]["bar"][1], "ES")
+
+
+    us = s.encode("US")
+    self.assertEqual(us.shape, (fieldWidth,))
+    self.assertEqual(us.sum(), bitsOn)
+    x = s.decode(us)
+    self.assertEqual(x[0]["bar"][1], "US")
+
+    es2 = s.encode("ES")
+    self.assertTrue((es2 == es).all())
+
+    us2 = s.encode("US")
+    self.assertTrue((us2 == us).all())
+
+    # make sure it can still be decoded after a change
+    bit =  s.random.getUInt32(s.getWidth()-1)
+    us[bit] = 1 - us[bit]
+    x = s.decode(us)
+    self.assertEqual(x[0]["bar"][1], "US")
+
+    # add two reps together
+    newrep = ((us + es) > 0).astype('uint8')
+    x = s.decode(newrep)
+    name =x[0]["bar"][1]
+    self.assertTrue(name == "US ES" or name == "ES US")
+
+    # Catch duplicate categories
+    caughtException = False
+    newcategories = categories[:]
+    self.assertTrue("ES" in newcategories)
+    newcategories.append("ES")
+    try:
+      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = newcategories, name="foo", forced=True)
+    except RuntimeError, e:
+      caughtException = True
+    if not caughtException:
+      raise RuntimeError("Did not catch duplicate category in constructor")
+      raise
+
+    # serialization for autogrow encoder
+    gs = s.encode("GS")
+    t = pickle.loads(pickle.dumps(s))
+    self.assertTrue((t.encode("ES") == es).all())
+    self.assertTrue((t.encode("GS") == gs).all())
 
     # -----------------------------------------------------------------------
 
   def testAutogrow(self):
-      """testing auto-grow"""
-      fieldWidth = 100
-      bitsOn = 10
+    """testing auto-grow"""
+    fieldWidth = 100
+    bitsOn = 10
 
-      s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2, forced=True)
+    s = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, name="foo", verbosity=2, forced=True)
 
-      encoded = numpy.zeros(fieldWidth)
-      self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
+    encoded = numpy.zeros(fieldWidth)
+    self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
-      s.encodeIntoArray("catA", encoded)
-      self.assertEqual(encoded.sum(), bitsOn)
-      self.assertEqual(s.getScalars('catA'), 1)
-      catA = encoded.copy()
+    s.encodeIntoArray("catA", encoded)
+    self.assertEqual(encoded.sum(), bitsOn)
+    self.assertEqual(s.getScalars('catA'), 1)
+    catA = encoded.copy()
 
-      s.encodeIntoArray("catB", encoded)
-      self.assertEqual(encoded.sum(), bitsOn)
-      self.assertEqual(s.getScalars('catB'), 2)
-      catB = encoded.copy()
+    s.encodeIntoArray("catB", encoded)
+    self.assertEqual(encoded.sum(), bitsOn)
+    self.assertEqual(s.getScalars('catB'), 2)
+    catB = encoded.copy()
 
-      self.assertEqual(s.topDownCompute(catA).value, 'catA')
-      self.assertEqual(s.topDownCompute(catB).value, 'catB')
+    self.assertEqual(s.topDownCompute(catA).value, 'catA')
+    self.assertEqual(s.topDownCompute(catB).value, 'catB')
 
-      s.encodeIntoArray(SENTINEL_VALUE_FOR_MISSING_DATA, encoded)
-      self.assertEqual(sum(encoded), 0)
-      self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
+    s.encodeIntoArray(SENTINEL_VALUE_FOR_MISSING_DATA, encoded)
+    self.assertEqual(sum(encoded), 0)
+    self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
-      #Test Disabling Learning and autogrow
-      s.setLearning(False)
-      s.encodeIntoArray("catC", encoded)
-      self.assertEqual(encoded.sum(), bitsOn)
-      self.assertEqual(s.getScalars('catC'), 0)
-      self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
+    #Test Disabling Learning and autogrow
+    s.setLearning(False)
+    s.encodeIntoArray("catC", encoded)
+    self.assertEqual(encoded.sum(), bitsOn)
+    self.assertEqual(s.getScalars('catC'), 0)
+    self.assertEqual(s.topDownCompute(encoded).value, "<UNKNOWN>")
 
-      s.setLearning(True)
-      s.encodeIntoArray("catC", encoded)
-      self.assertEqual(encoded.sum(), bitsOn)
-      self.assertEqual(s.getScalars('catC'), 3)
-      self.assertEqual(s.topDownCompute(encoded).value, "catC")
+    s.setLearning(True)
+    s.encodeIntoArray("catC", encoded)
+    self.assertEqual(encoded.sum(), bitsOn)
+    self.assertEqual(s.getScalars('catC'), 3)
+    self.assertEqual(s.topDownCompute(encoded).value, "catC")
+
+
+  def testReadWrite(self):
+    categories = ["ES", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
+                    "S9","S10", "S11", "S12", "S13", "S14", "S15", "S16",
+                    "S17", "S18", "S19", "GB", "US"]
+
+    fieldWidth = 100
+    bitsOn = 10
+
+    original = SDRCategoryEncoder(n=fieldWidth, w=bitsOn,
+                                  categoryList=categories,
+                                  name="foo", verbosity=0, forced=True)
+
+    # internal check
+    self.assertEqual(original.sdrs.shape, (32, fieldWidth))
+
+    # ES
+    es = original.encode("ES")
+    self.assertEqual(es.sum(), bitsOn)
+    self.assertEqual(es.shape, (fieldWidth,))
+    self.assertEqual(es.sum(), bitsOn)
+
+    decoded = original.decode(es)
+
+    proto1 = SDRCategoryEncoderProto.new_message()
+    original.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = SDRCategoryEncoderProto.read(f)
+
+    encoder = SDRCategoryEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, SDRCategoryEncoder)
+    self.assertEqual(encoder.n, original.n)
+    self.assertEqual(encoder.w, original.w)
+    self.assertEqual(encoder.verbosity, original.verbosity)
+    self.assertEqual(encoder.description, original.description)
+    self.assertEqual(encoder.name, original.name)
+    self.assertDictEqual(encoder.categoryToIndex, original.categoryToIndex)
+    self.assertTrue(numpy.array_equal(encoder.encode("ES"), es))
+    self.assertEqual(original.decode(encoder.encode("ES")),
+                     encoder.decode(original.encode("ES")))
+    self.assertEqual(decoded, encoder.decode(es))
+
+    # Test autogrow serialization
+    autogrow = SDRCategoryEncoder(n=fieldWidth, w=bitsOn, categoryList = None,
+                                  name="bar", forced=True)
+
+    es = autogrow.encode("ES")
+    us = autogrow.encode("US")
+    gs = autogrow.encode("GS")
+
+    proto1 = SDRCategoryEncoderProto.new_message()
+    autogrow.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = SDRCategoryEncoderProto.read(f)
+
+    t = SDRCategoryEncoder.read(proto2)
+
+    self.assertTrue(numpy.array_equal(t.encode("ES"), es))
+    self.assertTrue(numpy.array_equal(t.encode("US"), us))
+    self.assertTrue(numpy.array_equal(t.encode("GS"), gs))
 
 
 ###########################################
