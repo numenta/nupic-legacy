@@ -37,12 +37,14 @@ from nupic.frameworks.opf.opfutils import (InferenceElement,
                                            matchPatterns)
 from nupic.frameworks.opf.periodic import (PeriodicActivityMgr,
                                            PeriodicActivityRequest)
+from nupic.frameworks.opf.metrics import MetricModelCallback
 from nupic.frameworks.opf.predictionmetricsmanager import MetricsManager
 from nupic.support.configuration import Configuration
 from nupic.support.errorcodes import ErrorCodes
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.swarming import regression
 from nupic.swarming import utils
+from nupic.utils import GlobalDict
 
 
 
@@ -242,24 +244,40 @@ class OPFModelRunner(object):
     #Get field statistics from the input source
     fieldStats = self._getFieldStats()
     # -----------------------------------------------------------------------
-    # Construct the model instance
+    self._logger.error("Model %s RUNNING", self._modelID)
+    ## Construct the model instance
+
+    # special handling for global model sharing (for anomaly metrics,...)
+    # model.name needs to be overriden for swarming by modelID which is unique
+    # this needs to be called before model is created
+    swarmingName = id(self._modelID)
+    modelDescription['modelParams']['name']=swarmingName
+
     self._model = ModelFactory.create(modelDescription)
+    assert GlobalDict.get(swarmingName) is not None
+    print >>sys.stderr,"models=",str(GlobalDict())
+
     self._model.setFieldStatistics(fieldStats)
     self._model.enableLearning()
     self._model.enableInference(self._modelControl.get("inferenceArgs", None))
 
     # -----------------------------------------------------------------------
-    # Instantiate the metrics
+    ## Instantiate the metrics
     self.__metricMgr = MetricsManager(self._modelControl.get('metrics',None),
                                       self._model.getFieldInfo(),
                                       self._model.getInferenceType())
+    # rewrite metric's modelName (if it's MetricModelCallback type)
+    # needs to be called after MetricManager is instantiated
+    for metric in self.__metricMgr.getMetricInstances():
+      if isinstance(metric, MetricModelCallback):
+        metric.setModel(swarmingName)
 
     self.__loggedMetricPatterns = self._modelControl.get("loggedMetrics", [])
 
     self._optimizedMetricLabel = self.__getOptimizedMetricLabel()
     self._reportMetricLabels = matchPatterns(self._reportKeyPatterns,
                                               self._getMetricLabels())
-
+    
 
     # -----------------------------------------------------------------------
     # Initialize periodic activities (e.g., for model result updates)

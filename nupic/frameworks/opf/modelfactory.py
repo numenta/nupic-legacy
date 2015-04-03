@@ -77,7 +77,12 @@ class ModelFactory(object):
       raise Exception("ModelFactory received unsupported Model type: %s" % \
                       modelConfig['model'])
 
-    return modelClass(**modelConfig['modelParams'])
+    name = modelConfig['modelParams'].get("name", None)
+
+    model = modelClass(**modelConfig['modelParams'])
+    model._name = name
+    return model
+
 
   @staticmethod
   def loadFromCheckpoint(savedModelDir):
@@ -86,4 +91,5 @@ class ModelFactory(object):
            Directory of where the experiment is to be or was saved
     @returns (nupic.frameworks.opf.model.Model) The loaded model instance.
     """
-    return Model.load(savedModelDir)
+    model = Model.load(savedModelDir)
+    return model

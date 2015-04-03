@@ -195,6 +195,11 @@ class MetricsManager(object):
     """ Return the list of labels for the metrics that are being calculated"""
     return tuple(self.__metricLabels)
 
+
+  def getMetricInstances(self):
+    """@return instances of all metrics available here (as a [list])"""
+    return self.__metrics
+
   ############################################################################
   def _addResults(self, results):
     """

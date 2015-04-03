@@ -31,8 +31,9 @@ import numpy as np
 from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
+from nupic.algorithms.anomaly import Anomaly
 from nupic.frameworks.opf.opfutils import InferenceType
-from nupic.utils import MovingAverage
+from nupic.utils import MovingAverage, GlobalDict
 
 from collections import deque
 from operator import itemgetter
@@ -188,6 +189,9 @@ def getModule(metricSpec):
     return MetricMAPE(metricSpec)
   elif metricName == 'multi':
     return MetricMulti(metricSpec)
+  elif metricName == 'anomaly':
+    return MetricAnomaly.initFromMetricSpec(metricSpec)
+
   else:
     raise Exception("Unsupported metric type: %s" % metricName)
 
@@ -1482,3 +1486,96 @@ class MetricMulti(MetricsIface):
   def getMetric(self):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
+
+
+#############################################################################################
+class MetricModelCallback(AggregateMetric):
+  """
+  this is an abstract class for metrics that require a direct access to a (CLA)model, 
+  eg. to access specific internal values there. 
+
+  Examples are AnomalyMetric, SpeedMetric, ...
+  """
+
+  def __init__(self, metricSpec):
+    """
+    @param modelName - name of model stored globally in utils.GlobalDict
+    """
+    super(MetricModelCallback, self).__init__(metricSpec)
+    self._activeModel = metricSpec.params.get('modelName', None)
+    assert self._subErrorMetrics[0] is not None, "MetricModelCallback requires a subMetric defined!"
+
+
+  def getMetric(self):
+    return self._subErrorMetrics[0].getMetric()
+
+
+  def setModel(self, modelName):
+    self._activeModel = modelName
+
+  
+  def getModelInstance(self):
+    """@return model linked to this metric"""
+    model = GlobalDict.get(self._activeModel)
+    if model is None:
+      raise ValueError("MetricModelCallback: failed to access model named '%s' " % (self._activeModel))
+    return model
+
+#################################################################################
+class MetricAnomaly(MetricModelCallback):
+  """
+  Anomaly metric aims to hint swarming anomaly parameters or allowing you 
+  to specify details (how much anomalies you see) on the dataset. 
+  """
+
+  @classmethod
+  def initFromMetricSpec(cls, metricSpec):
+    """
+    Computes metric on difference of current and desired anomalyScore.
+    The metric to compute is designated by the 'errorMetric' entry in the metric params.
+
+    @param metricSpec metric specifications for Anomaly metric, must contain 
+                      'modelName' and 'desiredPct' fields.
+    """
+    modelName = metricSpec.params.get("modelName", None)
+    anomalyDesiredPct = metricSpec.params.get("desiredPct", None)
+
+    return cls(desiredPct=anomalyDesiredPct,
+               modelName=modelName,
+               metricSpec=metricSpec)
+
+
+  def __init__(self, desiredPct, modelName, metricSpec=None):
+    """
+    Anomaly metric constructor
+    @param desiredPct - (float) in range of [0, 1], swarming will aim to achieve 
+                        that desired percentage of anomalies in the dataset.
+    @param modelName - (string) name of the model where we can access Anomaly instance
+    @param metricSpec - (opt) parameters for the metric.
+    """
+    super(MetricAnomaly, self).__init__(metricSpec)
+    self._pct = desiredPct
+    if (desiredPct is None or not isinstance(desiredPct, float) or
+        desiredPct < 0.0 or desiredPct > 1):
+      raise ValueError("MetricAnomaly: desiredPct must be in [0,1] but is %s" % (desiredPct))
+    self.setModel(modelName)
+
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    """in this metric, groundTruth and prediction are ignored, 
+       desiredPct and anomalyScore are used instead
+    """
+    anomalyDesired = self._pct
+    anomalyActual = self.getAnomalyInstance().getScore()
+    return self._subErrorMetrics[0].addInstance(anomalyDesired, anomalyActual, record)
+
+
+  def __repr__(self):
+    return "MetricAnomaly(anomaly=%s, desiredPct=%s)" % (self.getAnomalyInstance(), self._pct)
+
+
+  def getAnomalyInstance(self):
+    an = self.getModelInstance().getParameter('anomaly')
+    if an is None or not isinstance(an, Anomaly):
+      raise ValueError("AnomalyMetric: model '%s' does not have valid Anomaly() instance '%s' " % (model, an))
+    return an

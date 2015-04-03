@@ -78,7 +78,8 @@ class Anomaly(object):
   def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
-        enables moving average on final anomaly score; int >= 0
+        enables moving average on final anomaly score; int >= 0 
+        (value of 0/None means disabled)
     @param mode (optional) - (string) how to compute anomaly;
         possible values are:
           - "pure" - the default, how much anomal the value is;
@@ -92,7 +93,7 @@ class Anomaly(object):
          The transformation is applied after moving average is computed and updated.
     """
     self._mode = mode
-    if slidingWindowSize is not None:
+    if slidingWindowSize is not None and slidingWindowSize > 0:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
@@ -110,6 +111,26 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    self._score = 1.0 # current anomaly score
+
+
+  @classmethod
+  def initFromParams(cls, anomalyParamsDict):
+    """
+    factory-like helper constructor for Anomaly class
+    @param anomalyParamsDict - python dict{} of parameters to construct the anomaly instance,
+                               for possible fields see __init__ above.
+    """
+    if anomalyParamsDict is None or not isinstance(anomalyParamsDict, dict):
+      raise ValueError("Anomaly: anomalyParamsDict must be specified and be a dict object")
+
+    window = anomalyParamsDict.get("slidingWindowSize", None)
+    mode = anomalyParamsDict.get("mode", Anomaly.MODE_PURE)
+    binarize = anomalyParamsDict.get("binaryAnomalyThreshold", None)
+
+    return cls(slidingWindowSize=window, 
+               mode=mode,
+               binaryAnomalyThreshold=binarize)
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -157,14 +178,34 @@ class Anomaly(object):
       else:
         score = 0.0
 
+    self._score = score
     return score
+
+
+  def getScore(self):
+    """
+    @return current anomaly score
+    """
+    return self._score
 
 
   def __str__(self):
     windowSize = 0
     if self._movingAverage is not None:
       windowSize = self._movingAverage.windowSize
-    return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
+    return "Anomaly:\tmode=%s\twindowSize=%r\tcurrent score=%.4f" % (self._mode, windowSize, self._score)
+
+
+  def __cmp__(self, other):
+    if not isinstance(other, Anomaly): 
+      return -1
+    if (other._mode == self._mode and
+        other._score == self._score and
+        other._binaryThreshold == self._binaryThreshold and
+        other._movingAverage == self._movingAverage):
+      return 0 #equal
+    else:
+      return -1
 
 
   def __setstate__(self, state):
@@ -177,3 +218,11 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
+    if not hasattr(self, '_score'):
+      self._score = 1.0
+
+###############################
+# example params
+anomalyParams = {'slidingWindowSize': 10,
+                 'mode': Anomaly.MODE_PURE,
+                 'binaryAnomalyThreshold': None}

@@ -92,6 +92,9 @@ config = {
     # Version that specifies the format of the config.
     'version': 1,
 
+    # ID of the model
+    'name': "hotgymAnomalySwarmingDemo",
+
     # Intermediate variables used to compute fields in modelParams and also
     # referenced from the control section.
     'aggregationInfo': {   'days': 0,
@@ -109,9 +112,6 @@ config = {
 
     # Model parameter dictionary.
     'modelParams': {
-        # ID of the model
-        'name': "myHotgymModel001",
-
         # The type of inference that this model will perform
         'inferenceType': 'TemporalAnomaly',
 
@@ -205,7 +205,7 @@ config = {
 
             'synPermInactiveDec': 0.01,
 
-            'randomSP': 1
+            'randomSP': 0,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -314,7 +314,7 @@ config = {
 
             # This is set after the call to updateConfigFromSubConfig and is
             # computed from the aggregationInfo and predictAheadTime.
-            'steps': '1,5',
+            'steps': '1',
 
 
         },
@@ -322,15 +322,15 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
+           'anomalyBinaryThreshold': None,
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
 
 
-  'predictionSteps': [1, 5],
+  'predictionSteps': [1],
   'predictedField': 'consumption',
-  'numRecords': 4000,
 }
 # end of config dictionary
 
@@ -363,7 +363,6 @@ control = {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
-                            u'last_record': config['numRecords'],
                             u'source': u'file://extra/hotgym/hotgym.csv'}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
@@ -375,7 +374,7 @@ control = {
   # whichever occurs first.
   #
   # iterationCount of -1 = iterate over the entire dataset
-  'iterationCount' : -1,
+  'iterationCount' : 6000,
 
 
   # A dictionary containing all the supplementary parameters for inference
@@ -412,7 +411,11 @@ for steps in config['predictionSteps']:
       MetricSpec(field=config['predictedField'], metric='trivial',
                  inferenceElement='prediction',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='anomaly',
+                 inferenceElement='multiStepBestPredictions',
+                 params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps,
+                         'desiredPct': 0.1, 'modelName': config['name']}))
 
 ################################################################################
 ################################################################################

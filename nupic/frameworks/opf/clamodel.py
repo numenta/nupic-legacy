@@ -121,38 +121,41 @@ class CLAModel(Model):
       clParams={},
       anomalyParams={},
       minLikelihoodThreshold=DEFAULT_LIKELIHOOD_THRESHOLD,
-      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP):
+      maxPredictionsPerStep=DEFAULT_MAX_PREDICTIONS_PER_STEP,
+      name=None):
     """CLAModel constructor.
 
-    Args:
-      inferenceType: A value from the InferenceType enum class.
-      predictedField: The field to predict for multistep prediction.
-      sensorParams: A dictionary specifying the sensor parameters.
-      spEnable: Whether or not to use a spatial pooler.
-      spParams: A dictionary specifying the spatial pooler parameters. These
-          are passed to the spatial pooler.
-      trainSPNetOnlyIfRequested: If set, don't create an SP network unless the
-          user requests SP metrics.
-      tpEnable: Whether to use a temporal pooler.
-      tpParams: A dictionary specifying the temporal pooler parameters. These
-          are passed to the temporal pooler.
-      clEnable: Whether to use the classifier. If false, the classifier will
-          not be created and no predictions will be generated.
-      clParams: A dictionary specifying the classifier parameters. These are
-          are passed to the classifier.
-      anomalyParams: Anomaly detection parameters
-      minLikelihoodThreshold: The minimum likelihood value to include in
-          inferences.  Currently only applies to multistep inferences.
-      maxPredictionsPerStep: Maximum number of predictions to include for
-          each step in inferences. The predictions with highest likelihood are
-          included.
+      @param inferenceType: 	A value from the InferenceType enum class
+      @param predictedField: 	The field to predict for multistep prediction.
+      @param sensorParams: 	A dictionary specifying the sensor parameters.
+      @param spEnable: 		Whether or not to use a spatial pooler.
+      @param spParams: 		A dictionary specifying the spatial pooler 
+				parameters. These are passed to the spatial pooler.
+      @param trainSPNetOnlyIfRequested: 	If set, don't create an SP network
+				unless the user requests SP metrics.
+      @param tpEnable: 		Whether to use a temporal pooler.
+      @param tpParams: 		A dictionary specifying the temporal pooler 
+				parameters. These are passed to the temporal pooler.
+      @param clEnable: 		Whether to use the classifier. If false, 
+				the classifier will not be created and 
+				no predictions will be generated.
+      @param clParams: 		A dictionary specifying the classifier parameters.
+				These are are passed to the classifier.
+      @param anomalyParams: 	Anomaly detection parameters
+      @param minLikelihoodThreshold: 	The minimum likelihood value to include
+				in inferences.  Currently only applies to 
+				multistep inferences.
+      @param maxPredictionsPerStep: 	Maximum number of predictions to include for
+          			each step in inferences. The predictions with 
+				highest likelihood are included.
+      @param name		(opt) unique ID of the model, randomly chosen if unspecified
     """
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
 
     # Call super class constructor
-    super(CLAModel, self).__init__(inferenceType)
+    super(CLAModel, self).__init__(inferenceType, name=name)
 
     # self.__restoringFromState is set to True by our __setstate__ method
     # and back to False at completion of our _deSerializeExtraData() method.
@@ -188,7 +191,7 @@ class CLAModel(Model):
     self._numFields = None
     # init anomaly
     windowSize = anomalyParams.get("slidingWindowSize", None)
-    mode = anomalyParams.get("mode", "pure")
+    mode = anomalyParams.get("mode", Anomaly.MODE_PURE)
     anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, mode=mode,
                                 binaryAnomalyThreshold=anomalyThreshold)
@@ -229,6 +232,8 @@ class CLAModel(Model):
   def getParameter(self, paramName):
     if paramName == '__numRunCalls':
       return self.__numRunCalls
+    if paramName == 'anomaly': 
+      return self._anomalyInst
     else:
       raise RuntimeError("'%s' parameter is not exposed by clamodel." % \
         (paramName))
@@ -1498,4 +1503,84 @@ class DataBuffer(object):
 
 
 
+###############################################################################
+# example model config variable
+modelConfig = (
+      {u'aggregationInfo': {u'days': 0,
+                            u'fields': [],
+                            u'hours': 0,
+                            u'microseconds': 0,
+                            u'milliseconds': 0,
+                            u'minutes': 0,
+                            u'months': 0,
+                            u'seconds': 0,
+                            u'weeks': 0,
+                            u'years': 0},
+       u'model': u'CLA',
+       u'modelParams': {
+                        u'name': u'demoCLAModel-001',
+                        u'anomalyParams': {u'anomalyCacheRecords': None,
+                                           u'autoDetectThreshold': None,
+                                           u'autoDetectWaitRecords': 5030,
+                                           u'slidingWindowSize': 100,
+                                           u'mode': u'pure',
+                                           u'binaryAnomalyThreshold': None},
+                        u'clEnable': False,
+                        u'clParams': {u'alpha': 0.035828933612158,
+                                      u'clVerbosity': 0,
+                                      u'regionName': u'CLAClassifierRegion',
+                                      u'steps': u'1'},
+                        u'inferenceType': u'TemporalAnomaly',
+                        u'sensorParams': {u'encoders': {u'c0_dayOfWeek': None,
+                                                        u'c0_timeOfDay': {u'fieldname': u'c0',
+                                                                          u'name': u'c0',
+                                                                          u'timeOfDay': [21,
+                                                                                         9.49122334747737],
+                                                                          u'type': u'DateEncoder'},
+                                                        u'c0_weekend': None,
+                                                        u'c1': {u'fieldname': u'c1',
+                                                                u'name': u'c1',
+                                                                u'resolution': 0.8771929824561403,
+                                                                u'seed': 42,
+                                                                u'type': u'RandomDistributedScalarEncoder'}},
+                                          u'sensorAutoReset': None,
+                                          u'verbosity': 0},
+                        u'spEnable': True,
+                        u'spParams': {u'coincInputPoolPct': 0.8,
+                                      u'columnCount': 2048,
+                                      u'globalInhibition': 1,
+                                      u'inputWidth': 0,
+                                      u'maxBoost': 1.0,
+                                      u'numActivePerInhArea': 40,
+                                      u'randomSP': 0,
+                                      u'seed': 1956,
+                                      u'spVerbosity': 0,
+                                      u'spatialImp': u'cpp',
+                                      u'synPermActiveInc': 0.0015,
+                                      u'synPermConnected': 0.1,
+                                      u'synPermInactiveDec': 0.0005,
+                                      u'useHighTier': 0},
+                        u'tpEnable': True,
+                        u'tpParams': {u'activationThreshold': 13,
+                                      u'cellsPerColumn': 32,
+                                      u'columnCount': 2048,
+                                      u'globalDecay': 0.0,
+                                      u'initialPerm': 0.21,
+                                      u'inputWidth': 2048,
+                                      u'maxAge': 0,
+                                      u'maxSegmentsPerCell': 128,
+                                      u'maxSynapsesPerSegment': 32,
+                                      u'minThreshold': 10,
+                                      u'newSynapseCount': 20,
+                                      u'outputType': u'normal',
+                                      u'pamLength': 3,
+                                      u'permanenceDec': 0.1,
+                                      u'permanenceInc': 0.1,
+                                      u'seed': 1960,
+                                      u'temporalImp': u'cpp',
+                                      u'verbosity': 0},
+                        u'trainSPNetOnlyIfRequested': False},
+       u'predictAheadTime': None,
+       u'version': 1}
+    )
 

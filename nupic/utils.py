@@ -25,7 +25,8 @@ in our codebase.
 """
 
 import numbers
-
+from collections import MutableMapping
+import logging
 
 class MovingAverage(object):
   """Helper class for computing moving average and sliding window"""
@@ -97,6 +98,63 @@ class MovingAverage(object):
       self.slidingWindow = sum(self.slidingWindow)
 
 
+  def __cmp__(self, o):
+    if not isinstance(o, MovingAverage):
+      return -1
+    if (o.slidingWindow == self.slidingWindow and
+        o.total == self.total and
+        o.windowSize == self.windowSize):
+      return 0
+    else: 
+      return -1
+
+
   def __call__(self, value):
     return self.next(value)
 
+#######################################################################
+class GlobalDict(MutableMapping):
+  """
+  a dict{} storing its content globally. 
+
+  GlobalDict class serves as a global look-up table addressed by names, 
+  for storing and accessing objects globally.
+  """
+
+  # global variable
+  store = {}
+
+  logging.basicConfig()
+  logger = logging.getLogger(__name__)
+
+  def __init__(self, *args, **kwargs):
+    self.update(dict(*args, **kwargs))
+  def __getitem__(self, key):
+    return GlobalDict.get(key)
+  def __setitem__(self, key, value):
+    """if the key is in use, generate a unique one"""
+    self.__class__.set(key, value)
+  def __delitem__(self, key):
+    del GlobalDict.store[key]
+  def __iter__(self):
+    return iter(GlobalDict.store)
+  def __len__(self):
+    return len(GlobalDict.store)
+  @classmethod
+  def set(cls, key, value):
+    if key is None:
+      key = str(id(value)) # generate uniq name
+    if key in cls.store: # replacing existing item
+      cls.logger.error("replacing item '%s' named '%s' with new '%s'." % (cls.get(key), key, value))
+      raise ValueError("GlobalDict: key %s already exists! " %(key))
+    cls.store[key] = value
+    cls.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
+    return key # in case of new 
+  @classmethod
+  def get(cls, key):
+    return cls.store.get(key, None)
+  @classmethod
+  def getAll(cls):
+    return cls.store
+  def __str__(self):
+    return str(GlobalDict.store)

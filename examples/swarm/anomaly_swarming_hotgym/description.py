@@ -110,7 +110,7 @@ config = {
     # Model parameter dictionary.
     'modelParams': {
         # ID of the model
-        'name': "myHotgymModel001",
+        'name': "hotgymAnomalySwarmingDemo",
 
         # The type of inference that this model will perform
         'inferenceType': 'TemporalAnomaly',
@@ -322,15 +322,15 @@ config = {
         'anomalyParams': {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
+           'anomalyBinaryThreshold': 0.5,
         },
 
         'trainSPNetOnlyIfRequested': False,
     },
 
 
-  'predictionSteps': [1, 5],
+  'predictionSteps': [1],
   'predictedField': 'consumption',
-  'numRecords': 4000,
 }
 # end of config dictionary
 
@@ -363,7 +363,6 @@ control = {
         u'info': u'test_hotgym',
         u'streams': [   {   u'columns': [u'*'],
                             u'info': u'hotGym.csv',
-                            u'last_record': config['numRecords'],
                             u'source': u'file://extra/hotgym/hotgym.csv'}],
          'aggregation': config['aggregationInfo'],
         u'version': 1},
@@ -375,7 +374,7 @@ control = {
   # whichever occurs first.
   #
   # iterationCount of -1 = iterate over the entire dataset
-  'iterationCount' : -1,
+  'iterationCount' : 500,
 
 
   # A dictionary containing all the supplementary parameters for inference
@@ -412,7 +411,11 @@ for steps in config['predictionSteps']:
       MetricSpec(field=config['predictedField'], metric='trivial',
                  inferenceElement='prediction',
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
-
+  control['metrics'].append(
+      MetricSpec(field=config['predictedField'], metric='anomaly',
+                 inferenceElement='prediction',
+                 params={'errorMetric': 'altMAPE', 'window': 100, 'steps': steps,
+                         'desiredPct': 0.1, 'modelName': config['modelParams']['name']}))
 
 ################################################################################
 ################################################################################
