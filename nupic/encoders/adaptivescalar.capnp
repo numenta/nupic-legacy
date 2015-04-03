@@ -2,7 +2,7 @@
 
 using import "/nupic/movingaverage.capnp".MovingAverageProto;
 
-# Next ID: 8
+# Next ID: 10
 struct AdaptiveScalarEncoderProto {
   w @0 :UInt32;
   minval @1 :Float32;
