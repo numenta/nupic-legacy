@@ -26,7 +26,7 @@ def cleanup(filename):
     os.remove(filename)
   
 if __name__ == "__main__":
-  cleanup('tokens.txt')
-  cleanup('results.csv')
+  cleanup("tokens.txt")
+  cleanup("results.csv")
   
 
