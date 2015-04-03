@@ -131,3 +131,17 @@ class GeospatialCoordinateEncoder(CoordinateEncoder):
     print "GeospatialCoordinateEncoder:"
     print "  w:   %d" % self.w
     print "  n:   %d" % self.n
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = super(GeospatialCoordinateEncoder, cls).read(proto)
+    encoder.scale = proto.scale
+    encoder.timestep = proto.timestep
+    return encoder
+
+
+  def write(self, proto):
+    super(GeospatialCoordinateEncoder, self).write(proto)
+    proto.scale = self.scale
+    proto.timestep = self.timestep
