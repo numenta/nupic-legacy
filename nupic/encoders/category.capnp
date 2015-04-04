@@ -1,6 +1,6 @@
 @0xb639caa166140b0f;
 
-using import "scalar.capnp".ScalarEncoderProto;
+using import "/nupic/encoders/scalar.capnp".ScalarEncoderProto;
 
 # Next ID: 5
 struct CategoryEncoderProto {
