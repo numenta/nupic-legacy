@@ -359,10 +359,8 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   ~/nupic/current/conf/default)
 
   The logging configuration file can use the environment variable 'NTA_LOG_DIR'
-  to set the locations of log files. If this variable is not defined already in
-  the environment, this method will set it to the 'logs' subdirectory of the
-  NuPic install directory (typically ~/nupic/eng/logs) before loading in the
-  configuration file.
+  to set the locations of log files. If this variable is not defined, logging to
+  files will be disabled.
   
   console:    Defines console output for the default "root" logging
               configuration; this may be one of 'stdout', 'stderr', or None;
@@ -403,15 +401,8 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   #   NTA_CONFIG_DIR path (if defined), then in a subdirectory of the nupic
   #   module
   configFilename = 'nupic-logging.conf'
-
-  configFilePath = resource_filename("nupic.support", configFilename);
-
-  # If NTA_LOG_DIR is not defined, set it now. This is used by the logging
-  #   config file to set the path for the log files
-  if 'NTA_LOG_DIR' not in os.environ:
-    os.environ['NTA_LOG_DIR'] = os.path.join(os.environ['NUPIC'], 'logs')
-  if not os.path.exists(os.environ['NTA_LOG_DIR']):
-    makeDirectoryFromAbsolutePath(os.path.abspath(os.environ['NTA_LOG_DIR']))
+  configFilePath = resource_filename("nupic.support", configFilename)
+  configLogDir   = os.environ.get('NTA_LOG_DIR', None)
 
   # Load in the logging configuration file
   if verbose:
@@ -443,18 +434,22 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
 
   # Nupic logs go to file
   replacements[makeKey('PERSISTENT_LOG_HANDLER')] = 'fileHandler'
+  replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = '"/dev/null"'
 
-  # Set up log file path for the default file handler
-  logFilePath = _genLoggingFilePath()
-  makeDirectoryFromAbsolutePath(os.path.dirname(logFilePath))
-  replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = repr(logFilePath)
+  # Set up log file path for the default file handler and configure handlers
+  handlers = list()
+  
+  if configLogDir is not None:
+    logFilePath = _genLoggingFilePath()
+    makeDirectoryFromAbsolutePath(os.path.dirname(logFilePath))
+    replacements[makeKey('FILE_HANDLER_LOG_FILENAME')] = repr(logFilePath)
 
-  # Set up root logger
-  replacements[makeKey('ROOT_LOGGER_HANDLERS')] = (
-    replacements[makeKey('PERSISTENT_LOG_HANDLER')])
+    handlers.append(replacements[makeKey('PERSISTENT_LOG_HANDLER')])
+
   if console is not None:
-    replacements[makeKey('ROOT_LOGGER_HANDLERS')] += (
-      ',' + consoleStreamMappings[console])
+    handlers.append(consoleStreamMappings[console])
+
+  replacements[makeKey('ROOT_LOGGER_HANDLERS')] = ", ".join(handlers)
 
   # Set up log level for console handlers
   replacements[makeKey('CONSOLE_LOG_LEVEL')] = consoleLevel
@@ -478,7 +473,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
                           "dict.") % (line, lineNum, configFilePath))
 
     customConfig.write("%s\n" % line)
-    
+
   customConfig.seek(0)
   if python_version()[:3] >= '2.6':
     logging.config.fileConfig(customConfig, disable_existing_loggers=False)
@@ -498,7 +493,7 @@ def reinitLoggingDir():
    the benefit of nupic-services.py to allow it to restore its logging directory
    after the hard-reset operation.
   """
-  if gLoggingInitialized:
+  if gLoggingInitialized and 'NTA_LOG_DIR' in os.environ:
     makeDirectoryFromAbsolutePath(os.path.dirname(_genLoggingFilePath()))
 
 
