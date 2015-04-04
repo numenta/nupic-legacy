@@ -23,6 +23,7 @@
 # Disable since test code accesses private members in the class to be tested
 # pylint: disable=W0212
 
+import numbers
 import tempfile
 import unittest
 
@@ -1773,6 +1774,8 @@ class SpatialPoolerTest(unittest.TestCase):
         pass
       elif isinstance(v1, float):
         self.assertAlmostEqual(v1, v2)
+      elif isinstance(v1, numbers.Integral):
+        self.assertEqual(long(v1), long(v2), k)
       else:
         self.assertEqual(type(v1), type(v2), k)
         self.assertEqual(v1, v2, k)
