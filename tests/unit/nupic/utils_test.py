@@ -22,9 +22,14 @@
 
 """Unit tests for utils module."""
 
+import tempfile
 import unittest
 
 from nupic.utils import MovingAverage
+
+# Import capnp to force import hook
+import capnp
+from nupic.movingaverage_capnp import MovingAverageProto
 
 
 
@@ -44,7 +49,7 @@ class UtilsTest(unittest.TestCase):
     newAverage, historicalValues, total = (
       MovingAverage.compute(historicalValues, total, 3, windowSize)
     )
-    
+
     self.assertEqual(newAverage, 3.0)
     self.assertEqual(historicalValues, [3.0])
     self.assertEqual(total, 3.0)
@@ -101,7 +106,7 @@ class UtilsTest(unittest.TestCase):
     self.assertEqual(newAverage, 5.0)
     self.assertListEqual(ma.getSlidingWindow(), [4.0, 5.0, 6.0])
     self.assertEqual(ma.total, 15.0)
-  
+
 
   def testMovingAverageSlidingWindowInit(self):
     """
@@ -115,6 +120,33 @@ class UtilsTest(unittest.TestCase):
     # Withoout exisiting historical values
     ma = MovingAverage(windowSize=3)
     self.assertListEqual(ma.getSlidingWindow(), [])
+
+
+  def testMovingAverageReadWrite(self):
+    ma = MovingAverage(windowSize=3)
+
+    ma.next(3)
+    ma.next(4)
+    ma.next(5)
+
+    proto1 = MovingAverageProto.new_message()
+    ma.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = MovingAverageProto.read(f)
+
+    resurrectedMa = MovingAverage.read(proto2)
+
+    newAverage = ma.next(6)
+    self.assertEqual(newAverage, resurrectedMa.next(6))
+    self.assertListEqual(ma.getSlidingWindow(),
+                         resurrectedMa.getSlidingWindow())
+    self.assertEqual(ma.total, resurrectedMa.total)
+
+
 
 
 if __name__ == "__main__":
