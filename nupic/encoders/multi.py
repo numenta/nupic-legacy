@@ -37,6 +37,7 @@ from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
 from nupic.encoders.base import Encoder
+from nupic.encoders.scalar_capnp import ScalarEncoderProto
 # multiencoder must be imported last because it imports * from this module!
 
 
@@ -59,7 +60,7 @@ class MultiEncoder(Encoder):
   def setFieldStats(self, fieldName, fieldStatistics ):
     for (name, encoder, offset) in self.encoders:
       encoder.setFieldStats(name, fieldStatistics)
-      
+
   ############################################################################
   def addEncoder(self, name, encoder):
     self.encoders.append((name, encoder, self.width))
@@ -106,7 +107,7 @@ class MultiEncoder(Encoder):
   def addMultipleEncoders(self, fieldEncodings):
     """
     fieldEncodings -- a dict of dicts, mapping field names to the field params
-                        dict. 
+                        dict.
 
     Each field params dict has the following keys
     1) data fieldname that matches the key ('fieldname')
@@ -125,7 +126,7 @@ class MultiEncoder(Encoder):
                             clipInput=True, w=5, resolution=5),
     }
     """
-    
+
     # Sort the encoders so that they end up in a controlled order
     encoderList = sorted(fieldEncodings.items())
     for key, fieldParams in encoderList:
@@ -140,3 +141,87 @@ class MultiEncoder(Encoder):
                 "some required constructor parameters. Parameters "
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+
+    encoder.width = proto.width
+
+    encoderMap = {}
+
+    for scalarEncoder in proto.scalarEncoders.encoders:
+
+      encoderMap[scalarEncoder.index.value] = (
+        scalarEncoder.name,
+        ScalarEncoder.read(scalarEncoder.encoder),
+        scalarEncoder.offset.value
+      )
+
+    # Restore encoder list from constructed dict (to preserve original order)
+    encoder.encoders = [encoderMap[key] for key in sorted(encoderMap)]
+
+    # Derive description from encoder list
+    encoder.description = [(enc[1].name, enc[2]) for enc in encoder.encoders]
+    encoder.name = proto.name
+
+    return encoder
+
+
+  def write(self, proto):
+
+    proto.width = self.width
+
+    # Group encoders by type to match schema definition in multi.capnp
+    # This is done in two phases so that the total number of each type may
+    # be used to initialize the proto objects with the correct length
+    encodersByType = {}
+
+    for index, (name, encoder, offset) in enumerate(self.encoders):
+      encoderDict = {"index": index,
+                     "name": name,
+                     "encoder": encoder,
+                     "offset": offset}
+      if isinstance(encoder, ScalarEncoder):
+        encodersByType.setdefault("scalarEncoders", []).append(encoderDict)
+      elif isinstance(encoder, AdaptiveScalarEncoder):
+        encodersByType.setdefault("adaptiveScalarEncoders", []).append(
+          encoderDict)
+      elif isinstance(encoder, DateEncoder):
+        encodersByType.setdefault("dateEncoders", []).append(encoderDict)
+      elif isinstance(encoder, LogEncoder):
+        encodersByType.setdefault("logEncoders", []).append(encoderDict)
+      elif isinstance(encoder, CategoryEncoder):
+        encodersByType.setdefault("categoryEncoders", []).append(encoderDict)
+      elif isinstance(encoder, SDRCategoryEncoder):
+        encodersByType.setdefault("sdrCategoryEncoders", []).append(encoderDict)
+      elif isinstance(encoder, DeltaEncoder):
+        encodersByType.setdefault("DeltaEncoders", []).append(encoderDict)
+      elif isinstance(encoder, PassThroughEncoder):
+        encodersByType.setdefault("passThroughEncoders", []).append(encoderDict)
+      elif isinstance(encoder, SparsePassThroughEncoder):
+        encodersByType.setdefault("sparsePassThroughEncoders", []).append(
+          encoderDict)
+      elif isinstance(encoder, CoordinateEncoder):
+        encodersByType.setdefault("coordinateEncoders", []).append(encoderDict)
+      elif isinstance(encoder, RandomDistributedScalarEncoder):
+        encodersByType.setdefault("randomDistributedScalarEncoders", []
+          ).append(encoderDict)
+
+    # Write out grouped encoders
+    def _write(protoAttr, encoders):
+      encoderProtos = getattr(proto, protoAttr)
+      encoderProtos.init("encoders", len(encoders))
+
+      for encoderDetails in encoders:
+        encoderProto = encoderProtos.encoders[encoderDetails["index"]]
+        encoderProto.index.value = encoderDetails["index"]
+        encoderProto.name = encoderDetails["name"]
+        encoderDetails["encoder"].write(encoderProto.encoder)
+        encoderProto.offset.value = encoderDetails["offset"]
+
+    for key, value in encodersByType.items():
+      _write(key, value)
+
+    proto.name = self.name
