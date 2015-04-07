@@ -143,20 +143,43 @@ class MultiEncoder(Encoder):
           raise
 
 
+  _attrMap = {
+    ScalarEncoder: "scalarEncoder",
+    AdaptiveScalarEncoder: "adaptivescalar",
+    DateEncoder: "dateEncoder",
+    LogEncoder: "logEncoder",
+    CategoryEncoder: "categoryEncoder",
+    CoordinateEncoder: "coordinateEncoder",
+    SDRCategoryEncoder: "sdrCategoryEncoder",
+    DeltaEncoder: "deltaEncoder",
+    PassThroughEncoder: "passThroughEncoder",
+    SparsePassThroughEncoder: "sparsePassThroughEncoder",
+    RandomDistributedScalarEncoder: "randomDistributedScalarEncoder"
+  }
+
+
   @classmethod
   def read(cls, proto):
     encoder = object.__new__(cls)
+
+    # Invert cls._attrMap
+    classMap = {value:key for key, value in cls._attrMap.items()}
 
     encoder.width = proto.width
 
     encoderMap = {}
 
-    for scalarEncoder in proto.scalarEncoders.encoders:
+    for encoderProto in proto.allEncoders:
+      # Identify which attr is set in union
+      encoderType = encoderProto.which()
 
-      encoderMap[scalarEncoder.index.value] = (
-        scalarEncoder.name,
-        ScalarEncoder.read(scalarEncoder.encoder),
-        scalarEncoder.offset.value
+      encoderDetails = getattr(encoderProto, encoderType)
+      encoderMap[encoderDetails.index.value] = (
+        encoderDetails.name,
+        # Call class.read() where class is determined by the
+        # MultiEncocer._attrmap mapping
+        classMap.get(encoderType).read(encoderDetails.encoder),
+        encoderDetails.offset.value
       )
 
     # Restore encoder list from constructed dict (to preserve original order)
@@ -173,55 +196,16 @@ class MultiEncoder(Encoder):
 
     proto.width = self.width
 
-    # Group encoders by type to match schema definition in multi.capnp
-    # This is done in two phases so that the total number of each type may
-    # be used to initialize the proto objects with the correct length
-    encodersByType = {}
+    proto.init("allEncoders", len(self.encoders))
 
     for index, (name, encoder, offset) in enumerate(self.encoders):
-      encoderDict = {"index": index,
-                     "name": name,
-                     "encoder": encoder,
-                     "offset": offset}
-      if isinstance(encoder, ScalarEncoder):
-        encodersByType.setdefault("scalarEncoders", []).append(encoderDict)
-      elif isinstance(encoder, AdaptiveScalarEncoder):
-        encodersByType.setdefault("adaptiveScalarEncoders", []).append(
-          encoderDict)
-      elif isinstance(encoder, DateEncoder):
-        encodersByType.setdefault("dateEncoders", []).append(encoderDict)
-      elif isinstance(encoder, LogEncoder):
-        encodersByType.setdefault("logEncoders", []).append(encoderDict)
-      elif isinstance(encoder, CategoryEncoder):
-        encodersByType.setdefault("categoryEncoders", []).append(encoderDict)
-      elif isinstance(encoder, SDRCategoryEncoder):
-        encodersByType.setdefault("sdrCategoryEncoders", []).append(encoderDict)
-      elif isinstance(encoder, DeltaEncoder):
-        encodersByType.setdefault("DeltaEncoders", []).append(encoderDict)
-      elif isinstance(encoder, PassThroughEncoder):
-        encodersByType.setdefault("passThroughEncoders", []).append(encoderDict)
-      elif isinstance(encoder, SparsePassThroughEncoder):
-        encodersByType.setdefault("sparsePassThroughEncoders", []).append(
-          encoderDict)
-      elif isinstance(encoder, CoordinateEncoder):
-        encodersByType.setdefault("coordinateEncoders", []).append(encoderDict)
-      elif isinstance(encoder, RandomDistributedScalarEncoder):
-        encodersByType.setdefault("randomDistributedScalarEncoders", []
-          ).append(encoderDict)
-
-    # Write out grouped encoders
-    def _write(protoAttr, encoders):
-      encoderProtos = getattr(proto, protoAttr)
-      encoderProtos.init("encoders", len(encoders))
-
-      for encoderDetails in encoders:
-        encoderProto = encoderProtos.encoders[encoderDetails["index"]]
-        encoderProto.index.value = encoderDetails["index"]
-        encoderProto.name = encoderDetails["name"]
-        encoderDetails["encoder"].write(encoderProto.encoder)
-        encoderProto.offset.value = encoderDetails["offset"]
-
-    for key, value in encodersByType.items():
-      _write(key, value)
+      encoderProto = proto.allEncoders[index]
+      encoderType = self._attrMap.get(encoder.__class__)
+      encoderProto.init(encoderType)
+      encoderDetails = getattr(encoderProto, encoderType)
+      encoder.write(encoderDetails.encoder)
+      encoderDetails.index.value = index
+      encoderDetails.name = name
+      encoderDetails.offset.value = offset
 
     proto.name = self.name

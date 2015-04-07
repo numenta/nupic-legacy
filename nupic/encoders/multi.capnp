@@ -6,8 +6,8 @@ using import "coordinate.capnp".CoordinateEncoderProto;
 using import "date.capnp".DateEncoderProto;
 using import "delta.capnp".DeltaEncoderProto;
 using import "geospatial_coordinate.capnp".GeospatialCoordinateEncoderProto;
-using import "logenc.capnp".LogEncoderProto;
-using import "pass_through_encoder.capnp".PassThroughEncoderProto;
+using import "log.capnp".LogEncoderProto;
+using import "pass_through.capnp".PassThroughEncoderProto;
 using import "random_distributed_scalar.capnp".RandomDistributedScalarEncoderProto;
 using import "scalar.capnp".ScalarEncoderProto;
 using import "sdrcategory.capnp".SDRCategoryEncoderProto;
@@ -19,31 +19,33 @@ struct MultiEncoderProto {
     value @0 :UInt32;
   }
 
-  #Next ID 1
-  struct EncoderMap(Index, Name, Encoder, Offset) {
-    encoders @0 :List(EncoderDetails);
-
-    # Next ID: 4
-    struct EncoderDetails {
-      index @0 :Index;
-      name @1 :Name;
-      encoder @2 :Encoder;
-      offset @3 :Offset;
-    }
+  # Next ID: 4
+  struct EncoderDetails(Index, Name, Encoder, Offset) {
+    index @0 :Index;
+    name @1 :Name;
+    encoder @2 :Encoder;
+    offset @3 :Offset;
   }
 
   width @0 :UInt32;
-  adaptiveScalarEncoders @1 :EncoderMap(IntType, Text, AdaptiveScalarEncoderProto, IntType);
-  categoryEncoders @2 :EncoderMap(IntType, Text, CategoryEncoderProto, IntType);
-  coordinateEncoders @3 :EncoderMap(IntType, Text, CoordinateEncoderProto, IntType);
-  dateEncoders @4 :EncoderMap(IntType, Text, DateEncoderProto, IntType);
-  deltaEncoders @5 :EncoderMap(IntType, Text, DeltaEncoderProto, IntType);
-  geospatialCoordinateEncoders @6 :EncoderMap(IntType, Text, GeospatialCoordinateEncoderProto, IntType);
-  logEncoders @7 :EncoderMap(IntType, Text, LogEncoderProto, IntType);
-  passThroughEncoders @8 :EncoderMap(IntType, Text, PassThroughEncoderProto, IntType);
-  randomDistributedScalarEncoders @9 :EncoderMap(IntType, Text, RandomDistributedScalarEncoderProto, IntType);
-  scalarEncoders @10 :EncoderMap(IntType, Text, ScalarEncoderProto, IntType);
-  sdrCategoryEncoders @11 :EncoderMap(IntType, Text, SDRCategoryEncoderProto, IntType);
-  sparsePassThroughEncoders @12 :EncoderMap(IntType, Text, SparsePassThroughEncoderProto, IntType);
-  name @13 :Text;
+
+  struct EncoderUnion {
+    union {
+      adaptiveScalarEncoder @0 :EncoderDetails(IntType, Text, AdaptiveScalarEncoderProto, IntType);
+      categoryEncoder @1 :EncoderDetails(IntType, Text, CategoryEncoderProto, IntType);
+      coordinateEncoder @2 :EncoderDetails(IntType, Text, CoordinateEncoderProto, IntType);
+      dateEncoder @3 :EncoderDetails(IntType, Text, DateEncoderProto, IntType);
+      deltaEncoder @4 :EncoderDetails(IntType, Text, DeltaEncoderProto, IntType);
+      geospatialCoordinateEncoder @5 :EncoderDetails(IntType, Text, GeospatialCoordinateEncoderProto, IntType);
+      logEncoder @6 :EncoderDetails(IntType, Text, LogEncoderProto, IntType);
+      passThroughEncoder @7 :EncoderDetails(IntType, Text, PassThroughEncoderProto, IntType);
+      randomDistributedScalarEncoder @8 :EncoderDetails(IntType, Text, RandomDistributedScalarEncoderProto, IntType);
+      scalarEncoder @9 :EncoderDetails(IntType, Text, ScalarEncoderProto, IntType);
+      sdrCategoryEncoder @10 :EncoderDetails(IntType, Text, SDRCategoryEncoderProto, IntType);
+      sparsePassThroughEncoder @11 :EncoderDetails(IntType, Text, SparsePassThroughEncoderProto, IntType);
+    }
+  }
+
+  name @1 :Text;
+  allEncoders @2 :List(EncoderUnion);
 }
