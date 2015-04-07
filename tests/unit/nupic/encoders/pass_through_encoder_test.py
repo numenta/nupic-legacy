@@ -31,7 +31,7 @@ import unittest2 as unittest
 import numpy
 
 from nupic.encoders.pass_through_encoder import PassThroughEncoder
-from nupic.encoders.pass_through_encoder_capnp import PassThroughEncoderProto
+from nupic.encoders.pass_through_capnp import PassThroughEncoderProto
 
 
 
