@@ -31,7 +31,7 @@ import unittest2 as unittest
 
 from nupic.encoders.logenc import LogEncoder
 from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.logenc_capnp import LogEncoderProto
+from nupic.encoders.log_capnp import LogEncoderProto
 
 
 
