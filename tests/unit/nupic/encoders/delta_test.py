@@ -23,12 +23,13 @@
 """Unit tests for delta encoder"""
 
 import numpy as np
+import tempfile
 import unittest
 
 from nupic.encoders.delta import (DeltaEncoder,
                                   AdaptiveScalarEncoder)
 
-
+from nupic.encoders.delta_capnp import DeltaEncoderProto
 
 class DeltaEncoderTest(unittest.TestCase):
   '''Unit tests for DeltaEncoder class'''
@@ -93,6 +94,48 @@ class DeltaEncoderTest(unittest.TestCase):
       self.assertEqual(e.message, "Expected a scalar input but got input of type <type 'str'>")
     else:
       self.fail("Should have thrown TypeError during attempt to encode string with scalar encoder.")
+
+
+  def testReadWrite(self):
+
+    feedIn  = [1, 10, 4, 7, 9, 6, 3, 1]
+    expectedOut = [0, 9, -6, 3, 2, -3, -3, -2]
+    self._dencoder.setStateLock(False)
+    outp = []
+    #Check that the deltas are being returned correctly.
+    for i in range(len(feedIn)-1):
+      aseencode = np.zeros(100)
+      self._adaptscalar.encodeIntoArray(expectedOut[i], aseencode, learn=True)
+      delencode = np.zeros(100)
+      self._dencoder.encodeIntoArray(feedIn[i], delencode, learn=True)
+      outp.append(delencode)
+
+    proto1 = DeltaEncoderProto.new_message()
+    self._dencoder.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = DeltaEncoderProto.read(f)
+
+    encoder = DeltaEncoder.read(proto2)
+
+
+    self.assertIsInstance(encoder, DeltaEncoder)
+    self.assertEqual(encoder.width, self._dencoder.width)
+    self.assertEqual(encoder.n, self._dencoder.n)
+    self.assertEqual(encoder.name, self._dencoder.name)
+    self.assertEqual(encoder._prevAbsolute, self._dencoder._prevAbsolute)
+    self.assertEqual(encoder._prevDelta, self._dencoder._prevDelta)
+    self.assertEqual(encoder._stateLock, self._dencoder._stateLock)
+
+    delencode = np.zeros(100)
+    self._dencoder.encodeIntoArray(feedIn[-1], delencode, learn=True)
+
+    delencode2 = np.zeros(100)
+    encoder.encodeIntoArray(feedIn[-1], delencode2, learn=True)
+    self.assertTrue(np.array_equal(delencode, delencode2))
 
 
 
