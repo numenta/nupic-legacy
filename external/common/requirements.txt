@@ -5,7 +5,7 @@ mock==1.0.1
 ordereddict==1.1
 pillow==2.3.0
 psutil==1.0.1
-pycapnp==0.5.1
+pycapnp==0.5.5
 pytest==2.4.2
 pytest-cov==1.6
 pytest-xdist==1.8
