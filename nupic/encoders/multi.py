@@ -166,24 +166,20 @@ class MultiEncoder(Encoder):
     classMap = {value:key for key, value in cls._attrMap.items()}
 
     encoder.width = proto.width
-
-    encoderMap = {}
+    encoder.encoders = [None] * len(proto.allEncoders)
 
     for index, encoderProto in enumerate(proto.allEncoders):
       # Identify which attr is set in union
       encoderType = encoderProto.which()
 
       encoderDetails = getattr(encoderProto, encoderType)
-      encoderMap[index] = (
+      encoder.encoders[index] = (
         encoderProto.name,
         # Call class.read() where class is determined by the
         # MultiEncocer._attrmap mapping
         classMap.get(encoderType).read(encoderDetails),
         encoderProto.offset
       )
-
-    # Restore encoder list from constructed dict (to preserve original order)
-    encoder.encoders = [encoderMap[key] for key in sorted(encoderMap)]
 
     # Derive description from encoder list
     encoder.description = [(enc[1].name, enc[2]) for enc in encoder.encoders]
