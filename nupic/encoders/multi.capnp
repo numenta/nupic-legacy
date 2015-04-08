@@ -15,8 +15,6 @@ using import "sparse_pass_through_encoder.capnp".SparsePassThroughEncoderProto;
 
 # Next ID: 3
 struct MultiEncoderProto {
-  width @0 :UInt32;
-
   # Next ID: 14
   struct EncoderUnion {
     union {
@@ -37,6 +35,6 @@ struct MultiEncoderProto {
     offset @13 :UInt32;
   }
 
-  name @1 :Text;
-  allEncoders @2 :List(EncoderUnion);
+  name @0 :Text;
+  encoders @1 :List(EncoderUnion);
 }
