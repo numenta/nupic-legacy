@@ -169,17 +169,17 @@ class MultiEncoder(Encoder):
 
     encoderMap = {}
 
-    for encoderProto in proto.allEncoders:
+    for index, encoderProto in enumerate(proto.allEncoders):
       # Identify which attr is set in union
       encoderType = encoderProto.which()
 
       encoderDetails = getattr(encoderProto, encoderType)
-      encoderMap[encoderDetails.index.value] = (
-        encoderDetails.name,
+      encoderMap[index] = (
+        encoderProto.name,
         # Call class.read() where class is determined by the
         # MultiEncocer._attrmap mapping
-        classMap.get(encoderType).read(encoderDetails.encoder),
-        encoderDetails.offset.value
+        classMap.get(encoderType).read(encoderDetails),
+        encoderProto.offset
       )
 
     # Restore encoder list from constructed dict (to preserve original order)
@@ -203,9 +203,8 @@ class MultiEncoder(Encoder):
       encoderType = self._attrMap.get(encoder.__class__)
       encoderProto.init(encoderType)
       encoderDetails = getattr(encoderProto, encoderType)
-      encoder.write(encoderDetails.encoder)
-      encoderDetails.index.value = index
-      encoderDetails.name = name
-      encoderDetails.offset.value = offset
+      encoder.write(encoderDetails)
+      encoderProto.name = name
+      encoderProto.offset = offset
 
     proto.name = self.name
