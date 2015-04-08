@@ -13,37 +13,28 @@ using import "scalar.capnp".ScalarEncoderProto;
 using import "sdrcategory.capnp".SDRCategoryEncoderProto;
 using import "sparse_pass_through_encoder.capnp".SparsePassThroughEncoderProto;
 
-# Next ID: 14
+# Next ID: 3
 struct MultiEncoderProto {
-  struct IntType {
-    value @0 :UInt32;
-  }
-
-  # Next ID: 4
-  struct EncoderDetails(Index, Name, Encoder, Offset) {
-    index @0 :Index;
-    name @1 :Name;
-    encoder @2 :Encoder;
-    offset @3 :Offset;
-  }
-
   width @0 :UInt32;
 
+  # Next ID: 14
   struct EncoderUnion {
     union {
-      adaptiveScalarEncoder @0 :EncoderDetails(IntType, Text, AdaptiveScalarEncoderProto, IntType);
-      categoryEncoder @1 :EncoderDetails(IntType, Text, CategoryEncoderProto, IntType);
-      coordinateEncoder @2 :EncoderDetails(IntType, Text, CoordinateEncoderProto, IntType);
-      dateEncoder @3 :EncoderDetails(IntType, Text, DateEncoderProto, IntType);
-      deltaEncoder @4 :EncoderDetails(IntType, Text, DeltaEncoderProto, IntType);
-      geospatialCoordinateEncoder @5 :EncoderDetails(IntType, Text, GeospatialCoordinateEncoderProto, IntType);
-      logEncoder @6 :EncoderDetails(IntType, Text, LogEncoderProto, IntType);
-      passThroughEncoder @7 :EncoderDetails(IntType, Text, PassThroughEncoderProto, IntType);
-      randomDistributedScalarEncoder @8 :EncoderDetails(IntType, Text, RandomDistributedScalarEncoderProto, IntType);
-      scalarEncoder @9 :EncoderDetails(IntType, Text, ScalarEncoderProto, IntType);
-      sdrCategoryEncoder @10 :EncoderDetails(IntType, Text, SDRCategoryEncoderProto, IntType);
-      sparsePassThroughEncoder @11 :EncoderDetails(IntType, Text, SparsePassThroughEncoderProto, IntType);
+      adaptiveScalarEncoder @0 :AdaptiveScalarEncoderProto;
+      categoryEncoder @1 :CategoryEncoderProto;
+      coordinateEncoder @2 :CoordinateEncoderProto;
+      dateEncoder @3 :DateEncoderProto;
+      deltaEncoder @4 :DeltaEncoderProto;
+      geospatialCoordinateEncoder @5 :GeospatialCoordinateEncoderProto;
+      logEncoder @6 :LogEncoderProto;
+      passThroughEncoder @7 :PassThroughEncoderProto;
+      randomDistributedScalarEncoder @8 :RandomDistributedScalarEncoderProto;
+      scalarEncoder @9 :ScalarEncoderProto;
+      sdrCategoryEncoder @10 :SDRCategoryEncoderProto;
+      sparsePassThroughEncoder @11 :SparsePassThroughEncoderProto;
     }
+    name @12 :Text;
+    offset @13 :UInt32;
   }
 
   name @1 :Text;
