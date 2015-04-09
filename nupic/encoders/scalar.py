@@ -255,7 +255,7 @@ class ScalarEncoder(Encoder):
      Handle each case here."""
     if n != 0:
       if (radius !=0 or resolution != 0):
-        raise Exception("ScalarEncoder: n is specified, so radius and resolution should be default")
+        raise ValueError("Only one of n/radius/resolution can be specified for a ScalarEncoder")
       assert n > w
       self.n = n
 
@@ -275,7 +275,7 @@ class ScalarEncoder(Encoder):
     else:
       if radius != 0:
         if (resolution != 0):
-          raise Exception("ScalarEncoder: radius is specified, so resolution should be default")
+          raise ValueError("Only one of radius/resolution can be specified for a ScalarEncoder")
         self.radius = radius
         self.resolution = float(self.radius) / w
       elif resolution != 0:
