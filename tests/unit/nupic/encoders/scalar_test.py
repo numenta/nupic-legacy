@@ -458,7 +458,7 @@ class ScalarEncoderTest(unittest.TestCase):
 
   def testSettingScalarAndResolution(self):
     """Setting both scalar and resolution not allowed."""
-    with self.assertRaises(Exception):
+    with self.assertRaises(ValueError):
       encoder = ScalarEncoder(3, None, None, name='scalar',
                               n=0, radius=None, resolution=0.5, forced=True)
 
