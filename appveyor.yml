@@ -55,6 +55,7 @@ configuration: Release
 install:
   - set REPO_DIR=c:\projects\nupic
   - set NUPIC_DEPLOYMENT_BUILD=1
+  - cd %REPO_DIR
 
   - ECHO "Filesystem root:"
   - ps: "ls \"C:/\""
@@ -64,7 +65,7 @@ install:
 
   # Install Python (from the official .msi of http://python.org) and pip when
   # not already installed.
-  - "powershell ./appveyor/install.ps1"
+  - "powershell ./ci/appveyor/install.ps1"
 
   # Prepend newly installed Python to the PATH of this build (this cannot be
   # done from inside the powershell script as it would require to restart
@@ -86,7 +87,6 @@ install:
   # - mkdir %REPO_DIR%\build\scripts
   # - cd %REPO_DIR%\build\scripts
 
-  - cd %REPO_DIR
   - python setup.py install
 
 
