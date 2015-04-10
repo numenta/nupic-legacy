@@ -86,7 +86,7 @@ install:
   # - mkdir %REPO_DIR%\build\release
   # - mkdir %REPO_DIR%\build\scripts
   # - cd %REPO_DIR%\build\scripts
-
+  - pip install numpy
   - python setup.py install
 
 
