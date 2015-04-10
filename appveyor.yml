@@ -55,7 +55,7 @@ configuration: Release
 install:
   - set REPO_DIR=c:\projects\nupic
   - set NUPIC_DEPLOYMENT_BUILD=1
-  - cd %REPO_DIR
+  - cd %REPO_DIR%
 
   - ECHO "Filesystem root:"
   - ps: "ls \"C:/\""
