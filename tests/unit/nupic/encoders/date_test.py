@@ -24,18 +24,21 @@
 
 import datetime
 import numpy
+import tempfile
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import unittest2 as unittest
 
 from nupic.encoders.date import DateEncoder
+from nupic.encoders.date_capnp import DateEncoderProto
+
 
 
 #########################################################################
 class DateEncoderTest(unittest.TestCase):
   '''Unit tests for DateEncoder class'''
 
-  
+
   def setUp(self):
     ##TODO: comment and code don't match - weekend?!!
     # 3 bits for season, 1 bit for day of week, 2 for weekend, 5 for time of day
@@ -62,7 +65,7 @@ class DateEncoderTest(unittest.TestCase):
     timeOfDayExpected = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0]
     self._expected = numpy.array(seasonExpected + dayOfWeekExpected + weekendExpected \
                           + timeOfDayExpected, dtype=defaultDtype)
-   
+
   def testDateEncoder(self):
     '''creating date encoder instance'''
     self.assertEqual(self._e.getDescription(), [("season", 0), ("day of week", 12),
@@ -90,19 +93,19 @@ class DateEncoderTest(unittest.TestCase):
     (ranges, desc) = fieldsDict['season']
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [305, 305])
-    
+
     (ranges, desc) = fieldsDict['time of day']
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [14.4, 14.4])
-    
+
     (ranges, desc) = fieldsDict['day of week']
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [3, 3])
-    
+
     (ranges, desc) = fieldsDict['weekend']
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [0, 0])
-    
+
     print decoded
     print "decodedToStr=>", self._e.decodedToStr(decoded)
 
@@ -165,6 +168,46 @@ class DateEncoderTest(unittest.TestCase):
         self.assertEqual(d.weekday(), 0)
       else:
         self.assertFalse(d.weekday()==0)
+
+
+  def testReadWrite(self):
+    originalTS = datetime.datetime(1997, 8, 29, 2, 14)
+    originalValue = self._e.encode(originalTS)
+
+    proto1 = DateEncoderProto.new_message()
+    self._e.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = DateEncoderProto.read(f)
+
+    encoder = DateEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, DateEncoder)
+    self.assertEqual(encoder.width, self._e.width)
+    self.assertEqual(encoder.weekendOffset, self._e.weekendOffset)
+    self.assertEqual(encoder.timeOfDayOffset, self._e.timeOfDayOffset)
+    self.assertEqual(encoder.seasonOffset, self._e.seasonOffset)
+    self.assertEqual(encoder.dayOfWeekOffset, self._e.dayOfWeekOffset)
+    self.assertIsInstance(encoder.customDaysEncoder,
+                          self._e.customDaysEncoder.__class__)
+    self.assertIsInstance(encoder.dayOfWeekEncoder,
+                          self._e.dayOfWeekEncoder.__class__)
+    self.assertIsInstance(encoder.seasonEncoder,
+                          self._e.seasonEncoder.__class__)
+    self.assertIsInstance(encoder.timeOfDayEncoder,
+                          self._e.timeOfDayEncoder.__class__)
+    self.assertIsInstance(encoder.weekendEncoder,
+                          self._e.weekendEncoder.__class__)
+    self.assertTrue(numpy.array_equal(self._bits, encoder.encode(self._d)))
+    self.assertTrue(numpy.array_equal(encoder.encode(originalTS),
+                                      originalValue))
+    self.assertEqual(self._e.decode(encoder.encode(self._d)),
+                     encoder.decode(self._e.encode(self._d)))
+
+
 
 ###########################################
 if __name__ == '__main__':

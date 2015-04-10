@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -24,16 +24,19 @@
 
 import numpy
 import itertools
+import tempfile
 from nupic.encoders.base import defaultDtype
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import unittest2 as unittest
 
 from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.scalar_capnp import ScalarEncoderProto
+
 
 
 #########################################################################
 class ScalarEncoderTest(unittest.TestCase):
-  '''Unit tests for ScalarEncoder class'''
+  """Unit tests for ScalarEncoder class"""
 
   def setUp(self):
       # use of forced is not recommended, but used here for readability, see scalar.py
@@ -410,6 +413,62 @@ class ScalarEncoderTest(unittest.TestCase):
     self.assertEqual(4.5, encoder.topDownCompute(encoder.encode(4.5))[0].scalar)
 
 
+  def testReadWrite(self):
+    """Test ScalarEncoder Cap'n Proto serialization implementation."""
+    originalValue = self._l.encode(1)
+
+    proto1 = ScalarEncoderProto.new_message()
+    self._l.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = ScalarEncoderProto.read(f)
+
+    encoder = ScalarEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, ScalarEncoder)
+    self.assertEqual(encoder.w, self._l.w)
+    self.assertEqual(encoder.minval, self._l.minval)
+    self.assertEqual(encoder.maxval, self._l.maxval)
+    self.assertEqual(encoder.periodic, self._l.periodic)
+    self.assertEqual(encoder.n, self._l.n)
+    self.assertEqual(encoder.radius, self._l.radius)
+    self.assertEqual(encoder.resolution, self._l.resolution)
+    self.assertEqual(encoder.name, self._l.name)
+    self.assertEqual(encoder.verbosity, self._l.verbosity)
+    self.assertEqual(encoder.clipInput, self._l.clipInput)
+    self.assertTrue(numpy.array_equal(encoder.encode(1), originalValue))
+    self.assertEqual(self._l.decode(encoder.encode(1)),
+                     encoder.decode(self._l.encode(1)))
+
+    # Feed in a new value and ensure the encodings match
+    result1 = self._l.encode(7)
+    result2 = encoder.encode(7)
+    self.assertTrue(numpy.array_equal(result1, result2))
+
+  # ============================================================================
+  # Tests for #1966
+  def testSettingNWithMaxvalMinvalNone(self):
+    """Setting n when maxval/minval = None creates instance."""
+    encoder = ScalarEncoder(3, None, None, name='scalar',
+                            n=14, radius=0, resolution=0, forced=True)
+    self.assertIsInstance(encoder, ScalarEncoder)
+
+  def testSettingScalarAndResolution(self):
+    """Setting both scalar and resolution not allowed."""
+    with self.assertRaises(ValueError):
+      encoder = ScalarEncoder(3, None, None, name='scalar',
+                              n=0, radius=None, resolution=0.5, forced=True)
+
+  def testSettingRadiusWithMaxvalMinvalNone(self):
+    """If radius when maxval/minval = None creates instance."""
+    encoder = ScalarEncoder(3, None, None, name='scalar',
+                            n=0, radius=1.5, resolution=0, forced=True)
+    self.assertIsInstance(encoder, ScalarEncoder)
+
+
 ###########################################
-if __name__ == '__main__':
+if __name__ == "__main__":
   unittest.main()

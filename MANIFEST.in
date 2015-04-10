@@ -12,3 +12,4 @@ recursive-include external/darwin64 swig *.a
 recursive-include external/linux64 swig *.a
 
 recursive-include nupic/datafiles *.csv *.txt
+recursive-include *.capnp

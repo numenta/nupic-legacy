@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -22,11 +22,18 @@
 import math
 import numbers
 
+import capnp
 import numpy
+
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.bindings.math import SM32, GetNTAReal
 from nupic.encoders.base import Encoder, EncoderResult
+
+
+
+DEFAULT_RADIUS = 0
+DEFAULT_RESOLUTION = 0
 
 
 
@@ -150,8 +157,8 @@ class ScalarEncoder(Encoder):
                maxval,
                periodic=False,
                n=0,
-               radius=0,
-               resolution=0,
+               radius=DEFAULT_RADIUS,
+               resolution=DEFAULT_RESOLUTION,
                name=None,
                verbosity=0,
                clipInput=False,
@@ -181,7 +188,7 @@ class ScalarEncoder(Encoder):
     See class documentation for more information.
     """
 
-    assert isinstance(w, int)
+    assert isinstance(w, numbers.Integral)
     self.encoders = None
     self.verbosity = verbosity
     self.w = w
@@ -219,7 +226,8 @@ class ScalarEncoder(Encoder):
 
     # nInternal represents the output area excluding the possible padding on each
     #  side
-    self.nInternal = self.n - 2 * self.padding
+    if (minval is not None and maxval is not None):
+      self.nInternal = self.n - 2 * self.padding
 
     # Our name
     if name is not None:
@@ -243,11 +251,11 @@ class ScalarEncoder(Encoder):
 
   ############################################################################
   def _initEncoder(self, w, minval, maxval, n, radius, resolution):
-    """ (helper function)  There are three different ways of thinking about the representation. 
+    """ (helper function)  There are three different ways of thinking about the representation.
      Handle each case here."""
     if n != 0:
-      assert radius == 0
-      assert resolution == 0
+      if (radius !=0 or resolution != 0):
+        raise ValueError("Only one of n/radius/resolution can be specified for a ScalarEncoder")
       assert n > w
       self.n = n
 
@@ -266,7 +274,8 @@ class ScalarEncoder(Encoder):
 
     else:
       if radius != 0:
-        assert resolution == 0
+        if (resolution != 0):
+          raise ValueError("Only one of radius/resolution can be specified for a ScalarEncoder")
         self.radius = radius
         self.resolution = float(self.radius) / w
       elif resolution != 0:
@@ -275,13 +284,14 @@ class ScalarEncoder(Encoder):
       else:
         raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
 
-      if self.periodic:
-        self.range = self.rangeInternal
-      else:
-        self.range = self.rangeInternal + self.resolution
+      if (minval is not None and maxval is not None):
+        if self.periodic:
+          self.range = self.rangeInternal
+        else:
+          self.range = self.rangeInternal + self.resolution
 
-      nfloat = self.w * (self.range / self.radius) + 2 * self.padding
-      self.n = int(math.ceil(nfloat))
+        nfloat = self.w * (self.range / self.radius) + 2 * self.padding
+        self.n = int(math.ceil(nfloat))
 
   ############################################################################
   def _checkReasonableSettings(self):
@@ -416,7 +426,7 @@ class ScalarEncoder(Encoder):
 
     if bucketIdx is None:
       # None is returned for missing value
-      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead? 
+      output[0:self.n] = 0  #TODO: should all 1s, or random SDR be returned instead?
 
     else:
       # The bucket index is the index of the first bit to set in the output
@@ -641,7 +651,7 @@ class ScalarEncoder(Encoder):
   ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
-    
+
     # Get/generate the topDown mapping table
     #NOTE: although variable topDownMappingM is unused, some (bad-style) actions
     #are executed during _getTopDownMapping() so this line must stay here
@@ -714,3 +724,35 @@ class ScalarEncoder(Encoder):
     print "  nInternal: %d" % self.nInternal
     print "  rangeInternal: %f" % self.rangeInternal
     print "  padding: %d" % self.padding
+
+
+  @classmethod
+  def read(cls, proto):
+    if proto.n is not None:
+      radius = DEFAULT_RADIUS
+      resolution = DEFAULT_RESOLUTION
+    else:
+      radius = proto.radius
+      resolution = proto.resolution
+
+    return cls(w=proto.w,
+               minval=proto.minval,
+               maxval=proto.maxval,
+               periodic=proto.periodic,
+               n=proto.n,
+               name=proto.name,
+               verbosity=proto.verbosity,
+               clipInput=proto.clipInput,
+               forced=True)
+
+
+  def write(self, proto):
+    proto.w = self.w
+    proto.minval = self.minval
+    proto.maxval = self.maxval
+    proto.periodic = self.periodic
+    # Radius and resolution can be recalculated based on n
+    proto.n = self.n
+    proto.name = self.name
+    proto.verbosity = self.verbosity
+    proto.clipInput = self.clipInput
