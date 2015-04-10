@@ -448,6 +448,25 @@ class ScalarEncoderTest(unittest.TestCase):
     result2 = encoder.encode(7)
     self.assertTrue(numpy.array_equal(result1, result2))
 
+  # ============================================================================
+  # Tests for #1966
+  def testSettingNWithMaxvalMinvalNone(self):
+    """Setting n when maxval/minval = None creates instance."""
+    encoder = ScalarEncoder(3, None, None, name='scalar',
+                            n=14, radius=0, resolution=0, forced=True)
+    self.assertIsInstance(encoder, ScalarEncoder)
+
+  def testSettingScalarAndResolution(self):
+    """Setting both scalar and resolution not allowed."""
+    with self.assertRaises(ValueError):
+      encoder = ScalarEncoder(3, None, None, name='scalar',
+                              n=0, radius=None, resolution=0.5, forced=True)
+
+  def testSettingRadiusWithMaxvalMinvalNone(self):
+    """If radius when maxval/minval = None creates instance."""
+    encoder = ScalarEncoder(3, None, None, name='scalar',
+                            n=0, radius=1.5, resolution=0, forced=True)
+    self.assertIsInstance(encoder, ScalarEncoder)
 
 
 ###########################################

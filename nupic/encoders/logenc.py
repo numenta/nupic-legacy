@@ -34,8 +34,8 @@ class LogEncoder(Encoder):
 
   A Log encoder represents a floating point value on a logarithmic scale.
 
-  valueToEncode = log10(input) 
-  
+  valueToEncode = log10(input)
+
     w -- number of bits to set in output
     minval -- minimum input value. must be greater than 0. Lower values are
               reset to this value
@@ -43,7 +43,7 @@ class LogEncoder(Encoder):
     periodic -- If true, then the input value "wraps around" such that minval =
               maxval For a periodic value, the input must be strictly less than
               maxval, otherwise maxval is a true upper bound.
-    
+
     Exactly one of n, radius, resolution must be set. "0" is a special
     value that means "not set".
 
@@ -94,11 +94,11 @@ class LogEncoder(Encoder):
     # Scale values for calculations within the class
     self.minScaledValue = math.log10(minval)
     self.maxScaledValue = math.log10(maxval)
-    
+
     if not self.maxScaledValue > self.minScaledValue:
       raise ValueError("Max val must be larger, in log space, than min val.")
 
-    self.clipInput = clipInput    
+    self.clipInput = clipInput
     self.minval = minval
     self.maxval = maxval
 
@@ -295,3 +295,31 @@ class LogEncoder(Encoder):
     #      "closeness", closeness
     #import pdb; pdb.set_trace()
     return numpy.array([closeness])
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.verbosity = proto.verbosity
+    encoder.minScaledValue = proto.minScaledValue
+    encoder.maxScaledValue = proto.maxScaledValue
+    encoder.clipInput = proto.clipInput
+    encoder.minval = proto.minval
+    encoder.maxval = proto.maxval
+    encoder.encoder = ScalarEncoder.read(proto.encoder)
+    encoder.name = proto.name
+    encoder.width = encoder.encoder.getWidth()
+    encoder.description = [(encoder.name, 0)]
+    encoder._bucketValues = None
+    return encoder
+
+
+  def write(self, proto):
+    proto.verbosity = self.verbosity
+    proto.minScaledValue = self.minScaledValue
+    proto.maxScaledValue = self.maxScaledValue
+    proto.clipInput = self.clipInput
+    proto.minval = self.minval
+    proto.maxval = self.maxval
+    self.encoder.write(proto.encoder)
+    proto.name = self.name

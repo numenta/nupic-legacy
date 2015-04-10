@@ -226,7 +226,8 @@ class ScalarEncoder(Encoder):
 
     # nInternal represents the output area excluding the possible padding on each
     #  side
-    self.nInternal = self.n - 2 * self.padding
+    if (minval is not None and maxval is not None):
+      self.nInternal = self.n - 2 * self.padding
 
     # Our name
     if name is not None:
@@ -253,8 +254,8 @@ class ScalarEncoder(Encoder):
     """ (helper function)  There are three different ways of thinking about the representation.
      Handle each case here."""
     if n != 0:
-      assert radius == 0
-      assert resolution == 0
+      if (radius !=0 or resolution != 0):
+        raise ValueError("Only one of n/radius/resolution can be specified for a ScalarEncoder")
       assert n > w
       self.n = n
 
@@ -273,7 +274,8 @@ class ScalarEncoder(Encoder):
 
     else:
       if radius != 0:
-        assert resolution == 0
+        if (resolution != 0):
+          raise ValueError("Only one of radius/resolution can be specified for a ScalarEncoder")
         self.radius = radius
         self.resolution = float(self.radius) / w
       elif resolution != 0:
@@ -282,13 +284,14 @@ class ScalarEncoder(Encoder):
       else:
         raise Exception("One of n, radius, resolution must be specified for a ScalarEncoder")
 
-      if self.periodic:
-        self.range = self.rangeInternal
-      else:
-        self.range = self.rangeInternal + self.resolution
+      if (minval is not None and maxval is not None):
+        if self.periodic:
+          self.range = self.rangeInternal
+        else:
+          self.range = self.rangeInternal + self.resolution
 
-      nfloat = self.w * (self.range / self.radius) + 2 * self.padding
-      self.n = int(math.ceil(nfloat))
+        nfloat = self.w * (self.range / self.radius) + 2 * self.padding
+        self.n = int(math.ceil(nfloat))
 
   ############################################################################
   def _checkReasonableSettings(self):
