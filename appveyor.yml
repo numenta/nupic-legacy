@@ -92,6 +92,6 @@ install:
   # - mkdir %REPO_DIR%\build\scripts
   # - cd %REPO_DIR%\build\scripts
   - "%CMD_IN_ENV% pip install numpy"
-  - python setup.py install
+  - "%CMD_IN_ENV% python setup.py install"
 
 
