@@ -180,7 +180,9 @@ def getPlatformInfo():
     platform = "linux"
   elif "darwin" in sys.platform:
     platform = "darwin"
-  elif "windows" in sys.platform:
+  # All windows platform show up as "win32". 
+  # See http://stackoverflow.com/questions/2144748/is-it-safe-to-use-sys-platform-win32-check-on-64-bit-python
+  elif "win32" == sys.platform:
     platform = "windows"
   else:
     raise Exception("Platform '%s' is unsupported!" % sys.platform)
