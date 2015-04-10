@@ -62,7 +62,10 @@ def validateEncoder(enc, subsampling):
     for j in range(i+1, enc.maxIndex+1, subsampling):
       if not enc._overlapOK(i, j):
         return False
+
   return True
+
+
 
 class RandomDistributedScalarEncoderTest(unittest.TestCase):
   """
@@ -78,8 +81,8 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     # Initialize with non-default parameters and encode with a number close to
     # the offset
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=23,
-                                         n=500, offset = 0.0)
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0, w=23,
+                                         n=500, offset=0.0)
     e0 = enc.encode(-0.1)
 
     self.assertEqual(e0.sum(), 23, "Number of on bits is incorrect")
@@ -94,8 +97,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual(len(enc.bucketMap), 2, "Number of buckets is not 2")
     self.assertEqual(e1.sum(), 23, "Number of on bits is incorrect")
     self.assertEqual(e1.size, 500, "Width of the vector is incorrect")
-    self.assertEqual(computeOverlap(e0, e1), 22,
-                     "Overlap is not equal to w-1")
+    self.assertEqual(computeOverlap(e0, e1), 22, "Overlap is not equal to w-1")
 
     # Encode with a number that is resolution*w away from offset. Now we should
     # have many buckets and this encoding should have very little overlap with
@@ -104,15 +106,14 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertGreater(len(enc.bucketMap), 23, "Number of buckets is not 2")
     self.assertEqual(e25.sum(), 23, "Number of on bits is incorrect")
     self.assertEqual(e25.size, 500, "Width of the vector is incorrect")
-    self.assertLess(computeOverlap(e0, e25), 4,
-                     "Overlap is too high")
+    self.assertLess(computeOverlap(e0, e25), 4, "Overlap is too high")
 
     # Test encoding consistency. The encodings for previous numbers
     # shouldn't change even though we have added additional buckets
-    self.assertEqual((e0 == enc.encode(-0.1)).sum(), 500,
+    self.assertTrue(numpy.array_equal(e0, enc.encode(-0.1)),
       "Encodings are not consistent - they have changed after new buckets "
       "have been created")
-    self.assertEqual((e1 == enc.encode(1.0)).sum(), 500,
+    self.assertTrue(numpy.array_equal(e1, enc.encode(1.0)),
       "Encodings are not consistent - they have changed after new buckets "
       "have been created")
 
@@ -122,7 +123,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     Test that missing values and NaN return all zero's.
     """
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0)
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0)
     empty = enc.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
     self.assertEqual(empty.sum(), 0)
 
@@ -135,25 +136,25 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that numbers within the same resolution return the same encoding.
     Numbers outside the resolution should return different encodings.
     """
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0)
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0)
 
     # Since 23.0 is the first encoded number, it will be the offset.
     # Since resolution is 1, 22.9 and 23.4 should have the same bucket index and
     # encoding.
     e23   = enc.encode(23.0)
-    e23_1 = enc.encode(23.1)
-    e22_9 = enc.encode(22.9)
+    e23p1 = enc.encode(23.1)
+    e22p9 = enc.encode(22.9)
     e24   = enc.encode(24.0)
     self.assertEqual(e23.sum(), enc.w)
-    self.assertEqual((e23 == e23_1).sum(), enc.getWidth(),
+    self.assertEqual((e23 == e23p1).sum(), enc.getWidth(),
       "Numbers within resolution don't have the same encoding")
-    self.assertEqual((e23 == e22_9).sum(), enc.getWidth(),
+    self.assertEqual((e23 == e22p9).sum(), enc.getWidth(),
       "Numbers within resolution don't have the same encoding")
     self.assertNotEqual((e23 == e24).sum(), enc.getWidth(),
       "Numbers outside resolution have the same encoding")
 
-    e22_9 = enc.encode(22.5)
-    self.assertNotEqual((e23 == e22_9).sum(), enc.getWidth(),
+    e22p9 = enc.encode(22.5)
+    self.assertNotEqual((e23 == e22p9).sum(), enc.getWidth(),
       "Numbers outside resolution have the same encoding")
 
 
@@ -172,10 +173,11 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual(len(enc.bucketMap), enc._maxBuckets,
       "_maxBuckets exceeded")
     self.assertTrue(
-      (enc.mapBucketIndexToNonZeroBits(-1) == enc.bucketMap[0]).all(),
+      numpy.array_equal(enc.mapBucketIndexToNonZeroBits(-1), enc.bucketMap[0]),
       "mapBucketIndexToNonZeroBits did not handle negative index")
     self.assertTrue(
-      (enc.mapBucketIndexToNonZeroBits(1000) == enc.bucketMap[9]).all(),
+      numpy.array_equal(enc.mapBucketIndexToNonZeroBits(1000),
+                        enc.bucketMap[9]),
       "mapBucketIndexToNonZeroBits did not handle negative index")
 
     e23 = enc.encode(23.0)
@@ -183,9 +185,9 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     self.assertEqual((e23 == e6).sum(), enc.getWidth(),
       "Values not clipped correctly during encoding")
 
-    e_8 = enc.encode(-8)
-    e_7  = enc.encode(-7)
-    self.assertEqual((e_8 == e_7).sum(), enc.getWidth(),
+    ep8 = enc.encode(-8)
+    ep7  = enc.encode(-7)
+    self.assertEqual((ep8 == ep7).sum(), enc.getWidth(),
       "Values not clipped correctly during encoding")
 
     self.assertEqual(enc.getBucketIndices(-8)[0], 0,
@@ -200,19 +202,19 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     # n must be >= 6*w
     with self.assertRaises(ValueError):
-      RandomDistributedScalarEncoder(name='mv', resolution=1.0, n=int(5.9*21))
+      RandomDistributedScalarEncoder(name="mv", resolution=1.0, n=int(5.9*21))
 
     # n must be an int
     with self.assertRaises(ValueError):
-      RandomDistributedScalarEncoder(name='mv', resolution=1.0, n=5.9*21)
+      RandomDistributedScalarEncoder(name="mv", resolution=1.0, n=5.9*21)
 
     # w can't be negative
     with self.assertRaises(ValueError):
-      RandomDistributedScalarEncoder(name='mv', resolution=1.0, w=-1)
+      RandomDistributedScalarEncoder(name="mv", resolution=1.0, w=-1)
 
     # resolution can't be negative
     with self.assertRaises(ValueError):
-      RandomDistributedScalarEncoder(name='mv', resolution=-2)
+      RandomDistributedScalarEncoder(name="mv", resolution=-2)
 
 
   def testOverlapStatistics(self):
@@ -226,7 +228,8 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
     # Generate about 600 encodings. Set n relatively low to increase
     # chance of false overlaps
-    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150, seed=seed)
+    enc = RandomDistributedScalarEncoder(resolution=1.0, w=11, n=150,
+                                         seed=seed)
     enc.encode(0.0)
     enc.encode(-300.0)
     enc.encode(300.0)
@@ -239,11 +242,11 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that the getWidth, getDescription, and getDecoderOutputFieldTypes
     methods work.
     """
-    enc = RandomDistributedScalarEncoder(name='theName', resolution=1.0, n=500)
+    enc = RandomDistributedScalarEncoder(name="theName", resolution=1.0, n=500)
     self.assertEqual(enc.getWidth(), 500,
                      "getWidth doesn't return the correct result")
 
-    self.assertEqual(enc.getDescription(), [('theName', 0)],
+    self.assertEqual(enc.getDescription(), [("theName", 0)],
                      "getDescription doesn't return the correct result")
 
     self.assertEqual(enc.getDecoderOutputFieldTypes(),
@@ -255,12 +258,12 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     Test that offset is working properly
     """
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0)
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0)
     enc.encode(23.0)
     self.assertEqual(enc._offset, 23.0,
               "Offset not specified and not initialized to first input")
 
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0,
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0,
                                          offset=25.0)
     enc.encode(23.0)
     self.assertEqual(enc._offset, 25.0,
@@ -272,10 +275,10 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that initializing twice with the same seed returns identical encodings
     and different when not specified
     """
-    enc1 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=42)
-    enc2 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=42)
-    enc3 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=-1)
-    enc4 = RandomDistributedScalarEncoder(name='enc', resolution=1.0, seed=-1)
+    enc1 = RandomDistributedScalarEncoder(name="enc", resolution=1.0, seed=42)
+    enc2 = RandomDistributedScalarEncoder(name="enc", resolution=1.0, seed=42)
+    enc3 = RandomDistributedScalarEncoder(name="enc", resolution=1.0, seed=-1)
+    enc4 = RandomDistributedScalarEncoder(name="enc", resolution=1.0, seed=-1)
 
     e1 = enc1.encode(23.0)
     e2 = enc2.encode(23.0)
@@ -297,7 +300,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that the internal method _countOverlapIndices works as expected.
     """
     # Create a fake set of encodings.
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=5,
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0, w=5,
                                          n=5*20)
     midIdx = enc._maxBuckets/2
     enc.bucketMap[midIdx-2] = numpy.array(range(3, 8))
@@ -331,7 +334,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     Test that the internal method _overlapOK works as expected.
     """
     # Create a fake set of encodings.
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, w=5,
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0, w=5,
                                          n=5*20)
     midIdx = enc._maxBuckets/2
     enc.bucketMap[midIdx-3] = numpy.array(range(4, 9))  # Not ok with midIdx-1
@@ -380,7 +383,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     Test that the internal method _countOverlap works as expected.
     """
-    enc = RandomDistributedScalarEncoder(name='enc', resolution=1.0, n=500)
+    enc = RandomDistributedScalarEncoder(name="enc", resolution=1.0, n=500)
 
     r1 = numpy.array([1, 2, 3, 4, 5, 6])
     r2 = numpy.array([1, 2, 3, 4, 5, 6])
@@ -419,7 +422,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
     """
     _stdout = sys.stdout
     sys.stdout = _stringio = StringIO()
-    enc = RandomDistributedScalarEncoder(name='mv', resolution=1.0, verbosity=0)
+    enc = RandomDistributedScalarEncoder(name="mv", resolution=1.0, verbosity=0)
     output = numpy.zeros(enc.getWidth(), dtype=defaultDtype)
     enc.encodeIntoArray(23.0, output)
     enc.getBucketIndices(23.0)
@@ -429,7 +432,7 @@ class RandomDistributedScalarEncoderTest(unittest.TestCase):
 
 
   def testEncodeInvalidInputType(self):
-    encoder = RandomDistributedScalarEncoder(name='enc', resolution=1.0,
+    encoder = RandomDistributedScalarEncoder(name="enc", resolution=1.0,
                                              verbosity=0)
     with self.assertRaises(TypeError):
       encoder.encode("String")
