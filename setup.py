@@ -80,9 +80,14 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
 
   if not silent:
     print "Unpacking %s into %s..." % (package, destDir)
+    print "expecting %s" dirToUnpack
 
   with tarfile.open(package, "r:gz") as tarFileObj:
     tarFileObj.extractall(destDir)
+
+  # debug
+  print "Unpacked tarball contains the following files:"
+  print os.listdir(destDir)
 
   # Copy subdirectories to a level up
   subDirs = os.listdir(os.path.join(destDir, dirToUnpack))
