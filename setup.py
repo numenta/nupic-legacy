@@ -261,7 +261,9 @@ def findRequirements():
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
-  requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
+  requirementsPath = os.path.join(
+    REPO_DIR, "external", "common", "requirements.txt"
+  )
   return [
     line.strip()
     for line in open(requirementsPath).readlines()
@@ -339,8 +341,8 @@ def extractNupicCoreTarget():
 def getDefaultNupicCoreDirectories():
   # Default nupic.core location is relative to the NuPIC checkout.
   return (
-    os.path.join(REPO_DIR, "extensions/core/build/release"),
-    os.path.join(REPO_DIR, "extensions/core")
+    os.path.join(REPO_DIR, "extensions", "core", "build", "release"),
+    os.path.join(REPO_DIR, "extensions", "core")
   )
 
 
@@ -411,7 +413,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
 
   commonIncludeDirs = [
     os.path.join(REPO_DIR, "external", platform + bitness, "include"),
-    os.path.join(REPO_DIR, "external/common/include"),
+    os.path.join(REPO_DIR, "external", "common", "include"),
     os.path.join(REPO_DIR, "extensions"),
     REPO_DIR,
     os.path.join(nupicCoreReleaseDir, "include"),
@@ -536,7 +538,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   #
   # SWIG
   #
-  swigDir = os.path.join(REPO_DIR, "external/common/share/swig/3.0.2")
+  swigDir = os.path.join(REPO_DIR, "external", "common", "share", "swig", "3.0.2")
   swigExecutable = (
     os.path.join(REPO_DIR, "external", platform + bitness, "bin", "swig")
   )
@@ -681,7 +683,7 @@ def prepareNupicCore(options, platform, bitness):
       # be cleaner with something like `python setup.py clean`.
 
       if not downloadSuccess:
-        raise Exception("Failed to download nupic.core tarball from %s}! "
+        raise Exception("Failed to download nupic.core tarball from %s! "
                         "Ensure you have an internet connection and that the "
                         "remote tarball exists." % nupicCoreRemoteUrl)
       else:
@@ -700,7 +702,10 @@ def prepareNupicCore(options, platform, bitness):
 
   if not skipCompareVersions:
     # Compare expected version of nupic.core against installed version
-    with open(os.path.join(nupicCoreReleaseDir, "include/nupic/Version.hpp"), "r") as fileObj:
+    versionHpp = os.path.join(
+      nupicCoreReleaseDir, "include", "nupic", "Version.hpp"
+    )
+    with open(versionHpp, "r") as fileObj:
       content = fileObj.read()
 
     nupicCoreVersionFound = re.search(
@@ -715,8 +720,8 @@ def prepareNupicCore(options, platform, bitness):
       )
 
   # Copy proto files located at nupic.core dir into nupic dir
-  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
-  protoTargetDir = os.path.join(REPO_DIR, "nupic/bindings/proto")
+  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include", "nupic", "proto"))[0]
+  protoTargetDir = os.path.join(REPO_DIR, "nupic", "bindings", "proto")
   if not os.path.exists(protoTargetDir):
     os.makedirs(protoTargetDir)
   for fileName in glob.glob(protoSourceDir + os.pathsep + "*.capnp"):
@@ -737,8 +742,8 @@ def postProcess():
   if not os.path.exists(os.path.join(REPO_DIR, "bin")):
     os.makedirs(os.path.join(REPO_DIR, "bin"))
   shutil.copy(
-    os.path.join(nupicCoreReleaseDir, 
-      ("bin/py_region_test" + getExecutableExtension(platform))
+    os.path.join(nupicCoreReleaseDir, "bin", 
+      ("py_region_test" + getExecutableExtension(platform))
     ), 
     os.path.join(REPO_DIR, "bin")
   )
