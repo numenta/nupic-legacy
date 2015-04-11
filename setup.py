@@ -80,7 +80,7 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
 
   if not silent:
     print "Unpacking %s into %s..." % (package, destDir)
-    print "expecting %s" dirToUnpack
+    print "expecting %s" % dirToUnpack
 
   with tarfile.open(package, "r:gz") as tarFileObj:
     tarFileObj.extractall(destDir)
