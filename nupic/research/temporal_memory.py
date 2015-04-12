@@ -132,19 +132,19 @@ class TemporalMemory(object):
     'Functional' version of compute.
     Returns new state.
 
-    @param activeColumns                   (set)         Indices of active columns in `t`
-    @param prevPredictiveCells             (set)         Indices of predictive cells in `t-1`
-    @param prevActiveSegments              (set)         Indices of active segments in `t-1`
-    @param prevActiveCells                 (set)         Indices of active cells in `t-1`
-    @param prevWinnerCells                 (set)         Indices of winner cells in `t-1`
-    @param connections                     (Connections) Connectivity of layer
-    @param learn                           (bool)        Whether or not learning is enabled
+    @param activeColumns       (set)         Indices of active columns in `t`
+    @param prevPredictiveCells (set)         Indices of predictive cells in `t-1`
+    @param prevActiveSegments  (set)         Indices of active segments in `t-1`
+    @param prevActiveCells     (set)         Indices of active cells in `t-1`
+    @param prevWinnerCells     (set)         Indices of winner cells in `t-1`
+    @param connections         (Connections) Connectivity of layer
+    @param learn               (bool)        Whether or not learning is enabled
 
     @return (tuple) Contains:
-                      `activeCells`               (set),
-                      `winnerCells`               (set),
-                      `activeSegments`            (set),
-                      `predictiveCells`           (set)
+                      `activeCells`     (set),
+                      `winnerCells`     (set),
+                      `activeSegments`  (set),
+                      `predictiveCells` (set)
     """
     activeCells = set()
     winnerCells = set()
@@ -665,7 +665,7 @@ class Connections(object):
   Class to hold data representing the connectivity of a collection of cells.
   """
 
-  SynapseData = namedtuple("SyanpseData", ["segment",
+  SynapseData = namedtuple("SynapseData", ["segment",
                                            "presynapticCell",
                                            "permanence"])
 
@@ -727,6 +727,8 @@ class Connections(object):
 
     @return (SynapseData) Synapse data
     """
+    self._validateSynapse(synapse)
+
     return self._synapses[synapse]
 
 
@@ -780,6 +782,23 @@ class Connections(object):
     return segment
 
 
+  def destroySegment(self, segment):
+    """
+    Destroys a segment.
+
+    @param segment (int) Segment index
+    """
+    synapses = set(self.synapsesForSegment(segment))
+    for synapse in synapses:
+      self.destroySynapse(synapse)
+
+    cell = self._segments[segment]
+    del self._segments[segment]
+
+    # Update indexes
+    self._segmentsForCell[cell].remove(segment)
+
+
   def createSynapse(self, segment, presynapticCell, permanence):
     """
     Creates a new synapse on a segment.
@@ -807,6 +826,20 @@ class Connections(object):
     self._synapsesForPresynapticCell[presynapticCell][synapse] = synapseData
 
     return synapse
+
+
+  def destroySynapse(self, synapse):
+    """
+    Destroys a synapse.
+
+    @param synapse (int) Synapse index
+    """
+    data = self._synapses[synapse]
+    del self._synapses[synapse]
+
+    # Update indexes
+    self._synapsesForSegment[data.segment].remove(synapse)
+    del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
 
 
   def updateSynapsePermanence(self, synapse, permanence):
@@ -860,6 +893,16 @@ class Connections(object):
     """
     if not segment in self._segments:
       raise IndexError("Invalid segment")
+
+
+  def _validateSynapse(self, synapse):
+    """
+    Raises an error if synapse index is invalid.
+
+    @param synapse (int) Synapse index
+    """
+    if not synapse in self._synapses:
+      raise IndexError("Invalid synapse")
 
 
   @staticmethod
