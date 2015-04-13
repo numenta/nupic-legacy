@@ -715,6 +715,9 @@ def prepareNupicCore(options, platform, bitness):
     with open(versionHpp, "r") as fileObj:
       content = fileObj.read()
 
+    print "** VERSION FILE CONTENTS **"
+    print content
+
     nupicCoreVersionFound = re.search(
       "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
     ).group(1)
