@@ -208,24 +208,24 @@ class TemporalMemoryTest(unittest.TestCase):
                        connections)
 
     # Check segment 0
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.7)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 0.7)
 
-    (_, _, permanence) = connections.dataForSynapse(1)
-    self.assertAlmostEqual(permanence, 0.5)
+    synapseData = connections.dataForSynapse(1)
+    self.assertAlmostEqual(synapseData.permanence, 0.5)
 
-    (_, _, permanence) = connections.dataForSynapse(2)
-    self.assertAlmostEqual(permanence, 0.8)
+    synapseData = connections.dataForSynapse(2)
+    self.assertAlmostEqual(synapseData.permanence, 0.8)
 
     # Check segment 1
-    (_, _, permanence) = connections.dataForSynapse(3)
-    self.assertAlmostEqual(permanence, 0.8)
+    synapseData = connections.dataForSynapse(3)
+    self.assertAlmostEqual(synapseData.permanence, 0.8)
 
     self.assertEqual(len(connections.synapsesForSegment(1)), 2)
 
     # Check segment 2
-    (_, _, permanence) = connections.dataForSynapse(4)
-    self.assertAlmostEqual(permanence, 0.9)
+    synapseData = connections.dataForSynapse(4)
+    self.assertAlmostEqual(synapseData.permanence, 0.9)
 
     self.assertEqual(len(connections.synapsesForSegment(2)), 1)
 
@@ -400,14 +400,14 @@ class TemporalMemoryTest(unittest.TestCase):
 
     tm.adaptSegment(0, set([0, 1]), connections)
 
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.7)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 0.7)
 
-    (_, _, permanence) = connections.dataForSynapse(1)
-    self.assertAlmostEqual(permanence, 0.5)
+    synapseData = connections.dataForSynapse(1)
+    self.assertAlmostEqual(synapseData.permanence, 0.5)
 
-    (_, _, permanence) = connections.dataForSynapse(2)
-    self.assertAlmostEqual(permanence, 0.8)
+    synapseData = connections.dataForSynapse(2)
+    self.assertAlmostEqual(synapseData.permanence, 0.8)
 
 
   def testAdaptSegmentToMax(self):
@@ -418,13 +418,13 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSynapse(0, 23, 0.9)
 
     tm.adaptSegment(0, set([0]), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 1.0)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 1.0)
 
     # Now permanence should be at max
     tm.adaptSegment(0, set([0]), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 1.0)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 1.0)
 
 
   def testAdaptSegmentToMin(self):
@@ -435,13 +435,13 @@ class TemporalMemoryTest(unittest.TestCase):
     connections.createSynapse(0, 23, 0.1)
 
     tm.adaptSegment(0, set(), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.0)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 0.0)
 
     # Now permanence should be at min
     tm.adaptSegment(0, set(), connections)
-    (_, _, permanence) = connections.dataForSynapse(0)
-    self.assertAlmostEqual(permanence, 0.0)
+    synapseData = connections.dataForSynapse(0)
+    self.assertAlmostEqual(synapseData.permanence, 0.0)
 
 
   def testPickCellsToLearnOn(self):
@@ -602,6 +602,32 @@ class ConnectionsTest(unittest.TestCase):
     self.assertEqual(connections.segmentsForCell(0), set([0, 1]))
 
 
+  def testDestroySegment(self):
+    connections = self.connections
+
+    self.assertEqual(connections.createSegment(0), 0)
+    self.assertEqual(connections.createSegment(0), 1)
+    self.assertEqual(connections.createSegment(10), 2)
+
+    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
+    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
+
+    connections.destroySegment(0)
+
+    args = [0]
+    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+    args = [1]
+    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+
+    args = [0]
+    self.assertRaises(IndexError, connections.synapsesForSegment, *args)
+
+    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
+    self.assertEqual(connections.synapsesForPresynapticCell(254), {})
+
+    self.assertEqual(connections.segmentsForCell(0), set([1]))
+
+
   def testCreateSegmentInvalidCell(self):
     connections = self.connections
 
@@ -670,6 +696,26 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.createSynapse, *args)
 
 
+  def testDestroySynapse(self):
+    connections = self.connections
+
+    connections.createSegment(0)
+    self.assertEqual(connections.synapsesForSegment(0), set())
+
+    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
+    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
+
+    connections.destroySynapse(0)
+
+    args = [0]
+    self.assertRaises(IndexError, connections.dataForSynapse, *args)
+
+    self.assertEqual(connections.synapsesForSegment(0), set([1]))
+
+    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
+    self.assertEqual(connections.synapsesForPresynapticCell(254), {})
+
+
   def testDataForSynapseInvalidSynapse(self):
     connections = self.connections
 
@@ -677,7 +723,7 @@ class ConnectionsTest(unittest.TestCase):
     connections.createSynapse(0, 834, 0.1284)
 
     args = [1]
-    self.assertRaises(KeyError, connections.dataForSynapse, *args)
+    self.assertRaises(IndexError, connections.dataForSynapse, *args)
 
 
   def testSynapsesForSegmentInvalidSegment(self):
