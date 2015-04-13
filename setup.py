@@ -85,27 +85,22 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
   with tarfile.open(package, "r:gz") as tarFileObj:
     tarFileObj.extractall(destDir)
 
-  # debug
-  print "Unpacked tarball contains the following files:"
-  print os.listdir(destDir)
-  print "listing files within %s" % destDir
-  subDirs = os.listdir(destDir)
-  for subDir in subDirs:
-    print "\t" + os.path.join(destDir, subDir)
-  print "listing files within %s" % os.path.join(destDir, dirToUnpack)
-  print "target path exists?"
-  print os.path.exists(os.path.join(destDir, dirToUnpack))
+  # On some OSes (Linux, Darwin), unpacking the tarball will put it into a 
+  # directory with the name of the tarball. On other OSes (Windows), the contents
+  # of the tarball are extracted directly into the destination directory without
+  # this wrapper directory. So only move the subfolders out if the wrapper 
+  # directory exists.
+  if os.path.exists(os.path.join(destDir, dirToUnpack)):
+    # Copy subdirectories to a level up
+    subDirs = os.listdir(os.path.join(destDir, dirToUnpack))
+    for subDir in subDirs:
+      shutil.rmtree(os.path.join(destDir, subDir), True)
+      shutil.move(
+        os.path.join(destDir, dirToUnpack, subDir),
+        os.path.join(destDir, subDir)
+      )
 
-  # Copy subdirectories to a level up
-  subDirs = os.listdir(os.path.join(destDir, dirToUnpack))
-  for subDir in subDirs:
-    shutil.rmtree(os.path.join(destDir, subDir), True)
-    shutil.move(
-      os.path.join(destDir, dirToUnpack, subDir),
-      os.path.join(destDir, subDir)
-    )
-
-  shutil.rmtree(os.path.join(destDir, dirToUnpack), True)
+    shutil.rmtree(os.path.join(destDir, dirToUnpack), True)
 
 
 
