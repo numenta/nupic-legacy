@@ -88,6 +88,7 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
   # debug
   print "Unpacked tarball contains the following files:"
   print os.listdir(destDir)
+  print "listing files within %s" % os.path.join(destDir, dirToUnpack)
 
   # Copy subdirectories to a level up
   subDirs = os.listdir(os.path.join(destDir, dirToUnpack))
