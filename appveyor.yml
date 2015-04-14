@@ -11,6 +11,7 @@ branches:
 
 environment:
   global:
+    NUPIC: C:\projects\nupic
     # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
     # /E:ON and /V:ON options are not enabled in the batch script interpreter
     # See: http://stackoverflow.com/a/13751649/163740
@@ -41,7 +42,7 @@ os: Visual Studio 2015 CTP
 init:
   - git config --global core.autocrlf input
 
-clone_folder: c:\projects\nupic
+clone_folder: C:\projects\nupic
 clone_depth: 50
 shallow_clone: true
 
@@ -75,16 +76,8 @@ install:
   - "python --version"
   - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
 
-  # Install the build dependencies of the project. If some dependencies contain
-  # compiled extensions and are not provided as pre-built wheel packages,
-  # pip will build them from source using the MSVC compiler matching the
-  # target Python version and architecture
-  # - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
+  - set VS90COMNTOOLS=%VS140COMNTOOLS%
 
-  # - mkdir %REPO_DIR%\build\
-  # - mkdir %REPO_DIR%\build\release
-  # - mkdir %REPO_DIR%\build\scripts
-  # - cd %REPO_DIR%\build\scripts
   - "%CMD_IN_ENV% pip install numpy"
   - "%CMD_IN_ENV% python setup.py install"
 
