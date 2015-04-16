@@ -140,7 +140,8 @@ class SPLearnInferenceTest(unittest.TestCase):
       print "Test succeeded"
 
 
-  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler.")
+  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler. \
+                 The new SP doesn't have explicit methods to get inference.")
   def testLearnInference(self):
     self._runLearnInference(n=50, w=15)
 

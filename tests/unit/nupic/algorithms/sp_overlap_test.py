@@ -175,9 +175,9 @@ class TestSPFrequency(unittest.TestCase):
     zeros = len([x for x in summ if x==0])
     factor = max(summ)*len(summ)/sum(summ)
     if len(reUsed) < 10:
-      self.assertLessEqual(factor, 40,
+      self.assertLess(factor, 41,
                       "\nComputed factor: %d\nExpected Less than %d" % (
-                          factor, 30))
+                          factor, 41))
       self.assertLess(zeros, 0.99*len(summ),
                       "\nComputed zeros: %d\nExpected Less than %d" % (
                           zeros, 0.99*len(summ)))

@@ -185,7 +185,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
         'results': {
           ('DefaultTask.NontemporalMultiStep.predictionLog.csv',
            "multiStepBestPredictions:multiStep:errorMetric='avg_err':steps=1:window=25:field=field1"):
-                    (0.0, 1.0),
+                    (1.0, 1.0),
         }
       },
 
