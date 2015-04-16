@@ -103,15 +103,6 @@ def _buildArgs(f, self=None, kwargs={}):
         argValue = argTuple[2]
       # Set as an instance variable if 'self' was passed in
       setattr(self, argName, argValue)
-      
-  # Translate some parameters for backward compatibility
-  if kwargs.has_key('numActivePerInhArea'):
-    setattr(self, 'numActiveColumnsPerInhArea', kwargs['numActivePerInhArea'])
-    kwargs.pop('numActivePerInhArea')
-    
-  if kwargs.has_key('coincInputPoolPct'):
-    setattr(self, 'potentialPct', kwargs['coincInputPoolPct'])
-    kwargs.pop('coincInputPoolPct')
 
   return argTuples
 
