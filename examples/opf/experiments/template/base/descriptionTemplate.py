@@ -244,10 +244,10 @@ config = {
   #
   'spNumActivePerInhArea' : 40,
 
-  # coincInputPoolPct
+  # potentialPct
   # What percent of the columns's receptive field is available
   # for potential synapses. At initialization time, we will 
-  # choose coincInputPoolPct * (2*coincInputRadius+1)^2 
+  # choose potentialPct * (2*potentialRadius+1)^2 
   'spCoincInputPoolPct' : 1.0,
   
 
