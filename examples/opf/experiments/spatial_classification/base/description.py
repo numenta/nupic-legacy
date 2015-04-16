@@ -160,7 +160,7 @@ config = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            'spatialImp' : 'oldpy',
+            'spatialImp' : 'py',
 
             'globalInhibition': 1,
 
@@ -198,8 +198,6 @@ config = {
             'synPermActiveInc': 0.1,
 
             'synPermInactiveDec': 0.01,
-
-            'randomSP': 0,
         },
 
         # Controls whether TP is enabled or disabled;

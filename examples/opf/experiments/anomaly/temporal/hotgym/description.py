@@ -201,8 +201,6 @@ config = {
             'synPermActiveInc': 0.1,
 
             'synPermInactiveDec': 0.01,
-
-            'randomSP': 1
         },
 
         # Controls whether TP is enabled or disabled;
