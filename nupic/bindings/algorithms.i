@@ -131,9 +131,6 @@ using namespace nupic;
 #define CHECKSIZE(var) \
   NTA_ASSERT((var)->descr->elsize == 4) << " elsize:" << (var)->descr->elsize
 
-
-// TODO: This __really__ belongs somewhere else, but no other good place for it.
-
 %}
 
 // %pythoncode %{

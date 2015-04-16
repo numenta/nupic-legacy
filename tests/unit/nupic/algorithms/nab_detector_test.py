@@ -168,17 +168,15 @@ class NABTest(TestCaseBase):
                       "spParams": {
                         "columnCount": 2048,
                         "synPermInactiveDec": 0.0005,
-                        "randomSP": 0,
                         "maxBoost": 1.0,
                         "spatialImp": "cpp",
                         "inputWidth": 0,
                         "spVerbosity": 0,
-                        "useHighTier": 0,
                         "synPermConnected": 0.1,
                         "synPermActiveInc": 0.0015,
                         "seed": 1956,
                         "numActiveColumnsPerInhArea": 40,
-                        "coincInputPoolPct": 0.8,
+                        "potentialPct": 0.8,
                         "globalInhibition": 1
                       },
                       "trainSPNetOnlyIfRequested": False,

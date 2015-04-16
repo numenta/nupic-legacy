@@ -39,7 +39,8 @@ numpy.random.seed(100)
 
 class InhibitionObjectTest(unittest.TestCase):
 
-  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler.")
+  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler. \
+                  The new SP doesn't have explicit methods to get inhibition.")
   def testInhibition(self):
     """
     Test if the firing number of coincidences after inhibition
