@@ -236,7 +236,6 @@ config = {
   'spVerbosity' : 0,
 
   # Print/logs stats every N iterations; 0 = disable stats
-  # NOTE: stats are printed by FDRCSpatial2.printPeriodicStats() to stdout
   'spPrintStatsPeriodIter' : 0,
 
   # SP inhibition control (absolute value);
