@@ -151,6 +151,14 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
+  # Add the AnomalyRegion on top of the TPRegion
+  network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
+
+  network.link("spatialPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="bottomUpOut", destInput="activeColumns")
+  network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="topDownOut", destInput="predictedColumns")
+
   network.initialize()
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
@@ -186,6 +194,7 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+  anomalyRegion = network.regions["anomalyRegion"]
 
   prevPredictedColumns = []
 
@@ -194,22 +203,11 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(1)
 
-    activeColumns = spatialPoolerRegion.getOutputData(
-        "bottomUpOut").nonzero()[0]
-
-    # Calculate the anomaly score using the active columns
-    # and previous predicted columns
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
     # Write out the anomaly score along with the record number and consumption
     # value.
+    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
-
-    # Store the predicted columns for the next timestep
-    predictedColumns = temporalPoolerRegion.getOutputData(
-        "topDownOut").nonzero()[0]
-    prevPredictedColumns = copy.deepcopy(predictedColumns)
 
     i += 1
 
