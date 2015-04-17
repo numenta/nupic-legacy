@@ -97,7 +97,6 @@ _ALGORITHMS = _algorithms
 #include <nupic/algorithms/FDRSpatial.hpp>
 #include <nupic/algorithms/FDRCSpatial.hpp>
 #include <nupic/algorithms/SpatialPooler.hpp>
-#include <nupic/algorithms/FlatSpatialPooler.hpp>
 
 #include <nupic/algorithms/Cell.hpp>
 #include <nupic/algorithms/Cells4.hpp>
@@ -2034,110 +2033,6 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
 
 }
 
-
-%include <nupic/algorithms/FlatSpatialPooler.hpp>
-
-%extend nupic::algorithms::spatial_pooler::FlatSpatialPooler
-{
-  %pythoncode %{ 
-    import numpy
-
-    def __init__(self,
-                 inputShape=(32, 32),
-                 inputBorder=8,
-                 inputDensity=1.0,
-                 coincidencesShape=(48, 48),
-                 coincInputRadius=16,
-                 coincInputPoolPct=0.5,
-                 gaussianDist=False,
-                 commonDistributions=False,
-                 localAreaDensity=-1.0,
-                 numActivePerInhArea=10.0,
-                 stimulusThreshold=0,
-                 synPermInactiveDec=0.01,
-                 synPermActiveInc=0.1,
-                 synPermActiveSharedDec=0.0,
-                 synPermOrphanDec=0.0,
-                 synPermConnected=0.10,
-                 minPctDutyCycleBeforeInh=0.001,
-                 minPctDutyCycleAfterInh=0.001,
-                 dutyCyclePeriod=1000,
-                 maxFiringBoost=10.0,
-                 maxSSFiringBoost=2.0,
-                 maxSynPermBoost=10.0,
-                 minDistance=0.0,
-                 cloneMap=None,
-                 numCloneMasters=-1,
-                 seed=-1,
-                 spVerbosity=0,
-                 printPeriodicStats=0,
-                 testMode=False,
-                 globalInhibition=False,
-                 spReconstructionParam="unweighted_mean",
-                 useHighTier=True,
-                 randomSP=False,
-              ):
-      
-      self.this = _ALGORITHMS.new_FlatSpatialPooler()
-      _ALGORITHMS.FlatSpatialPooler_initializeFlat(
-        self,
-        numInputs=numpy.prod(inputShape),
-        numColumns=numpy.prod(coincidencesShape),
-        potentialPct = coincInputPoolPct,
-        localAreaDensity=localAreaDensity,
-        numActiveColumnsPerInhArea=numActivePerInhArea,
-        stimulusThreshold=stimulusThreshold,
-        synPermInactiveDec=synPermInactiveDec,
-        synPermActiveInc=synPermActiveInc,
-        synPermConnected=synPermConnected,
-        minPctOverlapDutyCycles=minPctDutyCycleBeforeInh,
-        minPctActiveDutyCycles=minPctDutyCycleAfterInh,
-        dutyCyclePeriod=dutyCyclePeriod,
-        maxBoost=maxFiringBoost,
-        minDistance=minDistance,
-        randomSP=randomSP,
-        seed=seed,
-        spVerbosity=spVerbosity
-      )
-
-    def __getstate__(self):
-      # Save the local attributes but override the C++ flat spatial pooler with
-      # the string representation.
-      d = dict(self.__dict__)
-      d["this"] = self.getCState()
-      return d
-
-    def __setstate__(self, state):
-      # Create an empty C++ flat spatial pooler and populate it from the
-      # serialized string.
-      self.this = _ALGORITHMS.new_FlatSpatialPooler()
-      if isinstance(state, str):
-        self.loadFromString(state)
-        self.valueToCategory = {}
-      else:
-        self.loadFromString(state["this"])
-        # Use the rest of the state to set local Python attributes.
-        del state["this"]
-        self.__dict__.update(state)
-  %}
-
-  inline void compute(PyObject *py_x, bool learn, PyObject *py_y,
-                      bool stripNeverLearned)
-  {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data,
-                  (bool)stripNeverLearned);
-  }
-
-  inline void compute(PyObject *py_x, bool learn, PyObject *py_y)
-  {
-    PyArrayObject* x = (PyArrayObject*) py_x;
-    PyArrayObject* y = (PyArrayObject*) py_y;
-    self->compute((nupic::UInt*) x->data, (bool)learn, (nupic::UInt*) y->data);
-  }
-
-}
 
 %include <nupic/algorithms/FastClaClassifier.hpp>
 
