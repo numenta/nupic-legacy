@@ -81,7 +81,6 @@ MODEL_PARAMS = {
             'synPermConnected': 0.1,
             'synPermActiveInc': 0.1,
             'synPermInactiveDec': 0.005,
-            'learn': 1,
         },
         'tpEnable' : True,
         'tpParams': {
