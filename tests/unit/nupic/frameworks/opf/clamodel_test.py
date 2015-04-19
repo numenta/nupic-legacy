@@ -124,6 +124,7 @@ class CLAModelTest(unittest.TestCase):
                                       u'inputWidth': 0,
                                       u'maxBoost': 1.0,
                                       u'numActiveColumnsPerInhArea': 40,
+                                      u'learn': 0,
                                       u'seed': 1956,
                                       u'spVerbosity': 0,
                                       u'spatialImp': u'cpp',
