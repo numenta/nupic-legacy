@@ -22,7 +22,7 @@
 import numpy
 
 from nupic.encoders import pass_through_encoder
-
+from nupic.encoders.base import defaultDtype
 
 ############################################################################
 class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
@@ -48,6 +48,16 @@ class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
     super(SparsePassThroughEncoder, self).__init__(
         n, w, name, forced, verbosity)
 
+  
+  def encode(self, inputData):
+    """override - act like Encoder.encode() not PassThrough.encode()
+       TODO: remove when dimensionality implemented same way as in PassThrough
+    """
+    output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
+    self.encodeIntoArray(inputData, output)
+    return output
+
+    
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
