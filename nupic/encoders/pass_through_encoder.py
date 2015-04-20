@@ -21,7 +21,7 @@
 
 import numpy
 from nupic.data.fieldmeta import FieldMetaType
-from nupic.encoders.base import Encoder
+from nupic.encoders.base import Encoder, defaultDtype
 
 
 
@@ -74,11 +74,26 @@ class PassThroughEncoder(Encoder):
     return [0]
 
   ############################################################################
+  def encode(self, inputData):
+    """overrides encode() from base.Encoder to implement
+       dimensionality - the output has the same dimensionality as the input; 
+       eg 1D -> 1D, 2D -> 2D, ...
+
+      @param inputData
+      @returns a numpy array with the encoded representation of inputData; 
+               keeping its shape (size)
+      @returns a numpy array with the encoded representation of inputData
+    """
+    output = numpy.zeros(shape=numpy.shape(inputData), dtype=defaultDtype)
+    self.encodeIntoArray(inputData, output)
+    return output
+
+  ############################################################################
   def encodeIntoArray(self, input, output):
     """See method description in base.py"""
-    if len(input) != len(output):
-      raise ValueError("Different input (%i) and output (%i) sizes." % (
-          len(input), len(output)))
+    if numpy.shape(input) != numpy.shape(output):
+      raise ValueError("Different shapes  (%s) and output (%s)." % (
+          numpy.shape(input), numpy.shape(output)))
 
     # check for requested sparsity in input data
     if self.w is not None and sum(input) != self.w:
