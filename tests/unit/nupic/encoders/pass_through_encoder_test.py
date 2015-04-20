@@ -69,6 +69,17 @@ class PassThroughEncoderTest(unittest.TestCase):
     self.assertEqual(sum_real, sum_expected)
 
 
+  def testEncode2DArray(self):
+    """encoding a 2D array"""
+    e = self._encoder(self.n, name=self.name)
+    bitmap = numpy.zeros(shape=(3,3), dtype=numpy.uint8) # 2D 3x3 matrix
+    bitmap[0,0] = 1
+    bitmap[1,2] = 1
+    out = e.encode(bitmap)
+    self.assertTrue((bitmap == out).all(), "bitmaps are not equal! IN= %s, OUT=%s" % (bitmap, out))
+
+
+
   def testClosenessScores(self):
     """Compare two bitmaps for closeness"""
     e = self._encoder(self.n, name=self.name)
