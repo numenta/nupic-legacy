@@ -127,10 +127,9 @@ class Encoder(object):
     call.
 
     @param inputData TODO: document
-    @returns a numpy array with the encoded representation of inputData; 
-             keeping its shape (size)
+    @returns a numpy array with the encoded representation of inputData
     """
-    output = numpy.zeros(shape=numpy.shape(inputData), dtype=defaultDtype)
+    output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
     self.encodeIntoArray(inputData, output)
     return output
 

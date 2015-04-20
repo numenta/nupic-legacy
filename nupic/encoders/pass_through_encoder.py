@@ -76,9 +76,9 @@ class PassThroughEncoder(Encoder):
   ############################################################################
   def encodeIntoArray(self, input, output):
     """See method description in base.py"""
-    if numpy.shape(input) != numpy.shape(output):
-      raise ValueError("Different shapes  (%s) and output (%s)." % (
-          numpy.shape(input), numpy.shape(output)))
+    if len(input) != len(output):
+      raise ValueError("Different input (%i) and output (%i) sizes." % (
+          len(input), len(output)))
 
     # check for requested sparsity in input data
     if self.w is not None and sum(input) != self.w:
