@@ -20,40 +20,38 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## run python -m cProfile --sort cumtime tp_large.py [nColumns nEpochs]
+## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/enc_profile.py [nMaxValue nEpochs]
 
 import sys
 import numpy
-# chose desired TP implementation to compare:
-from nupic.research.TP10X2 import TP10X2 as CppTP 
-from nupic.research.TP import TP as PyTP
+# chose desired Encoder implementations to compare:
+from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
 
 
-def profileTP(tpClass, tpDim, nRuns):
-  """Checks that feeding in the same input vector leads to polarized
-  permanence values: either zeros or ones, but no fractions"""
-
-  # create TP instance to measure
-  tp = tpClass(numberOfCols=tpDim)
-
+def profileEnc(maxValue, nRuns):
+  minV=0
+  maxV=nRuns
   # generate input data
-  data = numpy.random.randint(0, 2, [tpDim, nRuns]).astype('float32')
+  data=numpy.random.randint(minV, maxV+1, nRuns)
+  # instantiate measured encoders
+  encScalar = ScalarEncoder(w=21, minval=minV, maxval=maxV, resolution=1)
+  encRDSE = RDSE(resolution=1)
+  
+  # profile!  
+  for d in data:
+    encScalar.encode(d)
+    encRDSE.encode(d)
 
-  for i in xrange(nRuns):
-    # new data every time, this is the worst case performance
-    # real performance would be better, as the input data would not be completely random
-    d = data[:,i]
-
-    # the actual function to profile!
-    tp.compute(d, True)
+  print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n
 
 
 
 if __name__ == "__main__":
-  columns=2048
+  maxV=500
   epochs=10000
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileTP(CppTP, columns, epochs)
+  profileEnc(maxV, epochs)

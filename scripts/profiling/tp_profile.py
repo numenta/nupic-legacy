@@ -20,38 +20,48 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## run python -m cProfile --sort cumtime enc_profile.py [nMaxValue nEpochs]
+## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/tp_profile.py [nColumns nEpochs]
 
 import sys
 import numpy
-# chose desired Encoder implementations to compare:
-from nupic.encoders.scalar import ScalarEncoder
-from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder as RDSE
+# chose desired TP implementation to compare:
+from nupic.research.TP10X2 import TP10X2 as CppTP 
+from nupic.research.TP import TP as PyTP
 
 
-def profileEnc(maxValue, nRuns):
-  minV=0
-  maxV=nRuns
+def profileTP(tpClass, tpDim, nRuns):
+  """
+  profiling performance of TemporalPooler (TP)
+  using the python cProfile module and ordered by cumulative time, 
+  see how to run on command-line above.
+
+  @param tpClass implementation of TP (cpp, py, ..)
+  @param tpDim number of columns in TP
+  @param nRuns number of calls of the profiled code (epochs)
+  """
+
+  # create TP instance to measure
+  tp = tpClass(numberOfCols=tpDim)
+
   # generate input data
-  data=numpy.random.randint(minV, maxV+1, nRuns)
-  # instantiate measured encoders
-  encScalar = ScalarEncoder(w=21, minval=minV, maxval=maxV, resolution=1)
-  encRDSE = RDSE(resolution=1)
-  
-  # profile!  
-  for d in data:
-    encScalar.encode(d)
-    encRDSE.encode(d)
+  data = numpy.random.randint(0, 2, [tpDim, nRuns]).astype('float32')
 
-  print "Scalar n=",encScalar.n," RDSE n=",encRDSE.n
+  for i in xrange(nRuns):
+    # new data every time, this is the worst case performance
+    # real performance would be better, as the input data would not be completely random
+    d = data[:,i]
+
+    # the actual function to profile!
+    tp.compute(d, True)
 
 
 
 if __name__ == "__main__":
-  maxV=500
+  columns=2048
   epochs=10000
+  # read command line params
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
 
-  profileEnc(maxV, epochs)
+  profileTP(CppTP, columns, epochs)
