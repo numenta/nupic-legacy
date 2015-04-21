@@ -36,16 +36,16 @@ def profileTP(tpClass, tpDim, nRuns):
   # create TP instance to measure
   tp = tpClass(numberOfCols=tpDim)
 
-  # generate input data; if used only this - it's the easiest scenario (const data)
-  data = numpy.random.randint(0, 2, tpDim).astype('float32')
+  # generate input data
+  data = numpy.random.randint(0, 2, [tpDim, nRuns]).astype('float32')
 
-  for _ in xrange(nRuns):
+  for i in xrange(nRuns):
     # new data every time, this is the worst case performance
     # real performance would be better, as the input data would not be completely random
-    data = numpy.random.randint(0, 2, tpDim).astype('float32') # time spent for this can be ignored
+    d = data[:,i]
 
     # the actual function to profile!
-    tp.compute(data, True)
+    tp.compute(d, True)
 
 
 
