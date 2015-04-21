@@ -100,3 +100,17 @@ class MovingAverage(object):
   def __call__(self, value):
     return self.next(value)
 
+
+  @classmethod
+  def read(cls, proto):
+    movingAverage = object.__new__(cls)
+    movingAverage.windowSize = proto.windowSize
+    movingAverage.slidingWindow = list(proto.slidingWindow)
+    movingAverage.total = proto.total
+    return movingAverage
+
+
+  def write(self, proto):
+    proto.windowSize = self.windowSize
+    proto.slidingWindow = self.slidingWindow
+    proto.total = self.total
