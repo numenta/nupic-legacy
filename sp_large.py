@@ -1,7 +1,7 @@
-#! /usr/bin/env python
+#!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,37 +20,26 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-# Disable since test code accesses private members in the class to be tested
-# pylint: disable=W0212
+## run python -m cProfile --sort cumtime sp_large.py [nColumns nEpochs]
 
-#from mock import Mock
+import sys
 import numpy
-#import unittest2 as unittest
-
-from nupic.support.unittesthelpers.algorithm_test_helpers import (
-  getNumpyRandomGenerator, getSeed )
-from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
-                                 SM32 as SparseMatrix,
-                                 GetNTAReal)
-#from nupic.research.spatial_pooler import SpatialPooler
-from nupic.bindings.algorithms import SpatialPooler 
+# chose desired TP implementation to compare:
+from nupic.research.spatial_pooler import SpatialPooler as PySP
+from nupic.bindings.algorithms import SpatialPooler as CppSP
 
 
-realDType = GetNTAReal()
+def profileSP(spClass, spDim, nRuns):
+  """Checks that feeding in the same input vector leads to polarized
+  permanence values: either zeros or ones, but no fractions"""
 
-class SpatialPoolerTest(object):
-  """Unit Tests for SpatialPooler class."""
-
-
-  def testCompute1(self):
-    """Checks that feeding in the same input vector leads to polarized
-    permanence values: either zeros or ones, but no fractions"""
-
-    inDim = [10000, 1, 1]
-    colDim = [2048, 1, 1]
+  # you can change dimensionality here, eg to 2D
+  inDim = [10000, 1, 1]
+  colDim = [spDim, 1, 1]
 
 
-    sp = SpatialPooler(
+  # create SP instance to measure
+  sp = spClass(
         inputDimensions=inDim,
         columnDimensions=colDim,
         potentialRadius=3,
@@ -66,16 +55,29 @@ class SpatialPoolerTest(object):
         minPctActiveDutyCycle=0.1,
         dutyCyclePeriod=10,
         maxBoost=10.0,
-        seed=getSeed(),
+        seed=42,
         spVerbosity=0)
 
-    inputVector = numpy.random.randint(0, 2, inDim)
+
+  # generate input data; if used only this - it's the easiest scenario (const data)
+  data = numpy.random.randint(0, 2, inDim).astype('float32')
+
+  for _ in xrange(nRuns):
+    # new data every time, this is the worst case performance
+    # real performance would be better, as the input data would not be completely random
+    data = numpy.random.randint(0, 2, inDim).astype('float32') # time spent for this can be ignored
     activeArray = numpy.zeros(colDim)
 
-    for i in xrange(100):
-      sp.compute(inputVector, True, activeArray)
+    # the actual function to profile!
+    sp.compute(data, True, activeArray)
+
 
 
 if __name__ == "__main__":
-  ex = SpatialPoolerTest()
-  ex.testCompute1()
+  columns=2048
+  epochs=10000
+  if len(sys.argv) == 3: # 2 args + name
+    columns=int(sys.argv[1])
+    epochs=int(sys.argv[2])
+
+  profileSP(CppSP, columns, epochs)
