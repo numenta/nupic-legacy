@@ -210,3 +210,17 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     print "  nInternal: %d" % self.nInternal
     print "  rangeInternal: %f" % self.rangeInternal
     print "  padding: %d" % self.padding
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = super(AdaptiveScalarEncoder, cls).read(proto)
+    encoder.recordNum = proto.recordNum
+    encoder.slidingWindow = MovingAverage.read(proto.slidingWindow)
+    return encoder
+
+
+  def write(self, proto):
+    super(AdaptiveScalarEncoder, self).write(proto)
+    proto.recordNum = self.recordNum
+    self.slidingWindow.write(proto.slidingWindow)

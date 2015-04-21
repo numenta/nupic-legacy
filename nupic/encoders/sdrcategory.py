@@ -25,7 +25,8 @@ import numpy
 from nupic.data.fieldmeta import FieldMetaType
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder, EncoderResult
-from nupic.bindings.math import SM32, GetNTAReal
+from nupic.bindings.math import SM32, GetNTAReal, Random as NupicRandom
+
 
 
 ############################################################################
@@ -57,9 +58,9 @@ class SDRCategoryEncoder(Encoder):
     self.w = w
 
     self._learningEnabled = True
-    self.random = random.Random()
-    if encoderSeed != -1:
-        self.random.seed(encoderSeed)
+
+    # initialize the random number generators
+    self._seed(encoderSeed)
 
     if not forced:
       # -- this is just to catch bad parameter choices
@@ -72,20 +73,7 @@ class SDRCategoryEncoder(Encoder):
         raise ValueError("Number of bits in the SDR (%d) must be greater than 2, and should be >= 21, pass forced=True to init() to override this check"
                            % self.w)
 
-
-    # Calculate average overlap of SDRs for decoding
-    # Density is fraction of bits on, and it is also the
-    # probability that any individual bit is on.
-    density = float(self.w) / self.n
-    self.averageOverlap =  w * density
-    # We can do a better job of calculating the threshold. For now, just
-    # something quick and dirty, which is the midway point between average
-    # and full overlap. averageOverlap is always < w,  so the threshold
-    # is always < w.
-    self.thresholdOverlap =  int((self.averageOverlap + self.w)/2)
-    #  1.25 -- too sensitive for decode test, so make it less sensitive
-    if self.thresholdOverlap < self.w - 3:
-      self.thresholdOverlap = self.w - 3
+    self._initOverlap()
 
     self.verbosity = verbosity
 
@@ -116,6 +104,42 @@ class SDRCategoryEncoder(Encoder):
     #  topDownCompute is called
     self._topDownMappingM = None
     self._topDownValues = None
+
+
+  def _initOverlap(self):
+    # Calculate average overlap of SDRs for decoding
+    # Density is fraction of bits on, and it is also the
+    # probability that any individual bit is on.
+    density = float(self.w) / self.n
+    self.averageOverlap =  self.w * density
+    # We can do a better job of calculating the threshold. For now, just
+    # something quick and dirty, which is the midway point between average
+    # and full overlap. averageOverlap is always < w,  so the threshold
+    # is always < w.
+    self.thresholdOverlap =  int((self.averageOverlap + self.w)/2)
+    #  1.25 -- too sensitive for decode test, so make it less sensitive
+    if self.thresholdOverlap < self.w - 3:
+      self.thresholdOverlap = self.w - 3
+
+
+  def __setstate__(self, state):
+    self.__dict__.update(state)
+
+    # Initialize self.random as an instance of NupicRandom derived from the
+    # previous numpy random state
+    randomState = state["random"]
+    if isinstance(randomState, numpy.random.mtrand.RandomState):
+      self.random = NupicRandom(randomState.randint(sys.maxint))
+
+
+  def _seed(self, seed=-1):
+    """
+    Initialize the random seed
+    """
+    if seed != -1:
+      self.random = NupicRandom(seed)
+    else:
+      self.random = NupicRandom()
 
 
   ############################################################################
@@ -162,7 +186,9 @@ class SDRCategoryEncoder(Encoder):
 
     for _ in xrange(maxAttempts):
       foundUnique = True
-      oneBits = sorted(self.random.sample(xrange(self.n), self.w))
+      population = numpy.arange(self.n, dtype=numpy.uint32)
+      choices = numpy.arange(self.w, dtype=numpy.uint32)
+      oneBits = sorted(self.random.sample(population, choices))
       sdr =  numpy.zeros(self.n, dtype='uint8')
       sdr[oneBits] = 1
       for i in xrange(self.ncategories):
@@ -339,3 +365,37 @@ class SDRCategoryEncoder(Encoder):
       closeness = 1.0 - closeness
 
     return numpy.array([closeness])
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+
+    encoder.n = proto.n
+    encoder.w = proto.w
+    encoder.random = NupicRandom()
+    encoder.random.read(proto.random)
+    encoder.verbosity = proto.verbosity
+    encoder.name = proto.name
+    encoder.description = [(proto.name, 0)]
+    encoder.categories = list(proto.categories)
+    encoder.sdrs = numpy.array(proto.sdrs, dtype=numpy.uint8)
+
+    encoder.categoryToIndex = {category:index
+                               for index, category
+                               in enumerate(encoder.categories)}
+    encoder.ncategories = len(encoder.categories)
+    encoder._learningEnabled = False
+    encoder._initOverlap()
+
+    return encoder
+
+
+  def write(self, proto):
+    proto.n = self.n
+    proto.w = self.w
+    self.random.write(proto.random)
+    proto.verbosity = self.verbosity
+    proto.name = self.name
+    proto.categories = self.categories
+    proto.sdrs = self.sdrs.tolist()

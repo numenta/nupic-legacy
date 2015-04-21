@@ -25,6 +25,8 @@ import numpy
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.encoders.base import Encoder
 from nupic.encoders.scalar import ScalarEncoder
+from nupic.encoders.date_capnp import DateEncoderProto
+
 
 
 class DateEncoder(Encoder):
@@ -57,7 +59,7 @@ class DateEncoder(Encoder):
     (int) width of attribute: default radius = 4 hours
     (tuple) timeOfDay[0] = width; timeOfDay[1] = radius
 
-  customDays TODO: what is it? 
+  customDays TODO: what is it?
 
   forced (default True) : if True, skip checks for parameters' settings; see encoders/scalar.py for details
 
@@ -368,7 +370,6 @@ class DateEncoder(Encoder):
 
       # Get the scalar values for each sub-field
       scalars = self.getScalars(input)
-
       # Encoder each sub-field
       for i in xrange(len(self.encoders)):
         (name, encoder, offset) = self.encoders[i]
@@ -378,3 +379,46 @@ class DateEncoder(Encoder):
   ############################################################################
   def getDescription(self):
     return self.description
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.encoders = []
+    encoder.description = []
+    encoder.width = 0
+    encoder.name = proto.name
+
+    def addEncoder(encoderAttr, offsetAttr):
+      protoVal = getattr(proto, encoderAttr)
+      if protoVal.n:
+        setattr(encoder, encoderAttr, ScalarEncoder.read(protoVal))
+        innerEncoder = getattr(encoder, encoderAttr)
+        setattr(encoder, offsetAttr, encoder.width)
+        innerOffset = getattr(encoder, offsetAttr)
+        encoder.width += innerEncoder.getWidth()
+        encoder.description.append((innerEncoder.name, innerOffset))
+        encoder.encoders.append((innerEncoder.name, innerEncoder, innerOffset))
+      else:
+        setattr(encoder, encoderAttr, None)
+
+    addEncoder("seasonEncoder", "seasonOffset")
+    addEncoder("dayOfWeekEncoder", "dayOfWeekOffset")
+    addEncoder("weekendEncoder", "weekendOffset")
+    addEncoder("customDaysEncoder", "customDaysOffset")
+    addEncoder("holidayEncoder", "holidayOffset")
+    addEncoder("timeOfDayEncoder", "timeOfDayOffset")
+
+    return encoder
+
+
+  def write(self, proto):
+    for name in ("seasonEncoder",
+                 "dayOfWeekEncoder",
+                 "weekendEncoder",
+                 "customDaysEncoder",
+                 "holidayEncoder",
+                 "timeOfDayEncoder"):
+      encoder = getattr(self, name)
+      if encoder:
+        encoder.write(getattr(proto, name))
