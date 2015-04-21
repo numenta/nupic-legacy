@@ -1030,10 +1030,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
         << parameterMessagePrefix.str() << "count";
     UInt32 count = py::Int(parameter.getItem("count"));
 
-    // TODO: Looks like this isn't required (NAB fails)
-    // Make sure this is fully documented as optional
-    //NTA_ASSERT(parameter.getItem("contraints") != nullptr)
-    //    << parameterMessagePrefix.str() << "constraints";
+    // This parameter is optional
     std::string constraints(py::String(parameter.getItem("constraints")));
 
     NTA_ASSERT(parameter.getItem("accessMode") != nullptr)
