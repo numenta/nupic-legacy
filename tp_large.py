@@ -20,41 +20,26 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## run python -m cProfile --sort cumTime tp_large.py 
+## run python -m cProfile --sort cumtime tp_large.py 
 
-#from mock import Mock
 import numpy
-#import unittest2 as unittest
-
-from nupic.support.unittesthelpers.algorithm_test_helpers import (
-  getNumpyRandomGenerator, getSeed )
-from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
-                                 SM32 as SparseMatrix,
-                                 GetNTAReal)
-from nupic.research.TP10X2 import TP10X2 as TP 
+# chose desired TP implementation to compare:
+from nupic.research.TP10X2 import TP10X2 as CppTP 
+from nupic.research.TP import TP as PyTP
 
 
-realDType = GetNTAReal()
+def profileTP(tpClass, tpDim, nRuns):
+  """Checks that feeding in the same input vector leads to polarized
+  permanence values: either zeros or ones, but no fractions"""
 
-class SpatialPoolerTest(object):
-  """Unit Tests for SpatialPooler class."""
+  tp = tpClass(numberOfCols=tpDim)
 
+  data = numpy.random.randint(0, 2, tpDim).astype('float32')
 
-  def testCompute1(self):
-    """Checks that feeding in the same input vector leads to polarized
-    permanence values: either zeros or ones, but no fractions"""
-
-    tpDim = 2048
-    
-    tp = TP(numberOfCols=tpDim)
-
-    tpArray = numpy.random.randint(0, 2, tpDim).astype('float32')
-
-    for i in xrange(10000):
-      tp.compute(tpArray, True)
+  for _ in xrange(nRuns):
+    tp.compute(data, True)
 
 
 
 if __name__ == "__main__":
-  ex = SpatialPoolerTest()
-  ex.testCompute1()
+  profileTP(CppTP, 2048, 10000)
