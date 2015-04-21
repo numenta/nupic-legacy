@@ -59,17 +59,19 @@ def profileSP(spClass, spDim, nRuns):
         spVerbosity=0)
 
 
-  # generate input data; if used only this - it's the easiest scenario (const data)
-  data = numpy.random.randint(0, 2, inDim).astype('float32')
+  # generate input data
+  dataDim = inDim
+  dataDim.append(nRuns)
+  data = numpy.random.randint(0, 2, dataDim).astype('float32')
 
-  for _ in xrange(nRuns):
+  for i in xrange(nRuns):
     # new data every time, this is the worst case performance
     # real performance would be better, as the input data would not be completely random
-    data = numpy.random.randint(0, 2, inDim).astype('float32') # time spent for this can be ignored
+    d = data[:,:,:,i]
     activeArray = numpy.zeros(colDim)
 
     # the actual function to profile!
-    sp.compute(data, True, activeArray)
+    sp.compute(d, True, activeArray)
 
 
 
