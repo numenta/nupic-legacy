@@ -19,3 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 __version__ = "0.3.0.dev0"
+
+import os
+NUPIC_ROOT = os.environ.get('NUPIC', os.path.dirname(os.path.realpath(__file__)))
+

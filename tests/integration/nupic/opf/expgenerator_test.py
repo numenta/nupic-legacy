@@ -35,6 +35,7 @@ import sys
 from pkg_resources import resource_filename
 import unittest2 as unittest
 
+from nupic import NUPIC_ROOT
 from nupic.data import dictutils
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import aggregationDivide
@@ -118,7 +119,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
+      params = type('obj', (object,), {'installDir' : NUPIC_ROOT})
       g_myEnv = MyTestEnvironment(params)
 
 
@@ -1947,7 +1948,7 @@ if __name__ == '__main__':
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
   parser.add_option(
-    "--installDir", dest="installDir", default=os.environ['NUPIC'],
+    "--installDir", dest="installDir", default=NUPIC_ROOT,
     help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
@@ -1961,7 +1962,7 @@ if __name__ == '__main__':
 
   # The following are put here to document what is accepted by the unittest
   #  module - we don't actually use them in this code bas.
-  parser.add_option("--verbose", dest="verbose", default=os.environ['NUPIC'],
+  parser.add_option("--verbose", dest="verbose", default=NUPIC_ROOT,
         help="Verbose output")
   parser.add_option("--quiet", dest="quiet", default=None,
         help="Minimal output")
