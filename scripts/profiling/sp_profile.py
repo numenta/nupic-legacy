@@ -20,25 +20,32 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-## run python -m cProfile --sort cumtime sp_large.py [nColumns nEpochs]
+## run python -m cProfile --sort cumtime $NUPIC/scripts/profiling/sp_profile.py [nColumns nEpochs]
 
 import sys
 import numpy
-# chose desired TP implementation to compare:
+# chose desired SP implementation to compare:
 from nupic.research.spatial_pooler import SpatialPooler as PySP
 from nupic.bindings.algorithms import SpatialPooler as CppSP
 
 
 def profileSP(spClass, spDim, nRuns):
-  """Checks that feeding in the same input vector leads to polarized
-  permanence values: either zeros or ones, but no fractions"""
+  """
+  profiling performance of SpatialPooler (SP)
+  using the python cProfile module and ordered by cumulative time, 
+  see how to run on command-line above.
 
+  @param spClass implementation of SP (cpp, py, ..)
+  @param spDim number of columns in SP (in 1D, for 2D see colDim in code)
+  @param nRuns number of calls of the profiled code (epochs)
+  """
   # you can change dimensionality here, eg to 2D
   inDim = [10000, 1, 1]
   colDim = [spDim, 1, 1]
 
 
   # create SP instance to measure
+  # changing the params here affects the performance
   sp = spClass(
         inputDimensions=inDim,
         columnDimensions=colDim,
@@ -78,6 +85,7 @@ def profileSP(spClass, spDim, nRuns):
 if __name__ == "__main__":
   columns=2048
   epochs=10000
+  # read params from command line
   if len(sys.argv) == 3: # 2 args + name
     columns=int(sys.argv[1])
     epochs=int(sys.argv[2])
