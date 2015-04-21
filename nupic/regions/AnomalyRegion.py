@@ -60,7 +60,6 @@ class AnomalyRegion(PyRegion):
         },
         "outputs": {
             "rawAnomalyScore": {
-                #"categoriesOut": None,
                 "description": "The raw anomaly score.",
                 "dataType": "Real32",
                 "count": 1,
