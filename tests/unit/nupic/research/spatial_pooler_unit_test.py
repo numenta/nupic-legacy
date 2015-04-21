@@ -23,8 +23,10 @@
 # Disable since test code accesses private members in the class to be tested
 # pylint: disable=W0212
 
+import numbers
 import tempfile
 import unittest
+from copy import copy
 
 import capnp
 from mock import Mock
@@ -39,6 +41,7 @@ from nupic.bindings.math import (SM_01_32_32 as SparseBinaryMatrix,
 from nupic.bindings.proto import SpatialPoolerProto_capnp
 from nupic.research.spatial_pooler import SpatialPooler
 
+uintDType = "uint32"
 realDType = GetNTAReal()
 
 class SpatialPoolerTest(unittest.TestCase):
@@ -1773,6 +1776,8 @@ class SpatialPoolerTest(unittest.TestCase):
         pass
       elif isinstance(v1, float):
         self.assertAlmostEqual(v1, v2)
+      elif isinstance(v1, numbers.Integral):
+        self.assertEqual(long(v1), long(v2), k)
       else:
         self.assertEqual(type(v1), type(v2), k)
         self.assertEqual(v1, v2, k)
@@ -1785,6 +1790,56 @@ class SpatialPoolerTest(unittest.TestCase):
     indices2 = set(activeArray2.nonzero()[0])
     self.assertSetEqual(indices1, indices2)
 
+
+  def testRandomSPDoesNotLearn(self):
+
+    sp = SpatialPooler(inputDimensions=[5],
+                       columnDimensions=[10])
+    inputArray = (numpy.random.rand(5) > 0.5).astype(uintDType)
+    activeArray = numpy.zeros(sp._numColumns).astype(realDType)
+    # Should start off at 0
+    self.assertEqual(sp._iterationNum, 0)
+    self.assertEqual(sp._iterationLearnNum, 0)
+
+    # Store the initialized state
+    initialPerms = copy(sp._permanences)
+
+    sp.compute(inputArray, False, activeArray)
+    # Should have incremented general counter but not learning counter
+    self.assertEqual(sp._iterationNum, 1)
+    self.assertEqual(sp._iterationLearnNum, 0)
+
+    # Check the initial perm state was not modified either
+    self.assertEqual(sp._permanences, initialPerms)
+
+
+  @unittest.skip("Ported from the removed FlatSpatialPooler but fails. \
+                  See: https://github.com/numenta/nupic/issues/1897")
+  def testActiveColumnsEqualNumActive(self):
+    '''
+    After feeding in a record the number of active columns should
+    always be equal to numActivePerInhArea
+    '''
+
+    for i in [1, 10, 50]:
+      numActive = i
+      inputShape = 10
+      sp = SpatialPooler(inputDimensions=[inputShape],
+                         columnDimensions=[100],
+                         numActiveColumnsPerInhArea=numActive)
+      inputArray = (numpy.random.rand(inputShape) > 0.5).astype(uintDType)
+      inputArray2 = (numpy.random.rand(inputShape) > 0.8).astype(uintDType)
+      activeArray = numpy.zeros(sp._numColumns).astype(realDType)
+
+      # Default, learning on
+      sp.compute(inputArray, True, activeArray)
+      sp.compute(inputArray2, True, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
+
+      # learning OFF
+      sp.compute(inputArray, False, activeArray)
+      sp.compute(inputArray2, False, activeArray)
+      self.assertEqual(sum(activeArray), numActive)
 
 
 if __name__ == "__main__":
