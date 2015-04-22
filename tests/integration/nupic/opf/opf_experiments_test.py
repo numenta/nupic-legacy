@@ -33,7 +33,7 @@ from nupic.frameworks.opf.experiment_runner import (
 
 # Globals
 EXCLUDED_EXPERIMENTS = [] # none for now
-PREDICTION_DIR = os.path.join(os.environ['NUPIC'], 'examples', 'opf')
+PREDICTION_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../../', examples', 'opf')
 RUN_ALL_ITERATIONS = False
 
 

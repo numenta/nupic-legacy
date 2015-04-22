@@ -118,7 +118,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
+      params = type('obj', (object,), {'installDir' : os.path.join(os.path.dirname(os.path.realpath(__file__)),                                             "../../../../)})
       g_myEnv = MyTestEnvironment(params)
 
 
