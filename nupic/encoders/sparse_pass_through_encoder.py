@@ -22,31 +22,42 @@
 import numpy
 
 from nupic.encoders import pass_through_encoder
-
+from nupic.encoders.base import defaultDtype
 
 ############################################################################
 class SparsePassThroughEncoder(pass_through_encoder.PassThroughEncoder):
-  """Convert a bitmap encoded as array indicies to an SDR
+  """Converts a sparse (index encoded) bitmap to a dense array ("SDR")
 
   Each encoding is an SDR in which w out of n bits are turned on.
   The input should be an array or string of indicies to turn on
-  Note: the value for n must equal input length * w
-  i.e. for n=8 w=1 [0,2,5] => 101001000
-    or for n=8 w=1 "0,2,5" => 101001000
+  Note: the value for n must equal (input length) * w
 
-  i.e. for n=24 w=3 [0,2,5] => 111000111000000111000000000
-    or for n=24 w=3 "0,2,5" => 111000111000000111000000000
+  i.e. for n=9 w=1 [0,2,5] => 101001000
+    or for n=9 w=1 "0,2,5" => 101001000
+
+  i.e. for n=27 w=3 [0,2,5] => 111000111000000111000000000
+    or for n=27 w=3 "0,2,5" => 111000111000000111000000000
   """
 
   ############################################################################
   def __init__(self, n, w=None, name="sparse_pass_through", forced=False, verbosity=0):
     """
-    n is the total bits in input
-    w is the number of bits used to encode each input bit
+    @param n is the total bits in the original input
+    @param w is the number of bits used to encode each (orig) input bit:
     """
     super(SparsePassThroughEncoder, self).__init__(
         n, w, name, forced, verbosity)
 
+  
+  def encode(self, inputData):
+    """override - act like Encoder.encode() not PassThrough.encode()
+       TODO: remove when dimensionality implemented same way as in PassThrough
+    """
+    output = numpy.zeros((self.getWidth(),), dtype=defaultDtype)
+    self.encodeIntoArray(inputData, output)
+    return output
+
+    
   ############################################################################
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """

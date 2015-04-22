@@ -21,7 +21,7 @@
 
 import numpy
 from nupic.data.fieldmeta import FieldMetaType
-from nupic.encoders.base import Encoder
+from nupic.encoders.base import Encoder, defaultDtype
 
 
 
@@ -36,10 +36,10 @@ class PassThroughEncoder(Encoder):
   ############################################################################
   def __init__(self, n, w=None, name="pass_through", forced=False, verbosity=0):
     """
-    n -- is the total #bits in output
-    w -- is used to normalize the sparsity of the output, exactly w bits ON,
+    @param n -- is the total #bits in output
+    @param w -- is used to check the sparsity of the output, exactly w bits ON,
          if None (default) - do not alter the input, just pass it further.
-    forced -- if forced, encode will accept any data, and just return it back.
+    @param forced -- if forced, encode will accept any data, and just return it back.
     """
     self.n = n
     self.w = w
@@ -74,15 +74,30 @@ class PassThroughEncoder(Encoder):
     return [0]
 
   ############################################################################
+  def encode(self, inputData):
+    """overrides encode() from base.Encoder to implement
+       dimensionality - the output has the same dimensionality as the input; 
+       eg 1D -> 1D, 2D -> 2D, ...
+
+      @param inputData
+      @returns a numpy array with the encoded representation of inputData; 
+               keeping its shape (size)
+      @returns a numpy array with the encoded representation of inputData
+    """
+    output = numpy.zeros(shape=numpy.shape(inputData), dtype=defaultDtype)
+    self.encodeIntoArray(inputData, output)
+    return output
+
+  ############################################################################
   def encodeIntoArray(self, input, output):
     """See method description in base.py"""
-    if len(input) != len(output):
-      raise ValueError("Different input (%i) and output (%i) sizes." % (
-          len(input), len(output)))
+    if numpy.shape(input) != numpy.shape(output):
+      raise ValueError("Different shapes  (%s) and output (%s)." % (
+          numpy.shape(input), numpy.shape(output)))
 
+    # check for requested sparsity in input data
     if self.w is not None and sum(input) != self.w:
-      raise ValueError("Input has %i bits but w was set to %i." % (
-          sum(input), self.w))
+      raise ValueError("Input has %i bits but w was set to %i." % (sum(input), self.w))
 
     output[:] = input[:]
 
