@@ -23,7 +23,7 @@
 
 import numpy
 
-from nupic.algorithms import anomaly
+from nupic.algorithms.anomaly import Anomaly
 from nupic.regions.PyRegion import PyRegion
 
 
@@ -57,6 +57,26 @@ class AnomalyRegion(PyRegion):
                 "isDefaultInput": False,
                 "requireSplitterMap": False,
             },
+            "rawInput": {
+                "description": "The raw values coming from the input sensor.",
+                "regionLevel": True,
+                "dataType": "Real32", #TODO what type to set here? can be anything
+                "count": 0,
+                "required": False,
+                "isDefaultInput": False,
+                "requireSplitterMap": False,
+            },
+            "timestamp": {
+                "description": "Timestamp of each single input data.",
+                "regionLevel": True,
+                "dataType": "Real32",
+                "count": 0,
+                "required": False,
+                "isDefaultInput": False,
+                "requireSplitterMap": False,
+            },
+
+
         },
         "outputs": {
             "rawAnomalyScore": {
@@ -75,6 +95,11 @@ class AnomalyRegion(PyRegion):
 
 
   def __init__(self, *args, **kwargs):
+    windowSize = args.get("slidingWindowSize", None)
+    mode = args.get("mode", Anomaly.MODE_PURE)
+    binaryThr = args.get("binaryAnomalyThreshold", None)
+    self.anomaly = Anomaly(windowSize, mode, binaryThr)
+
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
 
 
@@ -84,9 +109,11 @@ class AnomalyRegion(PyRegion):
 
   def compute(self, inputs, outputs):
     activeColumns = inputs["activeColumns"].nonzero()[0]
+    rawInput = inputs.get("rawInput", None)
+    timestamp = inputs.get("timestamp", None)
 
-    rawAnomalyScore = anomaly.computeRawAnomalyScore(
-        activeColumns, self.prevPredictedColumns)
+    rawAnomalyScore = anomaly.compute(activeColumns, self.prevPredictedColumns,
+                                      rawInput, timestamp)
 
     self.prevPredictedColumns = inputs["predictedColumns"].nonzero()[0]
 
