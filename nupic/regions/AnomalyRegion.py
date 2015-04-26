@@ -66,17 +66,6 @@ class AnomalyRegion(PyRegion):
                 "isDefaultInput": False,
                 "requireSplitterMap": False,
             },
-            "timestamp": {
-                "description": "Timestamp of each single input data.",
-                "regionLevel": True,
-                "dataType": "Real32",
-                "count": 0,
-                "required": False,
-                "isDefaultInput": False,
-                "requireSplitterMap": False,
-            },
-
-
         },
         "outputs": {
             "rawAnomalyScore": {
@@ -95,9 +84,11 @@ class AnomalyRegion(PyRegion):
 
 
   def __init__(self, *args, **kwargs):
-    windowSize = args.get("slidingWindowSize", None)
-    mode = args.get("mode", Anomaly.MODE_PURE)
-    binaryThr = args.get("binaryAnomalyThreshold", None)
+    super(AnomalyRegion, self).__init__(*args, **kwargs)
+    print args, type(args)
+    windowSize = kwargs.get("slidingWindowSize", None)
+    mode = kwargs.get("mode", Anomaly.MODE_PURE)
+    binaryThr = kwargs.get("binaryAnomalyThreshold", None)
     self.anomaly = Anomaly(windowSize, mode, binaryThr)
 
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
@@ -111,9 +102,10 @@ class AnomalyRegion(PyRegion):
     activeColumns = inputs["activeColumns"].nonzero()[0]
     rawInput = inputs.get("rawInput", None)
     timestamp = inputs.get("timestamp", None)
+    print "RAW=", rawInput
 
-    rawAnomalyScore = anomaly.compute(activeColumns, self.prevPredictedColumns,
-                                      rawInput, timestamp)
+    rawAnomalyScore = self.anomaly.compute(activeColumns, self.prevPredictedColumns,
+                                           rawInput, timestamp)
 
     self.prevPredictedColumns = inputs["predictedColumns"].nonzero()[0]
 
