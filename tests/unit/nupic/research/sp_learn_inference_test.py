@@ -98,8 +98,8 @@ class SPLearnInferenceTest(unittest.TestCase):
     for i in xrange(numTrainingRecords):
       if spVerbosity > 0:
         print "Input #%d" % i
+      # TODO: See https://github.com/numenta/nupic/issues/2072
       encodedInput = inputs[i]
-
       decodedOutput = np.zeros(columnDimensions)
       spLearnOnly.compute(encodedInput, learn=True, activeArray=decodedOutput)
 
@@ -108,6 +108,7 @@ class SPLearnInferenceTest(unittest.TestCase):
     for i in xrange(numTrainingRecords):
       if spVerbosity > 0:
         print "Input #%d" % i
+      # TODO: See https://github.com/numenta/nupic/issues/2072
       encodedInput = inputs[i]
       decodedOutput = np.zeros(columnDimensions)
       spLearnInfer.compute(encodedInput, learn=True, activeArray=decodedOutput)
@@ -140,8 +141,9 @@ class SPLearnInferenceTest(unittest.TestCase):
       print "Test succeeded"
 
 
-  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler. \
-                 The new SP doesn't have explicit methods to get inference.")
+  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler."
+                 "The new SP doesn't have explicit methods to get inference.")
+  # TODO: See https://github.com/numenta/nupic/issues/2072
   def testLearnInference(self):
     self._runLearnInference(n=50, w=15)
 
