@@ -228,14 +228,14 @@ def testSP():
     # Setup a SP
     sp = SpatialPooler(
            columnDimensions=(2048, 1),
-           inputDimensions = (1, elemSize),
-           potentialRadius = elemSize/2,
-           numActiveColumnsPerInhArea = 40,
-           spVerbosity = 0,
-           stimulusThreshold = 0,
-           seed = 1,
-           potentialPct = poolPct,
-           globalInhibition = True
+           inputDimensions=(1, elemSize),
+           potentialRadius=elemSize/2,
+           numActiveColumnsPerInhArea=40,
+           spVerbosity=0,
+           stimulusThreshold=0,
+           seed=1,
+           potentialPct=poolPct,
+           globalInhibition=True
            )
     
     # Generate inputs using rand() 
@@ -259,9 +259,11 @@ def testSP():
       for i in xrange(inputSize):
         time.sleep(0.001)
         if iter == numIter - 1:
+          # TODO: See https://github.com/numenta/nupic/issues/2072
           sp.compute(inputs[i], learn=doLearn, activeArray=outputs[i])
           #print outputs[i].sum(), outputs[i]
         else:
+          # TODO: See https://github.com/numenta/nupic/issues/2072
           output = np.zeros(2048)
           sp.compute(inputs[i], learn=doLearn, activeArray=output)
       
@@ -332,15 +334,15 @@ def testSPNew():
   # Setup a SP
   sp = SpatialPooler(
          columnDimensions=(2048, 1),
-         inputDimensions = (1, elemSize),
-         potentialRadius = elemSize/2,
-         numActiveColumnsPerInhArea = 40,
-         spVerbosity = 0,
-         stimulusThreshold = 0,
-         synPermConnected = 0.12,
-         seed = 1,
-         potentialPct = poolPct,
-         globalInhibition = True
+         inputDimensions=(1, elemSize),
+         potentialRadius=elemSize/2,
+         numActiveColumnsPerInhArea=40,
+         spVerbosity=0,
+         stimulusThreshold=0,
+         synPermConnected=0.12,
+         seed=1,
+         potentialPct=poolPct,
+         globalInhibition=True
          )
   
   cleanPlot = False
@@ -372,7 +374,8 @@ def testSPNew():
         start = 0
         learnIter = 0
         cleanPlot = True
-      
+
+    # TODO: See https://github.com/numenta/nupic/issues/2072
     sp.compute(input1, learn=doLearn, activeArray=output1)
     sp.compute(input2, learn=doLearn, activeArray=output2)
     time.sleep(0.001)
@@ -383,6 +386,7 @@ def testSPNew():
     if not doLearn and intOutDist < 2 and intInDist > 10:
       """
       sp.spVerbosity = 10
+      # TODO: See https://github.com/numenta/nupic/issues/2072
       sp.compute(input1, learn=doLearn, activeArray=output1)
       sp.compute(input2, learn=doLearn, activeArray=output2)
       sp.spVerbosity = 0
@@ -487,15 +491,15 @@ def testSPFile():
   # Setup a SP
   sp = SpatialPooler(
          columnDimensions=(spSize, 1),
-         inputDimensions = (1, elemSize),
-         potentialRadius = elemSize/2,
-         numActiveColumnsPerInhArea = spSet,
-         spVerbosity = 0,
-         stimulusThreshold = 0,
-         synPermConnected = 0.10,
-         seed = 1,
-         potentialPct = poolPct,
-         globalInhibition = True
+         inputDimensions=(1, elemSize),
+         potentialRadius=elemSize/2,
+         numActiveColumnsPerInhArea=spSet,
+         spVerbosity=0,
+         stimulusThreshold=0,
+         synPermConnected=0.10,
+         seed=1,
+         potentialPct=poolPct,
+         globalInhibition=True
          )
   
   cleanPlot = False
@@ -514,6 +518,8 @@ def testSPFile():
     # Learn
     if iter != 0:
       for learnRecs in xrange(pattern[0]):
+
+        # TODO: See https://github.com/numenta/nupic/issues/2072
         ind = np.random.random_integers(0, size-1, 1)[0]
         sp.compute(inputs[ind], learn=True, activeArray=outputs[ind]) 
 

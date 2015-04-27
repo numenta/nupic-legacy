@@ -142,6 +142,7 @@ class TestSPFrequency(unittest.TestCase):
     print 'Starting to train the sp on', numColors, 'patterns'
     startTime = time.time()
     for i in xrange(numColors):
+      # TODO: See https://github.com/numenta/nupic/issues/2072
       spInput = colors[i]
       onCells = numpy.zeros(columnDimensions)
       spImpl.compute(spInput, learn=True, activeArray=onCells)

@@ -39,8 +39,9 @@ numpy.random.seed(100)
 
 class InhibitionObjectTest(unittest.TestCase):
 
-  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler. \
-                  The new SP doesn't have explicit methods to get inhibition.")
+  @unittest.skip("Currently fails due to switch from FDRCSpatial2 to SpatialPooler."
+                 "The new SP doesn't have explicit methods to get inhibition.")
+  # TODO: See https://github.com/numenta/nupic/issues/2071
   def testInhibition(self):
     """
     Test if the firing number of coincidences after inhibition
@@ -75,12 +76,12 @@ class InhibitionObjectTest(unittest.TestCase):
 
     spTest = SpatialPooler(
                            columnDimensions=(columnDimensions, 1),
-                           inputDimensions = (1, inputLen),
-                           potentialRadius = inputLen / 2,
-                           numActiveColumnsPerInhArea = numActiveColumnsPerInhArea,
-                           spVerbosity = spVerbosity,
-                           stimulusThreshold = stimulusThreshold,
-                           seed = spSeed
+                           inputDimensions=(1, inputLen),
+                           potentialRadius=inputLen / 2,
+                           numActiveColumnsPerInhArea=numActiveColumnsPerInhArea,
+                           spVerbosity=spVerbosity,
+                           stimulusThreshold=stimulusThreshold,
+                           seed=spSeed
                            )
     initialPermanence = spTest._initialPermanence()
     spTest._masterPotentialM, spTest._masterPermanenceM = (
