@@ -59,7 +59,7 @@ SP_PARAMS = {"spVerbosity": _VERBOSITY,
              # determined and set during network creation
              "inputWidth": 0,
 
-             # @see nupic.research.spatial_pooler.SpatialPooler for explanations
+             # @see nupic.algorithms.spatial_pooler.SpatialPooler for explanations
              "globalInhibition": 1,
              "columnCount": 2048,
              "numActiveColumnsPerInhArea": 40,
@@ -74,7 +74,7 @@ TP_PARAMS = {"verbosity": _VERBOSITY,
              "temporalImp": "cpp",
              "seed": _SEED,
 
-             # @see nupic.research.temporal_memory.TemporalMemory
+             # @see nupic.algorithms.temporal_memory.TemporalMemory
              # for explanations
              "columnCount": 2048,
              "cellsPerColumn": 12,

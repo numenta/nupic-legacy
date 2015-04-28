@@ -759,11 +759,11 @@ INPUT                  = docs \
                          nupic/frameworks/opf/model.py \
                          nupic/frameworks/opf/clamodel.py \
                          nupic/frameworks/opf/modelfactory.py \
-                         nupic/research/__init__.py \
-                         nupic/research/TP10X2.py \
-                         nupic/research/TP.py \
-                         nupic/research/temporal_memory.py \
-                         nupic/research/spatial_pooler.py \
+                         nupic/algorithms/__init__.py \
+                         nupic/algorithms/TP10X2.py \
+                         nupic/algorithms/TP.py \
+                         nupic/algorithms/temporal_memory.py \
+                         nupic/algorithms/spatial_pooler.py \
                          nupic/encoders \
                          nupic/data/aggregator.py \
                          scripts/run_swarm.py \

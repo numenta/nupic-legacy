@@ -29,9 +29,9 @@ import numpy as np
 
 import unittest2 as unittest
 
-from nupic.research import fdrutilities as fdrutils
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.TP import TP
+from nupic.algorithms.TP10X2 import TP10X2
 
 _SEED = 42
 VERBOSITY = 1

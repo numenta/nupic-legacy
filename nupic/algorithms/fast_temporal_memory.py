@@ -23,7 +23,7 @@
 Temporal Memory implementation in Python.
 """
 
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.algorithms.temporal_memory import TemporalMemory
 from nupic.bindings.algorithms import Connections, ConnectionsCell
 
 

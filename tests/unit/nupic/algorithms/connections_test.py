@@ -26,7 +26,7 @@ TODO: Move all duplicate connections logic into shared function.
 
 import unittest
 
-from nupic.research.connections import Connections
+from nupic.algorithms.connections import Connections
 
 
 

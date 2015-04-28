@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2014, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -20,17 +20,33 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""Tests for the C++ implementation of the temporal pooler."""
+import unittest
 
-import unittest2 as unittest
+from nupic.algorithms.monitor_mixin.trace import IndicesTrace
 
-from nupic.research.TP10X2 import TP10X2
 
-import tp_test
 
-# Run the Python TP test against the TP10X2.
-tp_test.TP = TP10X2
-TPTest = tp_test.TPTest
+class IndicesTraceTest(unittest.TestCase):
+
+
+  def setUp(self):
+    self.trace = IndicesTrace(self, "active cells")
+    self.trace.data.append(set([1, 2, 3]))
+    self.trace.data.append(set([4, 5]))
+    self.trace.data.append(set([6]))
+    self.trace.data.append(set([]))
+
+
+  def testMakeCountsTrace(self):
+    countsTrace = self.trace.makeCountsTrace()
+    self.assertEqual(countsTrace.title, "# active cells")
+    self.assertEqual(countsTrace.data, [3, 2, 1, 0])
+
+
+  def testMakeCumCountsTrace(self):
+    countsTrace = self.trace.makeCumCountsTrace()
+    self.assertEqual(countsTrace.title, "# (cumulative) active cells")
+    self.assertEqual(countsTrace.data, [3, 5, 6, 6])
 
 
 

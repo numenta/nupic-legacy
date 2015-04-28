@@ -41,9 +41,9 @@ import numpy
 
 # here we choose TP implementation: (uncomment one only)
 # This is the class corresponding to the C++ optimized Temporal Pooler (default)
-from nupic.research.TP10X2 import TP10X2 as TP
+from nupic.algorithms.TP10X2 import TP10X2 as TP
 # This is simple implementation in Python
-#from nupic.research.TP import TP as TP
+#from nupic.algorithms.TP import TP as TP
 
 # Utility routine for printing the input vector
 def formatRow(x):

@@ -27,7 +27,7 @@ from collections import defaultdict, namedtuple
 from operator import mul
 
 from nupic.bindings.math import Random
-from nupic.research.connections import Connections
+from nupic.algorithms.connections import Connections
 
 
 

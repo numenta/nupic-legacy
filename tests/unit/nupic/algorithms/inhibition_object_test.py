@@ -31,7 +31,7 @@ import numpy
 
 import unittest2 as unittest
 
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 numpy.random.seed(100)
 

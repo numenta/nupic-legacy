@@ -21,9 +21,9 @@
 
 import os
 
-from nupic.research import TP
-from nupic.research import TP10X2
-from nupic.research import TP_shim
+from nupic.algorithms import TP
+from nupic.algorithms import TP10X2
+from nupic.algorithms import TP_shim
 from nupic.support import getArgumentDescriptions
 from PyRegion import PyRegion
 

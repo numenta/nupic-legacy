@@ -27,9 +27,9 @@ for use with tests.
 import numpy
 
 from nupic.math import GetNTAReal
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
-from nupic.research.connections import Connections
+from nupic.algorithms.TP import TP
+from nupic.algorithms.TP10X2 import TP10X2
+from nupic.algorithms.connections import Connections
 
 
 

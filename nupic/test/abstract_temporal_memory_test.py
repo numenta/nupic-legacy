@@ -22,14 +22,14 @@
 import unittest
 
 from nupic.data.generators.sequence_machine import SequenceMachine
-from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
+from nupic.algorithms.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.algorithms.temporal_memory import TemporalMemory
 # Uncomment the lines below to run tests with TP10X2 implementation instead
-# from nupic.research.temporal_memory_shim import (
+# from nupic.algorithms.temporal_memory_shim import (
 #   TemporalMemoryShim as TemporalMemory)
 # Uncomment the lines below to run tests with FastTemporalMemory implementation
-# from nupic.research.fast_temporal_memory import (
+# from nupic.algorithms.fast_temporal_memory import (
 #   FastTemporalMemory as TemporalMemory)
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
