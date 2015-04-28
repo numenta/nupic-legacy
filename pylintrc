@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2012-2014, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2012-2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -120,7 +120,7 @@ msg-template={msg_id}, {line:3d}:{column:2d} - {msg} ({symbol})
 required-attributes=
 
 # List of builtins function names that should not be used, separated by a comma
-bad-functions=
+bad-functions=map,filter,apply,input
 
 # Regular expression which should only match correct module names
 module-rgx=([a-z][a-z0-9_]*[a-z0-9])|(__init__)$
@@ -146,6 +146,10 @@ argument-rgx=_?[a-z][A-Za-z0-9]*$
 
 # Regular expression which should only match correct variable names
 variable-rgx=_{0,2}[a-z][A-Za-z0-9]*$
+ 
+-# Regular expression which should only match correct attribute names in class
+-# bodies
+-class-attribute-rgx=([A-Za-z_][A-Za-z0-9_]{2,30}|(__.*__))$
 
 # Regular expression which should only match correct list comprehension /
 # generator expression variable names
@@ -215,7 +219,7 @@ generated-members=REQUEST,acl_users,aq_parent
 [VARIABLES]
 
 # Tells whether we should check for unused import in __init__ files.
-init-import=yes
+init-import=no
 
 # A regular expression matching the beginning of the name of dummy variables
 # (i.e. not used).
@@ -255,7 +259,7 @@ max-locals=50
 max-returns=10
 
 # Maximum number of branch for function / method body
-max-branchs=20
+max-branches=20
 
 # Maximum number of statements in function / method body
 max-statements=200
@@ -276,7 +280,7 @@ max-public-methods=20
 [IMPORTS]
 
 # Deprecated modules which should not be used, separated by a comma
-deprecated-modules=regsub,string,TERMIOS,Bastion,rexec
+deprecated-modules=regsub,TERMIOS,Bastion,rexec
 
 # Create a graph of every (i.e. internal and external) dependencies in the
 # given file (report RP0402 must not be disabled)
