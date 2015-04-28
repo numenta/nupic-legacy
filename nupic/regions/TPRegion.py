@@ -105,7 +105,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
   to 'Byte' for None and complex types
 
   Determines the spatial parameters based on the selected implementation.
-  It defaults to FDRCSpatial.
+  It defaults to TemporalPooler.
   Determines the temporal parameters based on the temporalImp
   """
   typeNames = {int: 'UInt32', float: 'Real32', str: 'Byte', bool: 'bool', tuple: 'tuple'}
