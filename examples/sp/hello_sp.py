@@ -32,21 +32,21 @@ class Example():
   """A class to hold our code. Going object oriented"""
 
   
-  def __init__(self, inputShape, columnDimensions):
+  def __init__(self, inputDimensions, columnDimensions):
     """
      Parameters:
      ----------
-     _inputShape	:	The size of the input. (m,n) will give a size m x n
+     _inputDimensions	:	The size of the input. (m,n) will give a size m x n
      _columnDimensions	:	The size of the 2 dimensional array of columns
      """
-    self.inputShape = inputShape
+    self.inputDimensions = inputDimensions
     self.columnDimensions = columnDimensions
-    self.inputSize = np.array(inputShape).prod()
+    self.inputSize = np.array(inputDimensions).prod()
     self.columnNumber = np.array(columnDimensions).prod()
     self.inputArray = np.zeros(self.inputSize)
     self.activeArray = np.zeros(self.columnNumber)
 
-    self.sp = SP(self.inputShape, 
+    self.sp = SP(self.inputDimensions, 
 		 self.columnDimensions,
 		 potentialRadius = self.inputSize,
 		 numActiveColumnsPerInhArea = int(0.02*self.columnNumber),

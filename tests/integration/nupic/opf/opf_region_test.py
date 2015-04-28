@@ -75,8 +75,8 @@ def _initConfigDicts():
     spVerbosity = _VERBOSITY,
     columnCount = 200,
     inputWidth   = 0,
-    numActivePerInhArea = 20,
-    spatialImp = 'oldpy',
+    numActiveColumnsPerInhArea = 20,
+    spatialImp = 'py',
     seed = _SEED,
     )
   
