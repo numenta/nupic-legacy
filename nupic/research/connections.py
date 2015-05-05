@@ -266,9 +266,11 @@ class Connections(object):
       i += 1
 
 
-  def read(self, proto):
+  @classmethod
+  def read(cls, proto):
     protoCells = proto.cells
-    self.numCells = len(protoCells)
+    connections = object.__new__(cls)
+    connections.__init__(len(protoCells))
 
     for i in xrange(len(protoCells)):
       protoCell = protoCells[i]
@@ -277,13 +279,15 @@ class Connections(object):
       for j in xrange(len(protoSegments)):
         protoSegment = protoSegments[j]
         protoSynapses = protoSegment.synapses
-        segment = self.createSegment(i)
+        segment = connections.createSegment(i)
 
         for k in xrange(len(protoSynapses)):
           protoSynapse = protoSynapses[k]
-          synapse = self.createSynapse(segment,
-                                       int(protoSynapse.presynapticCell),
-                                       float(protoSynapse.permanence))
+          synapse = connections.createSynapse(segment,
+                                              int(protoSynapse.presynapticCell),
+                                              float(protoSynapse.permanence))
+
+    return connections
 
 
   def _validateCell(self, cell):
