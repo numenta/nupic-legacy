@@ -218,7 +218,6 @@ class ConnectionsTest(unittest.TestCase):
 
   def testWrite(self):
     c1 = Connections(1024)
-    c2 = Connections(2048)
 
     # Add data before serializing
     c1.createSegment(0)
@@ -237,7 +236,7 @@ class ConnectionsTest(unittest.TestCase):
       proto2 = ConnectionsProto_capnp.ConnectionsProto.read(f)
 
     # Load the deserialized proto
-    c2.read(proto2)
+    c2 = Connections.read(proto2)
 
     # Check that the two connections objects have the same attributes
     self.assertEqual(c1.numCells, c2.numCells)
