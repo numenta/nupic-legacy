@@ -630,6 +630,46 @@ class TemporalMemory(object):
     return cellsForColumns
 
 
+  def write(self, proto):
+    proto.columnDimensions = self.columnDimensions
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.activationThreshold = self.activationThreshold
+    proto.learningRadius = self.learningRadius
+    proto.initialPermanence = self.initialPermanence
+    proto.connectedPermanence = self.connectedPermanence
+    proto.minThreshold = self.minThreshold
+    proto.maxNewSynapseCount = self.maxNewSynapseCount
+    proto.permanenceIncrement = self.permanenceIncrement
+    proto.permanenceDecrement = self.permanenceDecrement
+
+    proto.activeCells = list(self.activeCells)
+    proto.predictiveCells = list(self.predictiveCells)
+    proto.activeSegments = list(self.activeSegments)
+    proto.winnerCells = list(self.winnerCells)
+
+
+  @classmethod
+  def read(cls, proto):
+    tm = object.__new__(cls)
+    tm.__init__(columnDimensions=list(proto.columnDimensions),
+                cellsPerColumn=int(proto.cellsPerColumn),
+                activationThreshold=int(proto.activationThreshold),
+                learningRadius=int(proto.learningRadius),
+                initialPermanence=proto.initialPermanence,
+                connectedPermanence=proto.connectedPermanence,
+                minThreshold=int(proto.minThreshold),
+                maxNewSynapseCount=int(proto.maxNewSynapseCount),
+                permanenceIncrement=proto.permanenceIncrement,
+                permanenceDecrement=proto.permanenceDecrement)
+
+    tm.activeCells = set(proto.activeCells)
+    tm.predictiveCells = set(proto.predictiveCells)
+    tm.activeSegments = set(proto.activeSegments)
+    tm.winnerCells = set(proto.winnerCells)
+
+    return tm
+
+
   def _validateColumn(self, column):
     """
     Raises an error if column index is invalid.
