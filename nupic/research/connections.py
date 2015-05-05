@@ -285,7 +285,7 @@ class Connections(object):
           protoSynapse = protoSynapses[k]
           synapse = connections.createSynapse(segment,
                                               int(protoSynapse.presynapticCell),
-                                              float(protoSynapse.permanence))
+                                              protoSynapse.permanence)
 
     return connections
 
