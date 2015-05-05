@@ -642,6 +642,9 @@ class TemporalMemory(object):
     proto.permanenceIncrement = self.permanenceIncrement
     proto.permanenceDecrement = self.permanenceDecrement
 
+    self.connections.write(proto.connections)
+    self._random.write(proto.random)
+
     proto.activeCells = list(self.activeCells)
     proto.predictiveCells = list(self.predictiveCells)
     proto.activeSegments = list(self.activeSegments)
@@ -662,10 +665,13 @@ class TemporalMemory(object):
                 permanenceIncrement=proto.permanenceIncrement,
                 permanenceDecrement=proto.permanenceDecrement)
 
-    tm.activeCells = set(proto.activeCells)
-    tm.predictiveCells = set(proto.predictiveCells)
-    tm.activeSegments = set(proto.activeSegments)
-    tm.winnerCells = set(proto.winnerCells)
+    tm.connections = Connections.read(proto.connections)
+    tm.random = tm._random.read(proto.random)
+
+    tm.activeCells = set([int(x) for x in proto.activeCells])
+    tm.predictiveCells = set([int(x) for x in proto.predictiveCells])
+    tm.activeSegments = set([int(x) for x in proto.activeSegments])
+    tm.winnerCells = set([int(x) for x in proto.winnerCells])
 
     return tm
 

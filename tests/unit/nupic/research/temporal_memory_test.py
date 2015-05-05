@@ -639,11 +639,12 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(tm1.winnerCells, tm2.winnerCells)
 
     # Run a record through after deserializing and check results match
-    # TODO: enable tests and make them pass
-    # tm1.compute(self.patternMachine.get(0))
-    # tm2.compute(self.patternMachine.get(0))
-    # self.assertEqual(tm1.activeCells, tm2.activeCells)
-    # self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    tm1.compute(self.patternMachine.get(0))
+    tm2.compute(self.patternMachine.get(0))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.activeSegments, tm2.activeSegments)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
 
 
 
