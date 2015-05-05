@@ -241,29 +241,20 @@ class Connections(object):
   def write(self, proto):
     protoCells = proto.init('cells', self.numCells)
 
-    i = 0
     for cell in xrange(self.numCells):
       segments = self.segmentsForCell(cell)
       protoSegments = protoCells[cell].init('segments', len(segments))
 
-      j = 0
-      for segment in segments:
+      for j, segment in enumerate(segments):
         synapses = self.synapsesForSegment(segment)
         protoSynapses = protoSegments[j].init('synapses', len(synapses))
 
-        k = 0
-        for synapse in synapses:
+        for k, synapse in enumerate(synapses):
           synapseData = self.dataForSynapse(synapse)
           protoSynapse = protoSynapses[k]
 
           protoSynapse.presynapticCell = synapseData.presynapticCell
           protoSynapse.permanence = synapseData.permanence
-
-          k += 1
-
-        j += 1
-
-      i += 1
 
 
   @classmethod
