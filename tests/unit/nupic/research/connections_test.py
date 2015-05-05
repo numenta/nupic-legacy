@@ -24,8 +24,12 @@ TODO: Mock out all function calls.
 TODO: Move all duplicate connections logic into shared function.
 """
 
+import tempfile
 import unittest
 
+import capnp
+
+from nupic.bindings.proto import ConnectionsProto_capnp
 from nupic.research.connections import Connections
 
 
@@ -210,6 +214,46 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
     args = [0, -0.4374]
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
+
+
+  def testWrite(self):
+    c1 = Connections(1024)
+
+    # Add data before serializing
+    c1.createSegment(0)
+    c1.createSynapse(0, 254, 0.1173)
+
+    c1.createSegment(100)
+    c1.createSynapse(1, 20, 0.3)
+
+    proto1 = ConnectionsProto_capnp.ConnectionsProto.new_message()
+    c1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = ConnectionsProto_capnp.ConnectionsProto.read(f)
+
+    # Load the deserialized proto
+    c2 = Connections.read(proto2)
+
+    # Check that the two connections objects have the same attributes
+    self.assertEqual(c1.numCells, c2.numCells)
+
+    self.assertEqual(c1._segments, c2._segments)
+
+    self.assertEqual(c1._synapses.keys(), c2._segments.keys())
+    for k, v1 in c1._synapses.iteritems():
+      v2 = c2._synapses[k]
+      self.assertEqual(v1.segment, v2.segment)
+      self.assertEqual(v1.presynapticCell, v2.presynapticCell)
+      self.assertAlmostEqual(v1.permanence, v2.permanence)
+
+    self.assertEqual(c1._segmentsForCell, c2._segmentsForCell)
+
+    self.assertEqual(c1._nextSegmentIdx, c2._nextSegmentIdx)
+    self.assertEqual(c1._nextSynapseIdx, c2._nextSynapseIdx)
 
 
 

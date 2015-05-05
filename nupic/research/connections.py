@@ -238,6 +238,49 @@ class Connections(object):
     return len(self._synapses)
 
 
+  def write(self, proto):
+    protoCells = proto.init('cells', self.numCells)
+
+    for cell in xrange(self.numCells):
+      segments = self.segmentsForCell(cell)
+      protoSegments = protoCells[cell].init('segments', len(segments))
+
+      for j, segment in enumerate(segments):
+        synapses = self.synapsesForSegment(segment)
+        protoSynapses = protoSegments[j].init('synapses', len(synapses))
+
+        for k, synapse in enumerate(synapses):
+          synapseData = self.dataForSynapse(synapse)
+          protoSynapse = protoSynapses[k]
+
+          protoSynapse.presynapticCell = synapseData.presynapticCell
+          protoSynapse.permanence = synapseData.permanence
+
+
+  @classmethod
+  def read(cls, proto):
+    protoCells = proto.cells
+    connections = object.__new__(cls)
+    connections.__init__(len(protoCells))
+
+    for i in xrange(len(protoCells)):
+      protoCell = protoCells[i]
+      protoSegments = protoCell.segments
+
+      for j in xrange(len(protoSegments)):
+        protoSegment = protoSegments[j]
+        protoSynapses = protoSegment.synapses
+        segment = connections.createSegment(i)
+
+        for k in xrange(len(protoSynapses)):
+          protoSynapse = protoSynapses[k]
+          synapse = connections.createSynapse(segment,
+                                              int(protoSynapse.presynapticCell),
+                                              protoSynapse.permanence)
+
+    return connections
+
+
   def _validateCell(self, cell):
     """
     Raises an error if cell index is invalid.
