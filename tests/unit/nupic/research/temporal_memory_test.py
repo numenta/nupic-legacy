@@ -24,9 +24,16 @@ TODO: Mock out all function calls.
 TODO: Make default test TM instance simpler, with 4 cells per column.
 """
 
+import tempfile
 import unittest
 
+import capnp
+
+from nupic.bindings.proto import TemporalMemoryProto_capnp
 from nupic.research.temporal_memory import TemporalMemory
+
+from nupic.data.generators.pattern_machine import PatternMachine
+from nupic.data.generators.sequence_machine import SequenceMachine
 
 
 
@@ -576,6 +583,67 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[0], set([0, 1, 2]))
     self.assertEqual(columnsForCells[1], set([5]))
     self.assertEqual(columnsForCells[99], set([399]))
+
+
+  def testWrite(self):
+    tm1 = TemporalMemory(
+      columnDimensions=[100],
+      cellsPerColumn=4,
+      activationThreshold=7,
+      learningRadius=80,
+      initialPermanence=0.37,
+      connectedPermanence=0.58,
+      minThreshold=4,
+      maxNewSynapseCount=18,
+      permanenceIncrement=0.23,
+      permanenceDecrement=0.08,
+      seed=91
+    )
+
+    # Run some data through before serializing
+    # TODO
+    self.patternMachine = PatternMachine(100, 4)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    sequence = self.sequenceMachine.generateFromNumbers(range(5))
+    for _ in range(3):
+      for pattern in sequence:
+        tm1.compute(pattern)
+
+    proto1 = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
+    tm1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = TemporalMemoryProto_capnp.TemporalMemoryProto.read(f)
+
+    # Load the deserialized proto
+    tm2 = TemporalMemory.read(proto2)
+
+    # Check that the two temporal memory objects have the same attributes
+    self.assertEqual(tm1.columnDimensions, tm2.columnDimensions)
+    self.assertEqual(tm1.cellsPerColumn, tm2.cellsPerColumn)
+    self.assertEqual(tm1.activationThreshold, tm2.activationThreshold)
+    self.assertEqual(tm1.learningRadius, tm2.learningRadius)
+    self.assertAlmostEqual(tm1.initialPermanence, tm2.initialPermanence)
+    self.assertAlmostEqual(tm1.connectedPermanence, tm2.connectedPermanence)
+    self.assertEqual(tm1.minThreshold, tm2.minThreshold)
+    self.assertEqual(tm1.maxNewSynapseCount, tm2.maxNewSynapseCount)
+    self.assertAlmostEqual(tm1.permanenceIncrement, tm2.permanenceIncrement)
+    self.assertAlmostEqual(tm1.permanenceDecrement, tm2.permanenceDecrement)
+
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.activeSegments, tm2.activeSegments)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+
+    # Run a record through after deserializing and check results match
+    # TODO: enable tests and make them pass
+    # tm1.compute(self.patternMachine.get(0))
+    # tm2.compute(self.patternMachine.get(0))
+    # self.assertEqual(tm1.activeCells, tm2.activeCells)
+    # self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
 
 
 
