@@ -226,6 +226,10 @@ class ConnectionsTest(unittest.TestCase):
     c1.createSegment(100)
     c1.createSynapse(1, 20, 0.3)
 
+    c1.createSegment(100)
+    c1.createSynapse(2, 0, 0.5)
+    c1.createSynapse(2, 1, 0.5)
+
     proto1 = ConnectionsProto_capnp.ConnectionsProto.new_message()
     c1.write(proto1)
 
@@ -243,7 +247,7 @@ class ConnectionsTest(unittest.TestCase):
 
     self.assertEqual(c1._segments, c2._segments)
 
-    self.assertEqual(c1._synapses.keys(), c2._segments.keys())
+    self.assertEqual(c1._synapses.keys(), c2._synapses.keys())
     for k, v1 in c1._synapses.iteritems():
       v2 = c2._synapses[k]
       self.assertEqual(v1.segment, v2.segment)
