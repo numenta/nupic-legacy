@@ -226,9 +226,16 @@ class ConnectionsTest(unittest.TestCase):
     c1.createSegment(100)
     c1.createSynapse(1, 20, 0.3)
 
-    c1.createSegment(100)
+    c1.createSynapse(0, 40, 0.3)
+
+    c1.createSegment(0)
     c1.createSynapse(2, 0, 0.5)
     c1.createSynapse(2, 1, 0.5)
+
+    c1.createSegment(10)
+    c1.createSynapse(3, 0, 0.5)
+    c1.createSynapse(3, 1, 0.5)
+    c1.destroySegment(3)
 
     proto1 = ConnectionsProto_capnp.ConnectionsProto.new_message()
     c1.write(proto1)
