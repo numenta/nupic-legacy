@@ -115,7 +115,8 @@ class DateEncoder(Encoder):
       self.dayOfWeekOffset = self.width
       self.width += self.dayOfWeekEncoder.getWidth()
       self.description.append(("day of week", self.dayOfWeekOffset))
-      self.encoders.append(("day of week", self.dayOfWeekEncoder, self.dayOfWeekOffset))
+      self.encoders.append(
+        ("day of week", self.dayOfWeekEncoder, self.dayOfWeekOffset))
 
     self.weekendEncoder = None
     if weekend != 0:
@@ -123,8 +124,8 @@ class DateEncoder(Encoder):
       #  with dayOfWeek
       #Append radius if it was not provided
       if not hasattr(weekend, "__getitem__"):
-        weekend = (weekend,1)
-      self.weekendEncoder = ScalarEncoder(w = weekend[0], minval = 0, maxval=1,
+        weekend = (weekend, 1)
+      self.weekendEncoder = ScalarEncoder(w=weekend[0], minval=0, maxval=1,
                                           periodic=False, radius=weekend[1],
                                           name="weekend", forced=forced)
       self.weekendOffset = self.width
