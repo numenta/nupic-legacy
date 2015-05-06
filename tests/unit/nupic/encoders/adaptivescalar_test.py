@@ -29,104 +29,117 @@ import numpy
 from nupic.encoders.adaptivescalar import AdaptiveScalarEncoder
 from nupic.encoders.adaptivescalar_capnp import AdaptiveScalarEncoderProto
 
-############################################################################
+
+
 class AdaptiveScalarTest(unittest.TestCase):
   """Tests for AdaptiveScalarEncoder"""
 
 
   def setUp(self):
-    # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readibility
-    self._l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
-                              periodic=False, forced=True)
+    # forced: it's strongly recommended to use w>=21, in the example we force
+    # skip the check for readibility
+    self._l = AdaptiveScalarEncoder(name="scalar", n=14, w=5, minval=1,
+                                    maxval=10, periodic=False, forced=True)
 
   def testMissingValues(self):
     """missing values"""
-    # forced: it's strongly recommended to use w>=21, in the example we force skip the check for readib.
-    mv = AdaptiveScalarEncoder(name='mv', n=14, w=3, minval=1, maxval=8, periodic=False, forced=True)
+    # forced: it's strongly recommended to use w>=21, in the example we force
+    # skip the check for readib.
+    mv = AdaptiveScalarEncoder(name="mv", n=14, w=3, minval=1, maxval=8,
+                               periodic=False, forced=True)
     empty = mv.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
-    print "\nEncoded missing data \'None\' as %s" % empty
     self.assertEqual(empty.sum(), 0)
+
 
   def testNonPeriodicEncoderMinMaxSpec(self):
     """Non-periodic encoder, min and max specified"""
 
-    self.assertTrue((self._l.encode(1) == numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all())
-    self.assertTrue((self._l.encode(2) == numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-                                       dtype=defaultDtype)).all())
-    self.assertTrue((self._l.encode(10) == numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
-                                        dtype=defaultDtype)).all())
+    self.assertTrue(numpy.array_equal(
+      self._l.encode(1),
+      numpy.array([1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  dtype=defaultDtype)))
+    self.assertTrue(numpy.array_equal(
+      self._l.encode(2),
+      numpy.array([0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+                  dtype=defaultDtype)))
+    self.assertTrue(numpy.array_equal(
+      self._l.encode(10),
+      numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+                  dtype=defaultDtype)))
+
 
   def testTopDownDecode(self):
     """Test the input description generation and topDown decoding"""
-    l=self._l
+    l = self._l
     v = l.minval
-    print "\nTesting non-periodic encoder decoding, resolution of %f..." % \
-            l.resolution
+
     while v < l.maxval:
       output = l.encode(v)
       decoded = l.decode(output)
-      print "decoding", output, "(%f)=>" % v, l.decodedToStr(decoded)
 
-      (fieldsDict, fieldNames) = decoded
+      (fieldsDict, _) = decoded
       self.assertEqual(len(fieldsDict), 1)
 
-      (ranges, desc) = fieldsDict.values()[0]
+      (ranges, _) = fieldsDict.values()[0]
       self.assertEqual(len(ranges), 1)
 
       (rangeMin, rangeMax) = ranges[0]
       self.assertEqual(rangeMin, rangeMax)
-      self.assertTrue(abs(rangeMin - v) < l.resolution)
+      self.assertLess(abs(rangeMin - v), l.resolution)
 
       topDown = l.topDownCompute(output)[0]
-      print "topdown =>", topDown
-      self.assertTrue(abs(topDown.value - v) <= l.resolution)
+      self.assertLessEqual(abs(topDown.value - v), l.resolution)
 
       # Test bucket support
       bucketIndices = l.getBucketIndices(v)
-      print "bucket index =>", bucketIndices[0]
       topDown = l.getBucketInfo(bucketIndices)[0]
-      self.assertTrue(abs(topDown.value - v) <= l.resolution / 2)
+      self.assertLessEqual(abs(topDown.value - v), l.resolution / 2)
       self.assertEqual(topDown.value, l.getBucketValues()[bucketIndices[0]])
       self.assertEqual(topDown.scalar, topDown.value)
-      self.assertTrue((topDown.encoding == output).all())
+      self.assertTrue(numpy.array_equal(topDown.encoding, output))
 
       # Next value
       v += l.resolution / 4
+
+
   def testFillHoles(self):
     """Make sure we can fill in holes"""
     l=self._l
     decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1]))
-    (fieldsDict, fieldNames) = decoded
+    (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
 
-    (ranges, desc) = fieldsDict.values()[0]
+    (ranges, _) = fieldsDict.values()[0]
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [10, 10])
-    print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
 
     decoded = l.decode(numpy.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1]))
-    (fieldsDict, fieldNames) = decoded
+    (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
-    (ranges, desc) = fieldsDict.values()[0]
+    (ranges, _) = fieldsDict.values()[0]
     self.assertEqual(len(ranges), 1)
     self.assertSequenceEqual(ranges[0], [10, 10])
-    print "decodedToStr of", ranges, "=>", l.decodedToStr(decoded)
+
 
   def testNonPeriodicEncoderMinMaxNotSpec(self):
     """Non-periodic encoder, min and max not specified"""
-    l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=None, maxval=None,
-                              periodic=False, forced=True)
+    l = AdaptiveScalarEncoder(name="scalar", n=14, w=5, minval=None,
+                              maxval=None, periodic=False, forced=True)
 
     def _verify(v, encoded, expV=None):
       if expV is None:
         expV = v
-      self.assertTrue((l.encode(v) == numpy.array(encoded, dtype=defaultDtype)).all())
-      self.assertTrue(abs(l.getBucketInfo(l.getBucketIndices(v))[0].value - expV) <= \
-                  l.resolution/2)
+
+      self.assertTrue(numpy.array_equal(
+        l.encode(v),
+        numpy.array(encoded, dtype=defaultDtype)))
+      self.assertLessEqual(
+        abs(l.getBucketInfo(l.getBucketIndices(v))[0].value - expV),
+        l.resolution/2)
 
     def _verifyNot(v, encoded):
-      self.assertFalse((l.encode(v) == numpy.array(encoded, dtype=defaultDtype)).all())
+      self.assertFalse(numpy.array_equal(
+        l.encode(v), numpy.array(encoded, dtype=defaultDtype)))
 
     _verify(1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     _verify(2, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -149,7 +162,7 @@ class AdaptiveScalarTest(unittest.TestCase):
 
 
     #"""Test switching learning off"""
-    l = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=10,
+    l = AdaptiveScalarEncoder(name="scalar", n=14, w=5, minval=1, maxval=10,
                               periodic=False, forced=True)
     _verify(1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     _verify(10, [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
@@ -168,6 +181,7 @@ class AdaptiveScalarTest(unittest.TestCase):
     _verify(-10, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     _verifyNot(-1, [1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
+
   def testSetFieldStats(self):
     """Test setting the min and max using setFieldStats"""
     def _dumpParams(enc):
@@ -178,14 +192,16 @@ class AdaptiveScalarTest(unittest.TestCase):
                               periodic=False, forced=True)
     reg = AdaptiveScalarEncoder(name='scalar', n=14, w=5, minval=1, maxval=100,
                               periodic=False, forced=True)
-    self.assertTrue(_dumpParams(sfs) != _dumpParams(reg), "Params should not be equal, "\
-              "since the two encoders were instantiated with different values.")
+    self.assertNotEqual(_dumpParams(sfs), _dumpParams(reg),
+                        ("Params should not be equal, since the two encoders "
+                         "were instantiated with different values."))
     # set the min and the max using sFS to 1,100 respectively.
-    sfs.setFieldStats('this',{"this":{"min":1,"max":100}})
+    sfs.setFieldStats("this", {"this":{"min":1, "max":100}})
 
     #Now the parameters for both should be the same
-    self.assertEqual(_dumpParams(sfs), _dumpParams(reg), "Params should now be equal, "\
-          "but they are not. sFS should be equivalent to initialization.")
+    self.assertEqual(_dumpParams(sfs), _dumpParams(reg),
+                     ("Params should now be equal, but they are not. sFS "
+                      "should be equivalent to initialization."))
 
 
   def testReadWrite(self):
@@ -227,6 +243,6 @@ class AdaptiveScalarTest(unittest.TestCase):
     self.assertTrue(numpy.array_equal(result1, result2))
 
 
-################################################################################
+
 if __name__ == '__main__':
   unittest.main()
