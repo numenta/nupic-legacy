@@ -26,7 +26,7 @@ import time
 import copy
 import csv
 import numpy as np
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 from nupic.bindings.math import GetNTAReal
 
 import matplotlib

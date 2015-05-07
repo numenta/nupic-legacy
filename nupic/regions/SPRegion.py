@@ -24,8 +24,8 @@ import os
 import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.bindings.algorithms import SpatialPooler as CPPSpatialPooler
-from nupic.research.spatial_pooler import SpatialPooler as PYSpatialPooler
-import nupic.research.fdrutilities as fdru
+from nupic.algorithms.spatial_pooler import SpatialPooler as PYSpatialPooler
+import nupic.algorithms.fdrutilities as fdru
 from nupic.support import getArgumentDescriptions
 from PyRegion import PyRegion
 

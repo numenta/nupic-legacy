@@ -24,7 +24,7 @@ import numpy
 from numpy import *
 
 import nupic.math
-from nupic.research.TP import TP
+from nupic.algorithms.TP import TP
 
 from nupic.bindings.algorithms import Cells4
 

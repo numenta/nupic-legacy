@@ -442,9 +442,9 @@ import pickle
 import cPickle
 import pprint
 
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
-from nupic.research import fdrutilities as fdrutils
+from nupic.algorithms.TP import TP
+from nupic.algorithms.TP10X2 import TP10X2
+from nupic.algorithms import fdrutilities as fdrutils
 
 #---------------------------------------------------------------------------------
 TEST_CPP_TP = 1   # temporarily disabled until it can be updated

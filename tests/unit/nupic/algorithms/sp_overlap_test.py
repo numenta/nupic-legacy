@@ -41,7 +41,7 @@ import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.encoders import scalar
 
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 realDType = GetNTAReal()
 

@@ -34,8 +34,8 @@ import unittest2 as unittest
 import numpy
 from pkg_resources import resource_filename
 
-from nupic.research import fdrutilities
-from nupic.research.TP import TP
+from nupic.algorithms import fdrutilities
+from nupic.algorithms.TP import TP
 
 COL_SET = set(range(500))
 

@@ -26,7 +26,7 @@ TODO: Make default test TM instance simpler, with 4 cells per column.
 
 import unittest
 
-from nupic.research.temporal_memory import TemporalMemory
+from nupic.algorithms.temporal_memory import TemporalMemory
 
 
 

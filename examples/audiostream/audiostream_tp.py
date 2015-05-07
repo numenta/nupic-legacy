@@ -34,7 +34,7 @@ import numpy
 import pyaudio
 import matplotlib.pyplot as plt
 from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
-from nupic.research.TP10X2 import TP10X2 as TP
+from nupic.algorithms.TP10X2 import TP10X2 as TP
 
 
 

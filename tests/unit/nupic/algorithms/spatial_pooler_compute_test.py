@@ -30,7 +30,7 @@ from nupic.bindings.math import (count_gte,
                                  GetNTAReal,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  SM32 as SparseMatrix)
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 uintType = "uint32"
 

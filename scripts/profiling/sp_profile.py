@@ -25,7 +25,7 @@
 import sys
 import numpy
 # chose desired SP implementation to compare:
-from nupic.research.spatial_pooler import SpatialPooler as PySP
+from nupic.algorithms.spatial_pooler import SpatialPooler as PySP
 from nupic.bindings.algorithms import SpatialPooler as CppSP
 
 

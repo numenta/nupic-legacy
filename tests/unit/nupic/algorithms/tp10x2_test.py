@@ -28,9 +28,9 @@ import unittest2 as unittest
 import numpy
 
 from nupic.bindings.math import Random
-from nupic.research import fdrutilities as fdrutils
-from nupic.research.TP import TP
-from nupic.research.TP10X2 import TP10X2
+from nupic.algorithms import fdrutilities as fdrutils
+from nupic.algorithms.TP import TP
+from nupic.algorithms.TP10X2 import TP10X2
 
 VERBOSITY = 0  # how chatty the unit tests should be
 INFERENCE_VERBOSITY = 0  # Chattiness during inference test

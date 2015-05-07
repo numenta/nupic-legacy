@@ -35,8 +35,8 @@ import time
 import unittest2 as unittest
 
 from nupic.bindings.math import GetNTAReal
-from nupic.research.spatial_pooler import SpatialPooler
-from nupic.research.fdrutilities import spDiff
+from nupic.algorithms.spatial_pooler import SpatialPooler
+from nupic.algorithms.fdrutilities import spDiff
 
 realDType = GetNTAReal()
 

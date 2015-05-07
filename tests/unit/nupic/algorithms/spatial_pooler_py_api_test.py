@@ -26,7 +26,7 @@ import cPickle as pickle
 import unittest2 as unittest
 
 from nupic.bindings.math import GetNTAReal
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.algorithms.spatial_pooler import SpatialPooler
 
 realType = GetNTAReal()
 uintType = "uint32"
