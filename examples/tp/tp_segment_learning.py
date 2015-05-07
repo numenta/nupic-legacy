@@ -229,9 +229,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_options.verbosity > 1:
       print "\nTraining sequences"
-      self.printAllTrainingSequences(trainingSequences)
+      self._printAllTrainingSequences(trainingSequences)
       print "\nTest sequence"
-      self.printAllTrainingSequences([testSequence])
+      self._printAllTrainingSequences([testSequence])
 
     return (trainingSequences, [testSequence])
 
@@ -297,9 +297,9 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     if g_options.verbosity > 1:
       print "\nTraining sequences"
-      self.printAllTrainingSequences(trainingSequences)
+      self._printAllTrainingSequences(trainingSequences)
       print "\nTest sequences"
-      self.printAllTrainingSequences(testSequences)
+      self._printAllTrainingSequences(testSequences)
 
     return (trainingSequences, testSequences)
 

@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013,2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -54,8 +54,10 @@ class FunctionSource(object):
 
     if hasReset and not hasSequenceId:
       self._sequenceInfoType = self.SEQUENCEINFO_RESET_ONLY
+      self._prevSequenceId = 0
     elif not hasReset and hasSequenceId:
       self._sequenceInfoType = self.SEQUENCEINFO_SEQUENCEID_ONLY
+      self._prevSequenceId = None
     elif hasReset and hasSequenceId:
       self._sequenceInfoType = self.SEQUENCEINFO_BOTH
     else:
@@ -66,7 +68,7 @@ class FunctionSource(object):
 
     # Automatically add _sequenceId and _reset fields
     if self._sequenceInfoType == self.SEQUENCEINFO_SEQUENCEID_ONLY:
-      sequenceId =  result[self.sequenceIdFieldName]
+      sequenceId = result[self.sequenceIdFieldName]
       reset = sequenceId != self._prevSequenceId
       self._prevSequenceId = sequenceId
     elif self._sequenceInfoType == self.SEQUENCEINFO_NONE:
@@ -76,11 +78,9 @@ class FunctionSource(object):
       reset = result[self.resetFieldName]
       if reset:
         self._prevSequenceId += 1
-        sequenceId = self._prevSequenceId
-      else:
-        sequenceId = self._prevSequenceId
+      sequenceId = self._prevSequenceId
     elif self._sequenceInfoType == self.SEQUENCEINFO_BOTH:
-      reset = result[self._resetFieldName]
+      reset = result[self.resetFieldName]
       sequenceId = result[self.sequenceIdFieldName]
     else:
       raise RuntimeError("Internal error -- sequence info type not set in RecordSensor")
@@ -97,7 +97,13 @@ class FunctionSource(object):
 
 
   def __getstate__(self):
-    state = dict(state=self.state)
+    state = dict(
+      state = self.state,
+      resetFieldName = self.resetFieldName,
+      sequenceIdFieldName = self.sequenceIdFieldName,
+      sequenceInfoType = self._sequenceInfoType,
+      prevSequenceId = getattr(self, "_prevSequenceId", None)
+      )
     func = dict()
     func['code'] = marshal.dumps(self.func.func_code)
     func['name'] = self.func.func_name
@@ -113,3 +119,7 @@ class FunctionSource(object):
     self.func.func_doc = funcinfo['doc']
 
     self.state = state['state']
+    self.resetFieldName = state['resetFieldName']
+    self.sequenceIdFieldName = state['sequenceIdFieldName']
+    self._sequenceInfoType = state['sequenceInfoType']
+    self._prevSequenceId = state['prevSequenceId']
