@@ -527,6 +527,8 @@ def getCommandLineOption(name, options):
 def prepareNupicCore(options, platform, bitness):
 
   nupicCoreReleaseDir = getCommandLineOption("nupic-core-dir", options)
+  if nupicCoreReleaseDir is not None:
+    nupicCoreReleaseDir = os.path.expanduser(nupicCoreReleaseDir)
   nupicCoreSourceDir = None
   fetchNupicCore = True
 
@@ -600,19 +602,20 @@ def prepareNupicCore(options, platform, bitness):
         % (nupicCoreCommitish, nupicCoreVersionFound)
       )
 
+  # Copy proto files located at nupic.core dir into nupic dir
+  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
+  protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
+  if not os.path.exists(protoTargetDir):
+    os.makedirs(protoTargetDir)
+  for fileName in glob.glob(protoSourceDir + "/*.capnp"):
+    shutil.copy(fileName, protoTargetDir)
+
   return nupicCoreReleaseDir
 
 
 
 def postProcess():
-  # Copy proto files located at nupic.core dir into nupic dir
   buildDir = glob.glob(REPO_DIR + "/build/lib.*/")[0]
-  protoBuildDir = nupicCoreReleaseDir + "/include/nupic/proto"
-  protoSourceDir = REPO_DIR + "/nupic/bindings/proto"
-  if not os.path.exists(protoSourceDir):
-    os.makedirs(protoSourceDir)
-  for fileName in glob.glob(protoBuildDir + "/*.capnp"):
-    shutil.copy(fileName, protoSourceDir)
 
   # Copy binaries located at nupic.core dir into source dir
   print ("Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to "
@@ -625,8 +628,6 @@ def postProcess():
   # Copy cpp_region located at build dir into source dir
   shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
               getSharedLibExtension(platform), REPO_DIR + "/nupic")
-
-
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
@@ -667,7 +668,9 @@ try:
       "nupic.frameworks.opf.exp_generator": ["*.json", "*.tpl"],
       "nupic.frameworks.opf.jsonschema": ["*.json"],
       "nupic.swarming.jsonschema": ["*.json"],
-      "nupic.datafiles": ["*.csv", "*.txt"]
+      "nupic.datafiles": ["*.csv", "*.txt"],
+      "nupic.encoders": ["*.capnp"],
+      "nupic.bindings.proto": ["*.capnp"],
     },
     include_package_data=True,
     ext_modules=extensions,

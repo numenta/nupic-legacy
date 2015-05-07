@@ -21,11 +21,13 @@
 # ----------------------------------------------------------------------
 
 import numpy as np
+import tempfile
 import unittest
 from mock import patch
 
 from nupic.encoders.base import defaultDtype
 from nupic.encoders.coordinate import CoordinateEncoder
+from nupic.encoders.coordinate_capnp import CoordinateEncoderProto
 
 # Disable warnings about accessing protected members
 # pylint: disable=W0212
@@ -36,9 +38,7 @@ class CoordinateEncoderTest(unittest.TestCase):
   """Unit tests for CoordinateEncoder class"""
 
   def setUp(self):
-    self.encoder = CoordinateEncoder(name="coordinate",
-                                     n=33,
-                                     w=3)
+    self.encoder = CoordinateEncoder(name="coordinate", n=33, w=3)
 
 
   def testInvalidW(self):
@@ -269,6 +269,34 @@ class CoordinateEncoderTest(unittest.TestCase):
   def assertDecreasingOverlaps(self, overlaps):
     self.assertEqual((np.diff(overlaps) >= 0).sum(), 0)
 
+
+  def testReadWrite(self):
+    coordinate = np.array([100, 200])
+    radius = 5
+    output1 = encode(self.encoder, coordinate, radius)
+
+    proto1 = CoordinateEncoderProto.new_message()
+    self.encoder.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = CoordinateEncoderProto.read(f)
+
+    encoder = CoordinateEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, CoordinateEncoder)
+    self.assertEqual(encoder.w, self.encoder.w)
+    self.assertEqual(encoder.n, self.encoder.n)
+    self.assertEqual(encoder.name, self.encoder.name)
+    self.assertEqual(encoder.verbosity, self.encoder.verbosity)
+
+    coordinate = np.array([100, 200])
+    radius = 5
+    output2 = encode(encoder, coordinate, radius)
+
+    self.assertTrue(np.array_equal(output1, output2))
 
 
 def encode(encoder, coordinate, radius):

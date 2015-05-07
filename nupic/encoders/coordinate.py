@@ -189,3 +189,20 @@ class CoordinateEncoder(Encoder):
     print "CoordinateEncoder:"
     print "  w:   %d" % self.w
     print "  n:   %d" % self.n
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+    encoder.w = proto.w
+    encoder.n = proto.n
+    encoder.verbosity = proto.verbosity
+    encoder.name = proto.name
+    return encoder
+
+
+  def write(self, proto):
+    proto.w = self.w
+    proto.n = self.n
+    proto.verbosity = self.verbosity
+    proto.name = self.name

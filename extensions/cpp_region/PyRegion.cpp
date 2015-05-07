@@ -868,7 +868,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 
   // Get the node spec from the Python class
   py::Dict nodeSpec(nodeClass.invoke("getSpec", py::Tuple()));
-  
+
   // Extract the region deascription
   py::String description(nodeSpec.getItem("description"));
   ns.description = std::string(description);
@@ -880,7 +880,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
   // Extract the 4 dicts from the node spec
   py::Dict inputs(nodeSpec.getItem("inputs", py::Dict()));
   //NTA_DEBUG << "'inputs' type: " << inputs.getTypeName();
-  
+
   py::Dict outputs(nodeSpec.getItem("outputs", py::Dict()));
   py::Dict parameters(nodeSpec.getItem("parameters", py::Dict()));
   py::Dict commands(nodeSpec.getItem("commands", py::Dict()));
@@ -906,14 +906,37 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
     py::Dict input(value);
 
     // Add an InputSpec object for each input spec dict
+    std::ostringstream inputMessagePrefix;
+    inputMessagePrefix << "Region " << className
+      << " spec has missing key for input section " << name << ": ";
 
+    NTA_ASSERT(input.getItem("description") != nullptr)
+        << inputMessagePrefix.str() << "description";
     std::string description(py::String(input.getItem("description")));
+
+    NTA_ASSERT(input.getItem("dataType") != nullptr)
+        << inputMessagePrefix.str() << "dataType";
     std::string dt(py::String(input.getItem("dataType")));
     NTA_BasicType dataType(BasicType::parse(dt));
+
+    NTA_ASSERT(input.getItem("count") != nullptr)
+        << inputMessagePrefix.str() << "count";
     UInt32 count = py::Int(input.getItem("count"));
+
+    NTA_ASSERT(input.getItem("required") != nullptr)
+        << inputMessagePrefix.str() << "required";
     bool required = py::Int(input.getItem("required")) != 0;
+
+    NTA_ASSERT(input.getItem("regionLevel") != nullptr)
+        << inputMessagePrefix.str() << "regionLevel";
     bool regionLevel = py::Int(input.getItem("regionLevel")) != 0;
+
+    NTA_ASSERT(input.getItem("isDefaultInput") != nullptr)
+        << inputMessagePrefix.str() << "isDefaultInput";
     bool isDefaultInput = py::Int(input.getItem("isDefaultInput")) != 0;
+
+    NTA_ASSERT(input.getItem("requireSplitterMap") != nullptr)
+        << inputMessagePrefix.str() << "requireSplitterMap";
     bool requireSplitterMap = py::Int(input.getItem("requireSplitterMap")) != 0;
     ns.inputs.add(
       name,
@@ -941,12 +964,31 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
     py::Dict output(value);
 
     // Add an OutputSpec object for each output spec dict
+    std::ostringstream outputMessagePrefix;
+    outputMessagePrefix << "Region " << className
+      << " spec has missing key for output section " << name << ": ";
+
+    NTA_ASSERT(output.getItem("description") != nullptr)
+        << outputMessagePrefix.str() << "description";
     std::string description(py::String(output.getItem("description")));
+
+    NTA_ASSERT(output.getItem("dataType") != nullptr)
+        << outputMessagePrefix.str() << "dataType";
     std::string dt(py::String(output.getItem("dataType")));
     NTA_BasicType dataType(BasicType::parse(dt));
+
+    NTA_ASSERT(output.getItem("count") != nullptr)
+        << outputMessagePrefix.str() << "count";
     UInt32 count = py::Int(output.getItem("count"));
+
+    NTA_ASSERT(output.getItem("regionLevel") != nullptr)
+        << outputMessagePrefix.str() << "regionLevel";
     bool regionLevel = py::Int(output.getItem("regionLevel")) != 0;
+
+    NTA_ASSERT(output.getItem("isDefaultOutput") != nullptr)
+        << outputMessagePrefix.str() << "isDefaultOutput";
     bool isDefaultOutput = py::Int(output.getItem("isDefaultOutput")) != 0;
+
     ns.outputs.add(
       name,
       OutputSpec(
@@ -971,12 +1013,28 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
     py::Dict parameter(value);
 
     // Add an ParameterSpec object for each output spec dict
+    std::ostringstream parameterMessagePrefix;
+    parameterMessagePrefix << "Region " << className
+      << " spec has missing key for parameter section " << name << ": ";
+
+    NTA_ASSERT(parameter.getItem("description") != nullptr)
+        << parameterMessagePrefix.str() << "description";
     std::string description(py::String(parameter.getItem("description")));
+
+    NTA_ASSERT(parameter.getItem("dataType") != nullptr)
+        << parameterMessagePrefix.str() << "dataType";
     std::string dt(py::String(parameter.getItem("dataType")));
     NTA_BasicType dataType(BasicType::parse(dt));
+
+    NTA_ASSERT(parameter.getItem("count") != nullptr)
+        << parameterMessagePrefix.str() << "count";
     UInt32 count = py::Int(parameter.getItem("count"));
+
+    // This parameter is optional
     std::string constraints(py::String(parameter.getItem("constraints")));
-  
+
+    NTA_ASSERT(parameter.getItem("accessMode") != nullptr)
+        << parameterMessagePrefix.str() << "accessMode";
     ParameterSpec::AccessMode accessMode;
     std::string am(py::String(parameter.getItem("accessMode")));
     if (am == "Create")
@@ -992,6 +1050,8 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
     std::string defaultValue;
     if (am == "Create")
     {
+      NTA_ASSERT(parameter.getItem("defaultValue") != nullptr)
+          << parameterMessagePrefix.str() << "defaultValue";
       py::Instance dv(parameter.getItem("defaultValue"));
       py::String s(dv.invoke("__str__", py::Tuple()));
       defaultValue = std::string(s);
@@ -1035,6 +1095,12 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
     py::Dict command(value);
 
     // Add a CommandSpec object for each output spec dict
+    std::ostringstream commandsMessagePrefix;
+    commandsMessagePrefix << "Region " << className
+      << " spec has missing key for commands section " << name << ": ";
+
+    NTA_ASSERT(command.getItem("description") != nullptr)
+        << commandsMessagePrefix.str() << "description";
     std::string description(py::String(command.getItem("description")));
 
     ns.commands.add(
@@ -1042,7 +1108,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
       CommandSpec(description));
   }
 }
- 
+
 // Return the size of the longest raw in a slitter map
 // which is the max number of inputs that go into one node
 static size_t getMaxInputCount(const nupic::Input::SplitterMap & sm)

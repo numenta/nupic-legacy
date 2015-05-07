@@ -556,21 +556,22 @@ class Encoder(object):
     else:
       parentName = "%s.%s" % (parentFieldName, self.name)
 
-    # Merge decodings of all child encoders together
-    for i in xrange(len(self.encoders)):
+    if self.encoders is not None:
+      # Merge decodings of all child encoders together
+      for i in xrange(len(self.encoders)):
 
-      # Get the encoder and the encoded output
-      (name, encoder, offset) = self.encoders[i]
-      if i < len(self.encoders)-1:
-        nextOffset = self.encoders[i+1][2]
-      else:
-        nextOffset = self.width
-      fieldOutput = encoded[offset:nextOffset]
-      (subFieldsDict, subFieldsOrder) = encoder.decode(fieldOutput,
-                                            parentFieldName=parentName)
+        # Get the encoder and the encoded output
+        (name, encoder, offset) = self.encoders[i]
+        if i < len(self.encoders)-1:
+          nextOffset = self.encoders[i+1][2]
+        else:
+          nextOffset = self.width
+        fieldOutput = encoded[offset:nextOffset]
+        (subFieldsDict, subFieldsOrder) = encoder.decode(fieldOutput,
+                                              parentFieldName=parentName)
 
-      fieldsDict.update(subFieldsDict)
-      fieldsOrder.extend(subFieldsOrder)
+        fieldsDict.update(subFieldsDict)
+        fieldsOrder.extend(subFieldsOrder)
 
 
     return (fieldsDict, fieldsOrder)
