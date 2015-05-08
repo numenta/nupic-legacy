@@ -249,22 +249,8 @@ class ConnectionsTest(unittest.TestCase):
     # Load the deserialized proto
     c2 = Connections.read(proto2)
 
-    # Check that the two connections objects have the same attributes
-    self.assertEqual(c1.numCells, c2.numCells)
-
-    self.assertEqual(c1._segments, c2._segments)
-
-    self.assertEqual(c1._synapses.keys(), c2._synapses.keys())
-    for k, v1 in c1._synapses.iteritems():
-      v2 = c2._synapses[k]
-      self.assertEqual(v1.segment, v2.segment)
-      self.assertEqual(v1.presynapticCell, v2.presynapticCell)
-      self.assertAlmostEqual(v1.permanence, v2.permanence)
-
-    self.assertEqual(c1._segmentsForCell, c2._segmentsForCell)
-
-    self.assertEqual(c1._nextSegmentIdx, c2._nextSegmentIdx)
-    self.assertEqual(c1._nextSynapseIdx, c2._nextSynapseIdx)
+    # Check that the two connections objects are functionally equal
+    self.assertEqual(c1, c2)
 
 
 
