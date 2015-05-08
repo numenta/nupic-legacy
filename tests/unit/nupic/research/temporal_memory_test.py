@@ -633,18 +633,26 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertAlmostEqual(tm1.permanenceIncrement, tm2.permanenceIncrement)
     self.assertAlmostEqual(tm1.permanenceDecrement, tm2.permanenceDecrement)
 
+    self.assertEqual(tm1.connections, tm2.connections)
+
     self.assertEqual(tm1.activeCells, tm2.activeCells)
     self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
-    self.assertEqual(tm1.activeSegments, tm2.activeSegments)
     self.assertEqual(tm1.winnerCells, tm2.winnerCells)
 
-    # Run a record through after deserializing and check results match
+    # Run a couple records through after deserializing and check results match
     tm1.compute(self.patternMachine.get(0))
     tm2.compute(self.patternMachine.get(0))
     self.assertEqual(tm1.activeCells, tm2.activeCells)
     self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
-    self.assertEqual(tm1.activeSegments, tm2.activeSegments)
     self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
+
+    tm1.compute(self.patternMachine.get(3))
+    tm2.compute(self.patternMachine.get(3))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
 
 
 
