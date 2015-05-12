@@ -590,7 +590,6 @@ class TemporalMemoryTest(unittest.TestCase):
       columnDimensions=[100],
       cellsPerColumn=4,
       activationThreshold=7,
-      learningRadius=80,
       initialPermanence=0.37,
       connectedPermanence=0.58,
       minThreshold=4,
@@ -625,7 +624,6 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(tm1.columnDimensions, tm2.columnDimensions)
     self.assertEqual(tm1.cellsPerColumn, tm2.cellsPerColumn)
     self.assertEqual(tm1.activationThreshold, tm2.activationThreshold)
-    self.assertEqual(tm1.learningRadius, tm2.learningRadius)
     self.assertAlmostEqual(tm1.initialPermanence, tm2.initialPermanence)
     self.assertAlmostEqual(tm1.connectedPermanence, tm2.connectedPermanence)
     self.assertEqual(tm1.minThreshold, tm2.minThreshold)

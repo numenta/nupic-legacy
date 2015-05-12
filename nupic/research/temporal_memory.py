@@ -631,7 +631,6 @@ class TemporalMemory(object):
     proto.columnDimensions = self.columnDimensions
     proto.cellsPerColumn = self.cellsPerColumn
     proto.activationThreshold = self.activationThreshold
-    proto.learningRadius = self.learningRadius
     proto.initialPermanence = self.initialPermanence
     proto.connectedPermanence = self.connectedPermanence
     proto.minThreshold = self.minThreshold
@@ -654,7 +653,6 @@ class TemporalMemory(object):
     tm.__init__(columnDimensions=list(proto.columnDimensions),
                 cellsPerColumn=int(proto.cellsPerColumn),
                 activationThreshold=int(proto.activationThreshold),
-                learningRadius=int(proto.learningRadius),
                 initialPermanence=proto.initialPermanence,
                 connectedPermanence=proto.connectedPermanence,
                 minThreshold=int(proto.minThreshold),
