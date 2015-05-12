@@ -260,8 +260,7 @@ class Connections(object):
   @classmethod
   def read(cls, proto):
     protoCells = proto.cells
-    connections = object.__new__(cls)
-    connections.__init__(len(protoCells))
+    connections = cls(len(protoCells))
 
     for i in xrange(len(protoCells)):
       protoCell = protoCells[i]
@@ -295,14 +294,14 @@ class Connections(object):
       segmentSet = set()
       for segment in self.segmentsForCell(cell):
         synapseSet = self._synapseSetForSynapses(
-                       self.synapsesForSegment(segment))
-        segmentSet.add(synapseSet)
+          self.synapsesForSegment(segment))
+        segmentSet.add(frozenset(synapseSet))
 
       otherSegmentSet = set()
       for segment in other.segmentsForCell(cell):
         otherSynapseSet = other._synapseSetForSynapses(
                        other.synapsesForSegment(segment))
-        otherSegmentSet.add(otherSynapseSet)
+        otherSegmentSet.add(frozenset(otherSynapseSet))
 
       if segmentSet != otherSegmentSet: return False
 
@@ -334,7 +333,7 @@ class Connections(object):
       synapseSet.add((synapseData.presynapticCell,
                      round(synapseData.permanence, 7)))
 
-    return frozenset(synapseSet)
+    return synapseSet
 
 
   def _validateCell(self, cell):
