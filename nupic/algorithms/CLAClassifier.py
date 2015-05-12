@@ -213,6 +213,36 @@ class BitHistory(object):
     self._version = BitHistory.__VERSION__
 
 
+  def write(self, proto):
+    proto.id = self._id
+
+    statsProto = proto.init("stats", len(self._stats))
+    for (bucketIdx, dutyCycle) in enumerate(self._stats):
+      statsProto[bucketIdx].index = bucketIdx
+      statsProto[bucketIdx].dutyCycle = dutyCycle
+
+    proto.lastTotalUpdate = self._lastTotalUpdate
+    proto.learnIteration = self._learnIteration
+
+
+  @classmethod
+  def read(cls, proto):
+    bitHistory = object.__new__(cls)
+
+    bitHistory._id = proto.id
+
+    for statProto in proto.stats:
+      statsLen = len(bitHistory._stats) - 1
+      if statProto.index > statsLen:
+        bitHistory._stats.extend(itertools.repeat(0.0, statProto.index - statsLen))
+      bitHistory._stats[statProto.index] = statProto.dutyCycle
+
+    bitHistory._lastTotalUpdate = proto.lastTotalUpdate
+    bitHistory._learnIteration = proto.learnIteration
+
+    return bitHistory
+
+
 
 class CLAClassifier(object):
   """
@@ -510,3 +540,95 @@ class CLAClassifier(object):
       pass
 
     self._version = CLAClassifier.__VERSION__
+
+
+  @classmethod
+  def read(cls, proto):
+    classifier = object.__new__(cls)
+
+    classifier.steps = []
+    for step in proto.steps:
+      classifier.steps.append(step)
+
+    classifier.alpha = proto.alpha
+    classifier.actValueAlpha = proto.actValueAlpha
+    classifier._learnIteration = proto.learnIteration
+    classifier._recordNumMinusLearnIteration = proto.recordNumMinusLearnIteration
+
+    classifier._patternNZHistory = deque(maxlen=max(classifier.steps) + 1)
+    patternNZHistoryProto = proto.patternNZHistory
+    learnIteration = classifier._learnIteration - len(patternNZHistoryProto) + 1
+    for i in xrange(len(patternNZHistoryProto)):
+      classifier._patternNZHistory.append((learnIteration, list(patternNZHistoryProto[i])))
+      learnIteration += 1
+
+    classifier._activeBitHistory = dict()
+    activeBitHistoryProto = proto.activeBitHistory
+    for i in xrange(len(activeBitHistoryProto)):
+      stepBitHistories = activeBitHistoryProto[i]
+      nSteps = stepBitHistories.steps
+      for indexBitHistoryProto in stepBitHistories.bitHistories:
+        bit = indexBitHistoryProto.index
+        bitHistory = BitHistory.read(indexBitHistoryProto.history)
+        classifier._activeBitHistory[(bit, nSteps)] = bitHistory
+
+    classifier._maxBucketIdx = proto.maxBucketIdx
+
+    classifier._actualValues = []
+    for actValue in proto.actualValues:
+      if actValue == 0:
+        classifier._actualValues.append(None)
+      else:
+        classifier._actualValues.append(actValue)
+
+    classifier._version = proto.version
+    classifier.verbosity = proto.verbosity
+
+    return classifier
+
+
+  def write(self, proto):
+    stepsProto = proto.init("steps", len(self.steps))
+    for i in xrange(len(self.steps)):
+      stepsProto[i] = self.steps[i]
+
+    proto.alpha = self.alpha
+    proto.actValueAlpha = self.actValueAlpha
+    proto.learnIteration = self._learnIteration
+    proto.recordNumMinusLearnIteration = self._recordNumMinusLearnIteration
+
+    patternNZHistory = []
+    for (iteration, learnPatternNZ) in self._patternNZHistory:
+      patternNZHistory.append(learnPatternNZ)
+    proto.patternNZHistory = patternNZHistory
+
+    i = 0
+    activeBitHistoryProtos = proto.init("activeBitHistory", len(self._activeBitHistory))
+    if len(self._activeBitHistory) > 0:
+      for nSteps in self.steps:
+        stepBitHistory = {bit: self._activeBitHistory[(bit, step)]
+                          for (bit, step) in self._activeBitHistory.keys()
+                          if step == nSteps}
+        stepBitHistoryProto = activeBitHistoryProtos[i]
+        stepBitHistoryProto.steps = nSteps
+        indexBitHistoryListProto = stepBitHistoryProto.init("bitHistories", len(stepBitHistory))
+        j = 0
+        for indexBitHistory in stepBitHistory:
+          indexBitHistoryProto = indexBitHistoryListProto[j]
+          indexBitHistoryProto.index = indexBitHistory
+          bitHistoryProto = indexBitHistoryProto.history
+          stepBitHistory[indexBitHistory].write(bitHistoryProto)
+          j += 1
+        i += 1
+
+    proto.maxBucketIdx = self._maxBucketIdx
+
+    actualValuesProto = proto.init("actualValues", len(self._actualValues))
+    for i in xrange(len(self._actualValues)):
+      if self._actualValues[i] is not None:
+        actualValuesProto[i] = self._actualValues[i]
+      else:
+        actualValuesProto[i] = 0
+
+    proto.version = self._version
+    proto.verbosity = self.verbosity

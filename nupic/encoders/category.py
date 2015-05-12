@@ -185,10 +185,6 @@ class CategoryEncoder(Encoder):
     if not fractional:
       closeness = 1.0 - closeness
 
-    #print "category::", "expValue:", expValue, "actValue:", actValue, \
-    #      "closeness", closeness
-    #import pdb; pdb.set_trace()
-
     return numpy.array([closeness])
 
 

@@ -29,7 +29,7 @@ from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 import numpy
 import unittest2 as unittest
 
-from nupic.encoders.category import CategoryEncoder
+from nupic.encoders.category import CategoryEncoder, UNKNOWN
 from nupic.encoders.category_capnp import CategoryEncoderProto
 
 
@@ -40,23 +40,25 @@ class CategoryEncoderTest(unittest.TestCase):
 
 
   def testCategoryEncoder(self):
-    verbosity = 0
-
-    print "Testing CategoryEncoder...",
     categories = ["ES", "GB", "US"]
 
-    # forced: is not recommended, but is used here for readability. see scalar.py
+    # forced: is not recommended, but is used here for readability.
+    # see scalar.py
     e = CategoryEncoder(w=3, categoryList=categories, forced=True)
     output = e.encode("US")
-    self.assertTrue((output == numpy.array([0,0,0,0,0,0,0,0,0,1,1,1], dtype=defaultDtype)).all())
+    expected = numpy.array([0,0,0,0,0,0,0,0,0,1,1,1], dtype=defaultDtype)
+    self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
     decoded = e.decode(output)
     (fieldsDict, fieldNames) = decoded
+    self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
+    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
     (ranges, desc) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [3,3]))
-    print "decodedToStr of", ranges, "=>", e.decodedToStr(decoded)
+    self.assertEqual(desc, "US")
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [3, 3]))
 
     # Test topdown compute
     for v in categories:
@@ -66,11 +68,10 @@ class CategoryEncoderTest(unittest.TestCase):
       self.assertEqual(topDown.scalar, e.getScalars(v)[0])
 
       bucketIndices = e.getBucketIndices(v)
-      print "bucket index =>", bucketIndices[0]
       topDown = e.getBucketInfo(bucketIndices)[0]
       self.assertEqual(topDown.value, v)
       self.assertEqual(topDown.scalar, e.getScalars(v)[0])
-      self.assertTrue((topDown.encoding == output).all())
+      self.assertTrue(numpy.array_equal(topDown.encoding, output))
       self.assertEqual(topDown.value, e.getBucketValues()[bucketIndices[0]])
 
 
@@ -78,26 +79,30 @@ class CategoryEncoderTest(unittest.TestCase):
     # ---------------------
     # unknown category
     output = e.encode("NA")
-    self.assertTrue((output == numpy.array([1,1,1,0,0,0,0,0,0,0,0,0], dtype=defaultDtype)).all())
+    expected = numpy.array([1,1,1,0,0,0,0,0,0,0,0,0], dtype=defaultDtype)
+    self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
     decoded = e.decode(output)
     (fieldsDict, fieldNames) = decoded
+    self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
+    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
     (ranges, desc) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [0,0]))
-    print "decodedToStr of", ranges, "=>", e.decodedToStr(decoded)
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [0, 0]))
 
     # Test topdown compute
     topDown = e.topDownCompute(output)
-    self.assertEqual(topDown.value, "<UNKNOWN>")
+    self.assertEqual(topDown.value, UNKNOWN)
     self.assertEqual(topDown.scalar, 0)
 
 
     # --------------------------------
     # ES
     output = e.encode("ES")
-    self.assertTrue((output == numpy.array([0,0,0,1,1,1,0,0,0,0,0,0], dtype=defaultDtype)).all())
+    expected = numpy.array([0,0,0,1,1,1,0,0,0,0,0,0], dtype=defaultDtype)
+    self.assertTrue(numpy.array_equal(output, expected))
 
     # MISSING VALUE
     outputForMissing = e.encode(SENTINEL_VALUE_FOR_MISSING_DATA)
@@ -106,10 +111,12 @@ class CategoryEncoderTest(unittest.TestCase):
     # Test reverse lookup
     decoded = e.decode(output)
     (fieldsDict, fieldNames) = decoded
+    self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
+    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
     (ranges, desc) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [1,1]))
-    print "decodedToStr of", ranges, "=>", e.decodedToStr(decoded)
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [1, 1]))
 
     # Test topdown compute
     topDown = e.topDownCompute(output)
@@ -124,25 +131,23 @@ class CategoryEncoderTest(unittest.TestCase):
     # Test reverse lookup
     decoded = e.decode(output)
     (fieldsDict, fieldNames) = decoded
+    self.assertEqual(len(fieldNames), 1)
     self.assertEqual(len(fieldsDict), 1)
+    self.assertEqual(fieldNames[0], fieldsDict.keys()[0])
     (ranges, desc) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0], [0,3]))
-    print "decodedToStr of", ranges, "=>", e.decodedToStr(decoded)
-
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [0, 3]))
 
 
     # -------------------------------------------------------------
     # Test with width = 1
     categories = ["cat1", "cat2", "cat3", "cat4", "cat5"]
-      # forced: is not recommended, but is used here for readability. see scalar.py
+      # forced: is not recommended, but is used here for readability.
+      # see scalar.py
     e = CategoryEncoder(w=1, categoryList=categories, forced=True)
     for cat in categories:
       output = e.encode(cat)
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print cat, "->", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -150,15 +155,12 @@ class CategoryEncoderTest(unittest.TestCase):
     # -------------------------------------------------------------
     # Test with width = 9, removing some bits end the encoded output
     categories = ["cat%d" % (x) for x in range(1, 10)]
-     # forced: is not recommended, but is used here for readability. see scalar.py
+     # forced: is not recommended, but is used here for readability.
+     # see scalar.py
     e = CategoryEncoder(w=9, categoryList=categories, forced=True)
     for cat in categories:
       output = e.encode(cat)
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print cat, "->", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -166,10 +168,6 @@ class CategoryEncoderTest(unittest.TestCase):
       outputNZs = output.nonzero()[0]
       output[outputNZs[0]] = 0
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print "missing 1 bit on left:", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -177,10 +175,6 @@ class CategoryEncoderTest(unittest.TestCase):
       output[outputNZs[0]] = 1
       output[outputNZs[-1]] = 0
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print "missing 1 bit on right:", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -188,10 +182,6 @@ class CategoryEncoderTest(unittest.TestCase):
       output.fill(0)
       output[outputNZs[-5:]] = 1
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print "missing 4 bits on left:", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -199,10 +189,6 @@ class CategoryEncoderTest(unittest.TestCase):
       output.fill(0)
       output[outputNZs[0:5]] = 1
       topDown = e.topDownCompute(output)
-      if verbosity >= 1:
-        print "missing 4 bits on right:", output, output.nonzero()[0]
-        print " scalarTopDown:", e.encoder.topDownCompute(output)
-        print " topdown:", topDown
       self.assertEqual(topDown.value, cat)
       self.assertEqual(topDown.scalar, e.getScalars(cat)[0])
 
@@ -213,16 +199,9 @@ class CategoryEncoderTest(unittest.TestCase):
     output2 = e.encode("cat9")
     output = output1 + output2
     topDown = e.topDownCompute(output)
-    if verbosity >= 1:
-      print "cat1 + cat9 ->", output, output.nonzero()[0]
-      print " scalarTopDown:", e.encoder.topDownCompute(output)
-      print " topdown:", topDown
     self.assertTrue(topDown.scalar == e.getScalars("cat1")[0] \
             or topDown.scalar == e.getScalars("cat9")[0])
 
-
-
-    print "passed"
 
 
   def testReadWrite(self):
@@ -262,6 +241,5 @@ class CategoryEncoderTest(unittest.TestCase):
 
 
 
-###########################################
 if __name__ == '__main__':
   unittest.main()
