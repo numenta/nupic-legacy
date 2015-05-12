@@ -650,18 +650,20 @@ class TemporalMemory(object):
   @classmethod
   def read(cls, proto):
     tm = object.__new__(cls)
-    tm.__init__(columnDimensions=list(proto.columnDimensions),
-                cellsPerColumn=int(proto.cellsPerColumn),
-                activationThreshold=int(proto.activationThreshold),
-                initialPermanence=proto.initialPermanence,
-                connectedPermanence=proto.connectedPermanence,
-                minThreshold=int(proto.minThreshold),
-                maxNewSynapseCount=int(proto.maxNewSynapseCount),
-                permanenceIncrement=proto.permanenceIncrement,
-                permanenceDecrement=proto.permanenceDecrement)
+
+    tm.columnDimensions = list(proto.columnDimensions)
+    tm.cellsPerColumn = int(proto.cellsPerColumn)
+    tm.activationThreshold = int(proto.activationThreshold)
+    tm.initialPermanence = proto.initialPermanence
+    tm.connectedPermanence = proto.connectedPermanence
+    tm.minThreshold = int(proto.minThreshold)
+    tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
+    tm.permanenceIncrement = proto.permanenceIncrement
+    tm.permanenceDecrement = proto.permanenceDecrement
 
     tm.connections = Connections.read(proto.connections)
-    tm.random = tm._random.read(proto.random)
+    tm._random = Random()
+    tm._random.read(proto.random)
 
     tm.activeCells = set([int(x) for x in proto.activeCells])
     tm.predictiveCells = set([int(x) for x in proto.predictiveCells])
