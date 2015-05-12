@@ -600,7 +600,6 @@ class TemporalMemoryTest(unittest.TestCase):
     )
 
     # Run some data through before serializing
-    # TODO
     self.patternMachine = PatternMachine(100, 4)
     self.sequenceMachine = SequenceMachine(self.patternMachine)
     sequence = self.sequenceMachine.generateFromNumbers(range(5))
