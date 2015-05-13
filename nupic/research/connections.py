@@ -238,6 +238,104 @@ class Connections(object):
     return len(self._synapses)
 
 
+  def write(self, proto):
+    protoCells = proto.init('cells', self.numCells)
+
+    for cell in xrange(self.numCells):
+      segments = self.segmentsForCell(cell)
+      protoSegments = protoCells[cell].init('segments', len(segments))
+
+      for j, segment in enumerate(segments):
+        synapses = self.synapsesForSegment(segment)
+        protoSynapses = protoSegments[j].init('synapses', len(synapses))
+
+        for k, synapse in enumerate(synapses):
+          synapseData = self.dataForSynapse(synapse)
+          protoSynapse = protoSynapses[k]
+
+          protoSynapse.presynapticCell = synapseData.presynapticCell
+          protoSynapse.permanence = synapseData.permanence
+
+
+  @classmethod
+  def read(cls, proto):
+    protoCells = proto.cells
+    connections = cls(len(protoCells))
+
+    for i in xrange(len(protoCells)):
+      protoCell = protoCells[i]
+      protoSegments = protoCell.segments
+
+      for j in xrange(len(protoSegments)):
+        protoSegment = protoSegments[j]
+        protoSynapses = protoSegment.synapses
+        segment = connections.createSegment(i)
+
+        for k in xrange(len(protoSynapses)):
+          protoSynapse = protoSynapses[k]
+          synapse = connections.createSynapse(segment,
+                                              int(protoSynapse.presynapticCell),
+                                              protoSynapse.permanence)
+
+    return connections
+
+
+  def __eq__(self, other):
+    """
+    Equality operator for Connections instances.
+    Checks if two instances are functionally identical
+    (might have different internal state).
+
+    @param other (Connections) Connections instance to compare to
+    """
+    if self.numCells != other.numCells: return False
+
+    for cell in xrange(self.numCells):
+      segmentSet = set()
+      for segment in self.segmentsForCell(cell):
+        synapseSet = self._synapseSetForSynapses(
+          self.synapsesForSegment(segment))
+        segmentSet.add(frozenset(synapseSet))
+
+      otherSegmentSet = set()
+      for segment in other.segmentsForCell(cell):
+        otherSynapseSet = other._synapseSetForSynapses(
+                       other.synapsesForSegment(segment))
+        otherSegmentSet.add(frozenset(otherSynapseSet))
+
+      if segmentSet != otherSegmentSet: return False
+
+      synapseSet = self._synapseSetForSynapses(
+                     self.synapsesForPresynapticCell(cell))
+
+      otherSynapseSet = other._synapseSetForSynapses(
+                    other.synapsesForPresynapticCell(cell))
+
+      if synapseSet != otherSynapseSet: return False
+
+    return True
+
+
+  def _synapseSetForSynapses(self, synapses):
+    """
+    Returns a set containing synapse data for synapses.
+    Rounds synapse permanence values for comparison.
+    (Helper method used in __eq__.)
+
+    @param synapses (set) Synapse indicies
+
+    @return (set) Synapse data set
+    """
+    synapseSet = set()
+
+    for synapse in synapses:
+      synapseData = self.dataForSynapse(synapse)
+      synapseSet.add((synapseData.presynapticCell,
+                     round(synapseData.permanence, 7)))
+
+    return synapseSet
+
+
   def _validateCell(self, cell):
     """
     Raises an error if cell index is invalid.
