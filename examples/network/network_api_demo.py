@@ -25,15 +25,18 @@ import csv
 import json
 import os
 
+from pkg_resources import resource_filename
+
 from nupic.algorithms.anomaly import computeRawAnomalyScore
-from nupic.data.datasethelpers import findDataset
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
-_DATA_PATH = "extra/hotgym/rec-center-hourly.csv"
+_INPUT_FILE_PATH = resource_filename(
+  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
+)
 _OUTPUT_PATH = "network-demo-output.csv"
 _NUM_RECORDS = 2000
 
@@ -148,6 +151,14 @@ def createNetwork(dataSource):
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
+  # Add the AnomalyRegion on top of the TPRegion
+  network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
+
+  network.link("spatialPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="bottomUpOut", destInput="activeColumns")
+  network.link("temporalPoolerRegion", "anomalyRegion", "UniformLink", "",
+               srcOutput="topDownOut", destInput="predictedColumns")
+
   network.initialize()
 
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
@@ -183,6 +194,7 @@ def runNetwork(network, writer):
   sensorRegion = network.regions["sensor"]
   spatialPoolerRegion = network.regions["spatialPoolerRegion"]
   temporalPoolerRegion = network.regions["temporalPoolerRegion"]
+  anomalyRegion = network.regions["anomalyRegion"]
 
   prevPredictedColumns = []
 
@@ -191,30 +203,18 @@ def runNetwork(network, writer):
     # Run the network for a single iteration
     network.run(1)
 
-    activeColumns = spatialPoolerRegion.getOutputData(
-        "bottomUpOut").nonzero()[0]
-
-    # Calculate the anomaly score using the active columns
-    # and previous predicted columns
-    anomalyScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-
     # Write out the anomaly score along with the record number and consumption
     # value.
+    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
     consumption = sensorRegion.getOutputData("sourceOut")[0]
     writer.writerow((i, consumption, anomalyScore))
-
-    # Store the predicted columns for the next timestep
-    predictedColumns = temporalPoolerRegion.getOutputData(
-        "topDownOut").nonzero()[0]
-    prevPredictedColumns = copy.deepcopy(predictedColumns)
 
     i += 1
 
 
 
 if __name__ == "__main__":
-  trainFile = findDataset(_DATA_PATH)
-  dataSource = FileRecordStream(streamID=trainFile)
+  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
 
   network = createNetwork(dataSource)
   outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)

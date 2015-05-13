@@ -229,12 +229,12 @@ class AnomalyLikelihoodTest(TestCaseBase):
     be quietly skipped.
     """
 
-    # Generate an estimate using fake distribution of anomaly scores.
+    # Generate a fake distribution of anomaly scores, and add malformed records
     data1 = _generateSampleData(mean=0.2)
-    data1 = data1 + [(2, 2), (2, 2, 2, 2), (), (2)]  # Malformed records
+    data1 = data1[0:1000] + [(2, 2)] + [(2, 2, 2, 2)] + [()] + [(2)]
 
     likelihoods, avgRecordList, estimatorParams = (
-      an.estimateAnomalyLikelihoods(data1[0:1000])
+      an.estimateAnomalyLikelihoods(data1[0:1004])
     )
     self.assertEqual(len(likelihoods), 1000)
     self.assertEqual(len(avgRecordList), 1000)

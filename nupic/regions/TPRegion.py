@@ -21,7 +21,7 @@
 
 import os
 
-from nupic.research import TP, TPTrivial
+from nupic.research import TP
 from nupic.research import TP10X2
 from nupic.research import TP_shim
 from nupic.support import getArgumentDescriptions
@@ -38,13 +38,11 @@ def _getTPClass(temporalImp):
     return TP.TP
   elif temporalImp == 'cpp':
     return TP10X2.TP10X2
-  elif temporalImp == 'trivial':
-    return TPTrivial.TPTrivial
   elif temporalImp == 'tm_py':
     return TP_shim.TPShim
   else:
     raise RuntimeError("Invalid temporalImp '%s'. Legal values are: 'py', "
-              "'cpp', 'trivial', and 'tm_py'" % (temporalImp))
+              "'cpp', and 'tm_py'" % (temporalImp))
 
 
 ##############################################################################
@@ -107,7 +105,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
   to 'Byte' for None and complex types
 
   Determines the spatial parameters based on the selected implementation.
-  It defaults to FDRCSpatial.
+  It defaults to TemporalPooler.
   Determines the temporal parameters based on the temporalImp
   """
   typeNames = {int: 'UInt32', float: 'Real32', str: 'Byte', bool: 'bool', tuple: 'tuple'}
@@ -132,8 +130,8 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       return ''
 
   # Build up parameters from temporal pooler's constructor
-  FDRTemporalClass = _getTPClass(temporalImp)
-  tArgTuples = _buildArgs(FDRTemporalClass.__init__)
+  TemporalClass = _getTPClass(temporalImp)
+  tArgTuples = _buildArgs(TemporalClass.__init__)
   temporalSpec = {}
   for argTuple in tArgTuples:
     d = dict(
@@ -187,12 +185,11 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
 
     temporalImp=dict(
       description="""Which temporal pooler implementation to use. Set to either
-       'py', 'cpp' or 'trivial'. The 'cpp' implementation is optimized for speed in C++.
-       The 'trivial' implementation makes random or zeroth order predictions.""",
+       'py' or 'cpp'. The 'cpp' implementation is optimized for speed in C++.""",
       accessMode='ReadWrite',
       dataType='Byte',
       count=0,
-      constraints='enum: py, cpp, trivial'),
+      constraints='enum: py, cpp'),
 
   ))
 
@@ -303,12 +300,12 @@ class TPRegion(PyRegion):
                **kwargs):
 
     # Which Temporal implementation?
-    FDRTemporalClass = _getTPClass(temporalImp)
+    TemporalClass = _getTPClass(temporalImp)
 
     # Make a list of automatic temporal arg names for later use
     # Pull out the temporal arguments automatically
     # These calls whittle down kwargs and create instance variables of TPRegion
-    tArgTuples = _buildArgs(FDRTemporalClass.__init__, self, kwargs)
+    tArgTuples = _buildArgs(TemporalClass.__init__, self, kwargs)
 
     self._temporalArgNames = [t[0] for t in tArgTuples]
 
@@ -402,11 +399,6 @@ class TPRegion(PyRegion):
         self._tfdr = tpClass(
              numberOfCols=self.columnCount,
              cellsPerColumn=self.cellsPerColumn,
-             **autoArgs)
-
-      elif self.temporalImp == 'trivial':
-        self._tfdr = TPTrivial.TPTrivial(
-             numberOfCols=self.columnCount
              **autoArgs)
       else:
         raise RuntimeError("Invalid temporalImp")

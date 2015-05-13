@@ -25,11 +25,13 @@
 CL_VERBOSITY = 0
 
 import cPickle as pickle
+import tempfile
 import unittest2 as unittest
 
 import numpy
 
 from nupic.encoders.pass_through_encoder import PassThroughEncoder
+from nupic.encoders.pass_through_capnp import PassThroughEncoderProto
 
 
 
@@ -118,6 +120,38 @@ class PassThroughEncoderTest(unittest.TestCase):
     out2 = e.encode(bitmap2)
     c = e.closenessScores(out1, out2)
     self.assertEqual(c[0], 0.8)
+
+
+  def testReadWrite(self):
+    original = self._encoder(self.n, name=self.name)
+    originalValue = original.encode([1,0,1,0,1,0,1,0,1])
+
+    proto1 = PassThroughEncoderProto.new_message()
+    original.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = PassThroughEncoderProto.read(f)
+
+    encoder = PassThroughEncoder.read(proto2)
+
+    self.assertIsInstance(encoder, PassThroughEncoder)
+    self.assertEqual(encoder.name, original.name)
+    self.assertEqual(encoder.verbosity, original.verbosity)
+    self.assertEqual(encoder.w, original.w)
+    self.assertEqual(encoder.n, original.n)
+    self.assertEqual(encoder.description, original.description)
+    self.assertTrue(numpy.array_equal(encoder.encode([1,0,1,0,1,0,1,0,1]),
+                                      originalValue))
+    self.assertEqual(original.decode(encoder.encode([1,0,1,0,1,0,1,0,1])),
+                     encoder.decode(original.encode([1,0,1,0,1,0,1,0,1])))
+
+    # Feed in a new value and ensure the encodings match
+    result1 = original.encode([0,1,0,1,0,1,0,1,0])
+    result2 = encoder.encode([0,1,0,1,0,1,0,1,0])
+    self.assertTrue(numpy.array_equal(result1, result2))
 
 
 

@@ -37,7 +37,30 @@ from nupic.encoders.utils import bitsToString
 from nupic.encoders.random_distributed_scalar import RandomDistributedScalarEncoder
 
 from nupic.encoders.base import Encoder
+from nupic.encoders.scalar_capnp import ScalarEncoderProto
 # multiencoder must be imported last because it imports * from this module!
+
+
+
+# Map class to Cap'n Proto schema union attribute
+_CLASS_ATTR_MAP = {
+  ScalarEncoder: "scalarEncoder",
+  AdaptiveScalarEncoder: "adaptivescalar",
+  DateEncoder: "dateEncoder",
+  LogEncoder: "logEncoder",
+  CategoryEncoder: "categoryEncoder",
+  CoordinateEncoder: "coordinateEncoder",
+  SDRCategoryEncoder: "sdrCategoryEncoder",
+  DeltaEncoder: "deltaEncoder",
+  PassThroughEncoder: "passThroughEncoder",
+  SparsePassThroughEncoder: "sparsePassThroughEncoder",
+  RandomDistributedScalarEncoder: "randomDistributedScalarEncoder"
+}
+
+# Invert for fast lookup in MultiEncoder.read()
+_ATTR_CLASS_MAP = {value:key for key, value in _CLASS_ATTR_MAP.items()}
+
+
 
 
 class MultiEncoder(Encoder):
@@ -59,7 +82,7 @@ class MultiEncoder(Encoder):
   def setFieldStats(self, fieldName, fieldStatistics ):
     for (name, encoder, offset) in self.encoders:
       encoder.setFieldStats(name, fieldStatistics)
-      
+
   ############################################################################
   def addEncoder(self, name, encoder):
     self.encoders.append((name, encoder, self.width))
@@ -106,7 +129,7 @@ class MultiEncoder(Encoder):
   def addMultipleEncoders(self, fieldEncodings):
     """
     fieldEncodings -- a dict of dicts, mapping field names to the field params
-                        dict. 
+                        dict.
 
     Each field params dict has the following keys
     1) data fieldname that matches the key ('fieldname')
@@ -125,7 +148,7 @@ class MultiEncoder(Encoder):
                             clipInput=True, w=5, resolution=5),
     }
     """
-    
+
     # Sort the encoders so that they end up in a controlled order
     encoderList = sorted(fieldEncodings.items())
     for key, fieldParams in encoderList:
@@ -140,3 +163,48 @@ class MultiEncoder(Encoder):
                 "some required constructor parameters. Parameters "
                 "that were provided are: %s" %  (encoderName, fieldParams))
           raise
+
+
+  @classmethod
+  def read(cls, proto):
+    encoder = object.__new__(cls)
+
+    encoder.encoders = [None] * len(proto.encoders)
+
+    encoder.width = 0
+
+    for index, encoderProto in enumerate(proto.encoders):
+      # Identify which attr is set in union
+      encoderType = encoderProto.which()
+
+      encoderDetails = getattr(encoderProto, encoderType)
+      encoder.encoders[index] = (
+        encoderProto.name,
+        # Call class.read() where class is determined by _ATTR_CLASS_MAP
+        _ATTR_CLASS_MAP.get(encoderType).read(encoderDetails),
+        encoderProto.offset
+      )
+
+      encoder.width += encoder.encoders[index][1].getWidth()
+
+    # Derive description from encoder list
+    encoder.description = [(enc[1].name, enc[2]) for enc in encoder.encoders]
+    encoder.name = proto.name
+
+    return encoder
+
+
+  def write(self, proto):
+
+    proto.init("encoders", len(self.encoders))
+
+    for index, (name, encoder, offset) in enumerate(self.encoders):
+      encoderProto = proto.encoders[index]
+      encoderType = _CLASS_ATTR_MAP.get(encoder.__class__)
+      encoderProto.init(encoderType)
+      encoderDetails = getattr(encoderProto, encoderType)
+      encoder.write(encoderDetails)
+      encoderProto.name = name
+      encoderProto.offset = offset
+
+    proto.name = self.name
