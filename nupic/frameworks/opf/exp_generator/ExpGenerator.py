@@ -25,6 +25,7 @@ This utility can generate an OPF experiment and permutation script based on
 a data file and other optional arguments.
 """
 
+import enum
 import os
 import types
 import json
@@ -44,7 +45,6 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 from nupic.support import aggregationDivide
 from nupic.support.configuration import Configuration
-from nupic.support.enum import Enum
 
 
 
@@ -60,8 +60,10 @@ METRIC_WINDOW = int(Configuration.get("nupic.opf.metricWindow"))
 
 #############################################################################
 # Enum to characterize potential generation environments
-OpfEnvironment = Enum(Nupic='nupic',
-                      Experiment='opfExperiment')
+@enum.unique
+class OpfEnvironment(enum.Enum):
+  nupic = 1
+  opfExperiment = 2
 
 
 #############################################################################
@@ -1576,12 +1578,14 @@ def _generateExperiment(options, outputDirPath, hsVersion,
 
   # -----------------------------------------------------------------------
   # Generate Control dictionary
-  environment = options['environment']
-  if environment == OpfEnvironment.Nupic:
-    tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Nupic
+  try:
+    environment = OpfEnvironment[options['environment']]
+  except KeyError:
+    raise _InvalidCommandArgException("Invalid environment type %s"% environment)
+  tokenReplacements['\$ENVIRONMENT'] = "'%s'" % environment.name
+  if environment is OpfEnvironment.nupic:
     controlTemplate = "nupicEnvironmentTemplate.tpl"
-  elif environment == OpfEnvironment.Experiment:
-    tokenReplacements['\$ENVIRONMENT'] = "'%s'"%OpfEnvironment.Experiment
+  elif environment is OpfEnvironment.opfExperiment:
     controlTemplate = "opfExperimentTemplate.tpl"
   else:
     raise _InvalidCommandArgException("Invalid environment type %s"% environment)

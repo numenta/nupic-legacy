@@ -37,8 +37,9 @@ This allows description.py to be generic and oblivious to the specific
 experiments.
 """
 
-import os
 from abc import ABCMeta, abstractmethod
+import enum
+import os
 import types
 
 from pkg_resources import resource_filename
@@ -46,7 +47,6 @@ from pkg_resources import resource_filename
 from nupic.frameworks.opf.opfutils import validateOpfJsonValue
 from nupic.frameworks.opf.opftaskdriver import (IterationPhaseSpecInferOnly,
                                                 IterationPhaseSpecLearnAndInfer)
-from nupic.support.enum import Enum
 
 
 FILE_SCHEME = "file://"
@@ -54,8 +54,11 @@ FILE_SCHEME = "file://"
 
 ###############################################################################
 # Enum to characterize potential generation environments
-OpfEnvironment = Enum(Nupic='nupic',
-                      Experiment='opfExperiment')
+# TODO: Combine with enum in nupic.frameworks.opf.exp_generator.ExpGenerator
+@enum.unique
+class OpfEnvironment(enum.Enum):
+  nupic = 1
+  opfExperiment = 2
 
 
 
@@ -137,10 +140,10 @@ class ExperimentDescriptionAPI(DescriptionIface):
         this dictionary depends on the 'environment' parameter, which
         specifies the context in which the model is being run.
     """
-    environment = control['environment']
-    if environment == OpfEnvironment.Experiment:
+    environment = OpfEnvironment[control['environment']]
+    if environment is OpfEnvironment.opfExperiment:
       self.__validateExperimentControl(control)
-    elif environment == OpfEnvironment.Nupic:
+    elif environment is OpfEnvironment.nupic:
       self.__validateNupicControl(control)
 
     self.__modelConfig = modelConfig
@@ -262,8 +265,8 @@ class ExperimentDescriptionAPI(DescriptionIface):
     task['taskControl'] = taskControl
 
     # Create the new control
-    self.__control = dict(environment = OpfEnvironment.Nupic,
-                          tasks = [task])
+    self.__control = {"environment": OpfEnvironment.nupic.name,
+                      "tasks": [task]}
 
 
   #############################################################################
