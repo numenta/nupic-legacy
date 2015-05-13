@@ -46,7 +46,6 @@ class TemporalMemoryShim(TPClass):
                columnDimensions=(2048,),
                cellsPerColumn=32,
                activationThreshold=13,
-               learningRadius=2048,
                initialPermanence=0.21,
                connectedPermanence=0.50,
                minThreshold=10,

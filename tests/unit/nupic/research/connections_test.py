@@ -24,8 +24,12 @@ TODO: Mock out all function calls.
 TODO: Move all duplicate connections logic into shared function.
 """
 
+import tempfile
 import unittest
 
+import capnp
+
+from nupic.bindings.proto import ConnectionsProto_capnp
 from nupic.research.connections import Connections
 
 
@@ -210,6 +214,43 @@ class ConnectionsTest(unittest.TestCase):
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
     args = [0, -0.4374]
     self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
+
+
+  def testWrite(self):
+    c1 = Connections(1024)
+
+    # Add data before serializing
+    c1.createSegment(0)
+    c1.createSynapse(0, 254, 0.1173)
+
+    c1.createSegment(100)
+    c1.createSynapse(1, 20, 0.3)
+
+    c1.createSynapse(0, 40, 0.3)
+
+    c1.createSegment(0)
+    c1.createSynapse(2, 0, 0.5)
+    c1.createSynapse(2, 1, 0.5)
+
+    c1.createSegment(10)
+    c1.createSynapse(3, 0, 0.5)
+    c1.createSynapse(3, 1, 0.5)
+    c1.destroySegment(3)
+
+    proto1 = ConnectionsProto_capnp.ConnectionsProto.new_message()
+    c1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = ConnectionsProto_capnp.ConnectionsProto.read(f)
+
+    # Load the deserialized proto
+    c2 = Connections.read(proto2)
+
+    # Check that the two connections objects are functionally equal
+    self.assertEqual(c1, c2)
 
 
 

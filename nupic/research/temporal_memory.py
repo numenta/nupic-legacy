@@ -40,7 +40,6 @@ class TemporalMemory(object):
                columnDimensions=(2048,),
                cellsPerColumn=32,
                activationThreshold=13,
-               learningRadius=2048,
                initialPermanence=0.21,
                connectedPermanence=0.50,
                minThreshold=10,
@@ -52,7 +51,6 @@ class TemporalMemory(object):
     @param columnDimensions    (list)  Dimensions of the column space
     @param cellsPerColumn      (int)   Number of cells per column
     @param activationThreshold (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
-    @param learningRadius      (int)   Radius around cell from which it can sample to form distal dendrite connections.
     @param initialPermanence   (float) Initial permanence of a new synapse.
     @param connectedPermanence (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
     @param minThreshold        (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
@@ -74,7 +72,6 @@ class TemporalMemory(object):
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
     self.activationThreshold = activationThreshold
-    self.learningRadius = learningRadius
     self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
     self.minThreshold = minThreshold
