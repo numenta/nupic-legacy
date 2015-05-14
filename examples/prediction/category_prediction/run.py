@@ -40,7 +40,7 @@ with open("stopwords.txt") as skip:
   for line in skip:
     line = line[:-1]
     stopwords.append(line)
-skip.close() 
+skip.close()
 #print stopwords
 with open("20748.txt") as inp:
   inp.seek(129017)
@@ -88,9 +88,9 @@ MODEL_PARAMS = {
         "globalInhibition": 1,
         "columnCount": 2048,
         "inputWidth": 0,
-        "numActivePerInhArea": 40,
+        "numActiveColumnsPerInhArea": 40,
         "seed": 1956,
-        "coincInputPoolPct": 0.5,
+        "columnDimensions": 0.5,
         "synPermConnected": 0.1,
         "synPermActiveInc": 0.1,
         "synPermInactiveDec": 0.01,
