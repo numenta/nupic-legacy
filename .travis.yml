@@ -43,6 +43,7 @@ notifications:
     urls:
       - http://issues.numenta.org:8081/travis
       - https://webhooks.gitter.im/e/68f77bae61efa5c931f8
+      - https://api.keen.io/3.0/projects/5555161e2fd4b1326f14444a/events/travis-webhooks?api_key=a2e613bbb19b9b1f71a5543b7b677563551b4c3fe98534269546ff666ae453f82505791772faefc48682ee882ac7e99d2c3bfae7c7c19db7b5e7bbda34039119e4b42f5bf41bcea62d4ea9731db4a455141be7d5e8c715cb06366922eae0358e84abc2704ce16bb77b01fec3476cbac6
 
 # Successful builds are archived and uploaded to S3 for regression testing.
 before_deploy:
