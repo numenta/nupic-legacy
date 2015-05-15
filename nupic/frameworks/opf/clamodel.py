@@ -147,10 +147,7 @@ class CLAModel(Model):
           each step in inferences. The predictions with highest likelihood are
           included.
     """
-    try:
-      inferenceType = InferenceType[inferenceType]
-    except KeyError:
-      raise ValueError("Unknown inference type %s" % inferencetype)
+    assert isinstance(inferenceType, InferenceType)
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
