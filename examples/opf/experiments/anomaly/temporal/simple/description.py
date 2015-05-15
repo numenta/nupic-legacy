@@ -157,7 +157,7 @@ config = {
             # 0: silent; >=1: some info; >=2: more info;
             'spVerbosity' : 0,
 
-            'spatialImp' : 'py',
+            'spatialImp' : 'cpp',
 
             'globalInhibition': 1,
 
