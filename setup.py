@@ -7,6 +7,7 @@ import urllib2
 import tarfile
 import re
 import numpy
+from distutils import ccompiler
 from setuptools import setup, find_packages, Extension
 
 """
@@ -21,6 +22,7 @@ DARWIN_PLATFORM = "darwin"
 LINUX_PLATFORM = "linux"
 UNIX_PLATFORMS = [LINUX_PLATFORM, DARWIN_PLATFORM]
 WINDOWS_PLATFORMS = ["windows"]
+HOME_DIR = os.path.expanduser("~")
 
 
 
@@ -78,18 +80,27 @@ def unpackFile(package, dirToUnpack, destDir, silent=False):
 
   if not silent:
     print "Unpacking %s into %s..." % (package, destDir)
+    print "expecting %s" % dirToUnpack
 
   with tarfile.open(package, "r:gz") as tarFileObj:
     tarFileObj.extractall(destDir)
 
-  # Copy subdirectories to a level up
-  subDirs = os.listdir(destDir + "/" + dirToUnpack)
-  for subDir in subDirs:
-    shutil.rmtree(destDir + "/" + subDir, True)
-    shutil.move(destDir + "/" + dirToUnpack + "/" + subDir,
-                destDir + "/" + subDir)
+  # On some OSes (Linux, Darwin), unpacking the tarball will put it into a 
+  # directory with the name of the tarball. On other OSes (Windows), the contents
+  # of the tarball are extracted directly into the destination directory without
+  # this wrapper directory. So only move the subfolders out if the wrapper 
+  # directory exists.
+  if os.path.exists(os.path.join(destDir, dirToUnpack)):
+    # Copy subdirectories to a level up
+    subDirs = os.listdir(os.path.join(destDir, dirToUnpack))
+    for subDir in subDirs:
+      shutil.rmtree(os.path.join(destDir, subDir), True)
+      shutil.move(
+        os.path.join(destDir, dirToUnpack, subDir),
+        os.path.join(destDir, subDir)
+      )
 
-  shutil.rmtree(destDir + "/" + dirToUnpack, True)
+    shutil.rmtree(os.path.join(destDir, dirToUnpack), True)
 
 
 
@@ -180,17 +191,48 @@ def getPlatformInfo():
     platform = "linux"
   elif "darwin" in sys.platform:
     platform = "darwin"
-  elif "windows" in sys.platform:
+  # All windows platform show up as "win32". 
+  # See http://stackoverflow.com/questions/2144748/is-it-safe-to-use-sys-platform-win32-check-on-64-bit-python
+  elif "win32" == sys.platform:
     platform = "windows"
   else:
     raise Exception("Platform '%s' is unsupported!" % sys.platform)
 
-  if sys.maxsize > 2**32:
-    bitness = "64"
+  # Python 32-bits doesn't detect Windows 64-bits so the workaround is 
+  # check whether "ProgramFiles (x86)" environment variable exists.
+  is64bits = (sys.maxsize > 2**32 or 
+    (platform in WINDOWS_PLATFORMS and 'PROGRAMFILES(X86)' in os.environ))
+  if is64bits:
+     bitness = "64"
   else:
     bitness = "32"
 
   return platform, bitness
+
+
+
+def getCompilerInfo():
+  """
+  Identify compiler
+  """
+
+  cxxCompiler = ccompiler.get_default_compiler()
+  if "msvc" in cxxCompiler:
+    cxxCompiler = "MSVC"
+  elif "clang" in cxxCompiler:
+    cxxCompiler = "Clang"
+  elif "gnu" in cxxCompiler:
+    cxxCompiler = "GNU"
+  # TODO: There is a problem here, because on OS X ccompiler.get_default_compiler()
+  # returns "unix", not "clang" or "gnu". So we have to handle "unix" and we loose
+  # the ability to decide which compiler is used. I'm not sure how big of a 
+  # problem this is, so I'm moving ahead with this noted. 
+  elif "unix" in cxxCompiler:
+    cxxCompiler = "unix"
+  else:
+    raise Exception("C++ compiler '%s' is unsupported!" % cxxCompiler)
+
+  return cxxCompiler
 
 
 
@@ -226,7 +268,9 @@ def findRequirements():
   Read the requirements.txt file and parse into requirements for setup's
   install_requirements option.
   """
-  requirementsPath = os.path.join(REPO_DIR, "external/common/requirements.txt")
+  requirementsPath = os.path.join(
+    REPO_DIR, "external", "common", "requirements.txt"
+  )
   return [
     line.strip()
     for line in open(requirementsPath).readlines()
@@ -268,18 +312,31 @@ def getSharedLibExtension(platform):
 
 
 
+def getExecutableExtension(platform):
+  """
+  Returns the default system extension of an executable.
+  """
+  if platform in UNIX_PLATFORMS:
+    return ""
+  elif platform in WINDOWS_PLATFORMS:
+    return ".exe"
+
+
 
 def extractNupicCoreTarget():
   # First, get the nupic.core SHA and remote location from local config.
   nupicConfig = {}
-  if os.path.exists(REPO_DIR + "/.nupic_config"):
+  # Look for .nupic_config in repository directory.
+  if os.path.exists(os.path.join(REPO_DIR, ".nupic_config")):
     execfile(
       os.path.join(REPO_DIR, ".nupic_config"), {}, nupicConfig
     )
-  elif os.path.exists(os.environ["HOME"] + "/.nupic_config"):
+  # Look for .nupic_config in HOME directory.
+  elif os.path.exists(os.path.join(HOME_DIR, ".nupic_config")):
     execfile(
-      os.path.join(os.environ["HOME"], ".nupic_config"), {}, nupicConfig
+      os.path.join(HOME_DIR, ".nupic_config"), {}, nupicConfig
     )
+  # Use default local .nupic_modules instead.
   else:
     execfile(
       os.path.join(REPO_DIR, ".nupic_modules"), {}, nupicConfig
@@ -291,8 +348,8 @@ def extractNupicCoreTarget():
 def getDefaultNupicCoreDirectories():
   # Default nupic.core location is relative to the NuPIC checkout.
   return (
-    REPO_DIR + "/extensions/core/build/release",
-    REPO_DIR + "/extensions/core"
+    os.path.join(REPO_DIR, "extensions", "core", "build", "release"),
+    os.path.join(REPO_DIR, "extensions", "core")
   )
 
 
@@ -312,7 +369,14 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
   #
   pythonPrefix = sys.prefix
   pythonPrefix = pythonPrefix.replace("\\", "/")
-  pythonIncludeDir = pythonPrefix + "/include/python" + pythonVersion
+  if platform in WINDOWS_PLATFORMS:
+    pythonIncludeDir = os.path.join(pythonPrefix, "include")
+    pythonLib = "python" + pythonVersion.replace(".", "")
+  else:
+    pythonIncludeDir = os.path.join(
+      pythonPrefix, "include", ("python" + pythonVersion)
+    )
+    pythonLib = "python" + pythonVersion
 
   #
   # Finds out version of Numpy and headers' path.
@@ -330,85 +394,136 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     ("NTA_ASM", None),
     ("HAVE_CONFIG_H", None),
     ("BOOST_NO_WREGEX", None)]
+  if platform in WINDOWS_PLATFORMS:
+    commonDefines.extend([
+      ("PSAPI_VERSION", "1"),
+      ("APR_DECLARE_STATIC", None),
+      ("APU_DECLARE_STATIC", None),
+      ("ZLIB_WINAPI", None),
+      ("WIN32", None),
+      ("_WINDOWS", None),
+      ("_MBCS", None),
+      ("_CRT_SECURE_NO_WARNINGS", None),
+      ("NDEBUG", None)])
+  else:
+    commonDefines.append(("HAVE_UNISTD_H", None))
+  if cxxCompiler == "GNU":
+    commonDefines.append(("NTA_COMPILER_GNU", None))
+  elif cxxCompiler == "Clang":
+    commonDefines.append(("NTA_COMPILER_CLANG", None))
+  elif cxxCompiler == "MSVC":
+    commonDefines.extend([
+      ("NTA_COMPILER_MSVC", None),
+      ("CAPNP_LITE", "1"),
+      ("_VARIADIC_MAX", "10"),
+      ("NOMINMAX", None)])
 
   commonIncludeDirs = [
-    REPO_DIR + "/external/" + platform + bitness + "/include",
-    REPO_DIR + "/external/common/include",
-    REPO_DIR + "/extensions",
+    os.path.join(REPO_DIR, "external", platform + bitness, "include"),
+    os.path.join(REPO_DIR, "external", "common", "include"),
+    os.path.join(REPO_DIR, "extensions"),
     REPO_DIR,
-    nupicCoreReleaseDir + "/include",
+    os.path.join(nupicCoreReleaseDir, "include"),
     pythonIncludeDir,
     numpyIncludeDir]
 
-  commonCompileFlags = [
-    # Adhere to c++11 spec
-    "-std=c++11",
-    # Generate 32 or 64 bit code
-    "-m" + bitness,
-    # `position independent code`, required for shared libraries
-    "-fPIC",
-    "-fvisibility=hidden",
-    "-Wall",
-    "-Wextra",
-    "-Wreturn-type",
-    "-Wunused",
-    "-Wno-unused-parameter",
-    # optimization flags (generic builds used for binary distribution)
-    "-mtune=generic",
-    "-O2",
-  ]
-  if platform == "darwin":
+  if cxxCompiler == "MSVC":
+    commonCompileFlags = [
+      "/TP",
+      "/Zc:wchar_t",
+      "/Gm-",
+      "/fp:precise",
+      "/errorReport:prompt",
+      "/W3",
+      "/WX-",
+      "/GR",
+      "/Gd",
+      "/GS-",
+      "/Oy-",
+      "/EHs",
+      "/analyze-",
+      "/nologo"]
+    commonLinkFlags = [
+      "/NOLOGO",
+      "/SAFESEH:NO",
+      "/NODEFAULTLIB:LIBCMT",
+      "/LIBPATH:" + pythonPrefix + "/libs",
+      "/LIBPATH:" + nupicCoreReleaseDir + "/lib"]
+    if bitness == "32":
+      commonLinkFlags.append("/MACHINE:X86")
+    else:
+      commonLinkFlags.append("/MACHINE:X" + bitness)
+  else:
+    commonCompileFlags = [
+      # Adhere to c++11 spec
+      "-std=c++11",
+      # Generate 32 or 64 bit code
+      "-m" + bitness,
+      # `position independent code`, required for shared libraries
+      "-fPIC",
+      "-fvisibility=hidden",
+      "-Wall",
+      "-Wextra",
+      "-Wreturn-type",
+      "-Wunused",
+      "-Wno-unused-parameter",
+      # optimization flags (generic builds used for binary distribution)
+      "-mtune=generic",
+      "-O2"]
+    commonLinkFlags = [
+      "-m" + bitness,
+      "-fPIC",
+      "-L" + nupicCoreReleaseDir + "/lib",
+      # for Cap'n'Proto serialization
+      "-lkj",
+      "-lcapnp",
+      "-lcapnpc",
+      # optimization (safe defaults)
+      "-O2"]
+  if platform == DARWIN_PLATFORM:
     commonCompileFlags.append("-stdlib=libc++")
 
-  commonLinkFlags = [
-    "-m" + bitness,
-    "-fPIC",
-    "-L" + nupicCoreReleaseDir + "/lib",
-    # for Cap'n'Proto serialization
-    "-lkj",
-    "-lcapnp",
-    "-lcapnpc",
-    # optimization (safe defaults)
-    "-O2",
-  ]
-
   # Optimizations
-  if getCommandLineOption("debug", cmdOptions):
-    commonCompileFlags.append("-Og")
-    commonCompileFlags.append("-g")
-    commonLinkFlags.append("-O0")
-  else:
-    if getCommandLineOption("optimizations-native", cmdOptions):
-      commonCompileFlags.append("-march=native")
-      commonCompileFlags.append("-O3")
+  if cmdOptions is not None and getCommandLineOption("optimizations-native", cmdOptions):
+    if cxxCompiler != "MSVC":
+      commonCompileFlags.extend([
+        "-march=native",
+        "-O3"])
       commonLinkFlags.append("-O3")
-    if getCommandLineOption("optimizations-lto", cmdOptions):
-      commonCompileFlags.append("-fuse-linker-plugin")
-      commonCompileFlags.append("-flto-report")
-      commonCompileFlags.append("-fuse-ld=gold")
-      commonCompileFlags.append("-flto")
+  if cmdOptions is not None and getCommandLineOption("optimizations-lto", cmdOptions):
+    if cxxCompiler != "MSVC":
+      commonCompileFlags.extend([
+        "-fuse-linker-plugin",
+        "-flto-report",
+        "-fuse-ld=gold",
+        "-flto"])
       commonLinkFlags.append("-flto")
 
-
-
   commonLibraries = [
-    "dl",
-    "python" + pythonVersion,
+    pythonLib,
+    "nupic_core",
+    "gtest",
     "kj",
     "capnp",
-    "capnpc"]
-  if platform == "linux":
-    commonLibraries.extend(["pthread"])
-
-  commonObjects = [
-    nupicCoreReleaseDir + "/lib/" +
-      getLibPrefix(platform) + "nupic_core" + getStaticLibExtension(platform)]
+    #"capnpc",
+    ]
+  if platform in UNIX_PLATFORMS:
+    commonLibraries.append("dl")
+    if platform == LINUX_PLATFORM:
+      commonLibraries.append("pthread")
+  elif platform in WINDOWS_PLATFORMS:
+    commonLibraries.extend([
+      "oldnames",
+      "psapi",
+      "ws2_32",
+      "shell32",
+      "advapi32"])
 
   pythonSupportSources = [
-    "extensions/py_support/NumpyVector.cpp",
-    "extensions/py_support/PyArray.cpp",
-    "extensions/py_support/PyHelpers.cpp",
-    "extensions/py_support/PythonStream.cpp"]
+    os.path.join("extensions", "py_support", "NumpyVector.cpp"),
+    os.path.join("extensions", "py_support", "PyArray.cpp"),
+    os.path.join("extensions", "py_support", "PyHelpers.cpp"),
+    os.path.join("extensions", "py_support", "PythonStream.cpp")]
 
   extensions = []
 
@@ -417,20 +532,22 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_compile_args=commonCompileFlags,
     define_macros=commonDefines,
     extra_link_args=commonLinkFlags,
+    export_symbols=None,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
     sources=pythonSupportSources +
-      ["extensions/cpp_region/PyRegion.cpp",
-       "extensions/cpp_region/unittests/PyHelpersTest.cpp"],
-    extra_objects=commonObjects)
+      [
+        os.path.join("extensions", "cpp_region", "PyRegion.cpp"),
+        os.path.join("extensions", "cpp_region", "unittests", "PyHelpersTest.cpp")
+       ])
   extensions.append(libDynamicCppRegion)
 
   #
   # SWIG
   #
-  swigDir = REPO_DIR + "/external/common/share/swig/3.0.2"
+  swigDir = os.path.join(REPO_DIR, "external", "common", "share", "swig", "3.0.2")
   swigExecutable = (
-    REPO_DIR + "/external/" + platform + bitness + "/bin/swig"
+    os.path.join(REPO_DIR, "external", platform + bitness, "bin", "swig")
   )
 
   # SWIG options from:
@@ -458,7 +575,7 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     "-w312",
     "-w389",
     "-DSWIG_PYTHON_LEGACY_BOOL",
-    "-I" + swigDir + "/python",
+    "-I" + os.path.join(swigDir, "python"),
     "-I" + swigDir]
   for define in commonDefines:
     item = "-D" + define[0]
@@ -469,9 +586,11 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     item = "-I" + includeDir
     swigFlags.append(item)
 
-  wrapAlgorithms = generateSwigWrap(swigExecutable,
-                                    swigFlags,
-                                    "nupic/bindings/algorithms.i")
+  wrapAlgorithms = generateSwigWrap(
+    swigExecutable,
+    swigFlags,
+    os.path.join("nupic", "bindings", "algorithms.i")
+  )
   libModuleAlgorithms = Extension(
     "nupic.bindings._algorithms",
     extra_compile_args=commonCompileFlags,
@@ -479,13 +598,14 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapAlgorithms],
-    extra_objects=commonObjects)
+    sources=pythonSupportSources + [wrapAlgorithms])
   extensions.append(libModuleAlgorithms)
 
-  wrapEngineInternal = generateSwigWrap(swigExecutable,
-                                        swigFlags,
-                                        "nupic/bindings/engine_internal.i")
+  wrapEngineInternal = generateSwigWrap(
+    swigExecutable,
+    swigFlags,
+    os.path.join("nupic", "bindings", "engine_internal.i")
+  )
   libModuleEngineInternal = Extension(
     "nupic.bindings._engine_internal",
     extra_compile_args=commonCompileFlags,
@@ -493,13 +613,14 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapEngineInternal],
-    extra_objects=commonObjects)
+    sources=pythonSupportSources + [wrapEngineInternal])
   extensions.append(libModuleEngineInternal)
 
-  wrapMath = generateSwigWrap(swigExecutable,
-                              swigFlags,
-                              "nupic/bindings/math.i")
+  wrapMath = generateSwigWrap(
+    swigExecutable,
+    swigFlags,
+    os.path.join("nupic", "bindings", "math.i")
+  )
   libModuleMath = Extension(
     "nupic.bindings._math",
     extra_compile_args=commonCompileFlags,
@@ -507,9 +628,10 @@ def getExtensionModules(nupicCoreReleaseDir, platform, bitness, cmdOptions=None)
     extra_link_args=commonLinkFlags,
     include_dirs=commonIncludeDirs,
     libraries=commonLibraries,
-    sources=pythonSupportSources + [wrapMath,
-                                    "nupic/bindings/PySparseTensor.cpp"],
-    extra_objects=commonObjects)
+    sources=pythonSupportSources + [
+      wrapMath,
+      os.path.join("nupic", "bindings", "PySparseTensor.cpp")
+    ])
   extensions.append(libModuleMath)
 
   return extensions
@@ -546,8 +668,8 @@ def prepareNupicCore(options, platform, bitness):
 
     nupicCoreRemoteUrl = (NUPIC_CORE_BUCKET + "/nupic_core-"
                           + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
-    nupicCoreLocalPackage = (nupicCoreSourceDir + "/nupic_core-"
-                             + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz")
+    nupicCoreLocalPackage = (os.path.join(nupicCoreSourceDir, "nupic_core-"
+                             + nupicCoreCommitish + "-" + platform + bitness + ".tar.gz"))
     nupicCoreLocalDirToUnpack = ("nupic_core-"
                                  + nupicCoreCommitish + "-" + platform + bitness)
 
@@ -568,7 +690,7 @@ def prepareNupicCore(options, platform, bitness):
       # be cleaner with something like `python setup.py clean`.
 
       if not downloadSuccess:
-        raise Exception("Failed to download nupic.core tarball from %s}! "
+        raise Exception("Failed to download nupic.core tarball from %s! "
                         "Ensure you have an internet connection and that the "
                         "remote tarball exists." % nupicCoreRemoteUrl)
       else:
@@ -587,9 +709,14 @@ def prepareNupicCore(options, platform, bitness):
 
   if not skipCompareVersions:
     # Compare expected version of nupic.core against installed version
-    with open(nupicCoreReleaseDir + "/include/nupic/Version.hpp",
-              "r") as fileObj:
+    versionHpp = os.path.join(
+      nupicCoreReleaseDir, "include", "nupic", "Version.hpp"
+    )
+    with open(versionHpp, "r") as fileObj:
       content = fileObj.read()
+
+    print "** VERSION FILE CONTENTS **"
+    print content
 
     nupicCoreVersionFound = re.search(
       "#define NUPIC_CORE_VERSION \"([a-z0-9]+)\"", content
@@ -603,11 +730,11 @@ def prepareNupicCore(options, platform, bitness):
       )
 
   # Copy proto files located at nupic.core dir into nupic dir
-  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include/nupic/proto/"))[0]
-  protoTargetDir = REPO_DIR + "/nupic/bindings/proto"
+  protoSourceDir = glob.glob(os.path.join(nupicCoreReleaseDir, "include", "nupic", "proto"))[0]
+  protoTargetDir = os.path.join(REPO_DIR, "nupic", "bindings", "proto")
   if not os.path.exists(protoTargetDir):
     os.makedirs(protoTargetDir)
-  for fileName in glob.glob(protoSourceDir + "/*.capnp"):
+  for fileName in glob.glob(protoSourceDir + os.pathsep + "*.capnp"):
     shutil.copy(fileName, protoTargetDir)
 
   return nupicCoreReleaseDir
@@ -615,26 +742,47 @@ def prepareNupicCore(options, platform, bitness):
 
 
 def postProcess():
-  buildDir = glob.glob(REPO_DIR + "/build/lib.*/")[0]
+  buildDir = glob.glob(
+    REPO_DIR + "/build/lib.*/"
+  )[0]
 
   # Copy binaries located at nupic.core dir into source dir
   print ("Copying binaries from " + nupicCoreReleaseDir + "/bin" + " to "
          + REPO_DIR + "/bin...")
-  if not os.path.exists(REPO_DIR + "/bin"):
-    os.makedirs(REPO_DIR + "/bin")
+  if not os.path.exists(os.path.join(REPO_DIR, "bin")):
+    os.makedirs(os.path.join(REPO_DIR, "bin"))
   shutil.copy(
-    nupicCoreReleaseDir + "/bin/py_region_test", REPO_DIR + "/bin"
+    os.path.join(nupicCoreReleaseDir, "bin", 
+      ("py_region_test" + getExecutableExtension(platform))
+    ), 
+    os.path.join(REPO_DIR, "bin")
   )
   # Copy cpp_region located at build dir into source dir
-  shutil.copy(buildDir + "/nupic/" + getLibPrefix(platform) + "cpp_region" +
-              getSharedLibExtension(platform), REPO_DIR + "/nupic")
+  if platform in WINDOWS_PLATFORMS:
+    # By default, shared libs use "pyd" extension in Windows
+    os.rename(
+      os.path.join(buildDir, "nupic", (getLibPrefix(platform) + "cpp_region.pyd")),
+      os.path.join(buildDir, "nupic", (getLibPrefix(platform) + "cpp_region.dll"))
+    )
+  shutil.copy(
+    os.path.join(
+      buildDir, 
+      "nupic", 
+      (getLibPrefix(platform) + "cpp_region" + getSharedLibExtension(platform))
+    ),
+    os.path.join(REPO_DIR, "nupic")
+  )
 
 options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
+cxxCompiler = getCompilerInfo()
 
 if platform == DARWIN_PLATFORM and not "ARCHFLAGS" in os.environ:
   raise Exception("To build NuPIC in OS X, you must "
                   "`export ARCHFLAGS=\"-arch x86_64\"`.")
+elif platform in WINDOWS_PLATFORMS and not "VS90COMNTOOLS" in os.environ:
+  raise Exception("To build NuPIC in Windows, you must "
+                  "`set VS90COMNTOOLS=%VS140COMNTOOLS%`.")
 
 # Build and setup NuPIC
 cwd = os.getcwd()

@@ -1,0 +1,84 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+# version format
+version: 0.0.1.{build}
+
+branches:
+  only:
+    - master
+
+environment:
+  global:
+    NUPIC: C:\projects\nupic
+    # SDK v7.0 MSVC Express 2008's SetEnv.cmd script will fail if the
+    # /E:ON and /V:ON options are not enabled in the batch script interpreter
+    # See: http://stackoverflow.com/a/13751649/163740
+    CMD_IN_ENV: "cmd /E:ON /V:ON /C .\\ci\\appveyor\\run_with_env.cmd"
+  matrix:
+    # Must add CLang, or GCC
+    # i.e. - COMPILER_FAMILY: GNU
+    - COMPILER_FAMILY: MSVC
+      DEPLOY_TO_NUGET: 0
+      DEPLOY_BUILD: 0
+      PYTHON: "C:\\Python27-x64"
+      PYTHON_VERSION: "2.7.8"
+      PYTHON_ARCH: "64"
+
+
+skip_commits:
+  # Add [av skip] to commit messages to skip AppVeyor building
+  # Add [ci skip] to skip Travis and AppVeyor building
+  message: /\[av skip\]/ 
+
+#---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+
+# Operating system (build VM template)
+os: Visual Studio 2015 CTP
+
+init:
+  - git config --global core.autocrlf input
+
+clone_folder: C:\projects\nupic
+clone_depth: 50
+shallow_clone: true
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+nuget:
+  account_feed: true
+  project_feed: true
+  disable_publish_on_pr: true     # disable publishing of .nupkg artifacts to
+                                  # account/project feeds for pull request builds
+
+configuration: Release
+
+install:
+  - set REPO_DIR=c:\projects\nupic
+  - set NUPIC_DEPLOYMENT_BUILD=1
+  - cd %REPO_DIR%
+
+  # Install Python (from the official .msi of http://python.org) and pip when
+  # not already installed.
+  - "powershell ./ci/appveyor/install.ps1"
+
+  # Prepend newly installed Python to the PATH of this build (this cannot be
+  # done from inside the powershell script as it would require to restart
+  # the parent CMD process).
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+
+  # Check that we have the expected version and architecture for Python
+  - "python --version"
+  - "python -c \"import struct; print(struct.calcsize('P') * 8)\""
+
+  - set VS90COMNTOOLS=%VS140COMNTOOLS%
+
+  - "%CMD_IN_ENV% pip install numpy"
+  - "%CMD_IN_ENV% python setup.py install"
+
+
