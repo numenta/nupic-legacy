@@ -41,7 +41,7 @@ import numpy
 from nupic.bindings.math import GetNTAReal
 from nupic.encoders import scalar
 
-from nupic.research.spatial_pooler import SpatialPooler
+from nupic.bindings.algorithms import SpatialPooler
 
 realDType = GetNTAReal()
 
@@ -95,7 +95,7 @@ class TestSPFrequency(unittest.TestCase):
                 minVal=0,
                 maxVal=10,
                 encoder = 'category',
-		forced=True):
+                forced=True):
 
     """ Helper function that tests whether the SP predicts the most
     frequent record """
@@ -145,7 +145,7 @@ class TestSPFrequency(unittest.TestCase):
       # TODO: See https://github.com/numenta/nupic/issues/2072
       spInput = colors[i]
       onCells = numpy.zeros(columnDimensions)
-      spImpl.compute(spInput, learn=True, activeArray=onCells)
+      spImpl.compute(spInput, True, onCells)
       spOutput.append(onCells.tolist())
       activeCoincIndices = set(onCells.nonzero()[0])
 
