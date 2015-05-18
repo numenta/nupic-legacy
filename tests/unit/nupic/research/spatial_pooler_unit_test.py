@@ -299,11 +299,11 @@ class SpatialPoolerTest(unittest.TestCase):
     params["potentialPct"] = 1
     sp = SpatialPooler(**params)
 
-    expectedMask = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+    expectedMask = [0, 1, 2, 3] #[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
     mask = sp._mapPotential(0, wrapAround=False)
     self.assertListEqual(mask.tolist(), expectedMask)
 
-    expectedMask = [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0]
+    expectedMask = [5, 6, 7, 8, 9] #[0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0]
     mask = sp._mapPotential(2, wrapAround=False)
     self.assertListEqual(mask.tolist(), expectedMask)
 
@@ -311,11 +311,11 @@ class SpatialPoolerTest(unittest.TestCase):
     params["potentialPct"] = 1
     sp = SpatialPooler(**params)
 
-    expectedMask = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
+    expectedMask = [0, 1, 2, 3, 11] #[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1]
     mask = sp._mapPotential(0, wrapAround=True)
     self.assertListEqual(mask.tolist(), expectedMask)
 
-    expectedMask = [1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
+    expectedMask = [0, 8, 9, 10, 11] #[1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1]
     mask = sp._mapPotential(3, wrapAround=True)
     self.assertListEqual(mask.tolist(), expectedMask)
 
@@ -323,9 +323,9 @@ class SpatialPoolerTest(unittest.TestCase):
     params["potentialPct"] = 0.5
     sp = SpatialPooler(**params)
 
-    supersetMask = numpy.array([1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
+    supersetMask = numpy.array([0, 1, 2, 3, 11]) #[1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
     mask = sp._mapPotential(0, wrapAround=True)
-    self.assertEqual(numpy.sum(mask), 3)
+    self.assertEqual(mask.size, 3)
     unionMask = supersetMask | mask.astype(int)
     self.assertListEqual(unionMask.tolist(), supersetMask.tolist())
 
@@ -346,13 +346,13 @@ class SpatialPoolerTest(unittest.TestCase):
                     1, 13, 25,
                     2, 14, 26]
     mask = sp._mapPotential(0, wrapAround=False)
-    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+    self.assertSetEqual(mask.tolist(), trueIndicies)
 
     trueIndicies = [6, 18, 30,
                     7, 19, 31,
                     8, 20, 32]
     mask = sp._mapPotential(2, wrapAround=False)
-    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+    self.assertSetEqual(mask.tolist(), trueIndicies)
 
     # Test with wrapAround
     params.update({
@@ -366,7 +366,7 @@ class SpatialPoolerTest(unittest.TestCase):
                     62,  2, 14, 26, 38,
                     63,  3, 15, 27, 39]
     mask = sp._mapPotential(0, wrapAround=True)
-    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+    self.assertSetEqual(mask.tolist(), trueIndicies)
 
     trueIndicies = [68,  8, 20, 32, 44,
                     69,  9, 21, 33, 45,
@@ -374,7 +374,7 @@ class SpatialPoolerTest(unittest.TestCase):
                     71, 11, 23, 35, 47,
                     60,  0, 12, 24, 36]
     mask = sp._mapPotential(3, wrapAround=True)
-    self.assertSetEqual(set(numpy.flatnonzero(mask).tolist()), set(trueIndicies))
+    self.assertSetEqual(mask.tolist(), trueIndicies)
 
 
   def testMapPotential1Column1Input(self):

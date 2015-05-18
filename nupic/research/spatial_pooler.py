@@ -22,6 +22,7 @@
 import itertools
 
 import numpy
+import math
 from nupic.bindings.math import (SM32 as SparseMatrix,
                                  SM_01_32_32 as SparseBinaryMatrix,
                                  GetNTAReal,
@@ -70,8 +71,6 @@ class SpatialPooler(object):
                wrapAround=True
                ):
     """
-    Parameters:
-    ----------------------------
     @param inputDimensions: 
       A list representing the dimensions of the input vector. Format is [height,
       width, depth, ...], where each value represents the size of the dimension.
@@ -285,9 +284,10 @@ class SpatialPooler(object):
     # activated.
     for i in xrange(numColumns):
       potential = self._mapPotential(i, wrapAround=self._wrapAround)
-      self._potentialPools.replaceSparseRow(i, potential.nonzero()[0])
+      potential = numpy.array(potential)
+      self._potentialPools.replaceSparseRow(i, potential)
       perm = self._initPermanence(potential, initConnectedPct)
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      self._updatePermanencesForColumn(potential, perm, i, raisePerm=True)
 
 
     self._overlapDutyCycles = numpy.zeros(numColumns, dtype=realDType)
@@ -639,7 +639,9 @@ class SpatialPooler(object):
     """Sets the permanence values for a given column. 'permanence' size
     must match the number of inputs"""
     assert(column < self._numColumns)
-    self._updatePermanencesForColumn(permanence, column, raisePerm=False)
+    permIdx = numpy.where(permanence > 0)[0] # TODO remove these and assume input params are sparse already
+    permVal = permanence[permIdx]
+    self._updatePermanencesForColumn(permIdx, permVal, column, raisePerm=False)
 
 
   def getConnectedSynapses(self, column, connectedSynapses):
@@ -965,10 +967,10 @@ class SpatialPooler(object):
     permChanges.fill(-1 * self._synPermInactiveDec)
     permChanges[inputIndices] = self._synPermActiveInc
     for i in activeColumns:
-      perm = self._permanences.getRow(i)
       maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskPotential] += permChanges[maskPotential]
-      self._updatePermanencesForColumn(perm, i, raisePerm=True)
+      perm = self._permanences.getRow(i)[maskPotential] # sparse
+      perm += permChanges[maskPotential]
+      self._updatePermanencesForColumn(maskPotential, perm, i, raisePerm=True)
 
 
   def _bumpUpWeakColumns(self):
@@ -981,10 +983,10 @@ class SpatialPooler(object):
     weakColumns = numpy.where(self._overlapDutyCycles
                                 < self._minOverlapDutyCycles)[0]
     for i in weakColumns:
-      perm = self._permanences.getRow(i).astype(realDType)
       maskPotential = numpy.where(self._potentialPools.getRow(i) > 0)[0]
-      perm[maskPotential] += self._synPermBelowStimulusInc
-      self._updatePermanencesForColumn(perm, i, raisePerm=False)
+      perm = self._permanences.getRow(i).astype(realDType)[maskPotential] # sparse
+      perm += self._synPermBelowStimulusInc
+      self._updatePermanencesForColumn(maskPotential, perm, i, raisePerm=False)
 
 
   def _raisePermanenceToThreshold(self, perm, mask):
@@ -1006,26 +1008,28 @@ class SpatialPooler(object):
     @param mask:    the indices of the columns whose permanences need to be
                     raised.
     """
+    if len(mask) == 0: #empty
+      return 
+
     if len(mask) < self._stimulusThreshold:
       raise Exception("This is likely due to a " +
       "value of stimulusThreshold that is too large relative " +
       "to the input size. [len(mask) < self._stimulusThreshold]")
-    
+   
+    perm=numpy.array(perm)
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    while True:
-      numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
-      if numConnected >= self._stimulusThreshold:
-        return
-      perm[mask] += self._synPermBelowStimulusInc
+    # grow (mask) permanences (perm) to >= stimulusThreshold : 
+    while perm[perm > self._synPermConnected].size < self._stimulusThreshold:
+      perm[mask] += self._synPermBelowStimulusInc #TODO: optimize the while loop
 
 
-  def _updatePermanencesForColumn(self, perm, index, raisePerm=True):
+  def _updatePermanencesForColumn(self, permIdx, permVal, index, raisePerm=True):
     """
     This method updates the permanence matrix with a column's new permanence
     values. The column is identified by its index, which reflects the row in
-    the matrix, and the permanence is given in 'dense' form, i.e. a full
-    array containing all the zeros as well as the non-zero values. It is in
-    charge of implementing 'clipping' - ensuring that the permanence values are
+    the matrix, and the permanence is given in sparse form 
+    (indces of non-zero values). It is in charge of implementing 'clipping' 
+    - ensuring that the permanence values are
     always between 0 and 1 - and 'trimming' - enforcing sparsity by zeroing out
     all permanence values below '_synPermTrimThreshold'. It also maintains
     the consistency between 'self._permanences' (the matrix storing the
@@ -1036,29 +1040,30 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param perm:    An array of permanence values for a column. The array is
-                    "dense", i.e. it contains an entry for each input bit, even
-                    if the permanence value is 0.
-    @param index:   The index identifying a column in the permanence, potential
+    permIdx:	    A sparse array of indices, mask for permVal values
+    permVal:        An array of permanence values for a column. The array is
+                    "sparse", masked by permIdx
+    index:          The index identifying a column in the permanence, potential
                     and connectivity matrices
     @param raisePerm: A boolean value indicating whether the permanence values
                     should be raised until a minimum number are synapses are in
                     a connected state. Should be set to 'false' when a direct
                     assignment is required.
     """
-
-    maskPotential = numpy.where(self._potentialPools.getRow(index) > 0)[0]
     if raisePerm:
-      self._raisePermanenceToThreshold(perm, maskPotential)
-    perm[perm < self._synPermTrimThreshold] = 0
-    numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
-    newConnected = numpy.where(perm >= self._synPermConnected)[0]
-    self._permanences.setRowFromDense(index, perm)
+      self._raisePermanenceToThreshold(permVal, permIdx)
+    permVal = numpy.array(permVal)
+    permVal[permVal < self._synPermTrimThreshold] = 0
+    numpy.clip(permVal, self._synPermMin, self._synPermMax, out=permVal)
+    newConnected = numpy.where(permVal >= self._synPermConnected)[0]
+    permVal = numpy.where(permVal > 0)[0]
+    print permVal
+    self._permanences.setRowFromSparse(index, permIdx, permVal)
     self._connectedSynapses.replaceSparseRow(index, newConnected)
     self._connectedCounts[index] = newConnected.size
 
 
-  def _initPermConnected(self):
+  def __initPermConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is
     initialized in a connected state. The basic idea here is to initialize
@@ -1067,31 +1072,25 @@ class SpatialPooler(object):
 
     Note: experimentation was done a long time ago on the best way to initialize
     permanence values, but the history for this particular scheme has been lost.
+
+    Internal method! use _initPermanence() instead
     """
     p =  (self._synPermConnected + self._random.getReal64() *
       self._synPermActiveInc / 4.0)
-
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
     return p
 
 
-  def _initPermNonConnected(self):
+  def __initPermNonConnected(self):
     """
     Returns a randomly generated permanence value for a synapses that is to be
     initialized in a non-connected state.
+
+    Internal method! use _initPermanence() instead
     """
     p = self._synPermConnected * self._random.getReal64()
-
-    # Ensure we don't have too much unnecessary precision. A full 64 bits of
-    # precision causes numerical stability issues across platforms and across
-    # implementations
-    p = int(p*100000) / 100000.0
     return p
 
-  def _initPermanence(self, potential, connectedPct):
+  def _initPermanence(self, potentialMask, connectedPct):
     """
     Initializes the permanences of a column. The method
     returns a 1-D array the size of the input, where each entry in the
@@ -1099,35 +1098,35 @@ class SpatialPooler(object):
     at the particular index in the array, and the column represented by
     the 'index' parameter.
 
-    Parameters:
-    ----------------------------
     @param potential: A numpy array specifying the potential pool of the column.
                     Permanence values will only be generated for input bits
                     corresponding to indices for which the mask value is 1.
-    @param connectedPct: A value between 0 or 1 governing the chance, for each
-                         permanence, that the initial permanence value will
-                         be a value that is considered connected.
+    @param connectedPct: A value between 0 or 1 specifying the percent of the input
+                    bits that will start off in a connected state.
+    @return dense array of permanences
     """
     # Determine which inputs bits will start out as connected
     # to the inputs. Initially a subset of the input bits in a
     # column's potential pool will be connected. This number is
     # given by the parameter "connectedPct"
     perm = numpy.zeros(self._numInputs)
-    for i in xrange(self._numInputs):
-      if (potential[i] < 1):
-        continue
-
+    for i in potentialMask:
       if (self._random.getReal64() <= connectedPct):
-        perm[i] = self._initPermConnected()
+        perm[i] = self.__initPermConnected()
       else:
-        perm[i] = self._initPermNonConnected()
+        perm[i] = self.__initPermNonConnected()
 
     # Clip off low values. Since we use a sparse representation
     # to store the permanence values this helps reduce memory
     # requirements.
     perm[perm < self._synPermTrimThreshold] = 0
 
-    return perm
+    # Ensure we don't have too much unnecessary precision. A full 64 bits of
+    # precision causes numerical stability issues across platforms and across
+    # implementations
+    roundedPerm = [round(p, 5) for p in perm]
+
+    return roundedPerm
 
 
   def _mapColumn(self, index):
@@ -1188,10 +1187,11 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param index:   The index identifying a column in the permanence, potential
-                    and connectivity matrices.
-    @param wrapAround: A boolean value indicating that boundaries should be
-                    fignored.
+    @param index:          The index identifying a column in the permanence, 
+                    potential and connectivity matrices.(UInt)
+    @param wrapAround:     A boolean value indicating that boundaries should be
+                    ignored. (default=False)
+    @return list of indices of input bits belonging to the column's pool 
     """
     index = self._mapColumn(index)
     indices = self._getNeighborsND(index,
@@ -1210,10 +1210,7 @@ class SpatialPooler(object):
     selectedIndices = numpy.empty(numPotential, dtype=uintType)
     self._random.sample(indices, selectedIndices)
 
-    potential = numpy.zeros(self._numInputs, dtype=uintType)
-    potential[selectedIndices] = 1
-
-    return potential
+    return selectedIndices
 
 
   @staticmethod
@@ -1711,8 +1708,8 @@ class SpatialPooler(object):
     self._connectedCounts = numpy.zeros(numColumns, dtype=realDType)
     self._connectedSynapses = SparseBinaryMatrix(numInputs)
     self._connectedSynapses.resize(numColumns, numInputs)
-    for i in xrange(proto.numColumns):
-      self._updatePermanencesForColumn(self._permanences.getRow(i), i, False)
+    perms = [self._permanences.getRow(i) for i in xrange(proto.numColumns)]
+    self._updatePermanencesForColumn(perms, range(i), False)
 
     self._tieBreaker = numpy.array(proto.tieBreaker)
 
