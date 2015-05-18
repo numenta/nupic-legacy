@@ -19,9 +19,10 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""This script provides the runExperiment() API function that is used
+"""
+This script provides the runExperiment() API function that is used
 by the command-line client run_opf_experiment.py of Online Prediction
-Framework (OPF). It executes a single expiriment.
+Framework (OPF). It executes a single experiment.
 """
 
 from collections import namedtuple
@@ -50,7 +51,7 @@ g_defaultCheckpointExtension = ".nta"
 
 # Schema of the Private Command-line Options dictionary returned by
 # _parseCommandLineOptions(). This "Private" options dict is consumed internally
-# by runExperiment (i.e., not passed to external modules).
+# by runExperiment (i.e. not passed to external modules).
 g_parsedPrivateCommandLineOptionsSchema = {
   "description":"OPF RunExperiment control args",
   "type":"object",

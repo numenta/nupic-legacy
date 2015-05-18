@@ -76,7 +76,7 @@ def _initConfigDicts():
     columnCount = 200,
     inputWidth   = 0,
     numActiveColumnsPerInhArea = 20,
-    spatialImp = 'py',
+    spatialImp = 'cpp',
     seed = _SEED,
     )
   
