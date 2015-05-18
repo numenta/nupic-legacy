@@ -119,7 +119,6 @@ class PyRegion(object):
 
     outputs -- a dictionary with similar structure to inputs. The keys
     are:
-         categoriesOut
          description
          dataType
          count
@@ -130,7 +129,7 @@ class PyRegion(object):
          description
          dataType
          count
-         constraints
+         constraints (optional)
          accessMode (one of "ReadWrite", "Read", "Create")
 
     This class method is called by NuPIC before creating a Region.

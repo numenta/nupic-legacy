@@ -25,8 +25,6 @@
 from abc import ABCMeta, abstractmethod
 
 
-#from nupic.research import FDRCSpatial2
-
 from PyRegion import PyRegion
 
 from nupic.data.dictutils import DictObj

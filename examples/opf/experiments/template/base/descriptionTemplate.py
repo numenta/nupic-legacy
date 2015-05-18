@@ -236,7 +236,6 @@ config = {
   'spVerbosity' : 0,
 
   # Print/logs stats every N iterations; 0 = disable stats
-  # NOTE: stats are printed by FDRCSpatial2.printPeriodicStats() to stdout
   'spPrintStatsPeriodIter' : 0,
 
   # SP inhibition control (absolute value);
@@ -245,10 +244,10 @@ config = {
   #
   'spNumActivePerInhArea' : 40,
 
-  # coincInputPoolPct
+  # potentialPct
   # What percent of the columns's receptive field is available
   # for potential synapses. At initialization time, we will 
-  # choose coincInputPoolPct * (2*coincInputRadius+1)^2 
+  # choose potentialPct * (2*potentialRadius+1)^2 
   'spCoincInputPoolPct' : 1.0,
   
 

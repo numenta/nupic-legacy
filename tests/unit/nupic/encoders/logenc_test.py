@@ -35,21 +35,20 @@ from nupic.encoders.log_capnp import LogEncoderProto
 
 
 
-#########################################################################
 class LogEncoderTest(unittest.TestCase):
-  '''Unit tests for LogEncoder class'''
+  """Unit tests for LogEncoder class"""
 
 
-  ############################################################################
   def testLogEncoder(self):
     # Create the encoder
-    # use of forced=True is not recommended, but is used in the example for readibility, see scalar.py
+    # use of forced=True is not recommended, but is used in the example for
+    # readibility, see scalar.py
     le = LogEncoder(w=5,
-                   resolution=0.1,
-                   minval=1,
-                   maxval=10000,
-                   name="amount",
-                   forced=True)
+                    resolution=0.1,
+                    minval=1,
+                    maxval=10000,
+                    name="amount",
+                    forced=True)
 
     #######################################################################
     # Verify we're setting the description properly
@@ -96,9 +95,9 @@ class LogEncoderTest(unittest.TestCase):
     # w bits on in an array of len width.
     expected = [1, 1, 1, 1, 1] + 40 * [0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype='uint8')
+    expected = numpy.array(expected, dtype="uint8")
 
-    self.assertTrue((output == expected).all())
+    self.assertTrue(numpy.array_equal(output, expected))
 
     #######################################################################
     # Test reverse lookup
@@ -106,8 +105,8 @@ class LogEncoderTest(unittest.TestCase):
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and numpy.array_equal(ranges[0],
-                                                           [1, 1]))
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [1, 1]))
 
     #######################################################################
     # Verify an input representing a missing value is handled properly
@@ -131,22 +130,25 @@ class LogEncoderTest(unittest.TestCase):
       maxTopDown = math.pow(10, (scaledVal + le.encoder.resolution))
 
       # Verify the range surrounds this scaled val
-      self.assertTrue(topDown.value >= minTopDown and
-                      topDown.value <= maxTopDown)
+      self.assertGreaterEqual(topDown.value, minTopDown)
+      self.assertLessEqual(topDown.value, maxTopDown)
 
       # Test bucket support
       bucketIndices = le.getBucketIndices(value)
       topDown = le.getBucketInfo(bucketIndices)[0]
 
       # Verify our reconstructed value is in the valid range
-      self.assertTrue(topDown.value >= minTopDown and
-                      topDown.value <= maxTopDown)
+      self.assertGreaterEqual(topDown.value, minTopDown)
+      self.assertLessEqual(topDown.value, maxTopDown)
+
       # Same for the scalar value
-      self.assertTrue(topDown.scalar >= minTopDown and
-                      topDown.scalar <= maxTopDown)
+      self.assertGreaterEqual(topDown.scalar, minTopDown)
+      self.assertLessEqual(topDown.scalar, maxTopDown)
+
       # That the encoding portion of our EncoderResult matched the result of
       # encode()
-      self.assertTrue((topDown.encoding == output).all())
+      self.assertTrue(numpy.array_equal(topDown.encoding, output))
+
       # Verify our reconstructed value is the same as the bucket value
       bucketValues = le.getBucketValues()
       self.assertEqual(topDown.value,
@@ -162,46 +164,46 @@ class LogEncoderTest(unittest.TestCase):
     # increase of 2 decades = 20 decibels
     # bit 0, 1 are padding; bit 3 is 1, ..., bit 22 is 20 (23rd bit)
     expected = 20 * [0] + [1, 1, 1, 1, 1] + 20 * [0]
-    expected = numpy.array(expected, dtype='uint8')
-    self.assertTrue((output == expected).all())
+    expected = numpy.array(expected, dtype="uint8")
+    self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and
-                    numpy.array_equal(ranges[0], [100, 100]))
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [100, 100]))
 
     #######################################################################
     # Verify next power of 10 encoding
     output = le.encode(10000)
     expected = 40 * [0] + [1, 1, 1, 1, 1]
-    expected = numpy.array(expected, dtype='uint8')
-    self.assertTrue((output == expected).all())
+    expected = numpy.array(expected, dtype="uint8")
+    self.assertTrue(numpy.array_equal(output, expected))
 
     # Test reverse lookup
     decoded = le.decode(output)
     (fieldsDict, _) = decoded
     self.assertEqual(len(fieldsDict), 1)
     (ranges, _) = fieldsDict.values()[0]
-    self.assertTrue(len(ranges) == 1 and
-                    numpy.array_equal(ranges[0], [10000, 10000]))
+    self.assertEqual(len(ranges), 1)
+    self.assertTrue(numpy.array_equal(ranges[0], [10000, 10000]))
 
 
   def testGetBucketValues(self):
-    '''
+    """
     Verify that the values of buckets are as expected for given
     init params
-    '''
+    """
 
     # Create the encoder
     le = LogEncoder(w=5,
-                   resolution=0.1,
-                   minval=1,
-                   maxval=10000,
-                   name="amount",
-		   forced=True)
+                    resolution=0.1,
+                    minval=1,
+                    maxval=10000,
+                    name="amount",
+		                forced=True)
 
     # Build our expected values
     inc = 0.1
@@ -219,17 +221,17 @@ class LogEncoderTest(unittest.TestCase):
     numpy.testing.assert_almost_equal(expected, actual, 7)
 
   def testInitWithRadius(self):
-    '''
+    """
     Verifies you can use radius to specify a log encoder
-    '''
+    """
 
     # Create the encoder
     le = LogEncoder(w=1,
-                   radius=1,
-                   minval=1,
-                   maxval=10000,
-                   name="amount",
-		   forced=True)
+                    radius=1,
+                    minval=1,
+                    maxval=10000,
+                    name="amount",
+		                forced=True)
 
 
     self.assertEqual(le.encoder.n, 5)
@@ -240,21 +242,21 @@ class LogEncoderTest(unittest.TestCase):
     output = le.encode(value)
     expected = [1, 0, 0, 0, 0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype='uint8')
-    self.assertTrue((output == expected).all())
+    expected = numpy.array(expected, dtype="uint8")
+    self.assertTrue(numpy.array_equal(output, expected))
 
     value = 100.0
     output = le.encode(value)
     expected = [0, 0, 1, 0, 0]
     # Convert to numpy array
-    expected = numpy.array(expected, dtype='uint8')
-    self.assertTrue((output == expected).all())
+    expected = numpy.array(expected, dtype="uint8")
+    self.assertTrue(numpy.array_equal(output, expected))
 
 
   def testInitWithN(self):
-    '''
+    """
     Verifies you can use N to specify a log encoder
-    '''
+    """
     # Create the encoder
     n = 100
     le = LogEncoder(n=n, forced=True)
@@ -262,12 +264,14 @@ class LogEncoderTest(unittest.TestCase):
 
 
   def testMinvalMaxVal(self):
-    '''
+    """
     Verifies unusual instances of minval and maxval are handled properly
-    '''
+    """
 
-    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=-100, forced=True)
-    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=1e-07, forced=True)
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=-100,
+                      forced=True)
+    self.assertRaises(ValueError, LogEncoder, n=100, minval=0, maxval=1e-07,
+                      forced=True)
 
     le = LogEncoder(n=100, minval=42, maxval=1.3e12, forced=True)
 
@@ -279,11 +283,11 @@ class LogEncoderTest(unittest.TestCase):
 
   def testReadWrite(self):
     le = LogEncoder(w=5,
-                   resolution=0.1,
-                   minval=1,
-                   maxval=10000,
-                   name="amount",
-                   forced=True)
+                    resolution=0.1,
+                    minval=1,
+                    maxval=10000,
+                    name="amount",
+                    forced=True)
 
     originalValue = le.encode(1.0)
 
@@ -319,6 +323,7 @@ class LogEncoderTest(unittest.TestCase):
     result2 = encoder.encode(10)
     self.assertTrue(numpy.array_equal(result1, result2))
 
-###########################################
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
   unittest.main()
