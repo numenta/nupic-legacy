@@ -628,6 +628,11 @@ class TemporalMemory(object):
 
 
   def write(self, proto):
+    """
+    Writes serialized data to proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+    """
     proto.columnDimensions = self.columnDimensions
     proto.cellsPerColumn = self.cellsPerColumn
     proto.activationThreshold = self.activationThreshold
@@ -649,6 +654,13 @@ class TemporalMemory(object):
 
   @classmethod
   def read(cls, proto):
+    """
+    Reads deserialized data from proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory instance
+    """
     tm = object.__new__(cls)
 
     tm.columnDimensions = list(proto.columnDimensions)
