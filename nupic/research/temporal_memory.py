@@ -627,6 +627,108 @@ class TemporalMemory(object):
     return cellsForColumns
 
 
+  def write(self, proto):
+    """
+    Writes serialized data to proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+    """
+    proto.columnDimensions = self.columnDimensions
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.activationThreshold = self.activationThreshold
+    proto.initialPermanence = self.initialPermanence
+    proto.connectedPermanence = self.connectedPermanence
+    proto.minThreshold = self.minThreshold
+    proto.maxNewSynapseCount = self.maxNewSynapseCount
+    proto.permanenceIncrement = self.permanenceIncrement
+    proto.permanenceDecrement = self.permanenceDecrement
+
+    self.connections.write(proto.connections)
+    self._random.write(proto.random)
+
+    proto.activeCells = list(self.activeCells)
+    proto.predictiveCells = list(self.predictiveCells)
+    proto.activeSegments = list(self.activeSegments)
+    proto.winnerCells = list(self.winnerCells)
+
+
+  @classmethod
+  def read(cls, proto):
+    """
+    Reads deserialized data from proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory instance
+    """
+    tm = object.__new__(cls)
+
+    tm.columnDimensions = list(proto.columnDimensions)
+    tm.cellsPerColumn = int(proto.cellsPerColumn)
+    tm.activationThreshold = int(proto.activationThreshold)
+    tm.initialPermanence = proto.initialPermanence
+    tm.connectedPermanence = proto.connectedPermanence
+    tm.minThreshold = int(proto.minThreshold)
+    tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
+    tm.permanenceIncrement = proto.permanenceIncrement
+    tm.permanenceDecrement = proto.permanenceDecrement
+
+    tm.connections = Connections.read(proto.connections)
+    tm._random = Random()
+    tm._random.read(proto.random)
+
+    tm.activeCells = set([int(x) for x in proto.activeCells])
+    tm.predictiveCells = set([int(x) for x in proto.predictiveCells])
+    tm.activeSegments = set([int(x) for x in proto.activeSegments])
+    tm.winnerCells = set([int(x) for x in proto.winnerCells])
+
+    return tm
+
+
+  def __eq__(self, other):
+    """
+    Equality operator for TemporalMemory instances.
+    Checks if two instances are functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    epsilon = 0.0000001
+
+    if self.columnDimensions != other.columnDimensions: return False
+    if self.cellsPerColumn != other.cellsPerColumn: return False
+    if self.activationThreshold != other.activationThreshold: return False
+    if abs(self.initialPermanence - other.initialPermanence) > epsilon:
+      return False
+    if abs(self.connectedPermanence - other.connectedPermanence) > epsilon:
+      return False
+    if self.minThreshold != other.minThreshold: return False
+    if self.maxNewSynapseCount != other.maxNewSynapseCount: return False
+    if abs(self.permanenceIncrement - other.permanenceIncrement) > epsilon:
+      return False
+    if abs(self.permanenceDecrement - other.permanenceDecrement) > epsilon:
+      return False
+
+    if self.connections != other.connections: return False
+
+    if self.activeCells != other.activeCells: return False
+    if self.predictiveCells != other.predictiveCells: return False
+    if self.winnerCells != other.winnerCells: return False
+
+    return True
+
+
+  def __ne__(self, other):
+    """
+    Non-equality operator for TemporalMemory instances.
+    Checks if two instances are not functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    return not self.__eq__(other)
+
+
   def _validateColumn(self, column):
     """
     Raises an error if column index is invalid.

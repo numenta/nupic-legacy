@@ -23,21 +23,24 @@
 
 import numpy as np
 from random import randrange, random
-from nupic.research.spatial_pooler import SpatialPooler as SP
+from nupic.bindings.algorithms import SpatialPooler as SP
 
 
 
-class Example():
-  
-  """A class to hold our code. Going object oriented"""
+class Example(object):
+  """A class to hold our code.
 
-  
+  TODO: Get rid of this class, it just makes it more difficult to read the
+  code.
+  """
+
+
   def __init__(self, inputDimensions, columnDimensions):
     """
      Parameters:
      ----------
-     _inputDimensions	:	The size of the input. (m,n) will give a size m x n
-     _columnDimensions	:	The size of the 2 dimensional array of columns
+     _inputDimensions: The size of the input. (m,n) will give a size m x n
+     _columnDimensions: The size of the 2 dimensional array of columns
      """
     self.inputDimensions = inputDimensions
     self.columnDimensions = columnDimensions
@@ -46,97 +49,95 @@ class Example():
     self.inputArray = np.zeros(self.inputSize)
     self.activeArray = np.zeros(self.columnNumber)
 
-    self.sp = SP(self.inputDimensions, 
-		 self.columnDimensions,
-		 potentialRadius = self.inputSize,
-		 numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
-		 globalInhibition = True,
-		 synPermActiveInc = 0.01
-		 )
+    self.sp = SP(self.inputDimensions,
+                 self.columnDimensions,
+                 potentialRadius = self.inputSize,
+                 numActiveColumnsPerInhArea = int(0.02*self.columnNumber),
+                 globalInhibition = True,
+                 synPermActiveInc = 0.01)
 
-    
+
   def createInput(self):
     """create a random input vector"""
-    
+
     print "-" * 70 + "Creating a random input vector" + "-" * 70
-    
+
     #clear the inputArray to zero before creating a new input vector
     self.inputArray[0:] = 0
-    
+
     for i in range(self.inputSize):
       #randrange returns 0 or 1
       self.inputArray[i] = randrange(2)
 
-      
+
   def run(self):
     """Run the spatial pooler with the input vector"""
-    
+
     print "-" * 80 + "Computing the SDR" + "-" * 80
-    
+
     #activeArray[column]=1 if column is active after spatial pooling
     self.sp.compute(self.inputArray, True, self.activeArray)
-    
+
     print self.activeArray.nonzero()
 
-    
+
   def addNoise(self, noiseLevel):
     """Flip the value of 10% of input bits (add noise)
-      
-      PARAMETERS
-      ----------
-      noiseLevel : The percentage of total input bits that should be flipped """
-    
-    for i in range(int(noiseLevel * self.inputSize)):
-      #0.1*self.inputSize represents 10% of the total input bits
-      #random.random() returns a float between 0 and 1
+
+    :param noiseLevel: The percentage of total input bits that should be flipped
+    """
+
+    for _ in range(int(noiseLevel * self.inputSize)):
+      # 0.1*self.inputSize represents 10% of the total input bits
+      # random.random() returns a float between 0 and 1
       randomPosition = int(random() * self.inputSize)
-      
-      #Flipping the bit at the randomly picked position
+
+      # Flipping the bit at the randomly picked position
       if self.inputArray[randomPosition] == 1:
         self.inputArray[randomPosition] = 0
-	
+
       else:
         self.inputArray[randomPosition] = 1
-    
-      #Uncomment the following line to know which positions had been flipped.
-      #print "The value at " + str(randomPosition) + " has been flipped"
-	
+
+      # Uncomment the following line to know which positions had been flipped.
+      # print "The value at " + str(randomPosition) + " has been flipped"
+
 example = Example((32, 32), (64, 64))
 
-#Lesson 1
+# Lesson 1
 print "\n \nFollowing columns represent the SDR"
 print "Different set of columns each time since we randomize the input"
 print "Lesson - different input vectors give different SDRs\n\n"
 
-#Trying random vectors
+# Trying random vectors
 for i in range(3):
   example.createInput()
   example.run()
 
-#Lesson 2
+# Lesson 2
 print "\n\nIdentical SDRs because we give identical inputs"
 print "Lesson - identical inputs give identical SDRs\n\n"
 
-print "-" * 75 + "Using identical input vectors" + "-" * 75  
+print "-" * 75 + "Using identical input vectors" + "-" * 75
 
-#Trying identical vectors
+# Trying identical vectors
 for i in range(2):
   example.run()
 
-#Lesson 3
+# Lesson 3
 print "\n\nNow we are changing the input vector slightly."
 print "We change a small percentage of 1s to 0s and 0s to 1s."
 print "The resulting SDRs are similar, but not identical to the original SDR"
 print "Lesson - Similar input vectors give similar SDRs\n\n"
 
-#Adding 10% noise to the input vector
-#Notice how the output SDR hardly changes at all
+# Adding 10% noise to the input vector
+# Notice how the output SDR hardly changes at all
 print "-" * 75 + "After adding 10% noise to the input vector" + "-" * 75
 example.addNoise(0.1)
 example.run()
 
-#Adding another 20% noise to the already modified input vector
-#The output SDR should differ considerably from that of the previous output
+# Adding another 20% noise to the already modified input vector
+# The output SDR should differ considerably from that of the previous output
 print "-" * 75 + "After adding another 20% noise to the input vector" + "-" * 75
 example.addNoise(0.2)
 example.run()
