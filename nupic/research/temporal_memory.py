@@ -673,6 +673,50 @@ class TemporalMemory(object):
     return tm
 
 
+  def __eq__(self, other):
+    """
+    Equality operator for TemporalMemory instances.
+    Checks if two instances are functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    epsilon = 0.0000001
+
+    if self.columnDimensions != other.columnDimensions: return False
+    if self.cellsPerColumn != other.cellsPerColumn: return False
+    if self.activationThreshold != other.activationThreshold: return False
+    if abs(self.initialPermanence - other.initialPermanence) > epsilon:
+      return False
+    if abs(self.connectedPermanence - other.connectedPermanence) > epsilon:
+      return False
+    if self.minThreshold != other.minThreshold: return False
+    if self.maxNewSynapseCount != other.maxNewSynapseCount: return False
+    if abs(self.permanenceIncrement - other.permanenceIncrement) > epsilon:
+      return False
+    if abs(self.permanenceDecrement - other.permanenceDecrement) > epsilon:
+      return False
+
+    if self.connections != other.connections: return False
+
+    if self.activeCells != other.activeCells: return False
+    if self.predictiveCells != other.predictiveCells: return False
+    if self.winnerCells != other.winnerCells: return False
+
+    return True
+
+
+  def __ne__(self, other):
+    """
+    Non-equality operator for TemporalMemory instances.
+    Checks if two instances are not functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    return not self.__eq__(other)
+
+
   def _validateColumn(self, column):
     """
     Raises an error if column index is invalid.

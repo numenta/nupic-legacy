@@ -620,21 +620,7 @@ class TemporalMemoryTest(unittest.TestCase):
     tm2 = TemporalMemory.read(proto2)
 
     # Check that the two temporal memory objects have the same attributes
-    self.assertEqual(tm1.columnDimensions, tm2.columnDimensions)
-    self.assertEqual(tm1.cellsPerColumn, tm2.cellsPerColumn)
-    self.assertEqual(tm1.activationThreshold, tm2.activationThreshold)
-    self.assertAlmostEqual(tm1.initialPermanence, tm2.initialPermanence)
-    self.assertAlmostEqual(tm1.connectedPermanence, tm2.connectedPermanence)
-    self.assertEqual(tm1.minThreshold, tm2.minThreshold)
-    self.assertEqual(tm1.maxNewSynapseCount, tm2.maxNewSynapseCount)
-    self.assertAlmostEqual(tm1.permanenceIncrement, tm2.permanenceIncrement)
-    self.assertAlmostEqual(tm1.permanenceDecrement, tm2.permanenceDecrement)
-
-    self.assertEqual(tm1.connections, tm2.connections)
-
-    self.assertEqual(tm1.activeCells, tm2.activeCells)
-    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
-    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1, tm2)
 
     # Run a couple records through after deserializing and check results match
     tm1.compute(self.patternMachine.get(0))

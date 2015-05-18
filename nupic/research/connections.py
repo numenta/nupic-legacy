@@ -316,6 +316,17 @@ class Connections(object):
     return True
 
 
+  def __ne__(self, other):
+    """
+    Non-equality operator for Connections instances.
+    Checks if two instances are not functionally identical
+    (might have different internal state).
+
+    @param other (Connections) Connections instance to compare to
+    """
+    return not self.__eq__(other)
+
+
   def _synapseSetForSynapses(self, synapses):
     """
     Returns a set containing synapse data for synapses.
