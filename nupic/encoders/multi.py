@@ -149,9 +149,9 @@ class MultiEncoder(Encoder):
                             clipInput=True, w=5, resolution=5),
     }
     
-    would yield a SDR with a part encoded by the DateEncoder, 
+    would yield a vector with a part encoded by the DateEncoder, 
     and to parts seperately taken care of by the ScalarEncoder with the specified parameters. 
-    The three seperate encodings are then merged together to the final SDR.
+    The three seperate encodings are then merged together to the final vector.
     Note that these parts are always the same for each field.
     """
 
