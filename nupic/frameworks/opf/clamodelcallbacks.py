@@ -104,7 +104,7 @@ def claModelControlDisableTPLearningCb(claModel):
 
 ################################################################################
 class CLAModelPickleSPInitArgs(object):
-  """ Saves FDRCSpatial2 initialization args
+  """ Saves SP initialization args
   """
   def __init__(self, filePath):
     """

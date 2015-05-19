@@ -128,96 +128,97 @@ class NABTest(TestCaseBase):
     """
     # Create model as in NAB/.../numenta_detector.py
     modelParams = {
-                    "aggregationInfo": {
-                      "seconds": 0,
-                      "fields": [],
-                      "months": 0,
+                  "aggregationInfo": {
                       "days": 0,
-                      "years": 0,
+                      "fields": [],
                       "hours": 0,
                       "microseconds": 0,
-                      "weeks": 0,
+                      "milliseconds": 0,
                       "minutes": 0,
-                      "milliseconds": 0
-                    },
-                    "model": "CLA",
-                    "version": 1,
-                    "modelParams": {
-                      "sensorParams": {
-                        "sensorAutoReset": None,
-                        "encoders": {
-                          "timestamp_weekend": None,
-                          "timestamp_timeOfDay": {
-                            "type": "DateEncoder",
-                            "timeOfDay": [21, 9.49122334747737],
-                            "fieldname": "timestamp",
-                            "name": "timestamp_timeOfDay"
-                          },
-                          "value": {
-                            "type": "RandomDistributedScalarEncoder",
-                            "seed": 42,
-                            "fieldname": "value",
-                            "name": "value",
-                            "numBuckets": 94.0
-                          },
-                          "timestamp_dayOfWeek": None
-                        },
-                        "verbosity": 0
+                      "months": 0,
+                      "seconds": 0,
+                      "weeks": 0,
+                      "years": 0
+                  },
+                  "model": "CLA",
+                  "modelParams": {
+                      "anomalyParams": {
+                          "anomalyCacheRecords": None,
+                          "autoDetectThreshold": None,
+                          "autoDetectWaitRecords": 5030
                       },
                       "clEnable": False,
-                      "spParams": {
-                        "columnCount": 2048,
-                        "synPermInactiveDec": 0.0005,
-                        "randomSP": 0,
-                        "maxBoost": 1.0,
-                        "spatialImp": "cpp",
-                        "inputWidth": 0,
-                        "spVerbosity": 0,
-                        "useHighTier": 0,
-                        "synPermConnected": 0.1,
-                        "synPermActiveInc": 0.0015,
-                        "seed": 1956,
-                        "numActiveColumnsPerInhArea": 40,
-                        "coincInputPoolPct": 0.8,
-                        "globalInhibition": 1
-                      },
-                      "trainSPNetOnlyIfRequested": False,
                       "clParams": {
-                        "alpha": 0.035828933612158,
-                        "regionName": "CLAClassifierRegion",
-                        "steps": "1",
-                        "clVerbosity": 0
+                          "alpha": 0.035828933612158,
+                          "clVerbosity": 0,
+                          "regionName": "CLAClassifierRegion",
+                          "steps": "1"
                       },
-                      "tpParams": {
-                        "columnCount": 2048,
-                        "activationThreshold": 13,
-                        "pamLength": 3,
-                        "cellsPerColumn": 32,
-                        "permanenceDec": 0.1,
-                        "minThreshold": 10,
-                        "inputWidth": 2048,
-                        "maxSynapsesPerSegment": 32,
-                        "outputType": "normal",
-                        "initialPerm": 0.21,
-                        "globalDecay": 0.0,
-                        "maxAge": 0,
-                        "newSynapseCount": 20,
-                        "maxSegmentsPerCell": 128,
-                        "permanenceInc": 0.1,
-                        "temporalImp": "cpp",
-                        "seed": 1960,
-                        "verbosity": 0
-                      },
-                      "anomalyParams": {
-                        "anomalyCacheRecords": None,
-                        "autoDetectThreshold": None,
-                        "autoDetectWaitRecords": 5030
+                      "inferenceType": "TemporalAnomaly",
+                      "sensorParams": {
+                          "encoders": {
+                              "timestamp_timeOfDay": {
+                                  "fieldname": "timestamp",
+                                  "name": "timestamp_timeOfDay",
+                                  "timeOfDay": [
+                                      21,
+                                      9.49122334747737
+                                  ],
+                                  "type": "DateEncoder"
+                              },
+                              "timestamp_dayOfWeek": None,
+                              "timestamp_weekend": None,
+                              "value": {
+                                  "name": "value",
+                                  "fieldname": "value",
+                                  "numBuckets": 94.0,
+                                  "seed": 42,
+                                  "type": "RandomDistributedScalarEncoder"
+                              }
+                          },
+                          "sensorAutoReset": None,
+                          "verbosity": 0
                       },
                       "spEnable": True,
-                      "inferenceType": "TemporalAnomaly",
-                      "tpEnable": True
+                      "spParams": {
+                          "potentialPct": 0.8,
+                          "columnCount": 2048,
+                          "globalInhibition": 1,
+                          "inputWidth": 0,
+                          "maxBoost": 1.0,
+                          "numActiveColumnsPerInhArea": 40,
+                          "seed": 1956,
+                          "spVerbosity": 0,
+                          "spatialImp": "cpp",
+                          "synPermActiveInc": 0.0015,
+                          "synPermConnected": 0.1,
+                          "synPermInactiveDec": 0.0005
                       },
-                    "predictAheadTime": None
+                      "tpEnable": True,
+                      "tpParams": {
+                          "activationThreshold": 13,
+                          "cellsPerColumn": 32,
+                          "columnCount": 2048,
+                          "globalDecay": 0.0,
+                          "initialPerm": 0.21,
+                          "inputWidth": 2048,
+                          "maxAge": 0,
+                          "maxSegmentsPerCell": 128,
+                          "maxSynapsesPerSegment": 32,
+                          "minThreshold": 10,
+                          "newSynapseCount": 20,
+                          "outputType": "normal",
+                          "pamLength": 3,
+                          "permanenceDec": 0.1,
+                          "permanenceInc": 0.1,
+                          "seed": 1960,
+                          "temporalImp": "cpp",
+                          "verbosity": 0
+                      },
+                      "trainSPNetOnlyIfRequested": False
+                  },
+                  "predictAheadTime": None,
+                  "version": 1
                   }
     sensorParams = (modelParams["modelParams"]["sensorParams"]
                                ["encoders"]["value"])

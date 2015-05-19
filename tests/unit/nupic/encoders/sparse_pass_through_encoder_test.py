@@ -24,7 +24,6 @@
 
 CL_VERBOSITY = 0
 
-import cPickle as pickle
 import tempfile
 import unittest2 as unittest
 
@@ -34,6 +33,7 @@ from nupic.encoders.sparse_pass_through_encoder import SparsePassThroughEncoder
 from nupic.encoders.sparse_pass_through_encoder_capnp import (
   SparsePassThroughEncoderProto
 )
+
 
 
 class SparsePassThroughEncoderTest(unittest.TestCase):

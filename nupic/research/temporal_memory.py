@@ -27,6 +27,7 @@ from collections import defaultdict, namedtuple
 from operator import mul
 
 from nupic.bindings.math import Random
+from nupic.research.connections import Connections
 
 
 
@@ -39,7 +40,6 @@ class TemporalMemory(object):
                columnDimensions=(2048,),
                cellsPerColumn=32,
                activationThreshold=13,
-               learningRadius=2048,
                initialPermanence=0.21,
                connectedPermanence=0.50,
                minThreshold=10,
@@ -51,7 +51,6 @@ class TemporalMemory(object):
     @param columnDimensions    (list)  Dimensions of the column space
     @param cellsPerColumn      (int)   Number of cells per column
     @param activationThreshold (int)   If the number of active connected synapses on a segment is at least this threshold, the segment is said to be active.
-    @param learningRadius      (int)   Radius around cell from which it can sample to form distal dendrite connections.
     @param initialPermanence   (float) Initial permanence of a new synapse.
     @param connectedPermanence (float) If the permanence value for a synapse is greater than this value, it is said to be connected.
     @param minThreshold        (int)   If the number of synapses active on a segment is at least this threshold, it is selected as the best matching cell in a bursting column.
@@ -73,7 +72,6 @@ class TemporalMemory(object):
     self.columnDimensions = columnDimensions
     self.cellsPerColumn = cellsPerColumn
     self.activationThreshold = activationThreshold
-    self.learningRadius = learningRadius
     self.initialPermanence = initialPermanence
     self.connectedPermanence = connectedPermanence
     self.minThreshold = minThreshold
@@ -629,6 +627,108 @@ class TemporalMemory(object):
     return cellsForColumns
 
 
+  def write(self, proto):
+    """
+    Writes serialized data to proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+    """
+    proto.columnDimensions = self.columnDimensions
+    proto.cellsPerColumn = self.cellsPerColumn
+    proto.activationThreshold = self.activationThreshold
+    proto.initialPermanence = self.initialPermanence
+    proto.connectedPermanence = self.connectedPermanence
+    proto.minThreshold = self.minThreshold
+    proto.maxNewSynapseCount = self.maxNewSynapseCount
+    proto.permanenceIncrement = self.permanenceIncrement
+    proto.permanenceDecrement = self.permanenceDecrement
+
+    self.connections.write(proto.connections)
+    self._random.write(proto.random)
+
+    proto.activeCells = list(self.activeCells)
+    proto.predictiveCells = list(self.predictiveCells)
+    proto.activeSegments = list(self.activeSegments)
+    proto.winnerCells = list(self.winnerCells)
+
+
+  @classmethod
+  def read(cls, proto):
+    """
+    Reads deserialized data from proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (TemporalMemory) TemporalMemory instance
+    """
+    tm = object.__new__(cls)
+
+    tm.columnDimensions = list(proto.columnDimensions)
+    tm.cellsPerColumn = int(proto.cellsPerColumn)
+    tm.activationThreshold = int(proto.activationThreshold)
+    tm.initialPermanence = proto.initialPermanence
+    tm.connectedPermanence = proto.connectedPermanence
+    tm.minThreshold = int(proto.minThreshold)
+    tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
+    tm.permanenceIncrement = proto.permanenceIncrement
+    tm.permanenceDecrement = proto.permanenceDecrement
+
+    tm.connections = Connections.read(proto.connections)
+    tm._random = Random()
+    tm._random.read(proto.random)
+
+    tm.activeCells = set([int(x) for x in proto.activeCells])
+    tm.predictiveCells = set([int(x) for x in proto.predictiveCells])
+    tm.activeSegments = set([int(x) for x in proto.activeSegments])
+    tm.winnerCells = set([int(x) for x in proto.winnerCells])
+
+    return tm
+
+
+  def __eq__(self, other):
+    """
+    Equality operator for TemporalMemory instances.
+    Checks if two instances are functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    epsilon = 0.0000001
+
+    if self.columnDimensions != other.columnDimensions: return False
+    if self.cellsPerColumn != other.cellsPerColumn: return False
+    if self.activationThreshold != other.activationThreshold: return False
+    if abs(self.initialPermanence - other.initialPermanence) > epsilon:
+      return False
+    if abs(self.connectedPermanence - other.connectedPermanence) > epsilon:
+      return False
+    if self.minThreshold != other.minThreshold: return False
+    if self.maxNewSynapseCount != other.maxNewSynapseCount: return False
+    if abs(self.permanenceIncrement - other.permanenceIncrement) > epsilon:
+      return False
+    if abs(self.permanenceDecrement - other.permanenceDecrement) > epsilon:
+      return False
+
+    if self.connections != other.connections: return False
+
+    if self.activeCells != other.activeCells: return False
+    if self.predictiveCells != other.predictiveCells: return False
+    if self.winnerCells != other.winnerCells: return False
+
+    return True
+
+
+  def __ne__(self, other):
+    """
+    Non-equality operator for TemporalMemory instances.
+    Checks if two instances are not functionally identical
+    (might have different internal state).
+
+    @param other (TemporalMemory) TemporalMemory instance to compare to
+    """
+    return not self.__eq__(other)
+
+
   def _validateColumn(self, column):
     """
     Raises an error if column index is invalid.
@@ -657,260 +757,3 @@ class TemporalMemory(object):
   @staticmethod
   def getCellIndex(cell):
     return cell.idx
-
-
-
-class Connections(object):
-  """
-  Class to hold data representing the connectivity of a collection of cells.
-  """
-
-  SynapseData = namedtuple("SynapseData", ["segment",
-                                           "presynapticCell",
-                                           "permanence"])
-
-  def __init__(self, numCells):
-    """
-    @param numCells (int) Number of cells in collection
-    """
-
-    # Save member variables
-    self.numCells = numCells
-
-    # Mappings
-    self._segments = dict()
-    self._synapses = dict()
-
-    # Indexes into the mappings (for performance)
-    self._segmentsForCell = dict()
-    self._synapsesForSegment = dict()
-    self._synapsesForPresynapticCell = defaultdict(dict)
-
-    # Index of the next segment to be created
-    self._nextSegmentIdx = 0
-    # Index of the next synapse to be created
-    self._nextSynapseIdx = 0
-
-
-  def cellForSegment(self, segment):
-    """
-    Returns the cell that a segment belongs to.
-
-    @param segment (int) Segment index
-
-    @return (int) Cell index
-    """
-    return self._segments[segment]
-
-
-  def segmentsForCell(self, cell):
-    """
-    Returns the segments that belong to a cell.
-
-    @param cell (int) Cell index
-
-    @return (set) Segment indices
-    """
-    self._validateCell(cell)
-
-    if not cell in self._segmentsForCell:
-      return set()
-
-    return self._segmentsForCell[cell]
-
-
-  def dataForSynapse(self, synapse):
-    """
-    Returns the data for a synapse.
-
-    @param synapse (int) Synapse index
-
-    @return (SynapseData) Synapse data
-    """
-    self._validateSynapse(synapse)
-
-    return self._synapses[synapse]
-
-
-  def synapsesForSegment(self, segment):
-    """
-    Returns the synapses on a segment.
-
-    @param segment (int) Segment index
-
-    @return (set) Synapse indices
-    """
-    self._validateSegment(segment)
-
-    if not segment in self._synapsesForSegment:
-      return set()
-
-    return self._synapsesForSegment[segment]
-
-
-  def synapsesForPresynapticCell(self, presynapticCell):
-    """
-    Returns the synapses for the source cell that they synapse on.
-
-    @param presynapticCell (int) Source cell index
-
-    @return (set) Synapse indices
-    """
-    return self._synapsesForPresynapticCell[presynapticCell]
-
-
-  def createSegment(self, cell):
-    """
-    Adds a new segment on a cell.
-
-    @param cell (int) Cell index
-
-    @return (int) New segment index
-    """
-    self._validateCell(cell)
-
-    # Add data
-    segment = self._nextSegmentIdx
-    self._segments[segment] = cell
-    self._nextSegmentIdx += 1
-
-    # Update indexes
-    if not cell in self._segmentsForCell:
-      self._segmentsForCell[cell] = set()
-    self._segmentsForCell[cell].add(segment)
-
-    return segment
-
-
-  def destroySegment(self, segment):
-    """
-    Destroys a segment.
-
-    @param segment (int) Segment index
-    """
-    synapses = set(self.synapsesForSegment(segment))
-    for synapse in synapses:
-      self.destroySynapse(synapse)
-
-    cell = self._segments[segment]
-    del self._segments[segment]
-
-    # Update indexes
-    self._segmentsForCell[cell].remove(segment)
-
-
-  def createSynapse(self, segment, presynapticCell, permanence):
-    """
-    Creates a new synapse on a segment.
-
-    @param segment         (int)   Segment index
-    @param presynapticCell (int)   Source cell index
-    @param permanence      (float) Initial permanence
-
-    @return (int) Synapse index
-    """
-    self._validateSegment(segment)
-    self._validatePermanence(permanence)
-
-    # Add data
-    synapse = self._nextSynapseIdx
-    synapseData = self.SynapseData(segment, presynapticCell, permanence)
-    self._synapses[synapse] = synapseData
-    self._nextSynapseIdx += 1
-
-    # Update indexes
-    if not len(self.synapsesForSegment(segment)):
-      self._synapsesForSegment[segment] = set()
-    self._synapsesForSegment[segment].add(synapse)
-
-    self._synapsesForPresynapticCell[presynapticCell][synapse] = synapseData
-
-    return synapse
-
-
-  def destroySynapse(self, synapse):
-    """
-    Destroys a synapse.
-
-    @param synapse (int) Synapse index
-    """
-    data = self._synapses[synapse]
-    del self._synapses[synapse]
-
-    # Update indexes
-    self._synapsesForSegment[data.segment].remove(synapse)
-    del self._synapsesForPresynapticCell[data.presynapticCell][synapse]
-
-
-  def updateSynapsePermanence(self, synapse, permanence):
-    """
-    Updates the permanence for a synapse.
-
-    @param synapse    (int)   Synapse index
-    @param permanence (float) New permanence
-    """
-    self._validatePermanence(permanence)
-
-    data = self._synapses[synapse]
-    newData = self.SynapseData(data.segment,
-                               data.presynapticCell,
-                               permanence)
-    self._synapses[synapse] = newData
-
-    # Update indexes
-    self._synapsesForPresynapticCell[newData.presynapticCell][synapse] = newData
-
-
-  def numSegments(self):
-    """
-    Returns the number of segments.
-    """
-    return len(self._segments)
-
-
-  def numSynapses(self):
-    """
-    Returns the number of synapses.
-    """
-    return len(self._synapses)
-
-
-  def _validateCell(self, cell):
-    """
-    Raises an error if cell index is invalid.
-
-    @param cell (int) Cell index
-    """
-    if cell >= self.numCells or cell < 0:
-      raise IndexError("Invalid cell")
-
-
-  def _validateSegment(self, segment):
-    """
-    Raises an error if segment index is invalid.
-
-    @param segment (int) Segment index
-    """
-    if not segment in self._segments:
-      raise IndexError("Invalid segment")
-
-
-  def _validateSynapse(self, synapse):
-    """
-    Raises an error if synapse index is invalid.
-
-    @param synapse (int) Synapse index
-    """
-    if not synapse in self._synapses:
-      raise IndexError("Invalid synapse")
-
-
-  @staticmethod
-  def _validatePermanence(permanence):
-    """
-    Raises an error if permanence is invalid.
-
-    @param permanence (float) Permanence
-    """
-    if permanence < 0 or permanence > 1:
-      raise ValueError("Invalid permanence")
