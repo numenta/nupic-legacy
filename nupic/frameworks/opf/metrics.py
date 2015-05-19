@@ -764,8 +764,8 @@ class CustomErrorMetric(MetricsIface):
     if "storeWindow" in metricSpec.params:
       self.storeWindow = metricSpec.params["storeWindow"]
       assert self.storeWindow  != 0 , "Window Size cannon be zero"
-    self.errorStore = self.CircularBuffer(self.errorWindow)
-    self.recordStore = self.CircularBuffer(self.storeWindow)
+    self.errorStore = CircularBuffer(self.errorWindow)
+    self.recordStore = CircularBuffer(self.storeWindow)
     if "customExpr" in metricSpec.params:
       assert not "customFuncDef" in metricSpec.params
       assert not "customFuncSource" in metricSpec.params
