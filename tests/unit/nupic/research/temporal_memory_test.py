@@ -22,12 +22,18 @@
 """
 TODO: Mock out all function calls.
 TODO: Make default test TM instance simpler, with 4 cells per column.
-TODO: Move all duplicate connections logic into shared function.
 """
 
+import tempfile
 import unittest
 
-from nupic.research.temporal_memory import Connections, TemporalMemory
+import capnp
+
+from nupic.bindings.proto import TemporalMemoryProto_capnp
+from nupic.research.temporal_memory import TemporalMemory
+
+from nupic.data.generators.pattern_machine import PatternMachine
+from nupic.data.generators.sequence_machine import SequenceMachine
 
 
 
@@ -579,187 +585,57 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[99], set([399]))
 
 
-
-class ConnectionsTest(unittest.TestCase):
-
-
-  def setUp(self):
-    self.connections = Connections(2048 * 32)
-
-
-  def testCreateSegment(self):
-    connections = self.connections
-
-    self.assertEqual(connections.segmentsForCell(0), set())
-
-    self.assertEqual(connections.createSegment(0), 0)
-    self.assertEqual(connections.createSegment(0), 1)
-    self.assertEqual(connections.createSegment(10), 2)
-
-    self.assertEqual(connections.cellForSegment(0), 0)
-    self.assertEqual(connections.cellForSegment(2), 10)
-
-    self.assertEqual(connections.segmentsForCell(0), set([0, 1]))
-
-
-  def testDestroySegment(self):
-    connections = self.connections
-
-    self.assertEqual(connections.createSegment(0), 0)
-    self.assertEqual(connections.createSegment(0), 1)
-    self.assertEqual(connections.createSegment(10), 2)
-
-    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
-    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
-
-    connections.destroySegment(0)
-
-    args = [0]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
-    args = [1]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
-
-    args = [0]
-    self.assertRaises(IndexError, connections.synapsesForSegment, *args)
-
-    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
-    self.assertEqual(connections.synapsesForPresynapticCell(254), {})
-
-    self.assertEqual(connections.segmentsForCell(0), set([1]))
-
-
-  def testCreateSegmentInvalidCell(self):
-    connections = self.connections
-
-    try:
-      connections.createSegment(65535)
-    except IndexError:
-      self.fail("IndexError raised unexpectedly")
-
-    args = [65536]
-    self.assertRaises(IndexError, connections.createSegment, *args)
-
-    args = [-1]
-    self.assertRaises(IndexError, connections.createSegment, *args)
-
-
-  def testCellForSegmentInvalidSegment(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-
-    args = [1]
-    self.assertRaises(KeyError, connections.cellForSegment, *args)
-
-
-  def testSegmentsForCellInvalidCell(self):
-    connections = self.connections
-
-    args = [65536]
-    self.assertRaises(IndexError, connections.segmentsForCell, *args)
-
-    args = [-1]
-    self.assertRaises(IndexError, connections.segmentsForCell, *args)
-
-
-  def testCreateSynapse(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-    self.assertEqual(connections.synapsesForSegment(0), set())
-
-    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
-    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
-
-    self.assertEqual(connections.dataForSynapse(0), (0, 254, 0.1173))
-
-    self.assertEqual(connections.synapsesForSegment(0), set([0, 1]))
-
-    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
-    self.assertEqual(connections.synapsesForPresynapticCell(254),
-                     {0: (0, 254, 0.1173)})
-
-
-  def testCreateSynapseInvalidParams(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-
-    # Invalid segment
-    args = [1, 48, 0.124]
-    self.assertRaises(IndexError, connections.createSynapse, *args)
-
-    # Invalid permanence
-    args = [0, 48, 1.124]
-    self.assertRaises(ValueError, connections.createSynapse, *args)
-    args = [0, 48, -0.124]
-    self.assertRaises(ValueError, connections.createSynapse, *args)
-
-
-  def testDestroySynapse(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-    self.assertEqual(connections.synapsesForSegment(0), set())
-
-    self.assertEqual(connections.createSynapse(0, 254, 0.1173), 0)
-    self.assertEqual(connections.createSynapse(0, 477, 0.3253), 1)
-
-    connections.destroySynapse(0)
-
-    args = [0]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
-
-    self.assertEqual(connections.synapsesForSegment(0), set([1]))
-
-    self.assertEqual(connections.synapsesForPresynapticCell(174), {})
-    self.assertEqual(connections.synapsesForPresynapticCell(254), {})
-
-
-  def testDataForSynapseInvalidSynapse(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-    connections.createSynapse(0, 834, 0.1284)
-
-    args = [1]
-    self.assertRaises(IndexError, connections.dataForSynapse, *args)
-
-
-  def testSynapsesForSegmentInvalidSegment(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-
-    args = [1]
-    self.assertRaises(IndexError, connections.synapsesForSegment, *args)
-
-
-  def testUpdateSynapsePermanence(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-    connections.createSynapse(0, 483, 0.1284)
-
-    connections.updateSynapsePermanence(0, 0.2496)
-    self.assertEqual(connections.dataForSynapse(0), (0, 483, 0.2496))
-
-
-  def testUpdateSynapsePermanenceInvalidParams(self):
-    connections = self.connections
-
-    connections.createSegment(0)
-    connections.createSynapse(0, 483, 0.1284)
-
-    # Invalid synapse
-    args = [1, 0.4374]
-    self.assertRaises(KeyError, connections.updateSynapsePermanence, *args)
-
-    # Invalid permanence
-    args = [0, 1.4374]
-    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
-    args = [0, -0.4374]
-    self.assertRaises(ValueError, connections.updateSynapsePermanence, *args)
+  def testWrite(self):
+    tm1 = TemporalMemory(
+      columnDimensions=[100],
+      cellsPerColumn=4,
+      activationThreshold=7,
+      initialPermanence=0.37,
+      connectedPermanence=0.58,
+      minThreshold=4,
+      maxNewSynapseCount=18,
+      permanenceIncrement=0.23,
+      permanenceDecrement=0.08,
+      seed=91
+    )
+
+    # Run some data through before serializing
+    self.patternMachine = PatternMachine(100, 4)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    sequence = self.sequenceMachine.generateFromNumbers(range(5))
+    for _ in range(3):
+      for pattern in sequence:
+        tm1.compute(pattern)
+
+    proto1 = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
+    tm1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = TemporalMemoryProto_capnp.TemporalMemoryProto.read(f)
+
+    # Load the deserialized proto
+    tm2 = TemporalMemory.read(proto2)
+
+    # Check that the two temporal memory objects have the same attributes
+    self.assertEqual(tm1, tm2)
+
+    # Run a couple records through after deserializing and check results match
+    tm1.compute(self.patternMachine.get(0))
+    tm2.compute(self.patternMachine.get(0))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
+
+    tm1.compute(self.patternMachine.get(3))
+    tm2.compute(self.patternMachine.get(3))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
 
 
 

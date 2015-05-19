@@ -26,7 +26,7 @@ import time
 import copy
 import csv
 import numpy as np
-from nupic.research import FDRCSpatial2
+from nupic.research.spatial_pooler import SpatialPooler
 from nupic.bindings.math import GetNTAReal
 
 import matplotlib
@@ -226,17 +226,16 @@ def testSP():
   while numRecords < 3:
     
     # Setup a SP
-    sp = FDRCSpatial2.FDRCSpatial2(
-           coincidencesShape=(2048, 1),
-           inputShape = (1, elemSize),
-           inputBorder = elemSize/2-1,
-           coincInputRadius = elemSize/2,
-           numActivePerInhArea = 40,
-           spVerbosity = 0,
-           stimulusThreshold = 0,
-           seed = 1,
-           coincInputPoolPct = poolPct,
-           globalInhibition = True
+    sp = SpatialPooler(
+           columnDimensions=(2048, 1),
+           inputDimensions=(1, elemSize),
+           potentialRadius=elemSize/2,
+           numActiveColumnsPerInhArea=40,
+           spVerbosity=0,
+           stimulusThreshold=0,
+           seed=1,
+           potentialPct=poolPct,
+           globalInhibition=True
            )
     
     # Generate inputs using rand() 
@@ -260,10 +259,13 @@ def testSP():
       for i in xrange(inputSize):
         time.sleep(0.001)
         if iter == numIter - 1:
-          outputs[i] = sp.compute(inputs[i], learn=doLearn, infer=False)
+          # TODO: See https://github.com/numenta/nupic/issues/2072
+          sp.compute(inputs[i], learn=doLearn, activeArray=outputs[i])
           #print outputs[i].sum(), outputs[i]
         else:
-          sp.compute(inputs[i], learn=doLearn, infer=False)
+          # TODO: See https://github.com/numenta/nupic/issues/2072
+          output = np.zeros(2048)
+          sp.compute(inputs[i], learn=doLearn, activeArray=output)
       
     # Build a plot from the generated input and output and display it  
     distribMatrix = generatePlot(outputs, inputs)
@@ -330,18 +332,17 @@ def testSPNew():
   
   
   # Setup a SP
-  sp = FDRCSpatial2.FDRCSpatial2(
-         coincidencesShape=(2048, 1),
-         inputShape = (1, elemSize),
-         inputBorder = elemSize/2-1,
-         coincInputRadius = elemSize/2,
-         numActivePerInhArea = 40,
-         spVerbosity = 0,
-         stimulusThreshold = 0,
-         synPermConnected = 0.12,
-         seed = 1,
-         coincInputPoolPct = poolPct,
-         globalInhibition = True
+  sp = SpatialPooler(
+         columnDimensions=(2048, 1),
+         inputDimensions=(1, elemSize),
+         potentialRadius=elemSize/2,
+         numActiveColumnsPerInhArea=40,
+         spVerbosity=0,
+         stimulusThreshold=0,
+         synPermConnected=0.12,
+         seed=1,
+         potentialPct=poolPct,
+         globalInhibition=True
          )
   
   cleanPlot = False
@@ -373,9 +374,10 @@ def testSPNew():
         start = 0
         learnIter = 0
         cleanPlot = True
-      
-    output1 = sp.compute(input1, learn=doLearn, infer=False).copy()
-    output2 = sp.compute(input2, learn=doLearn, infer=False).copy()
+
+    # TODO: See https://github.com/numenta/nupic/issues/2072
+    sp.compute(input1, learn=doLearn, activeArray=output1)
+    sp.compute(input2, learn=doLearn, activeArray=output2)
     time.sleep(0.001)
     
     outDist = (abs(output1-output2) > 0.1)
@@ -384,8 +386,9 @@ def testSPNew():
     if not doLearn and intOutDist < 2 and intInDist > 10:
       """
       sp.spVerbosity = 10
-      sp.compute(input1, learn=doLearn, infer=False)
-      sp.compute(input2, learn=doLearn, infer=False)
+      # TODO: See https://github.com/numenta/nupic/issues/2072
+      sp.compute(input1, learn=doLearn, activeArray=output1)
+      sp.compute(input2, learn=doLearn, activeArray=output2)
       sp.spVerbosity = 0
 
       
@@ -486,18 +489,17 @@ def testSPFile():
   file.close()
   
   # Setup a SP
-  sp = FDRCSpatial2.FDRCSpatial2(
-         coincidencesShape=(spSize, 1),
-         inputShape = (1, elemSize),
-         inputBorder = (elemSize-1)/2,
-         coincInputRadius = elemSize/2,
-         numActivePerInhArea = spSet,
-         spVerbosity = 0,
-         stimulusThreshold = 0,
-         synPermConnected = 0.10,
-         seed = 1,
-         coincInputPoolPct = poolPct,
-         globalInhibition = True
+  sp = SpatialPooler(
+         columnDimensions=(spSize, 1),
+         inputDimensions=(1, elemSize),
+         potentialRadius=elemSize/2,
+         numActiveColumnsPerInhArea=spSet,
+         spVerbosity=0,
+         stimulusThreshold=0,
+         synPermConnected=0.10,
+         seed=1,
+         potentialPct=poolPct,
+         globalInhibition=True
          )
   
   cleanPlot = False
@@ -516,16 +518,18 @@ def testSPFile():
     # Learn
     if iter != 0:
       for learnRecs in xrange(pattern[0]):
+
+        # TODO: See https://github.com/numenta/nupic/issues/2072
         ind = np.random.random_integers(0, size-1, 1)[0]
-        sp.compute(inputs[ind], learn=True, infer=False) 
+        sp.compute(inputs[ind], learn=True, activeArray=outputs[ind]) 
 
     # Test
     for _ in xrange(pattern[1]):
       rand1 = np.random.random_integers(0, size-1, 1)[0]
       rand2 = np.random.random_integers(0, size-1, 1)[0]
     
-      output1 = sp.compute(inputs[rand1], learn=False, infer=True).copy()
-      output2 = sp.compute(inputs[rand2], learn=False, infer=True).copy()
+      sp.compute(inputs[rand1], learn=False, activeArray=output1)
+      sp.compute(inputs[rand2], learn=False, activeArray=output2)
     
       outDist = (abs(output1-output2) > 0.1)
       intOutDist = int(outDist.sum()/2+0.1)

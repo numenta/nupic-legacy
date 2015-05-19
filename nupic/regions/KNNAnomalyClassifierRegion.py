@@ -133,7 +133,7 @@ class KNNAnomalyClassifierRegion(PyRegion):
 
           activeColumnCount=dict(
             description="""Number of active columns in a given step. Typically
-            equivalent to SP.numActivePerInhArea""",
+            equivalent to SP.numActiveColumnsPerInhArea""",
             dataType='UInt32',
             count=1,
             constraints='',

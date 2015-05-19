@@ -246,14 +246,11 @@ def getDescription(datasets):
   # ------------------------------------------------------------------
   # Node params
   # The inputs are long, horizontal vectors
-  inputShape = (1, encoder.getWidth())
+  inputDimensions = (1, encoder.getWidth())
 
   # Layout the coincidences vertically stacked on top of each other, each
   # looking at the entire input field. 
-  coincidencesShape = (config['spCoincCount'], 1)
-  inputBorder = inputShape[1]/2
-  if inputBorder*2 >= inputShape[1]:
-    inputBorder -= 1
+  columnDimensions = (config['spCoincCount'], 1)
 
   sensorParams = dict(
     # encoder/datasource are not parameters so don't include here
@@ -261,15 +258,14 @@ def getDescription(datasets):
   )
 
   CLAParams = dict(
-    inputShape = inputShape,
-    inputBorder = inputBorder,
-    coincidencesShape = coincidencesShape,
-    coincInputRadius = inputShape[1]/2,
-    coincInputPoolPct = 1.0,
+    inputDimensions = inputDimensions,
+    columnDimensions = columnDimensions,
+    potentialRadius = inputDimensions[1]/2,
+    potentialPct = 1.0,
     gaussianDist = 0,
     commonDistributions = 0,    # should be False if possibly not training
     localAreaDensity = -1, #0.05, 
-    numActivePerInhArea = config['spNumActivePerInhArea'],
+    numActiveColumnsPerInhArea = config['spNumActivePerInhArea'],
     dutyCyclePeriod = 1000,
     stimulusThreshold = 1,
     synPermInactiveDec = config['spSynPermInactiveDec'],

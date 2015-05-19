@@ -97,7 +97,7 @@ class CLAModelClassifierHelper(object):
       self._vectorType = anomalyParams['anomalyVectorType']
 
     self._activeColumnCount = \
-      self.clamodel._getSPRegion().getSelf().getParameter('numActivePerInhArea')
+      self.clamodel._getSPRegion().getSelf().getParameter('numActiveColumnsPerInhArea')
 
     # Storage for last run
     self._anomalyVectorLength = None
