@@ -104,6 +104,7 @@ class MultiEncoder(Encoder):
 
   ############################################################################
   def getWidth(self):
+    """Represents the sum of the widths of each fields encoding."""
     return self.width
 
   def setLearning(self,learningEnabled):
@@ -147,6 +148,11 @@ class MultiEncoder(Encoder):
                             name='consumption', minval=0,maxval=110,
                             clipInput=True, w=5, resolution=5),
     }
+    
+    would yield a vector with a part encoded by the DateEncoder, 
+    and to parts seperately taken care of by the ScalarEncoder with the specified parameters. 
+    The three seperate encodings are then merged together to the final vector, in such a way that
+    they are always at the same location within the vector.
     """
 
     # Sort the encoders so that they end up in a controlled order
