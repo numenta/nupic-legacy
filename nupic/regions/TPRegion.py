@@ -565,15 +565,6 @@ class TPRegion(PyRegion):
           regionLevel=True,
           isDefaultOutput=False),
 
-        # TODO remove anomalyScore from TPRegion, it can be provided by AnomalyRegion if needed
-        anomalyScore = dict(
-          description="""The score for how 'anomalous' (i.e. rare) the current
-                        sequence is. Higher values are increasingly rare""",
-          dataType='Real32',
-          count=1,
-          regionLevel=True,
-          isDefaultOutput=False),
-
         lrnActiveStateT = dict(
           description="""Active cells during learn phase at time t.  This is
                         used for anomaly classification.""",

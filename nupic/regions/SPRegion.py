@@ -557,9 +557,6 @@ class SPRegion(PyRegion):
         outputs['temporalTopDownOut'][:] = temporalTopDownOut
 
 
-    # OBSOLETE
-    outputs['anomalyScore'][:] = 0
-
       # Write the bottom up out to our node outputs only if we are doing inference
       #print "SPRegion input: ", buInputVector.nonzero()[0]
       #print "SPRegion output: ", rfOutput.nonzero()[0]
@@ -715,14 +712,6 @@ class SPRegion(PyRegion):
                          TP output feedback down through the SP.""",
           dataType='Real32',
           count=0,
-          regionLevel=True,
-          isDefaultOutput=False),
-
-        anomalyScore = dict(
-          description="""The score for how 'anomalous' (i.e. rare) this spatial
-                        input pattern is. Higher values are increasingly rare""",
-          dataType='Real32',
-          count=1,
           regionLevel=True,
           isDefaultOutput=False),
       ),
