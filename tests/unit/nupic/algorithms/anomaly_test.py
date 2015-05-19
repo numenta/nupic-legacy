@@ -114,6 +114,19 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
+  def testInitFactory(self):
+    # default
+    an1 = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
+    an2 = anomaly.Anomaly.initFactory(None, None, None)
+    self.assertEqual(an1, an2)
+
+    # custom
+    an1 = anomaly.Anomaly(slidingWindowSize=3, mode=anomaly.Anomaly.MODE_LIKELIHOOD,
+                          binaryAnomalyThreshold=0.123)
+    an2 = anomaly.Anomaly.initFactory("3","likelihood","0.123")
+    self.assertEqual(an1, an2)
+
+
 
 if __name__ == "__main__":
   unittest.main()
