@@ -1134,7 +1134,7 @@ class CLAModel(Model):
       args.pop("autoDetectWaitRecords")
 
       self.__logger.debug("Adding AnomalyRegion; params: %r" % args)
-      n.addRegion("Anomaly", "py.AnomalyRegion", json.dumps({})) #FIXME how pass args as kwargs here?
+      n.addRegion("Anomaly", "py.AnomalyRegion", json.dumps(args))
 
       # link SP (or sensor) output as activeColumns
       if spEnable:
