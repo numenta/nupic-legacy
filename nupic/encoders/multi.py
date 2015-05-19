@@ -104,7 +104,7 @@ class MultiEncoder(Encoder):
 
   ############################################################################
   def getWidth(self):
-      """Represents the sum of the widths of each fields encoding."""
+    """Represents the sum of the widths of each fields encoding."""
     return self.width
 
   def setLearning(self,learningEnabled):
