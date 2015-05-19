@@ -70,12 +70,13 @@ class Anomaly(object):
   MODE_WEIGHTED = "weighted"
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
   # functions for computing anomaly score that are supported
-  _computeImplementations = ()
+  COMPUTE_RAW = "computeRaw" # the "original" raw anomaly score method computation
+  _computeImplementations = (COMPUTE_RAW,)
 
   def __init__(self, slidingWindowSize=None, 
                      mode=MODE_PURE, 
                      binaryAnomalyThreshold=None,
-                     computeFn=computeRawAnomalyScore):
+                     computeFn=COMPUTE_RAW):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -92,7 +93,8 @@ class Anomaly(object):
          The transformation is applied after moving average is computed and updated.
     @param computeFn (opt) - method how the "raw" anomaly score is computed from temporal pooler, 
                      All available implementations are listed in '_computeImplementations', 
-                     default value is same as 'computeRawAnomalyScore()'.
+                     default value is same as 'computeRawAnomalyScore()'. This is a string, 
+                     defined by Anomaly.COMPUTE_* fields
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -113,14 +115,7 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
-    # fill allowed implementations
-    Anomaly._computeImplementations += (compute_In1D_Satisfied,)
-    Anomaly._computeImplementations += (computeRawAnomalyScore,)
-
-    self._computeFn = computeFn
-    if (not isinstance(computeFn, collections.Callable) or 
-        not computeFn in Anomaly._computeImplementations):
-      raise ValueError("Anomaly: computeFn has to be on of '%s' but is '%s' " % (Anomaly._computeImplementations, computeFn) )
+    self._computeFn = self._assignComputeImpl(computeFn)
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -169,6 +164,22 @@ class Anomaly(object):
         score = 0.0
 
     return score
+
+
+############################################3
+# support functions
+
+  def _assignComputeImpl(self, computeName):
+    """
+    assign concrete fucntion from its name, 
+    the names are compared to Anomaly.COMPUTE_* constants
+    @param computeName string name of the func used to compute anomaly score
+    @return actual function
+    """
+    if computeName == Anomaly.COMPUTE_RAW:
+      return compute_In1D_Satisfied
+    else:
+      raise ValueError("Anomaly: computeFn has to be one of '%s' but is '%s' " % (Anomaly._computeImplementations, computeName) )
 
 
   def __str__(self):

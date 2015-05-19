@@ -38,7 +38,6 @@ from operator import itemgetter
 import numpy
 
 from nupic.frameworks.opf.model import Model
-from nupic.algorithms import anomaly
 from nupic.algorithms.anomaly import Anomaly
 from nupic.data import SENTINEL_VALUE_FOR_MISSING_DATA
 from nupic.data.fieldmeta import FieldMetaSpecial, FieldMetaInfo
@@ -192,7 +191,7 @@ class CLAModel(Model):
     mode = anomalyParams.get("mode", "pure")
     anomalyThreshold = anomalyParams.get("autoDetectThreshold", None)
     # default, aka "Raw" anomaly compute() method
-    computeFn = anomalyParams.get("computeFn", anomaly.compute_In1D_Satisfied)
+    computeFn = anomalyParams.get("computeFn", Anomaly.COMPUTE_RAW)
     self._anomalyInst = Anomaly(slidingWindowSize=windowSize, 
                                 mode=mode,
                                 binaryAnomalyThreshold=anomalyThreshold,
