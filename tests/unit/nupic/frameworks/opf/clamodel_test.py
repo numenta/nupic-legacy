@@ -95,7 +95,7 @@ class CLAModelTest(unittest.TestCase):
                             u'years': 0},
        u'model': u'CLA',
        u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
-                                           u'autoDetectThreshold': None,
+                                           u'autoDetectThreshold': 0.0,
                                            u'autoDetectWaitRecords': 5030},
                         u'clEnable': False,
                         u'clParams': {u'alpha': 0.035828933612158,
