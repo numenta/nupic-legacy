@@ -314,7 +314,6 @@ config = {
            'mode': 'likelihood', # pure(=default) / weighted / likelihood
            'slidingWindowSize': 5, # >=0 / None
            'binaryAnomalyThreshold': None, # None or from (0,1)
-           'computeFn': Anomaly.COMPUTE_RAW,
         },
 
         'trainSPNetOnlyIfRequested': False,
