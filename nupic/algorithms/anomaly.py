@@ -108,7 +108,7 @@ class Anomaly(object):
        binaryAnomalyThreshold >= 1.0  or \
        binaryAnomalyThreshold < 0.0:
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from [0,1) "
-                       "0 for disabled.")
+                       "0 for disabled. It is %s" % (binaryAnomalyThreshold) )
 
 
   def compute(self, activeColumns, predictedColumns, 
