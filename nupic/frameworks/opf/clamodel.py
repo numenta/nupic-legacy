@@ -400,7 +400,7 @@ class CLAModel(Model):
       inferences = self._multiStepCompute(rawInput=inputRecord)
     # For temporal classification. Not used, and might not work anymore
     elif self._isClassificationModel():
-      inferences = self._classifcationCompute()
+      inferences = self._classificationCompute()
 
     results.inferences.update(inferences)
 
@@ -538,7 +538,7 @@ class CLAModel(Model):
                                         rawInput=rawInput)
 
 
-  def _classifcationCompute(self):
+  def _classificationCompute(self):
     inference = {}
     classifier = self._getClassifierRegion()
     classifier.setParameter('inferenceMode', True)
