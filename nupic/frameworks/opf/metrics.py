@@ -957,6 +957,31 @@ class MetricMovingMode(AggregateMetric):
 
 
 ################################################################################
+class MetricSubmetric(AggregateMetric):
+  """
+  abstract metric class the uses a sub-metric
+  """
+  def __init__(self, metricSpec):
+    super(MetricSubmetric, self).__init__(metricSpec)
+    # Must have a suberror metric
+    assert self._subErrorMetrics is not None, "This metric requires that you" \
+        + " specify the name of another base metric  via the 'errorMetric' " \
+        + " parameter."
+
+  def getMetric(self):
+    return self._subErrorMetrics[0].getMetric()
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    if self.verbosity > 0:
+      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
+                                            prediction, self.getMetric())
+    # If missing data,
+    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
+      return self._subErrorMetrics[0].aggregateError
+    # Our "prediction" is simply what submetric does
+    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
+
+###############################################################################
 class MetricTrivial(AggregateMetric):
   """
   computes a metric against the ground truth N steps ago. The metric to
