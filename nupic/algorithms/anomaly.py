@@ -29,26 +29,36 @@ from nupic.utils import MovingAverage
 
 
 def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
-  """Computes the raw anomaly score.
+    """Computes the raw anomaly score.
 
-  The raw anomaly score is the fraction of active columns not predicted.
+    The raw anomaly score is the fraction of active columns not predicted.
 
-  The implementation is using in1D() function, 
-  "satisfied" means it only cares if activeColumns at time T have been 
-  predicted at T-1. 
+    The implementation is using in1D() function, 
+    "satisfied" means it only cares if activeColumns at time T have been 
+    predicted at T-1. 
 
-  Which means a temporal pooler TP with all columns in predictive state at T-1
-  would have zero anomaly score at T for any active state. 
+    Which means a temporal pooler TP with all columns in predictive state at T-1
+    would have zero anomaly score at T for any active state. 
 
-  @param activeColumns: array of active column indices
-  @param prevPredictedColumns: array of columns indices predicted in prev step
-  @return anomaly score 0..1 (float)
+    @param activeColumns: array of active column indices
+    @param prevPredictedColumns: array of columns indices predicted in prev step
+    @return anomaly score 0..1 (float)
 
-  This is the "original" computeRawAnomalyScore() implementation.
-
-  This method is a placeholder for the default computeAnomalyScore() implementation.
-  """
-  return compute_In1D_Satisfied(activeColumns, prevPredictedColumns)
+    This is the "original" computeRawAnomalyScore() implementation.
+    """
+    nActiveColumns = len(activeColumns)
+    if nActiveColumns > 0:
+      # Test whether each element of a 1-D array is also present in a second
+      # array. Sum to get the total # of columns that are active and were
+      # predicted.
+      score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
+      # Get the percent of active columns that were NOT predicted, that is
+      # our anomaly score.
+      score = (nActiveColumns - score) / float(nActiveColumns)
+    else:
+      # There are no active columns.
+      score = 0.0
+    return score
 
 
 
@@ -177,7 +187,7 @@ class Anomaly(object):
     @return actual function
     """
     if computeName == Anomaly.COMPUTE_RAW:
-      return compute_In1D_Satisfied
+      return computeRawAnomalyScore
     else:
       raise ValueError("Anomaly: computeFn has to be one of '%s' but is '%s' " % (Anomaly._computeImplementations, computeName) )
 
@@ -201,39 +211,3 @@ class Anomaly(object):
       self._binaryThreshold = None
     if not hasattr(self, '_computeFn'):
       self._computeFn = computeRawAnomalyScore
-
-  ##################################################################
-  # these methods are alternative implementations of 'how to compute'
-  # anomaly score from the neural output (2 binary vectors)
-  ##################################################################
-def compute_In1D_Satisfied(activeColumns, prevPredictedColumns):
-    """Computes the raw anomaly score.
-
-    The raw anomaly score is the fraction of active columns not predicted.
-
-    The implementation is using in1D() function, 
-    "satisfied" means it only cares if activeColumns at time T have been 
-    predicted at T-1. 
-
-    Which means a temporal pooler TP with all columns in predictive state at T-1
-    would have zero anomaly score at T for any active state. 
-
-    @param activeColumns: array of active column indices
-    @param prevPredictedColumns: array of columns indices predicted in prev step
-    @return anomaly score 0..1 (float)
-
-    This is the "original" computeRawAnomalyScore() implementation.
-    """
-    nActiveColumns = len(activeColumns)
-    if nActiveColumns > 0:
-      # Test whether each element of a 1-D array is also present in a second
-      # array. Sum to get the total # of columns that are active and were
-      # predicted.
-      score = numpy.in1d(activeColumns, prevPredictedColumns).sum()
-      # Get the percent of active columns that were NOT predicted, that is
-      # our anomaly score.
-      score = (nActiveColumns - score) / float(nActiveColumns)
-    else:
-      # There are no active columns.
-      score = 0.0
-    return score
