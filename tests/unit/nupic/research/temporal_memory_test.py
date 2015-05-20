@@ -24,9 +24,16 @@ TODO: Mock out all function calls.
 TODO: Make default test TM instance simpler, with 4 cells per column.
 """
 
+import tempfile
 import unittest
 
+import capnp
+
+from nupic.bindings.proto import TemporalMemoryProto_capnp
 from nupic.research.temporal_memory import TemporalMemory
+
+from nupic.data.generators.pattern_machine import PatternMachine
+from nupic.data.generators.sequence_machine import SequenceMachine
 
 
 
@@ -576,6 +583,59 @@ class TemporalMemoryTest(unittest.TestCase):
     self.assertEqual(columnsForCells[0], set([0, 1, 2]))
     self.assertEqual(columnsForCells[1], set([5]))
     self.assertEqual(columnsForCells[99], set([399]))
+
+
+  def testWrite(self):
+    tm1 = TemporalMemory(
+      columnDimensions=[100],
+      cellsPerColumn=4,
+      activationThreshold=7,
+      initialPermanence=0.37,
+      connectedPermanence=0.58,
+      minThreshold=4,
+      maxNewSynapseCount=18,
+      permanenceIncrement=0.23,
+      permanenceDecrement=0.08,
+      seed=91
+    )
+
+    # Run some data through before serializing
+    self.patternMachine = PatternMachine(100, 4)
+    self.sequenceMachine = SequenceMachine(self.patternMachine)
+    sequence = self.sequenceMachine.generateFromNumbers(range(5))
+    for _ in range(3):
+      for pattern in sequence:
+        tm1.compute(pattern)
+
+    proto1 = TemporalMemoryProto_capnp.TemporalMemoryProto.new_message()
+    tm1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = TemporalMemoryProto_capnp.TemporalMemoryProto.read(f)
+
+    # Load the deserialized proto
+    tm2 = TemporalMemory.read(proto2)
+
+    # Check that the two temporal memory objects have the same attributes
+    self.assertEqual(tm1, tm2)
+
+    # Run a couple records through after deserializing and check results match
+    tm1.compute(self.patternMachine.get(0))
+    tm2.compute(self.patternMachine.get(0))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
+
+    tm1.compute(self.patternMachine.get(3))
+    tm2.compute(self.patternMachine.get(3))
+    self.assertEqual(tm1.activeCells, tm2.activeCells)
+    self.assertEqual(tm1.predictiveCells, tm2.predictiveCells)
+    self.assertEqual(tm1.winnerCells, tm2.winnerCells)
+    self.assertEqual(tm1.connections, tm2.connections)
 
 
 
