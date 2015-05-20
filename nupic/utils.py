@@ -148,8 +148,7 @@ class GlobalDict(MutableMapping):
     if key is None:
       key = str(id(value)) # generate uniq name
     if key in cls.store: # replacing existing item
-      cls.logger.error("replacing item '%s' named '%s' with new '%s'." % (cls.get(key), key, value))
-      raise ValueError("GlobalDict: key %s already exists! " %(key))
+      cls.logger.warn("GlobalDict: replacing item '%s' named '%s' with new '%s'." % (cls.get(key), key, value))
     cls.store[key] = value
     cls.logger.warn("Globally stored item '%s' named '%s' " % (value, key))
     return key # in case of new 
