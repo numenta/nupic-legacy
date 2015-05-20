@@ -72,7 +72,8 @@ class Anomaly(object):
   _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
 
 
-  def __init__(self, slidingWindowSize=None, mode=MODE_PURE, binaryAnomalyThreshold=None):
+  def __init__(self, slidingWindowSize=None, mode=MODE_PURE,
+               binaryAnomalyThreshold=None, computeFn=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -86,7 +87,12 @@ class Anomaly(object):
               (anomaly * likelihood)
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
-         The transformation is applied after moving average is computed and updated.
+         The transformation is applied after moving average is computed and
+         updated.
+    @param computeFn (optional) - If given , this is a function that takes no
+        arguments and returns the custom anomaly score. This completely
+        replaces the normal functionality. This is an experimental option
+        included temporarily.
     """
     self._mode = mode
     if slidingWindowSize is not None:
@@ -101,28 +107,35 @@ class Anomaly(object):
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
     self._binaryThreshold = binaryAnomalyThreshold
-    if binaryAnomalyThreshold is not None and ( 
+    if binaryAnomalyThreshold is not None and (
           not isinstance(binaryAnomalyThreshold, float) or
-          binaryAnomalyThreshold >= 1.0  or 
+          binaryAnomalyThreshold >= 1.0  or
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
 
+    if computeFn is not None and not callable(computeFn):
+      raise TypeError("The computeFn argument must be a callable!")
+    self._computeFn = computeFn
 
-  def compute(self, activeColumns, predictedColumns, 
-			inputValue=None, timestamp=None):
+
+  def compute(self, activeColumns, predictedColumns,
+              inputValue=None, timestamp=None):
     """Compute the anomaly score as the percent of active columns not predicted.
 
     @param activeColumns: array of active column indices
     @param predictedColumns: array of columns indices predicted in this step
-                             (used for anomaly in step T+1)
-    @param inputValue: (optional) value of current input to encoders 
-				(eg "cat" for category encoder)
-                              	(used in anomaly-likelihood)
-    @param timestamp: (optional) date timestamp when the sample occured
-                              	(used in anomaly-likelihood)
+        (used for anomaly in step T+1)
+    @param inputValue: (optional) value of current input to encoders
+        (eg "cat" for category encoder). Used in anomaly likelihood.
+    @param timestamp: (optional) date timestamp when the sample occured. Used
+        in anomaly likelihood.
     @return the computed anomaly score; float 0..1
     """
+    # If the custom compute function is specified, just use that.
+    if self._computeFn is not None:
+      return self._computeFn()
+
     # Start by computing the raw anomaly score.
     anomalyScore = computeRawAnomalyScore(activeColumns, predictedColumns)
 
@@ -131,8 +144,8 @@ class Anomaly(object):
       score = anomalyScore
     elif self._mode == Anomaly.MODE_LIKELIHOOD:
       if inputValue is None:
-        raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
-                 "requires 'inputValue' as parameter to compute() method. ")
+        raise ValueError("Selected anomaly mode "Anomaly.MODE_LIKELIHOOD" "
+                 "requires "inputValue" as parameter to compute() method. ")
 
       probability = self._likelihood.anomalyProbability(
           inputValue, anomalyScore, timestamp)
@@ -168,9 +181,11 @@ class Anomaly(object):
     """deserialization"""
     self.__dict__.update(state)
 
-    if not hasattr(self, '_mode'):
+    if not hasattr(self, "_mode"):
       self._mode = Anomaly.MODE_PURE
-    if not hasattr(self, '_movingAverage'):
+    if not hasattr(self, "_movingAverage"):
       self._movingAverage = None
-    if not hasattr(self, '_binaryThreshold'):
+    if not hasattr(self, "_binaryThreshold"):
       self._binaryThreshold = None
+    if not hasattr(self, "_computeFn"):
+      self._computeFn = None
