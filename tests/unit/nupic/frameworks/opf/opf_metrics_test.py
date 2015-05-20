@@ -815,7 +815,7 @@ record={"test":gt[i]})
     self.assertEqual(myModel2,mCall2.getModelInstance(), "failed to get correct Model from CallbackMetric in multimodel env")
 
     # FIXME CallBack metric compute uses submetric
-    #! mCall.addInstance(0, 0.1)
+    mCall.addInstance(0, 0.1)
 
 if __name__ == "__main__":
   unittest.main()
