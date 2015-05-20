@@ -982,7 +982,7 @@ class MetricSubmetric(AggregateMetric):
     return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
 
 ###############################################################################
-class MetricTrivial(AggregateMetric):
+class MetricTrivial(MetricSubmetric):
   """
   computes a metric against the ground truth N steps ago. The metric to
   compute is designated by the 'errorMetric' entry in the metric params.
@@ -993,35 +993,14 @@ class MetricTrivial(AggregateMetric):
     # This metric assumes a default 'steps' of 1
     if not 'steps' in metricSpec.params:
       metricSpec.params['steps'] = 1
-
     super(MetricTrivial, self).__init__(metricSpec)
-
     # Only supports one stepsize
     assert len(self._predictionSteps) == 1
 
-    # Must have a suberror metric
-    assert self._subErrorMetrics is not None, "This metric requires that you" \
-        + " specify the name of another base metric  via the 'errorMetric' " \
-        + " parameter."
-
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
   def addInstance(self, groundTruth, prediction, record = None):
-
     # Use ground truth from 'steps' steps ago as our "prediction"
     prediction = self._getShiftedGroundTruth(groundTruth)
-
-    if self.verbosity > 0:
-      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
-                                            prediction, self.getMetric())
-    # If missing data,
-    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
-      return self._subErrorMetrics[0].aggregateError
-
-    # Our "prediction" is simply what happened 'steps' steps ago
-    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
-
+    return super(MetricTrivial, self).addInstance(groundTruth, prediction, record)
 
 ################################################################################
 class MetricTwoGram(AggregateMetric):
