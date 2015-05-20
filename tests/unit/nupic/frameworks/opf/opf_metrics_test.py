@@ -28,8 +28,9 @@ from nupic.frameworks.opf.modelfactory import ModelFactory
 from nupic.frameworks.opf.clamodel import CLAModel
 from nupic.frameworks.opf.metrics import (getModule, 
                                           MetricSpec, 
-                                          MetricMulti)
-
+                                          MetricMulti,
+                                          MetricModelCallback)
+from tests.unit.nupic.frameworks.opf.clamodel_test import modelConfig
 
 
 class OPFMetricsTest(unittest.TestCase):
@@ -790,6 +791,15 @@ record={"test":gt[i]})
       self.assertEqual(check, metricValue, "iter i= %s gt=%s pred=%s multi=%s sub1=%s sub2=%s" % (i, gt[i], p[i], metricValue, v10, v1000))
 
 
+  def testCallbackMetric(self):
+    """testing the callback metric which can access its model"""
+    modelConfig["modelParams"]["name"]="my"
+    myModel = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my', 'errorMetric': 'aae', 'window': 1000})
+    mCall = MetricModelCallback(ms)
+    refModel = mCall.getModelInstance()
+    self.assertEqual(myModel,refModel, "failed to get correct Model from CallbackMetric")
+    #! mCall.addInstance(0, 0.1)
 
 if __name__ == "__main__":
   unittest.main()
