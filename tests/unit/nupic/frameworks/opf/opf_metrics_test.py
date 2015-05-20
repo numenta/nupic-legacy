@@ -798,7 +798,23 @@ record={"test":gt[i]})
     ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my', 'errorMetric': 'aae', 'window': 1000})
     mCall = MetricModelCallback(ms)
     refModel = mCall.getModelInstance()
+    # test Callback instance works and has access to the Model
     self.assertEqual(myModel,refModel, "failed to get correct Model from CallbackMetric")
+
+    # test Callback metric in environment with multiple models
+    modelConfig["modelParams"]["name"]="my1"
+    myModel1 = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my1', 'errorMetric': 'aae', 'window': 1000})
+    mCall1 = MetricModelCallback(ms)
+    # ..and 2nd
+    modelConfig["modelParams"]["name"]="my2"
+    myModel2 = ModelFactory.create(modelConfig=modelConfig)
+    ms = MetricSpec(field='a', metric='trivial',  inferenceElement='prediction', params={'modelName': 'my2', 'errorMetric': 'aae', 'window': 1000})
+    mCall2 = MetricModelCallback(ms)
+    self.assertEqual(myModel1,mCall1.getModelInstance(), "failed to get correct Model from CallbackMetric in multimodel env")
+    self.assertEqual(myModel2,mCall2.getModelInstance(), "failed to get correct Model from CallbackMetric in multimodel env")
+
+    # FIXME CallBack metric compute uses submetric
     #! mCall.addInstance(0, 0.1)
 
 if __name__ == "__main__":
