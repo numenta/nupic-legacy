@@ -483,6 +483,32 @@ class AggregateMetric(MetricsIface):
 
 
 
+class MetricSubmetric(AggregateMetric):
+  """
+  abstract metric class the uses a sub-metric
+  """
+  def __init__(self, metricSpec):
+    super(MetricSubmetric, self).__init__(metricSpec)
+    # Must have a suberror metric
+    assert self._subErrorMetrics is not None, "This metric requires that you" \
+        + " specify the name of another base metric  via the 'errorMetric' " \
+        + " parameter."
+
+  def getMetric(self):
+    return self._subErrorMetrics[0].getMetric()
+
+  def addInstance(self, groundTruth, prediction, record = None):
+    if self.verbosity > 0:
+      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
+                                            prediction, self.getMetric())
+    # If missing data,
+    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
+      return self._subErrorMetrics[0].aggregateError
+    # Our "prediction" is simply what submetric does
+    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
+
+
+
 class MetricRMSE(AggregateMetric):
   """
       computes root-mean-square error
@@ -689,7 +715,7 @@ class MetricPassThruPrediction(MetricsIface):
 
 
 
-class MetricMovingMean(AggregateMetric):
+class MetricMovingMean(MetricSubmetric):
   """
       computes error metric based on moving mean prediction
   """
@@ -712,26 +738,15 @@ class MetricMovingMean(AggregateMetric):
     # Construct moving average instance
     self._movingAverage = MovingAverage(self.mean_window)
 
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
   def addInstance(self, groundTruth, prediction, record = None):
-
-    # If missing data,
-    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
-      return self._subErrorMetrics[0].aggregateError
-
-    if self.verbosity > 0:
-      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth, prediction, self.getMetric())
-
     # Use ground truth from 'steps' steps ago as our most recent ground truth
     lastGT = self._getShiftedGroundTruth(groundTruth)
     if lastGT is None:
       return self._subErrorMetrics[0].aggregateError
-
     mean = self._movingAverage(lastGT)
+    return super(MetricMovingMean, self).addInstance(groundTruth, mean, record)
 
-    return self._subErrorMetrics[0].addInstance(groundTruth, mean, record)
+
 
 def evalCustomErrorMetric(expr, prediction, groundTruth, tools):
   sandbox = SafeInterpreter(writer=StringIO())
@@ -958,32 +973,6 @@ class MetricMovingMode(AggregateMetric):
 
     result = self._subErrorMetrics[0].addInstance(groundTruth, mode, record)
     return result
-
-
-
-class MetricSubmetric(AggregateMetric):
-  """
-  abstract metric class the uses a sub-metric
-  """
-  def __init__(self, metricSpec):
-    super(MetricSubmetric, self).__init__(metricSpec)
-    # Must have a suberror metric
-    assert self._subErrorMetrics is not None, "This metric requires that you" \
-        + " specify the name of another base metric  via the 'errorMetric' " \
-        + " parameter."
-
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
-
-  def addInstance(self, groundTruth, prediction, record = None):
-    if self.verbosity > 0:
-      print "groundTruth:\n%s\nPredictions:\n%s\n%s\n" % (groundTruth,
-                                            prediction, self.getMetric())
-    # If missing data,
-    if groundTruth == SENTINEL_VALUE_FOR_MISSING_DATA:
-      return self._subErrorMetrics[0].aggregateError
-    # Our "prediction" is simply what submetric does
-    return self._subErrorMetrics[0].addInstance(groundTruth, prediction, record)
 
 
 
