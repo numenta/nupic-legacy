@@ -1088,10 +1088,10 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
                  spVerbosity=0):
       self.this = _ALGORITHMS.new_SpatialPooler()
       _ALGORITHMS.SpatialPooler_initialize(
-        self, inputDimensions, columnDimensions, potentialRadius, potentialPct, 
-        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea, 
-        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected, 
-        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost, 
+        self, inputDimensions, columnDimensions, potentialRadius, potentialPct,
+        globalInhibition, localAreaDensity, numActiveColumnsPerInhArea,
+        stimulusThreshold, synPermInactiveDec, synPermActiveInc, synPermConnected,
+        minPctOverlapDutyCycle, minPctActiveDutyCycle, dutyCyclePeriod, maxBoost,
         seed, spVerbosity)
 
     def __getstate__(self):
@@ -1193,7 +1193,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     self->getActiveDutyCycles((nupic::Real*) x->data);
-  }  
+  }
 
 
   inline void setMinOverlapDutyCycles(PyObject* py_x)
@@ -1218,7 +1218,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
     self->getMinActiveDutyCycles((nupic::Real*) x->data);
-  }  
+  }
 
   inline void setPotential(UInt column, PyObject* py_x)
   {
@@ -1279,6 +1279,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
     def compute(self, recordNum, patternNZ, classification, learn, infer):
       isNone = False
       noneSentinel = 3.14159
+
       if type(classification["actValue"]) in (int, float):
         actValue = classification["actValue"]
         category = False
@@ -1295,21 +1296,27 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
       else:
         actValue = int(classification["bucketIdx"])
         category = True
+
       result = self.convertedCompute(
           recordNum, patternNZ, int(classification["bucketIdx"]),
           actValue, category, learn, infer)
+
       if isNone:
         for i, v in enumerate(result["actualValues"]):
           if v - noneSentinel < 0.00001:
             result["actualValues"][i] = None
       arrayResult = dict((k, numpy.array(v)) if k != "actualValues" else (k, v)
                          for k, v in result.iteritems())
-      if category:
+
+      if self.valueToCategory or isinstance(classification["actValue"], basestring):
         # Convert the bucketIdx back to the original value.
         for i in xrange(len(arrayResult["actualValues"])):
-          arrayResult["actualValues"][i] = self.valueToCategory.get(int(
-              arrayResult["actualValues"][i]), classification["actValue"])
+          if arrayResult["actualValues"][i] is not None:
+            arrayResult["actualValues"][i] = self.valueToCategory.get(int(
+                arrayResult["actualValues"][i]), classification["actValue"])
+
         self.valueToCategory[actValue] = classification["actValue"]
+
       return arrayResult
 
     def __getstate__(self):
