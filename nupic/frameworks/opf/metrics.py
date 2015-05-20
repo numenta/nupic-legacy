@@ -1487,7 +1487,7 @@ class MetricMulti(MetricsIface):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
 
-class MetricModelCallback(AggregateMetric):
+class MetricModelCallback(MetricSubmetric):
   """
   this is an abstract class for metrics that require a direct access to a (CLA)model, 
   eg. to access specific internal values there. 
@@ -1501,11 +1501,6 @@ class MetricModelCallback(AggregateMetric):
     """
     super(MetricModelCallback, self).__init__(metricSpec)
     self._activeModel = metricSpec.params.get('modelName', None)
-    assert self._subErrorMetrics[0] is not None, "MetricModelCallback requires a subMetric defined!"
-
-
-  def getMetric(self):
-    return self._subErrorMetrics[0].getMetric()
 
 
   def setModel(self, modelName):
