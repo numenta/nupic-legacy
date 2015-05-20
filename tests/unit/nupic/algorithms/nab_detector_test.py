@@ -144,7 +144,7 @@ class NABTest(TestCaseBase):
                   "modelParams": {
                       "anomalyParams": {
                           "anomalyCacheRecords": None,
-                          "autoDetectThreshold": None,
+                          "autoDetectThreshold": 0.0, #binaryAnomalyThreshold
                           "autoDetectWaitRecords": 5030
                       },
                       "clEnable": False,
