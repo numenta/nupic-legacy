@@ -149,7 +149,9 @@ modelConfig = (
                             u'weeks': 0,
                             u'years': 0},
        u'model': u'CLA',
-       u'modelParams': {u'anomalyParams': {u'anomalyCacheRecords': None,
+       u'modelParams': {
+                        u'name': u'myModel',
+                        u'anomalyParams': {u'anomalyCacheRecords': None,
                                            u'autoDetectThreshold': None,
                                            u'autoDetectWaitRecords': 5030},
                         u'clEnable': False,

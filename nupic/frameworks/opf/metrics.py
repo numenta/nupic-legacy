@@ -1511,6 +1511,10 @@ class MetricModelCallback(AggregateMetric):
 
   
   def getModelInstance(self):
+    """
+    access the (CLA)Model for which this instance of metric is computed
+    @return CLAModel 
+    """
     model = GlobalDict.get(self._activeModel)
     if model is None:
       raise ValueError("MetricModelCallback: failed to access model named '%s' " % (self._activeModel))
