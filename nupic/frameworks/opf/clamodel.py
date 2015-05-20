@@ -1043,10 +1043,10 @@ class CLAModel(Model):
 
     #--------------------------------------------------
     # Add the Sensor
-    n.addRegion("sensor", "py.RecordSensor", json.dumps(dict(verbosity=sensorParams['verbosity'])))
+    n.addRegion("sensor", "py.RecordSensor", json.dumps(dict(verbosity=sensorParams.get("verbosity", 0))))
     sensor = n.regions['sensor'].getSelf()
 
-    enabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    enabledEncoders = copy.deepcopy(sensorParams.get("encoders", {}))
     for name, params in enabledEncoders.items():
       if params is not None:
         classifierOnly = params.pop('classifierOnly', False)
@@ -1056,7 +1056,7 @@ class CLAModel(Model):
     # Disabled encoders are encoders that are fed to CLAClassifierRegion but not
     # SP or TP Regions. This is to handle the case where the predicted field
     # is not fed through the SP/TP. We typically just have one of these now.
-    disabledEncoders = copy.deepcopy(sensorParams['encoders'])
+    disabledEncoders = copy.deepcopy(sensorParams.get("encoders", {}))
     for name, params in disabledEncoders.items():
       if params is None:
         disabledEncoders.pop(name)
