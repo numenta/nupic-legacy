@@ -107,7 +107,6 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
-    self._computeFn = self._assignFn(mode)
     self._mode = mode
 
 
@@ -127,7 +126,7 @@ class Anomaly(object):
     """
 
     # Compute final anomaly based on selected mode.
-    score = self._computeFn(activeColumns, predictedColumns, inputValue, timestamp)
+    score = self.getComputeFn(self._mode)(activeColumns, predictedColumns, inputValue, timestamp)
 
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
@@ -188,11 +187,9 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
-    if not hasattr(self, '_computeFn'):
-      self._computeFn = computeRawAnomalyScore
 
 
-  def _assignFn(self, mode):
+  def getComputeFn(self, mode):
     # assing computeFn
     if mode == Anomaly.MODE_PURE:
       return self.computeRaw
