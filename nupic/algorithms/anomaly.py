@@ -71,7 +71,6 @@ class Anomaly(object):
         that was used to generate the likelihood
   """
 
-
   # anomaly modes supported
   MODE_PURE = "pure"
   MODE_LIKELIHOOD = "likelihood"
@@ -93,6 +92,7 @@ class Anomaly(object):
               models probability of receiving this value and anomalyScore
           - "weighted" - "pure" anomaly weighted by "likelihood"
               (anomaly * likelihood)
+          - OR type function and will be used directly to compute score
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
          The transformation is applied after moving average is computed and updated.
@@ -145,12 +145,10 @@ class Anomaly(object):
 
 ############################################
 # implementations of compute() function
-  def computeRaw(self, active, prevPredicted, inputValue=None,
-                 timestamp=None):
+  def computeRaw(self, active, prevPredicted, inputValue=None, timestamp=None):
     return computeRawAnomalyScore(active, prevPredicted)
 
-  def computeLikelihood(self, activeColumns, prevPredictedColumns,
-                        inputValue, timestamp=None):
+  def computeLikelihood(self, active, prevPredicted, inputValue, ts=None):
     """Anomaly computed using the anomaly_likelihood score, 
        which models probability of (input, anomalyScore) pair.
     """
@@ -158,17 +156,15 @@ class Anomaly(object):
     if inputValue is None:
       raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
                        "requires 'inputValue' as parameter to compute() method. ")
-    rawScore = computeRawAnomalyScore(activeColumns, prevPredictedColumns)
-    probability = self._likelihood.anomalyProbability(
-          inputValue, rawScore, timestamp)
-    # low likelihood -> hi anomaly
-    return (1 - probability)
+    rawScore = computeRawAnomalyScore(active, prevPredicted)
+    probability = self._likelihood.anomalyProbability(inputValue, rawScore, ts)
+    return probability
 
-  def computeWeighted(self, active, prevPredicted,
-                      inputValue, timestamp=None):
+  def computeWeighted(self, active, prevPredicted, inputValue, timestamp=None):
     prob = computeLikelihood(active, prevPredicted, inputValue, timestamp)
     raw = computeRawAnomalyScore(active, prevPredicted)
     return (raw * prob)
+
 
 # support functions
   def __str__(self):
@@ -181,7 +177,6 @@ class Anomaly(object):
   def __setstate__(self, state):
     """deserialization"""
     self.__dict__.update(state)
-
     if not hasattr(self, '_mode'):
       self._mode = Anomaly.MODE_PURE
     if not hasattr(self, '_movingAverage'):
