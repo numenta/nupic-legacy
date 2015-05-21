@@ -23,6 +23,7 @@
 
 import numpy
 import collections
+from types import FunctionType
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.utils import MovingAverage
@@ -190,7 +191,16 @@ class Anomaly(object):
 
 
   def getComputeFn(self, mode):
-    # assing computeFn
+    """
+    assing compute() function to be used; 
+    all these functions must take these arguments:
+     activeColumns, prevPredictedColumns, inputValue=None, timestamp=None
+    and return anomaly score
+
+    @param mode   if string: we assign from Anomaly.MODE_* defined functions
+                  if func: we will use that function to compute anomaly score
+    @return a function that is used for anomaly computation
+    """
     if mode == Anomaly.MODE_PURE:
       return self.computeRaw
     elif mode == Anomaly.MODE_LIKELIHOOD:
@@ -199,5 +209,8 @@ class Anomaly(object):
     elif mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
       return self.computeWeighted
+    elif isinstance(mode, FunctionType):
+      print "Anomaly: using custom compute() function"
+      return mode
     else:
       raise ValueError("Anomaly: computeFn has to be one of '%s' but is '%s' " % (Anomaly._supportedModes, mode) )

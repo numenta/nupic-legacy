@@ -120,6 +120,14 @@ class AnomalyTest(unittest.TestCase):
     score = anomaly.computeRawAnomalyScore(array([]), array([]))
     self.assertEqual(score, 0)
 
+  def testAnomalyCustomFn(self):
+    """anomaly using custom compute() function"""
+    def dummyCompute(active, pred, inputVal, timestamp):
+      return 0.1337
+    anomalyComputer = anomaly.Anomaly(mode=dummyCompute)
+    score = anomalyComputer.compute(array([0, 0, 0]), array([0, 0, 0]))
+    self.assertEqual(score, 0.1337)
+
 
 if __name__ == "__main__":
   unittest.main()
