@@ -30,7 +30,7 @@ from pkg_resources import resource_filename
 from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
-from nupic.encoders import MultiEncoder
+from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
@@ -83,25 +83,24 @@ TP_PARAMS = {
 
 def createEncoder():
   """Create the encoder instance for our test and return it."""
+  consumption_args = {
+      "clipInput": True,
+      "maxval": 100.0,
+      "minval": 0.0,
+      "n": 50,
+      "name": u"consumption",
+      "w": 21
+  }
+  time_args = {
+      "name": u"timestamp_timeOfDay",
+      "timeOfDay": (21, 9.5)
+  }
+  consumption_encoder = ScalarEncoder(**consumption_args)
+  time_encoder = DateEncoder(**time_args)
+
   encoder = MultiEncoder()
-  encoder.addMultipleEncoders({
-      "consumption": {
-          "clipInput": True,
-          "fieldname": u"consumption",
-          "maxval": 100.0,
-          "minval": 0.0,
-          "n": 50,
-          "name": u"consumption",
-          "type": "ScalarEncoder",
-          "w": 21,
-      },
-      "timestamp_timeOfDay": {
-          "fieldname": u"timestamp",
-          "name": u"timestamp_timeOfDay",
-          "timeOfDay": (21, 9.5),
-          "type": "DateEncoder",
-      },
-  })
+  encoder.addEncoder(u"consumption", consumption_encoder)
+  encoder.addEncoder(u"timestamp", time_encoder)
 
   return encoder
 
