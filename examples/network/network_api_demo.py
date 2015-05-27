@@ -83,24 +83,13 @@ TP_PARAMS = {
 
 def createEncoder():
   """Create the encoder instance for our test and return it."""
-  consumption_args = {
-      "clipInput": True,
-      "maxval": 100.0,
-      "minval": 0.0,
-      "n": 50,
-      "name": u"consumption",
-      "w": 21
-  }
-  time_args = {
-      "name": u"timestamp_timeOfDay",
-      "timeOfDay": (21, 9.5)
-  }
-  consumption_encoder = ScalarEncoder(**consumption_args)
-  time_encoder = DateEncoder(**time_args)
+  consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
+      clipInput=True)
+  time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
 
   encoder = MultiEncoder()
-  encoder.addEncoder(u"consumption", consumption_encoder)
-  encoder.addEncoder(u"timestamp", time_encoder)
+  encoder.addEncoder("consumption", consumption_encoder)
+  encoder.addEncoder("timestamp", time_encoder)
 
   return encoder
 
