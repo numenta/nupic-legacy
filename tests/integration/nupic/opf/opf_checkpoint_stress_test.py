@@ -110,9 +110,10 @@ MODEL_PARAMS = {
             'steps': '1,5',
         },
 
-        'anomalyParams': {  u'anomalyCacheRecords': None,
-    u'autoDetectThreshold': None,
-    u'autoDetectWaitRecords': 2184},
+        'anomalyParams': {
+           u'anomalyCacheRecords': None,
+           u'autoDetectThreshold': 0.0,
+           u'autoDetectWaitRecords': 2184},
 
         'trainSPNetOnlyIfRequested': False,
     },

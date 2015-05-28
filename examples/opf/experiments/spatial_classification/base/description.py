@@ -311,7 +311,7 @@ config = {
 
         'anomalyParams': {   
           u'anomalyCacheRecords': None,
-          u'autoDetectThreshold': None,
+          u'autoDetectThreshold': 0.0,
           u'autoDetectWaitRecords': None
         },
 

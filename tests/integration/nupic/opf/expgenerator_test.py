@@ -1691,7 +1691,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       ],
       "iterationCount": -1,
       "anomalyParams": {
-        "autoDetectThreshold": 1.1,
+        "autoDetectThreshold": 0.9,
         "autoDetectWaitRecords": 0,
         "anomalyCacheRecords": 10
       }

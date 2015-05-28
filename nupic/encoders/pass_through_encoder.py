@@ -36,10 +36,10 @@ class PassThroughEncoder(Encoder):
   ############################################################################
   def __init__(self, n, w=None, name="pass_through", forced=False, verbosity=0):
     """
-    n -- is the total #bits in output
-    w -- is used to normalize the sparsity of the output, exactly w bits ON,
+    @param n -- is the total #bits in output
+    @param w -- is used to check the sparsity of the output, exactly w bits ON,
          if None (default) - do not alter the input, just pass it further.
-    forced -- if forced, encode will accept any data, and just return it back.
+    @param forced -- if forced, encode will accept any data, and just return it back.
     """
     self.n = n
     self.w = w
@@ -80,9 +80,9 @@ class PassThroughEncoder(Encoder):
       raise ValueError("Different input (%i) and output (%i) sizes." % (
           len(input), len(output)))
 
+    # check for requested sparsity in input data
     if self.w is not None and sum(input) != self.w:
-      raise ValueError("Input has %i bits but w was set to %i." % (
-          sum(input), self.w))
+      raise ValueError("Input has %i bits but w was set to %i." % (sum(input), self.w))
 
     output[:] = input[:]
 
