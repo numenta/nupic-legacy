@@ -729,11 +729,12 @@ class Network(engine.Network):
     from nupic.analysis import inspect    
     inspect(self)
 
-  def addCustomRegionPackage(self, path):
+  @staticmethod
+  def addCustomRegionPackage(path):
     """
     @doc:place_holder(Network.addCustomRegionPackage)
     """
-    engine.Network.addCustomRegionPackage(self, path)
+    engine.Network.addCustomRegionPackage(path)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')

@@ -119,7 +119,7 @@ def createNetwork(dataSource):
   sensor.dataSource = dataSource
 
   # Add custom region package to network
-  network.addCustomRegionPackage("custom")
+  Network.addCustomRegionPackage("custom")
 
   # Create the spatial pooler region
   SP_PARAMS["inputWidth"] = sensor.encoder.getWidth()
