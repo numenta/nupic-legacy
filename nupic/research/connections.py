@@ -239,6 +239,11 @@ class Connections(object):
 
 
   def write(self, proto):
+    """
+    Writes serialized data to proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+    """
     protoCells = proto.init('cells', self.numCells)
 
     for cell in xrange(self.numCells):
@@ -259,6 +264,13 @@ class Connections(object):
 
   @classmethod
   def read(cls, proto):
+    """
+    Reads deserialized data from proto object
+
+    @param proto (DynamicStructBuilder) Proto object
+
+    @return (Connections) Connections instance
+    """
     protoCells = proto.cells
     connections = cls(len(protoCells))
 
@@ -314,6 +326,17 @@ class Connections(object):
       if synapseSet != otherSynapseSet: return False
 
     return True
+
+
+  def __ne__(self, other):
+    """
+    Non-equality operator for Connections instances.
+    Checks if two instances are not functionally identical
+    (might have different internal state).
+
+    @param other (Connections) Connections instance to compare to
+    """
+    return not self.__eq__(other)
 
 
   def _synapseSetForSynapses(self, synapses):

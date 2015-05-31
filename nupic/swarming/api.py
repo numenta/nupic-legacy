@@ -84,10 +84,8 @@ def getSwarmModelParams(modelID):
   #  retrieving module params results in a leakage of pf_base_descriptionNN and
   #  pf_descriptionNN module imports for every call to getSwarmModelParams, so
   #  the leakage is unlimited when getSwarmModelParams is called by a
-  #  long-running process. This issue is presently being
-  #  tracked by the JIRA: https://issues.numenta.org/browse/NPC-225. An
-  #  alternate solution is to execute the guts of this function's logic in a
-  #  seprate process (via multiprocessing module).
+  #  long-running process.  An alternate solution is to execute the guts of 
+  #  this function's logic in a seprate process (via multiprocessing module).
   
   cjDAO = ClientJobsDAO.get()
   
