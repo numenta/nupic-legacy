@@ -730,11 +730,11 @@ class Network(engine.Network):
     inspect(self)
 
   @staticmethod
-  def addCustomRegionPackage(path):
+  def registerRegionPackage(path):
     """
-    @doc:place_holder(Network.addCustomRegionPackage)
+    @doc:place_holder(Network.registerRegionPackage)
     """
-    engine.Network.addCustomRegionPackage(path)
+    engine.Network.registerRegionPackage(path)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
