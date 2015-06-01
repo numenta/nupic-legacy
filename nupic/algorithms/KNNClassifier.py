@@ -597,7 +597,7 @@ class KNNClassifier(object):
       print "%s infer:" % (g_debugPrefix)
       print "  active inputs:",  _labeledInput(inputPattern,
                                                cellsPerCol=self.cellsPerCol)
-      print "  winner category:", int(winner)
+      print "  winner category:", winner
       print "  pct neighbors of each category:", inferenceResult
       print "  dist of each prototype:", dist
       print "  dist of each category:", categoryDist
