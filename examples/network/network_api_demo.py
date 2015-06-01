@@ -118,12 +118,9 @@ def createNetwork(dataSource):
   # Specify the dataSource as a file record stream instance
   sensor.dataSource = dataSource
 
-  # Add custom region package to network
-  Network.addCustomRegionPackage("custom")
-
   # Create the spatial pooler region
   SP_PARAMS["inputWidth"] = sensor.encoder.getWidth()
-  network.addRegion("spatialPoolerRegion", "py.MySPRegion", json.dumps(SP_PARAMS))
+  network.addRegion("spatialPoolerRegion", "py.SPRegion", json.dumps(SP_PARAMS))
 
   # Link the SP region to the sensor input
   network.link("sensor", "spatialPoolerRegion", "UniformLink", "")
