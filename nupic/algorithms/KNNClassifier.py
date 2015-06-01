@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2013-15, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -69,6 +69,8 @@ class KNNClassifier(object):
 
   def __init__(self,
       k=1,                       # The K in KNN
+      exact=False,               # Specifies exact matching for inferring class
+                                 # labels.
       distanceNorm=2.0,          # By default, we use L2 norm as distance metric
       distanceMethod='norm',     # The method used to compute distance. See
                                  # below for options
@@ -76,14 +78,17 @@ class KNNClassifier(object):
       doBinarization=False,      # Inputs are binarized.
       binarizationThreshold=0.5, # Threshold for binarization of inputs.
       useSparseMemory=True,      # Use sparse memory matrix
-      sparseThreshold=0.1,       # Anything below this threshold is considered zero.
+      sparseThreshold=0.1,       # Anything below this threshold is considered
+                                 # zero.
       relativeThreshold=False,   # Multiply the threshold by the max input value
       numWinners=0,              # Only numWinners elements of input are stored
       numSVDSamples=None,        # Number of samples to do SVD after
       numSVDDims=None,           # % of the dims to keep after SVD
-      fractionOfMax=None,        # The cut-off fraction in relation to the largest singular value when adaptive dimension selection is used
+      fractionOfMax=None,        # The cut-off fraction in relation to the
+                                 # largest singular value when adaptive
+                                 # dimension selection is used.
       verbosity=0,               # verbosity level (0: none, increasing integers
-                                 #  providing increasing levels of verbosity
+                                 # providing increasing levels of verbosity
       maxStoredPatterns=-1,      # Limits the maximum number of the training
                                  # patterns stored. When KNN learns in a fixed
                                  # capacity mode, the unused patterns are
@@ -119,6 +124,7 @@ class KNNClassifier(object):
     self.version = KNNCLASSIFIER_VERSION
 
     self.k = k
+    self.exact = exact
     self.distanceNorm = distanceNorm
     assert (distanceMethod in ('norm', 'rawOverlap', 'pctOverlapOfLarger',
                                'pctOverlapOfProto'))
@@ -553,10 +559,8 @@ class KNNClassifier(object):
 
     """
 
-
-    # If no categories learned yet (applies for first inference with
-    #  online learning)
     if len(self._categoryList) == 0:
+      # No categories learned yet; i.e. first inference w/ online learning.
       winner = 0
       inferenceResult = numpy.zeros(1)
       dist = numpy.ones(1)
@@ -565,21 +569,29 @@ class KNNClassifier(object):
     else:
       maxCategoryIdx = max(self._categoryList)
       inferenceResult = numpy.zeros(maxCategoryIdx+1)
-      dist = self._getDistances(inputPattern, partitionId = partitionId)
-
-      sorted = dist.argsort()
-
+      dist = self._getDistances(inputPattern, partitionId=partitionId)
       validVectorCount = len(self._categoryList) - self._categoryList.count(-1)
-      for j in sorted[:min(self.k, validVectorCount)]:
-        inferenceResult[self._categoryList[j]] += 1.0
 
-      winner = inferenceResult.argmax()
-      inferenceResult /= inferenceResult.sum()
+      # Loop through the indices of the nearest neighbors.
+      if self.exact:
+        exactMatches = numpy.where(dist==0.0)[0]
+        if exactMatches.any():
+          for i in exactMatches[:min(self.k, validVectorCount)]:
+            inferenceResult[self._categoryList[i]] += 1.0
+      else:
+        sorted = dist.argsort()
+        for j in sorted[:min(self.k, validVectorCount)]:
+          inferenceResult[self._categoryList[j]] += 1.0
 
+      # Prepare inference results.
+      if inferenceResult.any():
+        winner = inferenceResult.argmax()
+        inferenceResult /= inferenceResult.sum()
+      else:
+        winner = None
       categoryDist = min_score_per_category(maxCategoryIdx,
                                             self._categoryList, dist)
       categoryDist.clip(0, 1.0, categoryDist)
-
 
     if self.verbosity >= 1:
       print "%s infer:" % (g_debugPrefix)
