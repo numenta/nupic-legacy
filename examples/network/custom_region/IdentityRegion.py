@@ -18,7 +18,6 @@
 #
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
-import numpy
 from nupic.regions.PyRegion import PyRegion
 
 

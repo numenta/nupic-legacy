@@ -24,6 +24,7 @@ import copy
 import csv
 import json
 import os
+import sys
 
 from pkg_resources import resource_filename
 
@@ -83,8 +84,14 @@ def createNetwork(dataSource):
   sensor.dataSource = dataSource
 
   # CUSTOM REGION
+  # Add path to custom region to PYTHONPATH
+  # NOTE: Before using a custom region, please modify your PYTHONPATH
+  #export PYTHONPATH="<path to custom region module>:$PYTHONPATH"
+  #In this demo, we have modified it using sys.path.append since we need it to
+  #have an effect on this program.
+  sys.path.append(os.path.dirname(os.path.abspath(__file__)))
   # Add custom region package to network
-  Network.registerRegionPackage("")
+  Network.registerRegionPackage("custom_region")
 
   # Create a custom region
   I_PARAMS["dataWidth"] = sensor.encoder.getWidth()
