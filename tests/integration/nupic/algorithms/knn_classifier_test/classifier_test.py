@@ -20,6 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import copy
 import logging
 import time
 import unittest2 as unittest
@@ -60,16 +61,22 @@ class KNNClassifierTest(unittest.TestCase):
 
     LOGGER.info("\nTesting KNN Classifier on dense patterns")
     numPatterns, numClasses = getNumTestPatterns(short)
-    patterns = numpy.random.rand(numPatterns, 100)
+    patternSize = 100
+    patterns = numpy.random.rand(numPatterns, patternSize)
     patternDict = dict()
+    testDict = dict()
 
     # Assume there are no repeated patterns -- if there are, then
     # numpy.random would be completely broken.
+    # Patterns in testDict are identical to those in patternDict but for the
+    # first item.
     for i in xrange(numPatterns):
-      randCategory = numpy.random.randint(0, numClasses-1)
       patternDict[i] = dict()
       patternDict[i]['pattern'] = patterns[i]
-      patternDict[i]['category'] = randCategory
+      patternDict[i]['category'] = numpy.random.randint(0, numClasses-1)
+      testDict[i] = copy.deepcopy(patternDict[i])
+      testDict[i]['pattern'][:0.2*patternSize] = numpy.random.rand()
+      testDict[i]['category'] = None
 
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
 
@@ -84,24 +91,14 @@ class KNNClassifierTest(unittest.TestCase):
       "KNN Classifier with L1 norm test")
 
     # Test with exact matching classifications.
-    LOGGER.info("\nTesting KNN Classifier with exact matching training data")
-
+    LOGGER.info("\nTesting KNN Classifier with exact matching. For testing we "
+      "slightly alter the training data and expect None to be returned for the "
+      "classifications.")
     knnExact = KNNClassifier(k=1, exact=True)
-    failures += simulateClassifier(knnExact, patternDict, \
-      "KNN Classifier with exact matching test")
-
-    LOGGER.info("\nTesting KNN Classifier with exact matching never-before-"
-      "seen data")
-    testPatterns = numpy.random.rand(10, 100)
-    testDict = dict()
-    for i in xrange(10):
-      testDict[i] = dict()
-      testDict[i]['pattern'] = testPatterns[i]
-      testDict[i]['category'] = None
-
-    knn = KNNClassifier(k=1, exact=True)
-    failures += simulateClassifier(knn, patternDict, \
-      "KNN Classifier with exact matching test")
+    failures += simulateClassifier(knnExact, 
+                                   patternDict,
+                                   "KNN Classifier with exact matching test",
+                                   testDict=testDict)
 
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = (numpy.random.rand(numPatterns, 25) > 0.7).astype(RealNumpyDType)
@@ -280,10 +277,7 @@ def simulateClassifier(knn, patternDict, testName, testDict=None):
   tick = time.time()
   if testDict:
     LOGGER.info("Testing the classifier on the test set")
-    LOGGER.info("Number of patterns: %s", len(testDict))
-    for i in patternDict.keys():
-      LOGGER.info("Testing %s - %s %s", i, testDict[i]['category'], \
-        len(testDict[i]['pattern']))
+    for i in testDict.keys():
       winner, _inferenceResult, _dist, _categoryDist \
         = knn.infer(testDict[i]['pattern'])
       if winner != testDict[i]['category']:

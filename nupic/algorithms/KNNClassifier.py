@@ -575,10 +575,9 @@ class KNNClassifier(object):
       validVectorCount = len(self._categoryList) - self._categoryList.count(-1)
 
       # Loop through the indices of the nearest neighbors.
-      roundToZero = float(1)/len(inputPattern)
       if self.exact:
         # Is there an exact match in the distances?
-        exactMatches = numpy.where(dist<roundToZero)[0]
+        exactMatches = numpy.where(dist<0.00001)[0]
         if len(exactMatches) > 0:
           for i in exactMatches[:min(self.k, validVectorCount)]:
             inferenceResult[self._categoryList[i]] += 1.0
