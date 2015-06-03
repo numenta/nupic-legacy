@@ -69,13 +69,13 @@ class KNNClassifierTest(unittest.TestCase):
     # Assume there are no repeated patterns -- if there are, then
     # numpy.random would be completely broken.
     # Patterns in testDict are identical to those in patternDict but for the
-    # first item.
+    # first 2% of items.
     for i in xrange(numPatterns):
       patternDict[i] = dict()
       patternDict[i]['pattern'] = patterns[i]
       patternDict[i]['category'] = numpy.random.randint(0, numClasses-1)
       testDict[i] = copy.deepcopy(patternDict[i])
-      testDict[i]['pattern'][:0.2*patternSize] = numpy.random.rand()
+      testDict[i]['pattern'][:0.02*patternSize] = numpy.random.rand()
       testDict[i]['category'] = None
 
     LOGGER.info("\nTesting KNN Classifier with L2 norm")
