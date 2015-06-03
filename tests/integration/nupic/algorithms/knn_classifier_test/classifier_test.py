@@ -50,8 +50,6 @@ class KNNClassifierTest(unittest.TestCase):
       numpy.random.seed(42)
     else:
       seed_value = int(time.time())
-      # seed_value = 1276437656
-      #seed_value = 1277136651
       numpy.random.seed(seed_value)
       LOGGER.info('Seed used: %d', seed_value)
       f = open('seedval', 'a')
@@ -84,6 +82,26 @@ class KNNClassifierTest(unittest.TestCase):
     knnL1 = KNNClassifier(k=1, distanceNorm=1.0)
     failures += simulateClassifier(knnL1, patternDict, \
       "KNN Classifier with L1 norm test")
+
+    # Test with exact matching classifications.
+    LOGGER.info("\nTesting KNN Classifier with exact matching training data")
+
+    knnExact = KNNClassifier(k=1, exact=True)
+    failures += simulateClassifier(knnExact, patternDict, \
+      "KNN Classifier with exact matching test")
+
+    LOGGER.info("\nTesting KNN Classifier with exact matching never-before-"
+      "seen data")
+    testPatterns = numpy.random.rand(10, 100)
+    testDict = dict()
+    for i in xrange(10):
+      testDict[i] = dict()
+      testDict[i]['pattern'] = testPatterns[i]
+      testDict[i]['category'] = None
+
+    knn = KNNClassifier(k=1, exact=True)
+    failures += simulateClassifier(knn, patternDict, \
+      "KNN Classifier with exact matching test")
 
     numPatterns, numClasses = getNumTestPatterns(short)
     patterns = (numpy.random.rand(numPatterns, 25) > 0.7).astype(RealNumpyDType)
@@ -198,7 +216,6 @@ class KNNClassifierTest(unittest.TestCase):
     self.runTestPCAKNN(1)
 
 
-
 def simulateKMoreThanOne():
   """A small test with k=3"""
 
@@ -242,7 +259,7 @@ def simulateKMoreThanOne():
   return failures
 
 
-def simulateClassifier(knn, patternDict, testName):
+def simulateClassifier(knn, patternDict, testName, testDict=None):
   """Train this classifier instance with the given patterns."""
 
   failures = ""
@@ -257,17 +274,30 @@ def simulateClassifier(knn, patternDict, testName):
   knnString = cPickle.dumps(knn)
   LOGGER.info("Size of the classifier is %s", len(knnString))
 
-  LOGGER.info("Testing the classifier on the training set")
+  # Run the classifier to infer categories on either the training data, or the
+  # test data (of it's provided).
   error_count = 0
   tick = time.time()
-  LOGGER.info("Number of patterns: %s", len(patternDict))
-  for i in patternDict.keys():
-    LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
-      len(patternDict[i]['pattern']))
-    winner, _inferenceResult, _dist, _categoryDist \
-      = knn.infer(patternDict[i]['pattern'])
-    if winner != patternDict[i]['category']:
-      error_count += 1
+  if testDict:
+    LOGGER.info("Testing the classifier on the test set")
+    LOGGER.info("Number of patterns: %s", len(testDict))
+    for i in patternDict.keys():
+      LOGGER.info("Testing %s - %s %s", i, testDict[i]['category'], \
+        len(testDict[i]['pattern']))
+      winner, _inferenceResult, _dist, _categoryDist \
+        = knn.infer(testDict[i]['pattern'])
+      if winner != testDict[i]['category']:
+        error_count += 1
+  else:
+    LOGGER.info("Testing the classifier on the training set")
+    LOGGER.info("Number of patterns: %s", len(patternDict))
+    for i in patternDict.keys():
+      LOGGER.info("Testing %s - %s %s", i, patternDict[i]['category'], \
+        len(patternDict[i]['pattern']))
+      winner, _inferenceResult, _dist, _categoryDist \
+        = knn.infer(patternDict[i]['pattern'])
+      if winner != patternDict[i]['category']:
+        error_count += 1
   tock = time.time()
   LOGGER.info("Time Elapsed %s", tock-tick)
 
