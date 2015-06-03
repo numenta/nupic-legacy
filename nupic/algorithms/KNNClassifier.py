@@ -546,9 +546,11 @@ class KNNClassifier(object):
     This method returns a 4 item tuple:
     (winner, inferenceResult, dist, categoryDist)
       winner: The category with the greatest number of nearest neighbors within
-                the kth nearest neighbors
+                the kth nearest neighbors. If the inferenceResult contains no
+                neighbors, the value of winner is None; this applies to the case
+                of exact matching. 
       inferenceResult: A list of length numCategories, each entry contains the
-                number of neighbors within the top K neighbors that are in that
+                number of neighbors within the top k neighbors that are in that
                 category
       dist: A list of length numPrototypes. Each entry is the distance from
                 the unknown to that prototype. All distances are between 0 and
@@ -573,9 +575,11 @@ class KNNClassifier(object):
       validVectorCount = len(self._categoryList) - self._categoryList.count(-1)
 
       # Loop through the indices of the nearest neighbors.
+      roundToZero = float(1)/len(inputPattern)
       if self.exact:
-        exactMatches = numpy.where(dist==0.0)[0]
-        if exactMatches.any():
+        # Is there an exact match in the distances?
+        exactMatches = numpy.where(dist<roundToZero)[0]
+        if len(exactMatches) > 0:
           for i in exactMatches[:min(self.k, validVectorCount)]:
             inferenceResult[self._categoryList[i]] += 1.0
       else:
