@@ -27,6 +27,33 @@ definition of CLAClassifierRegion for a description.
 
 from PyRegion import PyRegion
 from nupic.algorithms.cla_classifier_factory import CLAClassifierFactory
+from nupic.algorithms.CLAClassifier import CLAClassifier
+from nupic.algorithms.cla_classifier_diff import CLAClassifierDiff
+from nupic.bindings.algorithms import FastCLAClassifier
+
+
+
+def getDefaultClassifierImp():
+  """
+  Return the default classifier implementation for this region.
+  """
+  return 'cpp'
+
+
+def getClassifierClass(clImp):
+  """ Return the class corresponding to the given clImp string
+  """
+  if clImp == 'py':
+    return CLAClassifier
+  elif clImp == 'cpp':
+    return FastCLAClassifier
+  elif clImp == 'diff':
+    return CLAClassifierDiff
+  else:
+    raise RuntimeError("Invalid clImp '%s'. Legal values are: 'py', "
+                       "'cpp', 'diff'" % (clImp))
+
+
 
 ###############################################################################
 class CLAClassifierRegion(PyRegion):
@@ -152,7 +179,7 @@ class CLAClassifierRegion(PyRegion):
                steps='1',
                alpha=0.001,
                clVerbosity=0,
-               implementation=None,
+               implementation=getDefaultClassifierImp(),   #'py', 'cpp'
                ):
 
     # Convert the steps designation to a list
@@ -160,6 +187,7 @@ class CLAClassifierRegion(PyRegion):
     self.stepsList = eval("[%s]" % (steps))
     self.alpha = alpha
     self.verbosity = clVerbosity
+    self.implementation = implementation
 
     # Initialize internal structures
     self._claClassifier = CLAClassifierFactory.create(
@@ -172,6 +200,35 @@ class CLAClassifierRegion(PyRegion):
     self.inferenceMode = False
 
     self._initEphemerals()
+
+
+  @classmethod
+  def read(cls, proto):
+    clRegion = object.__new__(cls)
+
+    clRegion.implementation = proto.classifierImp
+    clRegion._claClassifier = getClassifierClass(clRegion.implementation).read(proto.classifierInstance)
+
+    clRegion.learningMode = proto.learningMode
+    clRegion.inferenceMode = proto.inferenceMode
+
+    stepsStr = [str(int(i)) for i in clRegion._claClassifier.steps]
+    clRegion.steps = ', '.join(stepsStr)
+    clRegion.stepsList = clRegion._claClassifier.steps
+    clRegion.alpha = clRegion._claClassifier.alpha
+    clRegion.verbosity = clRegion._claClassifier.verbosity
+
+    clRegion._initEphemerals()
+
+    return clRegion
+
+
+  def write(self, proto):
+    proto.classifierImp = self.implementation
+    self._claClassifier.write(proto.classifierInstance)
+
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
 
 
   ###############################################################################
@@ -264,8 +321,8 @@ class CLAClassifierRegion(PyRegion):
     return self._claClassifier.compute( recordNum=recordNum,
                                         patternNZ=patternNZ,
                                         classification=classification,
-                                        learn = self.learningMode,
-                                        infer = self.inferenceMode)
+                                        learn=self.learningMode,
+                                        infer=self.inferenceMode)
 
 
 
