@@ -35,7 +35,7 @@ class IdentityRegion(PyRegion):
       raise ValueError("Parameter dataWidth must be > 0")
     
     self._dataWidth = dataWidth
-    PyRegion.__init__(self, **kwargs)
+    super(IdentityRegion, self).__init__(**kwargs)
 
 
   def initialize(self, inputs, outputs):
