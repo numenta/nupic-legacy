@@ -730,11 +730,12 @@ class Network(engine.Network):
     inspect(self)
 
   @staticmethod
-  def registerRegionPackage(path):
+  def registerRegionPackage(package):
     """
-    @doc:place_holder(Network.registerRegionPackage)
+    Adds the package to the list of packages the network can access for regions
+    package: name of Python package, that is reachable through the PYTHONPATH
     """
-    engine.Network.registerRegionPackage(path)
+    engine.Network.registerRegionPackage(package)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
