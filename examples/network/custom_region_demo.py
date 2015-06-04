@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -29,8 +29,8 @@ import sys
 from pkg_resources import resource_filename
 
 from nupic.data.file_record_stream import FileRecordStream
-from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
+from nupic.engine import Network
 
 _VERBOSITY = 0  # how chatty the demo should be
 _SEED = 1956  # the random seed used throughout
@@ -42,7 +42,7 @@ _NUM_RECORDS = 2000
 
 # Config field for IdentityRegion
 I_PARAMS = {
-    'dataWidth':0, # Replace
+    'dataWidth':1,
 }
 
 
@@ -86,20 +86,19 @@ def createNetwork(dataSource):
   # CUSTOM REGION
   # Add path to custom region to PYTHONPATH
   # NOTE: Before using a custom region, please modify your PYTHONPATH
-  #export PYTHONPATH="<path to custom region module>:$PYTHONPATH"
-  #In this demo, we have modified it using sys.path.append since we need it to
-  #have an effect on this program.
+  # export PYTHONPATH="<path to custom region module>:$PYTHONPATH"
+  # In this demo, we have modified it using sys.path.append since we need it to
+  # have an effect on this program.
   sys.path.append(os.path.dirname(os.path.abspath(__file__)))
   # Add custom region package to network
   Network.registerRegionPackage("custom_region")
 
   # Create a custom region
-  I_PARAMS["dataWidth"] = sensor.encoder.getWidth()
   network.addRegion("identityRegion", "py.IdentityRegion", json.dumps(I_PARAMS))
 
   # Link the Identity region to the sensor input
   network.link("sensor", "identityRegion", "UniformLink", "",
-               srcOutput="resetOut", destInput="data")
+                     srcOutput="resetOut", destInput="data")
 
   network.initialize()
 
@@ -112,20 +111,17 @@ def runNetwork(network, writer):
   :param network: a Network instance to run
   :param writer: a csv.writer instance to write output to
   """
-  sensorRegion = network.regions["sensor"]
+  identityRegion = network.regions["identityRegion"]
 
   prevPredictedColumns = []
 
-  i = 0
-  for _ in xrange(_NUM_RECORDS):
+  for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
     network.run(1)
 
-    # Write out the record number and consumption value.
-    consumption = sensorRegion.getOutputData("sourceOut")[0]
+    # Write out the record number and original value
+    consumption = identityRegion.getOutputData("data")[0]
     writer.writerow((i, consumption))
-
-    i += 1
 
 
 
