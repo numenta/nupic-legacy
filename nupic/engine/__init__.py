@@ -735,7 +735,7 @@ class Network(engine.Network):
     Adds the package to the list of packages the network can access for regions
     package: name of Python package, that is reachable through the PYTHONPATH
     """
-    engine.Network.registerRegionPackage(package)
+    engine.Network.registerPyRegionPackage(package)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
