@@ -30,28 +30,22 @@ class IdentityRegion(PyRegion):
   """
 
 
-  def __init__(self, dataWidth, **kwargs):
+  def __init__(self, dataWidth):
     if dataWidth <= 0:
       raise ValueError("Parameter dataWidth must be > 0")
     
     self._dataWidth = dataWidth
-    super(IdentityRegion, self).__init__(**kwargs)
 
 
   def initialize(self, inputs, outputs):
-    """"""
-    pass
+    assert len(inputs) == len(outputs), "Inputs and Outputs must be the same length"
 
 
   def compute(self, inputs, outputs):
     """
     Run one iteration of IdentityRegion's compute
     """
-    for k in inputs:
-      if k in outputs:
-          outputs[k][:] = inputs[k]
-      else:
-          outputs[k] = inputs[k].copy()
+    outputs["out"][:] = inputs["data"]
 
 
   @classmethod
@@ -64,9 +58,9 @@ class IdentityRegion(PyRegion):
         "description":IdentityRegion.__doc__,
         "singleNodeOnly":True,
         "inputs":{
-          "data":{
-            "description":"""The input vector.""",
-            "dataType":'Real32',
+          "in":{
+            "description":"The input vector.",
+            "dataType":"Real32",
             "count":0,
             "required":True,
             "regionLevel":False,
@@ -74,9 +68,9 @@ class IdentityRegion(PyRegion):
             "requireSplitterMap":False},
         },
         "outputs":{
-          "data":{
-            "description":"""A copy of the input vector.""",
-            "dataType":'Real32',
+          "out":{
+            "description":"A copy of the input vector.",
+            "dataType":"Real32",
             "count":0,
             "regionLevel":True,
             "isDefaultOutput":True},
@@ -84,11 +78,11 @@ class IdentityRegion(PyRegion):
 
         "parameters":{
           "dataWidth":{
-            "description":'Size of inputs',
-            "accessMode":'Read',
-            "dataType":'UInt32',
+            "description":"Size of inputs",
+            "accessMode":"Read",
+            "dataType":"UInt32",
             "count":1,
-            "constraints":''},
+            "constraints":""},
         },
     }
 

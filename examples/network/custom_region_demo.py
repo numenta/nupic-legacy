@@ -42,7 +42,7 @@ _NUM_RECORDS = 2000
 
 # Config field for IdentityRegion
 I_PARAMS = {
-    'dataWidth':1,
+    "dataWidth": 1,
 }
 
 
@@ -50,7 +50,7 @@ I_PARAMS = {
 def createEncoder():
   """Create the encoder instance for our test and return it."""
   consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
-      clipInput=True)
+                                      clipInput=True)
   time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
 
   encoder = MultiEncoder()
@@ -98,7 +98,7 @@ def createNetwork(dataSource):
 
   # Link the Identity region to the sensor input
   network.link("sensor", "identityRegion", "UniformLink", "",
-                     srcOutput="resetOut", destInput="data")
+               srcOutput="resetOut", destInput="in")
 
   network.initialize()
 
@@ -120,7 +120,7 @@ def runNetwork(network, writer):
     network.run(1)
 
     # Write out the record number and original value
-    consumption = identityRegion.getOutputData("data")[0]
+    consumption = identityRegion.getOutputData("out")[0]
     writer.writerow((i, consumption))
 
 
