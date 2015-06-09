@@ -31,11 +31,15 @@ import shutil
 import tempfile
 import unittest2 as unittest
 
+import capnp
 import numpy
 from pkg_resources import resource_filename
 
+from nupic.bindings.math import Random
+from nupic.bindings.proto import TemporalMemoryV1_capnp
 from nupic.research import fdrutilities
-from nupic.research.TP import TP
+from nupic.research.TP import TP, Segment, SegmentUpdate
+from nupic.test.test_framework_helpers import assertInstancesAlmostEqual
 
 COL_SET = set(range(500))
 
@@ -182,6 +186,59 @@ class TPTest(unittest.TestCase):
     self.assertTPsEqual(tp1, tp2)
     self.assertTPsEqual(tp1, tp3)
     self.assertTPsEqual(tp2, tp4)
+
+
+  def testWriteRead(self):
+    tp1 = TP(numberOfCols=2048, cellsPerColumn=32, initialPerm=0.21,
+             connectedPerm=0.5, minThreshold=11, newSynapseCount=20,
+             permanenceInc=0.1, permanenceDec=0.1, permanenceMax=1.0,
+             globalDecay=0.0, activationThreshold=14, doPooling=False,
+             segUpdateValidDuration=5, burnIn=2, collectStats=True,
+             seed=1960, verbosity=0, checkSynapseConsistency=False,
+             pamLength=3, maxInfBacktrack=10, maxLrnBacktrack=5, maxAge=0,
+             maxSeqLength=32, maxSegmentsPerCell=128, maxSynapsesPerSegment=32,
+             outputType='normal')
+    tp1.collectSequenceStats = True
+    tp1.resetStats()
+
+    with open(resource_filename(__name__, 'data/tp_input.csv'), 'r') as fin:
+      records = []
+      for bottomUpInStr in fin:
+        bottomUpIn = numpy.array(eval('[' + bottomUpInStr.strip() + ']'),
+                                 dtype='int32')
+        records.append(bottomUpIn)
+
+    i = 1
+    for r in records[:150]:
+      print i
+      i += 1
+      tp1.compute(r, True, True)
+
+    proto1 = TemporalMemoryV1_capnp.TemporalMemoryV1Proto.new_message()
+    tp1.write(proto1)
+
+    # Write the proto to a temp file and read it back into a new proto
+    with tempfile.TemporaryFile() as f:
+      proto1.write(f)
+      f.seek(0)
+      proto2 = TemporalMemoryV1_capnp.TemporalMemoryV1Proto.read(f)
+
+    # Load the deserialized proto
+    tp2 = TP.read(proto2)
+
+    membersToIgnore = tp1._getEphemeralMembers()
+    assertInstancesAlmostEqual(self, "", tp1, tp2,
+                               classesToCompare=[TP, Segment, SegmentUpdate],
+                               classesToIgnore=[Random],
+                               membersToIgnore=membersToIgnore)
+
+    for r in records[151:160]:
+      print i
+      i += 1
+      out1 = tp1.compute(r, True, True)
+      out2 = tp2.compute(r, True, True)
+
+      self.assertTrue(numpy.array_equal(out1, out2))
 
 
   def assertTPsEqual(self, tp1, tp2):
