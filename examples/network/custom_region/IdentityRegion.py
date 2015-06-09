@@ -38,14 +38,14 @@ class IdentityRegion(PyRegion):
 
 
   def initialize(self, inputs, outputs):
-    assert len(inputs) == len(outputs), "Inputs and Outputs must be the same length"
+    pass
 
 
   def compute(self, inputs, outputs):
     """
     Run one iteration of IdentityRegion's compute
     """
-    outputs["out"][:] = inputs["data"]
+    outputs["out"] = inputs["in"]
 
 
   @classmethod
