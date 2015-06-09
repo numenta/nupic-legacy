@@ -98,7 +98,7 @@ def createNetwork(dataSource):
 
   # Link the Identity region to the sensor input
   network.link("sensor", "identityRegion", "UniformLink", "",
-               srcOutput="resetOut", destInput="in")
+               srcOutput="sourceOut", destInput="in")
 
   network.initialize()
 
@@ -112,8 +112,6 @@ def runNetwork(network, writer):
   :param writer: a csv.writer instance to write output to
   """
   identityRegion = network.regions["identityRegion"]
-
-  prevPredictedColumns = []
 
   for i in xrange(_NUM_RECORDS):
     # Run the network for a single iteration
