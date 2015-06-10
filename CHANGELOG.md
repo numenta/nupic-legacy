@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.3
+
+* updated custom region methods and example to be static
+* demo for custom regions
+* Improve docstring for 'save' method and others.
+* allows custom regions
+* moved encoder changes to network_api_demo
+* updated network_api_demo in new file to make swapping out encoders easier
+* bit more explanation for MultiEncoder
+* Use different logic for determining whether or not to translate back into actual values from bucket indices
+* Switch over to C++ SpatialPooler where possible to speed up tests/build.
+* Finish implementation of TemporalMemory serialization
+
 ## 0.2.2
 
 * Fixed equality test for Connections class

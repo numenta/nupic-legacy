@@ -1478,7 +1478,7 @@ class TP(ConsolePrinterMixin):
     Suppose, in the current time step, the input pattern is D and you have not
     predicted D, so you need to backtrack. Suppose we can backtrack up to 6
     steps in the past, which path should we choose? From the table above, we can
-    see that the correct answer is to assume we are in seq 1. How do we
+    see that the correct answer is to assume we are in seq 4. How do we
     implement the backtrack to give us this right answer? The current
     implementation takes the following approach:
 

@@ -25,7 +25,6 @@ from nupic.encoders.base import Encoder
 
 
 
-############################################################################
 class PassThroughEncoder(Encoder):
   """Pass an encoded SDR straight to the model.
 
@@ -33,8 +32,8 @@ class PassThroughEncoder(Encoder):
   The input should be a 1-D array or numpy.ndarray of length n
   """
 
-  ############################################################################
-  def __init__(self, n, w=None, name="pass_through", forced=False, verbosity=0):
+  def __init__(self, n, w=None, name="pass_through", forced=False,
+               verbosity=0):
     """
     n -- is the total #bits in output
     w -- is used to normalize the sparsity of the output, exactly w bits ON,
@@ -49,49 +48,48 @@ class PassThroughEncoder(Encoder):
     self.encoders = None
     self.forced = forced
 
-  ############################################################################
+
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.string,)
 
-  ############################################################################
+
   def getWidth(self):
     return self.n
 
-  ############################################################################
+
   def getDescription(self):
     return self.description
 
-  ############################################################################
+
   def getScalars(self, input):
     """ See method description in base.py """
     return numpy.array([0])
 
-  ############################################################################
+
   def getBucketIndices(self, input):
     """ See method description in base.py """
     return [0]
 
-  ############################################################################
-  def encodeIntoArray(self, input, output):
+
+  def encodeIntoArray(self, inputVal, outputVal):
     """See method description in base.py"""
-    if len(input) != len(output):
+    if len(inputVal) != len(outputVal):
       raise ValueError("Different input (%i) and output (%i) sizes." % (
-          len(input), len(output)))
+          len(inputVal), len(outputVal)))
 
-    if self.w is not None and sum(input) != self.w:
+    if self.w is not None and sum(inputVal) != self.w:
       raise ValueError("Input has %i bits but w was set to %i." % (
-          sum(input), self.w))
+          sum(inputVal), self.w))
 
-    output[:] = input[:]
+    outputVal[:] = inputVal[:]
 
     if self.verbosity >= 2:
-      print "input:", input, "output:", output
-      print "decoded:", self.decodedToStr(self.decode(output))
+      print "input:", inputVal, "output:", outputVal
+      print "decoded:", self.decodedToStr(self.decode(outputVal))
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=""):
     """See the function description in base.py"""
 
@@ -99,23 +97,21 @@ class PassThroughEncoder(Encoder):
       fieldName = "%s.%s" % (parentFieldName, self.name)
     else:
       fieldName = self.name
-    # TODO: these methods should be properly implemented
+
     return ({fieldName: ([[0, 0]], "input")}, [fieldName])
 
 
-  ############################################################################
   def getBucketInfo(self, buckets):
     """See the function description in base.py"""
-    return [EncoderResult(value=0, scalar=0,
-                         encoding=numpy.zeros(self.n))]
+    return [EncoderResult(value=0, scalar=0, encoding=numpy.zeros(self.n))]
 
-  ############################################################################
+
   def topDownCompute(self, encoded):
     """See the function description in base.py"""
     return EncoderResult(value=0, scalar=0,
                          encoding=numpy.zeros(self.n))
 
-  ############################################################################
+
   def closenessScores(self, expValues, actValues, **kwargs):
     """Does a bitwise compare of the two bitmaps and returns a fractonal
     value between 0 and 1 of how similar they are.
