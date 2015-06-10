@@ -78,6 +78,17 @@ class AnomalyRegion(PyRegion):
     self.prevPredictedColumns = numpy.zeros([], dtype="float32")
 
 
+  @classmethod
+  def read(cls, proto):
+    anomalyRegion = object.__new__(cls)
+    anomalyRegion.prevPredictedColumns = numpy.array(proto.prevPredictedColumns)
+    return anomalyRegion
+
+
+  def write(self, proto):
+    proto.prevPredictedColumns = self.prevPredictedColumns.tolist()
+
+
   def initialize(self, inputs, outputs):
     pass
 
