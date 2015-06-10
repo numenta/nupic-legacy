@@ -21,8 +21,8 @@
 
 """Anomaly-related algorithms."""
 
-import numpy
 import collections
+import numpy
 from types import FunctionType
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
@@ -56,6 +56,7 @@ def computeRawAnomalyScore(activeColumns, prevPredictedColumns):
   else:
     # There are no active columns.
     score = 0.0
+
   return score
 
 

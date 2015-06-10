@@ -109,19 +109,20 @@ class AnomalyTest(unittest.TestCase):
 
 
   def testComputeAnomalySelectModePure(self):
-    """anomaly with selected mode (pure) """
+    """Anomaly with selected mode (pure) """
     anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
   def testComputeAnomalyEmpty(self):
-    """anomaly called with empty params """
+    """Anomaly called with empty params """
     score = anomaly.computeRawAnomalyScore(array([]), array([]))
     self.assertEqual(score, 0)
 
+
   def testAnomalyCustomFn(self):
-    """anomaly using custom compute() function"""
+    """Anomaly using custom compute() function"""
     def dummyCompute(active, pred, inputVal, timestamp):
       return 0.1337
     anomalyComputer = anomaly.Anomaly(mode=dummyCompute)

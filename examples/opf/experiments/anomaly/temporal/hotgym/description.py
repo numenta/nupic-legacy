@@ -23,6 +23,8 @@
 Anomaly hotgym example
 """
 
+from nupic.algorithms.anomaly import Anomaly
+
 from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
 
 from nupic.frameworks.opf.expdescriptionhelpers import (
@@ -34,14 +36,12 @@ from nupic.frameworks.opf.clamodelcallbacks import *
 from nupic.frameworks.opf.metrics import MetricSpec
 from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
-from nupic.support import aggregationDivide
 
 from nupic.frameworks.opf.opftaskdriver import (
                                             IterationPhaseSpecLearnOnly,
                                             IterationPhaseSpecInferOnly,
                                             IterationPhaseSpecLearnAndInfer)
-from nupic.algorithms.anomaly import Anomaly
-
+from nupic.support import aggregationDivide
 # Model Configuration Dictionary:
 #
 # Define the model parameters and adjust for any modifications if imported
