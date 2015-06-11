@@ -24,7 +24,6 @@
 
 CL_VERBOSITY = 0
 
-import cPickle as pickle
 import tempfile
 import unittest2 as unittest
 
@@ -64,9 +63,9 @@ class PassThroughEncoderTest(unittest.TestCase):
     bitmap[3] = 1
     bitmap[5] = 1
     out = e.encode(bitmap)
-    sum_expected = sum(bitmap)
-    sum_real = out.sum()
-    self.assertEqual(sum_real, sum_expected)
+    expectedSum = sum(bitmap)
+    realSum = out.sum()
+    self.assertEqual(realSum, expectedSum)
 
 
   def testClosenessScores(self):
