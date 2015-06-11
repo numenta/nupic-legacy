@@ -35,6 +35,7 @@ import sys
 from pkg_resources import resource_filename
 import unittest2 as unittest
 
+from nupic import NUPIC_ROOT
 from nupic.data import dictutils
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import aggregationDivide
@@ -118,7 +119,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
+      params = type('obj', (object,), {'installDir' : os.path.join(NUPIC_ROOT, '..')})
       g_myEnv = MyTestEnvironment(params)
 
 
