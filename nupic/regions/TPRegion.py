@@ -862,9 +862,9 @@ class TPRegion(PyRegion):
     elif name == 'lrnActiveStateT':
       return self.outputWidth
     elif name == "activeCellsIndices":
-      return 1
+      return self.outputWidth
     elif name == "predictedActiveCellsIndices":
-      return 1
+      return self.outputWidth
     else:
       raise Exception("Invalid output name specified")
 
