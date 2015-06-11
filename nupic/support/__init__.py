@@ -404,9 +404,6 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   configFilename = 'nupic-logging.conf'
   configFilePath = resource_filename("nupic.support", configFilename)
   
-  # if 'NTA_LOG_DIR' not in os.environ:
-  #  os.environ['NTA_LOG_DIR'] = os.path.join(NUPIC_ROOT, '../logs')
-  
   configLogDir = os.environ.get('NTA_LOG_DIR', None)
 
   # Load in the logging configuration file
