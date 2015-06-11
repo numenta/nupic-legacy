@@ -518,13 +518,14 @@ class TPRegion(PyRegion):
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
     if self.unionMode:
-      activeState = self._tfdr.getActiveState()
-      predictedState = self._tfdr.getPredictedState()
+      # Reshape so we are dealing with 1D arrays
+      activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
+      predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
       activeIndices = set(numpy.where(activeState != 0)[0])
       predictedIndices= set(numpy.where(predictedState != 0)[0])
       predictedActiveIndices = activeIndices & predictedIndices
-      outputs["activeCellsIndices"] = numpy.array(list(activeIndices), dtype=bool)
-      outputs["predictedActiveCellsIndices"] = numpy.array(list(predictedActiveIndices), dtype=bool)
+      outputs["activeCellsIndices"] = numpy.array(list(activeIndices), dtype=int)
+      outputs["predictedActiveCellsIndices"] = numpy.array(list(predictedActiveIndices), dtype=int)
 
 
   #############################################################################
