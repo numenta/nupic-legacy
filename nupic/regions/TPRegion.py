@@ -517,7 +517,8 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
-    if self.unionMode:
+    unionMode = getattr(self, "unionMode", False)
+    if unionMode:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
       predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
