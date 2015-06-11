@@ -36,8 +36,9 @@ try:
     from xml.etree.ElementTree import ParseError
 except ImportError:
     from xml.parsers.expat import ExpatError as ParseError
-import nupic
 
+import nupic
+from nupic import NUPIC_ROOT
 import nupic.support.configuration_base as configuration
 
 
@@ -519,7 +520,7 @@ class ConfigurationTest(unittest.TestCase):
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
-    self.assertEqual(result, [os.path.join(os.environ['NUPIC'],
+    self.assertEqual(result, [os.path.join(NUPIC_ROOT, '..',
                                            'config', 'default')])
 
   @patch.object(configuration.Configuration, '_configPaths',
