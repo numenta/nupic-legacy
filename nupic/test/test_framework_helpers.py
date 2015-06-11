@@ -33,6 +33,8 @@ by multiple mainstream test frameworks, such as pytest and nose.
 
 
 # Our current test framework is pytest
+import numbers
+import numpy
 import pytest
 
 
@@ -64,3 +66,62 @@ def tagTest(tag, comment=None):
       pass
   """
   return getattr(pytest.mark, tag)
+
+
+def assertInstancesAlmostEqual(testCase, name, obj1, obj2,
+                               classesToCompare=[],
+                               classesToIgnore=[],
+                               membersToIgnore=[]):
+  """Check that two instances have the very similar members"""
+
+  if type(obj1) in classesToIgnore or name in membersToIgnore:
+    pass
+  elif type(obj1) in classesToCompare:
+    # Here we update the list of which class instances that should not be
+    # parsed again in order to avoid an infinite recursion
+    newClassesToIgnore = list(classesToIgnore)
+    newClassesToIgnore.append(type(obj1))
+
+    keys1 = set(obj1.__dict__.keys()).copy()
+    keys2 = set(obj1.__dict__.keys()).copy()
+    for k in membersToIgnore:
+      if k in keys1:
+        keys1.remove(k)
+      if k in keys2:
+        keys2.remove(k)
+
+    testCase.assertSetEqual(keys1, keys2)
+    for k in keys1:
+      v1 = getattr(obj1, k)
+      v2 = getattr(obj2, k)
+      assertInstancesAlmostEqual(testCase, k, v1, v2,
+                                 classesToCompare,
+                                 newClassesToIgnore,
+                                 membersToIgnore)
+  elif isinstance(obj1, float) or isinstance(obj1, numpy.float32):
+    testCase.assertAlmostEqual(float(obj1), float(obj2), 4, name)
+  elif isinstance(obj1, numbers.Integral):
+    testCase.assertEqual(long(obj1), long(obj2), name)
+  elif isinstance(obj1, numpy.ndarray):
+    testCase.assertEqual(type(obj1), type(obj2), name)
+    testCase.assertEqual(obj1.dtype, obj2.dtype,
+                         "Key %s has differing dtypes: %s vs %s" % (
+                         name, obj1.dtype, obj2.dtype))
+    testCase.assertTrue(numpy.isclose(obj1, obj2).all(), name)
+  elif isinstance(obj1, list) or isinstance(obj1, tuple):
+    testCase.assertEqual(len(obj1), len(obj2), name)
+    for i in xrange(len(obj1)):
+      assertInstancesAlmostEqual(testCase, name, obj1[i], obj2[i],
+                                 classesToCompare,
+                                 classesToIgnore,
+                                 membersToIgnore)
+  elif isinstance(obj1, dict):
+    testCase.assertEqual(obj1.keys().sort(), obj2.keys().sort(), name)
+    for i in obj1.keys():
+      assertInstancesAlmostEqual(testCase, i, obj1[i], obj2[i],
+                                 classesToCompare,
+                                 classesToIgnore,
+                                 membersToIgnore)
+  else:
+    testCase.assertEqual(type(obj1), type(obj2), name)
+    testCase.assertEqual(obj1, obj2, name)
