@@ -1068,7 +1068,7 @@ class SpatialPooler(object):
     Note: experimentation was done a long time ago on the best way to initialize
     permanence values, but the history for this particular scheme has been lost.
     """
-    p =  (self._synPermConnected + (
+    p = self._synPermConnected + (
         self._synPermMax - self._synPermConnected)*self._random.getReal64()
 
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
