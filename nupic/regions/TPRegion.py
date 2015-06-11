@@ -210,7 +210,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       count=1,
       constraints='bool'),
 
-    unionMode=dict(
+    computePredictedActiveCellIndices=dict(
       description='1 if an union input is computed',
       accessMode='Create',
       dataType='UInt32',
@@ -305,7 +305,7 @@ class TPRegion(PyRegion):
                cellsSavePath='',
                temporalImp=gDefaultTemporalImp,
                anomalyMode=False,
-               unionMode=False,
+               computePredictedActiveCellIndices=False,
 
                **kwargs):
 
@@ -322,7 +322,7 @@ class TPRegion(PyRegion):
     self.learningMode   = True      # Start out with learning enabled
     self.inferenceMode  = False
     self.anomalyMode    = anomalyMode
-    self.unionMode = unionMode
+    self.computePredictedActiveCellIndices = computePredictedActiveCellIndices
     self.topDownMode    = False
     self.columnCount    = columnCount
     self.inputWidth     = inputWidth
@@ -517,8 +517,8 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
-    unionMode = getattr(self, "unionMode", False)
-    if unionMode:
+    computePredictedActiveCellIndices = getattr(self, "computePredictedActiveCellIndices", False)
+    if computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
       predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
