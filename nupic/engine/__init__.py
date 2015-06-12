@@ -730,6 +730,14 @@ class Network(engine.Network):
     inspect(self)
 
   @staticmethod
+  def registerRegion(regionClass):
+    """
+    Adds the module and class name for the region to the list of classes the network can use
+    regionClass: a pointer to a subclass of PyRegion
+    """
+    engine.Network.registerRegion(regionClass.__module__, regionClass.__name__)
+
+  @staticmethod
   def registerRegionPackage(package):
     """
     Adds the package to the list of packages the network can access for regions
