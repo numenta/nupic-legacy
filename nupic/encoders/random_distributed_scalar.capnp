@@ -1,6 +1,6 @@
 @0xa4f79e07a0df410d;
 
-using import "/nupic/bindings/proto/RandomProto.capnp".RandomProto;
+using import "../bindings/proto/RandomProto.capnp".RandomProto;
 
 # Next ID: 10
 struct RandomDistributedScalarEncoderProto {
