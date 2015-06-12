@@ -43,13 +43,13 @@ namespace nupic
     typedef std::map<std::string, Spec> SpecMap;    
   public:
     // Used by RegionImplFactory to create and cache a nodespec
-    static Spec * createSpec(const char * nodeType);
+    static Spec * createSpec(const char * nodeType, const char* className="");
 
     // Used by RegionImplFactory to destroy a node spec when clearing its cache
-    static void destroySpec(const char * nodeType);
+    static void destroySpec(const char * nodeType, const char* className="");
     
-    PyRegion(const char * module, const ValueMap & nodeParams, Region * region);
-    PyRegion(const char * module, BundleIO& bundle, Region * region);
+    PyRegion(const char * module, const ValueMap & nodeParams, Region * region, const char* className="");
+    PyRegion(const char * module, BundleIO& bundle, Region * region, const char* className="");
     virtual ~PyRegion();
 
     void serialize(BundleIO& bundle);
@@ -57,7 +57,7 @@ namespace nupic
 
     const Spec & getSpec();
 
-    static void createSpec(const char * nodeType, Spec & ns);
+    static void createSpec(const char * nodeType, Spec & ns, const char* className="");
 
     // RegionImpl interface
     
