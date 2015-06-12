@@ -517,8 +517,7 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
-    computePredictedActiveCellIndices = getattr(self, "computePredictedActiveCellIndices", False)
-    if computePredictedActiveCellIndices:
+    if self.computePredictedActiveCellIndices:
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
       predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
@@ -776,6 +775,9 @@ class TPRegion(PyRegion):
 
     if not hasattr(self, 'storeDenseOutput'):
       self.storeDenseOutput = False
+
+    if not hasattr(self, 'computePredictedActiveCellIndices'):
+      self.computePredictedActiveCellIndices = False
 
     self.__dict__.update(state)
     self._loaded = True
