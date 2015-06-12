@@ -93,7 +93,7 @@ extern "C"
   // createPyNode is used by the MultinodeFactory to create a C++ PyNode instance
   // That references a Python instance. The function tries to create a NuPIC 2.0
   // Py node first and if it fails it tries to create a NuPIC 1.x Py node
-  NTA_EXPORT void * NTA_createPyNode(const char * module, void * nodeParams, void * region, void ** exception)
+  NTA_EXPORT void * NTA_createPyNode(const char * module, void * nodeParams, void * region, void ** exception, const char* className)
   {
     try
     {
@@ -103,7 +103,7 @@ extern "C"
       ValueMap * valueMap = static_cast<nupic::ValueMap *>(nodeParams);
       Region * r = static_cast<nupic::Region*>(region);
       RegionImpl * p = NULL;
-      p = new nupic::PyRegion(module, *valueMap, r);
+      p = new nupic::PyRegion(module, *valueMap, r, className);
 
       return p;
     }
@@ -120,7 +120,7 @@ extern "C"
 
   // deserializePyNode is used by the MultinodeFactory to create a C++ PyNode instance
   // that references a Python instance which has been deserialized from saved state
-  NTA_EXPORT void * NTA_deserializePyNode(const char * module, void * bundle, void * region, void ** exception)
+  NTA_EXPORT void * NTA_deserializePyNode(const char * module, void * bundle, void * region, void ** exception, const char* className="")
   {
     try
     {
@@ -129,7 +129,7 @@ extern "C"
       Region * r = static_cast<nupic::Region*>(region);
       BundleIO *b = static_cast<nupic::BundleIO*>(bundle);
       RegionImpl * p = NULL;
-      p = new PyRegion(module, *b, r);
+      p = new PyRegion(module, *b, r, className);
       return p;
     }
     catch (nupic::Exception & e)
@@ -152,11 +152,11 @@ extern "C"
   // createSpec is used by the RegionImplFactory to get the node spec
   // and cache it. It is a static function so there is no need to instantiate
   // a dummy node, just to get its node spec.
-  NTA_EXPORT void * NTA_createSpec(const char * nodeType, void ** exception)
+  NTA_EXPORT void * NTA_createSpec(const char * nodeType, void ** exception, const char* className="")
   {
     try
     {
-      return PyRegion::createSpec(nodeType);
+      return PyRegion::createSpec(nodeType, className);
     }
     catch (nupic::Exception & e)
     {
@@ -171,11 +171,11 @@ extern "C"
 
   // destroySpec is used by the RegionImplFactory to destroy
   // a cached node spec.
-  NTA_EXPORT int NTA_destroySpec(const char * nodeType)
+  NTA_EXPORT int NTA_destroySpec(const char * nodeType, const char* className="")
   {
     try
     {
-      PyRegion::destroySpec(nodeType);
+      PyRegion::destroySpec(nodeType, className);
       return 0;
     }
     catch (...)
@@ -195,28 +195,38 @@ std::map<std::string, Spec> PyRegion::specs_;
 // Return the node spec pointer (that will be owned
 // by RegionImplFactory.
 //
-Spec * PyRegion::createSpec(const char * nodeType)
+Spec * PyRegion::createSpec(const char * nodeType, const char* className)
 {
   // If the node spec for a node type is requested more than once
   // return the exisiting one from the map.
-  if (specs_.find(nodeType) != specs_.end())
+  std::string name(nodeType);
+  std::string realClassName(className);
+  if (!name.empty() && !realClassName.empty())
+    name = name + "." + realClassName;
+
+  if (specs_.find(name) != specs_.end())
   {
-    Spec & ns = specs_[nodeType];
+    Spec & ns = specs_[name];
     return &ns;
   }
 
   Spec ns;
-  createSpec(nodeType, ns);
+  createSpec(nodeType, ns, className);
 
-  specs_[nodeType] = ns;
+  specs_[name] = ns;
   //NTA_DEBUG << "node type: " << nodeType << std::endl;
-  //NTA_DEBUG << specs_[nodeType].toString() << std::endl;
-  return &specs_[nodeType];
+  //NTA_DEBUG << specs_[name].toString() << std::endl;
+  return &specs_[name];
 }
 
-void PyRegion::destroySpec(const char * nodeType)
+void PyRegion::destroySpec(const char * nodeType, const char* className)
 {
-  specs_.erase(nodeType);
+  std::string name(nodeType);
+  std::string realClassName(className);
+  if (!name.empty() && !realClassName.empty())
+    name = name + "." + realClassName;
+
+  specs_.erase(name);
 }
 
 namespace nupic
@@ -282,14 +292,16 @@ static void prepareCreationParams(const ValueMap & vm, py::Dict & d)
   }
 };
 
-PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * region) : 
+PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * region, const char* className) :
   RegionImpl(region),
   module_(module)
 {
   
   NTA_CHECK(region != NULL);
 
-  std::string className = Path::getExtension(module_);
+  std::string realClassName(className);
+  if (realClassName.empty())
+    realClassName = Path::getExtension(module_);
 
   // Prepare the creation params as a tuple of PyObject pointers
   py::Tuple args((Py_ssize_t)0);
@@ -297,11 +309,11 @@ PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * re
   prepareCreationParams(nodeParams, kwargs);
 
   // Instantiate a node and assign it  to the node_ member
-  node_.assign(py::Instance(module_, className, args, kwargs));
+  node_.assign(py::Instance(module_, realClassName, args, kwargs));
   NTA_CHECK(node_);
 }
 
-PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region) :
+PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region, const char* className) :
   RegionImpl(region), 
   module_(module)
 
@@ -860,11 +872,14 @@ void PyRegion::compute()
 // Return the node spec pointer (that will be owned
 // by RegionImplFactory.
 //
-void PyRegion::createSpec(const char * nodeType, Spec & ns)
+void PyRegion::createSpec(const char * nodeType, Spec & ns, const char* className)
 {
   // Get the Python class object
-  std::string className = Path::getExtension(nodeType);
-  py::Class nodeClass(nodeType, className);
+  std::string realClassName(className);
+  if (realClassName.empty())
+    realClassName = Path::getExtension(nodeType);
+
+  py::Class nodeClass(nodeType, realClassName);
 
   // Get the node spec from the Python class
   py::Dict nodeSpec(nodeClass.invoke("getSpec", py::Tuple()));
@@ -907,7 +922,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 
     // Add an InputSpec object for each input spec dict
     std::ostringstream inputMessagePrefix;
-    inputMessagePrefix << "Region " << className
+    inputMessagePrefix << "Region " << realClassName
       << " spec has missing key for input section " << name << ": ";
 
     NTA_ASSERT(input.getItem("description") != nullptr)
@@ -965,7 +980,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 
     // Add an OutputSpec object for each output spec dict
     std::ostringstream outputMessagePrefix;
-    outputMessagePrefix << "Region " << className
+    outputMessagePrefix << "Region " << realClassName
       << " spec has missing key for output section " << name << ": ";
 
     NTA_ASSERT(output.getItem("description") != nullptr)
@@ -1014,7 +1029,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 
     // Add an ParameterSpec object for each output spec dict
     std::ostringstream parameterMessagePrefix;
-    parameterMessagePrefix << "Region " << className
+    parameterMessagePrefix << "Region " << realClassName
       << " spec has missing key for parameter section " << name << ": ";
 
     NTA_ASSERT(parameter.getItem("description") != nullptr)
@@ -1096,7 +1111,7 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns)
 
     // Add a CommandSpec object for each output spec dict
     std::ostringstream commandsMessagePrefix;
-    commandsMessagePrefix << "Region " << className
+    commandsMessagePrefix << "Region " << realClassName
       << " spec has missing key for commands section " << name << ": ";
 
     NTA_ASSERT(command.getItem("description") != nullptr)
