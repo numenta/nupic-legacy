@@ -211,7 +211,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       constraints='bool'),
 
     computePredictedActiveCellIndices=dict(
-      description='1 if an union input is computed',
+      description='1 if indices are needed',
       accessMode='Create',
       dataType='UInt32',
       count=1,
