@@ -56,9 +56,9 @@ class OPFExperimentResultsTest(unittest.TestCase):
     examples/prediction directory in the install tree (same as predictionDir)
 
     """
-    nupicDir = os.path.join(NUPIC_ROOT, "..")
+    nupicDir = os.path.join(NUPIC_ROOT)
 
-    opfDir = os.path.join(nupicDir, "examples", "opf")
+    opfDir = os.path.join(nupicDir, 'examples', 'opf')
 
     testDir = opfDir
 
@@ -96,7 +96,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = os.path.join(nupicDir, 'scripts',  'run_opf_experiment.py')
+    runExperiment = os.path.join(nupicDir, 'scripts', 'run_opf_experiment.py')
 
     # A list of experiments to run.  Valid attributes:
     #   experimentDir - Required, path to the experiment directory containing
