@@ -28,7 +28,6 @@ import numpy
 
 from nupic.regions.AnomalyRegion import AnomalyRegion
 from nupic.regions.AnomalyRegion_capnp import AnomalyRegionProto
-from nupic.test.test_framework_helpers import assertInstancesAlmostEqual
 
 
 
@@ -80,8 +79,7 @@ class AnomalyRegionTest(unittest.TestCase):
     # Load the deserialized proto
     anomalyRegion2 = AnomalyRegion.read(proto2)
 
-    assertInstancesAlmostEqual(self, "", anomalyRegion1, anomalyRegion2,
-                               classesToCompare=[AnomalyRegion])
+    self.assertEqual(anomalyRegion1, anomalyRegion2)
 
     for i in xrange(6, 10):
       inputs['predictedColumns'] = numpy.array(predictedColumns[i])
