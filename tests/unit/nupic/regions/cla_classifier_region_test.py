@@ -26,10 +26,8 @@ import unittest2 as unittest
 import capnp
 import numpy
 
-from nupic.algorithms.CLAClassifier import CLAClassifier
 from nupic.regions.CLAClassifierRegion import CLAClassifierRegion
 from nupic.regions.CLAClassifierRegion_capnp import CLAClassifierRegionProto
-from nupic.test.test_framework_helpers import assertInstancesAlmostEqual
 
 
 
@@ -62,8 +60,7 @@ class CLAClassifierRegionTest(unittest.TestCase):
     # Load the deserialized proto
     clRegion2 = CLAClassifierRegion.read(proto2)
 
-    assertInstancesAlmostEqual(self, "", clRegion1, clRegion2,
-                               classesToCompare=[CLAClassifierRegion, CLAClassifier])
+    self.assertEqual(clRegion1, clRegion1)
 
     result1 = clRegion1.customCompute(recordNum=1, patternNZ=input,
                                       classification={
