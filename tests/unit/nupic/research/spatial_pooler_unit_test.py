@@ -1188,6 +1188,11 @@ class SpatialPoolerTest(unittest.TestCase):
     numcon = (connected.nonzero()[0]).size
     self.assertGreater(numcon, 0)
     self.assertLess(numcon, sp._numInputs)
+    
+    minThresh = 0.0
+    maxThresh = sp._synPermMax
+    self.assertEqual(numpy.logical_and((perm >= minThresh),
+                                       (perm <= maxThresh)).all(), True)
 
 
   def testInitPermanence2(self):
