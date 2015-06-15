@@ -211,7 +211,7 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       constraints='bool'),
 
     computePredictedActiveCellIndices=dict(
-      description='1 if indices are needed',
+      description='1 if active and predicted active indices should be computed',
       accessMode='Create',
       dataType='UInt32',
       count=1,
@@ -521,12 +521,12 @@ class TPRegion(PyRegion):
       # Reshape so we are dealing with 1D arrays
       activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
       predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
-      activeIndices = set(numpy.where(activeState != 0)[0])
-      predictedIndices= set(numpy.where(predictedState != 0)[0])
-      predictedActiveIndices = activeIndices & predictedIndices
+      activeIndices = numpy.where(activeState != 0)[0]
+      predictedIndices= numpy.where(predictedState != 0)[0]
+      predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
       outputs["activeCells"].fill(0)
-      outputs["activeCells"][list(activeIndices)] = 1
-      outputs["predictedActiveCells"][list(predictedActiveIndices)] = 1
+      outputs["activeCells"][activeIndices] = 1
+      outputs["predictedActiveCells"][predictedActiveIndices] = 1
 
 
   #############################################################################
