@@ -524,8 +524,9 @@ class TPRegion(PyRegion):
       activeIndices = set(numpy.where(activeState != 0)[0])
       predictedIndices= set(numpy.where(predictedState != 0)[0])
       predictedActiveIndices = activeIndices & predictedIndices
-      outputs["activeCellsIndices"] = numpy.array(list(activeIndices), dtype=int)
-      outputs["predictedActiveCellsIndices"] = numpy.array(list(predictedActiveIndices), dtype=int)
+      outputs["activeCells"].fill(0)
+      outputs["activeCells"][list(activeIndices)] = 1
+      outputs["predictedActiveCells"][list(predictedActiveIndices)] = 1
 
 
   #############################################################################
@@ -586,15 +587,15 @@ class TPRegion(PyRegion):
           regionLevel=True,
           isDefaultOutput=False),
 
-        activeCellsIndices=dict(
-          description="The indices of the cells that are active",
+        activeCells=dict(
+          description="The cells that are active",
           dataType='Real32',
           count=0,
           regionLevel=True,
           isDefaultOutput=False),
 
-        predictedActiveCellsIndices=dict(
-          description="The indices of the cells that are active and predicted",
+        predictedActiveCells=dict(
+          description="The cells that are active and predicted",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -864,9 +865,9 @@ class TPRegion(PyRegion):
       return self.columnCount
     elif name == 'lrnActiveStateT':
       return self.outputWidth
-    elif name == "activeCellsIndices":
+    elif name == "activeCells":
       return self.outputWidth
-    elif name == "predictedActiveCellsIndices":
+    elif name == "predictedActiveCells":
       return self.outputWidth
     else:
       raise Exception("Invalid output name specified")
