@@ -91,10 +91,10 @@ def createNetwork(dataSource):
   # have an effect on this program.
   sys.path.append(os.path.dirname(os.path.abspath(__file__)))
   
-  custom_region = __import__("custom_region", fromlist=["IdentityRegion"])
+  from custom_region.identity_region import IdentityRegion
 
   # Add custom region class to the network
-  Network.registerRegion(custom_region.IdentityRegion.IdentityRegion)
+  Network.registerRegion(IdentityRegion)
 
   # Create a custom region
   network.addRegion("identityRegion", "py.IdentityRegion", json.dumps(I_PARAMS))

@@ -93,7 +93,8 @@ extern "C"
   // createPyNode is used by the MultinodeFactory to create a C++ PyNode instance
   // That references a Python instance. The function tries to create a NuPIC 2.0
   // Py node first and if it fails it tries to create a NuPIC 1.x Py node
-  NTA_EXPORT void * NTA_createPyNode(const char * module, void * nodeParams, void * region, void ** exception, const char* className)
+  NTA_EXPORT void * NTA_createPyNode(const char * module, void * nodeParams,
+      void * region, void ** exception, const char* className)
   {
     try
     {
@@ -103,6 +104,7 @@ extern "C"
       ValueMap * valueMap = static_cast<nupic::ValueMap *>(nodeParams);
       Region * r = static_cast<nupic::Region*>(region);
       RegionImpl * p = NULL;
+      std::cout << "NTA_createPyNode" << module << " " << className << std::endl;
       p = new nupic::PyRegion(module, *valueMap, r, className);
 
       return p;
@@ -129,6 +131,7 @@ extern "C"
       Region * r = static_cast<nupic::Region*>(region);
       BundleIO *b = static_cast<nupic::BundleIO*>(bundle);
       RegionImpl * p = NULL;
+      std::cout << "NTA_deserializePyNode" << module << " " << className << std::endl;
       p = new PyRegion(module, *b, r, className);
       return p;
     }
@@ -296,14 +299,17 @@ static void prepareCreationParams(const ValueMap & vm, py::Dict & d)
 
 PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * region, const char* className) :
   RegionImpl(region),
-  module_(module)
+  module_(module),
+  className_(className)
 {
   
   NTA_CHECK(region != NULL);
 
   std::string realClassName(className);
   if (realClassName.empty())
+  {
     realClassName = Path::getExtension(module_);
+  }
 
   // Prepare the creation params as a tuple of PyObject pointers
   py::Tuple args((Py_ssize_t)0);
@@ -317,7 +323,8 @@ PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * re
 
 PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region, const char* className) :
   RegionImpl(region), 
-  module_(module)
+  module_(module),
+  className_(className)
 
 {
   deserialize(bundle);
@@ -418,7 +425,7 @@ void PyRegion::deserialize(BundleIO& bundle)
 
 const Spec & PyRegion::getSpec()
 {
-  return *(PyRegion::createSpec(module_.c_str()));
+  return *(PyRegion::createSpec(module_.c_str(), className_.c_str()));
 }
 
 ////
@@ -879,7 +886,9 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns, const char* classNam
   // Get the Python class object
   std::string realClassName(className);
   if (realClassName.empty())
+  {
     realClassName = Path::getExtension(nodeType);
+  }
 
   py::Class nodeClass(nodeType, realClassName);
 

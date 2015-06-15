@@ -108,6 +108,7 @@ namespace nupic
   private:
     static SpecMap specs_;
     std::string module_;
+    std::string className_;
     py::Instance node_;
     std::set<boost::shared_ptr<PyArray<UInt64> > > splitterMaps_;
     // pointers rather than objects because Array doesnt
