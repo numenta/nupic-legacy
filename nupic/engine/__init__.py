@@ -735,15 +735,7 @@ class Network(engine.Network):
     Adds the module and class name for the region to the list of classes the network can use
     regionClass: a pointer to a subclass of PyRegion
     """
-    engine.Network.registerRegion(regionClass.__module__, regionClass.__name__)
-
-  @staticmethod
-  def registerRegionPackage(package):
-    """
-    Adds the package to the list of packages the network can access for regions
-    package: name of Python package, that is reachable through the PYTHONPATH
-    """
-    engine.Network.registerPyRegionPackage(package)
+    engine.Network.registerPyRegion(regionClass.__module__, regionClass.__name__)
 
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')

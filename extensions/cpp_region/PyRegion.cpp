@@ -156,7 +156,6 @@ extern "C"
   {
     try
     {
-      std::cout << "NTA_createSpec" << std::endl;
       return PyRegion::createSpec(nodeType, className);
     }
     catch (nupic::Exception & e)
@@ -202,7 +201,6 @@ Spec * PyRegion::createSpec(const char * nodeType, const char* className)
   // return the exisiting one from the map.
   std::string name(nodeType);
   std::string realClassName(className);
-  std::cout << nodeType << std::endl;
   if (!name.empty() && !realClassName.empty())
     name = name + "." + realClassName;
 
@@ -880,7 +878,6 @@ void PyRegion::createSpec(const char * nodeType, Spec & ns, const char* classNam
   std::string realClassName(className);
   if (realClassName.empty())
     realClassName = Path::getExtension(nodeType);
-  std::string << realClassName << std::endl;
 
   py::Class nodeClass(nodeType, realClassName);
 
