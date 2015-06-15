@@ -72,17 +72,17 @@ class SpatialPooler(object):
     """
     Parameters:
     ----------------------------
-    @param inputDimensions: 
+    @param inputDimensions:
       A list representing the dimensions of the input vector. Format is [height,
       width, depth, ...], where each value represents the size of the dimension.
       For a topology of one dimension with 100 inputs use 100, or [100]. For a
       two dimensional topology of 10x5 use [10,5].
-    @param columnDimensions: 
+    @param columnDimensions:
       A list representing the dimensions of the columns in the region. Format is
       [height, width, depth, ...], where each value represents the size of the
       dimension.  For a topology of one dimension with 2000 columns use 2000, or
       [2000]. For a three dimensional topology of 32x64x16 use [32, 64, 16].
-    @param potentialRadius: 
+    @param potentialRadius:
       This parameter determines the extent of the input that each column can
       potentially be connected to.  This can be thought of as the input bits
       that are visible to each column, or a 'receptiveField' of the field of
@@ -109,10 +109,10 @@ class SpatialPooler(object):
       (the size of which is set by the internally calculated inhibitionRadius,
       which is in turn determined from the average size of the connected
       potential pools of all columns). The inhibition logic will insure that
-      at most N columns remain ON within a local inhibition area, where 
+      at most N columns remain ON within a local inhibition area, where
       N = localAreaDensity * (total number of columns in inhibition area).
     @param numActiveColumnsPerInhArea:
-      An alternate way to control the density of the active columns. If 
+      An alternate way to control the density of the active columns. If
       numActiveColumnsPerInhArea is specified then localAreaDensity must be less than
       0, and vice versa.  When using numActiveColumnsPerInhArea, the inhibition logic
       will insure that at most 'numActiveColumnsPerInhArea' columns remain ON within a
@@ -155,7 +155,7 @@ class SpatialPooler(object):
       A number between 0 and 1.0, used to set a floor on how often a column
       should be activate.  Periodically, each column looks at the activity duty
       cycle of all other columns within its inhibition radius and sets its own
-      internal minimal acceptable duty cycle to: minPctDutyCycleAfterInh * 
+      internal minimal acceptable duty cycle to: minPctDutyCycleAfterInh *
       max(other columns' duty cycles).  On each iteration, any column whose duty
       cycle after inhibition falls below this computed value will get its
       internal boost factor increased.
@@ -614,17 +614,17 @@ class SpatialPooler(object):
     potential[:] = self._potentialPools.getRow(column)
 
 
-  def setPotential(self, column, potential):    
+  def setPotential(self, column, potential):
     """Sets the potential mapping for a given column. 'potential' size
     must match the number of inputs, and must be greater than _stimulusThreshold """
     assert(column < self._numColumns)
-    
+
     potentialSparse = numpy.where(potential > 0)[0]
     if len(potentialSparse) < self._stimulusThreshold:
       raise Exception("This is likely due to a " +
       "value of stimulusThreshold that is too large relative " +
       "to the input size.")
-    
+
     self._potentialPools.replaceSparseRow(column, potentialSparse)
 
 
@@ -797,12 +797,12 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param overlaps:       
+    @param overlaps:
                     An array containing the overlap score for each column.
                     The overlap score for a column is defined as the number
                     of synapses in a "connected state" (connected synapses)
                     that are connected to input bits which are turned on.
-    @param activeColumns:  
+    @param activeColumns:
                     An array containing the indices of the active columns,
                     the sparse set of columns which survived inhibition
     """
@@ -952,11 +952,11 @@ class SpatialPooler(object):
 
     Parameters:
     ----------------------------
-    @param inputVector:    
+    @param inputVector:
                     A numpy array of 0's and 1's that comprises the input to
                     the spatial pooler. There exists an entry in the array
                     for every input bit.
-    @param activeColumns:  
+    @param activeColumns:
                     An array containing the indices of the columns that
                     survived inhibition.
     """
@@ -1010,7 +1010,7 @@ class SpatialPooler(object):
       raise Exception("This is likely due to a " +
       "value of stimulusThreshold that is too large relative " +
       "to the input size. [len(mask) < self._stimulusThreshold]")
-    
+
     numpy.clip(perm, self._synPermMin, self._synPermMax, out=perm)
     while True:
       numConnected = numpy.nonzero(perm > self._synPermConnected)[0].size
@@ -1068,8 +1068,8 @@ class SpatialPooler(object):
     Note: experimentation was done a long time ago on the best way to initialize
     permanence values, but the history for this particular scheme has been lost.
     """
-    p =  (self._synPermConnected + self._random.getReal64() *
-      self._synPermActiveInc / 4.0)
+    p = self._synPermConnected + (
+        self._synPermMax - self._synPermConnected)*self._random.getReal64()
 
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
@@ -1591,7 +1591,7 @@ class SpatialPooler(object):
     """
     # original version was a float so check for anything less than 2
     if state['_version'] < 2:
-      # the wrapAround property was added in version 2, 
+      # the wrapAround property was added in version 2,
       # in version 1 the wrapAround parameter was True for SP initialization
       state['_wrapAround'] = True
     # update version property to current SP version
