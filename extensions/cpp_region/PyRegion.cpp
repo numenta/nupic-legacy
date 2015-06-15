@@ -104,7 +104,6 @@ extern "C"
       ValueMap * valueMap = static_cast<nupic::ValueMap *>(nodeParams);
       Region * r = static_cast<nupic::Region*>(region);
       RegionImpl * p = NULL;
-      std::cout << "NTA_createPyNode" << module << " " << className << std::endl;
       p = new nupic::PyRegion(module, *valueMap, r, className);
 
       return p;
@@ -131,7 +130,6 @@ extern "C"
       Region * r = static_cast<nupic::Region*>(region);
       BundleIO *b = static_cast<nupic::BundleIO*>(bundle);
       RegionImpl * p = NULL;
-      std::cout << "NTA_deserializePyNode" << module << " " << className << std::endl;
       p = new PyRegion(module, *b, r, className);
       return p;
     }
