@@ -125,7 +125,7 @@ config = {
             #
             # (value generated from DS_ENCODER_SCHEMA)
             'encoders': {
-                u'f':     {   
+                u'f':     {
 			'clipInput': True,
 			'fieldname': u'f',
     			'n': 100,
@@ -192,9 +192,9 @@ config = {
             # is correct here as opposed to 'columns')
             'synPermConnected': 0.1,
 
-            'synPermActiveInc': 0.1,
+            'synPermActiveInc': 0.05,
 
-            'synPermInactiveDec': 0.01,
+            'synPermInactiveDec': 0.008,
         },
 
         # Controls whether TP is enabled or disabled;
@@ -290,7 +290,7 @@ config = {
         'clParams': {
             # Classifier implementation selection.
             'implementation': 'cpp',
-            
+
             'regionName' : 'CLAClassifierRegion',
 
             # Classifier diagnostic output verbosity control;
