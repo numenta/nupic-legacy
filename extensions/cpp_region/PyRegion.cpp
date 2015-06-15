@@ -201,8 +201,9 @@ Spec * PyRegion::createSpec(const char * nodeType, const char* className)
   // return the exisiting one from the map.
   std::string name(nodeType);
   std::string realClassName(className);
-  if (!name.empty() && !realClassName.empty())
-    name = name + "." + realClassName;
+  name = name + ".";
+  if (!realClassName.empty())
+    name = name + realClassName;
 
   if (specs_.find(name) != specs_.end())
   {
@@ -223,8 +224,9 @@ void PyRegion::destroySpec(const char * nodeType, const char* className)
 {
   std::string name(nodeType);
   std::string realClassName(className);
-  if (!name.empty() && !realClassName.empty())
-    name = name + "." + realClassName;
+  name = name + ".";
+  if (!realClassName.empty())
+    name = name + realClassName;
 
   specs_.erase(name);
 }
