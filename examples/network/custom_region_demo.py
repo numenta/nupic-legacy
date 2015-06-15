@@ -90,8 +90,11 @@ def createNetwork(dataSource):
   # In this demo, we have modified it using sys.path.append since we need it to
   # have an effect on this program.
   sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-  # Add custom region package to network
-  Network.registerRegionPackage("custom_region")
+  
+  custom_region = __import__("custom_region", fromlist=["IdentityRegion"])
+
+  # Add custom region class to the network
+  Network.registerRegion(custom_region.IdentityRegion.IdentityRegion)
 
   # Create a custom region
   network.addRegion("identityRegion", "py.IdentityRegion", json.dumps(I_PARAMS))
