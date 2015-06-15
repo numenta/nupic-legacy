@@ -2,6 +2,8 @@ branches:
   except:
     - gh-pages
 
+sudo: required
+
 language: cpp
 
 os:
