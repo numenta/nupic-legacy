@@ -121,7 +121,8 @@ extern "C"
 
   // deserializePyNode is used by the MultinodeFactory to create a C++ PyNode instance
   // that references a Python instance which has been deserialized from saved state
-  NTA_EXPORT void * NTA_deserializePyNode(const char * module, void * bundle, void * region, void ** exception, const char* className="")
+  NTA_EXPORT void * NTA_deserializePyNode(const char * module, void * bundle,
+      void * region, void ** exception, const char* className="")
   {
     try
     {
@@ -204,7 +205,9 @@ Spec * PyRegion::createSpec(const char * nodeType, const char* className)
   std::string realClassName(className);
   name = name + ".";
   if (!realClassName.empty())
+  {
     name = name + realClassName;
+  }
 
   if (specs_.find(name) != specs_.end())
   {
@@ -227,7 +230,9 @@ void PyRegion::destroySpec(const char * nodeType, const char* className)
   std::string realClassName(className);
   name = name + ".";
   if (!realClassName.empty())
+  {
     name = name + realClassName;
+  }
 
   specs_.erase(name);
 }
