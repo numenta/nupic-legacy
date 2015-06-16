@@ -1791,7 +1791,7 @@ def _generateMetricSpecs(options):
 
   # -----------------------------------------------------------------------
   # Metrics for classification
-  elif inferenceType in (InferenceType.TemporalClassification):
+  elif inferenceType in (InferenceType.TemporalClassification,):
 
     metricName = 'avg_err'
     trivialErrorMetric = 'avg_err'
