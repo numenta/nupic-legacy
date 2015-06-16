@@ -26,8 +26,9 @@ import os
 import pprint
 import sys
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
-from nupic import NUPIC_ROOT
+
 from nupic.frameworks.opf.opfhelpers import (
   loadExperimentDescriptionScriptFromDir,
   getExperimentDescriptionInterfaceFromModule
@@ -48,7 +49,7 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    nupicDir = os.path.join(NUPIC_ROOT, "..")
+    nupicDir = resource_filename("nupic", "")
 
     examplesDir = os.path.join(nupicDir, "examples")
 
