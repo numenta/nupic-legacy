@@ -396,7 +396,7 @@ class CLAModel(Model):
       inferences = self._multiStepCompute(rawInput=inputRecord)
     # For temporal classification. Not used, and might not work anymore
     elif self._isClassificationModel():
-      inferences = self._classifcationCompute()
+      inferences = self._classificationCompute()
     else:
       inferences = self._anomalyCompute()
     
