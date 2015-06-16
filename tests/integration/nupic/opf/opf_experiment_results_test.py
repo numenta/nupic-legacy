@@ -31,7 +31,7 @@ import shutil
 from subprocess import call
 import time
 import unittest2 as unittest
-from pkg_resources import resource_filename
+from nupic import NUPIC_ROOT
 
 
 from nupic.data.file_record_stream import FileRecordStream
@@ -58,9 +58,9 @@ class OPFExperimentResultsTest(unittest.TestCase):
 
     """
 
-    nupicDir = resource_filename("nupic", "")
+    nupicDir = os.path.join(NUPIC_ROOT, '..')
 
-    opfDir = resource_filename("nupic", "examples/opf")
+    opfDir = os.path.join(nupicDir, "examples/opf")
 
     testDir = opfDir
 
