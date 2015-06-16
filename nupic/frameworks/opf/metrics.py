@@ -27,6 +27,7 @@ import numbers
 import copy
 import random
 import numpy as np
+import time
 
 from nupic.data.fieldmeta import FieldMetaType
 import nupic.math.roc_utils as roc
@@ -1477,16 +1478,20 @@ class MetricMulti(MetricsIface):
 
 ###################################
 class MetricSpeed(MetricAltMAPE):
-  """ this metric optimizes for speed - time per iteraton.
+  """ 
+  This metric optimizes for speed - time per iteraton.
+  Time is measured between each call of the metric's addInstance() method.
   """
   def __init__(self, metricSpec):
     super(MetricSpeed, self).__init__(metricSpec)
+    self._last = time.time() # get current time
 
   def getMetric(self):
     return {'value': self.err, "stats" : {"weights" : self.weights}}
 
   def addInstance(self, groundTruth, prediction, record = None):
-    time = record.get('time', None)
-    assert record is not None and time >= 0
-    return super(MetricSpeed, self).addInstance(0.0, time, record)
+    elapsed = time.time() - float(self._last) # compute diff
+    self._last = time.time() 
+    assert elapsed >= 0
+    return float(super(MetricSpeed, self).addInstance(0.0, elapsed, record))
 
