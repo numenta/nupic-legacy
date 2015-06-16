@@ -1194,6 +1194,7 @@ class SpatialPoolerTest(unittest.TestCase):
     self.assertEqual(numpy.logical_and((perm >= minThresh),
                                        (perm <= maxThresh)).all(), True)
 
+
   def testInitPermanence2(self):
     """
     Test initial permanence generation. ensure that permanence values

@@ -633,9 +633,8 @@ options = getCommandLineOptions()
 platform, bitness = getPlatformInfo()
 
 if platform == DARWIN_PLATFORM and not "ARCHFLAGS" in os.environ:
-  os.environ["ARCHFLAGS"] = "-arch x86_64"
-  #raise Exception("To build NuPIC in OS X, you must "
-  #                "`export ARCHFLAGS=\"-arch x86_64\"`.")
+  raise Exception("To build NuPIC in OS X, you must "
+                  "`export ARCHFLAGS=\"-arch x86_64\"`.")
 
 # Build and setup NuPIC
 cwd = os.getcwd()
