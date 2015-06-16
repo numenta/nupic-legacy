@@ -37,10 +37,11 @@ import time
 import math
 import uuid
 import tempfile
+from pkg_resources import resource_filename
 
 from optparse import OptionParser
 
-from nupic import NUPIC_ROOT
+
 from nupic.database.ClientJobsDAO import ClientJobsDAO
 from nupic.support import configuration, initLogging
 from nupic.support.unittesthelpers.testcasebase import (unittest,
@@ -256,8 +257,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = os.path.join(NUPIC_ROOT, '..', 'examples', 'prediction',
-                        'data', 'extra', 'qa', "hotgym", "qa_hotgym.csv")
+        dataPath = resource_filename("nupic.data", "extra/qa/hotgym/qa_hotgym.csv")
+        
       streamDef = dict(
         version = 1,
         info = "TestHypersearch",
