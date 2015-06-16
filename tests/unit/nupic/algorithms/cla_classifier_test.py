@@ -25,6 +25,7 @@
 CL_VERBOSITY = 0
 
 import cPickle as pickle
+import types
 import unittest2 as unittest
 
 import numpy
@@ -189,6 +190,13 @@ class CLAClassifierTest(unittest.TestCase):
                        learn=True, infer=True)
     self.assertSetEqual(set(result.keys()), set(('actualValues', 1)))
     self.assertEqual(result['actualValues'][4], 'D')
+
+    predictResult = c.compute(recordNum=2, patternNZ=[1, 5, 9],
+                              classification={'bucketIdx': 5,
+                                              'actValue': None},
+                              learn=True, infer=True)
+    for value in predictResult['actualValues']:
+      self.assertIsInstance(value, (types.NoneType, types.StringType))
 
 
   def testComputeCategory2(self):

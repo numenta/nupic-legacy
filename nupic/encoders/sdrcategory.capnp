@@ -1,6 +1,6 @@
 @0x8017c9c04559354c;
 
-using import "/nupic/bindings/proto/RandomProto.capnp".RandomProto;
+using import "../bindings/proto/RandomProto.capnp".RandomProto;
 
 # Next ID: 7
 struct SDRCategoryEncoderProto {
