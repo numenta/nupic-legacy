@@ -729,6 +729,14 @@ class Network(engine.Network):
     from nupic.analysis import inspect    
     inspect(self)
 
+  @staticmethod
+  def registerRegionPackage(package):
+    """
+    Adds the package to the list of packages the network can access for regions
+    package: name of Python package, that is reachable through the PYTHONPATH
+    """
+    engine.Network.registerPyRegionPackage(package)
+
   # Syntactic sugar properties
   regions = property(_getRegions, doc='@property:place_holder(Network.getRegions)')
   minPhase = property(engine.Network.getMinPhase, doc='@property:place_holder(Network.getMinPhase)')
