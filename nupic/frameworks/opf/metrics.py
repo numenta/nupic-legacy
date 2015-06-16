@@ -661,6 +661,8 @@ class MetricPassThruPrediction(MetricsIface):
     
   def addInstance(self, groundTruth, prediction, record = None):
     """Compute and store metric value"""
+    if prediction is None: # hack if None is passed #TODO when?
+      prediction = 0.0
     self.value = self.avg(prediction)
     
   def getMetric(self):
