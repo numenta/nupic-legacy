@@ -2862,9 +2862,8 @@ class HypersearchV2(object):
     #    other field.
     #  elif it's a classification search:
     #    the first sprint has N swarms, each with 1 field
-    inferenceType = modelDescription['modelParams']['inferenceType']
-    if not InferenceType.validate(inferenceType):
-      raise ValueError("Invalid inference type %s" %inferenceType)
+    inferenceTypeStr = modelDescription['modelParams']['inferenceType']
+    inferenceType = InferenceType[inferenceTypeStr]
 
     if inferenceType in [InferenceType.TemporalMultiStep,
                          InferenceType.NontemporalMultiStep]:

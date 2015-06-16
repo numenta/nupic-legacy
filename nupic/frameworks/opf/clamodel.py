@@ -921,7 +921,7 @@ class CLAModel(Model):
         sdict = stat.getStats()
         temporalStats.update(sdict)
 
-    ret[InferenceType.getLabel(InferenceType.TemporalNextStep)] = temporalStats
+    ret[InferenceType.TemporalNextStep.name] = temporalStats
 
 
     return ret
@@ -1435,7 +1435,7 @@ class CLAModel(Model):
       else:
         leafName = 'nonTemporal'+ "-network.nta"
     else:
-      leafName = InferenceType.getLabel(self.getInferenceType()) + "-network.nta"
+      leafName = self.getInferenceType().name + "-network.nta"
     path = os.path.join(extraDataDir, leafName)
     path = os.path.abspath(path)
     return path

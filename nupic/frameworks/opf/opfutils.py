@@ -33,6 +33,8 @@ from collections import namedtuple
 
 import nupic.data.jsonhelpers as jsonhelpers
 
+g_temporalInferenceElements = None
+
 
 
 @enum.unique
@@ -48,23 +50,20 @@ class InferenceElement(enum.Enum):
   multiStepBucketLikelihoods = 9
   multiStepBucketValues = 10
 
-  __inferenceInputMap = {
-    "prediction":               "dataRow",
-    "encodings":                "dataEncodings",
-    "classification":           "category",
-    "classConfidences":         "category",
-    "multiStepPredictions":     "dataDict",
-    "multiStepBestPredictions": "dataDict",
-  }
-
-  __temporalInferenceElements = None
-
   @staticmethod
   def getInputElement(inferenceElement):
     """ Get the sensor input element that corresponds to the given inference
     element. This is mainly used for metrics and prediction logging
     """
-    return InferenceElement.__inferenceInputMap.get(inferenceElement, None)
+    elementMap = {
+      "prediction":               "dataRow",
+      "encodings":                "dataEncodings",
+      "classification":           "category",
+      "classConfidences":         "category",
+      "multiStepPredictions":     "dataDict",
+      "multiStepBestPredictions": "dataDict",
+    }
+    return elementMap.get(inferenceElement.name, None)
 
   @staticmethod
   def isTemporal(inferenceElement):
@@ -78,11 +77,12 @@ class InferenceElement(enum.Enum):
     :param inferenceElement: the inference element
     :type inferenceElement: InferenceElement
     """
-    if InferenceElement.__temporalInferenceElements is None:
-      InferenceElement.__temporalInferenceElements = set(
+    global g_temporalInferenceElements
+    if g_temporalInferenceElements is None:
+      g_temporalInferenceElements = set(
           [InferenceElement.prediction])
 
-    return inferenceElement in InferenceElement.__temporalInferenceElements
+    return inferenceElement in g_temporalInferenceElements
 
   @staticmethod
   def getTemporalDelay(inferenceElement, key=None):
