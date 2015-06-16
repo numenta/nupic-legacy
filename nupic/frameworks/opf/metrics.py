@@ -1493,5 +1493,5 @@ class MetricSpeed(MetricAltMAPE):
     elapsed = time.time() - float(self._last) # compute diff
     self._last = time.time() 
     assert elapsed >= 0
-    return float(super(MetricSpeed, self).addInstance(0.0, elapsed, record))
+    return elapsed
 

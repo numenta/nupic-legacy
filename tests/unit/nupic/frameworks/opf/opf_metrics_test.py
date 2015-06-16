@@ -799,7 +799,7 @@ record={"test":gt[i]})
       time.sleep(rand_delay)
       metricValue = float(mSpeed.addInstance(0, 0))
 #      print metricValue
-      self.assertAlmostEqual(rand_delay, metricValue)
+      self.assertAlmostEqual(rand_delay, metricValue, 2) # check to 2 places only
 
 
 if __name__ == "__main__":
