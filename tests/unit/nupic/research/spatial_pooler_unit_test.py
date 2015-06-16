@@ -86,7 +86,7 @@ class SpatialPoolerTest(unittest.TestCase):
         localAreaDensity=-1.0,
         numActiveColumnsPerInhArea=3,
         stimulusThreshold=1,
-        synPermInactiveDec=0.01,
+        synPermInactiveDec=0.1,
         synPermActiveInc=0.1,
         synPermConnected=0.10,
         minPctOverlapDutyCycle=0.1,
@@ -111,7 +111,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
 
   def testCompute2(self):
-    """Checks that columns only change the permanence values for 
+    """Checks that columns only change the permanence values for
        inputs that are within their potential pool"""
 
     sp = SpatialPooler(
@@ -177,9 +177,9 @@ class SpatialPoolerTest(unittest.TestCase):
       maxBoost = 10.0,
       seed = 1956,
       spVerbosity = 0
-      
+
     )
-    
+
 
     inputVector = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -197,13 +197,13 @@ class SpatialPoolerTest(unittest.TestCase):
                    1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    
+
     inputArray = numpy.array(inputVector).astype(realDType)
-    
+
     activeArray = numpy.zeros(2048)
-    
+
     sp.compute(inputArray, 1, activeArray)
-    
+
     # Get only the active column indices
     spOutput = [i for i, v in enumerate(activeArray) if v != 0]
     self.assertEqual(spOutput, expectedOutput)
@@ -211,7 +211,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
   def testStripNeverLearned(self):
     sp = self._sp
-    
+
     sp._activeDutyCycles = numpy.array([0.5, 0.1, 0, 0.2, 0.4, 0])
     activeColumns = numpy.array([0, 1, 2, 4])
     stripped = sp.stripUnlearnedColumns(activeColumns)
@@ -431,7 +431,7 @@ class SpatialPoolerTest(unittest.TestCase):
     overlaps = randomState.random_sample(sp._numColumns)
     sp._inhibitColumns(overlaps)
     self.assertEqual(False, sp._inhibitColumnsGlobal.called)
-    self.assertEqual(True, sp._inhibitColumnsLocal.called)    
+    self.assertEqual(True, sp._inhibitColumnsLocal.called)
     self.assertEqual(trueDensity, density)
 
     # Test translation of numColumnsPerInhArea into local area density
@@ -564,7 +564,7 @@ class SpatialPoolerTest(unittest.TestCase):
     sp._inputDimensions = numpy.array( [3, 3])
                                     #   1  1
     trueAvgColumnPerInput = 1
-    self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)        
+    self.assertEqual(sp._avgColumnsPerInput(), trueAvgColumnPerInput)
 
     sp._columnDimensions = numpy.array([25])
     sp._inputDimensions = numpy.array( [5])
@@ -696,7 +696,7 @@ class SpatialPoolerTest(unittest.TestCase):
 
     for i in xrange(sp._numColumns):
       connectedSpan = sp._avgConnectedSpanForColumn2D(i)
-      self.assertEqual(trueAvgConnectedSpan[i], connectedSpan)     
+      self.assertEqual(trueAvgConnectedSpan[i], connectedSpan)
 
 
   def testAvgConnectedSpanForColumnND(self):
@@ -873,7 +873,7 @@ class SpatialPoolerTest(unittest.TestCase):
     trueMinActiveDutyCycles = sp._numColumns*[0.02*0.6]
     trueMinOverlapDutyCycles = sp._numColumns*[0.01*6]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i], 
+      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
                              sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
@@ -898,7 +898,7 @@ class SpatialPoolerTest(unittest.TestCase):
     trueMinOverlapDutyCycles = sp._numColumns * [0]
     trueMinActiveDutyCycles = sp._numColumns * [0]
     for i in xrange(sp._numColumns):
-      self.assertAlmostEqual(trueMinActiveDutyCycles[i], 
+      self.assertAlmostEqual(trueMinActiveDutyCycles[i],
                              sp._minActiveDutyCycles[i])
       self.assertAlmostEqual(trueMinOverlapDutyCycles[i],
                              sp._minOverlapDutyCycles[i])
@@ -959,11 +959,11 @@ class SpatialPoolerTest(unittest.TestCase):
         [0.300, 0.110, 0.080, 0.140, 0.000, 0.000, 0.000, 0.000],
       #   Inc     Dec   Dec    Inc      -      -      -     -
         [0.250, 0.000, 0.000, 0.000, 0.280, 0.110, 0.000, 0.440],
-      #   Inc      -      -     -      Inc    Dec    -     Dec  
+      #   Inc      -      -     -      Inc    Dec    -     Dec
         [0.000, 0.000, 0.000, 0.000, 0.000, 0.000, 0.210, 0.000],
-      #   -      -     Trim     -     -     -       Inc   - 
+      #   -      -     Trim     -     -     -       Inc   -
         [0.040, 0.000, 0.000, 0.000, 0.000, 0.000, 0.178, 0.000]]
-      #    -      -      -      -      -      -      -       -   
+      #    -      -      -      -      -      -      -       -
 
     sp._adaptSynapses(inputVector, activeColumns)
     for i in xrange(sp._numColumns):
@@ -1156,7 +1156,7 @@ class SpatialPoolerTest(unittest.TestCase):
   def testInitPermanence1(self):
     """
     test initial permanence generation. ensure that
-    a correct amount of synapses are initialized in 
+    a correct amount of synapses are initialized in
     a connected state, with permanence values drawn from
     the correct ranges
     """
@@ -1172,8 +1172,6 @@ class SpatialPoolerTest(unittest.TestCase):
     connected = (perm >= sp._synPermConnected).astype(int)
     numcon = (connected.nonzero()[0]).size
     self.assertEqual(numcon, 5)
-    maxThresh = sp._synPermConnected + sp._synPermActiveInc/4
-    self.assertEqual((perm <= maxThresh).all(), True)
 
     connectedPct = 0
     perm = sp._initPermanence(mask, connectedPct)
@@ -1190,11 +1188,11 @@ class SpatialPoolerTest(unittest.TestCase):
     numcon = (connected.nonzero()[0]).size
     self.assertGreater(numcon, 0)
     self.assertLess(numcon, sp._numInputs)
-
-    minThresh = sp._synPermActiveInc / 2.0
-    connThresh = sp._synPermConnected
+    
+    minThresh = 0.0
+    maxThresh = sp._synPermMax
     self.assertEqual(numpy.logical_and((perm >= minThresh),
-                                       (perm < connThresh)).any(), True)
+                                       (perm <= maxThresh)).all(), True)
 
 
   def testInitPermanence2(self):
