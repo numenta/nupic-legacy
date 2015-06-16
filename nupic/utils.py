@@ -69,8 +69,11 @@ class MovingAverage(object):
     if len(slidingWindow) == windowSize:
       total -= slidingWindow.pop(0)
 
-    slidingWindow.append(newVal)
-    total += newVal
+    if isinstance(newVal, numbers.Number):
+      total += newVal
+      slidingWindow.append(newVal)
+    else:
+      raise ValueError("MovingAverage: newVal must be a numeric type, but is: '%s' of type %s" %(newVal, type(newVal)) )
     return float(total) / len(slidingWindow), slidingWindow, total
 
 
