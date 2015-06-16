@@ -792,13 +792,11 @@ record={"test":gt[i]})
     """testing the speed metric"""
     ms = MetricSpec(field='a', metric='speed',  inferenceElement='multistepBestPredictions', params={'window': 1, 'steps': 1})
     mSpeed = getModule(ms)
-    print mSpeed
 
     for _ in xrange(5):
       rand_delay=np.random.randint(1, 10)/float(10)
       time.sleep(rand_delay)
       metricValue = float(mSpeed.addInstance(0, 0))
-#      print metricValue
       self.assertAlmostEqual(rand_delay, metricValue, 2) # check to 2 places only
 
 

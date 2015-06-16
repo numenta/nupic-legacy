@@ -1491,7 +1491,7 @@ class MetricSpeed(MetricAltMAPE):
 
   def addInstance(self, groundTruth, prediction, record = None):
     elapsed = time.time() - float(self._last) # compute diff
-    self._last = time.time() 
-    assert elapsed >= 0
+    self._last = time.time()
+    self.err = elapsed
     return elapsed
 
