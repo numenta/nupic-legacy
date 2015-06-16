@@ -269,7 +269,7 @@ class MetricsIface(object):
       @param prediction  The value predicted by the network at the current timestep
       @param record (opt) TODO explain?
 
-      @return return The average error as computed over the metric's window size
+      @return The average error as computed over the metric's window size
     """
 
   @abstractmethod
