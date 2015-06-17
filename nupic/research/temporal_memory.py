@@ -264,7 +264,7 @@ class TemporalMemory(object):
       for cell in prevMatchingCells:
         column = self.columnForCell(cell)
 
-        if not (column in activeColumns):
+        if column not in activeColumns:
           orphanCells.add(cell)
 
     return activeCells, winnerCells, predictedColumns, orphanCells
