@@ -19,18 +19,25 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import unittest
+import unittest2 as unittest
 
-from nupic.data.generators.sequence_machine import SequenceMachine
+from nupic.data.sequence_machine import SequenceMachine
 from nupic.research.monitor_mixin.temporal_memory_monitor_mixin import (
   TemporalMemoryMonitorMixin)
-from nupic.research.temporal_memory import TemporalMemory
+
+from nupic.bindings.algorithms import TemporalMemory
+
+# Uncomment the line below to run tests with Py TM implementation instead
+#from nupic.research.temporal_memory import TemporalMemory
+
 # Uncomment the lines below to run tests with TP10X2 implementation instead
 # from nupic.research.temporal_memory_shim import (
 #   TemporalMemoryShim as TemporalMemory)
+
 # Uncomment the lines below to run tests with FastTemporalMemory implementation
 # from nupic.research.fast_temporal_memory import (
 #   FastTemporalMemory as TemporalMemory)
+
 class MonitoredTemporalMemory(TemporalMemoryMonitorMixin, TemporalMemory): pass
 
 
@@ -70,7 +77,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
       if pattern is None:
         self.tm.reset()
       else:
-        self.tm.compute(pattern, learn=learn)
+        self.tm.compute(pattern, learn)
 
 
   # ==============================
@@ -81,4 +88,3 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
     params = dict(self.DEFAULT_TM_PARAMS)
     params.update(overrides or {})
     return params
-
