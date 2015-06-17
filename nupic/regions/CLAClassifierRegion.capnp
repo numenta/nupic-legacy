@@ -1,6 +1,6 @@
 @0xf091b1bb874049df;
 
-using import "/nupic/bindings/proto/ClaClassifier.capnp".ClaClassifierProto;
+using import "../bindings/proto/ClaClassifier.capnp".ClaClassifierProto;
 
 # Next ID: ???
 struct CLAClassifierRegionProto {
