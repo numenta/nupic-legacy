@@ -113,6 +113,11 @@ class FastTemporalMemory(TemporalMemory):
         - mark the segment as active
         - mark the cell as predictive
 
+      - for each distal dendrite segment with unconnected
+        activity >=  minThreshold
+        - mark the segment as matching
+        - mark the cell as matching
+
     Forward propagates activity from active cells to the synapses that touch
     them, to determine which synapses are active.
 
@@ -121,7 +126,9 @@ class FastTemporalMemory(TemporalMemory):
 
     @return (tuple) Contains:
                       `activeSegments`  (set),
-                      `predictiveCells` (set)
+                      `predictiveCells` (set),
+                      `matchingSegments` (set),
+                      `matchingCells`    (set)
     """
     activity = connections.computeActivity(list(activeCells),
                                            self.connectedPermanence,
@@ -129,7 +136,18 @@ class FastTemporalMemory(TemporalMemory):
     activeSegments = set(connections.activeSegments(activity))
     predictiveCells = set(connections.activeCells(activity))
 
-    return activeSegments, predictiveCells
+    if self.permanenceOrphanDecrement > 0:
+      activity = connections.computeActivity(list(activeCells),
+                                             0,
+                                             self.minThreshold)
+
+      matchingSegments = set(connections.activeSegments(activity))
+      matchingCells = set(connections.activeCells(activity))
+    else:
+      matchingSegments = set()
+      matchingCells = set()
+
+    return activeSegments, predictiveCells, matchingSegments, matchingCells
 
 
   # ==============================
