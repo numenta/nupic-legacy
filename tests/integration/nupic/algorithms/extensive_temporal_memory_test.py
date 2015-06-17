@@ -505,6 +505,44 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       self.tm.mmGetTraceUnpredictedActiveColumns())
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 3)
 
+  def testH10(self):
+    """Orphan Decay mechanism reduce predicted inactive cells (false prediction)
+    feed in noisy sequences (X = 0.05) to TM with and without orphan decay.
+    TM with orphan decay should has much less predicted inactive columns.
+    Parameters the same as B11, and sequences like H9."""
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+    sequenceNoisy = dict()
+    for i in xrange(10):
+      sequenceNoisy[i] = self.sequenceMachine.addSpatialNoise(sequence, 0.05)
+      self.feedTM(sequenceNoisy[i])
+
+    self._testTM(sequence)
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
+    predictedInactiveColumnsMean1 = predictedInactiveColumnsMetric.mean
+
+
+    self.init({"cellsPerColumn": 4,
+               "activationThreshold": 8,
+               "permanenceOrphanDecrement": 0.004})
+
+    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
+    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+
+    for _ in xrange(10):
+      self.feedTM(sequenceNoisy[i])
+
+    self._testTM(sequence)
+    predictedInactiveColumnsMetric = self.tm.mmGetMetricFromTrace(
+      self.tm.mmGetTracePredictedInactiveColumns())
+    predictedInactiveColumnsMean2 = predictedInactiveColumnsMetric.mean
+
+    self.assertTrue(predictedInactiveColumnsMean1 > 0)
+    self.assertTrue(predictedInactiveColumnsMean1 > predictedInactiveColumnsMean2)
 
   # ==============================
   # Overrides
