@@ -19,6 +19,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
+import numbers
 import os
 
 import numpy
@@ -93,7 +94,7 @@ def _buildArgs(f, self=None, kwargs={}):
       argName = argTuple[0]
       if argName in kwargs:
         # Argument was provided
-        argValue = kwargs.pop(argName)
+        argValue = kwargs[argName]
       else:
         # Argument was not provided; use the default value if there is one, and
         #  raise an exception otherwise
@@ -383,6 +384,106 @@ class SPRegion(PyRegion):
     self._spatialPoolerInput  = None
 
 
+  def __eq__(self, other):
+    membersToIgnore = self._getEphemeralMembersAll() + \
+                      ['_spatialArgs',
+                       '_spatialPoolerInput',
+                       '_spatialPoolerOutput']
+    for k, v1 in self.__dict__.iteritems():
+      if k in membersToIgnore:
+        pass
+      else:
+        if not k in other.__dict__:
+          print 'not found: ', k
+          return False
+        v2 = getattr(other, k)
+        if k in membersToIgnore:
+          pass
+        elif isinstance(v1, numpy.ndarray):
+          if v1.dtype != v2.dtype:
+            print v1, v2, k, 'v1.dtype != v2.dtype'
+            return False
+          if not numpy.isclose(v1, v2).all():
+            print v1, v2, k, 'not numpy.isclose(v1, v2).all()'
+            return False
+        elif isinstance(v1, float):
+          if abs(v1 - v2) > 0.00000001:
+            print v1, v2, k, 'abs(v1 - v2) > 0.00000001'
+            return False
+        elif isinstance(v1, numbers.Integral):
+          if long(v1) != long(v2):
+            print v1, v2, k, 'long(v1) != long(v2)'
+            return False
+        else:
+          if type(v1) != type(v2):
+            print v1, v2, k, 'type(v1) != type(v2)'
+            return False
+          if v1 != v2:
+            print v1, v2, k, 'v1 != v2'
+            return False
+    return True
+
+
+  def __ne__(self, other):
+    return not self == other
+
+
+  @classmethod
+  def read(cls, proto):
+    spRegion = object.__new__(cls)
+
+    spRegion.spatialImp = proto.spatialImp
+    spRegion.SpatialClass = getSPClass(spRegion.spatialImp)
+    spRegion._sfdr = spRegion.SpatialClass.read(proto.spatialInstance)
+    sArgTuples = _buildArgs(spRegion.SpatialClass.__init__, spRegion, spRegion._sfdr.__dict__)
+    spRegion._spatialArgNames = [t[0] for t in sArgTuples]
+
+    spRegion.columnCount = proto.columnCount
+    spRegion.inputWidth = proto.inputWidth
+    spRegion.learningMode = proto.learningMode
+    spRegion.inferenceMode = proto.inferenceMode
+    spRegion.anomalyMode = proto.anomalyMode
+    spRegion.topDownMode = proto.topDownMode
+
+    spRegion._loaded = True
+    spRegion._initializeEphemeralMembers()
+
+    spRegion.breakPdb = proto.breakPdb
+    spRegion.breakKomodo = proto.breakKomodo
+
+    spRegion.logPathInput = ''
+    spRegion.logPathOutput = ''
+    spRegion.logPathOutputDense = ''
+    spRegion._fpLogSPInput = None
+    spRegion._fpLogSP = None
+    spRegion._fpLogSPDense = None
+
+    spRegion._spatialPoolerOutput = numpy.zeros(spRegion.columnCount, dtype=GetNTAReal())
+    spRegion._spatialPoolerInput = numpy.zeros((1, spRegion.inputWidth), dtype=GetNTAReal())
+
+    return spRegion
+
+
+  def write(self, proto):
+    spatialImp = ''
+    if type(self._sfdr) == PYSpatialPooler:
+      spatialImp = 'py'
+    elif type(self._sfdr) == CPPSpatialPooler:
+      spatialImp = 'cpp'
+    proto.spatialImp = spatialImp
+    self._sfdr.write(proto.spatialInstance)
+
+    proto.columnCount = self.columnCount
+    proto.inputWidth = self.inputWidth
+    proto.learningMode = self.learningMode
+    proto.inferenceMode = self.inferenceMode
+    proto.anomalyMode = self.anomalyMode
+    proto.topDownMode = self.topDownMode
+
+    proto.breakPdb = self.breakPdb
+    proto.breakKomodo = self.breakKomodo
+
+
   #############################################################################
   #
   # Initialization code
@@ -454,10 +555,6 @@ class SPRegion(PyRegion):
     # Instantiate the spatial pooler class.
     if ( (self.SpatialClass == CPPSpatialPooler) or
          (self.SpatialClass == PYSpatialPooler) ):
-      
-      autoArgs['columnDimensions'] = [self.columnCount]
-      autoArgs['inputDimensions'] = [self.inputWidth]
-      autoArgs['potentialRadius'] = self.inputWidth
     
       self._sfdr = self.SpatialClass(
         **autoArgs

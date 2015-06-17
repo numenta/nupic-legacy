@@ -39,8 +39,8 @@ class Example(object):
     """
      Parameters:
      ----------
-     _inputDimensions: The size of the input. (m,n) will give a size m x n
-     _columnDimensions: The size of the 2 dimensional array of columns
+     inputDimensions: The size of the input. (m,n) will give a size m x n
+     columnDimensions: The size of the 2 dimensional array of columns
      """
     self.inputDimensions = inputDimensions
     self.columnDimensions = columnDimensions
