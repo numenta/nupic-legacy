@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # ----------------------------------------------------------------------
 # Numenta Platform for Intelligent Computing (NuPIC)
-# Copyright (C) 2013, Numenta, Inc.  Unless you have an agreement
+# Copyright (C) 2015, Numenta, Inc.  Unless you have an agreement
 # with Numenta, Inc., for a separate license for this software code, the
 # following terms and conditions apply:
 #
@@ -69,8 +69,8 @@ _TP_PARAMS = {
 }
 
 def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
-                             temporalParams=_TP_PARAMS,
-                             verbosity=_VERBOSITY):
+                          temporalParams=_TP_PARAMS,
+                          verbosity=_VERBOSITY):
   """Generates a Network with connected RecordSensor, SP, TP, Anomaly regions.
 
   This function takes care of generating regions and the canonical links.

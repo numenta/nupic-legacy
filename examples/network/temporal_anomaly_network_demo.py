@@ -25,8 +25,8 @@ network-demo2-output.csv, which should be identical to the csv
 outputted by network-api-demo.py (which does not use common_networks).
 """
 
-import os
 import csv
+import os
 
 from pkg_resources import resource_filename
 
@@ -38,6 +38,7 @@ _INPUT_FILE_PATH = resource_filename(
 )
 _OUTPUT_PATH = "network-demo2-output.csv"
 _NUM_RECORDS = 2000
+
 
 
 def runNetwork(network, writer):
