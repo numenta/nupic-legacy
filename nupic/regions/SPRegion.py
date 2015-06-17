@@ -559,6 +559,12 @@ class SPRegion(PyRegion):
       self._sfdr = self.SpatialClass(
         **autoArgs
       )
+
+      # Sometimes spatial processor can change parameters, so it's need update
+      # them after initialization
+      for name in self._spatialArgNames:
+        if hasattr(self._sfdr, name):
+          setattr(self, name, getattr(self._sfdr, name))
   
 
   #############################################################################

@@ -311,7 +311,6 @@ class SpatialPooler(object):
 
 
   def __eq__(self, other):
-    print "sp"
     for k, v1 in self.__dict__.iteritems():
       if not k in other.__dict__:
         print 'not found: ', k
