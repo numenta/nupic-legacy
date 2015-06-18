@@ -58,7 +58,7 @@ class TemporalMemory(object):
     @param maxNewSynapseCount        (int)   The maximum number of synapses added to a segment during learning.
     @param permanenceIncrement       (float) Amount by which permanences of synapses are incremented during learning.
     @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
-    @param permanenceOrphanDecrement (float) Amount by which active permanences of orphan segments are decremented.
+    @param permanenceOrphanDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
     @param seed                      (int)   Seed for the random number generator.
     """
     # Error checking
