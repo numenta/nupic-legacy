@@ -1947,7 +1947,7 @@ if __name__ == '__main__':
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
   parser.add_option(
-    "--installDir", dest="installDir", default=resource_filename("nupic",""),
+    "--installDir", dest="installDir", default=resource_filename("nupic", ""),
     help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
