@@ -257,7 +257,8 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
 
       # Form the stream definition
       if dataPath is None:
-        dataPath = resource_filename("nupic.data", os.path.join( "extra", "qa", "hotgym", "qa_hotgym.csv"))
+        dataPath = resource_filename("nupic.data", os.path.join("extra",
+        				"qa", "hotgym", "qa_hotgym.csv"))
         
       streamDef = dict(
         version = 1,
