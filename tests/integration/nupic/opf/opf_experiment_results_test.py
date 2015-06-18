@@ -58,7 +58,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
 
     """
 
-    opfDir = resource_filename("nupic", "../examples/opf")
+    opfDir = os.path.join(resource_filename("nupic", ""), "..", "examples", "opf")
 
     testDir = opfDir
 
