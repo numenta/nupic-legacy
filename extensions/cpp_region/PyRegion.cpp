@@ -300,7 +300,8 @@ static void prepareCreationParams(const ValueMap & vm, py::Dict & d)
   }
 };
 
-PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * region, const char* className) :
+PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region *
+                   region, const char* className) :
   RegionImpl(region),
   module_(module),
   className_(className)
@@ -324,7 +325,8 @@ PyRegion::PyRegion(const char * module, const ValueMap & nodeParams, Region * re
   NTA_CHECK(node_);
 }
 
-PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region, const char* className) :
+PyRegion::PyRegion(const char* module, BundleIO& bundle, Region * region, const
+                   char* className) :
   RegionImpl(region), 
   module_(module),
   className_(className)
