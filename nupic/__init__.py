@@ -21,5 +21,3 @@
 import os
 
 __version__ = "0.2.4.dev0"
-
-NUPIC_ROOT = os.environ.get('NUPIC', os.path.dirname(os.path.realpath(__file__)))
