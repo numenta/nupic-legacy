@@ -96,7 +96,7 @@ class OPFExperimentResultsTest(unittest.TestCase):
     # Run from the test directory so that we can find our experiments
     os.chdir(testDir)
 
-    runExperiment = resource_filename("nupic", "../scripts/run_opf_experiment.py")
+    runExperiment = os.path.join(resource_filename("nupic", ""), "..", "scripts", "run_opf_experiment.py")
 
     # A list of experiments to run.  Valid attributes:
     #   experimentDir - Required, path to the experiment directory containing
