@@ -29,21 +29,21 @@ import functools
 
 basicTypes = ['Byte', 'Int16', 'UInt16', 'Int32', 'UInt32', 'Int64', 'UInt64', 'Real32', 'Real64', 'Handle']
 
-pyRegions = {"nupic.regions.AnomalyRegion": "AnomalyRegion",
-           "nupic.regions.CLAClassifierRegion": "CLAClassifierRegion",
-           "nupic.regions.ImageSensor": "ImageSensor",
-           "nupic.regions.KNNAnomalyClassifierRegion": "KNNAnomalyClassifierRegion",
-           "nupic.regions.KNNClassifierRegion": "KNNClassifierRegion",
-           "nupic.regions.PCANode": "PCANode",
-           "nupic.regions.PyRegion": "PyRegion",
-           "nupic.regions.RecordSensor": "RecordSensor",
-           "nupic.regions.SPRegion": "SPRegion",
-           "nupic.regions.SVMClassifierNode": "SVMClassifierNode",
-           "nupic.regions.TPRegion": "TPRegion",
-           "nupic.regions.TestNode": "TestNode",
-           "nupic.regions.TestRegion": "TestRegion",
-           "nupic.regions.UnimportableNode": "UnimportableNode",
-           "nupic.regions.extra.GaborNode2": "GaborNode2"}
+pyRegions = (("nupic.regions.AnomalyRegion", "AnomalyRegion"),
+             ("nupic.regions.CLAClassifierRegion", "CLAClassifierRegion"),
+             ("nupic.regions.ImageSensor", "ImageSensor"),
+             ("nupic.regions.KNNAnomalyClassifierRegion", "KNNAnomalyClassifierRegion"),
+             ("nupic.regions.KNNClassifierRegion", "KNNClassifierRegion"),
+             ("nupic.regions.PCANode", "PCANode"),
+             ("nupic.regions.PyRegion", "PyRegion"),
+             ("nupic.regions.RecordSensor", "RecordSensor"),
+             ("nupic.regions.SPRegion", "SPRegion"),
+             ("nupic.regions.SVMClassifierNode", "SVMClassifierNode"),
+             ("nupic.regions.TPRegion", "TPRegion"),
+             ("nupic.regions.TestNode", "TestNode"),
+             ("nupic.regions.TestRegion", "TestRegion"),
+             ("nupic.regions.UnimportableNode", "UnimportableNode"),
+             ("nupic.regions.extra.GaborNode2", "GaborNode2"))
 
 
 # Import all the array types from engine (there is no HandleArray)
@@ -601,7 +601,7 @@ class Network(engine.Network):
     """
     # Initialize nupic regions
     if not Network.initializedRegions:
-      for module, className in pyRegions.iteritems():
+      for module, className in pyRegions:
         engine.Network.registerPyRegion(module, className)
       Network.initializedRegions = True
 
