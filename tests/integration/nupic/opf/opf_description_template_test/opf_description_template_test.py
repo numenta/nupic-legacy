@@ -49,7 +49,7 @@ class MyTestEnvironment(object):
 
   def __init__(self):
 
-    examplesDir = resource_filename("nupic", "../examples")
+    examplesDir = os.path.join(resource_filename("nupic", ""), "..", "examples")
 
     _debugOut("examplesDir=<%s>" % (examplesDir,))
 
