@@ -23,6 +23,8 @@
 Temporal Memory mixin that enables detailed monitoring of history.
 """
 
+import numpy
+
 from collections import defaultdict
 
 from prettytable import PrettyTable
@@ -327,7 +329,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
     # Append last cycle's predictiveCells to *predicTEDCells* trace
     self._mmTraces["predictedCells"].data.append(self.predictiveCells)
 
-    super(TemporalMemoryMonitorMixin, self).compute(activeColumns, **kwargs)
+    array = numpy.array(list(activeColumns), dtype='int32')
+    super(TemporalMemoryMonitorMixin, self).compute(len(array), array, True)
 
     # Append this cycle's predictiveCells to *predicTIVECells* trace
     self._mmTraces["predictiveCells"].data.append(self.predictiveCells)
