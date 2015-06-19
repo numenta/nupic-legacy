@@ -125,8 +125,8 @@ class FastTemporalMemory(TemporalMemory):
     @param connections (Connections) Connectivity of layer
 
     @return (tuple) Contains:
-                      `activeSegments`  (set),
-                      `predictiveCells` (set),
+                      `activeSegments`   (set),
+                      `predictiveCells`  (set),
                       `matchingSegments` (set),
                       `matchingCells`    (set)
     """
@@ -136,7 +136,7 @@ class FastTemporalMemory(TemporalMemory):
     activeSegments = set(connections.activeSegments(activity))
     predictiveCells = set(connections.activeCells(activity))
 
-    if self.permanenceOrphanDecrement > 0:
+    if self.predictedSegmentDecrement > 0:
       activity = connections.computeActivity(list(activeCells),
                                              0,
                                              self.minThreshold)
