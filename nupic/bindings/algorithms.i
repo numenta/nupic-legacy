@@ -1517,14 +1517,14 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
         permanenceDecrement, seed)
 
     def __getstate__(self):
-      # Save the local attributes but override the C++ spatial pooler with the
+      # Save the local attributes but override the C++ temporal memory with the
       # string representation.
       d = dict(self.__dict__)
       d["this"] = self.getCState()
       return d
 
     def __setstate__(self, state):
-      # Create an empty C++ TemporalMemory and populate it from the serialized
+      # Create an empty C++ temporal memory and populate it from the serialized
       # string.
       self.this = _ALGORITHMS.new_TemporalMemory()
       if isinstance(state, str):
@@ -1540,7 +1540,7 @@ inline PyObject* generate2DGaussianSample(nupic::UInt32 nrows, nupic::UInt32 nco
   inline void compute(UInt num, PyObject *py_x, bool learn)
   {
     PyArrayObject* x = (PyArrayObject*) py_x;
-    self->compute(num, (nupic::UInt*) x->data, (bool)learn);
+    self->compute((nupic::UInt)num, (nupic::UInt*) x->data, (bool)learn);
   }
 
   inline void write(PyObject* pyBuilder) const
