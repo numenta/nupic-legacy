@@ -234,7 +234,7 @@ class TemporalMemory(object):
           - mark it as winner cell
           - mark column as predicted
         - if not in active column
-          - mark it as an orphan cell (predicted but inactive)
+          - mark it as an predicted but inactive cell
 
     @param prevPredictiveCells (set) Indices of predictive cells in `t-1`
     @param activeColumns       (set) Indices of active columns in `t`
