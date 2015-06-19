@@ -66,14 +66,14 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns,
-    orphanCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            prevMatchingCells,
-                                                            activeColumns)
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells, set([1026, 26337, 26339]))
     self.assertEqual(winnerCells, set([1026, 26337, 26339]))
     self.assertEqual(predictedColumns, set([32, 823]))
-    self.assertEqual(orphanCells, set())
+    self.assertEqual(predictedInactiveCells, set())
 
 
   def testActivateCorrectlyPredictiveCellsEmpty(self):
@@ -87,14 +87,14 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns,
-    orphanCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            prevMatchingCells,
-                                                            activeColumns)
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
-    self.assertEqual(orphanCells, set())
+    self.assertEqual(predictedInactiveCells, set())
 
     # No previous predictive cells, with active columns
 
@@ -105,14 +105,14 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns,
-    orphanCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            prevMatchingCells,
-                                                            activeColumns)
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
-    self.assertEqual(orphanCells, set())
+    self.assertEqual(predictedInactiveCells, set())
 
     # No active columns, with previously predictive cells
 
@@ -123,14 +123,14 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns,
-    orphanCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            prevMatchingCells,
-                                                            activeColumns)
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells,      set())
     self.assertEqual(winnerCells,      set())
     self.assertEqual(predictedColumns, set())
-    # self.assertEqual(orphanCells, set([0, 237, 1026, 26337, 26339, 55536]))
+    self.assertEqual(predictedInactiveCells, set())
 
   def testActivateCorrectlyPredictiveCellsOrphan(self):
     tm = self.tm
@@ -142,14 +142,14 @@ class TemporalMemoryTest(unittest.TestCase):
     (activeCells,
     winnerCells,
     predictedColumns,
-    orphanCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
-                                                            prevMatchingCells,
-                                                            activeColumns)
+    predictedInactiveCells) = tm.activateCorrectlyPredictiveCells(prevPredictiveCells,
+                                                                  prevMatchingCells,
+                                                                  activeColumns)
 
     self.assertEqual(activeCells, set([]))
     self.assertEqual(winnerCells, set([]))
     self.assertEqual(predictedColumns, set([]))
-    self.assertEqual(orphanCells, set([32,47]))
+    self.assertEqual(predictedInactiveCells, set([32,47]))
 
   def testBurstColumns(self):
     tm = TemporalMemory(
@@ -240,7 +240,7 @@ class TemporalMemoryTest(unittest.TestCase):
     prevActiveCells = set([23, 37, 733])
     winnerCells = set([0])
     prevWinnerCells = set([10, 11, 12, 13, 14])
-    orphanCells = set()
+    predictedInactiveCells = set()
     prevMatchingSegments = set()
     tm.learnOnSegments(prevActiveSegments,
                        learningSegments,
@@ -248,9 +248,8 @@ class TemporalMemoryTest(unittest.TestCase):
                        winnerCells,
                        prevWinnerCells,
                        connections,
-                       orphanCells,
-                       prevMatchingSegments
-                       )
+                       predictedInactiveCells,
+                       prevMatchingSegments)
 
     # Check segment 0
     synapseData = connections.dataForSynapse(0)

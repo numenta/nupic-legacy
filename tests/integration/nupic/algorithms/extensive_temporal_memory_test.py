@@ -506,9 +506,9 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
     self.assertTrue(unpredictedActiveColumnsMetric.mean < 3)
 
   def testH10(self):
-    """Orphan Decay mechanism reduce predicted inactive cells (false prediction)
-    feed in noisy sequences (X = 0.05) to TM with and without orphan decay.
-    TM with orphan decay should has much less predicted inactive columns.
+    """Orphan Decay mechanism reduce predicted inactive cells (extra predictions).
+    Test feeds in noisy sequences (X = 0.05) to TM with and without orphan decay.
+    TM with orphan decay should has many fewer predicted inactive columns.
     Parameters the same as B11, and sequences like H9."""
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8})
@@ -528,10 +528,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8,
-               "permanenceOrphanDecrement": 0.004})
-
-    numbers = self.sequenceMachine.generateNumbers(2, 20, (10, 15))
-    sequence = self.sequenceMachine.generateFromNumbers(numbers)
+               "predictedSegmentDecrement": 0.004})
 
     for _ in xrange(10):
       self.feedTM(sequenceNoisy[i])
