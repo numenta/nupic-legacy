@@ -804,7 +804,7 @@ class ConfigurationCustomTest(unittest.TestCase):
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
     self.assertListEqual(result, [resource_filename("nupic", 
-                                    os.path.join("config", "default"))])
+                        os.path.join("config", "default"))])
 
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)
