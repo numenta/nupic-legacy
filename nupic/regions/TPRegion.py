@@ -20,6 +20,7 @@
 # ----------------------------------------------------------------------
 
 import os
+import numpy
 
 from nupic.research import TP
 from nupic.research import TP10X2
@@ -209,6 +210,14 @@ def _getAdditionalSpecs(temporalImp, kwargs={}):
       count=1,
       constraints='bool'),
 
+    computePredictedActiveCellIndices=dict(
+      description='1 if active and predicted active indices should be computed',
+      accessMode='Create',
+      dataType='UInt32',
+      count=1,
+      defaultValue=0,
+      constraints='bool'),
+
     anomalyMode=dict(
       description='1 if an anomaly score is being computed',
       accessMode='Create',
@@ -296,6 +305,7 @@ class TPRegion(PyRegion):
                cellsSavePath='',
                temporalImp=gDefaultTemporalImp,
                anomalyMode=False,
+               computePredictedActiveCellIndices=False,
 
                **kwargs):
 
@@ -312,6 +322,7 @@ class TPRegion(PyRegion):
     self.learningMode   = True      # Start out with learning enabled
     self.inferenceMode  = False
     self.anomalyMode    = anomalyMode
+    self.computePredictedActiveCellIndices = computePredictedActiveCellIndices
     self.topDownMode    = False
     self.columnCount    = columnCount
     self.inputWidth     = inputWidth
@@ -506,6 +517,18 @@ class TPRegion(PyRegion):
       size = activeLearnCells.shape[0] * activeLearnCells.shape[1]
       outputs['lrnActiveStateT'][:] = activeLearnCells.reshape(size)
 
+    if self.computePredictedActiveCellIndices:
+      # Reshape so we are dealing with 1D arrays
+      activeState = self._tfdr.getActiveState().reshape(-1).astype('float32')
+      predictedState = self._tfdr.getPredictedState().reshape(-1).astype('float32')
+      activeIndices = numpy.where(activeState != 0)[0]
+      predictedIndices= numpy.where(predictedState != 0)[0]
+      predictedActiveIndices = numpy.intersect1d(activeIndices, predictedIndices)
+      outputs["activeCells"].fill(0)
+      outputs["activeCells"][activeIndices] = 1
+      outputs["predictedActiveCells"].fill(0)
+      outputs["predictedActiveCells"][predictedActiveIndices] = 1
+
 
   #############################################################################
   #
@@ -560,6 +583,20 @@ class TPRegion(PyRegion):
         topDownOut=dict(
           description="""The top-down inputsignal, generated from
                         feedback from upper levels""",
+          dataType='Real32',
+          count=0,
+          regionLevel=True,
+          isDefaultOutput=False),
+
+        activeCells=dict(
+          description="The cells that are active",
+          dataType='Real32',
+          count=0,
+          regionLevel=True,
+          isDefaultOutput=False),
+
+        predictedActiveCells=dict(
+          description="The cells that are active and predicted",
           dataType='Real32',
           count=0,
           regionLevel=True,
@@ -741,6 +778,9 @@ class TPRegion(PyRegion):
     if not hasattr(self, 'storeDenseOutput'):
       self.storeDenseOutput = False
 
+    if not hasattr(self, 'computePredictedActiveCellIndices'):
+      self.computePredictedActiveCellIndices = False
+
     self.__dict__.update(state)
     self._loaded = True
     # Initialize all non-persistent base members, as well as give
@@ -825,6 +865,10 @@ class TPRegion(PyRegion):
     elif name == 'topDownOut':
       return self.columnCount
     elif name == 'lrnActiveStateT':
+      return self.outputWidth
+    elif name == "activeCells":
+      return self.outputWidth
+    elif name == "predictedActiveCells":
       return self.outputWidth
     else:
       raise Exception("Invalid output name specified")
