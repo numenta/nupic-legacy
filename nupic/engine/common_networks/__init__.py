@@ -20,33 +20,22 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-import copy
-import csv
 import json
-import os
 
 from pkg_resources import resource_filename
 
-from nupic.algorithms.anomaly import computeRawAnomalyScore
 from nupic.data.file_record_stream import FileRecordStream
 from nupic.engine import Network
 from nupic.encoders import MultiEncoder, ScalarEncoder, DateEncoder
 
-_VERBOSITY = 0  # how chatty the demo should be
-_SEED = 1956  # the random seed used throughout
-_INPUT_FILE_PATH = resource_filename(
-  "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
-)
-_OUTPUT_PATH = "network-demo-output.csv"
-_NUM_RECORDS = 2000
+_VERBOSITY = 0
 
-# Config field for SPRegion
-SP_PARAMS = {
+# Default config fields for SPRegion
+_SP_PARAMS = {
     "spVerbosity": _VERBOSITY,
     "spatialImp": "cpp",
     "globalInhibition": 1,
     "columnCount": 2048,
-    # This must be set before creating the SPRegion
     "inputWidth": 0,
     "numActiveColumnsPerInhArea": 40,
     "seed": 1956,
@@ -57,8 +46,8 @@ SP_PARAMS = {
     "maxBoost": 1.0,
 }
 
-# Config field for TPRegion
-TP_PARAMS = {
+# Default config fields for TPRegion
+_TP_PARAMS = {
     "verbosity": _VERBOSITY,
     "columnCount": 2048,
     "cellsPerColumn": 32,
@@ -79,48 +68,49 @@ TP_PARAMS = {
     "pamLength": 3,
 }
 
+def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
+                          temporalParams=_TP_PARAMS,
+                          verbosity=_VERBOSITY):
+  """Generates a Network with connected RecordSensor, SP, TP, Anomaly regions.
 
+  This function takes care of generating regions and the canonical links.
+  The network has a sensor region reading data from a specified input and
+  passing the encoded representation to an SPRegion.
+  The SPRegion output is passed to a TPRegion.
 
-def createEncoder():
-  """Create the encoder instance for our test and return it."""
-  consumption_encoder = ScalarEncoder(21, 0.0, 100.0, n=50, name="consumption",
-      clipInput=True)
-  time_encoder = DateEncoder(timeOfDay=(21, 9.5), name="timestamp_timeOfDay")
+  Note: this function returns a network that needs to be initialized. This
+  allows the user to extend the network by adding further regions and
+  connections.
+
+  :param recordParams: a dict with parameters for creating RecordSensor region.
+  :param spatialParams: a dict with parameters for creating SPRegion.
+  :param temporalParams: a dict with parameters for creating TPRegion.
+  :param verbosity: an integer representing how chatty the network will be.
+  """
+  inputFilePath= recordParams["inputFilePath"]
+  scalarEncoderArgs = recordParams["scalarEncoderArgs"]
+  dateEncoderArgs = recordParams["dateEncoderArgs"]
+
+  scalarEncoder = ScalarEncoder(**scalarEncoderArgs)
+  dateEncoder = DateEncoder(**dateEncoderArgs)
 
   encoder = MultiEncoder()
-  encoder.addEncoder("consumption", consumption_encoder)
-  encoder.addEncoder("timestamp", time_encoder)
+  encoder.addEncoder(scalarEncoderArgs["name"], scalarEncoder)
+  encoder.addEncoder(dateEncoderArgs["name"], dateEncoder)
 
-  return encoder
-
-
-
-def createNetwork(dataSource):
-  """Create the Network instance.
-
-  The network has a sensor region reading data from `dataSource` and passing
-  the encoded representation to an SPRegion. The SPRegion output is passed to
-  a TPRegion.
-
-  :param dataSource: a RecordStream instance to get data from
-  :returns: a Network instance ready to run
-  """
   network = Network()
 
-  # Our input is sensor data from the gym file. The RecordSensor region
-  # allows us to specify a file record stream as the input source via the
-  # dataSource attribute.
   network.addRegion("sensor", "py.RecordSensor",
-                    json.dumps({"verbosity": _VERBOSITY}))
+                    json.dumps({"verbosity": verbosity}))
+
   sensor = network.regions["sensor"].getSelf()
-  # The RecordSensor needs to know how to encode the input values
-  sensor.encoder = createEncoder()
-  # Specify the dataSource as a file record stream instance
-  sensor.dataSource = dataSource
+  sensor.encoder = encoder
+  sensor.dataSource = FileRecordStream(streamID=inputFilePath)
 
   # Create the spatial pooler region
-  SP_PARAMS["inputWidth"] = sensor.encoder.getWidth()
-  network.addRegion("spatialPoolerRegion", "py.SPRegion", json.dumps(SP_PARAMS))
+  spatialParams["inputWidth"] = sensor.encoder.getWidth()
+  network.addRegion("spatialPoolerRegion", "py.SPRegion",
+                    json.dumps(spatialParams))
 
   # Link the SP region to the sensor input
   network.link("sensor", "spatialPoolerRegion", "UniformLink", "")
@@ -133,7 +123,7 @@ def createNetwork(dataSource):
 
   # Add the TPRegion on top of the SPRegion
   network.addRegion("temporalPoolerRegion", "py.TPRegion",
-                    json.dumps(TP_PARAMS))
+                    json.dumps(temporalParams))
 
   network.link("spatialPoolerRegion", "temporalPoolerRegion", "UniformLink", "")
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
@@ -169,38 +159,3 @@ def createNetwork(dataSource):
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
-
-
-def runNetwork(network, writer):
-  """Run the network and write output to writer.
-
-  :param network: a Network instance to run
-  :param writer: a csv.writer instance to write output to
-  """
-  sensorRegion = network.regions["sensor"]
-  spatialPoolerRegion = network.regions["spatialPoolerRegion"]
-  temporalPoolerRegion = network.regions["temporalPoolerRegion"]
-  anomalyRegion = network.regions["anomalyRegion"]
-
-  prevPredictedColumns = []
-
-  for i in xrange(_NUM_RECORDS):
-    # Run the network for a single iteration
-    network.run(1)
-
-    # Write out the anomaly score along with the record number and consumption
-    # value.
-    anomalyScore = anomalyRegion.getOutputData("rawAnomalyScore")[0]
-    consumption = sensorRegion.getOutputData("sourceOut")[0]
-    writer.writerow((i, consumption, anomalyScore))
-
-
-if __name__ == "__main__":
-  dataSource = FileRecordStream(streamID=_INPUT_FILE_PATH)
-
-  network = createNetwork(dataSource)
-  outputPath = os.path.join(os.path.dirname(__file__), _OUTPUT_PATH)
-  with open(outputPath, "w") as outputFile:
-    writer = csv.writer(outputFile)
-    print "Writing output to %s" % outputPath
-    runNetwork(network, writer)
