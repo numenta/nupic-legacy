@@ -46,7 +46,7 @@ class TemporalMemory(object):
                maxNewSynapseCount=20,
                permanenceIncrement=0.10,
                permanenceDecrement=0.10,
-               permanenceOrphanDecrement = 0.004,
+               predictedSegmentDecrement = 0.004,
                seed=42):
     """
     @param columnDimensions          (list)  Dimensions of the column space
@@ -58,7 +58,7 @@ class TemporalMemory(object):
     @param maxNewSynapseCount        (int)   The maximum number of synapses added to a segment during learning.
     @param permanenceIncrement       (float) Amount by which permanences of synapses are incremented during learning.
     @param permanenceDecrement       (float) Amount by which permanences of synapses are decremented during learning.
-    @param permanenceOrphanDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
+    @param predictedSegmentDecrement (float) Amount by which active permanences of synapses of previously predicted but inactive segments are decremented.
     @param seed                      (int)   Seed for the random number generator.
     """
     # Error checking
@@ -80,7 +80,7 @@ class TemporalMemory(object):
     self.maxNewSynapseCount = maxNewSynapseCount
     self.permanenceIncrement = permanenceIncrement
     self.permanenceDecrement = permanenceDecrement
-    self.permanenceOrphanDecrement = permanenceOrphanDecrement
+    self.predictedSegmentDecrement = predictedSegmentDecrement
     # Initialize member variables
     self.connections = Connections(self.numberOfCells())
     self._random = Random(seed)
@@ -162,7 +162,7 @@ class TemporalMemory(object):
     (_activeCells,
      _winnerCells,
      predictedColumns,
-     orphanCells) = self.activateCorrectlyPredictiveCells(
+     predictedInactiveCells) = self.activateCorrectlyPredictiveCells(
        prevPredictiveCells,
        prevMatchingCells,
        activeColumns)
@@ -188,7 +188,7 @@ class TemporalMemory(object):
                            winnerCells,
                            prevWinnerCells,
                            connections,
-                           orphanCells,
+                           predictedInactiveCells,
                            prevMatchingSegments)
 
     (activeSegments,
@@ -240,15 +240,15 @@ class TemporalMemory(object):
     @param activeColumns       (set) Indices of active columns in `t`
 
     @return (tuple) Contains:
-                      `activeCells`      (set),
-                      `winnerCells`      (set),
-                      `predictedColumns` (set),
-                      `orphanCells`      (set)
+                      `activeCells`               (set),
+                      `winnerCells`               (set),
+                      `predictedColumns`          (set),
+                      `predictedInactiveCells`    (set)
     """
     activeCells = set()
     winnerCells = set()
     predictedColumns = set()
-    orphanCells = set()
+    predictedInactiveCells = set()
 
     for cell in prevPredictiveCells:
       column = self.columnForCell(cell)
@@ -258,16 +258,14 @@ class TemporalMemory(object):
         winnerCells.add(cell)
         predictedColumns.add(column)
 
-    if self.permanenceOrphanDecrement>0:
-      # If any cell was previously matching and we don't get bottom up activity
-      # in that column, mark it as an orphan cell.
+    if self.predictedSegmentDecrement > 0:
       for cell in prevMatchingCells:
         column = self.columnForCell(cell)
 
         if column not in activeColumns:
-          orphanCells.add(cell)
+          predictedInactiveCells.add(cell)
 
-    return activeCells, winnerCells, predictedColumns, orphanCells
+    return activeCells, winnerCells, predictedColumns, predictedInactiveCells
 
 
   def burstColumns(self,
@@ -333,9 +331,8 @@ class TemporalMemory(object):
                       winnerCells,
                       prevWinnerCells,
                       connections,
-                      orphanCells,
-                      prevMatchingSegments
-                      ):
+                      predictedInactiveCells,
+                      prevMatchingSegments):
     """
     Phase 3: Perform learning by adapting segments.
 
@@ -349,9 +346,9 @@ class TemporalMemory(object):
           - add some synapses to the segment
             - subsample from prev winner cells
 
-      - if permanenceOrphanDecrement > 0
+      - if predictedSegmentDecrement > 0
         - for each previously matching segment
-          - if cell is an orphan cell
+          - if cell is a predicted inactive cell
             - weaken active synapses but don't touch inactive synapses
 
 
@@ -361,7 +358,7 @@ class TemporalMemory(object):
     @param winnerCells                  (set)         Indices of winner cells in `t`
     @param prevWinnerCells              (set)         Indices of winner cells in `t-1`
     @param connections                  (Connections) Connectivity of layer
-    @param orphanCells                  (set)         Indices of orphan cells
+    @param predictedInactiveCells       (set)         Indices of predicted inactive cells
     @param prevMatchingSegments         (set)         Indices of segments with
     """
     for segment in prevActiveSegments | learningSegments:
@@ -387,17 +384,15 @@ class TemporalMemory(object):
                                     presynapticCell,
                                     self.initialPermanence)
 
-    if self.permanenceOrphanDecrement>0:
-      # Decrement segments that had some input previously but where the cells
-      # were marked as orphans
+    if self.predictedSegmentDecrement > 0:
       for segment in prevMatchingSegments:
-        isOrphanCell = connections.cellForSegment(segment) in orphanCells
+        isPredictedInactiveCell = connections.cellForSegment(segment) in predictedInactiveCells
         activeSynapses = self.activeSynapsesForSegment(
           segment, prevActiveCells, connections)
 
-        if isOrphanCell:
+        if isPredictedInactiveCell:
           self.adaptSegment(segment, activeSynapses, connections,
-                            -self.permanenceOrphanDecrement,
+                            -self.predictedSegmentDecrement,
                             0.0)
 
 
@@ -413,7 +408,7 @@ class TemporalMemory(object):
         - mark the segment as active
         - mark the cell as predictive
 
-      - if permanenceOrphanDecrement > 0
+      - if predictedSegmentDecrement > 0
         - for each distal dendrite segment with unconnected
           activity >=  minThreshold
           - mark the segment as matching
@@ -452,11 +447,7 @@ class TemporalMemory(object):
             activeSegments.add(segment)
             predictiveCells.add(connections.cellForSegment(segment))
 
-        if permanence > 0 and self.permanenceOrphanDecrement > 0:
-
-          # Measure whether segment has sufficient weak activity, defined as
-          # total active synapses >= minThreshold. A synapse is active if it
-          # exists ( permanence > 0) and does not have to be connected.
+        if permanence > 0 and self.predictedSegmentDecrement > 0:
           numActiveSynapsesForSegment[segment] += 1
 
           if numActiveSynapsesForSegment[segment] >= self.minThreshold:
@@ -594,11 +585,11 @@ class TemporalMemory(object):
     Updates synapses on segment.
     Strengthens active synapses; weakens inactive synapses.
 
-    @param segment        (int)         Segment index
-    @param activeSynapses (set)         Indices of active synapses
-    @param connections    (Connections) Connectivity of layer
-    @param permanenceIncrement (float)  Amount to increment active synapses
-    @param permanenceDecrement (float)  Amount to decrement inactive synapses
+    @param segment              (int)         Segment index
+    @param activeSynapses       (set)         Indices of active synapses
+    @param connections          (Connections) Connectivity of layer
+    @param permanenceIncrement  (float)  Amount to increment active synapses
+    @param permanenceDecrement  (float)  Amount to decrement inactive synapses
     """
     for synapse in connections.synapsesForSegment(segment):
       synapseData = connections.dataForSynapse(synapse)
@@ -729,7 +720,7 @@ class TemporalMemory(object):
     proto.maxNewSynapseCount = self.maxNewSynapseCount
     proto.permanenceIncrement = self.permanenceIncrement
     proto.permanenceDecrement = self.permanenceDecrement
-    proto.permanenceOrphanDecrement = self.permanenceOrphanDecrement
+    proto.predictedSegmentDecrement = self.predictedSegmentDecrement
 
     self.connections.write(proto.connections)
     self._random.write(proto.random)
@@ -762,7 +753,7 @@ class TemporalMemory(object):
     tm.maxNewSynapseCount = int(proto.maxNewSynapseCount)
     tm.permanenceIncrement = proto.permanenceIncrement
     tm.permanenceDecrement = proto.permanenceDecrement
-    tm.permanenceOrphanDecrement = proto.permanenceOrphanDecrement
+    tm.predictedSegmentDecrement = proto.predictedSegmentDecrement
 
     tm.connections = Connections.read(proto.connections)
     tm._random = Random()
@@ -801,7 +792,7 @@ class TemporalMemory(object):
       return False
     if abs(self.permanenceDecrement - other.permanenceDecrement) > epsilon:
       return False
-    if abs(self.permanenceOrphanDecrement - other.permanenceOrphanDecrement) > epsilon:
+    if abs(self.predictedSegmentDecrement - other.predictedSegmentDecrement) > epsilon:
       return False
 
     if self.connections != other.connections: return False
