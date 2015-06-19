@@ -110,14 +110,14 @@ class TemporalMemory(object):
      predictedColumns,
      matchingSegments,
      matchingCells) = self.computeFn(activeColumns,
-                                        self.predictiveCells,
-                                        self.activeSegments,
-                                        self.activeCells,
-                                        self.winnerCells,
-                                        self.matchingSegments,
-                                        self.matchingCells,
-                                        self.connections,
-                                        learn=learn)
+                                     self.predictiveCells,
+                                     self.activeSegments,
+                                     self.activeCells,
+                                     self.winnerCells,
+                                     self.matchingSegments,
+                                     self.matchingCells,
+                                     self.connections,
+                                     learn=learn)
 
     self.activeCells = activeCells
     self.winnerCells = winnerCells
@@ -350,7 +350,6 @@ class TemporalMemory(object):
         - for each previously matching segment
           - if cell is a predicted inactive cell
             - weaken active synapses but don't touch inactive synapses
-
 
     @param prevActiveSegments           (set)         Indices of active segments in `t-1`
     @param learningSegments             (set)         Indices of learning segments in `t`
