@@ -63,9 +63,11 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 KNNCLASSIFIER_VERSION = 1
 
 
-##########################################################################
+
 class KNNClassifier(object):
-  """k nearest neighbor classifier"""
+  """
+  k Nearest Neighbor Classifier
+  """
 
   def __init__(self,
       k=1,                       # The K in KNN
@@ -101,7 +103,8 @@ class KNNClassifier(object):
                                  # any columns which are bursting.
 
     ):
-    """ Constructor for the kNN classifier.
+    """
+    Constructor for the kNN classifier.
 
     distanceMethod -- method used to compute distance. Possible options are:
       'norm': When distanceNorm is 2, this is the euclidean distance,
@@ -149,7 +152,7 @@ class KNNClassifier(object):
     self.maxStoredPatterns = maxStoredPatterns
     self.clear()
 
-  ##########################################################################
+
   def clear(self):
 
     self._Memory = None
@@ -183,7 +186,7 @@ class KNNClassifier(object):
     self._specificIndexTraining = False
     self._nextTrainingIndices = None
 
-  ##########################################################################
+
   def _doubleMemoryNumRows(self):
 
     m = 2*self._Memory.shape[0]
@@ -192,7 +195,6 @@ class KNNClassifier(object):
     self._M = self._Memory[:self._numPatterns]
 
 
-  ##########################################################################
   def _sparsifyVector(self, inputPattern, doWinners=False):
 
     # Do sparsification, using a relative or absolute threshold
@@ -236,7 +238,6 @@ class KNNClassifier(object):
     self._removeRows(rowsToRemove)
 
 
-  ##########################################################################
   def removeCategory(self, categoryToRemove):
 
     removedRows = 0
@@ -297,27 +298,34 @@ class KNNClassifier(object):
     return numRemoved
 
 
-  # Used to increment iteration for models that don't learn each timestep
   def doIteration(self):
+    """
+    Utility method to increment the iteration index. Intended for models that
+    don't learn each timestep.
+    """
     self._iterationIdx += 1
 
 
-  ##########################################################################
   def learn(self, inputPattern, inputCategory, partitionId=None, isSparse=0,
-              rowID=None):
+            rowID=None):
     """
-    Learn a new training presentation
+    Trains the classifier that an input pattern is of a particular
+    category.
 
     Parameters:
     ------------------------------------------------------------------------
-    inputPattern: training pattern to learn. This should be a dense array if
-                  isSparse==0 or a list of non-zero indices if
-                  isSparse>0
-    inputCategory: category index of the training pattern.
-    partitionID:  ??
-    isSparse:     If >0, the input pattern is a list of non-zero indices and
-                  isSparse is the length of the dense representation.
-
+    @param inputPattern   (list)  The pattern to be assigned a category. If
+                                  isSparse is 0, this should be a dense
+                                  (both ON and OFF bits present) array.
+                                  Otherwise, if isSparse > 0, this should be a
+                                  list of non-zero indices.
+    @param inputCategory: (int)   The category index of the training pattern.
+    @param partitionId:   (int)   UNKNOWN
+    @param isSparse:      (int)   If 0, the input pattern is a dense
+                                  representation. If > 0, the input pattern is a
+                                  list of non-zero indices and isSparse is the
+                                  length of the dense representation.
+    @param rowID:         (int)   UNKNOWN
     """
     if self.verbosity >= 1:
       print "%s learn:" % (g_debugPrefix)
@@ -395,7 +403,6 @@ class KNNClassifier(object):
         if partitionId is not None:
           self._partitionIdList.append(partitionId)
 
-    #---------------------------------------------------------------------------------
     # Sparse vectors
     else:
 
@@ -495,9 +502,10 @@ class KNNClassifier(object):
 
     return self._numPatterns
 
-  ##########################################################################
+
   def getOverlaps(self, inputPattern):
-    """Return the overlap amount of the input pattern with each category.
+    """
+    Return the overlap amount of the input pattern with each category.
 
     This returns 2 numpy arrays of the same length, the overlaps and the
     category numbers. The overlap is computed by compuing:
@@ -517,9 +525,9 @@ class KNNClassifier(object):
     return (overlaps, self._categoryList)
 
 
-  ##########################################################################
   def getDistances(self, inputPattern):
-    """Return the distance between the input pattern and all other
+    """
+    Return the distance between the input pattern and all other
     stored patterns.
 
     This returns 2 numpy arrays of the same length, the distances and the
@@ -537,24 +545,30 @@ class KNNClassifier(object):
     return (dist, self._categoryList)
 
 
-  ##########################################################################
-  def infer(self, inputPattern, computeScores=True,
-                  overCategories=True, partitionId=None):
-    """Find the category that best matches the input pattern. Returns the
+  def infer(self, inputPattern, computeScores=True, overCategories=True,
+            partitionId=None):
+    """
+    Find the category that best matches the input pattern. Returns the
     winning category index plus a distribution over all categories.
 
-    This method returns a 4 item tuple:
-    (winner, inferenceResult, dist, categoryDist)
-      winner: The category with the greatest number of nearest neighbors within
-                the kth nearest neighbors. If the inferenceResult contains no
-                neighbors, the value of winner is None; this applies to the case
-                of exact matching. 
+    Parameters:
+    ----------------------------------------------------------------------
+    @param inputPattern     (list)    A pattern to be classified.
+    @param computeScores              NO EFFECT
+    @param overCategories             NO EFFECT
+    @param partitionId      (int)     UNKNOWN
+
+    This method returns a 4-tuple: (winner, inferenceResult, dist, categoryDist)
+      winner:   The category with the greatest number of nearest neighbors
+                within the kth nearest neighbors. If the inferenceResult
+                contains no neighbors, the value of winner is None; this applies
+                to the case of exact matching.
       inferenceResult: A list of length numCategories, each entry contains the
-                number of neighbors within the top k neighbors that are in that
-                category
-      dist: A list of length numPrototypes. Each entry is the distance from
-                the unknown to that prototype. All distances are between 0 and
-                1.0
+                       number of neighbors within the top k neighbors that
+                       are in that category.
+      dist:            A list of length numPrototypes. Each entry is the
+                       distance from the unknown to that prototype. All
+                       distances are between 0 and 1.0
       categoryDist: A list of length numCategories. Each entry is the distance
                 from the unknown to the nearest prototype of that category. All
                 distances are between 0 and 1.0.
