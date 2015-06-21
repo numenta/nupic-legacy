@@ -121,9 +121,6 @@ class PCANode(PyRegion):
           of 'kernelType'."""
     )
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Region API methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   #---------------------------------------------------------------------------------
   def initialize(self, dims, splitterMaps):
@@ -340,9 +337,6 @@ class PCANode(PyRegion):
       numSamples = self._samples.shape[0]
     return numSamples
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Internal methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def __setstate__(self, state):
     """
@@ -445,9 +439,6 @@ class PCANode(PyRegion):
 
 
 
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-# Command line unit testing
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 if __name__=='__main__':
 
   from nupic.engine import *

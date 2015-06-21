@@ -27,8 +27,7 @@ This file defines the 'starBlock' explorer.
 from nupic.regions.PictureSensor import PictureSensor
 from nupic.math.cross import cross
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# BlockSpreadPictureExplorer
+
 
 class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
   """

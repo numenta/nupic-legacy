@@ -273,10 +273,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                               fset=_set_nta_cpp_svm_seed)
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Public API methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-
   def compute(self, nodeInfo, inputs, outputs):
     """
     Process one input sample.
@@ -710,10 +706,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
   autoTuningData = property(_getAutoTuningData, _setAutoTuningData)
 
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Internal methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -759,7 +751,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     self._initRandom()
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def __getstate__(self):
     """
@@ -773,7 +764,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       del state[ephemeralMemberName]
     return state
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getEphemeralMembers(self):
     """
@@ -786,7 +776,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         '_autoTunePartitionIds',
         ]
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _initDataStructures(self, inputWidth):
     """
@@ -828,7 +817,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                             probability=self.useProbabilisticSvm,
                             seed=self.cpp_svm_seed)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _learn(self, inputVector, trueCatIndex, partitionId=None):
     """
@@ -842,7 +830,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     # category mapping later
     self._storeSample(trueCatIndex, inputVector, partitionId)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _storeSample(self, trueCatIndex, inputVector, partitionId):
     """
@@ -887,7 +874,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       if partitionId is not None:
         self._partitionIds.append(partitionId)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _infer(self, sample):
     """
@@ -913,7 +899,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       belief[prediction] = 1.0
     return belief
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _finishSphering(self):
     """
@@ -940,7 +925,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     return samples
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _finishLearning(self):
     """
@@ -1047,7 +1031,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
 
     self._endMemoryMonitoring("_finishLearning")
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _doRecursion(self, samples, validationSets, paramRange, recursionIndex=0, bestResults=None):
     """
@@ -1120,7 +1103,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
       return self._doRecursion(samples, validationSets, newParamRange, recursionIndex,
                               (bestSamplePoint, bestAccuracy, svmModel))
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _autoTuneTest(self, svm):
     if self.useProbabilisticSvm:
@@ -1146,7 +1128,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
         numErrors += 1
     return float(numTestingSamples - numErrors) / float(numTestingSamples)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _validateSvm(self, C, gamma, progressStart, progressEnd):
     """
@@ -1225,7 +1206,6 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
                                                 eps=self.convEpsilon)
     return (accuracy, None)
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _buildSVM(self, C, gamma):
     """
@@ -1492,9 +1472,7 @@ class SVMClassifierNode(PyNode, MemoryAwareness):
     self._distanceCount = None
 
 
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-# Command line unit testing
-#+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
 if __name__=='__main__':
   import os
   from nupic.network import CreateNode
