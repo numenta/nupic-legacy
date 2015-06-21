@@ -1106,7 +1106,7 @@ class SpatialPooler(object):
     permanence values, but the history for this particular scheme has been lost.
     """
     p = self.synPermConnected + (
-        self.synPermMax - self.synPermConnected)*self._random.getReal64()
+        self._synPermMax - self.synPermConnected)*self._random.getReal64()
 
     # Ensure we don't have too much unnecessary precision. A full 64 bits of
     # precision causes numerical stability issues across platforms and across
