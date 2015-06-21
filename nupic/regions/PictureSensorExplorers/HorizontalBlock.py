@@ -25,8 +25,7 @@ This file defines HorizBlock a horizontal-only block explorer.
 
 from nupic.regions.PictureSensor import PictureSensor
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# BlockPictureExplorer
+
 
 class BlockPictureExplorer(PictureSensor.PictureExplorer):
   """

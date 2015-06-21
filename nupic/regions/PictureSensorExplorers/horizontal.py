@@ -30,8 +30,7 @@ import numpy
 # Local imports
 from nupic.regions.PictureSensorExplorers.random import RandomPictureExplorer
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# HorizontalPictureExplorer
+
 
 class HorizontalPictureExplorer(RandomPictureExplorer):
   """
