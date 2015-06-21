@@ -77,7 +77,7 @@ class AbstractTemporalMemoryTest(unittest.TestCase):
       if pattern is None:
         self.tm.reset()
       else:
-        self.tm.compute(pattern, learn)
+        self.tm.compute(pattern, learn=learn)
 
 
   # ==============================
