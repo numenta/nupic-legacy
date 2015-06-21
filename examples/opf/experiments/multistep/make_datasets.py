@@ -31,7 +31,8 @@ from optparse import OptionParser
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateSimple(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -79,7 +80,7 @@ def _generateSimple(filename="simple.csv", numSequences=2, elementsPerSeq=1,
   outFile.close()
 
 
-###########################################################################
+
 def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=3, 
                     numRepeats=10, hub=[0,1], hubOffset=1, resets=False):
   
@@ -146,7 +147,7 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
   outFile.close()
   
 
-###########################################################################
+
 def _generateFirstOrder0():
   """ Generate the initial, first order, and second order transition
   probabilities for 'probability0'. For this model, we generate the following
@@ -231,7 +232,6 @@ def _generateFirstOrder0():
 
 
 
-###########################################################################
 def _generateFileFromProb(filename, numRecords, categoryList, initProb, 
       firstOrderProb, secondOrderProb, seqLen, numNoise=0, resetsEvery=None):
   """ Generate a set of records reflecting a set of probabilities.
@@ -374,7 +374,7 @@ def _generateFileFromProb(filename, numRecords, categoryList, initProb,
   outFile.close()
 
 
-##############################################################################
+
 if __name__ == '__main__':
 
   helpString = \

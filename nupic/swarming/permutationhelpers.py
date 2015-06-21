@@ -713,7 +713,7 @@ class Tests(object):
     self._testChoices()
 
 
-################################################################################
+
 if __name__ == '__main__':
 
   # Run all tests

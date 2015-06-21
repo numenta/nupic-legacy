@@ -191,7 +191,6 @@ class BlockSpread(BaseExplorer):
     self._spreadPosIdx = 0       # radial position around the center point
 
 
-  ###########################################################################
   def _getHomePosition(self):
     """
     Get the home position for the current image and save it in self._home
@@ -206,7 +205,6 @@ class BlockSpread(BaseExplorer):
       self._home = (0,0)
 
 
-  ###########################################################################
   def getNumIterations(self, image):
     """
     Get the number of iterations required to completely explore the input space.
@@ -237,7 +235,7 @@ class BlockSpread(BaseExplorer):
 
     return result
 
-  ###########################################################################
+
   def first(self):
     """
     Set up the position.
@@ -265,7 +263,6 @@ class BlockSpread(BaseExplorer):
     self._getPosition()
 
 
-  ###########################################################################
   def next(self, seeking=False):
     """
     Go to the next position (next iteration).
@@ -320,8 +317,6 @@ class BlockSpread(BaseExplorer):
       self._getPosition()
 
 
-
-  ###########################################################################
   def _getPosition(self):
     """
     Given the current center position index (self._centerPosIdx) and

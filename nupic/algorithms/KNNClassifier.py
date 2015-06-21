@@ -31,7 +31,8 @@ from nupic.bindings.math import (NearestNeighbor, min_score_per_category)
 
 g_debugPrefix = "KNN"
 
-##########################################################################
+
+
 def _labeledInput(activeInputs, cellsPerCol=32):
   """Print the list of [column, cellIdx] indices for each of the active
   cells in activeInputs. """
@@ -63,7 +64,7 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 KNNCLASSIFIER_VERSION = 1
 
 
-##########################################################################
+
 class KNNClassifier(object):
   """k nearest neighbor classifier"""
 
@@ -149,7 +150,7 @@ class KNNClassifier(object):
     self.maxStoredPatterns = maxStoredPatterns
     self.clear()
 
-  ##########################################################################
+
   def clear(self):
 
     self._Memory = None
@@ -183,7 +184,7 @@ class KNNClassifier(object):
     self._specificIndexTraining = False
     self._nextTrainingIndices = None
 
-  ##########################################################################
+
   def _doubleMemoryNumRows(self):
 
     m = 2*self._Memory.shape[0]
@@ -192,7 +193,6 @@ class KNNClassifier(object):
     self._M = self._Memory[:self._numPatterns]
 
 
-  ##########################################################################
   def _sparsifyVector(self, inputPattern, doWinners=False):
 
     # Do sparsification, using a relative or absolute threshold
@@ -236,7 +236,6 @@ class KNNClassifier(object):
     self._removeRows(rowsToRemove)
 
 
-  ##########################################################################
   def removeCategory(self, categoryToRemove):
 
     removedRows = 0
@@ -302,7 +301,6 @@ class KNNClassifier(object):
     self._iterationIdx += 1
 
 
-  ##########################################################################
   def learn(self, inputPattern, inputCategory, partitionId=None, isSparse=0,
               rowID=None):
     """
@@ -495,7 +493,7 @@ class KNNClassifier(object):
 
     return self._numPatterns
 
-  ##########################################################################
+
   def getOverlaps(self, inputPattern):
     """Return the overlap amount of the input pattern with each category.
 
@@ -517,7 +515,6 @@ class KNNClassifier(object):
     return (overlaps, self._categoryList)
 
 
-  ##########################################################################
   def getDistances(self, inputPattern):
     """Return the distance between the input pattern and all other
     stored patterns.
@@ -537,7 +534,6 @@ class KNNClassifier(object):
     return (dist, self._categoryList)
 
 
-  ##########################################################################
   def infer(self, inputPattern, computeScores=True,
                   overCategories=True, partitionId=None):
     """Find the category that best matches the input pattern. Returns the
@@ -608,7 +604,7 @@ class KNNClassifier(object):
     result = (winner, inferenceResult, dist, categoryDist)
     return result
 
-  ##########################################################################
+
   def getClosest(self, inputPattern, topKCategories = 3):
     """Return index to the pattern that is closest to inputPattern as well
     as indices to the topKCategories closest categories."""
@@ -630,7 +626,7 @@ class KNNClassifier(object):
 
     return winner, dist, topNCats
 
-  ##########################################################################
+
   def closestTrainingPattern(self, inputPattern, cat):
     """
     Return the training pattern belonging to the given category 'cat', that
@@ -659,7 +655,7 @@ class KNNClassifier(object):
     # No patterns were found!
     return None
 
-  ##########################################################################
+
   def closestOtherTrainingPattern(self, inputPattern, cat):
     """
     Return the closest training pattern that is *not* in the given
@@ -686,7 +682,7 @@ class KNNClassifier(object):
     # No patterns were found!
     return None
 
-  ##########################################################################
+
   def getPattern(self, idx, sparseBinaryForm=False, cat=None):
     """Return a training pattern either by index or category number
 
@@ -720,7 +716,6 @@ class KNNClassifier(object):
       return pattern
 
 
-  ##########################################################################
   def _calcDistance(self, inputPattern, distanceNorm=None):
     """Calculate the distances from inputPattern to all stored patterns. The
     distances are all between 0 and 1.0"""
@@ -773,7 +768,6 @@ class KNNClassifier(object):
     return dist
 
 
-  ##########################################################################
   def _getDistances(self, inputPattern, partitionId = None):
     """Return distances from inputPattern to all stored patterns."""
 
@@ -799,7 +793,6 @@ class KNNClassifier(object):
     return dist
 
 
-  ##########################################################################
   def finishLearning(self):
 
     if self.numSVDDims is not None and self._vt is None:
@@ -819,7 +812,7 @@ class KNNClassifier(object):
       # Either way, we don't need the original list
       self._partitionIdList = []
 
-  ##########################################################################
+
   def restartLearning(self):
     """
     This is only invoked if we have already called finishLearning()
@@ -834,7 +827,7 @@ class KNNClassifier(object):
       else:
         self._partitionIdList = self._partitionIdArray.tolist()
 
-  ##########################################################################
+
   def computeSVD(self, numSVDSamples=None, finalize=True):
 
     if numSVDSamples is None:
@@ -855,7 +848,6 @@ class KNNClassifier(object):
     return self._s
 
 
-  ##########################################################################
   def getAdaptiveSVDDims(self, singularValues, fractionOfMax=0.001):
     v = singularValues/singularValues[0]
     idx = numpy.where(v<fractionOfMax)[0]
@@ -866,7 +858,7 @@ class KNNClassifier(object):
       print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
       return len(v)-1
 
-  ##########################################################################
+
   def finalizeSVD(self, numSVDDims=None):
 
     if numSVDDims is not None:
@@ -902,7 +894,7 @@ class KNNClassifier(object):
 
     self._a = None
 
-  ##########################################################################
+
   def leaveOneOutTest(self):
     """
     Run leave-one-out testing.
@@ -984,7 +976,7 @@ class KNNClassifier(object):
     # number of samples, number correct
     return float(matches.shape[0]), matches.sum()
 
-  ##########################################################################
+
   def remapCategories(self, mapping):
     """
     Change the category indices.
@@ -1004,7 +996,7 @@ class KNNClassifier(object):
       newCategoryArray[categoryArray==i] = mapping[i]
     self._categoryList = list(newCategoryArray)
 
-  ##########################################################################
+
   def setCategoryOfVectors(self, vectorIndices, categoryIndices):
     """
     Change the category associated with this vector(s).

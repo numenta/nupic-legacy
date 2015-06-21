@@ -21,10 +21,11 @@
 import logging
 import copy
 
-###############################################################################
-# Extends the log message by appending custom parameters
-###############################################################################
+
+
 class ExtendedLogger(logging.Logger):
+  """ Extends the log message by appending custom parameters
+  """
 
   __logPrefix = ''
 
@@ -32,19 +33,17 @@ class ExtendedLogger(logging.Logger):
     self._baseLogger = logging.Logger
     self._baseLogger.__init__(self, level)
 
-  ############################################################################
+
   @staticmethod
   def setLogPrefix(logPrefix):
     ExtendedLogger.__logPrefix = copy.deepcopy(logPrefix)
 
 
-  ############################################################################
   def getExtendedMsg(self, msg):
     extendedMsg = '%s' % (ExtendedLogger.__logPrefix) + msg
     return extendedMsg
 
 
-  ############################################################################
   def debug(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity 'DEBUG'.
@@ -57,7 +56,6 @@ class ExtendedLogger(logging.Logger):
     self._baseLogger.debug(self, self.getExtendedMsg(msg), *args, **kwargs)
 
 
-  ############################################################################
   def info(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity 'INFO'.
@@ -70,7 +68,6 @@ class ExtendedLogger(logging.Logger):
     self._baseLogger.info(self, self.getExtendedMsg(msg), *args, **kwargs)
 
 
-  ############################################################################
   def warning(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity 'WARNING'.
@@ -85,7 +82,6 @@ class ExtendedLogger(logging.Logger):
   warn = warning
 
 
-  ############################################################################
   def error(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity 'ERROR'.
@@ -98,7 +94,6 @@ class ExtendedLogger(logging.Logger):
     self._baseLogger.error(self, self.getExtendedMsg(msg), *args, **kwargs)
 
 
-  ############################################################################
   def critical(self, msg, *args, **kwargs):
     """
     Log 'msg % args' with severity 'CRITICAL'.
@@ -112,8 +107,7 @@ class ExtendedLogger(logging.Logger):
 
   fatal = critical
 
-  
-  ############################################################################
+
   def log(self, level, msg, *args, **kwargs):
       """
       Log 'msg % args' with the integer severity 'level'.
@@ -126,11 +120,12 @@ class ExtendedLogger(logging.Logger):
       self._baseLogger.log(self, level, self.getExtendedMsg(msg), *args,
                            **kwargs)
 
-#############################################################################
+
+
 def test():
   pass
 
 
-#############################################################################
+
 if __name__ == "__main__":
   test()

@@ -90,7 +90,6 @@ _ALL_RETRIABLE_ERROR_CODES = set(_RETRIABLE_CLIENT_ERROR_CODES +
 
 
 
-###############################################################################
 def retrySQL(timeoutSec=60*5, getLoggerCallback=logging.getLogger):
   """ Return a closure suitable for use as a decorator for
   retrying a pymysql DAO function on certain failures that warrant retries (

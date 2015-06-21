@@ -23,7 +23,8 @@ report = ['overallTime',
           
 optimize = 'postProc_confidenceTest_baseline:inputPredScore_burnIn1'
 
-#############################################################################
+
+
 def filter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called for every possible permutation of the variables

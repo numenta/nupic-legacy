@@ -68,7 +68,7 @@ $PERM_OPTIMIZE_SETTING
 minParticlesPerSwarm = $HS_MIN_PARTICLES
 
 
-#############################################################################
+
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation

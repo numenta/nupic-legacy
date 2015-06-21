@@ -473,7 +473,7 @@ class RecordSensor(PyRegion):
     else:
       raise Exception("Unknown output %s" % name)
 
-  #############################################################################
+
   def setParameter(self, parameterName, index, parameterValue):
     """
       Set the value of a Spec parameter. Most parameters are handled

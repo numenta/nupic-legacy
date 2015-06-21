@@ -37,7 +37,6 @@ DEFAULT_RESOLUTION = 0
 
 
 
-############################################################################
 class ScalarEncoder(Encoder):
   """
   A scalar encoder encodes a numeric (floating point) value into an array
@@ -150,7 +149,7 @@ class ScalarEncoder(Encoder):
 
   """
 
-  ############################################################################
+
   def __init__(self,
                w,
                minval,
@@ -249,7 +248,6 @@ class ScalarEncoder(Encoder):
       self._checkReasonableSettings()
 
 
-  ############################################################################
   def _initEncoder(self, w, minval, maxval, n, radius, resolution):
     """ (helper function)  There are three different ways of thinking about the representation.
      Handle each case here."""
@@ -293,7 +291,7 @@ class ScalarEncoder(Encoder):
         nfloat = self.w * (self.range / self.radius) + 2 * self.padding
         self.n = int(math.ceil(nfloat))
 
-  ############################################################################
+
   def _checkReasonableSettings(self):
     """(helper function) check if the settings are reasonable for SP to work"""
     # checks for likely mistakes in encoder settings
@@ -302,19 +300,16 @@ class ScalarEncoder(Encoder):
                          % self.w)
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """ [Encoder class virtual method override]
     """
     return (FieldMetaType.float, )
 
 
-  ############################################################################
   def getWidth(self):
     return self.n
 
 
-  ############################################################################
   def _recalcParams(self):
     self.rangeInternal = float(self.maxval - self.minval)
 
@@ -332,12 +327,11 @@ class ScalarEncoder(Encoder):
 
     name = "[%s:%s]" % (self.minval, self.maxval)
 
-  ############################################################################
+
   def getDescription(self):
     return [(self.name, 0)]
 
 
-  ############################################################################
   def _getFirstOnBit(self, input):
     """ Return the bit offset of the first bit to be set in the encoder output.
     For periodic encoders, this can be a negative number when the encoded output
@@ -386,7 +380,7 @@ class ScalarEncoder(Encoder):
       minbin = centerbin - self.halfwidth
       return [minbin]
 
-  ############################################################################
+
   def getBucketIndices(self, input):
     """ See method description in base.py """
 
@@ -410,7 +404,7 @@ class ScalarEncoder(Encoder):
 
     return [bucketIdx]
 
-  ############################################################################
+
   def encodeIntoArray(self, input, output, learn=True):
     """ See method description in base.py """
 
@@ -461,7 +455,6 @@ class ScalarEncoder(Encoder):
       print "input desc:", self.decodedToStr(self.decode(output))
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """ See the function description in base.py
     """
@@ -581,7 +574,7 @@ class ScalarEncoder(Encoder):
 
     return ({fieldName: (ranges, desc)}, [fieldName])
 
-  #############################################################################
+
   def _generateRangeDescription(self, ranges):
     """generate description from a text description of the ranges"""
     desc = ""
@@ -596,7 +589,6 @@ class ScalarEncoder(Encoder):
     return desc
 
 
-  ############################################################################
   def _getTopDownMapping(self):
     """ Return the interal _topDownMappingM matrix used for handling the
     bucketInfo() and topDownCompute() methods. This is a matrix, one row per
@@ -633,7 +625,6 @@ class ScalarEncoder(Encoder):
     return self._topDownMappingM
 
 
-  ############################################################################
   def getBucketValues(self):
     """ See the function description in base.py """
 
@@ -648,7 +639,6 @@ class ScalarEncoder(Encoder):
     return self._bucketValues
 
 
-  ############################################################################
   def getBucketInfo(self, buckets):
     """ See the function description in base.py """
 
@@ -671,8 +661,6 @@ class ScalarEncoder(Encoder):
     return [EncoderResult(value=inputVal, scalar=inputVal, encoding=encoding)]
 
 
-
-  ############################################################################
   def topDownCompute(self, encoded):
     """ See the function description in base.py
     """
@@ -687,7 +675,6 @@ class ScalarEncoder(Encoder):
     return self.getBucketInfo([category])
 
 
-  ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
     """ See the function description in base.py
     """
@@ -711,7 +698,6 @@ class ScalarEncoder(Encoder):
     return numpy.array([closeness])
 
 
-  ############################################################################
   def dump(self):
     print "ScalarEncoder:"
     print "  min: %f" % self.minval

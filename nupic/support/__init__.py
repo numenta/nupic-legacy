@@ -88,7 +88,7 @@ from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 # Local imports
 
 
-#############################################################################
+
 def getCallerInfo(depth=2):
   """Utility function to get information about function callers
 
@@ -110,7 +110,8 @@ def getCallerInfo(depth=2):
     arg_class = args[3][arg_name].__class__.__name__
   return (method_name, filename, arg_class)
 
-#############################################################################
+
+
 def title(s=None, additional='', stream=sys.stdout, frame='-'):
   """Utility function to display nice titles
 
@@ -167,7 +168,8 @@ def title(s=None, additional='', stream=sys.stdout, frame='-'):
   print >> stream, s + additional
   print >> stream, '-' * length
 
-#############################################################################
+
+
 def bringToFront(title):
   """Bring a top-level window with a given title
      to the front on Windows"""
@@ -183,7 +185,7 @@ def bringToFront(title):
   set_foreground_window(hwnd)
 
 
-#############################################################################
+
 def getUserDocumentsPath():
   """
   Find the user's "Documents" directory (OS X), "My Documents" directory
@@ -233,7 +235,7 @@ def getUserDocumentsPath():
   return path
 
 
-#############################################################################
+
 def getArgumentDescriptions(f):
   """
   Get the arguments, default values, and argument descriptions for a function.
@@ -327,7 +329,7 @@ def getArgumentDescriptions(f):
   return args
 
 
-#############################################################################
+
 # TODO queryNumInwardIters appears to be unused and should probably be deleted
 #  from here altogether; it's likely an artifact of the legacy vision support.
 #def queryNumInwardIters(configPath, radialLength, numRepetitions=1):
@@ -344,7 +346,7 @@ def getArgumentDescriptions(f):
 #  return numTrainingItersTP * numRepetitions
 
 
-#############################################################################
+
 gLoggingInitialized = False
 def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   """
@@ -483,7 +485,7 @@ def initLogging(verbose=False, console='stdout', consoleLevel='DEBUG'):
   gLoggingInitialized = True
 
 
-#############################################################################
+
 def reinitLoggingDir():
   """ (Re-)Initialize the loging directory for the calling application that
   uses initLogging() for logging configuration
@@ -497,7 +499,7 @@ def reinitLoggingDir():
     makeDirectoryFromAbsolutePath(os.path.dirname(_genLoggingFilePath()))
 
 
-#############################################################################
+
 def _genLoggingFilePath():
   """ Generate a filepath for the calling app """
   appName = os.path.splitext(os.path.basename(sys.argv[0]))[0] or 'UnknownApp'
@@ -511,7 +513,6 @@ def _genLoggingFilePath():
   
   
 
-#############################################################################
 def enableLoggingErrorDebugging():
   """ Overrides the python logging facility's Handler.handleError function to
   raise an exception instead of print and suppressing it.  This allows a deeper
@@ -567,7 +568,6 @@ def enableLoggingErrorDebugging():
   
   
 
-#############################################################################
 def clippedObj(obj, maxElementSize=64):
   """
   Return a clipped version of obj suitable for printing, This
@@ -607,7 +607,6 @@ def clippedObj(obj, maxElementSize=64):
 
 
 
-###############################################################################
 def intTo8ByteArray(inValue):
   """
   Converts an int to a packed byte array, with left most significant byte
@@ -630,7 +629,7 @@ def intTo8ByteArray(inValue):
   return packed_data
 
 
-###############################################################################
+
 def byteArrayToInt(packed_data):
   """
   Converts a byte array into an integer
@@ -646,7 +645,7 @@ def byteArrayToInt(packed_data):
          value[7]
 
 
-###############################################################################
+
 def getSpecialRowID():
   """
   Special row id is 0xFF FFFF FFFF FFFF FFFF (9 bytes of 0xFF)
@@ -658,7 +657,7 @@ def getSpecialRowID():
   return packed_data
 
 
-################################################################################
+
 _FLOAT_SECONDS_IN_A_DAY = 24.0 * 60.0 * 60.0
 def floatSecondsFromTimedelta(td):
   """ Convert datetime.timedelta to seconds in floating point """
@@ -668,7 +667,7 @@ def floatSecondsFromTimedelta(td):
   return sec
 
 
-#############################################################################
+
 def aggregationToMonthsSeconds(interval):
   """
   Return the number of months and seconds from an aggregation dict that 
@@ -706,7 +705,7 @@ def aggregationToMonthsSeconds(interval):
   return {'months': months, 'seconds': seconds}
 
 
-#############################################################################
+
 def aggregationDivide(dividend, divisor):
   """
   Return the result from dividing two dicts that represent date and time.
