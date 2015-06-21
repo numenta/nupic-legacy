@@ -122,11 +122,10 @@ class PCANode(PyRegion):
     )
 
 
-  #---------------------------------------------------------------------------------
   def initialize(self, dims, splitterMaps):
     pass
 
-  #---------------------------------------------------------------------------------
+
   def compute(self, inputs, outputs):
     """
     Process one input sample.
@@ -165,7 +164,7 @@ class PCANode(PyRegion):
 
     self._testInputs = None
 
-  #---------------------------------------------------------------------------------
+
   def _doLogging(self, pcaCoeffs):
     """
     Log output coefficients to a .CSV file
@@ -187,7 +186,6 @@ class PCANode(PyRegion):
       print >>fpOut, output
       fpOut.close()
 
-  #---------------------------------------------------------------------------------
 
   @classmethod
   def getSpec(cls):
@@ -293,7 +291,7 @@ class PCANode(PyRegion):
     )
     return ns
 
-  #---------------------------------------------------------------------------------
+
   def getParameter(self, name, index=-1):
     """
     Get the value of a parameter.
@@ -318,7 +316,7 @@ class PCANode(PyRegion):
       # will get it automatically, e.g. self.learningMode
       return PyRegion.getParameter(self, name, index)
 
-  #---------------------------------------------------------------------------------
+
   def setParameter(self, name, index, value):
     """Set the value of a parameter."""
 
@@ -329,7 +327,7 @@ class PCANode(PyRegion):
     else:
       PyRegion.setParameter(self, name, index, value)
 
-  #---------------------------------------------------------------------------------
+
   def gettrainingSampleCount(self):
     if self._samples is None:
       numSamples = 0
@@ -358,7 +356,7 @@ class PCANode(PyRegion):
     if not hasattr(self, "_fractionOfMax"):
       self._fractionOfMax = 0.0
 
-  #---------------------------------------------------------------------------------
+
   def __getstate__(self):
     """
     Return serializable state.  This function will return a version of the
@@ -371,14 +369,14 @@ class PCANode(PyRegion):
       del state[ephemeralMemberName]
     return state
 
-  #---------------------------------------------------------------------------------
+
   def _getEphemeralMembers(self):
     """
     Returns list of all ephemeral class members.
     """
     return []
 
-  #---------------------------------------------------------------------------------
+
   def _initDataStructures(self, inputWidth):
     """
     Initialize internal data structures.
@@ -386,7 +384,7 @@ class PCANode(PyRegion):
     self._inputWidth = inputWidth
     self._samples = numpy.zeros((0, self._inputWidth), dtype=RealNumpyDType)
 
-  #---------------------------------------------------------------------------------
+
   def computeSVD(self, SVDSampleCount=None, finalize=True):
 
     # Samples are in self._samples, not in the SVM yet
@@ -400,7 +398,7 @@ class PCANode(PyRegion):
       self.finalizeSVD()
     return self._s
 
-  #---------------------------------------------------------------------------------
+
   def getAdaptiveSVDDims(self, singularValues, fractionOfMax=0.001):
 
     v = singularValues/singularValues[0]
@@ -413,7 +411,7 @@ class PCANode(PyRegion):
       print "Number of PCA dimensions chosen: ", len(v)-1, "out of ", len(v)
       return len(v)-1
 
-  #---------------------------------------------------------------------------------
+
   def finalizeSVD(self, SVDDimCount=None):
 
     if SVDDimCount is not None:
@@ -429,7 +427,7 @@ class PCANode(PyRegion):
     # Project all the vectors (mean has already been subtracted from each one)
     self._samples = numpy.dot(self._samples, self._vt.T)
 
-  #---------------------------------------------------------------------------------
+
   def getOutputElementCount(self, name):
     """This method will be called only when the node is used in nuPIC 2"""
     if name == 'bottomUpOut':
