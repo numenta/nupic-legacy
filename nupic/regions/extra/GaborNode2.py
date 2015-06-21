@@ -3212,7 +3212,7 @@ class GaborNode2(PyRegion):
 
     return ns.toDict()
 
-  #---------------------------------------------------------------------------------
+
   def getOutputElementCount(self, name):
     """This method will be called only when the node is used in nuPIC 2"""
     if name == 'bottomUpOut':
