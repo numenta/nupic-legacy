@@ -36,7 +36,7 @@ import matplotlib.pyplot as plt
 realDType = GetNTAReal()
 
 
-############################################################################
+
 def generatePlot(outputs, origData):
   """ Generates a table where each cell represent a frequency of pairs 
   as described below.
@@ -88,7 +88,7 @@ def generatePlot(outputs, origData):
   return distribMatrix
 
 
-############################################################################
+
 def generateRandomInput(numRecords, elemSize = 400, numSet = 42):
   """ Generates a set of input record 
   
@@ -117,7 +117,7 @@ def generateRandomInput(numRecords, elemSize = 400, numSet = 42):
   return inputs
 
 
-############################################################################
+
 def appendInputWithSimilarValues(inputs):
   """ Creates an 'one-off' record for each record in the inputs. Appends new
   records to the same inputs list.
@@ -134,7 +134,7 @@ def appendInputWithSimilarValues(inputs):
         break
         
 
-############################################################################
+
 def appendInputWithNSimilarValues(inputs, numNear = 10):
   """ Creates a neighboring record for each record in the inputs and adds
   new records at the end of the inputs list
@@ -162,7 +162,7 @@ def appendInputWithNSimilarValues(inputs, numNear = 10):
           break
 
 
-############################################################################
+
 def modifyBits(inputVal, maxChanges):
   """ Modifies up to maxChanges number of bits in the inputVal
   """
@@ -190,7 +190,7 @@ def modifyBits(inputVal, maxChanges):
   return inputVal
 
 
-############################################################################
+
 def getRandomWithMods(inputSpace, maxChanges):
   """ Returns a random selection from the inputSpace with randomly modified 
   up to maxChanges number of bits.
@@ -206,7 +206,7 @@ def getRandomWithMods(inputSpace, maxChanges):
   return modifyBits(value, maxChanges)
   
 
-############################################################################
+
 def testSP():
   """ Run a SP test
   """
@@ -295,7 +295,8 @@ def testSP():
     
   return
 
-############################################################################
+
+
 def testSPNew():
   """ New version of the test"""
 
@@ -443,7 +444,7 @@ def testSPNew():
       cleanPlot = False
     
 
-############################################################################
+
 def testSPFile():
   """ Run test on the data file - the file has records previously encoded.
   """
@@ -565,8 +566,8 @@ def testSPFile():
       plt.clf()
       distribMatrix = np.zeros((PLOT_PRECISION+1,PLOT_PRECISION+1))
 
-    
-############################################################################
+
+
 if __name__ == '__main__':
   
   np.random.seed(83)

@@ -32,7 +32,8 @@ from optparse import OptionParser
 
 from nupic.data.file_record_stream import FileRecordStream
 
-###########################################################################
+
+
 def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -77,9 +78,9 @@ def _generateCategory(filename="simple.csv", numSequences=2, elementsPerSeq=1,
       reset = 0
 
   outFile.close()
-  
-  
-###########################################################################
+
+
+
 def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1, 
                     numRepeats=10, stepSize=0.1, resets=False):
   """ Generate a simple dataset. This contains a bunch of non-overlapping
@@ -125,8 +126,9 @@ def _generateScalar(filename="simple.csv", numSequences=2, elementsPerSeq=1,
       reset = 0
 
   outFile.close()
-  
-###########################################################################
+
+
+
 def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=3, 
                     numRepeats=10, hub=[0,1], hubOffset=1, resets=False):
   
@@ -190,10 +192,9 @@ def _generateOverlapping(filename="overlap.csv", numSequences=2, elementsPerSeq=
       reset = 0
 
   outFile.close()
-  
-  
-               
-##############################################################################
+
+
+
 if __name__ == '__main__':
 
   helpString = \

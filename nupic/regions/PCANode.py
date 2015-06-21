@@ -30,7 +30,7 @@ import numpy
 
 from PyRegion import PyRegion
 
-############################################################################
+
 
 class PCANode(PyRegion):
   """

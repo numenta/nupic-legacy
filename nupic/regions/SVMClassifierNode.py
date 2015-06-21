@@ -44,7 +44,7 @@ from nupic.analysis.memoryAwareness import MemoryAwareness
 _kKernelTypes = ["rbf", "linear"]
 
 
-############################################################################
+
 class SVMClassifierNode(PyNode, MemoryAwareness):
   """
   SVMClassifierNode implements Support Vector Machines (SVMs), which can be used to

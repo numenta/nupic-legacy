@@ -336,9 +336,6 @@ applyValueGettersToContainer(config)
 
 
 
-
-################################################################################
-
 control = {
   # The environment that the current model is being run in
   "environment": 'nupic',
@@ -378,7 +375,6 @@ control = {
 }
 
 
-################################################################################
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

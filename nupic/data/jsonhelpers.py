@@ -59,7 +59,6 @@ class NaNInvalidator(validictory.SchemaValidator):
 
 
 
-###############################################################################
 def validate(value, **kwds):
   """ Validate a python value against json schema:
   validate(value, schemaPath)
@@ -96,7 +95,6 @@ def validate(value, **kwds):
 
 
 
-###############################################################################
 def loadJsonValueFromFile(inputFilePath):
   """ Loads a json value from a file and converts it to the corresponding python
   object.
@@ -115,7 +113,6 @@ def loadJsonValueFromFile(inputFilePath):
 
 
 
-###############################################################################
 def test():
   """
   """
@@ -174,6 +171,5 @@ def test():
 
 
 
-###############################################################################
 if __name__ == "__main__":
   test()

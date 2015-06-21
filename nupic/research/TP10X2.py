@@ -36,7 +36,7 @@ VERBOSITY = 0
 dtype = nupic.math.GetNTAReal()
 
 
-################################################################################
+
 def _extractCallingMethodArgs():
   """
   Returns args dictionary from the calling method
@@ -69,7 +69,7 @@ class TP10X2(TP):
   a column confidence measure.
   """
 
-  ##############################################################################
+
   # We use the same keyword arguments as TP()
   def __init__(self,
                numberOfCols = 500,
@@ -151,8 +151,6 @@ class TP10X2(TP):
                )
 
 
-
-  #############################################################################
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -188,7 +186,7 @@ class TP10X2(TP):
     # Reset internal C++ pointers to states
     self._setStatePointers()
 
-  ################################################################################
+
   def _getEphemeralMembers(self):
     """
     List of our member variables that we don't need to be saved
@@ -198,7 +196,7 @@ class TP10X2(TP):
       e.extend(['cells4'])
     return e
 
-  #############################################################################
+
   def _initEphemerals(self):
     """
     Initialize all ephemeral members after being restored to a pickled state.
@@ -257,7 +255,7 @@ class TP10X2(TP):
     """
     self.cells4.loadFromFile(filePath)
 
-  ###########################################################################
+
   def __getattr__(self, name):
     """
     Patch __getattr__ so that we can catch the first access to 'cells' and load.
@@ -280,7 +278,7 @@ class TP10X2(TP):
     except AttributeError:
       raise AttributeError("'TP' object has no attribute '%s'" % name)
 
-  #############################################################################
+
   def compute(self, bottomUpInput, enableLearn, computeInfOutput=None):
     """ Handle one compute, possibly learning.
 
@@ -359,7 +357,7 @@ class TP10X2(TP):
       (activeT, _, _, _) = self.cells4.getLearnStates()
       return activeT.reshape((self.numberOfCols, self.cellsPerColumn))
 
-  ################################################################################
+
   def _copyAllocatedStates(self):
     """If state is allocated in CPP, copy over the data into our numpy arrays."""
 
@@ -396,7 +394,7 @@ class TP10X2(TP):
           self.colConfidence["t"], self.colConfidence["t-1"],
           self.cellConfidence["t"], self.cellConfidence["t-1"])
 
-  ################################################################################
+
   def reset(self):
     """ Reset the state of all cells.
     This is normally used between sequences while training. All internal states
@@ -409,7 +407,6 @@ class TP10X2(TP):
     TP.reset(self)
 
 
-  ################################################################################
   def finishLearning(self):
     """Called when learning has been completed. This method just calls
     trimSegments. (finishLearning is here for backward compatibility)
@@ -419,7 +416,7 @@ class TP10X2(TP):
     #  chance.
     self.trimSegments(minPermanence=0.0001)
 
-  ##########################################
+
   def trimSegments(self, minPermanence=None, minNumSyns=None):
     """This method deletes all synapses where permanence value is strictly
     less than self.connectedPerm. It also deletes all segments where the
@@ -456,7 +453,7 @@ class TP10X2(TP):
   # The following print functions for debugging.
   ################################################################################
 
-  ################################################################################
+
   def printSegment(self, s):
 
     # TODO: need to add C++ accessors to get segment details
@@ -528,7 +525,6 @@ class TP10X2(TP):
       print c,i,updateList
 
 
-  #############################################################################
   def slowIsSegmentActive(self, seg, timeStep):
     """
     A segment is active if it has >= activationThreshold connected
@@ -550,7 +546,6 @@ class TP10X2(TP):
     return numActiveSyns >= self.activationThreshold
 
 
-  ################################################################################
   def printCell(self, c, i, onlyActiveSegments=False):
 
     nSegs = self.cells4.nSegmentsOnCell(c,i)
@@ -583,13 +578,12 @@ class TP10X2(TP):
         print
 
 
-  ################################################################################
   def getAvgLearnedSeqLength(self):
     """ Return our moving average of learned sequence length.
     """
     return self.cells4.getAvgLearnedSeqLength()
 
-  ################################################################################
+
   def getColCellIdx(self, idx):
     """Get column and cell within column from a global cell index.
     The global index is idx = colIdx * nCellsPerCol() + cellIdxInCol
@@ -599,7 +593,7 @@ class TP10X2(TP):
     i = idx - c*self.cellsPerColumn
     return c,i
 
-  ################################################################################
+
   def getSegmentOnCell(self, c, i, segIdx):
     """Return segment number segIdx on cell (c,i).
     Returns the segment as following list:
@@ -629,22 +623,22 @@ class TP10X2(TP):
 
     return result
 
-  #############################################################################
+
   def getNumSegments(self):
     """ Return the total number of segments. """
     return self.cells4.nSegments()
 
-  #############################################################################
+
   def getNumSynapses(self):
     """ Return the total number of synapses. """
     return self.cells4.nSynapses()
 
-  #############################################################################
+
   def getNumSegmentsInCell(self, c, i):
     """ Return the total number of segments in cell (c,i)"""
     return self.cells4.nSegmentsOnCell(c,i)
 
-  ################################################################################
+
   def getSegmentInfo(self, collectActiveData = False):
     """Returns information about the distribution of segments, synapses and
     permanence values in the current TP. If requested, also returns information
@@ -721,7 +715,6 @@ class TP10X2(TP):
             distSegSizes, distNSegsPerCell, distPermValues, distAges)
 
 
-  #############################################################################
   def getActiveSegment(self, c,i, timeStep):
     """ For a given cell, return the segment with the strongest _connected_
     activation, i.e. sum up the activations of the connected synapses of the
@@ -732,7 +725,7 @@ class TP10X2(TP):
     # TODO: add C++ accessor to implement this
     assert False
 
-  #############################################################################
+
   def getBestMatchingCell(self, c, timeStep, learnState = False):
     """Find weakly activated cell in column. Returns index and segment of most
     activated segment above minThreshold.
@@ -742,7 +735,6 @@ class TP10X2(TP):
     assert False
 
 
-  #############################################################################
   def getLeastAllocatedCell(self, c):
     """For the given column, return the cell with the fewest number of
     segments."""
@@ -755,13 +747,13 @@ class TP10X2(TP):
   # be called in this implementation.
   ################################################################################
 
-  #############################################################################
+
   def isSegmentActive(self, seg, timeStep):
     """    """
     # Should never be called in this subclass
     assert False
 
-  #############################################################################
+
   def getSegmentActivityLevel(self, seg, timeStep, connectedSynapsesOnly =False,
                               learnState = False):
     """   """
@@ -769,39 +761,31 @@ class TP10X2(TP):
     assert False
 
 
-  #############################################################################
   def isSequenceSegment(self, s):
     """   """
     # Should never be called in this subclass
     assert False
 
 
-  #############################################################################
   def getBestMatchingSegment(self, c, i, timeStep, learnState = False):
     """     """
     # Should never be called in this subclass
     assert False
 
 
-  ##############################################################################
   def getSegmentActiveSynapses(self, c,i,s, timeStep, newSynapses =False):
     """  """
     # Should never be called in this subclass
     assert False
 
 
-  ################################################################################
   def updateSynapse(self, segment, synapse, delta):
     """ """
     # Should never be called in this subclass
     assert False
 
-  ################################################################################
+
   def adaptSegment(self, update, positiveReinforcement):
     """    """
     # Should never be called in this subclass
     assert False
-
-
-################################################################################
-################################################################################

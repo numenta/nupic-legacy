@@ -165,7 +165,7 @@ def printOverlaps(comparedTo, coincs, seen):
   
   return seen
 
-################################################################################################################
+
 
 if __name__=='__main__': 
   if len(sys.argv)<2:   #Use basil if no dataset specified

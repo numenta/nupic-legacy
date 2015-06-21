@@ -333,7 +333,7 @@ if not config['modelParams']['tpEnable']:
   config['modelParams']['clParams']['cellsPerCol'] = 0
 
 
-################################################################################
+
 control = {
   # The environment that the current model is being run in
   "environment": 'opfExperiment',
@@ -421,7 +421,7 @@ control = {
 }
 
 
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)
 

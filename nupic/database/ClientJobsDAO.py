@@ -40,7 +40,7 @@ from nupic.support import pymysqlhelpers
 _MODULE_NAME = "nupic.database.ClientJobsDAO"
 
 
-###############################################################################
+
 class InvalidConnectionException(Exception):
   """ This exception is raised when a worker tries to update a model record that
   belongs to another worker. Ownership of a model is determined by the database
@@ -49,7 +49,7 @@ class InvalidConnectionException(Exception):
   pass
 
 
-###############################################################################
+
 def _getLogger():
   """ NOTE: this cannot be a global variable because the logging subsystem
   needs to be initialized by the host app, and that usually happens after
@@ -70,7 +70,6 @@ g_retrySQL = pymysqlhelpers.retrySQL(getLoggerCallback=_getLogger)
 
 
 
-###############################################################################
 def _abbreviate(text, threshold):
   """ Abbreviate the given text to threshold chars and append an ellipsis if its
   length exceeds threshold; used for logging;
@@ -84,9 +83,6 @@ def _abbreviate(text, threshold):
 
 
 
-##############################################################################
-# The ClientJobsDAO class
-##############################################################################
 class ClientJobsDAO(object):
   """ This Data Access Object (DAO) is used for creating, managing, and updating
   the ClientJobs database. The ClientJobs database is a MySQL database shared by
@@ -478,7 +474,7 @@ class ClientJobsDAO(object):
   _DB_ROOT_NAME = 'client_jobs'
   _DB_VERSION = 29
 
-  ##############################################################################
+
   @classmethod
   def dbNamePrefix(cls):
     """ Get the beginning part of the database name for the current version
@@ -489,7 +485,6 @@ class ClientJobsDAO(object):
     return cls.__getDBNamePrefixForVersion(cls._DB_VERSION)
 
 
-  ##############################################################################
   @classmethod
   def __getDBNamePrefixForVersion(cls, dbVersion):
     """ Get the beginning part of the database name for the given database
@@ -506,7 +501,6 @@ class ClientJobsDAO(object):
     return '%s_v%d' % (cls._DB_ROOT_NAME, dbVersion)
 
 
-  ##############################################################################
   @classmethod
   def _getDBName(cls):
     """ Generates the ClientJobs database name for the current version of the
@@ -520,7 +514,6 @@ class ClientJobsDAO(object):
     return cls.__getDBNameForVersion(cls._DB_VERSION)
 
 
-  ##############################################################################
   @classmethod
   def __getDBNameForVersion(cls, dbVersion):
     """ Generates the ClientJobs database name for the given version of the
@@ -548,7 +541,6 @@ class ClientJobsDAO(object):
     return dbName
 
 
-  ##############################################################################
   @staticmethod
   @logExceptions(_getLogger)
   def get():
@@ -571,8 +563,6 @@ class ClientJobsDAO(object):
     return ClientJobsDAO._instance
 
 
-
-  ##############################################################################
   @logExceptions(_getLogger)
   def __init__(self):
     """ Instantiate a ClientJobsDAO instance.
@@ -610,7 +600,6 @@ class ClientJobsDAO(object):
     return self._models.tableName
 
 
-  ##############################################################################
   def _columnNameDBToPublic(self, dbName):
     """ Convert a database internal column name to a public name. This
     takes something of the form word1_word2_word3 and converts it to:
@@ -634,7 +623,6 @@ class ClientJobsDAO(object):
     return ''.join(pubWords)
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def connect(self, deleteOldVersions=False, recreate=False):
@@ -947,7 +935,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   def _getMatchingRowsNoRetries(self, tableInfo, conn, fieldsToMatch,
                                 selectFieldNames, maxRows=None):
     """ Return a sequence of matching rows with the requested field values from
@@ -1014,7 +1001,6 @@ class ClientJobsDAO(object):
     return rows
 
 
-  ##############################################################################
   @g_retrySQL
   def _getMatchingRowsWithRetries(self, tableInfo, fieldsToMatch,
                                   selectFieldNames, maxRows=None):
@@ -1026,7 +1012,6 @@ class ClientJobsDAO(object):
                                             selectFieldNames, maxRows)
 
 
-  ##############################################################################
   def _getOneMatchingRowNoRetries(self, tableInfo, conn, fieldsToMatch,
                                   selectFieldNames):
     """ Return a single matching row with the requested field values from the
@@ -1058,7 +1043,6 @@ class ClientJobsDAO(object):
     return result
 
 
-  ##############################################################################
   @g_retrySQL
   def _getOneMatchingRowWithRetries(self, tableInfo, fieldsToMatch,
                                     selectFieldNames):
@@ -1070,7 +1054,6 @@ class ClientJobsDAO(object):
                                               selectFieldNames)
 
 
-  ##############################################################################
   @classmethod
   def _normalizeHash(cls, hashValue):
     hashLen = len(hashValue)
@@ -1083,7 +1066,6 @@ class ClientJobsDAO(object):
     return hashValue
 
 
-  ##############################################################################
   def _insertOrGetUniqueJobNoRetries(
     self, conn, client, cmdLine, jobHash, clientInfo, clientKey, params,
     minimumWorkers, maximumWorkers, jobType, priority, alreadyRunning):
@@ -1206,7 +1188,6 @@ class ClientJobsDAO(object):
     return jobID
 
 
-  ##############################################################################
   def _resumeJobNoRetries(self, conn, jobID, alreadyRunning):
     """ Resumes processing of an existing job that is presently in the
     STATUS_COMPLETED state.
@@ -1289,7 +1270,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ############################################################################
   def getConnectionID(self):
     """ Return our connection ID. This can be used for worker identification
     purposes.
@@ -1303,7 +1283,6 @@ class ClientJobsDAO(object):
     return self._connectionID
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobSuspend(self, jobID):
     """ Requests a job to be suspended
@@ -1331,7 +1310,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobResume(self, jobID, alreadyRunning=False):
     """ Resumes processing of an existing job that is presently in the
@@ -1379,7 +1357,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobInsert(self, client, cmdLine, clientInfo='', clientKey='', params='',
                 alreadyRunning=False, minimumWorkers=0, maximumWorkers=0,
@@ -1458,7 +1435,6 @@ class ClientJobsDAO(object):
     return jobID
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobInsertUnique(self, client, cmdLine, jobHash, clientInfo='',
                       clientKey='', params='', minimumWorkers=0,
@@ -1579,7 +1555,6 @@ class ClientJobsDAO(object):
     return jobID
 
 
-  ##############################################################################
   @g_retrySQL
   def _startJobWithRetries(self, jobID):
     """ Place the given job in STATUS_RUNNING mode; the job is expected to be
@@ -1605,7 +1580,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobStartNext(self):
     """ For use only by Nupic Scheduler (also known as ClientJobManager) Look
@@ -1634,7 +1608,6 @@ class ClientJobsDAO(object):
     return jobID
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobReactivateRunningJobs(self):
@@ -1655,7 +1628,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobGetDemand(self,):
     """ Look through the jobs table and get the demand - minimum and maximum
@@ -1679,7 +1651,6 @@ class ClientJobsDAO(object):
     return [self._jobs.jobDemandNamedTuple._make(r) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobCancelAllRunningJobs(self):
@@ -1696,7 +1667,6 @@ class ClientJobsDAO(object):
     return
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobCountCancellingJobs(self,):
@@ -1719,7 +1689,6 @@ class ClientJobsDAO(object):
     return rows[0][0]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobGetCancellingJobs(self,):
@@ -1742,7 +1711,6 @@ class ClientJobsDAO(object):
     return tuple(r[0] for r in rows)
 
 
-  ##############################################################################
   @staticmethod
   @logExceptions(_getLogger)
   def partitionAtIntervals(data, intervals):
@@ -1765,7 +1733,7 @@ class ClientJobsDAO(object):
 
     raise StopIteration
 
-  ##############################################################################
+
   @staticmethod
   @logExceptions(_getLogger)
   def _combineResults(result, *namedTuples):
@@ -1784,7 +1752,7 @@ class ClientJobsDAO(object):
       result, [len(nt._fields) for nt in namedTuples])
     return [nt._make(result) for nt, result in zip(namedTuples, results)]
 
-  ##############################################################################
+
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobInfoWithModels(self, jobID):
@@ -1832,7 +1800,6 @@ class ClientJobsDAO(object):
     raise RuntimeError("jobID=%s not found within the jobs table" % (jobID))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobInfo(self, jobID):
     """ Get all info about a job
@@ -1855,7 +1822,6 @@ class ClientJobsDAO(object):
     return self._jobs.jobInfoNamedTuple._make(row)
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobSetStatus(self, jobID, status, useConnectionID=True,):
@@ -1890,7 +1856,6 @@ class ClientJobsDAO(object):
                             jobID, status))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobSetCompleted(self, jobID, completionReason, completionMsg,
@@ -1932,7 +1897,6 @@ class ClientJobsDAO(object):
                            "belongs to some other CJM" % (jobID))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobCancel(self, jobID):
     """ Cancel the given job. This will update the cancel field in the
@@ -1949,7 +1913,6 @@ class ClientJobsDAO(object):
     self.jobSetFields(jobID, {"cancel" : True}, useConnectionID=False)
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobGetModelIDs(self, jobID):
     """Fetch all the modelIDs that correspond to a given jobID; empty sequence
@@ -1960,7 +1923,6 @@ class ClientJobsDAO(object):
     return [r[0] for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getActiveJobCountForClientInfo(self, clientInfo):
@@ -1978,7 +1940,6 @@ class ClientJobsDAO(object):
     return activeJobCount
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getActiveJobCountForClientKey(self, clientKey):
@@ -1996,7 +1957,6 @@ class ClientJobsDAO(object):
     return activeJobCount
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getActiveJobsForClientInfo(self, clientInfo, fields=[]):
@@ -2018,7 +1978,6 @@ class ClientJobsDAO(object):
     return rows
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getActiveJobsForClientKey(self, clientKey, fields=[]):
@@ -2040,7 +1999,6 @@ class ClientJobsDAO(object):
     return rows
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getJobs(self, fields=[]):
@@ -2059,7 +2017,6 @@ class ClientJobsDAO(object):
     return rows
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def getFieldsForActiveJobsOfType(self, jobType, fields=[]):
@@ -2094,7 +2051,6 @@ class ClientJobsDAO(object):
       return conn.cursor.fetchall()
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobGetFields(self, jobID, fields):
     """ Fetch the values of 1 or more fields from a job record. Here, 'fields'
@@ -2114,7 +2070,6 @@ class ClientJobsDAO(object):
     return self.jobsGetFields([jobID], fields, requireAll=True)[0][1]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def jobsGetFields(self, jobIDs, fields, requireAll=True):
     """ Fetch the values of 1 or more fields from a sequence of job records.
@@ -2149,7 +2104,6 @@ class ClientJobsDAO(object):
     return [(r[0], list(r[1:])) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobSetFields(self, jobID, fields, useConnectionID=True,
@@ -2205,7 +2159,6 @@ class ClientJobsDAO(object):
           assignmentExpressions, jobID, self._connectionID, result, query))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobSetFieldIfEqual(self, jobID, fieldName, newValue, curValue):
@@ -2253,7 +2206,6 @@ class ClientJobsDAO(object):
     return (result == 1)
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobIncrementIntField(self, jobID, fieldName, increment=1,
@@ -2296,7 +2248,6 @@ class ClientJobsDAO(object):
           dbFieldName, jobID, self._connectionID, result, query))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def jobUpdateResults(self, jobID, results):
@@ -2314,7 +2265,6 @@ class ClientJobsDAO(object):
       conn.cursor.execute(query, [results, jobID])
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelsClearAll(self):
@@ -2330,7 +2280,6 @@ class ClientJobsDAO(object):
       conn.cursor.execute(query)
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelInsertAndStart(self, jobID, params, paramsHash, particleHash=None):
     """ Insert a new unique model (based on params) into the model table in the
@@ -2472,7 +2421,6 @@ class ClientJobsDAO(object):
     return insertModelWithRetries()
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelsInfo(self, modelIDs):
     """ Get ALL info for a set of models
@@ -2504,7 +2452,6 @@ class ClientJobsDAO(object):
     return results
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelsGetFields(self, modelIDs, fields):
     """ Fetch the values of 1 or more fields from a sequence of model records.
@@ -2551,7 +2498,6 @@ class ClientJobsDAO(object):
     return [(r[0], list(r[1:])) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelsGetFieldsForJob(self, jobID, fields, ignoreKilled=False):
@@ -2610,7 +2556,6 @@ class ClientJobsDAO(object):
     return [(r[0], list(r[1:])) for r in rows]
 
 
-  ############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelsGetFieldsForCheckpointed(self, jobID, fields):
@@ -2649,7 +2594,6 @@ class ClientJobsDAO(object):
     return [(r[0], list(r[1:])) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelSetFields(self, modelID, fields, ignoreUnchanged = False):
@@ -2698,7 +2642,6 @@ class ClientJobsDAO(object):
           sqlParams,))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelsGetParams(self, modelIDs):
     """ Get the params and paramsHash for a set of models.
@@ -2730,7 +2673,6 @@ class ClientJobsDAO(object):
     return [self._models.getParamsNamedTuple._make(r) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelsGetResultAndStatus(self, modelIDs):
     """ Get the results string and other status fields for a set of models.
@@ -2766,7 +2708,6 @@ class ClientJobsDAO(object):
     return [self._models.getResultAndStatusNamedTuple._make(r) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelsGetUpdateCounters(self, jobID):
     """ Return info on all of the models that are in already in the models
@@ -2792,7 +2733,6 @@ class ClientJobsDAO(object):
     return [self._models.getUpdateCountersNamedTuple._make(r) for r in rows]
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelUpdateResults(self, modelID, results=None, metricValue =None,
@@ -2843,11 +2783,10 @@ class ClientJobsDAO(object):
          "numRowsAffected=%r") % (modelID,self._connectionID, numRowsAffected,))
 
 
-  ##############################################################################
   def modelUpdateTimestamp(self, modelID):
     self.modelUpdateResults(modelID)
 
-  ##############################################################################
+
   @logExceptions(_getLogger)
   @g_retrySQL
   def modelSetCompleted(self, modelID, completionReason, completionMsg,
@@ -2896,7 +2835,6 @@ class ClientJobsDAO(object):
          "numRowsAffected=%r") % (modelID, self._connectionID, numRowsAffected))
 
 
-  ##############################################################################
   @logExceptions(_getLogger)
   def modelAdoptNextOrphan(self, jobId, maxUpdateInterval):
     """ Look through the models table for an orphaned model, which is a model
@@ -2980,7 +2918,6 @@ class ClientJobsDAO(object):
 
 
 
-###############################################################################
 #def testClientJobsDAO():
 #  # WARNING: these tests assume that Nupic Scheduler is not running, and bad
 #  #  things will happen if the test is executed while the Scheduler is running
@@ -3357,7 +3294,8 @@ unit tests or for obtaining specific information about the ClientJobsDAO
 required for code written in languages other than python.
 """
 
-################################################################################
+
+
 if __name__ == "__main__":
   """
   Launch the ClientJobsDAO from the command line. This can be done to obtain
