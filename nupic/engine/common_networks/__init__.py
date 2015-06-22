@@ -68,17 +68,10 @@ _TP_PARAMS = {
     "pamLength": 3,
 }
 
-<<<<<<< HEAD
 def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
                           temporalParams=_TP_PARAMS,
                           verbosity=_VERBOSITY):
   """Generates a Network with connected RecordSensor, SP, TP, Anomaly regions.
-=======
-def recordSpatialTemporalNet(recordParams, spatialParams=_SP_PARAMS,
-                             temporalParams=_TP_PARAMS,
-                             verbosity=_VERBOSITY):
-  """Generates a Network with connected RecordSensor, SP, and TP regions.
->>>>>>> removing irrelevant files
 
   This function takes care of generating regions and the canonical links.
   The network has a sensor region reading data from a specified input and
@@ -88,7 +81,7 @@ def recordSpatialTemporalNet(recordParams, spatialParams=_SP_PARAMS,
   Note: this function returns a network that needs to be initialized. This
   allows the user to extend the network by adding further regions and
   connections.
-
+  
   :param recordParams: a dict with parameters for creating RecordSensor region.
   :param spatialParams: a dict with parameters for creating SPRegion.
   :param temporalParams: a dict with parameters for creating TPRegion.
@@ -136,51 +129,6 @@ def recordSpatialTemporalNet(recordParams, spatialParams=_SP_PARAMS,
   network.link("temporalPoolerRegion", "spatialPoolerRegion", "UniformLink", "",
                srcOutput="topDownOut", destInput="topDownIn")
 
-<<<<<<< HEAD
-=======
-  return network
-
-
-# Hot gym shows example usage.
-if __name__ == "__main__":
-  inputFilePath = resource_filename(
-      "nupic.datafiles", "extra/hotgym/rec-center-hourly.csv"
-  )
-
-  scalarEncoderArgs = {
-      "w": 21,
-      "minval": 0.0,
-      "maxval": 100.0,
-      "periodic": False,
-      "n": 50,
-      "radius": 0,
-      "resolution": 0,
-      "name": "consumption",
-      "verbosity": 0,
-      "clipInput": True,
-      "forced": False,
-  }
-
-  dateEncoderArgs = {
-      "season": 0,
-      "dayOfWeek": 0,
-      "weekend": 0,
-      "holiday": 0,
-      "timeOfDay": (21, 9.5),
-      "customDays": 0,
-      "name": "timestamp_timeOfDay",
-      "forced": True
-  }
-
-  recordParams = {
-      "inputFilePath": inputFilePath,
-      "scalarEncoderArgs": scalarEncoderArgs,
-      "dateEncoderArgs": dateEncoderArgs,
-  }
-
-  network = recordSpatialTemporalNet(recordParams)
-
->>>>>>> removing irrelevant files
   # Add the AnomalyRegion on top of the TPRegion
   network.addRegion("anomalyRegion", "py.AnomalyRegion", json.dumps({}))
 
@@ -210,10 +158,4 @@ if __name__ == "__main__":
   # topDownOut (predicted columns) and SP bottomUpOut (active columns).
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
-<<<<<<< HEAD
   return network
-=======
-  network.initialize()
-
-
->>>>>>> removing irrelevant files
