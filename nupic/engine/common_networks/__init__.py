@@ -81,7 +81,7 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
   Note: this function returns a network that needs to be initialized. This
   allows the user to extend the network by adding further regions and
   connections.
-  
+
   :param recordParams: a dict with parameters for creating RecordSensor region.
   :param spatialParams: a dict with parameters for creating SPRegion.
   :param temporalParams: a dict with parameters for creating TPRegion.
@@ -159,3 +159,4 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
+  
