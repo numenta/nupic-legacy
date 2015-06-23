@@ -425,8 +425,8 @@ class TemporalMemory(object):
                       `matchingSegments` (set),
                       `matchingCells`    (set)
     """
-    numActiveConnectedSynapsesForSegment = defaultdict(lambda: 0)
-    numActiveSynapsesForSegment = defaultdict(lambda: 0)
+    numActiveConnectedSynapsesForSegment = defaultdict(int)
+    numActiveSynapsesForSegment = defaultdict(int)
     activeSegments = set()
     predictiveCells = set()
 
