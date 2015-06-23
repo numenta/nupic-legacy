@@ -154,7 +154,9 @@ class TemporalMemory(object):
                       `activeCells`     (set),
                       `winnerCells`     (set),
                       `activeSegments`  (set),
-                      `predictiveCells` (set)
+                      `predictiveCells` (set),
+                      'matchingSegments'(set),
+                      'matchingCells'   (set)
     """
     activeCells = set()
     winnerCells = set()
