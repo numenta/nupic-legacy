@@ -519,7 +519,8 @@ class TemporalMemory(object):
 
       for synapse in connections.synapsesForSegment(segment):
         synapseData = connections.dataForSynapse(synapse)
-        if synapseData.presynapticCell in activeCells:
+        if ( (synapseData.presynapticCell in activeCells) and
+            synapseData.permanence > 0):
           numActiveSynapses += 1
 
       if numActiveSynapses >= maxSynapses:
