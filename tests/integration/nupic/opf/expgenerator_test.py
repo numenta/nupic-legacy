@@ -49,7 +49,8 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
-HOTGYM_INPUT = resource_filename("nupic.datafiles", os.path.join("extra", "hotgym", "hotgym.csv"))
+HOTGYM_INPUT = resource_filename("nupic.datafiles",
+                                  os.path.join("extra", "hotgym", "hotgym.csv"))
 
 
 g_debug = False
