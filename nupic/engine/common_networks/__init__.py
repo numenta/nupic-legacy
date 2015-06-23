@@ -159,4 +159,4 @@ def createTemporalAnomaly(recordParams, spatialParams=_SP_PARAMS,
   temporalPoolerRegion.setParameter("anomalyMode", True)
 
   return network
-  
+

@@ -525,7 +525,6 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       self.tm.mmGetTracePredictedInactiveColumns())
     predictedInactiveColumnsMean1 = predictedInactiveColumnsMetric.mean
 
-
     self.init({"cellsPerColumn": 4,
                "activationThreshold": 8,
                "predictedSegmentDecrement": 0.004})
@@ -538,8 +537,8 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
       self.tm.mmGetTracePredictedInactiveColumns())
     predictedInactiveColumnsMean2 = predictedInactiveColumnsMetric.mean
 
-    self.assertTrue(predictedInactiveColumnsMean1 > 0)
-    self.assertTrue(predictedInactiveColumnsMean1 > predictedInactiveColumnsMean2)
+    self.assertGreater(predictedInactiveColumnsMean1, 0)
+    self.assertGreater(predictedInactiveColumnsMean1, predictedInactiveColumnsMean2)
 
   # ==============================
   # Overrides
