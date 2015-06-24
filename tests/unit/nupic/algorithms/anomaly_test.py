@@ -128,9 +128,7 @@ class AnomalyTest(unittest.TestCase):
     for a in inst:
       stored = pickle.dumps(a)
       restored = pickle.loads(stored)
-      #TODO add anomaly _eq_
-#      self.assertEqual(a._computeAnomaly, restored._computeAnomaly)
-      self.assertEqual(a._mode, restored._mode)
+      self.assertEqual(a, restored)
 
 
 
