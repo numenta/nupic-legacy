@@ -164,15 +164,15 @@ class Anomaly(object):
     return "Anomaly:\tmode=%s\twindowSize=%r" % (self._mode, windowSize)
 
 
-  def __cmp__(self, other):
+  def __eq__(self, other):
     if not isinstance(other, Anomaly): 
-      return -1
+      return False
     if (other._mode == self._mode and
         other._binaryThreshold == self._binaryThreshold and
         other._movingAverage == self._movingAverage):
-      return 0 #equal
+      return True #equal
     else:
-      return -1
+      return False
 
 
   def __setstate__(self, state):
