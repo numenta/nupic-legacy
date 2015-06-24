@@ -103,6 +103,19 @@ class AnomalyLikelihood(object):
     self._reestimationPeriod = 100 
 
 
+  def __eq__(self, o):
+    if not isinstance(o, AnomalyLikelihood):
+      return False
+    elif (self._iteration == o._iteration and
+      self._historicalScores == o._historicalScores and
+      self._distribution == o._distribution and
+      self._probationaryPeriod == o._probationaryPeriod and
+      self._claLearningPeriod == o._claLearningPeriod):
+      return True
+    else:
+      return False
+
+
   @staticmethod
   def computeLogLikelihood(likelihood):
     """

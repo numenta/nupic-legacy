@@ -162,5 +162,21 @@ class AnomalyTest(unittest.TestCase):
 
 
 
+  def testSerialization(self):
+    """serialization using pickle"""
+    # instances to test
+    aDef = Anomaly()
+    aLike = anomaly.Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
+#    aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
+    inst = [aDef, aLike, aWeig] #, aCust] #TODO add soon
+
+    for a in inst:
+      stored = pickle.dumps(a)
+      restored = pickle.loads(stored)
+      self.assertEqual(a, restored)
+
+
+
 if __name__ == "__main__":
   unittest.main()
