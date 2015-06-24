@@ -75,7 +75,7 @@ class Anomaly(object):
   MODE_PURE = "pure"
   MODE_LIKELIHOOD = "likelihood"
   MODE_WEIGHTED = "weighted"
-  _supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
+  supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
   
 
   def __init__(self, slidingWindowSize=None, 
@@ -219,4 +219,5 @@ class Anomaly(object):
     elif callable(mode):
       return mode
     else:
-      raise ValueError("Anomaly: computeFn has to be one of '%s' but is '%s' " % (Anomaly._supportedModes, mode) )
+      raise ValueError(("Anomaly: mode has to be a callable or "
+              "one of '%s' but is '%r' ") % (Anomaly.supportedModes, mode) )
