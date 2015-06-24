@@ -22,6 +22,7 @@
 
 """Tool for adding anomalies to data sets."""
 
+import enum
 import random
 import sys
 
@@ -53,14 +54,14 @@ Actions:
 
 
 
-class Actions(object):
+@enum.unique
+class Actions(enum.Enum):
   """Enum class for actions that can be performed."""
-  ADD = 'add'
-  SCALE = 'scale'
-  COPY = 'copy'
-  SAMPLE = 'sample'
-  SAMPLE2 = 'sample2'
-  ACTIONS = (ADD, SCALE, COPY, SAMPLE, SAMPLE2)
+  add = 1
+  scale = 2
+  copy = 3
+  sample = 4
+  sample2 = 5
 
 
 
@@ -189,8 +190,11 @@ def main(args):
   with FileRecordStream(inputPath) as reader:
     with FileRecordStream(outputPath, write=True,
                           fields=reader.fields) as writer:
-      assert action in Actions.ACTIONS, USAGE
-      if action == Actions.ADD:
+      try:
+        action = Actions[action]
+      except KeyError:
+        raise ValueError(USAGE)
+      if action is Actions.add:
         assert len(args) == 7, USAGE
         start = int(args[4])
         stop = int(args[5])
@@ -198,7 +202,7 @@ def main(args):
         valueType = eval(reader.fields[column][1])
         value = valueType(args[6])
         add(reader, writer, column, start, stop, value)
-      elif action == Actions.SCALE:
+      elif action is Actions.scale:
         assert len(args) == 7, USAGE
         start = int(args[4])
         stop = int(args[5])
@@ -206,7 +210,7 @@ def main(args):
         valueType = eval(reader.fields[column][1])
         multiple = valueType(args[6])
         scale(reader, writer, column, start, stop, multiple)
-      elif action == Actions.COPY:
+      elif action is Actions.copy:
         assert 5 <= len(args) <= 8, USAGE
         start = int(args[3])
         stop = int(args[4])
@@ -219,7 +223,7 @@ def main(args):
         else:
           tsCol = None
         copy(reader, writer, start, stop, insertLocation, tsCol)
-      elif action == Actions.SAMPLE or action == Actions.SAMPLE2:
+      elif action is Actions.sample or action is Actions.sample2:
         assert 4 <= len(args) <= 7, USAGE
         n = int(args[3])
         start = None

@@ -45,9 +45,9 @@ from nupic.encoders import MultiEncoder, DeltaEncoder
 from nupic.engine import Network
 from nupic.support.fshelpers import makeDirectoryFromAbsolutePath
 from nupic.frameworks.opf.opfutils import (InferenceType,
-                      InferenceElement,
-                      SensorInput,
-                      initLogger)
+                                           InferenceElement,
+                                           SensorInput,
+                                           initLogger)
 
 
 DEFAULT_LIKELIHOOD_THRESHOLD = 0.0001
@@ -63,7 +63,7 @@ def requireAnomalyModel(func):
   Decorator for functions that require anomaly models.
   """
   def _decorator(self, *args, **kwargs):
-    if not self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if not self.getInferenceType() is InferenceType.TemporalAnomaly:
       raise RuntimeError("Method required a TemporalAnomaly model.")
     if self._getAnomalyClassifier() is None:
       raise RuntimeError("Model does not support this command. Model must"
@@ -147,6 +147,7 @@ class CLAModel(Model):
           each step in inferences. The predictions with highest likelihood are
           included.
     """
+    assert isinstance(inferenceType, InferenceType)
     if not inferenceType in self.__supportedInferenceKindSet:
       raise ValueError("{0} received incompatible inference type: {1}"\
                        .format(self.__class__, inferenceType))
@@ -173,8 +174,8 @@ class CLAModel(Model):
     self.__tpLearningEnabled = bool(tpEnable)
 
     # Explicitly exclude the TP if this type of inference doesn't require it
-    if not InferenceType.isTemporal(self.getInferenceType()) \
-       or self.getInferenceType() == InferenceType.NontemporalMultiStep:
+    if (not InferenceType.isTemporal(self.getInferenceType())
+        or self.getInferenceType() is InferenceType.NontemporalMultiStep):
       tpEnable = False
 
     self._netInfo = None
@@ -201,11 +202,11 @@ class CLAModel(Model):
 
 
     # Initialize Spatial Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.NontemporalAnomaly:
+    if self.getInferenceType() is InferenceType.NontemporalAnomaly:
       self._getSPRegion().setParameter("anomalyMode", True)
 
     # Initialize Temporal Anomaly detection parameters
-    if self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if self.getInferenceType() is InferenceType.TemporalAnomaly:
       self._getTPRegion().setParameter("anomalyMode", True)
       self._prevPredictedColumns = numpy.array([])
 
@@ -472,7 +473,7 @@ class CLAModel(Model):
     if tp is None:
       return
 
-    if (self.getInferenceType() == InferenceType.TemporalAnomaly or
+    if (self.getInferenceType() is InferenceType.TemporalAnomaly or
         self._isReconstructionModel()):
       topDownCompute = True
     else:
@@ -490,7 +491,7 @@ class CLAModel(Model):
     inferenceType = self.getInferenceType()
     inferenceArgs = self.getInferenceArgs()
 
-    if inferenceType == InferenceType.TemporalNextStep:
+    if inferenceType is InferenceType.TemporalNextStep:
       return True
 
     if inferenceArgs:
@@ -601,10 +602,10 @@ class CLAModel(Model):
     inferences = {}
     sp = self._getSPRegion()
     score = None
-    if inferenceType == InferenceType.NontemporalAnomaly:
+    if inferenceType is InferenceType.NontemporalAnomaly:
       score = sp.getOutputData("anomalyScore")[0] #TODO move from SP to Anomaly ?
 
-    elif inferenceType == InferenceType.TemporalAnomaly:
+    elif inferenceType is InferenceType.TemporalAnomaly:
       tp = self._getTPRegion()
 
       if sp is not None:
@@ -1128,7 +1129,7 @@ class CLAModel(Model):
 
       n.link(prevRegion, "Classifier", "UniformLink", "")
 
-    if self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if self.getInferenceType() is InferenceType.TemporalAnomaly:
       anomalyClParams = dict(
           trainRecords=anomalyParams.get('autoDetectWaitRecords', None),
           cacheSize=anomalyParams.get('anomalyCacheRecords', None)
@@ -1319,7 +1320,7 @@ class CLAModel(Model):
     # Previous versions used the CLAModelClassifierHelper class for utilizing
     # the KNN classifier. Current version uses KNNAnomalyClassifierRegion to
     # encapsulate all the classifier functionality.
-    if self.getInferenceType() == InferenceType.TemporalAnomaly:
+    if self.getInferenceType() is InferenceType.TemporalAnomaly:
       classifierType = self._getAnomalyClassifier().getSelf().__class__.__name__
       if classifierType is 'KNNClassifierRegion':
 
@@ -1426,7 +1427,7 @@ class CLAModel(Model):
     Returns:      Absolute directory path for saving CLA Network
     """
     if self.__restoringFromV1:
-      if self.getInferenceType() == InferenceType.TemporalNextStep:
+      if self.getInferenceType() is InferenceType.TemporalNextStep:
         leafName = 'temporal'+ "-network.nta"
       else:
         leafName = 'nonTemporal'+ "-network.nta"

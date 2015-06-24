@@ -944,7 +944,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -999,7 +999,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Nupic,
+      'environment':    OpfEnvironment.nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1, 5],
@@ -1209,7 +1209,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1239,7 +1239,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1307,7 +1307,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Nupic,
+      'environment':    OpfEnvironment.nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [24],
@@ -1433,7 +1433,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1569,7 +1569,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1626,7 +1626,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
       "inferenceArgs":{
         "predictedField":"consumption"
       },
-      'environment':OpfEnvironment.Nupic,
+      'environment':OpfEnvironment.nupic,
       "streamDef": streamDef,
       "includedFields": [
         { "fieldName": "timestamp",
@@ -1675,7 +1675,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Nupic,
+      'environment':    OpfEnvironment.nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [1],
@@ -1758,7 +1758,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
 
     # Generate the experiment description
     expDesc = {
-      'environment':    OpfEnvironment.Nupic,
+      'environment':    OpfEnvironment.nupic,
       "inferenceArgs":{
         "predictedField":"consumption",
         "predictionSteps": [0],
