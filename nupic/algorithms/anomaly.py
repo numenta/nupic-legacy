@@ -68,6 +68,7 @@ class Anomaly(object):
         anomaly scores
     MODE_WEIGHTED - multiplies the likelihood result with the raw anomaly score
         that was used to generate the likelihood
+    MODE_CUSTOM - user defined callable used in compute()
   """
 
   # anomaly modes supported
@@ -87,13 +88,13 @@ class Anomaly(object):
         enables moving average on final anomaly score; int >= 0
     @param mode (optional) - (string) how to compute anomaly;
         possible values are:
-          - "pure" - the default, how much anomal the value is;
+          - Anomaly.MODE_PURE - the default, how much anomal the value is;
               float 0..1 where 1=totally unexpected
-          - "likelihood" - uses the anomaly_likelihood code;
+          - Anomaly.MODE_LIKELIHOOD - uses the anomaly_likelihood code;
               models probability of receiving this value and anomalyScore
-          - "weighted" - "pure" anomaly weighted by "likelihood"
+          - Anomaly.MODE_WEIGHTED - "pure" anomaly weighted by "likelihood"
               (anomaly * likelihood)
-          - "custom" - implies custom function will be provided 
+          - Anomaly.MODE_CUSTOM - implies custom function will be provided 
                        and used directly to compute score
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
@@ -183,6 +184,7 @@ class Anomaly(object):
   def _computeRaw(self, active, prevPredicted, inputValue=None, timestamp=None):
     """
     compute anomaly score using the "classical" (raw) implementation.
+    Used in mode Anomaly.MODE_PURE
     @see computeRawAnomalyScore for details and params
     """
     return computeRawAnomalyScore(active, prevPredicted)
@@ -191,6 +193,7 @@ class Anomaly(object):
     """
     Anomaly computed using the anomaly_likelihood score, 
     which models probability of (input, anomalyScore) pair.
+    Used in mode Anomaly.MODE_LIKELIHOOD
     @see compute() for parameters 
          and anomaly_likelihood.py file for functionality
     """
@@ -205,6 +208,7 @@ class Anomaly(object):
     """
     Raw anomaly weighted by likelihood, 
     combination of "pure" and "likelihood" modes.
+    Used in Anomaly.MODE_WEIGHTED
     @see compute() for parameters
     """
     prob = self._computeLikelihood(active, prevPredicted, inputValue, timestamp)
