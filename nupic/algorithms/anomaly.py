@@ -96,10 +96,14 @@ class Anomaly(object):
 
     if self._mode == Anomaly.MODE_LIKELIHOOD or self._mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+    else:
+      self._likelihood = None
+
     if not self._mode in Anomaly._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
+
     self._binaryThreshold = binaryAnomalyThreshold
     if binaryAnomalyThreshold is not None and ( 
           not isinstance(binaryAnomalyThreshold, float) or
@@ -169,7 +173,8 @@ class Anomaly(object):
       return False
     if (other._mode == self._mode and
         other._binaryThreshold == self._binaryThreshold and
-        other._movingAverage == self._movingAverage):
+        other._movingAverage == self._movingAverage and
+        other._likelihood == self._likelihood):
       return True #equal
     else:
       return False
