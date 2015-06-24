@@ -23,8 +23,6 @@
 Anomaly hotgym example
 """
 
-from nupic.algorithms.anomaly import Anomaly
-
 from nupic.frameworks.opf.expdescriptionapi import ExperimentDescriptionAPI
 
 from nupic.frameworks.opf.expdescriptionhelpers import (
