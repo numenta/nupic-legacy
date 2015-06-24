@@ -135,7 +135,7 @@ class AnomalyTest(unittest.TestCase):
     self.assertEqual(score, 0)
 
 
-  def testAnomalyCustomFn(self):
+  def testComputeAnomalySelectModeCustom(self):
     """Anomaly using custom compute() function"""
     def dummyCompute(active, pred, inputVal, timestamp):
       return 0.1337
