@@ -192,7 +192,7 @@ class Anomaly(object):
     combination of "pure" and "likelihood" modes.
     @see compute() for parameters
     """
-    prob = computeLikelihood(active, prevPredicted, inputValue, timestamp)
+    prob = self._computeLikelihood(active, prevPredicted, inputValue, timestamp)
     raw = computeRawAnomalyScore(active, prevPredicted)
     return (raw * prob)
 
