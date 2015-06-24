@@ -164,14 +164,14 @@ class Anomaly(object):
 
 ############################################
 # implementations of compute() function
-  def computeRaw(self, active, prevPredicted, inputValue=None, timestamp=None):
+  def _computeRaw(self, active, prevPredicted, inputValue=None, timestamp=None):
     """
     compute anomaly score using the "classical" (raw) implementation.
     @see computeRawAnomalyScore for details and params
     """
     return computeRawAnomalyScore(active, prevPredicted)
 
-  def computeLikelihood(self, active, prevPredicted, inputValue, ts=None):
+  def _computeLikelihood(self, active, prevPredicted, inputValue, ts=None):
     """
     Anomaly computed using the anomaly_likelihood score, 
     which models probability of (input, anomalyScore) pair.
@@ -186,7 +186,7 @@ class Anomaly(object):
     probability = self._likelihood.anomalyProbability(inputValue, rawScore, ts)
     return probability
 
-  def computeWeighted(self, active, prevPredicted, inputValue, timestamp=None):
+  def _computeWeighted(self, active, prevPredicted, inputValue, timestamp=None):
     """
     Raw anomaly weighted by likelihood, 
     combination of "pure" and "likelihood" modes.
@@ -225,13 +225,13 @@ class Anomaly(object):
     @return a callable used for anomaly computation
     """
     if mode == Anomaly.MODE_PURE:
-      return self.computeRaw
+      return self._computeRaw
     elif mode == Anomaly.MODE_LIKELIHOOD:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-      return self.computeLikelihood
+      return self._computeLikelihood
     elif mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-      return self.computeWeighted
+      return self._computeWeighted
     elif mode == Anomaly.MODE_CUSTOM:
       return self._customCompute
     else:
