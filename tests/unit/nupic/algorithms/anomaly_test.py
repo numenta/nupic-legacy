@@ -115,6 +115,20 @@ class AnomalyTest(unittest.TestCase):
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
 
+  def testComputeAnomalySelectModeLikelihood(self):
+    """Anomaly with selected mode (likelihood) """
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_LIKELIHOOD)
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]), "someRawInput")
+    self.assertAlmostEqual(score, 0.5) 
+
+
+  def testComputeAnomalySelectModeWeighted(self):
+    """Anomaly with selected mode (weighted) """
+    anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_WEIGHTED)
+    score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]), "someRawInput")
+    self.assertAlmostEqual(score, 0.5)
+
+
   def testComputeAnomalyEmpty(self):
     """Anomaly called with empty params """
     score = anomaly.computeRawAnomalyScore(array([]), array([]))
