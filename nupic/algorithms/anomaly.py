@@ -165,11 +165,18 @@ class Anomaly(object):
 ############################################
 # implementations of compute() function
   def computeRaw(self, active, prevPredicted, inputValue=None, timestamp=None):
+    """
+    compute anomaly score using the "classical" (raw) implementation.
+    @see computeRawAnomalyScore for details and params
+    """
     return computeRawAnomalyScore(active, prevPredicted)
 
   def computeLikelihood(self, active, prevPredicted, inputValue, ts=None):
-    """Anomaly computed using the anomaly_likelihood score, 
-       which models probability of (input, anomalyScore) pair.
+    """
+    Anomaly computed using the anomaly_likelihood score, 
+    which models probability of (input, anomalyScore) pair.
+    @see compute() for parameters 
+         and anomaly_likelihood.py file for functionality
     """
     assert isinstance(self._likelihood, AnomalyLikelihood)
     if inputValue is None:
@@ -180,6 +187,11 @@ class Anomaly(object):
     return probability
 
   def computeWeighted(self, active, prevPredicted, inputValue, timestamp=None):
+    """
+    Raw anomaly weighted by likelihood, 
+    combination of "pure" and "likelihood" modes.
+    @see compute() for parameters
+    """
     prob = computeLikelihood(active, prevPredicted, inputValue, timestamp)
     raw = computeRawAnomalyScore(active, prevPredicted)
     return (raw * prob)
