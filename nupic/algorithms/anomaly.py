@@ -110,10 +110,12 @@ class Anomaly(object):
                            anomaly score: float [0..1]
                        @see description for compute() method for details
     """
+    # sliding window / moving average
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
     else:
       self._movingAverage = None
+    # binarization
     self._binaryThreshold = binaryAnomalyThreshold
     if binaryAnomalyThreshold is not None and ( 
           not isinstance(binaryAnomalyThreshold, float) or
@@ -121,13 +123,27 @@ class Anomaly(object):
           binaryAnomalyThreshold <= 0.0 ):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
+    # switch and setup compute() based on mode
     self._mode = mode
-    self._customCompute=None
+    self._likelihood = None
+
     if mode == Anomaly.MODE_CUSTOM:
       if callable(customComputeFn):
-        self._customCompute = customComputeFn
+        self._computeAnomaly = customComputeFn
       else:
         raise ValueError("Anomaly: with mode='custom' a callable must be provided as 'customComputeFn' param")
+    elif mode == Anomaly.MODE_PURE:
+      self._computeAnomaly =  self._computeRaw
+    elif mode == Anomaly.MODE_LIKELIHOOD:
+      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+      self._computeAnomaly = self._computeLikelihood
+    elif mode == Anomaly.MODE_WEIGHTED:
+      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
+      self._computeAnomaly = self._computeWeighted
+    else:
+      raise ValueError("Anomaly: mode has to be one of '%s' but is '%r' "
+                         % (Anomaly.supportedModes, mode) )
+
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -146,7 +162,7 @@ class Anomaly(object):
     """
 
     # Compute final anomaly based on selected mode.
-    score = self.getComputeFn(self._mode)(activeColumns, predictedColumns, inputValue, timestamp)
+    score = self._computeAnomaly(activeColumns, predictedColumns, inputValue, timestamp)
 
     # Last, do moving-average if windowSize was specified.
     if self._movingAverage is not None:
@@ -183,8 +199,7 @@ class Anomaly(object):
       raise ValueError("Selected anomaly mode 'Anomaly.MODE_LIKELIHOOD' "
                        "requires 'inputValue' as parameter to compute() method. ")
     rawScore = computeRawAnomalyScore(active, prevPredicted)
-    probability = self._likelihood.anomalyProbability(inputValue, rawScore, ts)
-    return probability
+    return self._likelihood.anomalyProbability(inputValue, rawScore, ts) # probability
 
   def _computeWeighted(self, active, prevPredicted, inputValue, timestamp=None):
     """
@@ -214,26 +229,3 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
-
-
-  def getComputeFn(self, mode):
-    """
-    assing compute() function to be used; 
-
-    @param mode   (string) setting how anomaly is internally computed,
-                  assign from Anomaly.MODE_* defined functions
-    @return a callable used for anomaly computation
-    """
-    if mode == Anomaly.MODE_PURE:
-      return self._computeRaw
-    elif mode == Anomaly.MODE_LIKELIHOOD:
-      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-      return self._computeLikelihood
-    elif mode == Anomaly.MODE_WEIGHTED:
-      self._likelihood = AnomalyLikelihood() # probabilistic anomaly
-      return self._computeWeighted
-    elif mode == Anomaly.MODE_CUSTOM:
-      return self._customCompute
-    else:
-      raise ValueError("Anomaly: mode has to be one of '%s' but is '%r' " 
-                         % (Anomaly.supportedModes, mode) )
