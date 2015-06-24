@@ -25,9 +25,10 @@
 import unittest
 
 from numpy import array
+import pickle
 
 from nupic.algorithms import anomaly
-
+from nupic.algorithms.anomaly import Anomaly
 
 class AnomalyTest(unittest.TestCase):
   """Tests for anomaly score functions and classes."""
@@ -112,6 +113,23 @@ class AnomalyTest(unittest.TestCase):
     anomalyComputer = anomaly.Anomaly(mode=anomaly.Anomaly.MODE_PURE)
     score = anomalyComputer.compute(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
+
+
+
+  def testSerialization(self):
+    """serialization using pickle"""
+    # instances to test
+    aDef = Anomaly()
+    aLike = anomaly.Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    aWeig = Anomaly(mode=Anomaly.MODE_WEIGHTED)
+    aCust = Anomaly(mode=Anomaly.MODE_CUSTOM, customComputeFn=sum)
+    inst = [aDef, aLike, aWeig, aCust]
+
+    for a in inst:
+      stored = pickle.dumps(a)
+      restored = pickle.loads(stored)
+      #TODO add anomaly _eq_
+      self.assertEqual(a._computeAnomaly, restored._computeAnomaly)
 
 
 
