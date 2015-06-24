@@ -21,7 +21,6 @@
 
 """Anomaly-related algorithms."""
 
-import collections
 import numpy
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
@@ -75,12 +74,14 @@ class Anomaly(object):
   MODE_PURE = "pure"
   MODE_LIKELIHOOD = "likelihood"
   MODE_WEIGHTED = "weighted"
-  supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED)
+  MODE_CUSTOM = "custom"
+  supportedModes = (MODE_PURE, MODE_LIKELIHOOD, MODE_WEIGHTED, MODE_CUSTOM)
   
 
   def __init__(self, slidingWindowSize=None, 
                      mode=MODE_PURE, 
-                     binaryAnomalyThreshold=None):
+                     binaryAnomalyThreshold=None,
+                     customComputeFn=None):
     """
     @param slidingWindowSize (optional) - how many elements are summed up;
         enables moving average on final anomaly score; int >= 0
@@ -92,10 +93,22 @@ class Anomaly(object):
               models probability of receiving this value and anomalyScore
           - "weighted" - "pure" anomaly weighted by "likelihood"
               (anomaly * likelihood)
-          - OR type function and will be used directly to compute score
+          - "custom" - implies custom function will be provided 
+                       and used directly to compute score
     @param binaryAnomalyThreshold (optional) - if set [0,1] anomaly score
          will be discretized to 1/0 (1 if >= binaryAnomalyThreshold)
          The transformation is applied after moving average is computed and updated.
+    @param customComputeFn (optional) - required with mode="custom", a callable
+                       used for user-defined anomaly computation.
+                       Requirements on this callable are:
+                         params:
+                           activeColumns: array of active cols. indices
+                           prevPredictedColumns: array of pred. cols. indices
+                           inputValue: raw input (default=None) 
+                           timestamp: (default=None)
+                         return:
+                           anomaly score: float [0..1]
+                       @see description for compute() method for details
     """
     if slidingWindowSize is not None:
       self._movingAverage = MovingAverage(windowSize=slidingWindowSize)
@@ -109,6 +122,12 @@ class Anomaly(object):
       raise ValueError("Anomaly: binaryAnomalyThreshold must be from (0,1) "
                        "or None if disabled.")
     self._mode = mode
+    self._customCompute=None
+    if mode == Anomaly.MODE_CUSTOM:
+      if callable(customComputeFn):
+        self._customCompute = customComputeFn
+      else:
+        raise ValueError("Anomaly: with mode='custom' a callable must be provided as 'customComputeFn' param")
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -188,24 +207,9 @@ class Anomaly(object):
   def getComputeFn(self, mode):
     """
     assing compute() function to be used; 
-    all these functions must accept the following params:
-     activeColumns: 
-     prevPredictedColumns:
-     inputValue: (=None) 
-     timestamp: (=None)
-     and return anomaly score
 
-    @param mode   setting how anomaly is internally computed:
-        if string:   assign from Anomaly.MODE_* defined functions
-        if callable: use that custom function to compute anomaly score
-          these functions must accept the following params:
-            activeColumns: array of active cols. indices
-            prevPredictedColumns: array of pred. cols. indices
-            inputValue: raw input (default=None) 
-            timestamp: (default=None)
-            and return anomaly score: float [0..1]
-            @see description for compute() method for details
-
+    @param mode   (string) setting how anomaly is internally computed,
+                  assign from Anomaly.MODE_* defined functions
     @return a callable used for anomaly computation
     """
     if mode == Anomaly.MODE_PURE:
@@ -216,8 +220,8 @@ class Anomaly(object):
     elif mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
       return self.computeWeighted
-    elif callable(mode):
-      return mode
+    elif mode == Anomaly.MODE_CUSTOM:
+      return self._customCompute
     else:
-      raise ValueError(("Anomaly: mode has to be a callable or "
-              "one of '%s' but is '%r' ") % (Anomaly.supportedModes, mode) )
+      raise ValueError("Anomaly: mode has to be one of '%s' but is '%r' " 
+                         % (Anomaly.supportedModes, mode) )
