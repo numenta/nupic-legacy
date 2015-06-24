@@ -23,7 +23,6 @@
 
 import collections
 import numpy
-from types import FunctionType
 
 from nupic.algorithms.anomaly_likelihood import AnomalyLikelihood
 from nupic.utils import MovingAverage
@@ -189,13 +188,25 @@ class Anomaly(object):
   def getComputeFn(self, mode):
     """
     assing compute() function to be used; 
-    all these functions must take these arguments:
-     activeColumns, prevPredictedColumns, inputValue=None, timestamp=None
-    and return anomaly score
+    all these functions must accept the following params:
+     activeColumns: 
+     prevPredictedColumns:
+     inputValue: (=None) 
+     timestamp: (=None)
+     and return anomaly score
 
-    @param mode   if string: we assign from Anomaly.MODE_* defined functions
-                  if func: we will use that function to compute anomaly score
-    @return a function that is used for anomaly computation
+    @param mode   setting how anomaly is internally computed:
+        if string:   assign from Anomaly.MODE_* defined functions
+        if callable: use that custom function to compute anomaly score
+          these functions must accept the following params:
+            activeColumns: array of active cols. indices
+            prevPredictedColumns: array of pred. cols. indices
+            inputValue: raw input (default=None) 
+            timestamp: (default=None)
+            and return anomaly score: float [0..1]
+            @see description for compute() method for details
+
+    @return a callable used for anomaly computation
     """
     if mode == Anomaly.MODE_PURE:
       return self.computeRaw
@@ -205,8 +216,7 @@ class Anomaly(object):
     elif mode == Anomaly.MODE_WEIGHTED:
       self._likelihood = AnomalyLikelihood() # probabilistic anomaly
       return self.computeWeighted
-    elif isinstance(mode, FunctionType):
-      print "Anomaly: using custom compute() function"
+    elif callable(mode):
       return mode
     else:
       raise ValueError("Anomaly: computeFn has to be one of '%s' but is '%s' " % (Anomaly._supportedModes, mode) )
