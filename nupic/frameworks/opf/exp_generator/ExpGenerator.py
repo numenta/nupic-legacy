@@ -343,9 +343,9 @@ def _generateMetricSpecString(inferenceElement, metric,
                         params=params,
                         inferenceElement=inferenceElement)
 
-  metricSpecAsString = "MetricSpec(%s)" % \
-    ', '.join(['%s=%r' % (item[0],item[1])
-              for item in metricSpecArgs.iteritems()])
+  metricSpecAsString = (
+      "MetricSpec(metric=%r, field=%r, params=%r, inferenceElement=%s)" %
+      (metric, field, params, inferenceElement))
 
   if not returnLabel:
     return metricSpecAsString
@@ -984,7 +984,7 @@ def _handleJAVAParameters(options):
 
   # Find the correct InferenceType for the Model
   if 'inferenceType' not in options:
-    prediction = options.get('prediction', {InferenceType.TemporalNextStep:
+    prediction = options.get('prediction', {InferenceType.TemporalNextStep.name:
                                               {'optimize':True}})
     inferenceType = None
     for infType, value in prediction.iteritems():
@@ -1791,7 +1791,7 @@ def _generateMetricSpecs(options):
 
   # -----------------------------------------------------------------------
   # Metrics for classification
-  elif inferenceType in (InferenceType.TemporalClassification):
+  elif inferenceType in (InferenceType.TemporalClassification,):
 
     metricName = 'avg_err'
     trivialErrorMetric = 'avg_err'

@@ -92,7 +92,7 @@ class MetricSpec(object):
     result = []
     if inferenceType is not None:
       result.append(InferenceType.getLabel(inferenceType))
-    result.append(self.inferenceElement)
+    result.append(self.inferenceElement.name)
     result.append(self.metric)
 
     params = self.params

@@ -261,8 +261,10 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     modelIDs = [model.modelId for model in models]
     results = cjDAO.modelsGetResultAndStatus(modelIDs)
     if maxModels is not None:
-      self.assertEqual(len(results), maxModels, "Expected to get %d model "
-                "results but only got %d" % (maxModels, len(results)))
+      self.assertEqual(
+          len(results), maxModels,
+          "Expected to get %d model results but only got %d" % (
+              maxModels, len(results)))
 
     for result in results:
       self.assertEqual(result.completionReason, cjDAO.CMPL_REASON_EOF,
@@ -1036,7 +1038,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.control['inferenceArgs']['predictedField'],
                      expDesc['inferenceArgs']['predictedField'])
     self.assertEqual(base.config['modelParams']['inferenceType'],
-                     "TemporalMultiStep")
+                     InferenceType.TemporalMultiStep.name)
     
     # Make sure there is a '_classifier_input' encoder with classifierOnly
     #  set to True
@@ -1429,7 +1431,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     # Generate the experiment description
     expDesc = {
       "swarmSize": "large",
-      "inferenceType":"TemporalNextStep",
+      "inferenceType":InferenceType.TemporalNextStep.name,
       "inferenceArgs":{
         "predictedField":"consumption"
       },
@@ -1786,7 +1788,7 @@ class PositiveExperimentTests(ExperimentTestBaseClass):
     self.assertEqual(base.control['inferenceArgs']['predictedField'],
                      expDesc['inferenceArgs']['predictedField'])
     self.assertEqual(base.config['modelParams']['inferenceType'],
-                     InferenceType.NontemporalClassification)
+                     InferenceType.NontemporalClassification.name)
 
     self.assertEqual(base.config['modelParams']['sensorParams']['encoders']
                      ['_classifierInput']['classifierOnly'], True)

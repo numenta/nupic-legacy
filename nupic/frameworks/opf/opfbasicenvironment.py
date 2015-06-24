@@ -413,7 +413,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     # -----------------------------------------------------------------------
     # Handle each of the inference elements
     for inferenceElement, value in modelResult.inferences.iteritems():
-      inferenceLabel = InferenceElement.getLabel(inferenceElement)
+      inferenceLabel = inferenceElement.name
 
       # TODO: Right now we assume list inferences are associated with
       # The input field metadata
@@ -446,7 +446,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     # Consctruct the prediction dataset file path
     filename = (self.__label + "." +
-               opfutils.InferenceType.getLabel(self.__inferenceType) +
+               self.__inferenceType.name +
                ".predictionLog.csv")
     self.__datasetPath = os.path.join(inferenceDir, filename)
 
@@ -528,7 +528,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     metadata
     """
     fieldMetaInfo = []
-    inferenceLabel = InferenceElement.getLabel(inferenceElement)
+    inferenceLabel = inferenceElement.name
 
     for inputFieldMeta in self.__inputFieldsMeta:
       if InferenceElement.getInputElement(inferenceElement):
@@ -553,7 +553,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
   def __getDictMetaInfo(self, inferenceElement, inferenceDict):
     """Get field metadate information for inferences that are of dict type"""
     fieldMetaInfo = []
-    inferenceLabel = InferenceElement.getLabel(inferenceElement)
+    inferenceLabel = inferenceElement.name
 
     if InferenceElement.getInputElement(inferenceElement):
       fieldMetaInfo.append(FieldMetaInfo(name=inferenceLabel+".actual",

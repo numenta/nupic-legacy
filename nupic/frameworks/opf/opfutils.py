@@ -24,6 +24,7 @@
 # imported by description files. (see helpers.py)
 
 
+import enum
 import os
 import inspect
 import logging
@@ -31,58 +32,57 @@ import re
 from collections import namedtuple
 
 import nupic.data.jsonhelpers as jsonhelpers
-from nupic.support.enum import Enum
+
+g_temporalInferenceElements = None
 
 
 
-###############################################################################
-
-
-class InferenceElement(Enum(
-              prediction="prediction",
-              encodings="encodings",
-              classification="classification",
-              anomalyScore="anomalyScore",
-              anomalyLabel="anomalyLabel",
-              classConfidences="classConfidences",
-              multiStepPredictions="multiStepPredictions",
-              multiStepBestPredictions="multiStepBestPredictions",
-              multiStepBucketLikelihoods="multiStepBucketLikelihoods",
-              multiStepBucketValues="multiStepBucketValues",
-              )):
-
-  __inferenceInputMap = {
-    "prediction":               "dataRow",
-    "encodings":                "dataEncodings",
-    "classification":           "category",
-    "classConfidences":         "category",
-    "multiStepPredictions":     "dataDict",
-    "multiStepBestPredictions": "dataDict",
-  }
-
-  __temporalInferenceElements = None
+@enum.unique
+class InferenceElement(enum.Enum):
+  prediction = 1
+  encodings = 2
+  classification = 3
+  anomalyScore = 4
+  anomalyLabel = 5
+  classConfidences = 6
+  multiStepPredictions = 7
+  multiStepBestPredictions = 8
+  multiStepBucketLikelihoods = 9
+  multiStepBucketValues = 10
 
   @staticmethod
   def getInputElement(inferenceElement):
     """ Get the sensor input element that corresponds to the given inference
     element. This is mainly used for metrics and prediction logging
     """
-    return InferenceElement.__inferenceInputMap.get(inferenceElement, None)
+    elementMap = {
+      "prediction":               "dataRow",
+      "encodings":                "dataEncodings",
+      "classification":           "category",
+      "classConfidences":         "category",
+      "multiStepPredictions":     "dataDict",
+      "multiStepBestPredictions": "dataDict",
+    }
+    return elementMap.get(inferenceElement.name, None)
 
   @staticmethod
   def isTemporal(inferenceElement):
-    """ Returns True if the inference from this timestep is predicted the input
+    """ Returns True if the inference from this timestep predicteds the input
     for the NEXT timestep.
 
     NOTE: This should only be checked IF THE MODEL'S INFERENCE TYPE IS ALSO
-    TEMPORAL. That is, a temporal model CAN have non-temporal inference elements,
-    but a non-temporal model CANNOT have temporal inference elements
-    """
-    if InferenceElement.__temporalInferenceElements is None:
-      InferenceElement.__temporalInferenceElements = \
-                                set([InferenceElement.prediction])
+    TEMPORAL. That is, a temporal model CAN have non-temporal inference
+    elements, but a non-temporal model CANNOT have temporal inference elements.
 
-    return inferenceElement in InferenceElement.__temporalInferenceElements
+    :param inferenceElement: the inference element
+    :type inferenceElement: InferenceElement
+    """
+    global g_temporalInferenceElements
+    if g_temporalInferenceElements is None:
+      g_temporalInferenceElements = set(
+          [InferenceElement.prediction])
+
+    return inferenceElement in g_temporalInferenceElements
 
   @staticmethod
   def getTemporalDelay(inferenceElement, key=None):
@@ -90,13 +90,10 @@ class InferenceElement(Enum(
     made and when the corresponding input record will appear. For example, a
     multistep prediction for 3 timesteps out will have a delay of 3
 
-
-    Parameters:
-    -----------------------------------------------------------------------
-
-    inferenceElement:   The InferenceElement value being delayed
-    key:                If the inference is a dictionary type, this specifies
-                        key for the sub-inference that is being delayed
+    :param inferenceElement: the inference element
+    :type inferenceElement: InferenceElement
+    :param key: If the inference is a dictionary type, this specifies key for
+        the sub-inference that is being delayed.
     """
     # -----------------------------------------------------------------------
     # For next step prediction, we shift by 1
@@ -137,7 +134,7 @@ class InferenceElement(Enum(
       if isinstance(inference, dict):
         for key in inference.iterkeys():
           maxDelay = max(InferenceElement.getTemporalDelay(inferenceElement,
-                                                            key),
+                                                           key),
                          maxDelay)
       else:
         maxDelay = max(InferenceElement.getTemporalDelay(inferenceElement),
@@ -146,31 +143,33 @@ class InferenceElement(Enum(
 
     return maxDelay
 
-class InferenceType(Enum("TemporalNextStep",
-                         "TemporalClassification",
-                         "NontemporalClassification",
-                         "TemporalAnomaly",
-                         "NontemporalAnomaly",
-                         "TemporalMultiStep",
-                         "NontemporalMultiStep")):
 
 
-  __temporalInferenceTypes = None
+@enum.unique
+class InferenceType(enum.Enum):
+  TemporalNextStep = 1
+  TemporalClassification = 2
+  NontemporalClassification = 3
+  TemporalAnomaly = 4
+  NontemporalAnomaly = 5
+  TemporalMultiStep = 6
+  NontemporalMultiStep = 7
 
   @staticmethod
   def isTemporal(inferenceType):
     """ Returns True if the inference type is 'temporal', i.e. requires a
     temporal pooler in the network.
     """
-    if InferenceType.__temporalInferenceTypes is None:
-      InferenceType.__temporalInferenceTypes = \
-                                set([InferenceType.TemporalNextStep,
-                                     InferenceType.TemporalClassification,
-                                     InferenceType.TemporalAnomaly,
-                                     InferenceType.TemporalMultiStep,
-                                     InferenceType.NontemporalMultiStep])
+    temporalInferenceTypes = set([
+        InferenceType.TemporalNextStep,
+        InferenceType.TemporalClassification,
+        InferenceType.TemporalAnomaly,
+        InferenceType.TemporalMultiStep,
+        InferenceType.NontemporalMultiStep,
+    ])
 
-    return inferenceType in InferenceType.__temporalInferenceTypes
+    return inferenceType in temporalInferenceTypes
+
 
 
 ################################################################################
@@ -192,7 +191,6 @@ class InferenceType(Enum("TemporalNextStep",
 #                 sensor's compute logic on the supplied inputRecord; provided
 #                 for analysis and diagnostics.
 # TODO: document category
-
 class SensorInput(object):
 
   __slots__ = ("dataRow", "dataDict", "dataEncodings", "sequenceReset", "category")
