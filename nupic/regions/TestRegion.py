@@ -107,7 +107,6 @@ class TestRegion(PyRegion):
     return
 
 
-  #############################################################################
   def __constructEphemeralInstanceVars(self):
     """ Initialize ephemeral instance variables (those that aren't serialized)
     """
@@ -133,7 +132,6 @@ class TestRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def initialize(self, dims, splitterMaps):
     """ Called by network after all links have been set up
 
@@ -152,7 +150,6 @@ class TestRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def compute(self, inputs, outputs):
     """
     Run one iteration of the region's compute.
@@ -178,12 +175,13 @@ class TestRegion(PyRegion):
   #    These methods are required by NuPIC 2
   #
   #############################################################################
+
+
   def getOutputElementCount(self, name):
     nOutputElements = self.identityPolicy.getOutputElementCount(name)
     return nOutputElements
 
 
-  #########################################################################################
   # TODO: as a temporary hack, getParameterArrayCount checks to see if there's a
   # variable, private or not, with that name. If so, it attempts to return the
   # length of that variable.
@@ -216,7 +214,7 @@ class TestRegion(PyRegion):
   #
   #############################################################################
 
-  #############################################################################
+
   @classmethod
   def getSpec(cls):
     """Return the base Spec for TestRegion.
@@ -322,7 +320,6 @@ class TestRegion(PyRegion):
     return spec
 
 
-  #############################################################################
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled
@@ -340,7 +337,6 @@ class TestRegion(PyRegion):
       return super(PyRegion, self).getParameter(parameterName, index)
 
 
-  #############################################################################
   def setParameter(self, parameterName, index, parameterValue):
     """
       Set the value of a Spec parameter. Most parameters are handled
@@ -391,6 +387,8 @@ class TestRegion(PyRegion):
   # Commands
   #
   #############################################################################
+
+
   def setIdentityPolicyInstance(self, identityPolicyObj):
     """TestRegion command that sets identity policy instance.  The instance
     MUST be derived from TestRegion's RegionIdentityPolicyBase class.
@@ -430,7 +428,6 @@ class TestRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def __getstate__(self):
     """
     Return serializable state.  This function will return a version of the
@@ -446,7 +443,6 @@ class TestRegion(PyRegion):
     return state
 
 
-  #############################################################################
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -468,7 +464,7 @@ class TestRegion(PyRegion):
   #
   #############################################################################
 
-  #############################################################################
+
   def _conditionalBreak(self):
     if self.breakKomodo:
       import dbgp.client; dbgp.client.brk()
@@ -480,7 +476,6 @@ class TestRegion(PyRegion):
 
 
 g_debug = True
-###############################################################################
 def _debugOut(msg):
   import sys
   global g_debug
@@ -493,7 +488,7 @@ def _debugOut(msg):
   return
 
 
-###############################################################################
+
 def whois_callers_caller():
   """
   Returns: Traceback namedtuple for our caller's caller

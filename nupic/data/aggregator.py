@@ -49,7 +49,6 @@ slices to a temp storage or use incremental aggregation techniques.
 
 
 
-##############################################################################
 def initFilter(input, filterInfo = None):
   """ Initializes internal filter variables for further processing.
   Returns a tuple (function to call,parameters for the filter call)
@@ -112,7 +111,7 @@ def initFilter(input, filterInfo = None):
   return (_filterRecord, filterList)
 
 
-##############################################################################
+
 def _filterRecord(filterList, record):
   """ Takes a record and returns true if record meets filter criteria,
   false otherwise
@@ -131,7 +130,7 @@ def _filterRecord(filterList, record):
   return True
 
 
-############################################################################
+
 def _aggr_first(inList):
   """ Returns first non-None element in the list, or None if all are None
   """
@@ -141,7 +140,7 @@ def _aggr_first(inList):
   return None
 
 
-############################################################################
+
 def _aggr_last(inList):
   """ Returns last non-None element in the list, or None if all are None
   """
@@ -151,7 +150,7 @@ def _aggr_last(inList):
   return None
 
 
-############################################################################
+
 def _aggr_sum(inList):
   """ Returns sum of the elements in the list. Missing items are replaced with
   the mean value
@@ -170,7 +169,7 @@ def _aggr_sum(inList):
   return aggrSum
 
 
-############################################################################
+
 def _aggr_mean(inList):
   """ Returns mean of non-None elements of the list
   """
@@ -185,7 +184,8 @@ def _aggr_mean(inList):
   else:
     return None
 
-############################################################################
+
+
 def _aggr_mode(inList):
   """ Returns most common value seen in the non-None elements of the list
   """
@@ -213,7 +213,7 @@ def _aggr_mode(inList):
   return sortedCounts[0][0]
 
 
-############################################################################
+
 def _aggr_weighted_mean(inList, params):
   """ Weighted mean uses params (must be the same size as inList) and
   makes weighed mean of inList"""
@@ -232,9 +232,6 @@ def _aggr_weighted_mean(inList, params):
 
 
 
-  
-##############################################################################
-##############################################################################
 class Aggregator(object):
   """
   This class provides context and methods for aggregating records. The caller
@@ -253,8 +250,8 @@ class Aggregator(object):
    }
 
   """
-  
-  ##############################################################################
+
+
   def __init__(self, aggregationInfo, inputFields, timeFieldName=None,
                sequenceIdFieldName=None, resetFieldName=None, filterInfo=None):
     """ Construct an aggregator instance
@@ -427,9 +424,7 @@ class Aggregator(object):
         assert self._aggYears == 0
         assert self._aggMonths == 0
 
-    
 
-  ##############################################################################
   def _getEndTime(self, t):
     """Add the aggregation period to the input time t and return a datetime object
 
@@ -451,8 +446,6 @@ class Aggregator(object):
       return t.replace(year=year, month=month)
 
 
-
-  ############################################################################
   def _getFuncPtrAndParams(self, funcName):
     """ Given the name of an aggregation function, returns the function pointer
     and param. 
@@ -487,10 +480,8 @@ class Aggregator(object):
       fp = funcName
 
     return (fp, params)
-  
-    
-    
-  ##############################################################################
+
+
   def _createAggregateRecord(self):
     """ Generate the aggregated output record
 
@@ -516,8 +507,6 @@ class Aggregator(object):
     return record
 
 
-
-  ############################################################################
   def isNullAggregation(self):
     """ Return True if no aggregation will be performed, either because the
     aggregationInfo was None or all aggregation params within it were 0. 
@@ -525,8 +514,6 @@ class Aggregator(object):
     return self._nullAggregation
   
 
-
-  ##############################################################################
   def next(self, record, curInputBookmark):
     """ Return the next aggregated record, if any
     
@@ -729,12 +716,9 @@ class Aggregator(object):
     
     # Return aggregated record
     return (outRecord, retInputBookmark)
-     
-    
-    
-    
 
-##############################################################################
+
+
 def generateDataset(aggregationInfo, inputFilename, outputFilename=None):
   """Generate a dataset of aggregated values
 
@@ -852,7 +836,7 @@ def generateDataset(aggregationInfo, inputFilename, outputFilename=None):
   return outputFilename
 
 
-#############################################################################
+
 def getFilename(aggregationInfo, inputFile):
   """Generate the filename for aggregated dataset
 

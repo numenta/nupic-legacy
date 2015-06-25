@@ -148,9 +148,9 @@ if config['dataSetPackage'] is not None:
     
   else:
     assert False
-    
 
-#########################################################################
+
+
 def getBaseDatasets():
   datasets = dict()
   for name in ['filenameTrain', 'filenameTest', 'filenameCategory',
@@ -158,9 +158,9 @@ def getBaseDatasets():
     if config[name] is not None:
       datasets[name] = config[name]
   return datasets
-  
 
-#########################################################################
+
+
 def getDatasets(baseDatasets, generate=False):
   # nothing to generate if no script
   if not 'dataGenScript' in baseDatasets:
@@ -198,8 +198,8 @@ def getDatasets(baseDatasets, generate=False):
 
   return datasets
   
-  
-#########################################################################
+
+
 def getDescription(datasets):
 
   # ========================================================================

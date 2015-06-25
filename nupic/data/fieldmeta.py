@@ -28,7 +28,6 @@ from collections import namedtuple
 
 
 
-###############################################################################
 FieldMetaInfoBase = namedtuple('FieldMetaInfoBase', ['name', 'type', 'special'])
 
 class FieldMetaInfo(FieldMetaInfoBase):

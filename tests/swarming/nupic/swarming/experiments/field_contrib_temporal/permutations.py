@@ -76,7 +76,7 @@ report = [
 minimize = 'prediction:rmse:field=consumption'
 
 
-#############################################################################
+
 def dummyModelParams(perm):
   """ This function can be used for Hypersearch algorithm development. When
   present, Hypersearch doesn't actually run the CLA model in the OPF, but instead run
@@ -108,7 +108,6 @@ def dummyModelParams(perm):
 
 
 
-#############################################################################
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation

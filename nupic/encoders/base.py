@@ -162,7 +162,6 @@ class Encoder(object):
     return names
 
 
-  ############################################################################
   def getDecoderOutputFieldTypes(self):
     """
     Returns a sequence of field types corresponding to the elements in the
@@ -188,7 +187,6 @@ class Encoder(object):
     return fieldTypes
 
 
-  ############################################################################
   def setStateLock(self,lock):
     """
     Setting this to true freezes the state of the encoder
@@ -197,7 +195,7 @@ class Encoder(object):
     """
     pass
 
-  ############################################################################
+
   def _getInputValue(self, obj, fieldName):
     """
     Gets the value of a given field from the input record
@@ -218,7 +216,7 @@ class Encoder(object):
     else:
       return getattr(obj, fieldName)
 
-  ############################################################################
+
   def getEncoderList(self):
     """
     @returns a reference to each sub-encoder in this encoder. They are
@@ -244,7 +242,6 @@ class Encoder(object):
     return encoders
 
 
-  ############################################################################
   def getScalars(self, inputData):
     """
     Returns a numpy array containing the sub-field scalar value(s) for
@@ -278,7 +275,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def getEncodedValues(self, inputData):
     """
     Returns the input in the same format as is returned by topDownCompute().
@@ -314,7 +310,7 @@ class Encoder(object):
 
     return tuple(retVals)
 
-  ############################################################################
+
   def getBucketIndices(self, inputData):
     """
     Returns an array containing the sub-field bucket indices for
@@ -339,7 +335,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def scalarsToStr(self, scalarValues, scalarNames=None):
     """
     Return a pretty print string representing the return values from
@@ -364,8 +359,6 @@ class Encoder(object):
     return desc
 
 
-
-  ############################################################################
   def getDescription(self):
     """
     This returns a list of tuples, each containing (name, offset).
@@ -382,7 +375,6 @@ class Encoder(object):
     raise Exception("getDescription must be implemented by all subclasses")
 
 
-  ############################################################################
   def getFieldDescription(self, fieldName):
     """
     Return the offset and length of a given field within the encoded output.
@@ -405,7 +397,6 @@ class Encoder(object):
     return (offset, description[i+1][1] - offset)
 
 
-  ############################################################################
   def encodedBitDescription(self, bitOffset, formatted=False):
     """
     Return a description of the given bit in the encoded output.
@@ -443,8 +434,6 @@ class Encoder(object):
     return (prevFieldName, bitOffset - prevFieldOffset)
 
 
-
-  ############################################################################
   def pprintHeader(self, prefix=""):
     """
     Pretty-print a header that labels the sub-fields of the encoded
@@ -466,7 +455,7 @@ class Encoder(object):
     print
     print prefix, "-" * (self.getWidth() + (len(description) - 1)*3 - 1)
 
-  ############################################################################
+
   def pprint(self, output, prefix=""):
     """
     Pretty-print the encoded output using ascii art.
@@ -483,7 +472,6 @@ class Encoder(object):
     print
 
 
-  ############################################################################
   def decode(self, encoded, parentFieldName=''):
     """
     Takes an encoded output and does its best to work backwards and generate
@@ -577,8 +565,6 @@ class Encoder(object):
     return (fieldsDict, fieldsOrder)
 
 
-
-  ############################################################################
   def decodedToStr(self, decodeResults):
     """
     Return a pretty print string representing the return value from decode().
@@ -599,7 +585,6 @@ class Encoder(object):
     return desc
 
 
-  ############################################################################
   def getBucketValues(self):
     """
     Returns a list of items, one for each bucket defined by this encoder.
@@ -619,7 +604,6 @@ class Encoder(object):
     raise Exception("getBucketValues must be implemented by all subclasses")
 
 
-  ############################################################################
   def getBucketInfo(self, buckets):
     """
     Returns a list of EncoderResult namedtuples describing the inputs for
@@ -672,7 +656,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def topDownCompute(self, encoded):
     """
     Returns a list of EncoderResult namedtuples describing the top-down
@@ -730,7 +713,6 @@ class Encoder(object):
     return retVals
 
 
-  ############################################################################
   def closenessScores(self, expValues, actValues, fractional=True):
     """
     Compute closeness scores between the expected scalar value(s) and actual
@@ -784,7 +766,7 @@ class Encoder(object):
 
     return retVals
 
-  ############################################################################
+
   def getDisplayWidth(self):
     """
     Calculate width of display for bits plus blanks between fields.
@@ -794,7 +776,7 @@ class Encoder(object):
     width = self.getWidth() + len(self.getDescription()) - 1
     return width
 
-  ############################################################################
+
   def formatBits(self, inarray, outarray, scale=1, blank=255, leftpad=0):
     """
     Copy one array to another, inserting blanks
