@@ -435,7 +435,7 @@ void PyRegion::write(capnp::AnyPointer::Builder& proto) const
 
 void PyRegion::read(capnp::AnyPointer::Reader& proto)
 {
-  NTA_THROW << "Unimplemented method PyRegion::write.";
+  NTA_THROW << "Unimplemented method PyRegion::read.";
 }
 
 const Spec & PyRegion::getSpec()
