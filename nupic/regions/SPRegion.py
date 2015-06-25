@@ -31,7 +31,6 @@ from PyRegion import PyRegion
 
 
 
-##############################################################################
 def getDefaultSPImp():
   """
   Return the default spatial pooler implementation for this region.
@@ -39,7 +38,7 @@ def getDefaultSPImp():
   return 'cpp'
 
 
-##############################################################################
+
 def getSPClass(spatialImp):
   """ Return the class corresponding to the given spatialImp string
   """
@@ -52,7 +51,8 @@ def getSPClass(spatialImp):
     raise RuntimeError("Invalid spatialImp '%s'. Legal values are: 'py', "
           "'cpp'" % (spatialImp))
 
-##############################################################################
+
+
 def _buildArgs(f, self=None, kwargs={}):
   """
   Get the default arguments from the function and assign as instance vars.
@@ -388,6 +388,7 @@ class SPRegion(PyRegion):
   # Initialization code
   #
   #############################################################################
+
   def _initializeEphemeralMembers(self):
     """
     Initialize all ephemeral data members, and give the derived class the
@@ -425,7 +426,7 @@ class SPRegion(PyRegion):
     self._initEphemerals()
     self._checkEphemeralMembers()
 
-  #############################################################################
+
   def initialize(self, dims, splitterMaps):
     """"""
 
@@ -441,7 +442,6 @@ class SPRegion(PyRegion):
     self._allocateSpatialFDR(None)
 
 
-  #############################################################################
   def _allocateSpatialFDR(self, rfInput):
     """Allocate the spatial pooler instance."""
     if self._sfdr:
@@ -471,7 +471,6 @@ class SPRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def compute(self, inputs, outputs):
     """
     Run one iteration of SPRegion's compute, profiling it if requested.
@@ -564,7 +563,7 @@ class SPRegion(PyRegion):
       #print "SPRegion input: ", buInputVector.nonzero()[0]
       #print "SPRegion output: ", rfOutput.nonzero()[0]
 
-  #############################################################################
+
   def _doBottomUpCompute(self, rfInput, resetSignal):
     """
     Do one iteration of inference and/or learning and return the result
@@ -617,7 +616,6 @@ class SPRegion(PyRegion):
     return self._spatialPoolerOutput
 
 
-  #############################################################################
   def _doTopDownInfer(self, topDownInput = None):
     """
     Do one iteration of top-down inference.
@@ -642,7 +640,6 @@ class SPRegion(PyRegion):
   #
   #############################################################################
 
-  #############################################################################
   @classmethod
   def getBaseSpec(cls):
     """Return the base Spec for SPRegion.
@@ -764,7 +761,6 @@ class SPRegion(PyRegion):
     return spec
 
 
-  #############################################################################
   def getParameter(self, parameterName, index=-1):
     """
       Get the value of a NodeSpec parameter. Most parameters are handled
@@ -796,7 +792,6 @@ class SPRegion(PyRegion):
       return PyRegion.getParameter(self, parameterName, index)
 
 
-  #############################################################################
   def setParameter(self, parameterName, index, parameterValue):
     """
       Set the value of a Spec parameter. Most parameters are handled
@@ -849,7 +844,6 @@ class SPRegion(PyRegion):
   #############################################################################
 
 
-  #############################################################################
   def __getstate__(self):
     """
     Return serializable state.  This function will return a version of the
@@ -864,7 +858,7 @@ class SPRegion(PyRegion):
 
     return state
 
-  #############################################################################
+
   def __setstate__(self, state):
     """
     Set the state of ourself from a serialized state.
@@ -881,7 +875,6 @@ class SPRegion(PyRegion):
     self._allocateSpatialFDR(None)
 
 
-  #############################################################################
   def _initEphemerals(self):
     """
     Initialize all ephemerals used by derived classes.
@@ -901,7 +894,7 @@ class SPRegion(PyRegion):
     self.logPathOutput = ""
     self.logPathOutputDense = ""
 
-  #############################################################################
+
   def _getEphemeralMembers(self):
     """
     Callback that returns a list of all "ephemeral" members (i.e., data members
@@ -912,7 +905,6 @@ class SPRegion(PyRegion):
             'logPathInput', 'logPathOutput', 'logPathOutputDense'
         ]
 
-  #############################################################################
 
   def _getEphemeralMembersBase(self):
     """
@@ -932,7 +924,6 @@ class SPRegion(PyRegion):
     """
     return self._getEphemeralMembersBase() + self._getEphemeralMembers()
 
-  #############################################################################
 
   def _checkEphemeralMembers(self):
     for attrName in self._getEphemeralMembersBase():
@@ -953,7 +944,6 @@ class SPRegion(PyRegion):
   #
   #############################################################################
 
-  #########################################################################################
   def _conditionalBreak(self):
     if self.breakKomodo:
       import dbgp.client; dbgp.client.brk()
@@ -966,6 +956,7 @@ class SPRegion(PyRegion):
   #    These methods are required by NuPIC 2
   #
   #############################################################################
+
   def getOutputElementCount(self, name):
     if name == 'bottomUpOut':
       return self.columnCount

@@ -57,7 +57,7 @@ class AnomalyTest(unittest.TestCase):
     score = anomaly.computeRawAnomalyScore(array([2, 3, 6]), array([3, 5, 7]))
     self.assertAlmostEqual(score, 2.0 / 3.0)
 
-###################
+
   def testComputeAnomalyScoreNoActiveOrPredicted(self):
     anomalyComputer = anomaly.Anomaly()
     score = anomalyComputer.compute(array([]), array([]))

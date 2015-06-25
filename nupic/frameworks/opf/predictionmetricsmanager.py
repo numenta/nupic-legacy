@@ -35,7 +35,6 @@ from opfutils import InferenceType, InferenceElement
 
 
 
-###############################################################################
 # MetricValueElement class
 #
 # Represents an individual metric value element in a list returned by
@@ -46,7 +45,7 @@ from opfutils import InferenceType, InferenceElement
 # value:          The metric value
 MetricValueElement = namedtuple("MetricValueElement", ["spec", "value"])
 
-###############################################################################
+
 
 class MetricsManager(object):
   """ This is a class to handle the computation of metrics properly. This class
@@ -89,7 +88,7 @@ class MetricsManager(object):
     if self.__isTemporal:
       self.__inferenceShifter = InferenceShifter()
 
-  ############################################################################
+
   def update(self, results):
     """
     Compute the new metrics values, given the next inference/ground-truth values
@@ -154,7 +153,7 @@ class MetricsManager(object):
 
     return metricResults
 
-  ############################################################################
+
   def getMetrics(self):
     """ Gets the current metric values
 
@@ -170,7 +169,7 @@ class MetricsManager(object):
 
     return result
 
-  ############################################################################
+
   def getMetricDetails(self, metricLabel):
     """ Gets detailed info about a given metric, in addition to its value. This
     may including any statistics or auxilary data that are computed for a given
@@ -190,7 +189,7 @@ class MetricsManager(object):
 
     return self.__metrics[metricIndex].getMetric()
 
-  ############################################################################
+
   def getMetricLabels(self):
     """ Return the list of labels for the metrics that are being calculated"""
     return tuple(self.__metricLabels)
@@ -200,7 +199,7 @@ class MetricsManager(object):
     """@return instances of all metrics available here (as a [list])"""
     return self.__metrics
 
-  ############################################################################
+
   def _addResults(self, results):
     """
     Stores the current model results in the manager's internal store
@@ -225,7 +224,6 @@ class MetricsManager(object):
     self.__currentGroundTruth = copy.deepcopy(results)
 
 
-  ############################################################################
   def _getGroundTruth(self, inferenceElement):
     """
     Get the actual value for this field
@@ -241,7 +239,6 @@ class MetricsManager(object):
     return getattr(self.__currentGroundTruth.sensorInput, sensorInputElement)
 
 
-  ############################################################################
   def _getInference(self, inferenceElement):
     """
     Get what the inferred value for this field was
@@ -257,7 +254,6 @@ class MetricsManager(object):
     return None
 
 
-  ############################################################################
   def _getRawGroundTruth(self):
     """
     Get what the inferred value for this field was
@@ -270,7 +266,7 @@ class MetricsManager(object):
 
     return self.__currentGroundTruth.rawInput
 
-  ############################################################################
+
   def __constructMetricsModules(self, metricSpecs):
     """
     Creates the required metrics modules
@@ -292,8 +288,8 @@ class MetricsManager(object):
       self.__metrics.append(metrics.getModule(spec))
       self.__metricLabels.append(spec.getLabel())
 
-###############################################################################
-###############################################################################
+
+
 def test():
 
   _testMetricsMgr()
@@ -303,7 +299,7 @@ def test():
   return
 
 
-###############################################################################
+
 def _testMetricsMgr():
   print "*Testing Metrics Managers*..."
   from nupic.data.fieldmeta import (
@@ -404,7 +400,8 @@ def _testMetricsMgr():
 
   return
 
-################################################################################
+
+
 def _testTemporalShift():
   """ Test to see if the metrics manager correctly shifts records for multistep
   prediction cases
@@ -456,8 +453,6 @@ def _testTemporalShift():
 
 
 
-
-################################################################################
 def _testMetricLabels():
   print "\n*Testing Metric Label Generation*..."
 
@@ -494,6 +489,8 @@ def _testMetricLabels():
       return
 
   print "ok"
-###############################################################################
+
+
+
 if __name__ == "__main__":
   test()

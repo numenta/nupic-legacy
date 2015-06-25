@@ -412,7 +412,6 @@ for steps in config['predictionSteps']:
                  params={'errorMetric': 'altMAPE', 'window': 1000, 'steps': steps}))
 
 
-################################################################################
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

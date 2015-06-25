@@ -34,7 +34,6 @@ from nupic.encoders.category_capnp import CategoryEncoderProto
 
 
 
-#########################################################################
 class CategoryEncoderTest(unittest.TestCase):
   '''Unit tests for CategoryEncoder class'''
 

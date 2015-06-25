@@ -29,9 +29,8 @@ from nupic.bindings.math import GetNumpyDataType
 type = GetNumpyDataType('NTA_Real')
 type = 'float32'
 
-#--------------------------------------------------------------------------------
-# Simple use case
-#--------------------------------------------------------------------------------
+
+
 def simple():
     
     print "Simple"
@@ -142,9 +141,8 @@ def simple():
         print 'p2=', classifier.predict_probability(x, proba),
         print 'proba=', proba
 
-#--------------------------------------------------------------------------------
-# Persistence
-#--------------------------------------------------------------------------------
+
+
 def persistence():
     
     print "Persistence"
@@ -198,9 +196,7 @@ def persistence():
     print classifier01.predict(numpy.array(samples[0], dtype=type))
 
 
-#--------------------------------------------------------------------------------
-# Cross validation
-#--------------------------------------------------------------------------------
+
 def cross_validation():
     return
     print "Cross validation"

@@ -46,9 +46,7 @@ except:
 dtype = GetNTAReal()
 
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-# GaborFilter
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
 class GaborFilter(BaseFilter):
 
   """
@@ -57,9 +55,6 @@ class GaborFilter(BaseFilter):
   containing the Gabor responses.
   """
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Public API methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def __init__(self, gaborBankParams=None,
                      debugMode=False,
@@ -200,7 +195,7 @@ class GaborFilter(BaseFilter):
     if self._debugMode:
       print 'Gabor Bank:'
       for f in self._gaborBank:
-        print '+=+=+=+=+=+=+=+=+=+=+=+=+=+=+'
+        print '============================='
         print 'Scale:  %d' % f[0][1]['scale']
         print 'Orient: %d' % f[0][1]['orient']
         print 'Phase:  %d' % int(f[0][1]['phase'])
@@ -325,9 +320,6 @@ class GaborFilter(BaseFilter):
 
     return [
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Small vertical lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Small vertical lines
         [
@@ -383,9 +375,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Small SW-NE lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Small SW-NE lines
         [
@@ -441,9 +430,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Small horizontal lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Small horizontal lines
         [
@@ -499,9 +485,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Small SE-NW lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Small SE-NW lines
         [
@@ -558,10 +541,6 @@ class GaborFilter(BaseFilter):
          ],
 
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Medium vertical lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-
         # Medium vertical lines
         [
           # Phase-0 (detects bright line against dark background)
@@ -616,9 +595,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Medium SW-NE lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Medium SW-NE lines
         [
@@ -674,9 +650,7 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Medium horizontal lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
+
         [
           # Phase-0 (detects bright line against dark background)
           {
@@ -730,9 +704,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Medium SE-NW lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Medium SE-NW lines
         [
@@ -789,10 +760,6 @@ class GaborFilter(BaseFilter):
          ],
 
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Large vertical lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-
         # Large vertical lines
         [
           # Phase-0 (detects bright line against dark background)
@@ -847,9 +814,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Large SW-NE lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Large SW-NE lines
         [
@@ -905,9 +869,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Large horizontal lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Large horizontal lines
         [
@@ -963,9 +924,6 @@ class GaborFilter(BaseFilter):
            },
          ],
 
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-        # Large SE-NW lines and edges
-        #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
         # Large SE-NW lines
         [
@@ -1095,9 +1053,6 @@ class GaborFilter(BaseFilter):
 
     return rawResponses, compositeResponses
 
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
-  # Private (internal) methods
-  #+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+
 
   def _createDir(self, directory):
     """
