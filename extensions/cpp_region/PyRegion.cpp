@@ -25,6 +25,9 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
+
+#include <capnp/any.h>
+
 #include <nupic/engine/Spec.hpp>
 #include <nupic/engine/Region.hpp>
 #include <nupic/engine/Input.hpp>
@@ -425,8 +428,15 @@ void PyRegion::deserialize(BundleIO& bundle)
   
 }
 
+void PyRegion::write(capnp::AnyPointer::Builder& proto) const
+{
+  NTA_THROW << "Unimplemented method PyRegion::write.";
+}
 
-
+void PyRegion::read(capnp::AnyPointer::Reader& proto)
+{
+  NTA_THROW << "Unimplemented method PyRegion::write.";
+}
 
 const Spec & PyRegion::getSpec()
 {
