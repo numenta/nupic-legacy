@@ -30,8 +30,7 @@ import numpy
 # Local imports
 from nupic.regions.PictureSensor import PictureSensor
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# RandomPictureExplorer
+
 
 class RandomPictureExplorer(PictureSensor.PictureExplorer):
   """

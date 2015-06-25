@@ -323,11 +323,6 @@ applyValueGettersToContainer(config)
 
 
 
-
-
-################################################################################
-  
-
 # [optional] A sequence of one or more tasks that describe what to do with the
 # model. Each task consists of a task label, an input spec., iteration count,
 # and a task-control spec per opfTaskSchema.json
@@ -417,7 +412,7 @@ tasks = [
 
 )
 
-################################################################################
-################################################################################
+
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

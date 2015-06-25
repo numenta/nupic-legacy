@@ -47,7 +47,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
   and may not be used to calculate the median, mean etc.
   """
 
-  ############################################################################
+
   def __init__(self, w, minval=None, maxval=None, periodic=False, n=0, radius=0,
                 resolution=0, name=None, verbosity=0, clipInput=True, forced=False):
     """
@@ -64,7 +64,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     self.recordNum=0    #how many inputs have been sent to the encoder?
     self.slidingWindow = MovingAverage(300)
 
-  ############################################################################
+
   def _setEncoderParams(self):
     """
     Set the radius, resolution and range. These values are updated when minval
@@ -83,7 +83,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
     # Invalidate the bucket values cache so that they get recomputed
     self._bucketValues = None
 
-  ############################################################################
+
   def setFieldStats(self, fieldName, fieldStats):
     """
     TODO: document
@@ -98,7 +98,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
       self.maxval+=1
     self._setEncoderParams()
 
-  ############################################################################
+
   def _setMinAndMax(self, input, learn):
     """
     Potentially change the minval and maxval using input.
@@ -135,7 +135,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
         self.maxval = maxOverWindow       #+initialBump
         self._setEncoderParams()
 
-  ############################################################################
+
   def getBucketIndices(self, input, learn=None):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.getBucketIndices]
@@ -154,7 +154,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
       self._setMinAndMax(input, learn)
       return super(AdaptiveScalarEncoder, self).getBucketIndices(input)
 
-  ############################################################################
+
   def encodeIntoArray(self, input, output,learn=None):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.encodeIntoArray]
@@ -170,8 +170,6 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     super(AdaptiveScalarEncoder, self).encodeIntoArray(input, output)
 
-
-  ############################################################################
   def getBucketInfo(self, buckets):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.getBucketInfo]
@@ -183,7 +181,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
 
     return super(AdaptiveScalarEncoder, self).getBucketInfo(buckets)
 
-  ############################################################################
+
   def topDownCompute(self, encoded):
     """
     [overrides nupic.encoders.scalar.ScalarEncoder.topDownCompute]
@@ -194,7 +192,7 @@ class AdaptiveScalarEncoder(ScalarEncoder):
                            encoding=numpy.zeros(self.n))]
     return super(AdaptiveScalarEncoder, self).topDownCompute(encoded)
 
-  ############################################################################
+
   def dump(self):
     """
     Prints details about current state to stdout.

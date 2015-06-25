@@ -335,7 +335,7 @@ class OPFDummyModelRunner(OPFModelRunner):
 
     self._logger.debug("Dummy Model %d params %r", self._modelID, self._params)
 
-  ############################################################################
+
   def _loadDummyModelParameters(self, params):
     """ Loads all the parameters for this dummy model. For any paramters
     specified as lists, read the appropriate value for this model using the model
@@ -348,7 +348,7 @@ class OPFDummyModelRunner(OPFModelRunner):
       else:
         self._params[key] = params[key]
 
-  ############################################################################
+
   def _computModelDelay(self):
     """ Computes the amount of time (if any) to delay the run of this model.
     This can be determined by two mutually exclusive parameters:
@@ -390,7 +390,6 @@ class OPFDummyModelRunner(OPFModelRunner):
       self._delay = self._params['delay']
 
 
-  ############################################################################
   def _getMetrics(self):
     """ Protected function that can be overridden by subclasses. Its main purpose
     is to allow the the OPFDummyModelRunner to override this with deterministic
@@ -408,7 +407,7 @@ class OPFDummyModelRunner(OPFModelRunner):
 
     return {self._optimizeKeyPattern:metric}
 
-  ############################################################################
+
   def run(self):
     """ Runs the given OPF task against the given Model instance """
 
@@ -552,14 +551,12 @@ class OPFDummyModelRunner(OPFModelRunner):
     return (self._cmpReason, None)
 
 
-
-  ############################################################################
   def __computeWaitTime(self):
     if self.randomizeWait is not None:
       self._busyWaitTime = random.uniform((1.0-self.randomizeWait) * self._busyWaitTime,
                                           (1.0+self.randomizeWait) * self._busyWaitTime)
 
-  ############################################################################
+
   def __createModel(self, expDir):
     # -----------------------------------------------------------------------
     # Load the experiment's description.py module
