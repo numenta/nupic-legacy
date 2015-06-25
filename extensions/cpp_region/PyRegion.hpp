@@ -30,6 +30,8 @@
 #include <vector>
 #include <set>
 
+#include <capnp/any.h>
+
 #include <nupic/engine/RegionImpl.hpp>
 #include <nupic/engine/Spec.hpp>
 #include <nupic/ntypes/Value.hpp>
@@ -54,6 +56,9 @@ namespace nupic
 
     void serialize(BundleIO& bundle);
     void deserialize(BundleIO& bundle);
+
+    virtual void write(capnp::AnyPointer::Builder& proto) const override;
+    virtual void read(capnp::AnyPointer::Reader& proto) override;
 
     const Spec & getSpec();
 
