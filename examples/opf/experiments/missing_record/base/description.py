@@ -427,7 +427,7 @@ for steps in config['predictionSteps']:
                          'window': config['windowSize'], 
                          'steps': steps}))
 
-################################################################################
-################################################################################
+
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

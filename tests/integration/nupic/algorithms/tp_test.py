@@ -459,12 +459,14 @@ rgen = numpy.random.RandomState(SEED) # always call this rgen, NOT random
 # Helper routines
 #--------------------------------------------------------------------------------
 
-#---------------------------------------------------------------------------------
+
+
 def printOneTrainingVector(x):
 
     print ''.join('1' if k != 0 else '.' for k in x)
 
-#---------------------------------------------------------------------------------
+
+
 def printAllTrainingSequences(trainingSequences, upTo = 99999):
 
     for t in xrange(min(len(trainingSequences[0]), upTo)):
@@ -473,7 +475,8 @@ def printAllTrainingSequences(trainingSequences, upTo = 99999):
             print "\tseq#",i,'\t',
             printOneTrainingVector(trainingSequences[i][t])
 
-#---------------------------------------------------------------------------------
+
+
 def generatePattern(numCols = 100,
                     minOnes =21,
                     maxOnes =25,
@@ -503,7 +506,8 @@ def generatePattern(numCols = 100,
 
   return x
 
-#---------------------------------------------------------------------------------
+
+
 def buildTrainingSet(numSequences = 2,
                      sequenceLength = 100,
                      pctShared = 0.2,
@@ -628,7 +632,7 @@ def buildTrainingSet(numSequences = 2,
   else:
       return (trainingSequences, -1)
 
-#---------------------------------------------------------------------------------
+
 def getSimplePatterns(numOnes, numPatterns):
   """Very simple patterns. Each pattern has numOnes consecutive
   bits on. There are numPatterns*numOnes bits in the vector."""
@@ -642,7 +646,7 @@ def getSimplePatterns(numOnes, numPatterns):
 
   return p
 
-#---------------------------------------------------------------------------------
+
 def buildSimpleTrainingSet(numOnes=5):
 
   """Two very simple high order sequences for debugging. Each pattern in the
@@ -656,7 +660,7 @@ def buildSimpleTrainingSet(numOnes=5):
 
   return (trainingSequences, 5)
 
-#---------------------------------------------------------------------------------
+
 def buildAlternatingTrainingSet(numOnes=5):
 
   """High order sequences that alternate elements. Pattern i has one's in
@@ -680,7 +684,7 @@ def buildAlternatingTrainingSet(numOnes=5):
 
   return (trainingSequences, 5)
 
-#---------------------------------------------------------------------------------
+
 def buildHL0aTrainingSet(numOnes=5):
   """Simple sequences for HL0. Each pattern in the sequence has a series of 1's
   in a specific set of columns.
@@ -704,7 +708,7 @@ def buildHL0aTrainingSet(numOnes=5):
 
   return ([s], [[p[0], p[1], p[2]]])
 
-#---------------------------------------------------------------------------------
+
 def buildHL0bTrainingSet(numOnes=5):
   """Simple sequences for HL0b. Each pattern in the sequence has a series of 1's
   in a specific set of columns.
@@ -743,10 +747,9 @@ def buildHL0bTrainingSet(numOnes=5):
 
   return ([s], [ [p[0], p[1], p[2], p[4]],  [p[1], p[2], p[3]] ])
 
-#---------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------
+
+
 # Basic test (creation, pickling, basic run of learning and inference)
-#---------------------------------------------------------------------------------
 def basicTest():
 
   global TPClass, SEED, VERBOSITY, checkSynapseConsistency
@@ -886,7 +889,8 @@ def findAcceptablePatterns(tp, t, whichSequence, trainingSequences, nAcceptable 
 
     return acceptablePatterns
 
-#---------------------------------------------------------------------------------
+
+
 def _testSequence(trainingSequences,
                   nTrainingReps = 1,
                   numberOfCols = 40,
@@ -1182,8 +1186,8 @@ def _testSequence(trainingSequences,
   else:
       return numFailures, numStrictErrors, numPerfect, numPerfectAtHub, tp
 
-#---------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------
+
+
 def TestB1(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B1"):
 
   numCols = 100
@@ -1275,7 +1279,8 @@ def TestB7(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B7"):
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
 
   numCols = 100
@@ -1350,7 +1355,8 @@ def TestB2(numUniquePatterns, nTests, cellsPerColumn = 1, name = "B2"):
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestB3(numUniquePatterns, nTests):
 
   numCols = 100
@@ -1396,7 +1402,8 @@ def TestB3(numUniquePatterns, nTests):
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestH0(numOnes = 5,nMultiStepPrediction=0):
 
   cellsPerColumn = 4
@@ -1434,7 +1441,8 @@ def TestH0(numOnes = 5,nMultiStepPrediction=0):
     print "numPerfect=", numPerfect
     return 1
 
-#---------------------------------------------------------------------------------
+
+
 def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
           pctShared = 0.1, seqGenMode = 'shared sequence', nTrainingReps = 2,
           shouldFail = False, compareToPy = False, highOrder = False):
@@ -1493,7 +1501,8 @@ def TestH(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestH11(numOnes = 3):
 
   cellsPerColumn = 4
@@ -1530,7 +1539,8 @@ def TestH11(numOnes = 3):
     print "numPerfect=", numPerfect
     return 1
 
-#---------------------------------------------------------------------------------
+
+
 def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2],
           pctShared = 0.02, seqGenMode = 'shared sequence',
           shouldFail = False):
@@ -1653,7 +1663,8 @@ def TestH2a(sequenceLength, nTests, cellsPerColumn, numCols =100, nSequences =[2
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
           pctShared = 0.1, seqGenMode = 'shared subsequence', nTrainingReps = 2):
 
@@ -1713,7 +1724,8 @@ def TestP(sequenceLength, nTests, cellsPerColumn, numCols =300, nSequences =[2],
 
   return nFailed
 
-#---------------------------------------------------------------------------------
+
+
 def TestHL0a(numOnes = 5):
 
   cellsPerColumn = 4
@@ -1763,7 +1775,8 @@ def TestHL0a(numOnes = 5):
     print "numPerfect=", numPerfect
     return 1
 
-#---------------------------------------------------------------------------------
+
+
 def TestHL0b(numOnes = 5):
 
   cellsPerColumn = 4
@@ -1807,7 +1820,8 @@ def TestHL0b(numOnes = 5):
     print "numPerfect=", numPerfect
     return 1
 
-#---------------------------------------------------------------------------------
+
+
 def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2],
            pctShared = 0.1, seqGenMode = 'shared subsequence', nTrainingReps = 3,
            noiseModel = 'xor binomial in learning only', noiseLevel = 0.1,
@@ -1874,7 +1888,8 @@ def TestHL(sequenceLength, nTests, cellsPerColumn, numCols =200, nSequences =[2]
 
   return nFailed
 
-#-------------------------------------------------------------------------------
+
+
 def worker(x):
   """Worker function to use in parallel hub capacity test below."""
 
@@ -1944,7 +1959,8 @@ def worker(x):
   return cellsPerColumn, numSequences, numFailures1, numStrictErrors1, numPerfect1, atHub, \
          numFailures2, numStrictErrors2, numPerfect2
 
-#---------------------------------------------------------------------------------
+
+
 def hubCapacity():
 
   """
@@ -1969,7 +1985,6 @@ def hubCapacity():
   f.close()
 
 
-#---------------------------------------------------------------------------------
 def runTests(testLength = "short"):
 
   # Data structure to collect results of tests
@@ -2239,7 +2254,8 @@ def runTests(testLength = "short"):
     stats.sort_stats('time', 'calls')
     stats.print_stats(50)
 
-#---------------------------------------------------------------------------------
+
+
 if __name__=="__main__":
 
   if not TEST_CPP_TP:

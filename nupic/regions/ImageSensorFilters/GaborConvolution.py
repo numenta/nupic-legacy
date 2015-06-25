@@ -33,9 +33,7 @@ class GaborConvolution(Convolution):
   containing the Gabor responses.
   """
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Class constants
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
   def __init__(self,
                scaleDecimation=[1],
                filterDim=9,
@@ -205,7 +203,6 @@ class GaborConvolution(Convolution):
     # during our compute() calls.
     self._filterBank = (gaborBank.astype(numpy.float32) * 4096.0).astype(numpy.int32)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _calcPlaneCount(self):
     """Computes the number of responses planes for a particular Gabor
@@ -216,7 +213,6 @@ class GaborConvolution(Convolution):
     else:
       return self._orientationCount
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _getNeededBufferCount(self):
     """Compute the number of allocated buffers to hold the responses.

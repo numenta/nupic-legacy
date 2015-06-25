@@ -67,7 +67,7 @@ class Features(object):
   Modeled after Ron's excellent Configuration class
   '''
 
-  ###############################################################################
+
   @staticmethod
   def hasFeature(feature, group = False, addList = False, removeList = False):
     '''

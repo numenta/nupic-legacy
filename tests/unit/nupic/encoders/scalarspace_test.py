@@ -27,7 +27,7 @@ import unittest2 as unittest
 from nupic.encoders.scalarspace import ScalarSpaceEncoder, DeltaEncoder
 
 
-#########################################################################
+
 class ScalarSpaceEncoderTest(unittest.TestCase):
   '''Unit tests for ScalarSpaceEncoder class'''
 
@@ -43,6 +43,6 @@ class ScalarSpaceEncoderTest(unittest.TestCase):
     self.assertFalse(isinstance(sse, DeltaEncoder))
 
      
-###########################################
+
 if __name__ == '__main__':
   unittest.main()

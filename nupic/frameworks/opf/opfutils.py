@@ -35,9 +35,6 @@ from nupic.support.enum import Enum
 
 
 
-###############################################################################
-
-
 class InferenceElement(Enum(
               prediction="prediction",
               encodings="encodings",
@@ -173,7 +170,7 @@ class InferenceType(Enum("TemporalNextStep",
     return inferenceType in InferenceType.__temporalInferenceTypes
 
 
-################################################################################
+
 # SensorInput - represents the mapping of a given inputRecord by the
 #   sensor region's encoder.
 #
@@ -225,7 +222,8 @@ class SensorInput(object):
                 sequenceReset=self.sequenceReset,
                 category=self.category)
 
-################################################################################
+
+
 # PredictionElement- represents a predicted record and its asssociated
 #                     bit-string encoding for a network's sensor region and/or
 #                     the classification of that input as produced by
@@ -247,7 +245,8 @@ PredictionElement = namedtuple("PredictionElement",
                                  "predictionEncodings",
                                  "classification"))
 
-################################################################################
+
+
 # ModelResult - A structure that contains the input to a model and the resulting
 # predictions as well as any related information related to the predictions.
 #
@@ -311,7 +310,7 @@ class ModelResult(object):
                         self.predictedFieldName)
 
 
-###############################################################################
+
 def validateOpfJsonValue(value, opfJsonSchemaFilename):
   """ Validate a python object against an OPF json schema file
 
@@ -335,7 +334,8 @@ def validateOpfJsonValue(value, opfJsonSchemaFilename):
 
   return
 
-############################################################################
+
+
 def initLogger(obj):
   """Helper function to create a logger object for the current object with
   the standard Numenta prefix """
@@ -347,7 +347,8 @@ def initLogger(obj):
     ['com.numenta', myClass.__module__, myClass.__name__]))
   return logger
 
-############################################################################
+
+
 def matchPatterns(patterns, keys):
   """Returns a subset of the keys that match any of the given patterns
 
