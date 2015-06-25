@@ -65,11 +65,12 @@ from nupic.support.unittesthelpers import testcasebase
 
 g_testCPPTP = True
 
-################################################################################
+
+
 class ExperimentTestBaseClass(testcasebase.TestCaseBase):
   """ The base class for all of our tests in this module"""
 
-  #############################################################################
+
   def __init__(self, testMethodName, *args, **kwargs):
     # Construct the base-class instance
     super(ExperimentTestBaseClass, self).__init__(testMethodName, *args,
@@ -79,12 +80,11 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
     self._rgen = numpy.random.RandomState(g_options.seed)
 
 
-  #############################################################################
   def _printOneTrainingVector(self, x):
     """Print a single vector succinctly."""
     print ''.join('1' if k != 0 else '.' for k in x)
 
-  #############################################################################
+
   def _printAllTrainingSequences(self, trainingSequences):
     """Print all vectors"""
     for i, trainingSequence in enumerate(trainingSequences):
@@ -92,14 +92,14 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       for pattern in trainingSequence:
         self._printOneTrainingVector(pattern)
 
-  #############################################################################
+
   def _setVerbosity(self, verbosity, tp, tpPy):
     """Set verbosity level on the TP"""
     tp.cells4.setVerbosity(verbosity)
     tp.verbosity = verbosity
     tpPy.verbosity = verbosity
 
-  #############################################################################
+
   def _createTPs(self, numCols, fixedResources=False,
                 checkSynapseConsistency = True):
     """Create an instance of the appropriate temporal pooler. We isolate
@@ -168,7 +168,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     return cppTP, pyTP
 
-  #############################################################################
+
   def _getSimplePatterns(self, numOnes, numPatterns):
     """Very simple patterns. Each pattern has numOnes consecutive
     bits on. There are numPatterns*numOnes bits in the vector. These patterns
@@ -183,7 +183,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     return p
 
-  #############################################################################
+
   def _buildSegmentLearningTrainingSet(self, numOnes=10, numRepetitions= 10):
     """A simple sequence of 5 patterns. The left half of the vector contains
     the pattern elements, each with numOnes consecutive bits. The right half
@@ -235,7 +235,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     return (trainingSequences, [testSequence])
 
-  #############################################################################
+
   def _buildSL2TrainingSet(self, numOnes=10, numRepetitions= 10):
     """Three simple sequences, composed of the same 5 static patterns. The left
     half of the vector contains the pattern elements, each with numOnes
@@ -303,7 +303,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     return (trainingSequences, testSequences)
 
-  #############################################################################
+
   def _testSegmentLearningSequence(self, tps,
                                   trainingSequences,
                                   testSequences,
@@ -487,7 +487,7 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
     return passTest
 
-  ##############################################################################
+
   def _testSL1(self, numOnes = 10, numRepetitions = 6, fixedResources = False,
             checkSynapseConsistency = True):
     """Test segment learning"""
@@ -516,7 +516,6 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
       return 0
 
 
-  #############################################################################
   def _testSL2(self, numOnes = 10, numRepetitions = 10, fixedResources = False,
               checkSynapseConsistency = True):
     """Test segment learning"""
@@ -545,18 +544,17 @@ class ExperimentTestBaseClass(testcasebase.TestCaseBase):
 
 
 
-###############################################################################
 class TPSegmentLearningTests(ExperimentTestBaseClass):
   """Our high level tests"""
 
-  ############################################################################
+
   def test_SL1NoFixedResources(self):
     """Test segment learning without fixed resources"""
 
     self._testSL1(fixedResources=False,
                   checkSynapseConsistency=g_options.long)
 
-  ############################################################################
+
   def test_SL1WithFixedResources(self):
     """Test segment learning with fixed resources"""
 
@@ -568,7 +566,7 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
     self._testSL1(fixedResources=True,
                   checkSynapseConsistency=g_options.long)
 
-  ############################################################################
+
   def test_SL2NoFixedResources(self):
     """Test segment learning without fixed resources"""
 
@@ -580,7 +578,7 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
     self._testSL2(fixedResources=False,
                   checkSynapseConsistency=g_options.long)
 
-  ############################################################################
+
   def test_SL2WithFixedResources(self):
     """Test segment learning with fixed resources"""
 
@@ -594,7 +592,6 @@ class TPSegmentLearningTests(ExperimentTestBaseClass):
 
 
 
-################################################################################
 if __name__ == "__main__":
 
   # Process command line arguments

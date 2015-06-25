@@ -126,11 +126,7 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
 
   #sys.excepthook = customExceptionHandler
 
-# ------------------------------
-#
-#   T I M E R
-#
-# ------------------------------
+
 
 # Expose the timer class directly
 # Do it this way instead of bringing engine.Timer 
@@ -139,22 +135,15 @@ if not 'NTA_STANDARD_PYTHON_UNHANDLED_EXCEPTIONS' in os.environ:
 class Timer(engine.Timer):
   pass
 
-# ------------------------------
-#
-#   O S
-#
-# ------------------------------
+
 
 # Expose the os class directly
 # The only wrapped method is getProcessMemoryUsage()
 class OS(engine.OS):
   pass
 
-# ------------------------------
-#
-#   D I M E N S I O N S
-#
-# ------------------------------
+
+
 class Dimensions(engine.Dimensions):
   """Represent the topology of an N-dimensional region
   
@@ -178,11 +167,8 @@ class Dimensions(engine.Dimensions):
   def __str__(self):
     return self.toString()
 
-# ------------------------------
-#
-#   A R R A Y
-#
-# ------------------------------
+
+
 def Array(dtype, size=None, ref=False):
   """Factory function that creates typed Array or ArrayRef objects
   
@@ -225,11 +211,8 @@ def Array(dtype, size=None, ref=False):
 def ArrayRef(dtype):
   return Array(dtype, None, True)
 
-# -------------------------------------
-#
-#   C O L L E C T I O N   W R A P P E R
-#
-# -------------------------------------
+
+
 class CollectionIterator(object):
   def __init__(self, collection):
     self.collection = collection
@@ -317,11 +300,8 @@ class CollectionWrapper(object):
   def __hash__(self):
     return hash(self.collection)
 
-# -----------------------------
-#
-#   S P E C   I T E M
-#
-# -----------------------------
+
+
 class SpecItem(object):
   """Wrapper that translates the data type and access code to a string
   
@@ -362,11 +342,8 @@ class SpecItem(object):
     
     return str(d)
 
-# -------------------
-#
-#   S P E C
-#
-# -------------------
+
+
 class Spec(object):
   def __init__(self, spec):
     self.spec = spec
@@ -404,11 +381,8 @@ class _ArrayParameterHelper:
     self._region.getParameterArray(paramName, a)
     return a
 
-# -------------------------------------
-#
-#   R E G I O N
-#
-# -------------------------------------
+
+
 class Region(LockAttributesMixin):
   """
   @doc:place_holder(Region.description)
@@ -592,11 +566,8 @@ class Region(LockAttributesMixin):
   executeTimer = property(functools.partial(_get, method='getExecuteTimer'),
                           doc='@property:place_holder(Region.getExecuteTimer)')
 
-# ------------------------------
-#
-#   N E T W O R K
-#
-# ------------------------------
+
+
 class Network(engine.Network):
   """
   @doc:place_holder(Network.description)

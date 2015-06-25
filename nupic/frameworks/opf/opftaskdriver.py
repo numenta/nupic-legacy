@@ -60,9 +60,7 @@ from predictionmetricsmanager import (
   )
 
 
-###############################################################################
-# Public Iteration Phase specification classes for TaskControl block
-###############################################################################
+
 class IterationPhaseSpecLearnOnly(object):
   """ This class represents the Learn-only phase of the Iteration Cycle in
   the TaskControl block of description.py
@@ -167,9 +165,7 @@ class IterationPhaseSpecLearnAndInfer(object):
     return impl
 
 
-###############################################################################
-# OPFTaskDriver
-###############################################################################
+
 class OPFTaskDriver(object):
   """ Task Phase Driver implementation
 
@@ -333,9 +329,8 @@ class OPFTaskDriver(object):
     """ Return the list of labels for the metrics that are being calculated"""
     return self.__metricsMgr.getMetricLabels()
 
-###############################################################################
-# _PhaseManager
-###############################################################################
+
+
 class _PhaseManager(object):
   """ Manages iteration cycle phase drivers
   """
@@ -402,7 +397,7 @@ class _PhaseManager(object):
 ###############################################################################
 
 
-###############################################################################
+
 class _IterationPhase(object):
   """ Interface for IterationPhaseXXXXX classes
   """
@@ -447,7 +442,8 @@ class _IterationPhase(object):
 
     return hasMore
 
-###############################################################################
+
+
 class _IterationPhaseLearnOnly(_IterationPhase):
   """ This class implements the "learn-only" phase of the Iteration Cycle
   """
@@ -473,7 +469,7 @@ class _IterationPhaseLearnOnly(_IterationPhase):
     return
 
 
-###############################################################################
+
 class _IterationPhaseInferCommon(_IterationPhase):
   """ Basic class providing common implementation for
   _IterationPhaseInferOnly and _IterationPhaseLearnAndInfer classes
@@ -501,7 +497,8 @@ class _IterationPhaseInferCommon(_IterationPhase):
     self._model.enableInference(inferenceArgs=self._inferenceArgs)
     return
 
-###############################################################################
+
+
 class _IterationPhaseInferOnly(_IterationPhaseInferCommon):
   """ This class implements the "infer-only" phase of the Iteration Cycle
   """
@@ -531,7 +528,7 @@ class _IterationPhaseInferOnly(_IterationPhaseInferCommon):
     return
 
 
-###############################################################################
+
 class _IterationPhaseLearnAndInfer(_IterationPhaseInferCommon):
   """ This class implements the "learn-and-infer" phase of the Iteration Cycle
   """

@@ -80,7 +80,7 @@ class SparseMatrixTest(unittest.TestCase):
     if (b2.toDense() != ans2).any():
       error('From rows of other SM')
 
-  #---------------------------------------------------------------------------------
+
   def test_getAllNonZeros(self):
 
     print 'Testing getAllNonZeros'
@@ -115,7 +115,7 @@ class SparseMatrixTest(unittest.TestCase):
             or abs(all_nz2[2][i] - ans_val[i]) > 1e-9:
           error('getAllNonZeros 3 lists')
 
-  #---------------------------------------------------------------------------------
+
   def test_setAllNonZeros(self):
 
     print 'Testing setAllNonZeros'
@@ -162,7 +162,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('setAllNonZeros, out of order')
 
 
-  #---------------------------------------------------------------------------------
   def test_nNonZerosPerBox(self):
 
     print 'Testing nNonZerosPerBox'
@@ -190,7 +189,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('nNonZerosPerBox')
 
 
-  #---------------------------------------------------------------------------------
   def test_getCol(self):
 
     print 'Testing getCol'
@@ -214,7 +212,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('getCol')
 
 
-  #---------------------------------------------------------------------------------
   def test_setSlice(self):
 
     print 'Testing setSlice'
@@ -278,7 +275,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('setSlice/dense')
 
 
-  #--------------------------------------------------------------------------------
   def test_kthroot_product(self):
 
     print 'Testing k-root product'
@@ -356,7 +352,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('kthroot_product 1')
 
 
-  #--------------------------------------------------------------------------------
   def test_transpose(self):
 
     print 'Testing transpose'
@@ -395,7 +390,7 @@ class SparseMatrixTest(unittest.TestCase):
       if numpy.any(a != mt.toDense()):
         error('transpose 3')
 
-  #--------------------------------------------------------------------------------
+
   def test_aX_plus_bXY(self):
 
     return
@@ -421,7 +416,7 @@ class SparseMatrixTest(unittest.TestCase):
     if (x.toDense() != (x0 + xy).toDense()).any():
       error('aX_plus_bXY 2')
 
-  #--------------------------------------------------------------------------------
+
   def test_mat_prod(self):
 
     print 'Testing mat_prod'
@@ -441,7 +436,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (c != d).any():
         error('leftDenseMatProd')
 
-  #--------------------------------------------------------------------------------
+
   def test_leftDenseMatMaxAtNZ(self):
 
     print 'Testing leftDenseMatMaxAtNZ'
@@ -467,7 +462,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('leftDenseMatMaxAtNZ')
 
 
-  #--------------------------------------------------------------------------------
   def test_rightDenseMatProdAtNZ(self):
 
     print 'Testing rightDenseMatProdAtNZ'
@@ -481,7 +475,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('rightDenseMatProdAtNZ')
 
 
-  #--------------------------------------------------------------------------------
   def test_denseMatExtract(self):
 
     print 'Testing denseMatExtract'
@@ -495,7 +488,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('denseMatExtract')
 
 
-  #--------------------------------------------------------------------------------
   def test_threshold(self):
 
     print 'Testing threshold'
@@ -519,7 +511,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('threshold 2')
 
 
-  #---------------------------------------------------------------------------------
   def test_clip(self):
 
     print 'Testing clip'
@@ -623,7 +614,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('clipCol above and below')
 
 
-  #---------------------------------------------------------------------------------
   def test_increment(self):
 
     print 'Testing increment'
@@ -638,7 +628,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('increment')
 
 
-  #---------------------------------------------------------------------------------
   def test_incrementOnOuterWNZ(self):
 
     print 'Testing incrementOnOuterWNZ'
@@ -654,7 +643,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('incrementOnOuterWNZ')
 
 
-  #---------------------------------------------------------------------------------
   def test_boxMin_boxMax(self):
 
     print 'Testing boxMin, boxMax'
@@ -688,7 +676,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('boxMax')
 
 
-  #---------------------------------------------------------------------------------
   def test_getSlice(self):
 
     print 'Testing getSlice'
@@ -716,7 +703,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('getSlice2 2')
 
 
-  #---------------------------------------------------------------------------------
   def test_addTwoRows(self):
 
     print 'Testing addTwoRows'
@@ -733,7 +719,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('addTwoRows')
 
 
-  #---------------------------------------------------------------------------------
   def test_setRowFromDense(self):
 
     print 'Testing setRowFromDense'
@@ -750,7 +735,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('setRowFromDense')
 
 
-  #---------------------------------------------------------------------------------
   def test_setRowFromSparse(self):
 
     print 'Testing setRowFromSparse'
@@ -771,7 +755,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('setRowFromSparse')
 
 
-  #---------------------------------------------------------------------------------
   def test_copyRow(self):
 
     print 'Testing copyRow'
@@ -790,7 +773,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('copyRow')
 
 
-  #---------------------------------------------------------------------------------
   def test_zeroRowAndCol(self):
 
     print 'Testing zeroRowAndCol'
@@ -808,7 +790,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('zeroRowAndCol')
 
 
-  #---------------------------------------------------------------------------------
   def test_setColsToZero(self):
 
     print 'Testing setColsToZero'
@@ -826,7 +807,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('setColsToZero')
 
 
-  #---------------------------------------------------------------------------------
   def test_leftDenseMatSumAtNZ(self):
 
     print 'Testing leftDenseMatSumAtNZ'
@@ -847,7 +827,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('leftDenseMatSumAtNZ')
 
 
-  #---------------------------------------------------------------------------------
   def test_elementRowMultiply(self):
 
     print 'Testing elementRowMultiply'
@@ -864,7 +843,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('elementRowMultiply')
 
 
-  #---------------------------------------------------------------------------------
   def test_elementColMultiply(self):
 
     print 'Testing elementColMultiply'
@@ -881,7 +859,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('elementColMultiply')
 
 
-  #---------------------------------------------------------------------------------
   def test_scaleRows(self):
 
     print 'Testing scaleRows'
@@ -898,7 +875,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('scaleRows')
 
 
-  #---------------------------------------------------------------------------------
   def test_scaleCols(self):
 
     print 'Testing scaleCols'
@@ -915,7 +891,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('scaleCols')
 
 
-  #---------------------------------------------------------------------------------
   def test_setDiagonalToZero(self):
 
     print 'Testing setDiagonalToZero'
@@ -932,7 +907,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('setDiagonalToZero')
 
 
-  #---------------------------------------------------------------------------------
   def test_setDiagonalToVal(self):
 
     print 'Testing setDiagonalToVal'
@@ -949,7 +923,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('setDiagonalToVal')
 
 
-  #---------------------------------------------------------------------------------
   def test_setDiagonal(self):
 
     print 'Testing setDiagonal'
@@ -966,7 +939,7 @@ class SparseMatrixTest(unittest.TestCase):
         if mat[i,i] != vals[i]:
           error('setDiagonal')
 
-  #---------------------------------------------------------------------------------
+
   def test_rightVecProd(self):
 
     print 'Testing rightVecProd'
@@ -1004,7 +977,7 @@ class SparseMatrixTest(unittest.TestCase):
         if y != yr[0]:
           error('rightVecProd 4')
 
-  #---------------------------------------------------------------------------------
+
   def test_rightVecProd_fast(self):
 
     print 'Testing rightVecProd_fast'
@@ -1030,7 +1003,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (y != yr).any():
         error('rightVecProd_fast 1')
 
-  #---------------------------------------------------------------------------------
+
   def test_leftVecProd(self):
 
     print 'Testing leftVecProd'
@@ -1064,7 +1037,7 @@ class SparseMatrixTest(unittest.TestCase):
         if y != yr[0]:
           error('leftVecProd 3')
 
-  #---------------------------------------------------------------------------------
+
   def test_rightVecSumAtNZ(self):
 
     print 'Testing rightVecSumAtNZ'
@@ -1096,7 +1069,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (y2 != yr).any():
         error('rightVecSumAtNZ_fast')
 
-  #---------------------------------------------------------------------------------
+
   def test_leftVecSumAtNZ(self):
 
     print 'Testing leftVecSumAtNZ'
@@ -1128,7 +1101,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (y2 != yr).any():
         error('leftVecSumAtNZ_fast')
 
-  #---------------------------------------------------------------------------------
+
   def test_multiply(self):
 
     print 'Testing multiply'
@@ -1153,7 +1126,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (c.toDense() != cr).any():
         error('multiply')
 
-  #---------------------------------------------------------------------------------
+
   def test_elementMultiply(self):
 
     print 'Testing elementMultiply'
@@ -1178,7 +1151,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (a.toDense() != cr).any():
         error('elementMultiply')
 
-  #---------------------------------------------------------------------------------
+
   def test_incrementWithOuterProduct(self):
 
     print 'Testing incrementWithOuterProduct'
@@ -1201,7 +1174,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (a.toDense() != b).any():
         error('incrementWithOuterProduct')
 
-  #---------------------------------------------------------------------------------
+
   def test_incrementOnOuterProductVal(self):
 
     print 'Testing incrementOnOuterProductVal'
@@ -1227,7 +1200,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (a.toDense() != b).any():
         error('incrementOnOuterProductVal')
 
-  #---------------------------------------------------------------------------------
+
   def test_setFromOuter(self):
 
     print 'Testing setFromOuter with variable amount of memory'
@@ -1265,7 +1238,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (a.toDense() != r).any():
           error('setFromOuter 2')
 
-  #---------------------------------------------------------------------------------
+
   def test_setFromElementMultiplyWithOuter(self):
 
     print 'Testing setFromElementMultiplyWithOuter'
@@ -1286,7 +1259,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (a.toDense() != r).any():
         error('setFromElementMultiplyWithOuter')
 
-  #---------------------------------------------------------------------------------
+
   def test_add(self):
 
     print 'Testing add'
@@ -1308,7 +1281,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (a.toDense() != cr).any():
         error('add')
 
-  #---------------------------------------------------------------------------------
+
   def test_vecMaxAtNZ(self):
 
     print 'Testing vecMaxAtNZ'
@@ -1341,7 +1314,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (y != ans).any():
           error('vecMaxAtNZ')
 
-  #---------------------------------------------------------------------------------
+
   def test_vecArgMaxAtNZ(self):
 
     print 'Testing vecArgMaxAtNZ'
@@ -1374,7 +1347,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (y != ans).any():
           error('vecArgMaxAtNZ')
 
-  #---------------------------------------------------------------------------------
+
   def test_vecArgMaxProd(self):
 
     print 'Testing vecArgMaxProd'
@@ -1408,7 +1381,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (y != ans).any():
           error('vecArgMaxProd')
 
-  #---------------------------------------------------------------------------------
+
   def test_setBoxToZero(self):
 
     print 'Testing setBoxToZero'
@@ -1430,7 +1403,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (sm.toDense() != a).any():
         error('setBoxToZero')
 
-  #---------------------------------------------------------------------------------
+
   def test_setBox(self):
 
     print 'Testing setBox'
@@ -1453,7 +1426,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (sm.toDense() != a).any():
         error('setBox')
 
-  #---------------------------------------------------------------------------------
+
   def test_nNonZerosInRowRange(self):
 
     print 'Testing nNonZerosInRowRange'
@@ -1477,7 +1450,7 @@ class SparseMatrixTest(unittest.TestCase):
         if n_py != n_sm:
           error('nNonZerosInRowRange')
 
-  #---------------------------------------------------------------------------------
+
   def test_nNonZerosInBox(self):
 
     print 'Testing nNonZerosInBox'
@@ -1505,7 +1478,7 @@ class SparseMatrixTest(unittest.TestCase):
       if n_py != n_sm:
         error('nNonZerosInBox')
 
-  #---------------------------------------------------------------------------------
+
   def test_getNonZerosInBox(self):
 
     print 'Testing getNonZerosInBox'
@@ -1538,7 +1511,7 @@ class SparseMatrixTest(unittest.TestCase):
           nnz[i][1] != box_nz[i][1] or nnz[i][2] != box_nz[i][2]:
           error('getNonZerosInBox 2')
 
-  #---------------------------------------------------------------------------------
+
   def test_getNonZerosSorted(self):
 
     print 'Testing getNonZerosSorted'
@@ -1560,7 +1533,7 @@ class SparseMatrixTest(unittest.TestCase):
       # Visual inspection only for now: sort needs tie breakers
       # to make automatic comparison successful
 
-  #---------------------------------------------------------------------------------
+
   def test_smoothVecMaxProd(self):
 
     print 'Testing smoothVecMaxProd'
@@ -1586,7 +1559,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (abs(y - y0) > 1e-3).any():
         error('smoothVecMaxProd')
 
-  #---------------------------------------------------------------------------------
+
   def test_smoothVecArgMaxProd(self):
 
     print 'Testing smoothVecArgMaxProd'
@@ -1618,7 +1591,7 @@ class SparseMatrixTest(unittest.TestCase):
         print y0
         error('smoothVecArgMaxProd')
 
-  #---------------------------------------------------------------------------------
+
   def test_shiftRows(self):
 
    print 'Testing shiftRows'
@@ -1637,7 +1610,7 @@ class SparseMatrixTest(unittest.TestCase):
     if (sm.toDense() != ms).any():
       error('shiftRows')
 
-  #---------------------------------------------------------------------------------
+
   def test_shiftCols(self):
 
    print 'Testing shiftCols'
@@ -1674,7 +1647,7 @@ class SparseMatrixTest(unittest.TestCase):
     if not (sm.toDense() == m2).all():
       error('shiftColumns')
 
-  #---------------------------------------------------------------------------------
+
   def test_logRowSums(self):
 
     return # precision issue, function almost obsolete
@@ -1697,7 +1670,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (x != y).any():
         error('logRowSums')
 
-  #---------------------------------------------------------------------------------
+
   def test_logColSums(self):
 
     return # precision issue, function almost obsolete
@@ -1720,7 +1693,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (x != y).any():
         error('logColSums')
 
-  #---------------------------------------------------------------------------------
+
   def test_addRows(self):
 
     print 'Testing addRows'
@@ -1748,7 +1721,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (x != y).any():
         error('addRows')
 
-  #---------------------------------------------------------------------------------
+
   def test_CSRSize(self):
     print 'Testing CSRSize'
 
@@ -1766,7 +1739,7 @@ class SparseMatrixTest(unittest.TestCase):
       if A.CSRSize() != len(s):
         error('CSRSize')
 
-  #---------------------------------------------------------------------------------
+
   def test_getstate_setstate(self):
 
     print 'Testing __getstate__/__setstate__'
@@ -1788,7 +1761,7 @@ class SparseMatrixTest(unittest.TestCase):
       if s1 != s2:
         error('__getstate__/__setstate__')
 
-  #---------------------------------------------------------------------------------
+
   def test_sameRowNonZeroIndices(self):
 
     print 'Testing sameRowNonZeroIndices'
@@ -1832,7 +1805,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('sameRowNonZeroIndices 3')
 
 
-  #---------------------------------------------------------------------------------
   def test_nonZeroIndicesIncluded(self):
 
     print 'Testing nonZeroIndicesIncluded'
@@ -1884,7 +1856,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('nonZeroIndicesIncluded 4')
 
 
-  #---------------------------------------------------------------------------------
   def test_subtractNoAlloc(self):
 
     print 'Testing subtractNoAlloc'
@@ -1916,7 +1887,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('subtractNoAlloc, min_floor > 0')
 
 
-  #---------------------------------------------------------------------------------
   def test_addToNZOnly(self):
 
     print 'Testing addToNZOnly'
@@ -1967,7 +1937,6 @@ class SparseMatrixTest(unittest.TestCase):
          error('addToNZOnly, min_floor > 0')
 
 
-  #---------------------------------------------------------------------------------
   def test_assignNoAlloc(self):
 
     print 'Testing assignNoAlloc'
@@ -1999,7 +1968,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (A.toDense() != A_ref).any():
         error('assignNoAlloc')
 
-  #---------------------------------------------------------------------------------
+
   def test_assignNoAllocFromBinary(self):
 
     print 'Testing assignNoAllocFromBinary'
@@ -2028,7 +1997,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (A.toDense() != A_ref).any():
         error('assignNoAllocFromBinary')
 
-  #---------------------------------------------------------------------------------
+
   def test_binaryLoadSave(self):
 
       return # doesn't work on win32
@@ -2056,7 +2025,7 @@ class SparseMatrixTest(unittest.TestCase):
       assert a.nNonZeros() == b.nNonZeros()
       assert a == b
 
-  #---------------------------------------------------------------------------------
+
   def test_logSumNoAlloc(self):
 
     return # precision issue, function almost obsolete
@@ -2141,7 +2110,7 @@ class SparseMatrixTest(unittest.TestCase):
     if abs(a1 - A[0,1]) > 5e-13:
       error('logSumNoAlloc 4')
 
-  #---------------------------------------------------------------------------------
+
   def test_logAddValNoAlloc(self):
 
     return # precision issue, function almost obsolete
@@ -2174,7 +2143,6 @@ class SparseMatrixTest(unittest.TestCase):
           error('logAddValNoAlloc 1')
 
 
-  #---------------------------------------------------------------------------------
   def test_logDiffNoAlloc(self):
 
     return # precision issue, function almost obsolete
@@ -2270,7 +2238,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('logDiffNoAlloc 4b');
 
 
-  #---------------------------------------------------------------------------------
   def test_addToNZDownCols(self):
 
     print 'Testing addToNZDownCols'
@@ -2336,7 +2303,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('addToNZDownCols 2')
 
 
-  #---------------------------------------------------------------------------------
   def test_addToNZAcrossRows(self):
 
     print 'Testing addToNZAcrossRows'
@@ -2402,7 +2368,6 @@ class SparseMatrixTest(unittest.TestCase):
         error('addToNZAcrossRows 2')
 
 
-  #---------------------------------------------------------------------------------
   def test_LBP_piPrime(self):
 
     return # obsolete
@@ -2433,7 +2398,6 @@ class SparseMatrixTest(unittest.TestCase):
       error('LBP_piPrime')
 
 
-  #---------------------------------------------------------------------------------
   def test_matrix_entropy(self):
 
     print 'Testing matrix_entropy'
@@ -2519,7 +2483,7 @@ class SparseMatrixTest(unittest.TestCase):
     if (max_abs_error > 5e-6 or max_rel_error > 3e-4):
       error('LogSumApprox')
 
-  #---------------------------------------------------------------------------------
+
   def test_LogDiffApprox(self):
 
     print 'Testing LogDiffApprox'
@@ -2560,7 +2524,7 @@ class SparseMatrixTest(unittest.TestCase):
     if (max_abs_error > 3e-3 or max_rel_error > 6e-3):
       error('LogDiffApprox')
 
-  #---------------------------------------------------------------------------------
+
   def test_binarize_with_threshold(self):
 
     print 'Testing binarize_with_threshold'
@@ -2579,7 +2543,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (s != ans_s or (ans != y).any()):
           error('binarize_with_threshold')
 
-  #---------------------------------------------------------------------------------
+
   def test_nonZeroRowsIndicator_01(self):
 
     print 'Testing nonZeroRowsIndicator_01'
@@ -2603,7 +2567,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (ind != ans).any():
         error('nonZeroRowsIndicator_01')
 
-  #---------------------------------------------------------------------------------
+
   def test_nonZeroColsIndicator_01(self):
 
     print 'Testing nonZeroColsIndicator_01'
@@ -2627,7 +2591,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (ind != ans).any():
         error('nonZeroColsIndicator_01')
 
-  #---------------------------------------------------------------------------------
+
   def test_nNonZeroRows_01(self):
 
     print 'Testing nNonZeroRows_01'
@@ -2651,7 +2615,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (nnzc != ans):
         error('nNonZeroRows_01')
 
-  #---------------------------------------------------------------------------------
+
   def test_nNonZeroCols_01(self):
 
     print 'Testing nNonZeroCols_01'
@@ -2675,7 +2639,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (nnzc != ans):
         error('nNonZeroCols_01')
 
-  #---------------------------------------------------------------------------------
+
   def test_logicalAnd(self):
 
     print 'Testing logicalAnd'
@@ -2706,7 +2670,7 @@ class SparseMatrixTest(unittest.TestCase):
       if (z != ans).any():
         error('logicalAnd')
 
-  #---------------------------------------------------------------------------------
+
   def test_logicalAnd2(self):
 
     print 'Testing logicalAnd2'
@@ -2741,7 +2705,7 @@ class SparseMatrixTest(unittest.TestCase):
         if (y != ans).any():
           error('logicalAnd2, full')
 
-  #---------------------------------------------------------------------------------
+
   def test_isZero_01(self):
 
     print 'Testing isZero_01'
@@ -2776,7 +2740,7 @@ class SparseMatrixTest(unittest.TestCase):
         print i, r, ans
         error('isZero_01')
 
-  #---------------------------------------------------------------------------------
+
   def test_sum(self):
 
     print 'Testing sum'
@@ -2833,7 +2797,7 @@ class SparseMatrixTest(unittest.TestCase):
     print "\tmax abs error=", max_abs_error
     print "\tmax rel error=", max_rel_error
 
-  #---------------------------------------------------------------------------------
+
   def test_initialize_random_01(self):
 
     print 'Testing initialize_random_01'

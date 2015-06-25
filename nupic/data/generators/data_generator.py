@@ -37,7 +37,7 @@ class DataGenerator():
   for generating artificial datasets.
   """
 
-  ############################################################################
+
   def __init__(self, name='testDataset', seed=42, verbosity=0):
     """Initialize the dataset generator with a random seed and a name"""
 
@@ -46,7 +46,7 @@ class DataGenerator():
     self.setSeed(seed)
     self.fields=[]
 
-  ############################################################################
+
   def getDescription(self):
     """Returns a description of the dataset"""
 
@@ -55,7 +55,7 @@ class DataGenerator():
 
     return description
 
-  ############################################################################
+
   def setSeed(self, seed):
     """Set the random seed and the numpy seed
     Parameters:
@@ -66,7 +66,7 @@ class DataGenerator():
     rand.seed(seed)
     np.random.seed(seed)
 
-  ############################################################################
+
   def addField(self, name, fieldParams, encoderParams):
     """Add a single field to the dataset.
     Parameters:
@@ -96,7 +96,7 @@ class DataGenerator():
 
     fieldIndex = self.defineField(name, encoderParams)
 
-  ############################################################################
+
   def addMultipleFields(self, fieldsInfo):
     """Add multiple fields to the dataset.
     Parameters:
@@ -111,7 +111,7 @@ class DataGenerator():
     for spec in fieldsInfo:
       self.addField(spec.pop('name'), spec.pop('fieldSpec'), spec.pop('encoderParams'))
 
-  ############################################################################
+
   def defineField(self, name, encoderParams=None):
     """Initialize field using relevant encoder parameters.
     Parameters:
@@ -125,7 +125,7 @@ class DataGenerator():
 
     return len(self.fields)-1
 
-  ############################################################################
+
   def setFlag(self, index, flag):
     """Set flag for field at index. Flags are special characters such as 'S' for
     sequence or 'T' for timestamp.
@@ -137,7 +137,7 @@ class DataGenerator():
     assert len(self.fields)>index
     self.fields[index].flag=flag
 
-  ############################################################################
+
   def generateRecord(self, record):
     """Generate a record. Each value is stored in its respective field.
     Parameters:
@@ -162,7 +162,7 @@ class DataGenerator():
       for field in self.fields:
         field.addValue(field.dataClass.getNext())
 
-  ############################################################################
+
   def generateRecords(self, records):
     """Generate multiple records. Refer to definition for generateRecord"""
 
@@ -170,7 +170,7 @@ class DataGenerator():
     for record in records:
       self.generateRecord(record)
 
-  ############################################################################
+
   def getRecord(self, n=None):
     """Returns the nth record"""
 
@@ -184,7 +184,7 @@ class DataGenerator():
 
     return record
 
-  ############################################################################
+
   def getAllRecords(self):
     """Returns all the records"""
     values=[]
@@ -196,7 +196,7 @@ class DataGenerator():
 
     return values
 
-  ############################################################################
+
   def encodeRecord(self, record, toBeAdded=True):
     """Encode a record as a sparse distributed representation
     Parameters:
@@ -210,7 +210,7 @@ class DataGenerator():
 
     return encoding
 
-  ############################################################################
+
   def encodeAllRecords(self, records=None, toBeAdded=True):
     """Encodes a list of records.
     Parameters:
@@ -229,7 +229,7 @@ class DataGenerator():
 
     return encodings
 
-  ############################################################################
+
   def addValueToField(self, i, value=None):
     """Add 'value' to the field i.
     Parameters:
@@ -246,7 +246,7 @@ class DataGenerator():
 
     else: self.fields[i].addValue(value)
 
-  ############################################################################
+
   def addValuesToField(self, i, numValues):
     """Add values to the field i."""
 
@@ -254,7 +254,7 @@ class DataGenerator():
     values = [self.addValueToField(i) for n in range(numValues)]
     return values
 
-  ############################################################################
+
   def getSDRforValue(self, i, j):
     """Returns the sdr for jth value at column i"""
     assert len(self.fields)>i
@@ -263,7 +263,7 @@ class DataGenerator():
 
     return encoding
 
-  ############################################################################
+
   def getZeroedOutEncoding(self, n):
     """Returns the nth encoding with the predictedField zeroed out"""
 
@@ -274,21 +274,21 @@ class DataGenerator():
 
     return encoding
 
-  ############################################################################
+
   def getTotaln(self):
     """Returns the cumulative n for all the fields in the dataset"""
 
     n = sum([field.n for field in self.fields])
     return n
 
-  ############################################################################
+
   def getTotalw(self):
     """Returns the cumulative w for all the fields in the dataset"""
 
     w = sum([field.w for field in self.fields])
     return w
 
-  ############################################################################
+
   def getEncoding(self, n):
     """Returns the nth encoding"""
 
@@ -297,7 +297,7 @@ class DataGenerator():
 
     return encoding
 
-  ############################################################################
+
   def getAllEncodings(self):
     """Returns encodings for all the records"""
 
@@ -307,27 +307,27 @@ class DataGenerator():
 
     return encodings
 
-  ############################################################################
+
   def getAllFieldNames(self):
     """Returns all field names"""
     names = [field.name for field in self.fields]
     return names
 
-  ############################################################################
+
   def getAllFlags(self):
     """Returns flags for all fields"""
 
     flags = [field.flag for field in self.fields]
     return flags
 
-  ############################################################################
+
   def getAllDataTypes(self):
     """Returns data types for all fields"""
 
     dataTypes = [field.dataType for field in self.fields]
     return dataTypes
 
-  ############################################################################
+
   def getFieldDescriptions(self):
     """Returns descriptions for all fields"""
 
@@ -335,7 +335,7 @@ class DataGenerator():
 
     return descriptions
 
-  ############################################################################
+
   def saveRecords(self, path='myOutput'):
     """Export all the records into a csv file in numenta format.
 
@@ -362,7 +362,7 @@ class DataGenerator():
       print '******', numRecords,'records exported in numenta format to file:',\
                 path,'******\n'
 
-  ############################################################################
+
   def removeAllRecords(self):
     """Deletes all the values in the dataset"""
 
@@ -370,7 +370,8 @@ class DataGenerator():
       field.encodings, field.values=[], []
       field.numRecords, field.numEncodings= (0, 0)
 
-##############################################################################
+
+
 class _field():
 
   def __init__(self, name, encoderSpec):
@@ -416,7 +417,7 @@ class _field():
     self.numRecords=0
     self.numEncodings=0
 
-  ############################################################################
+
   def getDescription(self):
 
     description = dict(n=self.n, w=self.w, flag=self.flag, isPredictedField=\
@@ -425,21 +426,21 @@ class _field():
 
     return description
 
-  ############################################################################
+
   def addValues(self, values):
     """Add values to the field"""
 
     for v in values:
       self.addValue(v)
 
-  ############################################################################
+
   def addValue(self, value):
     """Add value to the field"""
 
     self.values.append(value)
     self.numRecords+=1
 
-  ############################################################################
+
   def encodeValue(self, value, toBeAdded=True):
     """Value is encoded as a sdr using the encoding parameters of the Field"""
 
@@ -451,7 +452,7 @@ class _field():
 
     return encodedValue
 
-  ############################################################################
+
   def _setTypes(self, encoderSpec):
     """Set up the dataTypes and initialize encoders"""
 
@@ -471,7 +472,7 @@ class _field():
       elif self.encoderType in ['date', 'datetime']:
         self.dataType='datetime'
 
-  ############################################################################
+
   def _initializeEncoders(self, encoderSpec):
     """ Initialize the encoders"""
 

@@ -473,7 +473,7 @@ class BoxFixer(BaseFilter):
 
     return dstImage
 
-  #-----------------------------------------------------------------------
+
   def _acceptOrCull(self, strength, strongZones, candidateZone, minZoneLen, minStrength):
     """
     Utility method that will append a candidate strong zone to
@@ -489,7 +489,6 @@ class BoxFixer(BaseFilter):
       strongZones += [candidateZone]
 
 
-  #-----------------------------------------------------------------------
   def _smooth(self, x, window_len=10, window=None):
       """smooth the data using a window with requested size.
 

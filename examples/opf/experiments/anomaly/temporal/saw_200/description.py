@@ -371,7 +371,7 @@ control = {
   'loggedMetrics': ['.*nupicScore.*'],
 }
 
-################################################################################
-################################################################################
+
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

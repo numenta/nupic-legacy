@@ -31,8 +31,6 @@ import unittest2 as unittest
 
 
 
-
-################################################################################
 class TestCaseBase(unittest.TestCase):
   """ Here, we wrap the various unittest.TestCase assert methods (that
   our base classes use) in order to add extra info to their msg args from our
@@ -53,7 +51,6 @@ class TestCaseBase(unittest.TestCase):
     return
 
 
-  ############################################################################
   def printTestHeader(self):
     """ Print out what test we are running """
 
@@ -66,8 +63,6 @@ class TestCaseBase(unittest.TestCase):
     return
 
 
-
-  ############################################################################
   def printBanner(self, msg, *args):
     """ Print out a banner """
 
