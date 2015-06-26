@@ -27,8 +27,8 @@ from nupic.data.generators import data_generator
 from nupic.data.generators import distributions
 
 class DataGeneratorApp(): 
-		
-  ############################################################################
+
+
   def __init__(self, master, width=1200, height=500):
     """This class can be used to generate artificial datasets for the purpose of
       testing, debugging and evaluation. Freehand drawing of data patterns is
@@ -63,7 +63,7 @@ class DataGeneratorApp():
     #Drawing the x-axis
     self.canvas.create_line(0, height*8.5/9, width, height*8.5/9, fill='alice blue')
 
-  ############################################################################
+
   def _drawFreeForm(self, event):
     """ The last and current x,y cursor coordinates are updated. If in drawing
     mode, records are created from the x and y coordinates. 
@@ -86,20 +86,20 @@ class DataGeneratorApp():
     if drawPointer:
       self.pointer = self.canvas.create_oval(self.x-4, self.height*8.5/9-4, self.x+4, \
                                 self.height*8.5/9+4, width=0, fill=self.color)
-  
-  ############################################################################
+
+
   def _createLine(self, fromX, fromY, toX, toY, width=2):
     line = self.canvas.create_line(fromX, fromY, toX, toY, fill=self.color, width=width)
     self.numLines.append(line)
     
     return line
 
-  ############################################################################
+
   def motionCallback(self, event, freeForm=True):
     """ Free form drawing is permitted whenever the mouse is moving."""
     self._drawFreeForm(event)
 
-  ############################################################################
+
   def buttonReleaseCallback(self, event):
     if (self.lastx, self.lasty)<>(None, None):
       self._createLine(self.lastx, self.lasty, self.lastx, self.height*8.5/9)
@@ -135,7 +135,7 @@ class DataGeneratorApp():
       self._createLine(self.lastx, self.lasty, self.lastx, self.height*8.5/9)
       self._createLine(self.x, self.lasty, self.x, self.y) 
 
-  ############################################################################
+
   def refreshCallback(self):
     """Callback for the refresh button. All the currently displayed lines except 
     the x-axis and y-axis are erased and all stored records are removed.
@@ -146,7 +146,7 @@ class DataGeneratorApp():
     self.log.insert('1.0', "Erasing the drawing board\n")
     self.dg.removeAllRecords()  
 
-  ############################################################################
+
   def sineWave(self):
     """Callback for drawing square waves"""
     sine = distributions.SineWave(dict(amplitude=0.4, period=self.slider.get()))
@@ -154,7 +154,7 @@ class DataGeneratorApp():
     records = [r+0.5 for r in records]
     self.drawWaveform(records, factor=2)
 
-  ############################################################################
+
   def squareWave(self):
     """Callback for drawing square waves"""
     records=[]
@@ -172,7 +172,7 @@ class DataGeneratorApp():
     records = [r/2.01 for r in records]
     self.drawWaveform(records, factor=1)
 
-  ############################################################################
+
   def sinePlusNoise(self):
     """Callback for drawing noisy sine waves"""
     records=[]
@@ -186,7 +186,7 @@ class DataGeneratorApp():
     records = [r+1.0 for r in records]
     self.drawWaveform(records, factor=5)
 
-  ############################################################################
+
   def sawToothWave(self):
     """Callback for drawing sawtooth waves"""
     records=[]
@@ -198,7 +198,7 @@ class DataGeneratorApp():
     records = [r+1.0 for r in records]
     self.drawWaveform(records, factor=5)
 
-  ############################################################################
+
   def sineCompositeWave(self):
     """Callback for drawing composite sine waves"""
     records=[]
@@ -211,8 +211,8 @@ class DataGeneratorApp():
     
     records = [r+1.0 for r in records]
     self.drawWaveform(records,factor=2)
-    
-  ############################################################################
+
+
   def triangleWave(self):
     """Callback for drawing triangle waves"""
     records=[]
@@ -224,7 +224,7 @@ class DataGeneratorApp():
     records = [r+1.0 for r in records]
     self.drawWaveform(records,factor=6)
 
-  ############################################################################
+
   def adjustValues(self, records):
     """ The data points that constitute a waveform in the range (0, 1) are
     scaled to the height of the window
@@ -234,7 +234,7 @@ class DataGeneratorApp():
       records[i]=records[i]*(self.height*(8.4/9))
     return records
 
-  ############################################################################
+
   def drawWaveform(self, records, factor=5):
     """Refresh and draw a waveform adjusted to the width of the screen and the
     horizontal density of the waveform"""
@@ -258,7 +258,7 @@ class DataGeneratorApp():
     self.log.mark_set(INSERT, '0.0')
     self.log.focus()
 
-  ############################################################################
+
   def _defineButtons(self, master, height=2):
     """Define the buttons and text box and position them"""
     
@@ -311,11 +311,12 @@ class DataGeneratorApp():
 
   #Note: The following function definitions will be ported to the distributions
   #class in future versions
-  ############################################################################
+
+
   def sine_function(self,t, f):
     return math.sin(t*f)
-    
-  ############################################################################
+
+
   def triangle_function(self,t,f):
       '''
       T is our timestep
@@ -340,14 +341,14 @@ class DataGeneratorApp():
         rv = q
       
       return rv
-  
-  ############################################################################
+
+
   def square_function(self,t,f):
     if(f == 0): return 0
     q = 0.5 - math.fmod(t*f,1)
     return (0,1)[q > 0]
-    
-  ############################################################################
+
+
   def sawtooth_function(self,t,f):
     
     # Get our initial y value

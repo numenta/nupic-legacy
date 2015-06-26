@@ -3051,12 +3051,11 @@ class ImageSensor(PyRegion):
   #  )
   #  return out + parent
 
-  #---------------------------------------------------------------------------------
+
   def initialize(self, dims, splitterMaps):
     pass
 
 
-  #---------------------------------------------------------------------------------
   def getOutputElementCount(self, name):
     if name == 'auxDataOut':
       return self._auxDataWidth if self._auxDataWidth else 0

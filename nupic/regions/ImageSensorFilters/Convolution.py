@@ -39,10 +39,6 @@ class Convolution(BaseFilter):
   """Base class for filters that perform a 2D convolution on the iamge
   """
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-  # Class constants
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
-
   # The minimum filter size dimension (3x3)
   minFilterDim = 3
 
@@ -268,7 +264,6 @@ class Convolution(BaseFilter):
 
     return (result, outputVector)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getOutputCount(self):
     """
@@ -279,8 +274,6 @@ class Convolution(BaseFilter):
     """
 
     return (1, len(self._scaleDecimation) * self._calcPlaneCount())
-
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
 
   def _getNeededBufferCount(self):
@@ -297,7 +290,6 @@ class Convolution(BaseFilter):
     """
     raise NotImplementedError()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _buildFilterBank(self):
     """Return the the 2D filters that will convolve with the original image
@@ -306,7 +298,6 @@ class Convolution(BaseFilter):
     """
     raise NotImplementedError()
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   class ARRAY(ctypes.Structure):
     _fields_ = [
@@ -316,7 +307,7 @@ class Convolution(BaseFilter):
           ("data",        ctypes.c_void_p),
           ]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
+
 
   def _wrapArray(self, array):
     """
@@ -333,7 +324,6 @@ class Convolution(BaseFilter):
                    ctypes.cast(array.ctypes.strides, ctypes.c_void_p),
                    array.ctypes.data))
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _prepare(self, inputDims):
     """Perform one-time preparations needed for convolution processing of
@@ -367,7 +357,6 @@ class Convolution(BaseFilter):
 
     return self._cache[inputDims]
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def getOutputDims(self, inputDim):
     """Compute the output dimensions in form (height, width)
@@ -379,7 +368,6 @@ class Convolution(BaseFilter):
       shrinkage = self._filterDim - 1
     return tuple([dim - shrinkage for dim in inputDim])
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _alignToFour(self, val):
     """
@@ -389,7 +377,6 @@ class Convolution(BaseFilter):
     """
     return (((val - 1) / 4) + 1) * 4
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _makeLUTs(self):
     """
@@ -502,7 +489,6 @@ class Convolution(BaseFilter):
     self._postProcLUT = postProcLUT
     self._postProcLutScalar = postProcScalar
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _allocBuffers(self, inputDims, outputDims):
     """
@@ -531,7 +517,6 @@ class Convolution(BaseFilter):
 
     return inBuffer, outBuffer
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _loadLibrary(self, libraryName, libSubDir='bindings'):
     """
@@ -566,8 +551,6 @@ class Convolution(BaseFilter):
       print "Warning: Could not load shared library: %s" % libraryName
       return None
 
-
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _computeBBox(self, validPyramid, inWidth, inHeight):
     """
@@ -626,7 +609,6 @@ class Convolution(BaseFilter):
 
     return bbox
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _convolve(self,
                 inputVector,
@@ -675,7 +657,6 @@ class Convolution(BaseFilter):
               ctypes.c_float(self._postProcLutScalar),
               )
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   def _convertEnumValue(self, enumValue):
     """
@@ -685,7 +666,6 @@ class Convolution(BaseFilter):
     """
     return ctypes.c_int(enumValue)
 
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+
 
   # THINK OF A SAFE WAY TO MAKE SURE C ENUMS ARE SYNCHED WITH PYTHON SYMBOLIC NAMES (UNIT TEST, AUTP PARSING,...)
   def _mapParamFromPythonToC(self, paramName):
@@ -751,5 +731,3 @@ class Convolution(BaseFilter):
     # Invalid parameter
     else:
       assert False
-
-  #+=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=++=+=+=+=+=+=+=+=+=+=+=+

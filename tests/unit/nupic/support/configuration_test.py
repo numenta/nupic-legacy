@@ -27,6 +27,7 @@ import sys
 import tempfile
 import unittest2 as unittest
 import uuid
+from pkg_resources import resource_filename
 
 from mock import Mock, patch
 from pkg_resources import resource_filename
@@ -36,8 +37,8 @@ try:
     from xml.etree.ElementTree import ParseError
 except ImportError:
     from xml.parsers.expat import ExpatError as ParseError
-import nupic
 
+import nupic
 import nupic.support.configuration_base as configuration
 
 
@@ -519,8 +520,8 @@ class ConfigurationTest(unittest.TestCase):
     configuration.Configuration._configPaths = None  # pylint: disable=W0212
     result = configuration.Configuration.getConfigPaths()
     self.assertTrue(isinstance(result, list))
-    self.assertEqual(result, [os.path.join(os.environ['NUPIC'],
-                                           'config', 'default')])
+    self.assertListEqual(result, [resource_filename("nupic", 
+                        os.path.join("config", "default"))])
 
   @patch.object(configuration.Configuration, '_configPaths',
                 spec=configuration.Configuration._configPaths)

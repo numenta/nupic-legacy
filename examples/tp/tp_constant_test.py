@@ -34,9 +34,7 @@ from nupic.research.TP10X2 import TP10X2
 from nupic.support.unittesthelpers.testcasebase import (TestCaseBase,
                                                         TestOptionParser)
 
-# ----------------------------------------------------------------------
-# Helper routines
-# ----------------------------------------------------------------------
+
 
 def _printOneTrainingVector(x):
   "Print a single vector succinctly."
