@@ -59,8 +59,8 @@ namespace nupic
     void deserialize(BundleIO& bundle);
 
     // Capnp serialization methods - not yet implemented for PyRegions
-    virtual void write(capnp::AnyPointer::Builder& proto) const override;
-    virtual void read(capnp::AnyPointer::Reader& proto) override;
+    void write(capnp::AnyPointer::Builder& proto) const override;
+    void read(capnp::AnyPointer::Reader& proto) override;
 
     const Spec & getSpec();
 
