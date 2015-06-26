@@ -54,11 +54,13 @@ namespace nupic
     PyRegion(const char * module, BundleIO& bundle, Region * region, const char* className="");
     virtual ~PyRegion();
 
-    // Manual serialization methods
+    // Manual serialization methods. Current recommended method.
     void serialize(BundleIO& bundle);
     void deserialize(BundleIO& bundle);
 
-    // Capnp serialization methods - not yet implemented for PyRegions
+    // Capnp serialization methods - not yet implemented for PyRegions. This
+    // method will replace serialize/deserialize once fully implemented
+    // throughout codebase.
     void write(capnp::AnyPointer::Builder& proto) const override;
     void read(capnp::AnyPointer::Reader& proto) override;
 
