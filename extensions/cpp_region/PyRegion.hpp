@@ -30,6 +30,8 @@
 #include <vector>
 #include <set>
 
+#include <capnp/any.h>
+
 #include <nupic/engine/RegionImpl.hpp>
 #include <nupic/engine/Spec.hpp>
 #include <nupic/ntypes/Value.hpp>
@@ -52,8 +54,15 @@ namespace nupic
     PyRegion(const char * module, BundleIO& bundle, Region * region, const char* className="");
     virtual ~PyRegion();
 
+    // Manual serialization methods. Current recommended method.
     void serialize(BundleIO& bundle);
     void deserialize(BundleIO& bundle);
+
+    // Capnp serialization methods - not yet implemented for PyRegions. This
+    // method will replace serialize/deserialize once fully implemented
+    // throughout codebase.
+    void write(capnp::AnyPointer::Builder& proto) const override;
+    void read(capnp::AnyPointer::Reader& proto) override;
 
     const Spec & getSpec();
 
