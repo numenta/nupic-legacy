@@ -35,7 +35,7 @@ from nupic.support.unittesthelpers.testcasebase import (unittest,
   TestCaseBase as HelperTestCaseBase)
 
 
-#############################################################################
+
 def _aggregate(input, options, output, timeFieldName):
   """ Aggregate the input stream and write aggregated records to the output
   stream
@@ -68,13 +68,13 @@ class DataInputList(object):
 
   _list = None
 
-  ##############################################################################
+
   def __init__(self, list, fields):
     self._list = list
     self._fields = fields
     self._recNo = 0
 
-  ##############################################################################
+
   def getNextRecord(self):
     try:
       if self._recNo >= len(self._list):
@@ -87,7 +87,6 @@ class DataInputList(object):
     return ret
 
 
-  ##############################################################################
   def getCurPos(self):
     return 0
   
@@ -102,12 +101,12 @@ class DataOutputList(object):
 
   metaProvider = None
 
-  ##############################################################################
+
   def __init__(self, file):
     self._store = []
     pass
-  
-  ##############################################################################
+
+
   def appendRecord(self, record, inputRef=None):
     self._store.append(record)
 
@@ -122,11 +121,11 @@ class DataOutputMyFile(object):
 
   metaProvider = None
 
-  ##############################################################################
+
   def __init__(self, file):
     self._file = file
 
-  ##############################################################################
+
   def appendRecord(self, record, inputRef):
     if self._file == None:
       print 'No File'
@@ -526,8 +525,6 @@ class DataOutputMyFile(object):
 
 
 
-################################################################################
-################################################################################
 class AggregationTests(HelperTestCaseBase):
 
   def setUp(self):

@@ -23,14 +23,13 @@ import sys
 import traceback
 
 
-###############################################################################
+
 class TimeoutError(Exception):
   """ The requested operation timed out """
   pass
 
 
 
-###############################################################################
 class NupicJobFailException(Exception):
   """ This exception signals that the Nupic job (e.g., Hypersearch, Production,
   etc.) should be aborted due to the given error.

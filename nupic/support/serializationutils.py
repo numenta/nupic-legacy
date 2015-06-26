@@ -27,7 +27,8 @@ A series of functions useful to serializing data beyond json or pickle
 import json
 import bz2
 
-#########################################################
+
+
 def pack(pyObject):
   '''
   Serialize and zip a py object
@@ -39,7 +40,7 @@ def pack(pyObject):
   return bz2.compress(json.dumps(pyObject))
 
 
-#########################################################
+
 def unpack(packedData):
   '''
   Unzip and de-serialize a python object
@@ -47,7 +48,7 @@ def unpack(packedData):
   return json.loads(bz2.decompress(packedData))
   
   
-#############################################################################
+
 def sortedJSONDumpS(obj):
   """
   Return a JSON representation of obj with sorted keys on any embedded dicts.

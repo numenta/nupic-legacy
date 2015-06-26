@@ -63,13 +63,13 @@ SHORT = True
 INCLUDE_CPP_TP = 1    # Also test with CPP TP
 
 
-#############################################################################
+
 def printOneTrainingVector(x):
   "Print a single vector succinctly."
   print ''.join('1' if k != 0 else '.' for k in x)
 
 
-#############################################################################
+
 def printAllTrainingSequences(trainingSequences, upTo = 99999):
   for i,trainingSequence in enumerate(trainingSequences):
     print "============= Sequence",i,"================="
@@ -77,7 +77,7 @@ def printAllTrainingSequences(trainingSequences, upTo = 99999):
       printOneTrainingVector(pattern)
 
 
-#############################################################################
+
 def getSimplePatterns(numOnes, numPatterns, patternOverlap=0):
   """Very simple patterns. Each pattern has numOnes consecutive
   bits on. The amount of overlap between consecutive patterns is
@@ -110,7 +110,7 @@ def getSimplePatterns(numOnes, numPatterns, patternOverlap=0):
   return p
 
 
-#############################################################################
+
 def buildOverlappedSequences( numSequences = 2,
                               seqLen = 5,
                               sharedElements = [3,4],
@@ -177,7 +177,7 @@ def buildOverlappedSequences( numSequences = 2,
   return (numCols, trainingSequences)
 
 
-#############################################################################
+
 def buildSequencePool(numSequences = 10,
                       seqLen = [2,3,4],
                       numPatterns = 5,
@@ -233,7 +233,7 @@ def buildSequencePool(numSequences = 10,
   return (numCols, trainingSequences)
 
 
-#############################################################################
+
 def createTPs(includeCPP = True,
               includePy = True,
               numCols = 100,
@@ -311,7 +311,8 @@ def createTPs(includeCPP = True,
 
   return tps
 
-#############################################################################
+
+
 def assertNoTPDiffs(tps):
   """
   Check for diffs among the TP instances in the passed in tps dict and
@@ -332,7 +333,7 @@ def assertNoTPDiffs(tps):
   return
 
 
-#############################################################################
+
 def evalSequences(tps,
                   trainingSequences,
                   testSequences = None,
@@ -583,7 +584,8 @@ def evalSequences(tps,
 
   return tpStats
 
-#############################################################################
+
+
 def testConfig(baseParams, expMissingMin=0, expMissingMax=0, **mods):
   """
   Build up a set of sequences, create the TP(s), train them, test them,

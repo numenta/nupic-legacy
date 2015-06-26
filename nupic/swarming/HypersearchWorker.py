@@ -67,7 +67,7 @@ class HypersearchWorker(object):
 
   """
 
-  ########################################################################
+
   def __init__(self, options, cmdLineArgs):
     """ Instantiate the Hypersearch worker
 
@@ -125,7 +125,6 @@ class HypersearchWorker(object):
     self._workerID = None
 
 
-  ########################################################################
   def _processUpdatedModels(self, cjDAO):
     """ For all models that modified their results since last time this method
     was called, send their latest results to the Hypersearch implementation.
@@ -233,10 +232,6 @@ class HypersearchWorker(object):
       self._modelIDCtrList.sort()
 
 
-
-
-
-  ########################################################################
   def run(self):
     """ Run this worker.
 
@@ -475,7 +470,6 @@ class HypersearchWorker(object):
 
 
 
-#####################################################################################
 helpString = \
 """%prog [options]
 This script runs as a Hypersearch worker process. It loops, looking for and
@@ -483,7 +477,7 @@ evaluating prospective models from a Hypersearch database.
 """
 
 
-#####################################################################################
+
 def main(argv):
   """
   The main function of the HypersearchWorker script. This parses the command
@@ -597,7 +591,7 @@ def main(argv):
 
   return jobID
 
-#############################################################################
+
 
 if __name__ == "__main__":
   logging.setLoggerClass(ExtendedLogger)

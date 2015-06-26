@@ -66,7 +66,8 @@ class DateEncoder(Encoder):
 
 
   """
-  ############################################################################
+
+
   def __init__(self, season=0, dayOfWeek=0, weekend=0, holiday=0, timeOfDay=0, customDays=0,
                 name = '', forced=True):
 
@@ -207,11 +208,11 @@ class DateEncoder(Encoder):
       self.description.append(("time of day", self.timeOfDayOffset))
       self.encoders.append(("time of day", self.timeOfDayEncoder, self.timeOfDayOffset))
 
-  ############################################################################
+
   def getWidth(self):
     return self.width
 
-  ############################################################################
+
   def getScalarNames(self, parentFieldName=''):
     """ See method description in base.py """
 
@@ -247,7 +248,7 @@ class DateEncoder(Encoder):
 
     return names
 
-  ############################################################################
+
   def getEncodedValues(self, input):
     """ See method description in base.py """
 
@@ -319,7 +320,7 @@ class DateEncoder(Encoder):
 
     return values
 
-  ############################################################################
+
   def getScalars(self, input):
     """ See method description in base.py
 
@@ -337,7 +338,7 @@ class DateEncoder(Encoder):
     """
     return numpy.array(self.getEncodedValues(input))
 
-  ############################################################################
+
   def getBucketIndices(self, input):
     """ See method description in base.py """
 
@@ -358,7 +359,7 @@ class DateEncoder(Encoder):
         result.extend(encoder.getBucketIndices(scalars[i]))
       return result
 
-  ############################################################################
+
   def encodeIntoArray(self, input, output):
     """ See method description in base.py """
 
@@ -377,7 +378,6 @@ class DateEncoder(Encoder):
         encoder.encodeIntoArray(scalars[i], output[offset:])
 
 
-  ############################################################################
   def getDescription(self):
     return self.description
 

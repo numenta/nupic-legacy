@@ -78,7 +78,6 @@ minimize = "multiStepBestPredictions:multiStep:errorMetric='aae':steps=1:window=
 
 
 
-#############################################################################
 def permutationFilter(perm):
   """ This function can be used to selectively filter out specific permutation
   combinations. It is called by RunPermutations for every possible permutation
