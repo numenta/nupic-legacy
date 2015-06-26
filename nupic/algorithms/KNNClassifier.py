@@ -20,9 +20,7 @@
 # http://numenta.org/licenses/
 # ----------------------------------------------------------------------
 
-"""
-This module implements a k nearest neighbor classifier.
-"""
+"""This module implements a k nearest neighbor classifier."""
 
 import numpy
 
@@ -36,8 +34,7 @@ KNNCLASSIFIER_VERSION = 1
 
 
 def _labeledInput(activeInputs, cellsPerCol=32):
-  """
-  Print the list of [column, cellIdx] indices for each of the active
+  """Print the list of [column, cellIdx] indices for each of the active
   cells in activeInputs.
   """
   if cellsPerCol == 0:
@@ -66,9 +63,7 @@ def _labeledInput(activeInputs, cellsPerCol=32):
 
 
 class KNNClassifier(object):
-  """
-  k Nearest Neighbor Classifier
-  """
+  """k Nearest Neighbor Classifier"""
 
   def __init__(self, k=1,
                      exact=False,
@@ -88,8 +83,7 @@ class KNNClassifier(object):
                      maxStoredPatterns=-1,
                      replaceDuplicates=False,
                      cellsPerCol=0):
-    """
-    Constructor for the kNN classifier.
+    """Constructor for the kNN classifier.
 
     @param k                      The number of nearest neighbors used in the
                                   classification of patterns
@@ -173,9 +167,7 @@ class KNNClassifier(object):
 
 
   def clear(self):
-    """
-    Clears the state of the KNNClassifier.
-    """
+    """Clears the state of the KNNClassifier."""
     self._Memory = None
     self._numPatterns = 0
     self._M = None
@@ -321,8 +313,7 @@ class KNNClassifier(object):
 
 
   def doIteration(self):
-    """
-    Utility method to increment the iteration index. Intended for models that
+    """Utility method to increment the iteration index. Intended for models that
     don't learn each timestep.
     """
     self._iterationIdx += 1
@@ -330,8 +321,7 @@ class KNNClassifier(object):
 
   def learn(self, inputPattern, inputCategory, partitionId=None, isSparse=0,
             rowID=None):
-    """
-    Train the classifier to associate specified input pattern with a
+    """Train the classifier to associate specified input pattern with a
     particular category.
 
     Parameters:
@@ -528,8 +518,7 @@ class KNNClassifier(object):
 
 
   def getOverlaps(self, inputPattern):
-    """
-    Return the degree of overlap between an input pattern and each category
+    """Return the degree of overlap between an input pattern and each category
     stored in the classifier.
 
     The overlap is computed by compuing:
@@ -544,7 +533,6 @@ class KNNClassifier(object):
                     overlaps: an integer overlap amount for each category
                     categories: category index for each element of overlaps
     """
-
     assert self.useSparseMemory, "Not implemented yet for dense storage"
 
     overlaps = self._Memory.rightVecSumAtNZ(inputPattern)
@@ -552,8 +540,7 @@ class KNNClassifier(object):
 
 
   def getDistances(self, inputPattern):
-    """
-    Return the distances between the input pattern and all other
+    """Return the distances between the input pattern and all other
     stored patterns.
 
     Parameters:
@@ -564,15 +551,13 @@ class KNNClassifier(object):
                     overlaps: an integer overlap amount for each category
                     categories: category index for each element of distances
     """
-
     dist = self._getDistances(inputPattern)
     return (dist, self._categoryList)
 
 
   def infer(self, inputPattern, computeScores=True, overCategories=True,
             partitionId=None):
-    """
-    Finds the category that best matches the input pattern. Returns the
+    """Finds the category that best matches the input pattern. Returns the
     winning category index as well as a distribution over all categories.
 
     Parameters:
@@ -597,9 +582,7 @@ class KNNClassifier(object):
       categoryDist:     A list of length numCategories. Each entry is the
                         distance from the unknown to the nearest prototype of
                         that category. All distances are between 0 and 1.0.
-
     """
-
     if len(self._categoryList) == 0:
       # No categories learned yet; i.e. first inference w/ online learning.
       winner = 0
@@ -649,12 +632,10 @@ class KNNClassifier(object):
 
 
   def getClosest(self, inputPattern, topKCategories=3):
-    """
-    Returns the index of the pattern that is closest to inputPattern,
+    """Returns the index of the pattern that is closest to inputPattern,
     the distances of all patterns to inputPattern, and the indices of the k
     closest categories.
     """
-
     inferenceResult = numpy.zeros(max(self._categoryList)+1)
     dist = self._getDistances(inputPattern)
 
@@ -674,8 +655,7 @@ class KNNClassifier(object):
 
 
   def closestTrainingPattern(self, inputPattern, cat):
-    """
-    Returns the closest training pattern to inputPattern that belongs to
+    """Returns the closest training pattern to inputPattern that belongs to
     category "cat".
 
     @param inputPattern:  The pattern whose closest neighbor is sought.
@@ -684,7 +664,6 @@ class KNNClassifier(object):
     @return:              A dense version of the closest training pattern, or
                           None if no such patterns exist.
     """
-
     dist = self._getDistances(inputPattern)
     sorted = dist.argsort()
 
@@ -705,8 +684,7 @@ class KNNClassifier(object):
 
 
   def closestOtherTrainingPattern(self, inputPattern, cat):
-    """
-    Return the closest training pattern that is *not* of the given
+    """Return the closest training pattern that is *not* of the given
     category "cat".
 
     @param inputPattern:  The pattern whose closest neighbor is sought.
@@ -745,7 +723,6 @@ class KNNClassifier(object):
 
     @returns The training pattern with specified index.
     """
-
     if cat is not None:
       assert idx is None
       idx = self._categoryList.index(cat)
@@ -774,7 +751,6 @@ class KNNClassifier(object):
                           patterns are calculated
     @param distanceNorm   Degree of the distance norm
     """
-
     if distanceNorm is None:
       distanceNorm = self.distanceNorm
 
@@ -830,7 +806,6 @@ class KNNClassifier(object):
                           patterns are returned
     @param partitionId    UNKNOWN
     """
-
     if not self._finishedLearning:
       self.finishLearning()
       self._finishedLearning = True
@@ -873,8 +848,7 @@ class KNNClassifier(object):
 
 
   def restartLearning(self):
-    """
-    This is only invoked if we have already called finishLearning()
+    """This is only invoked if we have already called finishLearning()
     but now want to go back and provide more samples.
     """
     # We need to convert the partition ID array back into a list
@@ -956,17 +930,13 @@ class KNNClassifier(object):
 
 
   def leaveOneOutTest(self):
-    """
-    Run leave-one-out testing.
+    """Run leave-one-out testing.
 
     Returns the total number of samples and the number correctly classified.
-
     Ignores invalid vectors (those with a category of -1).
-
     Uses partitionIdList, if non-empty, to avoid matching a vector against
     other vectors that came from the same training sequence.
     """
-
     if self.useSparseMemory:
       raise Exception("leaveOneOutTest only works with dense memory right now")
 
@@ -1039,8 +1009,7 @@ class KNNClassifier(object):
 
 
   def remapCategories(self, mapping):
-    """
-    Change the category indices.
+    """Change the category indices.
 
     Used by the Network Builder to keep the category indices in sync with the
     ImageSensor categoryInfo when the user renames or removes categories.
@@ -1049,7 +1018,6 @@ class KNNClassifier(object):
                     would change all vectors of category 0 to be category 2,
                     category 1 to 0, and category 2 to 1.
     """
-
     categoryArray = numpy.array(self._categoryList)
     newCategoryArray = numpy.zeros(categoryArray.shape[0])
     newCategoryArray.fill(-1)
@@ -1059,8 +1027,7 @@ class KNNClassifier(object):
 
 
   def setCategoryOfVectors(self, vectorIndices, categoryIndices):
-    """
-    Change the category associated with this vector(s).
+    """Change the category associated with this vector(s).
 
     Used by the Network Builder to move vectors between categories, to enable
     categories, and to invalidate vectors by setting the category to -1.
@@ -1071,7 +1038,6 @@ class KNNClassifier(object):
                               which case the same category will be used for all
                               vectors.
     """
-
     if not hasattr(vectorIndices, "__iter__"):
       vectorIndices = [vectorIndices]
       categoryIndices = [categoryIndices]
@@ -1081,6 +1047,7 @@ class KNNClassifier(object):
     for i in xrange(len(vectorIndices)):
       vectorIndex = vectorIndices[i]
       categoryIndex = categoryIndices[i]
+
       # Out-of-bounds is not an error, because the KNN may not have seen the
       # vector yet
       if vectorIndex < len(self._categoryList):
@@ -1088,8 +1055,7 @@ class KNNClassifier(object):
 
 
   def __getstate__(self):
-    """
-    Return serializable state.  This function will return a version of the
+    """Return serializable state.  This function will return a version of the
     __dict__.
     """
     state = self.__dict__.copy()
@@ -1097,9 +1063,7 @@ class KNNClassifier(object):
 
 
   def __setstate__(self, state):
-    """
-    Set the state of this object from a serialized state.
-    """
+    """Set the state of this object from a serialized state."""
     if "version" not in state:
       pass
     elif state["version"] == 1:
