@@ -746,7 +746,8 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
   # Tests for configuration
-  #############################################################################
+  # ===========================================================================
+
   @patch.object(Configuration, 'get')
   def testConfiguration(self, configurationGet):
     conf = {
@@ -802,7 +803,7 @@ class CLAClassifierHelperTest(unittest.TestCase):
 
 
   # Tests for _CLAClassificationRecord class
-  #############################################################################
+  # ===========================================================================
   def testCLAClassificationRecord(self):
     record = {
       "ROWID": 0,

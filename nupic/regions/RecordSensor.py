@@ -24,7 +24,8 @@ import numpy
 from PyRegion import PyRegion
 from nupic.data.fieldmeta import FieldMetaType
 
-#-------------------------------------------------------------------------------
+
+
 class RecordSensor(PyRegion):
   """
   A Record Sensor (RS) retrieves an information "record" and encodes
@@ -92,7 +93,7 @@ class RecordSensor(PyRegion):
 
   """
 
-  #---------------------------------------------------------------------------------
+
   @classmethod
   def getSpec(cls):
     ns = dict(
@@ -473,7 +474,7 @@ class RecordSensor(PyRegion):
     else:
       raise Exception("Unknown output %s" % name)
 
-  #############################################################################
+
   def setParameter(self, parameterName, index, parameterValue):
     """
       Set the value of a Spec parameter. Most parameters are handled

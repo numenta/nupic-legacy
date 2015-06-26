@@ -38,7 +38,7 @@ class NetworkTest(unittest.TestCase):
     with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.NonExistingNode', '')
 
-    self.assertEqual(cm.exception.message, "No module named NonExistingNode")
+    self.assertEqual(cm.exception.message, "Matching Python module for NonExistingNode not found.")
 
     orig_import = __import__
     def import_mock(name, *args):
@@ -52,13 +52,13 @@ class NetworkTest(unittest.TestCase):
       with self.assertRaises(Exception) as cm:
         n.addRegion('r', 'py.UnimportableNode', '')
 
-      self.assertEqual(cm.exception.message, "No module named UnimportableNode")
+      self.assertEqual(cm.exception.message, "invalid syntax (UnimportableNode.py, line 5)")
 
     # Test failure in the __init__() method
     with self.assertRaises(Exception) as cm:
       n.addRegion('r', 'py.TestNode', '{ failInInit: 1 }')
 
-    self.assertEqual(cm.exception.message, "No module named TestNode")
+    self.assertEqual(cm.exception.message, "TestNode.__init__() Failing on purpose as requested")
 
     # Test failure inside the compute() method
     with self.assertRaises(Exception) as cm:

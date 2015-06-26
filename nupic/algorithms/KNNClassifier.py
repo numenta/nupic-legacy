@@ -800,7 +800,7 @@ class KNNClassifier(object):
 
 
   def _getDistances(self, inputPattern, partitionId=None):
-    """Return distances from inputPattern to all stored patterns.
+    """Return the distances from inputPattern to all stored patterns.
 
     @param inputPattern   The pattern from which distances to all other
                           patterns are returned

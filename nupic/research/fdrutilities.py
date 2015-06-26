@@ -30,14 +30,15 @@ numpy.random.seed(42)
 
 from nupic.bindings.math import (SM32, SparseBinaryMatrix)
 
-###############################################################################
+
+
 def setRandomSeed(seed):
   """ Set the random seeds. Helpful to make unit tests repeatable"""
   random.seed(seed)
   numpy.random.seed(seed)
 
 
-###############################################################################
+
 def addNoise(input, noise=0.1, doForeground=True, doBackground=True):
   """
   Add noise to the given input.
@@ -61,7 +62,6 @@ def addNoise(input, noise=0.1, doForeground=True, doBackground=True):
 
 
 
-################################################################################
 def generateCoincMatrix(nCoinc=10, length=500, activity=50):
   """
   Generate a coincidence matrix. This is used to generate random inputs to the
@@ -94,7 +94,7 @@ def generateCoincMatrix(nCoinc=10, length=500, activity=50):
   return coincMatrix0
 
 
-###############################################################################
+
 def generateVectors(numVectors=100, length=500, activity=50):
   """
   Generate a list of random sparse distributed vectors.  This is used to generate
@@ -124,7 +124,7 @@ def generateVectors(numVectors=100, length=500, activity=50):
   return vectors
 
 
-###############################################################################
+
 def generateSimpleSequences(nCoinc=10, seqLength=[5,6,7], nSeq=100):
   """
   Generate a set of simple sequences. The elements of the sequences will be
@@ -159,7 +159,6 @@ def generateSimpleSequences(nCoinc=10, seqLength=[5,6,7], nSeq=100):
 
 
 
-###############################################################################
 def generateHubSequences(nCoinc=10, hubs = [2,6], seqLength=[5,6,7], nSeq=100):
   """
   Generate a set of hub sequences. These are sequences which contain a hub
@@ -247,7 +246,7 @@ def genTestSeqsForLookback(nPatterns=10, patternLen=500, patternActivity=50,
   return (seqList1, seqList2, patterns)
 
 
-################################################################################
+
 def generateSimpleCoincMatrix(nCoinc=10, length=500, activity=50):
   """
   Generate a non overlapping coincidence matrix. This is used to generate random
@@ -274,7 +273,8 @@ def generateSimpleCoincMatrix(nCoinc=10, length=500, activity=50):
 
   return coincMatrix
 
-###############################################################################
+
+
 def generateSequences(nPatterns=10, patternLen=500, patternActivity=50,
                     hubs=[2,6],  seqLength=[5,6,7],
                     nSimpleSequences=50,  nHubSequences=50):
@@ -315,7 +315,7 @@ def generateSequences(nPatterns=10, patternLen=500, patternActivity=50,
   return (seqList, patterns)
 
 
-###############################################################################
+
 def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
                   nL1SimpleSequences=50,  nL1HubSequences=50,
                   l1Pooling=4, perfectStability=False, spHysteresisFactor=1.0,
@@ -411,7 +411,7 @@ def generateL2Sequences(nL1Patterns=10, l1Hubs=[2,6], l1SeqLength=[5,6,7],
   return (outSeqList, outPatterns)
 
 
-###############################################################################
+
 def vectorsFromSeqList(seqList, patternMatrix):
   """
   Convert a list of sequences of pattern indices, and a pattern lookup table
@@ -441,6 +441,7 @@ def vectorsFromSeqList(seqList, patternMatrix):
 ###############################################################################
 # The following three functions are used in tests to compare two different
 # TP instances.
+
 def sameTPParams(tp1, tp2):
   """Given two TP instances, see if any parameters are different."""
   result = True
@@ -685,7 +686,7 @@ def tpDiff2(tp1, tp2, verbosity = 0, relaxSegmentTests =True,
   return result
 
 
-###############################################################################
+
 def spDiff(SP1,SP2):
     """
     Function that compares two spatial pooler instances. Compares the
@@ -766,7 +767,7 @@ def spDiff(SP1,SP2):
     return True
 
 
-###############################################################################
+
 def removeSeqStarts(vectors, resets, numSteps=1):
   """
   Convert a list of sequences of pattern indices, and a pattern lookup table
@@ -800,7 +801,6 @@ def removeSeqStarts(vectors, resets, numSteps=1):
 
 
 
-###############################################################################
 def _accumulateFrequencyCounts(values, freqCounts=None):
   """
   Accumulate a list of values 'values' into the frequency counts 'freqCounts',
@@ -844,7 +844,7 @@ def _accumulateFrequencyCounts(values, freqCounts=None):
   return newCounts
 
 
-###############################################################################
+
 def _listOfOnTimesInVec(vector):
   """
   Returns 3 things for a vector:
@@ -897,7 +897,6 @@ def _listOfOnTimesInVec(vector):
 
 
 
-###############################################################################
 def _fillInOnTimes(vector, durations):
   """
   Helper function used by averageOnTimePerTimestep. 'durations' is a vector
@@ -948,7 +947,6 @@ def _fillInOnTimes(vector, durations):
 
 
 
-###############################################################################
 def averageOnTimePerTimestep(vectors, numSamples=None):
   """
   Computes the average on-time of the outputs that are on at each time step, and
@@ -1004,7 +1002,7 @@ def averageOnTimePerTimestep(vectors, numSamples=None):
   return (avgOnTime, freqCounts)
 
 
-###############################################################################
+
 def averageOnTime(vectors, numSamples=None):
   """
   Returns the average on-time, averaged over all on-time runs.
@@ -1055,7 +1053,7 @@ def averageOnTime(vectors, numSamples=None):
     return (0.0, onTimeFreqCounts)
 
 
-###############################################################################
+
 def plotOutputsOverTime(vectors, buVectors=None, title='On-times'):
   """
   Generate a figure that shows each output over time. Time goes left to right,
@@ -1093,7 +1091,7 @@ def plotOutputsOverTime(vectors, buVectors=None, title='On-times'):
   pylab.title(title)
 
 
-###############################################################################
+
 def plotHistogram(freqCounts, title='On-Times Histogram', xLabel='On-Time'):
   """
   This is usually used to display a histogram of the on-times encountered
@@ -1122,7 +1120,6 @@ def plotHistogram(freqCounts, title='On-Times Histogram', xLabel='On-Time'):
 
 
 
-###############################################################################
 def populationStability(vectors, numSamples=None):
   """
   Returns the stability for the population averaged over multiple time steps
@@ -1159,7 +1156,7 @@ def populationStability(vectors, numSamples=None):
   return sigmap / numSamples
 
 
-###############################################################################
+
 def percentOutputsStableOverNTimeSteps(vectors, numSamples=None):
   """
   Returns the percent of the outputs that remain completely stable over
@@ -1200,7 +1197,7 @@ def percentOutputsStableOverNTimeSteps(vectors, numSamples=None):
   return float(pctStable) / numWindows
 
 
-###########################################################################
+
 def computeSaturationLevels(outputs, outputsShape, sparseForm=False):
   """
   Compute the saturation for a continuous level. This breaks the level into
@@ -1261,7 +1258,6 @@ def computeSaturationLevels(outputs, outputsShape, sparseForm=False):
 
 
 
-################################################################################
 def checkMatch(input, prediction, sparse=True, verbosity=0):
   """
   Compares the actual input with the predicted input and returns results
@@ -1312,7 +1308,6 @@ def checkMatch(input, prediction, sparse=True, verbosity=0):
 
 
 
-###############################################################################
 def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
   """
   Computes the predictive ability of a temporal pooler (TP). This routine returns
@@ -1403,7 +1398,8 @@ def predictionExtent(inputs, resets, outputs, minOverlapPct=100.0):
           float(predTotalNotLimited) / nSamplesNotLimited,
           predCounts)
 
-###############################################################################
+
+
 def getCentreAndSpreadOffsets(spaceShape,
                               spreadShape,
                               stepSize=1):
@@ -1472,7 +1468,8 @@ def getCentreAndSpreadOffsets(spaceShape,
 
   return centerOffsets, spreadOffsets
 
-###############################################################################
+
+
 def makeCloneMap(columnsShape, outputCloningWidth, outputCloningHeight=-1):
   """Make a two-dimensional clone map mapping columns to clone master.
 
@@ -1599,7 +1596,8 @@ def makeCloneMap(columnsShape, outputCloningWidth, outputCloningHeight=-1):
 
   return a, numDistinctMasters
 
-##############################################################################
+
+
 def numpyStr(array, format='%f', includeIndices=False, includeZeros=True):
   """ Pretty print a numpy matrix using the given format string for each
   value. Return the string representation
@@ -1654,7 +1652,8 @@ def numpyStr(array, format='%f', includeIndices=False, includeZeros=True):
   items.append(']')
   return ' '.join(items)
 
-###############################################################################
+
+
 if __name__=='__main__':
 
   testStability(numOrigVectors=10, length=500, activity=50,morphTime=3)

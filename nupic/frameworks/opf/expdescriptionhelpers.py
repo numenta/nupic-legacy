@@ -41,7 +41,6 @@ from nupic.data.dictutils import rUpdate
 ###############################################################################
 
 
-#########################################################
 # Utility methods for description files  are organized as a base description
 #  and an experiment based on that base description.
 # The base description calls getConfig to get the configuration from the
@@ -61,7 +60,7 @@ subExpDir = None
 baseDescriptionImportCount = 0
 
 
-#########################################################
+
 def importBaseDescription(path, config):
   global baseDescriptionImportCount, _config, subExpDir
   if not os.path.isabs(path):
@@ -85,16 +84,16 @@ def importBaseDescription(path, config):
   return mod
 
 
-#########################################################
-# Newer method just updates from sub-experiment
+
 def updateConfigFromSubConfig(config):
+  # Newer method just updates from sub-experiment
   # _config is the configuration provided by the sub-experiment
   global _config
   rUpdate(config, _config)
   _config = dict()
 
 
-#########################################################
+
 def getSubExpDir():
   global subExpDir
   return subExpDir
@@ -108,7 +107,7 @@ def getSubExpDir():
 ###############################################################################
 
 
-###############################################################################
+
 class ValueGetterBase(object):
   """ Base class for "value getters" (e.g., class DictValueGetter) that are used
   to resolve values of sub-fields after the experiment's config dictionary (in
@@ -201,7 +200,6 @@ class ValueGetterBase(object):
 
 
 
-###############################################################################
 class DictValueGetter(ValueGetterBase):
   """
     Creates a "future" reference to a value within a top-level or a nested
@@ -287,7 +285,6 @@ class DictValueGetter(ValueGetterBase):
 
 
 
-###############################################################################
 class DeferredDictLookup(DictValueGetter):
   """
     Creates a "future" reference to a value within an implicit dictionary that
@@ -338,7 +335,6 @@ class DeferredDictLookup(DictValueGetter):
 
 
 
-###############################################################################
 def applyValueGettersToContainer(container):
   """
   """
@@ -347,7 +343,6 @@ def applyValueGettersToContainer(container):
 
 
 
-###############################################################################
 def _applyValueGettersImpl(container, currentObj, recursionStack):
   """
   """
