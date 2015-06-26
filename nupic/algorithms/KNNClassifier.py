@@ -85,14 +85,14 @@ class KNNClassifier(object):
                      cellsPerCol=0):
     """Constructor for the kNN classifier.
 
-    @param k                      The number of nearest neighbors used in the
+    @param k (int)                The number of nearest neighbors used in the
                                   classification of patterns
-    @param exact                  If true, patterns must match exactly when
+    @param exact (boolean)        If true, patterns must match exactly when
                                   assigning class labels
-    @param distanceNorm           When distance method is "norm", this specifies
-                                  the degree of the distance norm
-    @param distanceMethod         The method used to compute distance
-                                  Possible options are:
+    @param distanceNorm (int)     When distance method is "norm", this specifies
+                                  p value for the Lp-norm
+    @param distanceMethod (string)    The method used to compute distance
+                                      Possible options are:
 
       "norm": When distanceNorm is 2, this is the euclidean distance,
               When distanceNorm is 1, this is the manhattan distance
@@ -107,35 +107,54 @@ class KNNClassifier(object):
               1.0 - (# bits overlap between input and prototype) /
                       (# bits in prototype)
 
-    @param distThreshold          If a pattern that is less than distThreshold
-                                  away from the input pattern already exists in
-                                  the kNN's memory, then the input pattern is
-                                  not added to kNN's memory
-    @param doBinarization         If True, then scalar inputs will be binarized
-    @param binarizationThreshold  Threshold for binarization of inputs
-    @param useSparseMemory        If True, use a sparse memory matrix
-    @param sparseThreshold        Anything below this threshold is considered
-                                  zero
-    @param relativeThreshold      Multiply the threshold by the max input value
-    @param numWinners             Only numWinners elements of input are stored
-    @param numSVDSamples          Number of samples to do SVD after
-    @param numSVDDims             Percentage of dimensions to keep after SVD
-    @param fractionOfMax          The cut-off fraction in relation to the
-                                  largest singular value when adaptive
-                                  dimension selection is used
-    @param verbosity              Console verbosity level where 0 is no
+    @param distThreshold (float)  A threshold on the distance between learned
+                                  patterns and a new pattern proposed to be
+                                  learned. The distance must be greater than
+                                  this threshold in order for the new pattern to
+                                  be added to the classifier's memory.
+    @param doBinarization (boolean)   If True, then scalar inputs will be
+                                      binarized.
+    @param binarizationThreshold (float) If doBinarization is True, this
+                                         specifies the threshold for the
+                                         binarization of inputs.
+    @param useSparseMemory (boolean)    If True, classifier will use a sparse
+                                        memory matrix.
+    @param sparseThreshold (float)  If useSparseMemory is True, input variables
+                                    whose absolute values are less than this
+                                    threshold  will be stored as zero.
+    @param relativeThreshold (boolean)    Flag specifying whether to multiply
+                                          sparseThreshold by max value in input
+    @param numWinners (int)       Number of elements of the input that are
+                                  stored. If 0, all elements are stored.
+    @param numSVDSamples          Number of samples the must occur before a SVD
+                                  (Singular Value Decomposition) transformation
+                                  will be performed. If 0, the transformation
+                                  will never be performed.
+    @param numSVDDims (string)    Controls dimensions kept after SVD
+                                  transformation. If "adaptive", the number is
+                                  chosen automatically.
+    @param fractionOfMax (float)  If numSVDDims is "adaptive", this controls the
+                                  smallest singular value that is retained as a
+                                  fraction of the largest singular value.
+    @param verbosity (int)        Console verbosity level where 0 is no
                                   output and larger integers provide
                                   increasing levels of verbosity
-    @param maxStoredPatterns      Limits the maximum number of the training
-                                  patterns stored. When KNN learns in a fixed
-                                  capacity mode, the unused patterns are
-                                  deleted once the number of stored patterns
-                                  is greater than maxStoredPatterns
-    @param replaceDuplicates      If true, during learning, replace existing
-                                  entries that match exactly, even if
-                                  distThreshold is 0.
-    @param cellsPerCol            If >= 1, then only store the start cell in
-                                  any columns which are bursting
+    @param maxStoredPatterns (int)    Limits the maximum number of the training
+                                      patterns stored. When KNN learns in a
+                                      fixed capacity mode, the unused patterns
+                                      are deleted once the number of stored
+                                      patterns is greater than maxStoredPatterns
+                                      [-1 is no limit]
+    @param replaceDuplicates (bool)   A boolean flag that determines whether,
+                                      during learning, the classifier replaces
+                                      duplicates that match exactly, even if
+                                      distThreshold is 0. Should be True for
+                                      online learning.
+    @param cellsPerCol (int)    If >= 1, input is assumed to be organized into
+                                columns, in the same manner as the temporal
+                                pooler AND whenever a new prototype is
+                                stored, only the start cell (first cell) is
+                                stored in any bursting column.
     """
     self.version = KNNCLASSIFIER_VERSION
 
