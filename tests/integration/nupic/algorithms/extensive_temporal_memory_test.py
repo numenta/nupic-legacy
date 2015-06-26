@@ -522,8 +522,7 @@ class ExtensiveTemporalMemoryTest(AbstractTemporalMemoryTest):
 
 
   def feedTM(self, sequence, learn=True, num=1):
-    super(ExtensiveTemporalMemoryTest, self).feedTM(
-      sequence, learn=learn, num=num)
+    super(ExtensiveTemporalMemoryTest, self).feedTM(sequence, learn=learn, num=num)
 
     if self.VERBOSITY >= 2:
       print self.tm.mmPrettyPrintTraces(

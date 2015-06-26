@@ -25,7 +25,7 @@ Temporal Memory mixin that enables detailed monitoring of history.
 
 import numpy
 
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from prettytable import PrettyTable
 
@@ -41,6 +41,10 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
   Mixin for TemporalMemory that stores a detailed history, for inspection and
   debugging.
   """
+
+  SynapseData = namedtuple("SynapseData", ["presynapticCell",
+                                           "permanence",
+                                           "destroyed"])
 
   def __init__(self, *args, **kwargs):
     super(TemporalMemoryMonitorMixin, self).__init__(*args, **kwargs)
@@ -211,10 +215,8 @@ class TemporalMemoryMonitorMixin(MonitorMixinBase):
           synapseList = []
 
           for synapse in self.connections.synapsesForSegment(seg):
-            (_, sourceCell, permanence) = self.connections.dataForSynapse(
-              synapse)
-
-            synapseList.append((sourceCell, permanence))
+            synapseData = self.connections.dataForSynapse(synapse)
+            synapseList.append((synapseData.presynapticCell, synapseData.permanence))
 
           synapseList.sort()
           synapseStringList = ["{0:3}={1:.2f}".format(sourceCell, permanence) for
