@@ -75,19 +75,23 @@ class DeltaEncoder(AdaptiveScalarEncoder):
         self._prevDelta = delta
       return output
 
-  ############################################################################
+
   def setStateLock(self, lock):
     self._stateLock = lock
-  ############################################################################
+
+
   def setFieldStats(self, fieldName, fieldStatistics):
     pass
-  ############################################################################
+
+
   def getBucketIndices(self, input, learn=None):
     return self._adaptiveScalarEnc.getBucketIndices(input, learn)
-  ############################################################################
+
+
   def getBucketInfo(self, buckets):
     return self._adaptiveScalarEnc.getBucketInfo(buckets)
-  ############################################################################
+
+
   def topDownCompute(self, encoded):
     """[ScalarEncoder class method override]"""
 

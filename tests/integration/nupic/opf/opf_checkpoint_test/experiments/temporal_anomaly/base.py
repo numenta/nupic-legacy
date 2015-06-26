@@ -378,7 +378,6 @@ control = {
 }
 
 
-################################################################################
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

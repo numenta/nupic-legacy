@@ -26,8 +26,7 @@ PictureSensor.
 
 from nupic.regions.PictureSensor import PictureSensor
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# RotatePictureExplorer
+
 
 class RotatePictureExplorer(PictureSensor.PictureExplorer):
 

@@ -56,8 +56,6 @@ from opfutils import InferenceType, InferenceElement
 
 
 
-
-###############################################################################
 class PredictionMetricsLoggerIface(object):
   """ This is the interface for output of prediction metrics
   """
@@ -88,9 +86,6 @@ class PredictionMetricsLoggerIface(object):
 
 
 
-
-
-###############################################################################
 class DatasetReaderIface(object):
   """ This is the interface class for a dataset readers
   """
@@ -122,8 +117,6 @@ class DatasetReaderIface(object):
 
 
 
-
-###############################################################################
 class PredictionWriterIface(object):
   """ This class defines the interface for prediction writer implementation
   returned by an object factory conforming to PredictionWriterFactoryIface
@@ -172,8 +165,6 @@ class PredictionWriterIface(object):
 
 
 
-
-###############################################################################
 class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
   """ This is the file-based implementation of the interface for output of
   prediction metrics
@@ -271,7 +262,8 @@ class BasicPredictionMetricsLogger(PredictionMetricsLoggerIface):
     print jsonString
     print '</JSON>'
 
-###############################################################################
+
+
 class BasicDatasetReader(DatasetReaderIface):
   """ This is a CSV file-based implementation of DatasetReaderIface
   """
@@ -311,7 +303,6 @@ class BasicDatasetReader(DatasetReaderIface):
 
 
 
-###############################################################################
 class _BasicPredictionWriter(PredictionWriterIface):
   """ This class defines the basic (file-based) implementation of
   PredictionWriterIface, whose instances are returned by
@@ -382,7 +373,6 @@ class _BasicPredictionWriter(PredictionWriterIface):
     return
 
 
-  ############################################################################
   def __openDatafile(self, modelResult):
     """Open the data file and write the header row"""
 
@@ -496,7 +486,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     return
 
-  ############################################################################
+
   def setLoggedMetrics(self, metricNames):
     """ Tell the writer which metrics should be written
 
@@ -509,7 +499,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
     else:
       self.__metricNames = set(metricNames)
 
-  ############################################################################
+
   def close(self):
     """ [virtual method override] Closes the writer (e.g., close the underlying
     file)
@@ -521,7 +511,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     return
 
-  ############################################################################
+
   def __getListMetaInfo(self, inferenceElement):
     """ Get field metadata information for inferences that are of list type
     TODO: Right now we assume list inferences are associated with the input field
@@ -549,7 +539,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     return fieldMetaInfo
 
-  ############################################################################
+
   def __getDictMetaInfo(self, inferenceElement, inferenceDict):
     """Get field metadate information for inferences that are of dict type"""
     fieldMetaInfo = []
@@ -569,7 +559,7 @@ class _BasicPredictionWriter(PredictionWriterIface):
 
     return fieldMetaInfo
 
-  ############################################################################
+
   def append(self, modelResult):
     """ [virtual method override] Emits a single prediction as input versus
     predicted.
@@ -727,7 +717,8 @@ class _BasicPredictionWriter(PredictionWriterIface):
 # Prediction Log adapters
 ###############################################################################
 
-###############################################################################
+
+
 class NonTemporalPredictionLogAdapter(object):
   """ This class serves as an adapter for a client-instantiated Non-temporal log
   writer.
@@ -758,8 +749,6 @@ class NonTemporalPredictionLogAdapter(object):
 
 
 
-
-###############################################################################
 class TemporalPredictionLogAdapter(object):
   """This class serves as an adapter for a client-instantiated Temporal log
   writer.  It maintains a prediction FIFO for matching T(i+1) input record
@@ -800,8 +789,7 @@ class TemporalPredictionLogAdapter(object):
     self.__writer.append(self.__inferenceShifter.shift(modelResult))
 
 
-###############################################################################
-###############################################################################
+
 class BasicPredictionLogger(opfenv.PredictionLoggerIface):
   """ This class implements logging of predictions to files as actual vs
   predicted values.
@@ -969,8 +957,7 @@ class BasicPredictionLogger(opfenv.PredictionLoggerIface):
     return
 
 
-###############################################################################
-###############################################################################
+
 class _FileUtils(object):
   @staticmethod
   def getExperimentInferenceDirPath(experimentDir):
@@ -1022,16 +1009,12 @@ class _FileUtils(object):
 
 
 
-
-###############################################################################
-###############################################################################
 def test():
   #testLogging()
   return
 
 
 
-###############################################################################
 #def testLogging():
 #  dir = os.path.expanduser('~/nupic/trunk/examples/opf/experiments/opfrunexperiment_test/base')
 #  outfile = "test.log"
@@ -1068,7 +1051,6 @@ def test():
 #  return
 
 
-###############################################################################
-###############################################################################
+
 if __name__ == "__main__":
   test()

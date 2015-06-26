@@ -21,7 +21,8 @@
 
 from collections import namedtuple
 
-########################################################################
+
+
 # Passed as parameter to ActivityMgr
 #
 # repeating: True if the activity is a repeating activite, False if one-shot
@@ -31,7 +32,8 @@ from collections import namedtuple
 PeriodicActivityRequest = namedtuple("PeriodicActivityRequest",
                                      ("repeating", "period", "cb"))
 
-########################################################################
+
+
 class PeriodicActivityMgr(object):
   """
   TODO: move to shared script so that we can share it with run_opf_experiment

@@ -25,7 +25,7 @@ import csv
 import numpy as np
 
 
-############################################################################
+
 def writeSimpleTest1(filePath, numRecords, testNumber):
   """ Generates requested number of records and saves in a csv file
   """
@@ -160,7 +160,7 @@ def writeSimpleTest1(filePath, numRecords, testNumber):
   return
 
 
-############################################################################
+
 if __name__ == '__main__':
   
   np.random.seed(83)

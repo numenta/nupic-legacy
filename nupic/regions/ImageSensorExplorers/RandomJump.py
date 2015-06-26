@@ -28,7 +28,7 @@ class RandomJump(BaseExplorer):
   This explorer randomly selects positions. It does not do any sweeping.
   """
 
-  ############################################################################
+
   def __init__(self, jumpOffObject=False, numJumpsPerImage=None,
                numVisitsPerImage=None, spaceShape=None, *args, **kwargs):
     """
@@ -73,7 +73,7 @@ class RandomJump(BaseExplorer):
     self.numJumpsThisImage = 0
     self.lastImageIndex = None
 
-  ############################################################################
+
   def first(self):
     """
     Set up the position.
@@ -132,7 +132,7 @@ class RandomJump(BaseExplorer):
     self.position['reset'] = True
     self.numJumpsThisImage += 1
 
-  ############################################################################
+
   def next(self, seeking=False):
     """
     Go to the next position (next iteration).
@@ -145,7 +145,7 @@ class RandomJump(BaseExplorer):
 
     self.first()
 
-  ############################################################################
+
   def getNumIterations(self, image):
     """
     Get the number of iterations required to completely explore the input space.
@@ -170,7 +170,7 @@ class RandomJump(BaseExplorer):
     else:
       return totalPerImage
 
-  ############################################################################
+
   def _getEffectiveBoundingBox(self, image):
     """
     Calculate the 'effective' bounding box from the image's bounding box,

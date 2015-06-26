@@ -25,6 +25,7 @@ import os
 import sys
 import traceback
 import unittest2 as unittest
+from pkg_resources import resource_filename
 
 from nupic.frameworks.opf.experiment_runner import (
     runExperiment, initExperimentPrng)
@@ -33,7 +34,7 @@ from nupic.frameworks.opf.experiment_runner import (
 
 # Globals
 EXCLUDED_EXPERIMENTS = [] # none for now
-PREDICTION_DIR = os.path.join(os.environ['NUPIC'], 'examples', 'opf')
+PREDICTION_DIR = resource_filename("nupic", os.path.join("..", "examples", "opf"))
 RUN_ALL_ITERATIONS = False
 
 

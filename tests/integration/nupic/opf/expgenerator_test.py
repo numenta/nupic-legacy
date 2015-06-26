@@ -49,7 +49,8 @@ from nupic.frameworks.opf.opfutils import (InferenceType,
                                            InferenceElement)
 
 LOGGER = logging.getLogger(__name__)
-HOTGYM_INPUT = resource_filename("nupic.datafiles", "extra/hotgym/hotgym.csv")
+HOTGYM_INPUT = resource_filename("nupic.datafiles",
+                                  os.path.join("extra", "hotgym", "hotgym.csv"))
 
 
 g_debug = False
@@ -118,7 +119,7 @@ class ExperimentTestBaseClass(HelperTestCaseBase):
     global g_myEnv
     if not g_myEnv:
       # Setup environment
-      params = type('obj', (object,), {'installDir' : os.environ['NUPIC']})
+      params = type('obj', (object,), {'installDir' : resource_filename("nupic", "")})
       g_myEnv = MyTestEnvironment(params)
 
 
@@ -1946,9 +1947,10 @@ if __name__ == '__main__':
 
   # Our custom options (that don't get passed to unittest):
   customOptions = ['--installDir', '--verbosity', '--logLevel']
-  parser.add_option(
-    "--installDir", dest="installDir", default=os.environ['NUPIC'],
-    help="Path to the NTA install directory [default: %default].")
+
+  parser.add_option("--installDir", dest="installDir",
+        default=resource_filename("nupic", ""),
+        help="Path to the NTA install directory [default: %default].")
 
   parser.add_option("--verbosity", default=0, type="int",
         help="Verbosity level, either 0, 1, 2, or 3 [default: %default].")
