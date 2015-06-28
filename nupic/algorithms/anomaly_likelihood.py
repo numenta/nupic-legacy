@@ -142,9 +142,11 @@ class AnomalyLikelihood(object):
     an anomaly given the historical distribution of anomaly scores. The closer
     the number is to 1, the higher the chance it is an anomaly.
 
-    @param value - the current metric ("raw") value, eg. "orange", or '21.2' (deg. Celsius), ...
+    @param value - the current metric ("raw") input value, eg. "orange", or 
+                   '21.2' (deg. Celsius), ...
     @param anomalyScore - the current anomaly score
-    @param timestamp - (optional) timestamp of the ocurrence, default (None) results in datetime.now()
+    @param timestamp - (optional) timestamp of the ocurrence, 
+                       default (None) results in datetime.now()
     @return theanomalyLikelihood for this record.
     """
     if timestamp is None:
