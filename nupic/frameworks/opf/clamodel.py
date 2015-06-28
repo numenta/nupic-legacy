@@ -630,12 +630,6 @@ class CLAModel(Model):
         sensor = self._getSensorRegion()
         activeColumns = sensor.getOutputData('dataOut').nonzero()[0]
 
-      # check if predicted field was correctly specified
-      if not self._predictedFieldName in self._input:
-        raise ValueError("Expected predicted field '%s' in input row, "
-                         "but was not found! Raw input is: %s" 
-                         % (self._predictedFieldName, self._input))
-
       # Calculate the anomaly score using the active columns
       # and previous predicted columns.
       score = self._anomalyInst.compute(
@@ -690,6 +684,12 @@ class CLAModel(Model):
         "No predicted field was enabled! Did you call enableInference()?"
       )
     self._predictedFieldName = predictedFieldName
+    # check if predicted field was correctly specified
+    if not self._predictedFieldName in self._input:
+      raise ValueError("Expected predicted field '%s' in input row, "
+                       "but was not found! Raw input is: %s"
+                       % (self._predictedFieldName, self._input))
+
 
     classifier = self._getClassifierRegion()
     if not self._hasCL or classifier is None:
@@ -704,17 +704,6 @@ class CLAModel(Model):
 
     # Get the classifier input encoder, if we don't have it already
     if self._classifierInputEncoder is None:
-      if predictedFieldName is None:
-        raise RuntimeError("This experiment description is missing "
-              "the 'predictedField' in its config, which is required "
-              "for multi-step prediction inference.")
-
-      # check if predicted field was correctly specified
-      if not self._predictedFieldName in self._input:
-        raise ValueError("Expected predicted field '%s' in input row, "
-                         "but was not found! Raw input is: %s" 
-                         % (self._predictedFieldName, self._input))
-
       encoderList = sensor.getSelf().encoder.getEncoderList()
       self._numFields = len(encoderList)
 
