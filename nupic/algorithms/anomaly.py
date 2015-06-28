@@ -131,6 +131,14 @@ class Anomaly(object):
                        "or None if disabled.")
 
     # switch and setup compute() based on mode
+    self._registerCustomComputeFn(mode, customComputeFn)
+
+
+  def _registerCustomComputeFn(self, mode, customComputeFn):
+    """
+    @param mode - name of the mode, eg Anomaly.MODE_PURE, ...
+    @param customComputeFn - a callable use for custom compute() calls
+    """
     if mode == Anomaly.MODE_CUSTOM:
       if callable(customComputeFn):
         self._computeAnomaly = customComputeFn
@@ -149,7 +157,6 @@ class Anomaly(object):
     else:
       raise ValueError("Anomaly: mode has to be one of '%s' but is '%r' "
                          % (self.supportedModes, mode) )
-
 
 
   def compute(self, activeColumns, predictedColumns, 
@@ -250,3 +257,13 @@ class Anomaly(object):
       self._movingAverage = None
     if not hasattr(self, '_binaryThreshold'):
       self._binaryThreshold = None
+    if not hasattr(self, '_computeAnomaly'):
+      self._registerCustomComputeFn(self._mode, None)
+
+
+  def __getstate__(self):
+    result = self.__dict__.copy()
+    if result['_mode'] == Anomaly.MODE_CUSTOM:
+      raise ValueError("Anomaly: cannot serialize custom compute functions provided.")
+    del result['_computeAnomaly']
+    return result
