@@ -131,6 +131,25 @@ class AnomalyTest(unittest.TestCase):
       self.assertEqual(a, restored)
 
 
+  def testEquals(self):
+    an = Anomaly()
+    anP = Anomaly()
+    self.assertEqual(an, anP, "default constructors equal")
+
+    anN = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    self.assertNotEqual(an, anN)
+    an = Anomaly(mode=Anomaly.MODE_LIKELIHOOD)
+    self.assertEqual(an, anN)
+
+    an = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    anP = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    anN = Anomaly(slidingWindowSize=4, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.9)
+    self.assertEqual(an, anP)
+    self.assertNotEqual(an, anN)
+    anN = Anomaly(slidingWindowSize=5, mode=Anomaly.MODE_WEIGHTED, binaryAnomalyThreshold=0.5)
+    self.assertNotEqual(an, anN)
+
+    
 
 if __name__ == "__main__":
   unittest.main()
