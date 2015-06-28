@@ -99,7 +99,7 @@ class Anomaly(object):
     else:
       self._likelihood = None
 
-    if not self._mode in Anomaly._supportedModes:
+    if not self._mode in self._supportedModes:
       raise ValueError("Invalid anomaly mode; only supported modes are: "
                        "Anomaly.MODE_PURE, Anomaly.MODE_LIKELIHOOD, "
                        "Anomaly.MODE_WEIGHTED; you used: %r" % self._mode)
