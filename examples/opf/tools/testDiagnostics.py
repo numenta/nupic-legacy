@@ -1,6 +1,7 @@
 import numpy as np
 
-############################################################################
+
+
 def printMatrix(inputs, spOutput):
   ''' (i,j)th cell of the diff matrix will have the number of inputs for which the input and output
   pattern differ by i bits and the cells activated differ at j places.
@@ -35,8 +36,9 @@ def printMatrix(inputs, spOutput):
   pyl.xlabel('Number of cells by which input and output differ')
   pyl.title('The difference matrix')
   pyl.show()
-  
-################################################################################
+
+
+
 def _hammingDistance(s1, s2):
   """Hamming distance between two numpy arrays s1 and s2"""
   return sum(abs(s1-s2))

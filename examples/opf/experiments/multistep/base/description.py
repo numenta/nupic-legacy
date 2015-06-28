@@ -408,7 +408,7 @@ for steps in config['predictionSteps']:
                  params={'errorMetric': metricName, 'window': 200, 
                          'steps': steps}))
 
-################################################################################
-################################################################################
+
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

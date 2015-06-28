@@ -21,7 +21,8 @@
 
 import numpy
 
-# ------------------------------------------------
+
+
 def importAndRunFunction(
     path,
     moduleName,
@@ -69,7 +70,8 @@ def importAndRunFunction(
     raise
   return func(**keywords)
 
-#-------------------------------------------------------------------
+
+
 def getLockedHandle(runtimeElement, expression):
   """
   Calls runtimeElement.interpret(expression) and wraps the result
@@ -79,7 +81,8 @@ def getLockedHandle(runtimeElement, expression):
       'fromlist=["lockHandle"]).lockHandle( ' + expression + ' )'
   return runtimeElement.interpret(fullExpression)
 
-#-------------------------------------------------------------------
+
+
 def transferCoincidences(network, fromElementName, toElementName):
   """
   Gets the coincidence matrix from one element and sets it on
@@ -102,9 +105,12 @@ def transferCoincidences(network, fromElementName, toElementName):
   # print network.getElement(toElementName).interpret(
   #     "self._inferenceEngines[0]._coincidences")
 
-#-------------------------------------------------------------------
-# Support code for matching named algorithms with code.
-#-------------------------------------------------------------------
+
+####################################################################
+# Support code for matching named algorithms with code.            #
+####################################################################
+
+
 class DynamicImport(object):
   def __init__(self, moduleName, className):
     self.moduleName = moduleName
@@ -114,7 +120,8 @@ class DynamicImport(object):
     factory = getattr(module, self.className)
     return factory(**keywords)
 
-#-------------------------------------------------------------------
+
+
 class DynamicGroupingFunction(object):
   def __init__(self,
       moduleName,
@@ -140,7 +147,8 @@ class DynamicGroupingFunction(object):
           if j in learning)
     return GroupingFunction(function, learning=remapped, grouping=keywords)
 
-#-------------------------------------------------------------------
+
+
 class GroupingFunction(object):
   def __init__(self, function, learning, grouping):
     self.function = function
@@ -157,18 +165,21 @@ class GroupingFunction(object):
     # return self.function(**combined)
     return self.function(model=model, **self.args)
 
-#-------------------------------------------------------------------
-# Printing and visualization.
-#-------------------------------------------------------------------
 
-#------------------------------------------------------------------
+####################################################################
+# Printing and visualization.                                      #
+####################################################################
+
+
+
 def nz(x):
   from nupic.network import NodeSetStream
   y = NodeSetStream()
   for i in x.nonzero()[0]: y.insert(i)
   return y.getSet()
 
-# ------------------------------------------------
+
+
 def printStatesWithTitles(ts):
   lw = numpy.get_printoptions()["linewidth"]
   numpy.set_printoptions(linewidth=100000)
@@ -182,7 +193,8 @@ def printStatesWithTitles(ts):
   print "\n".join(("%s %s %f" % (t, l, m)) for t, l, m in
       zip(titles, s.splitlines(), maxes))
 
-# ------------------------------------------------
+
+
 def _viewTAM(tam, nsp):
   from nupic.support.learning import printTAM
   if 0:

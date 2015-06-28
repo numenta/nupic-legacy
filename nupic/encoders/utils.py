@@ -22,7 +22,7 @@
 from array import array
 
 
-############################################################################
+
 def bitsToString(arr):
   """Returns a string representing a numpy array of 0's and 1's"""
   s = array('c','.'*len(arr))

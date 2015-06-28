@@ -322,9 +322,6 @@ applyValueGettersToContainer(config)
 
 
 
-
-################################################################################
-
 control = dict(
 
   environment = 'opfExperiment',
@@ -410,6 +407,6 @@ control = dict(
 )
 
 
-################################################################################
+
 descriptionInterface = ExperimentDescriptionAPI(modelConfig=config,
                                                 control=control)

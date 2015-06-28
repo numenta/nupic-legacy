@@ -25,7 +25,6 @@
 
 
 
-################################################################################
 def modelControlFinishLearningCb(model):
   """ Passes the "finish learning" command to the model.  NOTE: Upon completion
   of this command, learning may not be resumed on the given instance of

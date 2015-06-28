@@ -27,8 +27,7 @@ This file defines the 'starBlock' explorer.
 from nupic.regions.PictureSensor import PictureSensor
 from nupic.math.cross import cross
 
-#+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-# BlockSpreadPictureExplorer
+
 
 class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
   """
@@ -61,7 +60,7 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
 
   """
 
-  ########################################################################
+
   @classmethod
   def queryRelevantParams(klass):
     """
@@ -72,7 +71,7 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
     """
     return ( 'spaceShape', 'spreadShape', 'stepSize', )
 
-  ########################################################################
+
   def initSequence(self, state, params):
 
     # =================================================================
@@ -123,12 +122,10 @@ class BlockSpreadPictureExplorer(PictureSensor.PictureExplorer):
     self._presentNextPosn(state, params)
 
 
-  ########################################################################
   def updateSequence(self, state, params):
     self._presentNextPosn(state, params)
 
 
-  ########################################################################
   def _presentNextPosn(self, state, params):
     """
     Compute the appropriate category and block position

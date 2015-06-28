@@ -26,8 +26,7 @@ This file defines the 'starBlock' explorer.
 
 import numpy
 
-#############################################################################
-# AddNoise RecordSensor filter
+
 
 class AddNoise:
   """
@@ -35,7 +34,7 @@ class AddNoise:
 
   """
 
-  #############################################################################
+
   def __init__(self, noise=0.0, seed=-1):
     """ Construct the filter
 
@@ -49,7 +48,6 @@ class AddNoise:
       numpy.random.seed(seed)
 
 
-  ########################################################################
   def process(self, encoder, data):
     """ Modify the data in place, adding noise
     """
