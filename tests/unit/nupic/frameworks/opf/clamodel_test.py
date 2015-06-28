@@ -22,6 +22,7 @@
 
 """Unit tests for the clamodel module."""
 
+import copy
 import datetime
 import unittest2 as unittest
 
@@ -190,6 +191,64 @@ class CLAModelTest(unittest.TestCase):
     for row in data:
       result = model.run(row)
       self.assertIsInstance(result, ModelResult)
+
+
+  def testModelUnknownPredictedField(self):
+    """ Test exception when predicted field is not correctly specified for the model
+    """
+
+    inferenceArgs = {u'inputPredictedField': u'auto',
+                     u'predictedField': u'c1',
+                     u'predictionSteps': [1]}
+
+    data = [
+      {'_category': None,
+       '_reset': 0,
+       '_sequenceId': 0,
+       '_timestamp': datetime.datetime(2013, 12, 5, 0, 0),
+       '_timestampRecordIdx': None,
+       u'c0': datetime.datetime(2013, 12, 5, 0, 0),
+       u'c1': 5.0},
+    ]
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgs)
+
+    for row in data:
+      result = model.run(row)
+      self.assertIsInstance(result, ModelResult) #should run OK
+
+
+    # unknown predicted field - TemporalAnomaly model
+    inferenceArgsWrong = copy.copy(inferenceArgs)
+    inferenceArgsWrong['predictedField']='mispeltField' #make a typo
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgsWrong)
+
+    expMsg="Expected predicted field 'mispeltField' in input row, but was not found! Raw input is: {'_timestamp': datetime.datetime(2013, 12, 5, 0, 0), '_category': None, '_sequenceId': 0, u'c1': 5.0, u'c0': datetime.datetime(2013, 12, 5, 0, 0), '_timestampRecordIdx': None, '_reset': 0}"
+
+    for row in data:
+      with self.assertRaises(ValueError) as ve:
+        result = model.run(row)
+      self.assertEqual(str(ve.exception), expMsg) #should fail
+
+
+    # unknown predicted field - TemporalMultiStep model
+    modelConfig['modelParams']['inferenceType']='TemporalMultiStep' # change to MultiStep model
+
+    model = ModelFactory.create(modelConfig=modelConfig)
+    model.enableLearning()
+    model.enableInference(inferenceArgsWrong)
+
+    for row in data:
+      with self.assertRaises(ValueError) as ve:
+        result = model.run(row)
+      self.assertEqual(str(ve.exception), expMsg) #should fail
+
+
 
 
 if __name__ == "__main__":
